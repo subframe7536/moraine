@@ -1,0 +1,469 @@
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
+import { createComponent } from 'solid-js'
+import * as v from 'valibot'
+import { describe, expect, test, vi } from 'vitest'
+
+import { MoraineProvider } from '../../provider'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
+import { createForm } from '../form'
+
+import { Switch } from './switch'
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+
+function expectSwitchChecked(element: Element, checked: boolean): void {
+  expect(element.getAttribute('aria-checked')).toBe(String(checked))
+}
+
+describe('Switch', () => {
+  test('renders component defaults when provider is absent', () => {
+    const screen = baseRender(() => <Switch label="Test" />)
+    const root = screen.container.querySelector('[data-slot="switch"]')
+    expect(root?.className).not.toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => (
+      <Switch ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} label="Ref test" />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('switch')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+  })
+
+  test('renders label and description with accessible switch input', () => {
+    const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
+
+    const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
+    const root = screen.container.querySelector('[data-slot="switch"]')
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
+
+    expect(switchInput).not.toBeNull()
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
+
+    expect(root?.tagName).toBe('DIV')
+    expect(track?.tagName).toBe('BUTTON')
+    expect(input?.getAttribute('aria-hidden')).toBe('true')
+    expect(screen.getByText('Receive updates')).not.toBeNull()
+  })
+
+  test('supports uncontrolled toggle', async () => {
+    const screen = render(() => <Switch label="Marketing" />)
+    const switchInput = screen.getByRole('switch', { name: 'Marketing' })
+    const root = screen.container.querySelector('[data-slot="switch"]')!
+    const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')!
+
+    expectSwitchChecked(switchInput, false)
+    expect(root.getAttribute('data-unchecked')).toBe('')
+    expect(thumb.getAttribute('data-unchecked')).toBe('')
+    fireEvent.click(switchInput)
+    expectSwitchChecked(switchInput, true)
+    expect(root.getAttribute('data-checked')).toBe('')
+    expect(root.hasAttribute('data-unchecked')).toBe(false)
+    expect(thumb.getAttribute('data-checked')).toBe('')
+  })
+
+  test.each([' ', 'Enter'])(
+    'toggles once from an explicit synthetic %s compatibility click',
+    async (key) => {
+      const onChange = vi.fn()
+      const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
+      const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
+
+      fireEvent.keyDown(switchInput, { key })
+      fireEvent.keyUp(switchInput, { key })
+
+      expect(onChange).not.toHaveBeenCalled()
+
+      fireEvent.click(switchInput, { detail: 0 })
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenLastCalledWith(true)
+      expectSwitchChecked(switchInput, true)
+    },
+  )
+
+  test('forwards visual focus boundaries to a bound Field without changing value', () => {
+    const emit = vi.fn()
+    const onChange = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ binding }}>
+        <Switch label="Bound switch" onChange={onChange} />
+      </FieldProvider>
+    ))
+    const track = screen.getByRole('switch', { name: 'Bound switch' })
+    const hiddenInput = screen.container.querySelector(
+      '[data-slot="switch-input"]',
+    ) as HTMLInputElement
+
+    fireEvent.focus(track)
+    fireEvent.blur(track)
+
+    expect(emit).toHaveBeenNthCalledWith(1, 'focus', expect.any(FocusEvent))
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.focus(hiddenInput)
+    fireEvent.blur(hiddenInput)
+
+    expect(emit).toHaveBeenCalledTimes(2)
+  })
+
+  test('marks a Form.Field switch touched on visual focus and validates on blur', async () => {
+    const schema = v.object({
+      enabled: v.pipe(
+        v.boolean(),
+        v.check((checked) => checked, 'Enable the setting.'),
+      ),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { enabled: false }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="enabled" label="Enabled">
+            <Switch />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const track = screen.getByRole('switch', { name: 'Enabled' })
+
+    fireEvent.focus(track)
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.blur(track)
+
+    await waitFor(() => expect(screen.getByText('Enable the setting.')).not.toBeNull())
+    expect(track.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  test('does not toggle when disabled', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <Switch disabled label="Disabled" onChange={onChange} />)
+    const switchInput = screen.getByRole('switch', { name: 'Disabled' })
+    expect(switchInput.getAttribute('aria-disabled')).toBe('true')
+
+    fireEvent.click(switchInput)
+
+    expectSwitchChecked(switchInput, false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('passes id, name, value and required attributes to input', () => {
+    const screen = render(() => (
+      <Switch id="newsletter-switch" name="newsletter" value="yes" required label="Newsletter" />
+    ))
+
+    const switchInput = screen.getByRole('switch', { name: 'Newsletter' })
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
+
+    expect(switchInput.getAttribute('id')).toBe('newsletter-switch')
+    expect(input?.getAttribute('id')).toBe('newsletter-switch-input')
+    expect(input?.getAttribute('name')).toBe('newsletter')
+    expect(input?.getAttribute('value')).toBe('yes')
+    expect(input?.getAttribute('required')).not.toBeNull()
+  })
+
+  test('keeps controlled state while emitting onChange', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <Switch checked label="Controlled" onChange={onChange} />)
+    const switchInput = screen.getByRole('switch', { name: 'Controlled' })
+
+    fireEvent.click(switchInput)
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith(false)
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, true)
+    })
+  })
+
+  test('does not toggle a controlled readOnly switch', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <Switch checked readOnly label="Readonly" onChange={onChange} />)
+    const switchInput = screen.getByRole('switch', { name: 'Readonly' })
+
+    expect(switchInput.getAttribute('aria-readonly')).toBe('true')
+
+    fireEvent.click(switchInput)
+
+    expectSwitchChecked(switchInput, true)
+    expect(onChange).not.toHaveBeenCalled()
+
+    expectSwitchChecked(switchInput, true)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('does not toggle an uncontrolled readOnly switch', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Switch readOnly label="Readonly uncontrolled" onChange={onChange} />
+    ))
+    const switchInput = screen.getByRole('switch', {
+      name: 'Readonly uncontrolled',
+    })
+
+    fireEvent.click(switchInput)
+
+    expectSwitchChecked(switchInput, false)
+    expect(onChange).not.toHaveBeenCalled()
+
+    expectSwitchChecked(switchInput, false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('maps custom numeric values for controlled switch', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Switch checked={1} trueValue={1} falseValue={0} label="Visibility" onChange={onChange} />
+    ))
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
+
+    expectSwitchChecked(switchInput, true)
+
+    fireEvent.click(switchInput)
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith(0)
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, true)
+    })
+  })
+
+  test('shows loading icon and disables interaction when loading', () => {
+    const screen = render(() => (
+      <Switch loading label="Loading" loadingIcon={<span data-testid="loading-icon">L</span>} />
+    ))
+
+    const switchInput = screen.getByRole('switch', { name: 'Loading' })
+    expect(switchInput.getAttribute('aria-disabled')).toBe('true')
+    expect(screen.getByTestId('loading-icon').textContent).toBe('L')
+  })
+
+  test('switches between unchecked and checked icons', async () => {
+    const screen = render(() => (
+      <Switch
+        label="Icon state"
+        checkedIcon={<span data-testid="checked-icon">C</span>}
+        uncheckedIcon={<span data-testid="unchecked-icon">U</span>}
+      />
+    ))
+    const switchInput = screen.getByRole('switch', { name: 'Icon state' })
+
+    expect(screen.getByTestId('unchecked-icon').textContent).toBe('U')
+    fireEvent.click(switchInput)
+    expect(screen.getByTestId('checked-icon').textContent).toBe('C')
+  })
+
+  test('submits hidden switch value only when checked and resets to default state', async () => {
+    const screen = render(() => (
+      <form>
+        <Switch name="enabled" value="yes" defaultChecked label="Enabled" />
+        <button type="reset">Reset</button>
+      </form>
+    ))
+
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+
+    expectSwitchChecked(switchInput, true)
+    expect(new FormData(form).get('enabled')).toBe('yes')
+
+    fireEvent.click(switchInput)
+
+    expectSwitchChecked(switchInput, false)
+    expect(new FormData(form).has('enabled')).toBe(false)
+
+    form.reset()
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, true)
+      expect(new FormData(form).get('enabled')).toBe('yes')
+    })
+  })
+
+  test('resets uncontrolled state to the initial default without emitting changes', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch name="enabled" defaultChecked={false} label="Enabled" onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Enabled' })
+
+    fireEvent.click(switchInput)
+    expectSwitchChecked(switchInput, true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    form.reset()
+
+    await waitFor(() => expectSwitchChecked(switchInput, false))
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('resets controlled switches to their latest value without callbacks or form value drift', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Switch
+          checked={0}
+          falseValue={0}
+          label="Visibility"
+          name="visibility"
+          trueValue={1}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const switchInput = screen.getByRole('switch', { name: 'Visibility' })
+
+    fireEvent.click(switchInput)
+    expect(onChange).toHaveBeenCalledWith(1)
+
+    form.reset()
+
+    await waitFor(() => {
+      expectSwitchChecked(switchInput, false)
+      expect(new FormData(form).has('visibility')).toBe(false)
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('applies lg size classes on base and wrapper', () => {
+    const screen = render(() => <Switch label="Classes" size="lg" />)
+
+    const root = screen.container.querySelector('[data-slot="switch"]')
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
+
+    expect(root?.className).toContain('flex flex-row')
+    expect(track?.className).toContain('cursor-pointer')
+    expect(input?.className).toContain('peer')
+    expect(track?.className).toContain('focus-visible:ring-ring/50')
+    expect(track?.className).toContain('transition-[color,background-color,box-shadow]')
+    expect(track?.className).toContain('w-10')
+    expect(wrapper?.className).toContain('ms-2.5')
+    expect(wrapper?.className).toContain('text-base')
+    expect(screen.getByText('Classes').className).toContain('select-none')
+  })
+
+  test('applies compact wrapper spacing on sm size', () => {
+    const screen = render(() => <Switch label="Compact" size="sm" />)
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
+
+    expect(wrapper?.className).toContain('ms-1.5')
+    expect(wrapper?.className).toContain('text-xs')
+  })
+
+  test('applies styles.root override', () => {
+    const screen = render(() => <Switch label="Classes" styles={{ root: { width: '200px' } }} />)
+    const root = screen.container.querySelector('[data-slot="switch"]') as HTMLElement | null
+
+    expect(root?.style.width).toBe('200px')
+  })
+
+  test('runs the caller click handler before toggling and respects cancellation', async () => {
+    const onChange = vi.fn()
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+    const screen = render(() => <Switch label="Canceled" onChange={onChange} onClick={onClick} />)
+    const switchInput = screen.getByRole('switch', { name: 'Canceled' })
+
+    fireEvent.click(switchInput, { shiftKey: true })
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onClick.mock.calls[0]?.[0].shiftKey).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+    expectSwitchChecked(switchInput, false)
+  })
+
+  test('evaluates conditional JSX props once and preserves numeric content', () => {
+    const reads = {
+      checkedIcon: 0,
+      description: 0,
+      label: 0,
+      loadingIcon: 0,
+      uncheckedIcon: 0,
+    }
+    const screen = render(() =>
+      createComponent(Switch, {
+        loading: true,
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get description() {
+          reads.description += 1
+          return 0
+        },
+        get label() {
+          reads.label += 1
+          return 0
+        },
+        get loadingIcon() {
+          reads.loadingIcon += 1
+          return <span>Loading</span>
+        },
+        get uncheckedIcon() {
+          reads.uncheckedIcon += 1
+          return <span>Unchecked</span>
+        },
+      }),
+    )
+
+    expect(screen.getByRole('switch', { name: '0' })).not.toBeNull()
+    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(screen.getByText('Loading')).not.toBeNull()
+    expect(reads).toEqual({
+      checkedIcon: 1,
+      description: 1,
+      label: 1,
+      loadingIcon: 1,
+      uncheckedIcon: 1,
+    })
+  })
+
+  test('applies default md size variants when rendered standalone', () => {
+    const screen = render(() => <Switch label="Default size" description="Helper" />)
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
+    const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
+
+    expect(track?.className).toContain('h-4.5 w-8')
+    expect(thumb?.className).toContain('size-3.5')
+    expect(wrapper?.className).toContain('text-sm')
+  })
+
+  test.each([
+    ['sm', 'h-4 w-7', 'size-3', 'text-xs'],
+    ['md', 'h-4.5 w-8', 'size-3.5', 'text-sm'],
+    ['lg', 'h-5.5 w-10', 'size-4.5', 'text-base'],
+  ] as const)(
+    'applies explicit %s size variant classes',
+    (size, trackClass, thumbClass, wrapperClass) => {
+      const screen = render(() => <Switch size={size} label="Size test" description="Helper" />)
+      const track = screen.container.querySelector('[data-slot="switch-track"]')
+      const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
+      const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
+
+      expect(track?.className).toContain(trackClass)
+      expect(thumb?.className).toContain(thumbClass)
+      expect(wrapper?.className).toContain(wrapperClass)
+    },
+  )
+})

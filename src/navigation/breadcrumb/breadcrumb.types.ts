@@ -1,6 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
+import type { IconT } from '../../element/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { ComponentSize } from '../../theme/style/style-types.ts'

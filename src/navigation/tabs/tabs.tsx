@@ -12,7 +12,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
+import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { useControllableValue } from '../../shared/use-controllable-value'

@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { For, Show, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button'
-import type { ButtonProps } from '../../elements/button'
-import { Icon } from '../../elements/icon'
+import { Button } from '../../element/button'
+import type { ButtonProps } from '../../element/button'
+import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'

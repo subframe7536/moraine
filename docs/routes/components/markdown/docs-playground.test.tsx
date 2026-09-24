@@ -3,7 +3,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Dialog, MoraineProvider, Select } from '../../../../src'
-import { finishExitMotion } from '../../../../src/test-utils/overlay-test'
+import { finishExitMotion } from '../../../../src/test-util/overlay-test'
 import type { ComponentApi } from '../../../build/api-doc/types'
 
 import { DocsPlayground, normalizeDocsPlaygroundControls } from './docs-playground'

@@ -1,0 +1,1940 @@
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { Show, createSignal } from 'solid-js'
+import { describe, expect, test, vi } from 'vitest'
+
+import { finishMenuExitMotion } from '../../test-util/overlay-test'
+import { renderWithTheme } from '../../test-util/theme-render'
+
+import { DropdownMenu } from './dropdown-menu'
+
+describe('DropdownMenu', () => {
+  test.each(['checkbox', 'radio'] as const)(
+    'reserves an inline indicator for an unchecked %s item',
+    async (type) => {
+      const [checked, setChecked] = createSignal(false)
+      renderWithTheme(() => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger>Preferences</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                type,
+                label: 'Show bookmarks bar',
+                description: 'Keep important links visible',
+                group: 'view',
+                value: 'bookmarks',
+                checked: checked(),
+                kbds: ['Ctrl', 'B'],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+      const item = await waitFor(() => {
+        const element = document.body.querySelector(`[role="menuitem${type}"]`)
+        expect(element).not.toBeNull()
+        return element!
+      })
+      const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
+      expect(indicator.parentElement?.getAttribute('data-slot')).toBe('dropdown-menu-item-trailing')
+      expect(indicator.classList.contains('absolute')).toBe(false)
+      expect(indicator.classList.contains('shrink-0')).toBe(true)
+      expect(indicator.childElementCount).toBe(0)
+      setChecked(true)
+      await waitFor(() => {
+        expect(
+          document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
+            ?.childElementCount,
+        ).toBeGreaterThan(0)
+      })
+    },
+  )
+  test('samples scroll prevention when entering a presence cycle', async () => {
+    const [open, setOpen] = createSignal(true)
+    const [preventScroll, setPreventScroll] = createSignal(true)
+    const screen = render(() => (
+      <DropdownMenu open={open()} preventScroll={preventScroll()}>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Item' }]} />
+      </DropdownMenu>
+    ))
+    try {
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      setPreventScroll(false)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('hidden')
+      setOpen(false)
+      await finishMenuExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
+      setOpen(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      screen.unmount()
+    }
+  })
+
+  test('applies top-level class and style to trigger', () => {
+    renderWithTheme(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as="button"
+          class="trigger-class"
+          style={{ width: '200px' }}
+          type="button"
+        >
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-trigger"]')
+
+    expect(trigger?.className).toContain('trigger-class')
+    expect(trigger?.style.width).toBe('200px')
+  })
+
+  test('opens by keyboard and supports keyboard selection', async () => {
+    const onSelect = vi.fn()
+
+    const screen = render(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file', onSelect }, { label: 'Close file' }]} />
+      </DropdownMenu>
+    ))
+
+    fireEvent.keyDown(screen.getByText('Actions'), { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+    })
+
+    const highlighted = document.body.querySelector(
+      '[data-slot="dropdown-menu-item"][data-highlighted]',
+    )
+    fireEvent.keyDown(highlighted!, { key: 'Enter' })
+
+    expect(onSelect).toHaveBeenCalledTimes(1)
+  })
+
+  test('closes from trigger keyboard escape while open', async () => {
+    const screen = render(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = screen.getByText('Actions')
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    fireEvent.keyDown(trigger, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-closed]'),
+      ).not.toBeNull()
+    })
+  })
+
+  test('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
+    const triggerRef = vi.fn()
+    const screen = render(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as="button"
+          ref={(element) => {
+            triggerRef(element)
+          }}
+          type="button"
+        >
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
+        />
+      </DropdownMenu>
+    ))
+
+    expect(triggerRef).toHaveBeenCalledWith(screen.getByText('Actions'))
+
+    const trigger = screen.getByText('Actions')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      const content = document.body.querySelector('[data-slot="dropdown-menu-content"]')
+      expect(content).not.toBeNull()
+      expect(document.activeElement).toBe(content)
+    })
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'd' })
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+          ?.textContent,
+      ).toContain('Duplicate')
+    })
+
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishMenuExitMotion()
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(trigger)
+    })
+  })
+
+  test('scrolls the highlighted item into view when opened by keyboard', async () => {
+    const scrollIntoView = vi.fn()
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+
+    HTMLElement.prototype.scrollIntoView = scrollIntoView
+
+    try {
+      const screen = render(() => (
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Open file' }, { label: 'Close file' }]} />
+        </DropdownMenu>
+      ))
+
+      fireEvent.keyDown(screen.getByText('Actions'), { key: 'ArrowDown' })
+
+      await waitFor(() => {
+        expect(scrollIntoView).toHaveBeenCalled()
+      })
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
+  })
+
+  test('opens and closes submenus with arrow keys', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item"]')).not.toBeNull()
+    })
+
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted as HTMLElement
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(2)
+    })
+
+    const submenuContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
+
+    fireEvent.keyDown(submenuContent, { key: 'ArrowLeft' })
+
+    await waitFor(() => {
+      const closingSubmenu = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
+
+      expect(closingSubmenu?.getAttribute('data-closed')).toBe('')
+    })
+
+    await finishMenuExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(1)
+    })
+
+    expect(document.activeElement).toBe(subTrigger)
+  })
+
+  test('applies itemSubIndicator presentation inside submenu layers', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen classes={{ itemSubIndicator: 'custom-sub-indicator' }}>
+        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [
+                {
+                  label: 'Deeper',
+                  children: [{ label: 'Nested action' }],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-content"]')!
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector<HTMLElement>(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted!
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    await waitFor(() => {
+      const indicators = document.body.querySelectorAll(
+        '[data-slot="dropdown-menu-item-sub-indicator"]',
+      )
+      expect(indicators).toHaveLength(2)
+      for (const indicator of indicators) {
+        expect(indicator.classList).toContain('custom-sub-indicator')
+      }
+    })
+  })
+
+  test('dismisses the deepest submenu first', async () => {
+    const closeOrder: string[] = []
+    const originalSetAttribute = HTMLElement.prototype.setAttribute
+    const setAttributeSpy = vi
+      .spyOn(HTMLElement.prototype, 'setAttribute')
+      .mockImplementation(function (this: HTMLElement, name: string, value: string) {
+        if (
+          name === 'data-closed' &&
+          value === '' &&
+          this.getAttribute('data-slot') === 'dropdown-menu-content'
+        ) {
+          closeOrder.push(this.id)
+        }
+
+        return originalSetAttribute.call(this, name, value)
+      })
+
+    try {
+      render(() => (
+        <DropdownMenu id="dismiss-order" defaultOpen>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                defaultOpen: true,
+                children: [
+                  {
+                    label: 'Deep',
+                    defaultOpen: true,
+                    children: [{ label: 'Leaf action' }],
+                  },
+                ],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      await waitFor(() => {
+        expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(
+          3,
+        )
+      })
+
+      const contents = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      )
+      const [rootContent, middleContent, deepestContent] = contents as [
+        HTMLElement,
+        HTMLElement,
+        HTMLElement,
+      ]
+
+      fireEvent.keyDown(rootContent, { key: 'Escape' })
+
+      await waitFor(() => {
+        expect(closeOrder).toHaveLength(3)
+      })
+
+      expect(closeOrder).toEqual([deepestContent.id, middleContent.id, rootContent.id])
+    } finally {
+      setAttributeSpy.mockRestore()
+    }
+  })
+
+  test('moves focus into submenu when submenu opens by click', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const subTrigger = await waitFor(() => {
+      const item = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+      expect(item).not.toBeNull()
+      return item as HTMLElement
+    })
+
+    fireEvent.click(subTrigger)
+
+    const submenuContent = await waitFor(() => {
+      const content = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement | undefined
+
+      expect(content).not.toBeNull()
+      return content!
+    })
+
+    await waitFor(() => {
+      const activeElement = document.activeElement
+      expect(activeElement === submenuContent || submenuContent.contains(activeElement)).toBe(true)
+    })
+  })
+
+  test('supports controlled open state and reports close attempts', async () => {
+    const onOpenChange = vi.fn()
+
+    render(() => (
+      <DropdownMenu open onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Controlled item' }]} />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+    })
+
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+  })
+
+  test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file' }]} />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'Escape' })
+
+    await waitFor(() => {
+      const exitingContent = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
+      expect(exitingContent).not.toBeNull()
+      expect(exitingContent.getAttribute('data-closed')).toBe('')
+      expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
+      expect(exitingContent.className).toContain('data-closed:animate-mo-exit')
+    })
+
+    const positioner = content.closest('[data-slot="dropdown-menu-positioner"]') as HTMLElement
+    expect(positioner.style.visibility).toBe('visible')
+
+    await finishMenuExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
+      expect(positioner.isConnected).toBe(false)
+    })
+  })
+
+  test('uses shared bottom-side transition classes for default placement', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Default animation item' }]} />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    const rootContent = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+
+    expect(rootContent.className).toContain('mt-(--mo-popper-content-overflow-padding)')
+    expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent.className).toContain('data-closed:animate-mo-exit')
+    expect(rootContent.getAttribute('data-side')).toBe('bottom')
+    expect(rootContent.getAttribute('data-align')).toBe('start')
+    expect(rootContent.getAttribute('data-placement')).toBeNull()
+    expect(rootContent.getAttribute('data-motion')).toBeNull()
+    expect(rootContent.className).toContain('-enter-translate-y-1')
+    expect(rootContent.className).toContain('origin-(--mo-popper-content-transform-origin)')
+  })
+
+  test('renders item matrix, nested submenu, and content slots', async () => {
+    const contentTop = vi.fn((props: { sub: boolean }) => (
+      <div data-testid={props.sub ? 'content-top-sub' : 'content-top-root'}>
+        {props.sub ? 'Top Sub' : 'Top Root'}
+      </div>
+    ))
+    const contentBottom = vi.fn((props: { sub: boolean }) => (
+      <div data-testid={props.sub ? 'content-bottom-sub' : 'content-bottom-root'}>
+        {props.sub ? 'Bottom Sub' : 'Bottom Root'}
+      </div>
+    ))
+
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen placement="left" align="start">
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          classes={{
+            content: 'content-class',
+          }}
+          contentTop={contentTop}
+          contentBottom={contentBottom}
+          items={[
+            {
+              type: 'group',
+              label: 'Account',
+              children: [
+                { type: 'separator' },
+                {
+                  label: 'Profile',
+                  description: 'View profile',
+                  icon: 'icon-user',
+                  kbds: ['meta', 'p'],
+                },
+                {
+                  label: 'Avatar row',
+                  icon: <span data-testid="avatar-node">A</span>,
+                },
+                {
+                  type: 'checkbox',
+                  label: 'Pinned',
+                  checked: true,
+                },
+                {
+                  label: 'More',
+                  defaultOpen: true,
+                  children: [{ label: 'Nested action' }],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Nested action')
+    })
+
+    const rootContent = document.body.querySelector('[data-slot="dropdown-menu-content"]')
+
+    expect(document.body.textContent).toContain('Account')
+    expect(document.body.querySelector('[data-slot="dropdown-menu-separator"]')).not.toBeNull()
+    expect(document.body.textContent).toContain('View profile')
+    expect(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]').length,
+    ).toBeGreaterThanOrEqual(2)
+    expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')).not.toBeNull()
+
+    expect(rootContent?.className).toContain('mr-(--mo-popper-content-overflow-padding)')
+    expect(rootContent?.className).toContain('border-border')
+    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(rootContent?.getAttribute('data-side')).toBe('left')
+    expect(rootContent?.getAttribute('data-align')).toBe('start')
+    expect(rootContent?.getAttribute('data-placement')).toBeNull()
+    expect(rootContent?.getAttribute('data-motion')).toBeNull()
+    expect(rootContent?.className).toContain('enter-translate-x-1')
+    expect(rootContent?.className).toContain('origin-(--mo-popper-content-transform-origin)')
+    expect(rootContent?.className).toContain('content-class')
+
+    expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-testid="content-bottom-root"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-testid="content-top-sub"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-testid="content-bottom-sub"]')).not.toBeNull()
+
+    expect(contentTop).toHaveBeenCalledWith({ sub: false })
+    expect(contentTop).toHaveBeenCalledWith({ sub: true })
+    expect(contentBottom).toHaveBeenCalledWith({ sub: false })
+    expect(contentBottom).toHaveBeenCalledWith({ sub: true })
+  })
+
+  test('passes itemRender context for root and nested items', async () => {
+    const itemRender = vi.fn((props: any) => (
+      <span data-testid={`custom-${String(props.item.label)}-${props.depth}`}>
+        {String(props.item.label)}:{props.depth}:{String(props.hasChildren)}:
+        {String(props.isCheckbox)}
+      </span>
+    ))
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          itemRender={itemRender}
+          items={[
+            {
+              label: 'Parent',
+              defaultOpen: true,
+              children: [{ label: 'Child' }],
+            },
+            {
+              type: 'checkbox',
+              label: 'Checkbox',
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-testid="custom-Child-1"]')).not.toBeNull()
+    })
+
+    expect(document.body.querySelector('[data-testid="custom-Parent-0"]')?.textContent).toContain(
+      'Parent:0:true:false',
+    )
+    expect(document.body.querySelector('[data-testid="custom-Child-1"]')?.textContent).toContain(
+      'Child:1:false:false',
+    )
+    expect(document.body.querySelector('[data-testid="custom-Checkbox-0"]')?.textContent).toContain(
+      'Checkbox:0:false:true',
+    )
+
+    expect(itemRender).toHaveBeenCalled()
+  })
+
+  test('renders into portal by default', () => {
+    const screen = render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Default portal' }]} />
+      </DropdownMenu>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+  })
+
+  test('renders the trigger content as a native button root', () => {
+    render(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector('[data-slot="dropdown-menu-trigger"]')
+
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.getAttribute('type')).toBe('button')
+  })
+
+  test('renders an anchor trigger root', () => {
+    render(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="a" href="#menu">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = document.body.querySelector(
+      '[data-slot="dropdown-menu-trigger"]',
+    ) as HTMLAnchorElement
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('#menu')
+  })
+
+  test('uses native and non-native disabled trigger semantics', () => {
+    render(() => (
+      <>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="button" type="button">
+            Button trigger
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="a" href="#menu">
+            Anchor trigger
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="span">Span trigger</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+      </>
+    ))
+
+    const button = document.body.querySelector('button') as HTMLButtonElement
+    const anchor = document.body.querySelector('a') as HTMLAnchorElement
+    const span = document.body.querySelector('span') as HTMLSpanElement
+
+    expect(button.disabled).toBe(true)
+    expect(button.hasAttribute('aria-disabled')).toBe(false)
+    expect(button.hasAttribute('tabindex')).toBe(false)
+    expect(anchor.hasAttribute('disabled')).toBe(false)
+    expect(anchor.getAttribute('aria-disabled')).toBe('true')
+    expect(anchor.tabIndex).toBe(-1)
+    expect(span.hasAttribute('disabled')).toBe(false)
+    expect(span.getAttribute('aria-disabled')).toBe('true')
+    expect(span.tabIndex).toBe(-1)
+  })
+
+  test('keeps non-native triggers tabbable when enabled and allows caller overrides', () => {
+    render(() => (
+      <>
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="span">Enabled span</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="button" disabled={false} type="button">
+            Overridden button
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="a" aria-disabled="false" href="#override" tabIndex={3}>
+            Overridden anchor
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+      </>
+    ))
+
+    expect((document.body.querySelector('span') as HTMLSpanElement).tabIndex).toBe(0)
+    expect((document.body.querySelector('button') as HTMLButtonElement).disabled).toBe(false)
+    const anchor = document.body.querySelector('a') as HTMLAnchorElement
+    expect(anchor.getAttribute('aria-disabled')).toBe('false')
+    expect(anchor.tabIndex).toBe(3)
+  })
+
+  test('renders controlled overlay without a trigger', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"]')?.textContent,
+      ).toContain('Open item')
+    })
+  })
+
+  test('does not open when menu trigger is disabled', async () => {
+    const screen = render(() => (
+      <DropdownMenu disabled>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Disabled entry' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = screen.getByText('Actions')
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
+    })
+  })
+
+  test('closes an uncontrolled open menu when it becomes disabled', async () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen disabled={disabled()} onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    setDisabled(true)
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-closed]'),
+      ).not.toBeNull()
+    })
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('reports one controlled close attempt when an open menu becomes disabled', async () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu open disabled={disabled()} onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    setDisabled(true)
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledTimes(1)
+    })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
+    })
+
+    await Promise.resolve()
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('clears a removed trigger and restores focus to its replacement', async () => {
+    const [triggerKind, setTriggerKind] = createSignal<'button' | 'anchor' | undefined>('button')
+    const screen = render(() => (
+      <DropdownMenu>
+        <Show when={triggerKind() === 'button'}>
+          <DropdownMenu.Trigger>Button trigger</DropdownMenu.Trigger>
+        </Show>
+        <Show when={triggerKind() === 'anchor'}>
+          <DropdownMenu.Trigger as="a" href="#replacement">
+            Anchor trigger
+          </DropdownMenu.Trigger>
+        </Show>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    const originalTrigger = screen.getByText('Button trigger')
+    fireEvent.keyDown(originalTrigger, { key: 'ArrowDown' })
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    setTriggerKind(undefined)
+    await waitFor(() => {
+      expect(originalTrigger.isConnected).toBe(false)
+    })
+
+    setTriggerKind('anchor')
+    const replacement = await screen.findByText('Anchor trigger')
+    const replacementRect = vi.fn(() => ({
+      bottom: 40,
+      height: 20,
+      left: 10,
+      right: 110,
+      top: 20,
+      width: 100,
+      x: 10,
+      y: 20,
+      toJSON: () => ({}),
+    }))
+    replacement.getBoundingClientRect = replacementRect
+    await waitFor(() => {
+      expect(replacementRect).toHaveBeenCalled()
+    })
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishMenuExitMotion()
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(replacement)
+      expect(document.activeElement).not.toBe(originalTrigger)
+    })
+  })
+
+  test('does not restore focus to a trigger removed while open', async () => {
+    const [showTrigger, setShowTrigger] = createSignal(true)
+    const screen = render(() => (
+      <DropdownMenu>
+        <Show when={showTrigger()}>
+          <DropdownMenu.Trigger>Removable trigger</DropdownMenu.Trigger>
+        </Show>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
+
+    const trigger = screen.getByText('Removable trigger')
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    const content = await waitFor(() => {
+      const element = document.body.querySelector('[data-slot="dropdown-menu-content"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+
+    setShowTrigger(false)
+    await waitFor(() => {
+      expect(trigger.isConnected).toBe(false)
+    })
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishMenuExitMotion()
+
+    expect(document.activeElement).not.toBe(trigger)
+  })
+
+  test('supports checkbox toggle and keeps disabled item from selecting', async () => {
+    const onCheckedChange = vi.fn()
+    const onDisabledSelect = vi.fn()
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'checkbox',
+              label: 'Show hidden files',
+              onCheckedChange,
+            },
+            {
+              label: 'Disabled action',
+              disabled: true,
+              onSelect: onDisabledSelect,
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const checkboxItem = document.body.querySelector(
+      '[data-slot="dropdown-menu-item"]',
+    ) as HTMLElement
+    expect(checkboxItem.hasAttribute('data-selected')).toBe(false)
+    checkboxItem.focus()
+    fireEvent.keyDown(checkboxItem, { key: 'Enter' })
+    expect(checkboxItem.hasAttribute('data-selected')).toBe(true)
+
+    const disabledItem = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+    ).find((el) => el.textContent?.includes('Disabled action')) as HTMLElement
+
+    fireEvent.pointerDown(disabledItem)
+    fireEvent.click(disabledItem)
+
+    expect(onCheckedChange).toHaveBeenCalledWith(true)
+    expect(onDisabledSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+  })
+
+  test('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
+    const onSelect = vi.fn()
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Options
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'Manage access',
+              disabled: true,
+              onSelect,
+            },
+            {
+              label: 'Delete',
+              variant: 'destructive',
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    const items = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-item"]'),
+    )
+    const disabledItem = items[0]!
+    const destructiveItem = items[1]!
+
+    expect(disabledItem.getAttribute('data-disabled')).toBe('')
+    expect(disabledItem.className).not.toContain('pointer-events-none')
+    expect(destructiveItem.getAttribute('data-destructive')).toBe('')
+    expect(destructiveItem.className).toContain('data-destructive:text-destructive')
+
+    fireEvent.pointerDown(disabledItem)
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+
+    fireEvent.click(disabledItem)
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+  })
+
+  test('supports radio items with grouped selection and disabled prevention', async () => {
+    const onCompactSelect = vi.fn()
+    const onComfortableValueChange = vi.fn()
+    const onDisabledSelect = vi.fn()
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'compact',
+              label: 'Compact',
+              checked: true,
+              onSelect: onCompactSelect,
+            },
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'comfortable',
+              label: 'Comfortable',
+              onValueChange: onComfortableValueChange,
+            },
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'spacious',
+              label: 'Spacious',
+              disabled: true,
+              onSelect: onDisabledSelect,
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const radioItems = Array.from(document.body.querySelectorAll('[role="menuitemradio"]'))
+    const [compactItem, comfortableItem, disabledItem] = radioItems as [
+      HTMLElement,
+      HTMLElement,
+      HTMLElement,
+    ]
+
+    expect(compactItem.getAttribute('aria-checked')).toBe('true')
+    expect(compactItem.hasAttribute('data-selected')).toBe(true)
+    expect(comfortableItem.getAttribute('aria-checked')).toBe('false')
+    expect(comfortableItem.hasAttribute('data-selected')).toBe(false)
+    expect(disabledItem.getAttribute('aria-disabled')).toBe('true')
+
+    fireEvent.click(comfortableItem)
+
+    expect(compactItem.getAttribute('aria-checked')).toBe('false')
+    expect(compactItem.hasAttribute('data-selected')).toBe(false)
+    expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
+    expect(comfortableItem.hasAttribute('data-selected')).toBe(true)
+    expect(onComfortableValueChange).toHaveBeenCalledWith('comfortable')
+
+    fireEvent.click(disabledItem)
+
+    expect(disabledItem.getAttribute('aria-checked')).toBe('false')
+    expect(comfortableItem.getAttribute('aria-checked')).toBe('true')
+    expect(onDisabledSelect).not.toHaveBeenCalled()
+    expect(onCompactSelect).not.toHaveBeenCalled()
+  })
+
+  test('destructive item icon does not force muted color class', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Delete', variant: 'destructive', icon: 'icon-trash-2' }]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')).not.toBeNull()
+    })
+
+    const leading = document.body.querySelector(
+      '[data-slot="dropdown-menu-item-leading"]',
+    ) as HTMLElement
+    expect(leading.className).not.toContain('text-muted-foreground')
+  })
+
+  test('exposes destructive state without annotating default items', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Default' },
+            { label: 'Leaf', variant: 'destructive' },
+            { label: 'Checkbox', type: 'checkbox', variant: 'destructive' },
+            {
+              label: 'Radio',
+              type: 'radio',
+              group: 'choice',
+              value: 'radio',
+              variant: 'destructive',
+            },
+            {
+              label: 'Submenu',
+              variant: 'destructive',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]')).toHaveLength(5)
+    })
+
+    const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
+    expect(items[0]?.hasAttribute('data-destructive')).toBe(false)
+    for (const item of items.slice(1)) {
+      expect(item.getAttribute('data-destructive')).toBe('')
+      expect(item.hasAttribute('data-variant')).toBe(false)
+    }
+  })
+
+  test('renders submenu content through portal instead of nesting inside root content', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]').length,
+      ).toBeGreaterThanOrEqual(2)
+    })
+
+    const contents = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    )
+    const root = contents[0] as HTMLElement
+    const sub = contents[1] as HTMLElement
+
+    expect(root.contains(sub)).toBe(false)
+  })
+
+  test('keeps submenu open while pointer moves through the submenu grace area', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+            { label: 'Sibling action' },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]').length,
+      ).toBeGreaterThanOrEqual(2)
+    })
+
+    const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
+    const subTrigger = items.find((item) => item.textContent?.includes('More')) as HTMLElement
+    const sibling = items.find((item) =>
+      item.textContent?.includes('Sibling action'),
+    ) as HTMLElement
+    const subContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+
+    subContent.getBoundingClientRect = () => ({
+      bottom: 120,
+      height: 80,
+      left: 60,
+      right: 140,
+      top: 40,
+      width: 80,
+      x: 60,
+      y: 40,
+      toJSON: () => ({}),
+    })
+
+    fireEvent.pointerLeave(subTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+    fireEvent.pointerEnter(sibling, { clientX: 80, clientY: 80, pointerType: 'mouse' })
+
+    expect(sibling.hasAttribute('data-highlighted')).toBe(false)
+    expect(subTrigger.getAttribute('data-expanded')).toBe('')
+    expect(document.body.textContent).toContain('Nested action')
+  })
+
+  test('restores submenu selection after pointer grace when moving toward another submenu', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                defaultOpen: true,
+                children: [{ label: 'Nested action' }],
+              },
+              {
+                label: 'More tools',
+                children: [{ label: 'Second nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      await waitFor(() => {
+        expect(document.body.textContent).toContain('Nested action')
+      })
+
+      const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
+      const firstTrigger = items.find((item) => item.textContent?.includes('More')) as HTMLElement
+      const secondTrigger = items.find((item) =>
+        item.textContent?.includes('More tools'),
+      ) as HTMLElement
+      const firstContent = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
+
+      firstContent.getBoundingClientRect = () => ({
+        bottom: 120,
+        height: 80,
+        left: 60,
+        right: 140,
+        top: 40,
+        width: 80,
+        x: 60,
+        y: 40,
+        toJSON: () => ({}),
+      })
+
+      fireEvent.pointerLeave(firstTrigger, { clientX: 50, clientY: 80, pointerType: 'mouse' })
+      fireEvent.pointerEnter(secondTrigger, {
+        clientX: 80,
+        clientY: 80,
+        pointerType: 'mouse',
+      })
+
+      expect(secondTrigger.hasAttribute('data-highlighted')).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(301)
+
+      expect(secondTrigger.getAttribute('data-highlighted')).toBe('')
+
+      await vi.advanceTimersByTimeAsync(100)
+
+      await waitFor(() => {
+        expect(document.body.textContent).toContain('Second nested action')
+      })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('applies styles override to content', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          styles={{ content: { width: '200px' } }}
+          items={[{ label: 'Open file' }]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-content"]')
+    expect(content?.style.width).toBe('200px')
+  })
+
+  test('forwards content and item props and lets item events prevent selection', async () => {
+    const contentRef = vi.fn()
+    const itemRef = vi.fn()
+    const onSelect = vi.fn()
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Archive', onSelect }]}
+          ref={contentRef}
+          data-track="actions-menu"
+          class="content-prop"
+          style={{ width: '240px' }}
+          itemProps={(context) => ({
+            ref: itemRef,
+            'data-label': context.item.label as string,
+            class: 'item-prop',
+            style: { height: '40px' },
+            onClick: (event) => event.preventDefault(),
+          })}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-track="actions-menu"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-track="actions-menu"]') as HTMLElement
+    const item = document.body.querySelector('[data-label="Archive"]') as HTMLElement
+
+    expect(contentRef).toHaveBeenCalledWith(content)
+    expect(itemRef).toHaveBeenCalledWith(item)
+    expect(content.className).toContain('content-prop')
+    expect(content.style.width).toBe('240px')
+    expect(item.className).toContain('item-prop')
+    expect(item.style.height).toBe('40px')
+
+    fireEvent.click(item)
+
+    expect(onSelect).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
+    })
+  })
+
+  test('locks body scroll and renders an overlay layer while open', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).not.toBeNull()
+    })
+
+    const positioner = document.body.querySelector(
+      '[data-slot="dropdown-menu-positioner"]',
+    ) as HTMLElement
+    expect(positioner.className).not.toContain('z-floating')
+    expect(positioner.classList.contains('absolute')).toBe(true)
+    expect(positioner.classList.contains('fixed')).toBe(false)
+    expect(document.body.style.overflow).toBe('hidden')
+
+    const overlay = document.body.querySelector(
+      '[data-slot="dropdown-menu-overlay"]',
+    ) as HTMLElement
+    fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
+    await finishMenuExitMotion()
+
+    expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  test('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
+    const onOpenSelect = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Banana' },
+            { label: 'Blueberry', disabled: true },
+            { label: 'Bravo' },
+            { label: 'Open file', onSelect: onOpenSelect },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'b' })
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
+    ).toContain('Banana')
+
+    fireEvent.keyDown(document.activeElement!, { key: 'b' })
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
+    ).toContain('Bravo')
+
+    fireEvent.keyDown(document.activeElement!, { key: 'o' })
+    fireEvent.keyDown(document.activeElement!, { key: 'o' })
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
+    ).toContain('Open file')
+
+    fireEvent.keyDown(document.activeElement!, { key: ' ' })
+    expect(onOpenSelect).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
+    })
+  })
+
+  test('does not activate checkbox or submenu items when Space continues typeahead', async () => {
+    const onCheckedChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Show hidden', type: 'checkbox', checked: false, onCheckedChange },
+            { label: 'Open options', children: [{ label: 'Nested action' }] },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 's' })
+    fireEvent.keyDown(document.activeElement!, { key: ' ' })
+
+    expect(onCheckedChange).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(document.activeElement!, { key: 'x' })
+    fireEvent.keyDown(document.activeElement!, { key: 'o' })
+    fireEvent.keyDown(document.activeElement!, { key: ' ' })
+
+    expect(document.body.textContent).not.toContain('Nested action')
+  })
+
+  test('uses rendered label text before a string description for typeahead', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: <span>Archive</span>, description: 'Stored item' }]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
+    fireEvent.keyDown(content, { key: 'a' })
+
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
+    ).toContain('Archive')
+  })
+
+  test.each(['touch', 'pen'])(
+    'does not highlight items from %s pointer movement',
+    async (pointerType) => {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+        </DropdownMenu>
+      ))
+
+      const content = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
+      const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
+      content.focus()
+      fireEvent.pointerMove(item, { pointerType })
+
+      expect(document.activeElement).toBe(content)
+      expect(item.hasAttribute('data-highlighted')).toBe(false)
+    },
+  )
+
+  test('honors outside pointer cancellation before dismissing', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button
+          type="button"
+          data-testid="outside"
+          onPointerDown={(event) => event.preventDefault()}
+        >
+          Outside
+        </button>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={onOpenChange}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+        </DropdownMenu>
+      </>
+    ))
+
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
+    })
+  })
+
+  test('uses completed primary presses for outside dismissal', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={onOpenChange}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+        </DropdownMenu>
+      </>
+    ))
+    const outside = screen.getByTestId('outside')
+
+    fireEvent.pointerDown(outside, { button: 2, pointerType: 'mouse' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('keeps a closing menu above lower overlays until exit completes', async () => {
+    const firstChange = vi.fn()
+    const secondChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={firstChange}>
+          <DropdownMenu.Trigger as="button" type="button">
+            First
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'First item' }]} />
+        </DropdownMenu>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={secondChange}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Second
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Second item' }]} />
+        </DropdownMenu>
+      </>
+    ))
+
+    const secondContent = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-content"]'),
+    ).find((content) => content.textContent?.includes('Second item'))!
+    fireEvent.keyDown(secondContent, { key: 'Escape' })
+    expect(secondChange).toHaveBeenCalledWith(false)
+
+    fireEvent.pointerDown(screen.getByTestId('outside'), { pointerType: 'mouse' })
+    expect(firstChange).not.toHaveBeenCalled()
+
+    await finishMenuExitMotion()
+
+    fireEvent.pointerDown(screen.getByTestId('outside'), { pointerType: 'mouse' })
+    expect(firstChange).toHaveBeenCalledWith(false)
+  })
+
+  test('closes on Tab and moves focus in document order', async () => {
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="before">
+          Before
+        </button>
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+        </DropdownMenu>
+        <button type="button" data-testid="after">
+          After
+        </button>
+      </>
+    ))
+
+    const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
+    item.focus()
+    fireEvent.keyDown(item, { key: 'Tab' })
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId('after'))
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+    })
+  })
+
+  test('closes on Shift+Tab and restores the trigger', async () => {
+    const screen = render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+      </DropdownMenu>
+    ))
+
+    const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
+    item.focus()
+    fireEvent.keyDown(item, { key: 'Tab', shiftKey: true })
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByText('Actions'))
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+    })
+  })
+
+  test('uses the logical RTL arrow to open a submenu', async () => {
+    const previousDirection = document.documentElement.dir
+    document.documentElement.dir = 'rtl'
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          />
+        </DropdownMenu>
+      ))
+
+      const submenuTrigger = Array.from(document.body.querySelectorAll('[role="menuitem"]')).find(
+        (element) => element.textContent?.includes('More'),
+      ) as HTMLElement
+      submenuTrigger.focus()
+      fireEvent.keyDown(submenuTrigger, { key: 'ArrowLeft' })
+
+      await waitFor(() => {
+        expect(submenuTrigger.getAttribute('aria-expanded')).toBe('true')
+        expect(document.body.textContent).toContain('Nested action')
+      })
+    } finally {
+      document.documentElement.dir = previousDirection
+    }
+  })
+
+  test('clears a controlled radio group when every item becomes unchecked', async () => {
+    const [value, setValue] = createSignal<'compact' | 'comfortable' | undefined>('compact')
+    const items = [
+      {
+        type: 'radio' as const,
+        group: 'density',
+        value: 'compact',
+        label: 'Compact',
+        get checked() {
+          return value() === 'compact'
+        },
+      },
+      {
+        type: 'radio' as const,
+        group: 'density',
+        value: 'comfortable',
+        label: 'Comfortable',
+        get checked() {
+          return value() === 'comfortable'
+        },
+      },
+    ]
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={items} />
+      </DropdownMenu>
+    ))
+
+    setValue(undefined)
+
+    await waitFor(() => {
+      const items = document.body.querySelectorAll('[role="menuitemradio"]')
+      expect(Array.from(items).every((item) => item.getAttribute('aria-checked') === 'false')).toBe(
+        true,
+      )
+    })
+  })
+
+  test('links menu groups to their labels and gives interactive items stable ids', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'group',
+              label: 'File actions',
+              children: [{ label: 'Archive' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const group = document.body.querySelector('[role="group"]') as HTMLElement
+    const label = document.body.querySelector(
+      '[data-slot="dropdown-menu-group-label"]',
+    ) as HTMLElement
+    const item = document.body.querySelector('[role="menuitem"]') as HTMLElement
+
+    expect(label.id).not.toBe('')
+    expect(group.getAttribute('aria-labelledby')).toBe(label.id)
+    expect(label.getAttribute('aria-hidden')).toBe('true')
+    expect(item.id).not.toBe('')
+  })
+
+  test('resolves a reactive group label getter once per value', () => {
+    let labelReads = 0
+    const group = {
+      type: 'group' as const,
+      get label() {
+        labelReads += 1
+        return 'File actions'
+      },
+      children: [{ label: 'Archive' }],
+    }
+
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[group]} />
+      </DropdownMenu>
+    ))
+
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-group-label"]')?.textContent,
+    ).toBe('File actions')
+    expect(labelReads).toBe(1)
+  })
+
+  test('cancels a pending submenu hover when the root closes', async () => {
+    vi.useFakeTimers()
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          />
+        </DropdownMenu>
+      ))
+
+      const content = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
+      const submenuTrigger = document.body.querySelector('[aria-haspopup="menu"][role="menuitem"]')!
+      fireEvent.pointerMove(submenuTrigger, { pointerType: 'mouse' })
+      fireEvent.keyDown(content, { key: 'Escape' })
+      await vi.advanceTimersByTimeAsync(100)
+
+      expect(document.body.textContent).not.toContain('Nested action')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('does not finish a pending submenu hover after its trigger becomes disabled', async () => {
+    vi.useFakeTimers()
+    const [disabled, setDisabled] = createSignal(false)
+
+    try {
+      render(() => (
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                disabled: disabled(),
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+
+      const submenuTrigger = document.body.querySelector('[aria-haspopup="menu"][role="menuitem"]')!
+      fireEvent.pointerMove(submenuTrigger, { pointerType: 'mouse' })
+      setDisabled(true)
+      await vi.advanceTimersByTimeAsync(100)
+
+      expect(document.body.textContent).not.toContain('Nested action')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('menu restores expanded state after reopen and scroll', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <DropdownMenu open={open()} preventScroll={false}>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Item' }]} />
+      </DropdownMenu>
+    ))
+    try {
+      const menu = document.body.querySelector('[role="menu"]')!
+      await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
+      setOpen(false)
+      setOpen(true)
+      fireEvent.scroll(window)
+      await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
+    } finally {
+      screen.unmount()
+    }
+  })
+})

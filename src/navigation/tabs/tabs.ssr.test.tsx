@@ -3,7 +3,7 @@ import { createSignal } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Tabs } from './tabs'
 import { createTabItems } from './tabs.ssr.fixture.tsx'

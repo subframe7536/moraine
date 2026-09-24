@@ -1,0 +1,672 @@
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import * as v from 'valibot'
+import { describe, expect, test, vi } from 'vitest'
+
+import { MoraineProvider } from '../../provider'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
+import { createForm } from '../form'
+
+import { CheckboxGroup } from './checkbox-group'
+
+function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
+  expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
+}
+
+function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElement {
+  return container.querySelector(`input[type="checkbox"][value="${value}"]`) as HTMLInputElement
+}
+
+describe('CheckboxGroup', () => {
+  test('renders component defaults when provider is absent', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        variant="table"
+        orientation="horizontal"
+        size="lg"
+        legend="Test"
+        items={['One']}
+      />
+    ))
+    const root = screen.container.querySelector('[data-slot="checkbox-group"]')
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+    expect(root?.className).not.toBe('')
+    expect(fieldset?.className).not.toBe('')
+    expect(item?.className).not.toBe('')
+  })
+  test('renders legend and primitive items', () => {
+    const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
+
+    expect(screen.getByText('Fruits')).not.toBeNull()
+    expect(screen.getByRole('checkbox', { name: 'Apple' })).not.toBeNull()
+    expect(screen.getByRole('checkbox', { name: 'Banana' })).not.toBeNull()
+  })
+
+  test('forwards group styles to Checkbox-owned child slots', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        items={['One']}
+        defaultValue={['One']}
+        classes={{ control: 'group-control', icon: 'group-icon', label: 'group-label' }}
+        styles={{ control: { width: '21px' }, icon: { width: '22px' }, label: { width: '23px' } }}
+      />
+    ))
+    const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-icon"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
+
+    expect(control?.className).toContain('group-control')
+    expect(control?.style.width).toBe('21px')
+    expect(icon?.className).toContain('group-icon')
+    expect(icon?.style.width).toBe('22px')
+    expect(label?.className).toContain('group-label')
+    expect(label?.style.width).toBe('23px')
+    expect(screen.container.querySelector('[data-slot^="checkbox-group-control"]')).toBeNull()
+  })
+
+  test('maps object items using default value/label/description fields', () => {
+    const items = [{ value: 'a', label: 'Alpha', description: 'First option' }]
+    const screen = render(() => <CheckboxGroup items={items} legend="Mapped" />)
+
+    expect(getHiddenCheckbox(screen.container, 'a').getAttribute('value')).toBe('a')
+    expect(screen.getByText('First option')).not.toBeNull()
+  })
+
+  test('supports indeterminate item state and icon for object items', async () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        legend="Mapped"
+        items={[
+          {
+            value: 'a',
+            label: 'Alpha',
+            indeterminate: true,
+            indeterminateIcon: <span data-testid="indeterminate-icon">I</span>,
+          },
+        ]}
+      />
+    ))
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Alpha' })
+    const input = getHiddenCheckbox(screen.container, 'a')
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
+
+    await waitFor(() => {
+      expect(input.indeterminate).toBe(true)
+      expect(input.checked).toBe(false)
+      expectCheckboxChecked(checkbox, 'mixed')
+      expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
+      expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
+    })
+  })
+
+  test('supports uncontrolled value changes', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onChange={onChange} />
+    ))
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
+
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
+
+    fireEvent.click(checkboxB)
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
+    expectCheckboxChecked(checkboxB, true)
+  })
+
+  test('toggles item with Space key', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <CheckboxGroup items={['A', 'B']} onChange={onChange} />)
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+
+    fireEvent.keyDown(checkboxA, { key: ' ' })
+    fireEvent.keyUp(checkboxA, { key: ' ' })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.click(checkboxA)
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenLastCalledWith(['A'])
+    expectCheckboxChecked(checkboxA, true)
+
+    fireEvent.keyDown(checkboxA, { key: ' ' })
+    fireEvent.keyUp(checkboxA, { key: ' ' })
+    fireEvent.click(checkboxA)
+
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onChange).toHaveBeenLastCalledWith([])
+    expectCheckboxChecked(checkboxA, false)
+  })
+
+  test('emits Field focus and blur only at visual group boundaries', () => {
+    const emit = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ binding }}>
+        <CheckboxGroup items={['A', 'B']} />
+      </FieldProvider>
+    ))
+    const controls = screen.getAllByRole('checkbox')
+    const first = controls[0]!
+    const second = controls[1]!
+    const hidden = getHiddenCheckbox(screen.container, 'A')
+    const outside = document.createElement('button')
+
+    fireEvent.focusIn(hidden, { relatedTarget: outside })
+    fireEvent.focusOut(hidden, { relatedTarget: outside })
+    expect(emit).not.toHaveBeenCalled()
+
+    fireEvent.focusIn(first, { relatedTarget: outside })
+    fireEvent.focusOut(first, { relatedTarget: second })
+    fireEvent.focusIn(second, { relatedTarget: first })
+
+    expect(emit).toHaveBeenCalledExactlyOnceWith('focus', expect.any(FocusEvent))
+
+    fireEvent.focusOut(second, { relatedTarget: outside })
+
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+  })
+
+  test('keeps Formisch validation dormant while focus moves within a group', async () => {
+    const schema = v.object({
+      choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { choices: [] }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choices" label="Choices">
+            <CheckboxGroup items={['A', 'B']} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const controls = screen.getAllByRole('checkbox')
+    const first = controls[0]!
+    const second = controls[1]!
+    const outside = document.createElement('button')
+
+    fireEvent.focusIn(first, { relatedTarget: outside })
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.focusOut(first, { relatedTarget: second })
+    fireEvent.focusIn(second, { relatedTarget: first })
+
+    expect(screen.queryByText('Choose an option.')).toBeNull()
+
+    fireEvent.focusOut(second, { relatedTarget: outside })
+
+    await waitFor(() => expect(screen.getByText('Choose an option.')).not.toBeNull())
+    expect(second.getAttribute('aria-invalid')).toBe('true')
+  })
+
+  test('does not toggle disabled group or item', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <CheckboxGroup
+        disabled
+        items={[
+          'A',
+          {
+            value: 'B',
+            label: 'B',
+            disabled: true,
+          },
+        ]}
+        onChange={onChange}
+      />
+    ))
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
+
+    fireEvent.click(checkboxA)
+    fireEvent.keyDown(checkboxB, { key: ' ' })
+
+    expect(checkboxA.getAttribute('aria-disabled')).toBe('true')
+    expect(checkboxB.getAttribute('aria-disabled')).toBe('true')
+    expectCheckboxChecked(checkboxA, false)
+    expectCheckboxChecked(checkboxB, false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('does not toggle readonly items', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => <CheckboxGroup items={['A']} readOnly onChange={onChange} />)
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+
+    expect(checkboxA.getAttribute('aria-readonly')).toBe('true')
+
+    fireEvent.click(checkboxA)
+    fireEvent.keyDown(checkboxA, { key: ' ' })
+
+    expectCheckboxChecked(checkboxA, false)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('keeps controlled selection until parent updates', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <CheckboxGroup items={['A', 'B']} value={['A']} onChange={onChange} />
+    ))
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
+
+    fireEvent.click(checkboxB)
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenLastCalledWith(['A', 'B'])
+
+    await waitFor(() => {
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
+    })
+  })
+
+  test('passes required and links legend to the fieldset', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        id="channels"
+        legend="Channels"
+        items={[{ value: 'email', label: 'Email', description: 'Send email updates' }]}
+        required
+      />
+    ))
+
+    const fieldset = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"]',
+    ) as HTMLFieldSetElement
+    const legend = screen.getByText('Channels')
+    const checkbox = screen.getByRole('checkbox', { name: 'Email' })
+    const input = getHiddenCheckbox(screen.container, 'email')
+    const description = screen.getByText('Send email updates')
+
+    expect(fieldset.getAttribute('aria-labelledby')).toBe(legend.getAttribute('id'))
+    expect(checkbox.getAttribute('aria-required')).toBe('true')
+    expect(input.getAttribute('required')).not.toBeNull()
+    expect(description).not.toBeNull()
+  })
+
+  test('treats required as at least one enabled selection', async () => {
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="channels" legend="Channels" items={['Email', 'SMS']} required />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')!
+    const inputs = Array.from(
+      screen.container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+    )
+
+    expect(fieldset.getAttribute('aria-required')).toBe('true')
+    expect(inputs.filter((input) => input.required)).toHaveLength(1)
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+
+    expect(inputs.every((input) => !input.required)).toBe(true)
+    expect(form.checkValidity()).toBe(true)
+    expect(new FormData(form).getAll('channels')).toEqual(['SMS'])
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'SMS' }))
+    expect(inputs.filter((input) => input.required)).toHaveLength(1)
+    expect(form.checkValidity()).toBe(false)
+  })
+
+  test('assigns required validity to the first enabled item and rejects stale selections', async () => {
+    const [value, setValue] = createSignal(['missing'])
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup
+          items={[
+            { value: 'disabled', label: 'Disabled', disabled: true },
+            { value: 'enabled', label: 'Enabled' },
+          ]}
+          value={value()}
+          required
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const disabledInput = getHiddenCheckbox(screen.container, 'disabled')
+    const enabledInput = getHiddenCheckbox(screen.container, 'enabled')
+
+    expect(disabledInput.required).toBe(false)
+    expect(enabledInput.required).toBe(true)
+    expect(form.checkValidity()).toBe(false)
+
+    setValue(['enabled'])
+
+    await waitFor(() => {
+      expect(enabledInput.required).toBe(false)
+      expect(form.checkValidity()).toBe(true)
+    })
+  })
+
+  test('gives duplicate values unique stable ids and serializes repeated entries in item order', async () => {
+    const first = { value: 'same', label: 'First' }
+    const second = { value: 'same', label: 'Second' }
+    const [items, setItems] = createSignal([first, second])
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="choices" items={items()} onChange={onChange} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const firstControl = screen.getByRole('checkbox', { name: 'First' })
+    const secondControl = screen.getByRole('checkbox', { name: 'Second' })
+    const firstId = firstControl.id
+    const secondId = secondControl.id
+
+    expect(firstId).not.toBe(secondId)
+    expect(screen.getByText('First').getAttribute('for')).toBe(firstId)
+    expect(screen.getByText('Second').getAttribute('for')).toBe(secondId)
+
+    fireEvent.click(firstControl)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenLastCalledWith(['same'])
+    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+
+    setItems([second, first])
+    expect(screen.getByRole('checkbox', { name: 'First' }).id).toBe(firstId)
+    expect(screen.getByRole('checkbox', { name: 'Second' }).id).toBe(secondId)
+    expect(new FormData(form).getAll('choices')).toEqual(['same', 'same'])
+  })
+
+  test('gives duplicate primitive empty values unique ids and preserves both form entries', async () => {
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="choices" items={['', '']} />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const controls = Array.from(
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="checkbox-control"]'),
+    )
+
+    expect(controls).toHaveLength(2)
+    expect(controls[0]?.id).not.toBe(controls[1]?.id)
+
+    fireEvent.click(controls[0]!)
+
+    expect(new FormData(form).getAll('choices')).toEqual(['', ''])
+  })
+
+  test('applies horizontal table layout classes', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
+      </MoraineProvider>
+    ))
+
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+
+    expect(fieldset?.className).toContain('flex-row')
+    expect(fieldset?.className).not.toContain('flex-wrap')
+    expect(item?.className).toContain('border')
+    expect(item?.className).toContain('rounded-none')
+    expect(item?.className).toContain('p-4')
+    expect(item?.className).toContain('first-of-type:rounded-s-lg')
+    expect(item?.className).toContain('last-of-type:rounded-e-lg')
+    expect(item?.className).toContain('[&:not(:first-of-type)]:-ms-px')
+  })
+
+  test('applies vertical table layout classes', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
+      </MoraineProvider>
+    ))
+
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+
+    expect(fieldset?.className).toContain('flex-col')
+    expect(item?.className).toContain('first-of-type:rounded-t-lg')
+    expect(item?.className).toContain('last-of-type:rounded-b-lg')
+    expect(item?.className).toContain('[&:not(:first-of-type)]:-mt-px')
+  })
+
+  test('renders checkbox items as direct fieldset children', () => {
+    const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" />)
+
+    const directItems = screen.container.querySelectorAll(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+
+    expect(directItems).toHaveLength(2)
+    expect(
+      screen.container.querySelector(
+        '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"] [data-slot="checkbox-group-item"]',
+      ),
+    ).toBeNull()
+  })
+
+  test('toggles item when clicking table item root', async () => {
+    const screen = render(() => <CheckboxGroup items={['A']} variant="table" />)
+
+    const checkbox = screen.getByRole('checkbox', { name: 'A' })
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+
+    expectCheckboxChecked(checkbox, false)
+
+    fireEvent.click(item as HTMLElement)
+
+    await waitFor(() => {
+      expectCheckboxChecked(checkbox, true)
+    })
+  })
+
+  test('does not toggle item when clicking list item root', async () => {
+    const screen = render(() => <CheckboxGroup items={['A', 'B']} defaultValue={['A']} />)
+
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
+    const items = screen.container.querySelectorAll(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
+
+    fireEvent.click(items[1] as HTMLElement)
+
+    await waitFor(() => {
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
+    })
+  })
+
+  test('applies flattened classes to item and checkbox slots', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <CheckboxGroup
+          items={['A']}
+          variant="table"
+          classes={{
+            item: 'item-override',
+            control: 'control-override',
+            label: 'label-override',
+          }}
+        />
+      </MoraineProvider>
+    ))
+
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+    const base = screen.container.querySelector('[data-slot="checkbox-control"]')
+    const label = screen.container.querySelector('[data-slot="checkbox-label"]')
+
+    expect(item?.className).toContain('item-override')
+    expect(base?.className).toContain('control-override')
+    expect(label?.className).toContain('label-override')
+  })
+
+  test('applies style overrides to item and checkbox slots', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        items={['A']}
+        variant="table"
+        styles={{
+          item: { width: '200px' },
+          control: { width: '200px' },
+          label: { width: '200px' },
+        }}
+      />
+    ))
+
+    const item = screen.container.querySelector<HTMLElement>(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
+
+    expect(item?.style.width).toBe('200px')
+    expect(base?.style.width).toBe('200px')
+    expect(label?.style.width).toBe('200px')
+  })
+
+  test('submits selected item values and resets to default selection', async () => {
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup name="choices" items={['A', 'B']} defaultValue={['A']} />
+        <button type="reset">Reset</button>
+      </form>
+    ))
+
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const checkboxA = screen.getByRole('checkbox', { name: 'A' })
+    const checkboxB = screen.getByRole('checkbox', { name: 'B' })
+
+    expectCheckboxChecked(checkboxA, true)
+    expectCheckboxChecked(checkboxB, false)
+    expect(new FormData(form).getAll('choices')).toEqual(['A'])
+
+    fireEvent.click(checkboxA)
+    fireEvent.click(checkboxB)
+
+    expect(new FormData(form).getAll('choices')).toEqual(['B'])
+
+    form.reset()
+
+    await waitFor(() => {
+      expectCheckboxChecked(checkboxA, true)
+      expectCheckboxChecked(checkboxB, false)
+      expect(new FormData(form).getAll('choices')).toEqual(['A'])
+    })
+  })
+
+  test('uses the initial default snapshot and preserves a controlled value on reset', async () => {
+    const [defaultValue, setDefaultValue] = createSignal(['A'])
+    const [controlledValue, setControlledValue] = createSignal<string[] | undefined>()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <CheckboxGroup
+          items={['A', 'B']}
+          defaultValue={defaultValue()}
+          value={controlledValue()}
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'B' }))
+    expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
+
+    setDefaultValue(['B'])
+    form.reset()
+    await waitFor(() => {
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), true)
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), false)
+    })
+
+    setControlledValue(['B'])
+    form.reset()
+    await waitFor(() => {
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'A' }), false)
+      expectCheckboxChecked(screen.getByRole('checkbox', { name: 'B' }), true)
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  test('synchronizes external controlled values into Field submission', async () => {
+    const [value, setValue] = createSignal<string[]>([])
+    const onSubmit = vi.fn()
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.array(v.string()) }),
+          initialInput: { choices: [] },
+        }),
+      (form) => (
+        <form.Form onSubmit={onSubmit}>
+          <form.Field name="choices" label="Choices">
+            <CheckboxGroup items={['A', 'B']} value={value()} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    setValue(['B'])
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit.mock.calls[0]?.[0]).toEqual({ choices: ['B'] })
+  })
+
+  test('single-evaluates group JSX and collection props', () => {
+    const reads = { checkedIcon: 0, indeterminateIcon: 0, items: 0, legend: 0 }
+    const screen = render(() =>
+      createComponent(CheckboxGroup, {
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get indeterminateIcon() {
+          reads.indeterminateIcon += 1
+          return <span>Mixed</span>
+        },
+        get items() {
+          reads.items += 1
+          return [{ value: 'a', label: 'Alpha', indeterminate: true }]
+        },
+        get legend() {
+          reads.legend += 1
+          return 'Options'
+        },
+      }),
+    )
+
+    expect(screen.getByText('Options')).not.toBeNull()
+    expect(screen.getByText('Alpha')).not.toBeNull()
+    expect(screen.getByText('Mixed')).not.toBeNull()
+    expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 1, items: 1, legend: 1 })
+  })
+})

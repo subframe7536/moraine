@@ -1,8 +1,8 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../elements/button/button'
-import { Input } from '../forms/input/input'
-import { Textarea } from '../forms/textarea/textarea'
+import { Button } from '../element/button/button'
+import { Input } from '../form/input/input'
+import { Textarea } from '../form/textarea/textarea'
 import { defineTheme } from '../theme/create-theme'
 import type { CnConfig } from '../theme/style/cn'
 import type { MoraineTheme } from '../theme/types'

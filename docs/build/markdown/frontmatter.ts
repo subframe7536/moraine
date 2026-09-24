@@ -84,13 +84,13 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     const apiValue = data.api as FrontmatterRecord
     const apiPath = readString(apiValue, 'path')
     if (
-      !/^src\/(?:elements|forms|navigation|overlays)\/[a-z0-9/-]+$/.test(apiPath) ||
+      !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(apiPath) ||
       apiPath.includes('..') ||
       /\.[cm]?[jt]sx?$/.test(apiPath)
     ) {
       return fail(
         'api.path',
-        'must be an extensionless component path under src/elements, src/forms, src/navigation, or src/overlays',
+        'must be an extensionless component path under src/element, src/form, src/navigation, or src/overlay',
       )
     }
 
@@ -123,7 +123,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
         seenParts.add(name)
         const partPath = readString(partValue, 'path')
         if (
-          !/^src\/(?:elements|forms|navigation|overlays)\/[a-z0-9/-]+$/.test(partPath) ||
+          !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(partPath) ||
           partPath.includes('..') ||
           /\.[cm]?[jt]sx?$/.test(partPath)
         ) {

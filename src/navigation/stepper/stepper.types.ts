@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/icon.types.ts'
+import type { IconT } from '../../element/icon/icon.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import type { Orientation } from '../../theme/style/style-types.ts'
 

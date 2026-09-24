@@ -8,9 +8,9 @@ import { describe, expect, test } from 'vitest'
 const dist = resolve(import.meta.dirname, '../../dist')
 function namespace(name: string): string {
   const files: Record<string, string> = {
-    ButtonT: 'elements/button/button.types.d.mts',
-    InputT: 'forms/input/input.types.d.mts',
-    SelectT: 'forms/select/select.types.d.mts',
+    ButtonT: 'element/button/button.types.d.mts',
+    InputT: 'form/input/input.types.d.mts',
+    SelectT: 'form/select/select.types.d.mts',
   }
   const declarations = readFileSync(resolve(dist, files[name]), 'utf8')
   const start = declarations.indexOf(`declare namespace ${name} {`)
@@ -23,10 +23,10 @@ describe('published declarations', () => {
   test('retain documented Variants, official defaults and slots', () => {
     const button = namespace('ButtonT')
     const buttonStyle = readFileSync(
-      resolve(dist, 'elements/button/button.style-types.d.mts'),
+      resolve(dist, 'element/button/button.style-types.d.mts'),
       'utf8',
     )
-    const inputStyle = readFileSync(resolve(dist, 'forms/input/input.style-types.d.mts'), 'utf8')
+    const inputStyle = readFileSync(resolve(dist, 'form/input/input.style-types.d.mts'), 'utf8')
 
     expect(button).toContain('type Slot<T = unknown> = ButtonStyleSlot<T>')
     expect(button).toContain('type Variant = ButtonStyleVariant')
@@ -38,7 +38,7 @@ describe('published declarations', () => {
     )
     expect(namespace('InputT')).toContain('type Slot<T = unknown> = InputStyleSlot<T>')
     expect(inputStyle).toContain('Native text input element.')
-    expect(readFileSync(resolve(dist, 'forms/shared/select/types.d.mts'), 'utf8')).toContain(
+    expect(readFileSync(resolve(dist, 'form/shared/select/types.d.mts'), 'utf8')).toContain(
       'Custom item presentation.',
     )
     expect(namespace('SelectT')).toContain('type Slot<T = unknown> = SelectStyleSlot<T>')
@@ -55,15 +55,15 @@ describe('published declarations', () => {
       "onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void",
     )
     expect(
-      readFileSync(resolve(dist, 'forms/base-select/base-select.types.d.mts'), 'utf8'),
+      readFileSync(resolve(dist, 'form/base-select/base-select.types.d.mts'), 'utf8'),
     ).toContain('items?: readonly TItem[]')
   })
 
   test('expose complete Select-family Props and owned input refs', () => {
-    const select = readFileSync(resolve(dist, 'forms/select/select.types.d.mts'), 'utf8')
-    const combobox = readFileSync(resolve(dist, 'forms/combobox/combobox.types.d.mts'), 'utf8')
+    const select = readFileSync(resolve(dist, 'form/select/select.types.d.mts'), 'utf8')
+    const combobox = readFileSync(resolve(dist, 'form/combobox/combobox.types.d.mts'), 'utf8')
     const multiSelect = readFileSync(
-      resolve(dist, 'forms/multi-select/multi-select.types.d.mts'),
+      resolve(dist, 'form/multi-select/multi-select.types.d.mts'),
       'utf8',
     )
 

@@ -48,10 +48,10 @@ function convertSrcImport(specifier: string): string {
     return `moraine/${specifier.slice('@src/'.length)}`
   }
   if (
-    specifier.startsWith('@src/elements/') ||
-    specifier.startsWith('@src/forms/') ||
+    specifier.startsWith('@src/element/') ||
+    specifier.startsWith('@src/form/') ||
     specifier.startsWith('@src/navigation/') ||
-    specifier.startsWith('@src/overlays/')
+    specifier.startsWith('@src/overlay/')
   ) {
     return 'moraine'
   }

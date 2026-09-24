@@ -2,7 +2,7 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Pagination } from './pagination'
 

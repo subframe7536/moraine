@@ -17,7 +17,7 @@ describe('variantGroupPlugin', () => {
 
     const result = await transform.handler(
       "export const BUTTON_CLASS = 'hover:(bg-primary text-primary-foreground)'\n",
-      '/project/src/elements/button/button.recipe.ts',
+      '/project/src/element/button/button.recipe.ts',
     )
 
     expect(result).toMatchObject({

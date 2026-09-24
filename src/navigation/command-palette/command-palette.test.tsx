@@ -3,9 +3,9 @@ import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { Dialog } from '../../overlays/dialog'
+import { Dialog } from '../../overlay/dialog'
 import { MoraineProvider } from '../../provider'
-import { finishExitMotion } from '../../test-utils/overlay-test'
+import { finishExitMotion } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 
 import { CommandPalette } from './command-palette'

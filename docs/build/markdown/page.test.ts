@@ -34,7 +34,7 @@ vi.mock('../api-doc/load.ts', () => ({
       {
         key: BUTTON_API_DOC.key,
         name: BUTTON_API_DOC.name,
-        category: 'elements',
+        category: 'element',
       },
     ],
   }),

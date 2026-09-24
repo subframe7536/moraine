@@ -10,7 +10,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Sheet } from '../../overlays/sheet'
+import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { createMediaQuery } from '../../shared/use-media-query'

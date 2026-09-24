@@ -23,7 +23,7 @@ export default defineConfig({
   },
   plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {
-    globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
+    globalSetup: ['./src/test-util/ssr-global-setup.ts'],
     include: [
       'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
       'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
@@ -41,7 +41,7 @@ export default defineConfig({
       '**/tsconfig*.json',
       '**/tsdown.config.*',
       '**/vite-plugin-variant-group.*',
-      '**/src/test-utils/**',
+      '**/src/test-util/**',
     ],
     server: {
       deps: {

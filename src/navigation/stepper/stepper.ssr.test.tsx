@@ -1,7 +1,7 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test.ts'
 
 import { StepperHydrationFixture } from './stepper.ssr.fixture.tsx'
 

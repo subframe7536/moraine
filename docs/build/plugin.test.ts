@@ -22,26 +22,26 @@ async function createTempProject(): Promise<string> {
 }
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
-  await mkdir(path.join(projectRoot, 'src/elements/button'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'src/element/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/(general)/button'), { recursive: true })
 
   await writeFile(
     path.join(projectRoot, 'src/index.ts'),
-    "export * from './elements/index.ts'\n",
+    "export * from './element/index.ts'\n",
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'src/elements/index.ts'),
+    path.join(projectRoot, 'src/element/index.ts'),
     "export * from './button'\n",
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'src/elements/button/index.ts'),
+    path.join(projectRoot, 'src/element/button/index.ts'),
     "export { Button } from './button.tsx'\nexport type { ButtonProps, ButtonT } from './button.tsx'\n",
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'src/elements/button/button.types.ts'),
+    path.join(projectRoot, 'src/element/button/button.types.ts'),
     `
 export namespace ButtonT {
   export type Kind = 'single'
@@ -56,7 +56,7 @@ export type ButtonProps = ButtonT.Props
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'src/elements/button/button.recipe.ts'),
+    path.join(projectRoot, 'src/element/button/button.recipe.ts'),
     `export const buttonRecipe = defineRecipe('button', { base: { root: '' } })\n`,
     'utf8',
   )
@@ -70,7 +70,7 @@ sidebar:
 search:
   tags: [action]
 api:
-  path: src/elements/button/button
+  path: src/element/button/button
 ---
 
 ## Button
@@ -91,7 +91,7 @@ describe('docsBuildPlugin', () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     try {
-      const sourceFile = path.join(projectRoot, 'src/elements/button/button.types.ts')
+      const sourceFile = path.join(projectRoot, 'src/element/button/button.types.ts')
       await writeFile(
         sourceFile,
         `

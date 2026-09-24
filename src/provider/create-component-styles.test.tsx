@@ -2,9 +2,9 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { buttonRecipe } from '../elements/button/button.recipe'
-import type { ButtonT } from '../elements/button/button.types'
-import { tooltipRecipe } from '../overlays/tooltip/tooltip.recipe'
+import { buttonRecipe } from '../element/button/button.recipe'
+import type { ButtonT } from '../element/button/button.types'
+import { tooltipRecipe } from '../overlay/tooltip/tooltip.recipe'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 

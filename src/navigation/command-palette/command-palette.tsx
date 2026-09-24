@@ -11,10 +11,10 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import { List } from '../../elements/list'
-import type { ListT } from '../../elements/list'
-import { createCompositionState, isComposingKeyEvent } from '../../overlays/base/utils'
+import { Icon } from '../../element/icon'
+import { List } from '../../element/list'
+import type { ListT } from '../../element/list'
+import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
