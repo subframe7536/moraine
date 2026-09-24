@@ -13,7 +13,7 @@ describe('Tabs SSR Hydration', () => {
     let firstReads = 0
     let secondReads = 0
     const { container } = hydrateFixture(
-      '/src/navigation/tab/tabs.ssr.fixture.tsx',
+      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
       'renderLazyTabsFixture',
       () => (
         <Tabs
@@ -49,7 +49,7 @@ describe('Tabs SSR Hydration', () => {
   })
   test('renders deterministic vertical SSR relationships and selected panel', () => {
     const markup = renderSsrFixture(
-      '/src/navigation/tab/tabs.ssr.fixture.tsx',
+      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
       'renderVerticalTabsFixture',
     )
 
@@ -66,7 +66,7 @@ describe('Tabs SSR Hydration', () => {
   test('hydrates empty-value JSX without replacing nodes and handles first keyboard activation', () => {
     const [value, setValue] = createSignal('')
     const { container } = hydrateFixture(
-      '/src/navigation/tab/tabs.ssr.fixture.tsx',
+      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
       'renderTabsFixture',
       () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={createTabItems()} />,
     )
