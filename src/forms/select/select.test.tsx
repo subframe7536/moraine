@@ -58,6 +58,38 @@ describe('Select', () => {
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
 
+  test('scrolls the selected option within the listbox without moving the page', async () => {
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+    const page = document.documentElement
+    const pageScroll = page.scrollTop
+    page.scrollTop = 320
+    HTMLElement.prototype.scrollIntoView = vi.fn(() => {
+      page.scrollTop = 0
+    })
+
+    try {
+      const screen = render(() => <Select items={ITEMS} defaultValue="banana" />)
+      fireEvent.click(screen.getByRole('combobox'))
+
+      const listbox = within(document.body).getByRole('listbox', { hidden: true })
+      const selected = within(listbox).getByRole('option', { name: 'Banana', hidden: true })
+      Object.defineProperties(listbox, {
+        clientHeight: { configurable: true, value: 80 },
+        scrollHeight: { configurable: true, value: 240 },
+      })
+      vi.spyOn(listbox, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 120, 80))
+      vi.spyOn(selected, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 100, 120, 32))
+
+      await Promise.resolve()
+      expect(page.scrollTop).toBe(320)
+      expect(listbox.scrollTop).toBe(52)
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+      page.scrollTop = pageScroll
+      vi.restoreAllMocks()
+    }
+  })
+
   test('inherits read-only listbox semantics', () => {
     const screen = render(() => <Select items={ITEMS} defaultOpen readOnly />)
     expect(screen.getByRole('combobox').getAttribute('aria-readonly')).toBe('true')
