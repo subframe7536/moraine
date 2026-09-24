@@ -101,6 +101,8 @@ specimen, a curated component canvas, a visual styling comparison, and a compact
 It does not list every component; documentation search and the sidebar own discovery. The landing
 may use a wider measure than article pages, while keeping the same semantic colors, typography,
 spacing, focus treatment, and motion rules. Real Moraine components are its primary visual content.
+Keep section spacing compact and compose the canvas as one ruled work surface with varied panel
+sizes; each visible interactive control should have a meaningful local response.
 
 Do not use equal-card hero templates, generic feature-card grids, fabricated social proof, fake
 browser chrome, or decorative assets that do not explain the component library.

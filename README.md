@@ -59,7 +59,7 @@ function App() {
 }
 ```
 
-4. See the [component guides](https://ui.subf.dev) for usage and [Styling](https://ui.subf.dev/styling) for customization. Components use built-in styles by default. Add `MoraineProvider` for Theme or class-merging overrides; Styling explains inheritance and composition.
+4. See the [component guides](https://ui.subf.dev) for usage and [Customization](https://ui.subf.dev/styling/customization) for style overrides. Components use built-in styles by default. Add `MoraineProvider` for Theme or class-merging overrides; [Advanced](https://ui.subf.dev/styling/advanced) explains inheritance and composition.
 
 ## Package entry points
 

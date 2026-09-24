@@ -18,16 +18,17 @@ test('starts sidebar and search with Getting Started, without a landing docs ent
       sections: [],
     },
     {
-      key: 'styling',
-      path: '/styling',
-      label: 'Styling',
-      description: 'Configure styles.',
-      order: 2,
-      tags: ['theme'],
+      key: 'unocss',
+      path: '/styling/unocss',
+      label: 'UnoCSS',
+      description: 'Configure UnoCSS.',
+      group: 'styling',
+      order: 1,
+      tags: ['unocss'],
       sections: [],
     },
   ]
-  expect(pages.map((page) => page.path)).toEqual(['/start', '/styling'])
+  expect(pages.map((page) => page.path)).toEqual(['/start', '/styling/unocss'])
   expect(buildDocsCommandItems(pages)[0]?.items?.[0]).toMatchObject({
     href: '/start',
     label: 'Getting Started',

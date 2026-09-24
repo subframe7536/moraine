@@ -176,7 +176,7 @@ export function createDocsHastPlugin() {
             type: 'element',
             tagName: 'div',
             properties: {
-              class: 'mt-6 mb-10 b-1 b-border rounded-lg overflow-x-auto',
+              class: 'mt-6 mb-3.5 b-1 b-border rounded-lg overflow-x-auto',
             },
             children: [],
           })

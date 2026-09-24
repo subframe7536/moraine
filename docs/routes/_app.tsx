@@ -194,7 +194,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                   Start
                 </a>
                 <a
-                  href="/styling"
+                  href="/styling/unocss"
                   class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Styling

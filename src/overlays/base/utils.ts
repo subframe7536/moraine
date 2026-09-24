@@ -454,6 +454,35 @@ export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => voi
   }
 }
 
+/** Reveal an overlay item without scrolling the document behind its portal. */
+export function scrollIntoViewWithin(element: HTMLElement, boundary: HTMLElement): void {
+  if (!boundary.contains(element)) {
+    return
+  }
+
+  for (
+    let container = element.parentElement;
+    container && boundary.contains(container);
+    container = container.parentElement
+  ) {
+    if (container.scrollHeight > container.clientHeight) {
+      const item = element.getBoundingClientRect()
+      const viewport = container.getBoundingClientRect()
+      const top = viewport.top + container.clientTop
+      const bottom = top + container.clientHeight
+
+      if (item.top < top) {
+        container.scrollTop += item.top - top
+      } else if (item.bottom > bottom) {
+        container.scrollTop += item.bottom - bottom
+      }
+    }
+    if (container === boundary) {
+      break
+    }
+  }
+}
+
 export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   const candidates = getComposedElementDescendants(container).filter(
     (element): element is HTMLElement =>
