@@ -5,7 +5,7 @@ import { MoraineProvider } from '../../../../src'
 
 import { LandingPage } from './landing-page'
 
-test('the landing specimen and canvas respond to local actions', () => {
+test('the landing specimen and canvas respond to local actions', async () => {
   const view = render(() => (
     <MoraineProvider>
       <LandingPage />
@@ -47,6 +47,18 @@ test('the landing specimen and canvas respond to local actions', () => {
   expect(view.getByRole('switch', { name: 'Email updates' }).getAttribute('aria-checked')).toBe(
     'false',
   )
+
+  fireEvent.click(view.getByRole('button', { name: 'Review note' }))
+  const reviewNote = await within(document.body).findByRole('dialog', {
+    name: 'Documentation review note',
+  })
+  fireEvent.click(within(reviewNote).getByRole('button', { name: 'Mark ready' }))
+  expect(
+    within(view.getByRole('region', { name: 'A working set' })).getByText('Ready'),
+  ).toBeTruthy()
+  expect(
+    within(reviewNote).getByRole('button', { name: 'Marked ready' }).hasAttribute('disabled'),
+  ).toBe(true)
 
   fireEvent.click(view.getAllByRole('button', { name: 'Create project' })[0]!)
   expect(view.getByRole('button', { name: 'Project created' })).toBeTruthy()
