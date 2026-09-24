@@ -1,0 +1,816 @@
+import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { describe, expect, test, vi } from 'vitest'
+
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
+
+import { Tabs } from './tabs'
+
+if (!(globalThis as Record<string, unknown>).ResizeObserver) {
+  ;(globalThis as Record<string, unknown>).ResizeObserver = class {
+    // oxlint-disable-next-line class-methods-use-this
+    observe() {}
+    // oxlint-disable-next-line class-methods-use-this
+    unobserve() {}
+    // oxlint-disable-next-line class-methods-use-this
+    disconnect() {}
+  }
+}
+
+describe('Tabs', () => {
+  function expectControlsResolve(container: HTMLElement): void {
+    for (const trigger of container.querySelectorAll<HTMLElement>('[role="tab"]')) {
+      const controls = trigger.getAttribute('aria-controls')
+
+      if (controls) {
+        const matches = Array.from(container.querySelectorAll<HTMLElement>('[id]')).filter(
+          (element) => element.id === controls,
+        )
+        expect(matches).toHaveLength(1)
+      }
+    }
+  }
+
+  test('defers unselected panel JSX and reads it once when selected', () => {
+    let reads = 0
+    const [value, setValue] = createSignal('first')
+    const screen = render(() => (
+      <Tabs
+        value={value()}
+        items={[
+          { value: 'first', label: 'First', content: 'First panel' },
+          {
+            value: 'second',
+            label: 'Second',
+            get content() {
+              reads++
+              return <span>Second panel</span>
+            },
+          },
+        ]}
+      />
+    ))
+    expect(reads).toBe(0)
+    setValue('second')
+    expect(screen.getByRole('tabpanel').textContent).toBe('Second panel')
+    expect(reads).toBe(1)
+  })
+  const ITEMS = [
+    { label: 'Overview', value: 'overview', content: 'Overview content' },
+    { label: 'Settings', value: 'settings', content: 'Settings content' },
+  ]
+
+  test('renders triggers and tab content', () => {
+    const screen = render(() => <Tabs items={ITEMS} defaultValue="overview" />)
+
+    expect(screen.getByRole('tab', { name: 'Overview' })).not.toBeNull()
+    expect(screen.getByRole('tab', { name: 'Settings' })).not.toBeNull()
+    expect(screen.getByText('Overview content')).not.toBeNull()
+  })
+
+  test('supports controlled value and emits onChange', async () => {
+    const onChange = vi.fn()
+
+    const screen = render(() => (
+      <Tabs
+        value="one"
+        onChange={onChange}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+        ]}
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
+
+    expect(onChange).toHaveBeenCalledWith('two')
+
+    const selected = screen.getByRole('tab', { name: 'One' })
+    expect(selected.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('selects and measures an empty-string tab value', () => {
+    const screen = render(() => (
+      <Tabs
+        id="empty-value-tabs"
+        defaultValue=""
+        items={[
+          { label: 'Empty', value: '', content: 'Empty panel' },
+          { label: 'Other', value: 'other', content: 'Other panel' },
+        ]}
+      />
+    ))
+    const empty = screen.getByRole('tab', { name: 'Empty' })
+
+    expect(empty.getAttribute('aria-selected')).toBe('true')
+    expect(empty.getAttribute('aria-controls')).toBe('empty-value-tabs--0-content')
+    expect(screen.getByRole('tabpanel').textContent).toBe('Empty panel')
+    expect(
+      screen.container.querySelector('[data-slot="tabs-indicator"]')?.getAttribute('style'),
+    ).toContain('width:')
+  })
+
+  test('gives duplicate values unique ARIA identity and selects the first enabled occurrence', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Tabs
+        id="duplicate-tabs"
+        defaultValue="duplicate"
+        onChange={onChange}
+        items={[
+          { label: 'First duplicate', value: 'duplicate', content: 'First panel' },
+          { label: 'Second duplicate', value: 'duplicate', content: 'Second panel' },
+          { label: 'Other', value: 'other', content: 'Other panel' },
+        ]}
+      />
+    ))
+    const first = screen.getByRole('tab', { name: 'First duplicate' })
+    const second = screen.getByRole('tab', { name: 'Second duplicate' })
+
+    expect(first.id).not.toBe(second.id)
+    expect(screen.container.querySelectorAll('[role="tab"][aria-selected="true"]')).toHaveLength(1)
+    expect(screen.getAllByRole('tabpanel')).toHaveLength(1)
+    const panel = screen.getByRole('tabpanel')
+    expect(panel.textContent).toBe('First panel')
+    expect(first.getAttribute('aria-controls')).toBe(panel.id)
+    expect(second.getAttribute('aria-controls')).toBeNull()
+    expectControlsResolve(screen.container)
+
+    fireEvent.click(second)
+    expect(first.getAttribute('aria-selected')).toBe('true')
+    expect(second.getAttribute('aria-selected')).toBe('false')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('only links controls to mounted panels as selection changes', () => {
+    const [value, setValue] = createSignal('one')
+    const screen = render(() => (
+      <Tabs
+        value={value()}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+        ]}
+      />
+    ))
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+
+    expect(one.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expect(two.getAttribute('aria-controls')).toBeNull()
+    expectControlsResolve(screen.container)
+
+    setValue('two')
+
+    expect(one.getAttribute('aria-controls')).toBeNull()
+    expect(two.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expectControlsResolve(screen.container)
+  })
+
+  test('links selected tabs with empty content while leaving inactive tabs unlinked', () => {
+    const screen = render(() => (
+      <Tabs
+        defaultValue="empty"
+        items={[
+          { label: 'Content', value: 'content', content: 'Content panel' },
+          { label: 'Empty', value: 'empty' },
+        ]}
+      />
+    ))
+    const content = screen.getByRole('tab', { name: 'Content' })
+    const empty = screen.getByRole('tab', { name: 'Empty' })
+    const panel = screen.getByRole('tabpanel')
+
+    expect(panel.textContent).toBe('')
+    expect(content.getAttribute('aria-controls')).toBeNull()
+    expect(empty.getAttribute('aria-controls')).toBe(panel.id)
+    expect(panel.getAttribute('aria-labelledby')).toBe(empty.id)
+    expectControlsResolve(screen.container)
+  })
+
+  test('changes selection with horizontal arrow keys and wraps by default', async () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+        defaultValue="one"
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(two.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(two, { key: 'ArrowLeft' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(one, { key: 'ArrowLeft' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('changes selection with vertical arrow keys', async () => {
+    const screen = render(() => (
+      <Tabs
+        orientation="vertical"
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+        defaultValue="one"
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(one, { key: 'ArrowDown' })
+    expect(two.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('supports Home and End keyboard navigation', async () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+        defaultValue="one"
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'End' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(three, { key: 'Home' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('supports manual activation mode via Enter and Space', async () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Tabs
+        activationMode="manual"
+        defaultValue="one"
+        onChange={onChange}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(two)
+    expect(two.getAttribute('aria-selected')).toBe('false')
+
+    fireEvent.keyDown(two, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(three)
+    expect(three.getAttribute('aria-selected')).toBe('false')
+
+    fireEvent.keyDown(three, { key: 'Enter' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(three, { key: ' ' })
+    expect(onChange).toHaveBeenCalledWith('three')
+  })
+
+  test('respects loop=false at boundaries', async () => {
+    const screen = render(() => (
+      <Tabs
+        loop={false}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+        defaultValue="three"
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    three.focus()
+
+    fireEvent.keyDown(three, { key: 'ArrowRight' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+
+    one.focus()
+    fireEvent.keyDown(one, { key: 'ArrowLeft' })
+    expect(one.getAttribute('aria-selected')).toBe('false')
+    expect(screen.getByRole('tab', { name: 'Three' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('applies orientation/variant classes and class overrides', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Tabs
+          orientation="vertical"
+          variant="link"
+          items={ITEMS}
+          classes={{
+            root: 'root-override',
+            trigger: 'trigger-override',
+            content: 'content-override',
+          }}
+        />
+      </MoraineProvider>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="tabs"]')
+    const trigger = screen.container.querySelector('[data-slot="tabs-trigger"]')
+    const content = screen.container.querySelector('[data-slot="tabs-content"]')
+
+    expect(root?.className).toContain('flex-row')
+    expect(root?.className).toContain('root-override')
+    expect(trigger?.className).toContain('transition')
+    expect(trigger?.className).toContain('focus-visible:ring-ring/50')
+    expect(trigger?.className).toContain('trigger-override')
+    expect(content?.className).toContain('content-override')
+  })
+
+  test('applies vertical pill indicator inset class', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Tabs orientation="vertical" items={ITEMS} />
+      </MoraineProvider>
+    ))
+
+    const indicator = screen.container.querySelector('[data-slot="tabs-indicator"]')
+
+    expect(indicator?.className).toContain('inset-x-1')
+  })
+
+  test('renders default styles while retaining selection behavior without a provider', () => {
+    const screen = render(() => <Tabs items={ITEMS} />)
+    for (const element of screen.container.querySelectorAll('[data-slot]')) {
+      expect(element.className).not.toBe('')
+    }
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+    expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
+  })
+
+  test('replaces Design without remounting the selected tab or panel', () => {
+    const [design, setDesign] = createSignal(defineTheme())
+    const screen = render(() => (
+      <MoraineProvider theme={design()}>
+        <Tabs items={ITEMS} defaultValue="settings" />
+      </MoraineProvider>
+    ))
+    const tab = screen.getByRole('tab', { name: 'Settings' })
+    const panel = screen.getByRole('tabpanel')
+    tab.focus()
+    setDesign(defineTheme({ tabs: { base: { trigger: 'custom-tab' } } }))
+    expect(screen.getByRole('tab', { name: 'Settings' })).toBe(tab)
+    expect(screen.getByRole('tabpanel')).toBe(panel)
+    expect(document.activeElement).toBe(tab)
+    expect(tab.className).toContain('custom-tab')
+  })
+
+  test('renders icon leading', () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          {
+            label: 'Inbox',
+            value: 'inbox',
+            icon: 'icon-inbox',
+          },
+        ]}
+      />
+    ))
+
+    const leading = screen.container.querySelector('[data-slot="tabs-leading"]')
+    const icon = leading?.querySelector('[data-slot="icon"]')
+
+    expect(leading).not.toBeNull()
+    expect(icon?.className).not.toMatch(/(?:^|\s)size-/)
+  })
+
+  test('applies style overrides', () => {
+    const screen = render(() => (
+      <Tabs
+        items={ITEMS}
+        styles={{
+          root: { width: '200px' },
+          trigger: { width: '200px' },
+          content: { width: '200px' },
+        }}
+      />
+    ))
+
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="tabs"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="tabs-trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="tabs-content"]')
+
+    expect(root?.style.width).toBe('200px')
+    expect(trigger?.style.width).toBe('200px')
+    expect(content?.style.width).toBe('200px')
+  })
+
+  test('supports RTL horizontal navigation', async () => {
+    const screen = render(() => (
+      <div dir="rtl">
+        <Tabs
+          items={[
+            { label: 'One', value: 'one', content: 'Panel one' },
+            { label: 'Two', value: 'two', content: 'Panel two' },
+            { label: 'Three', value: 'three', content: 'Panel three' },
+          ]}
+          defaultValue="two"
+        />
+      </div>
+    ))
+
+    const two = screen.getByRole('tab', { name: 'Two' })
+    const one = screen.getByRole('tab', { name: 'One' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    two.focus()
+
+    // In RTL, ArrowLeft moves forward (to the next item)
+    fireEvent.keyDown(two, { key: 'ArrowLeft' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+
+    // In RTL, ArrowRight moves backward (to the previous item)
+    fireEvent.keyDown(three, { key: 'ArrowRight' })
+    expect(two.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(two, { key: 'ArrowRight' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('skips disabled tabs during keyboard navigation', async () => {
+    const screen = render(() => (
+      <Tabs
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: true },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+        defaultValue="one"
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(three.getAttribute('aria-selected')).toBe('true')
+    expect(two.getAttribute('aria-selected')).toBe('false')
+
+    fireEvent.keyDown(three, { key: 'ArrowLeft' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('roving tabindex follows highlighted tab in manual mode', async () => {
+    const screen = render(() => (
+      <Tabs
+        activationMode="manual"
+        defaultValue="one"
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+          { label: 'Three', value: 'three', content: 'Panel three' },
+        ]}
+      />
+    ))
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+    const three = screen.getByRole('tab', { name: 'Three' })
+
+    expect(one.getAttribute('tabindex')).toBe('0')
+    expect(two.getAttribute('tabindex')).toBe('-1')
+
+    one.focus()
+
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(two)
+    expect(two.getAttribute('tabindex')).toBe('0')
+    expect(one.getAttribute('tabindex')).toBe('-1')
+    expect(two.getAttribute('data-highlighted')).toBe('')
+    expect(one.getAttribute('aria-selected')).toBe('true')
+    expect(two.getAttribute('aria-selected')).toBe('false')
+
+    fireEvent.keyDown(two, { key: 'Enter' })
+    expect(two.getAttribute('aria-selected')).toBe('true')
+    expect(two.getAttribute('tabindex')).toBe('0')
+    expect(two.getAttribute('data-highlighted')).toBe('')
+    expect(three.getAttribute('tabindex')).toBe('-1')
+  })
+
+  test('recovers selection and focus when the focused selected tab is removed', async () => {
+    const [items, setItems] = createSignal([
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+      { label: 'Three', value: 'three', content: 'Panel three' },
+    ])
+    const screen = render(() => <Tabs defaultValue="two" items={items()} />)
+    const two = screen.getByRole('tab', { name: 'Two' })
+
+    two.focus()
+    setItems((current) => current.filter((item) => item.value !== 'two'))
+    await Promise.resolve()
+
+    const one = screen.getByRole('tab', { name: 'One' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+    expect(one.getAttribute('tabindex')).toBe('0')
+    expect(document.activeElement).toBe(one)
+    expect(screen.getByRole('tabpanel').textContent).toBe('Panel one')
+  })
+
+  test('does not take focus back after a removed tab moves focus elsewhere', async () => {
+    const [items, setItems] = createSignal([
+      { label: 'One', value: 'one', content: 'One panel' },
+      { label: 'Two', value: 'two', content: 'Two panel' },
+    ])
+    const screen = render(() => (
+      <>
+        <Tabs defaultValue="two" items={items()} />
+        <button type="button">Outside</button>
+      </>
+    ))
+    const focusedTab = screen.getByRole('tab', { name: 'Two' })
+    const outside = screen.getByRole('button', { name: 'Outside' })
+
+    focusedTab.focus()
+    setItems([{ label: 'One', value: 'one', content: 'One panel' }])
+    outside.focus()
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(outside)
+  })
+
+  test('renders and selects tabs when ResizeObserver is unavailable', async () => {
+    const originalResizeObserver = globalThis.ResizeObserver
+    delete (globalThis as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver
+
+    try {
+      const screen = render(() => <Tabs items={ITEMS} defaultValue="overview" />)
+      const settings = screen.getByRole('tab', { name: 'Settings' })
+
+      fireEvent.click(settings)
+      expect(settings.getAttribute('aria-selected')).toBe('true')
+      expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
+      screen.unmount()
+    } finally {
+      globalThis.ResizeObserver = originalResizeObserver
+    }
+  })
+
+  test('disconnects and rebinds ResizeObserver when selection changes', async () => {
+    const originalResizeObserver = globalThis.ResizeObserver
+    const instances: Array<{ disconnect: ReturnType<typeof vi.fn>; observed: Element[] }> = []
+
+    class MockResizeObserver {
+      disconnect = vi.fn()
+      observed: Element[] = []
+
+      constructor() {
+        instances.push(this)
+      }
+
+      observe(element: Element) {
+        this.observed.push(element)
+      }
+
+      // oxlint-disable-next-line class-methods-use-this
+      unobserve() {}
+    }
+
+    globalThis.ResizeObserver = MockResizeObserver
+
+    try {
+      const screen = render(() => <Tabs items={ITEMS} defaultValue="overview" />)
+      await Promise.resolve()
+
+      const firstObserver = instances.at(-1)!
+      expect(firstObserver.observed).toContain(screen.getByRole('tab', { name: 'Overview' }))
+      expect(firstObserver.observed).toContain(screen.getByRole('tablist'))
+
+      fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+      await Promise.resolve()
+
+      expect(firstObserver.disconnect).toHaveBeenCalledTimes(1)
+      const currentObserver = instances.at(-1)!
+      expect(currentObserver).not.toBe(firstObserver)
+      expect(currentObserver.observed).toContain(screen.getByRole('tab', { name: 'Settings' }))
+      screen.unmount()
+      expect(currentObserver.disconnect).toHaveBeenCalledTimes(1)
+    } finally {
+      globalThis.ResizeObserver = originalResizeObserver
+    }
+  })
+
+  test('derives a fallback when the selected tab is disabled and restores the request later', async () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Tabs
+        defaultValue="two"
+        onChange={onChange}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: disabled() },
+        ]}
+      />
+    ))
+    const two = screen.getByRole('tab', { name: 'Two' })
+
+    two.focus()
+    setDisabled(true)
+    await Promise.resolve()
+    const one = screen.getByRole('tab', { name: 'One' })
+    expect(one.getAttribute('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(one)
+
+    setDisabled(false)
+    await Promise.resolve()
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('tabpanel').textContent).toBe('Panel two')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('keeps manual focus on the same tab across reordering', async () => {
+    const initialItems = [
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+      { label: 'Three', value: 'three', content: 'Panel three' },
+    ]
+    const [items, setItems] = createSignal(initialItems)
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Tabs activationMode="manual" defaultValue="one" items={items()} onChange={onChange} />
+    ))
+    const one = screen.getByRole('tab', { name: 'One' })
+
+    one.focus()
+    fireEvent.keyDown(one, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Two' }))
+
+    setItems([initialItems[2]!, initialItems[1]!, initialItems[0]!])
+    await Promise.resolve()
+
+    const reorderedTwo = screen.getByRole('tab', { name: 'Two' })
+    expect(document.activeElement).toBe(reorderedTwo)
+    expect(reorderedTwo.getAttribute('tabindex')).toBe('0')
+    expect(screen.getByRole('tab', { name: 'One' }).getAttribute('aria-selected')).toBe('true')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('applies controlled updates without moving focus or emitting changes', () => {
+    const [value, setValue] = createSignal('one')
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button">Outside</button>
+        <Tabs
+          value={value()}
+          onChange={onChange}
+          items={[
+            { label: 'One', value: 'one', content: 'Panel one' },
+            { label: 'Two', value: 'two', content: 'Panel two' },
+          ]}
+        />
+      </>
+    ))
+    const one = screen.getByRole('tab', { name: 'One' })
+    const outside = screen.getByRole('button', { name: 'Outside' })
+
+    one.focus()
+    setValue('two')
+    expect(document.activeElement).toBe(one)
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+
+    outside.focus()
+    setValue('one')
+    expect(document.activeElement).toBe(outside)
+    expect(one.getAttribute('aria-selected')).toBe('true')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('reads the item collection and JSX-capable item fields once', () => {
+    const reads = { content: 0, icon: 0, items: 0, label: 0 }
+    const item = {
+      value: 'zero',
+      get label() {
+        reads.label += 1
+        return 0
+      },
+      get icon() {
+        reads.icon += 1
+        return undefined
+      },
+      get content() {
+        reads.content += 1
+        return <span>Zero panel</span>
+      },
+    }
+    const screen = render(() =>
+      createComponent(Tabs, {
+        defaultValue: 'zero',
+        get items() {
+          reads.items += 1
+          return [item]
+        },
+      }),
+    )
+
+    expect(screen.getByRole('tab', { name: '0' })).not.toBeNull()
+    expect(screen.getByRole('tabpanel').textContent).toBe('Zero panel')
+    expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1 })
+  })
+
+  test('keeps the no-request fallback dynamic until the user selects a tab', async () => {
+    const [items, setItems] = createSignal([
+      { label: 'One', value: 'one', content: 'Panel one', disabled: true },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    const screen = render(() => <Tabs items={items()} />)
+
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+
+    setItems([
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    await Promise.resolve()
+    expect(screen.getByRole('tab', { name: 'One' }).getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
+    setItems([
+      { label: 'Zero', value: 'zero', content: 'Panel zero' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    await Promise.resolve()
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('restores preserved uncontrolled tab state after controlled mode is removed', () => {
+    const [value, setValue] = createSignal<string | undefined>()
+    const screen = render(() => <Tabs items={ITEMS} value={value()} />)
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+    expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue('overview')
+    expect(screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue(undefined)
+    expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('keeps empty and all-disabled collections out of the tab order', () => {
+    const empty = render(() => <Tabs items={[]} />)
+    expect(empty.queryAllByRole('tab')).toHaveLength(0)
+    expect(empty.queryAllByRole('tabpanel')).toHaveLength(0)
+
+    const disabled = render(() => (
+      <Tabs
+        defaultValue="missing"
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one', disabled: true },
+          { label: 'Two', value: 'two', content: 'Panel two', disabled: true },
+        ]}
+      />
+    ))
+
+    expect(disabled.queryAllByRole('tab')).toHaveLength(2)
+    expect(disabled.container.querySelectorAll('[role="tab"][tabindex="0"]')).toHaveLength(0)
+    expect(disabled.queryAllByRole('tabpanel')).toHaveLength(0)
+  })
+})
