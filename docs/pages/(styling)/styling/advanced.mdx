@@ -1,27 +1,25 @@
 ---
 title: Advanced
-description: Class merging, Theme and Provider behavior, and style resolution.
+description: Class merging configuration, Theme and Provider behavior, and style resolution mechanics.
 sidebar:
   order: 6
 search:
-  tags: [Theme, Provider, cnConfig, Portal]
+  tags: [Theme, Provider, cnConfig, Portal, defineTheme, recipe resolution]
 ---
 
-Use this page when you need custom class conflict rules, Theme defaults, or exact Provider and Portal style resolution. For everyday changes, see [Customization](/styling/customization) and [Design](/styling/design).
+Use this guide when you need custom class conflict rules, company-wide theme presets, or exact Provider and Portal style resolution. For everyday component styling, see [Customization](/styling/customization) and [Design Tokens](/styling/design).
 
 ## Class merging configuration
 
-If you add custom utility classes that conflict with one another, configure how Moraine merges them with `cnConfig`. Moraine uses the upstream [cn package](https://github.com/shadcn-ui/cn) for class conflict rules; `cnConfig` accepts its `ConfigExtension` options. Moraine adds rules for its semantic z-index and animation utilities. Import these helpers from `moraine`:
+If you add custom utility classes that conflict with one another, configure how Moraine merges them with `cnConfig`. Moraine uses upstream class conflict rules with extensions for its semantic z-index, animations, and parametric transform utilities.
 
-| API                 | Rules and scope                                                                           |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| `cn(...classes)`    | Fixed upstream defaults plus Moraine's semantic z-index and animation rules.              |
-| `createCn(config?)` | An independent merger with application rules, usable in modules, scripts, or server code. |
-| `useCn()`           | A stable merger bound to the nearest Provider at component initialization.                |
+| API                 | Scope and usage                                                                                          |
+| :------------------ | :------------------------------------------------------------------------------------------------------- |
+| `cn(...classes)`    | Fixed upstream defaults plus Moraine's semantic z-index, animation, and transform rules.                 |
+| `createCn(config?)` | Creates an independent merger with custom application rules; usable in modules, scripts, or server code. |
+| `useCn()`           | Returns a stable merger bound to the nearest `MoraineProvider` at component initialization.              |
 
-Components use the nearest Provider's rules when merging their classes. `cnConfig` accepts `extend`, `override`, `prefix`, and `cacheSize`. Rules apply in this order: upstream defaults, Moraine extensions, application `override`, application `extend`. `cn()` also combines conditional class values. Class merging does not generate CSS or scan component files.
-
-```ts title="app-cn.ts"
+```ts title="src/lib/app-cn.ts"
 import { createCn } from 'moraine'
 import type { CnConfig } from 'moraine'
 
@@ -36,27 +34,21 @@ export const appCnConfig = {
 export const appCn = createCn(appCnConfig)
 ```
 
-Define the corresponding CSS in your application; conflict rules do not create these classes or expand UnoCSS shortcuts.
-
-```css
-.density-roomy {
-  padding: 1rem;
-}
-.density-compact {
-  padding: 0.5rem;
-}
-```
-
-```tsx
+```tsx title="src/App.tsx"
 import { Button, MoraineProvider, cn, useCn } from 'moraine'
-import { appCnConfig } from './app-cn.ts'
+import { appCnConfig } from './lib/app-cn'
 
-function Preview() {
+function DensitySpecimen() {
   const scopedCn = useCn()
   return (
     <>
-      <div class={cn('density-roomy', 'density-compact')}>Both classes remain</div>
+      {/* Standard cn(): both classes remain because standard rules do not know 'density' */}
+      <div class={cn('density-roomy', 'density-compact')}>Both remain</div>
+
+      {/* Scoped useCn(): 'density-compact' wins over 'density-roomy' */}
       <div class={scopedCn('density-roomy', 'density-compact')}>Compact wins</div>
+
+      {/* Button uses the nearest Provider's merger automatically */}
       <Button class="density-roomy density-compact">Compact button</Button>
     </>
   )
@@ -65,100 +57,110 @@ function Preview() {
 export function App() {
   return (
     <MoraineProvider cnConfig={appCnConfig}>
-      <Preview />
-      <MoraineProvider theme={null}>
-        <Preview />
-      </MoraineProvider>
-      <MoraineProvider cnConfig={{}}>
-        <Button class="density-roomy density-compact">Default merging</Button>
-      </MoraineProvider>
+      <DensitySpecimen />
     </MoraineProvider>
   )
 }
 ```
 
-| `cnConfig`             | Behavior                                                                                                             |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Omitted or `undefined` | Inherit the current parent merger, or use default rules at the root.                                                 |
-| An extension object    | Replace the inherited merger with Moraine defaults plus this object; parent application extensions are not retained. |
-| `{}`                   | Reset to Moraine default rules.                                                                                      |
+### `cnConfig` Provider behavior
 
-Replace the config object to update existing descendants. Changing it back to `undefined` resumes inheritance from the parent Provider. Theme and class merging are independent: `theme={null}` clears inherited Theme overrides while keeping the current merger. `prefix` changes only class parsing; it does not prefix Moraine's built-in classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
-
-Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
-
-A merger cannot restore classes already removed by another merger. Use `useCn()` in components or `appCn` in ordinary helpers when application code needs the same rules. Each part merges its own classes with its nearest Provider's rules; classes already resolved on the root keep the root's rules.
+| `cnConfig` prop        | Behavior                                                              |
+| :--------------------- | :-------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherits parent merger, or uses default Moraine rules at root.        |
+| Configuration object   | Replaces parent merger with Moraine defaults plus supplied extension. |
+| `{}`                   | Resets to clean Moraine default rules without parent extensions.      |
 
 ## Themes and Providers
 
-Components use their built-in styles by default. Wrap a subtree in `MoraineProvider` to change Theme defaults for its components. Nested Providers can inherit, replace, or clear those overrides:
+Wrap a subtree in `MoraineProvider` to establish design system defaults for every Moraine component. Nested Providers can inherit, replace, or reset overrides:
 
-| `theme`                | Behavior                                                                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Omitted or `undefined` | Inherit the parent Theme overrides; at the root, use built-in component styles without Theme overrides.                   |
-| A Theme object         | Use that Theme instead of inherited Theme overrides; built-in component styles remain the base. Use `extends` to compose. |
-| `theme={null}`         | Clear inherited Theme overrides and return to built-in component styles.                                                  |
+| `theme` prop           | Behavior                                                                   |
+| :--------------------- | :------------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherits parent Theme overrides; at root, uses built-in styles.            |
+| `defineTheme(...)`     | Uses specified Theme overrides. Built-in styles remain the base.           |
+| `theme={null}`         | Clears inherited Theme overrides and returns to built-in component styles. |
 
-```tsx
-import { Button, MoraineProvider } from 'moraine'
+### Building a design system preset with `defineTheme`
+
+Use `defineTheme()` from `moraine/theme` to create an immutable theme package for your organization:
+
+```ts title="src/theme/brand-theme.ts"
 import { defineTheme } from 'moraine/theme'
 
-const brand = defineTheme({
-  button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } },
-})
-const section = defineTheme({
-  extends: brand,
-  button: { base: { root: 'shadow-md' } },
-})
-
-<MoraineProvider theme={brand}>
-  <Button>Brand presentation</Button>
-  <MoraineProvider theme={section}>
-    <Button>Extended presentation</Button>
-  </MoraineProvider>
-  <MoraineProvider theme={null}>
-    <Button class="my-button">Custom presentation</Button>
-  </MoraineProvider>
-</MoraineProvider>
-```
-
-`defineTheme()` creates an immutable Theme override. A Theme with no component entries adds no overrides. To build on another Theme, use `extends`: parent values apply first, and `undefined` in the child leaves them in place. Replace the Theme object to update rendered components. Setting `theme` back to `undefined` resumes inheritance and follows later parent updates.
-
-### Theme values and defaults
-
-Component configurations accept `base`, `variants`, `compoundVariants`, and `defaultVariants`. Each contribution maps slot names to classes and full `--` custom property names to root CSS variables.
-
-```ts
-const theme = defineTheme({
+export const brandTheme = defineTheme({
   button: {
-    defaultVariants: { size: 'sm' },
-    variants: { size: { sm: { label: 'tracking-wide' } } },
-    compoundVariants: [{ variants: { size: 'sm', variant: 'outline' }, root: 'border-2' }],
+    defaultVariants: {
+      size: 'sm',
+    },
+    base: {
+      root: 'rounded-xl font-medium tracking-tight',
+    },
+    variants: {
+      variant: {
+        outline: {
+          root: 'border-primary/40 text-primary hover:bg-primary/10',
+        },
+      },
+    },
+    compoundVariants: [
+      {
+        variants: { size: 'sm', variant: 'outline' },
+        root: 'border-2',
+      },
+    ],
+  },
+  card: {
+    base: {
+      root: 'rounded-2xl border-border/80 shadow-sm',
+      header: 'border-b border-border/60 pb-3',
+    },
   },
 })
 ```
 
-Visual values resolve from explicit instance props, inherited composition/Field values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Each part of a component uses the same final visual values.
-
-### State selectors
-
-Variants describe stable component options that select class branches, including visual treatments and configured layout or interaction modes. Transient disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep state selectors flat so both CSS engines can scan them:
+To extend an existing theme, pass it via the `extends` property:
 
 ```ts
-const theme = defineTheme({
-  button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
-  select: { base: { control: 'focus-within:ring-2' } },
-  popover: { base: { content: 'data-[side=bottom]:mt-2' } },
+export const highContrastTheme = defineTheme({
+  extends: brandTheme,
+  button: {
+    base: {
+      root: 'border-2 font-bold',
+    },
+  },
 })
 ```
 
-Measurements such as slider percentages and floating transform origins remain inline styles or CSS variables.
+### State selectors in themes
+
+Variants define stable component configuration branches (`size`, `variant`, `color`). Transient state (disabled, open/closed, loading, selected) should use attribute selectors in the `base` configuration:
+
+```ts
+const theme = defineTheme({
+  button: {
+    base: {
+      root: 'data-disabled:opacity-50 data-loading:cursor-wait',
+    },
+  },
+  select: {
+    base: {
+      control: 'focus-within:ring-2 focus-within:ring-ring',
+    },
+  },
+  popover: {
+    base: {
+      content: 'data-[side=bottom]:mt-2 data-[side=top]:mb-2',
+    },
+  },
+})
+```
 
 ### Theme CSS variables
 
-Each Theme branch can mix slot classes and root CSS variables in one flat object. Declare full custom property names so declarations and class references use the same spelling.
+Theme configurations can inject CSS custom properties directly on component roots:
 
-```tsx
+```ts
 const theme = defineTheme({
   slider: {
     variants: {
@@ -166,34 +168,50 @@ const theme = defineTheme({
         lg: { '--s-size': '8px' },
       },
     },
-    compoundVariants: [
-      {
-        variants: { size: 'lg', variant: 'bold' },
-        track: 'rounded-lg',
-        '--s-size': '32px',
-        '--s-len': '20px',
-      },
-    ],
   },
 })
 ```
 
-Classes and variables resolve together in base, selected variant, then matching compound order. Later non-null variable values override earlier values; numbers are passed through without units. Parent and child Theme entries receive the same resolved variants, with child variables overriding parent variables by property.
+## Advanced style resolution
 
-Built-in and Theme CSS variables are applied first, followed by inherited styles, instance `styles[rootSlot]`, and the instance root `style`. Changing variants or removing Theme overrides clears variables that no longer apply.
+### Precedence order
 
-### Advanced style resolution
+Classes reach the active Moraine `cn` merger in this exact order:
 
-Classes reach the active Moraine `cn` merger in this order: built-in component classes, nearest Provider Theme, composite-root instance defaults, part slot overrides, then direct `class` on the part's primary slot. A later class does not always replace an earlier one: conflict resolution depends on `cnConfig`, and unknown or non-conflicting classes can coexist. Classes can be resolved at different stages as parts render. Inline style properties use overwrite precedence in the same order: built-in or Theme CSS variables, root `styles[slot]`, part `styles[slot]`, then direct primary `style`.
+1. Built-in component recipe classes
+2. Nearest Provider `theme` overrides
+3. Composite root instance defaults (`classes`)
+4. Part slot overrides (`classes` on part)
+5. Direct `class` on the part's primary DOM element
 
-Each rendered composite part resolves its styles with its nearest `MoraineProvider`, including parts rendered through a Portal. Defaults from the nearest matching component root still reach that part, while a Provider inside the root supplies the part's Theme and `cnConfig`. A nested instance of the same component starts with its own overrides instead of inheriting those of the outer instance. Theme overrides and instance overrides both contribute to the resolution above; a Theme object replaces inherited Theme overrides unless explicitly composed with `extends`.
+Inline styles use property-level overwrite precedence in the same order.
 
-CSS variables target individual slots. Portaled DOM does not inherit variables from a trigger or layout root, so apply a variable to each affected slot, for example `styles={{ content: { '--x': '...' }, overlay: { '--y': '...' } }}`. Moraine does not copy root variables to other slots. Empty overrides do not disable built-in styles; there is no unstyled or replacement mode.
+### Portals and CSS variables
 
-Nested Moraine components may render nodes with their own DOM slot names. Pagination's page Button root renders as `pagination-item`, but its label remains `button-label`. The `classes` and `styles` APIs of `AvatarGroup`, `CheckboxGroup`, and `Pagination` can also target child internals: `AvatarGroup.classes.image` targets `avatar-image`, `CheckboxGroup.classes.icon` targets `checkbox-icon`, and `Pagination.classes.controlLabel` targets `button-label`. AvatarGroup's fallback content key is `fallbackContent`.
+Overlay components like `Dialog.Content`, `Popover.Content`, and `Tooltip.Content` render into a Portal attached to `document.body` by default.
+
+Because the portaled DOM node is physically outside your component hierarchy, **CSS variables declared on a local parent container will not cascade into portaled content**.
+
+To pass custom variables or classes to portaled overlays, pass them to the target slot:
+
+```tsx
+<Dialog
+  styles={{
+    overlay: { '--backdrop-opacity': '0.8' },
+    content: { '--card': 'oklch(25% 0 0)' },
+  }}
+>
+  <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+  <Dialog.Content title="Scoped Dialog">
+    This content correctly receives the scoped --card variable.
+  </Dialog.Content>
+</Dialog>
+```
+
+Defaults from the composite root reach the portaled part, while any `MoraineProvider` wrapping the root supplies its `theme` and `cnConfig`.
 
 ### Reactive replacement and native refs
 
-Changing a Provider's `theme` updates classes without remounting component DOM. Input and Textarea keep their values, focus, selection, and refs. Their `ref` targets the editable native control. Use `InputGroup` for a shared wrapper and its ref.
+Changing a Provider's `theme` dynamically updates classes without unmounting or recreating DOM elements. Form controls retain their focus, selection ranges, values, and native element refs.
 
 <Preview path="./theme-replacement" />

@@ -9,6 +9,7 @@
     - https://coss.com/ui/particles
     - https://reui.io/components
   - [x] make content more human and agent friendly
+- [ ] make all form components use standard `value`, `onChange` props, `onValueChange` is the target helper.
 - [ ] icon card copy should not cause layout shift
 - [ ] landing page polish
 - [ ] styling page polish

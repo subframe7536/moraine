@@ -1,67 +1,143 @@
 ---
 title: UnoCSS
-description: Configure the UnoCSS preset and optional semantic color variables.
+description: Configure the UnoCSS preset, file scanning pipelines, variant groups, and semantic color variable generation.
 sidebar:
   order: 1
 search:
-  tags: [UnoCSS, preset, color variables]
+  tags: [UnoCSS, preset, color variables, pipeline, scanning, variant groups, Wind4, Wind3]
 ---
 
-Add `presetMoraine()` to your UnoCSS config and scan Moraine's published files. This lets UnoCSS generate the utility classes used by Moraine components. Choose the Wind preset that matches your project:
+Moraine provides first-class support for UnoCSS through the `presetMoraine()` preset exported from `moraine/unocss`. It maps semantic colors, border radiuses, shadows, animation keyframes, z-index utilities, and state variants directly into UnoCSS.
 
-```ts title="unocss.config.ts (Wind4)" {1,5} group-id="unocss"
-import { defineConfig, presetWind4 } from '@subf/unocss'
+## Installation and config
+
+Add `presetMoraine()` to your `unocss.config.ts` alongside your preferred Wind preset (`presetWind4` or `presetWind3`):
+
+```ts title="unocss.config.ts (Wind4)" {2,6,11-13} group-id="unocss"
+import { defineConfig, presetWind4, transformerVariantGroup } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
+  transformers: [transformerVariantGroup()],
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+    // Crucial: UnoCSS ignores .ts files by default.
+    // Include .ts to scan recipe files and compiled subpath entries.
+    pipeline: {
+      include: [/\.(?:ts|tsx|mdx)(?:\?|$)/],
+    },
   },
 })
 ```
 
-```ts title="unocss.config.ts (Wind3)" {1,5} group-id="unocss"
-import { defineConfig, presetWind3 } from '@subf/unocss'
+```ts title="unocss.config.ts (Wind3)" {2,6,11-13} group-id="unocss"
+import { defineConfig, presetWind3, transformerVariantGroup } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind3(), presetMoraine()],
+  transformers: [transformerVariantGroup()],
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+    pipeline: {
+      include: [/\.(?:ts|tsx|mdx)(?:\?|$)/],
+    },
   },
 })
 ```
 
-The preset adds Moraine's theme tokens, animations, [z-index utilities](/styling/design#semantic-z-index-utilities), and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`. Define the [CSS variables](/styling/design#css-variables) used for your colors, fonts, and other design values in your application stylesheet.
+### Critical: File scanning pipeline
 
-## Color variables
+By default, UnoCSS's extraction pipeline only scans `.html`, `.jsx`, `.tsx`, `.vue`, and `.svelte` files. Because Moraine recipes and style classes can be defined or imported from TypeScript (`.ts`) files, you **must** configure `content.pipeline.include` to include `/\.(?:ts|tsx|mdx)(?:\?|$)/`. Without this, UnoCSS will not scan classes defined inside `.ts` recipe files.
 
-To generate light and dark semantic **color** variables from your palette, pass `colorVariables` to the preset. Without this option, the preset emits no color variable declarations; you can [define them yourself](/styling/design#css-variables). The generated selectors default to `:root` and `.dark`.
+### Variant grouping transformer
+
+Moraine's recipes and templates use UnoCSS's parenthesized variant groups (such as `hover:(bg-primary text-white)`). Add `transformerVariantGroup()` from `@subf/unocss` or `@unocss/transformer-variant-group` to your transformers array.
+
+## Preset options
 
 ```ts
 presetMoraine({
+  globalStyles: true,
+  colorVariables: {/* ... */},
+})
+```
+
+| Option           | Type                           | Default     | Description                                                                                                            |
+| :--------------- | :----------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `globalStyles`   | `boolean`                      | `true`      | When `true`, injects baseline HTML styles (`html { background-color: var(--background); color: var(--foreground); }`). |
+| `colorVariables` | `MoraineColorVariablesOptions` | `undefined` | Automatically generates light and dark CSS variable declarations from your palette.                                    |
+
+## Generating color variables
+
+If you prefer not to write raw CSS variable blocks in your stylesheet, `colorVariables` can automatically synthesize complete light and dark CSS variable declarations, including interactive hover and active color calculations.
+
+```ts title="unocss.config.ts"
+presetMoraine({
   colorVariables: {
     light: {
+      background: 'oklch(100% 0 0)',
       foreground: 'oklch(20% 0 0)',
       primary: {
         DEFAULT: 'oklch(55% 0.2 260)',
         foreground: 'white',
-        hover: 8,
-        active: ({ base, foreground }) => `color-mix(in oklch, ${base}, ${foreground} 16%)`,
+        // Optional: override auto-calculated hover
+        hover: 'oklch(50% 0.2 260)',
+      },
+      card: {
+        DEFAULT: 'oklch(99% 0 0)',
+        foreground: 'oklch(20% 0 0)',
       },
       border: 'oklch(90% 0 0)',
+      ring: 'oklch(55% 0.2 260)',
     },
     dark: {
+      background: 'oklch(18% 0 0)',
       foreground: 'oklch(96% 0 0)',
       primary: {
         DEFAULT: 'oklch(70% 0.16 260)',
         foreground: 'oklch(18% 0 0)',
       },
+      card: {
+        DEFAULT: 'oklch(22% 0 0)',
+        foreground: 'oklch(96% 0 0)',
+      },
       border: 'oklch(32% 0 0)',
+      ring: 'oklch(70% 0.16 260)',
     },
     hoverAdjustment: 6,
     activeAdjustment: 12,
+  },
+})
+```
+
+### Hover and active color calculation
+
+When `hover` and `active` are not explicitly provided for a surface color, `presetMoraine` generates them automatically using native CSS `color-mix()` against the surface's foreground:
+
+```css
+--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground) 6%);
+--primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground) 12%);
+```
+
+You can customize this behavior:
+
+- **`hoverAdjustment` / `activeAdjustment`**: Change the default mixing percentage globally (default `6` and `12`).
+- **Numeric value on a color**: Set a color-specific adjustment percentage (e.g. `hover: 8`).
+- **Fixed color string**: Provide an explicit CSS color string.
+- **Custom resolver function**: Provide a callback `({ base, foreground, selector, state, theme }) => string`.
+
+### Custom dark selector
+
+By default, light variables are emitted under `:root` and dark variables under `.dark`. Customize these with `lightSelector` and `darkSelector`:
+
+```ts
+presetMoraine({
+  colorVariables: {
+    darkSelector: '[data-theme="dark"]',
+    lightSelector: ':root',
+    /* ... */
   },
 })
 ```

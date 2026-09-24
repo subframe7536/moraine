@@ -1,42 +1,41 @@
 ---
 title: Design
-description: Set CSS variables and browse z-index utilities and built-in icons.
+description: Semantic CSS variables, color contrast roles, border radius multipliers, z-index scale, and built-in icons.
 sidebar:
   order: 3
 search:
-  tags: [CSS variables, tokens, z-index, icons]
+  tags: [CSS variables, tokens, colors, radius, shadows, z-index, icons, contrast]
 ---
+
+Moraine decouples component layout and logic from design tokens using semantic CSS variables. Changing a variable in your application stylesheet updates every Moraine component without altering component classes or JSX templates.
+
+<Preview path="./token-explorer" />
 
 ## CSS variables
 
-Set colors and other design values in your application CSS. Moraine's built-in classes use semantic utilities such as `bg-primary`, `text-foreground`, and `rounded-lg`. As with [shadcn/ui's CSS-variable theming](https://ui.shadcn.com/docs/theming), changing a variable updates the components that use it without changing their classes. Moraine's UnoCSS preset and Tailwind plugin map these utilities to the variables below; neither supplies a default color palette.
+Set your design tokens in your application stylesheet under `:root` for light mode and `.dark` for dark mode. Both the UnoCSS preset and the Tailwind CSS plugin map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
-| Role              | CSS variables                                                                                                         |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Page              | `--background`, `--foreground`                                                                                        |
-| Primary           | `--primary`, `--primary-foreground`                                                                                   |
-| Secondary         | `--secondary`, `--secondary-foreground`                                                                               |
-| Card              | `--card`, `--card-foreground`                                                                                         |
-| Popover           | `--popover`, `--popover-foreground`                                                                                   |
-| Muted             | `--muted`, `--muted-foreground`                                                                                       |
-| Accent            | `--accent`, `--accent-foreground`                                                                                     |
-| Destructive       | `--destructive`, `--destructive-foreground`                                                                           |
-| Borders and focus | `--border`, `--input`, `--ring`                                                                                       |
-| Radius            | `--radius`                                                                                                            |
-| Fonts             | `--font-sans`, `--font-mono`, `--font-serif`                                                                          |
-| Shadows           | `--shadow`, `--shadow-2xs`, `--shadow-xs`, `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`, `--shadow-2xl` |
-| Sidebar width     | `--sidebar-width` (optional)                                                                                          |
-
-Surface colors pair with their `-foreground` variables for text and icons on that surface. `--radius` controls the `rounded-*` scale. `--sidebar-width` falls back to `clamp(14rem,25%,20rem)` when omitted.
-
-Define values in your application stylesheet. Override the same variables under `.dark` for dark mode, or on a container to change its DOM descendants. This example sets a few variables; add the others used by your components:
-
-```css
+```css title="src/theme.css"
 :root {
   --background: oklch(100% 0 0);
   --foreground: oklch(20% 0 0);
   --primary: oklch(55% 0.2 260);
   --primary-foreground: white;
+  --secondary: oklch(96% 0 0);
+  --secondary-foreground: oklch(20% 0 0);
+  --card: oklch(99% 0 0);
+  --card-foreground: oklch(20% 0 0);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(20% 0 0);
+  --muted: oklch(96% 0 0);
+  --muted-foreground: oklch(50% 0 0);
+  --accent: oklch(96% 0 0);
+  --accent-foreground: oklch(20% 0 0);
+  --destructive: oklch(62% 0.22 25);
+  --destructive-foreground: white;
+  --border: oklch(90% 0 0);
+  --input: oklch(90% 0 0);
+  --ring: oklch(55% 0.2 260);
   --radius: 0.625rem;
 }
 
@@ -45,45 +44,109 @@ Define values in your application stylesheet. Override the same variables under 
   --foreground: oklch(96% 0 0);
   --primary: oklch(70% 0.16 260);
   --primary-foreground: oklch(18% 0 0);
+  --secondary: oklch(26% 0 0);
+  --secondary-foreground: oklch(96% 0 0);
+  --card: oklch(22% 0 0);
+  --card-foreground: oklch(96% 0 0);
+  --popover: oklch(20% 0 0);
+  --popover-foreground: oklch(96% 0 0);
+  --muted: oklch(26% 0 0);
+  --muted-foreground: oklch(65% 0 0);
+  --accent: oklch(26% 0 0);
+  --accent-foreground: oklch(96% 0 0);
+  --destructive: oklch(65% 0.22 25);
+  --destructive-foreground: oklch(18% 0 0);
+  --border: oklch(32% 0 0);
+  --input: oklch(32% 0 0);
+  --ring: oklch(70% 0.16 260);
 }
 ```
 
-For the eight surface colors above, optional `--*-hover` and `--*-active` variables control interaction states. Each hover value falls back to its base; each active value falls back to hover, then base. If you use UnoCSS, [`colorVariables`](/styling/unocss#color-variables) can generate these color declarations from supplied light and dark values. Define radius, shadow, and font variables separately. Component-specific variables such as `--mo-collapsible-content-height` and `--mo-anim-duration` control measurements and [animations](/styling/animations), not the color palette. CSS variables scoped to a container do not reach content portaled outside it; see [advanced style resolution](/styling/advanced#advanced-style-resolution).
+### Surface colors and contrast pairing
 
-## Interactive color tokens
+Surface colors always pair with corresponding `-foreground` variables to ensure guaranteed contrast for text, icons, and indicators:
 
-Use the same semantic color utilities when styling your own interactive surfaces. Hover and active classes read the corresponding variables described above:
+| Role            | Surface token   | Foreground token           | Primary use                                                 |
+| :-------------- | :-------------- | :------------------------- | :---------------------------------------------------------- |
+| **Page**        | `--background`  | `--foreground`             | Default viewport canvas and readable body text.             |
+| **Primary**     | `--primary`     | `--primary-foreground`     | High-emphasis actions, active selections, focus rings.      |
+| **Secondary**   | `--secondary`   | `--secondary-foreground`   | Secondary action buttons, subtle badges.                    |
+| **Card**        | `--card`        | `--card-foreground`        | Grouped containers, cards, tables.                          |
+| **Popover**     | `--popover`     | `--popover-foreground`     | Floating overlays, menus, tooltips, dialogs.                |
+| **Muted**       | `--muted`       | `--muted-foreground`       | Subtle backgrounds, secondary descriptions, disabled state. |
+| **Accent**      | `--accent`      | `--accent-foreground`      | Hover states, tab indicators, highlighted list items.       |
+| **Destructive** | `--destructive` | `--destructive-foreground` | Irreversible actions, error banners, validation errors.     |
 
-```tsx
-<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
-  Continue
-</button>
-```
+### Interactive state cascade
+
+For the 8 surface colors, Moraine supports dedicated `--*-hover` and `--*-active` variables. When omitted, they cascade naturally:
+
+- If `--<color>-hover` is not defined, it falls back to `--<color>`.
+- If `--<color>-active` is not defined, it falls back to `--<color>-hover`, then `--<color>`.
+
+If you use UnoCSS, [`presetMoraine({ colorVariables })`](/styling/unocss#color-variables) can automatically synthesize these states using CSS `color-mix()`.
+
+## Border radius scale
+
+Moraine computes a responsive radius scale from the base `--radius` variable. Changing `--radius` scales every component corner radius proportionally:
+
+| Utility       | Formula                     | Computed value (with `--radius: 0.625rem`) |
+| :------------ | :-------------------------- | :----------------------------------------- |
+| `rounded-xs`  | `calc(var(--radius) * 0.5)` | `0.3125rem` (`5px`)                        |
+| `rounded-sm`  | `calc(var(--radius) * 0.6)` | `0.375rem` (`6px`)                         |
+| `rounded-md`  | `calc(var(--radius) * 0.8)` | `0.5rem` (`8px`)                           |
+| `rounded-lg`  | `var(--radius)`             | `0.625rem` (`10px`)                        |
+| `rounded-xl`  | `calc(var(--radius) * 1.4)` | `0.875rem` (`14px`)                        |
+| `rounded-2xl` | `calc(var(--radius) * 1.8)` | `1.125rem` (`18px`)                        |
+| `rounded-3xl` | `calc(var(--radius) * 2.2)` | `1.375rem` (`22px`)                        |
+| `rounded-4xl` | `calc(var(--radius) * 2.6)` | `1.625rem` (`26px`)                        |
+
+## Box shadow scale
+
+Moraine components map shadow utilities to these CSS variables:
+
+| Utility      | Token          | Typical use                    |
+| :----------- | :------------- | :----------------------------- |
+| `shadow-2xs` | `--shadow-2xs` | Subtle borders and inset lines |
+| `shadow-xs`  | `--shadow-xs`  | Buttons, badges                |
+| `shadow-sm`  | `--shadow-sm`  | Cards, input fields            |
+| `shadow`     | `--shadow`     | Default raised surfaces        |
+| `shadow-md`  | `--shadow-md`  | Dropdowns, popovers            |
+| `shadow-lg`  | `--shadow-lg`  | Dialogs, modals                |
+| `shadow-xl`  | `--shadow-xl`  | Drawers, sheets                |
+| `shadow-2xl` | `--shadow-2xl` | Deep floating overlays         |
+
+## Typography and dimensions
+
+| Token             | Description                     | Fallback                   |
+| :---------------- | :------------------------------ | :------------------------- |
+| `--font-sans`     | Primary UI typeface             | System sans-serif stack    |
+| `--font-mono`     | Code, numbers, and Kbd          | System monospace stack     |
+| `--font-serif`    | Editorial serif typeface        | System serif stack         |
+| `--sidebar-width` | Width of `SidebarFrame.Sidebar` | `clamp(14rem, 25%, 20rem)` |
 
 ## Semantic z-index utilities
 
-| Utility      | Value | Typical use                      |
-| ------------ | ----: | -------------------------------- |
-| `z-base`     |     1 | Base elevated content            |
-| `z-raised`   |     2 | Raised content and ranges        |
-| `z-control`  |     3 | Controls above local ranges      |
-| `z-sticky`   |    10 | Sticky content                   |
-| `z-resize`   |    20 | Resize affordances               |
-| `z-overlay`  |    40 | Overlay layers                   |
-| `z-floating` |    50 | Dialogs, menus, and other popups |
+Moraine avoids arbitrary numeric z-indices in favor of a 7-tier semantic scale:
 
-## Icons
+| Utility      | Value | Scope                              |
+| :----------- | ----: | :--------------------------------- |
+| `z-base`     |   `1` | Base elevated content              |
+| `z-raised`   |   `2` | Raised content and ranges          |
+| `z-control`  |   `3` | Controls above local ranges        |
+| `z-sticky`   |  `10` | Sticky headers and rails           |
+| `z-resize`   |  `20` | Splitter and resize handles        |
+| `z-overlay`  |  `40` | Backdrop masks and overlay scrims  |
+| `z-floating` |  `50` | Dialogs, popovers, menus, tooltips |
 
-Import `moraine/icon.css` if you want Moraine's built-in icon names without configuring a separate icon integration. It provides runtime mask styles for the icons below. Keep the Tailwind plugin or UnoCSS preset and the published-file scan for component utility classes.
+## Built-in icons
+
+Moraine includes built-in mask styles for Lucide icons. Import `moraine/icon.css` if you want zero-config icon support:
 
 ```css
 @import 'moraine/icon.css';
 ```
 
-You can also configure an icon integration such as `@iconify/tailwind` instead of importing `moraine/icon.css`.
-
-### Built-in icon names
-
-The built-in names map to Lucide icons. Use `<Icon name="icon-search" />` or the name as a class. Click a card to copy its name.
+Use `<Icon name="icon-search" />` or specify icon names directly in component props (`leading="i-lucide:search"` or `leading="icon-search"`).
 
 <IconGallery />

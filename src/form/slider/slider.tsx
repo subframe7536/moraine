@@ -171,10 +171,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               <div
                 data-slot="slider-mark"
                 style={{
-                  left: slider.getDividerStyle(dividerIndex).left,
-                  right: slider.getDividerStyle(dividerIndex).right,
-                  top: slider.getDividerStyle(dividerIndex).top,
-                  bottom: slider.getDividerStyle(dividerIndex).bottom,
                   ...slider.getDividerStyle(dividerIndex),
                   ...resolved.styles.mark.style,
                 }}

@@ -1,18 +1,106 @@
 ---
-title: Tailwind CSS v4
-description: Configure the Tailwind CSS v4 plugin and scan Moraine.
+title: Tailwind CSS
+description: Configure the Moraine Tailwind CSS plugin for Tailwind CSS v4 or v3, scanner paths, and custom utilities.
 sidebar:
   order: 2
 search:
-  tags: [Tailwind CSS, plugin]
+  tags: [Tailwind CSS, v4, v3, plugin, '@source', utilities, data variants]
 ---
 
-In your application stylesheet, import Tailwind CSS, register Moraine's plugin, and scan Moraine's published files. The scan lets Tailwind generate the classes used by Moraine components. Adjust the `@source` path to match the location of your stylesheet:
+Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It provides 1:1 parity with the [UnoCSS preset](/styling/unocss), injecting design tokens, semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
 
-```css
+## Tailwind CSS v4
+
+In modern projects using Tailwind CSS v4, register Moraine with the `@plugin` directive and scan its published distribution files with `@source`.
+
+```css title="src/index.css"
 @import 'tailwindcss';
 @plugin 'moraine/tailwind';
 @source '../node_modules/moraine/dist';
 ```
 
-`@source` needs a resolvable path to `node_modules/moraine/dist`; `@source "moraine"` does not work. The plugin maps the same colors, typography, radius, shadows, animations, z-index values, and state variants as the [UnoCSS preset](/styling/unocss). Set your palette and other [CSS variables](/styling/design#css-variables) in your application stylesheet.
+### The `@source` path directive
+
+Tailwind CSS v4 uses `@source` to scan precompiled third-party packages. Note the following requirements:
+
+1. **Path resolution**: `@source 'moraine'` is not supported by Tailwind; you must specify a relative path to the published `dist` folder (e.g. `'../node_modules/moraine/dist'` or `'./node_modules/moraine/dist'`, depending on your stylesheet's location).
+2. **Monorepos and workspaces**: If `moraine` is hoisted to a root `node_modules` directory in a pnpm or npm workspace, adjust the relative path to point to the repository root:
+   ```css
+   @source '../../../node_modules/moraine/dist';
+   ```
+
+### Plugin options in v4
+
+You can pass options directly in CSS or in a JS wrapper:
+
+```css
+@plugin 'moraine/tailwind' {
+  globalstyles: true;
+  icons: true;
+}
+```
+
+| Option         | Type      | Default | Description                                                                                                                                                         |
+| :------------- | :-------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `globalStyles` | `boolean` | `true`  | Injects default base styles (`html { background-color: var(--background); color: var(--foreground); }`). Set to `false` if your application owns root HTML styling. |
+| `icons`        | `boolean` | `true`  | Emits empty utility stubs for `icon-*` shortcuts so Tailwind's scanner recognizes them when paired with `@iconify/tailwind` or `moraine/icon.css`.                  |
+
+## Tailwind CSS v3
+
+For projects on Tailwind CSS v3, register the plugin in your `tailwind.config.js` and add Moraine's distribution files to your `content` array:
+
+```ts title="tailwind.config.ts"
+import moraineTailwind from 'moraine/tailwind'
+import type { Config } from 'tailwindcss'
+
+export default {
+  content: ['./index.html', './src/**/*.{ts,tsx}', './node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  plugins: [
+    moraineTailwind({
+      globalStyles: true,
+    }),
+  ],
+} satisfies Config
+```
+
+## Injected utilities and variants
+
+The plugin registers the following utilities and variants across both Tailwind v3 and v4:
+
+### Parametric transform utilities
+
+Combine with `animate-mo-enter` and `animate-mo-exit` to customize motion:
+
+- **Opacity**: `enter-opacity-<percent>`, `exit-opacity-<percent>`
+- **Scale**: `enter-scale-<percent>`, `exit-scale-<percent>`
+- **Translate**: `enter-translate-x-<num>`, `enter-translate-y-<num>`, `exit-translate-x-<num>`, `exit-translate-y-<num>`
+- **Rotate**: `enter-rotate-<deg>`, `exit-rotate-<deg>`
+
+See the [Animations guide](/styling/animations) for details and interactive specimens.
+
+### Semantic z-index utilities
+
+- `z-base` (`1`)
+- `z-raised` (`2`)
+- `z-control` (`3`)
+- `z-sticky` (`10`)
+- `z-resize` (`20`)
+- `z-overlay` (`40`)
+- `z-floating` (`50`)
+
+### State attribute variants
+
+Target component DOM states cleanly using utility prefixes:
+
+- **Data attributes**: `data-active:`, `data-checked:`, `data-disabled:`, `data-expanded:`, `data-focused:`, `data-hidden:`, `data-invalid:`, `data-loading:`, `data-open:`, `data-selected:`, `data-pressed:`, `data-submitting:`
+- **ARIA attributes**: `aria-busy:`, `aria-checked:`, `aria-disabled:`, `aria-expanded:`, `aria-hidden:`, `aria-invalid:`, `aria-readonly:`, `aria-required:`, `aria-selected:`
+
+```tsx
+<button class="bg-muted text-muted-foreground data-active:(bg-primary text-primary-foreground)">
+  Filter
+</button>
+```
+
+## Design tokens and CSS variables
+
+The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/styling/design#css-variables).

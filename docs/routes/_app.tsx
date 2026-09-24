@@ -4,7 +4,9 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import { Button, MoraineProvider, Progress, SidebarFrame, cn, useSidebarFrame } from '../../src'
+import packageMetadata from '../../package.json' with { type: 'json' }
+import { Badge, Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { createMediaQuery } from '../../src/utils'
 
 import { PageActions, Sidebar, SidebarHeader } from './components/layout'
 import { DOCS_MDX_COMPONENTS } from './components/markdown'
@@ -22,6 +24,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const [paletteOpen, setPaletteOpen] = createSignal(false)
   const [routingFromPath, setRoutingFromPath] = createSignal<string>()
   const [mainEl, setMainEl] = createSignal<HTMLDivElement>()
+  const isMobile = createMediaQuery('(max-width: 768px)', false)
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
@@ -138,13 +141,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             })
           }}
         >
-          <header
-            data-scrolled={frame.scrolled() ? '' : undefined}
-            class={cn(
-              'px-4 bg-transparent flex h-13 transition-([border-color,background-color] duration-200 ease-out) items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8',
-              'data-scrolled:(border-border/60 bg-background/80)',
-            )}
-          >
+          <header class="px-4 border-b border-border/60 bg-background/80 flex h-13 items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8">
             <div class="flex gap-1 min-w-0 items-center">
               <Show when={frame.isMobile()}>
                 <SidebarFrame.Trigger
@@ -205,29 +202,32 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           >
             Skip to main content
           </a>
-          <header class="border-b border-border/60 bg-background/90 top-0 sticky z-sticky backdrop-blur-md">
+          <header class="border-b border-border/60 bg-background/80 top-0 sticky z-sticky backdrop-blur-md">
             <nav
               aria-label="Main"
-              class="mx-auto px-4 flex h-14 max-w-7xl items-center justify-between sm:px-8"
+              class="mx-auto px-5 flex h-13 max-w-6xl items-center justify-between sm:px-8"
             >
-              <div class="flex gap-3 items-center sm:gap-8">
+              <div class="flex gap-3 items-center sm:gap-6">
                 <a
                   href="/"
                   aria-label="Moraine home"
                   class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   <img src="/favicon.svg" alt="" class="size-6" />
-                  <span class="hidden sm:inline">Moraine</span>
+                  <span class="text-base font-semibold">Moraine</span>
+                  <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono px-1.5 py-0">
+                    v{packageMetadata.version}
+                  </Badge>
                 </a>
                 <a
                   href="/start"
-                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
-                  Start
+                  Docs
                 </a>
                 <a
                   href="/styling/unocss"
-                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Styling
                 </a>
@@ -237,7 +237,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                 paletteOpen={paletteOpen}
                 setPaletteOpen={setPaletteOpen}
                 onNavigate={navigateToPage}
-                mobile={true}
+                mobile={isMobile()}
                 theme={theme}
                 updateTheme={updateTheme}
               />

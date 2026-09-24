@@ -1,21 +1,106 @@
 ---
 title: Animations
-description: Set Moraine animation durations and distinguish transitions.
+description: Explore built-in keyframe animations, duration CSS variables, and transform utilities.
 sidebar:
   order: 4
 search:
-  tags: [animation, duration, CSS variables]
+  tags: [animation, keyframes, transitions, duration, motion, enter, exit, accordion]
 ---
 
-Set these variables in your application stylesheet to change the duration of Moraine's built-in CSS animations:
+Moraine provides a composable CSS animation and transition system shared across both the UnoCSS preset and the Tailwind CSS plugin. It combines built-in keyframes, parametric transform utilities, and semantic duration variables.
+
+<Preview path="./animation-explorer" />
+
+## Built-in animation utilities
+
+The following animation utilities are registered by `presetMoraine()` and `moraine/tailwind`:
+
+| Utility                     | Description                                                         | Iteration |
+| :-------------------------- | :------------------------------------------------------------------ | :-------- |
+| `animate-mo-enter`          | Composable entrance animation with opacity, scale, and translation. | 1         |
+| `animate-mo-exit`           | Composable exit animation for overlays and disclosures.             | 1         |
+| `animate-accordion-down`    | Expand height from `0` to `var(--mo-collapsible-content-height)`.   | 1         |
+| `animate-accordion-up`      | Collapse height from `var(--mo-collapsible-content-height)` to `0`. | 1         |
+| `animate-spin`              | Infinite 360-degree rotation for progress rings and spinners.       | Infinite  |
+| `animate-carousel`          | Continuous horizontal sliding translation (`-100%` to `100%`).      | Infinite  |
+| `animate-carousel-rtl`      | Reverse horizontal sliding translation (`100%` to `-100%`).         | Infinite  |
+| `animate-carousel-vertical` | Continuous vertical sliding translation (`100%` to `-100%`).        | Infinite  |
+| `animate-swing`             | Oscillating horizontal swing (`-60%` to `60%`).                     | Infinite  |
+| `animate-swing-vertical`    | Oscillating vertical swing (`60%` to `-60%`).                       | Infinite  |
+| `animate-elastic`           | Horizontal stretch and snap translation.                            | Infinite  |
+| `animate-elastic-vertical`  | Vertical stretch and snap translation.                              | Infinite  |
+
+## Parametric transform utilities
+
+`animate-mo-enter` and `animate-mo-exit` read parametric CSS variables defined by matching utility classes. Combine them to create custom entrance and exit choreographies without writing custom keyframes:
+
+```tsx
+<div class="animate-mo-enter enter-opacity-0 enter-scale-95 enter-translate-y-2">
+  Dropdown or popover content
+</div>
+```
+
+| Utility pattern           | Target variable          | Values                        | Example                                       |
+| :------------------------ | :----------------------- | :---------------------------- | :-------------------------------------------- |
+| `enter-opacity-<val>`     | `--mo-enter-opacity`     | `0`–`100` percentage          | `enter-opacity-0`, `enter-opacity-50`         |
+| `exit-opacity-<val>`      | `--mo-exit-opacity`      | `0`–`100` percentage          | `exit-opacity-0`                              |
+| `enter-scale-<val>`       | `--mo-enter-scale`       | Scale percentage or arbitrary | `enter-scale-90`, `enter-scale-95`            |
+| `exit-scale-<val>`        | `--mo-exit-scale`        | Scale percentage or arbitrary | `exit-scale-95`                               |
+| `enter-translate-x-<val>` | `--mo-enter-translate-x` | Spacing or arbitrary          | `enter-translate-x-4`, `-enter-translate-x-2` |
+| `enter-translate-y-<val>` | `--mo-enter-translate-y` | Spacing or arbitrary          | `enter-translate-y-2`, `-enter-translate-y-4` |
+| `exit-translate-x-<val>`  | `--mo-exit-translate-x`  | Spacing or arbitrary          | `exit-translate-x-2`                          |
+| `exit-translate-y-<val>`  | `--mo-exit-translate-y`  | Spacing or arbitrary          | `exit-translate-y-2`                          |
+| `enter-rotate-<val>`      | `--mo-enter-rotate`      | Degrees or arbitrary          | `enter-rotate-12`, `-enter-rotate-45`         |
+| `exit-rotate-<val>`       | `--mo-exit-rotate`       | Degrees or arbitrary          | `exit-rotate-12`                              |
+
+## Animation durations and easing
+
+Moraine defines default durations and easing curves for each animation type:
 
 ```css
 :root {
-  --mo-anim-duration-enter: 150ms;
-  --mo-anim-duration-exit: 100ms;
+  /* Global override for all Moraine CSS animations */
+  --mo-anim-duration: 250ms;
+
+  /* Type-specific overrides */
+  --mo-anim-duration-enter: 250ms;
+  --mo-anim-duration-exit: 150ms;
   --mo-anim-duration-loop: 2s;
   --mo-anim-duration-spin: 1s;
 }
 ```
 
-`--mo-anim-duration` overrides the duration of every Moraine CSS animation. Use the more specific variables to set entry, exit, looping, or spinner durations separately when the general override is absent. CSS transitions use the duration and timing function from your Tailwind CSS or UnoCSS setup; these animation variables do not change transitions.
+- **`--mo-anim-duration`** overrides every Moraine animation duration when defined.
+- If `--mo-anim-duration` is not set, each animation falls back to its type-specific duration (`enter`, `exit`, `loop`, or `spin`).
+- **Easing curves**:
+  - `enter`: `cubic-bezier(0.16, 1, 0.3, 1)` (snappy ease-out)
+  - `exit`: `cubic-bezier(0.7, 0, 0.84, 0)` (accelerating ease-in)
+  - `loop`: `ease-in-out`
+  - `spin`: `linear`
+
+## Disclosure height token
+
+Collapsible and Accordion components calculate their rendered panel dimensions and set the CSS variable `--mo-collapsible-content-height` on the disclosure container element. The `animate-accordion-down` and `animate-accordion-up` keyframes read this variable to animate smoothly between `0` and the exact natural content height.
+
+```css
+@keyframes accordion-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--mo-collapsible-content-height);
+    opacity: 1;
+  }
+}
+```
+
+## Reduced motion
+
+To respect user preferences for reduced motion, pair animation utilities with `motion-reduce:animate-none` or `motion-reduce:transition-none`:
+
+```tsx
+<div class="animate-mo-enter enter-opacity-0 enter-scale-95 motion-reduce:animate-none">
+  Dialog content
+</div>
+```

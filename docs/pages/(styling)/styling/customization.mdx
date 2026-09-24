@@ -1,78 +1,141 @@
 ---
 title: Customization
-description: Choose Theme, root, part, or DOM-element style overrides.
+description: The 4-layer style override hierarchy, Single vs Composite components, slot-based styling, and data-slot DOM contracts.
 sidebar:
   order: 5
 search:
-  tags: [classes, styles, slots, component kinds]
+  tags: [classes, styles, slots, customization, single, composite, data-slot, overrides]
 ---
 
-## Style overrides
+Moraine provides a granular customization architecture. Rather than forcing you to choose between monolithic CSS classes or unstyled headless HTML, every Moraine component exposes typed slots and deterministic override layers.
 
-To change a palette, radius, font, or shadow across components, set the [design CSS variables](/styling/design#css-variables). For component classes or inline styles, choose the surface that renders the element you want to change:
+<Preview path="./customization-layers" />
 
-| Need                                          | Surface                        |
-| --------------------------------------------- | ------------------------------ |
-| Application or library defaults               | Theme                          |
-| Defaults for one composite component instance | Root `classes` / `styles`      |
-| Override slots rendered by a specific part    | Part `classes` / `styles`      |
-| Override the part's primary DOM element       | `class` / `style` on that part |
+## The 4-layer override hierarchy
 
-For a Button, `class` and `style` change its button element. Use `classes` to change a named slot such as its label:
+When styling a component, choose the layer that matches your required scope:
+
+| Layer | Surface            | Scope                           | How to configure                                           |
+| :---: | :----------------- | :------------------------------ | :--------------------------------------------------------- |
+| **1** | **Base Recipe**    | Library defaults                | Default styles shipped with Moraine.                       |
+| **2** | **Theme Layer**    | Application or subtree defaults | Wrap in `<MoraineProvider theme={defineTheme(...)}>`       |
+| **3** | **Instance Slots** | Named slots on one instance     | `classes={{ slot: '...' }}` / `styles={{ slot: { ... } }}` |
+| **4** | **Direct Element** | Target DOM element on a part    | `class="..."` / `style={{ ... }}` directly on the part     |
+
+### How classes merge across layers
+
+Classes merge in ascending order (Layer 1 → Layer 2 → Layer 3 → Layer 4) using Moraine's configured `cn` merger. Conflicting Tailwind/UnoCSS classes (such as `p-2` vs `p-4` or `bg-primary` vs `bg-muted`) are resolved intelligently: the higher layer wins. Non-conflicting utility classes (such as `rounded-full` alongside `p-4`) are combined.
 
 ```tsx
-<Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
-  Continue
+// Layer 4 direct class overrides the button's background and adds shadow,
+// while Layer 3 classes.label customizes the inner text slot:
+<Button
+  class="bg-destructive hover:bg-destructive-hover shadow-lg"
+  classes={{ label: 'tracking-widest uppercase font-mono' }}
+>
+  Confirm Deletion
 </Button>
 ```
 
-For a Dialog, root `classes` and `styles` set defaults for this Dialog. Put native DOM attributes and direct overrides on the part that renders the element:
+## Component kinds: Single vs Composite
+
+The labels **Single** and **Composite** describe how you assemble a component in JSX. They do not describe how many DOM elements or style slots the component contains.
+
+### Single components
+
+Single components expose their layout and functionality through a single JSX element. For example, `Card`, `Button`, `Badge`, and `Input` are Single components.
+
+Even though `Card` renders a header, title, description, body, and footer, it is a Single component:
 
 ```tsx
-<Dialog classes={{ content: 'max-w-lg', body: 'space-y-4' }}>
-  <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
-  <Dialog.Content title="Profile" class="shadow-xl">
-    Profile settings
+<Card
+  title="Project Settings"
+  description="Manage repository visibility"
+  class="max-w-md shadow-sm"
+  classes={{
+    header: 'border-b border-border/70 pb-3',
+    body: 'space-y-4 pt-4',
+    title: 'text-primary font-semibold',
+  }}
+>
+  <p class="text-sm">Card contents go here.</p>
+</Card>
+```
+
+### Composite components
+
+Composite components expose attached sub-parts that you arrange explicitly, such as `Dialog`, `Popover`, `Select`, `SidebarFrame`, and `Tabs`.
+
+In a composite component:
+
+1. **Root `classes` and `styles`** establish instance defaults that cascade down to all parts.
+2. **Each part** accepts direct `class` and `style` for its primary DOM node, as well as `classes` for any sub-slots it renders:
+
+```tsx
+<Dialog classes={{ overlay: 'backdrop-blur-sm', content: 'max-w-xl' }}>
+  <Dialog.Trigger as={Button} variant="outline">
+    Open Settings
+  </Dialog.Trigger>
+  <Dialog.Content
+    title="Workspace Preferences"
+    class="shadow-2xl"
+    classes={{
+      header: 'border-b border-border/60',
+      body: 'p-6 space-y-4',
+    }}
+  >
+    <p class="text-sm">Manage preferences...</p>
   </Dialog.Content>
 </Dialog>
 ```
 
-A part with one public slot uses `class` and `style`. A part with multiple configurable slots may also expose `classes` and `styles`. For example, `Dialog.Trigger` accepts direct overrides, while `Dialog.Content` lets you configure its `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer` slots.
+Roots that render no DOM element of their own (such as `Dialog`, `Popover`, and `Tooltip`) only accept instance defaults via `classes` and `styles`. Roots that render a physical container element (such as `SidebarFrame`, `Collapsible`, and `InputGroup`) accept both direct `class` for the container and `classes` for child slots.
 
-Roots that render an element, such as `InputGroup`, `Collapsible`, and `SidebarFrame`, accept direct `class` and `style` for that element. `Dialog`, `Popover`, and `Tooltip` have no root DOM element: set instance defaults with root `classes` and `styles`, and place DOM props on their parts. Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) use direct `class` and `style`. Their Theme entries still have a `root` slot.
+## Style slots and the `data-slot` contract
 
-### Style slots and DOM slots
+### CamelCase in TSX props
 
-Use camelCase slot names in `classes` and `styles`. For CSS selectors and DOM inspection, use the component's documented kebab-case `data-slot` values. A root element uses the component name; other slots use the component name followed by the slot name. Theme entries use the same camelCase style keys.
-
-```tsx
-<Select classes={{ itemLabel: 'font-semibold' }} />
-// The label element renders with data-slot="select-item-label".
-```
-
-Some components expose style keys for elements rendered by another Moraine component. See [advanced style resolution](/styling/advanced#advanced-style-resolution) for those `data-slot` names and for Provider and Portal behavior.
-
-## Component kinds
-
-The `Single` and `Composite` labels describe how you assemble a component. They do not describe its number of DOM elements or style slots.
-
-**Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
+In TypeScript JSX, slot names are always typed in camelCase on `classes` and `styles` objects:
 
 ```tsx
-<Card title="Account" class="max-w-md" classes={{ body: 'space-y-4' }}>
-  Account settings
-</Card>
+<Select
+  classes={{
+    control: 'rounded-xl border-primary/50',
+    item: 'py-2 px-3',
+    itemLabel: 'font-semibold',
+  }}
+/>
 ```
 
-**Composite** components expose attached parts that you arrange explicitly. `SidebarFrame` renders a layout root and accepts slot overrides, while each part also accepts its own `class` and `style`.
+### Kebab-case `data-slot` in DOM
 
-```tsx
-<SidebarFrame class="h-80" classes={{ sidebar: 'bg-muted' }}>
-  <SidebarFrame.Sidebar>
-    <SidebarFrame.SidebarBody class="p-4">Navigation</SidebarFrame.SidebarBody>
-  </SidebarFrame.Sidebar>
-  <SidebarFrame.Main class="p-6">Workspace</SidebarFrame.Main>
-</SidebarFrame>
+In the rendered DOM, Moraine marks every element with a standardized kebab-case `data-slot` attribute:
+
+- Root elements: `data-slot="<component>"` (e.g. `data-slot="select"`, `data-slot="button"`).
+- Child slots: `data-slot="<component>-<slot>"` (e.g. `data-slot="select-control"`, `data-slot="select-item-label"`).
+
+This contract enables clean, robust CSS selectors and testing queries:
+
+```css
+/* Target all Moraine select controls across your application */
+[data-slot='select-control'] {
+  backdrop-filter: blur(8px);
+}
 ```
 
-The bound `form.Form` is single: `createForm()` returns separate `Form` and `Field` components. Each component's API lists its supported style overrides.
+## TypeScript slot types
+
+Moraine exports typed slot and classes shapes under each component namespace:
+
+```ts
+import type { ButtonT, CardT, DialogT } from 'moraine'
+
+// Type-safe slot classes map
+const buttonClasses: ButtonT.Classes = {
+  root: 'rounded-full',
+  label: 'tracking-wide',
+}
+
+// All available slot names as a union
+type CardSlotNames = CardT.Slot // 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
+```
