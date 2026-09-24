@@ -19,7 +19,7 @@ describe('TypeExtractor', () => {
         'InputT',
         { size: "'sm' | 'md' | 'lg'", variant: "'outline' | 'subtle' | 'ghost' | 'none'" },
       ],
-      ['src/navigation/tab/tabs.types.ts', 'TabsT', { orientation: "'horizontal' | 'vertical'" }],
+      ['src/navigation/tabs/tabs.types.ts', 'TabsT', { orientation: "'horizontal' | 'vertical'" }],
       [
         'src/overlay/popover/popover.types.ts',
         'PopoverT',
