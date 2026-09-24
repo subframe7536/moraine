@@ -59,11 +59,10 @@ let selected: SelectT.Item['value'] | null = null
 
 ### Namespace Reference
 
-Each `XxxT` namespace lists its supported types. Unsupported members use `never`; component-specific collection and render types appear where relevant.
+Common supporting types are listed below. Unsupported members use `never`; component-specific collection and render types appear where relevant.
 
 | Member    | Description                                                                       |
 | --------- | --------------------------------------------------------------------------------- |
-| `Kind`    | Component composition model: literal `'single'` or `'composite'`.                 |
 | `Slot`    | Generic documented map of presentation slots, or `never` for headless components. |
 | `Variant` | Nullable visual variant options, or `never` when unavailable.                     |
 | `Classes` | Typed slot-class overrides, or `never` when unavailable.                          |
@@ -72,23 +71,6 @@ Each `XxxT` namespace lists its supported types. Unsupported members use `never`
 | `Value`   | Domain type only when the component has meaningful value semantics.               |
 | `Base`    | Component-specific base/business props without root HTML attributes.              |
 | `Props`   | Final public props shape (identical to `XxxProps`).                               |
-
-### Component Kinds (`XxxT.Kind`)
-
-Every public component namespace declares `Kind` as a literal type:
-
-- `'single'`: A component configured primarily through its own props (e.g. `Button`, `Card`, `Select`, bound `form.Form`).
-- `'composite'`: A component composed of attached child parts that you arrange explicitly (e.g. `Dialog.Trigger`, `Dialog.Content`, `SidebarFrame.Main`).
-
-```ts
-import type { ButtonT, DialogT, FormT } from 'moraine'
-
-type ButtonKind = ButtonT.Kind // 'single'
-type DialogKind = DialogT.Kind // 'composite'
-type BoundFormKind = FormT.Kind // 'single': describes form.Form
-```
-
-See [Component kinds](/styling#component-kinds) for composition and styling examples.
 
 ### Visual Variants (`XxxT.Variant`)
 
@@ -237,36 +219,3 @@ declare module 'moraine' {
 
 - **`false` (default)**: `as` autocompletes all valid tags in `keyof JSX.IntrinsicElements`, including SVG (`svg`, `path`, `g`) and MathML elements.
 - **`true`**: Limits `as` tag completion to standard `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, etc.), reducing autocompletion noise.
-
-## Render Props (`*Render`)
-
-Following Moraine's naming conventions, any prop that renders a component or custom JSX template is named with the `Render` suffix:
-
-- `itemRender`: Custom rendering for list/collection items (`Select`, `MultiSelect`, `CommandPalette`, `List`, `Breadcrumb`).
-- `contentRender`: Custom popup/panel content rendering.
-- `emptyRender`: Custom empty-state display when collections have no matching items.
-- `separatorRender`: Custom item separators.
-
-Render callbacks receive typed context objects containing the underlying item and state:
-
-```tsx
-import { Show } from 'solid-js'
-import type { SelectProps } from 'moraine'
-import { Select } from 'moraine'
-
-const items = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published' },
-]
-
-const itemRender: SelectProps['itemRender'] = (context) => (
-  <div class="flex items-center justify-between w-full">
-    <span>{context.item.label}</span>
-    <Show when={context.selected}>
-      <span class="text-xs text-primary">Selected</span>
-    </Show>
-  </div>
-)
-
-<Select items={items} itemRender={itemRender} />
-```
