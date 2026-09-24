@@ -86,7 +86,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative data-active:(text-primary font-medium) hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show
