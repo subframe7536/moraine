@@ -17,7 +17,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 
 import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
-import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
+import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlays/base/utils.ts'
 import { createStyles } from '../../provider/create-styles.ts'
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import { dataSlotName } from '../../shared/data-slot.ts'
@@ -728,7 +728,7 @@ function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
         }
         const item = element.ownerDocument.getElementById(state.itemId(key))
         if (item && element.contains(item)) {
-          item.scrollIntoView?.({ block: 'nearest' })
+          scrollIntoViewWithin(item, element)
         }
       })
     }),
