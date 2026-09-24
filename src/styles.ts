@@ -35,7 +35,7 @@ export { commandPaletteRecipe } from './navigation/command-palette/command-palet
 export { paginationRecipe } from './navigation/pagination/pagination.recipe'
 export { sidebarFrameRecipe } from './navigation/sidebar-frame/sidebar-frame.recipe'
 export { stepperRecipe } from './navigation/stepper/stepper.recipe'
-export { tabsRecipe } from './navigation/tab/tabs.recipe'
+export { tabsRecipe } from './navigation/tabs/tabs.recipe'
 export { contextMenuRecipe } from './overlay/context-menu/context-menu.recipe'
 export { dialogRecipe } from './overlay/dialog/dialog.recipe'
 export { dropdownMenuRecipe } from './overlay/dropdown-menu/dropdown-menu.recipe'
