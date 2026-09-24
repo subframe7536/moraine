@@ -67,9 +67,9 @@ Use Tooltip for supplemental information on hover or focus. The trigger must sti
 
 ## Anatomy
 
-`Tooltip` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide instance defaults for `trigger`, `content`, `text`, `kbds`, and `kbd`. Trigger is a one-slot part with direct `class` and `style`; Content can additionally configure only its `content`, `text`, `kbds`, and `kbd` slots. Put native surface attributes directly on Content.
+`Tooltip` has no root DOM element. Its Trigger opens portaled Content, which can render text and shortcut keys. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Tooltip; Content can override its own slots. See [Styling](/styling#override-component-styles).
 
-The Floating UI positioning wrapper is an implementation detail. Its transition class remains internal and it is intentionally not a public Tooltip family slot or Theme override target.
+The positioning wrapper is internal. You cannot style it through Tooltip slots or Theme overrides.
 
 ```text
 Root (context only)

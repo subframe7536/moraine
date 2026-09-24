@@ -138,8 +138,6 @@ state, and form serialization) even when items are filtered out of the view.
 ### Styling
 
 BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
-`separator`, and `empty`. Its headless root accepts family `classes` and `styles`, but no direct root
-`class` or `style`. Every rendered part resolves the raw family defaults together with the Theme and
-`cnConfig` from its own nearest `MoraineProvider`, so nested providers and portaled content remain
-local. A part's direct `class` is passed last to the active class merger for its primary slot; actual
-conflict resolution still follows that merger's configuration.
+`separator`, and `empty`. Its root renders no element, so use root `classes` and `styles` for defaults
+and direct `class` or `style` on the part that renders the element. See [Styling](/styling#advanced-style-resolution)
+for nested Provider, Portal, and class-merging behavior.

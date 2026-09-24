@@ -66,7 +66,7 @@ Use Dialog when an action or form needs focused attention with a labeled modal s
 
 ## Anatomy
 
-`Dialog` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide defaults for this Dialog instance. `Dialog.Trigger` owns its attributes, events, ref, and direct styling; `Dialog.Content` owns the floating surface and its scoped presentation props. Content children fill the body unless an explicit `body` prop is provided.
+`Dialog` does not render a DOM element itself. It coordinates its Trigger and Content. Content children fill the body unless you provide a `body` prop.
 
 ```text
 Root (context only)
@@ -87,9 +87,9 @@ Root (context only)
 - `header` / `body` / `footer`: Structured content regions.
 - `contentClose`: Content-owned convenience close affordance.
 
-`Dialog.Close` is a behavior primitive that closes the nearest Dialog or Modal. It accepts its own `class` and `style`, but does not own a Dialog family slot or receive the automatic corner-close recipe. With `close={true}`, `Dialog.Content` renders `contentClose` even when `header` supplies custom content; the custom header replaces only the default title and description contents.
+Put DOM attributes and direct `class` or `style` on the part that renders the element. Root `classes` and `styles` provide defaults for this Dialog instance. See [Styling](/styling#override-component-styles) for how overrides combine.
 
-Dialog and Sheet intentionally share structured slot vocabulary, but retain separate recipes, Theme keys, and visual layouts.
+`Dialog.Close` closes the nearest Dialog or Modal. It accepts its own `class` and `style`, but does not receive the automatic corner-close styling. With `close={true}`, `Dialog.Content` renders the `contentClose` button even with a custom `header`; a custom header replaces only the default title and description.
 
 ## Usage
 

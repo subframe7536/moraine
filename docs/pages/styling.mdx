@@ -7,7 +7,7 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
-Moraine's styling system architecture uses atomic utility classes in the official Theme recipes. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
+Each component includes a built-in recipe: its default slot classes, variants, and variant defaults. Moraine uses atomic utility classes for those styles. Configure your CSS engine to scan the published classes and load Moraine's theme integration; the package does not include precompiled component CSS.
 
 ## UnoCSS
 
@@ -130,20 +130,16 @@ Interactive surfaces use semantic `hover` and `active` colors. Each hover token 
 
 ## Override component styles
 
-Moraine separates family presentation from the DOM element that finally renders each slot:
+Where should you put a style override?
 
-| Override surface                | Responsibility                                      |
-| ------------------------------- | --------------------------------------------------- |
-| Theme                           | Library or application defaults for the family      |
-| Composite root `classes/styles` | Defaults for that family instance                   |
-| Part `classes/styles`           | Overrides for the family slots controlled by a part |
-| Part `class/style`              | Direct override for the part's primary DOM slot     |
+| Need                                          | Surface                        |
+| --------------------------------------------- | ------------------------------ |
+| Application or library defaults               | Theme                          |
+| Defaults for one composite component instance | Root `classes` / `styles`      |
+| Override slots rendered by a specific part    | Part `classes` / `styles`      |
+| Override the part's primary DOM element       | `class` / `style` on that part |
 
-DOM-owning composite roots, such as `InputGroup`, `ButtonGroup`, `Collapsible`, and `SidebarFrame`, use `class` and `style` for their primary root slot and `classes` and `styles` for family-instance defaults. Headless roots, such as `Dialog`, `Sheet`, `Modal`, `Popover`, `Tooltip`, and the menu families, have no root DOM element: they accept family `classes` and `styles`, but intentionally do not accept root `class` or `style`.
-
-A part that controls one visual slot exposes only direct `class` and `style`. A multi-slot part exposes a scoped `classes` and `styles` map containing only the slots it can render. For example, `Dialog.Trigger` has direct overrides only, while `Dialog.Content` can configure `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer`.
-
-Class inputs are passed to the active Moraine `cn` merger in this order: built-in recipe, nearest Provider Theme, composite-root family defaults, part-local slot overrides, then direct part `class` for the primary slot. This ordering does not mean every later class always replaces every earlier class: conflict resolution depends on `cnConfig`, and unknown or non-conflicting classes can coexist. Existing recipe merge boundaries remain significant. Inline style properties use true overwrite precedence in the corresponding order: recipe or Theme CSS variables, family `styles[slot]`, part `styles[slot]`, then direct primary `style`.
+For a Button, use `class` and `style` on the element itself. Use `classes` to change a named slot such as its label:
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -151,26 +147,35 @@ Class inputs are passed to the active Moraine `cn` merger in this order: built-i
 </Button>
 ```
 
-Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot.
+For a Dialog, root `classes` and `styles` set defaults for that instance. Put native DOM attributes and direct overrides on the part that renders the element:
+
+```tsx
+<Dialog classes={{ content: 'max-w-lg', body: 'space-y-4' }}>
+  <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
+  <Dialog.Content title="Profile" class="shadow-xl">
+    Profile settings
+  </Dialog.Content>
+</Dialog>
+```
+
+A part rendering one public slot uses `class` and `style`. A part rendering multiple configurable slots may also expose `classes` and `styles` for those slots. `Dialog.Trigger` uses direct overrides; `Dialog.Content` can configure its `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer` slots.
+
+Roots that render an element, such as `InputGroup`, `Collapsible`, and `SidebarFrame`, also accept direct `class` and `style` for that root element. Headless roots such as `Dialog`, `Popover`, and `Tooltip` have no element for direct DOM props; use root `classes` and `styles` for instance defaults. Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot.
 
 ### Style slots and DOM slots
 
-Style keys in `classes`, `styles`, recipes, and Theme entries are local camelCase names. The rendered `data-slot` value is a globally identifiable kebab-case name: the component name for `root`, or the component name followed by the slot name for other slots.
+Use camelCase names in `classes` and `styles`; use the documented `data-slot` values in CSS selectors or DOM inspection. The rendered values use kebab-case: the component name for `root`, or the component name followed by the slot name for other slots. Recipes and Theme entries use the same camelCase style keys.
 
 ```tsx
 <Select classes={{ itemLabel: 'font-semibold' }} />
 // The label element renders with data-slot="select-item-label".
 ```
 
-Nested Moraine components keep ownership of their internal nodes. For example, Pagination's page Button root renders as `pagination-item`, while its label remains `button-label`. `AvatarGroup`, `CheckboxGroup`, and `Pagination` retain style keys that forward to child internals through their existing `classes` and `styles` APIs. Those nodes keep the child's DOM slot name: `AvatarGroup.classes.image` targets `avatar-image`, `CheckboxGroup.classes.icon` targets `checkbox-icon`, and `Pagination.classes.controlLabel` targets `button-label`. AvatarGroup's fallback content key is `fallbackContent`.
-
-Each rendered composite part resolves its recipe and nearest `MoraineProvider` itself. Family-instance defaults still flow from the nearest matching family root, including through a Portal, while an inner Provider supplies that part's Theme and `cnConfig`. A nested instance of the same family starts a new presentation scope and does not inherit the outer instance's overrides.
-
-CSS variables are slot-targeted. Portal DOM does not inherit variables from a trigger or layout root, so apply a variable to each affected slot explicitly—for example, `styles={{ content: { '--x': '...' }, overlay: { '--y': '...' } }}`. Moraine does not copy root variables across a family. Empty override values do not disable built-in recipes, and this API does not add an unstyled or replacement mode.
+Some components expose style keys for elements rendered by a nested Moraine component. The [advanced style resolution](#advanced-style-resolution) section explains how their DOM slot names differ.
 
 ## Component kinds
 
-The `Single` or `Composite` label in each component page header comes from its `XxxT.Kind` type. It describes how you compose the component, not how many DOM elements or presentation slots it renders.
+The `Single` and `Composite` labels describe how you compose a component, regardless of how many DOM elements or style slots it renders.
 
 **Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
 
@@ -180,7 +185,7 @@ The `Single` or `Composite` label in each component page header comes from its `
 </Card>
 ```
 
-**Composite** components expose attached parts that you arrange explicitly. Styling belongs to the root or part that owns the corresponding DOM. `SidebarFrame` renders a layout root and accepts family slot overrides, while each part also accepts its own `class` and `style`.
+**Composite** components expose attached parts that you arrange explicitly. `SidebarFrame` renders a layout root and accepts slot overrides, while each part also accepts its own `class` and `style`.
 
 ```tsx
 <SidebarFrame class="h-80" classes={{ sidebar: 'bg-muted' }}>
@@ -189,17 +194,6 @@ The `Single` or `Composite` label in each component page header comes from its `
   </SidebarFrame.Sidebar>
   <SidebarFrame.Main class="p-6">Workspace</SidebarFrame.Main>
 </SidebarFrame>
-```
-
-`Dialog` also has a composite API. Its headless root supplies family-instance defaults, while its rendered parts own DOM attributes and direct overrides.
-
-```tsx
-<Dialog classes={{ content: 'max-w-lg', body: 'space-y-4' }}>
-  <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
-  <Dialog.Content title="Profile" class="shadow-xl">
-    Profile settings
-  </Dialog.Content>
-</Dialog>
 ```
 
 The bound `form.Form` is single: `createForm()` returns separate `Form` and `Field` components. Each component's API lists its supported style overrides.
@@ -317,7 +311,7 @@ Replace the config object to update existing descendants. Changing it back to `u
 
 Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
 
-A merger cannot restore classes already removed by another merger. Use `useCn()` in components or `appCn` in ordinary helpers when application code needs the same rules. Composed parts retain their existing style ownership: a part merges its own classes in its local scope, while already-resolved root presentation remains from the root's scope.
+A merger cannot restore classes already removed by another merger. Use `useCn()` in components or `appCn` in ordinary helpers when application code needs the same rules. Each part merges its own classes with its nearest Provider's rules; classes already resolved on the root keep the root's rules.
 
 ### Recipes and defaults
 
@@ -378,6 +372,16 @@ const theme = defineTheme({
 Classes and variables resolve together in base, selected variant, then matching compound order. Later non-null variable values override earlier values; numbers are passed through without units. Parent and child recipes receive the same resolved variants, with child variables overriding parent variables by property.
 
 Recipe and Theme CSS variables are applied first, followed by inherited styles, instance `styles[rootSlot]`, and the instance root `style`. Changing variants or removing Theme overrides clears variables that no longer apply.
+
+### Advanced style resolution
+
+Classes reach the active Moraine `cn` merger in this order: built-in recipe, nearest Provider Theme, composite-root instance defaults, part slot overrides, then direct `class` on the part's primary slot. A later class does not always replace an earlier one: conflict resolution depends on `cnConfig`, and unknown or non-conflicting classes can coexist. Recipe merge boundaries also matter. Inline style properties use overwrite precedence in the same order: recipe or Theme CSS variables, root `styles[slot]`, part `styles[slot]`, then direct primary `style`.
+
+Each rendered composite part resolves its recipe with its nearest `MoraineProvider`, including parts rendered through a Portal. Defaults from the nearest matching component root still reach that part, while a Provider inside the root supplies the part's Theme and `cnConfig`. A nested instance of the same component starts with its own overrides instead of inheriting those of the outer instance. Theme overrides and instance overrides both contribute to the resolution above; a Theme object replaces inherited Theme overrides unless explicitly composed with `extends`.
+
+CSS variables target individual slots. Portaled DOM does not inherit variables from a trigger or layout root, so apply a variable to each affected slot, for example `styles={{ content: { '--x': '...' }, overlay: { '--y': '...' } }}`. Moraine does not copy root variables to other slots. Empty overrides do not disable built-in recipes; there is no unstyled or replacement mode.
+
+Nested Moraine components may render nodes with their own DOM slot names. Pagination's page Button root renders as `pagination-item`, but its label remains `button-label`. The `classes` and `styles` APIs of `AvatarGroup`, `CheckboxGroup`, and `Pagination` can also target child internals: `AvatarGroup.classes.image` targets `avatar-image`, `CheckboxGroup.classes.icon` targets `checkbox-icon`, and `Pagination.classes.controlLabel` targets `button-label`. AvatarGroup's fallback content key is `fallbackContent`.
 
 ### Reactive replacement and native refs
 
