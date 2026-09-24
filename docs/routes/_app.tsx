@@ -10,6 +10,7 @@ import { PageActions } from './components/layout/page-actions'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
+import { useHashScrolling } from './hooks/use-hash-scrolling'
 import { useScrollRetention } from './hooks/use-scroll-retention'
 import { useTheme } from './hooks/use-theme'
 
@@ -70,6 +71,12 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   useScrollRetention({
     element: mainEl,
     path: () => location.pathname,
+  })
+  useHashScrolling({
+    element: mainEl,
+    path: () => location.pathname,
+    hash: () => location.hash,
+    ready: () => !isRouting() && committedPage() === activePage(),
   })
 
   function DocsShell() {

@@ -110,13 +110,6 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
     ...getDocsApiReferenceTocEntries(input.apiDoc),
   ])
 
-  onMount(() => {
-    const el = document.getElementById(window.location.hash.slice(1))
-    if (el) {
-      el.scrollIntoView({ block: 'start' })
-    }
-  })
-
   return (
     <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8 lg:gap-12">
       <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
