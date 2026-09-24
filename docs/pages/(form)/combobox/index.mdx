@@ -107,12 +107,16 @@ root or inside a group. Whitespace is preserved, and an empty string is a valid 
 
 <Preview path="./string-items" />
 
-Item callbacks receive normalized objects: `'Apple'` becomes `{ value: 'Apple', label: 'Apple' }`.
-Object items retain their identity and custom fields. `ComboboxT.NormalizedItem<TItem>` describes the
-callback item type; `onChange` receives its value or `null` when cleared. Duplicate values use the
-first occurrence, including collisions between strings and objects.
+String items are converted to the same item shape used by callbacks: `'Apple'` becomes
+`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
+`ComboboxT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
+occurrence, including collisions between strings and objects.
 
 ### Value and query
+
+`value` is the selected item's value, or `null` when nothing is selected. Leave it undefined to use
+uncontrolled selection with `defaultValue`. An empty string remains a valid item value. The exact
+selection type is `ComboboxT.NormalizedItem<TItem>['value'] | null`, which `onChange` receives.
 
 While open, the input displays the query; while closed, it displays the selected item label.
 Arbitrary query text is never committed as a value. Use `value` / `onChange` for selection and

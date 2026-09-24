@@ -83,7 +83,7 @@ ButtonGroup
 
 ### Composition
 
-`ButtonGroupT.Kind` is `composite`: use `ButtonGroup` to align related actions and attach `ButtonGroup.Separator` where needed without changing the semantics of its children. Root `classes` and `styles` configure the `root` and `separator` family slots. Separator is a one-slot part and therefore accepts direct `class` and `style`, not a full-family slot map. Compose a menu or popover trigger as a child when an action needs an attached overlay.
+Use `ButtonGroup` to align related actions without changing their semantics. Add `ButtonGroup.Separator` where a divider helps; it accepts direct `class` and `style`. Root `classes` and `styles` set defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an action needs an overlay.
 
 <Preview path="./group-composition" />
 

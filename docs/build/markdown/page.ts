@@ -30,11 +30,10 @@ function serializeJsxExpression(value: unknown): string {
 }
 
 function createDocsRouteMetadata(
-  pageKey: string,
   routePath: string,
   frontmatter: FrontmatterData,
 ): DocsRouteMetadata {
-  const title = pageKey === 'introduction' ? 'Moraine Docs' : `${frontmatter.title} | Moraine`
+  const title = `${frontmatter.title} | Moraine`
   const canonical = new URL(routePath.replace(/^\//, ''), DOCS_SITE.siteUrl).toString()
   return {
     title,
@@ -96,7 +95,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
         ...onThisPageEntries,
         ...getApiReferenceTocEntries(apiDoc),
       ])
-      const metadata = createDocsRouteMetadata(page.pageKey, context.routeId, frontmatter)
+      const metadata = createDocsRouteMetadata(context.routeId, frontmatter)
 
       return {
         routeConfig: { info, metadata },

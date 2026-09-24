@@ -156,7 +156,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
           </p>
 
           <div class="text-xs mt-4 flex flex-wrap gap-2 items-center">
-            <Show when={input.pageKey !== 'introduction' && input.markdownSource}>
+            <Show when={input.markdownSource}>
               <Button
                 as="a"
                 href={`/${input.pageKey}.md`}

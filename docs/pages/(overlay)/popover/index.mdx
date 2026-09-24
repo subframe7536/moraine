@@ -83,7 +83,7 @@ Use Popover for anchored interactive content that does not need the structure of
 
 ## Anatomy
 
-`Popover` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide instance defaults for `trigger`, `content`, and `body`. Trigger is a one-slot part with direct `class` and `style`; Content can additionally configure only its `content` and `body` slots. Put native surface attributes directly on Content.
+`Popover` has no root DOM element. Its Trigger opens a portaled Content element, which may render a body. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Popover; Content can override its `content` and `body` slots. See [Styling](/styling#override-component-styles).
 
 ```text
 Root (context only)

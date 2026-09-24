@@ -103,15 +103,14 @@ root or inside a group. Whitespace is preserved, and an empty string is a valid 
 
 <Preview path="./string-items" />
 
-Item callbacks receive normalized objects: `'Apple'` becomes `{ value: 'Apple', label: 'Apple' }`.
-Object items retain their identity and custom fields. `SelectT.NormalizedItem<TItem>` describes the
-callback item type; `onChange` receives its value or `null` when cleared. Duplicate values use the
-first occurrence, including collisions between strings and objects.
+String items are converted to the same item shape used by callbacks: `'Apple'` becomes
+`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
+`SelectT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
+occurrence, including collisions between strings and objects.
 
 ### Value and collection
 
-The value API is `SelectT.NormalizedItem<TItem>['value'] | null`. `undefined` leaves the component uncontrolled (using `defaultValue`),
-`null` indicates no active selection, and an empty string remains a valid value. Item values must be unique.
+`value` is the selected item's value, or `null` when nothing is selected. Leave `value` undefined to use uncontrolled selection with `defaultValue`. An empty string is a valid value; item values must be unique. The exact selection type is `SelectT.NormalizedItem<TItem>['value'] | null`, which is also the type passed to `onChange`.
 
 Printable keys perform rapid typeahead navigation across available options without opening an editable input.
 

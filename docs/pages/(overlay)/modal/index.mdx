@@ -82,13 +82,13 @@ Modal (state provider)
 
 ### Composition
 
-`Modal` is a state and presentation provider, not a DOM root. It accepts family `classes` and `styles`, but no direct root `class` or `style`. Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`; the one-slot Overlay and Content parts expose only direct `class` and `style`. Their portaled DOM coordinates exit motion and focus behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
+Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Overlay and Content render through a Portal and coordinate exit motion and focus. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling#override-component-styles).
 
 <Preview path="./modal-composition" />
 
 ### State, styling, and exit lifecycle
 
-Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` merges its direct `class` after family defaults through the active Moraine class merger; an empty value does not disable the recipe. `onExitComplete` waits for the registered overlay and content exit presence to finish.
+Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay and content exit animations to finish. An empty `class` does not disable built-in styles.
 
 <Preview path="./modal-lifecycle" />
 

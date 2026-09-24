@@ -68,7 +68,7 @@ Use DropdownMenu for a compact set of actions opened from a visible trigger. Use
 
 ## Anatomy
 
-`DropdownMenu` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide instance defaults for the shared menu slot vocabulary. Trigger is a one-slot part with direct `class` and `style`; Content's scoped `classes` and `styles` cover every menu presentation slot except `trigger`, including nested submenu layers. Put native surface attributes directly on Content.
+`DropdownMenu` has no root DOM element. Trigger opens the portaled Content, which renders groups and items. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this menu; Content can override its slots, including nested submenu layers. See [Styling](/styling#override-component-styles).
 
 ```text
 Root (context only)
