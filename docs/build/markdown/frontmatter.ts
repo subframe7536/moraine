@@ -84,7 +84,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     const apiValue = data.api as FrontmatterRecord
     const apiPath = readString(apiValue, 'path')
     if (
-      !/^src\/(?:elements|forms|navigation|overlays)\/[a-z0-9/-]+$/.test(apiPath) ||
+      !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(apiPath) ||
       apiPath.includes('..') ||
       /\.[cm]?[jt]sx?$/.test(apiPath)
     ) {
