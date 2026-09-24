@@ -93,7 +93,7 @@ import type {
   StepperStyleSlot,
   StepperStyleVariant,
 } from '../navigation/stepper/stepper.style-types'
-import type { TabsStyleSlot, TabsStyleVariant } from '../navigation/tab/tabs.style-types'
+import type { TabsStyleSlot, TabsStyleVariant } from '../navigation/tabs/tabs.style-types'
 import type {
   ContextMenuStyleSlot,
   ContextMenuStyleVariant,
