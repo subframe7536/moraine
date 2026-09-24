@@ -25,11 +25,11 @@ export function useHashScrolling(options: HashScrollingOptions) {
   createEffect(
     on(
       [options.element, options.path, options.hash, historyHash, options.ready],
-      ([root, , hash, , ready]) => {
+      ([root, , , , ready]) => {
         if (!root || !ready) {
           return
         }
-        const id = decodeHashAnchor(hash || window.location.hash)
+        const id = decodeHashAnchor(window.location.hash)
         if (!id) {
           return
         }
