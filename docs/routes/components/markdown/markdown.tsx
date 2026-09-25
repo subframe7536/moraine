@@ -96,7 +96,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
           markdownSource={input.markdownSource}
         />
 
-        <div class="mb-24 min-w-0 w-full">
+        <div class="mb-24 mt-8 min-w-0 w-full">
           <DocsPlaygroundApiContext.Provider value={input.apiDoc}>
             {input.children}
           </DocsPlaygroundApiContext.Provider>

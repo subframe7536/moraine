@@ -22,7 +22,7 @@ search:
     ]
 ---
 
-import { Button, createForm, Input, Select, Switch, Textarea, InputGroup, Icon } from '@src'
+import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup, Icon } from '@src'
 import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
@@ -103,6 +103,7 @@ export function NotificationForm() {
     const ProfileSchema = v.object({
       username: v.pipe(v.string(), v.minLength(3, 'Username must be at least 3 characters.')),
       role: v.pipe(v.string(), v.nonEmpty('Please select a role.')),
+      experience: v.number(),
       bio: v.optional(v.string()),
       notifications: v.boolean(),
     })
@@ -110,7 +111,7 @@ export function NotificationForm() {
     const [submitted, setSubmitted] = createSignal(null)
     const form = createForm({
       schema: ProfileSchema,
-      initialInput: { username: '', role: '', bio: '', notifications: true },
+      initialInput: { username: '', role: '', experience: 3, bio: '', notifications: true },
     })
 
     const ROLE_OPTIONS = [
@@ -192,6 +193,28 @@ export function NotificationForm() {
                       allowClear
                     />
                   )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'experience',
+                label: 'Experience',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? '0–10 years' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Years of experience in your role.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Choose a whole number of years.' : undefined
+                },
+                get children() {
+                  return <Slider defaultValue={3} min={0} max={10} step={1} size={props.size} disabled={props.disabled} />
                 },
               }),
               createComponent(form.Field, {
