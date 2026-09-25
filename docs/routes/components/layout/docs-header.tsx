@@ -23,7 +23,8 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const frame = useSidebarFrame()
   const location = useLocation()
   const isStyling = createMemo(() => location.pathname.startsWith('/styling'))
-  const isDocs = createMemo(() => !props.isLanding() && !isStyling())
+  const isForm = createMemo(() => location.pathname.startsWith('/form'))
+  const isDocs = createMemo(() => !props.isLanding() && location.pathname.startsWith('/start'))
 
   return (
     <header class="border-b border-border/60 bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
@@ -67,6 +68,15 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
               )}
             >
               Styling
+            </a>
+            <a
+              href="/form"
+              class={cn(
+                'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+                isForm() ? 'text-foreground font-medium' : 'text-muted-foreground',
+              )}
+            >
+              Components
             </a>
           </div>
         </div>

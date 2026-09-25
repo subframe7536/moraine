@@ -1,492 +1,277 @@
+import { createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
-import { For, createSignal } from 'solid-js'
 
 import {
   Accordion,
-  Avatar,
-  Badge,
   Button,
-  Card,
-  Checkbox,
   Combobox,
   Dialog,
-  FileUpload,
-  Input,
+  Icon,
   InputNumber,
-  Pagination,
   Popover,
-  Progress,
   Slider,
-  Stepper,
   Switch,
   Tabs,
-  Tooltip,
+  cn,
 } from '../../../../src'
 
-const FRAMEWORKS = [
+const OPTIONS = [
   { label: 'SolidJS', value: 'solid' },
-  { label: 'TypeScript', value: 'ts' },
+  { label: 'TypeScript', value: 'typescript' },
   { label: 'UnoCSS', value: 'unocss' },
   { label: 'Tailwind CSS', value: 'tailwind' },
 ]
 
-const SETUP_STEPS = [
-  { value: 'plan', title: 'Plan', icon: 'i-lucide:clipboard-list' },
-  { value: 'build', title: 'Build', icon: 'i-lucide:hammer' },
-  { value: 'ship', title: 'Ship', icon: 'i-lucide:rocket' },
-]
+const docsLink =
+  'text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
 
-const SAMPLE_RELEASES = [
-  { name: 'API review', status: 'Ready' },
-  { name: 'Theme update', status: 'Shipped' },
-  { name: 'Input polish', status: 'Shipped' },
-  { name: 'Docs refresh', status: 'Shipped' },
-  { name: 'Overlay pass', status: 'Shipped' },
-  { name: 'Recipe audit', status: 'Shipped' },
-]
-
-interface RadarCardProps {
+function SamplerItem(props: {
   title: string
   description: string
-  components: string
   href: string
+  class?: string
   children: JSX.Element
-}
-
-function RadarCard(props: RadarCardProps) {
+}) {
   return (
-    <div class="mb-4 break-inside-avoid">
-      <Card as="article" size="sm" class="w-full">
-        <Card.Header>
-          <Card.Title as="h3">{props.title}</Card.Title>
-          <Card.Description>{props.description}</Card.Description>
-        </Card.Header>
-        <Card.Body class="min-w-0">{props.children}</Card.Body>
-        <Card.Footer class="justify-between text-xs">
-          <span class="text-muted-foreground">{props.components}</span>
-          <a
-            href={props.href}
-            aria-label={`${props.title} documentation`}
-            class="text-primary whitespace-nowrap focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:underline"
-          >
-            Docs →
-          </a>
-        </Card.Footer>
-      </Card>
-    </div>
+    <article
+      class={cn('p-6 border-b border-e border-border/70 flex flex-col min-w-0', props.class)}
+    >
+      <div>
+        <h3 class="font-semibold text-base">{props.title}</h3>
+        <p class="text-muted-foreground mt-1 text-sm">{props.description}</p>
+      </div>
+      <div class="mt-6 min-w-0">{props.children}</div>
+      <a href={props.href} class={cn(docsLink, 'mt-auto pt-6')}>
+        Explore {props.title} <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+      </a>
+    </article>
   )
 }
 
 export function ComponentRadar() {
-  const [sliderValue, setSliderValue] = createSignal(42)
-  const [cacheEnabled, setCacheEnabled] = createSignal(true)
-  const [setupStep, setSetupStep] = createSignal('build')
-  const [page, setPage] = createSignal(1)
-  const [email, setEmail] = createSignal('team@moraine.dev')
-  const [digestEnabled, setDigestEnabled] = createSignal(true)
-  const [preferencesSaved, setPreferencesSaved] = createSignal(false)
-
-  const setupStepIndex = () => SETUP_STEPS.findIndex((step) => step.value === setupStep())
-  const setupProgress = () => ((setupStepIndex() + 1) / SETUP_STEPS.length) * 100
-  const visibleReleases = () => SAMPLE_RELEASES.slice((page() - 1) * 2, page() * 2)
+  const [value, setValue] = createSignal(42)
+  const [boldValue, setBoldValue] = createSignal(70)
+  const [emailAlerts, setEmailAlerts] = createSignal(true)
+  const [inAppAlerts, setInAppAlerts] = createSignal(false)
 
   return (
-    <section aria-labelledby="radar-title" class="py-10 border-t border-border/70 sm:py-12">
-      <div class="mb-5 flex flex-wrap gap-3 items-center justify-between">
+    <section aria-labelledby="radar-title" class="py-12 sm:py-16">
+      <div class="mb-6 flex flex-wrap gap-4 items-end justify-between">
         <div>
-          <h2 id="radar-title" class="tracking-tight font-semibold text-xl sm:text-2xl">
-            Components working together
+          <h2 id="radar-title" class="tracking-tight font-semibold text-2xl sm:text-3xl">
+            Explore the components
           </h2>
-          <p class="text-muted-foreground mt-1 text-sm">
-            Explore everyday workflows built with Moraine components.
+          <p class="text-muted-foreground mt-2 max-w-2xl text-sm sm:text-base">
+            Accessible building blocks for forms, navigation, overlays, and everyday interface
+            patterns.
           </p>
         </div>
-        <Button as="a" href="/start" size="sm" variant="link" trailing="icon-arrow-right">
-          Browse components
+        <Button as="a" href="/button" size="sm" variant="link" trailing="icon-arrow-right">
+          Browse all components
         </Button>
       </div>
 
-      <div class="gap-4 columns-1 md:columns-2 xl:columns-3">
-        <RadarCard
-          title="Technology filter"
-          description="Find the tools in a project stack."
-          components="Combobox · Badge"
-          href="/combobox"
-        >
-          <div class="space-y-3">
-            <Combobox
-              items={FRAMEWORKS}
-              placeholder="Select technology..."
-              allowClear
-              class="w-full"
-            />
-            <div class="flex flex-wrap gap-1.5">
-              <Badge variant="surface">SolidJS</Badge>
-              <Badge variant="outline">TypeScript</Badge>
-              <Badge variant="outline">UnoCSS</Badge>
-            </div>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Runtime limits"
-          description="Tune capacity before a deployment."
-          components="Slider · InputNumber"
-          href="/slider"
-        >
-          <div class="space-y-4">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-muted-foreground">CPU threshold</span>
-                <span class="font-mono font-semibold">{sliderValue()}%</span>
-              </div>
-              <Slider
-                value={sliderValue()}
-                onValueChange={(value) => setSliderValue(Array.isArray(value) ? value[0]! : value)}
-                min={0}
-                max={100}
-                aria-label="CPU threshold"
-              />
-            </div>
-            <div class="pt-3 border-t border-border/60 flex gap-3 items-center justify-between">
-              <span class="text-muted-foreground text-xs">Replica count</span>
-              <InputNumber
-                defaultValue={3}
-                minValue={1}
-                maxValue={12}
-                size="sm"
-                aria-label="Replica count"
-                class="w-28"
-              />
-            </div>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Cache policy"
-          description="Control response caching locally."
-          components="Switch · Tooltip · Badge"
-          href="/switch"
-        >
-          <div class="space-y-3">
-            <Switch
-              label="Automatic caching"
-              description="Keep recent responses available."
-              checked={cacheEnabled()}
-              onCheckedChange={setCacheEnabled}
-            />
-            <div class="pt-3 border-t border-border/60 flex gap-2 items-center justify-between">
-              <Badge variant={cacheEnabled() ? 'solid' : 'outline'}>
-                {cacheEnabled() ? 'Enabled' : 'Paused'}
-              </Badge>
-              <Tooltip>
-                <Tooltip.Trigger as={Button} variant="ghost" size="sm">
-                  Why cache?
-                </Tooltip.Trigger>
-                <Tooltip.Content text="This preview only changes local state." />
-              </Tooltip>
-            </div>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Team access"
-          description="See people and their workspace roles."
-          components="Avatar · Badge"
-          href="/avatar"
-        >
-          <div class="space-y-3">
-            <div class="flex gap-3 items-center">
-              <Avatar alt="Avery Chen" text="AC" size="sm" />
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-xs">Avery Chen</p>
-                <p class="text-muted-foreground text-xs">Workspace owner</p>
-              </div>
-              <Badge variant="surface">Owner</Badge>
-            </div>
-            <div class="flex gap-3 items-center">
-              <Avatar alt="Morgan Lee" text="ML" size="sm" />
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-xs">Morgan Lee</p>
-                <p class="text-muted-foreground text-xs">Product design</p>
-              </div>
-              <Badge variant="outline">Editor</Badge>
-            </div>
-            <div class="flex gap-3 items-center">
-              <Avatar alt="Sam Rivera" text="SR" size="sm" />
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-xs">Sam Rivera</p>
-                <p class="text-muted-foreground text-xs">Engineering</p>
-              </div>
-              <Badge variant="outline">Editor</Badge>
-            </div>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Setup progress"
-          description="Move through a three-step workflow."
-          components="Stepper · Progress · Button"
-          href="/stepper"
-        >
-          <div class="space-y-4">
-            <Stepper
-              items={SETUP_STEPS}
-              value={setupStep()}
-              onChange={setSetupStep}
-              linear={false}
-              size="sm"
-            />
-            <div class="space-y-2">
-              <div class="text-muted-foreground flex justify-between text-xs">
-                <span>Workflow completion</span>
-                <span class="text-foreground font-mono">{Math.round(setupProgress())}%</span>
-              </div>
-              <Progress value={setupProgress()} aria-label="Workflow completion" />
-            </div>
-            <div class="flex gap-2 justify-between">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={setupStepIndex() === 0}
-                onClick={() => setSetupStep(SETUP_STEPS[setupStepIndex() - 1]!.value)}
-              >
-                Back
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={setupStepIndex() === SETUP_STEPS.length - 1}
-                onClick={() => setSetupStep(SETUP_STEPS[setupStepIndex() + 1]!.value)}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Content views"
-          description="Switch between project perspectives."
-          components="Tabs · Badge"
+      <div class="border-s border-t border-border/70 grid lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
+        <SamplerItem
+          title="Tabs"
+          description="Switch between related views."
           href="/tabs"
+          class="md:col-span-2"
         >
-          <Tabs
-            size="sm"
-            items={[
-              {
-                value: 'preview',
-                label: 'Preview',
-                get content() {
-                  return (
-                    <div class="pt-3 flex gap-2 items-center justify-between">
-                      <span class="text-muted-foreground text-xs">Live component preview</span>
-                      <Badge variant="surface">Ready</Badge>
-                    </div>
-                  )
-                },
-              },
-              {
-                value: 'code',
-                label: 'Code',
-                get content() {
-                  return (
-                    <p class="text-muted-foreground pt-3 text-xs">
-                      Copy the TSX example from its component page.
-                    </p>
-                  )
-                },
-              },
-              {
-                value: 'notes',
-                label: 'Notes',
-                get content() {
-                  return (
-                    <p class="text-muted-foreground pt-3 text-xs">
-                      Review behavior and accessibility guidance.
-                    </p>
-                  )
-                },
-              },
-            ]}
-          />
-        </RadarCard>
-
-        <RadarCard
-          title="Release notes"
-          description="Expand the details that matter."
-          components="Accordion · Badge"
-          href="/accordion"
-        >
-          <div class="space-y-2">
-            <Badge variant="outline">2 updates</Badge>
-            <Accordion
+          <div class="max-w-xl">
+            <Tabs
+              size="sm"
+              defaultValue="preferences"
               items={[
                 {
-                  value: 'components',
-                  label: 'Component changes',
-                  content: 'Review API updates and migration notes.',
+                  label: 'Preferences',
+                  value: 'preferences',
+                  content: (
+                    <div class="pt-4">
+                      <p class="font-medium text-sm">Workspace preferences</p>
+                      <p class="text-muted-foreground mt-1 text-sm">
+                        Choose how this workspace looks and feels.
+                      </p>
+                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                        <div>
+                          <dt class="text-muted-foreground">Appearance</dt>
+                          <dd class="font-medium mt-1">System theme</dd>
+                        </div>
+                        <div>
+                          <dt class="text-muted-foreground">Density</dt>
+                          <dd class="font-medium mt-1">Comfortable</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  ),
                 },
                 {
-                  value: 'styling',
-                  label: 'Styling changes',
-                  content: 'Check tokens, recipes, and variant behavior.',
+                  label: 'Access',
+                  value: 'access',
+                  content: (
+                    <div class="pt-4">
+                      <p class="font-medium text-sm">Workspace access</p>
+                      <p class="text-muted-foreground mt-1 text-sm">
+                        Manage who can view and join this workspace.
+                      </p>
+                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                        <div>
+                          <dt class="text-muted-foreground">Visibility</dt>
+                          <dd class="font-medium mt-1">Private</dd>
+                        </div>
+                        <div>
+                          <dt class="text-muted-foreground">Invitations</dt>
+                          <dd class="font-medium mt-1">Members only</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  ),
                 },
               ]}
-              defaultValue={['components']}
             />
           </div>
-        </RadarCard>
+        </SamplerItem>
 
-        <RadarCard
-          title="Change review"
-          description="Pause before applying a setting."
-          components="Dialog · Button"
-          href="/dialog"
-        >
-          <div class="flex gap-3 items-center justify-between">
-            <p class="text-muted-foreground max-w-40 text-xs">
-              Review the action in a focused layer.
-            </p>
-            <Dialog>
-              <Dialog.Trigger as={Button} size="sm">
-                Review
-              </Dialog.Trigger>
-              <Dialog.Content
-                title="Review changes"
-                body={
-                  <p class="text-muted-foreground text-sm">
-                    This example opens a dialog without changing saved data.
-                  </p>
-                }
+        <SamplerItem title="Slider" description="Choose a value from a range." href="/slider">
+          <div class="max-w-sm space-y-5">
+            <div>
+              <div class="mb-2 flex justify-between text-sm">
+                <span>Default</span>
+                <output class="text-muted-foreground font-mono">{value()}</output>
+              </div>
+              <Slider
+                aria-label="Default slider example"
+                value={value()}
+                min={0}
+                max={100}
+                onValueChange={(next) => setValue(Array.isArray(next) ? next[0]! : next)}
               />
-            </Dialog>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Quick actions"
-          description="Reveal tools without leaving the page."
-          components="Popover · Tooltip · Button"
-          href="/popover"
-        >
-          <div class="flex flex-wrap gap-2 items-center">
-            <Popover>
-              <Popover.Trigger as={Button} variant="outline" size="sm">
-                Open actions
-              </Popover.Trigger>
-              <Popover.Content ariaLabel="Quick actions">
-                <div class="p-3 max-w-48 space-y-1">
-                  <p class="font-medium text-xs">Workspace tools</p>
-                  <p class="text-muted-foreground text-xs">
-                    Actions can stay close to the selected item.
-                  </p>
-                </div>
-              </Popover.Content>
-            </Popover>
-            <Tooltip>
-              <Tooltip.Trigger as={Button} variant="ghost" size="sm">
-                Help
-              </Tooltip.Trigger>
-              <Tooltip.Content text="Press Escape to close an open layer." />
-            </Tooltip>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Asset handoff"
-          description="Stage files before sending them."
-          components="FileUpload · Badge"
-          href="/file-upload"
-        >
-          <div class="space-y-3">
-            <FileUpload
-              size="sm"
-              multiple
-              accept=".pdf,.png,.jpg"
-              maxFiles={3}
-              label="Add project files"
-              description="PDF or image, up to three files"
-            />
-            <Badge variant="outline">Files stay local in this preview</Badge>
-          </div>
-        </RadarCard>
-
-        <RadarCard
-          title="Sample results"
-          description="Page through an example release queue."
-          components="Pagination · Badge"
-          href="/pagination"
-        >
-          <div class="space-y-3">
-            <div class="divide-border divide-y">
-              <For each={visibleReleases()}>
-                {(release) => (
-                  <div class="py-2 flex gap-2 items-center justify-between">
-                    <span class="font-medium text-xs">{release.name}</span>
-                    <Badge variant={release.status === 'Ready' ? 'surface' : 'outline'}>
-                      {release.status}
-                    </Badge>
-                  </div>
-                )}
-              </For>
             </div>
-            <Pagination
-              page={page()}
-              onPageChange={setPage}
-              total={SAMPLE_RELEASES.length}
-              itemsPerPage={2}
-              siblingCount={0}
-              prevText="Prev"
-              nextText="Next"
+            <div>
+              <div class="mb-2 flex justify-between text-sm">
+                <span>Bold</span>
+                <output class="text-muted-foreground font-mono">{boldValue().toFixed(2)}</output>
+              </div>
+              <Slider
+                aria-label="Bold slider example"
+                variant="bold"
+                value={boldValue()}
+                min={0}
+                max={100}
+                step={10}
+                marker
+                onValueChange={(next) => setBoldValue(Array.isArray(next) ? next[0]! : next)}
+              />
+            </div>
+          </div>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Switch"
+          description="Choose where deployment alerts appear."
+          href="/switch"
+        >
+          <div class="space-y-4">
+            <Switch
+              label="Email alerts"
+              description="Sent after a deployment."
+              checked={emailAlerts()}
+              onCheckedChange={setEmailAlerts}
+            />
+            <Switch
+              label="In-app alerts"
+              description="Shown in your workspace."
+              checked={inAppAlerts()}
+              onCheckedChange={setInAppAlerts}
             />
           </div>
-        </RadarCard>
+          <output aria-live="polite" class="text-muted-foreground mt-4 block text-xs">
+            {Number(emailAlerts()) + Number(inAppAlerts())} of 2 channels on
+          </output>
+        </SamplerItem>
 
-        <RadarCard
-          title="Notification preferences"
-          description="Edit and save a local preference."
-          components="Input · Checkbox · Button"
-          href="/checkbox"
+        <SamplerItem title="Popover" description="Show content beside an action." href="/popover">
+          <Popover>
+            <Popover.Trigger as={Button} variant="outline" size="sm">
+              Open popover
+            </Popover.Trigger>
+            <Popover.Content ariaLabel="Popover example">
+              <div class="p-4 max-w-52 space-y-1">
+                <p class="font-medium text-sm">Contextual content</p>
+                <p class="text-muted-foreground text-xs">
+                  This panel stays close to the action that opened it.
+                </p>
+              </div>
+            </Popover.Content>
+          </Popover>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Input number"
+          description="Step within a defined range."
+          href="/input-number"
         >
-          <form
-            class="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault()
-              setPreferencesSaved(true)
+          <InputNumber aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
+        </SamplerItem>
+
+        <SamplerItem
+          title="Combobox"
+          description="Search and select from a collection."
+          href="/combobox"
+        >
+          <Combobox items={OPTIONS} placeholder="Search technologies..." allowClear />
+        </SamplerItem>
+
+        <SamplerItem title="Dialog" description="Focus attention on a task." href="/dialog">
+          <Dialog>
+            <Dialog.Trigger as={Button} variant="outline" size="sm">
+              Open dialog
+            </Dialog.Trigger>
+            <Dialog.Content
+              title="Dialog example"
+              body={
+                <p class="text-muted-foreground text-sm">
+                  A focused space for content that needs a response.
+                </p>
+              }
+            />
+          </Dialog>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Accordion"
+          description="Reveal details without leaving the page."
+          href="/accordion"
+          class="lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
+        >
+          <Accordion
+            defaultValue={['keyboard']}
+            items={[
+              {
+                value: 'keyboard',
+                label: 'Keyboard support',
+                content:
+                  'Move between triggers with the arrow keys and activate one with Enter or Space.',
+              },
+              {
+                value: 'focus',
+                label: 'Focus management',
+                content:
+                  'Each trigger keeps a visible focus state while its panel opens or closes.',
+              },
+              {
+                value: 'content',
+                label: 'Flexible content',
+                content: 'Place text, links, or a richer layout inside any panel.',
+              },
+            ]}
+            classes={{
+              root: 'border border-border rounded-lg',
+              trigger: 'px-4',
+              content: 'px-4 text-sm',
             }}
-          >
-            <label class="font-medium block text-xs" for="radar-notification-email">
-              Email address
-            </label>
-            <Input
-              id="radar-notification-email"
-              type="email"
-              value={email()}
-              onValueChange={(value) => {
-                setEmail(value)
-                setPreferencesSaved(false)
-              }}
-              class="w-full"
-            />
-            <Checkbox
-              label="Weekly digest"
-              checked={digestEnabled()}
-              onCheckedChange={(value) => {
-                setDigestEnabled(value)
-                setPreferencesSaved(false)
-              }}
-            />
-            <div class="pt-2 flex gap-2 items-center justify-between">
-              <span class="text-muted-foreground text-xs" aria-live="polite">
-                {preferencesSaved() ? 'Saved locally' : 'Preview only'}
-              </span>
-              <Button type="submit" size="sm">
-                Save
-              </Button>
-            </div>
-          </form>
-        </RadarCard>
+          />
+        </SamplerItem>
       </div>
     </section>
   )

@@ -2,8 +2,9 @@ import { createRoute } from 'solid-file-router'
 
 import { LandingPage } from './components/landing'
 
-const title = 'Moraine — SolidJS component library'
-const description = 'Composable SolidJS components with styling through UnoCSS and Tailwind CSS.'
+const title = 'Moraine — customizable components for SolidJS'
+const description =
+  'Accessible SolidJS components with composable recipes and flexible styling through UnoCSS and Tailwind CSS.'
 const canonical = 'https://ui.subf.dev/'
 
 export default createRoute({

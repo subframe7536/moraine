@@ -1,11 +1,11 @@
 import { For, createSignal } from 'solid-js'
 
-import { Badge, Button, Card, Field, Input, cn } from '../../../../src'
+import { Button, Card, Field, Input, cn } from '../../../../src'
 
 const linkFocus =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
 const toolbarButtonClass = `text-xs px-3 py-1.5 border rounded-md flex gap-2 min-h-9 transition-colors items-center ${linkFocus}`
-const INITIAL_NAMESPACE = 'subf/moraine'
+const INITIAL_NAME = 'Alex Morgan'
 
 const PRESETS = [
   {
@@ -19,8 +19,8 @@ const PRESETS = [
   },
   {
     name: 'Zinc Sharp',
-    primary: 'hsl(240 5.9% 10%)',
-    foreground: 'hsl(0 0% 98%)',
+    primary: 'light-dark(#18181b, #f4f4f5)',
+    foreground: 'light-dark(#fafafa, #18181b)',
     radius: '0px',
     spacing: '0.2rem',
     fontSize: '1rem',
@@ -49,8 +49,8 @@ const PRESETS = [
 export function StylingShowcase() {
   const [presetIndex, setPresetIndex] = createSignal(0)
   const [customSlotOverrides, setCustomSlotOverrides] = createSignal(false)
-  const [namespace, setNamespace] = createSignal(INITIAL_NAMESPACE)
-  const [savedNamespace, setSavedNamespace] = createSignal(INITIAL_NAMESPACE)
+  const [displayName, setDisplayName] = createSignal(INITIAL_NAME)
+  const [savedDisplayName, setSavedDisplayName] = createSignal(INITIAL_NAME)
   const [saved, setSaved] = createSignal(false)
 
   const active = () => PRESETS[presetIndex()]!
@@ -74,15 +74,15 @@ export function StylingShowcase() {
       .join('\n')
 
   return (
-    <section aria-labelledby="styling-title" class="py-10 border-t border-border/70 sm:py-12">
+    <section aria-labelledby="styling-title" class="py-12 sm:py-16">
       <div class="flex flex-wrap gap-3 items-end justify-between">
         <div>
-          <h2 id="styling-title" class="tracking-tight font-semibold text-xl sm:text-2xl">
-            Live theme
+          <h2 id="styling-title" class="tracking-tight font-semibold text-2xl sm:text-3xl">
+            Make the components yours
           </h2>
-          <p class="text-muted-foreground mt-1 max-w-xl text-sm">
-            Switch presets or toggle slot overrides; semantic tokens carry the styling across
-            components.
+          <p class="text-muted-foreground mt-2 max-w-2xl text-sm sm:text-base">
+            Change tokens globally, tune component recipes, or override a single slot when you need
+            to. The same model works with UnoCSS and Tailwind CSS.
           </p>
         </div>
         <Button
@@ -96,8 +96,8 @@ export function StylingShowcase() {
         </Button>
       </div>
 
-      <div class="mt-5 border border-border/70 bg-card overflow-hidden rounded-xl">
-        <div class="px-4 py-3 border-b border-border/70 flex flex-wrap gap-3 items-center justify-between sm:px-5">
+      <div class="mt-8">
+        <div class="py-4 flex flex-wrap gap-3 items-center justify-between">
           <div
             role="group"
             aria-labelledby="theme-preset-label"
@@ -148,38 +148,35 @@ export function StylingShowcase() {
                 : 'text-muted-foreground border-border/70 hover:bg-muted/50',
             )}
           >
-            Slot overrides {customSlotOverrides() ? 'on' : 'off'}
+            Customize button label {customSlotOverrides() ? 'on' : 'off'}
           </button>
         </div>
 
         <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-          <div class="p-5 border-b border-border/70 bg-muted/10 min-w-0 sm:p-6 lg:border-r lg:border-b-0">
-            <div class="mb-4 flex flex-wrap gap-2 items-center justify-between">
-              <h3 class="font-semibold text-sm">{active().name} theme</h3>
-              <Badge variant="surface">
-                {customSlotOverrides() ? 'Slot overrides' : 'Standard recipe'}
-              </Badge>
+          <div class="py-6 min-w-0 lg:pe-8">
+            <div class="mb-4 pb-3 flex flex-wrap gap-2 items-center justify-between">
+              <h3 class="font-semibold text-sm">Live preview · {active().name}</h3>
             </div>
 
             <form
               class="mx-auto max-w-lg w-full"
               onSubmit={(event) => {
                 event.preventDefault()
-                setSavedNamespace(namespace())
+                setSavedDisplayName(displayName())
                 setSaved(true)
               }}
             >
               <Card class="w-full" style={cardTheme()}>
                 <Card.Header>
-                  <Card.Title>Workspace settings</Card.Title>
-                  <Card.Description>Preview a themed form with local state.</Card.Description>
+                  <Card.Title>Profile settings</Card.Title>
+                  <Card.Description>One form, four visual starting points.</Card.Description>
                 </Card.Header>
                 <Card.Body>
-                  <Field label="Service namespace">
+                  <Field label="Display name">
                     <Input
-                      value={namespace()}
+                      value={displayName()}
                       onValueChange={(value) => {
-                        setNamespace(value)
+                        setDisplayName(value)
                         setSaved(false)
                       }}
                       variant={active().inputVariant}
@@ -206,7 +203,7 @@ export function StylingShowcase() {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      setNamespace(savedNamespace())
+                      setDisplayName(savedDisplayName())
                       setSaved(false)
                     }}
                   >
@@ -217,56 +214,34 @@ export function StylingShowcase() {
             </form>
           </div>
 
-          <div class="p-5 bg-muted/20 min-w-0 sm:p-6">
-            <h3 class="text-muted-foreground tracking-wide font-semibold uppercase text-xs">
-              Button TSX
-            </h3>
-            <pre class="text-foreground leading-5 mt-3 p-4 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
-              <code>{`<Button
-  variant="default"${
-    customSlotOverrides() ? `\n  classes={{ label: 'tracking-widest uppercase font-mono' }}` : ''
-  }
->
-  Save changes
-</Button>`}</code>
-            </pre>
-
-            <div class="mt-5 pt-4 border-t border-border/60">
-              <h4 class="text-muted-foreground tracking-wide font-semibold uppercase text-xs">
-                CSS tokens
-              </h4>
-              <pre class="text-foreground leading-5 mt-3 p-4 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
+          <div class="py-6 min-w-0 divide-border/70 divide-y lg:ps-8">
+            <div class="pb-5">
+              <h3 class="font-semibold text-sm">Theme</h3>
+              <p class="text-muted-foreground mt-1 text-xs">
+                Set shared colors, spacing, and radius.
+              </p>
+              <pre class="text-foreground leading-5 mt-2 p-3 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
                 <code>{cssTokens()}</code>
               </pre>
             </div>
-          </div>
-        </div>
-
-        <div class="px-5 py-3 border-t border-border/70 flex flex-wrap gap-x-6 gap-y-3 items-center">
-          <span class="text-muted-foreground font-medium text-xs">Mapped color roles</span>
-          <div class="flex gap-2 items-center text-xs">
-            <span class="border border-border bg-background size-4 rounded-sm" aria-hidden="true" />
-            <code>background</code>
-          </div>
-          <div class="flex gap-2 items-center text-xs">
-            <span class="border border-border bg-card size-4 rounded-sm" aria-hidden="true" />
-            <code>card</code>
-          </div>
-          <div class="flex gap-2 items-center text-xs">
-            <span
-              class="size-4 rounded-sm"
-              style={{ 'background-color': active().primary }}
-              aria-hidden="true"
-            />
-            <code>primary</code>
-          </div>
-          <div class="flex gap-2 items-center text-xs">
-            <span
-              class="size-4 rounded-sm"
-              style={{ 'background-color': active().primary }}
-              aria-hidden="true"
-            />
-            <code>ring</code>
+            <div class="py-5">
+              <h3 class="font-semibold text-sm">Recipe</h3>
+              <p class="text-muted-foreground mt-1 text-xs">Choose a component variant.</p>
+              <pre class="text-foreground leading-5 mt-2 p-3 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
+                <code>{`<Input variant="${active().inputVariant}" />`}</code>
+              </pre>
+            </div>
+            <div class="pt-5">
+              <h3 class="font-semibold text-sm">Component</h3>
+              <p class="text-muted-foreground mt-1 text-xs">Change one slot for one instance.</p>
+              <pre class="text-foreground leading-5 mt-2 p-3 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
+                <code>
+                  {customSlotOverrides()
+                    ? `<Button classes={{ label: 'tracking-widest uppercase font-mono' }} />`
+                    : `<Button>Save changes</Button>`}
+                </code>
+              </pre>
+            </div>
           </div>
         </div>
       </div>
