@@ -99,14 +99,17 @@ export function TokenExplorer() {
         }}
       >
         <div class="gap-5 grid items-start md:grid-cols-2">
-          <Card
-            compact
-            title="Scoped Card"
-            description="Inherits active primary color and radius multipliers"
-            action={<Badge variant="surface">Active</Badge>}
-            class="shadow-sm"
-          >
-            <div class="pt-1 space-y-3">
+          <Card size="sm" class="shadow-sm">
+            <Card.Header>
+              <Card.Title>Scoped Card</Card.Title>
+              <Card.Description>
+                Inherits active primary color and radius multipliers
+              </Card.Description>
+              <Card.Action>
+                <Badge variant="surface">Active</Badge>
+              </Card.Action>
+            </Card.Header>
+            <Card.Body class="pt-1 space-y-3">
               <Field label="Project name">
                 <Input defaultValue="Moraine Design System" />
               </Field>
@@ -116,7 +119,7 @@ export function TokenExplorer() {
                   Cancel
                 </Button>
               </div>
-            </div>
+            </Card.Body>
           </Card>
 
           <div class="p-4 border border-border/60 rounded-lg bg-background space-y-3">

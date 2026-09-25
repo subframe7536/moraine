@@ -123,11 +123,11 @@ export function AnimationExplorer() {
         <div class="flex items-center justify-center">
           <Show when={key() >= 0}>
             <Card
-              compact
+              size="sm"
               class={`border-primary/30 shadow-md ${selected()}`}
               classes={{ root: 'max-w-xs w-64' }}
             >
-              <div class="p-3 flex gap-3 items-center">
+              <Card.Body class="p-3 flex gap-3 items-center">
                 <span class="text-sm text-primary font-semibold rounded-lg bg-primary/10 flex size-8 items-center justify-center">
                   M
                 </span>
@@ -138,7 +138,7 @@ export function AnimationExplorer() {
                 <Badge variant="surface" size="sm">
                   Active
                 </Badge>
-              </div>
+              </Card.Body>
             </Card>
           </Show>
         </div>

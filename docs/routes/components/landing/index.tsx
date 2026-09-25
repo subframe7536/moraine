@@ -5,7 +5,6 @@ import { Badge, Button, Icon } from '../../../../src'
 import { getDocsPages } from '../../docs-route'
 
 import { ArchitecturePillars } from './architecture-pillars'
-import { ComponentCanvas } from './component-canvas'
 import { ComponentRadar } from './component-radar'
 import { HeroSpecimen } from './hero-specimen'
 import { StylingShowcase } from './styling-showcase'
@@ -14,7 +13,6 @@ const linkFocus =
   'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
 
 export { ArchitecturePillars } from './architecture-pillars'
-export { ComponentCanvas } from './component-canvas'
 export { ComponentRadar } from './component-radar'
 export { HeroSpecimen } from './hero-specimen'
 export { StylingShowcase } from './styling-showcase'
@@ -94,13 +92,10 @@ export function LandingPage() {
       {/* 4 Technical Architecture Pillars */}
       <ArchitecturePillars />
 
-      {/* Component Canvas / Workbench */}
-      <ComponentCanvas />
-
       {/* Live Theme & Recipe Lab */}
       <StylingShowcase />
 
-      {/* Curated Component Radar */}
+      {/* Components Working Together */}
       <ComponentRadar />
 
       {/* Quick Start Terminal */}
