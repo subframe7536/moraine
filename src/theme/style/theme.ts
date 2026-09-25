@@ -10,6 +10,23 @@ export const MORAINE_RADIUS = {
   '4xl': 'calc(var(--radius) * 2.6)',
 } as const
 
+/** Type scale relative to a locally scoped `--font-size` base. */
+export const MORAINE_TEXT_SIZE = {
+  xs: ['calc(var(--font-size, 1rem) * 0.75)', 'var(--font-size, 1rem)'],
+  sm: ['calc(var(--font-size, 1rem) * 0.875)', 'calc(var(--font-size, 1rem) * 1.25)'],
+  base: ['var(--font-size, 1rem)', 'calc(var(--font-size, 1rem) * 1.5)'],
+  lg: ['calc(var(--font-size, 1rem) * 1.125)', 'calc(var(--font-size, 1rem) * 1.75)'],
+  xl: ['calc(var(--font-size, 1rem) * 1.25)', 'calc(var(--font-size, 1rem) * 1.75)'],
+  '2xl': ['calc(var(--font-size, 1rem) * 1.5)', 'calc(var(--font-size, 1rem) * 2)'],
+  '3xl': ['calc(var(--font-size, 1rem) * 1.875)', 'calc(var(--font-size, 1rem) * 2.25)'],
+  '4xl': ['calc(var(--font-size, 1rem) * 2.25)', 'calc(var(--font-size, 1rem) * 2.5)'],
+  '5xl': ['calc(var(--font-size, 1rem) * 3)', '1'],
+  '6xl': ['calc(var(--font-size, 1rem) * 3.75)', '1'],
+  '7xl': ['calc(var(--font-size, 1rem) * 4.5)', '1'],
+  '8xl': ['calc(var(--font-size, 1rem) * 6)', '1'],
+  '9xl': ['calc(var(--font-size, 1rem) * 8)', '1'],
+} as const
+
 /** Semantic z-index scale shared by UnoCSS and Tailwind. */
 export const MORAINE_Z_INDEX = {
   base: 1,

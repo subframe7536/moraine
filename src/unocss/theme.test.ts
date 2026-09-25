@@ -138,14 +138,38 @@ describe('presetMoraine', () => {
         ? 'width:var(--sidebar-width,clamp(14rem,25%,20rem))'
         : 'width:var(--spacing-sidebar)',
     )
-    expect(css).toContain(
-      name === 'Wind3' ? 'border-radius:var(--radius)' : 'border-radius:var(--radius-lg)',
-    )
+    expect(css).toContain('border-radius:var(--radius)')
     expect(css).toContain('.bg-primary')
     expect(css).toContain('var(--primary)')
     expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
     expect(css).toMatch(/opacity:(0\.64|64%)/)
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('%s rounded utilities read the local --radius', async (_name, wind) => {
+    const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg'], false, wind)
+
+    expect(css).toContain('.rounded-md{border-radius:calc(var(--radius) * 0.8);}')
+    expect(css).toContain('.rounded-xl{border-radius:calc(var(--radius) * 1.4);}')
+    expect(css).toContain(
+      '.rounded-t-lg{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}',
+    )
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('%s font utilities read the local --font-size', async (_name, wind) => {
+    const css = await generate(['text-xs', 'text-sm', 'text-base', 'text-5xl'], false, wind)
+
+    expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.75)')
+    expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
+    expect(css).toContain('.text-base{font-size:var(--font-size, 1rem)')
+    expect(css).toContain('line-height:var(--un-leading, calc(var(--font-size, 1rem) * 1.25))')
+    expect(css).toContain('.text-5xl{font-size:calc(var(--font-size, 1rem) * 3)')
   })
 
   test('registers data and aria presence variants', async () => {

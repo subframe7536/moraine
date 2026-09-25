@@ -257,6 +257,17 @@ describe('colors', () => {
 
 // ─── Border Radius ────────────────────────────────────────────────────
 
+describe('font size', () => {
+  test('text utilities scale from the local --font-size', async () => {
+    const css = await compileCSS(['text-sm', 'text-base', 'text-5xl'])
+
+    expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.875)')
+    expect(css).toContain('line-height: var(--tw-leading, calc(var(--font-size, 1rem) * 1.25))')
+    expect(css).toContain('font-size: var(--font-size, 1rem)')
+    expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
+  })
+})
+
 describe('border radius', () => {
   test('rounded-lg uses var(--radius)', async () => {
     const css = await compileCSS(['rounded-lg'])

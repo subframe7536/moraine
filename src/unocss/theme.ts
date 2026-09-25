@@ -12,6 +12,7 @@ import {
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
+  MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
 } from '../theme/style/theme.ts'
@@ -79,6 +80,24 @@ export interface MoraineColorVariablesOptions {
 }
 
 const RE_ATTR = /^(data|aria)-([\w-]+):/
+
+const RADIUS_CORNERS: Record<string, string[]> = {
+  '': ['border-radius'],
+  t: ['border-top-left-radius', 'border-top-right-radius'],
+  b: ['border-bottom-left-radius', 'border-bottom-right-radius'],
+  l: ['border-top-left-radius', 'border-bottom-left-radius'],
+  r: ['border-top-right-radius', 'border-bottom-right-radius'],
+  s: ['border-start-start-radius', 'border-end-start-radius'],
+  e: ['border-start-end-radius', 'border-end-end-radius'],
+  tl: ['border-top-left-radius'],
+  tr: ['border-top-right-radius'],
+  bl: ['border-bottom-left-radius'],
+  br: ['border-bottom-right-radius'],
+  ss: ['border-start-start-radius'],
+  se: ['border-start-end-radius'],
+  es: ['border-end-start-radius'],
+  ee: ['border-end-end-radius'],
+}
 
 interface ResolvedPresetThemeOptions {
   globalStyles: boolean
@@ -376,6 +395,21 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
   return {
     name: 'preset-theme-moraine',
     rules: [
+      [
+        /^text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
+        ([, size]) => {
+          const [fontSize, lineHeight] = MORAINE_TEXT_SIZE[size as keyof typeof MORAINE_TEXT_SIZE]
+          return { 'font-size': fontSize, 'line-height': `var(--un-leading, ${lineHeight})` }
+        },
+      ],
+      [
+        // inline theme support
+        /^rounded-(?:(t|b|l|r|s|e|tl|tr|bl|br|ss|se|es|ee)-)?(xs|sm|md|lg|xl|2xl|3xl|4xl)$/,
+        ([, corner = '', size]) => {
+          const radius = MORAINE_RADIUS[size as keyof typeof MORAINE_RADIUS]
+          return Object.fromEntries(RADIUS_CORNERS[corner]!.map((property) => [property, radius]))
+        },
+      ],
       [
         /^(enter|exit)-opacity-(.+)$/,
         ([, type, value]) => {

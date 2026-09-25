@@ -218,6 +218,7 @@ export default defineConfig<PresetWind4Theme>({
   --shadow-2xl: 0 16px 32px -8px hsl(0 0% 0% / 0.12);
   --tracking-normal: -0.012em;
   --spacing: 0.25rem;
+  --font-size: 1rem;
 }
 
 .dark {

@@ -13,6 +13,7 @@ import {
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
+  MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
 } from '../theme/style/theme'
@@ -159,6 +160,12 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           borderRadius: MORAINE_RADIUS,
           boxShadow: MORAINE_SHADOW,
           fontFamily: MORAINE_FONT,
+          fontSize: Object.fromEntries(
+            Object.entries(MORAINE_TEXT_SIZE).map(([size, [fontSize, lineHeight]]) => [
+              size,
+              [fontSize, { lineHeight }],
+            ]),
+          ),
           colors: MORAINE_COLORS,
           spacing: MORAINE_WIDTH,
           zIndex: MORAINE_Z_INDEX,
