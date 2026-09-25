@@ -15,7 +15,7 @@ function InstallCommand(props: { copied: boolean; onClick: () => void; class?: s
       type="button"
       onClick={() => props.onClick()}
       class={cn(
-        'group px-4 py-2 text-left text-lg border border-border bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center rounded-lg hover:bg-muted/40',
+        'group px-4 py-2 text-left border border-border bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center text-lg rounded-lg hover:bg-muted/40',
         linkFocus,
         props.class,
       )}

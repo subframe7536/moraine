@@ -2,7 +2,6 @@ import './base-select'
 import './children'
 import './composite-styling'
 import './component-namespaces'
-import './list'
 
 import {
   Avatar,
