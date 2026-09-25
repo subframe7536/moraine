@@ -71,6 +71,56 @@ export function normalizeApiType(type: string): string {
   return type.replaceAll('cls_variant0.', '').replaceAll('_$', '')
 }
 
+export function formatExpandedPropType(prop: PropApi): string {
+  const type = normalizeApiType(prop.typeDetails ?? prop.type)
+  if (!prop.optional) {
+    return type
+  }
+
+  let depth = 0
+  let quote: string | undefined
+  let segmentStart = 0
+  let hasTopLevelArrow = false
+  let hasTopLevelConditional = false
+  const segments: string[] = []
+
+  for (let index = 0; index < type.length; index++) {
+    const char = type[index]
+    if (quote) {
+      if (char === '\\') {
+        index++
+      } else if (char === quote) {
+        quote = undefined
+      }
+    } else if (char === "'" || char === '"' || char === '`') {
+      quote = char
+    } else if (char === '(' || char === '[' || char === '{' || char === '<') {
+      depth++
+    } else if (
+      char === ')' ||
+      char === ']' ||
+      char === '}' ||
+      (char === '>' && type[index - 1] !== '=')
+    ) {
+      depth--
+    } else if (depth === 0 && type.startsWith('=>', index)) {
+      hasTopLevelArrow = true
+    } else if (depth === 0 && char === '?') {
+      hasTopLevelConditional = true
+    } else if (depth === 0 && char === '|') {
+      segments.push(type.slice(segmentStart, index).trim())
+      segmentStart = index + 1
+    }
+  }
+
+  segments.push(type.slice(segmentStart).trim())
+  if (!hasTopLevelArrow && segments.includes('undefined')) {
+    return type
+  }
+
+  return `${hasTopLevelArrow || hasTopLevelConditional ? `(${type})` : type} | undefined`
+}
+
 const COMMON_BASE_PROPS = new Set(['as', 'children', 'class', 'style', 'classes', 'styles'])
 
 const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
@@ -106,12 +156,12 @@ function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropIt
   return {
     name: prop.name,
     optional: prop.optional,
-    type: normalizeApiType(prop.typeDetails ?? prop.type),
+    type: formatExpandedPropType(prop),
     summaryType: prop.typeDetails
       ? 'Item[]'
       : (prop.type.includes('=>') && !prop.type.trimStart().startsWith('{')) ||
           /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
-        ? 'Function'
+        ? 'function'
         : normalizeApiType(prop.type),
     typeHtml: prop.typeHtml,
     anchorId: `${anchorPrefix}-${prop.name}`,

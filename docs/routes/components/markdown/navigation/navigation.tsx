@@ -4,9 +4,9 @@ import { Button, cn } from '../../../../../src'
 import { getDocsPages } from '../../../docs-route'
 import type { DocsPageEntry } from '../../../docs-route'
 
-import { getAdjacentDocsPages } from './docs-page-navigation.utils'
+import { getAdjacentDocsPages } from './utils'
 
-export { getAdjacentDocsPages, type AdjacentDocsPages } from './docs-page-navigation.utils'
+export { getAdjacentDocsPages, type AdjacentDocsPages } from './utils'
 
 export function DocsPageNavigationCard(props: {
   direction: 'previous' | 'next'

@@ -6,7 +6,7 @@ export {
   type CodeBlockProps,
   type CodeBlockT,
   type DocsCodeBlockProps,
-} from './docs-code-block'
+} from './code-block'
 export {
   CodeTabs,
   CodeTabsItem,
@@ -14,4 +14,4 @@ export {
   type CodeTabItem,
   type CodeTabsItemProps,
   type CodeTabsProps,
-} from './docs-code-tabs'
+} from './code-tabs'

@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { children, createMemo, createSignal } from 'solid-js'
 
-import { Tabs, cn } from '../../../../../src'
+import { Tabs, cn } from '../../../../../src/index.ts'
 import {
   DOCS_TABS_CONTENT_CLASS,
   DOCS_TABS_INDICATOR_CLASS,
@@ -10,7 +10,7 @@ import {
   DOCS_TABS_TRIGGER_CLASS,
 } from '../markdown.class.ts'
 
-import { CodeBlock } from './docs-code-block'
+import { CodeBlock } from './code-block.tsx'
 
 export {
   DOCS_TABS_CONTENT_CLASS,

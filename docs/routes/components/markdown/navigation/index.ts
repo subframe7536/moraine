@@ -3,4 +3,4 @@ export {
   DocsPageNavigationCard,
   getAdjacentDocsPages,
   type AdjacentDocsPages,
-} from './docs-page-navigation'
+} from './navigation'

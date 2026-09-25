@@ -12,8 +12,8 @@
 - [x] make all form components use standard `value` / `onValueChange` / `onCheckedChange` / `onValueCommit` props with `useFormValue`
 - [x] slider: unify the prop and slot name as `marker`, with data-slot `slider-marker`
 - [x] cleanup "fill `as`" logic in extract-types.ts, only `as` in Base ispolymorphic component, add indicator in docs
-- [ ] docs: add neccessory `| undefined` in expanded prop row. `Function` should be `function`
-- [ ] icon card copy should not cause layout shift
+- [x] docs: add neccessory `| undefined` in expanded prop row. `Function` should be `function`
+- [x] icon card copy should not cause layout shift
 - [ ] make card composite, add `as`.
 - [ ] landing page polish
 - [ ] styling page polish

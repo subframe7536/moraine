@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import {
   createApiReferenceModel,
+  formatExpandedPropType,
   formatDefaultValue,
   getApiReferenceTocEntries,
   getDomSlotName,
@@ -81,6 +82,37 @@ describe('createApiReferenceModel', () => {
     expect(formatDefaultValue({ kind: 'expression', text: 'items.length' })).toBe('items.length')
   })
 
+  test('shows undefined only when the optional property needs it', () => {
+    expect(formatExpandedPropType({ name: 'value', optional: true, type: 'string' })).toBe(
+      'string | undefined',
+    )
+    expect(
+      formatExpandedPropType({ name: 'onChange', optional: true, type: '(value: string) => void' }),
+    ).toBe('((value: string) => void) | undefined')
+    expect(
+      formatExpandedPropType({
+        name: 'callback',
+        optional: true,
+        type: '() => string | undefined',
+      }),
+    ).toBe('(() => string | undefined) | undefined')
+    expect(
+      formatExpandedPropType({ name: 'value', optional: true, type: 'string | undefined' }),
+    ).toBe('string | undefined')
+    expect(
+      formatExpandedPropType({ name: 'value', optional: true, type: 'undefined | string' }),
+    ).toBe('undefined | string')
+    expect(
+      formatExpandedPropType({ name: 'item', optional: true, type: 'Array<string | undefined>' }),
+    ).toBe('Array<string | undefined> | undefined')
+    expect(
+      formatExpandedPropType({ name: 'value', optional: true, type: 'T extends U ? X : Y' }),
+    ).toBe('(T extends U ? X : Y) | undefined')
+    expect(formatExpandedPropType({ name: 'value', optional: false, type: 'string' })).toBe(
+      'string',
+    )
+  })
+
   test('shows concise triggers and complete types in prop details', () => {
     const model = createApiReferenceModel(component)!
     expect(model).not.toHaveProperty('item')
@@ -89,8 +121,8 @@ describe('createApiReferenceModel', () => {
       type: '(string | { value: string; })[]',
     })
     expect(model.parts[0]?.props.find((prop) => prop.name === 'onChange')).toMatchObject({
-      summaryType: 'Function',
-      type: '(value: string) => void',
+      summaryType: 'function',
+      type: '((value: string) => void) | undefined',
     })
   })
 

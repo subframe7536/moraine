@@ -116,6 +116,8 @@ search, and Markdown rendering apply to `/start` and other documentation routes.
 
 ## Verification
 
+**NEVER WRITE TEST FOR docs/routes/**
+
 Run focused checks while changing the relevant area, then run the complete production gates before release:
 
 ```bash

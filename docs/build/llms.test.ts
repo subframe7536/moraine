@@ -263,7 +263,9 @@ describe('llms.txt generation', () => {
       expect(button).not.toContain('### Props')
       expect(button).not.toContain('| Field | Type | Default | Description |')
       expect(button).toContain('(string \\| { value: string; })[]')
-      expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
+      expect(button).toContain(
+        '| variant | "default" \\| "outline" \\| undefined | — | Visual variant. |',
+      )
       expect(button).toContain('## Attributes')
       expect(button!.indexOf('## Attributes')).toBeLessThan(button!.indexOf('## Props'))
       expect(button).toContain('| Attributes | Slot | Description |')

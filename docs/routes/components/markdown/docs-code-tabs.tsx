@@ -1,1 +1,1 @@
-export * from './code/docs-code-tabs'
+export * from './code/code-tabs'
