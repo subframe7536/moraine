@@ -105,7 +105,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         </div>
       </div>
       <OnThisPage
-        class="shrink-0 h-fit w-60 hidden lg:(block top-20 sticky)"
+        class="shrink-0 h-fit w-60 hidden lg:(block top-6 sticky)"
         entries={onThisPageEntries()}
       />
     </article>
