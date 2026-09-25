@@ -23,7 +23,7 @@ export function TriggerModeNoDropzone() {
       />
 
       <Show when={fileName()}>
-        <div class="text-xs text-muted-foreground px-3 py-2 rounded-lg bg-muted/40 flex gap-2 items-center">
+        <div class="text-muted-foreground px-3 py-2 bg-muted/40 flex gap-2 items-center text-xs rounded-lg">
           <span class="i-lucide:paperclip text-primary" />
           <span>Selected: {fileName()}</span>
         </div>

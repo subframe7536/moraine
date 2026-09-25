@@ -16,9 +16,9 @@ export function ModalLifecycle() {
         <Modal.Overlay />
         <Modal.Content ariaLabel="Lifecycle Monitored">
           {(context) => (
-            <div class="p-4 b-(1 border) rounded-xl bg-background space-y-4">
-              <h3 class="text-base font-semibold">Lifecycle Monitored</h3>
-              <p class="text-xs text-muted-foreground">
+            <div class="p-4 b-(1 border) bg-background space-y-4 rounded-xl">
+              <h3 class="font-semibold text-base">Lifecycle Monitored</h3>
+              <p class="text-muted-foreground text-xs">
                 Exit callbacks fire after presence transitions resolve.
               </p>
               <div class="flex justify-end">
@@ -30,7 +30,7 @@ export function ModalLifecycle() {
           )}
         </Modal.Content>
       </Modal>
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Lifecycle log: <span class="text-foreground font-mono">{log()}</span>
       </p>
     </div>

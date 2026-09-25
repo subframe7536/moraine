@@ -65,8 +65,8 @@ export function FileActions() {
       <Show
         when={!deleted()}
         fallback={
-          <div class="p-4 border border-border rounded-lg border-dashed flex gap-3 items-center justify-between">
-            <span class="text-sm text-muted-foreground">File is in the trash</span>
+          <div class="p-4 border border-border border-dashed flex gap-3 items-center justify-between rounded-lg">
+            <span class="text-muted-foreground text-sm">File is in the trash</span>
             <Button
               variant="outline"
               onClick={() => {
@@ -81,13 +81,13 @@ export function FileActions() {
       >
         <ContextMenu>
           <ContextMenu.Trigger
-            class="p-4 outline-none border border-border rounded-lg bg-card flex gap-3 select-none items-center focus-visible:ring-2 focus-visible:ring-ring"
+            class="p-4 outline-none border border-border bg-card flex gap-3 select-none items-center rounded-lg focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Actions for Project brief.pdf"
           >
             <Icon name="i-lucide:file-text" class="text-muted-foreground shrink-0 size-8" />
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">Project brief.pdf</p>
-              <p class="text-xs text-muted-foreground">{folder()} · 240 KB</p>
+              <p class="font-medium truncate text-sm">Project brief.pdf</p>
+              <p class="text-muted-foreground text-xs">{folder()} · 240 KB</p>
             </div>
             <Show when={favorite()}>
               <Icon name="i-lucide:star" class="text-primary size-4" />
@@ -96,7 +96,7 @@ export function FileActions() {
           <ContextMenu.Content items={items()} />
         </ContextMenu>
       </Show>
-      <p role="status" class="text-xs text-muted-foreground">
+      <p role="status" class="text-muted-foreground text-xs">
         {status()}
       </p>
     </section>

@@ -25,7 +25,7 @@ export function BlurSlider() {
           thumb: 'rounded-xl',
         }}
       >
-        <div class="text-sm font-semibold px-5 flex pointer-events-none items-center inset-0 justify-between absolute">
+        <div class="font-semibold px-5 flex pointer-events-none items-center inset-0 justify-between absolute text-sm">
           <span class="text-white mix-blend-difference">Blur</span>
           <span class="text-white font-mono mix-blend-difference">{Math.round(value())}px</span>
         </div>

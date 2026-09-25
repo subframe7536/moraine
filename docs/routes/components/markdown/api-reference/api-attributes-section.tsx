@@ -19,7 +19,7 @@ export function AttributeRow(props: { attribute: PresentationAttributeItem }): J
   return (
     <div
       data-attribute={props.attribute.name}
-      class={cn(ATTRIBUTE_GRID_CLASS, 'text-sm border-t border-border/40 min-h-10')}
+      class={cn(ATTRIBUTE_GRID_CLASS, 'border-t border-border/40 min-h-10 text-sm')}
     >
       <code class="font-medium font-mono px-3 py-2.5 min-w-0 truncate">{props.attribute.name}</code>
       <span class="text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
@@ -38,8 +38,8 @@ export function EmptyAttributes(): JSX.Element {
   return (
     <div role="status" class="px-4 py-8 border-t border-border/40 flex flex-col items-center">
       <Icon name="i-lucide:square-dashed" />
-      <div class="text-sm font-medium mt-3">No attributes</div>
-      <div class="text-xs text-muted-foreground mt-1">
+      <div class="font-medium mt-3 text-sm">No attributes</div>
+      <div class="text-muted-foreground mt-1 text-xs">
         This slot does not expose any public data attributes.
       </div>
     </div>

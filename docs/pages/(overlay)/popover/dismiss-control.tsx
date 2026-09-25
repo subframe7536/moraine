@@ -16,8 +16,8 @@ export function DismissControl() {
         </Popover.Trigger>
         <Popover.Content>
           <div class="p-3 space-y-1">
-            <p class="text-sm font-medium">Persistent popover</p>
-            <p class="text-xs text-muted-foreground">
+            <p class="font-medium text-sm">Persistent popover</p>
+            <p class="text-muted-foreground text-xs">
               Prevented close attempts: {preventedCloseCount()}
             </p>
           </div>

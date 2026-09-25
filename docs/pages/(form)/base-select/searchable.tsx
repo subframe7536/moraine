@@ -15,7 +15,7 @@ function SearchControl(props: { search: SearchValue }) {
   const state = useSelectState()
   const input = useBaseSelectSearchInput(state, {}, () => true, search)
   return (
-    <BaseSelect.Control class="px-2 border border-input rounded-md flex w-64 items-center">
+    <BaseSelect.Control class="px-2 border border-input flex w-64 items-center rounded-md">
       <input
         {...input.binding}
         class="py-1.5 outline-none bg-transparent flex-1"

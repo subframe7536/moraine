@@ -198,7 +198,7 @@ export function DocsPlaygroundControlField(props: {
         }
       >
         <div class="flex flex-col gap-1.5">
-          <label for={props.controlId} class="text-xs text-muted-foreground font-medium">
+          <label for={props.controlId} class="text-muted-foreground font-medium text-xs">
             {props.control.label}
           </label>
           <Input
@@ -211,7 +211,7 @@ export function DocsPlaygroundControlField(props: {
       </Match>
       <Match when={props.control.kind === 'input' && props.control.inputType === 'number'}>
         <div class="flex flex-col gap-1.5">
-          <label for={props.controlId} class="text-xs text-muted-foreground font-medium">
+          <label for={props.controlId} class="text-muted-foreground font-medium text-xs">
             {props.control.label}
           </label>
           <InputNumber
@@ -236,7 +236,7 @@ export function DocsPlaygroundControlField(props: {
           const selectControl = props.control as DocsPlaygroundSelectControl
           return (
             <div class="flex flex-col gap-1.5">
-              <label for={props.controlId} class="text-xs text-muted-foreground font-medium">
+              <label for={props.controlId} class="text-muted-foreground font-medium text-xs">
                 {selectControl.label}
               </label>
               <Select

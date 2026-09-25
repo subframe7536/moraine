@@ -46,14 +46,14 @@ export function TokenExplorer() {
     <div class="w-full space-y-4">
       <div class="pb-2 border-b border-border/70 flex flex-wrap gap-4 items-center justify-between">
         <div>
-          <span class="text-xs text-muted-foreground font-medium mb-1.5 block">Primary Hue</span>
+          <span class="text-muted-foreground font-medium mb-1.5 block text-xs">Primary Hue</span>
           <div class="flex flex-wrap gap-1.5 items-center">
             <For each={PALETTES}>
               {(p, idx) => (
                 <button
                   type="button"
                   onClick={() => setPaletteIndex(idx())}
-                  class={`text-xs px-2.5 py-1 border rounded-md flex gap-1.5 transition-all items-center ${
+                  class={`px-2.5 py-1 border flex gap-1.5 transition-all items-center text-xs rounded-md ${
                     paletteIndex() === idx()
                       ? 'border-primary ring-2 ring-primary/20 font-semibold bg-muted/60'
                       : 'border-border/70 hover:bg-muted/30 text-muted-foreground'
@@ -71,7 +71,7 @@ export function TokenExplorer() {
         </div>
 
         <div>
-          <span class="text-xs text-muted-foreground font-medium mb-1.5 block">Radius Scale</span>
+          <span class="text-muted-foreground font-medium mb-1.5 block text-xs">Radius Scale</span>
           <div class="flex flex-wrap gap-1.5 items-center">
             <For each={RADIUS_OPTIONS}>
               {(opt) => (
@@ -90,7 +90,7 @@ export function TokenExplorer() {
 
       {/* Scoped CSS Variables Container */}
       <div
-        class="p-5 border border-border/70 rounded-xl bg-card/40 transition-all sm:p-6"
+        class="p-5 border border-border/70 bg-card/40 transition-all rounded-xl sm:p-6"
         style={{
           '--primary': activePalette().primary,
           '--primary-foreground': activePalette().foreground,
@@ -122,18 +122,18 @@ export function TokenExplorer() {
             </Card.Body>
           </Card>
 
-          <div class="p-4 border border-border/60 rounded-lg bg-background space-y-3">
-            <h4 class="text-xs text-muted-foreground tracking-wider font-mono font-semibold uppercase">
+          <div class="p-4 border border-border/60 bg-background space-y-3 rounded-lg">
+            <h4 class="text-muted-foreground tracking-wider font-mono font-semibold uppercase text-xs">
               Generated CSS Variables
             </h4>
-            <pre class="text-xs text-foreground font-mono p-3 border border-border/50 rounded-md bg-muted/40 overflow-x-auto">
+            <pre class="text-foreground font-mono p-3 border border-border/50 bg-muted/40 overflow-x-auto text-xs rounded-md">
               <code>{`:root {
   --primary: ${activePalette().primary};
   --primary-foreground: ${activePalette().foreground};
   --radius: ${radius()};
 }`}</code>
             </pre>
-            <p class="text-xs text-muted-foreground">
+            <p class="text-muted-foreground text-xs">
               Components automatically compute derived radiuses (`rounded-xs` through `rounded-4xl`)
               and interaction states (`--primary-hover`, `--primary-active`).
             </p>

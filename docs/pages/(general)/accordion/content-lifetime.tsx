@@ -12,7 +12,7 @@ export function ContentLifetime() {
             label: 'Persistent form state',
             content: (
               <div class="py-2 space-y-2">
-                <p class="text-xs text-muted-foreground">
+                <p class="text-muted-foreground text-xs">
                   Inputs retain their state across open/close toggles.
                 </p>
                 <Input placeholder="Preserved input text" defaultValue="Draft notes" />

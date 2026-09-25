@@ -13,7 +13,7 @@ export function HeaderAction() {
         </Card.Action>
       </Card.Header>
       <Card.Body>
-        <ol class="text-sm pl-5 list-decimal opacity-85 flex flex-col gap-1.5">
+        <ol class="pl-5 list-decimal opacity-85 flex flex-col gap-1.5 text-sm">
           <li>Dashboard redesign should prioritize mobile layouts.</li>
           <li>Timeline target is six weeks with weekly milestones.</li>
           <li>Next review meeting is scheduled for Tuesday morning.</li>

@@ -13,7 +13,7 @@ export function StatusChange() {
         onStatusChange={setStatus}
         fallback="i-lucide-user"
       />
-      <p class="text-sm text-muted-foreground">Image status: {status()}</p>
+      <p class="text-muted-foreground text-sm">Image status: {status()}</p>
     </div>
   )
 }

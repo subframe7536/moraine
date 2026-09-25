@@ -15,7 +15,7 @@ export function ControlledSingle() {
   }
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-md w-full space-y-2">
+    <div class="p-4 b-(1 border) max-w-md w-full space-y-2 rounded-xl">
       <div class="flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <Button
@@ -27,9 +27,9 @@ export function ControlledSingle() {
           >
             <Icon name={volumeIcon()} class="size-4" />
           </Button>
-          <span class="text-sm font-medium">Output Volume</span>
+          <span class="font-medium text-sm">Output Volume</span>
         </div>
-        <span class="text-xs text-primary font-mono font-semibold">{volume()}%</span>
+        <span class="text-primary font-mono font-semibold text-xs">{volume()}%</span>
       </div>
 
       <Slider value={volume()} min={0} max={100} step={1} onValueChange={setVolume} class="mb-2" />

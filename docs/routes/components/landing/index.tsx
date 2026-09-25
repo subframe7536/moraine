@@ -40,16 +40,16 @@ export function LandingPage() {
         class="py-10 gap-8 grid items-center lg:py-20 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
       >
         <div class="min-w-0">
-          <Badge variant="outline" class="text-xs font-mono mb-4">
+          <Badge variant="outline" class="font-mono mb-4 text-xs">
             Pre-release · v{packageMetadata.version}
           </Badge>
           <h1
             id="landing-title"
-            class="text-3xl leading-tight tracking-tight font-semibold max-w-xl lg:text-5xl sm:text-4xl"
+            class="leading-tight tracking-tight font-semibold max-w-xl text-3xl lg:text-5xl sm:text-4xl"
           >
             SolidJS components that fit your design system.
           </h1>
-          <p class="text-sm text-muted-foreground leading-relaxed mt-4 max-w-lg sm:text-base">
+          <p class="text-muted-foreground leading-relaxed mt-4 max-w-lg text-sm sm:text-base">
             Fine-grained reactivity, composable slot recipes, and twin-engine styling via UnoCSS and
             Tailwind CSS v4. Tune every layer without ejecting.
           </p>
@@ -67,12 +67,12 @@ export function LandingPage() {
           <button
             type="button"
             onClick={handleCopy}
-            class={`group text-xl mt-5 px-3 py-1 text-left border border-border/80 rounded-lg bg-card/90 inline-flex gap-3.5 cursor-pointer select-none transition-colors items-center hover:border-border hover:bg-card ${linkFocus}`}
+            class={`group mt-5 px-3 py-1 text-left border border-border/80 bg-card/90 inline-flex gap-3.5 cursor-pointer select-none transition-colors items-center text-xl rounded-lg hover:border-border hover:bg-card ${linkFocus}`}
             aria-label="Copy install command"
             title={copied() ? 'Copied to clipboard' : 'Click to copy'}
           >
             <span class="text-blue-500 font-medium font-mono select-none">$</span>
-            <code class="text-xs text-foreground tracking-tight font-mono sm:text-sm">
+            <code class="text-foreground tracking-tight font-mono text-xs sm:text-sm">
               npm i moraine
             </code>
             <span class="text-muted-foreground ml-1 inline-flex transition-colors items-center group-hover:text-foreground">
@@ -104,10 +104,10 @@ export function LandingPage() {
         class="py-10 border-t border-border/70 flex flex-wrap gap-4 items-center sm:py-12"
       >
         <div class="me-auto">
-          <h2 id="quick-start-title" class="text-lg tracking-tight font-semibold">
+          <h2 id="quick-start-title" class="tracking-tight font-semibold text-lg">
             Ready to build?
           </h2>
-          <p class="text-xs text-muted-foreground mt-0.5">
+          <p class="text-muted-foreground mt-0.5 text-xs">
             Install Moraine and explore {componentCount} reactive primitives.
           </p>
         </div>

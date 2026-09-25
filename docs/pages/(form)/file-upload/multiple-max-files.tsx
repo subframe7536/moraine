@@ -17,11 +17,11 @@ export function MultipleMaxFiles() {
   }
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+    <div class="p-4 b-(1 border) max-w-xl space-y-4 rounded-xl">
       <div class="flex items-center justify-between">
         <div>
-          <h4 class="text-sm font-medium">Expense receipts</h4>
-          <p class="text-xs text-muted-foreground">
+          <h4 class="font-medium text-sm">Expense receipts</h4>
+          <p class="text-muted-foreground text-xs">
             Upload up to 3 receipt images or PDF documents.
           </p>
         </div>
@@ -46,18 +46,18 @@ export function MultipleMaxFiles() {
       />
 
       <Show when={rejectWarning()}>
-        <p class="text-xs text-destructive">{rejectWarning()}</p>
+        <p class="text-destructive text-xs">{rejectWarning()}</p>
       </Show>
 
       <Show when={filesList().length > 0}>
         <div class="pt-2 border-t border-border space-y-2">
-          <p class="text-xs text-muted-foreground font-medium">
+          <p class="text-muted-foreground font-medium text-xs">
             Attached files ({filesList().length}/3):
           </p>
           <div class="space-y-1">
             <For each={filesList()}>
               {(file) => (
-                <div class="text-xs p-2 rounded-lg bg-muted/40 flex items-center justify-between">
+                <div class="p-2 bg-muted/40 flex items-center justify-between text-xs rounded-lg">
                   <span class="font-medium truncate">{file.name}</span>
                   <span class="text-muted-foreground font-mono">
                     {(file.size / 1024).toFixed(1)} KB

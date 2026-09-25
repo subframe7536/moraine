@@ -4,7 +4,7 @@ const panelClass = 'text-xs text-muted-foreground p-4 flex h-full items-center j
 
 export function NestedPanels() {
   return (
-    <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
+    <div class="b-1 b-border border-border h-72 overflow-hidden rounded-xl">
       <Resizable>
         <Resizable.Panel defaultSize="32%" min="20%" class={`${panelClass} bg-muted`}>
           Sidebar

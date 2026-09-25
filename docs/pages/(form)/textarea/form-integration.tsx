@@ -30,7 +30,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Send Feedback
           </Button>
-          <p class="text-xs text-muted-foreground">
+          <p class="text-muted-foreground text-xs">
             Characters submitted: {submittedFeedback().length}
           </p>
         </div>

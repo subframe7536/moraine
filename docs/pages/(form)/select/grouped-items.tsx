@@ -35,7 +35,7 @@ const TIMEZONE_GROUPS: SelectT.Entry[] = [
 export function GroupedItems() {
   return (
     <div class="max-w-xs w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Workspace Timezone</label>
+      <label class="text-muted-foreground font-medium block text-xs">Workspace Timezone</label>
       <Select
         items={TIMEZONE_GROUPS}
         defaultValue="Europe/London"

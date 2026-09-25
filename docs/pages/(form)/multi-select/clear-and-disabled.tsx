@@ -12,7 +12,7 @@ export function ClearAndDisabled() {
   return (
     <div class="max-w-md w-full space-y-4">
       <div class="space-y-1.5">
-        <label class="text-xs text-muted-foreground font-medium block">
+        <label class="text-muted-foreground font-medium block text-xs">
           Disabled Option inside List (Core Runtime cannot be toggled)
         </label>
         <MultiSelect
@@ -25,7 +25,7 @@ export function ClearAndDisabled() {
       </div>
 
       <div class="space-y-1.5">
-        <label class="text-xs text-muted-foreground font-medium block">Disabled Component</label>
+        <label class="text-muted-foreground font-medium block text-xs">Disabled Component</label>
         <MultiSelect
           items={MODULES}
           disabled
@@ -35,7 +35,7 @@ export function ClearAndDisabled() {
       </div>
 
       <div class="space-y-1.5">
-        <label class="text-xs text-muted-foreground font-medium block">Read-only Component</label>
+        <label class="text-muted-foreground font-medium block text-xs">Read-only Component</label>
         <MultiSelect
           items={MODULES}
           readOnly

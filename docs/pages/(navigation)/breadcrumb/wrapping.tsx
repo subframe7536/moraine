@@ -29,7 +29,7 @@ export function Wrapping() {
         />
       </div>
 
-      <p class="text-sm text-muted-foreground">
+      <p class="text-muted-foreground text-sm">
         Turn wrapping off to show the full trail on a single line.
       </p>
     </div>

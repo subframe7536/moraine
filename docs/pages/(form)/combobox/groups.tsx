@@ -41,7 +41,7 @@ export function Groups() {
         leadingIcon="i-lucide:search"
         openOnControlClick
         emptyRender={(ctx) => (
-          <div class="text-xs text-muted-foreground p-3 text-center">
+          <div class="text-muted-foreground p-3 text-center text-xs">
             No technology found matching &ldquo;
             <span class="text-foreground font-medium">{ctx.inputValue}</span>&rdquo;.
           </div>

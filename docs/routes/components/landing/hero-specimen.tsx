@@ -116,7 +116,7 @@ export function HeroSpecimen() {
                 <Dialog.Content
                   title="Configuration manifest"
                   body={
-                    <div class="text-xs font-mono p-3 border border-border/60 rounded-lg bg-muted/40 space-y-3">
+                    <div class="font-mono p-3 border border-border/60 bg-muted/40 space-y-3 text-xs rounded-lg">
                       <pre>
                         <code>
                           {JSON.stringify(
@@ -138,7 +138,7 @@ export function HeroSpecimen() {
               </Dialog>
             </div>
 
-            <output aria-live="polite" class="text-xs text-muted-foreground">
+            <output aria-live="polite" class="text-muted-foreground text-xs">
               {deployed() ? 'Active on cluster' : 'Ready to deploy'}
             </output>
           </div>

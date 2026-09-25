@@ -9,8 +9,8 @@ export function TriggerModes() {
         </Popover.Trigger>
         <Popover.Content>
           <div class="p-3 w-64 space-y-2">
-            <h4 class="text-xs text-foreground font-semibold">Filter Deployments</h4>
-            <p class="text-xs text-muted-foreground">
+            <h4 class="text-foreground font-semibold text-xs">Filter Deployments</h4>
+            <p class="text-muted-foreground text-xs">
               Click-triggered popover remains open during interactive selections.
             </p>
             <div class="pt-1 flex gap-1.5">
@@ -37,11 +37,11 @@ export function TriggerModes() {
             <div class="flex gap-2 items-center">
               <Avatar text="AR" size="sm" />
               <div>
-                <p class="text-xs text-foreground font-semibold">Alex Rivera</p>
+                <p class="text-foreground font-semibold text-xs">Alex Rivera</p>
                 <p class="text-[0.7rem] text-muted-foreground">Core Maintainer</p>
               </div>
             </div>
-            <p class="text-xs text-muted-foreground">
+            <p class="text-muted-foreground text-xs">
               Hover-triggered info preview with automatic delay timers.
             </p>
           </div>

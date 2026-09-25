@@ -13,13 +13,13 @@ export function Determinate() {
   }
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-3">
+    <div class="p-4 b-(1 border) max-w-xl space-y-3 rounded-xl">
       <div class="flex items-center justify-between">
         <div>
-          <h4 class="text-sm font-medium">Cloud Storage Quota</h4>
-          <p class="text-xs text-muted-foreground">{value()} GB of 100 GB used</p>
+          <h4 class="font-medium text-sm">Cloud Storage Quota</h4>
+          <p class="text-muted-foreground text-xs">{value()} GB of 100 GB used</p>
         </div>
-        <span class="text-xs text-primary font-mono font-semibold">{value()}%</span>
+        <span class="text-primary font-mono font-semibold text-xs">{value()}%</span>
       </div>
 
       <Progress value={value()} status statusRender={(props) => <>{props.percent}% Full</>} />

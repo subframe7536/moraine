@@ -22,8 +22,8 @@ export function ForcedMobile() {
       <SidebarFrame isMobile>
         <SidebarFrame.Sidebar class="bg-card">
           <SidebarFrame.SidebarHeader class="px-4 py-3 border-b border-border/60 flex items-center justify-between">
-            <div class="text-sm font-bold flex gap-2 items-center">
-              <div class="text-white rounded-lg bg-emerald-600 flex size-7 items-center justify-center">
+            <div class="font-bold flex gap-2 items-center text-sm">
+              <div class="text-white bg-emerald-600 flex size-7 items-center justify-center rounded-lg">
                 <Icon name="i-lucide:wallet" class="size-4" />
               </div>
               <span>PocketPay</span>
@@ -41,7 +41,7 @@ export function ForcedMobile() {
               {(item) => (
                 <a
                   href="#"
-                  class={`text-xs font-medium px-3 py-2 rounded-lg flex transition-colors items-center justify-between ${
+                  class={`font-medium px-3 py-2 flex transition-colors items-center justify-between text-xs rounded-lg ${
                     item.active
                       ? 'bg-accent text-accent-foreground font-semibold'
                       : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -65,7 +65,7 @@ export function ForcedMobile() {
             <div class="flex gap-2 items-center">
               <Avatar text="ML" size="sm" />
               <div class="flex flex-col">
-                <span class="text-xs font-medium">Marcus Lee</span>
+                <span class="font-medium text-xs">Marcus Lee</span>
                 <span class="text-[10px] text-muted-foreground">Premier Account</span>
               </div>
             </div>
@@ -87,7 +87,7 @@ export function ForcedMobile() {
               <Icon name="i-lucide:menu" class="size-4" />
             </SidebarFrame.Trigger>
 
-            <span class="text-xs font-semibold">PocketPay</span>
+            <span class="font-semibold text-xs">PocketPay</span>
 
             <Button variant="ghost" size="icon-sm" aria-label="Notifications">
               <div class="relative">
@@ -100,9 +100,9 @@ export function ForcedMobile() {
           {/* Mobile Screen Body */}
           <div class="p-3 flex-1 overflow-y-auto space-y-3">
             {/* Balance Card */}
-            <div class="text-white p-3.5 rounded-xl shadow-sm from-emerald-600 to-teal-700 bg-gradient-to-br space-y-2">
+            <div class="text-white p-3.5 shadow-sm from-emerald-600 to-teal-700 bg-gradient-to-br space-y-2 rounded-xl">
               <div class="text-[11px] opacity-80">Available Balance</div>
-              <div class="text-xl tracking-tight font-bold">$24,580.45</div>
+              <div class="tracking-tight font-bold text-xl">$24,580.45</div>
               <div class="text-[10px] opacity-90 flex gap-1 items-center">
                 <Icon name="i-lucide:trending-up" class="size-3" />
                 <span>+12.4% from last month</span>
@@ -111,15 +111,15 @@ export function ForcedMobile() {
 
             {/* Quick Actions */}
             <div class="text-center gap-2 grid grid-cols-3">
-              <button class="text-xs p-2 border border-border/60 rounded-lg bg-card flex flex-col gap-1 transition-colors items-center hover:bg-muted/60">
+              <button class="p-2 border border-border/60 bg-card flex flex-col gap-1 transition-colors items-center text-xs rounded-lg hover:bg-muted/60">
                 <Icon name="i-lucide:arrow-up-right" class="text-emerald-600 size-4" />
                 <span class="text-[11px] font-medium">Send</span>
               </button>
-              <button class="text-xs p-2 border border-border/60 rounded-lg bg-card flex flex-col gap-1 transition-colors items-center hover:bg-muted/60">
+              <button class="p-2 border border-border/60 bg-card flex flex-col gap-1 transition-colors items-center text-xs rounded-lg hover:bg-muted/60">
                 <Icon name="i-lucide:arrow-down-left" class="text-teal-600 size-4" />
                 <span class="text-[11px] font-medium">Receive</span>
               </button>
-              <button class="text-xs p-2 border border-border/60 rounded-lg bg-card flex flex-col gap-1 transition-colors items-center hover:bg-muted/60">
+              <button class="p-2 border border-border/60 bg-card flex flex-col gap-1 transition-colors items-center text-xs rounded-lg hover:bg-muted/60">
                 <Icon name="i-lucide:credit-card" class="text-blue-600 size-4" />
                 <span class="text-[11px] font-medium">Cards</span>
               </button>
@@ -130,10 +130,10 @@ export function ForcedMobile() {
               <div class="text-[10px] text-muted-foreground tracking-wider font-semibold uppercase">
                 Recent Transactions
               </div>
-              <div class="border border-border/60 rounded-lg bg-card overflow-hidden divide-border/40 divide-y">
+              <div class="border border-border/60 bg-card overflow-hidden divide-border/40 divide-y rounded-lg">
                 <For each={transactions}>
                   {(tx) => (
-                    <div class="text-xs p-2 flex items-center justify-between">
+                    <div class="p-2 flex items-center justify-between text-xs">
                       <div>
                         <div class="font-medium">{tx.name}</div>
                         <div class="text-[10px] text-muted-foreground">{tx.type}</div>

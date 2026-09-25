@@ -9,7 +9,7 @@ export function Slots() {
   return (
     <div class="w-full space-y-6">
       <div class="space-y-2">
-        <p class="text-sm text-muted-foreground">Instance class and style</p>
+        <p class="text-muted-foreground text-sm">Instance class and style</p>
         <Icon
           name="i-lucide:info"
           slotName="custom-icon"
@@ -19,7 +19,7 @@ export function Slots() {
       </div>
       <MoraineProvider theme={theme}>
         <div class="space-y-2">
-          <p class="text-sm text-muted-foreground">Local Theme defaults</p>
+          <p class="text-muted-foreground text-sm">Local Theme defaults</p>
           <Icon name="i-lucide:info" />
         </div>
       </MoraineProvider>

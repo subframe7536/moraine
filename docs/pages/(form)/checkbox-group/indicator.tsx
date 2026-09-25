@@ -22,8 +22,8 @@ export function Indicator() {
     <div class="gap-4 grid md:grid-cols-2 xl:grid-cols-3">
       <For each={INDICATORS}>
         {(indicator) => (
-          <div class="p-4 b-(1 border) rounded-xl space-y-2">
-            <p class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
+          <div class="p-4 b-(1 border) space-y-2 rounded-xl">
+            <p class="text-muted-foreground tracking-wider font-semibold uppercase text-xs">
               Indicator: {indicator}
             </p>
             <CheckboxGroup

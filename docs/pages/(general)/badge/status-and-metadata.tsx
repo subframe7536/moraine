@@ -2,9 +2,9 @@ import { Badge } from '@src'
 
 export function StatusAndMetadata() {
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+    <div class="p-4 b-(1 border) max-w-xl space-y-4 rounded-xl">
       <div class="space-y-1.5">
-        <p class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
+        <p class="text-muted-foreground tracking-wider font-semibold uppercase text-xs">
           Deployment Pipeline
         </p>
         <div class="flex flex-wrap gap-3 items-center">
@@ -21,7 +21,7 @@ export function StatusAndMetadata() {
       </div>
 
       <div class="pt-2 border-t border-border space-y-1.5">
-        <p class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
+        <p class="text-muted-foreground tracking-wider font-semibold uppercase text-xs">
           Git Metadata
         </p>
         <div class="flex flex-wrap gap-3 items-center">

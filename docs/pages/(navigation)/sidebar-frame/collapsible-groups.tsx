@@ -11,12 +11,12 @@ export function CollapsibleGroups() {
   ]
 
   return (
-    <div class="border border-border/70 rounded-xl bg-background h-[420px] w-full shadow-xs overflow-hidden">
+    <div class="border border-border/70 bg-background h-[420px] w-full shadow-xs overflow-hidden rounded-xl">
       <SidebarFrame isMobile={false}>
         <SidebarFrame.Sidebar class="border-r border-border/60 bg-card/40 w-64">
           <SidebarFrame.SidebarHeader class="px-3 border-b border-border/60 flex h-11 items-center justify-between">
-            <div class="text-xs font-bold flex gap-2 items-center">
-              <div class="text-white rounded-md bg-emerald-600 flex size-6 items-center justify-center">
+            <div class="font-bold flex gap-2 items-center text-xs">
+              <div class="text-white bg-emerald-600 flex size-6 items-center justify-center rounded-md">
                 <Icon name="i-lucide:book-open" class="size-3.5" />
               </div>
               <span>Framework Docs</span>
@@ -38,7 +38,7 @@ export function CollapsibleGroups() {
                   e.preventDefault()
                   setActivePage('Getting Started')
                 }}
-                class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
+                class={`font-medium px-2.5 py-1.5 flex gap-2 transition-colors items-center text-xs rounded-md ${
                   activePage() === 'Getting Started'
                     ? 'bg-accent text-accent-foreground font-semibold'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -53,7 +53,7 @@ export function CollapsibleGroups() {
                   e.preventDefault()
                   setActivePage('Quickstart')
                 }}
-                class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
+                class={`font-medium px-2.5 py-1.5 flex gap-2 transition-colors items-center text-xs rounded-md ${
                   activePage() === 'Quickstart'
                     ? 'bg-accent text-accent-foreground font-semibold'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -72,7 +72,7 @@ export function CollapsibleGroups() {
 
               {/* Collapsible 1: Routing */}
               <Collapsible defaultOpen transition>
-                <Collapsible.Trigger class="group text-xs text-muted-foreground font-medium px-2.5 py-1.5 rounded-md flex w-full transition-colors items-center justify-between hover:text-foreground hover:bg-muted/60">
+                <Collapsible.Trigger class="group text-muted-foreground font-medium px-2.5 py-1.5 flex w-full transition-colors items-center justify-between text-xs rounded-md hover:text-foreground hover:bg-muted/60">
                   <div class="flex gap-2 items-center">
                     <Icon name="i-lucide:route" class="shrink-0 size-3.5" />
                     <span>Routing</span>
@@ -88,7 +88,7 @@ export function CollapsibleGroups() {
                       <button
                         type="button"
                         onClick={() => setActivePage(item)}
-                        class={`text-xs px-2 py-1 text-left rounded w-full transition-colors ${
+                        class={`px-2 py-1 text-left rounded w-full transition-colors text-xs ${
                           activePage() === item
                             ? 'text-primary font-semibold bg-accent/60'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
@@ -103,7 +103,7 @@ export function CollapsibleGroups() {
 
               {/* Collapsible 2: Data Fetching */}
               <Collapsible transition>
-                <Collapsible.Trigger class="group text-xs text-muted-foreground font-medium px-2.5 py-1.5 rounded-md flex w-full transition-colors items-center justify-between hover:text-foreground hover:bg-muted/60">
+                <Collapsible.Trigger class="group text-muted-foreground font-medium px-2.5 py-1.5 flex w-full transition-colors items-center justify-between text-xs rounded-md hover:text-foreground hover:bg-muted/60">
                   <div class="flex gap-2 items-center">
                     <Icon name="i-lucide:database" class="shrink-0 size-3.5" />
                     <span>Data Fetching</span>
@@ -119,7 +119,7 @@ export function CollapsibleGroups() {
                       <button
                         type="button"
                         onClick={() => setActivePage(item)}
-                        class={`text-xs px-2 py-1 text-left rounded w-full transition-colors ${
+                        class={`px-2 py-1 text-left rounded w-full transition-colors text-xs ${
                           activePage() === item
                             ? 'text-primary font-semibold bg-accent/60'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
@@ -134,7 +134,7 @@ export function CollapsibleGroups() {
             </div>
           </SidebarFrame.SidebarBody>
 
-          <SidebarFrame.SidebarFooter class="text-xs text-muted-foreground p-2.5 border-t border-border/60 flex items-center justify-between">
+          <SidebarFrame.SidebarFooter class="text-muted-foreground p-2.5 border-t border-border/60 flex items-center justify-between text-xs">
             <span class="text-[11px]">SolidJS v1.9 Ecosystem</span>
             <Icon name="i-lucide:external-link" class="opacity-60 size-3" />
           </SidebarFrame.SidebarFooter>
@@ -156,15 +156,15 @@ export function CollapsibleGroups() {
 
           <div class="p-5 flex-1 overflow-y-auto space-y-4">
             <div>
-              <div class="text-xs text-primary font-semibold">Architecture / Routing</div>
-              <h2 class="text-lg text-foreground font-bold mt-0.5">{activePage()}</h2>
-              <p class="text-xs text-muted-foreground leading-relaxed mt-1">
+              <div class="text-primary font-semibold text-xs">Architecture / Routing</div>
+              <h2 class="text-foreground font-bold mt-0.5 text-lg">{activePage()}</h2>
+              <p class="text-muted-foreground leading-relaxed mt-1 text-xs">
                 Learn how nested layouts and leaf pages compose seamlessly in modern file-based
                 routers without unnecessary re-renders.
               </p>
             </div>
 
-            <div class="text-xs font-mono p-3 border border-border/60 rounded-lg bg-muted/30 space-y-1">
+            <div class="font-mono p-3 border border-border/60 bg-muted/30 space-y-1 text-xs rounded-lg">
               <div class="text-muted-foreground">// Example page component definition</div>
               <div>
                 <span class="text-purple-500">export default function</span>{' '}
@@ -181,7 +181,7 @@ export function CollapsibleGroups() {
               <div>{'}'}</div>
             </div>
 
-            <div class="text-xs pt-3 border-t border-border/50 flex items-center justify-between">
+            <div class="pt-3 border-t border-border/50 flex items-center justify-between text-xs">
               <Button variant="outline" size="xs" leading="i-lucide:arrow-left">
                 Previous: Defining Routes
               </Button>

@@ -12,7 +12,7 @@ export function StateAndValues() {
         label="Subscribe to product updates"
         description="Receive weekly summaries of new releases and features."
       />
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Current state:{' '}
         <span class="text-foreground font-medium">{checked() ? 'checked' : 'unchecked'}</span>
       </p>

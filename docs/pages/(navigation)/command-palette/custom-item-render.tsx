@@ -39,8 +39,8 @@ export function CustomItemRender() {
           <div class="flex flex-1 gap-3 min-w-0 items-center">
             <Icon name="i-lucide-folder-kanban text-muted-foreground shrink-0" />
             <span class="flex flex-1 flex-col min-w-0">
-              <span class="text-sm font-medium truncate">{ctx.item.label}</span>
-              <span class="text-xs text-muted-foreground truncate">
+              <span class="font-medium truncate text-sm">{ctx.item.label}</span>
+              <span class="text-muted-foreground truncate text-xs">
                 {ctx.item.owner} · {ctx.item.description}
               </span>
             </span>

@@ -7,11 +7,11 @@ export function Models() {
   return (
     <div class="max-w-md w-full space-y-4">
       <div class="space-y-1.5">
-        <span class="text-xs text-muted-foreground">Determinate progress ({value()}%)</span>
+        <span class="text-muted-foreground text-xs">Determinate progress ({value()}%)</span>
         <Progress value={value()} />
       </div>
       <div class="space-y-1.5">
-        <span class="text-xs text-muted-foreground">Indeterminate progress</span>
+        <span class="text-muted-foreground text-xs">Indeterminate progress</span>
         <Progress />
       </div>
     </div>

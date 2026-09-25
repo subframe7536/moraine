@@ -9,7 +9,7 @@ export function HeaderFooter() {
       <InputGroup orientation="vertical">
         <InputGroup.Leading class="border-b border-border">
           <span class="font-semibold">Info text</span>
-          <Icon name="i-lucide:info" class="text-base ms-auto" />
+          <Icon name="i-lucide:info" class="ms-auto text-base" />
         </InputGroup.Leading>
         <Textarea placeholder="Ask, search or chat..." class="min-h-24" />
       </InputGroup>

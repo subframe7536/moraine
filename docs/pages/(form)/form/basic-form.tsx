@@ -24,7 +24,7 @@ export function BasicForm() {
         <Button type="submit">Save Profile</Button>
       </form.Form>
       <Show when={submitted()}>
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Profile saved for user: <span class="text-foreground font-medium">{submitted()}</span>
         </p>
       </Show>

@@ -16,7 +16,7 @@ export function CustomTrueFalseValues() {
         checkedIcon="i-lucide-check-check"
         uncheckedIcon="i-lucide-x"
       />
-      <p class="text-xs text-muted-foreground">Current value: {deploymentGuard()}</p>
+      <p class="text-muted-foreground text-xs">Current value: {deploymentGuard()}</p>
     </div>
   )
 }

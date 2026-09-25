@@ -21,10 +21,10 @@ export function DismissControl() {
           description="Outside click and Escape key dismissal are blocked."
           body={
             <div class="py-2 space-y-3">
-              <p class="text-sm text-muted-foreground">
+              <p class="text-muted-foreground text-sm">
                 This sheet cannot be dismissed by clicking the overlay or pressing Escape.
               </p>
-              <p class="text-sm text-foreground">
+              <p class="text-foreground text-sm">
                 Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
               </p>
             </div>

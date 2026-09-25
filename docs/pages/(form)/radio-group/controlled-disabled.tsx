@@ -22,7 +22,7 @@ export function ControlledDisabled() {
         variant="table"
         orientation="horizontal"
       />
-      <p class="text-xs text-muted-foreground">Current plan: {value()}</p>
+      <p class="text-muted-foreground text-xs">Current plan: {value()}</p>
     </div>
   )
 }

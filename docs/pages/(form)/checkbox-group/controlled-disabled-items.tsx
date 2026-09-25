@@ -17,7 +17,7 @@ export function ControlledDisabledItems() {
   const [value, setValue] = createSignal<string[]>(['developer', 'owner'])
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+    <div class="p-4 b-(1 border) max-w-xl space-y-4 rounded-xl">
       <CheckboxGroup
         legend="Team member role permissions"
         variant="card"
@@ -25,7 +25,7 @@ export function ControlledDisabledItems() {
         value={value()}
         onValueChange={setValue}
       />
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Active roles: <span class="text-foreground font-medium">{value().join(', ')}</span>
       </p>
     </div>

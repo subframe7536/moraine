@@ -10,7 +10,7 @@ export function StateOwnership() {
         <Collapsible.Trigger as={Button} size="xs" variant="outline">
           {open() ? 'Hide advanced settings' : 'Show advanced settings'}
         </Collapsible.Trigger>
-        <Collapsible.Content class="text-sm text-muted-foreground mt-2 p-3 b-(1 border) rounded-lg">
+        <Collapsible.Content class="text-muted-foreground mt-2 p-3 b-(1 border) text-sm rounded-lg">
           Advanced configuration parameters and telemetry endpoints.
         </Collapsible.Content>
       </Collapsible>

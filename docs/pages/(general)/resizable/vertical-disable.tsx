@@ -21,10 +21,10 @@ function Stack(props: { disable?: boolean }) {
 export function VerticalDisable() {
   return (
     <div class="gap-4 grid md:grid-cols-2">
-      <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
+      <div class="b-1 b-border border-border h-72 overflow-hidden rounded-xl">
         <Stack />
       </div>
-      <div class="b-1 b-border border-border rounded-xl opacity-80 h-72 overflow-hidden">
+      <div class="b-1 b-border border-border opacity-80 h-72 overflow-hidden rounded-xl">
         <Stack disable />
       </div>
     </div>

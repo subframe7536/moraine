@@ -10,7 +10,7 @@ export function ControlledLifecycle() {
       <Button variant="outline" onClick={() => setOpen(true)}>
         Open dialog
       </Button>
-      <p class="text-sm text-muted-foreground">Completed exits: {exitCount()}</p>
+      <p class="text-muted-foreground text-sm">Completed exits: {exitCount()}</p>
       <Dialog
         open={open()}
         onOpenChange={setOpen}

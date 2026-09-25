@@ -21,8 +21,8 @@ export function CustomizationLayers() {
 
   return (
     <div class="w-full space-y-4">
-      <div class="p-4 border border-border/70 rounded-xl bg-muted/20 space-y-3">
-        <h4 class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
+      <div class="p-4 border border-border/70 bg-muted/20 space-y-3 rounded-xl">
+        <h4 class="text-muted-foreground tracking-wider font-semibold uppercase text-xs">
           Toggle Override Layers
         </h4>
         <div class="flex flex-wrap gap-4 items-center">
@@ -44,10 +44,10 @@ export function CustomizationLayers() {
         </div>
       </div>
 
-      <div class="p-6 border border-border/70 rounded-xl bg-card flex flex-col gap-6 items-center justify-between md:flex-row">
+      <div class="p-6 border border-border/70 bg-card flex flex-col gap-6 items-center justify-between rounded-xl md:flex-row">
         <div class="flex-1 space-y-2">
-          <p class="text-sm font-medium">Resulting Component</p>
-          <p class="text-xs text-muted-foreground">
+          <p class="font-medium text-sm">Resulting Component</p>
+          <p class="text-muted-foreground text-xs">
             Classes merge deterministically via Moraine's recipe resolver:
           </p>
 
@@ -75,7 +75,7 @@ export function CustomizationLayers() {
           </div>
         </div>
 
-        <div class="text-xs font-mono p-3 border border-border/50 rounded-lg bg-muted/40 w-full space-y-1.5 md:w-80">
+        <div class="font-mono p-3 border border-border/50 bg-muted/40 w-full space-y-1.5 text-xs rounded-lg md:w-80">
           <div class="text-muted-foreground">Active Precedence:</div>
           <div class="text-foreground flex gap-1.5 items-center">
             <Badge size="sm" variant="outline">

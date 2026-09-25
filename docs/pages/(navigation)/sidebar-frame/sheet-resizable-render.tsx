@@ -48,7 +48,7 @@ function FileExplorerContent() {
         <For each={files}>
           {(file) => (
             <div
-              class={`text-xs px-2 py-1 rounded flex gap-2 cursor-pointer transition-colors items-center ${
+              class={`px-2 py-1 rounded flex gap-2 cursor-pointer transition-colors items-center text-xs ${
                 file.active
                   ? 'bg-accent text-accent-foreground font-medium'
                   : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -72,7 +72,7 @@ function EditorContent() {
   return (
     <SidebarFrame.Main class="bg-card/30 flex flex-col h-full">
       {/* Tab bar */}
-      <div class="text-xs border-b border-border/60 bg-muted/40 flex shrink-0 h-9 items-center">
+      <div class="border-b border-border/60 bg-muted/40 flex shrink-0 h-9 items-center text-xs">
         <div class="font-medium px-3 border-r border-border/60 border-t-2 border-t-primary bg-background flex gap-2 h-full items-center">
           <Icon name="i-lucide:file-code" class="text-blue-500 size-3.5" />
           <span>sidebar-frame.tsx</span>
@@ -85,7 +85,7 @@ function EditorContent() {
       </div>
 
       {/* Editor code area */}
-      <div class="text-xs font-mono p-4 bg-background/50 flex-1 overflow-auto space-y-1">
+      <div class="font-mono p-4 bg-background/50 flex-1 overflow-auto space-y-1 text-xs">
         <div class="text-muted-foreground/60">// Moraine Responsive SidebarFrame Primitive</div>
         <div>
           <span class="text-purple-500">export function</span>{' '}
@@ -171,7 +171,7 @@ function ResizableLayout() {
 
 export function SheetResizableRender() {
   return (
-    <div class="border border-border/70 rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
+    <div class="border border-border/70 bg-background h-96 w-full shadow-xs overflow-hidden rounded-xl">
       <SidebarFrame>
         <ResizableLayout />
       </SidebarFrame>

@@ -10,8 +10,8 @@ export function ButtonPopover() {
         </Popover.Trigger>
         <Popover.Content>
           <div class="p-3 space-y-1">
-            <p class="text-sm font-medium">Save options</p>
-            <p class="text-xs text-muted-foreground">Choose where to save this document.</p>
+            <p class="font-medium text-sm">Save options</p>
+            <p class="text-muted-foreground text-xs">Choose where to save this document.</p>
           </div>
         </Popover.Content>
       </Popover>

@@ -21,7 +21,7 @@ export function Uncontrolled() {
                 />
               </Collapsible.Trigger>
               <Collapsible.Content>
-                <div class="text-sm text-muted-foreground pt-3">
+                <div class="text-muted-foreground pt-3 text-sm">
                   You can reset your password from Account settings. We send a verification link to
                   the primary email on the workspace.
                 </div>

@@ -33,7 +33,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
-          <p class="text-xs text-muted-foreground">Target: {submittedEnv()}</p>
+          <p class="text-muted-foreground text-xs">Target: {submittedEnv()}</p>
         </div>
       </div>
     </form.Form>

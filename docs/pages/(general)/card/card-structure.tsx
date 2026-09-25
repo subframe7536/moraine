@@ -8,7 +8,7 @@ export function CardStructure() {
         <Card.Description>Configure automated build triggers.</Card.Description>
       </Card.Header>
       <Card.Body>
-        <p class="text-sm text-muted-foreground">
+        <p class="text-muted-foreground text-sm">
           Deployments are pushed directly to the globally distributed edge CDN network.
         </p>
       </Card.Body>

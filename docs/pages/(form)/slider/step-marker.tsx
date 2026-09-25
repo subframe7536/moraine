@@ -8,7 +8,7 @@ export function StepMarker() {
   return (
     <div class="max-w-md w-full space-y-6">
       <div class="space-y-2">
-        <div class="text-xs text-muted-foreground flex justify-between">
+        <div class="text-muted-foreground flex justify-between text-xs">
           <span>Stepped single (step = 10)</span>
           <span class="text-foreground font-mono">{value()}</span>
         </div>
@@ -27,7 +27,7 @@ export function StepMarker() {
       </div>
 
       <div class="space-y-2">
-        <div class="text-xs text-muted-foreground flex justify-between">
+        <div class="text-muted-foreground flex justify-between text-xs">
           <span>Stepped range with bold track (step = 20)</span>
           <span class="text-foreground font-mono">
             {range()[0]} - {range()[1]}

@@ -6,7 +6,7 @@ export function CollapsibleCollapsibleMin() {
 
   return (
     <div class="space-y-4">
-      <div class="b-1 b-border border-border rounded-xl h-56 overflow-hidden">
+      <div class="b-1 b-border border-border h-56 overflow-hidden rounded-xl">
         <Resizable onResize={setSizes}>
           <Resizable.Panel
             size={sizes()[0]}
@@ -27,7 +27,7 @@ export function CollapsibleCollapsibleMin() {
           </Resizable.Panel>
         </Resizable>
       </div>
-      <p class="text-xs text-muted-foreground">Click the grip to collapse, or drag to resize.</p>
+      <p class="text-muted-foreground text-xs">Click the grip to collapse, or drag to resize.</p>
     </div>
   )
 }

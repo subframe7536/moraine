@@ -15,7 +15,7 @@ export function CharacterCount() {
         placeholder="Add a short description..."
       />
       <InputGroup.Trailing>
-        <span class="text-xs text-muted-foreground">
+        <span class="text-muted-foreground text-xs">
           {value().length}/{MAX_LENGTH}
         </span>
       </InputGroup.Trailing>

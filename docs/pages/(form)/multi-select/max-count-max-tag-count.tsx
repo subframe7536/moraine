@@ -14,7 +14,7 @@ export function MaxCountMaxTagCount() {
   return (
     <div class="gap-6 grid max-w-2xl w-full sm:grid-cols-2">
       <div class="space-y-1.5">
-        <label class="text-xs text-muted-foreground font-medium block">
+        <label class="text-muted-foreground font-medium block text-xs">
           Selection Limit (maxCount = 2)
         </label>
         <MultiSelect
@@ -25,13 +25,13 @@ export function MaxCountMaxTagCount() {
           search
           openOnControlClick
         />
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Hard cap: prevents adding more once limit is reached.
         </p>
       </div>
 
       <div class="space-y-1.5">
-        <label class="text-xs text-muted-foreground font-medium block">
+        <label class="text-muted-foreground font-medium block text-xs">
           Display Limit (maxTagCount = 1)
         </label>
         <MultiSelect
@@ -62,7 +62,7 @@ export function MaxCountMaxTagCount() {
           search
           openOnControlClick
         />
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Visual only: hover +N to inspect the collapsed tags.
         </p>
       </div>

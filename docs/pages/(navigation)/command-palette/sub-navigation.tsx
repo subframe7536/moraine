@@ -60,7 +60,7 @@ export function SubNavigation() {
           value: 'share-copy-link',
           label: 'Copy Link',
           leadingRender: () => <Icon name="i-lucide-link" />,
-          trailingRender: () => <span class="text-xs text-muted-foreground">⌘L</span>,
+          trailingRender: () => <span class="text-muted-foreground text-xs">⌘L</span>,
         },
         {
           value: 'share-send-email',
@@ -95,7 +95,7 @@ export function SubNavigation() {
   return (
     <div class="flex flex-col gap-3 max-w-full w-lg">
       <div class="flex gap-3 items-center justify-between">
-        <p class="text-sm text-muted-foreground">
+        <p class="text-muted-foreground text-sm">
           Drive multi-step navigation outside the component by swapping the `groups` prop.
         </p>
         <Button

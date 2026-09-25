@@ -8,7 +8,7 @@ export function ControlledSizes() {
 
   return (
     <div class="space-y-3">
-      <div class="b-1 b-border border-border rounded-xl h-48 overflow-hidden">
+      <div class="b-1 b-border border-border h-48 overflow-hidden rounded-xl">
         <Resizable
           onResize={(nextSizes) => nextSizes.forEach((size, index) => setSizes(index, size))}
         >
@@ -21,7 +21,7 @@ export function ControlledSizes() {
           </Resizable.Panel>
         </Resizable>
       </div>
-      <p class="text-xs text-muted-foreground">Current sizes: {label()}</p>
+      <p class="text-muted-foreground text-xs">Current sizes: {label()}</p>
     </div>
   )
 }

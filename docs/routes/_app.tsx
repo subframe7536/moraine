@@ -88,7 +88,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       <>
         <a
           href="#main-content"
-          class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+          class="z-toast text-foreground px-4 py-2 bg-background transition-transform left-1/2 top-2 fixed rounded-md focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
         >
           Skip to main content
         </a>
@@ -198,7 +198,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         <div class="text-foreground bg-background min-h-screen">
           <a
             href="#main-content"
-            class="z-toast text-foreground px-4 py-2 rounded-md bg-background left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+            class="z-toast text-foreground px-4 py-2 bg-background left-1/2 top-2 fixed rounded-md focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
           >
             Skip to main content
           </a>
@@ -214,20 +214,20 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                   class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   <img src="/favicon.svg" alt="" class="size-6" />
-                  <span class="text-base font-semibold">Moraine</span>
+                  <span class="font-semibold text-base">Moraine</span>
                   <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono px-1.5 py-0">
                     v{packageMetadata.version}
                   </Badge>
                 </a>
                 <a
                   href="/start"
-                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                  class="text-muted-foreground transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Docs
                 </a>
                 <a
                   href="/styling/unocss"
-                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                  class="text-muted-foreground transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   Styling
                 </a>

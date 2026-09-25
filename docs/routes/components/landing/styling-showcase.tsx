@@ -77,10 +77,10 @@ export function StylingShowcase() {
     <section aria-labelledby="styling-title" class="py-10 border-t border-border/70 sm:py-12">
       <div class="flex flex-wrap gap-3 items-end justify-between">
         <div>
-          <h2 id="styling-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
+          <h2 id="styling-title" class="tracking-tight font-semibold text-xl sm:text-2xl">
             Live theme
           </h2>
-          <p class="text-sm text-muted-foreground mt-1 max-w-xl">
+          <p class="text-muted-foreground mt-1 max-w-xl text-sm">
             Switch presets or toggle slot overrides; semantic tokens carry the styling across
             components.
           </p>
@@ -96,14 +96,14 @@ export function StylingShowcase() {
         </Button>
       </div>
 
-      <div class="mt-5 border border-border/70 rounded-xl bg-card overflow-hidden">
+      <div class="mt-5 border border-border/70 bg-card overflow-hidden rounded-xl">
         <div class="px-4 py-3 border-b border-border/70 flex flex-wrap gap-3 items-center justify-between sm:px-5">
           <div
             role="group"
             aria-labelledby="theme-preset-label"
             class="flex flex-wrap gap-2 items-center"
           >
-            <span id="theme-preset-label" class="text-xs text-muted-foreground font-medium me-1">
+            <span id="theme-preset-label" class="text-muted-foreground font-medium me-1 text-xs">
               Presets
             </span>
             <For each={PRESETS}>
@@ -155,7 +155,7 @@ export function StylingShowcase() {
         <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
           <div class="p-5 border-b border-border/70 bg-muted/10 min-w-0 sm:p-6 lg:border-r lg:border-b-0">
             <div class="mb-4 flex flex-wrap gap-2 items-center justify-between">
-              <h3 class="text-sm font-semibold">{active().name} theme</h3>
+              <h3 class="font-semibold text-sm">{active().name} theme</h3>
               <Badge variant="surface">
                 {customSlotOverrides() ? 'Slot overrides' : 'Standard recipe'}
               </Badge>
@@ -218,10 +218,10 @@ export function StylingShowcase() {
           </div>
 
           <div class="p-5 bg-muted/20 min-w-0 sm:p-6">
-            <h3 class="text-xs text-muted-foreground tracking-wide font-semibold uppercase">
+            <h3 class="text-muted-foreground tracking-wide font-semibold uppercase text-xs">
               Button TSX
             </h3>
-            <pre class="text-xs text-foreground leading-5 mt-3 p-4 border border-border/60 rounded-lg bg-card overflow-x-auto">
+            <pre class="text-foreground leading-5 mt-3 p-4 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
               <code>{`<Button
   variant="default"${
     customSlotOverrides() ? `\n  classes={{ label: 'tracking-widest uppercase font-mono' }}` : ''
@@ -232,10 +232,10 @@ export function StylingShowcase() {
             </pre>
 
             <div class="mt-5 pt-4 border-t border-border/60">
-              <h4 class="text-xs text-muted-foreground tracking-wide font-semibold uppercase">
+              <h4 class="text-muted-foreground tracking-wide font-semibold uppercase text-xs">
                 CSS tokens
               </h4>
-              <pre class="text-xs text-foreground leading-5 mt-3 p-4 border border-border/60 rounded-lg bg-card overflow-x-auto">
+              <pre class="text-foreground leading-5 mt-3 p-4 border border-border/60 bg-card overflow-x-auto text-xs rounded-lg">
                 <code>{cssTokens()}</code>
               </pre>
             </div>
@@ -243,26 +243,26 @@ export function StylingShowcase() {
         </div>
 
         <div class="px-5 py-3 border-t border-border/70 flex flex-wrap gap-x-6 gap-y-3 items-center">
-          <span class="text-xs text-muted-foreground font-medium">Mapped color roles</span>
-          <div class="text-xs flex gap-2 items-center">
-            <span class="border border-border rounded-sm bg-background size-4" aria-hidden="true" />
+          <span class="text-muted-foreground font-medium text-xs">Mapped color roles</span>
+          <div class="flex gap-2 items-center text-xs">
+            <span class="border border-border bg-background size-4 rounded-sm" aria-hidden="true" />
             <code>background</code>
           </div>
-          <div class="text-xs flex gap-2 items-center">
-            <span class="border border-border rounded-sm bg-card size-4" aria-hidden="true" />
+          <div class="flex gap-2 items-center text-xs">
+            <span class="border border-border bg-card size-4 rounded-sm" aria-hidden="true" />
             <code>card</code>
           </div>
-          <div class="text-xs flex gap-2 items-center">
+          <div class="flex gap-2 items-center text-xs">
             <span
-              class="rounded-sm size-4"
+              class="size-4 rounded-sm"
               style={{ 'background-color': active().primary }}
               aria-hidden="true"
             />
             <code>primary</code>
           </div>
-          <div class="text-xs flex gap-2 items-center">
+          <div class="flex gap-2 items-center text-xs">
             <span
-              class="rounded-sm size-4"
+              class="size-4 rounded-sm"
               style={{ 'background-color': active().primary }}
               aria-hidden="true"
             />

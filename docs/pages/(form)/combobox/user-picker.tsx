@@ -31,7 +31,7 @@ const USERS: ComboboxT.Item[] = [
 export function UserPicker() {
   return (
     <div class="max-w-sm w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Assignee</label>
+      <label class="text-muted-foreground font-medium block text-xs">Assignee</label>
       <Combobox
         items={USERS}
         placeholder="Assign to teammate..."

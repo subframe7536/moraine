@@ -15,7 +15,7 @@ export function ControlledInput() {
         <Input value={query()} onValueChange={setQuery} placeholder="Search projects..." />
       </Field>
       <Show when={matches().length} fallback={<p class="text-sm">No matching projects.</p>}>
-        <ul class="text-sm divide-border divide-y">
+        <ul class="divide-border divide-y text-sm">
           <For each={matches()}>{(project) => <li class="py-2">{project}</li>}</For>
         </ul>
       </Show>

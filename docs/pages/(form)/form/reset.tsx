@@ -19,7 +19,7 @@ export function Reset() {
           Reset
         </Button>
       </div>
-      <p class="text-sm text-muted-foreground">Reset events: {resetCount()}</p>
+      <p class="text-muted-foreground text-sm">Reset events: {resetCount()}</p>
     </form.Form>
   )
 }

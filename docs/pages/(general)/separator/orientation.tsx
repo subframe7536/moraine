@@ -3,9 +3,9 @@ import { Separator } from '@src'
 export function Orientation() {
   return (
     <div class="max-w-sm space-y-3">
-      <p class="text-sm font-medium">Account settings</p>
+      <p class="font-medium text-sm">Account settings</p>
       <Separator />
-      <div class="text-sm text-muted-foreground flex gap-3 items-center">
+      <div class="text-muted-foreground flex gap-3 items-center text-sm">
         <span>Profile</span>
         <Separator orientation="vertical" class="h-4" />
         <span>Security</span>

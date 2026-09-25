@@ -18,7 +18,7 @@ export function DisabledCustomContent() {
                 <li>Configure authentication</li>
                 <li>Enable notifications</li>
               </ul>
-              <div class="text-xs text-muted-foreground p-2 rounded-md bg-muted">
+              <div class="text-muted-foreground p-2 bg-muted text-xs rounded-md">
                 Tip: You can finish the checklist later from Settings.
               </div>
             </div>

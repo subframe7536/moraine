@@ -8,7 +8,7 @@ export function ExitLifecycle() {
   return (
     <div class="flex gap-3 items-center">
       <Button onClick={() => setOpen(true)}>Open modal</Button>
-      <p class="text-sm text-muted-foreground">Completed exits: {exitCount()}</p>
+      <p class="text-muted-foreground text-sm">Completed exits: {exitCount()}</p>
       <Modal
         open={open()}
         onOpenChange={setOpen}
@@ -17,8 +17,8 @@ export function ExitLifecycle() {
         <Modal.Overlay />
         <Modal.Content ariaLabel="Exit lifecycle example">
           {({ close }) => (
-            <div class="p-5 rounded-xl bg-card shadow-xl">
-              <p class="text-sm mb-4">
+            <div class="p-5 bg-card shadow-xl rounded-xl">
+              <p class="mb-4 text-sm">
                 Close this modal and watch the count update after exit motion.
               </p>
               <Button onClick={close}>Close</Button>

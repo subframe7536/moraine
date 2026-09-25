@@ -43,7 +43,7 @@ const STATUSES: ComboboxT.Item[] = [
 export function CustomItems() {
   return (
     <div class="max-w-sm w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Issue Status</label>
+      <label class="text-muted-foreground font-medium block text-xs">Issue Status</label>
       <Combobox
         items={STATUSES}
         defaultValue="in-progress"

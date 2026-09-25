@@ -81,13 +81,13 @@ export function WorkspaceView() {
 
   return (
     <section
-      class="p-4 border border-border rounded-lg bg-card max-w-lg w-full space-y-4"
+      class="p-4 border border-border bg-card max-w-lg w-full space-y-4 rounded-lg"
       aria-label="Workspace projects"
     >
       <div class="flex flex-wrap gap-3 items-center justify-between">
         <div>
-          <h4 class="text-sm font-semibold">Workspace projects</h4>
-          <p class="text-xs text-muted-foreground">
+          <h4 class="font-semibold text-sm">Workspace projects</h4>
+          <p class="text-muted-foreground text-xs">
             Customize this view without changing project data.
           </p>
         </div>
@@ -101,21 +101,21 @@ export function WorkspaceView() {
       <ul class="divide-border divide-y">
         <For each={projects()}>
           {(project) => (
-            <li class="text-sm py-3 flex gap-3 items-center justify-between">
+            <li class="py-3 flex gap-3 items-center justify-between text-sm">
               <span>
                 {project.name}
                 <Show when={project.archived}>
-                  <span class="text-xs text-muted-foreground ms-2">Archived</span>
+                  <span class="text-muted-foreground ms-2 text-xs">Archived</span>
                 </Show>
               </span>
               <Show when={showOwner()}>
-                <span class="text-xs text-muted-foreground">{project.owner}</span>
+                <span class="text-muted-foreground text-xs">{project.owner}</span>
               </Show>
             </li>
           )}
         </For>
       </ul>
-      <p role="status" class="text-xs text-muted-foreground">
+      <p role="status" class="text-muted-foreground text-xs">
         {projects().length} projects · Sorted by {sort() === 'name' ? 'name' : 'recently updated'}
       </p>
     </section>

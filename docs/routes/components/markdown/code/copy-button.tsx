@@ -45,7 +45,7 @@ export function CopyButton(props: { code?: string; getTarget?: () => HTMLElement
       aria-label={copied() ? 'Copied to clipboard' : 'Copy code'}
       title={copied() ? 'Copied' : 'Copy code'}
       onClick={handleCopy}
-      class="text-muted-foreground rounded-md size-7 transition-colors hover:text-foreground hover:bg-muted/80"
+      class="text-muted-foreground size-7 transition-colors rounded-md hover:text-foreground hover:bg-muted/80"
     >
       <Icon
         name={copied() ? 'i-lucide:check' : 'i-lucide:copy'}

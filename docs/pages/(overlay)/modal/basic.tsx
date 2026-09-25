@@ -9,10 +9,10 @@ export function Basic() {
       <Modal.Overlay />
       <Modal.Content ariaLabel="Invite Teammate">
         {(context) => (
-          <div class="p-4 b-(1 border) rounded-2xl bg-card flex flex-col gap-4">
+          <div class="p-4 b-(1 border) bg-card flex flex-col gap-4 rounded-2xl">
             <div>
-              <h3 class="text-base text-foreground font-semibold">Invite to Workspace</h3>
-              <p class="text-xs text-muted-foreground">
+              <h3 class="text-foreground font-semibold text-base">Invite to Workspace</h3>
+              <p class="text-muted-foreground text-xs">
                 Collaborators will receive an email invitation to join your workspace.
               </p>
             </div>

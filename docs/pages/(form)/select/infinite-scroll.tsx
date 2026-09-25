@@ -36,7 +36,7 @@ export function InfiniteScroll() {
         loading={loadingMore()}
         placeholder="Scroll to load more..."
       />
-      <p class="text-xs text-muted-foreground">Total items: {infiniteOptions().length}</p>
+      <p class="text-muted-foreground text-xs">Total items: {infiniteOptions().length}</p>
     </div>
   )
 }
