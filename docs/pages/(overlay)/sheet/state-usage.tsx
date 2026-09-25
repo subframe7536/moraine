@@ -11,19 +11,24 @@ export function StateUsage() {
         <Sheet.Content
           title="Controlled Sheet"
           description="Controlled open state enables external workflow triggers."
-          body={
-            <p class="text-muted-foreground py-2 text-xs">
-              Reactive state is managed by parent container.
-            </p>
-          }
-          footer={
-            <div class="flex w-full justify-end">
-              <Button size="xs" onClick={() => setOpen(false)}>
-                Done
-              </Button>
-            </div>
-          }
-        />
+        >
+          <Sheet.Body>
+            {
+              <p class="text-muted-foreground py-2 text-xs">
+                Reactive state is managed by parent container.
+              </p>
+            }
+          </Sheet.Body>
+          <Sheet.Footer>
+            {
+              <div class="flex w-full justify-end">
+                <Button size="xs" onClick={() => setOpen(false)}>
+                  Done
+                </Button>
+              </div>
+            }
+          </Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     </div>
   )

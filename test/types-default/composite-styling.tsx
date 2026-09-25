@@ -17,10 +17,23 @@ import { defineTheme } from 'moraine/theme'
 ;<Dialog.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Dialog.Trigger classes={{ trigger: 'trigger' }} />
-;<Dialog.Content
-  classes={{ overlay: 'overlay', body: 'body', contentClose: 'close' }}
-  class="content"
-/>
+;<Dialog.Content classes={{ overlay: 'overlay', contentClose: 'close' }} class="content" />
+;<Dialog.Header class="header" />
+;<Dialog.Title as="h3" id="title" />
+;<Dialog.Description />
+;<Dialog.Action />
+;<Dialog.Body as="section" style={{ color: 'red' }} />
+;<Dialog.Footer />
+// @ts-expect-error A part has a direct class, not a slot map.
+;<Dialog.Header classes={{ header: 'header' }} />
+// @ts-expect-error Dialog.Content cannot style independently owned parts.
+;<Dialog.Content classes={{ body: 'body' }} />
+// @ts-expect-error Removed JSX prop.
+;<Dialog.Content header="header" />
+// @ts-expect-error Removed JSX prop.
+;<Dialog.Content body="body" />
+// @ts-expect-error Removed JSX prop.
+;<Dialog.Content footer="footer" />
 // @ts-expect-error Dialog.Content cannot configure Dialog.Trigger.
 ;<Dialog.Content classes={{ trigger: 'trigger' }} />
 ;<Dialog.Close class="close" />
@@ -33,7 +46,23 @@ import { defineTheme } from 'moraine/theme'
 ;<Sheet.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Sheet.Trigger classes={{ trigger: 'trigger' }} />
-;<Sheet.Content classes={{ overlay: 'overlay', body: 'body', contentClose: 'close' }} />
+;<Sheet.Content classes={{ overlay: 'overlay', contentClose: 'close' }} />
+;<Sheet.Header class="header" />
+;<Sheet.Title as="h3" id="title" />
+;<Sheet.Description />
+;<Sheet.Action />
+;<Sheet.Body as="section" />
+;<Sheet.Footer />
+// @ts-expect-error A part has a direct class, not a slot map.
+;<Sheet.Header classes={{ header: 'header' }} />
+// @ts-expect-error Sheet.Content cannot style independently owned parts.
+;<Sheet.Content classes={{ body: 'body' }} />
+// @ts-expect-error Removed JSX prop.
+;<Sheet.Content header="header" />
+// @ts-expect-error Removed JSX prop.
+;<Sheet.Content body="body" />
+// @ts-expect-error Removed JSX prop.
+;<Sheet.Content footer="footer" />
 // @ts-expect-error Sheet.Content cannot configure Sheet.Trigger.
 ;<Sheet.Content classes={{ trigger: 'trigger' }} />
 ;<Sheet.Close class="close" />

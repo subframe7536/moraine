@@ -16,13 +16,12 @@ export function ControlledLifecycle() {
         onOpenChange={setOpen}
         onExitComplete={() => setExitCount((count) => count + 1)}
       >
-        <Dialog.Content
-          title="Controlled dialog"
-          body={
-            <p class="text-sm">The parent owns visibility and observes completed exit motion.</p>
-          }
-          footer={<Button onClick={() => setOpen(false)}>Close</Button>}
-        />
+        <Dialog.Content title="Controlled dialog">
+          <Dialog.Body>
+            {<p class="text-sm">The parent owns visibility and observes completed exit motion.</p>}
+          </Dialog.Body>
+          <Dialog.Footer>{<Button onClick={() => setOpen(false)}>Close</Button>}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     </div>
   )

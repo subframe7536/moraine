@@ -88,7 +88,9 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   render(() => (
     <MoraineProvider theme={defineTheme({ sheet: { defaultVariants: { side: 'left' } } })}>
       <Sheet open>
-        <Sheet.Content side={side()} body="Panel" />
+        <Sheet.Content side={side()}>
+          <Sheet.Body>{'Panel'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     </MoraineProvider>
   ))

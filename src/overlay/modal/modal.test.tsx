@@ -356,13 +356,17 @@ describe('Modal primitives', () => {
           <Dialog.Trigger as="button" type="button">
             Dialog trigger
           </Dialog.Trigger>
-          <Dialog.Content body="Dialog body" />
+          <Dialog.Content>
+            <Dialog.Body>{'Dialog body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
         <Sheet open>
           <Sheet.Trigger as="button" type="button">
             Sheet trigger
           </Sheet.Trigger>
-          <Sheet.Content body="Sheet body" />
+          <Sheet.Content>
+            <Sheet.Body>{'Sheet body'}</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
       </MoraineProvider>
     ))

@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../element/button'
@@ -36,7 +36,9 @@ describe('Dialog', () => {
 
     const screen = render(() => (
       <Dialog open={open()}>
-        <Dialog.Content body={<Body />} />
+        <Dialog.Content>
+          <Dialog.Body>{<Body />}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -66,12 +68,10 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content
-          title="Confirm"
-          description="Please confirm"
-          body="Modal body"
-          footer="Modal footer"
-        />
+        <Dialog.Content title="Confirm" description="Please confirm">
+          <Dialog.Body>{'Modal body'}</Dialog.Body>
+          <Dialog.Footer>{'Modal footer'}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -95,7 +95,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content title="Composed" body="Body" />
+        <Dialog.Content title="Composed">
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -111,7 +113,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -128,7 +132,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="a" href="/details">
           Open
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -144,7 +150,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as={Button} variant="outline">
           Open dialog
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -161,7 +169,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="a" href="/details">
           Open
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
     const trigger = screen.getByRole('link', { name: 'Open' })
@@ -185,11 +195,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content
-          title="Default title"
-          description="Default description"
-          header={<div data-testid="custom-header">Custom Header</div>}
-        />
+        <Dialog.Content title="Default title" description="Default description">
+          <Dialog.Header>{<div data-testid="custom-header">Custom Header</div>}</Dialog.Header>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -203,7 +211,9 @@ describe('Dialog', () => {
   test('only references mounted default title and description nodes', () => {
     render(() => (
       <Dialog open>
-        <Dialog.Content title="Dialog title" description="Dialog description" body="Body" />
+        <Dialog.Content title="Dialog title" description="Dialog description">
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -223,10 +233,11 @@ describe('Dialog', () => {
         <Dialog.Content
           title="Suppressed title"
           description="Suppressed description"
-          header={<div>Custom header</div>}
           ariaLabel="Account settings"
-          body="Body"
-        />
+        >
+          <Dialog.Header>{<div>Custom header</div>}</Dialog.Header>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -246,13 +257,16 @@ describe('Dialog', () => {
           aria-label="Native dialog label"
           aria-labelledby="custom-dialog-title"
           aria-describedby="custom-dialog-description"
-          body={
-            <>
-              <h2 id="custom-dialog-title">Custom title</h2>
-              <p id="custom-dialog-description">Custom description</p>
-            </>
-          }
-        />
+        >
+          <Dialog.Body>
+            {
+              <>
+                <h2 id="custom-dialog-title">Custom title</h2>
+                <p id="custom-dialog-description">Custom description</p>
+              </>
+            }
+          </Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -270,7 +284,9 @@ describe('Dialog', () => {
           Outside
         </button>
         <Dialog defaultOpen>
-          <Dialog.Content trapFocus={false} title="Dialog" body="Body" />
+          <Dialog.Content trapFocus={false} title="Dialog">
+            <Dialog.Body>{'Body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </>
     ))
@@ -290,7 +306,9 @@ describe('Dialog', () => {
   test('preserves numeric zero title and description content', () => {
     render(() => (
       <Dialog open>
-        <Dialog.Content title={0} description={0} body="Body" />
+        <Dialog.Content title={0} description={0}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -312,12 +330,9 @@ describe('Dialog', () => {
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
         <Dialog open>
-          <Dialog.Content
-            title={title}
-            description={description}
-            ariaLabel={ariaLabel}
-            body="Body"
-          />
+          <Dialog.Content title={title} description={description} ariaLabel={ariaLabel}>
+            <Dialog.Body>{'Body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       ))
 
@@ -332,7 +347,9 @@ describe('Dialog', () => {
   test('distinguishes empty content from false presence', () => {
     const empty = render(() => (
       <Dialog open>
-        <Dialog.Content title="" description="" close={false} body="Body" />
+        <Dialog.Content title="" description="" close={false}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
     expect(document.body.querySelector('[data-slot="dialog-title"]')).not.toBeNull()
@@ -341,7 +358,9 @@ describe('Dialog', () => {
 
     render(() => (
       <Dialog open>
-        <Dialog.Content title={false} description={false} close={false} body="Body" />
+        <Dialog.Content title={false} description={false} close={false}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
     expect(document.body.querySelector('[data-slot="dialog-header"]')).toBeNull()
@@ -353,62 +372,83 @@ describe('Dialog', () => {
     ).toBeNull()
   })
 
-  test('evaluates every getter-backed shell JSX prop once', () => {
-    const reads = {
-      body: 0,
-      children: 0,
-      closeIcon: 0,
-      description: 0,
-      footer: 0,
-      header: 0,
-      title: 0,
-    }
-
+  test('reads shorthand and composed children when content opens', () => {
+    let childrenReads = 0
     render(() => (
       <Dialog open>
         {createComponent(Dialog.Content, {
-          ariaLabel: 'Getter dialog',
-          get title() {
-            reads.title += 1
-            return 'Title'
-          },
-          get description() {
-            reads.description += 1
-            return 'Description'
-          },
-          get header() {
-            reads.header += 1
-            return undefined
-          },
-          get body() {
-            reads.body += 1
-            return <div>Body</div>
-          },
-          get footer() {
-            reads.footer += 1
-            return <div>Footer</div>
-          },
-          get closeIcon() {
-            reads.closeIcon += 1
-            return <span>Close icon</span>
-          },
+          title: 'Title',
+          description: 'Description',
           get children() {
-            reads.children += 1
-            return <span>Fallback children</span>
+            childrenReads += 1
+            return (
+              <>
+                <Dialog.Body>Body</Dialog.Body>
+                <Dialog.Footer>Footer</Dialog.Footer>
+              </>
+            )
           },
         })}
       </Dialog>
     ))
+    expect(childrenReads).toBe(1)
+    expect(document.body.querySelector('[data-slot="dialog-body"]')?.textContent).toBe('Body')
+    expect(document.body.querySelector('[data-slot="dialog-footer"]')?.textContent).toBe('Footer')
+  })
 
-    expect(reads).toEqual({
-      body: 1,
-      children: 0,
-      closeIcon: 1,
-      description: 1,
-      footer: 1,
-      header: 1,
-      title: 1,
-    })
+  test('composes explicit header, reactive ARIA IDs, action, and body presence', () => {
+    const [showHeader, setShowHeader] = createSignal(true)
+    const [showTitle, setShowTitle] = createSignal(true)
+    const [showDescription, setShowDescription] = createSignal(true)
+    const [showFooter, setShowFooter] = createSignal(true)
+    const [titleId, setTitleId] = createSignal('custom-title')
+    render(() => (
+      <Dialog
+        open
+        classes={{ action: 'family-action', body: 'family-body' }}
+        styles={{ action: { color: 'red' } }}
+      >
+        <Dialog.Content title="Fallback" description="Fallback description" close={false}>
+          <Show when={showHeader()}>
+            <Dialog.Header>
+              <Show when={showTitle()}>
+                <Dialog.Title id={titleId()}>Actual title</Dialog.Title>
+              </Show>
+              <Show when={showDescription()}>
+                <Dialog.Description id="custom-description">Actual description</Dialog.Description>
+              </Show>
+              <Dialog.Action data-testid="action">Help</Dialog.Action>
+            </Dialog.Header>
+          </Show>
+          <Dialog.Body class="local-body">Body</Dialog.Body>
+          <Show when={showFooter()}>
+            <Dialog.Footer>Actions</Dialog.Footer>
+          </Show>
+        </Dialog.Content>
+      </Dialog>
+    ))
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    const body = document.body.querySelector('[data-slot="dialog-body"]')!
+    expect(content.textContent).not.toContain('Fallback')
+    expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
+    expect(content.getAttribute('aria-describedby')).toBe('custom-description')
+    expect(body.hasAttribute('data-header')).toBe(true)
+    const action = document.body.querySelector<HTMLElement>('[data-slot="dialog-action"]')!
+    expect(action.className).toContain('family-action')
+    expect(action.style.color).toBe('red')
+    expect(body.className).toContain('family-body')
+    expect(body.className).toContain('local-body')
+    setTitleId('renamed-title')
+    expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
+    setShowTitle(false)
+    setShowDescription(false)
+    expect(content.getAttribute('aria-labelledby')).toBeNull()
+    expect(content.getAttribute('aria-describedby')).toBeNull()
+    setShowHeader(false)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    expect(content.textContent).toContain('Fallback')
+    setShowFooter(false)
+    expect(body.hasAttribute('data-footer')).toBe(false)
   })
 
   test('renders body content and keeps shell sections', () => {
@@ -417,10 +457,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content
-          title="Dialog title"
-          body={<div data-testid="custom-body">Body Content</div>}
-        />
+        <Dialog.Content title="Dialog title">
+          <Dialog.Body>{<div data-testid="custom-body">Body Content</div>}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -438,7 +477,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Open modal
         </Dialog.Trigger>
-        <Dialog.Content title="Settings" body="Body" />
+        <Dialog.Content title="Settings">
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -482,16 +523,17 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Open palette
         </Dialog.Trigger>
-        <Dialog.Content
-          close={false}
-          body={
-            <CommandPalette
-              groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
-              searchTerm={searchTerm()}
-              onSearchTermChange={setSearchTerm}
-            />
-          }
-        />
+        <Dialog.Content close={false}>
+          <Dialog.Body>
+            {
+              <CommandPalette
+                groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
+                searchTerm={searchTerm()}
+                onSearchTermChange={setSearchTerm}
+              />
+            }
+          </Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -539,7 +581,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content title="Portal default" body="Body" />
+        <Dialog.Content title="Portal default">
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -553,7 +597,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content overlay={false} body="Body" />
+        <Dialog.Content overlay={false}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -563,7 +609,9 @@ describe('Dialog', () => {
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
     renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content body="Body" classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }} />
+        <Dialog.Content classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -587,7 +635,9 @@ describe('Dialog', () => {
         })}
       >
         <Dialog open>
-          <Dialog.Content body="Body" />
+          <Dialog.Content>
+            <Dialog.Body>{'Body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </MoraineProvider>
     ))
@@ -610,11 +660,10 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content
-          title="Long content"
-          body={<div style={{ height: '2000px' }}>Long body</div>}
-          footer="Actions"
-        />
+        <Dialog.Content title="Long content">
+          <Dialog.Body>{<div style={{ height: '2000px' }}>Long body</div>}</Dialog.Body>
+          <Dialog.Footer>{'Actions'}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -642,7 +691,10 @@ describe('Dialog', () => {
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
     renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content scrollable title="Overlay scroll" body="Long body" footer="Actions" />
+        <Dialog.Content scrollable title="Overlay scroll">
+          <Dialog.Body>{'Long body'}</Dialog.Body>
+          <Dialog.Footer>{'Actions'}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -662,7 +714,9 @@ describe('Dialog', () => {
   test('uses a full viewport flex panel for fullscreen dialogs', () => {
     renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content fullscreen body="Fullscreen body" />
+        <Dialog.Content fullscreen>
+          <Dialog.Body>{'Fullscreen body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -683,7 +737,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content closeIcon={<span data-testid="custom-close">X</span>} body="Body" />
+        <Dialog.Content closeIcon={<span data-testid="custom-close">X</span>}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -694,7 +750,10 @@ describe('Dialog', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Dialog open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
-        <Dialog.Content header={<div>Custom header</div>} body="Body" />
+        <Dialog.Content>
+          <Dialog.Header>{<div>Custom header</div>}</Dialog.Header>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
         <Dialog.Close data-testid="explicit-dialog-close" class="explicit-close">
           Explicit close
         </Dialog.Close>
@@ -721,7 +780,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content close={false} body="Body" />
+        <Dialog.Content close={false}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -736,7 +797,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -762,7 +825,9 @@ describe('Dialog', () => {
           <Dialog.Trigger as="button" type="button">
             Trigger
           </Dialog.Trigger>
-          <Dialog.Content body="Body" />
+          <Dialog.Content>
+            <Dialog.Body>{'Body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </>
     ))
@@ -788,7 +853,9 @@ describe('Dialog', () => {
           <Dialog.Trigger as="button" type="button">
             Trigger
           </Dialog.Trigger>
-          <Dialog.Content title="Dialog title" body="Dialog body" />
+          <Dialog.Content title="Dialog title">
+            <Dialog.Body>{'Dialog body'}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </>
     ))
@@ -819,7 +886,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content body="Body" />
+        <Dialog.Content>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -842,7 +911,9 @@ describe('Dialog', () => {
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content body="Body" styles={{ content: { width: '200px' } }} />
+        <Dialog.Content styles={{ content: { width: '200px' } }}>
+          <Dialog.Body>{'Body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -854,31 +925,38 @@ describe('Dialog', () => {
 
   test('forwards custom classes and styles to dialog slots', () => {
     renderWithTheme(() => (
-      <Dialog open>
+      <Dialog
+        open
+        classes={{
+          header: 'custom-header-class',
+          title: 'custom-title-class',
+          description: 'custom-desc-class',
+          body: 'custom-body-class',
+          footer: 'custom-footer-class',
+        }}
+        styles={{
+          header: { 'padding-top': '20px' },
+          title: { 'letter-spacing': '1px' },
+          description: { 'line-height': '1.5' },
+          body: { 'font-size': '15px' },
+          footer: { 'margin-top': '10px' },
+        }}
+      >
         <Dialog.Content
           title="Custom Title"
           description="Custom Description"
-          body="Custom Body"
-          footer="Custom Footer"
           classes={{
             content: 'custom-content-class',
-            header: 'custom-header-class',
-            title: 'custom-title-class',
-            description: 'custom-desc-class',
-            body: 'custom-body-class',
-            footer: 'custom-footer-class',
             contentClose: 'custom-close-class',
           }}
           styles={{
             content: { 'border-width': '3px' },
-            header: { 'padding-top': '20px' },
-            title: { 'letter-spacing': '1px' },
-            description: { 'line-height': '1.5' },
-            body: { 'font-size': '15px' },
-            footer: { 'margin-top': '10px' },
             contentClose: { opacity: '0.8' },
           }}
-        />
+        >
+          <Dialog.Body>{'Custom Body'}</Dialog.Body>
+          <Dialog.Footer>{'Custom Footer'}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -913,7 +991,9 @@ describe('Dialog', () => {
   test('adjusts body padding when header or footer is absent', () => {
     const { unmount } = renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content title={false} description={false} close={false} body="No header body" />
+        <Dialog.Content title={false} description={false} close={false}>
+          <Dialog.Body>{'No header body'}</Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -924,11 +1004,10 @@ describe('Dialog', () => {
 
     renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content
-          title="Title"
-          body="With header and footer"
-          footer={<button type="button">Action</button>}
-        />
+        <Dialog.Content title="Title">
+          <Dialog.Body>{'With header and footer'}</Dialog.Body>
+          <Dialog.Footer>{<button type="button">Action</button>}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -940,7 +1019,10 @@ describe('Dialog', () => {
   test('keeps structured section padding symmetric around the corner close', () => {
     renderWithTheme(() => (
       <Dialog open>
-        <Dialog.Content title="Title" body="Body" footer="Footer" />
+        <Dialog.Content title="Title">
+          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Footer>{'Footer'}</Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     ))
 
@@ -966,13 +1048,17 @@ describe('Dialog', () => {
           <Dialog.Trigger as="button" type="button">
             Outer trigger
           </Dialog.Trigger>
-          <Dialog.Content body={<div data-testid="outer-body">Outer body</div>} />
+          <Dialog.Content>
+            <Dialog.Body>{<div data-testid="outer-body">Outer body</div>}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
         <Dialog defaultOpen onOpenChange={onInnerChange}>
           <Dialog.Trigger as="button" type="button">
             Inner trigger
           </Dialog.Trigger>
-          <Dialog.Content body={<div data-testid="inner-body">Inner body</div>} />
+          <Dialog.Content>
+            <Dialog.Body>{<div data-testid="inner-body">Inner body</div>}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </>
     ))
@@ -1003,19 +1089,23 @@ describe('Dialog', () => {
           <Dialog.Trigger as="button" type="button">
             Outer trigger
           </Dialog.Trigger>
-          <Dialog.Content body={<div data-testid="outer-body">Outer body</div>} />
+          <Dialog.Content>
+            <Dialog.Body>{<div data-testid="outer-body">Outer body</div>}</Dialog.Body>
+          </Dialog.Content>
         </Dialog>
         <Dialog defaultOpen onOpenChange={onInnerChange}>
           <Dialog.Trigger as="button" type="button">
             Inner trigger
           </Dialog.Trigger>
-          <Dialog.Content
-            body={
-              <button type="button" data-testid="inner-button">
-                Inner button
-              </button>
-            }
-          />
+          <Dialog.Content>
+            <Dialog.Body>
+              {
+                <button type="button" data-testid="inner-button">
+                  Inner button
+                </button>
+              }
+            </Dialog.Body>
+          </Dialog.Content>
         </Dialog>
       </>
     ))

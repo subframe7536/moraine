@@ -2,9 +2,11 @@ import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { hydrateFixture } from '../../test-util/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
+import { createContentRegistration } from '../base/content-registration'
 
 import { Sheet } from './sheet'
+import { SheetContentProvider } from './sheet-context'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -17,6 +19,44 @@ function expectAriaReferencesToResolve(content: Element): void {
 }
 
 describe('Sheet SSR Hydration', () => {
+  test('hydrates composed part IDs without replacing nodes', () => {
+    const { container } = hydrateFixture(
+      '/src/overlay/sheet/sheet.ssr.fixture.tsx',
+      'renderPartsFixture',
+      () => {
+        const registration = createContentRegistration()
+        return (
+          <Sheet>
+            <SheetContentProvider
+              value={{
+                ...registration,
+                variants: { inset: false, side: 'right' },
+                hasHeader: registration.hasExplicitHeader,
+              }}
+            >
+              <Sheet.Header>
+                <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
+                <Sheet.Description>Details</Sheet.Description>
+                <Sheet.Action>Help</Sheet.Action>
+              </Sheet.Header>
+              <Sheet.Body>Body</Sheet.Body>
+              <Sheet.Footer>Actions</Sheet.Footer>
+            </SheetContentProvider>
+          </Sheet>
+        )
+      },
+    )
+    expect(container.querySelector('#server-sheet-title')).not.toBeNull()
+    expect(container.querySelector('[data-slot="sheet-description"]')?.id).toBeTruthy()
+  })
+
+  test('server renders composable parts with stable IDs', () => {
+    const html = renderSsrFixture('/src/overlay/sheet/sheet.ssr.fixture.tsx', 'renderPartsFixture')
+    expect(html).toContain('sheet-title')
+    expect(html).toContain('server-sheet-title')
+    expect(html).toContain('data-slot="sheet-body"')
+    expect(html).toContain('data-slot="sheet-footer"')
+  })
   test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
     const { container } = hydrateFixture(
       '/src/overlay/sheet/sheet.ssr.fixture.tsx',
@@ -33,12 +73,13 @@ describe('Sheet SSR Hydration', () => {
               transition={false}
               title="Server title"
               description="Server description"
-              header={<div data-testid="server-header">Server header</div>}
-              body={<div data-testid="server-body">Server body</div>}
-              footer={<div data-testid="server-footer">Server footer</div>}
               close={<span data-testid="server-close-icon">Close</span>}
               ariaLabel="Server sheet"
-            />
+            >
+              <Sheet.Header>{<div data-testid="server-header">Server header</div>}</Sheet.Header>
+              <Sheet.Body>{<div data-testid="server-body">Server body</div>}</Sheet.Body>
+              <Sheet.Footer>{<div data-testid="server-footer">Server footer</div>}</Sheet.Footer>
+            </Sheet.Content>
           </Sheet>
           <Sheet>
             <Sheet.Trigger as="button" type="button">
@@ -48,10 +89,11 @@ describe('Sheet SSR Hydration', () => {
               side="right"
               title="Default title"
               description="Default description"
-              body={<div data-testid="default-body">Default body</div>}
-              footer={<div data-testid="default-footer">Default footer</div>}
               close={<span data-testid="default-close-icon">Close</span>}
-            />
+            >
+              <Sheet.Body>{<div data-testid="default-body">Default body</div>}</Sheet.Body>
+              <Sheet.Footer>{<div data-testid="default-footer">Default footer</div>}</Sheet.Footer>
+            </Sheet.Content>
           </Sheet>
         </>
       ),

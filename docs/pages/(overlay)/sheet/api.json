@@ -162,16 +162,10 @@
           "description": "Accessible name used when the sheet has no rendered title."
         },
         {
-          "name": "body",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the scrollable body slot."
-        },
-        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Main content when body is undefined."
+          "description": "Composable sheet parts."
         },
         {
           "name": "class",
@@ -200,18 +194,6 @@
           "optional": true,
           "type": "JSX.Element",
           "description": "Secondary description displayed below the title."
-        },
-        {
-          "name": "footer",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the footer slot."
-        },
-        {
-          "name": "header",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the header slot."
         },
         {
           "name": "inset",
@@ -280,6 +262,286 @@
       ]
     },
     {
+      "id": "sheet-header",
+      "name": "Sheet.Header",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Header"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-title",
+      "name": "Sheet.Title",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Title"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'h2'"
+        }
+      ],
+      "defaultElement": "h2",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "h2"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-description",
+      "name": "Sheet.Description",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Description"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'p'"
+        }
+      ],
+      "defaultElement": "p",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "p"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-action",
+      "name": "Sheet.Action",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Action"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-body",
+      "name": "Sheet.Body",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Body"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-footer",
+      "name": "Sheet.Footer",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Footer"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
       "id": "sheet-close",
       "name": "Sheet.Close",
       "access": {
@@ -340,6 +602,7 @@
     "header",
     "title",
     "description",
+    "action",
     "contentClose",
     "body",
     "footer"

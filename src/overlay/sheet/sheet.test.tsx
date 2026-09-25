@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -31,7 +31,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content side={side} body="Sheet body" />
+        <Sheet.Content side={side}>
+          <Sheet.Body>{'Sheet body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -58,7 +60,9 @@ describe('Sheet', () => {
 
     const screen = render(() => (
       <Sheet open={open()}>
-        <Sheet.Content body={<Body />} />
+        <Sheet.Content>
+          <Sheet.Body>{<Body />}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -89,7 +93,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="a" href="/details">
           Open
         </Sheet.Trigger>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
     const trigger = screen.getByRole('link', { name: 'Open' })
@@ -120,8 +126,9 @@ describe('Sheet', () => {
           classes={{
             content: 'content-class',
           }}
-          body="Body"
-        />
+        >
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -138,12 +145,10 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content
-          title="Panel"
-          description="Panel description"
-          body="Sheet body"
-          footer="Sheet footer"
-        />
+        <Sheet.Content title="Panel" description="Panel description">
+          <Sheet.Body>{'Sheet body'}</Sheet.Body>
+          <Sheet.Footer>{'Sheet footer'}</Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -157,7 +162,9 @@ describe('Sheet', () => {
   test('only references mounted default title and description nodes', () => {
     render(() => (
       <Sheet open>
-        <Sheet.Content title="Sheet title" description="Sheet description" body="Body" />
+        <Sheet.Content title="Sheet title" description="Sheet description">
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -177,10 +184,11 @@ describe('Sheet', () => {
         <Sheet.Content
           title="Suppressed title"
           description="Suppressed description"
-          header={<div>Custom header</div>}
           ariaLabel="Account panel"
-          body="Body"
-        />
+        >
+          <Sheet.Header>{<div>Custom header</div>}</Sheet.Header>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -200,13 +208,16 @@ describe('Sheet', () => {
           aria-label="Native sheet label"
           aria-labelledby="custom-sheet-title"
           aria-describedby="custom-sheet-description"
-          body={
-            <>
-              <h2 id="custom-sheet-title">Custom title</h2>
-              <p id="custom-sheet-description">Custom description</p>
-            </>
-          }
-        />
+        >
+          <Sheet.Body>
+            {
+              <>
+                <h2 id="custom-sheet-title">Custom title</h2>
+                <p id="custom-sheet-description">Custom description</p>
+              </>
+            }
+          </Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -224,7 +235,9 @@ describe('Sheet', () => {
           Outside
         </button>
         <Sheet defaultOpen>
-          <Sheet.Content trapFocus={false} title="Sheet" body="Body" />
+          <Sheet.Content trapFocus={false} title="Sheet">
+            <Sheet.Body>{'Body'}</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
       </>
     ))
@@ -244,7 +257,10 @@ describe('Sheet', () => {
   test('preserves numeric zero in every shell content slot', () => {
     render(() => (
       <Sheet open>
-        <Sheet.Content title={0} description={0} body={0} footer={0} />
+        <Sheet.Content title={0} description={0}>
+          <Sheet.Body>{0}</Sheet.Body>
+          <Sheet.Footer>{0}</Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -264,12 +280,9 @@ describe('Sheet', () => {
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
         <Sheet open>
-          <Sheet.Content
-            title={title}
-            description={description}
-            ariaLabel={ariaLabel}
-            body="Body"
-          />
+          <Sheet.Content title={title} description={description} ariaLabel={ariaLabel}>
+            <Sheet.Body>{'Body'}</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
       ))
 
@@ -284,7 +297,10 @@ describe('Sheet', () => {
   test('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
       <Sheet open>
-        <Sheet.Content title="" description="" body="" footer="" close={false} />
+        <Sheet.Content title="" description="" close={false}>
+          <Sheet.Body>{''}</Sheet.Body>
+          <Sheet.Footer>{''}</Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="sheet-title"]')).not.toBeNull()
@@ -295,13 +311,7 @@ describe('Sheet', () => {
 
     render(() => (
       <Sheet open>
-        <Sheet.Content
-          title={false}
-          description={false}
-          body={false}
-          footer={false}
-          close={false}
-        />
+        <Sheet.Content title={false} description={false} close={false} />
       </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="sheet-header"]')).toBeNull()
@@ -309,62 +319,83 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
-  test('evaluates every getter-backed shell JSX prop once', () => {
-    const reads = {
-      body: 0,
-      children: 0,
-      close: 0,
-      description: 0,
-      footer: 0,
-      header: 0,
-      title: 0,
-    }
-
+  test('reads shorthand and composed children when content opens', () => {
+    let childrenReads = 0
     render(() => (
       <Sheet open>
         {createComponent(Sheet.Content, {
-          ariaLabel: 'Getter sheet',
-          get title() {
-            reads.title += 1
-            return 'Title'
-          },
-          get description() {
-            reads.description += 1
-            return 'Description'
-          },
-          get header() {
-            reads.header += 1
-            return undefined
-          },
-          get body() {
-            reads.body += 1
-            return <div>Body</div>
-          },
-          get footer() {
-            reads.footer += 1
-            return <div>Footer</div>
-          },
-          get close() {
-            reads.close += 1
-            return <span>Close icon</span>
-          },
+          title: 'Title',
+          description: 'Description',
           get children() {
-            reads.children += 1
-            return <span>Fallback children</span>
+            childrenReads += 1
+            return (
+              <>
+                <Sheet.Body>Body</Sheet.Body>
+                <Sheet.Footer>Footer</Sheet.Footer>
+              </>
+            )
           },
         })}
       </Sheet>
     ))
+    expect(childrenReads).toBe(1)
+    expect(document.body.querySelector('[data-slot="sheet-body"]')?.textContent).toBe('Body')
+    expect(document.body.querySelector('[data-slot="sheet-footer"]')?.textContent).toBe('Footer')
+  })
 
-    expect(reads).toEqual({
-      body: 1,
-      children: 0,
-      close: 1,
-      description: 1,
-      footer: 1,
-      header: 1,
-      title: 1,
-    })
+  test('composes explicit header, reactive ARIA IDs, action, and body presence', () => {
+    const [showHeader, setShowHeader] = createSignal(true)
+    const [showTitle, setShowTitle] = createSignal(true)
+    const [showDescription, setShowDescription] = createSignal(true)
+    const [showFooter, setShowFooter] = createSignal(true)
+    const [titleId, setTitleId] = createSignal('custom-title')
+    render(() => (
+      <Sheet
+        open
+        classes={{ action: 'family-action', body: 'family-body' }}
+        styles={{ action: { color: 'red' } }}
+      >
+        <Sheet.Content title="Fallback" description="Fallback description" close={false}>
+          <Show when={showHeader()}>
+            <Sheet.Header>
+              <Show when={showTitle()}>
+                <Sheet.Title id={titleId()}>Actual title</Sheet.Title>
+              </Show>
+              <Show when={showDescription()}>
+                <Sheet.Description id="custom-description">Actual description</Sheet.Description>
+              </Show>
+              <Sheet.Action data-testid="action">Help</Sheet.Action>
+            </Sheet.Header>
+          </Show>
+          <Sheet.Body class="local-body">Body</Sheet.Body>
+          <Show when={showFooter()}>
+            <Sheet.Footer>Actions</Sheet.Footer>
+          </Show>
+        </Sheet.Content>
+      </Sheet>
+    ))
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    const body = document.body.querySelector('[data-slot="sheet-body"]')!
+    expect(content.textContent).not.toContain('Fallback')
+    expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
+    expect(content.getAttribute('aria-describedby')).toBe('custom-description')
+    expect(body.hasAttribute('data-header')).toBe(true)
+    const action = document.body.querySelector<HTMLElement>('[data-slot="sheet-action"]')!
+    expect(action.className).toContain('family-action')
+    expect(action.style.color).toBe('red')
+    expect(body.className).toContain('family-body')
+    expect(body.className).toContain('local-body')
+    setTitleId('renamed-title')
+    expect(content.getAttribute('aria-labelledby')).toBe('renamed-title')
+    setShowTitle(false)
+    setShowDescription(false)
+    expect(content.getAttribute('aria-labelledby')).toBeNull()
+    expect(content.getAttribute('aria-describedby')).toBeNull()
+    setShowHeader(false)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    expect(content.textContent).toContain('Fallback')
+    setShowFooter(false)
+    expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
   test('reacts to side, inset, and transition changes without remounting content', () => {
@@ -379,8 +410,9 @@ describe('Sheet', () => {
           inset={inset()}
           transition={transition()}
           ariaLabel="Reactive sheet"
-          body="Body"
-        />
+        >
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -404,7 +436,9 @@ describe('Sheet', () => {
   test('releases content and scroll lock when unmounted during exit', async () => {
     const screen = render(() => (
       <Sheet defaultOpen>
-        <Sheet.Content ariaLabel="Unmounting sheet" body="Body" />
+        <Sheet.Content ariaLabel="Unmounting sheet">
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -426,7 +460,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -440,7 +476,9 @@ describe('Sheet', () => {
     render(() => (
       <Sheet>
         <Sheet.Trigger as="span">Open</Sheet.Trigger>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -453,7 +491,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content close={<span data-testid="custom-close">X</span>} body="Body" />
+        <Sheet.Content close={<span data-testid="custom-close">X</span>}>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -464,7 +504,10 @@ describe('Sheet', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Sheet open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
-        <Sheet.Content header={<div>Custom header</div>} body="Body" />
+        <Sheet.Content>
+          <Sheet.Header>{<div>Custom header</div>}</Sheet.Header>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
         <Sheet.Close data-testid="explicit-sheet-close" class="explicit-close">
           Explicit close
         </Sheet.Close>
@@ -486,7 +529,10 @@ describe('Sheet', () => {
   test('keeps structured section padding symmetric around the corner close', () => {
     renderWithTheme(() => (
       <Sheet open>
-        <Sheet.Content title="Title" body="Body" footer="Footer" />
+        <Sheet.Content title="Title">
+          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Footer>{'Footer'}</Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -508,7 +554,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content close={false} body="Body" />
+        <Sheet.Content close={false}>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -521,10 +569,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content
-          title="Sheet title"
-          body={<div data-testid="custom-body">Body Content</div>}
-        />
+        <Sheet.Content title="Sheet title">
+          <Sheet.Body>{<div data-testid="custom-body">Body Content</div>}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -542,7 +589,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Open sheet
         </Sheet.Trigger>
-        <Sheet.Content title="Sheet" body="Body" />
+        <Sheet.Content title="Sheet">
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -575,7 +624,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content title="Portal default" body="Body" />
+        <Sheet.Content title="Portal default">
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -589,7 +640,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content overlay={false} body="Body" />
+        <Sheet.Content overlay={false}>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -599,7 +652,9 @@ describe('Sheet', () => {
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
     renderWithTheme(() => (
       <Sheet open>
-        <Sheet.Content body="Body" classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }} />
+        <Sheet.Content classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -623,7 +678,9 @@ describe('Sheet', () => {
         })}
       >
         <Sheet open>
-          <Sheet.Content body="Body" />
+          <Sheet.Content>
+            <Sheet.Body>{'Body'}</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
       </MoraineProvider>
     ))
@@ -648,7 +705,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -674,7 +733,9 @@ describe('Sheet', () => {
           <Sheet.Trigger as="button" type="button">
             Trigger
           </Sheet.Trigger>
-          <Sheet.Content body="Body" />
+          <Sheet.Content>
+            <Sheet.Body>{'Body'}</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
       </>
     ))
@@ -697,7 +758,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -717,7 +780,9 @@ describe('Sheet', () => {
   test('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Sheet open>
-        <Sheet.Content body="Body" />
+        <Sheet.Content>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 
@@ -734,7 +799,9 @@ describe('Sheet', () => {
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content body="Body" styles={{ content: { width: '200px' } }} />
+        <Sheet.Content styles={{ content: { width: '200px' } }}>
+          <Sheet.Body>{'Body'}</Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     ))
 

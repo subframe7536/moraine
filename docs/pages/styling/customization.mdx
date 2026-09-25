@@ -64,22 +64,23 @@ Composite components expose attached sub-parts that you arrange explicitly, such
 In a composite component:
 
 1. **Root `classes` and `styles`** establish instance defaults that cascade down to all parts.
-2. **Each part** accepts direct `class` and `style` for its primary DOM node, as well as `classes` for any sub-slots it renders:
+2. **Each part** accepts direct `class` and `style` for its primary DOM node. Parts that own several slots may also accept `classes` and `styles` for those slots:
 
 ```tsx
-<Dialog classes={{ overlay: 'backdrop-blur-sm', content: 'max-w-xl' }}>
+<Dialog
+  classes={{
+    overlay: 'backdrop-blur-sm',
+    content: 'max-w-xl',
+    header: 'border-b border-border/60',
+  }}
+>
   <Dialog.Trigger as={Button} variant="outline">
     Open Settings
   </Dialog.Trigger>
-  <Dialog.Content
-    title="Workspace Preferences"
-    class="shadow-2xl"
-    classes={{
-      header: 'border-b border-border/60',
-      body: 'p-6 space-y-4',
-    }}
-  >
-    <p class="text-sm">Manage preferences...</p>
+  <Dialog.Content title="Workspace Preferences" class="shadow-2xl">
+    <Dialog.Body class="p-6 space-y-4">
+      <p class="text-sm">Manage preferences...</p>
+    </Dialog.Body>
   </Dialog.Content>
 </Dialog>
 ```

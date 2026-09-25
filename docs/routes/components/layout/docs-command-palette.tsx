@@ -179,70 +179,70 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
       onExitComplete={() => setSearchTerm('')}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
-      <Dialog.Content
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={
-          <CommandPalette<DocsCommandItem>
-            groups={items()}
-            placeholder="Search components, hooks, and pages..."
-            searchTerm={searchTerm()}
-            onSearchTermChange={setSearchTerm}
-            onSelect={onSelect}
-            itemRender={(context) =>
-              createDocsCommandItem(
-                context,
-                (href) => {
-                  navigate(href, { scroll: false })
-                  props.onNavigate(href)
-                },
-                onClose,
-              )
-            }
-            showClose
-            onClose={onClose}
-            emptyRender={(ctx) => (
-              <div class="flex flex-col gap-2 items-center">
-                <Icon name="i-lucide-search-x" class="text-base" />
-                <span>
-                  No pages found for{' '}
-                  <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.
-                </span>
-              </div>
-            )}
-            footerRender={(ctx) => (
-              <div class="flex gap-4 items-center justify-between">
-                <span>
-                  {ctx.visibleGroups.reduce(
-                    (count, group) => count + (group.items?.length ?? 0),
-                    0,
-                  )}{' '}
-                  matches
-                </span>
-                <div class="flex gap-3 items-center" aria-label="Keyboard shortcuts">
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup
-                      items={['arrowup', 'arrowdown']}
-                      size="sm"
-                      variant="outline"
-                      separator="/"
-                    />
-                    Navigate
-                  </span>
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup items={['enter']} size="sm" variant="outline" />
-                    Open
-                  </span>
-                  <span class="flex gap-1.5 items-center">
-                    <KbdGroup items={['escape']} size="sm" variant="outline" />
-                    Close
+      <Dialog.Content close={false}>
+        <Dialog.Body class="mb-0 p-0">
+          {
+            <CommandPalette<DocsCommandItem>
+              groups={items()}
+              placeholder="Search components, hooks, and pages..."
+              searchTerm={searchTerm()}
+              onSearchTermChange={setSearchTerm}
+              onSelect={onSelect}
+              itemRender={(context) =>
+                createDocsCommandItem(
+                  context,
+                  (href) => {
+                    navigate(href, { scroll: false })
+                    props.onNavigate(href)
+                  },
+                  onClose,
+                )
+              }
+              showClose
+              onClose={onClose}
+              emptyRender={(ctx) => (
+                <div class="flex flex-col gap-2 items-center">
+                  <Icon name="i-lucide-search-x" class="text-base" />
+                  <span>
+                    No pages found for{' '}
+                    <span class="text-foreground font-medium">“{ctx.searchTerm}”</span>.
                   </span>
                 </div>
-              </div>
-            )}
-          />
-        }
-      />
+              )}
+              footerRender={(ctx) => (
+                <div class="flex gap-4 items-center justify-between">
+                  <span>
+                    {ctx.visibleGroups.reduce(
+                      (count, group) => count + (group.items?.length ?? 0),
+                      0,
+                    )}{' '}
+                    matches
+                  </span>
+                  <div class="flex gap-3 items-center" aria-label="Keyboard shortcuts">
+                    <span class="flex gap-1.5 items-center">
+                      <KbdGroup
+                        items={['arrowup', 'arrowdown']}
+                        size="sm"
+                        variant="outline"
+                        separator="/"
+                      />
+                      Navigate
+                    </span>
+                    <span class="flex gap-1.5 items-center">
+                      <KbdGroup items={['enter']} size="sm" variant="outline" />
+                      Open
+                    </span>
+                    <span class="flex gap-1.5 items-center">
+                      <KbdGroup items={['escape']} size="sm" variant="outline" />
+                      Close
+                    </span>
+                  </div>
+                </div>
+              )}
+            />
+          }
+        </Dialog.Body>
+      </Dialog.Content>
     </Dialog>
   )
 }

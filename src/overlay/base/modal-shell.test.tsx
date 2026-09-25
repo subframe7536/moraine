@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -12,60 +12,35 @@ describe.each([
   { name: 'Sheet', Root: Sheet },
 ])('$name composition', ({ Root, name }) => {
   const owner = name.toLowerCase()
-  test('does not instantiate closed content slots and reads children once on opening', () => {
-    let titleReads = 0
-    let bodyReads = 0
-    let childrenReads = 0
+  test('does not instantiate closed content parts before opening', () => {
+    let reads = 0
     const screen = render(() => (
       <Root>
         <Root.Trigger>Open</Root.Trigger>
-        {createComponent(Root.Content, {
-          get title() {
-            titleReads += 1
-            return <span>Title</span>
-          },
-          get body() {
-            bodyReads += 1
-            return undefined
-          },
-          get children() {
-            childrenReads += 1
-            return <span>Children</span>
-          },
-        })}
-      </Root>
-    ))
-    expect([titleReads, bodyReads, childrenReads]).toEqual([0, 0, 0])
-    expect(screen.container.children).toHaveLength(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
-    expect([titleReads, bodyReads, childrenReads]).toEqual([1, 1, 1])
-    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
-    expect(content.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
-    expect(content.querySelector(`[data-slot="${owner}-title"]`)?.textContent).toBe('Title')
-  })
-
-  test.each([null, false])('explicit body %s suppresses children without reading them', (body) => {
-    let reads = 0
-    render(() => (
-      <Root defaultOpen>
-        {createComponent(Root.Content, {
-          body,
-          get children() {
-            reads += 1
-            return <span>Unused children</span>
-          },
-        })}
+        <Root.Content title="Title">
+          <Root.Body>
+            {(() => {
+              reads += 1
+              return 'Children'
+            })()}
+          </Root.Body>
+        </Root.Content>
       </Root>
     ))
     expect(reads).toBe(0)
-    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    expect(reads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
   })
 
   test('renders recipe-backed default presentation without a provider', () => {
     render(() => (
       <Root defaultOpen>
         <Root.Trigger>Open</Root.Trigger>
-        <Root.Content title="Title" description="Description" body="Body" footer="Footer" />
+        <Root.Content title="Title" description="Description">
+          <Root.Body>Body</Root.Body>
+          <Root.Footer>Footer</Root.Footer>
+        </Root.Content>
       </Root>
     ))
     const slots = [
@@ -101,7 +76,9 @@ describe.each([
     render(() => (
       <MoraineProvider theme={design()}>
         <Root defaultOpen>
-          <Root.Content title="Title" body="Body" />
+          <Root.Content title="Title">
+            <Root.Body>Body</Root.Body>
+          </Root.Content>
         </Root>
       </MoraineProvider>
     ))

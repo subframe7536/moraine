@@ -24,16 +24,19 @@ export function NestedOverlays() {
             <Dialog.Content
               title="Confirm changes"
               description="Escape closes this confirmation before closing workspace settings."
-              footer={
-                <Dialog.Close
-                  as={Button}
-                  variant="outline"
-                  class="px-3 py-1.5 h-auto w-auto static"
-                >
-                  Return to settings
-                </Dialog.Close>
-              }
-            />
+            >
+              <Dialog.Footer>
+                {
+                  <Dialog.Close
+                    as={Button}
+                    variant="outline"
+                    class="px-3 py-1.5 h-auto w-auto static"
+                  >
+                    Return to settings
+                  </Dialog.Close>
+                }
+              </Dialog.Footer>
+            </Dialog.Content>
           </Dialog>
         </div>
       </Dialog.Content>
