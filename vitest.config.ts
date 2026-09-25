@@ -5,6 +5,13 @@ import { configDefaults, defineConfig } from 'vitest/config'
 
 import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
+// These tests rely on Node or window behavior that differs inside a VM context.
+const VM_INCOMPATIBLE_TESTS = [
+  'docs/build/plugin.test.ts',
+  'src/form/textarea/textarea.test.tsx',
+  'src/overlay/base/menu/menu.utils.test.tsx',
+]
+
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('test'),
@@ -24,14 +31,30 @@ export default defineConfig({
   plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-util/ssr-global-setup.ts'],
-    include: [
-      'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-      'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-      'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-    ],
     exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
     sequence: { groupOrder: 0 },
     environment: 'jsdom',
+    projects: [
+      {
+        test: {
+          name: 'vm',
+          pool: 'vmThreads',
+          include: [
+            'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+            'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+            'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+          ],
+          exclude: VM_INCOMPATIBLE_TESTS,
+        },
+      },
+      {
+        test: {
+          name: 'forks',
+          pool: 'forks',
+          include: VM_INCOMPATIBLE_TESTS,
+        },
+      },
+    ],
     globals: true,
     passWithNoTests: true,
     forceRerunTriggers: [
