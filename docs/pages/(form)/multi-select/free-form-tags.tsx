@@ -11,7 +11,7 @@ export function FreeFormTags() {
       </label>
       <MultiSelect
         value={tags()}
-        onChange={setTags}
+        onValueChange={setTags}
         createItem={(input) => ({ value: input.trim().toLowerCase(), label: input.trim() })}
         tokenSeparators={[',', ' ']}
         placeholder="Type words, press space or comma..."

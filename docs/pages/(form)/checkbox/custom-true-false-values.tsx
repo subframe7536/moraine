@@ -13,7 +13,7 @@ export function CustomTrueFalseValues() {
           trueValue="opted-in"
           falseValue="opted-out"
           checked={telemetry()}
-          onChange={setTelemetry}
+          onCheckedChange={setTelemetry}
         />
         <Badge variant={telemetry() === 'opted-in' ? 'subtle' : 'outline'}>{telemetry()}</Badge>
       </div>

@@ -1,12 +1,13 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
+  FormValueOptions,
 } from '../shared/form-options.types.ts'
 
 import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
@@ -32,36 +33,25 @@ export namespace FileUploadT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Value = File | File[] | null
+  export type Value<Multiple extends boolean = boolean> = Multiple extends true
+    ? File[]
+    : Multiple extends false
+      ? File | null
+      : File | File[] | null
+
   export type Error = FileError
   export type Rejection = FileRejection
 
   /** Base props for the FileUpload component. */
-  export interface Base<T extends ValidComponent = 'div'>
-    extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
-    /**
-     * The HTML element or component to render as.
-     * @default 'div'
-     */
-    as?: T
-
+  export interface Base<Multiple extends boolean = false>
+    extends
+      FormIdentityOptions,
+      FormValueOptions<Value<Multiple>>,
+      FormRequiredOption,
+      FormDisableOption,
+      FormReadOnlyOption {
     /** Native input element ref. */
     inputRef?: Ref<HTMLInputElement>
-
-    /** Click handler for the upload control. */
-    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-
-    /** Keyboard handler for the upload control. */
-    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
-
-    /** Drag-over handler for the upload dropzone. */
-    onDragOver?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
-
-    /** Drag-leave handler for the upload dropzone. */
-    onDragLeave?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
-
-    /** Drop handler for the upload dropzone. */
-    onDrop?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
 
     /**
      * Accepted file types (e.g., ".jpg,.png", "image/*").
@@ -73,7 +63,10 @@ export namespace FileUploadT {
      * Whether multiple files can be uploaded.
      * @default false
      */
-    multiple?: boolean
+    multiple?: Multiple
+
+    /** Callback when the selected file(s) change. */
+    onValueChange?: (value: Value<Multiple>) => void
 
     /**
      * Whether to enable drag and drop.
@@ -114,23 +107,19 @@ export namespace FileUploadT {
     /** Maximum accepted file size in bytes. */
     maxSize?: number
 
-    /** Callback when the selected files change. */
-    onValueChange?: (value: Value) => void
-
     /** Callback when files are rejected (e.g., due to type or count). */
     onFileReject?: (files: Rejection[]) => void
   }
 
   /** Props for the FileUpload component. */
-  export type Props<T extends ValidComponent = 'div'> = BaseProps<
-    T,
-    Base<T>,
+  export type Props<Multiple extends boolean = false> = BaseProps<
+    'div',
+    Base<Multiple>,
     Variant,
     Classes,
-    Styles,
-    'div'
+    Styles
   >
 }
 
 /** Props for the FileUpload component. */
-export type FileUploadProps<T extends ValidComponent = 'div'> = FileUploadT.Props<T>
+export type FileUploadProps<Multiple extends boolean = false> = FileUploadT.Props<Multiple>

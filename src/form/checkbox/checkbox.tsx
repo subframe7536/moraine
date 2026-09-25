@@ -35,7 +35,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'label',
     'description',
     'fieldBind',
-    'onChange',
+    'onCheckedChange',
     'indeterminate',
     'checkedIcon',
     'indeterminateIcon',
@@ -185,18 +185,18 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     ),
   )
 
-  function onChange(nextChecked: boolean): void {
+  function handleCheckedChange(nextChecked: boolean): void {
     const nextValue = toChangeValue(nextChecked)
 
     setChecked(nextChecked)
 
     if (merged.fieldBind === false) {
-      merged.onChange?.(nextValue)
+      merged.onCheckedChange?.(nextValue)
       return
     }
 
     field.setFormValue(nextValue)
-    merged.onChange?.(nextValue)
+    merged.onCheckedChange?.(nextValue)
     field.emit('change')
     field.emit('input')
   }
@@ -258,7 +258,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    onChange(!resolvedChecked())
+    handleCheckedChange(!resolvedChecked())
   }
 
   let enterPressed = false
@@ -377,7 +377,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               return
             }
 
-            onChange(event.currentTarget.checked)
+            handleCheckedChange(event.currentTarget.checked)
             event.currentTarget.checked = resolvedChecked()
             event.currentTarget.indeterminate = indeterminate()
           }}

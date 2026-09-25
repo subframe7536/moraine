@@ -589,6 +589,18 @@ const divRef = (element: HTMLDivElement) => element.focus()
     const element: HTMLElement = event.currentTarget
     void element
   }}
+  onValueChange={(singleFile) => {
+    const file: File | null = singleFile
+    void file
+  }}
+/>
+
+;<FileUpload
+  multiple
+  onValueChange={(files) => {
+    const fileList: File[] = files
+    void fileList
+  }}
 />
 
 const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
@@ -659,7 +671,7 @@ void (null as unknown as OldFormFieldProps)
 ;<Select
   items={[{ label: 'One', value: 1 }]}
   readOnly
-  onChange={(value) => {
+  onValueChange={(value) => {
     const selected: number | null = value
     void selected
   }}

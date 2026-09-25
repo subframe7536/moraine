@@ -120,12 +120,6 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onChange",
-          "optional": true,
-          "type": "(value: TItem['value'][]) => void",
-          "description": "Called when selection changes."
-        },
-        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -136,6 +130,12 @@
           "optional": true,
           "type": "() => void",
           "description": "Post-reset notification after an unprevented native form reset."
+        },
+        {
+          "name": "onValueChange",
+          "optional": true,
+          "type": "(value: TItem['value'][]) => void",
+          "description": "Called when selection changes."
         },
         {
           "name": "open",

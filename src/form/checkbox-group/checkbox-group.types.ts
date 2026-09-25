@@ -66,7 +66,7 @@ export namespace CheckboxGroupT {
     indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
 
     /** Callback when the selected values change. */
-    onChange?: (value: string[]) => void
+    onValueChange?: (value: string[]) => void
   }
 
   /** Props for the CheckboxGroup component. */

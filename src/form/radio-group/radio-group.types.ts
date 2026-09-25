@@ -77,7 +77,7 @@ export namespace RadioGroupT {
     /**
      * Callback when the selected value changes.
      */
-    onChange?: (value: string) => void
+    onValueChange?: (value: string) => void
   }
 
   /**

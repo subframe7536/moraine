@@ -571,7 +571,7 @@ describe('Form', () => {
               <Input />
             </form.Field>
             <form.Field name="enabled" label="Enabled">
-              <Switch onChange={onChange} />
+              <Switch onCheckedChange={onChange} />
             </form.Field>
             <Button type="reset">Reset</Button>
           </form.Form>

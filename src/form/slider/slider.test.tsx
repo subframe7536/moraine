@@ -349,7 +349,7 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <Slider defaultValue={10} onValueChange={onValueChange} onChange={onChange} />
+      <Slider defaultValue={10} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
     const thumbs = getThumbs(screen.container)
 
@@ -370,7 +370,7 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <Slider defaultValue={0} onValueChange={onValueChange} onChange={onChange} />
+      <Slider defaultValue={0} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const input = getInputs(screen.container)[0]
@@ -410,7 +410,7 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <Slider defaultValue={[20, 80]} onValueChange={onValueChange} onChange={onChange} />
+      <Slider defaultValue={[20, 80]} onValueChange={onValueChange} onValueCommit={onChange} />
     ))
     const thumbs = getThumbs(screen.container)
 
@@ -466,7 +466,7 @@ describe('Slider', () => {
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
-        <Slider defaultValue={[20, 80]} onChange={onChange} />
+        <Slider defaultValue={[20, 80]} onValueCommit={onChange} />
       </FieldProvider>
     ))
     const [first, second] = getThumbs(screen.container)
@@ -504,7 +504,7 @@ describe('Slider', () => {
       (form) => (
         <form.Form>
           <form.Field name="range" label="Price">
-            <Slider defaultValue={[20, 80]} onChange={onChange} />
+            <Slider defaultValue={[20, 80]} onValueCommit={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -1086,7 +1086,7 @@ describe('Slider', () => {
       const onValueChange = vi.fn()
       const onChange = vi.fn()
       const screen = render(() => (
-        <Slider defaultValue={50} onValueChange={onValueChange} onChange={onChange} />
+        <Slider defaultValue={50} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1104,7 +1104,7 @@ describe('Slider', () => {
 
     test('Home key commits on keyup', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
       fireEvent.focus(thumb)
@@ -1117,7 +1117,7 @@ describe('Slider', () => {
 
     test('End key commits on keyup', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
       fireEvent.focus(thumb)
@@ -1130,7 +1130,7 @@ describe('Slider', () => {
 
     test('PageUp key commits on keyup', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
       fireEvent.focus(thumb)
@@ -1143,7 +1143,7 @@ describe('Slider', () => {
 
     test('multiple keydown events only commit once on final keyup', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
       fireEvent.focus(thumb)
@@ -1159,7 +1159,7 @@ describe('Slider', () => {
 
     test('blur still commits if keyup was missed', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={50} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={50} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
 
       fireEvent.focus(thumb)
@@ -1179,7 +1179,7 @@ describe('Slider', () => {
           defaultValue={[20, 80]}
           minStepsBetweenThumbs={10}
           allowThumbCrossing={false}
-          onChange={onChange}
+          onValueCommit={onChange}
         />
       ))
       const thumbs = getThumbs(screen.container)
@@ -1200,7 +1200,7 @@ describe('Slider', () => {
           defaultValue={[20, 80]}
           minStepsBetweenThumbs={10}
           allowThumbCrossing={false}
-          onChange={onChange}
+          onValueCommit={onChange}
         />
       ))
       const thumbs = getThumbs(screen.container)
@@ -1343,7 +1343,7 @@ describe('Slider', () => {
     test('blur during programmatic focus shift does not double-commit', async () => {
       const onChange = vi.fn()
       const screen = render(() => (
-        <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onChange={onChange} />
+        <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueCommit={onChange} />
       ))
       const thumbs = getThumbs(screen.container)
 
@@ -1382,7 +1382,7 @@ describe('Slider', () => {
       const onValueChange = vi.fn()
       const onChange = vi.fn()
       const screen = render(() => (
-        <Slider defaultValue={20} onValueChange={onValueChange} onChange={onChange} />
+        <Slider defaultValue={20} onValueChange={onValueChange} onValueCommit={onChange} />
       ))
       const thumb = getThumbs(screen.container)[0] as HTMLElement
       const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
@@ -1441,7 +1441,7 @@ describe('Slider', () => {
 
     test('pointer cancel commits pending drag values', async () => {
       const onChange = vi.fn()
-      const screen = render(() => <Slider defaultValue={20} onChange={onChange} />)
+      const screen = render(() => <Slider defaultValue={20} onValueCommit={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
       const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
@@ -1502,7 +1502,7 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const [value, setValue] = createSignal(20)
     const screen = render(() => (
-      <Slider value={value()} onChange={onChange} onValueChange={onValueChange} />
+      <Slider value={value()} onValueCommit={onChange} onValueChange={onValueChange} />
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 
@@ -1519,7 +1519,7 @@ describe('Slider', () => {
   test('drops stale pointer pending values after a controlled update', async () => {
     const onChange = vi.fn()
     const [value, setValue] = createSignal(20)
-    const screen = render(() => <Slider value={value()} onChange={onChange} />)
+    const screen = render(() => <Slider value={value()} onValueCommit={onChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
     mockPointerCapture(thumb)
@@ -1538,7 +1538,7 @@ describe('Slider', () => {
     const onChange = vi.fn()
     const onValueChange = vi.fn()
     const screen = render(() => (
-      <Slider defaultValue={100} onChange={onChange} onValueChange={onValueChange} />
+      <Slider defaultValue={100} onValueCommit={onChange} onValueChange={onValueChange} />
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
 

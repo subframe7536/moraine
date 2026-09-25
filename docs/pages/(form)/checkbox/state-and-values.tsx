@@ -8,7 +8,7 @@ export function StateAndValues() {
     <div class="flex flex-col gap-3">
       <Checkbox
         checked={checked()}
-        onChange={setChecked}
+        onCheckedChange={setChecked}
         label="Subscribe to product updates"
         description="Receive weekly summaries of new releases and features."
       />

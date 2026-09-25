@@ -57,7 +57,7 @@ export function HeroSpecimen() {
                 { label: 'AP Tokyo (Tokyo)', value: 'ap-tokyo' },
               ]}
               value={region()}
-              onChange={(val) => {
+              onValueChange={(val) => {
                 setRegion(val ?? 'us-east')
                 setDeployed(false)
               }}
@@ -88,7 +88,7 @@ export function HeroSpecimen() {
           description="Revert to previous deployment tag automatically"
           class="mt-4"
           checked={autoRollback()}
-          onChange={(val) => {
+          onCheckedChange={(val) => {
             setAutoRollback(val)
             setDeployed(false)
           }}

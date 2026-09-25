@@ -67,7 +67,7 @@ export namespace SelectT {
     /** String shorthand or object items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**

@@ -14,7 +14,7 @@ export function Controlled() {
         <Switch
           label="Lock edits"
           checked={locked()}
-          onChange={setLocked}
+          onCheckedChange={setLocked}
           checkedIcon="i-lucide-lock"
           uncheckedIcon="i-lucide-lock-open"
         />

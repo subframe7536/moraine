@@ -281,7 +281,7 @@ export function ComponentCanvas() {
                   { label: 'Activity', value: 'activity' },
                 ]}
                 value={view()}
-                onChange={(value) => setView(value ?? 'projects')}
+                onValueChange={(value) => setView(value ?? 'projects')}
                 class="w-full"
               />
             </Field>
@@ -291,7 +291,7 @@ export function ComponentCanvas() {
                 label="Notification sync"
                 description="Trigger alerts on workflow changes."
                 checked={updates()}
-                onChange={setUpdates}
+                onCheckedChange={setUpdates}
               />
             </div>
 

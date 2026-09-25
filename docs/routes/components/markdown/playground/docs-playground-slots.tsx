@@ -259,7 +259,7 @@ export function DocsPlaygroundSlots(props: {
           size="sm"
           label="Auto"
           checked={autoHover()}
-          onChange={(value) => {
+          onCheckedChange={(value) => {
             setAutoHover(value)
             if (!value) {
               setPreviewHovered(undefined)

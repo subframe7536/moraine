@@ -13,7 +13,7 @@ const items = [
 
 describe('Select family state ownership', () => {
   test('BaseSelect normalizes single selection and Control stays non-interactive', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     function Parts() {
       const state = useSelectState()
       return (
@@ -30,7 +30,7 @@ describe('Select family state ownership', () => {
       )
     }
     const screen = render(() => (
-      <BaseSelect items={items} value={['US', 'GB']} onChange={onChange}>
+      <BaseSelect items={items} value={['US', 'GB']} onValueChange={onValueChange}>
         <Parts />
       </BaseSelect>
     ))
@@ -39,7 +39,7 @@ describe('Select family state ownership', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(trigger)
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
-    expect(onChange).toHaveBeenCalledWith(['GB'])
+    expect(onValueChange).toHaveBeenCalledWith(['GB'])
   })
 
   test('filtered navigation never changes committed form serialization', () => {
@@ -60,15 +60,15 @@ describe('Select family state ownership', () => {
   })
 
   test('numeric and string values remain distinct', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const values = [
       { value: 0, label: 'Number' },
       { value: '0', label: 'String' },
     ]
-    render(() => <MultiSelect items={values} defaultOpen onChange={onChange} />)
+    render(() => <MultiSelect items={values} defaultOpen onValueChange={onValueChange} />)
     const options = within(document.body).getAllByRole('option', { hidden: true })
     fireEvent.click(options[0]!)
     fireEvent.click(options[1]!)
-    expect(onChange).toHaveBeenLastCalledWith([0, '0'])
+    expect(onValueChange).toHaveBeenLastCalledWith([0, '0'])
   })
 })

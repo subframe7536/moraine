@@ -127,16 +127,16 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onChange",
-          "optional": true,
-          "type": "(value: TValue) => void",
-          "description": "Callback when the slider selection change is committed."
-        },
-        {
           "name": "onValueChange",
           "optional": true,
           "type": "(value: TValue) => void",
           "description": "Callback when the slider selection changes during interaction."
+        },
+        {
+          "name": "onValueCommit",
+          "optional": true,
+          "type": "(value: TValue) => void",
+          "description": "Callback when the slider selection change is committed."
         },
         {
           "name": "orientation",

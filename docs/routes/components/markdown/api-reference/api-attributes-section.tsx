@@ -86,7 +86,7 @@ export function AttributesSection(props: {
             })),
           ]}
           value={selectedSlot()}
-          onChange={(value) => setSelectedSlot(value ?? ALL_SLOTS)}
+          onValueChange={(value) => setSelectedSlot(value ?? ALL_SLOTS)}
           itemRender={(props) => (
             <>
               <div>{props.item.label}</div>

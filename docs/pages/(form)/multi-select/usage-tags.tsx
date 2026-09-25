@@ -20,7 +20,7 @@ export function UsageTags() {
         placeholder="Select frameworks..."
         items={FRAMEWORKS}
         value={selected()}
-        onChange={setSelected}
+        onValueChange={setSelected}
         allowClear
       />
       <div class="text-xs flex items-center justify-between">

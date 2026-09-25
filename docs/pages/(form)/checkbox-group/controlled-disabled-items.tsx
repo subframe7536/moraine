@@ -23,7 +23,7 @@ export function ControlledDisabledItems() {
         variant="card"
         items={ROLES}
         value={value()}
-        onChange={setValue}
+        onValueChange={setValue}
       />
       <p class="text-xs text-muted-foreground">
         Active roles: <span class="text-foreground font-medium">{value().join(', ')}</span>

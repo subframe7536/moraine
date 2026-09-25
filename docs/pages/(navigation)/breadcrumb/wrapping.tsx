@@ -6,7 +6,7 @@ export function Wrapping() {
 
   return (
     <div class="min-w-0 w-full space-y-4">
-      <Switch checked={wrap()} onChange={setWrap} label="Wrap items" />
+      <Switch checked={wrap()} onCheckedChange={setWrap} label="Wrap items" />
 
       <div
         class="p-4 border border-border rounded-lg"

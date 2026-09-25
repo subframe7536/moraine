@@ -201,13 +201,13 @@ describe('BaseSelect selection and form', () => {
     const screen = render(() =>
       multiple ? (
         <form>
-          <BaseSelect items={items} multiple name="choice" defaultOpen onChange={change}>
+          <BaseSelect items={items} multiple name="choice" defaultOpen onValueChange={change}>
             <Parts />
           </BaseSelect>
         </form>
       ) : (
         <form>
-          <BaseSelect items={items} name="choice" defaultOpen onChange={change}>
+          <BaseSelect items={items} name="choice" defaultOpen onValueChange={change}>
             <Parts />
           </BaseSelect>
         </form>
@@ -226,11 +226,11 @@ describe('BaseSelect selection and form', () => {
     const change = vi.fn()
     const screen = render(() =>
       multiple ? (
-        <BaseSelect items={items} multiple value={[1]} defaultOpen onChange={change}>
+        <BaseSelect items={items} multiple value={[1]} defaultOpen onValueChange={change}>
           <Parts />
         </BaseSelect>
       ) : (
-        <BaseSelect items={items} value={[1]} defaultOpen onChange={change}>
+        <BaseSelect items={items} value={[1]} defaultOpen onValueChange={change}>
           <Parts />
         </BaseSelect>
       ),
@@ -242,7 +242,7 @@ describe('BaseSelect selection and form', () => {
   test.each(['disabled', 'readOnly'] as const)('blocks root %s mutations', (key) => {
     const change = vi.fn()
     const screen = render(() => (
-      <BaseSelect items={items} {...{ [key]: true }} defaultOpen onChange={change}>
+      <BaseSelect items={items} {...{ [key]: true }} defaultOpen onValueChange={change}>
         <Parts />
       </BaseSelect>
     ))
@@ -268,7 +268,7 @@ describe('BaseSelect selection and form', () => {
   test('disabled items cannot be selected and closeOnSelect can be overridden', () => {
     const change = vi.fn()
     const screen = render(() => (
-      <BaseSelect items={items} defaultOpen closeOnSelect={false} onChange={change}>
+      <BaseSelect items={items} defaultOpen closeOnSelect={false} onValueChange={change}>
         <Parts />
       </BaseSelect>
     ))
@@ -445,7 +445,7 @@ describe('BaseSelect composition', () => {
   test('typeahead uses the raw label resolver', () => {
     const change = vi.fn()
     const screen = render(() => (
-      <BaseSelect items={items} itemToLabelString={(item) => item.extra} onChange={change}>
+      <BaseSelect items={items} itemToLabelString={(item) => item.extra} onValueChange={change}>
         <Parts />
       </BaseSelect>
     ))
@@ -582,7 +582,7 @@ test('owns Form context synchronization and treats an unmatched empty field as n
     (form) => (
       <form.Form>
         <form.Field name="choice" label="Choice">
-          <BaseSelect items={items} defaultOpen onChange={change}>
+          <BaseSelect items={items} defaultOpen onValueChange={change}>
             <Parts />
           </BaseSelect>
         </form.Field>
@@ -703,7 +703,7 @@ test('enforces explicit item boundary, prevents DOM leakage, and keeps item prop
   const onChange = vi.fn()
   let renderStateItem: typeof initialItem | undefined
   render(() => (
-    <BaseSelect items={[item()]} defaultOpen closeOnSelect={false} onChange={onChange}>
+    <BaseSelect items={[item()]} defaultOpen closeOnSelect={false} onValueChange={onChange}>
       <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
       <BaseSelect.Content>
         <BaseSelect.Listbox>
@@ -772,7 +772,7 @@ test('uses the canonical item disabled state for equivalent rendered items', () 
     <BaseSelect
       items={[{ value: 'locked', label: 'Canonical', disabled: true }]}
       defaultOpen
-      onChange={onChange}
+      onValueChange={onChange}
     >
       <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
       <BaseSelect.Content>
@@ -965,7 +965,7 @@ test('resolves canonical item disabled state and passes canonical item to isItem
       }}
       isItemDisabled={isItemDisabled}
       defaultOpen
-      onChange={onChange}
+      onValueChange={onChange}
     >
       <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
       <BaseSelect.Content>

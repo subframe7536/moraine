@@ -74,7 +74,7 @@ describe('Switch', () => {
     'toggles once from an explicit synthetic %s compatibility click',
     async (key) => {
       const onChange = vi.fn()
-      const screen = render(() => <Switch label="Keyboard" onChange={onChange} />)
+      const screen = render(() => <Switch label="Keyboard" onCheckedChange={onChange} />)
       const switchInput = screen.getByRole('switch', { name: 'Keyboard' })
 
       fireEvent.keyDown(switchInput, { key })
@@ -99,7 +99,7 @@ describe('Switch', () => {
     }
     const screen = render(() => (
       <FieldProvider value={{ binding }}>
-        <Switch label="Bound switch" onChange={onChange} />
+        <Switch label="Bound switch" onCheckedChange={onChange} />
       </FieldProvider>
     ))
     const track = screen.getByRole('switch', { name: 'Bound switch' })
@@ -150,7 +150,7 @@ describe('Switch', () => {
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Switch disabled label="Disabled" onChange={onChange} />)
+    const screen = render(() => <Switch disabled label="Disabled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Disabled' })
     expect(switchInput.getAttribute('aria-disabled')).toBe('true')
 
@@ -175,9 +175,9 @@ describe('Switch', () => {
     expect(input?.getAttribute('required')).not.toBeNull()
   })
 
-  test('keeps controlled state while emitting onChange', async () => {
+  test('keeps controlled state while emitting onCheckedChange', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Switch checked label="Controlled" onChange={onChange} />)
+    const screen = render(() => <Switch checked label="Controlled" onCheckedChange={onChange} />)
     const switchInput = screen.getByRole('switch', { name: 'Controlled' })
 
     fireEvent.click(switchInput)
@@ -192,7 +192,9 @@ describe('Switch', () => {
 
   test('does not toggle a controlled readOnly switch', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Switch checked readOnly label="Readonly" onChange={onChange} />)
+    const screen = render(() => (
+      <Switch checked readOnly label="Readonly" onCheckedChange={onChange} />
+    ))
     const switchInput = screen.getByRole('switch', { name: 'Readonly' })
 
     expect(switchInput.getAttribute('aria-readonly')).toBe('true')
@@ -209,7 +211,7 @@ describe('Switch', () => {
   test('does not toggle an uncontrolled readOnly switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Switch readOnly label="Readonly uncontrolled" onChange={onChange} />
+      <Switch readOnly label="Readonly uncontrolled" onCheckedChange={onChange} />
     ))
     const switchInput = screen.getByRole('switch', {
       name: 'Readonly uncontrolled',
@@ -227,7 +229,13 @@ describe('Switch', () => {
   test('maps custom numeric values for controlled switch', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Switch checked={1} trueValue={1} falseValue={0} label="Visibility" onChange={onChange} />
+      <Switch
+        checked={1}
+        trueValue={1}
+        falseValue={0}
+        label="Visibility"
+        onCheckedChange={onChange}
+      />
     ))
     const switchInput = screen.getByRole('switch', { name: 'Visibility' })
 
@@ -299,7 +307,7 @@ describe('Switch', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <Switch name="enabled" defaultChecked={false} label="Enabled" onChange={onChange} />
+        <Switch name="enabled" defaultChecked={false} label="Enabled" onCheckedChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -325,7 +333,7 @@ describe('Switch', () => {
           label="Visibility"
           name="visibility"
           trueValue={1}
-          onChange={onChange}
+          onCheckedChange={onChange}
         />
       </form>
     ))
@@ -381,7 +389,9 @@ describe('Switch', () => {
   test('runs the caller click handler before toggling and respects cancellation', async () => {
     const onChange = vi.fn()
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
-    const screen = render(() => <Switch label="Canceled" onChange={onChange} onClick={onClick} />)
+    const screen = render(() => (
+      <Switch label="Canceled" onCheckedChange={onChange} onClick={onClick} />
+    ))
     const switchInput = screen.getByRole('switch', { name: 'Canceled' })
 
     fireEvent.click(switchInput, { shiftKey: true })

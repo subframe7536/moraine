@@ -41,7 +41,7 @@ export function GroupedItems() {
         placeholder="Select permissions..."
         items={PERMISSION_GROUPS}
         value={selected()}
-        onChange={setSelected}
+        onValueChange={setSelected}
         search
         openOnControlClick
         allowClear

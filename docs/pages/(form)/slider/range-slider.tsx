@@ -10,12 +10,12 @@ export function RangeSlider() {
     <div class="max-w-xl space-y-3">
       <Checkbox
         checked={allowThumbCrossing()}
-        onChange={setAllowThumbCrossing}
+        onCheckedChange={setAllowThumbCrossing}
         label="Allow dragging across overlapping thumbs"
       />
       <Checkbox
         checked={minStepsBetweenThumbs() > 0}
-        onChange={(isChecked) => setMinStepsBetweenThumbs(isChecked ? 10 : 0)}
+        onCheckedChange={(isChecked) => setMinStepsBetweenThumbs(isChecked ? 10 : 0)}
         label="Min steps between thumbs"
       />
       <Slider

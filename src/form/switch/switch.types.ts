@@ -99,7 +99,7 @@ export namespace SwitchT {
     /**
      * Callback when the switch state changes.
      */
-    onChange?: (value: TTrue | TFalse) => void
+    onCheckedChange?: (value: TTrue | TFalse) => void
   }
 
   /**

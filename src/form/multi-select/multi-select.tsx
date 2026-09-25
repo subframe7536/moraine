@@ -517,9 +517,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={local.value}
       defaultValue={local.defaultValue}
-      onChange={(values) => {
+      onValueChange={(values) => {
         search.setQuery('')
-        local.onChange?.(values)
+        local.onValueChange?.(values)
       }}
       onReset={() => {
         search.setQuery('')

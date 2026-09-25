@@ -52,7 +52,7 @@ describe('published declarations', () => {
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
     expect(namespace('SelectT')).toContain(
-      "onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void",
+      "onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void",
     )
     expect(
       readFileSync(resolve(dist, 'form/base-select/base-select.types.d.mts'), 'utf8'),

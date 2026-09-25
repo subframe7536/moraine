@@ -8,7 +8,7 @@ export function StateForms() {
     <div class="max-w-md w-full space-y-3">
       <Switch
         checked={enabled()}
-        onChange={setEnabled}
+        onCheckedChange={setEnabled}
         label="Airplane mode"
         description="Disable all wireless connections."
       />

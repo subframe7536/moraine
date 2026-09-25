@@ -228,7 +228,7 @@ export function DocsPlaygroundControlField(props: {
           label={props.control.label}
           size="sm"
           checked={Boolean(props.value)}
-          onChange={props.onChange}
+          onCheckedChange={props.onChange}
         />
       </Match>
       <Match when={props.control.kind === 'select'}>
@@ -244,7 +244,7 @@ export function DocsPlaygroundControlField(props: {
                 size="sm"
                 items={[...selectControl.options]}
                 value={props.value as string | number}
-                onChange={(val) => {
+                onValueChange={(val) => {
                   if (val !== null) {
                     props.onChange(val)
                   }

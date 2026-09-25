@@ -97,7 +97,7 @@ describe('RadioGroup', () => {
   test('supports uncontrolled selection changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <RadioGroup items={['A', 'B']} defaultValue="A" onChange={onChange} />
+      <RadioGroup items={['A', 'B']} defaultValue="A" onValueChange={onChange} />
     ))
 
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
@@ -116,7 +116,7 @@ describe('RadioGroup', () => {
   test('changes selection with keyboard navigation', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onChange={onChange} />
+      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
 
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
@@ -141,7 +141,7 @@ describe('RadioGroup', () => {
   test('does not wrap selection when loop is false', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <RadioGroup items={['A', 'B']} defaultValue="A" loop={false} onChange={onChange} />
+      <RadioGroup items={['A', 'B']} defaultValue="A" loop={false} onValueChange={onChange} />
     ))
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
@@ -162,7 +162,7 @@ describe('RadioGroup', () => {
 
   test('selects with Space on keyup and ignores Enter', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <RadioGroup items={['A', 'B']} onChange={onChange} />)
+    const screen = render(() => <RadioGroup items={['A', 'B']} onValueChange={onChange} />)
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
 
     radioA.focus()
@@ -252,7 +252,7 @@ describe('RadioGroup', () => {
   test('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onChange={onChange} />
+      <RadioGroup items={['A', 'B', 'C']} defaultValue="A" onValueChange={onChange} />
     ))
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
@@ -316,7 +316,9 @@ describe('RadioGroup', () => {
 
   test('keeps controlled value until parent updates', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <RadioGroup items={['A', 'B']} value="A" onChange={onChange} />)
+    const screen = render(() => (
+      <RadioGroup items={['A', 'B']} value="A" onValueChange={onChange} />
+    ))
 
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
@@ -344,7 +346,7 @@ describe('RadioGroup', () => {
       (form) => (
         <form.Form>
           <form.Field name="plan" label="Plan">
-            <RadioGroup value={value()} items={['A', 'B']} onChange={onChange} />
+            <RadioGroup value={value()} items={['A', 'B']} onValueChange={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -378,7 +380,7 @@ describe('RadioGroup', () => {
       (form) => (
         <form.Form>
           <form.Field name="plan" label="Plan">
-            <RadioGroup items={['A', 'B']} onChange={onChange} />
+            <RadioGroup items={['A', 'B']} onValueChange={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -401,7 +403,7 @@ describe('RadioGroup', () => {
             { value: 'same', label: 'First', description: 'First description' },
             { value: 'same', label: 'Second', description: 'Second description' },
           ]}
-          onChange={onChange}
+          onValueChange={onChange}
         />
       </form>
     ))
@@ -629,7 +631,7 @@ describe('RadioGroup', () => {
         variant="card"
         items={['A', 'B']}
         onClick={(event: MouseEvent) => event.preventDefault()}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
 
@@ -641,7 +643,7 @@ describe('RadioGroup', () => {
       <RadioGroup
         variant="card"
         items={[{ value: 'A', label: <button type="button">Details</button> }]}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     fireEvent.click(nested.getByRole('button', { name: 'Details' }))
@@ -658,7 +660,7 @@ describe('RadioGroup', () => {
           required
           defaultValue={defaultValue()}
           items={['A', 'B']}
-          onChange={onChange}
+          onValueChange={onChange}
         />
       </form>
     ))
@@ -720,7 +722,7 @@ describe('RadioGroup', () => {
   test('sets aria-readonly and prevents changes when readOnly', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <RadioGroup items={['Dogs', 'Cats', 'Dragons']} readOnly onChange={onChange} />
+      <RadioGroup items={['Dogs', 'Cats', 'Dragons']} readOnly onValueChange={onChange} />
     ))
 
     const group = screen.getByRole('radiogroup')

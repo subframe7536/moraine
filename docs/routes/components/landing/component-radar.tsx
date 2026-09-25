@@ -98,7 +98,7 @@ export function ComponentRadar() {
                       label="Automatic caching"
                       description="Persist query responses"
                       checked={switchVal()}
-                      onChange={setSwitchVal}
+                      onCheckedChange={setSwitchVal}
                     />
                   </div>
                   <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">

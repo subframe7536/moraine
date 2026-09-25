@@ -170,7 +170,7 @@ describe('Combobox', () => {
         defaultValue="apple"
         defaultOpen
         onSearch={onSearch}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox') as HTMLInputElement
@@ -405,7 +405,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
         defaultValue="Apple"
         defaultOpen
         allowClear
-        onChange={onChange}
+        onValueChange={onChange}
       />
     </form>
   ))
@@ -459,7 +459,12 @@ test('filters normalized string items and commits a keyboard selection', () => {
   )
   const onChange = vi.fn()
   const screen = render(() => (
-    <Combobox items={['Apple', 'Banana']} defaultOpen filterItem={filterItem} onChange={onChange} />
+    <Combobox
+      items={['Apple', 'Banana']}
+      defaultOpen
+      filterItem={filterItem}
+      onValueChange={onChange}
+    />
   ))
   const input = screen.getByRole('combobox')
   fireEvent.input(input, { target: { value: 'ban' } })

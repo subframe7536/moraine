@@ -69,7 +69,7 @@ export function LandingPage() {
           <button
             type="button"
             onClick={handleCopy}
-            class={`group mt-5 px-3 py-1 text-left text-xl border border-border/80 rounded-lg bg-card/90 inline-flex gap-3.5 cursor-pointer select-none transition-colors items-center hover:border-border hover:bg-card ${linkFocus}`}
+            class={`group text-xl mt-5 px-3 py-1 text-left border border-border/80 rounded-lg bg-card/90 inline-flex gap-3.5 cursor-pointer select-none transition-colors items-center hover:border-border hover:bg-card ${linkFocus}`}
             aria-label="Copy install command"
             title={copied() ? 'Copied to clipboard' : 'Click to copy'}
           >

@@ -29,17 +29,17 @@ export function CustomizationLayers() {
           <Checkbox
             label="Layer 2: MoraineProvider Theme"
             checked={useTheme()}
-            onChange={setUseTheme}
+            onCheckedChange={setUseTheme}
           />
           <Checkbox
             label="Layer 3: Instance classes={{ label: '...' }}"
             checked={useInstanceClasses()}
-            onChange={setUseInstanceClasses}
+            onCheckedChange={setUseInstanceClasses}
           />
           <Checkbox
             label="Layer 4: Direct class on element"
             checked={useDirectClass()}
-            onChange={setUseDirectClass}
+            onCheckedChange={setUseDirectClass}
           />
         </div>
       </div>

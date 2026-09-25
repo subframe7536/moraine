@@ -21,7 +21,7 @@ export function CreateNewTags() {
         search
         items={INITIAL_TOPICS}
         value={tags()}
-        onChange={setTags}
+        onValueChange={setTags}
         createItem={(input) => ({ value: input.trim().toLowerCase(), label: input.trim() })}
         tokenSeparators={[',', ';']}
         placeholder="Type to create or select..."

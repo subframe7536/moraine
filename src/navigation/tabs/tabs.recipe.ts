@@ -12,7 +12,7 @@ export const tabsDataAttributes = {
 
 export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariant>('tabs', {
   base: {
-    root: 'flex gap-2',
+    root: '',
     list: 'p-1 inline-flex items-center relative',
     indicator: 'rounded-md transition-transform absolute',
     trigger:

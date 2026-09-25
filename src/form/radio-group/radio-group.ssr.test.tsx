@@ -71,7 +71,7 @@ describe('RadioGroup SSR Hydration', () => {
             reads.indicator += 1
             return 'start' as const
           },
-          onChange: setValue,
+          onValueChange: setValue,
         }),
     )
 

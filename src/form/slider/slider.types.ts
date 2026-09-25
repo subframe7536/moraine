@@ -93,7 +93,7 @@ export namespace SliderT {
     /**
      * Callback when the slider selection change is committed.
      */
-    onChange?: (value: TValue) => void
+    onValueCommit?: (value: TValue) => void
   }
 
   /**

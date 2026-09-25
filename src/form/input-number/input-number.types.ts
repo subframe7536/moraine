@@ -78,7 +78,7 @@ export namespace InputNumberT {
     /**
      * Callback when the formatted string value changes.
      */
-    onChange?: (value: string) => void
+    onValueChange?: (value: string) => void
 
     /**
      * Callback when the numeric value changes.

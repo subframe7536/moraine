@@ -125,7 +125,7 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onChange",
+          "name": "onCheckedChange",
           "optional": true,
           "type": "(value: TTrue | TFalse) => void",
           "description": "Callback when the switch state changes."

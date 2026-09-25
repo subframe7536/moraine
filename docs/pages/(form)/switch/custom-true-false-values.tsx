@@ -12,7 +12,7 @@ export function CustomTrueFalseValues() {
         trueValue="enabled"
         falseValue="disabled"
         checked={deploymentGuard()}
-        onChange={setDeploymentGuard}
+        onCheckedChange={setDeploymentGuard}
         checkedIcon="i-lucide-check-check"
         uncheckedIcon="i-lucide-x"
       />

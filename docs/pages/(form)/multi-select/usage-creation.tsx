@@ -8,7 +8,7 @@ export function UsageCreation() {
     <div class="max-w-md w-full space-y-2">
       <MultiSelect
         value={tags()}
-        onChange={setTags}
+        onValueChange={setTags}
         createItem={(input) => ({ label: input.trim(), value: input.trim().toLowerCase() })}
         tokenSeparators={[',', ' ']}
         placeholder="Type and press Enter, comma, or space..."

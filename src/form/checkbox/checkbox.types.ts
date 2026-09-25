@@ -70,7 +70,7 @@ export namespace CheckboxT {
     fieldBind?: boolean
 
     /** Callback when the checked state changes. */
-    onChange?: (value: TTrue | TFalse) => void
+    onCheckedChange?: (value: TTrue | TFalse) => void
 
     /**
      * Whether the checkbox is in an indeterminate state.

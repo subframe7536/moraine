@@ -96,7 +96,7 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onChange",
+          "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
           "description": "Callback when the selected values change."

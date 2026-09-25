@@ -12,7 +12,7 @@ export function Values() {
           <span>Single volume</span>
           <span class="text-foreground font-mono">{singleVal()}%</span>
         </div>
-        <Slider value={singleVal()} onChange={setSingleVal} />
+        <Slider value={singleVal()} onValueChange={setSingleVal} />
       </div>
 
       <div class="space-y-2">
@@ -22,7 +22,7 @@ export function Values() {
             ${rangeVal()[0]} - ${rangeVal()[1]}
           </span>
         </div>
-        <Slider value={rangeVal()} onChange={setRangeVal} />
+        <Slider value={rangeVal()} onValueChange={setRangeVal} />
       </div>
     </div>
   )

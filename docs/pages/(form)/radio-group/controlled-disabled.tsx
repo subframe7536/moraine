@@ -18,7 +18,7 @@ export function ControlledDisabled() {
           { value: 'enterprise', label: 'Enterprise', description: 'For regulated workloads' },
         ]}
         value={value()}
-        onChange={setValue}
+        onValueChange={setValue}
         variant="table"
         orientation="horizontal"
       />

@@ -5,19 +5,18 @@ import {
   createEffect,
   createMemo,
   mergeProps,
-  on,
   onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
+import { useFormValue } from '../shared/use-form-value.ts'
 
 import { checkboxGroupDataAttributes, checkboxGroupRecipe } from './checkbox-group.recipe'
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
@@ -91,7 +90,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'indicator',
     'checkedIcon',
     'indeterminateIcon',
-    'onChange',
+    'onValueChange',
     'variant',
     'orientation',
     'size',
@@ -117,11 +116,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   const initialDefaultValue = untrack(() =>
     Array.isArray(merged.defaultValue) ? merged.defaultValue.slice() : [],
   )
-  const [selectedValues, setSelectedValues] = useControllableValue<string[]>({
-    value: () => (Array.isArray(merged.value) ? merged.value : undefined),
-    defaultValue: () => initialDefaultValue,
-  })
-
   const groupId = useId(() => merged.id, 'checkbox-group')
   const field = useFormField(
     () => ({
@@ -138,6 +132,14 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       initialValue: initialDefaultValue,
     }),
   )
+
+  const [selectedValues, setSelectedValues, resetSelectedValues] = useFormValue<string[]>({
+    value: () => (Array.isArray(merged.value) ? merged.value : undefined),
+    defaultValue: () => initialDefaultValue,
+    onValueChange: (val) => merged.onValueChange?.(val),
+    field,
+    isEqual: (a, b) => a.length === b.length && a.every((v, i) => v === b[i]),
+  })
 
   let fieldsetEl: HTMLFieldSetElement | undefined
 
@@ -193,19 +195,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     hasIndeterminateItem() ? merged.indeterminateIcon : undefined,
   )
 
-  const controlledValueSnapshot = () => {
-    const value = merged.value
-    return Array.isArray(value) ? value.slice() : value
-  }
-
-  createEffect(
-    on([field.path, controlledValueSnapshot], ([, value]) => {
-      if (value !== undefined) {
-        field.setFormValue(Array.isArray(value) ? value : [])
-      }
-    }),
-  )
-
   function onItemCheckedChange(value: string, checked: boolean): void {
     const currentValues = selectedValues()
     const isSelected = currentValues.includes(value)
@@ -219,18 +208,12 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       : currentValues.filter((itemValue) => itemValue !== value)
 
     setSelectedValues(nextValues)
-
-    field.setFormValue(nextValues.slice())
-    merged.onChange?.(nextValues.slice())
-    field.emit('change')
-    field.emit('input')
   }
 
   useFormReset(
     () => fieldsetEl?.closest('form'),
     () => {
-      setSelectedValues(initialDefaultValue.slice())
-      field.setFormValue(selectedValues().slice())
+      resetSelectedValues()
     },
   )
 
@@ -364,7 +347,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                   label: resolved.styles.label.style,
                   description: resolved.styles.description.style,
                 }}
-                onChange={(checked) => onItemCheckedChange(item().value, checked)}
+                onCheckedChange={(checked) => onItemCheckedChange(item().value, checked)}
               />
             )
           }}

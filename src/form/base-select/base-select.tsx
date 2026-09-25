@@ -160,7 +160,7 @@ function createSelectState<T extends BaseSelectT.Item>(
     if (props.value === undefined) {
       field.setFormValue(selectionToFormValue(after, props.multiple === true))
     }
-    props.onChange?.(after)
+    props.onValueChange?.(after)
     if (props.value !== undefined) {
       field.setFormValue(selectionToFormValue(normalize(props.value), props.multiple === true))
     }

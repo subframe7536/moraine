@@ -69,7 +69,7 @@ export function AnimationExplorer() {
               value: opt.value,
             }))}
             value={selected()}
-            onChange={(val) => {
+            onValueChange={(val) => {
               if (val) {
                 setSelected(val)
                 replay()

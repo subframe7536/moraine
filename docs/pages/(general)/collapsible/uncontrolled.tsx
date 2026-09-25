@@ -6,7 +6,7 @@ export function Uncontrolled() {
 
   return (
     <div class="max-w-xs w-full space-y-3">
-      <Switch label="Transition" checked={transition()} onChange={setTransition} />
+      <Switch label="Transition" checked={transition()} onCheckedChange={setTransition} />
 
       <div class="h-40">
         <Card

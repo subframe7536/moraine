@@ -9,16 +9,16 @@ import {
   on,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
+import { useFormValue } from '../shared/use-form-value.ts'
 
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
@@ -255,13 +255,14 @@ function constrainSingleFile(accepted: File[]): {
 }
 
 /** Drag-and-drop file upload component with progress tracking and file list management. */
-export function FileUpload<T extends ValidComponent = 'div'>(
-  props: FileUploadProps<T>,
+export function FileUpload<Multiple extends boolean = false>(
+  props: FileUploadProps<Multiple>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'as',
     'id',
     'name',
+    'value',
+    'defaultValue',
     'required',
     'disabled',
     'readOnly',
@@ -312,6 +313,13 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   const preview = createMemo(() => merged.preview)
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
+  const initialDefaultValue = untrack(() => {
+    if (local.defaultValue !== undefined) {
+      return local.defaultValue
+    }
+    return (merged.multiple ? [] : null) as FileUploadT.Value<Multiple>
+  })
+
   const generatedId = useId(() => merged.id, 'file-upload')
   const field = useFormField(
     () => ({
@@ -324,14 +332,46 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }),
     () => ({
       defaultId: generatedId(),
-      initialValue: merged.multiple ? [] : null,
+      initialValue: initialDefaultValue,
     }),
   )
+
+  const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<Multiple>>({
+    value: () => local.value,
+    defaultValue: () => initialDefaultValue,
+    onValueChange: (val) => merged.onValueChange?.(val),
+    field,
+    fallback: initialDefaultValue,
+    isEqual: (a, b) => {
+      if (Array.isArray(a) && Array.isArray(b)) {
+        return a.length === b.length && a.every((file, i) => file === b[i])
+      }
+      return a === b
+    },
+  })
 
   let hiddenInputEl: HTMLInputElement | undefined
   let controlEl: HTMLElement | undefined
 
-  const [selectedFiles, setSelectedFiles] = createSignal<File[]>([])
+  const selectedFiles = createMemo<File[]>(() => {
+    const val = formValue()
+    if (Array.isArray(val)) {
+      return val.filter(
+        (item): item is File => item !== null && item !== undefined && typeof item === 'object',
+      )
+    }
+    if (val !== null && val !== undefined && typeof val === 'object') {
+      return [val]
+    }
+    return []
+  })
+
+  createEffect(
+    on(selectedFiles, (files) => {
+      syncNativeInputFiles(hiddenInputEl, files)
+    }),
+  )
+
   const [dragging, setDragging] = createSignal(false)
   const [nativeInvalid, setNativeInvalid] = createSignal(false)
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
@@ -368,28 +408,18 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     return merged.multiple ? Number.POSITIVE_INFINITY : 1
   })
 
-  function resolveValue(files: File[]): FileUploadT.Value {
+  function resolveValue(files: File[]): FileUploadT.Value<Multiple> {
     if (merged.multiple) {
-      return [...files]
+      return [...files] as FileUploadT.Value<Multiple>
     }
 
-    return files[0] ?? null
-  }
-
-  function emitValueChange(files: File[]): void {
-    const nextValue = resolveValue(files)
-
-    field.setFormValue(nextValue)
-    merged.onValueChange?.(nextValue)
-    field.emit('change')
-    field.emit('input')
+    return (files[0] ?? null) as FileUploadT.Value<Multiple>
   }
 
   function commitSelectedFiles(files: File[]): void {
-    setSelectedFiles(files)
     setNativeInvalid(false)
-    syncNativeInputFiles(hiddenInputEl, files)
-    emitValueChange(files)
+    const nextValue = resolveValue(files)
+    setFormValue(nextValue)
   }
 
   function setControlElement(element: HTMLElement): void {
@@ -550,9 +580,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     () => {
       setDragging(false)
       setNativeInvalid(false)
-      setSelectedFiles([])
-      syncNativeInputFiles(hiddenInputEl, [])
-      field.setFormValue(merged.multiple ? [] : null)
+      resetFormValue()
     },
   )
 
@@ -651,12 +679,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   }
 
   return (
-    <Dynamic
+    <div
       {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
       aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
-      disabled={field.disabled()}
+      aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({
         disabled: field.disabled,
@@ -665,7 +693,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         invalid,
       })}
       id={`${field.id()}-root`}
-      component={local.as ?? 'div'}
       {...resolved.styles.root}
     >
       <Show
@@ -721,6 +748,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         ref={(element) => {
           hiddenInputEl = element
           callRef(local.inputRef, element)
+          syncNativeInputFiles(element, selectedFiles())
         }}
         name={field.name()}
         accept={merged.accept}
@@ -776,6 +804,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           </For>
         </ul>
       </Show>
-    </Dynamic>
+    </div>
   )
 }

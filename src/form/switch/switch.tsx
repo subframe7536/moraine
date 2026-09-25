@@ -41,7 +41,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'uncheckedIcon',
     'label',
     'description',
-    'onChange',
+    'onCheckedChange',
     'onPointerDown',
     'size',
     'classes',
@@ -157,13 +157,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     ),
   )
 
-  function onChange(nextChecked: boolean): void {
+  function handleCheckedChange(nextChecked: boolean): void {
     const nextValue = nextChecked ? (merged.trueValue as TTrue) : (merged.falseValue as TFalse)
 
     setChecked(nextChecked)
 
     field.setFormValue(nextValue)
-    merged.onChange?.(nextValue)
+    merged.onCheckedChange?.(nextValue)
     field.emit('change')
     field.emit('input')
   }
@@ -197,7 +197,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    onChange(!checked())
+    handleCheckedChange(!checked())
   }
 
   useFormReset(
@@ -302,7 +302,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             return
           }
 
-          onChange(event.currentTarget.checked)
+          handleCheckedChange(event.currentTarget.checked)
           event.currentTarget.checked = checked()
         }}
       />

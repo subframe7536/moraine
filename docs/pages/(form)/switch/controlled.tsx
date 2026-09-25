@@ -17,7 +17,7 @@ export function Controlled() {
         label="Deploy protection"
         description={`Current: ${checked() ? 'enabled' : 'disabled'}`}
         checked={checked()}
-        onChange={setChecked}
+        onCheckedChange={setChecked}
         checkedIcon="i-lucide-shield-check"
         uncheckedIcon="i-lucide-shield"
       />

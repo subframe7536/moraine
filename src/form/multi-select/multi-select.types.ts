@@ -93,7 +93,7 @@ export namespace MultiSelectT {
     /** Source items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem['value'][]>) => void
+    onValueChange?: (value: NoInfer<TItem['value'][]>) => void
     /**
      * Show a clear button when a value is selected.
      * @default false

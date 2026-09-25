@@ -20,7 +20,7 @@ export function UsageValue() {
         leadingIcon="i-lucide:globe"
         items={COUNTRIES}
         value={selected()}
-        onChange={setSelected}
+        onValueChange={setSelected}
         allowClear
       />
       <div class="text-xs flex items-center justify-between">

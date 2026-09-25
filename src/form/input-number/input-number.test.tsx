@@ -250,7 +250,7 @@ describe('InputNumber', () => {
         defaultValue={10}
         maxValue={10}
         wheel
-        onChange={onChange}
+        onValueChange={onChange}
         onRawValueChange={onRawValueChange}
       />
     ))
@@ -639,7 +639,7 @@ describe('InputNumber', () => {
         rawValue={13.5}
         locale="de-DE"
         onRawValueChange={(value) => calls.push(`raw:${value}`)}
-        onChange={(value) => calls.push(`text:${value}`)}
+        onValueChange={(value) => calls.push(`text:${value}`)}
       />
     ))
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -727,7 +727,7 @@ describe('InputNumber', () => {
         <InputNumber
           name="quantity"
           defaultValue={defaultValue()}
-          onChange={onChange}
+          onValueChange={onChange}
           onRawValueChange={onRawValueChange}
         />
       </form>
@@ -757,7 +757,7 @@ describe('InputNumber', () => {
         <InputNumber
           value={value()}
           defaultValue={1}
-          onChange={onChange}
+          onValueChange={onChange}
           onRawValueChange={onRawValueChange}
         />
       </form>

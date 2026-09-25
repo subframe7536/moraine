@@ -32,7 +32,7 @@ export type SelectFamilyPropAliases = [
 ]
 ;<BaseSelect<UserItem>
   items={items}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const numbers: number[] = value
     void numbers
   }}
@@ -41,7 +41,7 @@ export type SelectFamilyPropAliases = [
 ;<BaseSelect<UserItem>
   items={items}
   multiple
-  onChange={(values) => {
+  onValueChange={(values) => {
     const numbers: number[] = values
     void numbers
   }}
@@ -165,7 +165,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
     }
     return null
   }}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const number: number | null = value
     void number
   }}
@@ -228,7 +228,7 @@ export type StringItemNormalization = [
 const stringItems: string[] = ['Apple', 'Banana']
 ;<Select
   items={stringItems}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const text: string | null = value
     void text
   }}
@@ -237,7 +237,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Combobox
   items={stringItems}
   filterItem={(query, item) => item.value.includes(query)}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const text: string | null = value
     void text
   }}
@@ -245,7 +245,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Select<string | UserItem>
   items={['Apple', ...items, { type: 'group', label: 'Mixed', items: ['Banana', ...items] }]}
   itemRender={({ item }) => ('email' in item ? item.email : item.label)}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const mixed: string | number | null = value
     void mixed
   }}
@@ -253,7 +253,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Combobox<'Apple' | 'Banana'>
   items={['Apple', 'Banana']}
   value="Apple"
-  onChange={(value) => {
+  onValueChange={(value) => {
     const literal: 'Apple' | 'Banana' | null = value
     void literal
   }}
@@ -267,7 +267,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 
 ;<Select
   items={['Apple', { value: 1, label: 'One', email: 'one@example.com' }]}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const mixed: string | number | null = value
     void mixed
   }}

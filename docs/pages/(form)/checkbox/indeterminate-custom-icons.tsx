@@ -36,7 +36,7 @@ export function IndeterminateCustomIcons() {
         label="Production deployment checklist"
         description={`${checkedCount()} of ${tasks().length} tasks completed`}
         checked={parentState()}
-        onChange={toggleAll}
+        onCheckedChange={toggleAll}
         checkedIcon="i-lucide:check-check"
         indeterminateIcon="i-lucide:minus"
       />
@@ -48,7 +48,7 @@ export function IndeterminateCustomIcons() {
               size="sm"
               label={task.label}
               checked={task.checked}
-              onChange={() => toggleTask(task.id)}
+              onCheckedChange={() => toggleTask(task.id)}
             />
           )}
         </For>

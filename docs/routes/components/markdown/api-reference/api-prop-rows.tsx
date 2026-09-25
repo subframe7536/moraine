@@ -8,7 +8,7 @@ import { DOCS_INLINE_CODE_CLASS } from '../markdown.class.ts'
 export type PropDoc = PresentationPropItem
 
 export const REFERENCE_ROOT_CLASS =
-  'mt-3 mb-6 border border-border/60 bg-card/20 overflow-hidden [content-visibility:auto]'
+  'mt-3 mb-6 border border-border/60 bg-card/20 overflow-hidden [content-visibility:auto] rounded-lg'
 
 export const PROP_GRID_CLASS =
   'grid grid-cols-[minmax(0,1fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem]'

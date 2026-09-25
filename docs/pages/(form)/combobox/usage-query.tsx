@@ -19,7 +19,7 @@ export function UsageQuery() {
       <Combobox
         items={FRAMEWORKS}
         value={selected()}
-        onChange={setSelected}
+        onValueChange={setSelected}
         searchValue={query()}
         onSearch={setQuery}
         placeholder="Search framework..."

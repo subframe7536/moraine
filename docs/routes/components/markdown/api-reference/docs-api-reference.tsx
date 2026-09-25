@@ -82,7 +82,7 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
           >
             <For each={reference().parts}>
               {(part) => (
-                <section class="border-t border-border/40 first:mt-4 first:pt-0 first:border-0">
+                <section>
                   <HeadingWithAnchor id={part.id} level={3}>
                     {part.shortHeading}
                   </HeadingWithAnchor>

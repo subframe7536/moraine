@@ -81,7 +81,7 @@ describe('Checkbox', () => {
 
   test('toggles once from the native Space sequence and never from Enter', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Checkbox label="Keyboard" onChange={onChange} />)
+    const screen = render(() => <Checkbox label="Keyboard" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Keyboard' })
 
     fireEvent.keyDown(checkbox, { key: ' ' })
@@ -180,7 +180,7 @@ describe('Checkbox', () => {
     const screen = render(() => (
       <Checkbox
         label="Canceled"
-        onChange={onChange}
+        onCheckedChange={onChange}
         onClick={(event: MouseEvent) => event.preventDefault()}
       />
     ))
@@ -193,7 +193,7 @@ describe('Checkbox', () => {
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Checkbox disabled label="Disabled" onChange={onChange} />)
+    const screen = render(() => <Checkbox disabled label="Disabled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Disabled' })
     const control = screen.container.querySelector('[data-slot="checkbox-control"]') as HTMLElement
 
@@ -278,10 +278,10 @@ describe('Checkbox', () => {
     expect(control?.getAttribute('data-required')).toBe('')
   })
 
-  test('keeps controlled state while emitting onChange', async () => {
+  test('keeps controlled state while emitting onCheckedChange', async () => {
     const onChange = vi.fn()
 
-    const screen = render(() => <Checkbox checked label="Controlled" onChange={onChange} />)
+    const screen = render(() => <Checkbox checked label="Controlled" onCheckedChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Controlled' })
 
     fireEvent.click(checkbox)
@@ -296,7 +296,9 @@ describe('Checkbox', () => {
 
   test('does not toggle a controlled readonly checkbox', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Checkbox checked readOnly label="Readonly" onChange={onChange} />)
+    const screen = render(() => (
+      <Checkbox checked readOnly label="Readonly" onCheckedChange={onChange} />
+    ))
     const checkbox = screen.getByRole('checkbox', { name: 'Readonly' })
 
     expect(checkbox.getAttribute('aria-readonly')).toBe('true')
@@ -315,7 +317,7 @@ describe('Checkbox', () => {
   test('does not toggle an uncontrolled readonly checkbox', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Checkbox readOnly label="Readonly uncontrolled" onChange={onChange} />
+      <Checkbox readOnly label="Readonly uncontrolled" onCheckedChange={onChange} />
     ))
     const checkbox = screen.getByRole('checkbox', {
       name: 'Readonly uncontrolled',
@@ -341,7 +343,7 @@ describe('Checkbox', () => {
         trueValue="active"
         falseValue="inactive"
         label="Status"
-        onChange={onChange}
+        onCheckedChange={onChange}
       />
     ))
     const checkbox = screen.getByRole('checkbox', { name: 'Status' })
@@ -417,7 +419,12 @@ describe('Checkbox', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <Checkbox checked defaultChecked={false} label="Controlled reset" onChange={onChange} />
+        <Checkbox
+          checked
+          defaultChecked={false}
+          label="Controlled reset"
+          onCheckedChange={onChange}
+        />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -553,7 +560,9 @@ describe('Checkbox', () => {
     ['disabled button', <button disabled>Disabled action</button>],
   ])('does not toggle a card from a nested %s', async (_name, content) => {
     const onChange = vi.fn()
-    const screen = render(() => <Checkbox variant="card" label={content} onChange={onChange} />)
+    const screen = render(() => (
+      <Checkbox variant="card" label={content} onCheckedChange={onChange} />
+    ))
     const target = screen.container.querySelector(
       '[data-slot="checkbox-label"] a, [data-slot="checkbox-label"] button, [data-slot="checkbox-label"] input',
     ) as HTMLElement
@@ -566,7 +575,9 @@ describe('Checkbox', () => {
 
   test('ignores non-primary synthetic card clicks', () => {
     const onChange = vi.fn()
-    const screen = render(() => <Checkbox variant="card" label="Secondary" onChange={onChange} />)
+    const screen = render(() => (
+      <Checkbox variant="card" label="Secondary" onCheckedChange={onChange} />
+    ))
     const root = screen.container.querySelector('[data-slot="checkbox"]')!
 
     root.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 2 }))

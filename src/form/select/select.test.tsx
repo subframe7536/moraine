@@ -50,7 +50,7 @@ describe('Select', () => {
 
   test('selects values, closes, and restores trigger focus', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Select items={ITEMS} defaultOpen onChange={onChange} />)
+    const screen = render(() => <Select items={ITEMS} defaultOpen onValueChange={onChange} />)
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
     expect(onChange).toHaveBeenLastCalledWith('banana')
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
@@ -100,7 +100,7 @@ describe('Select', () => {
 
   test('keeps typeahead without exposing search state', () => {
     const onChange = vi.fn()
-    const screen = render(() => <Select items={ITEMS} onChange={onChange} />)
+    const screen = render(() => <Select items={ITEMS} onValueChange={onChange} />)
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
     expect(onChange).toHaveBeenLastCalledWith('banana')
   })
@@ -114,7 +114,7 @@ describe('Select', () => {
           { label: 'One', value: 1 },
         ]}
         value={value()}
-        onChange={setValue}
+        onValueChange={setValue}
       />
     ))
     const displayed = () =>
@@ -361,7 +361,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
         defaultValue="Apple"
         defaultOpen
         allowClear
-        onChange={onChange}
+        onValueChange={onChange}
       />
     </form>
   ))
@@ -411,7 +411,7 @@ test('updates mixed string groups and passes normalized objects to row callbacks
 
 test('supports typeahead with string shorthand', () => {
   const onChange = vi.fn()
-  const screen = render(() => <Select items={['Apple', 'Banana']} onChange={onChange} />)
+  const screen = render(() => <Select items={['Apple', 'Banana']} onValueChange={onChange} />)
   fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')
 })

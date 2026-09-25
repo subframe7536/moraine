@@ -41,7 +41,7 @@ export function PageActions(props: {
         label="Toggle color theme"
         classes={{ wrapper: 'sr-only' }}
         checked={props.theme() === 'dark'}
-        onChange={(next) => props.updateTheme(next ? 'dark' : 'light')}
+        onCheckedChange={(next) => props.updateTheme(next ? 'dark' : 'light')}
         checkedIcon="i-lucide-moon"
         uncheckedIcon="i-lucide-sun"
       />

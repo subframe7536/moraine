@@ -32,7 +32,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'divider',
     'allowThumbCrossing',
     'onValueChange',
-    'onChange',
+    'onValueCommit',
     'orientation',
     'inverted',
     'variant',
@@ -86,7 +86,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     },
     onValueCommit(value) {
       field.setFormValue(value)
-      merged.onChange?.(value)
+      merged.onValueCommit?.(value)
       field.emit('change')
     },
     onFocus(event) {

@@ -42,7 +42,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'items',
   'value',
   'defaultValue',
-  'onChange',
+  'onValueChange',
   'onReset',
   'classes',
   'styles',

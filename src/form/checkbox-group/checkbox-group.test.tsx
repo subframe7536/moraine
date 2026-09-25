@@ -108,7 +108,7 @@ describe('CheckboxGroup', () => {
   test('supports uncontrolled value changes', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onChange={onChange} />
+      <CheckboxGroup items={['A', 'B']} defaultValue={['A']} onValueChange={onChange} />
     ))
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -126,7 +126,7 @@ describe('CheckboxGroup', () => {
 
   test('toggles item with Space key', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <CheckboxGroup items={['A', 'B']} onChange={onChange} />)
+    const screen = render(() => <CheckboxGroup items={['A', 'B']} onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
@@ -226,7 +226,7 @@ describe('CheckboxGroup', () => {
             disabled: true,
           },
         ]}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
 
@@ -245,7 +245,7 @@ describe('CheckboxGroup', () => {
 
   test('does not toggle readonly items', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <CheckboxGroup items={['A']} readOnly onChange={onChange} />)
+    const screen = render(() => <CheckboxGroup items={['A']} readOnly onValueChange={onChange} />)
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
 
@@ -261,7 +261,7 @@ describe('CheckboxGroup', () => {
   test('keeps controlled selection until parent updates', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <CheckboxGroup items={['A', 'B']} value={['A']} onChange={onChange} />
+      <CheckboxGroup items={['A', 'B']} value={['A']} onValueChange={onChange} />
     ))
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
@@ -366,7 +366,7 @@ describe('CheckboxGroup', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <CheckboxGroup name="choices" items={items()} onChange={onChange} />
+        <CheckboxGroup name="choices" items={items()} onValueChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -591,7 +591,7 @@ describe('CheckboxGroup', () => {
           items={['A', 'B']}
           defaultValue={defaultValue()}
           value={controlledValue()}
-          onChange={onChange}
+          onValueChange={onChange}
         />
       </form>
     ))

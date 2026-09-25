@@ -127,7 +127,7 @@ describe('MultiSelect', () => {
   test('tag removal changes once and does not open', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} onChange={onChange} />
+      <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} onValueChange={onChange} />
     ))
     fireEvent.click(screen.getByRole('button', { name: 'Remove Apple' }))
     expect(onChange).toHaveBeenCalledOnce()
@@ -139,7 +139,7 @@ describe('MultiSelect', () => {
     const onSearch = vi.fn()
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={ITEMS} defaultOpen onSearch={onSearch} onChange={onChange} />
+      <MultiSelect search items={ITEMS} defaultOpen onSearch={onSearch} onValueChange={onChange} />
     ))
     const input = screen.getByRole('combobox') as HTMLInputElement
     fireEvent.input(input, { target: { value: 'ba' } })
@@ -156,7 +156,7 @@ describe('MultiSelect', () => {
     }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
+      <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'dragonfruit' } })
@@ -172,7 +172,7 @@ describe('MultiSelect', () => {
     const createItem = vi.fn((input: string) => ({ label: input, value: input }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
+      <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
@@ -185,7 +185,7 @@ describe('MultiSelect', () => {
     const createItem = vi.fn(() => ({ label: 'Duplicate', value: 'apple' }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
+      <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} defaultOpen />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'new label' } })
@@ -202,7 +202,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         items={ITEMS}
         createItem={() => null as unknown as MultiSelectT.Item}
-        onChange={onChange}
+        onValueChange={onChange}
         defaultOpen
       />
     ))
@@ -221,7 +221,7 @@ describe('MultiSelect', () => {
         defaultValue={['apple']}
         maxCount={1}
         defaultOpen
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const options = within(document.body).getAllByRole('option', { hidden: true })
@@ -247,7 +247,7 @@ describe('MultiSelect', () => {
             name="fruit"
             items={items}
             value={values()}
-            onChange={setValues}
+            onValueChange={setValues}
             maxTagCount={maxTagCount()}
           />
         </Field>
@@ -345,7 +345,10 @@ describe('MultiSelect', () => {
   test('creates free-form items with Enter and the default comma separator', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect createItem={(input) => ({ value: input, label: input })} onChange={onChange} />
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        onValueChange={onChange}
+      />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'alpha' } })
@@ -362,7 +365,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={[':', '::', ',', '::']}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox')
@@ -377,7 +380,7 @@ describe('MultiSelect', () => {
         defaultValue={['alpha']}
         createItem={(input) => ({ value: input, label: input })}
         maxCount={2}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox')
@@ -394,7 +397,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={[',', ';']}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox')
@@ -411,7 +414,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={[',']}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox')
@@ -427,7 +430,7 @@ describe('MultiSelect', () => {
     const createItem = vi.fn((input: string) => ({ value: input, label: input }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} />
+      <MultiSelect items={ITEMS} createItem={createItem} onValueChange={onChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'Apple,' } })
@@ -524,7 +527,9 @@ describe('MultiSelect', () => {
 
   test('keeps controlled values authoritative', () => {
     const [value, setValue] = createSignal<string[]>(['missing'])
-    const screen = render(() => <MultiSelect items={ITEMS} value={value()} onChange={setValue} />)
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} value={value()} onValueChange={setValue} />
+    ))
     expect(
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('missing')
@@ -588,7 +593,10 @@ describe('MultiSelect', () => {
   test('pressing Enter on a duplicate tag does not delete previously created tag', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect createItem={(input) => ({ value: input, label: input })} onChange={onChange} />
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        onValueChange={onChange}
+      />
     ))
     const input = screen.getByRole('combobox')
     // 1. Create first tag
@@ -607,7 +615,7 @@ describe('MultiSelect', () => {
   test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={ITEMS} defaultValue={['apple']} onChange={onChange} />
+      <MultiSelect search items={ITEMS} defaultValue={['apple']} onValueChange={onChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'apple' } })
@@ -623,7 +631,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         createItem={(input) => ({ value: input, label: input })}
         defaultValue={['alpha']}
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
     const input = screen.getByRole('combobox')
@@ -635,7 +643,13 @@ describe('MultiSelect', () => {
   test('pressing Enter on a highlighted already-selected option does not deselect it', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={ITEMS} defaultValue={['apple']} onChange={onChange} defaultOpen />
+      <MultiSelect
+        search
+        items={ITEMS}
+        defaultValue={['apple']}
+        onValueChange={onChange}
+        defaultOpen
+      />
     ))
     const input = screen.getByRole('combobox')
     // 'app' matches 'apple', which is already selected
@@ -655,7 +669,7 @@ describe('MultiSelect', () => {
         ]}
         defaultValue={['apple', 'locked']}
         allowClear
-        onChange={onChange}
+        onValueChange={onChange}
       />
     ))
 

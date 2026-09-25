@@ -17,7 +17,7 @@ export function LoadingState() {
     <div class="max-w-md w-full">
       <Switch
         checked={checked()}
-        onChange={handleToggle}
+        onCheckedChange={handleToggle}
         loading={loading()}
         label="Auto-deploy changes"
         description="Trigger production build on git push."

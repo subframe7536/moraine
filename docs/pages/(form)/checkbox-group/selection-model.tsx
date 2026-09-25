@@ -24,7 +24,7 @@ export function SelectionModel() {
         legend="Notification preferences"
         items={NOTIFICATION_OPTIONS}
         value={selected()}
-        onChange={setSelected}
+        onValueChange={setSelected}
       />
       <p class="text-xs text-muted-foreground">
         Selected values: <span class="text-foreground font-mono">{JSON.stringify(selected())}</span>

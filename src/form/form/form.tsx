@@ -89,7 +89,6 @@ export function createForm<TSchema extends FormSchema>(
   const BoundField = <T extends ValidComponent = 'div'>(
     props: FormT.FieldProps<TSchema, T>,
   ): JSX.Element => {
-    // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks the path accessor passed to useField.
     const binding = useFormischFieldBinding(
       store,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,

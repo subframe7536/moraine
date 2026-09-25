@@ -78,7 +78,7 @@
     "test:docs": "vitest --run docs/",
     "test:types": "pnpm run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json",
     "test:dev": "vitest",
-    "lint": "oxlint --fix --max-warnings 0",
+    "lint": "oxlint --fix --max-warnings 0 --report-unused-disable-directives",
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
     "oxc": "pnpm run lint && pnpm run format",

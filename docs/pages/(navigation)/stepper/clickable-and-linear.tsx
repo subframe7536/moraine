@@ -31,8 +31,8 @@ export function ClickableVsReadOnly() {
   return (
     <div class="space-y-4">
       <div class="flex flex-wrap gap-4">
-        <Switch checked={clickable()} label="Clickable" onChange={setClickable} />
-        <Switch checked={linear()} label="Linear" onChange={setLinear} />
+        <Switch checked={clickable()} label="Clickable" onCheckedChange={setClickable} />
+        <Switch checked={linear()} label="Linear" onCheckedChange={setLinear} />
       </div>
 
       <Stepper

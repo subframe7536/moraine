@@ -91,7 +91,7 @@ export interface BaseSelectSelection<TValue extends BaseSelectValue> {
   defaultValue?: readonly TValue[]
 
   /** Called when selection changes. */
-  onChange?: (value: TValue[]) => void
+  onValueChange?: (value: TValue[]) => void
 }
 
 /**

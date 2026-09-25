@@ -205,7 +205,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'step',
     'largeStep',
     'locale',
-    'onChange',
+    'onValueChange',
     'onRawValueChange',
     'orientation',
     'placeholder',
@@ -438,7 +438,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
 
     merged.onRawValueChange?.(boundedValue)
-    merged.onChange?.(formatLocaleNumber(boundedValue, merged.locale))
+    merged.onValueChange?.(formatLocaleNumber(boundedValue, merged.locale))
 
     if (controlledValue !== undefined) {
       const latestControlledValue = explicitControlledValue()

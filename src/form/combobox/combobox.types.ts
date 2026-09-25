@@ -70,7 +70,7 @@ export namespace ComboboxT {
     /** String shorthand or object items, optionally grouped. Item values must be unique. */
     items?: Entry<TItem>[]
     /** Called when the committed selection changes. */
-    onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Custom renderer for the filtered empty state. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Placeholder shown when there is no selected value or query. */

@@ -37,7 +37,7 @@ export function PageSize() {
         <Select
           items={PAGE_SIZES}
           value={pageSize()}
-          onChange={(value) => {
+          onValueChange={(value) => {
             if (value === null) {
               return
             }

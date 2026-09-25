@@ -161,7 +161,7 @@ describe('TypeExtractor', () => {
       recipe.variants,
     )
     expect(part.props.map((p) => p.name)).toContain('value')
-    expect(part.props.map((p) => p.name)).toContain('onChange')
+    expect(part.props.map((p) => p.name)).toContain('onValueChange')
     expect(part.props.map((p) => p.name)).toContain('placeholder')
 
     const placeholder = part.props.find((p) => p.name === 'placeholder')

@@ -17,7 +17,7 @@ test('hydrates MultiSelect with one input and stable secondary trigger', () => {
         name: 'fruits',
         search: true,
         defaultValue: ['apple'],
-        onChange,
+        onValueChange: onChange,
         items: [
           { value: 'apple', label: 'Apple', description: 'Crisp' },
           { value: 'banana', label: 'Banana', description: 'Sweet' },

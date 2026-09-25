@@ -14,9 +14,9 @@
       "description": "Props for the FileUpload component.",
       "generics": [
         {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'div'"
+          "name": "Multiple",
+          "constraint": "boolean",
+          "default": "false"
         }
       ],
       "defaultElement": "div",
@@ -32,16 +32,6 @@
           }
         },
         {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "description": "The HTML element or component to render as.",
-          "default": {
-            "kind": "literal",
-            "value": "div"
-          }
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -52,6 +42,12 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "Value<Multiple>",
+          "description": "The default value of the input (uncontrolled)."
         },
         {
           "name": "description",
@@ -138,7 +134,7 @@
         {
           "name": "multiple",
           "optional": true,
-          "type": "boolean",
+          "type": "Multiple",
           "description": "Whether multiple files can be uploaded.",
           "default": {
             "kind": "literal",
@@ -152,46 +148,16 @@
           "description": "The name of the input element, used for form submission."
         },
         {
-          "name": "onClick",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, MouseEvent>",
-          "description": "Click handler for the upload control."
-        },
-        {
-          "name": "onDragLeave",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
-          "description": "Drag-leave handler for the upload dropzone."
-        },
-        {
-          "name": "onDragOver",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
-          "description": "Drag-over handler for the upload dropzone."
-        },
-        {
-          "name": "onDrop",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
-          "description": "Drop handler for the upload dropzone."
-        },
-        {
           "name": "onFileReject",
           "optional": true,
           "type": "(files: Rejection[]) => void",
           "description": "Callback when files are rejected (e.g., due to type or count)."
         },
         {
-          "name": "onKeyDown",
-          "optional": true,
-          "type": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>",
-          "description": "Keyboard handler for the upload control."
-        },
-        {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: Value) => void",
-          "description": "Callback when the selected files change."
+          "type": "(value: Value<Multiple>) => void",
+          "description": "Callback when the selected file(s) change."
         },
         {
           "name": "preview",
@@ -244,6 +210,12 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "Value<Multiple>",
+          "description": "The current value of the input (controlled)."
         }
       ]
     }

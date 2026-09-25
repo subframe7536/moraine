@@ -138,7 +138,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
-      onChange={(values) => local.onChange?.(values[0] ?? null)}
+      onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
       onReset={local.onReset}
       multiple={false}
       size={styles.variants.size ?? undefined}
