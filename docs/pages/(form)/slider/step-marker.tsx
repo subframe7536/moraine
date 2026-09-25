@@ -1,7 +1,7 @@
 import { Slider } from '@src'
 import { createSignal } from 'solid-js'
 
-export function StepDivider() {
+export function StepMarker() {
   const [value, setValue] = createSignal(40)
   const [range, setRange] = createSignal([20, 60])
 
@@ -17,7 +17,7 @@ export function StepDivider() {
           min={0}
           max={100}
           step={10}
-          divider
+          marker
           onValueChange={(val) => {
             if (typeof val === 'number') {
               setValue(val)
@@ -39,7 +39,7 @@ export function StepDivider() {
           min={0}
           max={100}
           step={20}
-          divider
+          marker
           variant="bold"
           onValueChange={(val) => {
             if (Array.isArray(val)) {

@@ -876,23 +876,23 @@ describe('Slider', () => {
     expect(thumb?.style.width).toBe('200px')
   })
 
-  test('renders step dividers when enabled', () => {
-    const screen = render(() => <Slider divider min={0} max={10} step={2} />)
+  test('renders step markers when enabled', () => {
+    const screen = render(() => <Slider marker min={0} max={10} step={2} />)
 
-    const dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
+    const markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
 
-    expect(dividers).toHaveLength(4)
-    expect((dividers[0] as HTMLElement).style.left).toBe('20%')
-    expect(dividers[0]?.className).toContain('h-full')
-    expect(dividers[0]?.className).toContain('w-px')
+    expect(markers).toHaveLength(4)
+    expect((markers[0] as HTMLElement).style.left).toBe('20%')
+    expect(markers[0]?.className).toContain('h-full')
+    expect(markers[0]?.className).toContain('w-px')
   })
 
   test('uses a solid track and inset marker shape for bold variant', () => {
-    const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
+    const screen = render(() => <Slider marker variant="bold" min={0} max={4} step={1} />)
 
     const track = screen.container.querySelector('[data-slot="slider-track"]')
     const range = screen.container.querySelector('[data-slot="slider-range"]')
-    const divider = screen.container.querySelector('[data-slot="slider-mark"]')
+    const marker = screen.container.querySelector('[data-slot="slider-marker"]')
     const thumb = screen.container.querySelector('[data-slot="slider-thumb"]')
 
     expect(track?.className).toContain('w-full')
@@ -902,8 +902,8 @@ describe('Slider', () => {
     expect(range?.className).toContain('rounded-[inherit]')
     expect(range?.className).toContain('bg-primary')
     expect(range?.className).toContain('z-raised')
-    expect(divider?.className).toContain('w-px')
-    expect(divider?.className).toContain('h-1/3')
+    expect(marker?.className).toContain('w-px')
+    expect(marker?.className).toContain('h-1/3')
     expect(range?.className).toContain('after:')
     expect(thumb?.className).toContain('opacity-0')
     expect(thumb?.className).toContain('w-(--s-size)')
@@ -933,38 +933,38 @@ describe('Slider', () => {
     expect(lgTrack?.className).toContain('rounded-md')
   })
 
-  test('dividerIndexes is reactive when step, divider, or bounds change', async () => {
+  test('markerIndexes is reactive when step, marker, or bounds change', async () => {
     const [step, setStep] = createSignal<number | undefined>(2)
-    const [divider, setDivider] = createSignal(true)
+    const [marker, setMarker] = createSignal(true)
     const [max, setMax] = createSignal(10)
 
-    const screen = render(() => <Slider min={0} max={max()} step={step()} divider={divider()} />)
+    const screen = render(() => <Slider min={0} max={max()} step={step()} marker={marker()} />)
 
-    let dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
-    expect(dividers).toHaveLength(4)
+    let markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
+    expect(markers).toHaveLength(4)
 
     setStep(5)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
-      expect(dividers).toHaveLength(1)
-      expect((dividers[0] as HTMLElement).style.left).toBe('50%')
+      markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
+      expect(markers).toHaveLength(1)
+      expect((markers[0] as HTMLElement).style.left).toBe('50%')
     })
 
     setMax(20)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
-      expect(dividers).toHaveLength(3)
-      expect((dividers[0] as HTMLElement).style.left).toBe('25%')
+      markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
+      expect(markers).toHaveLength(3)
+      expect((markers[0] as HTMLElement).style.left).toBe('25%')
     })
 
-    setDivider(false)
+    setMarker(false)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
-      expect(dividers).toHaveLength(0)
+      markers = screen.container.querySelectorAll('[data-slot="slider-marker"]')
+      expect(markers).toHaveLength(0)
     })
   })
 
-  test('useSlider.dividerIndexes reacts when step increases', async () => {
+  test('useSlider.markerIndexes reacts when step increases', async () => {
     const [step, setStep] = createSignal<number | undefined>(0)
     let sliderResult!: ReturnType<typeof useSlider>
 
@@ -980,24 +980,24 @@ describe('Slider', () => {
         orientation: 'horizontal',
         inverted: false,
       })
-      return <div>{sliderResult.dividerIndexes().join(',')}</div>
+      return <div>{sliderResult.markerIndexes().join(',')}</div>
     })
 
-    expect(sliderResult.dividerIndexes()).toEqual([])
+    expect(sliderResult.markerIndexes()).toEqual([])
 
     setStep(25)
     await waitFor(() => {
-      expect(sliderResult.dividerIndexes()).toEqual([1, 2, 3])
+      expect(sliderResult.markerIndexes()).toEqual([1, 2, 3])
     })
 
     setStep(50)
     await waitFor(() => {
-      expect(sliderResult.dividerIndexes()).toEqual([1])
+      expect(sliderResult.markerIndexes()).toEqual([1])
     })
 
     setStep(10)
     await waitFor(() => {
-      expect(sliderResult.dividerIndexes()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
+      expect(sliderResult.markerIndexes()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
     })
   })
 

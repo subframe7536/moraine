@@ -79,7 +79,7 @@ export function HeroSpecimen() {
             max={8}
             step={1}
             variant="bold"
-            divider
+            marker
           />
         </Field>
 

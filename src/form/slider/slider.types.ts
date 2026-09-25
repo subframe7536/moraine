@@ -69,10 +69,10 @@ export namespace SliderT {
     minStepsBetweenThumbs?: number
 
     /**
-     * Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.
+     * Whether to show visual step markers on the track, only applicable when `step` is defined and greater than 0.
      * @default false
      */
-    divider?: boolean
+    marker?: boolean
 
     /**
      * Whether dragging can continue across another thumb when there is no minimum gap.

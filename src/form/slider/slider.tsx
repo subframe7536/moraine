@@ -29,7 +29,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'max',
     'step',
     'minStepsBetweenThumbs',
-    'divider',
+    'marker',
     'allowThumbCrossing',
     'onValueChange',
     'onValueCommit',
@@ -165,16 +165,16 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           class={resolved.styles.range.class}
         />
 
-        <Show when={merged.divider}>
-          <For each={slider.dividerIndexes()}>
-            {(dividerIndex) => (
+        <Show when={merged.marker}>
+          <For each={slider.markerIndexes()}>
+            {(markerIndex) => (
               <div
-                data-slot="slider-mark"
+                data-slot="slider-marker"
                 style={{
-                  ...slider.getDividerStyle(dividerIndex),
-                  ...resolved.styles.mark.style,
+                  ...slider.getMarkerStyle(markerIndex),
+                  ...resolved.styles.marker.style,
                 }}
-                class={resolved.styles.mark.class}
+                class={resolved.styles.marker.class}
               />
             )}
           </For>

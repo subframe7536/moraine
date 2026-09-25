@@ -47,7 +47,7 @@ Use Slider when a numeric value or range is best chosen spatially. Pair it with 
       ],
     },
     { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0, inputType: 'number' },
-    { kind: 'switch', prop: 'divider', label: 'Divider', defaultValue: false },
+    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: false },
     { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
@@ -78,7 +78,7 @@ Use Slider when a numeric value or range is best chosen spatially. Pair it with 
           variant={props.variant}
           size={props.size}
           step={props.step}
-          divider={props.divider}
+          marker={props.marker}
           disabled={props.disabled}
           inverted={props.inverted}
         />
@@ -93,7 +93,7 @@ Use Slider when a numeric value or range is best chosen spatially. Pair it with 
 root
 ├── track
 │   ├── range
-│   └── divider (optional ×n)
+│   └── marker (optional ×n)
 └── thumb (×n)
 ```
 
@@ -105,11 +105,11 @@ Use a scalar value for a single thumb and an ordered pair for a range. Pair `val
 
 <Preview path="./values" />
 
-### Step and dividers
+### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `divider` to render visual tick marks at each step interval across the track rail.
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to render visual tick marks at each step interval across the track rail.
 
-<Preview path="./step-divider" />
+<Preview path="./step-marker" />
 
 ### Keyboard and forms
 

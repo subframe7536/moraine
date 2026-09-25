@@ -12,7 +12,7 @@ export interface SliderStyleSlot<T = unknown> {
   range?: T
 
   /** Visual marker for one slider step. */
-  mark?: T
+  marker?: T
 
   /** Draggable handle for one slider value. */
   thumb?: T

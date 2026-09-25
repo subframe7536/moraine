@@ -28,15 +28,15 @@ import type { SliderValue } from '../utils'
 export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
-  divider?: boolean
   inverted?: boolean
+  marker?: boolean
   max?: number
   min?: number
   minStepsBetweenThumbs?: number
   orientation?: Orientation
   readOnly?: boolean
   step?: number
-  styles?: { mark?: JSX.CSSProperties }
+  styles?: { marker?: JSX.CSSProperties }
   value?: TValue
   variant?: SliderT.Variant['variant'] | null
 }
@@ -53,13 +53,13 @@ export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
   activeThumbIndexState: () => number | undefined
   currentValues: () => number[]
   definedStep: () => number | undefined
-  dividerIndexes: () => number[]
   dragging: () => boolean
-  getDividerStyle: (index: number) => JSX.CSSProperties
+  getMarkerStyle: (index: number) => JSX.CSSProperties
   getPublicValue: (values: number[]) => TValue
   getThumbMaxValue: (index: number) => number
   getThumbMinValue: (index: number) => number
   getThumbValueText: (index: number) => string
+  markerIndexes: () => number[]
   onPointerCancel: (event: PointerEvent) => void
   onThumbBlur: (event: FocusEvent) => void
   onThumbFocus: (index: number, event: FocusEvent) => void
@@ -179,22 +179,22 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       [startEdge]: `${getValuePercent(value) * 100}%`,
     }))
   })
-  const dividerIndexes = createMemo(() => {
+  const markerIndexes = createMemo(() => {
     const step = definedStep()
     if (!step || merged.max <= merged.min) {
       return []
     }
 
-    const dividerCount = Math.floor((merged.max - merged.min) / step)
-    return Array.from({ length: Math.max(dividerCount - 1, 0) }, (_, index) => index + 1)
+    const markerCount = Math.floor((merged.max - merged.min) / step)
+    return Array.from({ length: Math.max(markerCount - 1, 0) }, (_, index) => index + 1)
   })
-  const getDividerStyle = (index: number): JSX.CSSProperties => {
+  const getMarkerStyle = (index: number): JSX.CSSProperties => {
     const { startEdge } = getSliderEdges()
     const value = merged.min + keyboardStep() * index
 
     return {
       [startEdge]: `${getValuePercent(value) * 100}%`,
-      ...merged.styles?.mark,
+      ...merged.styles?.marker,
     }
   }
   const rangeStyle = createMemo<JSX.CSSProperties>(() => {
@@ -687,13 +687,13 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     activeThumbIndexState,
     currentValues,
     definedStep,
-    dividerIndexes,
     dragging,
-    getDividerStyle,
+    getMarkerStyle,
     getPublicValue,
     getThumbMaxValue,
     getThumbMinValue,
     getThumbValueText,
+    markerIndexes,
     onThumbBlur,
     onThumbFocus,
     onThumbKeyDown,

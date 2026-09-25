@@ -59,16 +59,6 @@
           }
         },
         {
-          "name": "divider",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -85,6 +75,16 @@
           "optional": true,
           "type": "boolean",
           "description": "Reverses value movement along the track.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "marker",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show visual step markers on the track, only applicable when `step` is defined and greater than 0.",
           "default": {
             "kind": "literal",
             "value": false
@@ -219,7 +219,7 @@
     "root",
     "track",
     "range",
-    "mark",
+    "marker",
     "thumb"
   ],
   "dataAttributes": [
