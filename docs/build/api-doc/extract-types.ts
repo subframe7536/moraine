@@ -487,8 +487,6 @@ export class TypeExtractor {
     const tDefaultNode = args[5]
 
     let defaultElement: string | undefined
-    let isPolymorphic = false
-    let asGenericParam: GenericParameterApi | undefined
 
     if (tDefaultNode && tDefaultNode.type === 'TSLiteralType') {
       defaultElement = String((tDefaultNode.literal as { value?: unknown }).value)
@@ -500,8 +498,6 @@ export class TypeExtractor {
       const typeParamName = entityNameToText(tElementNode.typeName)
       const matched = existingGenerics.find((g) => g.name === typeParamName)
       if (matched) {
-        isPolymorphic = true
-        asGenericParam = matched
         if (!defaultElement && matched.default) {
           defaultElement = matched.default.replace(/['"]/g, '')
         }
@@ -594,22 +590,9 @@ export class TypeExtractor {
       }
     }
 
-    // 5. If polymorphic, ensure `as` prop exists
-    if (isPolymorphic && asGenericParam) {
-      const existingAs = props.find((p) => p.name === 'as')
-      if (existingAs) {
-        if (!existingAs.default && defaultElement) {
-          existingAs.default = { kind: 'literal', value: defaultElement }
-        }
-      } else {
-        props.unshift({
-          name: 'as',
-          optional: true,
-          type: asGenericParam.name,
-          ...(defaultElement ? { default: { kind: 'literal', value: defaultElement } } : {}),
-          description: 'Element or component to render as.',
-        })
-      }
+    const asProp = props.find((prop) => prop.name === 'as')
+    if (asProp && !asProp.default) {
+      asProp.default = { kind: 'literal', value: defaultElement }
     }
 
     return { props, defaultElement }

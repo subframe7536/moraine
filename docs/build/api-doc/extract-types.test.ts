@@ -105,7 +105,66 @@ describe('TypeExtractor', () => {
 
     const asProp = part.props.find((p) => p.name === 'as')
     expect(asProp?.type).toBe('T')
+    expect(asProp?.description).toBe('Element or component to render as.')
     expect(asProp?.default).toEqual({ kind: 'literal', value: 'button' })
+  })
+
+  test('uses only declared as props and preserves an explicit default', async () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'moraine-as-types-'))
+    try {
+      writeFileSync(
+        path.join(directory, 'demo.types.ts'),
+        "export namespace DemoT { export type Props<T = 'button'> = BaseProps<T, { label?: string }, never, never, never, 'button'>; export type ExplicitProps<T = 'button'> = BaseProps<T, { /** @default 'a' */ as?: T }, never, never, never, 'button'> }\n",
+      )
+      const local = new TypeExtractor(directory)
+      const module = await local.loadModule('demo.types.ts')
+      const part = await local.extractPart(module!, 'DemoT', 'Props', 'Demo', true)
+
+      expect(part.defaultElement).toBe('button')
+      expect(part.props.map((prop) => prop.name)).toContain('label')
+      expect(part.props.map((prop) => prop.name)).not.toContain('as')
+
+      const explicit = await local.extractPart(module!, 'DemoT', 'ExplicitProps', 'Demo', false)
+      expect(explicit.props.find((prop) => prop.name === 'as')?.default).toEqual({
+        kind: 'literal',
+        value: 'a',
+      })
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  test('reads as from inherited, aliased, and intersected Base props', async () => {
+    const cases = [
+      ['src/overlay/dialog/dialog.types.ts', 'DialogT', 'TriggerProps', 'Dialog.Trigger'],
+      ['src/element/list/list.types.ts', 'ListT', 'Props', 'List'],
+      [
+        'src/form/base-select/base-select.types.ts',
+        'BaseSelectT',
+        'TriggerProps',
+        'BaseSelect.Trigger',
+      ],
+    ] as const
+
+    for (const [file, namespace, propsType, name] of cases) {
+      const module = await extractor.loadModule(file)
+      const part = await extractor.extractPart(module!, namespace, propsType, name, false)
+      const asProp = part.props.find((prop) => prop.name === 'as')
+      expect(asProp?.default).toEqual({
+        kind: 'literal',
+        value: name === 'List' ? 'ul' : 'button',
+      })
+    }
+
+    const module = await extractor.loadModule('src/form/base-select/base-select.types.ts')
+    const item = await extractor.extractPart(
+      module!,
+      'BaseSelectT',
+      'ItemProps',
+      'BaseSelect.Item',
+      false,
+    )
+    expect(item.props.map((prop) => prop.name)).not.toContain('as')
   })
 
   test('extracts Dialog composite parts and inherited Modal props', async () => {

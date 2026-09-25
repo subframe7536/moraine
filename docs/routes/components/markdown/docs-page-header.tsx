@@ -17,6 +17,8 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
   const component = () => props.apiDoc
   const componentKey = () => props.frontmatter.componentKey ?? component()?.key
   const category = () => props.frontmatter.category ?? props.frontmatter.api?.path.split('/')[1]
+  const isPolymorphic = () =>
+    component()?.parts.some((part) => part.props.some((prop) => prop.name === 'as')) ?? false
   const githubSourceHref = () => {
     const sourcePath = props.frontmatter.api?.path
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined
@@ -64,6 +66,15 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
               {kind() === 'single' ? 'Single' : 'Composite'}
             </a>
           )}
+        </Show>
+        <Show when={isPolymorphic()}>
+          <a
+            href="/typescript#polymorphic-rendering-as-prop"
+            aria-label="Polymorphic: at least one component supports the as prop; see each component's Props"
+            class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+          >
+            Polymorphic
+          </a>
         </Show>
       </div>
 
