@@ -46,7 +46,7 @@
         {
           "name": "itemRender",
           "optional": false,
-          "type": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>",
+          "type": "Component<ItemRenderProps<TItem, TItemElement>>",
           "description": "Renders one collection item."
         },
         {

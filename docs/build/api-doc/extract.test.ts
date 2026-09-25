@@ -34,6 +34,12 @@ describe('generateApiDoc', () => {
       value: 'default',
     })
 
+    const list = result.componentDocs.get('list')
+    expect(list?.parts[0]?.defaultElement).toBe('ul')
+    expect(list?.parts[0]?.props.map((prop) => prop.name)).toEqual(
+      expect.arrayContaining(['as', 'items', 'itemRender', 'virtualRender']),
+    )
+
     const dialog = result.componentDocs.get('dialog')
     expect(dialog?.parts.map((part) => part.name)).toEqual([
       'Dialog',

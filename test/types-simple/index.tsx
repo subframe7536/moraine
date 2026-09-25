@@ -1,4 +1,4 @@
-import { Badge, Button, Card } from 'moraine'
+import { Badge, Button, Card, List, Separator, Slider } from 'moraine'
 import type { Tags, ValidComponent } from 'moraine'
 import type { JSX } from 'solid-js'
 
@@ -27,6 +27,24 @@ const acceptButton = (element: HTMLButtonElement) => element.focus()
 
 // Polymorphic components with as={Button} still preserve known component props:
 ;<Button as={Button} variant="ghost" size="sm" />
+;<Slider>Slider content</Slider>
+// @ts-expect-error Components without content reject children in simplified root mode.
+;<Separator children="Unexpected" />
+
+;<List
+  as="div"
+  items={[{ label: 'Alpha' }]}
+  itemRender={(context) => <div>{context.item.label}</div>}
+  ref={(element: HTMLDivElement) => {
+    const root: HTMLDivElement = element
+    void root
+  }}
+  data-custom="value"
+/>
+// @ts-expect-error List rejects composed children in simplified root mode.
+;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} children={<li />} />
+// @ts-expect-error List still requires CSS properties for style.
+;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} style="color: red" />
 
 type Assert<T extends true> = T
 export type SimpleTagAssertions = [

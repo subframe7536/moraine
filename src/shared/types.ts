@@ -111,7 +111,9 @@ export type BaseProps<
   Classes,
   Styles,
   TDefault extends ValidComponent = TElement,
+  AcceptsChildren extends boolean = 'children' extends keyof Base ? true : false,
 > = Override<
   RootProps<DefaultTag<TElement, TDefault>>,
-  ComponentBaseProps<Base, Variant, Classes, Styles>
+  ComponentBaseProps<Base, Variant, Classes, Styles> &
+    (AcceptsChildren extends true ? {} : { children?: never })
 >

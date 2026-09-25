@@ -99,7 +99,15 @@ export namespace SliderT {
   /**
    * Props for the Slider component.
    */
-  export type Props<TValue = Value> = BaseProps<'div', Base<TValue>, Variant, Classes, Styles>
+  export type Props<TValue = Value> = BaseProps<
+    'div',
+    Base<TValue>,
+    Variant,
+    Classes,
+    Styles,
+    'div',
+    true
+  >
 }
 
 /**

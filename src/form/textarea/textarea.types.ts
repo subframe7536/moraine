@@ -33,9 +33,6 @@ export namespace TextareaT {
       FormRequiredOption,
       FormReadOnlyOption,
       FormDisableOption {
-    /** Native controls do not accept child content. */
-    children?: never
-
     /**
      * Placeholder text for the textarea.
      */

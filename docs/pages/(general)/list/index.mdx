@@ -14,10 +14,9 @@ search:
 ```tsx
 import { List } from 'moraine'
 import { useListVirtualizer } from 'moraine/virtualizer'
-import type { ListT } from 'moraine'
 ```
 
-Use List when the caller owns each row’s markup and needs a stable collection surface. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
+Use List when the caller owns each row’s markup and needs a stable collection surface. Pass `items` and an `itemRender` component; List does not take row content through `children`. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
 
 ## Anatomy
 
@@ -32,7 +31,7 @@ When virtualization is enabled, `props` contains attributes supplied by the virt
 
 ### Row ownership and virtualization
 
-`itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure.
+`itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure. TypeScript infers the item and root element types from `items` and `as`.
 
 `useListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs `@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or measured row sizes.
 

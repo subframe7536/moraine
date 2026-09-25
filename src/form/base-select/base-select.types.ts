@@ -187,7 +187,7 @@ export namespace BaseSelectT {
   > = BaseProps<T, TriggerBase<T, TItem>, never, never, never, 'button'>
 
   export interface ControlBase {}
-  export type ControlProps = BaseProps<'div', ControlBase, never, never, never>
+  export type ControlProps = BaseProps<'div', ControlBase, never, never, never, 'div', true>
 
   export interface ContentBase {
     /** Called once after an open popup completes its exit. */
@@ -203,7 +203,7 @@ export namespace BaseSelectT {
      */
     overflowPadding?: number
   }
-  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never, 'div', true>
 
   export type ListboxProps = BaseSelectPartProps
   export type GroupProps = BaseSelectPartProps

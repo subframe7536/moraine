@@ -10,9 +10,9 @@
     - https://reui.io/components
   - [x] make content more human and agent friendly
 - [x] make all form components use standard `value` / `onValueChange` / `onCheckedChange` / `onValueCommit` props with `useFormValue`
+- [ ] slider: rename data-slot `slider-mark` to `slider-marker` or a better name, make slot name and data-slot consistent
 - [ ] cleanup "fill `as`" logic in extract-types.ts, only `as` in Base ispolymorphic component, add indicator in docs
 - [ ] make card composite, add `as`.
-- [ ] slider: rename data-slot `slider-mark` to `slider-marker` or a better name, make slot name and data-slot consistent
 - [ ] docs: add neccessory `| undefined` in expanded prop row. `Function` should be `function`
 - [ ] icon card copy should not cause layout shift
 - [ ] landing page polish

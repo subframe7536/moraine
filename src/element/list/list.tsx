@@ -1,13 +1,12 @@
 import type { Component, JSX } from 'solid-js'
-import { For, Show, createSignal, splitProps } from 'solid-js'
+import { For, Show, createComponent, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types.ts'
-import { callRef } from '../../shared/utils'
+import { callRef } from '../../shared/utils.ts'
 
-import type { ListProps, ListT } from './list.types'
+import type { ListProps, ListT } from './list.types.ts'
 
 /** Headless polymorphic list with optional caller-controlled virtualization. */
 export function List<
@@ -16,12 +15,12 @@ export function List<
   TItemElement extends HTMLElement = HTMLElement,
 >(props: ListProps<TItem, T, TItemElement>): JSX.Element {
   const cn = useCn()
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as ListProps<TItem, T, TItemElement> & { ref?: unknown }, [
     'as',
     'items',
     'itemRender',
     'virtualRender',
-    'ref' as any,
+    'ref',
     'class',
     'style',
   ])
@@ -45,15 +44,10 @@ export function List<
         fallback={
           <For each={local.items}>
             {(item, index) =>
-              renderComponentOrElement(local.itemRender, {
-                get item() {
-                  return item
-                },
+              createComponent(local.itemRender, {
+                item,
                 get index() {
                   return index()
-                },
-                get props() {
-                  return undefined
                 },
               })
             }
@@ -66,16 +60,10 @@ export function List<
             entries={local.items ?? []}
             scrollElement={scrollElement()}
             render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) =>
-              renderComponentOrElement(local.itemRender, {
-                get item() {
-                  return item
-                },
-                get index() {
-                  return index
-                },
-                get props() {
-                  return rowProps
-                },
+              createComponent(local.itemRender, {
+                item,
+                index,
+                props: rowProps,
               })
             }
           />

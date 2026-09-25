@@ -26,9 +26,6 @@ export namespace KbdGroupT {
      * @default '+'
      */
     separator?: JSX.Element
-
-    /** KbdGroup is data-driven and does not accept composed children. */
-    children?: never
   }
 
   /** Props for the KbdGroup component. */

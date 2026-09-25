@@ -32,9 +32,6 @@ export namespace InputT {
       FormRequiredOption,
       FormReadOnlyOption,
       FormDisableOption {
-    /** Native controls do not accept child content. */
-    children?: never
-
     /**
      * The type of the input element.
      * @default 'text'

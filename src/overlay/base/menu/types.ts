@@ -189,7 +189,7 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
   itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
 
   /** Additional attributes for each menu layer content element. */
-  contentProps?: ElementProps<HTMLDivElement>
+  contentProps?: Omit<ElementProps<HTMLDivElement>, 'children'>
 
   /** Additional attributes for an interactive menu item. */
   itemProps?: (

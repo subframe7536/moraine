@@ -60,7 +60,7 @@ export const Sidebar = (props: SidebarProps) => {
                 </div>
               </Show>
 
-              <List<SidebarPage, 'div'>
+              <List
                 as="div"
                 class="flex flex-col gap-0.5"
                 items={section.pages}

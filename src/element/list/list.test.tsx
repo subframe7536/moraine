@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createEffect, createSignal, on } from 'solid-js'
+import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useListVirtualizer } from '../../virtualizer'
@@ -8,10 +8,47 @@ import { List } from './list'
 import type { ListT } from './list.types'
 
 describe('List', () => {
-  test('accepts static JSX for itemRender', () => {
-    const screen = render(() => <List items={['ignored']} itemRender={<li>Static item</li>} />)
+  test('renders fixed content from an item component', () => {
+    const screen = render(() => (
+      <List items={['ignored']} itemRender={() => <li>Static item</li>} />
+    ))
 
     expect(screen.getByRole('list').textContent).toBe('Static item')
+  })
+
+  test('keeps keyed rows and reactive indexes across reorders, then disposes removed rows', () => {
+    const [items, setItems] = createSignal(['Alpha', 'Beta'])
+    const disposed: string[] = []
+    const screen = render(() => (
+      <List
+        items={items()}
+        itemRender={(context) => {
+          onCleanup(() => disposed.push(context.item))
+          return (
+            <li>
+              {context.index}: {context.item}
+            </li>
+          )
+        }}
+      />
+    ))
+    const list = screen.getByRole('list')
+    const rows = Array.from(list.children)
+
+    setItems(['Beta', 'Alpha'])
+    expect(list.children[0]).toBe(rows[1])
+    expect(list.children[1]).toBe(rows[0])
+    expect(list.children[0]?.textContent).toBe('0: Beta')
+    expect(list.children[1]?.textContent).toBe('1: Alpha')
+
+    setItems(['Beta'])
+    expect(disposed).toEqual(['Alpha'])
+    expect(list.children).toHaveLength(1)
+  })
+
+  test('renders no rows when items are omitted', () => {
+    const screen = render(() => <List itemRender={() => <li>Unused</li>} />)
+    expect(screen.getByRole('list').children).toHaveLength(0)
   })
 
   test('renders arbitrary reactive items with ul semantics by default', async () => {
@@ -134,6 +171,40 @@ describe('List', () => {
     expect(row.getAttribute('data-index')).toBe('0')
   })
 
+  test('switches between ordinary and virtual rows without replacing the root', () => {
+    const [virtual, setVirtual] = createSignal(false)
+    const VirtualRender = (props: ListT.VirtualRenderProps<string>) => (
+      <For each={props.entries}>
+        {(item, index) => <>{props.render(item, index(), { 'data-index': index() })}</>}
+      </For>
+    )
+    const screen = render(() => (
+      <>
+        <List
+          items={['Alpha', 'Beta']}
+          virtualRender={virtual() ? VirtualRender : undefined}
+          itemRender={(context) => <li {...context.props}>{context.item}</li>}
+        />
+        <button type="button" onClick={() => setVirtual((value) => !value)}>
+          Toggle
+        </button>
+      </>
+    ))
+    const root = screen.getByRole('list')
+
+    expect(root.children).toHaveLength(2)
+    expect(root.children[0]?.getAttribute('data-index')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button'))
+    expect(root.children).toHaveLength(2)
+    expect(root.children[0]?.getAttribute('data-index')).toBe('0')
+    expect(root.children[1]?.getAttribute('data-index')).toBe('1')
+
+    fireEvent.click(screen.getByRole('button'))
+    expect(screen.getByRole('list')).toBe(root)
+    expect(root.children[0]?.getAttribute('data-index')).toBeNull()
+  })
+
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
     const virtualRendering = useListVirtualizer<string, HTMLElement, HTMLDivElement>({
@@ -147,7 +218,7 @@ describe('List', () => {
     })
 
     const screen = render(() => (
-      <List<string, 'div', HTMLDivElement>
+      <List
         as="div"
         role="list"
         items={items}
@@ -179,7 +250,7 @@ describe('List', () => {
       })
 
       return (
-        <List<number, 'div', HTMLDivElement>
+        <List
           as="div"
           dir="rtl"
           items={[20, 35, 25]}
@@ -216,7 +287,7 @@ describe('List', () => {
       measureElement: (element) => Number(element.dataset.size),
     })
     const screen = render(() => (
-      <List<(typeof items)[number], 'div', HTMLDivElement>
+      <List
         as="div"
         role="list"
         items={items}

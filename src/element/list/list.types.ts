@@ -1,12 +1,10 @@
 import type { Component, JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ValidComponent } from '../../shared/types'
+import type { BaseProps, ValidComponent } from '../../shared/types.ts'
 
 export namespace ListT {
   export type Kind = 'single'
-  // oxlint-disable-next-line no-unused-vars -- Mandatory public style header keeps the generic Slot signature.
-  export type Slot<T = unknown> = never
+  export type Slot = never
   export type Variant = never
   export type Classes = never
   export type Styles = never
@@ -41,20 +39,11 @@ export namespace ListT {
     render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
   }
 
-  export type Base<
-    TItem,
-    T extends ValidComponent = 'ul',
-    TItemElement extends HTMLElement = HTMLElement,
-  > = {
-    /**
-     * Root element or component.
-     * @default 'ul'
-     */
-    as?: T
+  export type Base<TItem, TItemElement extends HTMLElement = HTMLElement> = {
     /** Reactive collection rendered by the list. */
     items?: readonly TItem[]
     /** Renders one collection item. */
-    itemRender: ComponentOrElement<ItemRenderProps<TItem, TItemElement>>
+    itemRender: Component<ItemRenderProps<TItem, TItemElement>>
     /** Replaces normal iteration with caller-controlled virtual rendering. */
     virtualRender?: Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>
   }
@@ -63,7 +52,17 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, Classes, Styles, 'ul'>
+  > = BaseProps<
+    T,
+    Base<TItem, TItemElement> & {
+      /** Root element or component. @default 'ul' */
+      as?: T
+    },
+    Variant,
+    Classes,
+    Styles,
+    'ul'
+  >
 }
 
 export type ListProps<

@@ -192,7 +192,7 @@ export namespace CommandPaletteT {
     /** Scrolls a highlighted command into view using its flattened entry index. */
     scrollToItem?: (item: TItem, entryIndex: number) => void
     /** Additional attributes for the command listbox. */
-    listboxProps?: ElementProps<HTMLDivElement>
+    listboxProps?: Omit<ElementProps<HTMLDivElement>, 'children'>
     /** Additional attributes for a command row. */
     itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
     /** Additional attributes for the search input. */
