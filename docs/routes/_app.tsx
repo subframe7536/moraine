@@ -4,11 +4,9 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import packageMetadata from '../../package.json' with { type: 'json' }
-import { Badge, Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
-import { createMediaQuery } from '../../src/utils'
+import { MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
 
-import { PageActions, Sidebar, SidebarHeader } from './components/layout'
+import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'
 import { DOCS_MDX_COMPONENTS } from './components/markdown'
 import { getDocsPages } from './docs-route'
 import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
@@ -24,7 +22,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const [paletteOpen, setPaletteOpen] = createSignal(false)
   const [routingFromPath, setRoutingFromPath] = createSignal<string>()
   const [mainEl, setMainEl] = createSignal<HTMLDivElement>()
-  const isMobile = createMediaQuery('(max-width: 768px)', false)
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
@@ -88,88 +85,78 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       <>
         <a
           href="#main-content"
-          class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+          class="z-toast text-foreground px-4 py-2 bg-background transition-transform left-1/2 top-2 fixed rounded-md focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
         >
           Skip to main content
         </a>
 
-        <SidebarFrame.Sidebar>
-          <SidebarFrame.SidebarHeader>
-            <SidebarHeader
-              onClose={frame.isMobile() ? () => frame.setOpen(false) : undefined}
-              isMobile={frame.isMobile()}
-            />
-          </SidebarFrame.SidebarHeader>
-          <SidebarFrame.SidebarBody>
-            <Sidebar
-              pages={pages}
-              activePage={committedPage}
-              setActivePage={(key) => {
-                navigateToPage(key)
-                if (frame.isMobile()) {
-                  frame.setOpen(false)
-                }
-              }}
-            />
-          </SidebarFrame.SidebarBody>
-        </SidebarFrame.Sidebar>
+        <DocsHeader
+          pages={pages}
+          paletteOpen={paletteOpen}
+          setPaletteOpen={setPaletteOpen}
+          onNavigate={navigateToPage}
+          theme={theme}
+          updateTheme={updateTheme}
+          isLanding={isLanding}
+        />
 
-        <SidebarFrame.Main
-          ref={(element) => setMainEl(element)}
-          onClick={(event) => {
-            if (
-              event.defaultPrevented ||
-              event.button !== 0 ||
-              event.metaKey ||
-              event.ctrlKey ||
-              event.shiftKey ||
-              event.altKey ||
-              !(event.target instanceof Element)
-            ) {
-              return
-            }
-            const anchor = event.target.closest<HTMLAnchorElement>('a[data-toc-id]')
-            const root = event.currentTarget
-            if (!anchor || !root.contains(anchor)) {
-              return
-            }
-            requestAnimationFrame(() => {
-              const target = root.ownerDocument.getElementById(anchor.dataset.tocId ?? '')
-              if (root.isConnected && target && root.contains(target)) {
-                revealHashTarget(root, target)
-              }
-            })
-          }}
-        >
-          <header class="px-4 border-b border-border/60 bg-background/80 flex h-13 items-center top-0 justify-between sticky z-sticky backdrop-blur-md sm:px-8">
-            <div class="flex gap-1 min-w-0 items-center">
+        <div class="flex flex-1 min-h-0 overflow-hidden">
+          <Show when={!isLanding()}>
+            <SidebarFrame.Sidebar class="border-r border-border/60">
               <Show when={frame.isMobile()}>
-                <SidebarFrame.Trigger
-                  as={Button}
-                  variant="ghost"
-                  size="sm"
-                  leading="i-lucide-menu"
-                  aria-label="Toggle sidebar"
-                />
+                <SidebarFrame.SidebarHeader>
+                  <SidebarHeader onClose={() => frame.setOpen(false)} isMobile={true} />
+                </SidebarFrame.SidebarHeader>
               </Show>
-            </div>
-            <PageActions
-              pages={pages}
-              paletteOpen={paletteOpen}
-              setPaletteOpen={setPaletteOpen}
-              onNavigate={navigateToPage}
-              mobile={frame.isMobile()}
-              theme={theme}
-              updateTheme={updateTheme}
-            />
-          </header>
+              <SidebarFrame.SidebarBody>
+                <Sidebar
+                  pages={pages}
+                  activePage={committedPage}
+                  setActivePage={(key) => {
+                    navigateToPage(key)
+                    if (frame.isMobile()) {
+                      frame.setOpen(false)
+                    }
+                  }}
+                />
+              </SidebarFrame.SidebarBody>
+            </SidebarFrame.Sidebar>
+          </Show>
 
-          <main id="main-content" class="min-w-0" data-docs-main>
-            <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
-              {props.children}
-            </Suspense>
-          </main>
-        </SidebarFrame.Main>
+          <SidebarFrame.Main
+            ref={(element) => setMainEl(element)}
+            onClick={(event) => {
+              if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey ||
+                !(event.target instanceof Element)
+              ) {
+                return
+              }
+              const anchor = event.target.closest<HTMLAnchorElement>('a[data-toc-id]')
+              const root = event.currentTarget
+              if (!anchor || !root.contains(anchor)) {
+                return
+              }
+              requestAnimationFrame(() => {
+                const target = root.ownerDocument.getElementById(anchor.dataset.tocId ?? '')
+                if (root.isConnected && target && root.contains(target)) {
+                  revealHashTarget(root, target)
+                }
+              })
+            }}
+          >
+            <main id="main-content" class="min-w-0" data-docs-main>
+              <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
+                {props.children}
+              </Suspense>
+            </main>
+          </SidebarFrame.Main>
+        </div>
       </>
     )
   }
@@ -187,67 +174,9 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <Show
-        when={isLanding()}
-        fallback={
-          <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
-            <DocsShell />
-          </SidebarFrame>
-        }
-      >
-        <div class="text-foreground bg-background min-h-screen">
-          <a
-            href="#main-content"
-            class="z-toast text-foreground px-4 py-2 rounded-md bg-background left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
-          >
-            Skip to main content
-          </a>
-          <header class="border-b border-border/60 bg-background/80 top-0 sticky z-sticky backdrop-blur-md">
-            <nav
-              aria-label="Main"
-              class="mx-auto px-5 flex h-13 max-w-6xl items-center justify-between sm:px-8"
-            >
-              <div class="flex gap-3 items-center sm:gap-6">
-                <a
-                  href="/"
-                  aria-label="Moraine home"
-                  class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-                >
-                  <img src="/favicon.svg" alt="" class="size-6" />
-                  <span class="text-base font-semibold">Moraine</span>
-                  <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono px-1.5 py-0">
-                    v{packageMetadata.version}
-                  </Badge>
-                </a>
-                <a
-                  href="/start"
-                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-                >
-                  Docs
-                </a>
-                <a
-                  href="/styling/unocss"
-                  class="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-                >
-                  Styling
-                </a>
-              </div>
-              <PageActions
-                pages={pages}
-                paletteOpen={paletteOpen}
-                setPaletteOpen={setPaletteOpen}
-                onNavigate={navigateToPage}
-                mobile={isMobile()}
-                theme={theme}
-                updateTheme={updateTheme}
-              />
-            </nav>
-          </header>
-          <main id="main-content">
-            <Suspense>{props.children}</Suspense>
-          </main>
-        </div>
-      </Show>
+      <SidebarFrame class="flex-col h-screen max-h-screen overflow-hidden" scrollThreshold={4}>
+        <DocsShell />
+      </SidebarFrame>
     </>
   )
 }

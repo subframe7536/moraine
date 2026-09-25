@@ -26,7 +26,7 @@ export function UsageQuery() {
         leadingIcon="i-lucide:search"
         allowClear
       />
-      <div class="text-xs text-muted-foreground space-y-1">
+      <div class="text-muted-foreground space-y-1 text-xs">
         <p>
           Committed Value:{' '}
           <span class="text-foreground font-medium font-mono">{selected() ?? 'null'}</span>

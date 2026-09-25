@@ -26,7 +26,7 @@ export function SelectionModel() {
         value={selected()}
         onValueChange={setSelected}
       />
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Selected values: <span class="text-foreground font-mono">{JSON.stringify(selected())}</span>
       </p>
     </div>

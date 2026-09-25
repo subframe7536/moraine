@@ -26,24 +26,24 @@ export function ControlledDisabledItems() {
           {
             label: 'Overview',
             value: 'overview',
-            content: <p class="text-sm text-foreground">Overview section with release status.</p>,
+            content: <p class="text-foreground text-sm">Overview section with release status.</p>,
           },
           {
             label: 'Settings',
             value: 'settings',
             content: (
-              <p class="text-sm text-foreground">Settings section with environment options.</p>
+              <p class="text-foreground text-sm">Settings section with environment options.</p>
             ),
           },
           {
             label: 'Billing (Disabled)',
             value: 'billing',
             disabled: true,
-            content: <p class="text-sm text-foreground">This panel is intentionally disabled.</p>,
+            content: <p class="text-foreground text-sm">This panel is intentionally disabled.</p>,
           },
         ]}
       />
-      <p class="text-xs text-muted-foreground">Current tab value: {value()}</p>
+      <p class="text-muted-foreground text-xs">Current tab value: {value()}</p>
     </div>
   )
 }

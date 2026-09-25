@@ -12,7 +12,7 @@ export function Animations() {
       <For each={ANIMATIONS}>
         {(animation) => (
           <div class="flex gap-3 items-center">
-            <span class="text-xs text-muted-foreground font-mono w-16">{animation}</span>
+            <span class="text-muted-foreground font-mono w-16 text-xs">{animation}</span>
             <div class="flex-1">
               <Progress value={null} animation={animation} />
             </div>

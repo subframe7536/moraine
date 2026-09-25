@@ -65,7 +65,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
           aria-label="Example controls"
         >
           <div class="pb-2.5 border-b border-border/60 flex shrink-0 h-8 items-center justify-between">
-            <span class="text-xs text-foreground/90 tracking-tight font-semibold flex gap-1.5 items-center">
+            <span class="text-foreground/90 tracking-tight font-semibold flex gap-1.5 items-center text-xs">
               <Icon name="i-lucide:sliders-horizontal" class="text-muted-foreground size-3.5" />
               <span>Props</span>
             </span>

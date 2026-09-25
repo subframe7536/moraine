@@ -7,7 +7,7 @@ export function SelectingFiles() {
       <For each={['sm', 'md', 'lg'] as const}>
         {(size) => (
           <div class="flex flex-col gap-2">
-            <span class="text-xs text-muted-foreground font-medium">{size}</span>
+            <span class="text-muted-foreground font-medium text-xs">{size}</span>
             <FileUpload
               size={size}
               multiple

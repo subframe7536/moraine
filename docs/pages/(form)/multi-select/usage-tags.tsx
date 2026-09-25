@@ -23,7 +23,7 @@ export function UsageTags() {
         onValueChange={setSelected}
         allowClear
       />
-      <div class="text-xs flex items-center justify-between">
+      <div class="flex items-center justify-between text-xs">
         <span class="text-muted-foreground">
           Committed Values:{' '}
           <span class="text-foreground font-medium font-mono">{JSON.stringify(selected())}</span>

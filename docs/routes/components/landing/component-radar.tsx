@@ -1,328 +1,278 @@
 import { createSignal } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 import {
   Accordion,
-  Badge,
   Button,
-  Card,
   Combobox,
   Dialog,
+  Icon,
+  InputNumber,
   Popover,
   Slider,
-  Stepper,
   Switch,
   Tabs,
-  Tooltip,
+  cn,
 } from '../../../../src'
 
-const FRAMEWORKS = [
+const OPTIONS = [
   { label: 'SolidJS', value: 'solid' },
-  { label: 'TypeScript', value: 'ts' },
+  { label: 'TypeScript', value: 'typescript' },
   { label: 'UnoCSS', value: 'unocss' },
   { label: 'Tailwind CSS', value: 'tailwind' },
 ]
 
+const docsLink =
+  'text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
+
+function SamplerItem(props: {
+  title: string
+  description: string
+  href: string
+  class?: string
+  children: JSX.Element
+}) {
+  return (
+    <article
+      class={cn('p-6 border-b border-e border-border/70 flex flex-col min-w-0', props.class)}
+    >
+      <div>
+        <h3 class="font-semibold text-base">{props.title}</h3>
+        <p class="text-muted-foreground mt-1 text-sm">{props.description}</p>
+      </div>
+      <div class="mt-6 min-w-0">{props.children}</div>
+      <a href={props.href} class={cn(docsLink, 'mt-auto pt-6')}>
+        Explore {props.title} <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+      </a>
+    </article>
+  )
+}
+
 export function ComponentRadar() {
-  const [activeCategory, setActiveCategory] = createSignal('form')
-  const [sliderVal, setSliderVal] = createSignal(42)
-  const [switchVal, setSwitchVal] = createSignal(true)
+  const [value, setValue] = createSignal(42)
+  const [boldValue, setBoldValue] = createSignal(70)
+  const [emailAlerts, setEmailAlerts] = createSignal(true)
+  const [inAppAlerts, setInAppAlerts] = createSignal(false)
 
   return (
-    <section aria-labelledby="radar-title" class="py-10 border-t border-border/70 sm:py-12">
-      <div class="mb-5 flex flex-wrap gap-2 items-baseline justify-between">
+    <section aria-labelledby="radar-title" class="py-12 sm:py-16">
+      <div class="mb-6 flex flex-wrap gap-4 items-end justify-between">
         <div>
-          <h2 id="radar-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
-            Curated component radar
+          <h2 id="radar-title" class="tracking-tight font-semibold text-2xl sm:text-3xl">
+            Explore the components
           </h2>
-          <p class="text-sm text-muted-foreground mt-1">
-            Tactile, accessible primitives engineered for real-world SolidJS applications.
+          <p class="text-muted-foreground mt-2 max-w-2xl text-sm sm:text-base">
+            Accessible building blocks for forms, navigation, overlays, and everyday interface
+            patterns.
           </p>
         </div>
+        <Button as="a" href="/button" size="sm" variant="link" trailing="icon-arrow-right">
+          Browse all components
+        </Button>
       </div>
 
-      <Tabs
-        value={activeCategory()}
-        onChange={setActiveCategory}
-        items={[
-          {
-            value: 'form',
-            label: 'Form controls',
-            content: (
-              <div class="pt-5 gap-4 grid grid-cols-1 md:grid-cols-3">
-                <Card
-                  compact
-                  title="Combobox"
-                  description="Searchable collection"
-                  class="shadow-sm"
-                >
-                  <div class="pt-2">
-                    <Combobox
-                      items={FRAMEWORKS}
-                      placeholder="Select tech..."
-                      allowClear
-                      class="w-full"
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">ARIA 1.2 compliant</span>
-                    <a href="/combobox" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card compact title="Slider" description="Parametric range" class="shadow-sm">
-                  <div class="pt-2 space-y-2">
-                    <div class="text-xs text-muted-foreground flex justify-between">
-                      <span>Threshold</span>
-                      <span class="text-foreground font-mono font-semibold">{sliderVal()}%</span>
-                    </div>
-                    <Slider
-                      value={sliderVal()}
-                      onValueChange={(v) => setSliderVal(Array.isArray(v) ? v[0]! : v)}
-                      min={0}
-                      max={100}
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Keyboard navigation</span>
-                    <a href="/slider" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card compact title="Switch" description="Binary disclosure" class="shadow-sm">
-                  <div class="pt-2">
-                    <Switch
-                      label="Automatic caching"
-                      description="Persist query responses"
-                      checked={switchVal()}
-                      onCheckedChange={setSwitchVal}
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Accessible switch role</span>
-                    <a href="/switch" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            value: 'navigation',
-            label: 'Navigation',
-            content: (
-              <div class="pt-5 gap-4 grid grid-cols-1 md:grid-cols-2">
-                <Card compact title="Stepper" description="Multi-stage workflow" class="shadow-sm">
-                  <div class="pt-2">
-                    <Stepper
-                      items={[
-                        { value: 'plan', title: 'Plan', icon: 'i-lucide:clipboard-list' },
-                        { value: 'build', title: 'Build', icon: 'i-lucide:hammer' },
-                        { value: 'ship', title: 'Ship', icon: 'i-lucide:rocket' },
-                      ]}
-                      defaultValue="build"
-                      size="sm"
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Linear or random access</span>
-                    <a href="/stepper" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card compact title="Tabs" description="Contextual perspectives" class="shadow-sm">
-                  <div class="pt-2">
-                    <Tabs
-                      size="sm"
-                      items={[
-                        {
-                          value: 'preview',
-                          label: 'Preview',
-                          content: (
-                            <p class="text-xs text-muted-foreground pt-2">
-                              Live reactive preview container.
-                            </p>
-                          ),
-                        },
-                        {
-                          value: 'code',
-                          label: 'Code',
-                          content: (
-                            <p class="text-xs text-muted-foreground pt-2">
-                              Syntax-highlighted TSX source.
-                            </p>
-                          ),
-                        },
-                        {
-                          value: 'notes',
-                          label: 'Notes',
-                          content: (
-                            <p class="text-xs text-muted-foreground pt-2">
-                              API requirements and constraints.
-                            </p>
-                          ),
-                        },
-                      ]}
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Roving tabindex</span>
-                    <a href="/tabs" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            value: 'overlay',
-            label: 'Overlays',
-            content: (
-              <div class="pt-5 gap-4 grid grid-cols-1 md:grid-cols-3">
-                <Card compact title="Dialog" description="Modal focus trap" class="shadow-sm">
-                  <div class="pt-2 flex min-h-16 items-center justify-center">
-                    <Dialog>
-                      <Dialog.Trigger as={Button} size="sm">
-                        Open modal
-                      </Dialog.Trigger>
-                      <Dialog.Content
-                        title="Confirmation"
-                        body={
-                          <p class="text-xs text-muted-foreground">
-                            Action completed successfully.
-                          </p>
-                        }
-                      />
-                    </Dialog>
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Portaled to body</span>
-                    <a href="/dialog" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card compact title="Popover" description="Anchored disclosure" class="shadow-sm">
-                  <div class="pt-2 flex min-h-16 items-center justify-center">
-                    <Popover>
-                      <Popover.Trigger as={Button} variant="outline" size="sm">
-                        Toggle popover
-                      </Popover.Trigger>
-                      <Popover.Content ariaLabel="Quick info">
-                        <div class="text-xs text-muted-foreground p-3 max-w-48">
-                          Positioned relative to trigger with automated collision detection.
+      <div class="border-s border-t border-border/70 grid lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
+        <SamplerItem
+          title="Tabs"
+          description="Switch between related views."
+          href="/tabs"
+          class="md:col-span-2"
+        >
+          <div class="max-w-xl">
+            <Tabs
+              size="sm"
+              defaultValue="preferences"
+              items={[
+                {
+                  label: 'Preferences',
+                  value: 'preferences',
+                  content: (
+                    <div class="pt-4">
+                      <p class="font-medium text-sm">Workspace preferences</p>
+                      <p class="text-muted-foreground mt-1 text-sm">
+                        Choose how this workspace looks and feels.
+                      </p>
+                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                        <div>
+                          <dt class="text-muted-foreground">Appearance</dt>
+                          <dd class="font-medium mt-1">System theme</dd>
                         </div>
-                      </Popover.Content>
-                    </Popover>
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Smart collision bounds</span>
-                    <a href="/popover" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card compact title="Tooltip" description="Hover & focus tip" class="shadow-sm">
-                  <div class="pt-2 flex min-h-16 items-center justify-center">
-                    <Tooltip>
-                      <Tooltip.Trigger as={Button} variant="ghost" size="sm">
-                        Hover or focus me
-                      </Tooltip.Trigger>
-                      <Tooltip.Content text="Accessible tooltip hint (Esc to dismiss)" />
-                    </Tooltip>
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Delayed intent</span>
-                    <a href="/tooltip" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-              </div>
-            ),
-          },
-          {
-            value: 'elements',
-            label: 'Elements',
-            content: (
-              <div class="pt-5 gap-4 grid grid-cols-1 md:grid-cols-2">
-                <Card
-                  compact
-                  title="Accordion"
-                  description="Collapsible disclosures"
-                  class="shadow-sm"
-                >
-                  <div class="pt-2">
-                    <Accordion
-                      items={[
-                        {
-                          value: 'q1',
-                          label: 'Fine-grained reactivity',
-                          content: 'Updates only affected DOM nodes without VDOM re-rendering.',
-                        },
-                        {
-                          value: 'q2',
-                          label: 'Layered recipe styling',
-                          content: 'Override slots cleanly via classes={{ ... }} props.',
-                        },
-                      ]}
-                      defaultValue={['q1']}
-                    />
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Smooth CSS height motion</span>
-                    <a href="/accordion" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
-
-                <Card
-                  compact
-                  title="Badges & Buttons"
-                  description="Interactive tokens"
-                  class="shadow-sm"
-                >
-                  <div class="pt-2 space-y-3">
-                    <div class="flex flex-wrap gap-2 items-center">
-                      <Button size="sm">Solid</Button>
-                      <Button size="sm" variant="outline">
-                        Outline
-                      </Button>
-                      <Button size="sm" variant="secondary">
-                        Secondary
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        Ghost
-                      </Button>
+                        <div>
+                          <dt class="text-muted-foreground">Density</dt>
+                          <dd class="font-medium mt-1">Comfortable</dd>
+                        </div>
+                      </dl>
                     </div>
-                    <div class="flex flex-wrap gap-2 items-center">
-                      <Badge variant="solid">Solid</Badge>
-                      <Badge variant="surface">Surface</Badge>
-                      <Badge variant="outline">Outline</Badge>
+                  ),
+                },
+                {
+                  label: 'Access',
+                  value: 'access',
+                  content: (
+                    <div class="pt-4">
+                      <p class="font-medium text-sm">Workspace access</p>
+                      <p class="text-muted-foreground mt-1 text-sm">
+                        Manage who can view and join this workspace.
+                      </p>
+                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                        <div>
+                          <dt class="text-muted-foreground">Visibility</dt>
+                          <dd class="font-medium mt-1">Private</dd>
+                        </div>
+                        <div>
+                          <dt class="text-muted-foreground">Invitations</dt>
+                          <dd class="font-medium mt-1">Members only</dd>
+                        </div>
+                      </dl>
                     </div>
-                  </div>
-                  <div class="text-xs mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
-                    <span class="text-muted-foreground">Standardized variants</span>
-                    <a href="/button" class="text-primary hover:underline">
-                      Docs →
-                    </a>
-                  </div>
-                </Card>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        </SamplerItem>
+
+        <SamplerItem title="Slider" description="Choose a value from a range." href="/slider">
+          <div class="max-w-sm space-y-5">
+            <div>
+              <div class="mb-2 flex justify-between text-sm">
+                <span>Default</span>
+                <output class="text-muted-foreground font-mono">{value()}</output>
               </div>
-            ),
-          },
-        ]}
-      />
+              <Slider
+                aria-label="Default slider example"
+                value={value()}
+                min={0}
+                max={100}
+                onValueChange={(next) => setValue(Array.isArray(next) ? next[0]! : next)}
+              />
+            </div>
+            <div>
+              <div class="mb-2 flex justify-between text-sm">
+                <span>Bold</span>
+                <output class="text-muted-foreground font-mono">{boldValue().toFixed(2)}</output>
+              </div>
+              <Slider
+                aria-label="Bold slider example"
+                variant="bold"
+                value={boldValue()}
+                min={0}
+                max={100}
+                step={10}
+                marker
+                onValueChange={(next) => setBoldValue(Array.isArray(next) ? next[0]! : next)}
+              />
+            </div>
+          </div>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Switch"
+          description="Choose where deployment alerts appear."
+          href="/switch"
+        >
+          <div class="space-y-4">
+            <Switch
+              label="Email alerts"
+              description="Sent after a deployment."
+              checked={emailAlerts()}
+              onCheckedChange={setEmailAlerts}
+            />
+            <Switch
+              label="In-app alerts"
+              description="Shown in your workspace."
+              checked={inAppAlerts()}
+              onCheckedChange={setInAppAlerts}
+            />
+          </div>
+          <output aria-live="polite" class="text-muted-foreground mt-4 block text-xs">
+            {Number(emailAlerts()) + Number(inAppAlerts())} of 2 channels on
+          </output>
+        </SamplerItem>
+
+        <SamplerItem title="Popover" description="Show content beside an action." href="/popover">
+          <Popover>
+            <Popover.Trigger as={Button} variant="outline" size="sm">
+              Open popover
+            </Popover.Trigger>
+            <Popover.Content ariaLabel="Popover example">
+              <div class="p-4 max-w-52 space-y-1">
+                <p class="font-medium text-sm">Contextual content</p>
+                <p class="text-muted-foreground text-xs">
+                  This panel stays close to the action that opened it.
+                </p>
+              </div>
+            </Popover.Content>
+          </Popover>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Input number"
+          description="Step within a defined range."
+          href="/input-number"
+        >
+          <InputNumber aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
+        </SamplerItem>
+
+        <SamplerItem
+          title="Combobox"
+          description="Search and select from a collection."
+          href="/combobox"
+        >
+          <Combobox items={OPTIONS} placeholder="Search technologies..." allowClear />
+        </SamplerItem>
+
+        <SamplerItem title="Dialog" description="Focus attention on a task." href="/dialog">
+          <Dialog>
+            <Dialog.Trigger as={Button} variant="outline" size="sm">
+              Open dialog
+            </Dialog.Trigger>
+            <Dialog.Content
+              title="Dialog example"
+              body={
+                <p class="text-muted-foreground text-sm">
+                  A focused space for content that needs a response.
+                </p>
+              }
+            />
+          </Dialog>
+        </SamplerItem>
+
+        <SamplerItem
+          title="Accordion"
+          description="Reveal details without leaving the page."
+          href="/accordion"
+          class="lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
+        >
+          <Accordion
+            defaultValue={['keyboard']}
+            items={[
+              {
+                value: 'keyboard',
+                label: 'Keyboard support',
+                content:
+                  'Move between triggers with the arrow keys and activate one with Enter or Space.',
+              },
+              {
+                value: 'focus',
+                label: 'Focus management',
+                content:
+                  'Each trigger keeps a visible focus state while its panel opens or closes.',
+              },
+              {
+                value: 'content',
+                label: 'Flexible content',
+                content: 'Place text, links, or a richer layout inside any panel.',
+              },
+            ]}
+            classes={{
+              root: 'border border-border rounded-lg',
+              trigger: 'px-4',
+              content: 'px-4 text-sm',
+            }}
+          />
+        </SamplerItem>
+      </div>
     </section>
   )
 }

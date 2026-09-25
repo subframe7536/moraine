@@ -32,7 +32,7 @@ export function Basic() {
           ]}
         />
       </DropdownMenu>
-      <p class="text-sm text-muted-foreground">{message()}</p>
+      <p class="text-muted-foreground text-sm">{message()}</p>
     </div>
   )
 }

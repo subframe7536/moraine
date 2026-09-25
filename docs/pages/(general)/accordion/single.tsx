@@ -34,7 +34,7 @@ export function Single() {
         ]}
       />
 
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Active section:{' '}
         <span class="text-foreground font-medium">{openValue()?.[0] ?? 'none'}</span>
       </p>

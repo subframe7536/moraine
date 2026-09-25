@@ -96,13 +96,19 @@ Playground controls in standalone examples.
 
 ## Landing composition
 
-The dedicated TSX landing route is short and uses minimal prose. Compose it as a hero with a live
-specimen, a curated component canvas, a visual styling comparison, and a compact quick start.
-It does not list every component; documentation search and the sidebar own discovery. The landing
-may use a wider measure than article pages, while keeping the same semantic colors, typography,
-spacing, focus treatment, and motion rules. Real Moraine components are its primary visual content.
-Keep section spacing compact and compose the canvas as one ruled work surface with varied panel
-sizes; each visible interactive control should have a meaningful local response.
+The dedicated TSX landing route explains that Moraine provides styled SolidJS components which can
+adapt to an application's design system. Lead with that promise in a centered title and description,
+followed by the primary actions and install command. Follow with a theme, recipe, and slot
+customization preview; then a mixed-size interactive component sampler and a footer with an install
+action, relevant documentation paths, and project metadata.
+Documentation search and the sidebar own full component discovery.
+
+The landing may use a wider measure than article pages, while keeping the same semantic colors,
+typography, spacing, focus treatment, and motion rules. Real Moraine components are its primary
+visual content. Each visible interactive control should have a meaningful local response. Use open
+sections, spacing, and quiet rules to organize the landing. Reserve card framing for actual component
+previews rather than enclosing every section in another card. The component sampler uses a square,
+ruled grid with cells of different sizes.
 
 Do not use equal-card hero templates, generic feature-card grids, fabricated social proof, fake
 browser chrome, or decorative assets that do not explain the component library.

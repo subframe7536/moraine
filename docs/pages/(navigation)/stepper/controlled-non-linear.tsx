@@ -6,17 +6,17 @@ export function ControlledNonLinear() {
     {
       title: 'Draft',
       value: 'draft',
-      content: <p class="text-sm text-foreground">Prepare release notes.</p>,
+      content: <p class="text-foreground text-sm">Prepare release notes.</p>,
     },
     {
       title: 'Review',
       value: 'review',
-      content: <p class="text-sm text-foreground">Collect team approvals.</p>,
+      content: <p class="text-foreground text-sm">Collect team approvals.</p>,
     },
     {
       title: 'Ship',
       value: 'ship',
-      content: <p class="text-sm text-foreground">Deploy to production.</p>,
+      content: <p class="text-foreground text-sm">Deploy to production.</p>,
     },
   ]
 
@@ -40,7 +40,7 @@ export function ControlledNonLinear() {
         <Button size="sm" variant="outline" onClick={() => setReleaseStep('ship')}>
           Go to ship
         </Button>
-        <p class="text-xs text-muted-foreground">Current step: {releaseStep()}</p>
+        <p class="text-muted-foreground text-xs">Current step: {releaseStep()}</p>
       </div>
     </div>
   )

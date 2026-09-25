@@ -41,7 +41,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
-          <p class="text-xs text-muted-foreground">
+          <p class="text-muted-foreground text-xs">
             Selected country: {submittedCountry() || 'none'}
           </p>
         </div>

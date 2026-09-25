@@ -8,8 +8,8 @@ export function Autoresize() {
   const maxLength = 280
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-3">
-      <label class="text-xs text-muted-foreground font-medium block">
+    <div class="p-4 b-(1 border) max-w-xl space-y-3 rounded-xl">
+      <label class="text-muted-foreground font-medium block text-xs">
         Draft Release Announcement
       </label>
       <Textarea
@@ -20,7 +20,7 @@ export function Autoresize() {
         onValueChange={(next) => setPost(next ?? '')}
         placeholder="What's happening in your project?"
       />
-      <div class="text-xs flex items-center justify-between">
+      <div class="flex items-center justify-between text-xs">
         <span class="text-muted-foreground">Auto-expands as you type up to 8 rows.</span>
         <span
           class={`font-medium font-mono ${

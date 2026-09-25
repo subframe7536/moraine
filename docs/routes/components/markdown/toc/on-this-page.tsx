@@ -72,13 +72,13 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
       </p>
       <Show
         when={props.entries.length > 0}
-        fallback={<p class="text-xs text-muted-foreground mt-3">No sections</p>}
+        fallback={<p class="text-muted-foreground mt-3 text-xs">No sections</p>}
       >
         <div ref={setList} class="mt-2.5 flex flex-col gap-0.5 relative">
           <div
             data-toc-active-range
             aria-hidden="true"
-            class="rounded-lg pointer-events-none transition-[clip-path] duration-300 ease-out inset-0 absolute from-primary/10 to-primary/5 bg-gradient-to-r motion-reduce:transition-none"
+            class="pointer-events-none transition-[clip-path] duration-300 ease-out inset-0 absolute from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:transition-none"
             style={blockStyle()}
           />
           <For each={props.entries}>
@@ -89,7 +89,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-xs text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                class="text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

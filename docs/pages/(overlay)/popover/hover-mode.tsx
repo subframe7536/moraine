@@ -8,7 +8,7 @@ export function HoverMode() {
           Hover for Author Card
         </Popover.Trigger>
         <Popover.Content>
-          <div class="p-4 rounded-xl bg-card max-w-xs space-y-3">
+          <div class="p-4 bg-card max-w-xs space-y-3 rounded-xl">
             <div class="flex items-start justify-between">
               <Avatar text="AM" alt="Alex Morgan" size="lg" />
               <Button size="xs" variant="default">
@@ -18,19 +18,19 @@ export function HoverMode() {
 
             <div>
               <div class="flex gap-1.5 items-center">
-                <h4 class="text-sm font-semibold">Alex Morgan</h4>
+                <h4 class="font-semibold text-sm">Alex Morgan</h4>
                 <Badge variant="outline" size="sm">
                   Author
                 </Badge>
               </div>
-              <p class="text-xs text-muted-foreground font-mono">@alex.morgan</p>
+              <p class="text-muted-foreground font-mono text-xs">@alex.morgan</p>
             </div>
 
-            <p class="text-xs text-foreground">
+            <p class="text-foreground text-xs">
               Building accessible, high-performance UI primitives for SolidJS and web standards.
             </p>
 
-            <div class="text-xs text-muted-foreground pt-1 border-t border-border flex gap-3">
+            <div class="text-muted-foreground pt-1 border-t border-border flex gap-3 text-xs">
               <span>
                 <strong class="text-foreground font-semibold">1.4k</strong> followers
               </span>

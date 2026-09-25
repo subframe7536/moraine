@@ -25,7 +25,7 @@ export function ThemeReplacement() {
         />
         <Button onClick={() => input?.focus()}>Focus native input</Button>
       </MoraineProvider>
-      <p class="text-sm text-muted-foreground">
+      <p class="text-muted-foreground text-sm">
         Type a workspace name, then switch Theme. The input keeps its value and native ref while the
         button shape changes.
       </p>

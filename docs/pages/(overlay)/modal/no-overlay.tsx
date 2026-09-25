@@ -9,7 +9,7 @@ export function NoOverlay() {
       <Modal.Content ariaLabel="Modal without a backdrop">
         {(context) => (
           <div class="p-4 gap-4 grid">
-            <p class="text-sm text-foreground">
+            <p class="text-foreground text-sm">
               Omit Modal.Overlay when the host surface provides context.
             </p>
             <Button class="justify-self-end" onClick={context.close}>

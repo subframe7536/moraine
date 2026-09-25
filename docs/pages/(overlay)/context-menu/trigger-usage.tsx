@@ -12,7 +12,7 @@ export function TriggerUsage() {
       <ContextMenu>
         <ContextMenu.Trigger
           as="div"
-          class="text-xs text-muted-foreground b-(2 border dashed) rounded-xl flex h-32 w-full select-none items-center justify-center"
+          class="text-muted-foreground b-(2 border dashed) flex h-32 w-full select-none items-center justify-center text-xs rounded-xl"
         >
           Right-click or long-press inside this area
         </ContextMenu.Trigger>

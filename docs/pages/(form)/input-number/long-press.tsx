@@ -20,7 +20,7 @@ export function LongPress() {
           step={1}
           variant="subtle"
         />
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Hold <span class="font-medium">+</span> or <span class="font-medium">−</span> to repeat.
           Current value: {repeatValue()}
         </p>
@@ -40,7 +40,7 @@ export function LongPress() {
           step={1}
           variant="subtle"
         />
-        <p class="text-xs text-muted-foreground">
+        <p class="text-muted-foreground text-xs">
           Set <code>holdRepeat=false</code> to keep press-and-hold at a single step. Current value:{' '}
           {singleStepValue()}
         </p>

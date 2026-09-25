@@ -37,7 +37,7 @@ const TEAM_MEMBERS: MultiSelectT.Item[] = [
 export function UserChips() {
   return (
     <div class="max-w-md w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Project Assignees</label>
+      <label class="text-muted-foreground font-medium block text-xs">Project Assignees</label>
       <MultiSelect
         items={TEAM_MEMBERS}
         defaultValue={['sarah', 'alex']}

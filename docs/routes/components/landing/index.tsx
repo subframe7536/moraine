@@ -1,127 +1,193 @@
 import { createSignal } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, Icon } from '../../../../src'
-import { getDocsPages } from '../../docs-route'
+import { Badge, Button, Icon, cn } from '../../../../src'
 
-import { ArchitecturePillars } from './architecture-pillars'
-import { ComponentCanvas } from './component-canvas'
 import { ComponentRadar } from './component-radar'
-import { HeroSpecimen } from './hero-specimen'
 import { StylingShowcase } from './styling-showcase'
 
 const linkFocus =
   'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
 
-export { ArchitecturePillars } from './architecture-pillars'
-export { ComponentCanvas } from './component-canvas'
+function InstallCommand(props: { copied: boolean; onClick: () => void; class?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => props.onClick()}
+      class={cn(
+        'group px-4 py-2 text-left border border-border bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center text-lg rounded-lg hover:bg-muted/40',
+        linkFocus,
+        props.class,
+      )}
+      aria-label="Copy install command"
+      title={props.copied ? 'Copied to clipboard' : 'Click to copy'}
+    >
+      <span class="text-primary font-medium font-mono select-none">$</span>
+      <code class="text-foreground font-mono text-sm">npm i moraine</code>
+      <span class="text-muted-foreground inline-flex transition-colors items-center group-hover:text-foreground">
+        <Icon
+          name={props.copied ? 'i-lucide:check' : 'i-lucide:copy'}
+          class={cn('size-4 transition-colors', props.copied && 'text-primary')}
+        />
+      </span>
+    </button>
+  )
+}
+
 export { ComponentRadar } from './component-radar'
-export { HeroSpecimen } from './hero-specimen'
 export { StylingShowcase } from './styling-showcase'
 
 export function LandingPage() {
   const [copied, setCopied] = createSignal(false)
 
-  const componentPages = getDocsPages().filter((page) =>
-    ['form', 'general', 'navigation', 'overlay'].includes(page.group ?? ''),
-  )
-  const componentCount = componentPages.length
-  const firstComponentPath = componentPages[0]?.path ?? '/button'
-
-  const handleCopy = () => {
-    void navigator.clipboard?.writeText('npm i moraine')
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText('npm i moraine')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+    }
   }
 
   return (
     <div class="mx-auto px-5 max-w-6xl sm:px-8">
-      {/* Hero Section */}
       <section
         aria-labelledby="landing-title"
-        class="py-10 gap-8 grid items-center lg:py-20 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
+        class="py-16 text-center flex flex-col items-center lg:py-28 sm:py-24"
       >
-        <div class="min-w-0">
-          <Badge variant="outline" class="text-xs font-mono mb-4">
-            Pre-release · v{packageMetadata.version}
-          </Badge>
-          <h1
-            id="landing-title"
-            class="text-3xl leading-tight tracking-tight font-semibold max-w-xl lg:text-5xl sm:text-4xl"
-          >
-            SolidJS components that fit your design system.
-          </h1>
-          <p class="text-sm text-muted-foreground leading-relaxed mt-4 max-w-lg sm:text-base">
-            Fine-grained reactivity, composable slot recipes, and twin-engine styling via UnoCSS and
-            Tailwind CSS v4. Tune every layer without ejecting.
-          </p>
+        <Badge
+          size="lg"
+          variant="outline"
+          leading="i-lucide:sparkles"
+          class="mb-6 px-4 border-primary/60 rounded-full bg-primary/10 gap-2 h-9"
+          classes={{ leading: 'text-primary' }}
+        >
+          Now in early preview
+        </Badge>
+        <h1
+          id="landing-title"
+          class="leading-tight tracking-tight font-semibold max-w-5xl text-3xl lg:text-6xl sm:text-5xl"
+        >
+          <span class="text-foreground block">Styled SolidJS components.</span>
+          <span class="text-primary block">Built to fit your design system.</span>
+        </h1>
+        <p class="text-muted-foreground leading-relaxed mt-6 max-w-3xl text-base sm:text-lg">
+          Start with accessible components and built-in styles. Set a shared theme, choose component
+          variants, or refine individual parts with UnoCSS or Tailwind CSS.
+        </p>
 
-          <div class="mt-6 flex flex-wrap gap-3 items-center">
-            <Button as="a" size="lg" href="/start" trailing="icon-arrow-right">
-              Get started
-            </Button>
-            <Button as="a" size="lg" href={firstComponentPath} variant="outline">
-              Explore {componentCount} components
-            </Button>
-          </div>
-
-          {/* Quick Copy Command Pill */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            class={`group text-xl mt-5 px-3 py-1 text-left border border-border/80 rounded-lg bg-card/90 inline-flex gap-3.5 cursor-pointer select-none transition-colors items-center hover:border-border hover:bg-card ${linkFocus}`}
-            aria-label="Copy install command"
-            title={copied() ? 'Copied to clipboard' : 'Click to copy'}
-          >
-            <span class="text-blue-500 font-medium font-mono select-none">$</span>
-            <code class="text-xs text-foreground tracking-tight font-mono sm:text-sm">
-              npm i moraine
-            </code>
-            <span class="text-muted-foreground ml-1 inline-flex transition-colors items-center group-hover:text-foreground">
-              <Icon
-                name={copied() ? 'i-lucide:check' : 'i-lucide:copy'}
-                class={`size-4 transition-colors ${copied() ? 'text-primary' : ''}`}
-              />
-            </span>
-          </button>
-        </div>
-
-        <div class="min-w-0">
-          <HeroSpecimen />
-        </div>
-      </section>
-
-      {/* 4 Technical Architecture Pillars */}
-      <ArchitecturePillars />
-
-      {/* Component Canvas / Workbench */}
-      <ComponentCanvas />
-
-      {/* Live Theme & Recipe Lab */}
-      <StylingShowcase />
-
-      {/* Curated Component Radar */}
-      <ComponentRadar />
-
-      {/* Quick Start Terminal */}
-      <section
-        aria-labelledby="quick-start-title"
-        class="py-10 border-t border-border/70 flex flex-wrap gap-4 items-center sm:py-12"
-      >
-        <div class="me-auto">
-          <h2 id="quick-start-title" class="text-lg tracking-tight font-semibold">
-            Ready to build?
-          </h2>
-          <p class="text-xs text-muted-foreground mt-0.5">
-            Install Moraine and explore {componentCount} reactive primitives.
-          </p>
-        </div>
-        <div class="flex gap-3 items-center">
-          <Button as="a" href="/start" size="sm" trailing="icon-arrow-right">
+        <div class="mt-8 flex flex-wrap gap-3 items-center justify-center">
+          <Button as="a" size="xl" href="/start" trailing="icon-arrow-right">
             Get started
           </Button>
+          <Button as="a" size="xl" href="/button" variant="outline">
+            Browse components
+          </Button>
         </div>
+
+        <InstallCommand copied={copied()} onClick={handleCopy} class="mt-6" />
       </section>
+
+      <StylingShowcase />
+      <ComponentRadar />
+
+      <footer>
+        <div class="py-14 gap-12 grid sm:py-18 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+          <div class="md:pe-8">
+            <h2 class="tracking-tight font-semibold text-2xl sm:text-3xl">
+              Start building with Moraine
+            </h2>
+            <p class="text-muted-foreground leading-relaxed mt-3 max-w-md text-sm sm:text-base">
+              Install the library, choose UnoCSS or Tailwind CSS, and shape the components to fit
+              your interface.
+            </p>
+
+            <InstallCommand class="mt-6" copied={copied()} onClick={handleCopy} />
+
+            <span class="sr-only" aria-live="polite">
+              {copied() ? 'Install command copied' : ''}
+            </span>
+          </div>
+
+          <nav aria-label="Explore Moraine" class="md:ps-8">
+            <a
+              href="/form"
+              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+            >
+              <span>
+                <span class="font-medium block text-sm">Components</span>
+                <span class="text-muted-foreground mt-1 block text-xs">
+                  Forms, navigation, overlays, and more.
+                </span>
+              </span>
+              <Icon
+                name="i-lucide:arrow-up-right"
+                class="text-muted-foreground size-4 group-hover:text-foreground"
+              />
+            </a>
+            <a
+              href="/styling/customization"
+              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+            >
+              <span>
+                <span class="font-medium block text-sm">Customization</span>
+                <span class="text-muted-foreground mt-1 block text-xs">
+                  Themes, recipes, and component slots.
+                </span>
+              </span>
+              <Icon
+                name="i-lucide:arrow-up-right"
+                class="text-muted-foreground size-4 group-hover:text-foreground"
+              />
+            </a>
+            <a
+              href="/styling/unocss"
+              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+            >
+              <span>
+                <span class="font-medium block text-sm">UnoCSS</span>
+                <span class="text-muted-foreground mt-1 block text-xs">
+                  Configure the Moraine preset.
+                </span>
+              </span>
+              <Icon
+                name="i-lucide:arrow-up-right"
+                class="text-muted-foreground size-4 group-hover:text-foreground"
+              />
+            </a>
+            <a
+              href="/styling/tailwind"
+              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+            >
+              <span>
+                <span class="font-medium block text-sm">Tailwind CSS</span>
+                <span class="text-muted-foreground mt-1 block text-xs">
+                  Add the plugin and scan component styles.
+                </span>
+              </span>
+              <Icon
+                name="i-lucide:arrow-up-right"
+                class="text-muted-foreground size-4 group-hover:text-foreground"
+              />
+            </a>
+          </nav>
+        </div>
+
+        <div class="py-5 flex flex-wrap gap-x-6 gap-y-3 items-center text-xs">
+          <a href="/" class={`font-semibold flex gap-2 items-center ${linkFocus}`}>
+            <img src="/favicon.svg" alt="" class="size-5" />
+            Moraine
+          </a>
+          <span class="text-muted-foreground">v{packageMetadata.version} pre-release · MIT</span>
+          <a
+            href="https://github.com/subframe7536/moraine"
+            class={`text-muted-foreground ms-auto flex gap-1.5 items-center hover:text-foreground ${linkFocus}`}
+          >
+            GitHub <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }

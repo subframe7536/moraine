@@ -24,9 +24,9 @@ export function Controlled() {
         open={open()}
         disabled={locked()}
         onOpenChange={setOpen}
-        class="b-(1 border) rounded-lg w-full"
+        class="b-(1 border) w-full rounded-lg"
       >
-        <Collapsible.Trigger class="group text-sm font-medium px-4 py-3 text-left flex w-full items-center justify-between data-disabled:opacity-60">
+        <Collapsible.Trigger class="group font-medium px-4 py-3 text-left flex w-full items-center justify-between text-sm data-disabled:opacity-60">
           <span>June invoice #INV-2048</span>
           <Icon
             name="i-lucide-chevron-down"
@@ -34,7 +34,7 @@ export function Controlled() {
             class="group-data-expanded:rotate-180 text-muted-foreground transition-transform"
           />
         </Collapsible.Trigger>
-        <Collapsible.Content class="text-sm text-foreground px-4 pb-4">
+        <Collapsible.Content class="text-foreground px-4 pb-4 text-sm">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground">Plan</span>

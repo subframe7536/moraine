@@ -31,7 +31,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
-          <p class="text-xs text-muted-foreground">Selected units: {submittedQuantity() ?? 1}</p>
+          <p class="text-muted-foreground text-xs">Selected units: {submittedQuantity() ?? 1}</p>
         </div>
       </div>
     </form.Form>

@@ -31,7 +31,7 @@ const ROLES: SelectT.Item[] = [
 export function UserAssignee() {
   return (
     <div class="max-w-sm w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Member Permission Role</label>
+      <label class="text-muted-foreground font-medium block text-xs">Member Permission Role</label>
       <Select items={ROLES} defaultValue="member" placeholder="Assign a role..." />
     </div>
   )

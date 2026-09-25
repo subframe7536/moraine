@@ -60,7 +60,7 @@ export function AnimationExplorer() {
     <div class="w-full space-y-4">
       <div class="flex flex-wrap gap-3 items-end justify-between">
         <div class="flex-1 min-w-48">
-          <label class="text-xs text-muted-foreground font-medium mb-1 block">
+          <label class="text-muted-foreground font-medium mb-1 block text-xs">
             Select Animation Utility
           </label>
           <Select
@@ -114,31 +114,31 @@ export function AnimationExplorer() {
         </div>
       </div>
 
-      <p class="text-xs text-muted-foreground">{currentOption().description}</p>
+      <p class="text-muted-foreground text-xs">{currentOption().description}</p>
 
       <div
-        class="p-8 border border-border/70 rounded-xl bg-muted/20 flex min-h-48 items-center justify-center overflow-hidden"
+        class="p-8 border border-border/70 bg-muted/20 flex min-h-48 items-center justify-center overflow-hidden rounded-xl"
         style={{ '--mo-anim-duration': speed(), '--mo-collapsible-content-height': '72px' }}
       >
         <div class="flex items-center justify-center">
           <Show when={key() >= 0}>
             <Card
-              compact
+              size="sm"
               class={`border-primary/30 shadow-md ${selected()}`}
               classes={{ root: 'max-w-xs w-64' }}
             >
-              <div class="p-3 flex gap-3 items-center">
-                <span class="text-sm text-primary font-semibold rounded-lg bg-primary/10 flex size-8 items-center justify-center">
+              <Card.Body class="p-3 flex gap-3 items-center">
+                <span class="text-primary font-semibold bg-primary/10 flex size-8 items-center justify-center text-sm rounded-lg">
                   M
                 </span>
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm leading-none font-medium truncate">Moraine Motion</p>
-                  <p class="text-xs text-muted-foreground mt-1 truncate">{speed()} duration</p>
+                  <p class="leading-none font-medium truncate text-sm">Moraine Motion</p>
+                  <p class="text-muted-foreground mt-1 truncate text-xs">{speed()} duration</p>
                 </div>
                 <Badge variant="surface" size="sm">
                   Active
                 </Badge>
-              </div>
+              </Card.Body>
             </Card>
           </Show>
         </div>

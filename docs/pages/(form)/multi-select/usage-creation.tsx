@@ -14,7 +14,7 @@ export function UsageCreation() {
         placeholder="Type and press Enter, comma, or space..."
         allowClear
       />
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Active tags:{' '}
         <span class="text-foreground font-medium font-mono">{tags().join(', ') || '(none)'}</span>
       </p>

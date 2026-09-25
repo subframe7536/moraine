@@ -684,7 +684,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   return (
     <Show when={presence.present()}>
       <Portal mount={(state.anchor() ?? state.focusOwner())?.ownerDocument.body}>
-        <div data-slot={state.slotName('positioner')} ref={setPositioner}>
+        <div data-slot={state.slotName('positioner')} ref={setPositioner} class="z-floating">
           <div
             {...rest}
             data-slot={state.slotName('content')}

@@ -15,8 +15,8 @@ export function KeyboardStepping() {
         largeStep={5}
         onRawValueChange={setValue}
       />
-      <p class="text-sm text-muted-foreground">Current delay: {value()} seconds</p>
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-sm">Current delay: {value()} seconds</p>
+      <p class="text-muted-foreground text-xs">
         Arrow keys change by 0.5, PageUp/PageDown by 5, and Home/End jump to 0 or 60.
       </p>
     </div>

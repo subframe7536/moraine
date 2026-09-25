@@ -28,7 +28,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
-          <p class="text-xs text-muted-foreground">Current volume: {formState().volume}</p>
+          <p class="text-muted-foreground text-xs">Current volume: {formState().volume}</p>
         </div>
       </div>
     </form.Form>

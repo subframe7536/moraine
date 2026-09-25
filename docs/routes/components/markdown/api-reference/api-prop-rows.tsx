@@ -36,8 +36,8 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
       aria-labelledby={`${props.prop.anchorId}-trigger`}
       class="px-3 py-3 border-t border-border/40 sm:px-4"
     >
-      <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
-        <dt class="text-xs text-muted-foreground font-medium">Name</dt>
+      <dl class="m-0 gap-x-4 gap-y-3 grid text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dt class="text-muted-foreground font-medium text-xs">Name</dt>
         <dd class="m-0 min-w-0">
           <a
             href={`#${props.prop.anchorId}`}
@@ -50,7 +50,7 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
         <Show when={props.prop.description}>
           {(description) => (
             <>
-              <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+              <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
                 Description
               </dt>
               <dd
@@ -62,21 +62,21 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
           )}
         </Show>
 
-        <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+        <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
           Type
         </dt>
         <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
           <Show
             when={props.prop.typeHtml}
             fallback={
-              <code class="text-xs text-foreground font-mono whitespace-pre-wrap break-words">
+              <code class="text-foreground font-mono whitespace-pre-wrap break-words text-xs">
                 {props.prop.type}
               </code>
             }
           >
             {(html) => (
               <div
-                class="text-xs font-mono [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
+                class="font-mono text-xs [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
                 // oxlint-disable-next-line subf/solid-no-innerhtml
                 innerHTML={html()}
               />
@@ -85,7 +85,7 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
         </dd>
 
         <Show when={props.prop.defaultValue !== undefined}>
-          <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+          <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
             Default
           </dt>
           <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
@@ -108,7 +108,7 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
         aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.summaryType}${defaultText()}`}
         class={cn(
           PROP_GRID_CLASS,
-          'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
+          'p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch text-sm hover:bg-muted/30',
         )}
       >
         <span class="text-foreground font-medium font-mono px-3 py-2.5 min-w-0 truncate">
@@ -119,12 +119,12 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
           </Show>
         </span>
         <code
-          class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate sm:block"
+          class="text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate text-xs sm:block"
           title={props.prop.type}
         >
           {props.prop.summaryType}
         </code>
-        <span class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate lg:block">
+        <span class="text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate text-xs lg:block">
           {props.prop.defaultValue ?? '—'}
         </span>
         <ReferenceChevron />

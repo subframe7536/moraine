@@ -100,19 +100,19 @@ const cardStyles: CardT.Classes = {
   footer: 'border-t border-border pt-2',
 }
 
-<Card.Root classes={cardStyles}><Card.Body>Account Content</Card.Body></Card.Root>
+<Card classes={cardStyles}><Card.Body>Account Content</Card.Body></Card>
 ```
 
 ## Where DOM props apply
 
-Put native attributes on the component that renders the element. For example, `Card.Root` accepts its `aria-*` and `data-*` attributes; `Button as="a"` accepts anchor attributes. Moraine types the target's native Solid attributes:
+Put native attributes on the component that renders the element. For example, `Card` accepts its `aria-*` and `data-*` attributes; `Button as="a"` accepts anchor attributes. Moraine types the target's native Solid attributes:
 
 - **Standard HTML & ARIA attributes**: `aria-*`, `data-*`, `id`, `tabIndex`, and standard attributes are fully typed.
 - **CamelCase event handlers**: `onClick`, `onInput`, `onKeyDown`, etc. Lowercase aliases (`onclick`) and Solid directive prefixes (`use:*`) are omitted to keep autocompletion focused.
 - **Unknown attributes**: Unrecognized attributes fail type checking by default to catch typos early.
 
 ```tsx
-<Card.Root aria-describedby="details" data-testid="card" />
+<Card aria-describedby="details" data-testid="card" />
 <Button as="a" href="/docs" ref={(anchor) => anchor.focus()}>Docs</Button>
 ```
 

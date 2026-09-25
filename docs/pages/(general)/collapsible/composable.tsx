@@ -7,7 +7,7 @@ export function Composable() {
         <Card.Body class="p-4">
           <Collapsible transition>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-foreground font-semibold">
+              <span class="text-foreground font-semibold text-sm">
                 @solidjs starred 3 repositories
               </span>
               <Collapsible.Trigger
@@ -20,15 +20,15 @@ export function Composable() {
               </Collapsible.Trigger>
             </div>
 
-            <div class="text-sm font-mono mt-2 px-4 py-2 border border-border rounded-md">
+            <div class="font-mono mt-2 px-4 py-2 border border-border text-sm rounded-md">
               @solidjs/router
             </div>
 
             <Collapsible.Content class="pt-2 space-y-2">
-              <div class="text-sm font-mono px-4 py-2 border border-border rounded-md">
+              <div class="font-mono px-4 py-2 border border-border text-sm rounded-md">
                 @solidjs/testing-library
               </div>
-              <div class="text-sm font-mono px-4 py-2 border border-border rounded-md">
+              <div class="font-mono px-4 py-2 border border-border text-sm rounded-md">
                 subframe7536/moraine
               </div>
             </Collapsible.Content>

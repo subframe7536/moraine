@@ -46,7 +46,7 @@ export function PageSize() {
           }}
         />
       </Field>
-      <ul class="text-sm border-y border-border divide-border divide-y">
+      <ul class="border-y border-border divide-border divide-y text-sm">
         <For each={visible()}>{(result) => <li class="py-2">{result}</li>}</For>
       </ul>
       <Pagination

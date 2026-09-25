@@ -55,7 +55,7 @@ export const Sidebar = (props: SidebarProps) => {
           {(section) => (
             <section aria-label={section.group}>
               <Show when={section.group}>
-                <div class="text-xs text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase">
+                <div class="text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase text-xs">
                   {section.group}
                 </div>
               </Show>
@@ -71,7 +71,7 @@ export const Sidebar = (props: SidebarProps) => {
                       props.activePage() === context.item.key ? ('page' as const) : undefined
                     }
                     class={cn(
-                      'text-sm px-2.5 py-1.5 text-left rounded-lg transition-([background-color,color] duration-150 ease-out) hover:cursor-pointer',
+                      'px-2.5 py-1.5 text-left transition-([background-color,color] duration-150 ease-out) text-sm rounded-lg hover:cursor-pointer',
                       props.activePage() === context.item.key
                         ? 'text-primary font-medium bg-primary/10 dark:bg-primary/15'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
@@ -106,7 +106,7 @@ export const Sidebar = (props: SidebarProps) => {
                   href="/llms.txt"
                   rel="alternate external"
                   type="text/markdown"
-                  class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-sm flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                  class="text-muted-foreground px-2.5 py-1.5 flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center text-sm rounded-sm hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   <span class="truncate">llms.txt</span>
                 </a>
@@ -116,7 +116,7 @@ export const Sidebar = (props: SidebarProps) => {
         </For>
 
         <Show when={grouped().length === 0}>
-          <p class="text-xs text-muted-foreground px-2 py-3">No results</p>
+          <p class="text-muted-foreground px-2 py-3 text-xs">No results</p>
         </Show>
       </nav>
     </div>
@@ -137,7 +137,7 @@ export const SidebarHeader = (props: SidebarHeaderProps) => {
         aria-label="Moraine home"
       >
         <img src="/favicon.svg" alt="" class="size-6" />
-        <span class="text-base font-semibold flex truncate items-center">
+        <span class="font-semibold flex truncate items-center text-base">
           Moraine
           <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono ms-2 px-1.5 py-0">
             v{version}

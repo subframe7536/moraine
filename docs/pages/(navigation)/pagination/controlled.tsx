@@ -22,16 +22,16 @@ export function Controlled() {
   })
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl bg-card max-w-xl space-y-4">
+    <div class="p-4 b-(1 border) bg-card max-w-xl space-y-4 rounded-xl">
       <div class="flex items-center justify-between">
-        <h4 class="text-sm font-semibold">Active Customers</h4>
-        <span class="text-xs text-muted-foreground">
+        <h4 class="font-semibold text-sm">Active Customers</h4>
+        <span class="text-muted-foreground text-xs">
           Showing {(page() - 1) * itemsPerPage + 1}–
           {Math.min(page() * itemsPerPage, ALL_CUSTOMERS.length)} of {ALL_CUSTOMERS.length} records
         </span>
       </div>
 
-      <div class="text-xs divide-border divide-y">
+      <div class="divide-border divide-y text-xs">
         <For each={currentRecords()}>
           {(customer) => (
             <div class="py-2.5 flex items-center justify-between">

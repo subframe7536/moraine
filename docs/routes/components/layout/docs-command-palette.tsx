@@ -101,7 +101,7 @@ function createDocsCommandItem(
       }}
     >
       <span class="truncate">{context.item.label}</span>
-      <span class="text-xs text-muted-foreground truncate">{context.item.description}</span>
+      <span class="text-muted-foreground truncate text-xs">{context.item.description}</span>
     </a>
   )
 }

@@ -47,15 +47,15 @@ export function Sides() {
           title="Shopping Cart (2 items)"
           description="Review your selected items before checkout."
           body={
-            <div class="text-xs py-2 space-y-3">
-              <div class="p-2 rounded-lg bg-muted/40 flex items-center justify-between">
+            <div class="py-2 space-y-3 text-xs">
+              <div class="p-2 bg-muted/40 flex items-center justify-between rounded-lg">
                 <div>
                   <p class="font-medium">Moraine UI Team License</p>
                   <p class="text-muted-foreground">Qty: 1</p>
                 </div>
                 <span class="font-mono font-semibold">$199.00</span>
               </div>
-              <div class="p-2 rounded-lg bg-muted/40 flex items-center justify-between">
+              <div class="p-2 bg-muted/40 flex items-center justify-between rounded-lg">
                 <div>
                   <p class="font-medium">Priority SLA Support</p>
                   <p class="text-muted-foreground">Qty: 1</p>

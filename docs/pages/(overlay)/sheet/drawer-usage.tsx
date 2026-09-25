@@ -8,7 +8,7 @@ export function DrawerUsage() {
         title="Edit Configuration"
         description="Update workspace variables and environment keys."
         body={
-          <div class="text-xs text-muted-foreground py-4">
+          <div class="text-muted-foreground py-4 text-xs">
             Changes take effect immediately on next deployment cycle.
           </div>
         }

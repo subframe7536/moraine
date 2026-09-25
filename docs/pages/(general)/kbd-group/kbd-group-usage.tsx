@@ -4,11 +4,11 @@ export function KbdGroupUsage() {
   return (
     <div class="flex flex-col gap-3">
       <div class="flex gap-2 items-center">
-        <span class="text-sm text-muted-foreground">Save document:</span>
+        <span class="text-muted-foreground text-sm">Save document:</span>
         <KbdGroup items={['meta', 's']} />
       </div>
       <div class="flex gap-2 items-center">
-        <span class="text-sm text-muted-foreground">Format document:</span>
+        <span class="text-muted-foreground text-sm">Format document:</span>
         <KbdGroup items={['shift', 'alt', 'f']} />
       </div>
     </div>

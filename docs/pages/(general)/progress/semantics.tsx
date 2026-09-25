@@ -3,7 +3,7 @@ import { Progress } from '@src'
 export function Semantics() {
   return (
     <div class="max-w-md w-full space-y-2">
-      <div class="text-xs text-muted-foreground flex justify-between">
+      <div class="text-muted-foreground flex justify-between text-xs">
         <span>Downloading installation bundle</span>
         <span>82%</span>
       </div>

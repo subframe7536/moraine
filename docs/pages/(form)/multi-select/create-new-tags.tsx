@@ -14,7 +14,7 @@ export function CreateNewTags() {
 
   return (
     <div class="max-w-md w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">
+      <label class="text-muted-foreground font-medium block text-xs">
         Topics (Select existing or type to create)
       </label>
       <MultiSelect
@@ -32,7 +32,7 @@ export function CreateNewTags() {
             <Button
               variant="link"
               size="sm"
-              class="text-xs text-primary"
+              class="text-primary text-xs"
               onClick={() => ctx.create()}
             >
               Create &ldquo;{ctx.inputValue}&rdquo;
@@ -40,7 +40,7 @@ export function CreateNewTags() {
           </div>
         )}
       />
-      <p class="text-xs text-muted-foreground">Selected values: {tags().join(', ') || 'none'}</p>
+      <p class="text-muted-foreground text-xs">Selected values: {tags().join(', ') || 'none'}</p>
     </div>
   )
 }

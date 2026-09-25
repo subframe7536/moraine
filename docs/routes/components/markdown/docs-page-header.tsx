@@ -46,14 +46,14 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
       <div class="flex flex-wrap gap-2 items-center">
         <Show when={category()}>
           {(nextCategory) => (
-            <span class="text-xs text-muted-foreground tracking-[0.16em] font-semibold uppercase">
+            <span class="text-muted-foreground tracking-[0.16em] font-semibold uppercase text-xs">
               {nextCategory()}
             </span>
           )}
         </Show>
         <Show when={componentKey()}>
           {(nextComponentKey) => (
-            <span class="text-xs text-muted-foreground font-mono">{nextComponentKey()}</span>
+            <span class="text-muted-foreground font-mono text-xs">{nextComponentKey()}</span>
           )}
         </Show>
         <Show when={component()?.kind}>
@@ -61,7 +61,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
             <a
               href="/styling/customization#component-kinds"
               aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: styling guide`}
-              class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+              class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
             >
               {kind() === 'single' ? 'Single' : 'Composite'}
             </a>
@@ -71,22 +71,22 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           <a
             href="/typescript#polymorphic-rendering-as-prop"
             aria-label="Polymorphic: at least one component supports the as prop; see each component's Props"
-            class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
             Polymorphic
           </a>
         </Show>
       </div>
 
-      <h1 class="text-2xl font-bold mt-3 outline-none sm:text-3xl" tabIndex={-1}>
+      <h1 class="font-bold mt-3 outline-none text-2xl sm:text-3xl" tabIndex={-1}>
         {props.frontmatter.title}
       </h1>
 
-      <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
+      <p class="text-muted-foreground mt-2 max-w-3xl text-sm sm:text-base">
         {props.frontmatter.description}
       </p>
 
-      <div class="text-xs mt-4 flex flex-wrap gap-2 items-center">
+      <div class="mt-4 flex flex-wrap gap-2 items-center text-xs">
         <Show when={props.markdownSource}>
           <Button
             as="a"

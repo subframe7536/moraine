@@ -251,7 +251,7 @@ export function DocsPlaygroundSlots(props: {
       aria-label="Component slots"
     >
       <div class="flex gap-2 items-center justify-between">
-        <span class="text-xs text-foreground/90 font-semibold flex gap-1.5 items-center">
+        <span class="text-foreground/90 font-semibold flex gap-1.5 items-center text-xs">
           <Icon name="i-lucide:layers" class="text-muted-foreground size-3.5" />
           <span>Slots</span>
         </span>
@@ -308,7 +308,7 @@ export function DocsPlaygroundSlots(props: {
                 <div
                   aria-hidden="true"
                   data-docs-slot-highlight={activeSlot()}
-                  class="border-2 border-primary rounded-sm bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647]"
+                  class="border-2 border-primary bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647] rounded-sm"
                   style={{
                     top: `${box.top}px`,
                     left: `${box.left}px`,
@@ -317,7 +317,7 @@ export function DocsPlaygroundSlots(props: {
                   }}
                 >
                   <Show when={index() === 0}>
-                    <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute -top-6">
+                    <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 bg-primary whitespace-nowrap left-0 absolute rounded-sm -top-6">
                       {activeSlot()}
                     </span>
                   </Show>

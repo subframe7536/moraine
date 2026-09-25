@@ -15,6 +15,8 @@ Moraine decouples component layout and logic from design tokens using semantic C
 
 Set your design tokens in your application stylesheet under `:root` for light mode and `.dark` for dark mode. Both the UnoCSS preset and the Tailwind CSS plugin map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
+Set `--radius`, `--spacing`, or `--font-size` on a container to change the matching utilities inside that subtree. `--font-size` is the base for the `text-xs` through `text-9xl` sizes and their default line heights.
+
 ```css title="src/theme.css"
 :root {
   --background: oklch(100% 0 0);
@@ -37,6 +39,8 @@ Set your design tokens in your application stylesheet under `:root` for light mo
   --input: oklch(90% 0 0);
   --ring: oklch(55% 0.2 260);
   --radius: 0.625rem;
+  --spacing: 0.25rem;
+  --font-size: 1rem;
 }
 
 .dark {
@@ -123,6 +127,8 @@ Moraine components map shadow utilities to these CSS variables:
 | `--font-sans`     | Primary UI typeface             | System sans-serif stack    |
 | `--font-mono`     | Code, numbers, and Kbd          | System monospace stack     |
 | `--font-serif`    | Editorial serif typeface        | System serif stack         |
+| `--font-size`     | Base for `text-xs`–`text-9xl`   | `1rem`                     |
+| `--spacing`       | Base spacing unit               | `0.25rem`                  |
 | `--sidebar-width` | Width of `SidebarFrame.Sidebar` | `clamp(14rem, 25%, 20rem)` |
 
 ## Semantic z-index utilities

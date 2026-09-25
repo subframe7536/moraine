@@ -6,7 +6,7 @@ export function FreeFormTags() {
 
   return (
     <div class="max-w-md w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">
+      <label class="text-muted-foreground font-medium block text-xs">
         Free-Form Tags (Comma or space separated)
       </label>
       <MultiSelect
@@ -17,7 +17,7 @@ export function FreeFormTags() {
         placeholder="Type words, press space or comma..."
         allowClear
       />
-      <p class="text-xs text-muted-foreground">Tags array: {JSON.stringify(tags())}</p>
+      <p class="text-muted-foreground text-xs">Tags array: {JSON.stringify(tags())}</p>
     </div>
   )
 }

@@ -14,7 +14,7 @@ export function InputStates() {
   return (
     <div class="gap-4 grid max-w-2xl sm:grid-cols-2">
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Checking availability...</label>
+        <label class="text-muted-foreground text-xs">Checking availability...</label>
         <InputGroup>
           <InputGroup.Leading>
             <Icon name="icon-loading" class="animate-spin" />
@@ -24,9 +24,9 @@ export function InputStates() {
       </div>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Read-only API token</label>
+        <label class="text-muted-foreground text-xs">Read-only API token</label>
         <div class="flex gap-2">
-          <Input readOnly value={token} class="text-xs font-mono" />
+          <Input readOnly value={token} class="font-mono text-xs" />
           <Button variant="outline" size="md" onClick={copyToken} aria-label="Copy token">
             <Icon name={copied() ? 'i-lucide:check' : 'i-lucide:copy'} class="size-4" />
           </Button>
@@ -34,12 +34,12 @@ export function InputStates() {
       </div>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Disabled enterprise field</label>
+        <label class="text-muted-foreground text-xs">Disabled enterprise field</label>
         <Input disabled value="Single Sign-On (SAML 2.0)" placeholder="Disabled" />
       </div>
 
       <div class="space-y-1">
-        <label class="text-xs text-muted-foreground">Validated username</label>
+        <label class="text-muted-foreground text-xs">Validated username</label>
         <InputGroup>
           <Input defaultValue="subframe7536" />
           <InputGroup.Trailing>

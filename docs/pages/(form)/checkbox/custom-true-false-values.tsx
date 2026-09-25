@@ -5,7 +5,7 @@ export function CustomTrueFalseValues() {
   const [telemetry, setTelemetry] = createSignal<'opted-in' | 'opted-out'>('opted-in')
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-xl space-y-4">
+    <div class="p-4 b-(1 border) max-w-xl space-y-4 rounded-xl">
       <div class="flex gap-4 items-center justify-between">
         <Checkbox<'opted-in', 'opted-out'>
           label="Anonymous telemetry collection"
@@ -18,7 +18,7 @@ export function CustomTrueFalseValues() {
         <Badge variant={telemetry() === 'opted-in' ? 'subtle' : 'outline'}>{telemetry()}</Badge>
       </div>
 
-      <p class="text-xs text-muted-foreground">
+      <p class="text-muted-foreground text-xs">
         Controlled domain state is stored as <code class="font-mono">{telemetry()}</code> instead of
         a raw boolean.
       </p>

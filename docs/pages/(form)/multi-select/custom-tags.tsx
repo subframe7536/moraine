@@ -36,7 +36,7 @@ const LABELS: LabelItem[] = [
 export function CustomTags() {
   return (
     <div class="max-w-md w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Issue Labels</label>
+      <label class="text-muted-foreground font-medium block text-xs">Issue Labels</label>
       <MultiSelect<LabelItem>
         items={LABELS}
         defaultValue={['bug', 'perf']}
@@ -47,7 +47,7 @@ export function CustomTags() {
           const color = () => props.item?.color ?? 'bg-muted border-border text-foreground'
           return (
             <span
-              class={`text-xs font-medium px-2 py-0.5 border rounded-full inline-flex gap-1.5 items-center ${color()}`}
+              class={`font-medium px-2 py-0.5 border rounded-full inline-flex gap-1.5 items-center text-xs ${color()}`}
             >
               <span class="rounded-full bg-current opacity-70 h-1.5 w-1.5" />
               <span>{props.label}</span>

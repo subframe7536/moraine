@@ -45,7 +45,7 @@ export function DropdownAction() {
         </DropdownMenu>
       </ButtonGroup>
 
-      <p class="text-sm text-muted-foreground min-h-5" role="status" aria-live="polite">
+      <p class="text-muted-foreground min-h-5 text-sm" role="status" aria-live="polite">
         {exportedFormat() ? `Report exported as ${exportedFormat()}.` : 'Choose an export format.'}
       </p>
     </div>

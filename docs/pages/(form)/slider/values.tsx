@@ -8,7 +8,7 @@ export function Values() {
   return (
     <div class="max-w-md w-full space-y-6">
       <div class="space-y-2">
-        <div class="text-xs text-muted-foreground flex justify-between">
+        <div class="text-muted-foreground flex justify-between text-xs">
           <span>Single volume</span>
           <span class="text-foreground font-mono">{singleVal()}%</span>
         </div>
@@ -16,7 +16,7 @@ export function Values() {
       </div>
 
       <div class="space-y-2">
-        <div class="text-xs text-muted-foreground flex justify-between">
+        <div class="text-muted-foreground flex justify-between text-xs">
           <span>Budget range</span>
           <span class="text-foreground font-mono">
             ${rangeVal()[0]} - ${rangeVal()[1]}

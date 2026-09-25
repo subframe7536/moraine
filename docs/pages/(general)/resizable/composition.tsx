@@ -4,7 +4,7 @@ const panelClass = 'text-xs text-muted-foreground flex h-full items-center justi
 
 export function Composition() {
   return (
-    <div class="b-(1 border) rounded-xl h-48 w-full overflow-hidden">
+    <div class="b-(1 border) h-48 w-full overflow-hidden rounded-xl">
       <Resizable>
         <Resizable.Panel defaultSize="35%" class={`${panelClass} bg-muted/20`}>
           Navigation

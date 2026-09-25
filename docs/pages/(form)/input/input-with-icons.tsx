@@ -53,24 +53,24 @@ export function InputWithIcons() {
 
       <InputGroup>
         <InputGroup.Leading compact>
-          <div class="text-xs text-muted-foreground font-mono flex gap-1 items-center">
+          <div class="text-muted-foreground font-mono flex gap-1 items-center text-xs">
             <Icon name="i-lucide:globe" class="size-3.5" />
             https://
           </div>
         </InputGroup.Leading>
         <Input placeholder="project-slug" />
         <InputGroup.Trailing compact>
-          <span class="text-xs text-muted-foreground font-mono">.moraine.dev</span>
+          <span class="text-muted-foreground font-mono text-xs">.moraine.dev</span>
         </InputGroup.Trailing>
       </InputGroup>
 
       <InputGroup>
         <InputGroup.Leading>
-          <span class="text-xs text-muted-foreground font-semibold">$</span>
+          <span class="text-muted-foreground font-semibold text-xs">$</span>
         </InputGroup.Leading>
         <Input defaultValue="49.00" placeholder="0.00" />
         <InputGroup.Trailing>
-          <span class="text-xs text-muted-foreground">USD / mo</span>
+          <span class="text-muted-foreground text-xs">USD / mo</span>
         </InputGroup.Trailing>
       </InputGroup>
     </div>

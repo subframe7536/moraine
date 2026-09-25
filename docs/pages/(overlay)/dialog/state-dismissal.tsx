@@ -33,7 +33,7 @@ export function StateDismissal() {
           description="Explicit confirmation is required before navigating away."
           body={
             <div class="py-2 space-y-3">
-              <p class="text-sm text-muted-foreground">
+              <p class="text-muted-foreground text-sm">
                 {dismissible()
                   ? 'Press Escape or click the backdrop to dismiss.'
                   : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}

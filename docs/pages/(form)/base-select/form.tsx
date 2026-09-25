@@ -38,7 +38,7 @@ export default function Example() {
         </BaseSelect.Content>
       </BaseSelect>
       <Button type="submit">Submit</Button>
-      <output class="text-sm text-muted-foreground self-center">{submitted()}</output>
+      <output class="text-muted-foreground self-center text-sm">{submitted()}</output>
     </form>
   )
 }

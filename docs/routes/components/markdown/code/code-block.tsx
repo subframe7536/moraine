@@ -157,7 +157,7 @@ export function CodeBlock(props: CodeBlockProps) {
     >
       <Show when={hasHeader()}>
         <div class={DOCS_BLOCK_HEADER_CLASS}>
-          <div class="text-xs text-muted-foreground font-mono flex gap-2 truncate items-center">
+          <div class="text-muted-foreground font-mono flex gap-2 truncate items-center text-xs">
             <Icon
               name={getLanguageIcon(props.lang, props.title)}
               class="text-muted-foreground shrink-0 size-4"

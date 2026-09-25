@@ -17,7 +17,7 @@ export function FilterStrategies() {
   return (
     <div class="max-w-xs w-full space-y-3">
       <div class="flex gap-2 items-center">
-        <span class="text-xs text-muted-foreground font-medium">Filter mode:</span>
+        <span class="text-muted-foreground font-medium text-xs">Filter mode:</span>
         <Button
           size="sm"
           variant={strategy() === 'contains' ? 'default' : 'secondary'}

@@ -43,22 +43,17 @@ The labels **Single** and **Composite** describe how you assemble a component in
 
 ### Single components
 
-Single components expose their layout and functionality through a single JSX element. For example, `Card`, `Button`, `Badge`, and `Input` are Single components.
+Single components expose their layout and functionality through a single JSX element. For example, `Button`, `Badge`, and `Input` are Single components.
 
-Even though `Card` renders a header, title, description, body, and footer, it is a Single component:
+`Card` is a Composite component. Its root owns family styling while each part controls its own element:
 
 ```tsx
-<Card
-  title="Project Settings"
-  description="Manage repository visibility"
-  class="max-w-md shadow-sm"
-  classes={{
-    header: 'border-b border-border/70 pb-3',
-    body: 'space-y-4 pt-4',
-    title: 'text-primary font-semibold',
-  }}
->
-  <p class="text-sm">Card contents go here.</p>
+<Card class="max-w-md" classes={{ title: 'text-primary font-semibold' }}>
+  <Card.Header>
+    <Card.Title as="h2">Project Settings</Card.Title>
+    <Card.Description>Manage repository visibility</Card.Description>
+  </Card.Header>
+  <Card.Body>Card contents go here.</Card.Body>
 </Card>
 ```
 

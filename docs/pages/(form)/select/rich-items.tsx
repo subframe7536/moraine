@@ -31,7 +31,7 @@ const PLANS: SelectT.Item[] = [
 export function RichItems() {
   return (
     <div class="max-w-sm w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Subscription Plan</label>
+      <label class="text-muted-foreground font-medium block text-xs">Subscription Plan</label>
       <Select items={PLANS} defaultValue="pro" placeholder="Choose your plan..." />
     </div>
   )

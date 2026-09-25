@@ -20,7 +20,7 @@ export function StepMode() {
   return (
     <div class="w-xl space-y-3">
       <Progress value={value()} max={STEPS} status />
-      <div class="text-xs text-muted-foreground">
+      <div class="text-muted-foreground text-xs">
         Current: {STEPS[value()]} ({value() + 1}/{STEPS.length})
       </div>
       <div class="flex gap-2">

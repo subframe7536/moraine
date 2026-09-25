@@ -23,7 +23,7 @@ export function UsageValue() {
         onValueChange={setSelected}
         allowClear
       />
-      <div class="text-xs flex items-center justify-between">
+      <div class="flex items-center justify-between text-xs">
         <span class="text-muted-foreground">
           Selected code:{' '}
           <span class="text-foreground font-medium font-mono">{selected() ?? 'null'}</span>

@@ -5,7 +5,7 @@ export function LongPress() {
     <ContextMenu>
       <ContextMenu.Trigger
         as="div"
-        class="text-sm text-muted-foreground text-center border border-border rounded-lg border-dashed flex h-32 max-w-sm select-none items-center justify-center touch-none"
+        class="text-muted-foreground text-center border border-border border-dashed flex h-32 max-w-sm select-none items-center justify-center touch-none text-sm rounded-lg"
       >
         Touch and hold for about 700 ms, or right click
       </ContextMenu.Trigger>

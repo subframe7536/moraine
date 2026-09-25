@@ -18,7 +18,7 @@ export function StructureLifecycle() {
           title="Provision Production Database"
           description="Configure clustering, replication nodes, and automated backup schedules."
           body={
-            <div class="text-xs text-muted-foreground leading-relaxed py-2 space-y-2">
+            <div class="text-muted-foreground leading-relaxed py-2 space-y-2 text-xs">
               <p>
                 Provisioning will allocate dedicated compute instances and initialize encryption
                 keys.
@@ -34,7 +34,7 @@ export function StructureLifecycle() {
         />
       </Dialog>
 
-      <div class="text-xs text-muted-foreground flex gap-2 items-center">
+      <div class="text-muted-foreground flex gap-2 items-center text-xs">
         <span>Lifecycle status:</span>
         <Badge variant="outline">{status()}</Badge>
         <span>(Completed exits: {exits()})</span>

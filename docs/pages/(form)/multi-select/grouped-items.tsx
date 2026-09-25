@@ -36,7 +36,7 @@ export function GroupedItems() {
 
   return (
     <div class="max-w-md w-full space-y-2">
-      <label class="text-xs text-muted-foreground font-medium block">Role Permissions</label>
+      <label class="text-muted-foreground font-medium block text-xs">Role Permissions</label>
       <MultiSelect
         placeholder="Select permissions..."
         items={PERMISSION_GROUPS}

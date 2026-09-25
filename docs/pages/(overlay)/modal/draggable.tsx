@@ -68,19 +68,19 @@ export function Draggable() {
         }}
       >
         {(context) => (
-          <div class="b-(1 border) rounded-xl bg-card flex flex-col max-w-md w-full shadow-xl overflow-hidden">
+          <div class="b-(1 border) bg-card flex flex-col max-w-md w-full shadow-xl overflow-hidden rounded-xl">
             <div
               class="px-4 py-3 border-b border-border bg-muted/50 flex cursor-grab select-none items-center justify-between active:cursor-grabbing"
               onPointerDown={handlePointerDown}
             >
               <div class="flex gap-2 items-center">
                 <Icon name="i-lucide:grip-vertical" class="text-muted-foreground size-4" />
-                <h3 class="text-sm text-foreground font-semibold">Draggable Window</h3>
+                <h3 class="text-foreground font-semibold text-sm">Draggable Window</h3>
               </div>
               <Button
                 variant="ghost"
                 size="xs"
-                class="p-0 rounded-md size-6"
+                class="p-0 size-6 rounded-md"
                 onClick={context.close}
                 aria-label="Close"
               >
@@ -89,11 +89,11 @@ export function Draggable() {
             </div>
 
             <div class="p-4 space-y-3">
-              <p class="text-xs text-muted-foreground leading-relaxed">
+              <p class="text-muted-foreground leading-relaxed text-xs">
                 Click and drag the header title bar to reposition this modal dialog across the
                 viewport.
               </p>
-              <div class="text-xs text-muted-foreground font-mono p-2.5 rounded-lg bg-muted flex items-center justify-between">
+              <div class="text-muted-foreground font-mono p-2.5 bg-muted flex items-center justify-between text-xs rounded-lg">
                 <span>Offset:</span>
                 <span>
                   X: {position().x}px, Y: {position().y}px

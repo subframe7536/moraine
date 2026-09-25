@@ -20,7 +20,7 @@ export function ScrollableFullscreen() {
           body={
             <div class="space-y-1">
               <For each={SCROLLABLE_LINES}>
-                {(line) => <p class="text-sm text-foreground">{line}</p>}
+                {(line) => <p class="text-foreground text-sm">{line}</p>}
               </For>
             </div>
           }
@@ -37,7 +37,7 @@ export function ScrollableFullscreen() {
           body={
             <div class="space-y-1">
               <For each={SCROLLABLE_LINES}>
-                {(line) => <p class="text-sm text-foreground">{line}</p>}
+                {(line) => <p class="text-foreground text-sm">{line}</p>}
               </For>
             </div>
           }

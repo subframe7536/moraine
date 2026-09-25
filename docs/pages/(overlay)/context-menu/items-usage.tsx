@@ -6,7 +6,7 @@ export function ItemsUsage() {
       <ContextMenu>
         <ContextMenu.Trigger
           as="div"
-          class="text-xs text-muted-foreground b-(1 border) rounded-xl flex h-28 w-full select-none items-center justify-center"
+          class="text-muted-foreground b-(1 border) flex h-28 w-full select-none items-center justify-center text-xs rounded-xl"
         >
           Right-click to view item model actions
         </ContextMenu.Trigger>
