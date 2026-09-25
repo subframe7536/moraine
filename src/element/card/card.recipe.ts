@@ -1,38 +1,53 @@
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
 
-export const cardDataAttributes = {
-  header: createDataAttributes('action'),
-  body: createDataAttributes('no-footer'),
-} satisfies DataAttributeContract<keyof CardStyleSlot>
-
 export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariant>('card', {
   base: {
-    root: 'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding',
-    header: 'grid auto-rows-min items-start data-action:grid-cols-[1fr_auto]',
-    title: 'text-base leading-normal font-medium',
-    description: 'text-sm text-muted-foreground',
+    root: 'bg-card text-card-foreground flex flex-col rounded-xl border border-border',
+    header:
+      'grid grid-cols-[minmax(0,1fr)_auto] auto-rows-min items-start first:rounded-t-[inherit]',
+    title: 'col-start-1 font-medium leading-snug',
+    description: 'col-start-1 text-muted-foreground',
     action: 'inline-flex row-span-2 col-start-2 row-start-1 self-start justify-self-end',
     body: 'flex-1',
-    footer: '',
+    footer: 'flex items-center last:rounded-b-[inherit]',
   },
-  defaultVariants: {
-    compact: false,
-  },
+  defaultVariants: { variant: 'outline', size: 'md' },
   variants: {
-    compact: {
-      false: {
-        header: 'p-6 gap-1',
-        body: 'px-6 data-no-footer:mb-6',
-        footer: 'p-6',
+    variant: {
+      outline: {
+        footer: 'border-t border-border',
       },
-      true: {
-        header: 'p-4 gap-1',
-        body: 'px-4 data-no-footer:mb-4',
-        footer: 'p-4',
+      subtle: {
+        footer: 'border-t border-border bg-muted/50',
+      },
+      none: { root: '' },
+    },
+    size: {
+      sm: {
+        root: 'gap-3',
+        header: 'px-3 pt-3 last:pb-3 gap-0.5',
+        title: 'text-sm',
+        description: 'text-xs',
+        body: 'px-3 first:pt-3 last:pb-3 text-xs',
+        footer: 'p-3 gap-2',
+      },
+      md: {
+        root: 'gap-4',
+        header: 'px-4 pt-4 last:pb-4 gap-1',
+        title: 'text-base',
+        description: 'text-sm',
+        body: 'px-4 first:pt-4 last:pb-4 text-sm',
+        footer: 'p-4 gap-3',
+      },
+      lg: {
+        root: 'gap-5',
+        header: 'px-5 pt-5 last:pb-5 gap-1.5',
+        title: 'text-lg',
+        description: 'text-base',
+        body: 'px-5 first:pt-5 last:pb-5 text-base',
+        footer: 'p-5 gap-4',
       },
     },
   },

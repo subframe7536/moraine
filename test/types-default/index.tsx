@@ -44,6 +44,7 @@ import type {
   ButtonT,
   BadgeT,
   ButtonGroupT,
+  CardT,
   Cn,
   CnConfig,
   CommandPaletteT,
@@ -77,6 +78,7 @@ type Assert<T extends true> = T
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
+  Assert<CardT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
   Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
@@ -286,6 +288,53 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Card on:click={foo} />
 // @ts-expect-error Solid namespaced attribute syntax is intentionally excluded.
 ;<Card attr:foo="bar" />
+
+;<Card as="a" href="/details">
+  <Card.Title as="h2">Details</Card.Title>
+</Card>
+;<Card variant="subtle" size="lg" classes={{ body: 'px-4' }} styles={{ footer: { color: 'red' } }}>
+  <Card.Header>
+    <Card.Description>Description</Card.Description>
+    <Card.Action />
+  </Card.Header>
+  <Card.Body />
+  <Card.Footer as="nav" aria-label="Related links" />
+</Card>
+// @ts-expect-error Old convenience props are removed.
+;<Card footer="Old API" />
+// @ts-expect-error Only Card owns variants.
+;<Card.Header size="sm" />
+// @ts-expect-error Only Card owns family classes.
+;<Card.Body classes={{ body: 'p-2' }} />
+// @ts-expect-error Card.Title defaults to div, which has no href.
+;<Card.Title href="/details" />
+
+export type CardContracts = [
+  Assert<
+    keyof CardT.Slot extends
+      | 'root'
+      | 'header'
+      | 'title'
+      | 'description'
+      | 'action'
+      | 'body'
+      | 'footer'
+      ? true
+      : false
+  >,
+  Assert<'variant' extends keyof CardT.Variant ? true : false>,
+  Assert<'size' extends keyof CardT.Variant ? true : false>,
+  Assert<'compact' extends keyof CardT.Variant ? false : true>,
+  Assert<'root' extends keyof CardT.Classes ? true : false>,
+  Assert<'footer' extends keyof CardT.Styles ? true : false>,
+  Assert<'classes' extends keyof CardT.Props ? true : false>,
+  Assert<'children' extends keyof CardT.HeaderProps ? true : false>,
+  Assert<'children' extends keyof CardT.TitleProps ? true : false>,
+  Assert<'children' extends keyof CardT.DescriptionProps ? true : false>,
+  Assert<'children' extends keyof CardT.ActionProps ? true : false>,
+  Assert<'children' extends keyof CardT.BodyProps ? true : false>,
+  Assert<'children' extends keyof CardT.FooterProps ? true : false>,
+]
 
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />

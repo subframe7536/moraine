@@ -1,8 +1,10 @@
 ---
 title: Card
-description: Arrange related content, headings, and actions on a surface.
+description: Group related content and actions on a neutral surface.
 api:
   path: src/element/card/card
+  root: Root
+  parts: [Header, Title, Description, Action, Body, Footer]
 sidebar:
   order: 6
 search:
@@ -18,7 +20,19 @@ import { Card } from 'moraine'
 import type { CardT } from 'moraine'
 ```
 
-Use Card to arrange related content and actions on one surface. It does not make the content a document section or supply a heading level.
+Card groups related content and actions on a neutral surface. Its parts are structural and add no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a heading with `as` when the page needs one.
+
+## Anatomy
+
+```text
+Card (root)
+├── Card.Header (header)
+│   ├── Card.Title (title)
+│   ├── Card.Description (description)
+│   └── Card.Action (action)
+├── Card.Body (body)
+└── Card.Footer (footer)
+```
 
 ## Playground
 
@@ -31,60 +45,76 @@ Use Card to arrange related content and actions on one surface. It does not make
       label: 'Description',
       defaultValue: 'Manage billing and team seat limits.',
     },
-    { kind: 'switch', prop: 'compact', label: 'Compact', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
   ]}
 >
   {(props) => (
-    <Card
-      title={props.title}
-      description={props.description}
-      action={<Badge variant="outline">Pro Plan</Badge>}
-      compact={props.compact}
-      footer={
-        <div class="flex w-full items-center justify-between">
-          <span class="text-xs text-muted-foreground">$49 / month</span>
-          <Button size="sm">Manage billing</Button>
-        </div>
-      }
-      class="max-w-full w-96"
-    >
-      <p class="text-xs text-muted-foreground leading-relaxed">
-        Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited seats
-        and SSO integration.
-      </p>
+    <Card variant={props.variant} size={props.size} class="max-w-full w-96">
+      <Card.Header>
+        <Card.Title>{props.title}</Card.Title>
+        <Card.Description>{props.description}</Card.Description>
+        <Card.Action>
+          <Badge variant="outline">Pro Plan</Badge>
+        </Card.Action>
+      </Card.Header>
+      <Card.Body>
+        <p class="leading-relaxed">
+          Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited
+          seats and SSO integration.
+        </p>
+      </Card.Body>
+      <Card.Footer class="justify-between">
+        <span class="text-xs text-muted-foreground">$49 / month</span>
+        <Button size="sm">Manage billing</Button>
+      </Card.Footer>
     </Card>
   )}
 </Playground>
 
-## Anatomy
+## Variants and sizes
 
-```text
-root (<div>)
-├── header (optional)
-│   ├── title (optional)
-│   ├── description (optional)
-│   └── action (optional)
-├── body (children, optional)
-└── footer (optional)
-```
+Every variant has an outer border, and the header keeps the same appearance as the body. `outline` adds a top border to the footer. `subtle` adds the footer divider and a muted footer background. `none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the density of the header, body, footer, title, and description together.
 
 ## Usage
 
-### Structured content
-
-Use the title, description, body, footer, and action regions for a conventional card layout. For a non-standard header, replace that region with custom content rather than forcing text-only props into a richer design.
-
-<Preview path="./card-structure" />
-
-### Semantics
-
-Card is a layout surface. Choose an appropriate root element or add the heading and link semantics required by the surrounding page.
-
-<Preview path="./card-semantics" />
+Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root spaces the sections. Direct children can still span the card's full width.
 
 ## Examples
 
-### Image
+### Structured content
+
+<Preview path="./card-structure" />
+
+### Semantic heading
+
+Card does not choose a heading level. Use `as="h2"` or another appropriate level for the surrounding page.
+
+<Preview path="./card-semantics" />
+
+### Full-bleed media
+
+Place media directly inside `Card` to span its width. Apply clipping on the root only if the composition needs it.
 
 <Preview path="./with-image" />
 

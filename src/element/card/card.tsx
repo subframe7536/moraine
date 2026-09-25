@@ -1,80 +1,174 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
+import type { ValidComponent } from '../../shared/types'
 
-import { cardDataAttributes, cardRecipe } from './card.recipe'
-import type { CardProps } from './card.types'
+import { CardProvider, useCardContext } from './card-context'
+import { cardRecipe } from './card.recipe'
+import type { CardT } from './card.types'
 
-/** Structured content container with optional header, body, footer, and action slots. */
-export function Card(props: CardProps): JSX.Element {
+/** Static surface and shared presentation for its parts. */
+export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'header',
-    'title',
-    'description',
-    'action',
-    'footer',
-    'compact',
-    'children',
+    'as',
+    'variant',
+    'size',
     'classes',
     'styles',
     'class',
     'style',
+    'children',
   ])
   const resolved = createStyles(cardRecipe, local)
 
-  const header = createMemo(() => local.header)
-  const title = createMemo(() => local.title)
-  const description = createMemo(() => local.description)
-  const action = createMemo(() => local.action)
-  const footer = createMemo(() => local.footer)
-  const resolvedChildren = resolveChildren(() => local.children)
-
   return (
-    <div data-slot="card" {...rest} {...resolved.styles.root}>
-      <Show when={header() || title() || description()}>
-        <div
-          data-slot="card-header"
-          {...cardDataAttributes.header({ action: () => Boolean(action()) })}
-          {...resolved.styles.header}
-        >
-          <Show when={title() || description()} fallback={header()}>
-            <Show when={title()}>
-              <div data-slot="card-title" {...resolved.styles.title}>
-                {title()}
-              </div>
-            </Show>
-            <Show when={description()}>
-              <p data-slot="card-description" {...resolved.styles.description}>
-                {description()}
-              </p>
-            </Show>
-            <Show when={action()}>
-              <div data-slot="card-action" {...resolved.styles.action}>
-                {action()}
-              </div>
-            </Show>
-          </Show>
-        </div>
-      </Show>
-
-      <Show when={resolvedChildren()}>
-        {(body) => (
-          <div
-            data-slot="card-body"
-            {...cardDataAttributes.body({ noFooter: () => !footer() })}
-            {...resolved.styles.body}
-          >
-            {body()}
-          </div>
-        )}
-      </Show>
-
-      <Show when={footer()}>
-        <div data-slot="card-footer" {...resolved.styles.footer}>
-          {footer()}
-        </div>
-      </Show>
-    </div>
+    <CardProvider
+      value={{
+        get variant() {
+          return resolved.variants.variant
+        },
+        get size() {
+          return resolved.variants.size
+        },
+        get presentation() {
+          return { classes: local.classes, styles: local.styles }
+        },
+      }}
+    >
+      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rest} {...resolved.styles.root}>
+        {local.children}
+      </Dynamic>
+    </CardProvider>
   )
 }
+
+function CardHeader<T extends ValidComponent = 'div'>(props: CardT.HeaderProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'header',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="card-header"
+      {...rest}
+      {...resolved.styles.header}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function CardTitle<T extends ValidComponent = 'div'>(props: CardT.TitleProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'title',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="card-title"
+      {...rest}
+      {...resolved.styles.title}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function CardDescription<T extends ValidComponent = 'p'>(
+  props: CardT.DescriptionProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'description',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'p'}
+      data-slot="card-description"
+      {...rest}
+      {...resolved.styles.description}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function CardAction<T extends ValidComponent = 'div'>(props: CardT.ActionProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'action',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="card-action"
+      {...rest}
+      {...resolved.styles.action}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function CardBody<T extends ValidComponent = 'div'>(props: CardT.BodyProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'body',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="card-body"
+      {...rest}
+      {...resolved.styles.body}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function CardFooter<T extends ValidComponent = 'div'>(props: CardT.FooterProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const context = useCardContext()
+  const resolved = createStyles(cardRecipe, local, {
+    rootSlot: 'footer',
+    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
+    inheritedStyles: () => context.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="card-footer"
+      {...rest}
+      {...resolved.styles.footer}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+Card.Header = CardHeader
+Card.Title = CardTitle
+Card.Description = CardDescription
+Card.Action = CardAction
+Card.Body = CardBody
+Card.Footer = CardFooter

@@ -1,31 +1,23 @@
 export interface CardStyleSlot<T = unknown> {
-  /**
-   * Card container that frames the header, body, and footer regions.
-   */
+  /** Card surface. */
   root?: T
-
-  /** Top region for title, description, custom header content, and actions. */
+  /** Header region. */
   header?: T
-
-  /** Primary heading rendered in the card header. */
+  /** Header title. */
   title?: T
-
-  /** Supporting text rendered below the card title. */
+  /** Supporting text below the title. */
   description?: T
-
-  /** Header action region, typically used for buttons or menus. */
+  /** Header action region. */
   action?: T
-
-  /** Main content region for the card children. */
+  /** Main content region. */
   body?: T
-
-  /** Bottom region for secondary actions or summary content. */
+  /** Footer region. */
   footer?: T
 }
 
 export interface CardStyleVariant {
-  /** Visual compact of the component.
-   * @default false
-   */
-  compact?: boolean
+  /** Footer border and background. The outer border is always present. @default 'outline' */
+  variant?: 'outline' | 'subtle' | 'none'
+  /** Density of all Card parts. @default 'md' */
+  size?: 'sm' | 'md' | 'lg'
 }

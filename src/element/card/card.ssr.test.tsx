@@ -6,7 +6,7 @@ import { hydrateFixture } from '../../test-util/ssr-test.ts'
 import { CardHydrationFixture } from './card.ssr.fixture.tsx'
 
 test.each([true, false])(
-  'hydrates JSX slots and updates conditional body (initially present=%s)',
+  'hydrates compound parts and updates conditional body (initially present=%s)',
   (initialBody) => {
     const [title, setTitle] = createSignal('Title')
     const [body, setBody] = createSignal(initialBody)

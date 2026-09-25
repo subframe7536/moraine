@@ -1,8 +1,8 @@
 {
   "key": "card",
   "name": "Card",
-  "description": "Props for the Card component.",
-  "kind": "single",
+  "description": "Props for Card.",
+  "kind": "composite",
   "parts": [
     {
       "id": "card",
@@ -11,20 +11,31 @@
         "kind": "export",
         "name": "Card"
       },
-      "description": "Props for the Card component.",
+      "description": "Props for Card.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
         {
-          "name": "action",
+          "name": "as",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Actions of the card."
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
         },
         {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Children of the card."
+          "description": "Card parts and direct content."
         },
         {
           "name": "class",
@@ -39,32 +50,14 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "compact",
+          "name": "size",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether to use a compact layout.",
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Density of all Card parts.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": "md"
           }
-        },
-        {
-          "name": "description",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Description of the card."
-        },
-        {
-          "name": "footer",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Footer of the card."
-        },
-        {
-          "name": "header",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Header of the card."
         },
         {
           "name": "style",
@@ -79,10 +72,284 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "title",
+          "name": "variant",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Title of the card."
+          "type": "'outline' | 'subtle' | 'none'",
+          "description": "Footer border and background. The outer border is always present.",
+          "default": {
+            "kind": "literal",
+            "value": "outline"
+          }
+        }
+      ]
+    },
+    {
+      "id": "card-header",
+      "name": "Card.Header",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Header"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "card-title",
+      "name": "Card.Title",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Title"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "card-description",
+      "name": "Card.Description",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Description"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'p'"
+        }
+      ],
+      "defaultElement": "p",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "p"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "card-action",
+      "name": "Card.Action",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Action"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "card-body",
+      "name": "Card.Body",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Body"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "card-footer",
+      "name": "Card.Footer",
+      "access": {
+        "kind": "attached",
+        "root": "Card",
+        "member": "Footer"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     }
@@ -96,18 +363,5 @@
     "body",
     "footer"
   ],
-  "dataAttributes": [
-    {
-      "target": "header",
-      "attributes": [
-        "data-action"
-      ]
-    },
-    {
-      "target": "body",
-      "attributes": [
-        "data-no-footer"
-      ]
-    }
-  ]
+  "dataAttributes": []
 }

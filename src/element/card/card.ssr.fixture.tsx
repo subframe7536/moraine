@@ -5,15 +5,22 @@ import { Card } from './card.tsx'
 
 export function CardHydrationFixture(props: { title?: string; body?: boolean }) {
   return (
-    <Card
-      title={<span>{props.title ?? 'Title'}</span>}
-      description={<span>Description</span>}
-      action={<button>Edit</button>}
-      footer={<span>Footer</span>}
-    >
+    <Card>
+      <Card.Header>
+        <Card.Title>
+          <span>{props.title ?? 'Title'}</span>
+        </Card.Title>
+        <Card.Description>Description</Card.Description>
+        <Card.Action>
+          <button>Edit</button>
+        </Card.Action>
+      </Card.Header>
       <Show when={props.body ?? true}>
-        <p>Body</p>
+        <Card.Body>
+          <p>Body</p>
+        </Card.Body>
       </Show>
+      <Card.Footer>Footer</Card.Footer>
     </Card>
   )
 }

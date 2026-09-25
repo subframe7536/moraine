@@ -14,6 +14,7 @@ export interface FrontmatterApiPart {
 
 export interface FrontmatterApi {
   path: string
+  root?: string
   parts?: Array<string | FrontmatterApiPart>
 }
 

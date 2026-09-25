@@ -132,7 +132,8 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
         return { name, path: partPath }
       })
     }
-    api = { path: apiPath, ...(parts ? { parts } : {}) }
+    const root = apiValue.root === undefined ? undefined : readString(apiValue, 'root')
+    api = { path: apiPath, ...(root ? { root } : {}), ...(parts ? { parts } : {}) }
   }
 
   return {
