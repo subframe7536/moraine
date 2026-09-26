@@ -66,6 +66,8 @@ export type OverlayConfigPlacement = [
 // @ts-expect-error Dialog behavior belongs to the root.
 ;<Dialog.Content trapFocus={false} close={false} ariaLabel="Dialog" />
 ;<Dialog.Header class="header" />
+// @ts-expect-error Shorthand mode is internal to Dialog.Content.
+;<Dialog.Header shorthand />
 ;<Dialog.Title as="h3" id="title" />
 ;<Dialog.Description />
 ;<Dialog.Action />
@@ -111,6 +113,8 @@ export type OverlayConfigPlacement = [
 // @ts-expect-error Sheet behavior belongs to the root.
 ;<Sheet.Content transition={false} trapFocus={false} close={false} ariaLabel="Sheet" />
 ;<Sheet.Header class="header" />
+// @ts-expect-error Shorthand mode is internal to Sheet.Content.
+;<Sheet.Header shorthand />
 ;<Sheet.Title as="h3" id="title" />
 ;<Sheet.Description />
 ;<Sheet.Action />

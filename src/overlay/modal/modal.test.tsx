@@ -785,9 +785,11 @@ describe('Modal primitives', () => {
     mount.remove()
   })
 
-  test('renders parts in place without Portal', () => {
+  test('leaves inline parts mounted without Portal', async () => {
+    const [open, setOpen] = createSignal(true)
+    const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal defaultOpen>
+      <Modal open={open()} onExitComplete={onExitComplete}>
         <div data-testid="inline-host">
           <Modal.Overlay />
           <Modal.Content trapFocus={false}>Inline content</Modal.Content>
@@ -795,9 +797,16 @@ describe('Modal primitives', () => {
       </Modal>
     ))
     const host = screen.getByTestId('inline-host')
+    const overlay = host.querySelector('[data-slot="modal-overlay"]')
+    const content = host.querySelector('[data-slot="modal-content"]')
 
-    expect(host.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
-    expect(host.querySelector('[data-slot="modal-content"]')?.textContent).toBe('Inline content')
+    expect(overlay).not.toBeNull()
+    expect(content?.textContent).toBe('Inline content')
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => expect(onExitComplete).toHaveBeenCalledOnce())
+    expect(host.querySelector('[data-slot="modal-overlay"]')).toBe(overlay)
+    expect(host.querySelector('[data-slot="modal-content"]')).toBe(content)
     screen.unmount()
   })
 

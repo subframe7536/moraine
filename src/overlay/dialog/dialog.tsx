@@ -1,17 +1,15 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
+import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
-import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
-import { callRef } from '../../shared/utils'
-import { useRegisteredContentId } from '../base/content-registration'
+import { useRegisteredContentId } from '../base/content-anatomy'
 import { createShorthandContent } from '../base/shorthand-content'
-import { Modal, ModalRoot } from '../modal/modal'
+import { Modal, ModalInternal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
@@ -27,7 +25,7 @@ import type { DialogProps, DialogT } from './dialog.types'
 
 /** Dialog state and presentation, sharing the Modal root context. */
 export function Dialog(props: DialogProps): JSX.Element {
-  return <ModalRoot configuration={{ kind: 'dialog', props }} />
+  return <ModalInternal kind="dialog" {...props} />
 }
 
 function DialogTrigger<T extends ValidComponent = 'button'>(
@@ -94,7 +92,15 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
           {...resolved.styles.content}
-          surfaceRender={() => {
+          ariaLabel={merged.ariaLabel}
+          ariaLabelledBy={
+            (rest['aria-label'] ?? merged.ariaLabel) === undefined
+              ? registration.titleIds().join(' ') || undefined
+              : undefined
+          }
+          ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+        >
+          {() => {
             const contentShorthand = createShorthandContent(local)
             shorthand = contentShorthand
             onCleanup(() => {
@@ -104,57 +110,58 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
             })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
             const closeIcon = createLazyMemo(() => merged.closeIcon)
-            return {
-              ariaLabel: merged.ariaLabel,
-              get ariaLabelledBy() {
-                return registration.titleIds().join(' ') || undefined
-              },
-              get ariaDescribedBy() {
-                return registration.descriptionIds().join(' ') || undefined
-              },
-              children: () => {
-                const content = explicitChildren()
-                return (
-                  <>
-                    <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
-                      <DialogHeader shorthand>
-                        <Show when={hasJsxContent(contentShorthand.title())}>
-                          <DialogTitle>{contentShorthand.title()}</DialogTitle>
-                        </Show>
-                        <Show when={hasJsxContent(contentShorthand.description())}>
-                          <DialogDescription>{contentShorthand.description()}</DialogDescription>
-                        </Show>
-                      </DialogHeader>
+            const content = explicitChildren()
+            return (
+              <>
+                <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
+                  <DialogShorthandHeader>
+                    <Show when={hasJsxContent(contentShorthand.title())}>
+                      <DialogTitle>{contentShorthand.title()}</DialogTitle>
                     </Show>
-                    <Show when={merged.close}>
-                      <Modal.Close
-                        data-slot="dialog-content-close"
-                        aria-label="Close"
-                        {...resolved.styles.contentClose}
-                      >
-                        <Icon name={closeIcon()} />
-                      </Modal.Close>
+                    <Show when={hasJsxContent(contentShorthand.description())}>
+                      <DialogDescription>{contentShorthand.description()}</DialogDescription>
                     </Show>
-                    {content}
-                  </>
-                )
-              },
-            }
+                  </DialogShorthandHeader>
+                </Show>
+                <Show when={merged.close}>
+                  <Modal.Close
+                    data-slot="dialog-content-close"
+                    aria-label="Close"
+                    {...resolved.styles.contentClose}
+                  >
+                    <Icon name={closeIcon()} />
+                  </Modal.Close>
+                </Show>
+                {content}
+              </>
+            )
           }}
-        />
+        </ModalSurface>
       </ModalPortal>
     </DialogContentProvider>
   )
 }
 
 function DialogHeader<T extends ValidComponent = 'div'>(
-  props: DialogT.HeaderProps<T> & { shorthand?: boolean },
+  props: DialogT.HeaderProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'shorthand'])
+  return renderDialogHeader(props, true)
+}
+
+function DialogShorthandHeader<T extends ValidComponent = 'div'>(
+  props: DialogT.HeaderProps<T>,
+): JSX.Element {
+  return renderDialogHeader(props, false)
+}
+
+function renderDialogHeader<T extends ValidComponent>(
+  props: DialogT.HeaderProps<T>,
+  register: boolean,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
   const family = useModalContext()
   const content = useDialogContent()
-  // oxlint-disable-next-line subf/solid-reactivity -- Internal shorthand mode is fixed for this Header instance.
-  if (!local.shorthand) {
+  if (register) {
     const unregister = content.registerHeader()
     onCleanup(unregister)
   }
@@ -255,28 +262,16 @@ function DialogBody<T extends ValidComponent = 'div'>(props: DialogT.BodyProps<T
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  let element: HTMLElement | undefined
   const bodyAttrs = dialogDataAttributes.body({
     header: content.hasHeader,
     footer: content.hasFooter,
     scroll: () => !content.overlayScroll(),
   })
-  createEffect(
-    on([content.hasHeader, content.hasFooter, content.overlayScroll], () => {
-      if (element) {
-        applyDataAttributes(element, bodyAttrs)
-      }
-    }),
-  )
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="dialog-body"
       {...rest}
-      ref={(node: HTMLElement) => {
-        element = node
-        callRef((props as { ref?: unknown }).ref, node)
-      }}
       {...bodyAttrs}
       {...resolved.styles.body}
     >

@@ -479,6 +479,7 @@ describe('Dialog', () => {
     expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)
+    expect(body.hasAttribute('data-footer')).toBe(true)
     const action = document.body.querySelector<HTMLElement>('[data-slot="dialog-action"]')!
     expect(action.className).toContain('family-action')
     expect(action.style.color).toBe('red')
@@ -738,16 +739,17 @@ describe('Dialog', () => {
   })
 
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
+    // Model the recipe's overflow utility in jsdom so scroll locking detects the overlay.
     renderWithTheme(() => (
       <Dialog open scrollable>
-        <Dialog.Content title="Overlay scroll">
+        <Dialog.Content title="Overlay scroll" styles={{ overlay: { 'overflow-y': 'auto' } }}>
           <Dialog.Body>Long body</Dialog.Body>
           <Dialog.Footer>Actions</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]')
+    const overlay = document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')
     const content = document.body.querySelector('[data-slot="dialog-content"]')
     const body = content?.querySelector('[data-slot="dialog-body"]')
 
@@ -755,6 +757,9 @@ describe('Dialog', () => {
     expect(overlay?.getAttribute('aria-hidden')).toBeNull()
     expect(overlay?.className).toContain('overflow-y-auto')
     expect(overlay?.className).toContain('p-4')
+    expect(overlay?.style.overflowY).toBe('auto')
+    expect(overlay?.style.getPropertyValue('overflow')).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
     expect(content?.className).toContain('relative')
     expect(content?.className).not.toContain('fixed')
     expect(body?.hasAttribute('data-scroll')).toBe(false)
@@ -806,6 +811,40 @@ describe('Dialog', () => {
     setOverlayVisible(false)
     expect(overlay()).toBeNull()
     expect(content()).not.toBeNull()
+  })
+
+  test('keeps shorthand JSX within one presence cycle across scroll layout changes', () => {
+    const [scrollable, setScrollable] = createSignal(false)
+    let titleReads = 0
+    let descriptionReads = 0
+    render(() => (
+      <Dialog open scrollable={scrollable()}>
+        {createComponent(Dialog.Content, {
+          get title() {
+            titleReads += 1
+            return <span>Title</span>
+          },
+          get description() {
+            descriptionReads += 1
+            return <span>Description</span>
+          },
+          get children() {
+            return <Dialog.Body>Body</Dialog.Body>
+          },
+        })}
+      </Dialog>
+    ))
+
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+    setScrollable(true)
+    setScrollable(false)
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    expect(content.textContent).toContain('Body')
+    expectAriaReferencesToResolve(content)
   })
 
   test('supports custom close content', () => {

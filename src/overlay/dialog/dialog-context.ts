@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createContentRegistration } from '../base/content-registration'
+import { createContentAnatomy } from '../base/content-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import type { DialogT } from './dialog.types'
@@ -15,7 +15,7 @@ export function useDialogConfig(): DialogT.Props {
 }
 
 export function createDialogContentRegistration() {
-  const registration = createContentRegistration()
+  const registration = createContentAnatomy()
   const [footerCount, setFooterCount] = createSignal(0)
   return {
     ...registration,

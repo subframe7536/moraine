@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
-import { createContentRegistration } from '../base/content-registration'
+import { createContentAnatomy } from '../base/content-anatomy'
 
 import { Sheet } from './sheet'
 import { SheetContentProvider } from './sheet-context'
@@ -24,7 +24,7 @@ describe('Sheet SSR Hydration', () => {
       '/src/overlay/sheet/sheet.ssr.fixture.tsx',
       'renderPartsFixture',
       () => {
-        const registration = createContentRegistration()
+        const registration = createContentAnatomy()
         return (
           <Sheet>
             <SheetContentProvider

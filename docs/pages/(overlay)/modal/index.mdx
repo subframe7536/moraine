@@ -78,7 +78,7 @@ Modal (state provider)
 
 - `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.
 - `Modal.Trigger`: Polymorphic element that opens the modal.
-- `Modal.Portal`: Mounts its children in the trigger document's body by default, or in a custom `mount` node.
+- `Modal.Portal`: Mounts its children in the trigger document's body by default, or in a custom `mount` node, and keeps them mounted through the exit transition.
 - `Modal.Overlay`: Backdrop layer with entry/exit motion.
 - `Modal.Content`: Dialog content surface.
 
@@ -86,7 +86,7 @@ Modal (state provider)
 
 ### Composition
 
-Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship. Without `Modal.Portal`, both parts render in place. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
+Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship and automatic open/exit lifecycle. Without `Modal.Portal`, both parts render in place and you control when they mount and unmount. `Dialog.Content` and `Sheet.Content` include a Portal internally. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
 
 <Preview path="./modal-composition" />
 

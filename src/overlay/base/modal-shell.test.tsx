@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal, onCleanup } from 'solid-js'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -32,6 +32,31 @@ describe.each([
     fireEvent.click(screen.getByRole('button', { name: 'Open' }))
     expect(reads).toBe(1)
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
+  })
+
+  test('updates body header attributes without replacing the body and forwards its ref', () => {
+    const [showHeader, setShowHeader] = createSignal(false)
+    let bodyRef: HTMLDivElement | undefined
+    render(() => (
+      <Root open>
+        <Root.Content>
+          <Show when={showHeader()}>
+            <Root.Header>Header</Root.Header>
+          </Show>
+          <Root.Body ref={(element) => (bodyRef = element)}>Body</Root.Body>
+        </Root.Content>
+      </Root>
+    ))
+
+    const body = document.body.querySelector<HTMLDivElement>(`[data-slot="${owner}-body"]`)!
+    expect(bodyRef).toBe(body)
+    expect(body.hasAttribute('data-header')).toBe(false)
+
+    setShowHeader(true)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    setShowHeader(false)
+    expect(body.hasAttribute('data-header')).toBe(false)
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
   })
 
   test('resolves shorthand JSX once per presence cycle and releases it after exit', async () => {
@@ -80,6 +105,25 @@ describe.each([
     setOpen(true)
     expect(titleReads).toBe(2)
     expect(descriptionReads).toBe(2)
+  })
+
+  test('prefers a native aria-label over a registered title', () => {
+    render(() => (
+      <Root open ariaLabel="Root label">
+        <Root.Content aria-label="Native label" title="Visible title" description="Details">
+          <Root.Body>Body</Root.Body>
+        </Root.Content>
+      </Root>
+    ))
+
+    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
+    const description = document.body.querySelector<HTMLElement>(
+      `[data-slot="${owner}-description"]`,
+    )!
+    expect(document.body.querySelector(`[data-slot="${owner}-title"]`)).not.toBeNull()
+    expect(content.getAttribute('aria-label')).toBe('Native label')
+    expect(content.getAttribute('aria-labelledby')).toBeNull()
+    expect(content.getAttribute('aria-describedby')).toBe(description.id)
   })
 
   test('renders recipe-backed default presentation without a provider', () => {

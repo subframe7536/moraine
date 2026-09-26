@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { createContentRegistration } from '../base/content-registration'
+import { createContentAnatomy } from '../base/content-anatomy'
 
 import { Sheet } from './sheet'
 import { SheetContentProvider } from './sheet-context'
@@ -54,7 +54,7 @@ export function renderSheetFixture(): string {
 
 export function renderPartsFixture(): string {
   return renderToString(() => {
-    const registration = createContentRegistration()
+    const registration = createContentAnatomy()
     return (
       <Sheet>
         <SheetContentProvider

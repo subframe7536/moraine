@@ -3,7 +3,7 @@ import { For } from 'solid-js'
 
 export function ScrollableFullscreen() {
   const SCROLLABLE_LINES = Array.from(
-    { length: 24 },
+    { length: 1e3 },
     (_, index) => `Release note line ${index + 1}`,
   )
 

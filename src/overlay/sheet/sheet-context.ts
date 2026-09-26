@@ -1,5 +1,5 @@
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { createContentRegistration } from '../base/content-registration'
+import type { createContentAnatomy } from '../base/content-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import type { SheetT } from './sheet.types'
@@ -12,7 +12,7 @@ export function useSheetConfig(): SheetT.Props {
   return configuration.props
 }
 
-export interface SheetContentContext extends ReturnType<typeof createContentRegistration> {
+export interface SheetContentContext extends ReturnType<typeof createContentAnatomy> {
   readonly variants: Required<SheetT.Variant>
   hasHeader: () => boolean
 }

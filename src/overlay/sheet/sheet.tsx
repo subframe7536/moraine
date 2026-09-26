@@ -1,17 +1,15 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
+import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
-import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
-import { callRef } from '../../shared/utils'
-import { createContentRegistration, useRegisteredContentId } from '../base/content-registration'
+import { createContentAnatomy, useRegisteredContentId } from '../base/content-anatomy'
 import { createShorthandContent } from '../base/shorthand-content'
-import { Modal, ModalRoot } from '../modal/modal'
+import { Modal, ModalInternal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
@@ -22,7 +20,7 @@ import type { SheetProps, SheetT } from './sheet.types'
 
 /** Sheet state and presentation, sharing the Modal root context. */
 export function Sheet(props: SheetProps): JSX.Element {
-  return <ModalRoot configuration={{ kind: 'sheet', props }} />
+  return <ModalInternal kind="sheet" {...props} />
 }
 
 function SheetTrigger<T extends ValidComponent = 'button'>(
@@ -58,7 +56,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     inheritedVariants: () => ({ side: config.side, inset: config.inset }),
     inheritedStyles: () => family.presentation,
   })
-  const registration = createContentRegistration()
+  const registration = createContentAnatomy()
 
   let shorthand: ReturnType<typeof createShorthandContent> | undefined
   const hasHeader = () => registration.hasExplicitHeader() || Boolean(shorthand?.hasContent())
@@ -87,7 +85,15 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
           {...resolved.styles.content}
-          surfaceRender={() => {
+          ariaLabel={merged.ariaLabel}
+          ariaLabelledBy={
+            (rest['aria-label'] ?? merged.ariaLabel) === undefined
+              ? registration.titleIds().join(' ') || undefined
+              : undefined
+          }
+          ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+        >
+          {() => {
             const contentShorthand = createShorthandContent(local)
             shorthand = contentShorthand
             onCleanup(() => {
@@ -97,59 +103,58 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
             })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
             const closeContent = createLazyMemo(() => merged.close)
-            return {
-              ariaLabel: merged.ariaLabel,
-              get ariaLabelledBy() {
-                return registration.titleIds().join(' ') || undefined
-              },
-              get ariaDescribedBy() {
-                return registration.descriptionIds().join(' ') || undefined
-              },
-              children: () => {
-                const content = explicitChildren()
-                return (
-                  <>
-                    <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
-                      <SheetHeader shorthand>
-                        <Show when={hasJsxContent(contentShorthand.title())}>
-                          <SheetTitle>{contentShorthand.title()}</SheetTitle>
-                        </Show>
-                        <Show when={hasJsxContent(contentShorthand.description())}>
-                          <SheetDescription>{contentShorthand.description()}</SheetDescription>
-                        </Show>
-                      </SheetHeader>
+            const content = explicitChildren()
+            return (
+              <>
+                <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
+                  <SheetShorthandHeader>
+                    <Show when={hasJsxContent(contentShorthand.title())}>
+                      <SheetTitle>{contentShorthand.title()}</SheetTitle>
                     </Show>
-                    <Show when={closeContent() !== false}>
-                      <Modal.Close
-                        data-slot="sheet-content-close"
-                        aria-label="Close"
-                        {...resolved.styles.contentClose}
-                      >
-                        <Show when={closeContent() === true} fallback={closeContent()}>
-                          <Icon name="icon-close" />
-                        </Show>
-                      </Modal.Close>
+                    <Show when={hasJsxContent(contentShorthand.description())}>
+                      <SheetDescription>{contentShorthand.description()}</SheetDescription>
                     </Show>
-                    {content}
-                  </>
-                )
-              },
-            }
+                  </SheetShorthandHeader>
+                </Show>
+                <Show when={closeContent() !== false}>
+                  <Modal.Close
+                    data-slot="sheet-content-close"
+                    aria-label="Close"
+                    {...resolved.styles.contentClose}
+                  >
+                    <Show when={closeContent() === true} fallback={closeContent()}>
+                      <Icon name="icon-close" />
+                    </Show>
+                  </Modal.Close>
+                </Show>
+                {content}
+              </>
+            )
           }}
-        />
+        </ModalSurface>
       </ModalPortal>
     </SheetContentProvider>
   )
 }
 
-function SheetHeader<T extends ValidComponent = 'div'>(
-  props: SheetT.HeaderProps<T> & { shorthand?: boolean },
+function SheetHeader<T extends ValidComponent = 'div'>(props: SheetT.HeaderProps<T>): JSX.Element {
+  return renderSheetHeader(props, true)
+}
+
+function SheetShorthandHeader<T extends ValidComponent = 'div'>(
+  props: SheetT.HeaderProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'shorthand'])
+  return renderSheetHeader(props, false)
+}
+
+function renderSheetHeader<T extends ValidComponent>(
+  props: SheetT.HeaderProps<T>,
+  register: boolean,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
   const family = useModalContext()
   const content = useSheetContent()
-  // oxlint-disable-next-line subf/solid-reactivity -- Internal shorthand mode is fixed for this Header instance.
-  if (!local.shorthand) {
+  if (register) {
     const unregister = content.registerHeader()
     onCleanup(unregister)
   }
@@ -248,24 +253,12 @@ function SheetBody<T extends ValidComponent = 'div'>(props: SheetT.BodyProps<T>)
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  let element: HTMLElement | undefined
   const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
-  createEffect(
-    on(content.hasHeader, () => {
-      if (element) {
-        applyDataAttributes(element, bodyAttrs)
-      }
-    }),
-  )
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-body"
       {...rest}
-      ref={(node: HTMLElement) => {
-        element = node
-        callRef((props as { ref?: unknown }).ref, node)
-      }}
       {...bodyAttrs}
       {...resolved.styles.body}
     >

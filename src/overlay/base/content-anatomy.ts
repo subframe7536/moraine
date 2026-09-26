@@ -23,7 +23,7 @@ export function useRegisteredContentId(
 }
 
 /** State owned by one mounted styled modal surface. */
-export function createContentRegistration() {
+export function createContentAnatomy() {
   const [headers, setHeaders] = createSignal(0)
   const [titles, setTitles] = createSignal<string[]>([])
   const [descriptions, setDescriptions] = createSignal<string[]>([])

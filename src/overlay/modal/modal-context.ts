@@ -7,10 +7,17 @@ import type { SheetT } from '../sheet/sheet.types'
 
 import type { ModalT } from './modal.types'
 
-export type ModalConfiguration =
-  | { kind: 'modal'; props: ModalT.Props }
-  | { kind: 'dialog'; props: DialogT.Props }
-  | { kind: 'sheet'; props: SheetT.Props }
+export interface ModalPropsByKind {
+  modal: ModalT.Props
+  dialog: DialogT.Props
+  sheet: SheetT.Props
+}
+
+export type ModalKind = keyof ModalPropsByKind
+
+export type ModalConfiguration<K extends ModalKind = ModalKind> = {
+  [Kind in K]: { kind: Kind; props: ModalPropsByKind[Kind] }
+}[K]
 
 export interface ModalContext {
   configuration: ModalConfiguration
