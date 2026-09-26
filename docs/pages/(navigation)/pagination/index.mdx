@@ -75,11 +75,15 @@ Use Pagination when a result set has a known page count. The application owns da
 ## Anatomy
 
 ```text
-root (pagination navigation)
-└── list
-    ├── listItem → prev (optional)
-    ├── listItem → item / ellipsis (×n)
-    └── listItem → next (optional)
+root (<nav>)
+├── list (<ul>)
+│   ├── listItem (<li>, optional)
+│   │   └── prev
+│   ├── listItem (<li>, ×n)
+│   │   └── item / ellipsis
+│   └── listItem (<li>, optional)
+│       └── next
+└── status (internal, screen-reader-only)
 ```
 
 ## Usage

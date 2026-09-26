@@ -24,11 +24,11 @@ Use InputGroup when an editable control and its addons should share one visual b
 ## Anatomy
 
 ```text
-InputGroup (root)
-├── InputGroup.Leading (leading slot, repeat as needed)
-├── Input or Textarea (independent native control, root slot)
-├── InputGroup.Trailing (trailing slot, repeat as needed)
-└── frame (<span aria-hidden="true">)
+root (InputGroup)
+├── leading (InputGroup.Leading, ×n)
+├── Input or Textarea (native control)
+├── trailing (InputGroup.Trailing, ×n)
+└── frame (internal, aria-hidden)
 ```
 
 Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to use denser padding for the part. Child type never changes spacing implicitly; use `compact` explicitly when a `Button`, `Kbd`, or other addon should occupy less surrounding space. Both parts accept ordinary JSX.

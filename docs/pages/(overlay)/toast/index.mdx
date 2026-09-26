@@ -123,17 +123,15 @@ export default function App() {
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-BaseToaster (viewport container)
-└── Toast (floating card ×n)
-    ├── icon (status indicator icon)
+BaseToaster (solid-toaster viewport)
+└── Toast (solid-toaster notification, ×n)
+    ├── icon (optional)
     ├── content
-    │   ├── title (primary message string)
-    │   └── description (optional subtext)
-    ├── action (optional action button)
-    └── close (optional dismiss button)
+    │   ├── title
+    │   └── description (optional)
+    ├── action (optional)
+    └── close (optional)
 ```
 
 - `BaseToaster`: Mounts at top-level root managing stacking, gaps, and z-index.

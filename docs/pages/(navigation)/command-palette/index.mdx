@@ -108,15 +108,23 @@ Use CommandPalette for searchable commands or navigation targets. The applicatio
 ```text
 root
 ├── inputWrapper
-│   ├── search
-│   ├── input
+│   ├── inputLeading
+│   ├── input (role="combobox")
 │   └── close (optional)
-├── listbox
-│   ├── group (×n)
-│   │   └── item (×n)
-│   └── empty (optional)
+├── listbox (optional)
+│   └── group (×n)
+│       ├── groupLabel (optional)
+│       └── item (×n)
+│           ├── itemLeading (optional)
+│           ├── itemWrapper
+│           │   ├── itemLabel
+│           │   └── itemDescription (optional)
+│           └── itemTrailing (optional)
+├── empty (optional)
 └── footer (optional)
 ```
+
+The listbox and empty state are mutually exclusive. With `virtualRender`, group labels and items can be flat rows. When `descriptionPosition="trailing"`, itemDescription moves inside itemLabel.
 
 ## Usage
 

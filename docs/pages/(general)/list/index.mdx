@@ -22,7 +22,7 @@ Use List when the caller owns each row’s markup and needs a stable collection 
 
 ```text
 root (<ul> by default)
-└── itemRender ({ item, index, props } ×n)
+└── itemRender output (×n; element chosen by caller)
 ```
 
 When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.

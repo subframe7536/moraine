@@ -61,8 +61,6 @@ Use Stepper to show progress through a fixed sequence of steps. Decide whether u
 
 ## Anatomy
 
-Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration. The indicator, title, and description share one trigger. Horizontal navigation scrolls when the steps cannot fit.
-
 ```text
 root
 ├── header (role="tablist")
@@ -71,11 +69,14 @@ root
 │       │   ├── indicator
 │       │   │   └── icon
 │       │   └── wrapper (optional)
-│       │       ├── title
-│       │       └── description
-│       └── separator (except last)
+│       │       ├── title (optional)
+│       │       └── description (optional)
+│       └── separator (optional)
 └── content (active role="tabpanel", optional)
 ```
+
+Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration. The indicator, title, and description share one trigger. Horizontal navigation scrolls when the steps cannot fit.
+Separators render between items, never after the last item.
 
 ## Usage
 

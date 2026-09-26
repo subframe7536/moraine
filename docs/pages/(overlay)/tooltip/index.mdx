@@ -67,18 +67,21 @@ Use Tooltip for supplemental information on hover or focus. The trigger must sti
 
 ## Anatomy
 
-`Tooltip` has no root DOM element. Its Trigger opens portaled Content, which can render text and shortcut keys. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Tooltip; Content can override its own slots. See [Styling](/styling/customization#style-overrides).
+```text
+Tooltip (state only; no DOM)
+├── trigger (Tooltip.Trigger)
+└── positioner (internal; portaled while mounted)
+    └── content (Tooltip.Content)
+        ├── text (optional)
+        └── kbds (KbdGroup, optional)
+            └── item (<kbd>, ×n)
+```
+
+String content uses the `text` slot; JSX content renders directly inside Content.
+
+Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Tooltip; Content can override its own slots. See [Styling](/styling/customization#style-overrides).
 
 The positioning wrapper is internal. You cannot style it through Tooltip slots or Theme overrides.
-
-```text
-Root (context only)
-├── Trigger
-└── content (portal, role="tooltip")
-    ├── text (optional)
-    └── kbds (optional)
-        └── kbd (×n)
-```
 
 ## Usage
 

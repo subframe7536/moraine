@@ -309,19 +309,20 @@ export function NotificationForm() {
 ## Anatomy
 
 ```text
-form.Form (<form> root managed by Formisch)
-└── form.Field (field layout & ARIA wrapper)
-    ├── wrapper (label, required indicator, hint, description)
-    │   ├── labelWrapper
-    │   │   ├── label (form control label)
-    │   │   ├── required (asterisk indicator)
-    │   │   └── hint (optional badge/subtext)
-    │   └── description (helper text)
-    └── container (child controls, help message, error alert)
-        ├── {children} (input, select, textarea, etc.)
-        ├── help (supplemental help note)
-        └── error (validation error message with role="alert")
+root (form.Form, native <form>)
+└── form.Field (Field root, ×n; supplied by caller)
+    ├── wrapper
+    │   ├── labelWrapper (optional)
+    │   │   ├── label
+    │   │   └── hint (optional)
+    │   └── description (optional)
+    └── container
+        ├── control content (supplied by caller)
+        ├── help (optional)
+        └── error (optional)
 ```
+
+Each `form.Field` uses the Field layout. Help and error are mutually exclusive; the error takes its place when the field is invalid.
 
 `<form.Form>` does not automatically disable child controls during submission. Use `form.isSubmitting` when your application needs that behavior.
 

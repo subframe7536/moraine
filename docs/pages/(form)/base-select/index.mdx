@@ -69,16 +69,18 @@ the composing control.
 ## Anatomy
 
 ```text
-BaseSelect
-├── Control
-│   └── Trigger
-└── Content
-    ├── Listbox
-    │   ├── Group (optional)
-    │   │   ├── GroupLabel
-    │   │   └── Item (×n)
-    │   └── Separator (optional)
-    └── Empty (optional)
+BaseSelect (state only; no DOM)
+├── control (optional)
+│   └── trigger (optional)
+└── positioner (internal; portaled while Content is mounted)
+    └── content
+        ├── listbox
+        │   ├── group (×n)
+        │   │   ├── groupLabel (optional)
+        │   │   └── item (×n)
+        │   ├── item (ungrouped, ×n)
+        │   └── separator (×n)
+        └── empty (optional)
 ```
 
 Control is an optional, non-interactive layout container and floating anchor. It does not toggle,

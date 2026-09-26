@@ -77,20 +77,17 @@ Use AvatarGroup to show a small set of people in a bounded space. It truncates t
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (horizontal avatar stack)
-├── item (individual Avatar instance ×n)
-│   ├── image
-│   ├── fallback
-│   └── badge
-└── count (overflow counter pill "+N")
+root (AvatarGroup, optional)
+├── count (optional)
+└── item (Avatar, ×n)
+    ├── image
+    ├── fallback
+    │   └── fallbackContent (optional)
+    └── badge (optional)
 ```
 
-- `root`: Flex container applying negative horizontal margins and border rings.
-- `item`: Composed child `Avatar` instances.
-- `count`: Badge showing remaining count when `children.length > max`.
+AvatarGroup renders no root for an empty `items` array. The count appears before visible Avatar items when `items.length > max`.
 
 ## Usage
 

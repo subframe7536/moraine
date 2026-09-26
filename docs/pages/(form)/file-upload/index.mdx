@@ -56,37 +56,24 @@ Use FileUpload to collect local files before the application sends them. Selecti
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
-### Upload area
-
 ```text
 root
-├── input (visually hidden native file input)
-└── control (dropzone container or trigger button)
-    └── wrapper
-        ├── icon (leading upload icon)
-        ├── label (title text)
-        └── description (formats & size instructions)
+├── control (dropzone or trigger button)
+│   └── wrapper
+│       ├── icon
+│       ├── label (optional)
+│       └── description (optional)
+├── input (hidden native file input, internal)
+└── files (optional)
+    └── file (×n)
+        ├── filePreview (image or icon)
+        ├── fileMeta
+        │   ├── fileName
+        │   └── fileSize
+        └── fileRemove
 ```
 
-### File preview list
-
-```text
-root
-└── files (file list container)
-    └── file (individual file item ×n)
-        ├── filePreview (thumbnail or file icon)
-        ├── fileMeta (metadata column)
-        │   ├── fileName (file name string)
-        │   └── fileSize (formatted byte size)
-        └── fileRemove (remove action button)
-```
-
-- `root`: Outer component container.
-- `control`: The interactive dropzone target or button triggering the native file picker.
-- `files`: Container grouping all staged attachments.
-- `fileRemove`: Individual remove button emitting delete events.
+The control opens the native file picker and can also accept dropped files. The preview list appears only when previews are enabled and files are selected.
 
 ## Usage
 

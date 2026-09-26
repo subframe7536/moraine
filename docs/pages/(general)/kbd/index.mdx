@@ -77,14 +77,10 @@ Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/kbd
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root (semantic HTML <kbd> element)
-└── {resolved symbol or text child}
+root (<kbd>)
+└── text or symbol (not a style slot)
 ```
-
-- `root`: The `<kbd>` element styled with mono typography, border shadow, and rounded corners.
 
 ## Usage
 

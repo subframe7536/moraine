@@ -65,21 +65,22 @@ Use Dialog when an action or form needs focused attention with a labeled modal s
 
 ## Anatomy
 
-`Dialog` coordinates its Trigger and Content without rendering a root DOM element. The structured regions are independent parts:
-
 ```text
-Dialog
-├── Trigger
-├── Close
-└── Content
-    ├── Header
-    │   ├── Title
-    │   ├── Description
-    │   └── Action
-    ├── contentClose
-    ├── Body
-    └── Footer
+Dialog (state only; no DOM)
+├── trigger (Dialog.Trigger, optional)
+├── close (Dialog.Close, optional; placement varies)
+├── overlay (optional; portaled while mounted)
+└── content (Dialog.Content; portaled while mounted)
+    ├── header (Dialog.Header, optional)
+    │   ├── title (Dialog.Title, optional)
+    │   ├── description (Dialog.Description, optional)
+    │   └── action (Dialog.Action, optional)
+    ├── contentClose (optional)
+    ├── body (Dialog.Body, optional)
+    └── footer (Dialog.Footer, optional)
 ```
+
+The overlay and content are siblings by default. In scrollable overlay mode, content is nested inside the overlay.
 
 Use Content `title` and `description` for simple cases:
 

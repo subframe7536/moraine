@@ -71,12 +71,13 @@ Use Tabs to switch between peer panels while staying in the same page context. U
 root
 ├── list (role="tablist")
 │   ├── indicator
-│   └── trigger (role="tab" ×n)
+│   └── trigger (role="tab", ×n)
 │       ├── leading (optional)
-│       ├── label
-│       └── trailing (optional)
-└── content (active role="tabpanel")
+│       └── label (optional)
+└── content (active role="tabpanel", optional)
 ```
+
+String labels use the `label` slot; JSX labels render directly inside the trigger.
 
 ## Usage
 

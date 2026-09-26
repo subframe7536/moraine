@@ -80,16 +80,24 @@ Use Combobox when users should type to find one item in a collection. Use [Selec
 ## Anatomy
 
 ```text
-control
-├── leading (optional)
-├── input
-├── clear (optional)
-└── trigger
-content (portaled while open)
-└── listbox
-    ├── group / groupLabel (optional)
-    ├── item (×n)
-    └── empty (optional)
+Combobox (state only; no DOM)
+├── control
+│   ├── leading (optional)
+│   ├── input
+│   ├── clear (optional)
+│   └── trigger
+└── positioner (internal; portaled while mounted)
+    └── content
+        ├── listbox
+        │   ├── group (×n, label row)
+        │   │   └── groupLabel
+        │   └── item (×n)
+        │       ├── itemLeading (optional)
+        │       ├── itemWrapper
+        │       │   ├── itemLabel
+        │       │   └── itemDescription (optional)
+        │       └── itemIndicator (optional)
+        └── empty (optional)
 ```
 
 Control is the visual field and floating anchor. Input is the sole combobox ARIA and focus owner.
@@ -97,6 +105,7 @@ Trigger is an always-present secondary button with `tabIndex={-1}` that toggles 
 creating competing focus targets.
 
 Combobox renders the popup collection internally. Its content, listbox, and item names are style slots; customize item output with `itemRender` rather than composing attached child parts.
+Group headings and options render as sibling rows in the default listbox.
 
 ## Usage
 

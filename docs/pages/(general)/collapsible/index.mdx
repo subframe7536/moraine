@@ -69,17 +69,17 @@ Use Collapsible for one disclosure whose trigger and content belong to the surro
 ## Anatomy
 
 ```text
-Collapsible (root, state provider)
-├── Collapsible.Trigger (trigger)
-└── internal content wrapper (not configurable)
-    └── Collapsible.Content (content)
+root (Collapsible)
+├── trigger (Collapsible.Trigger)
+└── contentWrapper (internal, optional)
+    └── content (Collapsible.Content)
 ```
 
 ## Usage
 
 ### Styling
 
-Configure `root`, `trigger`, and `content` through `collapsible.base` in your Theme. The Content element exposes `data-expanded`, `data-closed`, and `data-transition` for state styling. Collapsible also renders an internal wrapper for measurement, height animation, presence, and accessibility; you cannot configure that wrapper through Theme, `classes`, `styles`, or Content props.
+Configure `root`, `trigger`, and `content` through `collapsible.base` in your Theme. The Content element exposes `data-expanded` and `data-closed` for state styling. Collapsible also renders an internal wrapper with `data-expanded`, `data-closed`, and `data-transition` for measurement, height animation, presence, and accessibility; you cannot configure that wrapper through Theme, `classes`, `styles`, or Content props.
 
 Root `classes` and `styles` set defaults for this Collapsible. Use direct `class` and `style` on the root, Trigger, or Content to style those elements. Content's `ref` and `as` apply to the inner Content element. `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` type the slot overrides. There are no visual variants. See [Styling](/styling/customization#style-overrides) for override precedence.
 

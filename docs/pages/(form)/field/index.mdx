@@ -26,15 +26,17 @@ For form integration, use `form.Field` returned by `createForm()`.
 ```text
 root
 ├── wrapper
-│   ├── labelWrapper
+│   ├── labelWrapper (optional)
 │   │   ├── label
-│   │   └── hint
-│   └── description
+│   │   └── hint (optional)
+│   └── description (optional)
 └── container
-    ├── control content
-    ├── help
-    └── error
+    ├── control content (supplied by caller)
+    ├── help (optional)
+    └── error (optional)
 ```
+
+Help and error are mutually exclusive; the error takes its place when the field is invalid.
 
 ## Usage
 

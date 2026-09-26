@@ -44,12 +44,13 @@ import type { ResizableT } from 'moraine'
 ## Anatomy
 
 ```text
-Resizable
-├── Resizable.Panel
-├── Resizable.Handle
-│   ├── handleControl (optional grip)
-│   └── intersection (optional pointer targets)
-└── Resizable.Panel
+root (Resizable)
+├── panel (Resizable.Panel)
+├── handle (Resizable.Handle)
+│   ├── intersection (optional)
+│   ├── handleControl (optional)
+│   └── intersection (optional)
+└── panel (Resizable.Panel)
 ```
 
 Each handle can independently set `action="collapse"`, enable `intersection`, or render a custom grip through its children. Use `children={false}` to keep the divider while omitting the inner grip.

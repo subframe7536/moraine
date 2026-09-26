@@ -82,12 +82,13 @@ Use RadioGroup for one choice from a small visible set. For a longer or space-co
 ```text
 root (radio group)
 └── item (×n)
-    ├── input (hidden native radio)
-    ├── control
-    │   └── indicator
-    └── wrapper
-        ├── label
-        └── description
+    ├── container
+    │   ├── input (hidden native radio)
+    │   └── control
+    │       └── indicator (optional)
+    └── wrapper (optional)
+        ├── label (optional)
+        └── description (optional)
 ```
 
 ## Usage

@@ -83,13 +83,16 @@ Use Popover for anchored interactive content that does not need the structure of
 
 ## Anatomy
 
-`Popover` has no root DOM element. Its Trigger opens a portaled Content element, which may render a body. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Popover; Content can override its `content` and `body` slots. See [Styling](/styling/customization#style-overrides).
-
 ```text
-Root (context only)
-├── Trigger
-└── content (portal, role="dialog")
+Popover (state only; no DOM)
+├── trigger (Popover.Trigger)
+├── close (Popover.Close, optional; placement varies)
+└── positioner (internal; portaled while mounted)
+    └── content (Popover.Content)
+        └── body (optional)
 ```
+
+Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Popover; Content can override its `content` and `body` slots. See [Styling](/styling/customization#style-overrides).
 
 ## Usage
 

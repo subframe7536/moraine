@@ -81,21 +81,22 @@ Use Sheet for a focused drawer from a viewport edge, such as mobile navigation o
 
 ## Anatomy
 
-`Sheet` coordinates its Trigger and Content without rendering a root DOM element. The structured regions are independent parts:
-
 ```text
-Sheet
-├── Trigger
-├── Close
-└── Content
-    ├── Header
-    │   ├── Title
-    │   ├── Description
-    │   └── Action
-    ├── contentClose
-    ├── Body
-    └── Footer
+Sheet (state only; no DOM)
+├── trigger (Sheet.Trigger, optional)
+├── close (Sheet.Close, optional; placement varies)
+├── overlay (optional; portaled while mounted)
+└── content (Sheet.Content; portaled while mounted)
+    ├── header (Sheet.Header, optional)
+    │   ├── title (Sheet.Title, optional)
+    │   ├── description (Sheet.Description, optional)
+    │   └── action (Sheet.Action, optional)
+    ├── contentClose (optional)
+    ├── body (Sheet.Body, optional)
+    └── footer (Sheet.Footer, optional)
 ```
+
+The overlay and content are siblings by default. In scrollable overlay mode, content is nested inside the overlay.
 
 Use Content `title` and `description` for simple cases:
 

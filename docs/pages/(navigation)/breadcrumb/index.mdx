@@ -63,12 +63,13 @@ Use Breadcrumb to show a resource’s place in a navigation hierarchy. The curre
 ## Anatomy
 
 ```text
-root (<nav aria-label="Breadcrumb">)
+root (<nav>)
 └── list (<ol>)
-    ├── item (<li> ×n)
-    │   ├── link (ancestor item)
-    │   └── page (current item)
-    └── separator (decorative)
+    ├── item (<li>, ×n)
+    │   └── link / page (ancestor / current)
+    │       ├── leading (optional)
+    │       └── label (optional)
+    └── separator (<li>, between items)
 ```
 
 ## Usage

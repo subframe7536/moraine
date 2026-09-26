@@ -83,13 +83,15 @@ Use CheckboxGroup for several choices submitted as one array. Use individual [Ch
 root (<div>)
 └── fieldset
     ├── legend (optional)
-    └── Checkbox item (×n)
+    └── item (Checkbox root, ×n)
         ├── container
-        │   ├── input
+        │   ├── input (hidden native checkbox)
         │   └── control
-        └── wrapper
-            ├── label
-            └── description
+        │       └── indicator (optional)
+        │           └── icon
+        └── wrapper (optional)
+            ├── label (optional)
+            └── description (optional)
 ```
 
 The outer `root` owns styling and forwarded root props. The nested `<fieldset>` owns group semantics, disabled state, and the optional `<legend>` association.

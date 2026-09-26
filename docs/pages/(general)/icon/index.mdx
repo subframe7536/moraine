@@ -38,7 +38,7 @@ Use Icon for decoration or a named symbol alongside text. If the icon alone conv
 ## Anatomy
 
 ```text
-root (dynamic icon element)
+root (default <div>; component output may differ)
 ```
 
 For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.

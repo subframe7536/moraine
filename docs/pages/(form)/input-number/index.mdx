@@ -81,28 +81,24 @@ Use InputNumber for a numeric field with step controls and constrained committed
 
 ## Anatomy
 
-### Horizontal layout
-
 ```text
-root
-├── decrement
+root (horizontal layout)
+├── decrement (optional)
 ├── input
-└── increment
+└── increment (optional)
 ```
 
 ### Vertical layout
 
 ```text
-root
+root (vertical layout)
 ├── input
-└── controls
-    ├── increment
-    └── decrement
+└── controls (optional)
+    ├── increment (optional)
+    └── decrement (optional)
 ```
 
-- `root`: Container applying variant styling and focus state.
-- `input`: Numeric text entry and spinbutton keyboard target.
-- `increment` / `decrement`: Step buttons with optional press-and-hold repeat.
+The input is the spinbutton keyboard target. Vertical controls appear when either step button is shown. The increment and decrement buttons can repeat while pressed.
 
 ## Usage
 

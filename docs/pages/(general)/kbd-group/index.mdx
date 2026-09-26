@@ -62,13 +62,10 @@ Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders nota
 
 ## Anatomy
 
-Hierarchical slot and element structure:
-
 ```text
-root <kbd>
-├── item <kbd>
-├── inline separator content
-└── item <kbd>
+root (<kbd>)
+├── item (<kbd>, ×n)
+└── separator content (inline, not a style slot)
 ```
 
 The only theme slots are `root` and `item`. Separator content is rendered inline and is not a theme slot.

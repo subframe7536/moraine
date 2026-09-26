@@ -68,15 +68,14 @@ Use Modal when you need to compose backdrop, trigger, and content directly. Use 
 ## Anatomy
 
 ```text
-Modal (state provider)
-├── Modal.Trigger
-└── Modal.Portal
-    ├── Modal.Overlay
-    └── Modal.Content
+Modal (state only; no DOM)
+├── trigger (Modal.Trigger, optional)
+└── Modal.Portal (optional; portals its children while mounted; no DOM)
+    ├── overlay (Modal.Overlay, optional)
+    └── content (Modal.Content)
         └── children ({ close })
 ```
 
-- `Modal`: Coordinates open state, focus behavior, dismissal, and the default portal destination; it does not render a DOM root of its own.
 - `Modal.Trigger`: Polymorphic element that opens the modal.
 - `Modal.Portal`: Mounts its children in its `mount` node, the root `portalMount`, or the trigger document's body, in that order, and keeps them mounted through the exit transition.
 - `Modal.Overlay`: Backdrop layer with entry/exit motion.

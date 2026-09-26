@@ -115,13 +115,13 @@ import type { SidebarFrameT } from 'moraine'
 ## Anatomy
 
 ```text
-SidebarFrame
-├── SidebarFrame.Sidebar
-│   ├── SidebarFrame.SidebarHeader
-│   ├── SidebarFrame.SidebarBody
-│   └── SidebarFrame.SidebarFooter
-├── SidebarFrame.Main
-└── SidebarFrame.Trigger
+root (SidebarFrame)
+├── sidebar (SidebarFrame.Sidebar)
+│   ├── sidebarHeader (optional)
+│   ├── sidebarBody (optional)
+│   └── sidebarFooter (optional)
+├── main (SidebarFrame.Main)
+└── trigger (SidebarFrame.Trigger; placement varies)
 ```
 
 `SidebarFrame.Trigger` can appear anywhere inside `SidebarFrame` to toggle sidebar visibility, without requiring a structural placement inside `SidebarFrame.Main`. Composing with `<SidebarFrame.Trigger as={Button} ... />` is the recommended way to obtain standard Moraine button styling.

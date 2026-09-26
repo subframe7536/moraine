@@ -250,8 +250,7 @@
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded",
-        "data-transition"
+        "data-expanded"
       ]
     }
   ]

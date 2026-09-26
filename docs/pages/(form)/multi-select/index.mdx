@@ -81,26 +81,35 @@ Use MultiSelect for several selected collection items displayed as tags. Its val
 ## Anatomy
 
 ```text
-control
-├── leading (optional)
-├── tagsContainer
-│   ├── tag (×n)
-│   │   ├── tagLabel
-│   │   └── tagRemove
-│   ├── tagOverflow (optional, renderable)
-│   └── input
-├── clear (optional)
-└── trigger
-content (portaled while open)
-└── listbox
-    ├── group / groupLabel (optional)
-    ├── item (×n)
-    └── empty (optional)
+MultiSelect (state only; no DOM)
+├── control
+│   ├── leading (optional)
+│   ├── tagsContainer
+│   │   ├── tag (×n)
+│   │   │   ├── tagLabel
+│   │   │   └── tagRemove
+│   │   ├── tagOverflow (optional)
+│   │   └── input / placeholder (editable / non-editable)
+│   ├── clear (optional)
+│   └── trigger
+└── positioner (internal; portaled while mounted)
+    └── content
+        ├── listbox
+        │   ├── group (×n, label row)
+        │   │   └── groupLabel
+        │   └── item (×n)
+        │       ├── itemLeading (optional)
+        │       ├── itemWrapper
+        │       │   ├── itemLabel
+        │       │   └── itemDescription (optional)
+        │       └── itemIndicator (optional)
+        └── empty (optional)
 ```
 
 The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
 
 The popup slots belong to MultiSelect's default collection content. Use `itemRender` for a custom option body; tags have their own rendering path through `tagRender`.
+Group headings and options render as sibling rows in the default listbox. The non-editable placeholder is an internal element, not a style slot.
 
 ## Usage
 

@@ -73,18 +73,25 @@ Use Select for one choice from a non-editable collection. Use [Combobox](/combob
 ## Anatomy
 
 ```text
-control
-└── trigger
-    ├── leading (optional)
-    ├── value
-    ├── clear (optional)
-    └── trailing (chevron / loading icon)
-content (portaled while open)
-└── listbox
-    ├── group / groupLabel (optional)
-    ├── item (×n)
-    ├── separator (optional)
-    └── empty (optional)
+Select (state only; no DOM)
+├── control
+│   └── trigger
+│       ├── leading (optional)
+│       ├── value
+│       ├── clear (optional)
+│       └── trailing
+└── positioner (internal; portaled while mounted)
+    └── content
+        ├── listbox
+        │   ├── group (×n, label row)
+        │   │   └── groupLabel
+        │   └── item (×n)
+        │       ├── itemLeading (optional)
+        │       ├── itemWrapper
+        │       │   ├── itemLabel
+        │       │   └── itemDescription (optional)
+        │       └── itemIndicator (optional)
+        └── empty (optional)
 ```
 
 The control slot is the outer visual field and floating anchor. The trigger slot is the sole
@@ -93,6 +100,7 @@ for an unresolved value. Clear is a pointer-only affordance inside the trigger t
 selection without toggling the popup.
 
 The popup slots are rendered by Select's default collection content; they are styling targets, not attached `Select` child components. Use [BaseSelect](/base-select) when the listbox itself needs custom composition.
+Group headings and options render as sibling rows in the default listbox.
 
 ## Usage
 
