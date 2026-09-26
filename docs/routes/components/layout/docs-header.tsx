@@ -27,7 +27,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const isDocs = createMemo(() => !props.isLanding() && location.pathname.startsWith('/start'))
 
   return (
-    <header class="border-b border-border/60 bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
+    <header class="bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
       <nav aria-label="Main" class="px-4 flex h-13 w-full items-center justify-between sm:px-8">
         <div class="flex gap-2.5 items-center sm:gap-6">
           <Show when={!props.isLanding() && frame.isMobile()}>

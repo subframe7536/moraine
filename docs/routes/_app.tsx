@@ -102,7 +102,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
         <div class="flex flex-1 min-h-0 overflow-hidden">
           <Show when={!isLanding()}>
-            <SidebarFrame.Sidebar class="border-r border-border/60">
+            <SidebarFrame.Sidebar class="border-r-0">
               <Show when={frame.isMobile()}>
                 <SidebarFrame.SidebarHeader>
                   <SidebarHeader onClose={() => frame.setOpen(false)} isMobile={true} />
