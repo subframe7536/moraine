@@ -27,11 +27,11 @@ describe('Sheet', () => {
     ['bottom', 'bottom-0', 'enter-translate-y-10'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
     renderWithTheme(() => (
-      <Sheet open>
+      <Sheet open side={side}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content side={side}>
+        <Sheet.Content>
           <Sheet.Body>Sheet body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -117,14 +117,11 @@ describe('Sheet', () => {
 
   test('applies inset without transition state', () => {
     renderWithTheme(() => (
-      <Sheet open>
+      <Sheet open side="right" inset transition={false}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
         <Sheet.Content
-          side="right"
-          inset
-          transition={false}
           classes={{
             content: 'content-class',
           }}
@@ -182,12 +179,12 @@ describe('Sheet', () => {
 
   test('uses ariaLabel for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Sheet open>
-        <Sheet.Content
-          title="Suppressed title"
-          description="Suppressed description"
-          ariaLabel="Account panel"
-        >
+      <Sheet
+        open
+
+        ariaLabel="Account panel"
+      >
+        <Sheet.Content title="Suppressed title" description="Suppressed description">
           <Sheet.Header>
             <div>Custom header</div>
           </Sheet.Header>
@@ -205,13 +202,17 @@ describe('Sheet', () => {
 
   test('preserves native ARIA naming attributes over generated Sheet relationships', () => {
     render(() => (
-      <Sheet open>
+      <Sheet
+        open
+
+        ariaLabel="Root sheet label"
+      >
         <Sheet.Content
-          title="Generated title"
-          description="Generated description"
           aria-label="Native sheet label"
           aria-labelledby="custom-sheet-title"
           aria-describedby="custom-sheet-description"
+          title="Generated title"
+          description="Generated description"
         >
           <Sheet.Body>
             <>
@@ -236,8 +237,8 @@ describe('Sheet', () => {
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Sheet defaultOpen>
-          <Sheet.Content trapFocus={false} title="Sheet">
+        <Sheet defaultOpen trapFocus={false}>
+          <Sheet.Content title="Sheet">
             <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
@@ -281,8 +282,8 @@ describe('Sheet', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Sheet open>
-          <Sheet.Content title={title} description={description} ariaLabel={ariaLabel}>
+        <Sheet open ariaLabel={ariaLabel}>
+          <Sheet.Content title={title} description={description}>
             <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
@@ -298,8 +299,8 @@ describe('Sheet', () => {
 
   test('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
-      <Sheet open>
-        <Sheet.Content title="" description="" close={false}>
+      <Sheet open close={false}>
+        <Sheet.Content title="" description="">
           <Sheet.Body>{''}</Sheet.Body>
           <Sheet.Footer>{''}</Sheet.Footer>
         </Sheet.Content>
@@ -312,8 +313,8 @@ describe('Sheet', () => {
     empty.unmount()
 
     render(() => (
-      <Sheet open>
-        <Sheet.Content title={false} description={false} close={false} />
+      <Sheet open close={false}>
+        <Sheet.Content title={false} description={false} />
       </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="sheet-header"]')).toBeNull()
@@ -356,8 +357,10 @@ describe('Sheet', () => {
         open
         classes={{ action: 'family-action', body: 'family-body' }}
         styles={{ action: { color: 'red' } }}
+
+        close={false}
       >
-        <Sheet.Content title="Fallback" description="Fallback description" close={false}>
+        <Sheet.Content title="Fallback" description="Fallback description">
           <Show when={showHeader()}>
             <Sheet.Header>
               <Show when={showTitle()}>
@@ -406,13 +409,14 @@ describe('Sheet', () => {
     const [transition, setTransition] = createSignal(true)
 
     renderWithTheme(() => (
-      <Sheet open>
-        <Sheet.Content
-          side={side()}
-          inset={inset()}
-          transition={transition()}
-          ariaLabel="Reactive sheet"
-        >
+      <Sheet
+        open
+        side={side()}
+        inset={inset()}
+        transition={transition()}
+        ariaLabel="Reactive sheet"
+      >
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -437,8 +441,8 @@ describe('Sheet', () => {
 
   test('releases content and scroll lock when unmounted during exit', async () => {
     const screen = render(() => (
-      <Sheet defaultOpen>
-        <Sheet.Content ariaLabel="Unmounting sheet">
+      <Sheet defaultOpen ariaLabel="Unmounting sheet">
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -489,11 +493,11 @@ describe('Sheet', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Sheet open>
+      <Sheet open close={<span data-testid="custom-close">X</span>}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content close={<span data-testid="custom-close">X</span>}>
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -554,11 +558,11 @@ describe('Sheet', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Sheet open>
+      <Sheet open close={false}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content close={false}>
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -642,11 +646,11 @@ describe('Sheet', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Sheet open>
+      <Sheet open overlay={false}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content overlay={false}>
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>

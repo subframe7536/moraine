@@ -23,22 +23,20 @@ export namespace SheetT {
     classes?: Classes
     /** Family slot style defaults for this Sheet instance. */
     styles?: Styles
-  }
-  export type Props = Base
-
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-
-  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
-  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
-  export interface ContentBase {
     /**
      * Edge from which the sheet opens.
      * @default 'right'
      */
-    side?: 'top' | 'right' | 'bottom' | 'left'
+    side?: 'top' | 'right' | 'bottom' | 'left' | null
 
-    /** Whether to render the overlay element. */
+    /** Whether the surface is inset from viewport edges.
+     * @default false
+     */
+    inset?: boolean | null
+
+    /** Whether to render the overlay element.
+     * @default true
+     */
     overlay?: boolean
 
     /** Accessible name used when the sheet has no rendered title. */
@@ -52,16 +50,6 @@ export namespace SheetT {
     trapFocus?: boolean
 
     /**
-     * Primary title displayed in the sheet header.
-     */
-    title?: JSX.Element
-
-    /**
-     * Secondary description displayed below the title.
-     */
-    description?: JSX.Element
-
-    /**
      * Whether to enable transition animations.
      * @default true
      */
@@ -72,15 +60,29 @@ export namespace SheetT {
      * @default true
      */
     close?: JSX.Element
+  }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
+  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
+  export interface ContentBase {
+    /** Primary title displayed in the sheet header. */
+    title?: JSX.Element
+
+    /** Secondary description displayed below the title. */
+    description?: JSX.Element
 
     /** Composable sheet parts. */
     children?: JSX.Element
   }
 
   /**
-   * Props for the Sheet component.
+   * Props for Sheet.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, ContentClasses, ContentStyles>
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
     as?: T

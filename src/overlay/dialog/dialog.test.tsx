@@ -233,12 +233,12 @@ describe('Dialog', () => {
 
   test('uses ariaLabel for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Dialog open>
-        <Dialog.Content
-          title="Suppressed title"
-          description="Suppressed description"
-          ariaLabel="Account settings"
-        >
+      <Dialog
+        open
+
+        ariaLabel="Account settings"
+      >
+        <Dialog.Content title="Suppressed title" description="Suppressed description">
           <Dialog.Header>
             <div>Custom header</div>
           </Dialog.Header>
@@ -256,13 +256,17 @@ describe('Dialog', () => {
 
   test('preserves native ARIA naming attributes over generated Dialog relationships', () => {
     render(() => (
-      <Dialog open>
+      <Dialog
+        open
+
+        ariaLabel="Root dialog label"
+      >
         <Dialog.Content
-          title="Generated title"
-          description="Generated description"
           aria-label="Native dialog label"
           aria-labelledby="custom-dialog-title"
           aria-describedby="custom-dialog-description"
+          title="Generated title"
+          description="Generated description"
         >
           <Dialog.Body>
             <>
@@ -287,8 +291,8 @@ describe('Dialog', () => {
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Dialog defaultOpen>
-          <Dialog.Content trapFocus={false} title="Dialog">
+        <Dialog defaultOpen trapFocus={false}>
+          <Dialog.Content title="Dialog">
             <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
@@ -333,8 +337,8 @@ describe('Dialog', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Dialog open>
-          <Dialog.Content title={title} description={description} ariaLabel={ariaLabel}>
+        <Dialog open ariaLabel={ariaLabel}>
+          <Dialog.Content title={title} description={description}>
             <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
@@ -350,8 +354,8 @@ describe('Dialog', () => {
 
   test('distinguishes empty content from false presence', () => {
     const empty = render(() => (
-      <Dialog open>
-        <Dialog.Content title="" description="" close={false}>
+      <Dialog open close={false}>
+        <Dialog.Content title="" description="">
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -361,8 +365,8 @@ describe('Dialog', () => {
     empty.unmount()
 
     render(() => (
-      <Dialog open>
-        <Dialog.Content title={false} description={false} close={false}>
+      <Dialog open close={false}>
+        <Dialog.Content title={false} description={false}>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -411,8 +415,10 @@ describe('Dialog', () => {
         open
         classes={{ action: 'family-action', body: 'family-body' }}
         styles={{ action: { color: 'red' } }}
+
+        close={false}
       >
-        <Dialog.Content title="Fallback" description="Fallback description" close={false}>
+        <Dialog.Content title="Fallback" description="Fallback description">
           <Show when={showHeader()}>
             <Dialog.Header>
               <Show when={showTitle()}>
@@ -525,11 +531,12 @@ describe('Dialog', () => {
           setSearchTerm('')
           onExitComplete()
         }}
+        close={false}
       >
         <Dialog.Trigger as="button" type="button">
           Open palette
         </Dialog.Trigger>
-        <Dialog.Content close={false}>
+        <Dialog.Content>
           <Dialog.Body>
             <CommandPalette
               groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
@@ -597,11 +604,11 @@ describe('Dialog', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Dialog open>
+      <Dialog open overlay={false}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content overlay={false}>
+        <Dialog.Content>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -696,8 +703,8 @@ describe('Dialog', () => {
 
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
     renderWithTheme(() => (
-      <Dialog open>
-        <Dialog.Content scrollable title="Overlay scroll">
+      <Dialog open scrollable>
+        <Dialog.Content title="Overlay scroll">
           <Dialog.Body>Long body</Dialog.Body>
           <Dialog.Footer>Actions</Dialog.Footer>
         </Dialog.Content>
@@ -719,8 +726,8 @@ describe('Dialog', () => {
 
   test('uses a full viewport flex panel for fullscreen dialogs', () => {
     renderWithTheme(() => (
-      <Dialog open>
-        <Dialog.Content fullscreen>
+      <Dialog open fullscreen>
+        <Dialog.Content>
           <Dialog.Body>Fullscreen body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -737,13 +744,41 @@ describe('Dialog', () => {
     )
   })
 
+  test('reacts to root fullscreen and scrollable changes', () => {
+    const [scrollable, setScrollable] = createSignal(false)
+    const [fullscreen, setFullscreen] = createSignal(false)
+    const [overlayVisible, setOverlayVisible] = createSignal(true)
+    renderWithTheme(() => (
+      <Dialog open scrollable={scrollable()} fullscreen={fullscreen()} overlay={overlayVisible()}>
+        <Dialog.Content title="Layout">Content</Dialog.Content>
+      </Dialog>
+    ))
+
+    const overlay = () => document.body.querySelector('[data-slot="dialog-overlay"]')
+    const content = () => document.body.querySelector('[data-slot="dialog-content"]')
+    expect(overlay()?.contains(content())).toBe(false)
+    expect(content()?.className).toContain('fixed')
+
+    setScrollable(true)
+    expect(overlay()?.contains(content())).toBe(true)
+    expect(content()?.className).toContain('relative')
+
+    setFullscreen(true)
+    expect(overlay()?.contains(content())).toBe(false)
+    expect(content()?.className).toContain('size-full')
+
+    setOverlayVisible(false)
+    expect(overlay()).toBeNull()
+    expect(content()).not.toBeNull()
+  })
+
   test('supports custom close content', () => {
     render(() => (
-      <Dialog open>
+      <Dialog open closeIcon={<span data-testid="custom-close">X</span>}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content closeIcon={<span data-testid="custom-close">X</span>}>
+        <Dialog.Content>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -784,11 +819,11 @@ describe('Dialog', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Dialog open>
+      <Dialog open close={false}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content close={false}>
+        <Dialog.Content>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -951,8 +986,6 @@ describe('Dialog', () => {
         }}
       >
         <Dialog.Content
-          title="Custom Title"
-          description="Custom Description"
           classes={{
             content: 'custom-content-class',
             contentClose: 'custom-close-class',
@@ -961,6 +994,8 @@ describe('Dialog', () => {
             content: { 'border-width': '3px' },
             contentClose: { opacity: '0.8' },
           }}
+          title="Custom Title"
+          description="Custom Description"
         >
           <Dialog.Body>Custom Body</Dialog.Body>
           <Dialog.Footer>Custom Footer</Dialog.Footer>
@@ -998,8 +1033,8 @@ describe('Dialog', () => {
 
   test('adjusts body padding when header or footer is absent', () => {
     const { unmount } = renderWithTheme(() => (
-      <Dialog open>
-        <Dialog.Content title={false} description={false} close={false}>
+      <Dialog open close={false}>
+        <Dialog.Content title={false} description={false}>
           <Dialog.Body>No header body</Dialog.Body>
         </Dialog.Content>
       </Dialog>

@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, onCleanup, splitProps } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Show, children as resolveChildren, onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
@@ -9,7 +8,6 @@ import { callHandler, callRef } from '../../shared/utils'
 import { trapFocusInContainer } from '../base/utils'
 
 import { useModalContext } from './modal-context'
-import { useModalOverlayContext } from './modal-overlay'
 import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
@@ -61,10 +59,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'trapFocus',
   ])
   const context = useModalContext()
-  const isInsideOverlay = useModalOverlayContext()
-  const overlayScroll = createMemo(() => Boolean(local.overlayScroll && local.overlay))
-  const renderOutsideOverlay = createMemo(() => !overlayScroll())
-  const hasOverlay = createMemo(() => Boolean(props.overlay))
+  const overlayScroll = () => Boolean(local.overlayScroll && local.overlay)
   const presence = context.presence
   // oxlint-disable-next-line subf/solid-reactivity -- The accessor is stored and read from overlay event handlers so each interaction observes the current prop.
   const unregisterContent = context.registerContent(() => local.trapFocus !== false)
@@ -165,26 +160,17 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         const surface = local.surfaceRender?.()
 
         return (
-          <Show
-            when={isInsideOverlay}
-            fallback={
-              <Portal mount={context.triggerElement()?.ownerDocument.body}>
-                <Show when={overlayScroll()}>
-                  {(_value) => renderOverlay(renderContent(surface))}
-                </Show>
-                <Show when={renderOutsideOverlay()}>
-                  {(_value) => (
-                    <>
-                      <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
-                      {renderContent(surface)}
-                    </>
-                  )}
-                </Show>
-              </Portal>
-            }
-          >
-            {renderContent(surface)}
-          </Show>
+          <>
+            <Show when={overlayScroll()}>{(_value) => renderOverlay(renderContent(surface))}</Show>
+            <Show when={!overlayScroll()}>
+              {(_value) => (
+                <>
+                  <Show when={local.overlay}>{(_value) => renderOverlay()}</Show>
+                  {renderContent(surface)}
+                </>
+              )}
+            </Show>
+          </>
         )
       }}
     </Show>

@@ -12,13 +12,11 @@ export interface ModalContext {
   presence: ReturnType<typeof useTransitionPresence>
   contentId: Accessor<string>
   updateOpen: (open: boolean) => void
-  dismissible: Accessor<boolean>
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
   registerContent: (trapFocus: Accessor<boolean>) => () => void
-  contentPresent: Accessor<boolean>
   isModal: Accessor<boolean>
 }
 

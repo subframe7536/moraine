@@ -24,16 +24,10 @@ export namespace DialogT {
     classes?: Classes
     /** Family slot style defaults for this Dialog instance. */
     styles?: Styles
-  }
-  export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-
-  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
-  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
-  export interface ContentBase {
-    /** Whether to render the overlay element. */
+    /** Whether to render the overlay element.
+     * @default true
+     */
     overlay?: boolean
 
     /** Accessible name used when the dialog has no rendered title. */
@@ -47,23 +41,15 @@ export namespace DialogT {
     trapFocus?: boolean
 
     /**
-     * Primary title displayed in the dialog header.
-     */
-    title?: JSX.Element
-
-    /**
-     * Secondary description displayed below the title.
-     */
-    description?: JSX.Element
-
-    /**
      * Whether the dialog should take up the full viewport.
      * @default false
      */
-    fullscreen?: boolean
+    fullscreen?: boolean | null
 
-    /** Whether the overlay should scroll the complete dialog panel. */
-    scrollable?: boolean
+    /** Whether the overlay should scroll the complete dialog panel.
+     * @default false
+     */
+    scrollable?: boolean | null
 
     /**
      * Whether to show a close button.
@@ -76,15 +62,29 @@ export namespace DialogT {
      * @default 'icon-close'
      */
     closeIcon?: IconT.Name | JSX.Element
+  }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
+  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
+  export interface ContentBase {
+    /** Primary title displayed in the dialog header. */
+    title?: JSX.Element
+
+    /** Secondary description displayed below the title. */
+    description?: JSX.Element
 
     /** Composable dialog parts. */
     children?: JSX.Element
   }
 
   /**
-   * Props for the Dialog component.
+   * Props for Dialog.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, ContentClasses, ContentStyles>
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
     as?: T

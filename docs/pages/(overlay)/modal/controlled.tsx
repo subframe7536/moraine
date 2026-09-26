@@ -10,19 +10,21 @@ export function Controlled() {
         Open controlled modal
       </Button>
       <Modal open={open()} onOpenChange={setOpen}>
-        <Modal.Overlay />
-        <Modal.Content ariaLabel="Controlled modal">
-          {(context) => (
-            <div class="p-4 gap-4 grid">
-              <p class="text-foreground text-sm">
-                The parent owns the open state through onOpenChange.
-              </p>
-              <Button class="justify-self-end" onClick={context.close}>
-                Close
-              </Button>
-            </div>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content ariaLabel="Controlled modal">
+            {(context) => (
+              <div class="p-4 gap-4 grid">
+                <p class="text-foreground text-sm">
+                  The parent owns the open state through onOpenChange.
+                </p>
+                <Button class="justify-self-end" onClick={context.close}>
+                  Close
+                </Button>
+              </div>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     </div>
   )

@@ -68,6 +68,15 @@ export namespace ModalT {
 
   export type Props = Base
 
+  export interface PortalBase {
+    /** Destination for the modal parts; defaults to the trigger document body. */
+    mount?: Node
+    /** Overlay and content parts rendered in the same portal. */
+    children?: JSX.Element
+  }
+
+  export type PortalProps = PortalBase
+
   export interface TriggerBase<T extends ValidComponent = 'button'> {
     /** Element or component to render as. */
     as?: T

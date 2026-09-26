@@ -12,6 +12,12 @@
       },
       "props": [
         {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name used when the dialog has no rendered title."
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -22,6 +28,26 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this Dialog instance."
+        },
+        {
+          "name": "close",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show a close button.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeIcon",
+          "optional": true,
+          "type": "IconT.Name | JSX.Element",
+          "description": "Icon name or custom content for the close button.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
+          }
         },
         {
           "name": "defaultOpen",
@@ -41,6 +67,16 @@
           "default": {
             "kind": "literal",
             "value": true
+          }
+        },
+        {
+          "name": "fullscreen",
+          "optional": true,
+          "type": "boolean | null",
+          "description": "Whether the dialog should take up the full viewport.",
+          "default": {
+            "kind": "literal",
+            "value": false
           }
         },
         {
@@ -74,6 +110,16 @@
           "description": "Controlled open state."
         },
         {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the overlay element.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -84,10 +130,30 @@
           }
         },
         {
+          "name": "scrollable",
+          "optional": true,
+          "type": "boolean | null",
+          "description": "Whether the overlay should scroll the complete dialog panel.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Dialog instance."
+        },
+        {
+          "name": "trapFocus",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -111,7 +177,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "i",
+          "type": "",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -152,15 +218,9 @@
         "root": "Dialog",
         "member": "Content"
       },
-      "description": "Props for the Dialog component.",
+      "description": "Props for Dialog.Content.",
       "defaultElement": "div",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when the dialog has no rendered title."
-        },
         {
           "name": "children",
           "optional": true,
@@ -180,52 +240,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "close",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show a close button.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
-          "name": "closeIcon",
-          "optional": true,
-          "type": "IconT.Name | JSX.Element",
-          "description": "Icon name or custom content for the close button.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-close"
-          }
-        },
-        {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
           "description": "Secondary description displayed below the title."
-        },
-        {
-          "name": "fullscreen",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the dialog should take up the full viewport.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "overlay",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to render the overlay element."
-        },
-        {
-          "name": "scrollable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the overlay should scroll the complete dialog panel."
         },
         {
           "name": "style",
@@ -244,16 +262,6 @@
           "optional": true,
           "type": "JSX.Element",
           "description": "Primary title displayed in the dialog header."
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         }
       ]
     },

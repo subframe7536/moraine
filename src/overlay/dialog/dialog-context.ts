@@ -5,6 +5,9 @@ import { createContentRegistration } from '../base/content-registration'
 
 import type { DialogT } from './dialog.types'
 
+export const [DialogConfigProvider, useDialogConfig] =
+  createContextProvider<DialogT.Props>('DialogConfig')
+
 export function createDialogContentRegistration() {
   const registration = createContentRegistration()
   const [footerCount, setFooterCount] = createSignal(0)

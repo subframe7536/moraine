@@ -154,12 +154,14 @@ describe('scoped cn', () => {
         <>
           <Input defaultValue="hello" class="p-2 p-4" />
           <Modal defaultOpen>
-            <Modal.Overlay />
-            <Modal.Content class="p-2 p-4" ariaLabel="Scoped modal">
-              <Portal>
-                <Probe id="portal" />
-              </Portal>
-            </Modal.Content>
+            <Modal.Portal>
+              <Modal.Overlay />
+              <Modal.Content class="p-2 p-4" ariaLabel="Scoped modal">
+                <Portal>
+                  <Probe id="portal" />
+                </Portal>
+              </Modal.Content>
+            </Modal.Portal>
           </Modal>
         </>
       )

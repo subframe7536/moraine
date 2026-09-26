@@ -22,7 +22,9 @@ describe('Modal primitives', () => {
         <Dialog defaultOpen>
           <Dialog.Content>
             <Modal defaultOpen>
-              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+              <Modal.Portal>
+                <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+              </Modal.Portal>
             </Modal>
           </Dialog.Content>
         </Dialog>
@@ -34,7 +36,9 @@ describe('Modal primitives', () => {
         <Sheet defaultOpen>
           <Sheet.Content>
             <Modal defaultOpen>
-              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+              <Modal.Portal>
+                <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+              </Modal.Portal>
             </Modal>
           </Sheet.Content>
         </Sheet>
@@ -85,14 +89,16 @@ describe('Modal primitives', () => {
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
       <Modal open={open()} preventScroll={preventScroll()}>
-        <Modal.Content>
-          <button type="button" data-testid="sample-first">
-            First
-          </button>
-          <button type="button" data-testid="sample-second">
-            Second
-          </button>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button" data-testid="sample-first">
+              First
+            </button>
+            <button type="button" data-testid="sample-second">
+              Second
+            </button>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     try {
@@ -126,12 +132,14 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal>
         <Modal.Trigger>Open lazy content</Modal.Trigger>
-        {createComponent(Modal.Content, {
-          get children() {
-            reads += 1
-            return <span>Lazy content</span>
-          },
-        })}
+        <Modal.Portal>
+          {createComponent(Modal.Content, {
+            get children() {
+              reads += 1
+              return <span>Lazy content</span>
+            },
+          })}
+        </Modal.Portal>
       </Modal>
     ))
     expect(reads).toBe(0)
@@ -154,9 +162,11 @@ describe('Modal primitives', () => {
 
     const screen = render(() => (
       <Modal open={open()}>
-        <Modal.Content>
-          <Content />
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <Content />
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -183,8 +193,10 @@ describe('Modal primitives', () => {
   test('uses default modal presentation without a provider', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Overlay />
-        <Modal.Content>Unstyled</Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>Unstyled</Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     expect(document.querySelector('[data-slot="modal-overlay"]')?.className).not.toBe('')
@@ -200,8 +212,10 @@ describe('Modal primitives', () => {
     render(() => (
       <MoraineProvider theme={design()}>
         <Modal defaultOpen>
-          <Modal.Overlay />
-          <Modal.Content>Content</Modal.Content>
+          <Modal.Portal>
+            <Modal.Overlay />
+            <Modal.Content>Content</Modal.Content>
+          </Modal.Portal>
         </Modal>
       </MoraineProvider>
     ))
@@ -229,11 +243,13 @@ describe('Modal primitives', () => {
     const [canceled, setCanceled] = createSignal(true)
     render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content>
-          <Modal.Close as="span" onClick={(event) => canceled() && event.preventDefault()}>
-            Close modal
-          </Modal.Close>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <Modal.Close as="span" onClick={(event) => canceled() && event.preventDefault()}>
+              Close modal
+            </Modal.Close>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const close = document.body.querySelector<HTMLElement>('[data-slot="modal-close"]')!
@@ -259,9 +275,11 @@ describe('Modal primitives', () => {
         >
           Open modal
         </Modal.Trigger>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const trigger = screen.getByRole('button', { name: 'Open modal' })
@@ -285,9 +303,11 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal onOpenChange={onOpenChange}>
         <Modal.Trigger data-testid="trigger">Open modal</Modal.Trigger>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const trigger = screen.getByTestId<HTMLButtonElement>('trigger')
@@ -330,9 +350,11 @@ describe('Modal primitives', () => {
         >
           Open modal
         </Modal.Trigger>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -399,17 +421,21 @@ describe('Modal primitives', () => {
           <Modal.Trigger disabled data-testid="disabled-trigger">
             Disabled
           </Modal.Trigger>
-          <Modal.Content>
-            <span>Disabled content</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span>Disabled content</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
         <Modal onOpenChange={onOpenChange}>
           <Modal.Trigger onClick={(event) => event.preventDefault()} data-testid="canceled-trigger">
             Canceled
           </Modal.Trigger>
-          <Modal.Content>
-            <span>Canceled content</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span>Canceled content</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
       </>
     ))
@@ -434,17 +460,21 @@ describe('Modal primitives', () => {
           >
             Open with keyboard
           </Modal.Trigger>
-          <Modal.Content>
-            <span>Div content</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span>Div content</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
         <Modal>
           <Modal.Trigger as={Button} variant="outline" data-testid="button-trigger">
             Open with Button
           </Modal.Trigger>
-          <Modal.Content>
-            <span>Button content</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span>Button content</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
       </>
     ))
@@ -467,9 +497,11 @@ describe('Modal primitives', () => {
   test('forwards an explicit accessible name to modal content', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content ariaLabel="Named modal">
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content ariaLabel="Named modal">
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -482,17 +514,19 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const screen = render(() => (
       <Modal open={open()}>
-        <Modal.Content
-          aria-label="Native label"
-          aria-labelledby="native-title"
-          aria-describedby="native-description"
-          ariaLabel="Camel label"
-          ariaLabelledBy="camel-title"
-          ariaDescribedBy="camel-description"
-        >
-          <h2 id="native-title">Native title</h2>
-          <p id="native-description">Native description</p>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content
+            aria-label="Native label"
+            aria-labelledby="native-title"
+            aria-describedby="native-description"
+            ariaLabel="Camel label"
+            ariaLabelledBy="camel-title"
+            ariaDescribedBy="camel-description"
+          >
+            <h2 id="native-title">Native title</h2>
+            <p id="native-description">Native description</p>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -513,10 +547,12 @@ describe('Modal primitives', () => {
   test('focuses the first input when a modal opens', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <input aria-label="Search" data-testid="search" />
-          <button type="button">Other</button>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <input aria-label="Search" data-testid="search" />
+            <button type="button">Other</button>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -547,10 +583,12 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Overlay />
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -566,10 +604,12 @@ describe('Modal primitives', () => {
   test('applies the shared dialog overlay classes by default', () => {
     renderWithTheme(() => (
       <Modal defaultOpen>
-        <Modal.Overlay />
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -589,9 +629,11 @@ describe('Modal primitives', () => {
   test('applies the default popup transition classes to custom modal content', () => {
     renderWithTheme(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -606,9 +648,11 @@ describe('Modal primitives', () => {
   test('adds a custom content class after the default content classes', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content class="custom-content">
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content class="custom-content">
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -622,10 +666,12 @@ describe('Modal primitives', () => {
     const onExitComplete = vi.fn()
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Overlay />
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -657,11 +703,13 @@ describe('Modal primitives', () => {
     const onExitComplete = vi.fn()
     const screen = render(() => (
       <Modal open onExitComplete={onExitComplete}>
-        <Show when={showContent()}>
-          <Modal.Content>
-            <span>Content</span>
-          </Modal.Content>
-        </Show>
+        <Modal.Portal>
+          <Show when={showContent()}>
+            <Modal.Content>
+              <span>Content</span>
+            </Modal.Content>
+          </Show>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -675,9 +723,11 @@ describe('Modal primitives', () => {
   test('does not render an overlay by default', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -691,10 +741,12 @@ describe('Modal primitives', () => {
 
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Overlay ref={overlayRef} class="custom-overlay" style={{ opacity: '0.4' }} />
-        <Modal.Content ref={contentRef}>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay ref={overlayRef} class="custom-overlay" style={{ opacity: '0.4' }} />
+          <Modal.Content ref={contentRef}>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -703,6 +755,7 @@ describe('Modal primitives', () => {
 
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
+    expect(overlay?.parentElement).toBe(content?.parentElement)
     expect(overlay?.className).toContain('custom-overlay')
     expect(overlay?.className).toContain('fixed')
     expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
@@ -714,14 +767,50 @@ describe('Modal primitives', () => {
     expect(contentRef).toHaveBeenLastCalledWith(undefined)
   })
 
+  test('mounts both parts in a custom portal target', () => {
+    const mount = document.createElement('div')
+    document.body.append(mount)
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal mount={mount}>
+          <Modal.Overlay />
+          <Modal.Content>Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    expect(mount.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
+    expect(mount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    screen.unmount()
+    mount.remove()
+  })
+
+  test('renders parts in place without Portal', () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <div data-testid="inline-host">
+          <Modal.Overlay />
+          <Modal.Content trapFocus={false}>Inline content</Modal.Content>
+        </div>
+      </Modal>
+    ))
+    const host = screen.getByTestId('inline-host')
+
+    expect(host.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
+    expect(host.querySelector('[data-slot="modal-content"]')?.textContent).toBe('Inline content')
+    screen.unmount()
+  })
+
   test('can contain the content inside a scrolling overlay', () => {
     renderWithTheme(() => (
       <Modal defaultOpen>
-        <Modal.Overlay scrollable>
-          <Modal.Content>
-            <span>Content</span>
-          </Modal.Content>
-        </Modal.Overlay>
+        <Modal.Portal>
+          <Modal.Overlay scrollable>
+            <Modal.Content>
+              <span>Content</span>
+            </Modal.Content>
+          </Modal.Overlay>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -739,9 +828,11 @@ describe('Modal primitives', () => {
     document.body.append(background)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -763,15 +854,19 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <Modal defaultOpen>
-          <Modal.Content>
-            <span data-testid="outer-content">Outer</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span data-testid="outer-content">Outer</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
         <Show when={showInner()}>
           <Modal defaultOpen>
-            <Modal.Content>
-              <span data-testid="inner-content">Inner</span>
-            </Modal.Content>
+            <Modal.Portal>
+              <Modal.Content>
+                <span data-testid="inner-content">Inner</span>
+              </Modal.Content>
+            </Modal.Portal>
           </Modal>
         </Show>
       </>
@@ -807,9 +902,11 @@ describe('Modal primitives', () => {
   test('keeps a registered descendant overlay portal exposed to assistive technology', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <span>Outer</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Outer</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -848,15 +945,19 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <Modal defaultOpen>
-          <Modal.Content>
-            <span>Outer</span>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <span>Outer</span>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
         <Show when={showInner()}>
           <Modal defaultOpen>
-            <Modal.Content>
-              <span>Inner</span>
-            </Modal.Content>
+            <Modal.Portal>
+              <Modal.Content>
+                <span>Inner</span>
+              </Modal.Content>
+            </Modal.Portal>
           </Modal>
         </Show>
       </>
@@ -890,9 +991,11 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -914,9 +1017,11 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content>
-          <input data-testid="editor" />
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <input data-testid="editor" />
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -941,9 +1046,11 @@ describe('Modal primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -984,9 +1091,11 @@ describe('Modal primitives', () => {
     const onClosePrevent = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange} onClosePrevent={onClosePrevent}>
-        <Modal.Content>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1012,15 +1121,17 @@ describe('Modal primitives', () => {
           Outside
         </button>
         <Modal open onOpenChange={onOpenChange}>
-          <Modal.Content>
-            <button
-              type="button"
-              data-testid="inside"
-              onKeyDown={(event) => event.preventDefault()}
-            >
-              Inside
-            </button>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content>
+              <button
+                type="button"
+                data-testid="inside"
+                onKeyDown={(event) => event.preventDefault()}
+              >
+                Inside
+              </button>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
       </>
     ))
@@ -1040,16 +1151,18 @@ describe('Modal primitives', () => {
     document.body.append(outside)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <>
-            <button type="button" data-testid="first">
-              First
-            </button>
-            <button type="button" data-testid="second">
-              Second
-            </button>
-          </>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <>
+              <button type="button" data-testid="first">
+                First
+              </button>
+              <button type="button" data-testid="second">
+                Second
+              </button>
+            </>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1069,15 +1182,21 @@ describe('Modal primitives', () => {
     const [showButton, setShowButton] = createSignal(true)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          {() => (
-            <Show when={showButton()} fallback={<span>Remaining content</span>}>
-              <button type="button" data-testid="remove" onPointerDown={() => setShowButton(false)}>
-                Remove
-              </button>
-            </Show>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            {() => (
+              <Show when={showButton()} fallback={<span>Remaining content</span>}>
+                <button
+                  type="button"
+                  data-testid="remove"
+                  onPointerDown={() => setShowButton(false)}
+                >
+                  Remove
+                </button>
+              </Show>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1119,13 +1238,15 @@ describe('Modal primitives', () => {
     previous.focus()
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          {(context) => (
-            <button type="button" data-testid="close" onClick={context.close}>
-              Close
-            </button>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="close" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1148,25 +1269,33 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal>
         <Modal.Trigger data-testid="outer-trigger">Open outer</Modal.Trigger>
-        <Modal.Content>
-          {(outerContext) => (
-            <>
-              <button type="button" data-testid="outer-close" onClick={outerContext.close}>
-                Close outer
-              </button>
-              <Modal>
-                <Modal.Trigger data-testid="inner-trigger">Open inner</Modal.Trigger>
-                <Modal.Content>
-                  {(innerContext) => (
-                    <button type="button" data-testid="inner-close" onClick={innerContext.close}>
-                      Close inner
-                    </button>
-                  )}
-                </Modal.Content>
-              </Modal>
-            </>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            {(outerContext) => (
+              <>
+                <button type="button" data-testid="outer-close" onClick={outerContext.close}>
+                  Close outer
+                </button>
+                <Modal>
+                  <Modal.Trigger data-testid="inner-trigger">Open inner</Modal.Trigger>
+                  <Modal.Portal>
+                    <Modal.Content>
+                      {(innerContext) => (
+                        <button
+                          type="button"
+                          data-testid="inner-close"
+                          onClick={innerContext.close}
+                        >
+                          Close inner
+                        </button>
+                      )}
+                    </Modal.Content>
+                  </Modal.Portal>
+                </Modal>
+              </>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -1202,22 +1331,24 @@ describe('Modal primitives', () => {
   test('focuses the first enabled control and loops Tab at both content boundaries', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content>
-          <>
-            <button type="button" disabled>
-              Disabled
-            </button>
-            <div aria-hidden="true">
-              <button type="button">Hidden</button>
-            </div>
-            <button type="button" data-testid="first-enabled">
-              First enabled
-            </button>
-            <button type="button" data-testid="last-enabled">
-              Last enabled
-            </button>
-          </>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            <>
+              <button type="button" disabled>
+                Disabled
+              </button>
+              <div aria-hidden="true">
+                <button type="button">Hidden</button>
+              </div>
+              <button type="button" data-testid="first-enabled">
+                First enabled
+              </button>
+              <button type="button" data-testid="last-enabled">
+                Last enabled
+              </button>
+            </>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1252,14 +1383,16 @@ describe('Modal primitives', () => {
   test('traps focus from container element to first and last focusables', async () => {
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content data-testid="modal-content">
-          <button type="button" data-testid="first-btn">
-            First
-          </button>
-          <button type="button" data-testid="last-btn">
-            Last
-          </button>
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content data-testid="modal-content">
+            <button type="button" data-testid="first-btn">
+              First
+            </button>
+            <button type="button" data-testid="last-btn">
+              Last
+            </button>
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     await Promise.resolve()
@@ -1298,14 +1431,16 @@ describe('Modal primitives', () => {
           Outside
         </button>
         <Modal defaultOpen>
-          <Modal.Content trapFocus={false}>
-            <button type="button" data-testid="first-btn">
-              First
-            </button>
-            <button type="button" data-testid="last-btn">
-              Last
-            </button>
-          </Modal.Content>
+          <Modal.Portal>
+            <Modal.Content trapFocus={false}>
+              <button type="button" data-testid="first-btn">
+                First
+              </button>
+              <button type="button" data-testid="last-btn">
+                Last
+              </button>
+            </Modal.Content>
+          </Modal.Portal>
         </Modal>
       </>
     ))
@@ -1344,6 +1479,41 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('updates modal isolation when trapFocus changes while open', async () => {
+    const [trapFocus, setTrapFocus] = createSignal(false)
+    const screen = render(() => (
+      <>
+        <main data-testid="background">Background</main>
+        <Modal defaultOpen>
+          <Modal.Portal>
+            <Modal.Content trapFocus={trapFocus()}>Content</Modal.Content>
+          </Modal.Portal>
+        </Modal>
+      </>
+    ))
+    const background = screen.getByTestId('background')
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(background.closest('[aria-hidden="true"]')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+
+    setTrapFocus(true)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBe('true')
+      expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
+      expect(document.body.style.overflow).toBe('hidden')
+    })
+
+    setTrapFocus(false)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBeNull()
+      expect(background.closest('[aria-hidden="true"]')).toBeNull()
+      expect(document.body.style.overflow).toBe('')
+    })
+    screen.unmount()
+  })
+
   test('does not restore focus to a trigger that became disabled while open', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (
@@ -1351,13 +1521,15 @@ describe('Modal primitives', () => {
         <Modal.Trigger disabled={disabled()} data-testid="trigger">
           Open
         </Modal.Trigger>
-        <Modal.Content>
-          {(context) => (
-            <button type="button" data-testid="close-disabled" onClick={context.close}>
-              Close
-            </button>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="close-disabled" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const trigger = screen.getByTestId('trigger')
@@ -1383,13 +1555,15 @@ describe('Modal primitives', () => {
         <Show when={showTrigger()}>
           <Modal.Trigger data-testid="removable-trigger">Open</Modal.Trigger>
         </Show>
-        <Modal.Content>
-          {(context) => (
-            <button type="button" data-testid="close-removed" onClick={context.close}>
-              Close
-            </button>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="close-removed" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const trigger = screen.getByTestId('removable-trigger')
@@ -1415,14 +1589,16 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
         <Modal.Trigger data-testid="rapid-trigger">Open</Modal.Trigger>
-        <Modal.Overlay />
-        <Modal.Content>
-          {(context) => (
-            <button type="button" data-testid="rapid-close" onClick={context.close}>
-              Close
-            </button>
-          )}
-        </Modal.Content>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            {(context) => (
+              <button type="button" data-testid="rapid-close" onClick={context.close}>
+                Close
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     ))
     const trigger = screen.getByTestId('rapid-trigger')
@@ -1480,12 +1656,14 @@ describe('Modal primitives', () => {
 
     render(() => (
       <Modal defaultOpen>
-        {createComponent(Modal.Content, {
-          get children() {
-            childrenReads += 1
-            return <span>Content</span>
-          },
-        })}
+        <Modal.Portal>
+          {createComponent(Modal.Content, {
+            get children() {
+              childrenReads += 1
+              return <span>Content</span>
+            },
+          })}
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -1498,14 +1676,16 @@ describe('Modal primitives', () => {
     render(() => (
       <Modal>
         <Modal.Trigger>Open</Modal.Trigger>
-        <Show when={true}>
-          <Modal.Content>
-            {() => {
-              instances += 1
-              return <span>Content</span>
-            }}
-          </Modal.Content>
-        </Show>
+        <Modal.Portal>
+          <Show when={true}>
+            <Modal.Content>
+              {() => {
+                instances += 1
+                return <span>Content</span>
+              }}
+            </Modal.Content>
+          </Show>
+        </Modal.Portal>
       </Modal>
     ))
 
@@ -1522,23 +1702,25 @@ describe('Modal primitives', () => {
     const [scroll, setScroll] = createSignal(false)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Show
-          when={scroll()}
-          fallback={
-            <>
-              <Modal.Overlay />
+        <Modal.Portal>
+          <Show
+            when={scroll()}
+            fallback={
+              <>
+                <Modal.Overlay />
+                <Modal.Content>
+                  <button data-testid="content-action">Action</button>
+                </Modal.Content>
+              </>
+            }
+          >
+            <Modal.Overlay scrollable>
               <Modal.Content>
                 <button data-testid="content-action">Action</button>
               </Modal.Content>
-            </>
-          }
-        >
-          <Modal.Overlay scrollable>
-            <Modal.Content>
-              <button data-testid="content-action">Action</button>
-            </Modal.Content>
-          </Modal.Overlay>
-        </Show>
+            </Modal.Overlay>
+          </Show>
+        </Modal.Portal>
       </Modal>
     ))
     try {

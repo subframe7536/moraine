@@ -9,15 +9,62 @@ import {
   Sheet,
   Tooltip,
 } from 'moraine'
+import type { DialogT, SheetT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
 
+type Assert<T extends true> = T
+type DialogConfigKeys =
+  | 'overlay'
+  | 'scrollable'
+  | 'fullscreen'
+  | 'trapFocus'
+  | 'ariaLabel'
+  | 'close'
+  | 'closeIcon'
+type SheetConfigKeys =
+  | 'overlay'
+  | 'side'
+  | 'inset'
+  | 'transition'
+  | 'trapFocus'
+  | 'ariaLabel'
+  | 'close'
+type ContentShorthandKeys = 'title' | 'description'
+
+export type OverlayConfigPlacement = [
+  Assert<Exclude<DialogConfigKeys, keyof DialogT.Props> extends never ? true : false>,
+  Assert<Extract<DialogConfigKeys, keyof DialogT.ContentProps> extends never ? true : false>,
+  Assert<Exclude<SheetConfigKeys, keyof SheetT.Props> extends never ? true : false>,
+  Assert<Extract<SheetConfigKeys, keyof SheetT.ContentProps> extends never ? true : false>,
+  Assert<Extract<ContentShorthandKeys, keyof DialogT.Props> extends never ? true : false>,
+  Assert<Exclude<ContentShorthandKeys, keyof DialogT.ContentProps> extends never ? true : false>,
+  Assert<Extract<ContentShorthandKeys, keyof SheetT.Props> extends never ? true : false>,
+  Assert<Exclude<ContentShorthandKeys, keyof SheetT.ContentProps> extends never ? true : false>,
+]
+
 ;<Dialog classes={{ trigger: 'trigger', body: 'body' }} styles={{ content: { width: '20rem' } }} />
+;<Dialog
+  overlay={false}
+  scrollable
+  fullscreen
+  trapFocus={false}
+  ariaLabel="Dialog"
+  close={false}
+  closeIcon="icon-close"
+/>
 // @ts-expect-error A headless root has no primary DOM element.
 ;<Dialog class="root" />
 ;<Dialog.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Dialog.Trigger classes={{ trigger: 'trigger' }} />
 ;<Dialog.Content classes={{ overlay: 'overlay', contentClose: 'close' }} class="content" />
+;<Dialog.Content title="Title" description="Description" />
+// @ts-expect-error Dialog title shorthand belongs to Content.
+;<Dialog title="Title" />
+// @ts-expect-error Dialog layout belongs to the root.
+;<Dialog.Content scrollable fullscreen />
+// @ts-expect-error Dialog behavior belongs to the root.
+;<Dialog.Content trapFocus={false} close={false} ariaLabel="Dialog" />
 ;<Dialog.Header class="header" />
 ;<Dialog.Title as="h3" id="title" />
 ;<Dialog.Description />
@@ -41,12 +88,28 @@ import { defineTheme } from 'moraine/theme'
 ;<Dialog.Close classes={{ contentClose: 'close' }} />
 
 ;<Sheet classes={{ trigger: 'trigger', body: 'body' }} />
+;<Sheet
+  side="left"
+  inset
+  overlay={false}
+  transition={false}
+  trapFocus={false}
+  ariaLabel="Sheet"
+  close={false}
+/>
 // @ts-expect-error A headless root has no primary DOM element.
 ;<Sheet style={{ color: 'red' }} />
 ;<Sheet.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Sheet.Trigger classes={{ trigger: 'trigger' }} />
 ;<Sheet.Content classes={{ overlay: 'overlay', contentClose: 'close' }} />
+;<Sheet.Content title="Title" description="Description" />
+// @ts-expect-error Sheet title shorthand belongs to Content.
+;<Sheet title="Title" />
+// @ts-expect-error Sheet layout belongs to the root.
+;<Sheet.Content side="left" inset />
+// @ts-expect-error Sheet behavior belongs to the root.
+;<Sheet.Content transition={false} trapFocus={false} close={false} ariaLabel="Sheet" />
 ;<Sheet.Header class="header" />
 ;<Sheet.Title as="h3" id="title" />
 ;<Sheet.Description />

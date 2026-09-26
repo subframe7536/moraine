@@ -177,9 +177,10 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         props.setOpen(next)
       }}
       onExitComplete={() => setSearchTerm('')}
+      close={false}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
-      <Dialog.Content close={false}>
+      <Dialog.Content>
         <Dialog.Body class="mb-0 p-0">
           <CommandPalette<DocsCommandItem>
             groups={items()}

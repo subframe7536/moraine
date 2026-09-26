@@ -22,14 +22,24 @@ import { createContentRegistration } from '../base/content-registration'
 import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
+import { ModalPortal } from '../modal/modal-portal'
 
-import { SheetContentProvider, useSheetContent } from './sheet-context'
+import {
+  SheetConfigProvider,
+  SheetContentProvider,
+  useSheetConfig,
+  useSheetContent,
+} from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
 /** Sheet state and presentation, sharing the Modal root context. */
 export function Sheet(props: SheetProps): JSX.Element {
-  return <ModalRoot {...props} slotOwner="sheet" />
+  return (
+    <SheetConfigProvider value={props}>
+      <ModalRoot {...props} slotOwner="sheet" />
+    </SheetConfigProvider>
+  )
 }
 
 function SheetTrigger<T extends ValidComponent = 'button'>(
@@ -49,29 +59,25 @@ function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProp
 
 function SheetContent(props: SheetT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'overlay',
-    'ariaLabel',
     'title',
     'description',
-    'side',
-    'inset',
-    'transition',
-    'close',
     'children',
     'classes',
     'styles',
     'class',
     'style',
   ])
+  const config = useSheetConfig()
   const family = useModalContext()
-  const merged = mergeProps({ overlay: true, transition: true, close: true }, local)
+  const merged = mergeProps({ overlay: true, transition: true, close: true }, config)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'content',
+    inheritedVariants: () => ({ side: config.side, inset: config.inset }),
     inheritedStyles: () => family.presentation,
   })
   const registration = createContentRegistration()
 
-  const hasShorthand = () => hasJsxContent(merged.title) || hasJsxContent(merged.description)
+  const hasShorthand = () => hasJsxContent(local.title) || hasJsxContent(local.description)
   const hasHeader = () => registration.hasExplicitHeader() || hasShorthand()
 
   return (
@@ -85,62 +91,65 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
         hasHeader,
       }}
     >
-      <ModalSurface
-        {...rest}
-        {...sheetDataAttributes.content({
-          closed: undefined,
-          expanded: undefined,
-          transition: () => merged.transition,
-        })}
-        overlay={merged.overlay}
-        overlayClass={resolved.styles.overlay.class}
-        overlayStyle={resolved.styles.overlay.style}
-        {...resolved.styles.content}
-        surfaceRender={() => {
-          const explicitChildren = createLazyMemo(() => untrack(() => local.children))
-          const title = createLazyMemo(() => merged.title)
-          const description = createLazyMemo(() => merged.description)
-          const closeContent = createLazyMemo(() => merged.close)
-          return {
-            ariaLabel: merged.ariaLabel,
-            get ariaLabelledBy() {
-              return registration.titleIds().join(' ') || undefined
-            },
-            get ariaDescribedBy() {
-              return registration.descriptionIds().join(' ') || undefined
-            },
-            children: () => {
-              const content = explicitChildren()
-              return (
-                <>
-                  <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
-                    <SheetHeader shorthand>
-                      <Show when={hasJsxContent(title())}>
-                        <SheetTitle>{title()}</SheetTitle>
-                      </Show>
-                      <Show when={hasJsxContent(description())}>
-                        <SheetDescription>{description()}</SheetDescription>
-                      </Show>
-                    </SheetHeader>
-                  </Show>
-                  <Show when={closeContent() !== false}>
-                    <Modal.Close
-                      data-slot="sheet-content-close"
-                      aria-label="Close"
-                      {...resolved.styles.contentClose}
-                    >
-                      <Show when={closeContent() === true} fallback={closeContent()}>
-                        <Icon name="icon-close" />
-                      </Show>
-                    </Modal.Close>
-                  </Show>
-                  {content}
-                </>
-              )
-            },
-          }
-        }}
-      />
+      <ModalPortal>
+        <ModalSurface
+          {...rest}
+          trapFocus={config.trapFocus}
+          {...sheetDataAttributes.content({
+            closed: undefined,
+            expanded: undefined,
+            transition: () => merged.transition,
+          })}
+          overlay={merged.overlay}
+          overlayClass={resolved.styles.overlay.class}
+          overlayStyle={resolved.styles.overlay.style}
+          {...resolved.styles.content}
+          surfaceRender={() => {
+            const explicitChildren = createLazyMemo(() => untrack(() => local.children))
+            const title = createLazyMemo(() => local.title)
+            const description = createLazyMemo(() => local.description)
+            const closeContent = createLazyMemo(() => merged.close)
+            return {
+              ariaLabel: merged.ariaLabel,
+              get ariaLabelledBy() {
+                return registration.titleIds().join(' ') || undefined
+              },
+              get ariaDescribedBy() {
+                return registration.descriptionIds().join(' ') || undefined
+              },
+              children: () => {
+                const content = explicitChildren()
+                return (
+                  <>
+                    <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
+                      <SheetHeader shorthand>
+                        <Show when={hasJsxContent(title())}>
+                          <SheetTitle>{title()}</SheetTitle>
+                        </Show>
+                        <Show when={hasJsxContent(description())}>
+                          <SheetDescription>{description()}</SheetDescription>
+                        </Show>
+                      </SheetHeader>
+                    </Show>
+                    <Show when={closeContent() !== false}>
+                      <Modal.Close
+                        data-slot="sheet-content-close"
+                        aria-label="Close"
+                        {...resolved.styles.contentClose}
+                      >
+                        <Show when={closeContent() === true} fallback={closeContent()}>
+                          <Icon name="icon-close" />
+                        </Show>
+                      </Modal.Close>
+                    </Show>
+                    {content}
+                  </>
+                )
+              },
+            }
+          }}
+        />
+      </ModalPortal>
     </SheetContentProvider>
   )
 }

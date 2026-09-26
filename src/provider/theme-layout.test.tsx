@@ -87,8 +87,8 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   const [side, setSide] = createSignal<'right' | undefined>()
   render(() => (
     <MoraineProvider theme={defineTheme({ sheet: { defaultVariants: { side: 'left' } } })}>
-      <Sheet open>
-        <Sheet.Content side={side()}>
+      <Sheet open side={side()}>
+        <Sheet.Content>
           <Sheet.Body>Panel</Sheet.Body>
         </Sheet.Content>
       </Sheet>

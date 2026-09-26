@@ -63,19 +63,18 @@ describe('Sheet SSR Hydration', () => {
       'renderSheetFixture',
       () => (
         <>
-          <Sheet>
+          <Sheet
+            side="left"
+            inset
+            transition={false}
+
+            close={<span data-testid="server-close-icon">Close</span>}
+            ariaLabel="Server sheet"
+          >
             <Sheet.Trigger as="button" type="button">
               Open custom sheet
             </Sheet.Trigger>
-            <Sheet.Content
-              side="left"
-              inset
-              transition={false}
-              title="Server title"
-              description="Server description"
-              close={<span data-testid="server-close-icon">Close</span>}
-              ariaLabel="Server sheet"
-            >
+            <Sheet.Content title="Server title" description="Server description">
               <Sheet.Header>
                 <div data-testid="server-header">Server header</div>
               </Sheet.Header>
@@ -87,16 +86,15 @@ describe('Sheet SSR Hydration', () => {
               </Sheet.Footer>
             </Sheet.Content>
           </Sheet>
-          <Sheet>
+          <Sheet
+            side="right"
+
+            close={<span data-testid="default-close-icon">Close</span>}
+          >
             <Sheet.Trigger as="button" type="button">
               Open default sheet
             </Sheet.Trigger>
-            <Sheet.Content
-              side="right"
-              title="Default title"
-              description="Default description"
-              close={<span data-testid="default-close-icon">Close</span>}
-            >
+            <Sheet.Content title="Default title" description="Default description">
               <Sheet.Body>
                 <div data-testid="default-body">Default body</div>
               </Sheet.Body>

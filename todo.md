@@ -14,7 +14,8 @@
 - [x] cleanup "fill `as`" logic in extract-types.ts, only `as` in Base ispolymorphic component, add indicator in docs
 - [x] docs: add neccessory `| undefined` in expanded prop row. `Function` should be `function`
 - [x] icon card copy should not cause layout shift
-- [ ] make card composite, add `as`.
+- [x] make card composite, add `as`.
+- [ ] collapsible: move data-transition on wrapper to eliminate `:has` selector
 - [ ] landing page polish
 - [ ] styling page polish
 

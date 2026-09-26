@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
@@ -89,5 +89,37 @@ describe.each([
     expect(content.className).toContain('next-content')
     expect(content.className).not.toContain('first-content')
     expect(document.activeElement).toBe(content)
+  })
+
+  test('updates modal isolation when root trapFocus changes', async () => {
+    const [trapFocus, setTrapFocus] = createSignal(false)
+    const screen = render(() => (
+      <>
+        <main data-testid="background">Background</main>
+        <Root defaultOpen trapFocus={trapFocus()}>
+          <Root.Content title="Title">Content</Root.Content>
+        </Root>
+      </>
+    ))
+    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
+    const background = screen.getByTestId('background')
+
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(background.closest('[aria-hidden="true"]')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+
+    setTrapFocus(true)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBe('true')
+      expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
+      expect(document.body.style.overflow).toBe('hidden')
+    })
+
+    setTrapFocus(false)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBeNull()
+      expect(background.closest('[aria-hidden="true"]')).toBeNull()
+      expect(document.body.style.overflow).toBe('')
+    })
   })
 })

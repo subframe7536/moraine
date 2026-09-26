@@ -3,15 +3,11 @@ import { Button, Sheet } from '@src'
 export function Sides() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Sheet>
+      <Sheet side="left">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:panel-left">
           Left (Navigation)
         </Sheet.Trigger>
-        <Sheet.Content
-          side="left"
-          title="Application Navigation"
-          description="Jump to any workspace section."
-        >
+        <Sheet.Content title="Application Navigation" description="Jump to any workspace section.">
           <Sheet.Body>
             <div class="py-2 space-y-2">
               <Button
@@ -39,12 +35,11 @@ export function Sides() {
         </Sheet.Content>
       </Sheet>
 
-      <Sheet>
+      <Sheet side="right">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:shopping-cart">
           Right (Cart Drawer)
         </Sheet.Trigger>
         <Sheet.Content
-          side="right"
           title="Shopping Cart (2 items)"
           description="Review your selected items before checkout."
         >
@@ -74,12 +69,11 @@ export function Sides() {
         </Sheet.Content>
       </Sheet>
 
-      <Sheet>
+      <Sheet side="bottom">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:share-2">
           Bottom (Share)
         </Sheet.Trigger>
         <Sheet.Content
-          side="bottom"
           title="Share Resource"
           description="Share this repository or report with teammates."
         >

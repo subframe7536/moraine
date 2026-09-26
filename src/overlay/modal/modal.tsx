@@ -19,6 +19,7 @@ import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
 import { ModalProvider } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
+import { ModalPortal } from './modal-portal'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
 
@@ -37,24 +38,22 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const presence = useTransitionPresence({ open })
-  const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
-  const contentTrapFocus = new Map<number, () => boolean>()
+  const [contentRegistrations, setContentRegistrations] = createSignal<Map<number, () => boolean>>(
+    new Map(),
+  )
   let nextContentRegistrationId = 0
-  const dismissible = createMemo(() => props.dismissible ?? true)
-  const contentMounted = createMemo(() => contentRegistrations().size > 0)
+  const dismissible = () => props.dismissible ?? true
+  const contentMounted = () => contentRegistrations().size > 0
   const isPresent = createMemo(() => contentMounted() && presence.present())
   const shouldContainFocus = () => {
-    for (const trapFocus of contentTrapFocus.values()) {
+    for (const trapFocus of contentRegistrations().values()) {
       if (trapFocus()) {
         return true
       }
     }
     return false
   }
-  const isModal = createMemo(() => {
-    contentRegistrations()
-    return shouldContainFocus()
-  })
+  const isModal = createMemo(shouldContainFocus)
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
@@ -69,6 +68,20 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
 
     setOpen(nextOpen)
     props.onOpenChange?.(nextOpen)
+  }
+
+  const requestDismiss = (event: Event, preventDefault: boolean): void => {
+    if (event.defaultPrevented) {
+      return
+    }
+    if (preventDefault) {
+      event.preventDefault()
+    }
+    if (dismissible()) {
+      updateOpen(false)
+    } else {
+      props.onClosePrevent?.()
+    }
   }
 
   createEffect(
@@ -95,29 +108,12 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
 
   createEffect(
     on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
-      if (!present || !modal || typeof document === 'undefined') {
+      if (!present || !modal || !currentContent || typeof document === 'undefined') {
         return
       }
       const preventScroll = props.preventScroll
-
       const releaseScrollLock =
-        preventScroll === false || !currentContent
-          ? undefined
-          : acquireBodyScrollLock(currentContent)
-      onCleanup(() => {
-        releaseScrollLock?.()
-      })
-    }),
-  )
-
-  createEffect(
-    on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
-      if (!present || !modal || typeof document === 'undefined') {
-        return
-      }
-      if (!currentContent) {
-        return
-      }
+        preventScroll === false ? undefined : acquireBodyScrollLock(currentContent)
 
       let active = true
       let release: (() => void) | undefined
@@ -131,6 +127,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
       onCleanup(() => {
         active = false
         release?.()
+        releaseScrollLock?.()
       })
     }),
   )
@@ -186,24 +183,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
         })
       }
     },
-    onPointerOutside: (event) => {
-      if (event.defaultPrevented) {
-        return
-      }
-
-      if (dismissible()) {
-        if (shouldContainFocus()) {
-          event.preventDefault()
-        }
-        updateOpen(false)
-        return
-      }
-
-      if (shouldContainFocus()) {
-        event.preventDefault()
-      }
-      props.onClosePrevent?.()
-    },
+    onPointerOutside: (event) => requestDismiss(event, shouldContainFocus()),
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
@@ -228,20 +208,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
         props.onClosePrevent?.()
       }
     },
-    onEscape: (event) => {
-      if (event.defaultPrevented) {
-        return
-      }
-
-      if (dismissible()) {
-        event.preventDefault()
-        updateOpen(false)
-        return
-      }
-
-      event.preventDefault()
-      props.onClosePrevent?.()
-    },
+    onEscape: (event) => requestDismiss(event, true),
     onDeactivate: () => {
       if (!restoreFocusOnDeactivate) {
         return
@@ -272,7 +239,6 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     presence,
     contentId,
     updateOpen,
-    dismissible,
     triggerElement,
     setTriggerElement,
     contentElement,
@@ -280,10 +246,9 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     registerContent: (trapFocus: () => boolean) => {
       const registrationId = nextContentRegistrationId++
       let active = true
-      contentTrapFocus.set(registrationId, trapFocus)
       setContentRegistrations((current) => {
-        const next = new Set(current)
-        next.add(registrationId)
+        const next = new Map(current)
+        next.set(registrationId, trapFocus)
         return next
       })
 
@@ -293,15 +258,13 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
         }
 
         active = false
-        contentTrapFocus.delete(registrationId)
         setContentRegistrations((current) => {
-          const next = new Set(current)
+          const next = new Map(current)
           next.delete(registrationId)
           return next
         })
       }
     },
-    contentPresent: isPresent,
     isModal,
   }
 
@@ -310,5 +273,6 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
 
 Modal.Content = ModalContent
 Modal.Overlay = ModalOverlay
+Modal.Portal = ModalPortal
 Modal.Trigger = ModalTrigger
 Modal.Close = ModalClose

@@ -63,8 +63,14 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
     <>
       <SidebarContent mobile={false} />
       <Show when={context.isMobile()}>
-        <Sheet open={context.isOpen()} onOpenChange={context.setOpen}>
-          <Sheet.Content side={context.side} close={false} ariaLabel={mobileAriaLabel()}>
+        <Sheet
+          open={context.isOpen()}
+          onOpenChange={context.setOpen}
+          side={context.side}
+          close={false}
+          ariaLabel={mobileAriaLabel()}
+        >
+          <Sheet.Content>
             <Sheet.Body>
               <SidebarContent mobile />
             </Sheet.Body>

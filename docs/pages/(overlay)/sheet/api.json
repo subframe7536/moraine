@@ -12,6 +12,12 @@
       },
       "props": [
         {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name used when the sheet has no rendered title."
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -22,6 +28,16 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this Sheet instance."
+        },
+        {
+          "name": "close",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Whether to show a close button, or a custom element to use as one.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "defaultOpen",
@@ -50,6 +66,16 @@
           "description": "Unique identifier used to derive the content id."
         },
         {
+          "name": "inset",
+          "optional": true,
+          "type": "boolean | null",
+          "description": "Whether the surface is inset from viewport edges.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "onClosePrevent",
           "optional": true,
           "type": "() => void",
@@ -74,6 +100,16 @@
           "description": "Controlled open state."
         },
         {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the overlay element.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -84,10 +120,40 @@
           }
         },
         {
+          "name": "side",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left' | null",
+          "description": "Edge from which the sheet opens.",
+          "default": {
+            "kind": "literal",
+            "value": "right"
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Sheet instance."
+        },
+        {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to enable transition animations.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "trapFocus",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the sheet behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -111,7 +177,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "",
+          "type": "e",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -152,15 +218,9 @@
         "root": "Sheet",
         "member": "Content"
       },
-      "description": "Props for the Sheet component.",
+      "description": "Props for Sheet.Content.",
       "defaultElement": "div",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when the sheet has no rendered title."
-        },
         {
           "name": "children",
           "optional": true,
@@ -180,46 +240,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "close",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Whether to show a close button, or a custom element to use as one.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
           "description": "Secondary description displayed below the title."
-        },
-        {
-          "name": "inset",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the surface is inset from viewport edges.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "overlay",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to render the overlay element."
-        },
-        {
-          "name": "side",
-          "optional": true,
-          "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Edge from which the sheet opens.",
-          "default": {
-            "kind": "literal",
-            "value": "right"
-          }
         },
         {
           "name": "style",
@@ -238,26 +262,6 @@
           "optional": true,
           "type": "JSX.Element",
           "description": "Primary title displayed in the sheet header."
-        },
-        {
-          "name": "transition",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to enable transition animations.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the sheet behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         }
       ]
     },

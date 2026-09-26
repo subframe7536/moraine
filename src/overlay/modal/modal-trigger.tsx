@@ -11,30 +11,6 @@ import { useModalContext } from './modal-context'
 import { modalDataAttributes } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
-function useModalTriggerBinding(
-  ref: () => ((element: HTMLElement | undefined) => void) | undefined,
-) {
-  const context = useModalContext()
-
-  return {
-    context,
-    onPress: () => context.updateOpen(true),
-    ref: (element: HTMLElement | undefined) => {
-      context.setTriggerElement(element)
-      callRef(ref(), element)
-
-      if (element) {
-        onCleanup(() => {
-          if (context.triggerElement() === element) {
-            context.setTriggerElement(undefined)
-          }
-          callRef(ref(), undefined)
-        })
-      }
-    },
-  }
-}
-
 /** Interactive modal trigger with Button-compatible polymorphic behavior. */
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
@@ -47,41 +23,54 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     'style',
     'ref' as any,
   ])
+  const context = useModalContext()
   const tag = createMemo(() => local.as ?? 'button')
   const disabled = () => Boolean(local.disabled)
-  const binding = useModalTriggerBinding(() => local.ref)
   const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
-      element: binding.context.triggerElement,
-      onPress: binding.onPress,
+      element: context.triggerElement,
+      onPress: () => context.updateOpen(true),
       tag,
     },
     rest,
   )
   const children = resolveChildren(() => local.children)
+  const setTriggerRef = (element: HTMLElement | undefined) => {
+    context.setTriggerElement(element)
+    callRef(local.ref, element)
+
+    if (element) {
+      onCleanup(() => {
+        if (context.triggerElement() === element) {
+          context.setTriggerElement(undefined)
+        }
+        callRef(local.ref, undefined)
+      })
+    }
+  }
 
   onMount(() => {
-    validateOverlayTrigger(binding.context.triggerElement(), 'Modal')
+    validateOverlayTrigger(context.triggerElement(), 'Modal')
   })
 
   return (
     <Dynamic
-      data-slot={binding.context.slotName('trigger')}
+      data-slot={context.slotName('trigger')}
       {...interactionProps}
       component={tag()}
       style={local.style}
       class={local.class}
       aria-haspopup="dialog"
-      aria-controls={binding.context.contentPresent() ? binding.context.contentId() : undefined}
-      aria-expanded={binding.context.open() ? 'true' : 'false'}
+      aria-controls={context.contentElement() ? context.contentId() : undefined}
+      aria-expanded={context.open() ? 'true' : 'false'}
       {...modalDataAttributes.trigger({
-        expanded: binding.context.open,
-        closed: () => !binding.context.open(),
+        expanded: context.open,
+        closed: () => !context.open(),
         disabled,
       })}
-      ref={binding.ref}
+      ref={setTriggerRef}
     >
       {children()}
     </Dynamic>

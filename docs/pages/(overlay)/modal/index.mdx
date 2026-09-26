@@ -3,7 +3,7 @@ title: Modal
 description: Compose a modal trigger, backdrop, and content surface.
 api:
   path: src/overlay/modal/modal
-  parts: [Content, Overlay, Trigger, Close]
+  parts: [Trigger, Portal, Overlay, Content, Close]
 sidebar:
   order: 1
 search:
@@ -37,27 +37,29 @@ Use Modal when you need to compose backdrop, trigger, and content directly. Use 
         <Modal.Trigger as={Button} variant="outline">
           Open Modal
         </Modal.Trigger>
-        <Show when={props.overlay}>
-          <Modal.Overlay />
-        </Show>
-        <Modal.Content ariaLabel={props.ariaLabel}>
-          {(context) => (
-            <div class="p-5 gap-4 grid">
-              <div>
-                <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
-                <p class="text-xs text-muted-foreground leading-relaxed mt-1">
-                  Modal provides focus management, scroll locking, dismissal, and overridable
-                  default surface styles.
-                </p>
+        <Modal.Portal>
+          <Show when={props.overlay}>
+            <Modal.Overlay />
+          </Show>
+          <Modal.Content ariaLabel={props.ariaLabel}>
+            {(context) => (
+              <div class="p-5 gap-4 grid">
+                <div>
+                  <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
+                  <p class="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Modal provides focus management, scroll locking, dismissal, and overridable
+                    default surface styles.
+                  </p>
+                </div>
+                <div class="flex gap-2 justify-end">
+                  <Modal.Close as={Button} size="sm" variant="outline">
+                    Got it
+                  </Modal.Close>
+                </div>
               </div>
-              <div class="flex gap-2 justify-end">
-                <Modal.Close as={Button} size="sm" variant="outline">
-                  Got it
-                </Modal.Close>
-              </div>
-            </div>
-          )}
-        </Modal.Content>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     )
   }}
@@ -68,21 +70,23 @@ Use Modal when you need to compose backdrop, trigger, and content directly. Use 
 ```text
 Modal (state provider)
 ├── Modal.Trigger
-├── Modal.Overlay (portal backdrop)
-└── Modal.Content (portal surface)
-    └── children ({ close })
+└── Modal.Portal
+    ├── Modal.Overlay
+    └── Modal.Content
+        └── children ({ close })
 ```
 
 - `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.
 - `Modal.Trigger`: Polymorphic element that opens the modal.
-- `Modal.Overlay`: Portaled backdrop layer with entry/exit motion.
-- `Modal.Content`: Portaled dialog content surface.
+- `Modal.Portal`: Mounts its children in the trigger document's body by default, or in a custom `mount` node.
+- `Modal.Overlay`: Backdrop layer with entry/exit motion.
+- `Modal.Content`: Dialog content surface.
 
 ## Usage
 
 ### Composition
 
-Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Overlay and Content render through a Portal and coordinate exit motion and focus. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
+Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship. Without `Modal.Portal`, both parts render in place. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
 
 <Preview path="./modal-composition" />
 

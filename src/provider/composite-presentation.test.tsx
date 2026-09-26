@@ -41,12 +41,13 @@ describe('composite family presentation', () => {
           styles={{
             content: { width: instanceWidth(), color: 'orange', '--dialog-only': 'yes' },
           }}
+          ariaLabel="Scoped dialog"
         >
           <Dialog.Trigger data-testid="dialog-trigger">Open</Dialog.Trigger>
           <MoraineProvider theme={innerTheme()} cnConfig={config()}>
             <Dialog.Content
               data-testid="dialog-content"
-              ariaLabel="Scoped dialog"
+
               classes={{ content: 'part p-4' }}
               styles={{ content: { color: 'green', height: '30px' } }}
               class="direct p-5"
@@ -101,12 +102,18 @@ describe('composite family presentation', () => {
     render(() => (
       <>
         <Modal open classes={{ overlay: 'modal-overlay', content: 'modal-content' }}>
-          <Modal.Overlay data-testid="modal-overlay" />
-          <Modal.Content data-testid="modal-content">Modal</Modal.Content>
+          <Modal.Portal>
+            <Modal.Overlay data-testid="modal-overlay" />
+            <Modal.Content data-testid="modal-content">Modal</Modal.Content>
+          </Modal.Portal>
         </Modal>
-        <Sheet open classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}>
+        <Sheet
+          open
+          classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}
+          ariaLabel="Sheet"
+        >
           <Sheet.Trigger data-testid="sheet-trigger">Open sheet</Sheet.Trigger>
-          <Sheet.Content data-testid="sheet-content" ariaLabel="Sheet">
+          <Sheet.Content data-testid="sheet-content">
             <Sheet.Body>Sheet</Sheet.Body>
           </Sheet.Content>
         </Sheet>
@@ -269,11 +276,11 @@ describe('composite family presentation', () => {
 
   test('same-family nested Dialog uses only the nearest instance presentation', () => {
     render(() => (
-      <Dialog open classes={{ content: 'dialog-outer' }}>
-        <Dialog.Content data-testid="dialog-outer" ariaLabel="Outer">
+      <Dialog open classes={{ content: 'dialog-outer' }} ariaLabel="Outer">
+        <Dialog.Content data-testid="dialog-outer">
           <Dialog.Body>
-            <Dialog open classes={{ content: 'dialog-inner' }}>
-              <Dialog.Content data-testid="dialog-inner" ariaLabel="Inner">
+            <Dialog open classes={{ content: 'dialog-inner' }} ariaLabel="Inner">
+              <Dialog.Content data-testid="dialog-inner">
                 <Dialog.Body>Inner</Dialog.Body>
               </Dialog.Content>
             </Dialog>
