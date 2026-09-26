@@ -45,6 +45,12 @@ describe('generateApiDoc', () => {
       'Dialog',
       'Dialog.Trigger',
       'Dialog.Content',
+      'Dialog.Header',
+      'Dialog.Title',
+      'Dialog.Description',
+      'Dialog.Action',
+      'Dialog.Body',
+      'Dialog.Footer',
       'Dialog.Close',
     ])
     expect(

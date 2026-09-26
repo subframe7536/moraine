@@ -423,14 +423,15 @@ describe('CommandPalette', () => {
     const [open, setOpen] = createSignal(false)
 
     renderWithTheme(() => (
-      <Dialog open={open()} onOpenChange={setOpen}>
+      <Dialog open={open()} onOpenChange={setOpen} close={false}>
         <Dialog.Trigger as="button" type="button">
           Open palette
         </Dialog.Trigger>
-        <Dialog.Content
-          close={false}
-          body={<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
-        />
+        <Dialog.Content>
+          <Dialog.Body>
+            <CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />
+          </Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 

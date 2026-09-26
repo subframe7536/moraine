@@ -13,22 +13,24 @@ export function ModalLifecycle() {
         onOpenChange={setOpen}
         onExitComplete={() => setLog('Exit transition fully completed')}
       >
-        <Modal.Overlay />
-        <Modal.Content ariaLabel="Lifecycle Monitored">
-          {(context) => (
-            <div class="p-4 b-(1 border) bg-background space-y-4 rounded-xl">
-              <h3 class="font-semibold text-base">Lifecycle Monitored</h3>
-              <p class="text-muted-foreground text-xs">
-                Exit callbacks fire after presence transitions resolve.
-              </p>
-              <div class="flex justify-end">
-                <Button size="xs" onClick={context.close}>
-                  Dismiss
-                </Button>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content ariaLabel="Lifecycle Monitored">
+            {(context) => (
+              <div class="p-4 b-(1 border) bg-background space-y-4 rounded-xl">
+                <h3 class="font-semibold text-base">Lifecycle Monitored</h3>
+                <p class="text-muted-foreground text-xs">
+                  Exit callbacks fire after presence transitions resolve.
+                </p>
+                <div class="flex justify-end">
+                  <Button size="xs" onClick={context.close}>
+                    Dismiss
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </Modal.Content>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
       <p class="text-muted-foreground text-xs">
         Lifecycle log: <span class="text-foreground font-mono">{log()}</span>

@@ -24,52 +24,25 @@ export namespace DialogT {
     classes?: Classes
     /** Family slot style defaults for this Dialog instance. */
     styles?: Styles
-  }
-  export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-
-  export type ContentClasses = Pick<
-    Classes,
-    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
-  >
-  export type ContentStyles = Pick<
-    Styles,
-    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
-  >
-  export interface ContentBase {
-    /** Whether to render the overlay element. */
+    /** Whether to render the overlay element.
+     * @default true
+     */
     overlay?: boolean
 
     /** Accessible name used when the dialog has no rendered title. */
     ariaLabel?: string
 
     /**
-     * Whether the dialog behaves as a modal surface, including focus containment,
-     * outside-content isolation, and body scroll locking.
-     * @default true
-     */
-    trapFocus?: boolean
-
-    /**
-     * Primary title displayed in the dialog header.
-     */
-    title?: JSX.Element
-
-    /**
-     * Secondary description displayed below the title.
-     */
-    description?: JSX.Element
-
-    /**
      * Whether the dialog should take up the full viewport.
      * @default false
      */
-    fullscreen?: boolean
+    fullscreen?: boolean | null
 
-    /** Whether the overlay should scroll the complete dialog panel. */
-    scrollable?: boolean
+    /** Whether the overlay should scroll the complete dialog panel.
+     * @default false
+     */
+    scrollable?: boolean | null
 
     /**
      * Whether to show a close button.
@@ -82,30 +55,104 @@ export namespace DialogT {
      * @default 'icon-close'
      */
     closeIcon?: IconT.Name | JSX.Element
+  }
+  export type Props = Base
 
-    /**
-     * Custom element to render in the header slot.
-     */
-    header?: JSX.Element
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
 
-    /**
-     * Custom element to render in the body slot.
-     */
-    body?: JSX.Element
+  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
+  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
+  export interface ContentBase {
+    /** Primary title displayed in the dialog header. */
+    title?: JSX.Element
 
-    /**
-     * Custom element to render in the footer slot.
-     */
-    footer?: JSX.Element
+    /** Secondary description displayed below the title. */
+    description?: JSX.Element
 
-    /** Main content when body is undefined. */
+    /** Composable dialog parts. */
     children?: JSX.Element
   }
 
   /**
-   * Props for the Dialog component.
+   * Props for Dialog.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, ContentClasses, ContentStyles>
+
+  export interface HeaderBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type HeaderProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    HeaderBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
+  export interface TitleBase<T extends ValidComponent = 'h2'> {
+    as?: T
+    id?: string
+    children?: JSX.Element
+  }
+  export type TitleProps<T extends ValidComponent = 'h2'> = BaseProps<
+    T,
+    TitleBase<T>,
+    never,
+    never,
+    never,
+    'h2'
+  >
+  export interface DescriptionBase<T extends ValidComponent = 'p'> {
+    as?: T
+    id?: string
+    children?: JSX.Element
+  }
+  export type DescriptionProps<T extends ValidComponent = 'p'> = BaseProps<
+    T,
+    DescriptionBase<T>,
+    never,
+    never,
+    never,
+    'p'
+  >
+  export interface ActionBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type ActionProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ActionBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
+  export interface BodyBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type BodyProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    BodyBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
+  export interface FooterBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type FooterProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    FooterBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
   export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>

@@ -12,6 +12,12 @@
       },
       "props": [
         {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name used when the dialog has no rendered title."
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -22,6 +28,26 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this Dialog instance."
+        },
+        {
+          "name": "close",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show a close button.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeIcon",
+          "optional": true,
+          "type": "IconT.Name | JSX.Element",
+          "description": "Icon name or custom content for the close button.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-close"
+          }
         },
         {
           "name": "defaultOpen",
@@ -41,6 +67,16 @@
           "default": {
             "kind": "literal",
             "value": true
+          }
+        },
+        {
+          "name": "fullscreen",
+          "optional": true,
+          "type": "boolean | null",
+          "description": "Whether the dialog should take up the full viewport.",
+          "default": {
+            "kind": "literal",
+            "value": false
           }
         },
         {
@@ -74,6 +110,22 @@
           "description": "Controlled open state."
         },
         {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the overlay element.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "portalMount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -84,10 +136,30 @@
           }
         },
         {
+          "name": "scrollable",
+          "optional": true,
+          "type": "boolean | null",
+          "description": "Whether the overlay should scroll the complete dialog panel.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Dialog instance."
+        },
+        {
+          "name": "trapFocus",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -111,7 +183,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "i",
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -152,26 +224,14 @@
         "root": "Dialog",
         "member": "Content"
       },
-      "description": "Props for the Dialog component.",
+      "description": "Props for Dialog.Content.",
       "defaultElement": "div",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when the dialog has no rendered title."
-        },
-        {
-          "name": "body",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the body slot."
-        },
         {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Main content when body is undefined."
+          "description": "Composable dialog parts."
         },
         {
           "name": "class",
@@ -186,64 +246,10 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "close",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show a close button.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
-          "name": "closeIcon",
-          "optional": true,
-          "type": "IconT.Name | JSX.Element",
-          "description": "Icon name or custom content for the close button.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-close"
-          }
-        },
-        {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
           "description": "Secondary description displayed below the title."
-        },
-        {
-          "name": "footer",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the footer slot."
-        },
-        {
-          "name": "fullscreen",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the dialog should take up the full viewport.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "header",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Custom element to render in the header slot."
-        },
-        {
-          "name": "overlay",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to render the overlay element."
-        },
-        {
-          "name": "scrollable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the overlay should scroll the complete dialog panel."
         },
         {
           "name": "style",
@@ -262,16 +268,286 @@
           "optional": true,
           "type": "JSX.Element",
           "description": "Primary title displayed in the dialog header."
-        },
+        }
+      ]
+    },
+    {
+      "id": "dialog-header",
+      "name": "Dialog.Header",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Header"
+      },
+      "generics": [
         {
-          "name": "trapFocus",
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+          "type": "T",
           "default": {
             "kind": "literal",
-            "value": true
+            "value": "div"
           }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "dialog-title",
+      "name": "Dialog.Title",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Title"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'h2'"
+        }
+      ],
+      "defaultElement": "h2",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "h2"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "dialog-description",
+      "name": "Dialog.Description",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Description"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'p'"
+        }
+      ],
+      "defaultElement": "p",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "p"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "dialog-action",
+      "name": "Dialog.Action",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Action"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "dialog-body",
+      "name": "Dialog.Body",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Body"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "dialog-footer",
+      "name": "Dialog.Footer",
+      "access": {
+        "kind": "attached",
+        "root": "Dialog",
+        "member": "Footer"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -295,7 +571,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "",
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -336,6 +612,7 @@
     "header",
     "title",
     "description",
+    "action",
     "contentClose",
     "body",
     "footer"

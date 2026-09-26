@@ -3,7 +3,7 @@ title: Modal
 description: Compose a modal trigger, backdrop, and content surface.
 api:
   path: src/overlay/modal/modal
-  parts: [Content, Overlay, Trigger, Close]
+  parts: [Trigger, Portal, Overlay, Content, Close]
 sidebar:
   order: 1
 search:
@@ -37,27 +37,29 @@ Use Modal when you need to compose backdrop, trigger, and content directly. Use 
         <Modal.Trigger as={Button} variant="outline">
           Open Modal
         </Modal.Trigger>
-        <Show when={props.overlay}>
-          <Modal.Overlay />
-        </Show>
-        <Modal.Content ariaLabel={props.ariaLabel}>
-          {(context) => (
-            <div class="p-5 gap-4 grid">
-              <div>
-                <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
-                <p class="text-xs text-muted-foreground leading-relaxed mt-1">
-                  Modal provides focus management, scroll locking, dismissal, and overridable
-                  default surface styles.
-                </p>
+        <Modal.Portal>
+          <Show when={props.overlay}>
+            <Modal.Overlay />
+          </Show>
+          <Modal.Content ariaLabel={props.ariaLabel}>
+            {(context) => (
+              <div class="p-5 gap-4 grid">
+                <div>
+                  <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
+                  <p class="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Modal provides focus management, scroll locking, dismissal, and overridable
+                    default surface styles.
+                  </p>
+                </div>
+                <div class="flex gap-2 justify-end">
+                  <Modal.Close as={Button} size="sm" variant="outline">
+                    Got it
+                  </Modal.Close>
+                </div>
               </div>
-              <div class="flex gap-2 justify-end">
-                <Modal.Close as={Button} size="sm" variant="outline">
-                  Got it
-                </Modal.Close>
-              </div>
-            </div>
-          )}
-        </Modal.Content>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
       </Modal>
     )
   }}
@@ -68,21 +70,25 @@ Use Modal when you need to compose backdrop, trigger, and content directly. Use 
 ```text
 Modal (state provider)
 ├── Modal.Trigger
-├── Modal.Overlay (portal backdrop)
-└── Modal.Content (portal surface)
-    └── children ({ close })
+└── Modal.Portal
+    ├── Modal.Overlay
+    └── Modal.Content
+        └── children ({ close })
 ```
 
-- `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.
+- `Modal`: Coordinates open state, focus behavior, dismissal, and the default portal destination; it does not render a DOM root of its own.
 - `Modal.Trigger`: Polymorphic element that opens the modal.
-- `Modal.Overlay`: Portaled backdrop layer with entry/exit motion.
-- `Modal.Content`: Portaled dialog content surface.
+- `Modal.Portal`: Mounts its children in its `mount` node, the root `portalMount`, or the trigger document's body, in that order, and keeps them mounted through the exit transition.
+- `Modal.Overlay`: Backdrop layer with entry/exit motion.
+- `Modal.Content`: The root's single active dialog content surface.
 
 ## Usage
 
 ### Composition
 
-Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Overlay and Content render through a Portal and coordinate exit motion and focus. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
+Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship and automatic open/exit lifecycle. Without `Modal.Portal`, both parts render in place and you control when they mount and unmount. `Dialog.Content` and `Sheet.Content` include a Portal internally. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
+
+Set `trapFocus={false}` on the root for a non-modal surface. A root owns one active `Modal.Content`; use a separate nested `Modal` root for another surface. Set `portalMount` on the root to mount controlled Dialog or Sheet content without a Trigger in a chosen container. `Modal.Portal mount` overrides that default.
 
 <Preview path="./modal-composition" />
 

@@ -362,8 +362,10 @@ export type CardContracts = [
 ;<List id="items" items={[1, 2]} itemRender={(context) => context.item} />
 
 ;<Modal defaultOpen>
-  <Modal.Overlay />
-  <Modal.Content ariaLabel="Type fixture">Modal content</Modal.Content>
+  <Modal.Portal>
+    <Modal.Overlay />
+    <Modal.Content ariaLabel="Type fixture">Modal content</Modal.Content>
+  </Modal.Portal>
 </Modal>
 // @ts-expect-error String root style is rejected
 ;<Button style="color: red" />

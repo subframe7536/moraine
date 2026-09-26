@@ -150,6 +150,7 @@ describe('TypeExtractor', () => {
       const module = await extractor.loadModule(file)
       const part = await extractor.extractPart(module!, namespace, propsType, name, false)
       const asProp = part.props.find((prop) => prop.name === 'as')
+      expect(asProp?.type).toBe('T')
       expect(asProp?.default).toEqual({
         kind: 'literal',
         value: name === 'List' ? 'ul' : 'button',
@@ -178,6 +179,7 @@ describe('TypeExtractor', () => {
     expect(rootPart.props.map((p) => p.name)).toContain('open')
     expect(rootPart.props.map((p) => p.name)).toContain('defaultOpen')
     expect(rootPart.props.map((p) => p.name)).toContain('onOpenChange')
+    expect(rootPart.props.map((p) => p.name)).toContain('close')
 
     const triggerPart = await extractor.extractPart(
       module!,
@@ -197,7 +199,7 @@ describe('TypeExtractor', () => {
       false,
     )
     expect(contentPart.props.map((p) => p.name)).toContain('title')
-    expect(contentPart.props.map((p) => p.name)).toContain('close')
+    expect(contentPart.props.map((p) => p.name)).toContain('description')
   })
 
   test('extracts Select item metadata and props', async () => {

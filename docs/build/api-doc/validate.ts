@@ -52,12 +52,21 @@ export function validateComponentApi(component: ComponentApi): ValidationIssue[]
       if (propNames.has(prop.name)) {
         addError(`Duplicate prop name "${prop.name}".`, part.id)
       }
+      if (!prop.type.trim()) {
+        addError(`Prop "${prop.name}" has an empty type.`, part.id)
+      }
       propNames.add(prop.name)
     }
     if (component.key === 'form') {
       if (part.access.kind !== 'factory-member' || part.access.factory !== 'createForm') {
         addError('Form parts must be createForm factory members.', part.id)
       }
+    }
+  }
+
+  for (const prop of component.item?.props ?? []) {
+    if (!prop.type.trim()) {
+      addError(`Item prop "${prop.name}" has an empty type.`)
     }
   }
 

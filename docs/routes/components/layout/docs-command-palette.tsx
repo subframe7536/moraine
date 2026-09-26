@@ -177,12 +177,11 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         props.setOpen(next)
       }}
       onExitComplete={() => setSearchTerm('')}
+      close={false}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
-      <Dialog.Content
-        close={false}
-        classes={{ body: 'p-0 mb-0' }}
-        body={
+      <Dialog.Content>
+        <Dialog.Body class="mb-0 p-0">
           <CommandPalette<DocsCommandItem>
             groups={items()}
             placeholder="Search components, hooks, and pages..."
@@ -241,8 +240,8 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
               </div>
             )}
           />
-        }
-      />
+        </Dialog.Body>
+      </Dialog.Content>
     </Dialog>
   )
 }

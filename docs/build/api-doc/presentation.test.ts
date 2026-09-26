@@ -134,6 +134,45 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
+  test('keeps prop anchors distinct from part headings with the same name', () => {
+    const model = createApiReferenceModel({
+      ...component,
+      parts: [
+        {
+          ...component.parts[0]!,
+          props: [
+            ...component.parts[0]!.props,
+            { name: 'trigger', optional: true, type: 'boolean' },
+          ],
+        },
+        component.parts[1]!,
+        {
+          id: 'dialog-content',
+          name: 'Dialog.Content',
+          access: { kind: 'attached', root: 'Dialog', member: 'Content' },
+          props: [{ name: 'children', optional: true, type: 'JSX.Element' }],
+        },
+        {
+          id: 'dialog-body',
+          name: 'Dialog.Body',
+          access: { kind: 'attached', root: 'Dialog', member: 'Body' },
+          props: [],
+        },
+      ],
+    })!
+
+    expect(model.parts[0]?.props.find((prop) => prop.name === 'trigger')?.anchorId).toBe(
+      'api-prop-demo-trigger',
+    )
+    expect(model.parts[1]?.id).toBe('api-trigger')
+    expect(model.parts[2]?.props[0]?.anchorId).toBe('api-prop-dialog-content-children')
+    expect(model.parts[3]?.id).toBe('api-dialog-body')
+    const ids = model.parts.flatMap((part) =>
+      [part.id].concat(part.props.map((prop) => prop.anchorId)),
+    )
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
   test('aggregates attributes and follows declared slot order', () => {
     const model = createApiReferenceModel(component)!
     expect(model.attributes?.slots).toEqual([

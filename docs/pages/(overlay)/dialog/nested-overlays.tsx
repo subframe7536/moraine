@@ -10,12 +10,12 @@ export function NestedOverlays() {
         title="Workspace settings"
         description="Review help before confirming your workspace changes."
       >
-        <div class="flex flex-wrap gap-3 items-center justify-end">
+        <Dialog.Footer class="flex-wrap gap-3">
           <Popover>
             <Popover.Trigger as={Button} variant="outline">
               View settings help
             </Popover.Trigger>
-            <Popover.Content ariaLabel="Settings help">
+            <Popover.Content ariaLabel="Settings help" class="p-3">
               Changes apply to this workspace only.
             </Popover.Content>
           </Popover>
@@ -24,7 +24,8 @@ export function NestedOverlays() {
             <Dialog.Content
               title="Confirm changes"
               description="Escape closes this confirmation before closing workspace settings."
-              footer={
+            >
+              <Dialog.Footer>
                 <Dialog.Close
                   as={Button}
                   variant="outline"
@@ -32,10 +33,10 @@ export function NestedOverlays() {
                 >
                   Return to settings
                 </Dialog.Close>
-              }
-            />
+              </Dialog.Footer>
+            </Dialog.Content>
           </Dialog>
-        </div>
+        </Dialog.Footer>
       </Dialog.Content>
     </Dialog>
   )

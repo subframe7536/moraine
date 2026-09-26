@@ -227,14 +227,13 @@ export function ComponentRadar() {
             <Dialog.Trigger as={Button} variant="outline" size="sm">
               Open dialog
             </Dialog.Trigger>
-            <Dialog.Content
-              title="Dialog example"
-              body={
+            <Dialog.Content title="Dialog example">
+              <Dialog.Body>
                 <p class="text-muted-foreground text-sm">
                   A focused space for content that needs a response.
                 </p>
-              }
-            />
+              </Dialog.Body>
+            </Dialog.Content>
           </Dialog>
         </SamplerItem>
 

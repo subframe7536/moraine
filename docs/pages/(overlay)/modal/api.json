@@ -74,6 +74,12 @@
           "description": "Controlled open state."
         },
         {
+          "name": "portalMount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -88,106 +94,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Modal instance."
-        }
-      ]
-    },
-    {
-      "id": "modal-content",
-      "name": "Modal.Content",
-      "access": {
-        "kind": "attached",
-        "root": "Modal",
-        "member": "Content"
-      },
-      "defaultElement": "div",
-      "props": [
-        {
-          "name": "ariaDescribedBy",
-          "optional": true,
-          "type": "string",
-          "description": "Id of the element that describes the modal content."
-        },
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when no visible label is available."
-        },
-        {
-          "name": "ariaLabelledBy",
-          "optional": true,
-          "type": "string",
-          "description": "Id of the element that labels the modal content."
-        },
-        {
-          "name": "children",
-          "optional": false,
-          "type": "ComponentOrElement<ContentRenderProps>",
-          "description": "Component or element rendered inside the modal content surface."
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": "SlotClassValue",
-          "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": "SlotStyleValue",
-          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "trapFocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether this surface behaves as a modal dialog: it traps and receives focus,\nhides outside content from assistive technology, and locks body scroll.",
+          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
           "default": {
             "kind": "literal",
             "value": true
           }
-        }
-      ]
-    },
-    {
-      "id": "modal-overlay",
-      "name": "Modal.Overlay",
-      "access": {
-        "kind": "attached",
-        "root": "Modal",
-        "member": "Overlay"
-      },
-      "defaultElement": "div",
-      "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Optional elements rendered inside the overlay."
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": "SlotClassValue",
-          "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "ref",
-          "optional": true,
-          "type": "(element: HTMLDivElement | undefined) => void",
-          "description": "Receives the mounted overlay element and `undefined` when it unmounts."
-        },
-        {
-          "name": "scrollable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the overlay should scroll its content."
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": "SlotStyleValue",
-          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -235,6 +151,119 @@
           "optional": true,
           "type": "boolean",
           "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "modal-portal",
+      "name": "Modal.Portal",
+      "access": {
+        "kind": "attached",
+        "root": "Modal",
+        "member": "Portal"
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Overlay and content parts rendered in the same portal."
+        },
+        {
+          "name": "mount",
+          "optional": true,
+          "type": "Node",
+          "description": "Destination for the modal parts; defaults to the trigger document body."
+        }
+      ]
+    },
+    {
+      "id": "modal-overlay",
+      "name": "Modal.Overlay",
+      "access": {
+        "kind": "attached",
+        "root": "Modal",
+        "member": "Overlay"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Optional elements rendered inside the overlay."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "(element: HTMLDivElement | undefined) => void",
+          "description": "Receives the mounted overlay element and `undefined` when it unmounts."
+        },
+        {
+          "name": "scrollable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the overlay should scroll its content."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "modal-content",
+      "name": "Modal.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Modal",
+        "member": "Content"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "ariaDescribedBy",
+          "optional": true,
+          "type": "string",
+          "description": "Id of the element that describes the modal content."
+        },
+        {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name used when no visible label is available."
+        },
+        {
+          "name": "ariaLabelledBy",
+          "optional": true,
+          "type": "string",
+          "description": "Id of the element that labels the modal content."
+        },
+        {
+          "name": "children",
+          "optional": false,
+          "type": "ComponentOrElement<ContentRenderProps>",
+          "description": "Component or element rendered inside the modal content surface."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",

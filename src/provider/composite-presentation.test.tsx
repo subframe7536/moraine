@@ -41,18 +41,20 @@ describe('composite family presentation', () => {
           styles={{
             content: { width: instanceWidth(), color: 'orange', '--dialog-only': 'yes' },
           }}
+          ariaLabel="Scoped dialog"
         >
           <Dialog.Trigger data-testid="dialog-trigger">Open</Dialog.Trigger>
           <MoraineProvider theme={innerTheme()} cnConfig={config()}>
             <Dialog.Content
               data-testid="dialog-content"
-              ariaLabel="Scoped dialog"
-              body="Body"
+
               classes={{ content: 'part p-4' }}
               styles={{ content: { color: 'green', height: '30px' } }}
               class="direct p-5"
               style={{ color: 'red' }}
-            />
+            >
+              <Dialog.Body>Body</Dialog.Body>
+            </Dialog.Content>
           </MoraineProvider>
         </Dialog>
       </MoraineProvider>
@@ -100,12 +102,20 @@ describe('composite family presentation', () => {
     render(() => (
       <>
         <Modal open classes={{ overlay: 'modal-overlay', content: 'modal-content' }}>
-          <Modal.Overlay data-testid="modal-overlay" />
-          <Modal.Content data-testid="modal-content">Modal</Modal.Content>
+          <Modal.Portal>
+            <Modal.Overlay data-testid="modal-overlay" />
+            <Modal.Content data-testid="modal-content">Modal</Modal.Content>
+          </Modal.Portal>
         </Modal>
-        <Sheet open classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}>
+        <Sheet
+          open
+          classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}
+          ariaLabel="Sheet"
+        >
           <Sheet.Trigger data-testid="sheet-trigger">Open sheet</Sheet.Trigger>
-          <Sheet.Content data-testid="sheet-content" ariaLabel="Sheet" body="Sheet" />
+          <Sheet.Content data-testid="sheet-content">
+            <Sheet.Body>Sheet</Sheet.Body>
+          </Sheet.Content>
         </Sheet>
         <Popover defaultOpen classes={{ trigger: 'popover-trigger', content: 'popover-content' }}>
           <Popover.Trigger data-testid="popover-trigger">Open popover</Popover.Trigger>
@@ -266,16 +276,16 @@ describe('composite family presentation', () => {
 
   test('same-family nested Dialog uses only the nearest instance presentation', () => {
     render(() => (
-      <Dialog open classes={{ content: 'dialog-outer' }}>
-        <Dialog.Content
-          data-testid="dialog-outer"
-          ariaLabel="Outer"
-          body={
-            <Dialog open classes={{ content: 'dialog-inner' }}>
-              <Dialog.Content data-testid="dialog-inner" ariaLabel="Inner" body="Inner" />
+      <Dialog open classes={{ content: 'dialog-outer' }} ariaLabel="Outer">
+        <Dialog.Content data-testid="dialog-outer">
+          <Dialog.Body>
+            <Dialog open classes={{ content: 'dialog-inner' }} ariaLabel="Inner">
+              <Dialog.Content data-testid="dialog-inner">
+                <Dialog.Body>Inner</Dialog.Body>
+              </Dialog.Content>
             </Dialog>
-          }
-        />
+          </Dialog.Body>
+        </Dialog.Content>
       </Dialog>
     ))
 

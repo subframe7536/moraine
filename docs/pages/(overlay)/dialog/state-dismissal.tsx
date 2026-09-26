@@ -31,7 +31,8 @@ export function StateDismissal() {
         <Dialog.Content
           title="Unsaved Configuration Changes"
           description="Explicit confirmation is required before navigating away."
-          body={
+        >
+          <Dialog.Body>
             <div class="py-2 space-y-3">
               <p class="text-muted-foreground text-sm">
                 {dismissible()
@@ -44,8 +45,8 @@ export function StateDismissal() {
                 </Badge>
               </Show>
             </div>
-          }
-          footer={
+          </Dialog.Body>
+          <Dialog.Footer>
             <div class="flex gap-2 w-full justify-end">
               <Button
                 variant="outline"
@@ -65,8 +66,8 @@ export function StateDismissal() {
                 Save & Apply
               </Button>
             </div>
-          }
-        />
+          </Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
     </div>
   )

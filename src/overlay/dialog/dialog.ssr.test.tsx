@@ -4,9 +4,10 @@ import { describe, expect, test } from 'vitest'
 import { Button } from '../../element/button/button'
 import { Icon } from '../../element/icon/icon'
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { hydrateFixture } from '../../test-util/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Dialog } from './dialog'
+import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
 
 test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
@@ -38,37 +39,84 @@ function expectAriaReferencesToResolve(content: Element): void {
 }
 
 describe('Dialog SSR Hydration', () => {
+  test('hydrates composed part IDs without replacing nodes', () => {
+    const { container } = hydrateFixture(
+      '/src/overlay/dialog/dialog.ssr.fixture.tsx',
+      'renderPartsFixture',
+      () => {
+        const registration = createDialogContentRegistration()
+        return (
+          <Dialog>
+            <DialogContentProvider
+              value={{
+                ...registration,
+                variants: { fullscreen: false, scrollable: false },
+                overlayScroll: () => false,
+              }}
+            >
+              <Dialog.Header>
+                <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
+                <Dialog.Description>Details</Dialog.Description>
+                <Dialog.Action>Help</Dialog.Action>
+              </Dialog.Header>
+              <Dialog.Body>Body</Dialog.Body>
+              <Dialog.Footer>Actions</Dialog.Footer>
+            </DialogContentProvider>
+          </Dialog>
+        )
+      },
+    )
+    expect(container.querySelector('#server-dialog-title')).not.toBeNull()
+    expect(container.querySelector('[data-slot="dialog-description"]')?.id).toBeTruthy()
+  })
+
+  test('server renders composable parts with stable IDs', () => {
+    const html = renderSsrFixture(
+      '/src/overlay/dialog/dialog.ssr.fixture.tsx',
+      'renderPartsFixture',
+    )
+    expect(html).toContain('dialog-title')
+    expect(html).toContain('server-dialog-title')
+    expect(html).toContain('data-slot="dialog-body"')
+    expect(html).toContain('data-slot="dialog-footer"')
+  })
   test('hydrates the closed shell, opens custom content, closes, and restores focus', async () => {
     const { container } = hydrateFixture(
       '/src/overlay/dialog/dialog.ssr.fixture.tsx',
       'renderDialogFixture',
       () => (
         <>
-          <Dialog>
+          <Dialog
+            closeIcon={<span data-testid="server-close-icon">Close</span>}
+            ariaLabel="Server dialog"
+          >
             <Dialog.Trigger as="button" type="button">
               Open custom dialog
             </Dialog.Trigger>
-            <Dialog.Content
-              title="Server title"
-              description="Server description"
-              header={<div data-testid="server-header">Server header</div>}
-              body={<div data-testid="server-body">Server body</div>}
-              footer={<div data-testid="server-footer">Server footer</div>}
-              closeIcon={<span data-testid="server-close-icon">Close</span>}
-              ariaLabel="Server dialog"
-            />
+            <Dialog.Content title="Server title" description="Server description">
+              <Dialog.Header>
+                <div data-testid="server-header">Server header</div>
+              </Dialog.Header>
+              <Dialog.Body>
+                <div data-testid="server-body">Server body</div>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <div data-testid="server-footer">Server footer</div>
+              </Dialog.Footer>
+            </Dialog.Content>
           </Dialog>
-          <Dialog>
+          <Dialog closeIcon={<span data-testid="default-close-icon">Close</span>}>
             <Dialog.Trigger as="button" type="button">
               Open default dialog
             </Dialog.Trigger>
-            <Dialog.Content
-              title="Default title"
-              description="Default description"
-              body={<div data-testid="default-body">Default body</div>}
-              footer={<div data-testid="default-footer">Default footer</div>}
-              closeIcon={<span data-testid="default-close-icon">Close</span>}
-            />
+            <Dialog.Content title="Default title" description="Default description">
+              <Dialog.Body>
+                <div data-testid="default-body">Default body</div>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <div data-testid="default-footer">Default footer</div>
+              </Dialog.Footer>
+            </Dialog.Content>
           </Dialog>
         </>
       ),

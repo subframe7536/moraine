@@ -185,7 +185,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "",
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -286,7 +286,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "e",
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",

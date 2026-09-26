@@ -1,8 +1,9 @@
-import { fireEvent, render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { finishExitMotion } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 import { Dialog } from '../dialog/dialog'
 import { Sheet } from '../sheet/sheet'
@@ -12,60 +13,204 @@ describe.each([
   { name: 'Sheet', Root: Sheet },
 ])('$name composition', ({ Root, name }) => {
   const owner = name.toLowerCase()
-  test('does not instantiate closed content slots and reads children once on opening', () => {
-    let titleReads = 0
-    let bodyReads = 0
-    let childrenReads = 0
+  test('does not instantiate closed content parts before opening', () => {
+    let reads = 0
     const screen = render(() => (
       <Root>
         <Root.Trigger>Open</Root.Trigger>
-        {createComponent(Root.Content, {
-          get title() {
-            titleReads += 1
-            return <span>Title</span>
-          },
-          get body() {
-            bodyReads += 1
-            return undefined
-          },
-          get children() {
-            childrenReads += 1
-            return <span>Children</span>
-          },
-        })}
-      </Root>
-    ))
-    expect([titleReads, bodyReads, childrenReads]).toEqual([0, 0, 0])
-    expect(screen.container.children).toHaveLength(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
-    expect([titleReads, bodyReads, childrenReads]).toEqual([1, 1, 1])
-    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
-    expect(content.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
-    expect(content.querySelector(`[data-slot="${owner}-title"]`)?.textContent).toBe('Title')
-  })
-
-  test.each([null, false])('explicit body %s suppresses children without reading them', (body) => {
-    let reads = 0
-    render(() => (
-      <Root defaultOpen>
-        {createComponent(Root.Content, {
-          body,
-          get children() {
-            reads += 1
-            return <span>Unused children</span>
-          },
-        })}
+        <Root.Content title="Title">
+          <Root.Body>
+            {(() => {
+              reads += 1
+              return 'Children'
+            })()}
+          </Root.Body>
+        </Root.Content>
       </Root>
     ))
     expect(reads).toBe(0)
-    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    expect(reads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
+  })
+
+  test('updates body header attributes without replacing the body and forwards its ref', () => {
+    const [showHeader, setShowHeader] = createSignal(false)
+    let bodyRef: HTMLDivElement | undefined
+    render(() => (
+      <Root open>
+        <Root.Content>
+          <Show when={showHeader()}>
+            <Root.Header>Header</Root.Header>
+          </Show>
+          <Root.Body ref={(element) => (bodyRef = element)}>Body</Root.Body>
+        </Root.Content>
+      </Root>
+    ))
+
+    const body = document.body.querySelector<HTMLDivElement>(`[data-slot="${owner}-body"]`)!
+    expect(bodyRef).toBe(body)
+    expect(body.hasAttribute('data-header')).toBe(false)
+
+    setShowHeader(true)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    setShowHeader(false)
+    expect(body.hasAttribute('data-header')).toBe(false)
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
+  })
+
+  test('resolves shorthand JSX once per presence cycle and releases it after exit', async () => {
+    const [open, setOpen] = createSignal(false)
+    let titleReads = 0
+    let descriptionReads = 0
+    let cleanups = 0
+    const Title = () => {
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>Title</span>
+    }
+
+    render(() => (
+      <Root open={open()}>
+        {createComponent(Root.Content, {
+          get title() {
+            titleReads += 1
+            return <Title />
+          },
+          get description() {
+            descriptionReads += 1
+            return <span>Description</span>
+          },
+          get children() {
+            return <Root.Body>Body</Root.Body>
+          },
+        })}
+      </Root>
+    ))
+
+    expect(titleReads).toBe(0)
+    expect(descriptionReads).toBe(0)
+    setOpen(true)
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'TitleDescription',
+    )
+
+    setOpen(false)
+    await finishExitMotion()
+    expect(cleanups).toBe(1)
+
+    setOpen(true)
+    expect(titleReads).toBe(2)
+    expect(descriptionReads).toBe(2)
+  })
+
+  test('keeps explicit children mounted while switching between explicit and shorthand headers', () => {
+    const [showHeader, setShowHeader] = createSignal(true)
+    let titleReads = 0
+    let descriptionReads = 0
+    let bodyMounts = 0
+    const Body = () => {
+      bodyMounts += 1
+      return <Root.Body>Body</Root.Body>
+    }
+
+    render(() => (
+      <Root open>
+        {createComponent(Root.Content, {
+          get title() {
+            titleReads += 1
+            return <span>Fallback title</span>
+          },
+          get description() {
+            descriptionReads += 1
+            return <span>Fallback description</span>
+          },
+          get children() {
+            return (
+              <>
+                <Show when={showHeader()}>
+                  <Root.Header>Explicit header</Root.Header>
+                </Show>
+                <Body />
+              </>
+            )
+          },
+        })}
+      </Root>
+    ))
+
+    const body = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-body"]`)!
+    expect(titleReads).toBe(0)
+    expect(descriptionReads).toBe(0)
+    expect(bodyMounts).toBe(1)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Explicit header',
+    )
+
+    setShowHeader(false)
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Fallback titleFallback description',
+    )
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
+    expect(body.hasAttribute('data-header')).toBe(true)
+
+    setShowHeader(true)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Explicit header',
+    )
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
+    expect(bodyMounts).toBe(1)
+  })
+
+  test('mounts controlled content in the root portal destination without a trigger', () => {
+    const otherDocument = document.implementation.createHTMLDocument('portal owner')
+    const mount = otherDocument.createElement('div')
+    otherDocument.body.append(mount)
+    const screen = render(() => (
+      <Root open portalMount={mount}>
+        <Root.Content title="Title">Body</Root.Content>
+      </Root>
+    ))
+
+    const content = mount.querySelector(`[data-slot="${owner}-content"]`)
+    expect(content?.ownerDocument).toBe(otherDocument)
+    expect(content?.textContent).toContain('Body')
+    screen.unmount()
+  })
+
+  test('prefers a native aria-label over a registered title', () => {
+    render(() => (
+      <Root open ariaLabel="Root label">
+        <Root.Content aria-label="Native label" title="Visible title" description="Details">
+          <Root.Body>Body</Root.Body>
+        </Root.Content>
+      </Root>
+    ))
+
+    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
+    const description = document.body.querySelector<HTMLElement>(
+      `[data-slot="${owner}-description"]`,
+    )!
+    expect(document.body.querySelector(`[data-slot="${owner}-title"]`)).not.toBeNull()
+    expect(content.getAttribute('aria-label')).toBe('Native label')
+    expect(content.getAttribute('aria-labelledby')).toBeNull()
+    expect(content.getAttribute('aria-describedby')).toBe(description.id)
   })
 
   test('renders recipe-backed default presentation without a provider', () => {
     render(() => (
       <Root defaultOpen>
         <Root.Trigger>Open</Root.Trigger>
-        <Root.Content title="Title" description="Description" body="Body" footer="Footer" />
+        <Root.Content title="Title" description="Description">
+          <Root.Body>Body</Root.Body>
+          <Root.Footer>Footer</Root.Footer>
+        </Root.Content>
       </Root>
     ))
     const slots = [
@@ -101,7 +246,9 @@ describe.each([
     render(() => (
       <MoraineProvider theme={design()}>
         <Root defaultOpen>
-          <Root.Content title="Title" body="Body" />
+          <Root.Content title="Title">
+            <Root.Body>Body</Root.Body>
+          </Root.Content>
         </Root>
       </MoraineProvider>
     ))
@@ -112,5 +259,37 @@ describe.each([
     expect(content.className).toContain('next-content')
     expect(content.className).not.toContain('first-content')
     expect(document.activeElement).toBe(content)
+  })
+
+  test('updates modal isolation when root trapFocus changes', async () => {
+    const [trapFocus, setTrapFocus] = createSignal(false)
+    const screen = render(() => (
+      <>
+        <main data-testid="background">Background</main>
+        <Root defaultOpen trapFocus={trapFocus()}>
+          <Root.Content title="Title">Content</Root.Content>
+        </Root>
+      </>
+    ))
+    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
+    const background = screen.getByTestId('background')
+
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(background.closest('[aria-hidden="true"]')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+
+    setTrapFocus(true)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBe('true')
+      expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
+      expect(document.body.style.overflow).toBe('hidden')
+    })
+
+    setTrapFocus(false)
+    await waitFor(() => {
+      expect(content.getAttribute('aria-modal')).toBeNull()
+      expect(background.closest('[aria-hidden="true"]')).toBeNull()
+      expect(document.body.style.overflow).toBe('')
+    })
   })
 })

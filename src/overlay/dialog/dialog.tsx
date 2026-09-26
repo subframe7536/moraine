@@ -1,41 +1,37 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
-import { Modal, ModalRoot } from '../modal/modal'
+import { useRegisteredContentId } from '../base/content-anatomy'
+import { createShorthandContent } from '../base/shorthand-content'
+import { Modal, ModalInternal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
+import { ModalPortal } from '../modal/modal-portal'
 
-import { DialogPresentationProvider, useDialogPresentation } from './dialog-context'
+import {
+  DialogContentProvider,
+  createDialogContentRegistration,
+  useDialogConfig,
+  useDialogContent,
+} from './dialog-context'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogProps, DialogT } from './dialog.types'
 
-/** Dialog state and context. Trigger, Content, and Close own their respective DOM. */
+/** Dialog state and presentation, sharing the Modal root context. */
 export function Dialog(props: DialogProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['classes', 'styles', 'children'])
-  return (
-    <DialogPresentationProvider
-      value={{
-        get presentation() {
-          return { classes: local.classes, styles: local.styles }
-        },
-      }}
-    >
-      <ModalRoot {...rest} slotOwner="dialog">
-        {local.children}
-      </ModalRoot>
-    </DialogPresentationProvider>
-  )
+  return <ModalInternal kind="dialog" {...props} />
 }
 
 function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const family = useDialogPresentation()
+  const family = useModalContext()
   const resolved = createStyles(dialogRecipe, props, {
     rootSlot: 'trigger',
     inheritedStyles: () => family.presentation,
@@ -51,136 +47,258 @@ function DialogClose<T extends ValidComponent = 'button'>(
 
 function DialogContent(props: DialogT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'overlay',
-    'ariaLabel',
     'title',
     'description',
-    'fullscreen',
-    'scrollable',
-    'close',
-    'closeIcon',
-    'header',
-    'body',
-    'footer',
     'children',
     'classes',
     'styles',
     'class',
     'style',
   ])
-
-  const context = useModalContext()
-  const family = useDialogPresentation()
+  const config = useDialogConfig()
+  const family = useModalContext()
   const merged = mergeProps(
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
-
-    local,
+    config,
   )
   const resolved = createStyles(dialogRecipe, local, {
     rootSlot: 'content',
+    inheritedVariants: () => ({ fullscreen: config.fullscreen, scrollable: config.scrollable }),
     inheritedStyles: () => family.presentation,
   })
+  const registration = createDialogContentRegistration()
   const overlayScroll = () =>
     resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen
 
   return (
-    <ModalSurface
-      {...rest}
-      overlay={merged.overlay}
-      overlayScroll={overlayScroll()}
-      overlayClass={resolved.styles.overlay.class}
-      overlayStyle={resolved.styles.overlay.style}
-      {...resolved.styles.content}
-      surfaceRender={() => {
-        const title = createLazyMemo(() => merged.title)
-        const description = createLazyMemo(() => merged.description)
-        const header = createLazyMemo(() => merged.header)
-        const body = createLazyMemo(() => {
-          const explicitBody = merged.body
-          return explicitBody === undefined
-            ? resolveChildren(() => merged.children)()
-            : explicitBody
-        })
-        const footer = createLazyMemo(() => merged.footer)
-        const closeIcon = createLazyMemo(() => merged.closeIcon)
-        const hasCustomHeader = () => hasJsxContent(header())
-        const titleId = () =>
-          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined
-        const descriptionId = () =>
-          !hasCustomHeader() && hasJsxContent(description())
-            ? `${context.contentId()}-description`
-            : undefined
-        const hasHeader = () =>
-          hasCustomHeader() || hasJsxContent(title()) || hasJsxContent(description())
-
-        return {
-          ariaLabel: merged.ariaLabel,
-          ariaLabelledBy: titleId(),
-          ariaDescribedBy: descriptionId(),
-          children: () => (
-            <>
-              <Show when={hasHeader()}>
-                <div data-slot="dialog-header" {...resolved.styles.header}>
-                  <Show
-                    when={hasCustomHeader()}
-                    fallback={
-                      <>
-                        <Show when={hasJsxContent(title())}>
-                          <h2 id={titleId()} data-slot="dialog-title" {...resolved.styles.title}>
-                            {title()}
-                          </h2>
-                        </Show>
-                        <Show when={hasJsxContent(description())}>
-                          <p
-                            id={descriptionId()}
-                            data-slot="dialog-description"
-                            {...resolved.styles.description}
-                          >
-                            {description()}
-                          </p>
-                        </Show>
-                      </>
-                    }
-                  >
-                    {header()}
-                  </Show>
-                </div>
-              </Show>
-              <Show when={merged.close}>
-                <Modal.Close
-                  data-slot="dialog-content-close"
-                  aria-label="Close"
-                  {...resolved.styles.contentClose}
-                >
-                  <Icon name={closeIcon()} />
-                </Modal.Close>
-              </Show>
-              <Show when={hasJsxContent(body())}>
-                <div
-                  data-slot="dialog-body"
-                  {...dialogDataAttributes.body({
-                    scroll: () => !overlayScroll(),
-                    header: hasHeader,
-                    footer: () => hasJsxContent(footer()),
-                  })}
-                  {...resolved.styles.body}
-                >
-                  {body()}
-                </div>
-              </Show>
-              <Show when={hasJsxContent(footer())}>
-                <div data-slot="dialog-footer" {...resolved.styles.footer}>
-                  {footer()}
-                </div>
-              </Show>
-            </>
-          ),
-        }
+    <DialogContentProvider
+      value={{
+        ...registration,
+        get variants() {
+          return resolved.variants
+        },
+        overlayScroll,
       }}
-    />
+    >
+      <ModalPortal>
+        <ModalSurface
+          {...rest}
+          overlayScroll={overlayScroll()}
+          overlay={merged.overlay}
+          overlayClass={resolved.styles.overlay.class}
+          overlayStyle={resolved.styles.overlay.style}
+          {...resolved.styles.content}
+          ariaLabel={merged.ariaLabel}
+          ariaLabelledBy={
+            (rest['aria-label'] ?? merged.ariaLabel) === undefined
+              ? registration.titleIds().join(' ') || undefined
+              : undefined
+          }
+          ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+        >
+          {() => {
+            const contentShorthand = createShorthandContent(local)
+            const explicitChildren = createLazyMemo(() => untrack(() => local.children))
+            const closeIcon = createLazyMemo(() => merged.closeIcon)
+            const content = explicitChildren()
+            return (
+              <>
+                <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
+                  <DialogShorthandHeader>
+                    <Show when={hasJsxContent(contentShorthand.title())}>
+                      <DialogTitle>{contentShorthand.title()}</DialogTitle>
+                    </Show>
+                    <Show when={hasJsxContent(contentShorthand.description())}>
+                      <DialogDescription>{contentShorthand.description()}</DialogDescription>
+                    </Show>
+                  </DialogShorthandHeader>
+                </Show>
+                <Show when={merged.close}>
+                  <Modal.Close
+                    data-slot="dialog-content-close"
+                    aria-label="Close"
+                    {...resolved.styles.contentClose}
+                  >
+                    <Icon name={closeIcon()} />
+                  </Modal.Close>
+                </Show>
+                {content}
+              </>
+            )
+          }}
+        </ModalSurface>
+      </ModalPortal>
+    </DialogContentProvider>
+  )
+}
+
+function DialogHeader<T extends ValidComponent = 'div'>(
+  props: DialogT.HeaderProps<T>,
+): JSX.Element {
+  return renderDialogHeader(props, 'explicit')
+}
+
+function DialogShorthandHeader<T extends ValidComponent = 'div'>(
+  props: DialogT.HeaderProps<T>,
+): JSX.Element {
+  return renderDialogHeader(props, 'shorthand')
+}
+
+function renderDialogHeader<T extends ValidComponent>(
+  props: DialogT.HeaderProps<T>,
+  kind: 'explicit' | 'shorthand',
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const unregister = content.registerHeader(kind)
+  onCleanup(unregister)
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'header',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-header"
+      {...rest}
+      {...resolved.styles.header}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function DialogTitle<T extends ValidComponent = 'h2'>(props: DialogT.TitleProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const id = useRegisteredContentId(() => local.id, content.registerTitle)
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'title',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'h2'}
+      data-slot="dialog-title"
+      {...rest}
+      id={id()}
+      {...resolved.styles.title}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function DialogDescription<T extends ValidComponent = 'p'>(
+  props: DialogT.DescriptionProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const id = useRegisteredContentId(() => local.id, content.registerDescription)
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'description',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'p'}
+      data-slot="dialog-description"
+      {...rest}
+      id={id()}
+      {...resolved.styles.description}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function DialogAction<T extends ValidComponent = 'div'>(
+  props: DialogT.ActionProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'action',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-action"
+      {...rest}
+      {...resolved.styles.action}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function DialogBody<T extends ValidComponent = 'div'>(props: DialogT.BodyProps<T>): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'body',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  const bodyAttrs = dialogDataAttributes.body({
+    header: content.hasHeader,
+    footer: content.hasFooter,
+    scroll: () => !content.overlayScroll(),
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-body"
+      {...rest}
+      {...bodyAttrs}
+      {...resolved.styles.body}
+    >
+      {local.children}
+    </Dynamic>
+  )
+}
+
+function DialogFooter<T extends ValidComponent = 'div'>(
+  props: DialogT.FooterProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const family = useModalContext()
+  const content = useDialogContent()
+  const unregister = content.registerFooter()
+  onCleanup(unregister)
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'footer',
+    inheritedVariants: () => content.variants,
+    inheritedStyles: () => family.presentation,
+  })
+  return (
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-footer"
+      {...rest}
+      {...resolved.styles.footer}
+    >
+      {local.children}
+    </Dynamic>
   )
 }
 
 Dialog.Trigger = DialogTrigger
 Dialog.Content = DialogContent
+Dialog.Header = DialogHeader
+Dialog.Title = DialogTitle
+Dialog.Description = DialogDescription
+Dialog.Action = DialogAction
+Dialog.Body = DialogBody
+Dialog.Footer = DialogFooter
 Dialog.Close = DialogClose

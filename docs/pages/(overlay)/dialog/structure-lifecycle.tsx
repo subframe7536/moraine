@@ -17,21 +17,22 @@ export function StructureLifecycle() {
         <Dialog.Content
           title="Provision Production Database"
           description="Configure clustering, replication nodes, and automated backup schedules."
-          body={
-            <div class="text-muted-foreground leading-relaxed py-2 space-y-2 text-xs">
+        >
+          <Dialog.Body>
+            <div class="text-muted-foreground leading-relaxed py-2 space-y-2">
               <p>
                 Provisioning will allocate dedicated compute instances and initialize encryption
                 keys.
               </p>
             </div>
-          }
-          footer={
+          </Dialog.Body>
+          <Dialog.Footer>
             <div class="flex gap-2 w-full justify-end">
               <Button variant="outline">Cancel</Button>
               <Button>Provision Cluster</Button>
             </div>
-          }
-        />
+          </Dialog.Footer>
+        </Dialog.Content>
       </Dialog>
 
       <div class="text-muted-foreground flex gap-2 items-center text-xs">

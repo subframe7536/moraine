@@ -3,15 +3,12 @@ import { Button, Sheet } from '@src'
 export function Sides() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Sheet>
+      <Sheet side="left">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:panel-left">
           Left (Navigation)
         </Sheet.Trigger>
-        <Sheet.Content
-          side="left"
-          title="Application Navigation"
-          description="Jump to any workspace section."
-          body={
+        <Sheet.Content title="Application Navigation" description="Jump to any workspace section.">
+          <Sheet.Body>
             <div class="py-2 space-y-2">
               <Button
                 variant="ghost"
@@ -34,19 +31,19 @@ export function Sides() {
                 Settings
               </Button>
             </div>
-          }
-        />
+          </Sheet.Body>
+        </Sheet.Content>
       </Sheet>
 
-      <Sheet>
+      <Sheet side="right">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:shopping-cart">
           Right (Cart Drawer)
         </Sheet.Trigger>
         <Sheet.Content
-          side="right"
           title="Shopping Cart (2 items)"
           description="Review your selected items before checkout."
-          body={
+        >
+          <Sheet.Body>
             <div class="py-2 space-y-3 text-xs">
               <div class="p-2 bg-muted/40 flex items-center justify-between rounded-lg">
                 <div>
@@ -63,24 +60,24 @@ export function Sides() {
                 <span class="font-mono font-semibold">$49.00</span>
               </div>
             </div>
-          }
-          footer={
+          </Sheet.Body>
+          <Sheet.Footer>
             <Button class="w-full" variant="default">
               Proceed to Checkout ($248.00)
             </Button>
-          }
-        />
+          </Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
 
-      <Sheet>
+      <Sheet side="bottom">
         <Sheet.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:share-2">
           Bottom (Share)
         </Sheet.Trigger>
         <Sheet.Content
-          side="bottom"
           title="Share Resource"
           description="Share this repository or report with teammates."
-          body={
+        >
+          <Sheet.Body>
             <div class="py-2 flex flex-wrap gap-2">
               <Button variant="outline" size="sm" leading="i-lucide:copy">
                 Copy Link
@@ -92,8 +89,8 @@ export function Sides() {
                 Show QR
               </Button>
             </div>
-          }
-        />
+          </Sheet.Body>
+        </Sheet.Content>
       </Sheet>
     </div>
   )

@@ -16,8 +16,11 @@ export function DeleteConfirmation() {
           <Dialog.Content
             title="Delete saved filter?"
             description="Assigned to me will be removed from your saved filters."
-            body={<p class="text-sm">You can create another filter later.</p>}
-            footer={
+          >
+            <Dialog.Body>
+              <p class="text-sm">You can create another filter later.</p>
+            </Dialog.Body>
+            <Dialog.Footer>
               <div class="flex gap-2 w-full justify-end">
                 <Dialog.Close as={Button} variant="outline">
                   Cancel
@@ -32,8 +35,8 @@ export function DeleteConfirmation() {
                   Delete filter
                 </Button>
               </div>
-            }
-          />
+            </Dialog.Footer>
+          </Dialog.Content>
         </Dialog>
       </Show>
     </div>

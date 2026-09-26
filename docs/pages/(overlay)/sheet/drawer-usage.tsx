@@ -7,18 +7,19 @@ export function DrawerUsage() {
       <Sheet.Content
         title="Edit Configuration"
         description="Update workspace variables and environment keys."
-        body={
+      >
+        <Sheet.Body>
           <div class="text-muted-foreground py-4 text-xs">
             Changes take effect immediately on next deployment cycle.
           </div>
-        }
-        footer={
+        </Sheet.Body>
+        <Sheet.Footer>
           <div class="flex gap-2 w-full justify-end">
             <Button variant="ghost">Cancel</Button>
             <Button>Save Settings</Button>
           </div>
-        }
-      />
+        </Sheet.Footer>
+      </Sheet.Content>
     </Sheet>
   )
 }

@@ -19,7 +19,8 @@ export function DismissControl() {
         <Sheet.Content
           title="Persistent sheet"
           description="Outside click and Escape key dismissal are blocked."
-          body={
+        >
+          <Sheet.Body>
             <div class="py-2 space-y-3">
               <p class="text-muted-foreground text-sm">
                 This sheet cannot be dismissed by clicking the overlay or pressing Escape.
@@ -28,15 +29,15 @@ export function DismissControl() {
                 Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
               </p>
             </div>
-          }
-          footer={
+          </Sheet.Body>
+          <Sheet.Footer>
             <div class="flex w-full justify-end">
               <Button size="sm" onClick={() => setOpen(false)}>
                 Close sheet
               </Button>
             </div>
-          }
-        />
+          </Sheet.Footer>
+        </Sheet.Content>
       </Sheet>
     </div>
   )
