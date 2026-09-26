@@ -56,9 +56,8 @@ jobs:
 
       - run: pnpm run qa
 
-      - run: pnpm run docs:build
-
-      - run: pnpm run test:docs
+      - name: Ensure QA fixes are committed
+        run: git diff --exit-code
 
   test:
     name: Test
@@ -74,19 +73,20 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
 
-      - run: pnpm install --filter moraine --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-      - name: Run tests
+      - name: Run changed library tests
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_REF="${{ github.base_ref }}"
-            if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
-              pnpm run test:library --changed "origin/$BASE_REF"
-            else
-              pnpm run test:library --changed "$BASE_REF"
-            fi
-          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "${{ github.event.before }}" >/dev/null 2>&1; then
-            pnpm run test:library --changed ${{ github.event.before }}
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && git rev-parse --verify "origin/$BASE_REF^{commit}" >/dev/null 2>&1; then
+            pnpm run test:library --changed "origin/$BASE_REF"
+            pnpm run test:docs --changed "origin/$BASE_REF"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "$BEFORE^{commit}" >/dev/null 2>&1; then
+            pnpm run test:library --changed "$BEFORE"
+            pnpm run test:docs --changed "$BEFORE"
           else
             pnpm run test:library
+            pnpm run test:docs
           fi

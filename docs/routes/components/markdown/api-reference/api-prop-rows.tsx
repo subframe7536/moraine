@@ -1,8 +1,7 @@
-import { Icon } from 'moraine'
 import type { JSX } from 'solid-js'
 import { For, Show } from 'solid-js'
 
-import { Collapsible, cn } from '../../../../../src'
+import { Collapsible, Icon, cn } from '../../../../../src'
 import type { PresentationPropItem } from '../../../../build/api-doc/presentation'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.class.ts'
 
@@ -112,10 +111,10 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
         <span class="text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate text-xs lg:block">
           {props.prop.defaultValue ?? '—'}
         </span>
-        <div class="flex h-full items-center justify-center text-muted-foreground">
+        <div class="text-muted-foreground flex h-full items-center justify-center">
           <Icon
             name="icon-chevron-down"
-            class="group-data-[expanded]:rotate-180 transition-transform"
+            class="transition-transform group-data-[expanded]:rotate-180"
           />
         </div>
       </Collapsible.Trigger>

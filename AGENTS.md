@@ -24,15 +24,15 @@ Run workspace commands from the repository root.
 
 - `pnpm run lint` - Run oxlint with fix (fast linter based on oxc).
 - `pnpm run format` - Format code using oxfmt.
-- `pnpm run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
+- Run the fix-capable `lint` and `format` commands first; manually fix only issues they cannot resolve.
+- `pnpm run qa` - Run lint with fixes, format, and typecheck together. **Run this before every commit and review the resulting diff.**
 
 ### Testing
 
-- `pnpm run test` - Run all tests in once.
-- `pnpm run test:library` - Run library and consumer tests without the docs tests.
-- `pnpm run test:docs` - Run docs tests.
-- `pnpm run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
-- `pnpm run test <test-file>` - Run a single test file (e.g., `pnpm run test button.test.tsx`).
+- `pnpm run test:library` - Build the library, check consumer type fixtures, and run library and consumer tests.
+- `pnpm run test:docs` - Run documentation build logic tests.
+- `pnpm run test` - Run both test suites.
+- `pnpm vitest run <test-file>` - Run a single test file after building if it reads `dist/`.
 - **Note:** Tests use `jsdom` environment.
 
 ## Source Structure

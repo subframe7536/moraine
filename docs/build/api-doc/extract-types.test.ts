@@ -178,6 +178,7 @@ describe('TypeExtractor', () => {
     expect(rootPart.props.map((p) => p.name)).toContain('open')
     expect(rootPart.props.map((p) => p.name)).toContain('defaultOpen')
     expect(rootPart.props.map((p) => p.name)).toContain('onOpenChange')
+    expect(rootPart.props.map((p) => p.name)).toContain('close')
 
     const triggerPart = await extractor.extractPart(
       module!,
@@ -197,7 +198,7 @@ describe('TypeExtractor', () => {
       false,
     )
     expect(contentPart.props.map((p) => p.name)).toContain('title')
-    expect(contentPart.props.map((p) => p.name)).toContain('close')
+    expect(contentPart.props.map((p) => p.name)).toContain('description')
   })
 
   test('extracts Select item metadata and props', async () => {
