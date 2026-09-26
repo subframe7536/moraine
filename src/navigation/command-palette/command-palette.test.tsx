@@ -429,7 +429,7 @@ describe('CommandPalette', () => {
         </Dialog.Trigger>
         <Dialog.Content close={false}>
           <Dialog.Body>
-            {<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
+            <CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>

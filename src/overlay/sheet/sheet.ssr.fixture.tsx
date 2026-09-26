@@ -21,9 +21,15 @@ export function renderSheetFixture(): string {
           close={<span data-testid="server-close-icon">Close</span>}
           ariaLabel="Server sheet"
         >
-          <Sheet.Header>{<div data-testid="server-header">Server header</div>}</Sheet.Header>
-          <Sheet.Body>{<div data-testid="server-body">Server body</div>}</Sheet.Body>
-          <Sheet.Footer>{<div data-testid="server-footer">Server footer</div>}</Sheet.Footer>
+          <Sheet.Header>
+            <div data-testid="server-header">Server header</div>
+          </Sheet.Header>
+          <Sheet.Body>
+            <div data-testid="server-body">Server body</div>
+          </Sheet.Body>
+          <Sheet.Footer>
+            <div data-testid="server-footer">Server footer</div>
+          </Sheet.Footer>
         </Sheet.Content>
       </Sheet>
       <Sheet>
@@ -36,8 +42,12 @@ export function renderSheetFixture(): string {
           description="Default description"
           close={<span data-testid="default-close-icon">Close</span>}
         >
-          <Sheet.Body>{<div data-testid="default-body">Default body</div>}</Sheet.Body>
-          <Sheet.Footer>{<div data-testid="default-footer">Default footer</div>}</Sheet.Footer>
+          <Sheet.Body>
+            <div data-testid="default-body">Default body</div>
+          </Sheet.Body>
+          <Sheet.Footer>
+            <div data-testid="default-footer">Default footer</div>
+          </Sheet.Footer>
         </Sheet.Content>
       </Sheet>
     </>

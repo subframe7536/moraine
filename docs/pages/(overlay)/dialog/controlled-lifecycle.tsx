@@ -18,9 +18,11 @@ export function ControlledLifecycle() {
       >
         <Dialog.Content title="Controlled dialog">
           <Dialog.Body>
-            {<p class="text-sm">The parent owns visibility and observes completed exit motion.</p>}
+            <p class="text-sm">The parent owns visibility and observes completed exit motion.</p>
           </Dialog.Body>
-          <Dialog.Footer>{<Button onClick={() => setOpen(false)}>Close</Button>}</Dialog.Footer>
+          <Dialog.Footer>
+            <Button onClick={() => setOpen(false)}>Close</Button>
+          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </div>

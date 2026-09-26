@@ -37,7 +37,9 @@ describe('Dialog', () => {
     const screen = render(() => (
       <Dialog open={open()}>
         <Dialog.Content>
-          <Dialog.Body>{<Body />}</Dialog.Body>
+          <Dialog.Body>
+            <Body />
+          </Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -69,8 +71,8 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Confirm" description="Please confirm">
-          <Dialog.Body>{'Modal body'}</Dialog.Body>
-          <Dialog.Footer>{'Modal footer'}</Dialog.Footer>
+          <Dialog.Body>Modal body</Dialog.Body>
+          <Dialog.Footer>Modal footer</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -96,7 +98,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Composed">
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -114,7 +116,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -133,7 +135,7 @@ describe('Dialog', () => {
           Open
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -151,7 +153,7 @@ describe('Dialog', () => {
           Open dialog
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -170,7 +172,7 @@ describe('Dialog', () => {
           Open
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -196,7 +198,9 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Default title" description="Default description">
-          <Dialog.Header>{<div data-testid="custom-header">Custom Header</div>}</Dialog.Header>
+          <Dialog.Header>
+            <div data-testid="custom-header">Custom Header</div>
+          </Dialog.Header>
         </Dialog.Content>
       </Dialog>
     ))
@@ -212,7 +216,7 @@ describe('Dialog', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title="Dialog title" description="Dialog description">
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -235,8 +239,10 @@ describe('Dialog', () => {
           description="Suppressed description"
           ariaLabel="Account settings"
         >
-          <Dialog.Header>{<div>Custom header</div>}</Dialog.Header>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Header>
+            <div>Custom header</div>
+          </Dialog.Header>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -259,12 +265,10 @@ describe('Dialog', () => {
           aria-describedby="custom-dialog-description"
         >
           <Dialog.Body>
-            {
-              <>
-                <h2 id="custom-dialog-title">Custom title</h2>
-                <p id="custom-dialog-description">Custom description</p>
-              </>
-            }
+            <>
+              <h2 id="custom-dialog-title">Custom title</h2>
+              <p id="custom-dialog-description">Custom description</p>
+            </>
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -285,7 +289,7 @@ describe('Dialog', () => {
         </button>
         <Dialog defaultOpen>
           <Dialog.Content trapFocus={false} title="Dialog">
-            <Dialog.Body>{'Body'}</Dialog.Body>
+            <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
       </>
@@ -307,7 +311,7 @@ describe('Dialog', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title={0} description={0}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -331,7 +335,7 @@ describe('Dialog', () => {
       render(() => (
         <Dialog open>
           <Dialog.Content title={title} description={description} ariaLabel={ariaLabel}>
-            <Dialog.Body>{'Body'}</Dialog.Body>
+            <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
       ))
@@ -348,7 +352,7 @@ describe('Dialog', () => {
     const empty = render(() => (
       <Dialog open>
         <Dialog.Content title="" description="" close={false}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -359,7 +363,7 @@ describe('Dialog', () => {
     render(() => (
       <Dialog open>
         <Dialog.Content title={false} description={false} close={false}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -458,7 +462,9 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Dialog title">
-          <Dialog.Body>{<div data-testid="custom-body">Body Content</div>}</Dialog.Body>
+          <Dialog.Body>
+            <div data-testid="custom-body">Body Content</div>
+          </Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -478,7 +484,7 @@ describe('Dialog', () => {
           Open modal
         </Dialog.Trigger>
         <Dialog.Content title="Settings">
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -525,13 +531,11 @@ describe('Dialog', () => {
         </Dialog.Trigger>
         <Dialog.Content close={false}>
           <Dialog.Body>
-            {
-              <CommandPalette
-                groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
-                searchTerm={searchTerm()}
-                onSearchTermChange={setSearchTerm}
-              />
-            }
+            <CommandPalette
+              groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
+              searchTerm={searchTerm()}
+              onSearchTermChange={setSearchTerm}
+            />
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -582,7 +586,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Portal default">
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -598,7 +602,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content overlay={false}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -610,7 +614,7 @@ describe('Dialog', () => {
     renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -636,7 +640,7 @@ describe('Dialog', () => {
       >
         <Dialog open>
           <Dialog.Content>
-            <Dialog.Body>{'Body'}</Dialog.Body>
+            <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
       </MoraineProvider>
@@ -661,8 +665,10 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content title="Long content">
-          <Dialog.Body>{<div style={{ height: '2000px' }}>Long body</div>}</Dialog.Body>
-          <Dialog.Footer>{'Actions'}</Dialog.Footer>
+          <Dialog.Body>
+            <div style={{ height: '2000px' }}>Long body</div>
+          </Dialog.Body>
+          <Dialog.Footer>Actions</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -692,8 +698,8 @@ describe('Dialog', () => {
     renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content scrollable title="Overlay scroll">
-          <Dialog.Body>{'Long body'}</Dialog.Body>
-          <Dialog.Footer>{'Actions'}</Dialog.Footer>
+          <Dialog.Body>Long body</Dialog.Body>
+          <Dialog.Footer>Actions</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -715,7 +721,7 @@ describe('Dialog', () => {
     renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content fullscreen>
-          <Dialog.Body>{'Fullscreen body'}</Dialog.Body>
+          <Dialog.Body>Fullscreen body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -738,7 +744,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content closeIcon={<span data-testid="custom-close">X</span>}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -751,8 +757,10 @@ describe('Dialog', () => {
     const screen = render(() => (
       <Dialog open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
         <Dialog.Content>
-          <Dialog.Header>{<div>Custom header</div>}</Dialog.Header>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Header>
+            <div>Custom header</div>
+          </Dialog.Header>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
         <Dialog.Close data-testid="explicit-dialog-close" class="explicit-close">
           Explicit close
@@ -781,7 +789,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content close={false}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -798,7 +806,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -826,7 +834,7 @@ describe('Dialog', () => {
             Trigger
           </Dialog.Trigger>
           <Dialog.Content>
-            <Dialog.Body>{'Body'}</Dialog.Body>
+            <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
       </>
@@ -854,7 +862,7 @@ describe('Dialog', () => {
             Trigger
           </Dialog.Trigger>
           <Dialog.Content title="Dialog title">
-            <Dialog.Body>{'Dialog body'}</Dialog.Body>
+            <Dialog.Body>Dialog body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
       </>
@@ -887,7 +895,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -912,7 +920,7 @@ describe('Dialog', () => {
           Trigger
         </Dialog.Trigger>
         <Dialog.Content styles={{ content: { width: '200px' } }}>
-          <Dialog.Body>{'Body'}</Dialog.Body>
+          <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -954,8 +962,8 @@ describe('Dialog', () => {
             contentClose: { opacity: '0.8' },
           }}
         >
-          <Dialog.Body>{'Custom Body'}</Dialog.Body>
-          <Dialog.Footer>{'Custom Footer'}</Dialog.Footer>
+          <Dialog.Body>Custom Body</Dialog.Body>
+          <Dialog.Footer>Custom Footer</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -992,7 +1000,7 @@ describe('Dialog', () => {
     const { unmount } = renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content title={false} description={false} close={false}>
-          <Dialog.Body>{'No header body'}</Dialog.Body>
+          <Dialog.Body>No header body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
     ))
@@ -1005,8 +1013,10 @@ describe('Dialog', () => {
     renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content title="Title">
-          <Dialog.Body>{'With header and footer'}</Dialog.Body>
-          <Dialog.Footer>{<button type="button">Action</button>}</Dialog.Footer>
+          <Dialog.Body>With header and footer</Dialog.Body>
+          <Dialog.Footer>
+            <button type="button">Action</button>
+          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -1020,8 +1030,8 @@ describe('Dialog', () => {
     renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content title="Title">
-          <Dialog.Body>{'Body'}</Dialog.Body>
-          <Dialog.Footer>{'Footer'}</Dialog.Footer>
+          <Dialog.Body>Body</Dialog.Body>
+          <Dialog.Footer>Footer</Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     ))
@@ -1049,7 +1059,9 @@ describe('Dialog', () => {
             Outer trigger
           </Dialog.Trigger>
           <Dialog.Content>
-            <Dialog.Body>{<div data-testid="outer-body">Outer body</div>}</Dialog.Body>
+            <Dialog.Body>
+              <div data-testid="outer-body">Outer body</div>
+            </Dialog.Body>
           </Dialog.Content>
         </Dialog>
         <Dialog defaultOpen onOpenChange={onInnerChange}>
@@ -1057,7 +1069,9 @@ describe('Dialog', () => {
             Inner trigger
           </Dialog.Trigger>
           <Dialog.Content>
-            <Dialog.Body>{<div data-testid="inner-body">Inner body</div>}</Dialog.Body>
+            <Dialog.Body>
+              <div data-testid="inner-body">Inner body</div>
+            </Dialog.Body>
           </Dialog.Content>
         </Dialog>
       </>
@@ -1090,7 +1104,9 @@ describe('Dialog', () => {
             Outer trigger
           </Dialog.Trigger>
           <Dialog.Content>
-            <Dialog.Body>{<div data-testid="outer-body">Outer body</div>}</Dialog.Body>
+            <Dialog.Body>
+              <div data-testid="outer-body">Outer body</div>
+            </Dialog.Body>
           </Dialog.Content>
         </Dialog>
         <Dialog defaultOpen onOpenChange={onInnerChange}>
@@ -1099,11 +1115,9 @@ describe('Dialog', () => {
           </Dialog.Trigger>
           <Dialog.Content>
             <Dialog.Body>
-              {
-                <button type="button" data-testid="inner-button">
-                  Inner button
-                </button>
-              }
+              <button type="button" data-testid="inner-button">
+                Inner button
+              </button>
             </Dialog.Body>
           </Dialog.Content>
         </Dialog>

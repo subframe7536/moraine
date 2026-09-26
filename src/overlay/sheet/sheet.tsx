@@ -21,38 +21,21 @@ import { callRef } from '../../shared/utils'
 import { createContentRegistration } from '../base/content-registration'
 import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
+import { useModalContext } from '../modal/modal-context'
 
-import {
-  SheetContentProvider,
-  SheetPresentationProvider,
-  useSheetContent,
-  useSheetPresentation,
-} from './sheet-context'
+import { SheetContentProvider, useSheetContent } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
-/** Sheet state and context. Trigger, Content, and Close own their respective DOM. */
+/** Sheet state and presentation, sharing the Modal root context. */
 export function Sheet(props: SheetProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['classes', 'styles', 'children'])
-  return (
-    <SheetPresentationProvider
-      value={{
-        get presentation() {
-          return { classes: local.classes, styles: local.styles }
-        },
-      }}
-    >
-      <ModalRoot {...rest} slotOwner="sheet">
-        {local.children}
-      </ModalRoot>
-    </SheetPresentationProvider>
-  )
+  return <ModalRoot {...props} slotOwner="sheet" />
 }
 
 function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const resolved = createStyles(sheetRecipe, props, {
     rootSlot: 'trigger',
     inheritedStyles: () => family.presentation,
@@ -80,7 +63,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     'class',
     'style',
   ])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const merged = mergeProps({ overlay: true, transition: true, close: true }, local)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'content',
@@ -126,39 +109,35 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
             get ariaDescribedBy() {
               return registration.descriptionIds().join(' ') || undefined
             },
-            children: () => (
-              <>
-                {(() => {
-                  const content = explicitChildren()
-                  return (
-                    <>
-                      <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
-                        <SheetHeader shorthand>
-                          <Show when={hasJsxContent(title())}>
-                            <SheetTitle>{title()}</SheetTitle>
-                          </Show>
-                          <Show when={hasJsxContent(description())}>
-                            <SheetDescription>{description()}</SheetDescription>
-                          </Show>
-                        </SheetHeader>
+            children: () => {
+              const content = explicitChildren()
+              return (
+                <>
+                  <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
+                    <SheetHeader shorthand>
+                      <Show when={hasJsxContent(title())}>
+                        <SheetTitle>{title()}</SheetTitle>
                       </Show>
-                      <Show when={closeContent() !== false}>
-                        <Modal.Close
-                          data-slot="sheet-content-close"
-                          aria-label="Close"
-                          {...resolved.styles.contentClose}
-                        >
-                          <Show when={closeContent() === true} fallback={closeContent()}>
-                            <Icon name="icon-close" />
-                          </Show>
-                        </Modal.Close>
+                      <Show when={hasJsxContent(description())}>
+                        <SheetDescription>{description()}</SheetDescription>
                       </Show>
-                      {content}
-                    </>
-                  )
-                })()}
-              </>
-            ),
+                    </SheetHeader>
+                  </Show>
+                  <Show when={closeContent() !== false}>
+                    <Modal.Close
+                      data-slot="sheet-content-close"
+                      aria-label="Close"
+                      {...resolved.styles.contentClose}
+                    >
+                      <Show when={closeContent() === true} fallback={closeContent()}>
+                        <Icon name="icon-close" />
+                      </Show>
+                    </Modal.Close>
+                  </Show>
+                  {content}
+                </>
+              )
+            },
           }
         }}
       />
@@ -170,7 +149,7 @@ function SheetHeader<T extends ValidComponent = 'div'>(
   props: SheetT.HeaderProps<T> & { shorthand?: boolean },
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'shorthand'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
   // oxlint-disable-next-line subf/solid-reactivity -- Internal shorthand mode is fixed for this Header instance.
   if (!local.shorthand) {
@@ -196,7 +175,7 @@ function SheetHeader<T extends ValidComponent = 'div'>(
 
 function SheetTitle<T extends ValidComponent = 'h2'>(props: SheetT.TitleProps<T>): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
   const fallbackId = createUniqueId()
   const id = () => local.id ?? fallbackId
@@ -231,7 +210,7 @@ function SheetDescription<T extends ValidComponent = 'p'>(
   props: SheetT.DescriptionProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
   const fallbackId = createUniqueId()
   const id = () => local.id ?? fallbackId
@@ -264,7 +243,7 @@ function SheetDescription<T extends ValidComponent = 'p'>(
 
 function SheetAction<T extends ValidComponent = 'div'>(props: SheetT.ActionProps<T>): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'action',
@@ -285,7 +264,7 @@ function SheetAction<T extends ValidComponent = 'div'>(props: SheetT.ActionProps
 
 function SheetBody<T extends ValidComponent = 'div'>(props: SheetT.BodyProps<T>): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'body',
@@ -320,10 +299,8 @@ function SheetBody<T extends ValidComponent = 'div'>(props: SheetT.BodyProps<T>)
 
 function SheetFooter<T extends ValidComponent = 'div'>(props: SheetT.FooterProps<T>): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
-  const family = useSheetPresentation()
+  const family = useModalContext()
   const content = useSheetContent()
-  const unregister = content.registerFooter()
-  onCleanup(unregister)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'footer',
     inheritedVariants: () => content.variants,

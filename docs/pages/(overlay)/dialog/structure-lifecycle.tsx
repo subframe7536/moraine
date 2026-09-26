@@ -19,22 +19,18 @@ export function StructureLifecycle() {
           description="Configure clustering, replication nodes, and automated backup schedules."
         >
           <Dialog.Body>
-            {
-              <div class="text-muted-foreground leading-relaxed py-2 space-y-2 text-xs">
-                <p>
-                  Provisioning will allocate dedicated compute instances and initialize encryption
-                  keys.
-                </p>
-              </div>
-            }
+            <div class="text-muted-foreground leading-relaxed py-2 space-y-2 text-xs">
+              <p>
+                Provisioning will allocate dedicated compute instances and initialize encryption
+                keys.
+              </p>
+            </div>
           </Dialog.Body>
           <Dialog.Footer>
-            {
-              <div class="flex gap-2 w-full justify-end">
-                <Button variant="outline">Cancel</Button>
-                <Button>Provision Cluster</Button>
-              </div>
-            }
+            <div class="flex gap-2 w-full justify-end">
+              <Button variant="outline">Cancel</Button>
+              <Button>Provision Cluster</Button>
+            </div>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

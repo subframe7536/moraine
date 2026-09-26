@@ -357,7 +357,7 @@ describe('Modal primitives', () => {
             Dialog trigger
           </Dialog.Trigger>
           <Dialog.Content>
-            <Dialog.Body>{'Dialog body'}</Dialog.Body>
+            <Dialog.Body>Dialog body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
         <Sheet open>
@@ -365,7 +365,7 @@ describe('Modal primitives', () => {
             Sheet trigger
           </Sheet.Trigger>
           <Sheet.Content>
-            <Sheet.Body>{'Sheet body'}</Sheet.Body>
+            <Sheet.Body>Sheet body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
       </MoraineProvider>

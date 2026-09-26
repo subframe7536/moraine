@@ -5,10 +5,9 @@ import { Button } from '../../element/button/button'
 import { Icon } from '../../element/icon/icon'
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
-import { createContentRegistration } from '../base/content-registration'
 
 import { Dialog } from './dialog'
-import { DialogContentProvider } from './dialog-context'
+import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
 
 test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
   const { container } = hydrateFixture(
@@ -45,7 +44,7 @@ describe('Dialog SSR Hydration', () => {
       '/src/overlay/dialog/dialog.ssr.fixture.tsx',
       'renderPartsFixture',
       () => {
-        const registration = createContentRegistration()
+        const registration = createDialogContentRegistration()
         return (
           <Dialog>
             <DialogContentProvider
@@ -98,9 +97,15 @@ describe('Dialog SSR Hydration', () => {
               closeIcon={<span data-testid="server-close-icon">Close</span>}
               ariaLabel="Server dialog"
             >
-              <Dialog.Header>{<div data-testid="server-header">Server header</div>}</Dialog.Header>
-              <Dialog.Body>{<div data-testid="server-body">Server body</div>}</Dialog.Body>
-              <Dialog.Footer>{<div data-testid="server-footer">Server footer</div>}</Dialog.Footer>
+              <Dialog.Header>
+                <div data-testid="server-header">Server header</div>
+              </Dialog.Header>
+              <Dialog.Body>
+                <div data-testid="server-body">Server body</div>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <div data-testid="server-footer">Server footer</div>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog>
           <Dialog>
@@ -112,9 +117,11 @@ describe('Dialog SSR Hydration', () => {
               description="Default description"
               closeIcon={<span data-testid="default-close-icon">Close</span>}
             >
-              <Dialog.Body>{<div data-testid="default-body">Default body</div>}</Dialog.Body>
+              <Dialog.Body>
+                <div data-testid="default-body">Default body</div>
+              </Dialog.Body>
               <Dialog.Footer>
-                {<div data-testid="default-footer">Default footer</div>}
+                <div data-testid="default-footer">Default footer</div>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog>

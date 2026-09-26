@@ -52,7 +52,7 @@ describe('composite family presentation', () => {
               class="direct p-5"
               style={{ color: 'red' }}
             >
-              <Dialog.Body>{'Body'}</Dialog.Body>
+              <Dialog.Body>Body</Dialog.Body>
             </Dialog.Content>
           </MoraineProvider>
         </Dialog>
@@ -107,7 +107,7 @@ describe('composite family presentation', () => {
         <Sheet open classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}>
           <Sheet.Trigger data-testid="sheet-trigger">Open sheet</Sheet.Trigger>
           <Sheet.Content data-testid="sheet-content" ariaLabel="Sheet">
-            <Sheet.Body>{'Sheet'}</Sheet.Body>
+            <Sheet.Body>Sheet</Sheet.Body>
           </Sheet.Content>
         </Sheet>
         <Popover defaultOpen classes={{ trigger: 'popover-trigger', content: 'popover-content' }}>
@@ -272,13 +272,11 @@ describe('composite family presentation', () => {
       <Dialog open classes={{ content: 'dialog-outer' }}>
         <Dialog.Content data-testid="dialog-outer" ariaLabel="Outer">
           <Dialog.Body>
-            {
-              <Dialog open classes={{ content: 'dialog-inner' }}>
-                <Dialog.Content data-testid="dialog-inner" ariaLabel="Inner">
-                  <Dialog.Body>{'Inner'}</Dialog.Body>
-                </Dialog.Content>
-              </Dialog>
-            }
+            <Dialog open classes={{ content: 'dialog-inner' }}>
+              <Dialog.Content data-testid="dialog-inner" ariaLabel="Inner">
+                <Dialog.Body>Inner</Dialog.Body>
+              </Dialog.Content>
+            </Dialog>
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>

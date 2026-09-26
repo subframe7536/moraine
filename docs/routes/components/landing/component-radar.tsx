@@ -229,11 +229,9 @@ export function ComponentRadar() {
             </Dialog.Trigger>
             <Dialog.Content title="Dialog example">
               <Dialog.Body>
-                {
-                  <p class="text-muted-foreground text-sm">
-                    A focused space for content that needs a response.
-                  </p>
-                }
+                <p class="text-muted-foreground text-sm">
+                  A focused space for content that needs a response.
+                </p>
               </Dialog.Body>
             </Dialog.Content>
           </Dialog>

@@ -19,13 +19,11 @@ export function ScrollableFullscreen() {
           description="Long content scrolls with the overlay."
         >
           <Dialog.Body>
-            {
-              <div class="space-y-1">
-                <For each={SCROLLABLE_LINES}>
-                  {(line) => <p class="text-foreground text-sm">{line}</p>}
-                </For>
-              </div>
-            }
+            <div class="space-y-1">
+              <For each={SCROLLABLE_LINES}>
+                {(line) => <p class="text-foreground text-sm">{line}</p>}
+              </For>
+            </div>
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -35,13 +33,11 @@ export function ScrollableFullscreen() {
         </Dialog.Trigger>
         <Dialog.Content fullscreen title="Release Notes" description="Full screen dialog content.">
           <Dialog.Body>
-            {
-              <div class="space-y-1">
-                <For each={SCROLLABLE_LINES}>
-                  {(line) => <p class="text-foreground text-sm">{line}</p>}
-                </For>
-              </div>
-            }
+            <div class="space-y-1">
+              <For each={SCROLLABLE_LINES}>
+                {(line) => <p class="text-foreground text-sm">{line}</p>}
+              </For>
+            </div>
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>

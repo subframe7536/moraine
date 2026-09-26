@@ -33,43 +33,39 @@ export function StateDismissal() {
           description="Explicit confirmation is required before navigating away."
         >
           <Dialog.Body>
-            {
-              <div class="py-2 space-y-3">
-                <p class="text-muted-foreground text-sm">
-                  {dismissible()
-                    ? 'Press Escape or click the backdrop to dismiss.'
-                    : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
-                </p>
-                <Show when={preventedAttempts() > 0}>
-                  <Badge variant="outline" class="text-destructive border-destructive">
-                    Blocked {preventedAttempts()} outside dismissal attempt(s)
-                  </Badge>
-                </Show>
-              </div>
-            }
+            <div class="py-2 space-y-3">
+              <p class="text-muted-foreground text-sm">
+                {dismissible()
+                  ? 'Press Escape or click the backdrop to dismiss.'
+                  : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
+              </p>
+              <Show when={preventedAttempts() > 0}>
+                <Badge variant="outline" class="text-destructive border-destructive">
+                  Blocked {preventedAttempts()} outside dismissal attempt(s)
+                </Badge>
+              </Show>
+            </div>
           </Dialog.Body>
           <Dialog.Footer>
-            {
-              <div class="flex gap-2 w-full justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setOpen(false)
-                    setPreventedAttempts(0)
-                  }}
-                >
-                  Discard Changes
-                </Button>
-                <Button
-                  onClick={() => {
-                    setOpen(false)
-                    setPreventedAttempts(0)
-                  }}
-                >
-                  Save & Apply
-                </Button>
-              </div>
-            }
+            <div class="flex gap-2 w-full justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOpen(false)
+                  setPreventedAttempts(0)
+                }}
+              >
+                Discard Changes
+              </Button>
+              <Button
+                onClick={() => {
+                  setOpen(false)
+                  setPreventedAttempts(0)
+                }}
+              >
+                Save & Apply
+              </Button>
+            </div>
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>

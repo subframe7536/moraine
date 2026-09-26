@@ -32,7 +32,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content side={side}>
-          <Sheet.Body>{'Sheet body'}</Sheet.Body>
+          <Sheet.Body>Sheet body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -61,7 +61,9 @@ describe('Sheet', () => {
     const screen = render(() => (
       <Sheet open={open()}>
         <Sheet.Content>
-          <Sheet.Body>{<Body />}</Sheet.Body>
+          <Sheet.Body>
+            <Body />
+          </Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -94,7 +96,7 @@ describe('Sheet', () => {
           Open
         </Sheet.Trigger>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -127,7 +129,7 @@ describe('Sheet', () => {
             content: 'content-class',
           }}
         >
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -146,8 +148,8 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content title="Panel" description="Panel description">
-          <Sheet.Body>{'Sheet body'}</Sheet.Body>
-          <Sheet.Footer>{'Sheet footer'}</Sheet.Footer>
+          <Sheet.Body>Sheet body</Sheet.Body>
+          <Sheet.Footer>Sheet footer</Sheet.Footer>
         </Sheet.Content>
       </Sheet>
     ))
@@ -163,7 +165,7 @@ describe('Sheet', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content title="Sheet title" description="Sheet description">
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -186,8 +188,10 @@ describe('Sheet', () => {
           description="Suppressed description"
           ariaLabel="Account panel"
         >
-          <Sheet.Header>{<div>Custom header</div>}</Sheet.Header>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Header>
+            <div>Custom header</div>
+          </Sheet.Header>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -210,12 +214,10 @@ describe('Sheet', () => {
           aria-describedby="custom-sheet-description"
         >
           <Sheet.Body>
-            {
-              <>
-                <h2 id="custom-sheet-title">Custom title</h2>
-                <p id="custom-sheet-description">Custom description</p>
-              </>
-            }
+            <>
+              <h2 id="custom-sheet-title">Custom title</h2>
+              <p id="custom-sheet-description">Custom description</p>
+            </>
           </Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -236,7 +238,7 @@ describe('Sheet', () => {
         </button>
         <Sheet defaultOpen>
           <Sheet.Content trapFocus={false} title="Sheet">
-            <Sheet.Body>{'Body'}</Sheet.Body>
+            <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
       </>
@@ -281,7 +283,7 @@ describe('Sheet', () => {
       render(() => (
         <Sheet open>
           <Sheet.Content title={title} description={description} ariaLabel={ariaLabel}>
-            <Sheet.Body>{'Body'}</Sheet.Body>
+            <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
       ))
@@ -411,7 +413,7 @@ describe('Sheet', () => {
           transition={transition()}
           ariaLabel="Reactive sheet"
         >
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -437,7 +439,7 @@ describe('Sheet', () => {
     const screen = render(() => (
       <Sheet defaultOpen>
         <Sheet.Content ariaLabel="Unmounting sheet">
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -461,7 +463,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -477,7 +479,7 @@ describe('Sheet', () => {
       <Sheet>
         <Sheet.Trigger as="span">Open</Sheet.Trigger>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -492,7 +494,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content close={<span data-testid="custom-close">X</span>}>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -505,8 +507,10 @@ describe('Sheet', () => {
     const screen = render(() => (
       <Sheet open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
         <Sheet.Content>
-          <Sheet.Header>{<div>Custom header</div>}</Sheet.Header>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Header>
+            <div>Custom header</div>
+          </Sheet.Header>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
         <Sheet.Close data-testid="explicit-sheet-close" class="explicit-close">
           Explicit close
@@ -530,8 +534,8 @@ describe('Sheet', () => {
     renderWithTheme(() => (
       <Sheet open>
         <Sheet.Content title="Title">
-          <Sheet.Body>{'Body'}</Sheet.Body>
-          <Sheet.Footer>{'Footer'}</Sheet.Footer>
+          <Sheet.Body>Body</Sheet.Body>
+          <Sheet.Footer>Footer</Sheet.Footer>
         </Sheet.Content>
       </Sheet>
     ))
@@ -555,7 +559,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content close={false}>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -570,7 +574,9 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content title="Sheet title">
-          <Sheet.Body>{<div data-testid="custom-body">Body Content</div>}</Sheet.Body>
+          <Sheet.Body>
+            <div data-testid="custom-body">Body Content</div>
+          </Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -590,7 +596,7 @@ describe('Sheet', () => {
           Open sheet
         </Sheet.Trigger>
         <Sheet.Content title="Sheet">
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -625,7 +631,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content title="Portal default">
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -641,7 +647,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content overlay={false}>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -653,7 +659,7 @@ describe('Sheet', () => {
     renderWithTheme(() => (
       <Sheet open>
         <Sheet.Content classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -679,7 +685,7 @@ describe('Sheet', () => {
       >
         <Sheet open>
           <Sheet.Content>
-            <Sheet.Body>{'Body'}</Sheet.Body>
+            <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
       </MoraineProvider>
@@ -706,7 +712,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -734,7 +740,7 @@ describe('Sheet', () => {
             Trigger
           </Sheet.Trigger>
           <Sheet.Content>
-            <Sheet.Body>{'Body'}</Sheet.Body>
+            <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
       </>
@@ -759,7 +765,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -781,7 +787,7 @@ describe('Sheet', () => {
     render(() => (
       <Sheet open>
         <Sheet.Content>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))
@@ -800,7 +806,7 @@ describe('Sheet', () => {
           Trigger
         </Sheet.Trigger>
         <Sheet.Content styles={{ content: { width: '200px' } }}>
-          <Sheet.Body>{'Body'}</Sheet.Body>
+          <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
     ))

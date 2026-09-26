@@ -9,19 +9,15 @@ export function DrawerUsage() {
         description="Update workspace variables and environment keys."
       >
         <Sheet.Body>
-          {
-            <div class="text-muted-foreground py-4 text-xs">
-              Changes take effect immediately on next deployment cycle.
-            </div>
-          }
+          <div class="text-muted-foreground py-4 text-xs">
+            Changes take effect immediately on next deployment cycle.
+          </div>
         </Sheet.Body>
         <Sheet.Footer>
-          {
-            <div class="flex gap-2 w-full justify-end">
-              <Button variant="ghost">Cancel</Button>
-              <Button>Save Settings</Button>
-            </div>
-          }
+          <div class="flex gap-2 w-full justify-end">
+            <Button variant="ghost">Cancel</Button>
+            <Button>Save Settings</Button>
+          </div>
         </Sheet.Footer>
       </Sheet.Content>
     </Sheet>

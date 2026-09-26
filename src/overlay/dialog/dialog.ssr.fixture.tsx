@@ -2,10 +2,9 @@ import { renderToString } from 'solid-js/web'
 
 import { Button } from '../../element/button/button'
 import { Icon } from '../../element/icon/icon'
-import { createContentRegistration } from '../base/content-registration'
 
 import { Dialog } from './dialog'
-import { DialogContentProvider } from './dialog-context'
+import { DialogContentProvider, createDialogContentRegistration } from './dialog-context'
 
 export function renderButtonTriggerFixture(): string {
   return renderToString(() => (
@@ -32,9 +31,15 @@ export function renderDialogFixture(): string {
           closeIcon={<span data-testid="server-close-icon">Close</span>}
           ariaLabel="Server dialog"
         >
-          <Dialog.Header>{<div data-testid="server-header">Server header</div>}</Dialog.Header>
-          <Dialog.Body>{<div data-testid="server-body">Server body</div>}</Dialog.Body>
-          <Dialog.Footer>{<div data-testid="server-footer">Server footer</div>}</Dialog.Footer>
+          <Dialog.Header>
+            <div data-testid="server-header">Server header</div>
+          </Dialog.Header>
+          <Dialog.Body>
+            <div data-testid="server-body">Server body</div>
+          </Dialog.Body>
+          <Dialog.Footer>
+            <div data-testid="server-footer">Server footer</div>
+          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
       <Dialog>
@@ -46,8 +51,12 @@ export function renderDialogFixture(): string {
           description="Default description"
           closeIcon={<span data-testid="default-close-icon">Close</span>}
         >
-          <Dialog.Body>{<div data-testid="default-body">Default body</div>}</Dialog.Body>
-          <Dialog.Footer>{<div data-testid="default-footer">Default footer</div>}</Dialog.Footer>
+          <Dialog.Body>
+            <div data-testid="default-body">Default body</div>
+          </Dialog.Body>
+          <Dialog.Footer>
+            <div data-testid="default-footer">Default footer</div>
+          </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
     </>
@@ -56,7 +65,7 @@ export function renderDialogFixture(): string {
 
 export function renderPartsFixture(): string {
   return renderToString(() => {
-    const registration = createContentRegistration()
+    const registration = createDialogContentRegistration()
     return (
       <Dialog>
         <DialogContentProvider

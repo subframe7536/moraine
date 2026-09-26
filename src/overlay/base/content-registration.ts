@@ -3,13 +3,12 @@ import { createSignal } from 'solid-js'
 /** State owned by one mounted styled modal surface. */
 export function createContentRegistration() {
   const [headers, setHeaders] = createSignal(0)
-  const [footers, setFooters] = createSignal(0)
   const [titles, setTitles] = createSignal<string[]>([])
   const [descriptions, setDescriptions] = createSignal<string[]>([])
 
-  const registerCount = (update: typeof setHeaders) => {
-    update((count) => count + 1)
-    return () => update((count) => count - 1)
+  const registerHeader = () => {
+    setHeaders((count) => count + 1)
+    return () => setHeaders((count) => count - 1)
   }
   const registerId = (update: typeof setTitles, id: string) => {
     update((ids) => [...ids, id])
@@ -21,12 +20,10 @@ export function createContentRegistration() {
   }
 
   return {
-    registerHeader: () => registerCount(setHeaders),
-    registerFooter: () => registerCount(setFooters),
+    registerHeader,
     registerTitle: (id: string) => registerId(setTitles, id),
     registerDescription: (id: string) => registerId(setDescriptions, id),
     hasExplicitHeader: () => headers() > 0,
-    hasFooter: () => footers() > 0,
     titleIds: titles,
     descriptionIds: descriptions,
   }
