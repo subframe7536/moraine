@@ -94,7 +94,7 @@
     "@iconify/tailwind": "1.2.0",
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.4.0",
-    "@subf/unocss": "^0.3.1",
+    "@subf/oxlint-plugin": "*",
     "@tanstack/virtual-core": "^3.17.8",
     "@types/node": "^24.13.3",
     "bumpp": "^11.1.0",
