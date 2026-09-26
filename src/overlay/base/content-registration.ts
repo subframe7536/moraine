@@ -1,4 +1,26 @@
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal, createUniqueId, on, onCleanup } from 'solid-js'
+
+export function useRegisteredContentId(
+  source: () => string | undefined,
+  register: (id: string) => () => void,
+) {
+  const fallbackId = createUniqueId()
+  const id = () => source() ?? fallbackId
+  let unregister = register(id())
+
+  createEffect(
+    on(
+      id,
+      (next) => {
+        unregister()
+        unregister = register(next)
+      },
+      { defer: true },
+    ),
+  )
+  onCleanup(() => unregister())
+  return id
+}
 
 /** State owned by one mounted styled modal surface. */
 export function createContentRegistration() {

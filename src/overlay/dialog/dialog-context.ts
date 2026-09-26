@@ -2,11 +2,17 @@ import { createSignal } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentRegistration } from '../base/content-registration'
+import { useModalContext } from '../modal/modal-context'
 
 import type { DialogT } from './dialog.types'
 
-export const [DialogConfigProvider, useDialogConfig] =
-  createContextProvider<DialogT.Props>('DialogConfig')
+export function useDialogConfig(): DialogT.Props {
+  const configuration = useModalContext().configuration
+  if (configuration.kind !== 'dialog') {
+    throw new Error('Dialog parts must be used within <Dialog />')
+  }
+  return configuration.props
+}
 
 export function createDialogContentRegistration() {
   const registration = createContentRegistration()

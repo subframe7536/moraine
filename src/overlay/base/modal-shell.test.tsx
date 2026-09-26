@@ -1,8 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { finishExitMotion } from '../../test-util/overlay-test'
 import { defineTheme } from '../../theme'
 import { Dialog } from '../dialog/dialog'
 import { Sheet } from '../sheet/sheet'
@@ -31,6 +32,54 @@ describe.each([
     fireEvent.click(screen.getByRole('button', { name: 'Open' }))
     expect(reads).toBe(1)
     expect(document.body.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
+  })
+
+  test('resolves shorthand JSX once per presence cycle and releases it after exit', async () => {
+    const [open, setOpen] = createSignal(false)
+    let titleReads = 0
+    let descriptionReads = 0
+    let cleanups = 0
+    const Title = () => {
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>Title</span>
+    }
+
+    render(() => (
+      <Root open={open()}>
+        {createComponent(Root.Content, {
+          get title() {
+            titleReads += 1
+            return <Title />
+          },
+          get description() {
+            descriptionReads += 1
+            return <span>Description</span>
+          },
+          get children() {
+            return <Root.Body>Body</Root.Body>
+          },
+        })}
+      </Root>
+    ))
+
+    expect(titleReads).toBe(0)
+    expect(descriptionReads).toBe(0)
+    setOpen(true)
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'TitleDescription',
+    )
+
+    setOpen(false)
+    await finishExitMotion()
+    expect(cleanups).toBe(1)
+
+    setOpen(true)
+    expect(titleReads).toBe(2)
+    expect(descriptionReads).toBe(2)
   })
 
   test('renders recipe-backed default presentation without a provider', () => {

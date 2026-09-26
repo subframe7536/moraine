@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createUniqueId,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
@@ -18,28 +9,20 @@ import { hasJsxContent } from '../../shared/jsx-content'
 import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
-import { createContentRegistration } from '../base/content-registration'
+import { createContentRegistration, useRegisteredContentId } from '../base/content-registration'
+import { createShorthandContent } from '../base/shorthand-content'
 import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
 
-import {
-  SheetConfigProvider,
-  SheetContentProvider,
-  useSheetConfig,
-  useSheetContent,
-} from './sheet-context'
+import { SheetContentProvider, useSheetConfig, useSheetContent } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
 /** Sheet state and presentation, sharing the Modal root context. */
 export function Sheet(props: SheetProps): JSX.Element {
-  return (
-    <SheetConfigProvider value={props}>
-      <ModalRoot {...props} slotOwner="sheet" />
-    </SheetConfigProvider>
-  )
+  return <ModalRoot configuration={{ kind: 'sheet', props }} />
 }
 
 function SheetTrigger<T extends ValidComponent = 'button'>(
@@ -77,8 +60,8 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
   })
   const registration = createContentRegistration()
 
-  const hasShorthand = () => hasJsxContent(local.title) || hasJsxContent(local.description)
-  const hasHeader = () => registration.hasExplicitHeader() || hasShorthand()
+  let shorthand: ReturnType<typeof createShorthandContent> | undefined
+  const hasHeader = () => registration.hasExplicitHeader() || Boolean(shorthand?.hasContent())
 
   return (
     <SheetContentProvider
@@ -105,9 +88,14 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
           overlayStyle={resolved.styles.overlay.style}
           {...resolved.styles.content}
           surfaceRender={() => {
+            const contentShorthand = createShorthandContent(local)
+            shorthand = contentShorthand
+            onCleanup(() => {
+              if (shorthand === contentShorthand) {
+                shorthand = undefined
+              }
+            })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
-            const title = createLazyMemo(() => local.title)
-            const description = createLazyMemo(() => local.description)
             const closeContent = createLazyMemo(() => merged.close)
             return {
               ariaLabel: merged.ariaLabel,
@@ -121,13 +109,13 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                 const content = explicitChildren()
                 return (
                   <>
-                    <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
+                    <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
                       <SheetHeader shorthand>
-                        <Show when={hasJsxContent(title())}>
-                          <SheetTitle>{title()}</SheetTitle>
+                        <Show when={hasJsxContent(contentShorthand.title())}>
+                          <SheetTitle>{contentShorthand.title()}</SheetTitle>
                         </Show>
-                        <Show when={hasJsxContent(description())}>
-                          <SheetDescription>{description()}</SheetDescription>
+                        <Show when={hasJsxContent(contentShorthand.description())}>
+                          <SheetDescription>{contentShorthand.description()}</SheetDescription>
                         </Show>
                       </SheetHeader>
                     </Show>
@@ -186,17 +174,7 @@ function SheetTitle<T extends ValidComponent = 'h2'>(props: SheetT.TitleProps<T>
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
   const family = useModalContext()
   const content = useSheetContent()
-  const fallbackId = createUniqueId()
-  const id = () => local.id ?? fallbackId
-  // oxlint-disable-next-line subf/solid-reactivity -- Register the initial ID synchronously; the effect handles later changes.
-  let unregister = content.registerTitle(id())
-  createEffect(
-    on(id, (next) => {
-      unregister()
-      unregister = content.registerTitle(next)
-    }),
-  )
-  onCleanup(() => unregister())
+  const id = useRegisteredContentId(() => local.id, content.registerTitle)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'title',
     inheritedVariants: () => content.variants,
@@ -221,17 +199,7 @@ function SheetDescription<T extends ValidComponent = 'p'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
   const family = useModalContext()
   const content = useSheetContent()
-  const fallbackId = createUniqueId()
-  const id = () => local.id ?? fallbackId
-  // oxlint-disable-next-line subf/solid-reactivity -- Register the initial ID synchronously; the effect handles later changes.
-  let unregister = content.registerDescription(id())
-  createEffect(
-    on(id, (next) => {
-      unregister()
-      unregister = content.registerDescription(next)
-    }),
-  )
-  onCleanup(() => unregister())
+  const id = useRegisteredContentId(() => local.id, content.registerDescription)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'description',
     inheritedVariants: () => content.variants,

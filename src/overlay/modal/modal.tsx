@@ -18,6 +18,7 @@ import {
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
 import { ModalProvider } from './modal-context'
+import type { ModalConfiguration } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
 import { ModalPortal } from './modal-portal'
 import { ModalTrigger } from './modal-trigger'
@@ -25,15 +26,18 @@ import type { ModalProps } from './modal.types'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
-  return <ModalRoot {...props} slotOwner="modal" />
+  return <ModalRoot configuration={{ kind: 'modal', props }} />
 }
 
-export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Element {
-  const rootId = useId(() => props.id, 'modal')
+export function ModalRoot(props: { configuration: ModalConfiguration }): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- The family is fixed for this root; configuration.props retains the reactive source props.
+  const configuration = props.configuration
+  const root = configuration.props
+  const rootId = useId(() => root.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
-    value: () => props.open,
-    defaultValue: () => props.defaultOpen ?? false,
+    value: () => root.open,
+    defaultValue: () => root.defaultOpen ?? false,
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
@@ -42,7 +46,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     new Map(),
   )
   let nextContentRegistrationId = 0
-  const dismissible = () => props.dismissible ?? true
+  const dismissible = () => root.dismissible ?? true
   const contentMounted = () => contentRegistrations().size > 0
   const isPresent = createMemo(() => contentMounted() && presence.present())
   const shouldContainFocus = () => {
@@ -67,7 +71,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     }
 
     setOpen(nextOpen)
-    props.onOpenChange?.(nextOpen)
+    root.onOpenChange?.(nextOpen)
   }
 
   const requestDismiss = (event: Event, preventDefault: boolean): void => {
@@ -80,7 +84,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     if (dismissible()) {
       updateOpen(false)
     } else {
-      props.onClosePrevent?.()
+      root.onClosePrevent?.()
     }
   }
 
@@ -101,7 +105,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
       if (closeCycleActive && !present) {
         closeCycleActive = false
         hadOpenContent = false
-        props.onExitComplete?.()
+        root.onExitComplete?.()
       }
     }),
   )
@@ -111,7 +115,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
       if (!present || !modal || !currentContent || typeof document === 'undefined') {
         return
       }
-      const preventScroll = props.preventScroll
+      const preventScroll = root.preventScroll
       const releaseScrollLock =
         preventScroll === false ? undefined : acquireBodyScrollLock(currentContent)
 
@@ -205,7 +209,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
       })
 
       if (!dismissible()) {
-        props.onClosePrevent?.()
+        root.onClosePrevent?.()
       }
     },
     onEscape: (event) => requestDismiss(event, true),
@@ -231,9 +235,10 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
   })
 
   const context = {
-    slotName: (slot: string) => dataSlotName(props.slotOwner, slot),
+    configuration,
+    slotName: (slot: string) => dataSlotName(configuration.kind, slot),
     get presentation() {
-      return { classes: props.classes, styles: props.styles }
+      return { classes: root.classes, styles: root.styles }
     },
     open,
     presence,
@@ -268,7 +273,7 @@ export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Elemen
     isModal,
   }
 
-  return <ModalProvider value={context}>{props.children}</ModalProvider>
+  return <ModalProvider value={context}>{root.children}</ModalProvider>
 }
 
 Modal.Content = ModalContent

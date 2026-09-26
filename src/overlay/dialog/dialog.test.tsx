@@ -8,6 +8,7 @@ import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
+import { Sheet } from '../sheet/sheet'
 
 import { Dialog } from './dialog'
 
@@ -22,6 +23,41 @@ function expectAriaReferencesToResolve(content: Element): void {
 }
 
 describe('Dialog', () => {
+  test('keeps nested Sheet configuration and ARIA registration isolated', () => {
+    const [showSheet, setShowSheet] = createSignal(true)
+    render(() => (
+      <Dialog open close={false}>
+        <Dialog.Content title="Outer title">
+          <Dialog.Body>
+            <Show when={showSheet()}>
+              <Sheet open close={false} side="left">
+                <Sheet.Content title="Inner title">
+                  <Sheet.Body>Inner body</Sheet.Body>
+                </Sheet.Content>
+              </Sheet>
+            </Show>
+          </Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const outer = document.body.querySelector<HTMLElement>('[data-slot="dialog-content"]')!
+    const inner = document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')!
+    expect(outer.getAttribute('aria-labelledby')).toBe(
+      document.body.querySelector('[data-slot="dialog-title"]')?.id,
+    )
+    expect(inner.getAttribute('aria-labelledby')).toBe(
+      document.body.querySelector('[data-slot="sheet-title"]')?.id,
+    )
+    expect(inner.className).toContain('left-0')
+
+    setShowSheet(false)
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    expect(outer.getAttribute('aria-labelledby')).toBe(
+      document.body.querySelector('[data-slot="dialog-title"]')?.id,
+    )
+  })
+
   test('releases body slot content when closed and recreates it when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0

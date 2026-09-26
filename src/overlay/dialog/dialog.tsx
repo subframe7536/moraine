@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createUniqueId,
-  mergeProps,
-  on,
-  onCleanup,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
@@ -18,13 +9,14 @@ import { hasJsxContent } from '../../shared/jsx-content'
 import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
+import { useRegisteredContentId } from '../base/content-registration'
+import { createShorthandContent } from '../base/shorthand-content'
 import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
 
 import {
-  DialogConfigProvider,
   DialogContentProvider,
   createDialogContentRegistration,
   useDialogConfig,
@@ -35,11 +27,7 @@ import type { DialogProps, DialogT } from './dialog.types'
 
 /** Dialog state and presentation, sharing the Modal root context. */
 export function Dialog(props: DialogProps): JSX.Element {
-  return (
-    <DialogConfigProvider value={props}>
-      <ModalRoot {...props} slotOwner="dialog" />
-    </DialogConfigProvider>
-  )
+  return <ModalRoot configuration={{ kind: 'dialog', props }} />
 }
 
 function DialogTrigger<T extends ValidComponent = 'button'>(
@@ -83,8 +71,8 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
   const registration = createDialogContentRegistration()
   const overlayScroll = () =>
     resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen
-  const hasShorthand = () => hasJsxContent(local.title) || hasJsxContent(local.description)
-  const hasHeader = () => registration.hasExplicitHeader() || hasShorthand()
+  let shorthand: ReturnType<typeof createShorthandContent> | undefined
+  const hasHeader = () => registration.hasExplicitHeader() || Boolean(shorthand?.hasContent())
 
   return (
     <DialogContentProvider
@@ -107,9 +95,14 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
           overlayStyle={resolved.styles.overlay.style}
           {...resolved.styles.content}
           surfaceRender={() => {
+            const contentShorthand = createShorthandContent(local)
+            shorthand = contentShorthand
+            onCleanup(() => {
+              if (shorthand === contentShorthand) {
+                shorthand = undefined
+              }
+            })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
-            const title = createLazyMemo(() => local.title)
-            const description = createLazyMemo(() => local.description)
             const closeIcon = createLazyMemo(() => merged.closeIcon)
             return {
               ariaLabel: merged.ariaLabel,
@@ -123,13 +116,13 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                 const content = explicitChildren()
                 return (
                   <>
-                    <Show when={!registration.hasExplicitHeader() && hasShorthand()}>
+                    <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
                       <DialogHeader shorthand>
-                        <Show when={hasJsxContent(title())}>
-                          <DialogTitle>{title()}</DialogTitle>
+                        <Show when={hasJsxContent(contentShorthand.title())}>
+                          <DialogTitle>{contentShorthand.title()}</DialogTitle>
                         </Show>
-                        <Show when={hasJsxContent(description())}>
-                          <DialogDescription>{description()}</DialogDescription>
+                        <Show when={hasJsxContent(contentShorthand.description())}>
+                          <DialogDescription>{contentShorthand.description()}</DialogDescription>
                         </Show>
                       </DialogHeader>
                     </Show>
@@ -186,17 +179,7 @@ function DialogTitle<T extends ValidComponent = 'h2'>(props: DialogT.TitleProps<
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
   const family = useModalContext()
   const content = useDialogContent()
-  const fallbackId = createUniqueId()
-  const id = () => local.id ?? fallbackId
-  // oxlint-disable-next-line subf/solid-reactivity -- Register the initial ID synchronously; the effect handles later changes.
-  let unregister = content.registerTitle(id())
-  createEffect(
-    on(id, (next) => {
-      unregister()
-      unregister = content.registerTitle(next)
-    }),
-  )
-  onCleanup(() => unregister())
+  const id = useRegisteredContentId(() => local.id, content.registerTitle)
   const resolved = createStyles(dialogRecipe, local, {
     rootSlot: 'title',
     inheritedVariants: () => content.variants,
@@ -221,17 +204,7 @@ function DialogDescription<T extends ValidComponent = 'p'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
   const family = useModalContext()
   const content = useDialogContent()
-  const fallbackId = createUniqueId()
-  const id = () => local.id ?? fallbackId
-  // oxlint-disable-next-line subf/solid-reactivity -- Register the initial ID synchronously; the effect handles later changes.
-  let unregister = content.registerDescription(id())
-  createEffect(
-    on(id, (next) => {
-      unregister()
-      unregister = content.registerDescription(next)
-    }),
-  )
-  onCleanup(() => unregister())
+  const id = useRegisteredContentId(() => local.id, content.registerDescription)
   const resolved = createStyles(dialogRecipe, local, {
     rootSlot: 'description',
     inheritedVariants: () => content.variants,

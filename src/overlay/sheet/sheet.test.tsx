@@ -138,6 +138,40 @@ describe('Sheet', () => {
     expect(content?.className).toContain('content-class')
   })
 
+  test('reacts to root presentation and surface configuration', () => {
+    const [side, setSide] = createSignal<'left' | 'right'>('left')
+    const [inset, setInset] = createSignal(false)
+    const [transition, setTransition] = createSignal(true)
+    const [rootClass, setRootClass] = createSignal('first-root')
+    render(() => (
+      <Sheet
+        open
+        side={side()}
+        inset={inset()}
+        transition={transition()}
+        classes={{ content: rootClass() }}
+      >
+        <Sheet.Content title="Panel">Body</Sheet.Content>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector<HTMLElement>('[data-slot="sheet-content"]')!
+    expect(content.className).toContain('left-0')
+    expect(content.className).toContain('first-root')
+    expect(content.hasAttribute('data-transition')).toBe(true)
+
+    setSide('right')
+    setInset(true)
+    setTransition(false)
+    setRootClass('second-root')
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
+    expect(content.className).toContain('right-0')
+    expect(content.className).toContain('sm:m-4')
+    expect(content.className).toContain('second-root')
+    expect(content.className).not.toContain('first-root')
+    expect(content.hasAttribute('data-transition')).toBe(false)
+  })
+
   test('renders default shell with title, description, body, footer and close button', () => {
     render(() => (
       <Sheet open>
