@@ -11,11 +11,11 @@ describe('Collapsible SSR Hydration', () => {
     const server = document.createElement('div')
     server.innerHTML = renderSsrFixture(fixture, 'renderOpenCollapsibleFixture')
     expect(
-      server.querySelector('[data-slot="collapsible-content"][data-expanded][data-transition]'),
+      server.querySelector(
+        '[data-slot="collapsible-content-wrapper"][data-expanded][data-transition]',
+      ),
     ).not.toBeNull()
-    expect(
-      server.querySelector('[data-slot="collapsible-content-wrapper"][data-expanded]'),
-    ).toBeNull()
+    expect(server.querySelector('[data-slot="collapsible-content"][data-transition]')).toBeNull()
 
     const { container } = hydrateFixture(fixture, 'renderOpenCollapsibleFixture', () => (
       <Collapsible defaultOpen transition unmountOnHide={false}>
@@ -27,11 +27,13 @@ describe('Collapsible SSR Hydration', () => {
     const content = container.querySelector('section[data-slot="collapsible-content"]')!
     const wrapper = content.parentElement!
     expect(content.hasAttribute('data-expanded')).toBe(true)
-    expect(content.hasAttribute('data-transition')).toBe(true)
+    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(wrapper.hasAttribute('data-transition')).toBe(true)
+    expect(wrapper.hasAttribute('data-expanded')).toBe(true)
     fireEvent.click(trigger)
     expect(content.hasAttribute('data-expanded')).toBe(false)
     expect(content.hasAttribute('data-closed')).toBe(true)
-    expect(wrapper.hasAttribute('data-closed')).toBe(false)
+    expect(wrapper.hasAttribute('data-closed')).toBe(true)
     expect(wrapper.hidden).toBe(false)
     await Promise.resolve()
     fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })

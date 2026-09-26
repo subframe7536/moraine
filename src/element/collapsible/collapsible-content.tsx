@@ -11,6 +11,7 @@ import {
   COLLAPSIBLE_CONTENT_WRAPPER_CLASS,
   collapsibleDataAttributes,
   collapsibleRecipe,
+  collapsibleWrapperDataAttributes,
 } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
@@ -61,6 +62,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             aria-labelledby={context.triggerId()}
             aria-hidden={closed() ? true : undefined}
             data-slot="collapsible-content-wrapper"
+            {...collapsibleWrapperDataAttributes({
+              transition: context.transition,
+              expanded: () => context.dataAttrs()['data-expanded'],
+              closed: () => context.dataAttrs()['data-closed'],
+            })}
             hidden={hidden()}
             inert={closed() ? true : undefined}
             style={{
@@ -72,7 +78,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               data-slot="collapsible-content"
               {...rest}
               {...collapsibleDataAttributes.content({
-                transition: context.transition,
                 expanded: () => context.dataAttrs()['data-expanded'],
                 closed: () => context.dataAttrs()['data-closed'],
               })}

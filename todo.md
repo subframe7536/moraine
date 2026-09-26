@@ -15,7 +15,7 @@
 - [x] docs: add neccessory `| undefined` in expanded prop row. `Function` should be `function`
 - [x] icon card copy should not cause layout shift
 - [x] make card composite, add `as`.
-- [ ] collapsible: move data-transition on wrapper to eliminate `:has` selector
+- [x] collapsible: move data-transition on wrapper to eliminate `:has` selector
 - [ ] resizable: refresh docs
 - [ ] landing page polish
 - [ ] styling page polish

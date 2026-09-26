@@ -46,15 +46,14 @@ describe('Collapsible', () => {
 
     expect(root?.className).toBe('')
     expect(trigger?.className).toBe('')
-    expect(wrapper?.className).toContain(
-      'has-[>[data-transition]]:h-(--mo-collapsible-content-height)',
-    )
-    expect(wrapper?.hasAttribute('data-transition')).toBe(false)
+    expect(wrapper?.className).toContain('data-transition:h-(--mo-collapsible-content-height)')
+    expect(wrapper?.hasAttribute('data-transition')).toBe(true)
+    expect(wrapper?.hasAttribute('data-expanded')).toBe(true)
     expect(
       screen.container
         .querySelector('[data-slot="collapsible-content"]')
         ?.hasAttribute('data-transition'),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   test('renders closed by default and toggles on trigger click', async () => {
@@ -309,17 +308,14 @@ describe('Collapsible', () => {
       '[data-slot="collapsible-content-wrapper"]',
     ) as HTMLElement
 
-    expect(content.className).toContain(
-      'has-[>[data-transition][data-expanded]]:animate-accordion-down',
-    )
-    expect(content.className).toContain(
-      'has-[>[data-transition][data-closed]]:animate-accordion-up',
-    )
+    expect(content.className).toContain('data-transition:data-expanded:animate-accordion-down')
+    expect(content.className).toContain('data-transition:data-closed:animate-accordion-up')
 
     fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
     expect(content.firstElementChild?.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
@@ -640,7 +636,8 @@ describe('Collapsible', () => {
     expect(section.className).toContain('custom-section-class')
     expect(contentRef).toBe(section)
     expect(section.hasAttribute('data-expanded')).toBe(true)
-    expect(wrapper.hasAttribute('data-expanded')).toBe(false)
+    expect(wrapper.hasAttribute('data-expanded')).toBe(true)
+    expect(wrapper.hasAttribute('data-transition')).toBe(false)
     expect(wrapper.contains(section)).toBe(true)
   })
 
@@ -789,11 +786,16 @@ describe('Collapsible', () => {
     expect(screen.getByText('Empty preset content').className).toBe('')
     expect(
       screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')?.className,
-    ).toContain('has-[>[data-transition]]:h-(--mo-collapsible-content-height)')
+    ).toContain('data-transition:h-(--mo-collapsible-content-height)')
+    expect(
+      screen.container
+        .querySelector('[data-slot="collapsible-content-wrapper"]')
+        ?.hasAttribute('data-transition'),
+    ).toBe(true)
     expect(
       screen.container
         .querySelector('[data-slot="collapsible-content"]')
         ?.hasAttribute('data-transition'),
-    ).toBe(true)
+    ).toBe(false)
   })
 })
