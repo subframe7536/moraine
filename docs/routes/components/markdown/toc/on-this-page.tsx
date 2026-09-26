@@ -51,17 +51,17 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
 
   createEffect(on(() => props.entries, measure))
 
-  const blockStyle = createMemo((): JSX.CSSProperties => {
+  const blockStyle = createMemo((): JSX.CSSProperties | undefined => {
     const ids = activeIds()
     const cached = positions()
     const first = ids.length ? cached.get(ids[0]!) : undefined
     const last = ids.length ? cached.get(ids[ids.length - 1]!) : undefined
-    if (!first || !last) {
-      return { 'clip-path': 'inset(0 0 100% 0 round 8px)', visibility: 'hidden' }
+    const height = listHeight()
+    if (!first || !last || height <= 0) {
+      return undefined
     }
     return {
-      'clip-path': `inset(${first[0]}px 0 ${Math.max(0, listHeight() - last[1])}px 0 round 8px)`,
-      visibility: 'visible',
+      'clip-path': `inset(${first[0]}px 0 ${Math.max(0, height - last[1])}px 0 round 8px)`,
     }
   })
 
@@ -75,12 +75,16 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
         fallback={<p class="text-muted-foreground mt-3 text-xs">No sections</p>}
       >
         <div ref={setList} class="mt-2.5 flex flex-col gap-0.5 relative">
-          <div
-            data-toc-active-range
-            aria-hidden="true"
-            class="pointer-events-none transition-[clip-path] duration-300 ease-out inset-0 absolute from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:transition-none"
-            style={blockStyle()}
-          />
+          <Show when={blockStyle()}>
+            {(style) => (
+              <div
+                data-toc-active-range
+                aria-hidden="true"
+                class="pointer-events-none inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:animate-none"
+                style={style()}
+              />
+            )}
+          </Show>
           <For each={props.entries}>
             {(entry) => (
               <a

@@ -264,7 +264,7 @@ export function createApiReferenceModel(
       shortHeading: getPartShortHeading(component, part),
       ...(part.description ? { description: part.description } : {}),
       ...(part.defaultElement ? { defaultElement: part.defaultElement } : {}),
-      props: sortProps(part.props, `api-${part.id}`),
+      props: sortProps(part.props, `api-prop-${part.id}`),
     }
   })
 

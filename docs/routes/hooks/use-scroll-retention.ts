@@ -22,8 +22,49 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
   }
 
   let saveTimer: ReturnType<typeof setTimeout> | undefined
+  let restoreFrame: number | undefined
+  let restoreObserver: MutationObserver | undefined
+  let restoring: { element: HTMLElement; path: string; top: number } | undefined
+  let hotUpdating = false
+
+  const stopRestoring = () => {
+    if (restoreFrame !== undefined) {
+      cancelAnimationFrame(restoreFrame)
+      restoreFrame = undefined
+    }
+    restoreObserver?.disconnect()
+    restoreObserver = undefined
+    restoring = undefined
+  }
+
+  const scheduleRestore = () => {
+    if (!restoring || restoreFrame !== undefined) {
+      return
+    }
+
+    restoreFrame = requestAnimationFrame(() => {
+      restoreFrame = undefined
+      const target = restoring
+      if (!target) {
+        return
+      }
+      if (!target.element.isConnected || options.path() !== target.path || window.location.hash) {
+        stopRestoring()
+        return
+      }
+
+      target.element.scrollTop = target.top
+      // The old content can still satisfy the target before HMR replaces it.
+      if (!hotUpdating && target.element.scrollTop >= target.top - 1) {
+        stopRestoring()
+      }
+    })
+  }
 
   const saveScroll = () => {
+    if (restoring) {
+      return
+    }
     const el = options.element()
     if (!el) {
       return
@@ -70,11 +111,11 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
       }
 
       if (saved !== undefined && !Number.isNaN(saved) && saved > 0) {
-        requestAnimationFrame(() => {
-          if (el.isConnected) {
-            el.scrollTop = saved!
-          }
-        })
+        stopRestoring()
+        restoring = { element: el, path, top: saved }
+        restoreObserver = new MutationObserver(scheduleRestore)
+        restoreObserver.observe(el, { childList: true, subtree: true })
+        scheduleRestore()
       }
     } catch {
       // Silently handle storage access restrictions
@@ -90,6 +131,9 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
       restoreScroll()
 
       const handleScroll = () => {
+        if (restoring) {
+          return
+        }
         if (saveTimer !== undefined) {
           clearTimeout(saveTimer)
         }
@@ -97,20 +141,41 @@ export function useScrollRetention(options: UseScrollRetentionOptions) {
       }
 
       el.addEventListener('scroll', handleScroll, { passive: true })
+      el.addEventListener('wheel', stopRestoring, { passive: true })
+      el.addEventListener('touchstart', stopRestoring, { passive: true })
 
       onCleanup(() => {
         if (saveTimer !== undefined) {
           clearTimeout(saveTimer)
         }
         saveScroll()
+        stopRestoring()
         el.removeEventListener('scroll', handleScroll)
+        el.removeEventListener('wheel', stopRestoring)
+        el.removeEventListener('touchstart', stopRestoring)
       })
     }),
   )
 
   window.addEventListener('beforeunload', saveScroll)
+  const handleHotUpdate = () => {
+    hotUpdating = true
+    if (!restoring) {
+      saveScroll()
+      restoreScroll()
+    }
+  }
+  const handleHotUpdateComplete = () => {
+    hotUpdating = false
+    scheduleRestore()
+  }
+  import.meta.hot?.on('vite:beforeUpdate', handleHotUpdate)
+  import.meta.hot?.on('vite:afterUpdate', handleHotUpdateComplete)
   onCleanup(() => {
     window.removeEventListener('beforeunload', saveScroll)
+    import.meta.hot?.off('vite:beforeUpdate', handleHotUpdate)
+    import.meta.hot?.off('vite:afterUpdate', handleHotUpdateComplete)
+    stopRestoring()
   })
 
   return {

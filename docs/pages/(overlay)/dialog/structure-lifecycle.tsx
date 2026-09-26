@@ -19,7 +19,7 @@ export function StructureLifecycle() {
           description="Configure clustering, replication nodes, and automated backup schedules."
         >
           <Dialog.Body>
-            <div class="text-muted-foreground leading-relaxed py-2 space-y-2 text-xs">
+            <div class="text-muted-foreground leading-relaxed py-2 space-y-2">
               <p>
                 Provisioning will allocate dedicated compute instances and initialize encryption
                 keys.

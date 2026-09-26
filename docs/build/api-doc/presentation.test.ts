@@ -134,6 +134,27 @@ describe('createApiReferenceModel', () => {
     ])
   })
 
+  test('keeps prop anchors distinct from part headings with the same name', () => {
+    const model = createApiReferenceModel({
+      ...component,
+      parts: [
+        {
+          ...component.parts[0]!,
+          props: [
+            ...component.parts[0]!.props,
+            { name: 'trigger', optional: true, type: 'boolean' },
+          ],
+        },
+        component.parts[1]!,
+      ],
+    })!
+
+    expect(model.parts[0]?.props.find((prop) => prop.name === 'trigger')?.anchorId).toBe(
+      'api-prop-demo-trigger',
+    )
+    expect(model.parts[1]?.id).toBe('api-trigger')
+  })
+
   test('aggregates attributes and follows declared slot order', () => {
     const model = createApiReferenceModel(component)!
     expect(model.attributes?.slots).toEqual([
