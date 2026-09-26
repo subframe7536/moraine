@@ -30,7 +30,6 @@ export function createDialogContentRegistration() {
 export interface DialogContentContext extends ReturnType<typeof createDialogContentRegistration> {
   readonly variants: Required<DialogT.Variant>
   overlayScroll: () => boolean
-  hasHeader: () => boolean
 }
 
 export const [DialogContentProvider, useDialogContent] =

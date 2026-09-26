@@ -21,9 +21,9 @@ describe('Modal primitives', () => {
       () => (
         <Dialog defaultOpen>
           <Dialog.Content>
-            <Modal defaultOpen>
+            <Modal defaultOpen trapFocus={false}>
               <Modal.Portal>
-                <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+                <Modal.Content>Nested modal</Modal.Content>
               </Modal.Portal>
             </Modal>
           </Dialog.Content>
@@ -35,9 +35,9 @@ describe('Modal primitives', () => {
       () => (
         <Sheet defaultOpen>
           <Sheet.Content>
-            <Modal defaultOpen>
+            <Modal defaultOpen trapFocus={false}>
               <Modal.Portal>
-                <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+                <Modal.Content>Nested modal</Modal.Content>
               </Modal.Portal>
             </Modal>
           </Sheet.Content>
@@ -785,14 +785,54 @@ describe('Modal primitives', () => {
     mount.remove()
   })
 
+  test('prefers the Portal mount over the root portal destination', () => {
+    const rootMount = document.createElement('div')
+    const portalMount = document.createElement('div')
+    document.body.append(rootMount, portalMount)
+    const screen = render(() => (
+      <Modal defaultOpen portalMount={rootMount}>
+        <Modal.Portal mount={portalMount}>
+          <Modal.Content>Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    expect(rootMount.querySelector('[data-slot="modal-content"]')).toBeNull()
+    expect(portalMount.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    screen.unmount()
+    rootMount.remove()
+    portalMount.remove()
+  })
+
+  test('uses the trigger document body when no portal destination is specified', () => {
+    const otherDocument = document.implementation.createHTMLDocument('trigger owner')
+    const host = otherDocument.createElement('div')
+    otherDocument.body.append(host)
+    const screen = render(
+      () => (
+        <Modal defaultOpen>
+          <Modal.Trigger>Open</Modal.Trigger>
+          <Modal.Portal>
+            <Modal.Content>Content</Modal.Content>
+          </Modal.Portal>
+        </Modal>
+      ),
+      { container: host },
+    )
+
+    expect(otherDocument.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    screen.unmount()
+  })
+
   test('leaves inline parts mounted without Portal', async () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open={open()} onExitComplete={onExitComplete}>
+      <Modal open={open()} trapFocus={false} onExitComplete={onExitComplete}>
         <div data-testid="inline-host">
           <Modal.Overlay />
-          <Modal.Content trapFocus={false}>Inline content</Modal.Content>
+          <Modal.Content>Inline content</Modal.Content>
         </div>
       </Modal>
     ))
@@ -1439,9 +1479,9 @@ describe('Modal primitives', () => {
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Modal defaultOpen>
+        <Modal defaultOpen trapFocus={false}>
           <Modal.Portal>
-            <Modal.Content trapFocus={false}>
+            <Modal.Content>
               <button type="button" data-testid="first-btn">
                 First
               </button>
@@ -1493,9 +1533,9 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <>
         <main data-testid="background">Background</main>
-        <Modal defaultOpen>
+        <Modal defaultOpen trapFocus={trapFocus()}>
           <Modal.Portal>
-            <Modal.Content trapFocus={trapFocus()}>Content</Modal.Content>
+            <Modal.Content>Content</Modal.Content>
           </Modal.Portal>
         </Modal>
       </>

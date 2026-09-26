@@ -50,16 +50,16 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
   ])
   const config = useSheetConfig()
   const family = useModalContext()
-  const merged = mergeProps({ overlay: true, transition: true, close: true }, config)
+  const merged = mergeProps(
+    { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
+    config,
+  )
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'content',
     inheritedVariants: () => ({ side: config.side, inset: config.inset }),
     inheritedStyles: () => family.presentation,
   })
   const registration = createContentAnatomy()
-
-  let shorthand: ReturnType<typeof createShorthandContent> | undefined
-  const hasHeader = () => registration.hasExplicitHeader() || Boolean(shorthand?.hasContent())
 
   return (
     <SheetContentProvider
@@ -68,14 +68,11 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
         get variants() {
           return resolved.variants
         },
-
-        hasHeader,
       }}
     >
       <ModalPortal>
         <ModalSurface
           {...rest}
-          trapFocus={config.trapFocus}
           {...sheetDataAttributes.content({
             closed: undefined,
             expanded: undefined,
@@ -95,14 +92,8 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
         >
           {() => {
             const contentShorthand = createShorthandContent(local)
-            shorthand = contentShorthand
-            onCleanup(() => {
-              if (shorthand === contentShorthand) {
-                shorthand = undefined
-              }
-            })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
-            const closeContent = createLazyMemo(() => merged.close)
+            const closeIcon = createLazyMemo(() => merged.closeIcon)
             const content = explicitChildren()
             return (
               <>
@@ -116,15 +107,13 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     </Show>
                   </SheetShorthandHeader>
                 </Show>
-                <Show when={closeContent() !== false}>
+                <Show when={merged.close}>
                   <Modal.Close
                     data-slot="sheet-content-close"
                     aria-label="Close"
                     {...resolved.styles.contentClose}
                   >
-                    <Show when={closeContent() === true} fallback={closeContent()}>
-                      <Icon name="icon-close" />
-                    </Show>
+                    <Icon name={closeIcon()} />
                   </Modal.Close>
                 </Show>
                 {content}
@@ -138,26 +127,24 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
 }
 
 function SheetHeader<T extends ValidComponent = 'div'>(props: SheetT.HeaderProps<T>): JSX.Element {
-  return renderSheetHeader(props, true)
+  return renderSheetHeader(props, 'explicit')
 }
 
 function SheetShorthandHeader<T extends ValidComponent = 'div'>(
   props: SheetT.HeaderProps<T>,
 ): JSX.Element {
-  return renderSheetHeader(props, false)
+  return renderSheetHeader(props, 'shorthand')
 }
 
 function renderSheetHeader<T extends ValidComponent>(
   props: SheetT.HeaderProps<T>,
-  register: boolean,
+  kind: 'explicit' | 'shorthand',
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
   const family = useModalContext()
   const content = useSheetContent()
-  if (register) {
-    const unregister = content.registerHeader()
-    onCleanup(unregister)
-  }
+  const unregister = content.registerHeader(kind)
+  onCleanup(unregister)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'header',
     inheritedVariants: () => content.variants,

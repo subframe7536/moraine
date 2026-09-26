@@ -56,6 +56,15 @@ export namespace ModalT {
      */
     preventScroll?: boolean
 
+    /**
+     * Whether the surface contains focus, isolates outside content, and locks body scroll.
+     * @default true
+     */
+    trapFocus?: boolean
+
+    /** Default destination for Modal.Portal; defaults to the trigger document body. */
+    portalMount?: Node
+
     /** Composed trigger and content primitives. */
     children?: JSX.Element
 
@@ -120,13 +129,6 @@ export namespace ModalT {
 
     /** Id of the element that describes the modal content. */
     ariaDescribedBy?: string
-
-    /**
-     * Whether this surface behaves as a modal dialog: it traps and receives focus,
-     * hides outside content from assistive technology, and locks body scroll.
-     * @default true
-     */
-    trapFocus?: boolean
   }
 
   export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>

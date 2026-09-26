@@ -13,7 +13,7 @@ export function renderSheetFixture(): string {
         inset
         transition={false}
 
-        close={<span data-testid="server-close-icon">Close</span>}
+        closeIcon={<span data-testid="server-close-icon">Close</span>}
         ariaLabel="Server sheet"
       >
         <Sheet.Trigger as="button" type="button">
@@ -34,7 +34,7 @@ export function renderSheetFixture(): string {
       <Sheet
         side="right"
 
-        close={<span data-testid="default-close-icon">Close</span>}
+        closeIcon={<span data-testid="default-close-icon">Close</span>}
       >
         <Sheet.Trigger as="button" type="button">
           Open default sheet
@@ -61,7 +61,6 @@ export function renderPartsFixture(): string {
           value={{
             ...registration,
             variants: { inset: false, side: 'right' },
-            hasHeader: registration.hasExplicitHeader,
           }}
         >
           <Sheet.Header>

@@ -25,12 +25,21 @@ export function useRegisteredContentId(
 /** State owned by one mounted styled modal surface. */
 export function createContentAnatomy() {
   const [headers, setHeaders] = createSignal(0)
+  const [explicitHeaders, setExplicitHeaders] = createSignal(0)
   const [titles, setTitles] = createSignal<string[]>([])
   const [descriptions, setDescriptions] = createSignal<string[]>([])
 
-  const registerHeader = () => {
+  const registerHeader = (kind: 'explicit' | 'shorthand') => {
     setHeaders((count) => count + 1)
-    return () => setHeaders((count) => count - 1)
+    if (kind === 'explicit') {
+      setExplicitHeaders((count) => count + 1)
+    }
+    return () => {
+      setHeaders((count) => count - 1)
+      if (kind === 'explicit') {
+        setExplicitHeaders((count) => count - 1)
+      }
+    }
   }
   const registerId = (update: typeof setTitles, id: string) => {
     update((ids) => [...ids, id])
@@ -45,7 +54,8 @@ export function createContentAnatomy() {
     registerHeader,
     registerTitle: (id: string) => registerId(setTitles, id),
     registerDescription: (id: string) => registerId(setDescriptions, id),
-    hasExplicitHeader: () => headers() > 0,
+    hasHeader: () => headers() > 0,
+    hasExplicitHeader: () => explicitHeaders() > 0,
     titleIds: titles,
     descriptionIds: descriptions,
   }

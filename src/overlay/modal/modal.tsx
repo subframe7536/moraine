@@ -43,22 +43,10 @@ export function ModalInternal<K extends ModalKind>(
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const presence = useTransitionPresence({ open })
-  const [contentRegistrations, setContentRegistrations] = createSignal<Map<number, () => boolean>>(
-    new Map(),
-  )
-  let nextContentRegistrationId = 0
   const dismissible = () => props.dismissible ?? true
-  const contentMounted = () => contentRegistrations().size > 0
+  const contentMounted = () => contentElement() !== undefined
   const isPresent = createMemo(() => contentMounted() && presence.present())
-  const shouldContainFocus = () => {
-    for (const trapFocus of contentRegistrations().values()) {
-      if (trapFocus()) {
-        return true
-      }
-    }
-    return false
-  }
-  const isModal = createMemo(shouldContainFocus)
+  const isModal = () => props.trapFocus !== false
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
@@ -149,7 +137,7 @@ export function ModalInternal<K extends ModalKind>(
     contentElement,
     triggerElement,
     onActivate: (context) => {
-      restoreFocusOnDeactivate = shouldContainFocus()
+      restoreFocusOnDeactivate = isModal()
       if (restoreFocusOnDeactivate) {
         capturedTrigger = untrack(triggerElement)
         const activeElement = getActiveElement(context.entry.ownerDocument!)
@@ -165,7 +153,7 @@ export function ModalInternal<K extends ModalKind>(
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {
-      if (!shouldContainFocus()) {
+      if (!isModal()) {
         return
       }
       const target = event.target
@@ -195,7 +183,7 @@ export function ModalInternal<K extends ModalKind>(
         })
       }
     },
-    onPointerOutside: (event) => requestDismiss(event, shouldContainFocus()),
+    onPointerOutside: (event) => requestDismiss(event, isModal()),
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
@@ -204,7 +192,7 @@ export function ModalInternal<K extends ModalKind>(
       }
     },
     onFocusOutside: () => {
-      if (!shouldContainFocus()) {
+      if (!isModal()) {
         return
       }
       const currentContent = contentElement()
@@ -256,29 +244,8 @@ export function ModalInternal<K extends ModalKind>(
     setTriggerElement,
     contentElement,
     setContentElement,
-    registerContent: (trapFocus: () => boolean) => {
-      const registrationId = nextContentRegistrationId++
-      let active = true
-      setContentRegistrations((current) => {
-        const next = new Map(current)
-        next.set(registrationId, trapFocus)
-        return next
-      })
-
-      return () => {
-        if (!active) {
-          return
-        }
-
-        active = false
-        setContentRegistrations((current) => {
-          const next = new Map(current)
-          next.delete(registrationId)
-          return next
-        })
-      }
-    },
     isModal,
+    portalMount: () => props.portalMount,
   }
 
   return <ModalProvider value={context}>{props.children}</ModalProvider>

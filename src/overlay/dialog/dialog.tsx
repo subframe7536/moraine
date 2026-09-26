@@ -69,8 +69,6 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
   const registration = createDialogContentRegistration()
   const overlayScroll = () =>
     resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen
-  let shorthand: ReturnType<typeof createShorthandContent> | undefined
-  const hasHeader = () => registration.hasExplicitHeader() || Boolean(shorthand?.hasContent())
 
   return (
     <DialogContentProvider
@@ -80,13 +78,11 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
           return resolved.variants
         },
         overlayScroll,
-        hasHeader,
       }}
     >
       <ModalPortal>
         <ModalSurface
           {...rest}
-          trapFocus={config.trapFocus}
           overlayScroll={overlayScroll()}
           overlay={merged.overlay}
           overlayClass={resolved.styles.overlay.class}
@@ -102,12 +98,6 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
         >
           {() => {
             const contentShorthand = createShorthandContent(local)
-            shorthand = contentShorthand
-            onCleanup(() => {
-              if (shorthand === contentShorthand) {
-                shorthand = undefined
-              }
-            })
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
             const closeIcon = createLazyMemo(() => merged.closeIcon)
             const content = explicitChildren()
@@ -145,26 +135,24 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
 function DialogHeader<T extends ValidComponent = 'div'>(
   props: DialogT.HeaderProps<T>,
 ): JSX.Element {
-  return renderDialogHeader(props, true)
+  return renderDialogHeader(props, 'explicit')
 }
 
 function DialogShorthandHeader<T extends ValidComponent = 'div'>(
   props: DialogT.HeaderProps<T>,
 ): JSX.Element {
-  return renderDialogHeader(props, false)
+  return renderDialogHeader(props, 'shorthand')
 }
 
 function renderDialogHeader<T extends ValidComponent>(
   props: DialogT.HeaderProps<T>,
-  register: boolean,
+  kind: 'explicit' | 'shorthand',
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
   const family = useModalContext()
   const content = useDialogContent()
-  if (register) {
-    const unregister = content.registerHeader()
-    onCleanup(unregister)
-  }
+  const unregister = content.registerHeader(kind)
+  onCleanup(unregister)
   const resolved = createStyles(dialogRecipe, local, {
     rootSlot: 'header',
     inheritedVariants: () => content.variants,

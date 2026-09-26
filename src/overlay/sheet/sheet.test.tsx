@@ -533,7 +533,7 @@ describe('Sheet', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Sheet open close={<span data-testid="custom-close">X</span>}>
+      <Sheet open closeIcon={<span data-testid="custom-close">X</span>}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>

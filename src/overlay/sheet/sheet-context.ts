@@ -14,7 +14,6 @@ export function useSheetConfig(): SheetT.Props {
 
 export interface SheetContentContext extends ReturnType<typeof createContentAnatomy> {
   readonly variants: Required<SheetT.Variant>
-  hasHeader: () => boolean
 }
 
 export const [SheetContentProvider, useSheetContent] =

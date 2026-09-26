@@ -74,6 +74,12 @@
           "description": "Controlled open state."
         },
         {
+          "name": "portalMount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -88,6 +94,16 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Modal instance."
+        },
+        {
+          "name": "trapFocus",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         }
       ]
     },
@@ -254,16 +270,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether this surface behaves as a modal dialog: it traps and receives focus,\nhides outside content from assistive technology, and locks body scroll.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         }
       ]
     },

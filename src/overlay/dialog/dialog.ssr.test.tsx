@@ -52,7 +52,6 @@ describe('Dialog SSR Hydration', () => {
                 ...registration,
                 variants: { fullscreen: false, scrollable: false },
                 overlayScroll: () => false,
-                hasHeader: registration.hasExplicitHeader,
               }}
             >
               <Dialog.Header>

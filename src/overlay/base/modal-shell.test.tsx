@@ -107,6 +107,83 @@ describe.each([
     expect(descriptionReads).toBe(2)
   })
 
+  test('keeps explicit children mounted while switching between explicit and shorthand headers', () => {
+    const [showHeader, setShowHeader] = createSignal(true)
+    let titleReads = 0
+    let descriptionReads = 0
+    let bodyMounts = 0
+    const Body = () => {
+      bodyMounts += 1
+      return <Root.Body>Body</Root.Body>
+    }
+
+    render(() => (
+      <Root open>
+        {createComponent(Root.Content, {
+          get title() {
+            titleReads += 1
+            return <span>Fallback title</span>
+          },
+          get description() {
+            descriptionReads += 1
+            return <span>Fallback description</span>
+          },
+          get children() {
+            return (
+              <>
+                <Show when={showHeader()}>
+                  <Root.Header>Explicit header</Root.Header>
+                </Show>
+                <Body />
+              </>
+            )
+          },
+        })}
+      </Root>
+    ))
+
+    const body = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-body"]`)!
+    expect(titleReads).toBe(0)
+    expect(descriptionReads).toBe(0)
+    expect(bodyMounts).toBe(1)
+    expect(body.hasAttribute('data-header')).toBe(true)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Explicit header',
+    )
+
+    setShowHeader(false)
+    expect(titleReads).toBe(1)
+    expect(descriptionReads).toBe(1)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Fallback titleFallback description',
+    )
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
+    expect(body.hasAttribute('data-header')).toBe(true)
+
+    setShowHeader(true)
+    expect(document.body.querySelector(`[data-slot="${owner}-header"]`)?.textContent).toBe(
+      'Explicit header',
+    )
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBe(body)
+    expect(bodyMounts).toBe(1)
+  })
+
+  test('mounts controlled content in the root portal destination without a trigger', () => {
+    const otherDocument = document.implementation.createHTMLDocument('portal owner')
+    const mount = otherDocument.createElement('div')
+    otherDocument.body.append(mount)
+    const screen = render(() => (
+      <Root open portalMount={mount}>
+        <Root.Content title="Title">Body</Root.Content>
+      </Root>
+    ))
+
+    const content = mount.querySelector(`[data-slot="${owner}-content"]`)
+    expect(content?.ownerDocument).toBe(otherDocument)
+    expect(content?.textContent).toContain('Body')
+    screen.unmount()
+  })
+
   test('prefers a native aria-label over a registered title', () => {
     render(() => (
       <Root open ariaLabel="Root label">

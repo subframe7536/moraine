@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 
+import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { ModalT } from '../modal/modal.types'
 
@@ -43,23 +44,20 @@ export namespace SheetT {
     ariaLabel?: string
 
     /**
-     * Whether the sheet behaves as a modal surface, including focus containment,
-     * outside-content isolation, and body scroll locking.
-     * @default true
-     */
-    trapFocus?: boolean
-
-    /**
      * Whether to enable transition animations.
      * @default true
      */
     transition?: boolean
 
-    /**
-     * Whether to show a close button, or a custom element to use as one.
+    /** Whether to show a close button.
      * @default true
      */
-    close?: JSX.Element
+    close?: boolean
+
+    /** Icon name or custom content for the close button.
+     * @default 'icon-close'
+     */
+    closeIcon?: IconT.Name | JSX.Element
   }
   export type Props = Base
 

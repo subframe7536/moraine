@@ -120,6 +120,12 @@
           }
         },
         {
+          "name": "portalMount",
+          "optional": true,
+          "type": "Node",
+          "description": "Default destination for Modal.Portal; defaults to the trigger document body."
+        },
+        {
           "name": "preventScroll",
           "optional": true,
           "type": "boolean",
@@ -149,7 +155,7 @@
           "name": "trapFocus",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
           "default": {
             "kind": "literal",
             "value": true

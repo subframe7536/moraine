@@ -31,7 +31,6 @@ describe('Sheet SSR Hydration', () => {
               value={{
                 ...registration,
                 variants: { inset: false, side: 'right' },
-                hasHeader: registration.hasExplicitHeader,
               }}
             >
               <Sheet.Header>
@@ -68,7 +67,7 @@ describe('Sheet SSR Hydration', () => {
             inset
             transition={false}
 
-            close={<span data-testid="server-close-icon">Close</span>}
+            closeIcon={<span data-testid="server-close-icon">Close</span>}
             ariaLabel="Server sheet"
           >
             <Sheet.Trigger as="button" type="button">
@@ -89,7 +88,7 @@ describe('Sheet SSR Hydration', () => {
           <Sheet
             side="right"
 
-            close={<span data-testid="default-close-icon">Close</span>}
+            closeIcon={<span data-testid="default-close-icon">Close</span>}
           >
             <Sheet.Trigger as="button" type="button">
               Open default sheet

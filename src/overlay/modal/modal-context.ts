@@ -31,8 +31,8 @@ export interface ModalContext {
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
-  registerContent: (trapFocus: Accessor<boolean>) => () => void
   isModal: Accessor<boolean>
+  portalMount: Accessor<Node | undefined>
 }
 
 export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')

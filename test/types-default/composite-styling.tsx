@@ -20,6 +20,7 @@ type DialogConfigKeys =
   | 'trapFocus'
   | 'ariaLabel'
   | 'close'
+  | 'portalMount'
   | 'closeIcon'
 type SheetConfigKeys =
   | 'overlay'
@@ -29,6 +30,8 @@ type SheetConfigKeys =
   | 'trapFocus'
   | 'ariaLabel'
   | 'close'
+  | 'portalMount'
+  | 'closeIcon'
 type ContentShorthandKeys = 'title' | 'description'
 
 export type OverlayConfigPlacement = [
@@ -50,6 +53,7 @@ export type OverlayConfigPlacement = [
   trapFocus={false}
   ariaLabel="Dialog"
   close={false}
+  portalMount={document.body}
   closeIcon="icon-close"
 />
 // @ts-expect-error A headless root has no primary DOM element.
@@ -98,7 +102,15 @@ export type OverlayConfigPlacement = [
   trapFocus={false}
   ariaLabel="Sheet"
   close={false}
+  portalMount={document.body}
+  closeIcon="icon-close"
 />
+;<Modal trapFocus={false} portalMount={document.body} />
+;<Modal.Portal mount={document.body} />
+// @ts-expect-error Modal behavior belongs to the root.
+;<Modal.Content trapFocus={false} />
+// @ts-expect-error Sheet.close no longer accepts custom JSX.
+;<Sheet close={<span />} />
 // @ts-expect-error A headless root has no primary DOM element.
 ;<Sheet style={{ color: 'red' }} />
 ;<Sheet.Trigger class="trigger" />

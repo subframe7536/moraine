@@ -51,13 +51,10 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'class',
     'style',
     'onKeyDown',
-    'trapFocus',
   ])
   const context = useModalContext()
   const overlayScroll = () => Boolean(local.overlayScroll && local.overlay)
   const presence = context.presence
-  // oxlint-disable-next-line subf/solid-reactivity -- The accessor is stored and read from overlay event handlers so each interaction observes the current prop.
-  onCleanup(context.registerContent(() => local.trapFocus !== false))
   const body = resolveChildren(() =>
     renderComponentOrElement(local.children, {
       close: () => context.updateOpen(false),
@@ -116,7 +113,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         if (event.defaultPrevented) {
           return
         }
-        if (local.trapFocus !== false) {
+        if (context.isModal()) {
           trapFocusInContainer(event, context.contentElement())
         }
       }}

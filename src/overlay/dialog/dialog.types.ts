@@ -34,13 +34,6 @@ export namespace DialogT {
     ariaLabel?: string
 
     /**
-     * Whether the dialog behaves as a modal surface, including focus containment,
-     * outside-content isolation, and body scroll locking.
-     * @default true
-     */
-    trapFocus?: boolean
-
-    /**
      * Whether the dialog should take up the full viewport.
      * @default false
      */
