@@ -149,7 +149,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "r",
+          "type": "n",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",

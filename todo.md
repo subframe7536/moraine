@@ -16,6 +16,7 @@
 - [x] icon card copy should not cause layout shift
 - [x] make card composite, add `as`.
 - [ ] collapsible: move data-transition on wrapper to eliminate `:has` selector
+- [ ] resizable: refresh docs
 - [ ] landing page polish
 - [ ] styling page polish
 

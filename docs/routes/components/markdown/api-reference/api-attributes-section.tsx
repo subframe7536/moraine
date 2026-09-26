@@ -21,7 +21,7 @@ export function AttributeRow(props: { attribute: PresentationAttributeItem }): J
       data-attribute={props.attribute.name}
       class={cn(ATTRIBUTE_GRID_CLASS, 'border-t border-border/40 min-h-10 text-sm')}
     >
-      <code class="font-medium font-mono px-3 py-2.5 min-w-0 truncate">{props.attribute.name}</code>
+      <code class="font-medium font-mono px-3 py-2.5">{props.attribute.name}</code>
       <span class="text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
         <span class="font-medium md:hidden">Slot: </span>
         {props.attribute.slots.join(', ')}
