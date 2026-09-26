@@ -55,7 +55,7 @@ multiples of four pixels, and use a rule or surface change when sections need st
 | Token or area           | Contract                                                                     |
 | ----------------------- | ---------------------------------------------------------------------------- |
 | `docs-shell-header`     | 52 px (`h-13`) sticky header height.                                         |
-| `docs-anchor-offset`    | 52 px (`scroll-mt-13`) anchor margin below the sticky header.                |
+| `docs-anchor-offset`    | 24 px (`scroll-mt-6`) anchor margin below the sticky header.                 |
 | `docs-content-gutter`   | 20 px on narrow screens and 32 px from `sm` upward.                          |
 | `docs-article-measure`  | Maximum article width of 896 px (`max-w-4xl`).                               |
 | `docs-navigation-width` | Desktop navigation rail width of 256 px (`w-64`).                            |

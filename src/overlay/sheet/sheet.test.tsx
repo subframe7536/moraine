@@ -416,6 +416,12 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
     const body = document.body.querySelector('[data-slot="sheet-body"]')!
     expect(content.textContent).not.toContain('Fallback')
+    expect(content.querySelectorAll('[data-slot="sheet-title"]')).toHaveLength(1)
+    expect(content.querySelector('[data-slot="sheet-title"]')?.textContent).toBe('Actual title')
+    expect(content.querySelectorAll('[data-slot="sheet-description"]')).toHaveLength(1)
+    expect(content.querySelector('[data-slot="sheet-description"]')?.textContent).toBe(
+      'Actual description',
+    )
     expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)

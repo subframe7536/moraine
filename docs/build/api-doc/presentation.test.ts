@@ -146,6 +146,18 @@ describe('createApiReferenceModel', () => {
           ],
         },
         component.parts[1]!,
+        {
+          id: 'dialog-content',
+          name: 'Dialog.Content',
+          access: { kind: 'attached', root: 'Dialog', member: 'Content' },
+          props: [{ name: 'children', optional: true, type: 'JSX.Element' }],
+        },
+        {
+          id: 'dialog-body',
+          name: 'Dialog.Body',
+          access: { kind: 'attached', root: 'Dialog', member: 'Body' },
+          props: [],
+        },
       ],
     })!
 
@@ -153,6 +165,12 @@ describe('createApiReferenceModel', () => {
       'api-prop-demo-trigger',
     )
     expect(model.parts[1]?.id).toBe('api-trigger')
+    expect(model.parts[2]?.props[0]?.anchorId).toBe('api-prop-dialog-content-children')
+    expect(model.parts[3]?.id).toBe('api-dialog-body')
+    const ids = model.parts.flatMap((part) =>
+      [part.id].concat(part.props.map((prop) => prop.anchorId)),
+    )
+    expect(new Set(ids).size).toBe(ids.length)
   })
 
   test('aggregates attributes and follows declared slot order', () => {

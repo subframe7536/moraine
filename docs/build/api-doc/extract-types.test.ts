@@ -150,6 +150,7 @@ describe('TypeExtractor', () => {
       const module = await extractor.loadModule(file)
       const part = await extractor.extractPart(module!, namespace, propsType, name, false)
       const asProp = part.props.find((prop) => prop.name === 'as')
+      expect(asProp?.type).toBe('T')
       expect(asProp?.default).toEqual({
         kind: 'literal',
         value: name === 'List' ? 'ul' : 'button',

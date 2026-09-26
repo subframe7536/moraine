@@ -90,3 +90,5 @@ jobs:
             pnpm run test:library
             pnpm run test:docs
           fi
+
+      - run: pnpm run docs:build

@@ -476,6 +476,12 @@ describe('Dialog', () => {
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
     const body = document.body.querySelector('[data-slot="dialog-body"]')!
     expect(content.textContent).not.toContain('Fallback')
+    expect(content.querySelectorAll('[data-slot="dialog-title"]')).toHaveLength(1)
+    expect(content.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Actual title')
+    expect(content.querySelectorAll('[data-slot="dialog-description"]')).toHaveLength(1)
+    expect(content.querySelector('[data-slot="dialog-description"]')?.textContent).toBe(
+      'Actual description',
+    )
     expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)

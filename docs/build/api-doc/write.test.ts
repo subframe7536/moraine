@@ -87,6 +87,24 @@ describe('writeJsonFiles', () => {
       writeJsonFiles(pagesRoot, [pageSource(path.join(pageDir, 'demo.mdx'))], result),
     ).rejects.toThrow('at least one documented public part')
     expect(await readFile(apiPath, 'utf8')).toBe('{"original":true}')
+
+    const emptyType = {
+      ...validComponent,
+      parts: [
+        {
+          ...validComponent.parts[0]!,
+          props: [{ name: 'as', optional: true, type: ' ' }],
+        },
+      ],
+    }
+    await expect(
+      writeJsonFiles(pagesRoot, [pageSource(path.join(pageDir, 'demo.mdx'))], {
+        indexDoc: { components: [] },
+        componentDocs: new Map([['demo', emptyType]]),
+      }),
+    ).rejects.toThrow('Prop "as" has an empty type')
+    expect(await readFile(apiPath, 'utf8')).toBe('{"original":true}')
+
     await rm(projectRoot, { recursive: true, force: true })
   })
 })

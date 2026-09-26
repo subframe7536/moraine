@@ -443,7 +443,7 @@ export class TypeExtractor {
               ) {
                 const basePropsRes = await this.#handleBaseProps(
                   sym.module,
-                  ns.node,
+                  sym.nsNode,
                   sym.node.typeAnnotation,
                   generics,
                 )
