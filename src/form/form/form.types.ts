@@ -4,7 +4,10 @@ import type {
   FormProps as FormischFormProps,
   FormSchema,
   FormStore,
+  PartialValues,
+  RequiredPath,
   Schema,
+  ValidPath,
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
 import type * as v from 'valibot'
@@ -20,6 +23,11 @@ import type { FieldProps as StandaloneFieldProps } from '../field'
 import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
 
 type PathKey = string | number
+// Formisch constrains its helpers to object schemas; preserve root collection types for Moraine forms.
+declare const rootFormSchema: unique symbol
+type RootStore<TSchema extends Schema> = FormStore<never> & {
+  readonly [rootFormSchema]: TSchema
+}
 type ExactKeysOf<TValue> = 0 extends 1 & TValue
   ? never
   : TValue extends readonly unknown[]
@@ -63,9 +71,9 @@ export namespace FormT {
           | SchemaPath<Input>
       : never
 
-  export type Store<TSchema extends Schema> = FormStore<
-    TSchema extends FormSchema ? TSchema : FormSchema
-  >
+  export type Store<TSchema extends Schema> = TSchema extends FormSchema
+    ? FormStore<TSchema>
+    : RootStore<TSchema>
 
   export type Config<TSchema extends Schema> = TSchema extends FormSchema
     ? FormConfig<TSchema>
@@ -103,3 +111,19 @@ export namespace FormT {
 }
 
 export type FormProps<TSchema extends Schema = FormSchema> = FormT.Props<TSchema>
+
+declare module '@formisch/solid' {
+  function focus<TSchema extends Schema, TPath extends RequiredPath>(
+    form: RootStore<TSchema>,
+    config: { readonly path: ValidPath<v.InferInput<TSchema>, TPath> },
+  ): void
+
+  function getInput<TSchema extends Schema>(
+    form: RootStore<TSchema>,
+  ): PartialValues<v.InferInput<TSchema>>
+
+  function setInput<TSchema extends Schema>(
+    form: RootStore<TSchema>,
+    config: { readonly path?: undefined; readonly input: v.InferInput<TSchema> },
+  ): void
+}

@@ -3,6 +3,7 @@ import './children'
 import './composite-styling'
 import './component-namespaces'
 
+import { focus, getInput, setInput } from '@formisch/solid'
 import {
   Avatar,
   AvatarGroup,
@@ -142,6 +143,14 @@ const objectForm = createForm({
 ;<objectForm.Field name={['users', 'length']} />
 
 const arrayForm = createForm({ schema: v.array(v.string()) })
+focus(arrayForm, { path: [0] })
+// @ts-expect-error Root array paths require numeric indices.
+focus(arrayForm, { path: ['missing'] })
+setInput(arrayForm, { input: ['next'] })
+const arrayInput: (string | undefined)[] = getInput(arrayForm)
+void arrayInput
+// @ts-expect-error Root array input is not an object.
+setInput(arrayForm, { input: { 0: 'next' } })
 ;<arrayForm.Field name={[0]} />
 ;<arrayForm.Field name={[123]} />
 // @ts-expect-error Root arrays have no string shorthand.
@@ -150,6 +159,12 @@ const arrayForm = createForm({ schema: v.array(v.string()) })
 ;<arrayForm.Field name="0" />
 
 const tupleForm = createForm({ schema: v.tuple([v.string(), v.number()]) })
+focus(tupleForm, { path: [1] })
+setInput(tupleForm, { input: ['next', 1] })
+const tupleInput: [string | undefined, number | undefined] = getInput(tupleForm)
+void tupleInput
+// @ts-expect-error Root tuple input preserves the second number field.
+setInput(tupleForm, { input: ['next', 'wrong'] })
 ;<tupleForm.Field name={[0]} />
 ;<tupleForm.Field name={[1]} />
 // @ts-expect-error Root tuple indices stay exact.

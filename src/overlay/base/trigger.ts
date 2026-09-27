@@ -1,5 +1,6 @@
 import type { Accessor, JSX } from 'solid-js'
 import { createSignal, mergeProps, onCleanup } from 'solid-js'
+import { delegateEvents } from 'solid-js/web'
 
 import type { BaseProps, ElementProps, SlotStyleValue, ValidComponent } from '../../shared/types'
 import { attachEventListener } from '../../shared/use-event-listener'
@@ -50,6 +51,7 @@ export type OverlayTriggerBinding = Omit<
 export function mergeMenuTriggerProps<T extends object>(
   user: T,
   internal: OverlayTriggerBinding,
+  customTrigger: Accessor<boolean> = () => false,
 ): OverlayTriggerBinding & T {
   const userHandlers = user as Record<string, unknown>
   const handlers: Record<string, unknown> = {}
@@ -80,13 +82,30 @@ export function mergeMenuTriggerProps<T extends object>(
       internal.ref(element)
       callRef(userHandlers.ref, element)
       if (element) {
+        // A custom root may cancel a click after spreading trigger props.
+        if (customTrigger()) {
+          delegateEvents(['click'], document)
+        }
         const releases = Object.entries(handlers).map(([key, handler]) =>
           attachEventListener(
             element,
             key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-            handler as (event: Event) => void,
+            (event) => {
+              if (element.ownerDocument !== document) {
+                ;(handler as EventListener)(event)
+              }
+            },
           ),
         )
+        if (customTrigger()) {
+          releases.push(
+            attachEventListener(document, 'click', (event) => {
+              if (event.target instanceof Node && element.contains(event.target)) {
+                ;(handlers.onClick as EventListener)(event)
+              }
+            }),
+          )
+        }
         onCleanup(() => {
           releases.forEach((release) => release())
           callRef(userHandlers.ref, undefined)

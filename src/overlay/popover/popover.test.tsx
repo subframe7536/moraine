@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { callHandler } from '../../shared/utils'
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
 import { setPopperTestPlacementAccessor } from '../base/popper'
@@ -13,6 +14,29 @@ let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
 
 describe('Popover', () => {
+  test('honors a custom trigger that cancels click before forwarding it', async () => {
+    const onOpenChange = vi.fn()
+    const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button
+        {...props}
+        onClick={(event) => {
+          event.preventDefault()
+          callHandler(event, props.onClick)
+        }}
+      />
+    )
+    const screen = render(() => (
+      <Popover onOpenChange={onOpenChange}>
+        <Popover.Trigger as={CancelingButton}>Trigger</Popover.Trigger>
+        <Popover.Content>Content</Popover.Content>
+      </Popover>
+    ))
+
+    fireEvent.click(screen.getByText('Trigger'))
+    await Promise.resolve()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('opens in the trigger Document when the trigger is in an iframe', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)

@@ -1,9 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../element/button'
 import { MoraineProvider } from '../../provider'
+import { callHandler } from '../../shared/utils'
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
@@ -15,6 +17,34 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test('honors a custom trigger that cancels click before forwarding it', async () => {
+    const onOpenChange = vi.fn()
+    const onCustomClick = vi.fn()
+    const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button
+        {...props}
+        onClick={(event) => {
+          onCustomClick()
+          event.preventDefault()
+          callHandler(event, props.onClick)
+        }}
+      />
+    )
+    const screen = render(() => (
+      <Modal onOpenChange={onOpenChange}>
+        <Modal.Trigger as={CancelingButton}>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content>Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    fireEvent.click(screen.getByText('Open'))
+    await Promise.resolve()
+    expect(onCustomClick).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('isolates a modal in a ShadowRoot without hiding its host', async () => {
     const outside = document.createElement('main')
     const host = document.createElement('div')

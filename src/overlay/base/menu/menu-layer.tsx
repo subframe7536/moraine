@@ -27,7 +27,11 @@ import { useFloatingPosition } from '../floating'
 import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement.ts'
 import { focusWithoutScrolling, resolveDirection } from '../utils'
 
-import { createMenuItemRenderers } from './menu-item'
+import {
+  attachSelectableItemHandlers,
+  createMenuItemRenderers,
+  itemElementAttributes,
+} from './menu-item'
 import { overlayMenuDataAttributes } from './menu.recipe'
 import {
   createPointerGraceIntent,
@@ -464,6 +468,132 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       }
     }
 
+    const handlers = {
+      onPointerDown: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerDown)
+        if (!defaultPrevented && itemProps.item.disabled) {
+          event.preventDefault()
+        }
+      },
+      onClick: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+        if (defaultPrevented || itemProps.item.disabled) {
+          return
+        }
+
+        event.preventDefault()
+        openSubmenu('content')
+      },
+      onFocus: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+        if (defaultPrevented || itemProps.item.disabled) {
+          return
+        }
+
+        layer.closeSubmenus(submenuId())
+        layer.setHighlightedItemId(submenuId())
+      },
+      onKeyDown: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+        if (defaultPrevented) {
+          return
+        }
+
+        if (event.repeat) {
+          return
+        }
+
+        if (itemProps.item.disabled) {
+          return
+        }
+
+        const openKey = resolveDirection(triggerElement()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
+
+        if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          openSubmenu('first')
+        }
+      },
+      onPointerEnter: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+        if (defaultPrevented) {
+          return
+        }
+
+        if (itemProps.item.disabled || event.pointerType !== 'mouse') {
+          if (itemProps.item.disabled) {
+            layer.focusContent()
+          }
+
+          return
+        }
+
+        if (layer.shouldBlockPointerEnter(event)) {
+          layer.queuePointerEnter(event.currentTarget, onPointerMove)
+          event.preventDefault()
+          return
+        }
+
+        onPointerMove()
+      },
+      onPointerMove: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+        if (defaultPrevented) {
+          return
+        }
+
+        if (itemProps.item.disabled || event.pointerType !== 'mouse') {
+          if (itemProps.item.disabled) {
+            layer.focusContent()
+          }
+
+          return
+        }
+
+        if (layer.shouldBlockPointerEnter(event)) {
+          layer.queuePointerEnter(event.currentTarget, onPointerMove)
+          event.preventDefault()
+          return
+        }
+
+        onPointerMove()
+      },
+      onPointerLeave: (event) => {
+        const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+        if (defaultPrevented) {
+          return
+        }
+
+        if (event.pointerType !== 'mouse') {
+          return
+        }
+
+        layer.clearQueuedPointerEnter(event.currentTarget)
+        clearOpenTimeout()
+
+        const contentElement = submenuLayerState?.contentElement()
+        const submenuPlacement = submenuLayerState?.currentPlacement() ?? 'right-start'
+
+        if (!contentElement) {
+          layer.setPointerGraceIntent(null, [event.clientX, event.clientY])
+          layer.focusContent()
+          return
+        }
+
+        layer.setPointerGraceIntent(
+          {
+            ...createPointerGraceIntent(
+              submenuPlacement,
+              [event.clientX, event.clientY],
+              event.currentTarget,
+              contentElement,
+            ),
+          },
+          [event.clientX, event.clientY],
+        )
+      },
+    } satisfies Parameters<typeof attachSelectableItemHandlers>[1]
+
     return (
       <>
         <div
@@ -482,136 +612,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             expanded: isOpen,
             selected: undefined,
           })}
-          {...itemAttributes()}
+          {...itemElementAttributes(itemAttributes())}
           ref={(itemElement) => {
             setTriggerElement(itemElement)
             callRef(itemAttributes()?.ref, itemElement)
+            onCleanup(attachSelectableItemHandlers(itemElement, handlers))
           }}
           {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
-          onPointerDown={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerDown)
-            if (!defaultPrevented && itemProps.item.disabled) {
-              event.preventDefault()
-            }
-          }}
-          onClick={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
-            if (defaultPrevented || itemProps.item.disabled) {
-              return
-            }
-
-            event.preventDefault()
-            openSubmenu('content')
-          }}
-          onFocus={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
-            if (defaultPrevented || itemProps.item.disabled) {
-              return
-            }
-
-            layer.closeSubmenus(submenuId())
-            layer.setHighlightedItemId(submenuId())
-          }}
-          onKeyDown={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
-            if (defaultPrevented) {
-              return
-            }
-
-            if (event.repeat) {
-              return
-            }
-
-            if (itemProps.item.disabled) {
-              return
-            }
-
-            const openKey =
-              resolveDirection(triggerElement()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
-
-            if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              openSubmenu('first')
-            }
-          }}
-          onPointerEnter={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
-            if (defaultPrevented) {
-              return
-            }
-
-            if (itemProps.item.disabled || event.pointerType !== 'mouse') {
-              if (itemProps.item.disabled) {
-                layer.focusContent()
-              }
-
-              return
-            }
-
-            if (layer.shouldBlockPointerEnter(event)) {
-              layer.queuePointerEnter(event.currentTarget, onPointerMove)
-              event.preventDefault()
-              return
-            }
-
-            onPointerMove()
-          }}
-          onPointerMove={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
-            if (defaultPrevented) {
-              return
-            }
-
-            if (itemProps.item.disabled || event.pointerType !== 'mouse') {
-              if (itemProps.item.disabled) {
-                layer.focusContent()
-              }
-
-              return
-            }
-
-            if (layer.shouldBlockPointerEnter(event)) {
-              layer.queuePointerEnter(event.currentTarget, onPointerMove)
-              event.preventDefault()
-              return
-            }
-
-            onPointerMove()
-          }}
-          onPointerLeave={(event) => {
-            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
-            if (defaultPrevented) {
-              return
-            }
-
-            if (event.pointerType !== 'mouse') {
-              return
-            }
-
-            layer.clearQueuedPointerEnter(event.currentTarget)
-            clearOpenTimeout()
-
-            const contentElement = submenuLayerState?.contentElement()
-            const submenuPlacement = submenuLayerState?.currentPlacement() ?? 'right-start'
-
-            if (!contentElement) {
-              layer.setPointerGraceIntent(null, [event.clientX, event.clientY])
-              layer.focusContent()
-              return
-            }
-
-            layer.setPointerGraceIntent(
-              {
-                ...createPointerGraceIntent(
-                  submenuPlacement,
-                  [event.clientX, event.clientY],
-                  event.currentTarget,
-                  contentElement,
-                ),
-              },
-              [event.clientX, event.clientY],
-            )
-          }}
         >
           <RenderItemContent
             item={itemProps.item}

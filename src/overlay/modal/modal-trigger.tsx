@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import { Dynamic, delegateEvents } from 'solid-js/web'
 
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -38,34 +38,36 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const children = resolveChildren(() => local.children)
-  const handledEvents = new WeakSet<Event>()
-  const forwardEvent = (
-    key: 'onClick' | 'onKeyDown' | 'onKeyUp' | 'onPointerDown' | 'onBlur',
-    event: Event,
-  ): void => {
-    if (handledEvents.has(event)) {
-      return
-    }
-    handledEvents.add(event)
-    callHandler(event, interactionProps[key])
-  }
+  const [, triggerAttributes] = splitProps(interactionProps, ['onClick'])
   const setTriggerRef = (element: HTMLElement | undefined) => {
     context.setTriggerElement(element)
     callRef(local.ref, element)
 
     if (element) {
-      const eventKeys = {
-        click: 'onClick',
-        keydown: 'onKeyDown',
-        keyup: 'onKeyUp',
-        pointerdown: 'onPointerDown',
-        blur: 'onBlur',
-      } as const
-      const releases = Object.entries(eventKeys).map(([name, key]) =>
-        attachEventListener(element, name as keyof HTMLElementEventMap, (event) =>
-          forwardEvent(key, event),
+      // Let a custom root cancel the click before handling it on the document.
+      if (typeof tag() === 'function') {
+        delegateEvents(['click'], document)
+      }
+      const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map((key) =>
+        attachEventListener(
+          element,
+          key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
+          (event) => {
+            if (element.ownerDocument !== document) {
+              ;(interactionProps[key] as EventListener)(event)
+            }
+          },
         ),
       )
+      if (typeof tag() === 'function') {
+        releases.push(
+          attachEventListener(document, 'click', (event) => {
+            if (event.target instanceof Node && element.contains(event.target)) {
+              callHandler(event, interactionProps.onClick)
+            }
+          }),
+        )
+      }
       onCleanup(() => {
         releases.forEach((release) => release())
         if (context.triggerElement() === element) {
@@ -83,12 +85,8 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       data-slot={context.slotName('trigger')}
-      {...interactionProps}
-      onClick={(event: MouseEvent) => forwardEvent('onClick', event)}
-      onKeyDown={(event: KeyboardEvent) => forwardEvent('onKeyDown', event)}
-      onKeyUp={(event: KeyboardEvent) => forwardEvent('onKeyUp', event)}
-      onPointerDown={(event: PointerEvent) => forwardEvent('onPointerDown', event)}
-      onBlur={(event: FocusEvent) => forwardEvent('onBlur', event)}
+      {...triggerAttributes}
+      onClick={typeof tag() === 'function' ? undefined : interactionProps.onClick}
       component={tag()}
       style={local.style}
       class={local.class}

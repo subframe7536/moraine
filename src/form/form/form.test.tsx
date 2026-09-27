@@ -1,4 +1,4 @@
-import { focus, getInput } from '@formisch/solid'
+import { focus, getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import * as v from 'valibot'
@@ -335,7 +335,7 @@ describe('Form', () => {
 
   test('binds and submits a root array field', async () => {
     const onSubmit = vi.fn()
-    const { screen } = renderWithOwner(
+    const { screen, value: form } = renderWithOwner(
       () => createForm({ schema: v.array(v.string()), initialInput: ['Initial'] }),
       (form) => (
         <form.Form onSubmit={onSubmit}>
@@ -347,6 +347,11 @@ describe('Form', () => {
     )
     const input = screen.getByLabelText<HTMLInputElement>('First item')
     expect(input.value).toBe('Initial')
+    focus(form, { path: [0] })
+    expect(document.activeElement).toBe(input)
+    setInput(form, { input: ['Updated'] })
+    await waitFor(() => expect(input.value).toBe('Updated'))
+    expect(getInput(form)).toEqual(['Updated'])
     fireEvent.input(input, { target: { value: 'Changed' } })
     fireEvent.submit(screen.container.querySelector('form')!)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(['Changed'], expect.anything()))

@@ -32,7 +32,7 @@ const SELECTABLE_ITEM_EVENT_PROPS = [
   'onPointerLeave',
 ] as const
 
-function itemElementAttributes(attributes: ElementProps<HTMLDivElement> | undefined) {
+export function itemElementAttributes(attributes: ElementProps<HTMLDivElement> | undefined) {
   return splitProps(attributes ?? {}, SELECTABLE_ITEM_EVENT_PROPS)[1]
 }
 
