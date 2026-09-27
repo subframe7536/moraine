@@ -141,6 +141,68 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
+          "name": "collapsible",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the panel is collapsible.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "collapsibleMin",
+          "optional": true,
+          "type": "ResizableSize",
+          "description": "Size of the panel when collapsed. Only applies when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "max",
+          "optional": true,
+          "type": "ResizableSize",
+          "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "default": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "min",
+          "optional": true,
+          "type": "ResizableSize",
+          "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "onCollapse",
+          "optional": true,
+          "type": "(size: number) => void",
+          "description": "Callback when the panel is collapsed. Size is in pixels."
+        },
+        {
+          "name": "onExpand",
+          "optional": true,
+          "type": "(size: number) => void",
+          "description": "Callback when the panel is expanded. Size is in pixels."
+        },
+        {
+          "name": "resizable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the panel is resizable.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

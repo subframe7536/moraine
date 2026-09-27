@@ -12,7 +12,9 @@ search:
 
 import { Resizable } from '@src'
 
-`Resizable` owns the whole size vector through `value`/`defaultValue`. Numbers are pixels and percentage strings are relative to the root. Missing or extra entries are normalized against the current panel count. `Resizable.Panel` owns constraints and collapse capability. Place `Resizable.Handle` only where adjacent panels should interact; omitting it leaves the panels adjacent without a separator.
+Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such as IDEs, email clients, and split dashboards. For single expandable disclosures or collapsible drawers, see [Collapsible](/components/collapsible) or [Sheet](/components/sheet).
+
+The root manages the normalized size vector across all panels, while `Resizable.Panel` declares minimum, maximum, and collapsible constraints. Place `Resizable.Handle` between panels to enable pointer dragging, keyboard resizing, and collapse toggles.
 
 ## Basic usage
 
@@ -21,11 +23,17 @@ import { Resizable } from 'moraine'
 
 export function Example() {
   return (
-    <Resizable>
-      <Resizable.Panel>Left</Resizable.Panel>
-      <Resizable.Handle />
-      <Resizable.Panel>Right</Resizable.Panel>
-    </Resizable>
+    <div class="h-64 w-full border border-border/60 rounded-xl overflow-hidden bg-card/30">
+      <Resizable defaultValue={['30%', '70%']}>
+        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
+          Sidebar
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel min="30%" class="p-4 bg-background/50">
+          Content
+        </Resizable.Panel>
+      </Resizable>
+    </div>
   )
 }
 ```
@@ -33,17 +41,45 @@ export function Example() {
 ## Playground
 
 <Playground
-  controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
 >
   {(props) => (
-    <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
-      <Resizable disabled={props.disabled} defaultValue={['35%', '65%']}>
-        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
-          Sidebar Panel
+    <div class="border border-border/60 rounded-xl bg-card/30 h-64 max-w-xl w-full overflow-hidden shadow-xs">
+      <Resizable
+        orientation={props.orientation}
+        disabled={props.disabled}
+        defaultValue={['35%', '65%']}
+      >
+        <Resizable.Panel min="20%" class="p-4 bg-muted/25 flex flex-col justify-between">
+          <div class="space-y-1">
+            <div class="text-xs font-medium text-foreground">Navigation Rail</div>
+            <div class="text-[11px] text-muted-foreground leading-relaxed">
+              Draggable boundary with min constraint.
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-muted-foreground/80">min="20%"</span>
         </Resizable.Panel>
         <Resizable.Handle />
-        <Resizable.Panel min="30%" class="p-4 bg-background/50">
-          Main Editor Content
+        <Resizable.Panel min="30%" class="p-4 bg-background/50 flex flex-col justify-between">
+          <div class="space-y-1">
+            <div class="text-xs font-medium text-foreground">Workspace Viewport</div>
+            <div class="text-[11px] text-muted-foreground leading-relaxed">
+              Expands or shrinks dynamically as adjacent handles move.
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-muted-foreground/80">min="30%"</span>
         </Resizable.Panel>
       </Resizable>
     </div>
@@ -62,34 +98,62 @@ Resizable [component; slot=root]
 └── Resizable.Panel [part; slot=panel]
 ```
 
-Each handle can independently set `action="collapse"`, enable `intersection`, or render a custom grip through its children. Use `children={false}` to keep the divider while omitting the inner grip.
+- `root`: Container owning the flex layout and normalized size vector.
+- `panel`: Flex child with size constraints, overflow management, and collapse state attributes (`data-collapsed`, `data-expanded`, `data-resizing`, `data-transitioning`).
+- `handle`: Divider element with `role="separator"` and expanded pointer hit target.
+- `handleControl`: Center grip pill; becomes an interactive toggle button when `action="collapse"`.
+- `intersection`: Optional corner intersection hit zones for synchronized 2D dragging at junctions.
 
 ## Usage
 
 ### Panel constraints
 
-Give the root `defaultValue` for initial sizes and set each panel's minimum or maximum as needed. The handle changes the sizes of its adjacent panels; a panel without a neighboring handle remains fixed at that boundary. Use `value` with `onChange` when the surrounding layout needs to persist or reset a split. Callbacks return pixel sizes.
+Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. Values can be pixel numbers (e.g. `240`) or percentage strings relative to the root (e.g. `'25%'`). Handles push and pull adjacent panels; boundaries prevent resizing past minimum or maximum thresholds. Panels with `resizable={false}` remain locked at their current size.
 
 <Preview path="./constraints" />
 
-### Keyboard interaction
+### Collapsible panels
 
-| Key                                          | Description                                                   |
-| -------------------------------------------- | ------------------------------------------------------------- |
-| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Resizes in the decreasing direction for the active separator. |
-| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Resizes in the increasing direction for the active separator. |
-| <kbd>Home</kbd>                              | Moves the adjacent panel toward its minimum permitted size.   |
-| <kbd>End</kbd>                               | Moves the adjacent panel toward its maximum permitted size.   |
-| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel for collapse handles.   |
-
-## Examples
-
-<Preview path="./composition" />
-
-<Preview path="./controlled" />
+Set `collapsible` on a panel to let it collapse down to `collapsibleMin` (defaulting to `0`). Set `action="collapse"` on the adjacent `Resizable.Handle` to make clicking the grip or pressing <kbd>Enter</kbd> toggle the panel. Handle children can be a render function receiving live state (`collapsed`, `dragging`, `active`) to adapt its icon. `onCollapse` and `onExpand` emit the panel's pixel size when toggled.
 
 <Preview path="./collapsible" />
 
-<Preview path="./vertical-disable" />
+### Controlled state and persistence
+
+Use `value` with `onChange` when the surrounding application coordinates layout presets, resets, or persists splits to storage. `onChange` receives exact pixel sizes. Numbers outside the panel count or exceeding bounds are automatically normalized to fit available space.
+
+<Preview path="./controlled" />
+
+### Keyboard interaction
+
+Handles render semantic separator elements with `tabIndex={0}`, `role="separator"`, and standard ARIA boundary values.
+
+| Key                                          | Description                                                        |
+| -------------------------------------------- | ------------------------------------------------------------------ |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Decreases the active separator by `keyboardDelta` (default `10%`). |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Increases the active separator by `keyboardDelta` (default `10%`). |
+| <kbd>Shift</kbd> + <kbd>Arrow</kbd>          | Jumps the active separator to its minimum or maximum limit.        |
+| <kbd>Home</kbd>                              | Snaps the adjacent panel to its minimum permitted size.            |
+| <kbd>End</kbd>                               | Snaps the adjacent panel to its maximum permitted size.            |
+| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel when `action="collapse"`.    |
+| <kbd>Alt</kbd> + drag                        | Distributes delta symmetrically across adjacent panels.            |
+
+## Examples
+
+### Nested IDE workspace
+
+Combine horizontal and vertical Resizable roots to build developer tooling layouts with an explorer sidebar, code editor, and console output. Setting `intersection` on adjoining handles enables 2D diagonal dragging at the intersection junction.
 
 <Preview path="./nested-panels" />
+
+### Multi-column email client
+
+Compose a three-column productivity layout with a folder directory, searchable thread list, and detail reading pane. Min-width constraints safeguard list readability and action layouts.
+
+<Preview path="./composition" />
+
+### Vertical query workbench
+
+Use `orientation="vertical"` to split horizontal bands such as database query editors and data result tables. The disabled state locks dividers to protect layout integrity during query execution.
+
+<Preview path="./vertical-disable" />

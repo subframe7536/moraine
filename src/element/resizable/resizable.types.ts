@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook'
+import type { ResizableOrientation, ResizableSize } from './hook'
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export namespace ResizableT {
@@ -78,10 +78,49 @@ export namespace ResizableT {
   /** Props for the Resizable component. */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 
-  export interface PanelBase extends Omit<
-    ResizablePanelItem,
-    'panelId' | 'content' | 'class' | 'style'
-  > {
+  export interface PanelBase {
+    /**
+     * Minimum size of the panel.
+     * - Use string as percent, like `20%`
+     * - Use number as px, like `328`
+     * @default 0
+     */
+    min?: ResizableSize
+
+    /**
+     * Maximum size of the panel.
+     * - Use string as percent, like `20%`
+     * - Use number as px, like `328`
+     * @default 1
+     */
+    max?: ResizableSize
+
+    /**
+     * Whether the panel is resizable.
+     * @default true
+     */
+    resizable?: boolean
+
+    /**
+     * Whether the panel is collapsible.
+     * @default false
+     */
+    collapsible?: boolean
+
+    /**
+     * Size of the panel when collapsed. Only applies when `collapsible` is true.
+     * - Use string as percent, like `20%`
+     * - Use number as px, like `328`
+     * @default 0
+     */
+    collapsibleMin?: ResizableSize
+
+    /** Callback when the panel is collapsed. Size is in pixels. */
+    onCollapse?: (size: number) => void
+
+    /** Callback when the panel is expanded. Size is in pixels. */
+    onExpand?: (size: number) => void
+
     /** Content rendered inside the panel. */
     children?: JSX.Element
   }

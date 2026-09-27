@@ -1,19 +1,153 @@
-import { Resizable } from '@src'
+import { Button, Icon, Resizable } from '@src'
+import { For, createSignal, Show } from 'solid-js'
 
-const panelClass = 'text-xs text-muted-foreground flex h-full items-center justify-center'
+const FOLDERS = [
+  { icon: 'i-lucide:inbox', label: 'Inbox', count: '12', active: true },
+  { icon: 'i-lucide:send', label: 'Sent' },
+  { icon: 'i-lucide:star', label: 'Starred', count: '4' },
+  { icon: 'i-lucide:archive', label: 'Archive' },
+  { icon: 'i-lucide:trash-2', label: 'Trash' },
+]
+
+const MESSAGES = [
+  {
+    id: 1,
+    sender: 'Sarah Lin',
+    subject: 'Moraine 0.5.0 Release Candidate',
+    snippet: 'Hey team, the draft release notes and bundle size audit are ready…',
+    time: '10:42 AM',
+    unread: true,
+  },
+  {
+    id: 2,
+    sender: 'GitHub',
+    subject: 'Pull request #142 merged',
+    snippet: 'chore(resizable): refresh documentation and interactive previews…',
+    time: 'Yesterday',
+    unread: false,
+  },
+  {
+    id: 3,
+    sender: 'Vercel Bot',
+    subject: 'Deployment preview succeeded',
+    snippet: 'Your preview deployment for branch docs-resizable is live…',
+    time: '2d ago',
+    unread: false,
+  },
+]
 
 export function Composition() {
+  const [activeMessageId, setActiveMessageId] = createSignal(1)
+  const activeMessage = () => MESSAGES.find((m) => m.id === activeMessageId())!
+
   return (
-    <div class="b-(1 border) h-48 w-full overflow-hidden rounded-xl">
-      <Resizable defaultValue={['35%', '65%']}>
-        <Resizable.Panel class={`${panelClass} bg-muted/20`}>Navigation</Resizable.Panel>
+    <div class="border border-border/60 bg-card/30 h-80 w-full shadow-xs overflow-hidden rounded-xl">
+      <Resizable defaultValue={['22%', '36%', '42%']}>
+        {/* Column 1: Mailboxes */}
+        <Resizable.Panel min="16%" max="30%" class="p-2 bg-muted/25 flex flex-col justify-between">
+          <div class="space-y-1">
+            <div class="text-foreground font-semibold px-2 py-1 flex gap-1.5 items-center text-xs">
+              <Icon name="i-lucide:mail" class="text-primary size-3.5" />
+              Mailboxes
+            </div>
+            <For each={FOLDERS}>
+              {(folder) => (
+                <div
+                  class={`px-2 py-1.5 flex cursor-pointer transition-colors items-center justify-between text-xs rounded-lg ${
+                    folder.active
+                      ? 'bg-accent text-accent-foreground font-medium'
+                      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                  }`}
+                >
+                  <div class="flex gap-2 truncate items-center">
+                    <Icon name={folder.icon} class="shrink-0 size-3.5" />
+                    <span class="truncate">{folder.label}</span>
+                  </div>
+                  <Show when={folder.count}>
+                    <span class="text-[10px] text-muted-foreground font-mono px-1 rounded bg-muted">
+                      {folder.count}
+                    </span>
+                  </Show>
+                </div>
+              )}
+            </For>
+          </div>
+          <div class="text-[10px] text-muted-foreground p-2 border-t border-border/40">
+            3 panes coordinated
+          </div>
+        </Resizable.Panel>
+
         <Resizable.Handle />
-        <Resizable.Panel>
-          <Resizable orientation="vertical" defaultValue={['60%', '40%']}>
-            <Resizable.Panel class={panelClass}>Editor workspace</Resizable.Panel>
-            <Resizable.Handle />
-            <Resizable.Panel class={`${panelClass} bg-muted/10`}>Terminal output</Resizable.Panel>
-          </Resizable>
+
+        {/* Column 2: Message list */}
+        <Resizable.Panel min="26%" max="50%" class="bg-background/60 flex flex-col">
+          <div class="p-2 border-b border-border/50 flex gap-2 items-center">
+            <Icon name="i-lucide:search" class="text-muted-foreground size-3.5" />
+            <input
+              type="text"
+              placeholder="Search messages…"
+              class="outline-none bg-transparent w-full text-xs placeholder:text-muted-foreground/60"
+            />
+          </div>
+          <div class="flex-1 overflow-auto divide-border/40 divide-y">
+            <For each={MESSAGES}>
+              {(msg) => (
+                <div
+                  onClick={() => setActiveMessageId(msg.id)}
+                  class={`p-3 cursor-pointer transition-colors space-y-1 text-xs ${
+                    activeMessageId() === msg.id
+                      ? 'bg-muted/50'
+                      : 'hover:bg-muted/20 text-muted-foreground'
+                  }`}
+                >
+                  <div class="flex items-center justify-between">
+                    <span
+                      class={`font-medium truncate ${msg.unread ? 'text-primary' : 'text-foreground'}`}
+                    >
+                      {msg.sender}
+                    </span>
+                    <span class="text-[10px] text-muted-foreground shrink-0">{msg.time}</span>
+                  </div>
+                  <div class="text-foreground font-medium truncate">{msg.subject}</div>
+                  <p class="text-[11px] text-muted-foreground line-clamp-1">{msg.snippet}</p>
+                </div>
+              )}
+            </For>
+          </div>
+        </Resizable.Panel>
+
+        <Resizable.Handle />
+
+        {/* Column 3: Reading pane */}
+        <Resizable.Panel min="30%" class="p-4 bg-background flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="pb-3 border-b border-border/40 flex items-start justify-between">
+              <div>
+                <div class="text-foreground font-semibold text-sm">{activeMessage().subject}</div>
+                <div class="text-muted-foreground mt-0.5 text-xs">
+                  From: <span class="text-foreground">{activeMessage().sender}</span>
+                </div>
+              </div>
+              <div class="flex gap-1 items-center">
+                <Button variant="ghost" size="icon-xs" aria-label="Reply">
+                  <Icon name="i-lucide:reply" class="size-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon-xs" aria-label="Archive">
+                  <Icon name="i-lucide:archive" class="size-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <p class="text-muted-foreground leading-relaxed text-xs">
+              {activeMessage().snippet} All test suites and hydration verification checks passed
+              with zero warnings across both UnoCSS and Tailwind preset configurations.
+            </p>
+          </div>
+
+          <div class="text-[11px] text-muted-foreground pt-2 border-t border-border/40 flex items-center justify-between">
+            <span>Multi-pane responsive split view</span>
+            <span class="text-[10px] font-mono">moraine.v0.5</span>
+          </div>
         </Resizable.Panel>
       </Resizable>
     </div>
