@@ -33,7 +33,13 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "disable",
+          "name": "defaultValue",
+          "optional": true,
+          "type": "readonly ResizableSize[]",
+          "description": "Initial panel sizes for uncontrolled usage."
+        },
+        {
+          "name": "disabled",
           "optional": true,
           "type": "boolean",
           "description": "Whether the resizable component is disabled.",
@@ -59,28 +65,28 @@
           }
         },
         {
+          "name": "onChange",
+          "optional": true,
+          "type": "(sizes: number[]) => void",
+          "description": "Callback when panel sizes change. Values are in pixels."
+        },
+        {
           "name": "onHandleKeyDown",
           "optional": true,
           "type": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void",
           "description": "Callback when a key is pressed on a handle."
         },
         {
-          "name": "onResize",
-          "optional": true,
-          "type": "(sizes: number[]) => void",
-          "description": "Callback when any panel is resized."
-        },
-        {
           "name": "onResizeEnd",
           "optional": true,
           "type": "(sizes: number[]) => void",
-          "description": "Callback when a resize operation ends."
+          "description": "Callback when a resize operation ends. Values are in pixels."
         },
         {
           "name": "onResizeStart",
           "optional": true,
           "type": "(sizes: number[]) => void",
-          "description": "Callback when a resize operation starts."
+          "description": "Callback when a resize operation starts. Values are in pixels."
         },
         {
           "name": "orientation",
@@ -103,6 +109,12 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "readonly ResizableSize[]",
+          "description": "Controlled panel sizes. Numbers are pixels; percentage strings are relative to the root."
         }
       ]
     },

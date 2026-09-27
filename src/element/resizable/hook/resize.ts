@@ -435,9 +435,7 @@ function resolveExpandedTargetSize(input: {
     return 0
   }
 
-  // Internal sizes are normalized ratios, so resolve defaultSize in a unit-sized root (1).
-  const fallbackDefaultSize = panel.defaultSize ? resolveSize(panel.defaultSize, 1) : panel.max
-  const preferred = input.expandedSize ?? fallbackDefaultSize
+  const preferred = input.expandedSize ?? panel.max
   const normalizedPreferred = Number.isFinite(preferred) ? preferred : panel.max
 
   return clamp(normalizedPreferred, panel.min, panel.max)

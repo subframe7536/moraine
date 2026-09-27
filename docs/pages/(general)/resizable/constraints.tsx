@@ -3,9 +3,8 @@ import { Resizable } from '@src'
 export function Constraints() {
   return (
     <div class="b-(1 border) h-40 w-full overflow-hidden rounded-xl">
-      <Resizable>
+      <Resizable defaultValue={['30%', '70%']}>
         <Resizable.Panel
-          defaultSize="30%"
           min="20%"
           max="50%"
           class="text-muted-foreground p-4 bg-muted/20 flex items-center justify-center text-xs"

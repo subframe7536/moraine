@@ -64,25 +64,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
     defaultValue: () => merged.defaultValue ?? [],
   })
   const items = createMemo(() => merged.items ?? [])
-  const allocatedIdOccurrences = new Map<string, Set<number>>()
   let rootElement: HTMLDivElement | undefined
   let lastFocusedIndex = -1
   let lastFocusedTrigger: HTMLButtonElement | undefined
   let focusRecoveryVersion = 0
-
-  function allocateItemIdSegment(base: string): [string, VoidFunction] {
-    const occurrences = allocatedIdOccurrences.get(base) ?? new Set<number>()
-    let occurrence = 1
-
-    while (occurrences.has(occurrence)) {
-      occurrence += 1
-    }
-
-    occurrences.add(occurrence)
-    allocatedIdOccurrences.set(base, occurrences)
-
-    return [occurrence === 1 ? base : `${base}-${occurrence}`, () => occurrences.delete(occurrence)]
-  }
 
   function getTriggers(): HTMLButtonElement[] {
     if (!rootElement) {
@@ -121,7 +106,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function setValue(nextValue: string[]): void {
     setSelectedValues(nextValue)
-
     merged.onChange?.(nextValue)
   }
 
@@ -234,10 +218,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
     >
       <For each={items()}>
         {(item) => {
-          const fallbackValue = useId(undefined, 'accordion-item')
-          const itemValue = createMemo(() => item.value ?? fallbackValue())
-          const [itemIdSegment, releaseItemId] = allocateItemIdSegment(untrack(itemValue))
-          onCleanup(releaseItemId)
+          const itemIdSegment = useId(undefined, 'accordion-item')
+          const itemValue = createMemo(() => item.value ?? itemIdSegment())
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
           const leading = createMemo(() => item.leading)
@@ -254,7 +236,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const {
             contentHeight,
             dataAttrs: contentDataAttrs,
-            setContentElement,
+            registerElement,
           } = useDisclosureState({
             open: contentExpanded,
             disabled,
@@ -266,8 +248,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
               setContentHidden(true)
             },
           })
-          const triggerId = createMemo(() => `${rootId()}-${itemIdSegment}-trigger`)
-          const contentId = createMemo(() => `${rootId()}-${itemIdSegment}-content`)
+          const triggerId = createMemo(() => `${rootId()}-${itemIdSegment()}-trigger`)
+          const contentId = createMemo(() => `${rootId()}-${itemIdSegment()}-content`)
           let contentElement: HTMLDivElement | undefined
           let triggerElement: HTMLButtonElement | undefined
           let spaceKeyDown = false
@@ -312,17 +294,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
               setContentHidden(false)
               openContentElement(isExpanded)
             }),
-          )
-
-          createEffect(
-            on(
-              () => !contentPresence.present() && merged.unmountOnHide,
-              (shouldUnmount) => {
-                if (shouldUnmount) {
-                  contentElement = undefined
-                }
-              },
-            ),
           )
 
           function onTriggerClick(event: MouseEvent): void {
@@ -392,7 +363,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   }}
                   id={triggerId()}
                   type="button"
-                  aria-controls={expanded() ? contentId() : undefined}
+                  aria-controls={contentId()}
                   aria-expanded={expanded()}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
@@ -437,39 +408,46 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 </button>
               </h3>
 
-              <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
-                <div
-                  ref={(element) => {
-                    contentElement = element
-                    setContentElement(element)
-                    contentPresence.setElement(element)
-
-                    if (expanded() && !contentExpanded()) {
-                      openContentElement(expanded())
+              <div
+                ref={(element) => {
+                  contentElement = element
+                  const releaseDisclosure = registerElement(element)
+                  const releasePresence = contentPresence.registerElement(element)
+                  onCleanup(() => {
+                    releasePresence()
+                    releaseDisclosure()
+                    if (contentElement === element) {
+                      contentElement = undefined
                     }
-                  }}
-                  id={contentId()}
-                  role="region"
-                  aria-labelledby={triggerId()}
-                  aria-hidden={!expanded() ? true : undefined}
-                  hidden={contentHidden()}
-                  inert={!expanded() ? true : undefined}
-                  data-slot="accordion-content"
-                  class={resolved.styles.content.class}
-                  style={{
-                    get '--mo-collapsible-content-height'() {
-                      return `${contentHeight()}px`
-                    },
-                    ...resolved.styles.content.style,
-                  }}
-                  {...accordionDataAttributes.content({
-                    closed: () => contentDataAttrs()['data-closed'],
-                    expanded: () => contentDataAttrs()['data-expanded'],
-                  })}
-                >
+                  })
+
+                  if (expanded() && !contentExpanded()) {
+                    openContentElement(expanded())
+                  }
+                }}
+                id={contentId()}
+                role="region"
+                aria-labelledby={triggerId()}
+                aria-hidden={!expanded() ? true : undefined}
+                hidden={contentHidden()}
+                inert={!expanded() ? true : undefined}
+                data-slot="accordion-content"
+                class={resolved.styles.content.class}
+                style={{
+                  get '--mo-collapsible-content-height'() {
+                    return `${contentHeight()}px`
+                  },
+                  ...resolved.styles.content.style,
+                }}
+                {...accordionDataAttributes.content({
+                  closed: () => contentDataAttrs()['data-closed'],
+                  expanded: () => contentDataAttrs()['data-expanded'],
+                })}
+              >
+                <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
                   {renderContent()}
-                </div>
-              </Show>
+                </Show>
+              </div>
             </div>
           )
         }}

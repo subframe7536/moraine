@@ -71,8 +71,8 @@ Use Collapsible for one disclosure whose trigger and content belong to the surro
 ```text
 root (Collapsible)
 ├── trigger (Collapsible.Trigger)
-└── contentWrapper (internal, optional)
-    └── content (Collapsible.Content)
+└── contentWrapper (internal, always mounted)
+    └── content (Collapsible.Content, optionally mounted)
 ```
 
 ## Usage
@@ -93,7 +93,7 @@ Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the c
 
 ### Content lifetime
 
-The content transition and mount behavior are separate choices. Keep content mounted when it holds state that should survive closing; unmount it when inactive content should leave the document.
+The content shell stays mounted so the trigger's `aria-controls` points to a real element even while closed. `unmountOnHide` controls the user content inside it. Keep user content mounted when it holds state that should survive closing.
 
 <Preview path="./content-lifetime" />
 

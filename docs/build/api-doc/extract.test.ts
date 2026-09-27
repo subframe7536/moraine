@@ -142,14 +142,11 @@ describe('generateApiDoc', () => {
       }
     }
     const buttonGroup = result.componentDocs.get('button-group')!
-    expect(buttonGroup.parts[0]!.props.find((prop) => prop.name === 'size')?.type).toContain(
-      "'icon-xl'",
+    expect(buttonGroup.parts[0]!.props.find((prop) => prop.name === 'size')?.type).toBe(
+      "'sm' | 'md' | 'lg'",
     )
     const separator = buttonGroup.parts.find((part) => part.name === 'ButtonGroup.Separator')!
-    expect(separator.props.find((prop) => prop.name === 'orientation')?.default).toEqual({
-      kind: 'literal',
-      value: 'vertical',
-    })
+    expect(separator.props.find((prop) => prop.name === 'orientation')?.default).toBeUndefined()
     expect(separator.props.map((prop) => prop.name)).not.toContain('size')
     expect(separator.props.map((prop) => prop.name)).not.toContain('variant')
     expect(

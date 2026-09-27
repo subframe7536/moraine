@@ -817,8 +817,8 @@ describe('animations', () => {
         .filter((token) => token.includes('dragging')),
     ]
     const css = await compileCSS(tokens)
-    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-expanded\]\)/)
-    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-closed\]\)/)
+    expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
+    expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
     expect(css).toMatch(/\[data-multiple\][^{\n]*::before/)

@@ -55,39 +55,26 @@ export namespace AccordionT {
      */
     id?: string
 
-    /**
-     * Controlled list of expanded item values.
-     */
+    /** Controlled list of expanded item values. */
     value?: string[]
 
-    /**
-     * Default list of expanded item values for uncontrolled usage.
-     * @default []
-     */
+    /** Default list of expanded item values for uncontrolled usage. @default [] */
     defaultValue?: string[]
 
-    /**
-     * Whether multiple accordion items can be expanded at the same time.
-     * @default false
-     */
+    /** Whether multiple accordion items can be expanded at the same time. @default false */
     multiple?: boolean
 
-    /**
-     * Whether the last expanded item can be collapsed.
-     * @default true
-     */
+    /** Whether the last expanded item can be collapsed. @default true */
     collapsible?: boolean
+
+    /** Callback when the expanded item values change. */
+    onChange?: (value: string[]) => void
 
     /**
      * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
      * @default true
      */
     loop?: boolean
-
-    /**
-     * Callback when the expanded item values change.
-     */
-    onChange?: (value: string[]) => void
 
     /**
      * Array of accordion items to render.

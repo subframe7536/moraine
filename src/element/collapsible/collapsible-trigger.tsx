@@ -64,7 +64,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       {...interactionProps}
       component={tag()}
       {...resolved.styles.trigger}
-      aria-controls={context.open() ? context.contentId() : undefined}
+      aria-controls={context.contentId()}
       aria-expanded={context.open()}
       {...collapsibleDataAttributes.trigger({
         expanded: () => context.dataAttrs()['data-expanded'],

@@ -19,21 +19,21 @@ import { Resizable } from 'moraine'
 import type { ResizableT } from 'moraine'
 ```
 
-`Resizable.Panel` owns panel sizing and constraints. Place `Resizable.Handle` only where adjacent panels should interact; omitting it leaves the panels adjacent without a separator.
+`Resizable` owns the whole size vector through `value`/`defaultValue`. Numbers are pixels and percentage strings are relative to the root. Missing or extra entries are normalized against the current panel count. `Resizable.Panel` owns constraints and collapse capability. Place `Resizable.Handle` only where adjacent panels should interact; omitting it leaves the panels adjacent without a separator.
 
 ## Playground
 
 <Playground
-  controls={[{ kind: 'switch', prop: 'disable', label: 'Disabled', defaultValue: false }]}
+  controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
 >
   {(props) => (
     <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
-      <Resizable disable={props.disable}>
-        <Resizable.Panel defaultSize="35%" min="20%" class="p-4 bg-muted/20">
+      <Resizable disabled={props.disabled} defaultValue={['35%', '65%']}>
+        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
           Sidebar Panel
         </Resizable.Panel>
         <Resizable.Handle />
-        <Resizable.Panel defaultSize="65%" min="30%" class="p-4 bg-background/50">
+        <Resizable.Panel min="30%" class="p-4 bg-background/50">
           Main Editor Content
         </Resizable.Panel>
       </Resizable>
@@ -59,7 +59,7 @@ Each handle can independently set `action="collapse"`, enable `intersection`, or
 
 ### Panel constraints
 
-Give each panel an initial size and any minimum or maximum it must respect. The handle changes the sizes of its adjacent panels; a panel without a neighboring handle remains fixed at that boundary. Use controlled sizes when the surrounding layout needs to persist or reset a split.
+Give the root `defaultValue` for initial sizes and set each panel's minimum or maximum as needed. The handle changes the sizes of its adjacent panels; a panel without a neighboring handle remains fixed at that boundary. Use `value` with `onChange` when the surrounding layout needs to persist or reset a split. Callbacks return pixel sizes.
 
 <Preview path="./constraints" />
 

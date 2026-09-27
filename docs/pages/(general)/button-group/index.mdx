@@ -89,7 +89,7 @@ Use `ButtonGroup` to align related actions without changing their semantics. Add
 
 ### Separator
 
-Insert `ButtonGroup.Separator` only where an explicit boundary is useful. It defaults to a vertical separator; set `orientation="horizontal"` when using it in a vertical group.
+Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation follows the group axis: vertical in a horizontal group and horizontal in a vertical group. An explicit `orientation` overrides this default.
 
 <Preview path="./separator" />
 

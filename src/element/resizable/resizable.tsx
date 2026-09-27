@@ -19,9 +19,7 @@ import { renderComponentOrElement } from '../../shared/render-prop'
 import { callHandler, callRef, useId } from '../../shared/utils'
 
 import {
-  collapsePanel,
   EPSILON,
-  expandPanel,
   fixToPrecision,
   RESIZABLE_HANDLE_TARGET_END,
   RESIZABLE_HANDLE_TARGET_START,
@@ -57,14 +55,11 @@ const RESIZABLE_HANDLE_PART = Symbol('Resizable.Handle')
 type PanelLocalProps = Pick<
   ResizableT.PanelProps,
   | 'id'
-  | 'size'
-  | 'defaultSize'
   | 'min'
   | 'max'
   | 'resizable'
   | 'collapsible'
   | 'collapsibleMin'
-  | 'onResize'
   | 'onCollapse'
   | 'onExpand'
   | 'class'
@@ -120,14 +115,11 @@ function isResizablePart(value: unknown): value is ResizablePart {
 function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'id',
-    'size',
-    'defaultSize',
     'min',
     'max',
     'resizable',
     'collapsible',
     'collapsibleMin',
-    'onResize',
     'onCollapse',
     'onExpand',
     'children',
@@ -179,11 +171,13 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',
-    'onResize',
+    'value',
+    'defaultValue',
+    'onChange',
     'onResizeStart',
     'onResizeEnd',
     'onHandleKeyDown',
-    'disable',
+    'disabled',
     'keyboardDelta',
     'orientation',
     'classes',
@@ -259,14 +253,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const panelItems = createMemo<ResizablePanelItem[]>(() =>
     panelParts().map((part) => ({
       panelId: part.local.id,
-      size: part.local.size,
-      defaultSize: part.local.defaultSize,
       min: part.local.min,
       max: part.local.max,
       resizable: part.local.resizable,
       collapsible: part.local.collapsible,
       collapsibleMin: part.local.collapsibleMin,
-      onResize: part.local.onResize,
       onCollapse: part.local.onCollapse,
       onExpand: part.local.onExpand,
       class: cn(part.local.class),
@@ -277,13 +268,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const resolvedPanels = createMemo(() => resolvePanels(panelItems(), rootSize(), panelIdPrefix()))
   const panelCount = createMemo(() => resolvedPanels().length)
-  const panelDefaultSizes = createMemo(() => resolvedPanels().map((p) => p.defaultSize))
-  const panelControlledSizes = createMemo(() => panelItems().map((p) => p.size))
+  const panelDefaultSizes = createMemo(() => Array.from(local.defaultValue ?? []))
+  const panelControlledSizes = createMemo(() =>
+    local.value === undefined ? undefined : Array.from(local.value),
+  )
   const panelMinSizes = createMemo(() => {
     const panels = resolvedPanels()
     const controlledSizes = panelControlledSizes()
-    const hasControlledSizes = controlledSizes.some((size) => size !== undefined)
-    const activeSizes = hasControlledSizes ? controlledSizes : uncontrolledSizes()
+    const activeSizes = controlledSizes ?? uncontrolledSizes()
     const currentRootSize = rootSize()
 
     return panels.map((panel, index) => {
@@ -314,8 +306,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
   }
 
   const normalizedControlledSizes = createMemo(() => {
-    const next = panelItems().map((p) => p.size)
-    return next?.some((s) => s !== undefined) ? normalizeWithCurrentState(next) : undefined
+    const next = panelControlledSizes()
+    return next === undefined ? undefined : normalizeWithCurrentState(next)
   })
 
   const sizes = createMemo(() => {
@@ -420,19 +412,18 @@ export function Resizable(props: ResizableProps): JSX.Element {
         const panel = panels[i]
         const size = currentSizes[i] ?? 0
         const collapsed = panel ? isPanelCollapsed(size, panel) : false
+        const sizeChanged = prevSizes[i] !== undefined && Math.abs(prevSizes[i]! - size) > EPSILON
 
         if (
           panel &&
-          (prevSizes[i] === undefined || Math.abs((prevSizes[i] ?? 0) - size) > EPSILON)
+          sizeChanged &&
+          prevCollapsed[i] !== undefined &&
+          prevCollapsed[i] !== collapsed
         ) {
-          panel.onResize?.(size)
-        }
-
-        if (panel && prevCollapsed[i] !== undefined && prevCollapsed[i] !== collapsed) {
           if (collapsed) {
-            panel.onCollapse?.(size)
+            panel.onCollapse?.(size * rootSize())
           } else {
-            panel.onExpand?.(size)
+            panel.onExpand?.(size * rootSize())
           }
         }
       }
@@ -442,9 +433,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }),
   )
 
-  const panelCollapsibleStates = createMemo(() => panelItems().map((p) => p.collapsible))
-
-  let prevCollapsibleStates: Array<boolean | undefined> = []
   const lastExpandedSizes: Array<number | undefined> = []
 
   createEffect(
@@ -461,69 +449,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
         lastExpandedSizes[index] = size
       }
     }),
-  )
-
-  createEffect(
-    on(
-      [panelCollapsibleStates, resolvedPanels, sizes],
-      ([nextCollapsibleStates, panels, currentSizes]) => {
-        let nextSizes = currentSizes
-        let changed = false
-        const transitionPanelIndexes: number[] = []
-
-        for (let panelIndex = 0; panelIndex < nextCollapsibleStates.length; panelIndex += 1) {
-          const previous = prevCollapsibleStates[panelIndex]
-          const next = nextCollapsibleStates[panelIndex]
-
-          if (previous === undefined || next === undefined || previous === next) {
-            continue
-          }
-
-          const panel = panels[panelIndex]
-          if (!panel) {
-            continue
-          }
-
-          const strategy =
-            panelIndex === panels.length - 1 ? RESIZE_FLAG_PRECEDING : RESIZE_FLAG_FOLLOWING
-          const togglePanels = panels.map((item, index) =>
-            index === panelIndex ? Object.assign({}, item, { collapsible: true }) : item,
-          )
-
-          const resized = normalizeSizes(
-            next
-              ? collapsePanel({
-                  panelIndex,
-                  strategy,
-                  initialSizes: nextSizes,
-                  panels: togglePanels,
-                })
-              : expandPanel({
-                  panelIndex,
-                  strategy,
-                  initialSizes: nextSizes,
-                  panels: togglePanels,
-                  expandedSize: lastExpandedSizes[panelIndex],
-                }),
-          )
-
-          if (!hasSizeChange(nextSizes, resized)) {
-            continue
-          }
-
-          nextSizes = resized
-          transitionPanelIndexes.push(panelIndex)
-          changed = true
-        }
-
-        prevCollapsibleStates = [...nextCollapsibleStates]
-
-        if (changed) {
-          markPanelsTransitioning(transitionPanelIndexes)
-          emitSizes(nextSizes)
-        }
-      },
-    ),
   )
 
   function hasSizeChange(previousSizes: number[], nextSizes: number[]): boolean {
@@ -634,7 +559,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
         handleIndex,
         initialSizes: currentSizes,
         panels: resolvedPanels(),
-        expandedSizes: lastExpandedSizes,
+        expandedSizes: resolvedPanels().map(
+          (_, index) => lastExpandedSizes[index] ?? normalizeWithCurrentState()[index],
+        ),
       }),
     )
 
@@ -684,7 +611,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       )
     }
 
-    local.onResize?.(resolvePixelSizes(normalizedSizes))
+    local.onChange?.(resolvePixelSizes(normalizedSizes))
   }
 
   let drag: DragState | null = null
@@ -758,7 +685,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
   }
 
   function onHandleKeyDown(handleIndex: number, event: KeyboardEvent, altKey: boolean): void {
-    if (local.disable || !isHandleResizable(handleIndex)) {
+    if (local.disabled || !isHandleResizable(handleIndex)) {
       return
     }
 
@@ -877,13 +804,13 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 {(handlePart) => {
                   const action = () => handlePart().local.action ?? 'resize'
                   const handleDisabled = createMemo(
-                    () => local.disable === true || !isHandleResizable(index),
+                    () => local.disabled === true || !isHandleResizable(index),
                   )
                   const handleCollapseAction = createMemo(
-                    () => action() === 'collapse' && local.disable !== true,
+                    () => action() === 'collapse' && local.disabled !== true,
                   )
                   const gripDisabled = createMemo(() =>
-                    action() === 'collapse' ? local.disable === true : handleDisabled(),
+                    action() === 'collapse' ? local.disabled === true : handleDisabled(),
                   )
                   const collapseState = createMemo(() => resolveNearestCollapsibleState(index))
                   const aria = createMemo(() =>
@@ -892,7 +819,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   const bindings = useResizableHandle({
                     handleIndex: () => index,
                     orientation,
-                    disable: handleDisabled,
+                    disabled: handleDisabled,
                     intersection: () => handlePart().local.intersection,
                     onDrag: resizeHandleByDelta,
                     onDragEnd: stopHandleDrag,

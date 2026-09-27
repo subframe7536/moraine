@@ -10,56 +10,81 @@ import { AvatarGroup } from './avatar-group'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
-const originalImage = window.Image
+const originalSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src')!
+const originalComplete = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'complete')!
+const originalNaturalWidth = Object.getOwnPropertyDescriptor(
+  HTMLImageElement.prototype,
+  'naturalWidth',
+)!
 const outcomesBySrc = new Map<string, MockImageOutcome>()
-const mockImages: MockImage[] = []
+const mockImages: HTMLImageElement[] = []
+let imageObserver: MutationObserver
 
-class MockImage {
-  public complete = false
-  public naturalWidth = 0
-  public onload: (() => void) | null = null
-  public onerror: ((event: Event) => void) | null = null
-  private _src = ''
-
-  public constructor() {
-    mockImages.push(this)
+function queueImageOutcome(image: HTMLImageElement): void {
+  if (!mockImages.includes(image)) {
+    mockImages.push(image)
   }
-
-  public set src(value: string) {
-    this._src = value
-
-    const outcome = outcomesBySrc.get(value) ?? 'pending'
-    if (outcome === 'cached-success' || outcome === 'cached-error') {
-      this.complete = true
-      this.naturalWidth = outcome === 'cached-success' ? 100 : 0
-      return
-    }
-
+  const source = image.getAttribute('src') ?? ''
+  const outcome = outcomesBySrc.get(source)
+  if (outcome === 'success' || outcome === 'error') {
     queueMicrotask(() => {
-      if (outcome === 'success') {
-        this.onload?.()
-        return
-      }
-
-      if (outcome === 'error') {
-        this.onerror?.(new Event('error'))
+      if (image.getAttribute('src') === source) {
+        image.dispatchEvent(new Event(outcome === 'success' ? 'load' : 'error'))
       }
     })
-  }
-
-  public get src(): string {
-    return this._src
   }
 }
 
 beforeEach(() => {
   outcomesBySrc.clear()
   mockImages.length = 0
-  window.Image = MockImage as unknown as typeof window.Image
+  Object.defineProperty(HTMLImageElement.prototype, 'src', {
+    configurable: true,
+    get: originalSrc.get,
+    set(this: HTMLImageElement, value: string) {
+      originalSrc.set?.call(this, value)
+      queueImageOutcome(this)
+    },
+  })
+  Object.defineProperty(HTMLImageElement.prototype, 'complete', {
+    configurable: true,
+    get(this: HTMLImageElement) {
+      return outcomesBySrc.get(this.getAttribute('src') ?? '')?.startsWith('cached-') ?? false
+    },
+  })
+  Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', {
+    configurable: true,
+    get(this: HTMLImageElement) {
+      return outcomesBySrc.get(this.getAttribute('src') ?? '') === 'cached-success' ? 100 : 0
+    },
+  })
+  imageObserver = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === 'attributes' && record.target instanceof HTMLImageElement) {
+        queueImageOutcome(record.target)
+      }
+      for (const node of record.addedNodes) {
+        if (node instanceof HTMLImageElement) {
+          queueImageOutcome(node)
+        } else if (node instanceof Element) {
+          node.querySelectorAll('img').forEach(queueImageOutcome)
+        }
+      }
+    }
+  })
+  imageObserver.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['src'],
+  })
 })
 
 afterEach(() => {
-  window.Image = originalImage
+  Object.defineProperty(HTMLImageElement.prototype, 'src', originalSrc)
+  Object.defineProperty(HTMLImageElement.prototype, 'complete', originalComplete)
+  Object.defineProperty(HTMLImageElement.prototype, 'naturalWidth', originalNaturalWidth)
+  imageObserver.disconnect()
   vi.restoreAllMocks()
 })
 
@@ -112,6 +137,13 @@ describe('Avatar', () => {
     expect(fallback?.textContent).toBe('MR')
   })
 
+  test('renders the native image src without constructing a preload image', () => {
+    const preload = vi.spyOn(window, 'Image')
+    const screen = render(() => <Avatar src="/native.png" alt="Native" />)
+    expect(screen.container.querySelector('img')?.getAttribute('src')).toBe('/native.png')
+    expect(preload).not.toHaveBeenCalled()
+  })
+
   test('switches to loaded state and crossfades image', async () => {
     outcomesBySrc.set('/loaded.png', 'success')
     const screen = render(() => <Avatar src="/loaded.png" alt="Moraine" />)
@@ -133,7 +165,7 @@ describe('Avatar', () => {
   test.each([
     ['cached-success', 'loaded'],
     ['cached-error', 'error'],
-  ] as const)('resolves %s probes synchronously without an idle callback', (outcome, status) => {
+  ] as const)('resolves %s images through the native element', async (outcome, status) => {
     outcomesBySrc.set('/cached.png', outcome)
     const onStatusChange = vi.fn()
     const screen = render(() => (
@@ -141,7 +173,7 @@ describe('Avatar', () => {
     ))
 
     const root = screen.container.querySelector('[data-slot="avatar"]')
-    expect(root?.getAttribute('data-status')).toBe(status)
+    await waitFor(() => expect(root?.getAttribute('data-status')).toBe(status))
     expect(onStatusChange).not.toHaveBeenCalledWith('idle')
 
     if (status === 'loaded') {
@@ -294,14 +326,14 @@ describe('Avatar', () => {
     const secondCallback = vi.fn()
     const [callback, setCallback] = createSignal<(status: string) => void>(firstCallback)
 
-    render(() => <Avatar src="/pending.png" onStatusChange={callback()} />)
-    expect(mockImages).toHaveLength(1)
+    const screen = render(() => <Avatar src="/pending.png" onStatusChange={callback()} />)
+    const image = screen.container.querySelector('img')!
     expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
 
     setCallback(() => secondCallback)
-    mockImages[0]?.onload?.()
+    image.dispatchEvent(new Event('load'))
 
-    expect(mockImages).toHaveLength(1)
+    expect(image.getAttribute('src')).toBe('/pending.png')
     expect(firstCallback.mock.calls.map(([status]) => status)).toEqual(['loading'])
     expect(secondCallback.mock.calls.map(([status]) => status)).toEqual(['loaded'])
   })
@@ -321,23 +353,21 @@ describe('Avatar', () => {
     const [source, setSource] = createSignal('/first.png')
     const onStatusChange = vi.fn()
     const screen = render(() => <Avatar src={source()} onStatusChange={onStatusChange} />)
-    const firstLoader = mockImages[0]
+    const image = screen.container.querySelector('img')!
 
     setSource('/second.png')
-    const secondLoader = mockImages[1]
-    firstLoader?.onload?.()
-
+    expect(image.getAttribute('src')).toBe('/second.png')
     expect(
       screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
     ).toBe('loading')
 
-    secondLoader?.onload?.()
+    image.dispatchEvent(new Event('load'))
     expect(
       screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
     ).toBe('loaded')
 
     screen.unmount()
-    secondLoader?.onerror?.(new Event('error'))
+    image.dispatchEvent(new Event('error'))
     expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading', 'loaded'])
   })
 
@@ -353,7 +383,7 @@ describe('Avatar', () => {
       screen.container.querySelector('[data-slot="avatar-image"]')?.getAttribute('aria-hidden'),
     ).toBe('true')
 
-    mockImages[0]?.onload?.()
+    screen.container.querySelector('img')?.dispatchEvent(new Event('load'))
 
     await waitFor(() => {
       const image = screen.getByRole('img', { name: 'Jane Doe' })
@@ -467,15 +497,14 @@ describe('Avatar', () => {
     expect(root).not.toBeNull()
     expect(count?.textContent).toBe('+2')
     expect(fallbacks).toHaveLength(2)
-    expect(fallbacks[0]?.textContent).toBe('B')
-    expect(fallbacks[1]?.textContent).toBe('A')
-    expect(root?.className).toContain('flex-row-reverse')
-    expect(root?.className).toContain('justify-end')
+    expect(fallbacks[0]?.textContent).toBe('A')
+    expect(fallbacks[1]?.textContent).toBe('B')
+    expect(root?.className).toContain('flex-row')
     const item = screen.container.querySelector('[data-slot="avatar-group-item"]')
-    expect(item?.className).toContain('-me-2')
+    expect(item?.className).toContain('-ms-2')
   })
 
-  test('renders all group items when max is absent and reverses order', () => {
+  test('renders all group items in input order when max is absent', () => {
     const screen = render(() => (
       <AvatarGroup items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }]} />
     ))
@@ -488,9 +517,23 @@ describe('Avatar', () => {
 
     expect(screen.container.querySelector('[data-slot="avatar-group-count"]')).toBeNull()
     expect(fallbacks).toHaveLength(3)
-    expect(fallbacks[0]?.textContent).toBe('C')
+    expect(fallbacks[0]?.textContent).toBe('A')
     expect(fallbacks[1]?.textContent).toBe('B')
-    expect(fallbacks[2]?.textContent).toBe('A')
+    expect(fallbacks[2]?.textContent).toBe('C')
+  })
+
+  test('shows only the overflow count for max zero and floors positive max', () => {
+    const screen = render(() => (
+      <>
+        <AvatarGroup max={0} items={[{ text: 'A' }, { text: 'B' }]} />
+        <AvatarGroup max={1.8} items={[{ text: 'C' }, { text: 'D' }]} />
+      </>
+    ))
+    const groups = screen.container.querySelectorAll('[data-slot="avatar-group"]')
+    expect(groups[0]?.querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(0)
+    expect(groups[0]?.querySelector('[data-slot="avatar-group-count"]')?.textContent).toBe('+2')
+    expect(groups[1]?.querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(1)
+    expect(groups[1]?.querySelector('[data-slot="avatar-group-count"]')?.textContent).toBe('+1')
   })
 
   test('supports sm and lg size variants for avatar groups', () => {
@@ -509,12 +552,12 @@ describe('Avatar', () => {
     )
 
     expect(groupCounts[0]?.className).toContain('size-6')
-    expect(groupCounts[0]?.className).toContain('-me-2')
-    expect(groupItems[0]?.className).toContain('-me-2')
+    expect(groupCounts[0]?.className).toContain('-ms-2')
+    expect(groupItems[0]?.className).toContain('-ms-2')
 
     expect(groupCounts[1]?.className).toContain('size-10')
-    expect(groupCounts[1]?.className).toContain('-me-2')
-    expect(groupItems[1]?.className).toContain('-me-2')
+    expect(groupCounts[1]?.className).toContain('-ms-2')
+    expect(groupItems[1]?.className).toContain('-ms-2')
   })
 
   test('applies styles overrides to all slots', () => {

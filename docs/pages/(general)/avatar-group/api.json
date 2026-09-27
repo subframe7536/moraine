@@ -40,7 +40,7 @@
         {
           "name": "max",
           "optional": true,
-          "type": "number | string",
+          "type": "number",
           "description": "Maximum number of avatars to show."
         },
         {

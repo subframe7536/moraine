@@ -70,10 +70,16 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
-  const [status, setStatusSignal] = createSignal<AvatarT.Status>('idle')
-  const [resolvedSrc, setResolvedSrc] = createSignal<string | undefined>(undefined)
+  const [status, setStatusSignal] = createSignal<AvatarT.Status>(
+    untrack(source) ? 'loading' : 'error',
+  )
+  let imageElement: HTMLImageElement | undefined
+  let disposed = false
+  onCleanup(() => {
+    disposed = true
+  })
 
-  let currentStatus: AvatarT.Status = 'idle'
+  let currentStatus: AvatarT.Status | undefined
 
   function setStatus(nextStatus: AvatarT.Status): void {
     if (currentStatus === nextStatus) {
@@ -93,42 +99,18 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         cancelled = true
       })
 
-      setResolvedSrc(undefined)
-
-      if (!currentSource || typeof window === 'undefined' || typeof window.Image !== 'function') {
+      if (!currentSource) {
         setStatus('error')
         return
       }
 
       setStatus('loading')
-      const loader = new window.Image()
-
-      loader.onload = () => {
-        if (cancelled) {
+      queueMicrotask(() => {
+        if (cancelled || !imageElement?.complete) {
           return
         }
-        setResolvedSrc(currentSource)
-        setStatus('loaded')
-      }
-
-      loader.onerror = () => {
-        if (cancelled) {
-          return
-        }
-        setResolvedSrc(undefined)
-        setStatus('error')
-      }
-
-      loader.src = currentSource
-
-      if (loader.complete) {
-        if (loader.naturalWidth > 0) {
-          setResolvedSrc(currentSource)
-          setStatus('loaded')
-        } else {
-          setStatus('error')
-        }
-      }
+        setStatus(imageElement.naturalWidth > 0 ? 'loaded' : 'error')
+      })
     }),
   )
 
@@ -143,7 +125,20 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       <img
         data-slot="avatar-image"
         {...avatarDataAttributes.image({ status })}
-        src={resolvedSrc()}
+        ref={(element) => {
+          imageElement = element
+        }}
+        src={source()}
+        onLoad={() => {
+          if (!disposed) {
+            setStatus('loaded')
+          }
+        }}
+        onError={() => {
+          if (!disposed) {
+            setStatus('error')
+          }
+        }}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
         {...resolved.styles.image}

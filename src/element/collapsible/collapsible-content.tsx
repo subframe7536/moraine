@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, Show, splitProps } from 'solid-js'
+import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -34,7 +34,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     inheritedStyles: () => context.presentation,
   })
 
-  const shouldRender = createMemo(
+  const shouldRenderContent = createMemo(
     () =>
       local.forceMount ||
       !(local.unmountOnHide ?? context.unmountOnHide()) ||
@@ -48,48 +48,46 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   const hidden = createMemo(() => closed() && !exiting())
 
   return (
-    <Show when={shouldRender()}>
-      {(_visible) => {
-        const children = resolveChildren(() => local.children)
-
-        return (
-          <div
-            ref={(element: HTMLElement) => {
-              context.setContentElement(element)
-              context.contentPresence.setElement(element)
-            }}
-            id={context.contentId()}
-            aria-labelledby={context.triggerId()}
-            aria-hidden={closed() ? true : undefined}
-            data-slot="collapsible-content-wrapper"
-            {...collapsibleWrapperDataAttributes({
-              transition: context.transition,
-              expanded: () => context.dataAttrs()['data-expanded'],
-              closed: () => context.dataAttrs()['data-closed'],
-            })}
-            hidden={hidden()}
-            inert={closed() ? true : undefined}
-            style={{
-              '--mo-collapsible-content-height': `${context.contentHeight()}px`,
-            }}
-            class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
-          >
-            <Dynamic
-              data-slot="collapsible-content"
-              {...rest}
-              {...collapsibleDataAttributes.content({
-                expanded: () => context.dataAttrs()['data-expanded'],
-                closed: () => context.dataAttrs()['data-closed'],
-              })}
-              component={local.as ?? 'div'}
-              {...resolved.styles.content}
-              ref={(element: HTMLElement) => callRef(local.ref, element)}
-            >
-              {children()}
-            </Dynamic>
-          </div>
-        )
+    <div
+      ref={(element: HTMLElement) => {
+        const releaseDisclosure = context.registerContentElement(element)
+        const releasePresence = context.contentPresence.registerElement(element)
+        onCleanup(() => {
+          releasePresence()
+          releaseDisclosure()
+        })
       }}
-    </Show>
+      id={context.contentId()}
+      aria-labelledby={context.triggerId()}
+      aria-hidden={closed() ? true : undefined}
+      data-slot="collapsible-content-wrapper"
+      {...collapsibleWrapperDataAttributes({
+        transition: context.transition,
+        expanded: () => context.dataAttrs()['data-expanded'],
+        closed: () => context.dataAttrs()['data-closed'],
+      })}
+      hidden={hidden()}
+      inert={closed() ? true : undefined}
+      style={{
+        '--mo-collapsible-content-height': `${context.contentHeight()}px`,
+      }}
+      class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
+    >
+      <Show when={shouldRenderContent()}>
+        <Dynamic
+          data-slot="collapsible-content"
+          {...rest}
+          {...collapsibleDataAttributes.content({
+            expanded: () => context.dataAttrs()['data-expanded'],
+            closed: () => context.dataAttrs()['data-closed'],
+          })}
+          component={local.as ?? 'div'}
+          {...resolved.styles.content}
+          ref={(element: HTMLElement) => callRef(local.ref, element)}
+        >
+          {resolveChildren(() => local.children)()}
+        </Dynamic>
+      </Show>
+    </div>
   )
 }

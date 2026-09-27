@@ -7,14 +7,8 @@ export function CollapsibleCollapsibleMin() {
   return (
     <div class="space-y-4">
       <div class="b-1 b-border border-border h-56 overflow-hidden rounded-xl">
-        <Resizable onResize={setSizes}>
-          <Resizable.Panel
-            size={sizes()[0]}
-            min="16%"
-            collapsible
-            collapsibleMin="10%"
-            class="p-4 bg-muted"
-          >
+        <Resizable value={sizes()} onChange={setSizes}>
+          <Resizable.Panel min="16%" collapsible collapsibleMin="10%" class="p-4 bg-muted">
             Sidebar
           </Resizable.Panel>
           <Resizable.Handle action="collapse">
@@ -22,7 +16,7 @@ export function CollapsibleCollapsibleMin() {
               <Icon name={state.collapsed ? 'i-lucide:align-justify' : 'i-lucide:align-left'} />
             )}
           </Resizable.Handle>
-          <Resizable.Panel size={sizes()[1]} min="24%" class="p-4 bg-background">
+          <Resizable.Panel min="24%" class="p-4 bg-background">
             Editor
           </Resizable.Panel>
         </Resizable>

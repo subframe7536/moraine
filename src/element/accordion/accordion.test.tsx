@@ -162,6 +162,7 @@ describe('Accordion', () => {
     const screen = render(() => <Accordion items={items()} multiple />)
 
     const secondTrigger = screen.getByRole('button', { name: 'Second' })
+    const secondContentId = secondTrigger.getAttribute('aria-controls')
     secondTrigger.focus()
     fireEvent.click(secondTrigger)
 
@@ -172,6 +173,7 @@ describe('Accordion', () => {
 
     const reorderedSecondTrigger = screen.getByRole('button', { name: 'Second' })
     expect(reorderedSecondTrigger).toBe(secondTrigger)
+    expect(reorderedSecondTrigger.getAttribute('aria-controls')).toBe(secondContentId)
     expect(document.activeElement).toBe(reorderedSecondTrigger)
     expect(reorderedSecondTrigger.getAttribute('aria-expanded')).toBe('true')
     expect(screen.getByRole('button', { name: 'First' }).getAttribute('aria-expanded')).toBe(
@@ -244,16 +246,32 @@ describe('Accordion', () => {
         ]}
       />
     ))
-
     const triggers = screen.getAllByRole('button')
     const panels = screen.getAllByRole('region')
-
     expect(new Set(triggers.map((trigger) => trigger.id)).size).toBe(2)
     expect(new Set(panels.map((panel) => panel.id)).size).toBe(2)
     expect(triggers[0]?.getAttribute('aria-controls')).toBe(panels[0]?.id)
     expect(triggers[1]?.getAttribute('aria-controls')).toBe(panels[1]?.id)
-    expect(panels[0]?.getAttribute('aria-labelledby')).toBe(triggers[0]?.id)
-    expect(panels[1]?.getAttribute('aria-labelledby')).toBe(triggers[1]?.id)
+  })
+
+  test('keeps business values out of DOM ids and closed shells in the DOM', () => {
+    const screen = render(() => (
+      <Accordion
+        id="faq"
+        items={[
+          { value: 'billing plan / 中文?', label: 'Billing', content: 'Details' },
+          { value: '⚙️ settings!', label: 'Settings', content: 'Other details' },
+        ]}
+      />
+    ))
+    for (const trigger of screen.getAllByRole('button')) {
+      const contentId = trigger.getAttribute('aria-controls')!
+      const shell = document.getElementById(contentId)
+      expect(shell).not.toBeNull()
+      expect(shell?.getAttribute('aria-labelledby')).toBe(trigger.id)
+      expect(shell?.hasAttribute('hidden')).toBe(true)
+      expect(contentId).not.toMatch(/billing|中文|⚙️|\s|\//u)
+    }
   })
 
   test('resolves item JSX getters once and leaves closed content uninstantiated', async () => {
@@ -378,35 +396,37 @@ describe('Accordion', () => {
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const contentOne = screen.getByRole('region', { name: 'One' })
 
-    expect(triggerOne.id).toBe('settings-one-trigger')
-    expect(contentOne.id).toBe('settings-one-content')
+    expect(triggerOne.id).toMatch(/^settings-accordion-item-.*-trigger$/)
+    expect(contentOne.id).toMatch(/^settings-accordion-item-.*-content$/)
     expect(triggerOne.getAttribute('aria-controls')).toBe(contentOne.id)
     expect(contentOne.getAttribute('aria-labelledby')).toBe(triggerOne.id)
   })
 
-  test('omits aria-controls while closed, including during exit animation', async () => {
+  test('keeps aria-controls pointing at a stable shell while closed', async () => {
     const screen = render(() => <Accordion id="settings" items={BASE_ITEMS} />)
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
 
-    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    const contentId = triggerOne.getAttribute('aria-controls')
+    expect(contentId).toBeTruthy()
+    expect(document.getElementById(contentId!)).not.toBeNull()
 
     fireEvent.click(triggerOne)
 
     const contentOne = screen.getByRole('region', { name: 'One' })
 
-    expect(triggerOne.getAttribute('aria-controls')).toBe('settings-one-content')
-    expect(contentOne.id).toBe('settings-one-content')
+    expect(triggerOne.getAttribute('aria-controls')).toBe(contentId)
+    expect(contentOne.id).toBe(contentId)
 
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    expect(triggerOne.getAttribute('aria-controls')).toBe(contentId)
     expect(contentOne.getAttribute('data-closed')).toBe('')
 
     fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
-    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    expect(triggerOne.getAttribute('aria-controls')).toBe(contentId)
   })
 
   test('single controlled mode emits onChange and keeps controlled UI state', async () => {
@@ -615,7 +635,7 @@ describe('Accordion', () => {
     }
 
     const ControlledAccordion = () => {
-      const [value, setControlledValue] = createSignal(['one'])
+      const [value, setControlledValue] = createSignal<string[]>(['one'])
       setValue = setControlledValue
 
       return (
@@ -681,7 +701,9 @@ describe('Accordion', () => {
       fireEvent.click(triggerOne)
       await Promise.resolve()
 
-      const contentOne = screen.container.querySelector('#settings-one-content') as HTMLDivElement
+      const contentOne = document.getElementById(
+        triggerOne.getAttribute('aria-controls')!,
+      ) as HTMLDivElement
 
       expect(screen.getByTestId('open-value').textContent).toBe('one')
       await waitFor(() => {
@@ -727,7 +749,9 @@ describe('Accordion', () => {
       fireEvent.click(triggerTwo)
       await Promise.resolve()
 
-      const contentOne = screen.container.querySelector('#settings-one-content') as HTMLDivElement
+      const contentOne = document.getElementById(
+        screen.getByRole('button', { name: 'One' }).getAttribute('aria-controls')!,
+      ) as HTMLDivElement
       const contentTwo = screen.getByRole('region', { name: 'Two' })
 
       expect(contentOne.getAttribute('data-closed')).toBe('')
@@ -749,14 +773,14 @@ describe('Accordion', () => {
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    expect(triggerOne.getAttribute('aria-controls')).toBe(contentOne.id)
     expect(contentOne.getAttribute('data-closed')).toBe('')
     expect(screen.container.querySelector('[data-collapsed]')).toBeNull()
     expect(screen.getByText('Content one')).not.toBeNull()
 
     fireEvent.animationEnd(contentOne, { animationName: 'accordion-up' })
 
-    expect(triggerOne.hasAttribute('aria-controls')).toBe(false)
+    expect(triggerOne.getAttribute('aria-controls')).toBe(contentOne.id)
     expect(screen.queryByText('Content one')).toBeNull()
   })
 

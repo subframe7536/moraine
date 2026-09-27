@@ -69,7 +69,7 @@ root (<span>)
 
 Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
 
-`Avatar` preloads the source before showing the `<img>` and does not set native `loading="lazy"` automatically.
+`Avatar` renders the real `<img src>` during server rendering and uses native image load and error events to switch between image and fallback. Status is `loading`, `loaded`, or `error`.
 
 <Preview path="./fallback-usage" />
 

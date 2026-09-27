@@ -70,7 +70,9 @@ describe('Collapsible', () => {
 
     expect(trigger.getAttribute('data-slot')).toBe('collapsible-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      screen.container.querySelector('[data-slot="collapsible-content-wrapper"]')?.id,
+    )
     expect(root?.hasAttribute('data-closed')).toBe(true)
     expect(screen.queryByTestId('content')).toBeNull()
 
@@ -264,11 +266,12 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
-  test('omits aria-controls while closed and restores it while open', async () => {
+  test('keeps aria-controls pointing at the stable shell', async () => {
     const screen = renderCollapsible({ defaultOpen: false })
     const trigger = screen.getByTestId('trigger-control')
 
-    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    const contentId = trigger.getAttribute('aria-controls')
+    expect(document.getElementById(contentId!)).not.toBeNull()
 
     fireEvent.click(trigger)
     await Promise.resolve()
@@ -282,7 +285,7 @@ describe('Collapsible', () => {
     fireEvent.click(trigger)
     await Promise.resolve()
 
-    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    expect(trigger.getAttribute('aria-controls')).toBe(contentId)
   })
 
   test('transition defaults to false and closed content unmounts immediately', async () => {
@@ -314,7 +317,7 @@ describe('Collapsible', () => {
     fireEvent.click(trigger)
     await Promise.resolve()
 
-    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    expect(trigger.getAttribute('aria-controls')).toBe(content.id)
     expect(content.hasAttribute('data-closed')).toBe(true)
     expect(content.firstElementChild?.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()

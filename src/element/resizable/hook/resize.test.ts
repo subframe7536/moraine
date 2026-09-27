@@ -190,7 +190,6 @@ describe('resize', () => {
         {
           panelId: 'left',
           min: '20%',
-          defaultSize: '35%',
           collapsible: true,
           collapsibleMin: '10%',
         },
@@ -205,6 +204,7 @@ describe('resize', () => {
       strategy: RESIZE_FLAG_FOLLOWING,
       initialSizes: [0.1, 0.9],
       panels,
+      expandedSize: 0.35,
     })
 
     expect(nextSizes[0]).toBeCloseTo(0.35, 6)
@@ -231,7 +231,7 @@ describe('resize', () => {
 
     const collapsiblePanels = resolvePanels(
       [
-        { panelId: 'left', min: '20%', defaultSize: '35%', collapsible: true },
+        { panelId: 'left', min: '20%', collapsible: true },
         { panelId: 'right', min: '20%' },
       ],
       ROOT_SIZE,
@@ -250,6 +250,7 @@ describe('resize', () => {
       handleIndex: 0,
       initialSizes: [0, 1],
       panels: collapsiblePanels,
+      expandedSizes: [0.35],
     })
     expect(expanded[0]).toBeCloseTo(0.35, 6)
     expect(expanded[1]).toBeCloseTo(0.65, 6)

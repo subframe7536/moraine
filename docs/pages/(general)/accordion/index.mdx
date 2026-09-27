@@ -80,13 +80,13 @@ root
 
 ### Open items
 
-Use a single value for one open item or an array when multiple items may be open. In controlled usage, pair the value with `onChange`. `collapsible` determines whether the currently open item may be closed.
+Use an array of values for `value`, `defaultValue`, and `onChange` in both modes. Single mode opens at most one item; set `multiple` to allow several. In controlled usage, pair `value` with `onChange`. `collapsible` determines whether the currently open item may be closed.
 
 <Preview path="./open-items" />
 
 ### Content lifetime
 
-Accordion item content can remain mounted or unmount while closed according to its configuration. Choose based on whether hidden controls need to preserve local state.
+The content shell stays mounted so each trigger's `aria-controls` always points to a real element. `unmountOnHide` controls only the user content inside that shell. Choose based on whether hidden controls need to preserve local state.
 
 <Preview path="./content-lifetime" />
 

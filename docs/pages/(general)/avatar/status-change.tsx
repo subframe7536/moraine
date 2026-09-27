@@ -3,7 +3,7 @@ import type { AvatarT } from '@src'
 import { createSignal } from 'solid-js'
 
 export function StatusChange() {
-  const [status, setStatus] = createSignal<AvatarT.Status>('idle')
+  const [status, setStatus] = createSignal<AvatarT.Status>('loading')
 
   return (
     <div class="flex gap-3 items-center">

@@ -10,13 +10,14 @@ export function ControlledSizes() {
     <div class="space-y-3">
       <div class="b-1 b-border border-border h-48 overflow-hidden rounded-xl">
         <Resizable
-          onResize={(nextSizes) => nextSizes.forEach((size, index) => setSizes(index, size))}
+          value={sizes}
+          onChange={(nextSizes) => nextSizes.forEach((size, index) => setSizes(index, size))}
         >
-          <Resizable.Panel size={sizes[0]} min="20%" class="p-4 bg-muted">
+          <Resizable.Panel min="20%" class="p-4 bg-muted">
             Logs
           </Resizable.Panel>
           <Resizable.Handle />
-          <Resizable.Panel size={sizes[1]} min="25%" class="p-4 bg-background">
+          <Resizable.Panel min="25%" class="p-4 bg-background">
             Preview
           </Resizable.Panel>
         </Resizable>

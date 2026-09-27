@@ -24,7 +24,7 @@ export namespace AvatarGroupT {
     items?: Item[]
 
     /** Maximum number of avatars to show. */
-    max?: number | string
+    max?: number
   }
 
   /** Props for the AvatarGroup component. */

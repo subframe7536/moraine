@@ -31,8 +31,8 @@ describe('presetMoraine', () => {
         .filter((token) => token.includes('dragging')),
     ]
     const css = await generate(tokens, false, wind)
-    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-expanded\]\)/)
-    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-closed\]\)/)
+    expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
+    expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
     expect(css).toMatch(/\[data-multiple\]::before/)

@@ -15,10 +15,10 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
   AvatarGroupStyleVariant
 >('avatarGroup', {
   base: {
-    root: 'inline-flex flex-row-reverse justify-end',
-    item: 'rounded-full ring-background relative first:me-0',
+    root: 'inline-flex flex-row items-center',
+    item: 'rounded-full ring-background relative z-0 hover:z-10 focus-within:z-10 first:ms-0',
     count:
-      'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-background items-center justify-center first:me-0',
+      'text-muted-foreground font-medium rounded-full bg-muted relative z-0 inline-flex shrink-0 ring-background items-center justify-center first:ms-0',
     image: '',
     fallback: '',
     fallbackContent: '',
@@ -27,9 +27,9 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
   defaultVariants: { size: 'md' },
   variants: {
     size: {
-      sm: { item: 'ring-2 -me-2', count: 'text-xs size-6 ring-2 -me-2' },
-      md: { item: 'ring-2 -me-2', count: 'text-sm size-8 ring-2 -me-2' },
-      lg: { item: 'ring-2 -me-2', count: 'text-base size-10 ring-2 -me-2' },
+      sm: { item: 'ring-2 -ms-2', count: 'text-xs size-6 ring-2 -ms-2' },
+      md: { item: 'ring-2 -ms-2', count: 'text-sm size-8 ring-2 -ms-2' },
+      lg: { item: 'ring-2 -ms-2', count: 'text-base size-10 ring-2 -ms-2' },
     },
   },
 })

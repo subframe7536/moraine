@@ -40,13 +40,19 @@ export namespace ResizableT {
     /** Ordered `Resizable.Panel` and `Resizable.Handle` children. */
     children?: JSX.Element
 
-    /** Callback when any panel is resized. */
-    onResize?: (sizes: number[]) => void
+    /** Controlled panel sizes. Numbers are pixels; percentage strings are relative to the root. */
+    value?: readonly ResizableSize[]
 
-    /** Callback when a resize operation starts. */
+    /** Initial panel sizes for uncontrolled usage. */
+    defaultValue?: readonly ResizableSize[]
+
+    /** Callback when panel sizes change. Values are in pixels. */
+    onChange?: (sizes: number[]) => void
+
+    /** Callback when a resize operation starts. Values are in pixels. */
     onResizeStart?: (sizes: number[]) => void
 
-    /** Callback when a resize operation ends. */
+    /** Callback when a resize operation ends. Values are in pixels. */
     onResizeEnd?: (sizes: number[]) => void
 
     /** Callback when a key is pressed on a handle. */
@@ -60,7 +66,7 @@ export namespace ResizableT {
      * Whether the resizable component is disabled.
      * @default false
      */
-    disable?: boolean
+    disabled?: boolean
 
     /**
      * The amount to resize when using keyboard shortcuts.
