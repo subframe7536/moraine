@@ -23,7 +23,7 @@ export namespace AccordionT {
     /**
      * Unique value for the accordion item.
      */
-    value?: string
+    value: string
 
     /**
      * Whether the accordion item is disabled.
@@ -55,39 +55,26 @@ export namespace AccordionT {
      */
     id?: string
 
-    /**
-     * Controlled list of expanded item values.
-     */
-    value?: string[]
+    /** Controlled expanded value: a string or null in single mode, an array in multiple mode. */
+    value?: string | null | string[]
 
-    /**
-     * Default list of expanded item values for uncontrolled usage.
-     * @default []
-     */
-    defaultValue?: string[]
+    /** Initial expanded value for uncontrolled usage. */
+    defaultValue?: string | null | string[]
 
-    /**
-     * Whether multiple accordion items can be expanded at the same time.
-     * @default false
-     */
+    /** Allow several items to be expanded. @default false */
     multiple?: boolean
 
-    /**
-     * Whether the last expanded item can be collapsed.
-     * @default true
-     */
+    /** Allow closing the last expanded item in single mode. @default true */
     collapsible?: boolean
+
+    /** Called when the expanded value changes, using the selected mode's value shape. */
+    onChange?: ((value: string | null) => void) | ((value: string[]) => void)
 
     /**
      * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
      * @default true
      */
     loop?: boolean
-
-    /**
-     * Callback when the expanded item values change.
-     */
-    onChange?: (value: string[]) => void
 
     /**
      * Array of accordion items to render.
@@ -116,7 +103,24 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles> &
+    (
+      | {
+          multiple?: false
+          value?: string | null
+          defaultValue?: string | null
+          onChange?: (value: string | null) => void
+          /** Whether the last expanded item can be collapsed. @default true */
+          collapsible?: boolean
+        }
+      | {
+          multiple: true
+          value?: string[]
+          defaultValue?: string[]
+          onChange?: (value: string[]) => void
+          collapsible?: never
+        }
+    )
 }
 
 /**

@@ -97,6 +97,20 @@ describe('ButtonGroup', () => {
     expect(separator.className).toContain('w-auto')
   })
 
+  test('follows the group axis unless separator orientation is explicit', () => {
+    const screen = render(() => (
+      <ButtonGroup orientation="vertical">
+        <Button>First</Button>
+        <ButtonGroup.Separator />
+        <Button>Second</Button>
+        <ButtonGroup.Separator orientation="vertical" />
+      </ButtonGroup>
+    ))
+    const separators = screen.getAllByRole('separator')
+    expect(separators[0]?.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(separators[1]?.getAttribute('aria-orientation')).toBe('vertical')
+  })
+
   test('applies ButtonGroup separator theme and local slot overrides', () => {
     const theme = defineTheme({
       buttonGroup: { base: { separator: 'theme-separator' } },

@@ -260,19 +260,6 @@ export function useTransitionPresence(
     }
   }
 
-  const clearRegistrations = (): void => {
-    const current = registrations()
-    if (current.size === 0) {
-      return
-    }
-
-    legacyRegistrationId = undefined
-    for (const element of current.values()) {
-      releaseElement(element)
-    }
-    setRegistrations(new Map())
-  }
-
   onCleanup(() => {
     disposed = true
     clearPendingAnimations()
@@ -363,14 +350,6 @@ export function useTransitionPresence(
           exitTimeout = undefined
         }
       })
-    }),
-  )
-
-  createEffect(
-    on(present, (isPresent) => {
-      if (!isPresent) {
-        clearRegistrations()
-      }
     }),
   )
 

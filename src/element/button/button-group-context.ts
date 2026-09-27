@@ -6,6 +6,7 @@ import type { ButtonT } from './button.types'
 export interface ButtonGroupContextValue {
   readonly size?: ButtonT.Variant['size'] | null
   readonly variant?: ButtonT.Variant['variant'] | null
+  readonly orientation?: ButtonGroupT.Variant['orientation'] | null
   readonly presentation?: {
     readonly classes?: ButtonGroupT.Classes
     readonly styles?: ButtonGroupT.Styles

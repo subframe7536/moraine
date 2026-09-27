@@ -15,13 +15,13 @@ const FAQ_ITEMS = [
 ]
 
 export function OpenItems() {
-  const [active, setActive] = createSignal<string[]>(['q1'])
+  const [active, setActive] = createSignal<string | null>('q1')
 
   return (
     <div class="max-w-md w-full space-y-3">
       <Accordion collapsible items={FAQ_ITEMS} value={active()} onChange={setActive} />
       <p class="text-muted-foreground text-xs">
-        Open item: <span class="text-foreground font-mono">{active()[0] ?? 'none'}</span>
+        Open item: <span class="text-foreground font-mono">{active() ?? 'none'}</span>
       </p>
     </div>
   )

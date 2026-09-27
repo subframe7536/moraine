@@ -43,6 +43,7 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
 
   function setContentElement(element: HTMLElement | undefined): void {
     resizeObserver?.disconnect()
+    resizeObserver = undefined
     contentEl = element
     if (!element) {
       return
@@ -71,5 +72,13 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
     dataAttrs,
     disabled,
     setContentElement,
+    registerElement(element: HTMLElement): () => void {
+      setContentElement(element)
+      return () => {
+        if (contentEl === element) {
+          setContentElement(undefined)
+        }
+      }
+    },
   }
 }

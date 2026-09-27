@@ -10,7 +10,11 @@ export interface ButtonGroupStyleSlot<T = unknown> {
   separator?: T
 }
 
-export interface ButtonGroupStyleVariant extends ButtonStyleVariant {
+export interface ButtonGroupStyleVariant {
+  /** Shared button size. @default 'md' */
+  size?: ComponentSize
+  /** Shared button treatment. @default 'default' */
+  variant?: ButtonStyleVariant['variant']
   /** Visual layout direction.
    * @default 'horizontal'
    */
@@ -18,6 +22,4 @@ export interface ButtonGroupStyleVariant extends ButtonStyleVariant {
 }
 
 export type ButtonGroupRecipeVariant = ButtonGroupStyleVariant
-export type ButtonGroupThemeVariant = Omit<ButtonGroupStyleVariant, 'size'> & {
-  size?: ComponentSize
-}
+export type ButtonGroupThemeVariant = ButtonGroupStyleVariant

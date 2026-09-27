@@ -13,7 +13,7 @@ export namespace AvatarT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
+  export type Status = 'loading' | 'loaded' | 'error'
 
   /** Base props for the Avatar component. */
   export interface Base {

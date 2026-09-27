@@ -5,7 +5,7 @@ export function ContentLifetime() {
     <div class="max-w-md w-full">
       <Accordion
         collapsible
-        defaultValue={['settings']}
+        defaultValue="settings"
         items={[
           {
             value: 'settings',

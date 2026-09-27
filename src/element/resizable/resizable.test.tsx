@@ -6,12 +6,19 @@ import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 
-import type { ResizablePanelItem } from './hook'
+import type { ResizablePanelItem, ResizableSize } from './hook'
 import { Resizable } from './resizable'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
-interface ResizableFixtureProps extends Omit<ResizableProps, 'children'> {
-  items: ResizablePanelItem[]
+type FixturePanel = ResizablePanelItem & {
+  size?: ResizableSize
+  defaultSize?: ResizableSize
+  onResize?: (size: number) => void
+}
+
+type ResizableFixtureProps = Omit<ResizableProps, 'children' | 'onResize'> & {
+  items: FixturePanel[]
+  onResize?: (sizes: number[]) => void
   handle?: boolean
   handleChildren?: ResizableT.HandleBase['children']
   action?: ResizableT.HandleBase['action']
@@ -25,23 +32,36 @@ function ResizableFixture(props: ResizableFixtureProps): JSX.Element {
     'handleChildren',
     'action',
     'intersection',
+    'onResize',
+    'value',
+    'defaultValue',
+    'onChange',
   ])
 
+  const controlled = () => local.items.some((panel) => panel.size !== undefined)
+  const value = () =>
+    local.value ??
+    (controlled() ? (local.items.map((panel) => panel.size) as ResizableSize[]) : undefined)
+  const defaultValue = () =>
+    local.defaultValue ?? (local.items.map((panel) => panel.defaultSize) as ResizableSize[])
+
   return (
-    <Resizable {...rest}>
+    <Resizable
+      {...rest}
+      value={value()}
+      defaultValue={defaultValue()}
+      onChange={local.onResize ?? local.onChange}
+    >
       <For each={local.items}>
         {(panel, index) => (
           <>
             <Resizable.Panel
               id={panel.panelId}
-              size={panel.size}
-              defaultSize={panel.defaultSize}
               min={panel.min}
               max={panel.max}
               resizable={panel.resizable}
               collapsible={panel.collapsible}
               collapsibleMin={panel.collapsibleMin}
-              onResize={panel.onResize}
               onCollapse={panel.onCollapse}
               onExpand={panel.onExpand}
               class={panel.class}
@@ -290,7 +310,7 @@ describe('Resizable', () => {
 
     const screen = render(() => (
       <ResizableFixture
-        disable
+        disabled
         onResize={onResize}
         items={[{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]}
       />
@@ -437,7 +457,7 @@ describe('Resizable', () => {
   test('marks function handle state as disabled when root is disabled', () => {
     const screen = render(() => (
       <ResizableFixture
-        disable
+        disabled
         action="collapse"
         handleChildren={(state) => (
           <span data-slot="state-disabled-label">{state.disabled ? 'disabled' : 'enabled'}</span>
@@ -959,7 +979,7 @@ describe('Resizable', () => {
     expect(handle.className).toContain('cursor-pointer')
   })
 
-  test('toggles collapse when collapsible signal changes', async () => {
+  test('treats collapsible as capability without changing the current size', async () => {
     const screen = render(() => {
       const [collapsed, setCollapsed] = createSignal(false)
       const [sizes, setSizes] = createSignal<[number, number]>([320, 680])
@@ -1009,13 +1029,32 @@ describe('Resizable', () => {
     expectPanelGrow(panels[0], 32)
 
     fireEvent.click(toggle)
-    expectPanelGrow(panels[0], 10)
-    expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
-    expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
+    expectPanelGrow(panels[0], 32)
+    expect(panels[0]?.getAttribute('data-collapsed')).toBeNull()
 
     fireEvent.click(toggle)
     expectPanelGrow(panels[0], 32)
-    expect(panels[0]?.getAttribute('data-transitioning')).toBe('')
+    expect(panels[0]?.getAttribute('data-transitioning')).toBeNull()
+  })
+
+  test('does not emit expansion callbacks when only collapsible capability changes', () => {
+    const onExpand = vi.fn()
+    const [collapsible, setCollapsible] = createSignal(true)
+    const screen = render(() => (
+      <Resizable value={[0, 1000]}>
+        <Resizable.Panel collapsible={collapsible()} onExpand={onExpand}>
+          Left
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel>Right</Resizable.Panel>
+      </Resizable>
+    ))
+    expectPanelGrow(
+      screen.container.querySelector<HTMLDivElement>('[data-slot="resizable-panel"]'),
+      0,
+    )
+    setCollapsible(false)
+    expect(onExpand).not.toHaveBeenCalled()
   })
 
   test('calls onHandleKeyDown with handle context and keeps keyboard resize behavior', async () => {
@@ -1286,7 +1325,7 @@ describe('Resizable', () => {
   test('does not show cross targets when the root handle system is disabled', async () => {
     const screen = render(() => (
       <ResizableFixture
-        disable
+        disabled
         handle
         intersection
         items={[
@@ -1643,6 +1682,112 @@ describe('Resizable', () => {
   })
 
   describe('compound API', () => {
+    test('uses root defaultValue and reports pixel sizes at every callback boundary', () => {
+      const onChange = vi.fn()
+      const onResizeStart = vi.fn()
+      const onResizeEnd = vi.fn()
+      const onCollapse = vi.fn()
+      const screen = render(() => (
+        <Resizable
+          defaultValue={['30%', '70%']}
+          onChange={onChange}
+          onResizeStart={onResizeStart}
+          onResizeEnd={onResizeEnd}
+        >
+          <Resizable.Panel collapsible onCollapse={onCollapse}>
+            Left
+          </Resizable.Panel>
+          <Resizable.Handle />
+          <Resizable.Panel>Right</Resizable.Panel>
+        </Resizable>
+      ))
+      const panels = screen.container.querySelectorAll<HTMLDivElement>(
+        '[data-slot="resizable-panel"]',
+      )
+      const handle = screen.container.querySelector<HTMLElement>('[data-slot="resizable-handle"]')!
+      expectPanelGrow(panels[0], 30)
+      expect(screen.container.querySelector('[data-slot="resizable-intersection"]')).toBeNull()
+
+      fireEvent.keyDown(handle, { key: 'ArrowRight' })
+      expectPanelGrow(panels[0], 40)
+      expect(onResizeStart).toHaveBeenCalledWith([300, 700])
+      expect(onChange).toHaveBeenCalledWith([400, 600])
+      expect(onResizeEnd).toHaveBeenCalledWith([400, 600])
+      expect(onCollapse).not.toHaveBeenCalled()
+    })
+
+    test('normalizes short root values and changing panel counts', () => {
+      const [count, setCount] = createSignal(2)
+      const screen = render(() => (
+        <Resizable defaultValue={['20%']}>
+          <Resizable.Panel>First</Resizable.Panel>
+          <Resizable.Handle />
+          <Resizable.Panel>Second</Resizable.Panel>
+          <Show when={count() === 3}>
+            <Resizable.Handle />
+            <Resizable.Panel>Third</Resizable.Panel>
+          </Show>
+        </Resizable>
+      ))
+      expectPanelGrow(
+        screen.container.querySelector<HTMLDivElement>('[data-slot="resizable-panel"]'),
+        20,
+      )
+      expect(() => setCount(3)).not.toThrow()
+      expect(screen.container.querySelectorAll('[data-slot="resizable-panel"]')).toHaveLength(3)
+
+      const extra = render(() => (
+        <Resizable value={['20%', '30%', '50%']}>
+          <Resizable.Panel>First</Resizable.Panel>
+          <Resizable.Handle />
+          <Resizable.Panel>Second</Resizable.Panel>
+        </Resizable>
+      ))
+      expectPanelGrow(
+        extra.container.querySelector<HTMLDivElement>('[data-slot="resizable-panel"]'),
+        40,
+      )
+    })
+
+    test('keeps root value controlled until the owner writes the reported sizes', () => {
+      const onChange = vi.fn()
+      const screen = render(() => (
+        <Resizable value={[300, 700]} onChange={onChange}>
+          <Resizable.Panel>Left</Resizable.Panel>
+          <Resizable.Handle />
+          <Resizable.Panel>Right</Resizable.Panel>
+        </Resizable>
+      ))
+      const handle = screen.container.querySelector<HTMLElement>('[data-slot="resizable-handle"]')!
+      fireEvent.keyDown(handle, { key: 'ArrowRight' })
+      expect(onChange).toHaveBeenCalledWith([400, 600])
+      expectPanelGrow(
+        screen.container.querySelector<HTMLDivElement>('[data-slot="resizable-panel"]'),
+        30,
+      )
+    })
+
+    test('reports panel collapse and expansion sizes in pixels', () => {
+      const onCollapse = vi.fn()
+      const onExpand = vi.fn()
+      const screen = render(() => (
+        <Resizable defaultValue={['30%', '70%']}>
+          <Resizable.Panel collapsible onCollapse={onCollapse} onExpand={onExpand}>
+            Left
+          </Resizable.Panel>
+          <Resizable.Handle action="collapse">Grip</Resizable.Handle>
+          <Resizable.Panel>Right</Resizable.Panel>
+        </Resizable>
+      ))
+      const grip = screen.container.querySelector<HTMLElement>(
+        '[data-slot="resizable-handle-control"]',
+      )!
+      fireEvent.click(grip)
+      expect(onCollapse).toHaveBeenCalledWith(0)
+      fireEvent.click(grip)
+      expect(onExpand).toHaveBeenCalledWith(300)
+    })
+
     test('renders explicit panels and independently configured handles', () => {
       const screen = render(() => (
         <Resizable>

@@ -10,20 +10,6 @@ export interface ResizablePanelItem {
   panelId?: string
 
   /**
-   * Current size of the panel (controlled).
-   * - Use string as percent, like `20%`
-   * - Use number as px, like `328`
-   */
-  size?: ResizableSize
-
-  /**
-   * Default size of the panel (uncontrolled).
-   * - Use string as percent, like `20%`
-   * - Use number as px, like `328`
-   */
-  defaultSize?: ResizableSize
-
-  /**
    * Minimum size of the panel.
    * - Use string as percent, like `20%`
    * - Use number as px, like `328`
@@ -47,7 +33,6 @@ export interface ResizablePanelItem {
 
   /**
    * Whether the panel is collapsible.
-   * This prop is reactive; toggling `true/false` can be used as a simple collapse signal.
    * @default false
    */
   collapsible?: boolean
@@ -62,17 +47,12 @@ export interface ResizablePanelItem {
   collapsibleMin?: ResizableSize
 
   /**
-   * Callback when the panel is resized.
-   */
-  onResize?: (size: number) => void
-
-  /**
-   * Callback when the panel is collapsed.
+   * Callback when the panel is collapsed. Size is in pixels.
    */
   onCollapse?: (size: number) => void
 
   /**
-   * Callback when the panel is expanded.
+   * Callback when the panel is expanded. Size is in pixels.
    */
   onExpand?: (size: number) => void
 
@@ -97,10 +77,9 @@ export const EPSILON = 10 ** -PRECISION
 
 export interface ResizableResolvedPanel extends Omit<
   ResizablePanelItem,
-  'size' | 'defaultSize' | 'min' | 'max' | 'resizable' | 'collapsible' | 'collapsibleMin'
+  'min' | 'max' | 'resizable' | 'collapsible' | 'collapsibleMin'
 > {
   panelId: string
-  defaultSize?: ResizableSize
   min: number
   max: number
   resizable: boolean

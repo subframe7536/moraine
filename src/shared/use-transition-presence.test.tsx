@@ -75,6 +75,44 @@ afterEach(() => {
 })
 
 describe('useTransitionPresence', () => {
+  test('keeps a stable shell registered across repeated exits', async () => {
+    let element: HTMLElement | undefined
+    let setOpen: ((open: boolean) => void) | undefined
+    let presence: TransitionPresenceState | undefined
+    let closed = false
+    installComputedStyle(() => ({
+      animationDuration: '100ms',
+      animationName: closed ? 'mo-exit' : 'none',
+    }))
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const state = useTransitionPresence({ open })
+      setOpen = updateOpen
+      presence = state
+      return (
+        <div
+          ref={(node) => {
+            element = node
+            onCleanup(state.registerElement(node))
+          }}
+        />
+      )
+    })
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      setOpen!(false)
+      closed = true
+      await flushExitDetection()
+      expect(presence!.present()).toBe(true)
+      dispatchAnimationEvent(element!, 'animationend', 'mo-exit')
+      expect(presence!.present()).toBe(false)
+      setOpen!(true)
+      closed = false
+      expect(presence!.present()).toBe(true)
+    }
+    screen.unmount()
+  })
+
   test('is browser-independent while initially closed and reacts to opening', async () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)

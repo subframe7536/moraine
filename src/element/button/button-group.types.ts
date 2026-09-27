@@ -30,8 +30,7 @@ export namespace ButtonGroupT {
   /** Base props for the ButtonGroup.Separator component. */
   export interface SeparatorBase extends Omit<SeparatorT.Base, 'orientation'> {
     /**
-     * The orientation of the separator.
-     * @default 'vertical'
+     * The orientation of the separator. Defaults to perpendicular to the group axis.
      */
     orientation?: SeparatorT.Variant['orientation']
   }

@@ -178,6 +178,25 @@ describe('useDisclosureState', () => {
     expect(observers[1]?.disconnect).toHaveBeenCalledTimes(1)
   })
 
+  test('releases element observers with registration cleanup', () => {
+    const observers = installResizeObserverMock()
+    const lifecycle = createRoot((dispose) => ({
+      dispose,
+      state: useDisclosureState({ open: () => true }),
+    }))
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    const releaseFirst = lifecycle.state.registerElement(first)
+    const releaseSecond = lifecycle.state.registerElement(second)
+    expect(observers[0]?.disconnect).toHaveBeenCalledTimes(1)
+
+    releaseFirst()
+    expect(observers[1]?.disconnect).not.toHaveBeenCalled()
+    releaseSecond()
+    expect(observers[1]?.disconnect).toHaveBeenCalledTimes(1)
+    lifecycle.dispose()
+  })
+
   test('constructs without layout APIs or a mounted element', () => {
     vi.stubGlobal('ResizeObserver', undefined)
 

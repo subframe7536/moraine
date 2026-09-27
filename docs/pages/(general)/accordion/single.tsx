@@ -2,7 +2,7 @@ import { Accordion } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Single() {
-  const [openValue, setOpenValue] = createSignal<string[]>(['invite'])
+  const [openValue, setOpenValue] = createSignal<string | null>('invite')
 
   return (
     <div class="max-w-xl w-full space-y-3">
@@ -35,8 +35,7 @@ export function Single() {
       />
 
       <p class="text-muted-foreground text-xs">
-        Active section:{' '}
-        <span class="text-foreground font-medium">{openValue()?.[0] ?? 'none'}</span>
+        Active section: <span class="text-foreground font-medium">{openValue() ?? 'none'}</span>
       </p>
     </div>
   )

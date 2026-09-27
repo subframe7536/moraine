@@ -1,19 +1,20 @@
 import { Resizable } from '@src'
 
-function Stack(props: { disable?: boolean }) {
+function Stack(props: { disabled?: boolean }) {
   return (
-    <Resizable disable={props.disable} orientation="vertical" classes={{ handle: 'bg-accent/80' }}>
-      <Resizable.Panel defaultSize="33%" class="p-4 bg-muted">
-        Top
-      </Resizable.Panel>
+    <Resizable
+      disabled={props.disabled}
+      orientation="vertical"
+      defaultValue={['33%', '34%', '33%']}
+      classes={{ handle: 'bg-accent/80' }}
+    >
+      <Resizable.Panel class="p-4 bg-muted">Top</Resizable.Panel>
       <Resizable.Handle />
-      <Resizable.Panel defaultSize="34%" min="30%" class="p-4 bg-background">
+      <Resizable.Panel min="30%" class="p-4 bg-background">
         Middle
       </Resizable.Panel>
       <Resizable.Handle />
-      <Resizable.Panel defaultSize="33%" class="p-4 bg-muted">
-        Bottom
-      </Resizable.Panel>
+      <Resizable.Panel class="p-4 bg-muted">Bottom</Resizable.Panel>
     </Resizable>
   )
 }
@@ -25,7 +26,7 @@ export function VerticalDisable() {
         <Stack />
       </div>
       <div class="b-1 b-border border-border opacity-80 h-72 overflow-hidden rounded-xl">
-        <Stack disable />
+        <Stack disabled />
       </div>
     </div>
   )

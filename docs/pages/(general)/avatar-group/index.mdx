@@ -79,15 +79,15 @@ Use AvatarGroup to show a small set of people in a bounded space. It truncates t
 
 ```text
 root (AvatarGroup, optional)
-├── count (optional)
-└── item (Avatar, ×n)
-    ├── image
-    ├── fallback
-    │   └── fallbackContent (optional)
-    └── badge (optional)
+├── item (Avatar, ×n)
+│   ├── image
+│   ├── fallback
+│   │   └── fallbackContent (optional)
+│   └── badge (optional)
+└── count (optional)
 ```
 
-AvatarGroup renders no root for an empty `items` array. The count appears before visible Avatar items when `items.length > max`.
+AvatarGroup renders no root for an empty `items` array. Avatar items retain input order in the DOM. `max` is a number: omit it to show every avatar, set it to `0` to show only `+N`, or use a positive number to show its floored count. The overflow count follows the visible items.
 
 ## Usage
 

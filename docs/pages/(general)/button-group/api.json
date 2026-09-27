@@ -57,8 +57,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
-          "description": "Visual size of the component.",
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Shared button size.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -80,7 +80,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
-          "description": "Visual treatment of the component.",
+          "description": "Shared button treatment.",
           "default": {
             "kind": "literal",
             "value": "default"
@@ -109,11 +109,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "The orientation of the separator.",
-          "default": {
-            "kind": "literal",
-            "value": "vertical"
-          }
+          "description": "The orientation of the separator. Defaults to perpendicular to the group axis."
         },
         {
           "name": "style",

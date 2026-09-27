@@ -32,6 +32,9 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         get variant() {
           return resolved.variants.variant
         },
+        get orientation() {
+          return resolved.variants.orientation
+        },
         get presentation() {
           return { classes: local.classes, styles: local.styles }
         },
@@ -55,7 +58,10 @@ function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   const group = useButtonGroupContext()
   const resolved = createStyles(buttonGroupRecipe, local, {
     rootSlot: 'separator',
-    inheritedVariants: () => ({ orientation: 'vertical' as const }),
+    inheritedVariants: () => ({
+      orientation:
+        group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
+    }),
     inheritedStyles: () => group?.presentation,
   })
 

@@ -7,24 +7,6 @@ import { AvatarFace } from './avatar'
 import { avatarGroupRecipe } from './avatar-group.recipe.ts'
 import type { AvatarGroupProps } from './avatar-group.types'
 
-function resolveMax(max: AvatarGroupProps['max']): number | undefined {
-  if (typeof max === 'string') {
-    const parsed = Number.parseInt(max, 10)
-
-    if (Number.isFinite(parsed) && parsed > 0) {
-      return parsed
-    }
-
-    return undefined
-  }
-
-  if (typeof max === 'number' && Number.isFinite(max) && max > 0) {
-    return max
-  }
-
-  return undefined
-}
-
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -46,12 +28,8 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
       return []
     }
 
-    const max = resolveMax(local.max)
-    if (!max) {
-      return [...allItems].reverse()
-    }
-
-    return [...allItems].slice(0, max).reverse()
+    const max = local.max
+    return max === undefined ? allItems : allItems.slice(0, Math.max(0, Math.floor(max)))
   })
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
@@ -59,12 +37,6 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   return (
     <Show when={items().length > 0}>
       <div data-slot="avatar-group" {...rest} {...resolved.styles.root}>
-        <Show when={hiddenCount() > 0}>
-          <span data-slot="avatar-group-count" {...resolved.styles.count}>
-            +{hiddenCount()}
-          </span>
-        </Show>
-
         <For each={visibleItems()}>
           {(item) => (
             <AvatarFace
@@ -87,6 +59,11 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
             />
           )}
         </For>
+        <Show when={hiddenCount() > 0}>
+          <span data-slot="avatar-group-count" {...resolved.styles.count}>
+            +{hiddenCount()}
+          </span>
+        </Show>
       </div>
     </Show>
   )

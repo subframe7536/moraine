@@ -38,13 +38,14 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),
   })
-  const { contentHeight, dataAttrs, disabled, setContentElement } = useDisclosureState({
+  const { contentHeight, dataAttrs, disabled, registerElement } = useDisclosureState({
     open,
     disabled: () => Boolean(local.disabled),
   })
   const contentPresence = useTransitionPresence({ open })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setCurrentContentElement] = createSignal<HTMLElement | undefined>()
+  let registeredContentElement: HTMLElement | undefined
   const transition = createMemo(() => Boolean(local.transition))
   const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
   let contentHasFocus = false
@@ -67,14 +68,11 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     }),
   )
 
-  function setTrackedContentElement(element: HTMLElement | undefined): void {
+  function registerContentElement(element: HTMLElement): () => void {
     removeContentFocusListeners?.()
     removeContentFocusListeners = undefined
     setCurrentContentElement(element)
-
-    if (!element) {
-      return
-    }
+    registeredContentElement = element
 
     contentHasFocus = element.contains(element.ownerDocument.activeElement)
     const onFocusIn = () => {
@@ -87,11 +85,21 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     }
     element.addEventListener('focusin', onFocusIn)
     element.addEventListener('focusout', onFocusOut)
-    removeContentFocusListeners = () => {
+    const removeListeners = () => {
       element.removeEventListener('focusin', onFocusIn)
       element.removeEventListener('focusout', onFocusOut)
     }
-    setContentElement(element)
+    removeContentFocusListeners = removeListeners
+    const releaseDisclosure = registerElement(element)
+    return () => {
+      releaseDisclosure()
+      if (registeredContentElement === element) {
+        removeListeners()
+        removeContentFocusListeners = undefined
+        registeredContentElement = undefined
+        setCurrentContentElement(undefined)
+      }
+    }
   }
 
   onCleanup(() => removeContentFocusListeners?.())
@@ -127,7 +135,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     unmountOnHide,
     dataAttrs,
     contentHeight,
-    setContentElement: setTrackedContentElement,
+    registerContentElement,
     contentPresence,
     triggerElement,
     setTriggerElement,

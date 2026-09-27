@@ -28,7 +28,7 @@ const HANDLE_END_TARGET_ATTR = 'data-resizable-handle-end-target'
 export interface UseResizableHandleOptions {
   handleIndex: Accessor<number>
   orientation: Accessor<ResizableOrientation>
-  disable: Accessor<boolean | undefined>
+  disabled: Accessor<boolean | undefined>
   intersection: Accessor<boolean | undefined>
   onDrag: (handleIndex: number, deltaPx: number, altKey: boolean) => void
   onDragEnd: () => void
@@ -65,7 +65,7 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     setInteractionState((previous) => (enabled ? previous | flag : previous & ~flag))
   }
 
-  const disabled = createMemo(() => options.disable() === true)
+  const disabled = createMemo(() => options.disabled() === true)
   const crossHovered = createMemo(() => (interactionState() & HANDLE_STATE_CROSS_HOVERED) !== 0)
   const dragging = createMemo(() => (interactionState() & HANDLE_STATE_DRAGGING) !== 0)
   const active = createMemo(() => interactionState() !== 0)
@@ -96,8 +96,8 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
           (element()?.closest('[data-resizable-root]') as HTMLDivElement | null) ?? undefined,
         getOrientation: options.orientation,
         getAltKeyMode: () => true,
-        getStartIntersectionEnabled: () => options.intersection() !== false,
-        getEndIntersectionEnabled: () => options.intersection() !== false,
+        getStartIntersectionEnabled: () => options.intersection() === true,
+        getEndIntersectionEnabled: () => options.intersection() === true,
         getStartIntersection: startIntersection,
         getEndIntersection: endIntersection,
         setStartIntersection,

@@ -13,13 +13,11 @@ export function resolvePanels(
 
     return {
       panelId: panel.panelId ?? `${panelIdPrefix}-panel-${index + 1}`,
-      defaultSize: panel.defaultSize,
       min,
       max,
       resizable: panel.resizable !== false,
       collapsible: panel.collapsible === true,
       collapsibleMin,
-      onResize: panel.onResize,
       onCollapse: panel.onCollapse,
       onExpand: panel.onExpand,
       class: panel.class,

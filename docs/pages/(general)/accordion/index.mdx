@@ -51,7 +51,7 @@ Use Accordion for several related disclosures that share one open-item policy. F
       <div class="max-w-full w-96">
         <Accordion
           items={FAQ_ITEMS}
-          defaultValue={['install']}
+          defaultValue="install"
           disabled={props.disabled}
           collapsible={props.collapsible}
         />
@@ -80,13 +80,13 @@ root
 
 ### Open items
 
-Use a single value for one open item or an array when multiple items may be open. In controlled usage, pair the value with `onChange`. `collapsible` determines whether the currently open item may be closed.
+Each item needs a unique string `value`. Single mode uses `string | null` for `value`, `defaultValue`, and `onChange`; `null` means no item is open. Set `multiple` to use `string[]`. In controlled usage, pair `value` with `onChange`. `collapsible` applies only to single mode and determines whether the open item may be closed.
 
 <Preview path="./open-items" />
 
 ### Content lifetime
 
-Accordion item content can remain mounted or unmount while closed according to its configuration. Choose based on whether hidden controls need to preserve local state.
+The content shell stays mounted so each trigger's `aria-controls` always points to a real element. `unmountOnHide` controls only the user content inside that shell. Choose based on whether hidden controls need to preserve local state.
 
 <Preview path="./content-lifetime" />
 
