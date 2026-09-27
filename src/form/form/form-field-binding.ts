@@ -1,4 +1,4 @@
-import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
+import type { FieldElement, FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import { useField } from '@formisch/solid'
 import type { Accessor } from 'solid-js'
 import { createMemo, onCleanup, untrack } from 'solid-js'
@@ -43,9 +43,11 @@ export function useFormischFieldBinding<TSchema extends FormSchema>(
         valid: field.isValid,
       }
     },
-    get controlRef() {
-      return (element: HTMLElement) => {
-        invalidFocusRegistration?.setControl(element)
+    controlRef(element) {
+      invalidFocusRegistration?.setControl(element)
+      if (element) {
+        // Formisch only types native controls, but its registry focuses any HTMLElement.
+        field.props.ref(element as FieldElement)
       }
     },
     setValue(value) {

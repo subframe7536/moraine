@@ -22,7 +22,7 @@ export interface FieldBinding {
   readonly value?: unknown
   readonly error?: JSX.Element
   readonly runtimeState?: FieldRuntimeState
-  readonly controlRef?: (element: HTMLElement) => void
+  readonly controlRef?: (element: HTMLElement | undefined) => void
   setValue: (value: unknown) => void
   emit: (type: FieldBindingEvent, event?: Event) => void
 }
@@ -137,6 +137,7 @@ export function useFormField(
           return
         }
         ref(element)
+        onCleanup(() => ref(undefined))
       },
     ),
   )

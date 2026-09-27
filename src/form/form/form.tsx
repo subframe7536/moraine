@@ -1,28 +1,26 @@
-import type { FormConfig, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
-import {
-  createForm as createFormischForm,
-  Form as FormischForm,
-  reset as resetForm,
-} from '@formisch/solid'
+import type { FormConfig, RequiredPath, Schema } from '@formisch/solid'
+import { createForm as createFormischForm, reset as resetForm } from '@formisch/solid'
+import { INTERNAL, validateFormInput } from '@formisch/solid/internals'
 import type { JSX } from 'solid-js'
-import { onCleanup, splitProps, untrack } from 'solid-js'
+import { onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler, callRef } from '../../shared/utils'
 import { renderField } from '../field/field'
+import { scheduleFormReset } from '../shared/form-reset-scheduler.ts'
 
 import { useFormischFieldBinding } from './form-field-binding'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
 import { createInvalidFocusManager } from './invalid-focus-manager'
 import type { InvalidFocusManager } from './invalid-focus-manager'
-interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
+interface InternalFormProps<TSchema extends Schema> extends FormProps<TSchema> {
   focusManager: InvalidFocusManager
-  of: FormStore<TSchema>
+  of: FormT.Store<TSchema>
 }
 
-function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>): JSX.Element {
+function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JSX.Element {
   const [local, formProps] = splitProps(props, [
     'class',
     'style',
@@ -36,51 +34,90 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     'children',
   ])
   const resolved = createStyles(formRecipe, local)
-  untrack(() => local.focusManager.attach(local.of))
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
     callHandler(event, local.onReset)
-    setTimeout(() => {
-      if (!event.defaultPrevented) {
-        resetForm(form)
-      }
-    }, 0)
+    scheduleFormReset(event, () => resetForm(form), 'form')
   }
 
-  const onSubmitCapture = (): void => {
-    local.focusManager.requestFocus()
+  const onSubmit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (event) => {
+    event.preventDefault()
+    local.focusManager.requestFocus(event.currentTarget)
+
+    // Formisch's public handleSubmit always focuses invalid fields.
+    const internal = local.of[INTERNAL]
+    const submissionId = ++internal.submissionId
+    internal.isSubmitted.value = true
+    internal.isSubmitting.value = true
+    const validationId = internal.validationId + 1
+    let isHandlingSubmit = false
+
+    void (async () => {
+      try {
+        const result = await validateFormInput(internal, { shouldFocus: false })
+        if (
+          result.success &&
+          internal.submissionId === submissionId &&
+          internal.validationId === validationId
+        ) {
+          isHandlingSubmit = true
+          await local.onSubmit?.(result.output, event)
+        }
+      } catch (error) {
+        if (
+          internal.submissionId === submissionId &&
+          (isHandlingSubmit || internal.validationId === validationId)
+        ) {
+          internal.errors.value = [
+            error &&
+            typeof error === 'object' &&
+            'message' in error &&
+            typeof error.message === 'string'
+              ? error.message
+              : 'An unknown error has occurred.',
+          ]
+        }
+      } finally {
+        if (internal.submissionId === submissionId) {
+          internal.isSubmitting.value = false
+        }
+      }
+    })()
   }
 
   return (
-    <FormischForm
+    <form
       {...formProps}
       ref={(element) => {
-        element.addEventListener('submit', onSubmitCapture, true)
+        local.of[INTERNAL].element = element
         callRef(local.ref, element)
         onCleanup(() => {
-          element.removeEventListener('submit', onSubmitCapture, true)
+          if (local.of[INTERNAL].element === element) {
+            local.of[INTERNAL].element = undefined
+          }
           callRef(local.ref, undefined)
         })
       }}
-      of={local.of}
-      onSubmit={local.onSubmit ?? (() => {})}
+      novalidate
+      onSubmit={onSubmit}
       onReset={onReset}
       {...resolved.styles.root}
       data-slot="form"
       {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
     >
       {local.children}
-    </FormischForm>
+    </form>
   )
 }
 
 /** Creates a reactive Formisch store with Moraine form adapters. */
-export function createForm<TSchema extends FormSchema>(
-  config: FormConfig<TSchema>,
+export function createForm<TSchema extends Schema>(
+  config: FormT.Config<TSchema>,
 ): FormT.Instance<TSchema> {
-  const store = createFormischForm(config)
+  const store = createFormischForm(config as FormConfig) as FormT.Store<TSchema>
   const focusManager = createInvalidFocusManager()
+  focusManager.attach(store)
 
   const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => (
     <FormRoot {...props} focusManager={focusManager} of={store} />

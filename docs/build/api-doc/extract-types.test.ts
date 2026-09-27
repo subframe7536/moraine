@@ -235,7 +235,7 @@ describe('TypeExtractor', () => {
 
     const formPart = await extractor.extractPart(module!, 'FormT', 'Props', 'form.Form', true)
     expect(formPart.generics).toEqual([
-      { name: 'TSchema', constraint: 'FormSchema', default: 'FormSchema' },
+      { name: 'TSchema', constraint: 'Schema', default: 'FormSchema' },
     ])
     expect(formPart.props.map((p) => p.name)).toContain('onSubmit')
     expect(formPart.props.map((p) => p.name)).toContain('class')

@@ -24,7 +24,7 @@ export interface InvalidFocusRegistration {
 export interface InvalidFocusManager {
   attach: (form: FormValidationState) => void
   register: (invalid: Accessor<boolean>) => InvalidFocusRegistration
-  requestFocus: () => void
+  requestFocus: (form: HTMLFormElement) => void
 }
 
 function isUsableControl(element: HTMLElement | undefined): element is HTMLElement {
@@ -36,6 +36,13 @@ function isUsableControl(element: HTMLElement | undefined): element is HTMLEleme
     !element.matches(':disabled') &&
     element.getAttribute('aria-disabled') !== 'true',
   )
+}
+
+export function isControlAssociatedWithForm(element: HTMLElement, form: HTMLFormElement): boolean {
+  if (/^(BUTTON|FIELDSET|INPUT|OBJECT|OUTPUT|SELECT|TEXTAREA)$/.test(element.tagName)) {
+    return (element as HTMLInputElement).form === form
+  }
+  return form.contains(element)
 }
 
 function compareControls(first: InvalidFocusEntry, second: InvalidFocusEntry): number {
@@ -64,8 +71,9 @@ function focusControl(element: HTMLElement): boolean {
 /** Coordinates invalid focus without depending on Formisch's field-tree traversal order. */
 export function createInvalidFocusManager(): InvalidFocusManager {
   const [entries, setEntries] = createSignal<InvalidFocusEntry[]>([])
-  const [pending, setPending] = createSignal(false)
+  const [pending, setPending] = createSignal<HTMLFormElement>()
   let nextOrder = 0
+  let requestId = 0
 
   function register(invalid: Accessor<boolean>): InvalidFocusRegistration {
     const entry: InvalidFocusEntry = {
@@ -87,32 +95,46 @@ export function createInvalidFocusManager(): InvalidFocusManager {
     }
   }
 
-  function requestFocus(): void {
-    queueMicrotask(() => setPending(true))
+  function requestFocus(form: HTMLFormElement): void {
+    const currentRequest = ++requestId
+    queueMicrotask(() => {
+      if (currentRequest === requestId) {
+        setPending(form)
+      }
+    })
   }
 
   function attach(form: FormValidationState): void {
     createEffect(
       on(
         [pending, () => form.isValidating, () => form.isSubmitting, entries],
-        ([shouldFocus, validating, submitting, registeredControls]) => {
-          if (!shouldFocus || validating) {
+        ([targetForm, validating, submitting, registeredControls]) => {
+          if (!targetForm || validating) {
+            return
+          }
+          if (!targetForm.isConnected) {
+            setPending(undefined)
             return
           }
 
           const controls = registeredControls
-            .filter((entry) => entry.invalid() && isUsableControl(entry.element))
+            .filter(
+              (entry) =>
+                entry.invalid() &&
+                isUsableControl(entry.element) &&
+                isControlAssociatedWithForm(entry.element, targetForm),
+            )
             .sort(compareControls)
 
           for (const control of controls) {
             if (focusControl(control.element!)) {
-              setPending(false)
+              setPending(undefined)
               return
             }
           }
 
           if (!submitting) {
-            setPending(false)
+            setPending(undefined)
           }
         },
       ),
