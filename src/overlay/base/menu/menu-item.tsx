@@ -1,5 +1,5 @@
 import type { Accessor, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { Icon } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd'
@@ -22,6 +22,20 @@ import type {
   OverlayMenuSharedSlots,
 } from './types'
 
+const SELECTABLE_ITEM_EVENT_PROPS = [
+  'onClick',
+  'onFocus',
+  'onKeyDown',
+  'onPointerDown',
+  'onPointerEnter',
+  'onPointerMove',
+  'onPointerLeave',
+] as const
+
+function itemElementAttributes(attributes: ElementProps<HTMLDivElement> | undefined) {
+  return splitProps(attributes ?? {}, SELECTABLE_ITEM_EVENT_PROPS)[1]
+}
+
 export function createSelectableItemHandlers(
   layer: OverlayMenuLayerState,
   options: {
@@ -41,14 +55,6 @@ export function createSelectableItemHandlers(
   | 'onPointerMove'
   | 'onPointerLeave'
 > {
-  const handledEvents = new WeakSet<Event>()
-  const markHandled = (event: Event): boolean => {
-    if (handledEvents.has(event)) {
-      return false
-    }
-    handledEvents.add(event)
-    return true
-  }
   const highlight = (): void => {
     layer.closeSubmenus()
     layer.setHighlightedItemId(options.itemId())
@@ -76,9 +82,6 @@ export function createSelectableItemHandlers(
 
   return {
     onClick: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       if (options.disabled()) {
         event.preventDefault()
         return
@@ -89,9 +92,6 @@ export function createSelectableItemHandlers(
       }
     },
     onFocus: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onFocus)
       if (!defaultPrevented && !options.disabled()) {
         layer.closeSubmenus()
@@ -99,9 +99,6 @@ export function createSelectableItemHandlers(
       }
     },
     onKeyDown: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onKeyDown)
       if (
         !defaultPrevented &&
@@ -114,36 +111,24 @@ export function createSelectableItemHandlers(
       }
     },
     onPointerDown: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerDown)
       if (!defaultPrevented && options.disabled()) {
         event.preventDefault()
       }
     },
     onPointerEnter: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerEnter)
       if (!defaultPrevented) {
         handlePointerMove(event)
       }
     },
     onPointerMove: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerMove)
       if (!defaultPrevented) {
         handlePointerMove(event)
       }
     },
     onPointerLeave: (event) => {
-      if (!markHandled(event)) {
-        return
-      }
       const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerLeave)
       if (!defaultPrevented && event.pointerType === 'mouse') {
         layer.clearQueuedPointerEnter(event.currentTarget)
@@ -378,14 +363,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           highlighted: () => layer.highlightedItemId() === itemId(),
           selected: undefined,
         })}
-        {...itemAttributes()}
+        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
         {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
-        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -458,14 +442,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
-        {...itemAttributes()}
+        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
         {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
-        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -558,14 +541,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
-        {...itemAttributes()}
+        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
         {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
-        {...handlers}
       >
         <RenderItemContent
           item={itemProps.item}

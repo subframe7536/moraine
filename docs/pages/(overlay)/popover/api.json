@@ -93,7 +93,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
+          "description": "Whether the content traps focus, hides outside content from assistive technology, prevents\nthe native default action of outside pointer events, and locks body scroll.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route. Outside and\nEscape dismissal remain controlled by `dismissible`.",
           "default": {
             "kind": "literal",
             "value": false

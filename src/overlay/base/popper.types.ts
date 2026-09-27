@@ -127,7 +127,9 @@ export interface PopperContentOptions {
   hideWhenDetached?: boolean
 
   /**
-   * Whether the content traps focus and hides outside content from assistive technology.
+   * Whether the content traps focus, hides outside content from assistive technology, prevents
+   * the native default action of outside pointer events, and locks body scroll.
+   * Outside and Escape dismissal remain controlled by `dismissible`.
    * @default false
    */
   modal?: boolean

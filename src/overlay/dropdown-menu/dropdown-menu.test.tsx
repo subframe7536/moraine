@@ -1454,6 +1454,60 @@ describe('DropdownMenu', () => {
     })
   })
 
+  test.each(['item', 'checkbox', 'radio'] as const)(
+    'calls itemProps click once for a %s item',
+    async (type) => {
+      const onClick = vi.fn()
+      render(() => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ type, label: 'Action', group: 'choice', value: 'action' }]}
+            itemProps={() => ({ onClick })}
+          />
+        </DropdownMenu>
+      ))
+
+      const item = await waitFor(() => {
+        const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+        expect(element).not.toBeNull()
+        return element!
+      })
+      fireEvent.click(item)
+
+      expect(onClick).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  test('lets an item key handler cancel Escape before the menu handles it', async () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Action' }]} itemProps={() => ({ onKeyDown })} />
+      </DropdownMenu>
+    ))
+
+    const item = await waitFor(() => {
+      const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    await waitFor(() =>
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull(),
+    )
+    fireEvent.keyDown(item, { key: 'Escape' })
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+    ).not.toBeNull()
+  })
+
   test('locks body scroll and renders an overlay layer while open', async () => {
     renderWithTheme(() => (
       <DropdownMenu defaultOpen>

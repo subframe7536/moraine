@@ -341,6 +341,7 @@ describe('Dialog', () => {
 
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
     expect(document.activeElement).toBe(outside)

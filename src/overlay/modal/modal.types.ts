@@ -58,7 +58,9 @@ export namespace ModalT {
     preventScroll?: boolean
 
     /**
-     * Whether the surface contains focus and isolates outside content from assistive technology.
+     * Whether the surface contains focus, restores focus on close, hides outside content from
+     * assistive technology, and prevents the native default action of outside pointer events.
+     * Outside pointer and Escape dismissal remain controlled by `dismissible`.
      * @default true
      */
     modal?: boolean

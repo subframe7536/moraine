@@ -1654,6 +1654,53 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test.each([true, false])(
+    'keeps outside and Escape handling when modal is false and dismissible is %s',
+    async (dismissible) => {
+      const onOpenChange = vi.fn()
+      const onClosePrevent = vi.fn()
+      const screen = render(() => (
+        <>
+          <button type="button" data-testid="outside">
+            Outside
+          </button>
+          <Modal
+            open
+            modal={false}
+            dismissible={dismissible}
+            onOpenChange={onOpenChange}
+            onClosePrevent={onClosePrevent}
+          >
+            <Modal.Portal>
+              <Modal.Content ariaLabel="Content">Content</Modal.Content>
+            </Modal.Portal>
+          </Modal>
+        </>
+      ))
+      await Promise.resolve()
+
+      const pointerDown = new PointerEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        cancelable: true,
+        pointerType: 'mouse',
+      })
+      screen.getByTestId('outside').dispatchEvent(pointerDown)
+      expect(pointerDown.defaultPrevented).toBe(false)
+
+      const escape = new KeyboardEvent('keydown', {
+        bubbles: true,
+        cancelable: true,
+        key: 'Escape',
+      })
+      document.dispatchEvent(escape)
+      expect(escape.defaultPrevented).toBe(true)
+      expect(onOpenChange).toHaveBeenCalledTimes(dismissible ? 2 : 0)
+      expect(onClosePrevent).toHaveBeenCalledTimes(dismissible ? 0 : 2)
+      screen.unmount()
+    },
+  )
+
   test('restores trigger focus after enabling modal behavior while open', async () => {
     const [open, setOpen] = createSignal(true)
     const [modal, setModal] = createSignal(false)

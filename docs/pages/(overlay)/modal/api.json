@@ -53,7 +53,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the surface contains focus and isolates outside content from assistive technology.",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer and Escape dismissal remain controlled by `dismissible`.",
           "default": {
             "kind": "literal",
             "value": true
