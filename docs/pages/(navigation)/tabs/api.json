@@ -182,7 +182,6 @@
     "trigger",
     "leading",
     "label",
-    "trailing",
     "content"
   ],
   "dataAttributes": [

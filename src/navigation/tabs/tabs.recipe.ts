@@ -19,7 +19,6 @@ export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleV
       'text-muted-foreground rounded-md font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:(outline-none border-ring ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none)',
     leading: 'inline-flex shrink-0 items-center justify-center',
     label: 'truncate',
-    trailing: '',
     content: 'text-sm outline-none w-full',
   },
   defaultVariants: {

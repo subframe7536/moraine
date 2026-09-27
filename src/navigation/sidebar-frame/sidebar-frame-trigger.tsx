@@ -14,14 +14,7 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'disabled',
-    'children',
-    'class',
-    'style',
-    'ref' as any,
-  ])
+  const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style', 'ref'])
   const context = useSidebarFrameContext()
   const tag = createMemo(() => local.as ?? 'button')
   const disabled = () => Boolean(local.disabled)

@@ -55,6 +55,8 @@ export function Tabs(props: TabsProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'aria-label',
+    'aria-labelledby',
   ])
   const resolved = createStyles(tabsRecipe, local)
   const merged = mergeProps(
@@ -286,6 +288,8 @@ export function Tabs(props: TabsProps): JSX.Element {
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
+        aria-label={local['aria-label']}
+        aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="tabs-list"
         {...resolved.styles.list}

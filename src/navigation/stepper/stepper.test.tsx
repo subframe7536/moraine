@@ -19,6 +19,84 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 }
 
 describe('Stepper', () => {
+  test('uses unique instance IDs and one selected tab for duplicate values', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const screen = render(() => (
+      <Stepper
+        aria-label="Checkout steps"
+        aria-labelledby="checkout-heading"
+        value="billing address"
+        items={[
+          { value: 'billing address', title: 'First', content: 'First panel' },
+          { value: 'billing address', title: 'Second', content: 'Second panel' },
+        ]}
+      />
+    ))
+    const tabs = screen.getAllByRole('tab')
+    const panel = screen.getByRole('tabpanel')
+    const ids = Array.from(screen.container.querySelectorAll('[id]'), (element) => element.id)
+
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(screen.getByRole('tablist').getAttribute('aria-label')).toBe('Checkout steps')
+    expect(screen.getByRole('tablist').getAttribute('aria-labelledby')).toBe('checkout-heading')
+    expect(screen.container.firstElementChild?.hasAttribute('aria-label')).toBe(false)
+    expect(screen.container.firstElementChild?.hasAttribute('aria-labelledby')).toBe(false)
+    expect(tabs.filter((tab) => tab.getAttribute('aria-selected') === 'true')).toHaveLength(1)
+    expect(tabs[0]?.getAttribute('aria-controls')).toBe(panel.id)
+    expect(panel.getAttribute('aria-labelledby')).toBe(tabs[0]?.id)
+    expect(tabs[1]?.hasAttribute('aria-controls')).toBe(false)
+    expect(warn).toHaveBeenCalledTimes(1)
+    warn.mockRestore()
+  })
+
+  test('falls back when the requested or current item becomes disabled', () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const screen = render(() => (
+      <Stepper
+        value="shipping"
+        items={[
+          { value: 'address', title: 'Address', content: 'Address panel' },
+          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+        ]}
+      />
+    ))
+    setDisabled(true)
+    const address = screen.getByRole('tab', { name: 'Address' })
+    const shipping = screen.getByRole('tab', { name: 'Shipping' })
+    expect(address.getAttribute('aria-selected')).toBe('true')
+    expect(address.getAttribute('tabindex')).toBe('0')
+    expect(shipping.getAttribute('aria-selected')).toBe('false')
+    expect(shipping.getAttribute('tabindex')).toBe('-1')
+    expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
+  })
+
+  test('updates effective selection when an uncontrolled step becomes disabled', () => {
+    const [disabled, setDisabled] = createSignal(false)
+    const screen = render(() => (
+      <Stepper
+        defaultValue="shipping"
+        items={[
+          { value: 'address', title: 'Address', content: 'Address panel' },
+          { value: 'shipping', title: 'Shipping', disabled: disabled(), content: 'Shipping panel' },
+        ]}
+      />
+    ))
+    expect(screen.getByRole('tabpanel').textContent).toBe('Shipping panel')
+    setDisabled(true)
+    expect(screen.getByRole('tabpanel').textContent).toBe('Address panel')
+  })
+
+  test.each([0, ''])('mounts a panel for nullish-safe content %s', (content) => {
+    const screen = render(() => (
+      <Stepper items={[{ title: 'Step', content, class: 'item-only' }]} />
+    ))
+    expect(screen.getByRole('tabpanel').textContent).toBe(String(content))
+    expect(screen.getByRole('tabpanel').className).not.toContain('item-only')
+    expect(screen.container.querySelector('[data-slot="stepper-item"]')?.className).toContain(
+      'item-only',
+    )
+  })
+
   test('reads JSX fields once and delays the inactive panel', () => {
     const reads = { title: 0, description: 0, content: 0 }
     const [value, setValue] = createSignal('first')

@@ -20,9 +20,6 @@ export interface TabsStyleSlot<T = unknown> {
   /** Text or custom label rendered inside a tab trigger. */
   label?: T
 
-  /** Optional trailing content rendered after a tab label. */
-  trailing?: T
-
   /** Tab panel rendered for the selected item. */
   content?: T
 }

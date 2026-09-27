@@ -50,7 +50,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
-            const isDisabled = createMemo(() => Boolean(item.disabled) || isCurrent())
+            const isDisabled = createMemo(() => Boolean(item.disabled))
             const leading = createMemo(() => item.icon)
             const label = createMemo(() => item.label)
             const hasLabel = createMemo(() => {
@@ -65,20 +65,20 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     when={itemRender()}
                     fallback={
                       <Dynamic
-                        component={isDisabled() ? 'span' : 'a'}
+                        component={isCurrent() || isDisabled() ? 'span' : 'a'}
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
                         {...resolved.styles[isCurrent() ? 'page' : 'link']}
-                        role={isDisabled() ? 'link' : undefined}
-                        aria-disabled={isDisabled() ? 'true' : undefined}
+                        role={!isCurrent() && isDisabled() ? 'link' : undefined}
+                        aria-disabled={!isCurrent() && isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
                         {...breadcrumbDataAttributes.page({
                           current: isCurrent,
-                          disabled: isDisabled,
+                          disabled: () => !isCurrent() && isDisabled(),
                         })}
-                        href={isDisabled() ? undefined : (item.to ?? item.href)}
-                        target={isDisabled() ? undefined : item.target}
-                        rel={isDisabled() ? undefined : item.rel}
-                        onClick={isDisabled() ? undefined : item.onClick}
+                        href={isCurrent() || isDisabled() ? undefined : (item.to ?? item.href)}
+                        target={isCurrent() || isDisabled() ? undefined : item.target}
+                        rel={isCurrent() || isDisabled() ? undefined : item.rel}
+                        onClick={isCurrent() || isDisabled() ? undefined : item.onClick}
                       >
                         <Show when={leading()}>
                           {(icon) => (

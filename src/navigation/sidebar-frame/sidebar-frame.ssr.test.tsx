@@ -49,10 +49,7 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
     ),
   )
   await waitFor(() =>
-    expect(container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toHaveProperty(
-      'hidden',
-      true,
-    ),
+    expect(container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toBeNull(),
   )
   expect(container.querySelectorAll('h1')).toHaveLength(1)
   expect(container.querySelector('[data-slot="sidebar-frame-main"] h1')?.textContent).toBe(

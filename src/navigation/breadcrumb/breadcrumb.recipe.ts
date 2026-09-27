@@ -23,7 +23,7 @@ export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
     list: 'text-muted-foreground flex gap-1.5 break-words items-center',
     item: 'inline-flex items-center gap-1',
     link: `${BREADCRUMB_LINK_CLASS} ${BREADCRUMB_DISABLED_CLASS}`,
-    page: `${BREADCRUMB_PAGE_CLASS} ${BREADCRUMB_DISABLED_CLASS}`,
+    page: BREADCRUMB_PAGE_CLASS,
     leading: '',
     label: '',
     separator: 'text-muted-foreground inline-flex shrink-0 items-center justify-center',

@@ -36,3 +36,20 @@ export function renderStepperFixture(): string {
 export function renderVerticalStepperFixture(): string {
   return renderToString(() => <StepperHydrationFixture vertical />)
 }
+
+export function DuplicateStepperFixture() {
+  return (
+    <Stepper
+      id="ssr-duplicate-stepper"
+      value="billing address"
+      items={[
+        { value: 'billing address', title: 'First', content: 'First panel' },
+        { value: 'billing address', title: 'Second', content: 'Second panel' },
+      ]}
+    />
+  )
+}
+
+export function renderDuplicateStepperFixture(): string {
+  return renderToString(() => <DuplicateStepperFixture />)
+}

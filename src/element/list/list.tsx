@@ -20,6 +20,7 @@ export function List<
     'items',
     'itemRender',
     'virtualRender',
+    'fallback',
     'ref',
     'class',
     'style',
@@ -40,34 +41,41 @@ export function List<
       style={local.style}
     >
       <Show
-        when={local.virtualRender}
+        when={'fallback' in props && !local.items?.length}
         fallback={
-          <For each={local.items}>
-            {(item, index) =>
-              createComponent(local.itemRender, {
-                item,
-                get index() {
-                  return index()
-                },
-              })
+          <Show
+            when={local.virtualRender}
+            fallback={
+              <For each={local.items}>
+                {(item, index) =>
+                  createComponent(local.itemRender, {
+                    item,
+                    get index() {
+                      return index()
+                    },
+                  })
+                }
+              </For>
             }
-          </For>
+          >
+            {(virtualRender) => (
+              <Dynamic<Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>>>
+                component={virtualRender()}
+                entries={local.items ?? []}
+                scrollElement={scrollElement()}
+                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) =>
+                  createComponent(local.itemRender, {
+                    item,
+                    index,
+                    props: rowProps,
+                  })
+                }
+              />
+            )}
+          </Show>
         }
       >
-        {(virtualRender) => (
-          <Dynamic<Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>>>
-            component={virtualRender()}
-            entries={local.items ?? []}
-            scrollElement={scrollElement()}
-            render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) =>
-              createComponent(local.itemRender, {
-                item,
-                index,
-                props: rowProps,
-              })
-            }
-          />
-        )}
+        {(_empty) => local.fallback}
       </Show>
     </Dynamic>
   )

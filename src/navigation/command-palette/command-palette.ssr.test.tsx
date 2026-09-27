@@ -5,6 +5,18 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 import { CommandPalette } from './command-palette'
 
 describe('CommandPalette SSR Hydration', () => {
+  test('hydrates an empty listbox with a valid combobox relationship', () => {
+    const { container } = hydrateFixture(
+      '/src/navigation/command-palette/command-palette.ssr.fixture.tsx',
+      'renderEmptyCommandPaletteFixture',
+      () => <CommandPalette autofocus={false} groups={[]} />,
+    )
+    const input = container.querySelector('[role="combobox"]')
+    const listbox = container.querySelector('[role="listbox"]')
+    expect(input?.getAttribute('aria-controls')).toBe(listbox?.id)
+    expect(listbox?.querySelector('[data-slot="command-palette-empty"]')).not.toBeNull()
+  })
+
   test('hydrates trailing descriptions under their labels', () => {
     const { container } = hydrateFixture(
       '/src/navigation/command-palette/command-palette.ssr.fixture.tsx',
