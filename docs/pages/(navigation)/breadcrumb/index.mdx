@@ -76,7 +76,7 @@ root (<nav>)
 
 ### Items and current page
 
-Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. Current and disabled items are non-interactive.
+Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. The current page is a non-link `span` with `aria-current="page"`. Explicitly disabled ancestors remain non-interactive and expose `aria-disabled="true"`.
 
 <Preview path="./items-page" />
 

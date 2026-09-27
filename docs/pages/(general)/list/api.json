@@ -44,6 +44,12 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
+          "name": "fallback",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Content rendered inside the list when the collection is empty."
+        },
+        {
           "name": "itemRender",
           "optional": false,
           "type": "Component<ItemRenderProps<TItem, TItemElement>>",

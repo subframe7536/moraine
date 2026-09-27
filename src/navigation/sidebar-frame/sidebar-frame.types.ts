@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, JSX, Ref } from 'solid-js'
 
 import type {
   BaseProps,
@@ -74,7 +74,9 @@ export namespace SidebarFrameT {
   export interface MainBase extends SidebarFrameRegionBase {}
   export type MainProps = BaseProps<'div', MainBase, never, never, never>
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
+    ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
+  }
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,

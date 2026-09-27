@@ -19,6 +19,20 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 }
 
 describe('Tabs', () => {
+  test('places the accessible name on the tablist', () => {
+    const screen = render(() => (
+      <Tabs
+        aria-label="Settings"
+        aria-labelledby="settings-heading"
+        items={[{ label: 'Account', value: 'account', content: 'Account panel' }]}
+      />
+    ))
+    expect(screen.getByRole('tablist').getAttribute('aria-label')).toBe('Settings')
+    expect(screen.getByRole('tablist').getAttribute('aria-labelledby')).toBe('settings-heading')
+    expect(screen.container.firstElementChild?.hasAttribute('aria-label')).toBe(false)
+    expect(screen.container.firstElementChild?.hasAttribute('aria-labelledby')).toBe(false)
+  })
+
   function expectControlsResolve(container: HTMLElement): void {
     for (const trigger of container.querySelectorAll<HTMLElement>('[role="tab"]')) {
       const controls = trigger.getAttribute('aria-controls')

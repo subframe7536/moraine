@@ -46,6 +46,7 @@ Use Stepper to show progress through a fixed sequence of steps. Decide whether u
     return (
       <div class="max-w-xl w-full">
         <Stepper
+          aria-label="Onboarding steps"
           items={ONBOARDING_STEPS}
           defaultValue="account"
           size={props.size}

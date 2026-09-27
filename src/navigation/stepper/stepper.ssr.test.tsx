@@ -3,7 +3,25 @@ import { expect, test, vi } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test.ts'
 
-import { StepperHydrationFixture } from './stepper.ssr.fixture.tsx'
+import { DuplicateStepperFixture, StepperHydrationFixture } from './stepper.ssr.fixture.tsx'
+
+test('hydrates encoded duplicate step IDs without changing their relationships', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const { container } = hydrateFixture(
+    '/src/navigation/stepper/stepper.ssr.fixture.tsx',
+    'renderDuplicateStepperFixture',
+    () => <DuplicateStepperFixture />,
+  )
+  const ids = Array.from(container.querySelectorAll('[id]'), (element) => element.id)
+  const tabs = container.querySelectorAll('[role="tab"]')
+  const panel = container.querySelector('[role="tabpanel"]')
+  expect(new Set(ids).size).toBe(ids.length)
+  expect(tabs[0]?.id).toContain('billing%20address-0')
+  expect(tabs[0]?.getAttribute('aria-controls')).toBe(panel?.id)
+  expect(panel?.getAttribute('aria-labelledby')).toBe(tabs[0]?.id)
+  expect(tabs[1]?.getAttribute('aria-selected')).toBe('false')
+  warn.mockRestore()
+})
 
 test.each([false, true])(
   'hydrates step relationships and lazily selects another panel (vertical=%s)',

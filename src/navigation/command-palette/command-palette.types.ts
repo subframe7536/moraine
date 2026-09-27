@@ -102,10 +102,8 @@ export namespace CommandPaletteT {
   > extends CommandPaletteBaseRenderProps<TItem> {
     item: TItem
     group: Group<TItem>
-    focused: boolean
-    active: boolean
-    /** Whether the item is currently active. */
-    selected: boolean
+    /** Whether the item is currently highlighted. */
+    highlighted: boolean
     disabled: boolean
   }
 

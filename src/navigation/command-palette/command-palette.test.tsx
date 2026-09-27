@@ -51,6 +51,97 @@ const GROUPS: CommandPaletteT.Group[] = [
 ]
 
 describe('CommandPalette', () => {
+  test('keeps an identified listbox around the empty state', () => {
+    const screen = render(() => <CommandPalette groups={[]} autofocus={false} />)
+    const input = screen.getByRole('combobox')
+    const listbox = screen.getByRole('listbox')
+    expect(input.getAttribute('aria-controls')).toBe(listbox.id)
+    expect(input.getAttribute('aria-label')).toBe('Search...')
+    expect(listbox.querySelector('[data-slot="command-palette-empty"]')).not.toBeNull()
+  })
+
+  test('keeps explicit input naming ahead of the placeholder fallback', () => {
+    const labelled = render(() => (
+      <CommandPalette
+        groups={[]}
+        autofocus={false}
+        inputProps={{ 'aria-labelledby': 'search-title' }}
+      />
+    ))
+    const input = labelled.getByRole('combobox')
+    expect(input.getAttribute('aria-labelledby')).toBe('search-title')
+    expect(input.hasAttribute('aria-label')).toBe(false)
+    labelled.unmount()
+
+    const named = render(() => (
+      <CommandPalette
+        groups={[]}
+        autofocus={false}
+        inputProps={{ 'aria-label': 'Find a command' }}
+      />
+    ))
+    expect(named.getByRole('combobox').getAttribute('aria-label')).toBe('Find a command')
+  })
+
+  test('protects virtual row identity and positional semantics', () => {
+    render(() => (
+      <CommandPalette
+        autofocus={false}
+        groups={[{ id: 'actions', items: [{ value: 'run', label: 'Run' }] }]}
+        virtualRender={(context) => (
+          <For each={context.entries}>
+            {(entry) =>
+              context.render(entry, 0, {
+                id: 'wrong-row',
+                role: 'button',
+                'aria-selected': false,
+                'aria-posinset': 99,
+                'aria-setsize': 99,
+              })
+            }
+          </For>
+        )}
+      />
+    ))
+    const option = body().getByRole('option')
+    expect(option.id).not.toBe('wrong-row')
+    expect(option.getAttribute('aria-selected')).toBe('true')
+    expect(option.getAttribute('aria-posinset')).toBe('1')
+    expect(option.getAttribute('aria-setsize')).toBe('1')
+    expect(option.getAttribute('data-slot')).toBe('command-palette-item')
+  })
+
+  test('protects listbox and option semantics from forwarded props', async () => {
+    const select = vi.fn()
+    render(() => (
+      <CommandPalette
+        autofocus={false}
+        groups={[{ id: 'actions', items: [{ value: 'run', label: 'Run' }] }]}
+        onSelect={select}
+        listboxProps={{ id: 'wrong', role: 'menu', 'data-slot': 'wrong-list' }}
+        itemProps={() => ({
+          id: 'wrong-item',
+          role: 'button',
+          'aria-selected': false,
+          'data-slot': 'wrong-item',
+          onClick: (event) => event.preventDefault(),
+        })}
+      />
+    ))
+    const input = body().getByRole('combobox')
+    const listbox = body().getByRole('listbox')
+    const option = body().getByRole('option')
+    expect(listbox.id).not.toBe('wrong')
+    expect(input.getAttribute('aria-controls')).toBe(listbox.id)
+    expect(option.id).not.toBe('wrong-item')
+    expect(input.getAttribute('aria-activedescendant')).toBe(option.id)
+    expect(option.getAttribute('aria-selected')).toBe('true')
+    expect(listbox.getAttribute('data-slot')).toBe('command-palette-listbox')
+    expect(option.getAttribute('data-slot')).toBe('command-palette-item')
+    fireEvent.click(option)
+    expect(select).not.toHaveBeenCalled()
+  })
+
   test('renders component defaults when provider is absent', async () => {
     render(() => <CommandPalette groups={GROUPS} />)
     await waitFor(() => {
@@ -664,14 +755,14 @@ describe('CommandPalette', () => {
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', description: 'Run it' }] }]}
         itemRender={(ctx) => (
           <span data-testid="custom-item">
-            {ctx.item.label}:{ctx.item.description}:{ctx.focused ? 'focused' : 'idle'}
+            {ctx.item.label}:{ctx.item.description}:{ctx.highlighted ? 'highlighted' : 'idle'}
           </span>
         )}
       />
     ))
 
     await waitFor(() => {
-      expect(body().getByTestId('custom-item').textContent).toBe('Action:Run it:focused')
+      expect(body().getByTestId('custom-item').textContent).toBe('Action:Run it:highlighted')
     })
   })
 
@@ -778,13 +869,13 @@ describe('CommandPalette', () => {
                 label: 'Run',
                 leadingRender: (ctx) => (
                   <span data-testid="leading-state">
-                    {ctx.focused ? 'focused' : 'idle'}:{ctx.disabled ? 'disabled' : 'enabled'}
+                    {ctx.highlighted ? 'highlighted' : 'idle'}:
+                    {ctx.disabled ? 'disabled' : 'enabled'}
                   </span>
                 ),
                 trailingRender: (ctx) => (
                   <span data-testid="trailing-state">
-                    {ctx.searchTerm}:{ctx.active ? 'active' : 'inactive'}:
-                    {ctx.selected ? 'selected' : 'unselected'}
+                    {ctx.searchTerm}:{ctx.highlighted ? 'highlighted' : 'idle'}
                   </span>
                 ),
               },
@@ -795,8 +886,8 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      expect(body().getByTestId('leading-state').textContent).toBe('focused:enabled')
-      expect(body().getByTestId('trailing-state').textContent).toBe('run:active:selected')
+      expect(body().getByTestId('leading-state').textContent).toBe('highlighted:enabled')
+      expect(body().getByTestId('trailing-state').textContent).toBe('run:highlighted')
     })
   })
 

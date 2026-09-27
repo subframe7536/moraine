@@ -3,6 +3,7 @@ import {
   Show,
   children as resolveChildren,
   createEffect,
+  createMemo,
   createSignal,
   mergeProps,
   on,
@@ -12,7 +13,6 @@ import {
 
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
-import { useControllableValue } from '../../shared/use-controllable-value'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { callHandler } from '../../shared/utils'
 
@@ -41,28 +41,19 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
           mobile: () => contentProps.mobile,
           closed: () => !context.isOpen(),
         })}
-        hidden={!contentProps.mobile && context.isMobile()}
-        aria-hidden={
-          contentProps.mobile ? !context.isOpen() : context.isMobile() || !context.isOpen()
-        }
+        aria-hidden={!context.isOpen()}
         inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
         {...rest}
         {...resolved.styles.sidebar}
       >
-        <Show
-          when={contentProps.mobile}
-          fallback={<Show when={!context.isMobile()}>{content()}</Show>}
-        >
-          {content()}
-        </Show>
+        {content()}
       </div>
     )
   }
 
   return (
     <>
-      <SidebarContent mobile={false} />
-      <Show when={context.isMobile()}>
+      <Show when={context.isMobile()} fallback={<SidebarContent mobile={false} />}>
         <Sheet
           open={context.isOpen()}
           onOpenChange={context.setOpen}
@@ -180,18 +171,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   )
 
   const mediaMatches = createMediaQuery('(max-width: 768px)', false)
-  const [isMobile, setIsMobile] = useControllableValue<boolean>({
-    value: () => local.isMobile,
-    defaultValue: mediaMatches,
-  })
+  const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
   const [isOpen, setOpen] = createSignal(untrack(() => !isMobile()))
   const [scrolled, setScrolled] = createSignal(false)
-
-  createEffect(
-    on(mediaMatches, (matches) => {
-      setIsMobile(matches)
-    }),
-  )
 
   createEffect(
     on(isMobile, (mobile) => {

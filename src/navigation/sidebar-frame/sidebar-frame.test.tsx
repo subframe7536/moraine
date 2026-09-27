@@ -84,6 +84,54 @@ afterEach(() => {
 })
 
 describe('SidebarFrame', () => {
+  test('keeps one sidebar identity and preserves child state across mobile changes', async () => {
+    const [mobile, setMobile] = createSignal(false)
+    const ref = vi.fn()
+    let mounts = 0
+    let cleanups = 0
+    const Child = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span data-testid="sidebar-child">Navigation</span>
+    }
+    const screen = render(() => (
+      <SidebarFrame isMobile={mobile()}>
+        <SidebarFrame.Sidebar id="unique-sidebar" ref={ref}>
+          <Child />
+        </SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+    const child = screen.getByTestId('sidebar-child')
+    const assertUnique = () => {
+      expect(document.querySelectorAll('#unique-sidebar')).toHaveLength(1)
+      expect(document.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(1)
+    }
+    assertUnique()
+    setMobile(true)
+    await waitFor(assertUnique)
+    await waitFor(() =>
+      expect(
+        screen.container
+          .querySelector('[data-slot="sidebar-frame-trigger"]')
+          ?.getAttribute('aria-expanded'),
+      ).toBe('false'),
+    )
+    fireEvent.click(screen.container.querySelector('[data-slot="sidebar-frame-trigger"]')!)
+    await waitFor(assertUnique)
+    expect(document.querySelector('[data-testid="sidebar-child"]')).toBe(child)
+    setMobile(false)
+    await finishExitMotion()
+    await waitFor(assertUnique)
+    expect(document.querySelector('[data-testid="sidebar-child"]')).toBe(child)
+    expect([mounts, cleanups]).toEqual([1, 0])
+    expect(ref.mock.calls.every(([element]) => element?.id === 'unique-sidebar')).toBe(true)
+  })
+
   test('renders compound regions in the desktop layout', () => {
     const screen = renderWithTheme(() => (
       <SidebarFrame isMobile={false}>
@@ -195,13 +243,13 @@ describe('SidebarFrame', () => {
     ))
 
     await waitFor(() =>
-      expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toHaveProperty(
-        'hidden',
-        true,
-      ),
+      expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toBeNull(),
     )
+    expect(document.body.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(1)
     fireEvent.click(screen.getByText('Toggle'))
-    await waitFor(() => expect(document.body.textContent).toContain('Navigation'))
+    await waitFor(() =>
+      expect(document.body.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(1),
+    )
   })
 
   test('ignores matchMedia updates when isMobile is controlled', async () => {

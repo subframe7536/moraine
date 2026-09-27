@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import {
+  DEV,
   For,
   Show,
   createEffect,
@@ -194,7 +195,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   })
 
   const warnDuplicateValue = (value: string): void => {
-    if (process.env.NODE_ENV === 'production' || warnedDuplicateValues.has(value)) {
+    if (!DEV || warnedDuplicateValues.has(value)) {
       return
     }
 
@@ -435,13 +436,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       },
       item: item.item,
       group: item.group,
-      get focused() {
-        return isActive()
-      },
-      get active() {
-        return isActive()
-      },
-      get selected() {
+      get highlighted() {
         return isActive()
       },
       get disabled() {
@@ -507,6 +502,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
     return (
       <div
+        {...itemAttributes()}
+        {...virtualProps}
         id={`${listboxId()}-${encodeURIComponent(item.key)}`}
         role="option"
         tabIndex={-1}
@@ -519,8 +516,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         aria-disabled={item.disabled || undefined}
         aria-posinset={merged.virtualRender ? visibleItemPositionByKey().get(item.key) : undefined}
         aria-setsize={merged.virtualRender ? visibleItems().length : undefined}
-        {...itemAttributes()}
-        {...virtualProps}
         ref={(element) => {
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
@@ -591,6 +586,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           data-slot="command-palette-input"
           {...resolved.styles.input}
           role="combobox"
+          aria-label={
+            merged.inputProps?.['aria-label'] ??
+            (merged.inputProps?.['aria-labelledby'] === undefined ? merged.placeholder : undefined)
+          }
           aria-controls={listboxId()}
           aria-expanded="true"
           aria-haspopup="listbox"
@@ -637,94 +636,97 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       </div>
 
       <Show
-        when={hasItems()}
+        when={merged.virtualRender}
         fallback={
-          <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-            <Show when={merged.emptyRender !== undefined} fallback="No results.">
-              {renderComponentOrElement(merged.emptyRender, getContext())}
-            </Show>
-          </div>
+          <List
+            as="div"
+            items={hasItems() ? visibleGroups() : []}
+            fallback={
+              <div data-slot="command-palette-empty" {...resolved.styles.empty}>
+                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                  {renderComponentOrElement(merged.emptyRender, getContext())}
+                </Show>
+              </div>
+            }
+            itemRender={(context) => (
+              <div data-slot="command-palette-group" {...resolved.styles.group}>
+                <Show when={context.item.label}>
+                  <span data-slot="command-palette-group-label" {...resolved.styles.groupLabel}>
+                    {context.item.label}
+                  </span>
+                </Show>
+
+                <For each={context.item.items}>{(item) => renderVisibleItem(item)}</For>
+              </div>
+            )}
+            {...merged.listboxProps}
+            id={listboxId()}
+            role="listbox"
+            data-slot="command-palette-listbox"
+            ref={(element: HTMLDivElement) => {
+              listboxElement = element
+              callRef(merged.listboxProps?.ref, element)
+            }}
+            style={{
+              ...merged.listboxProps?.style,
+              ...resolved.styles.listbox.style,
+            }}
+            class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
+          />
         }
       >
-        <Show
-          when={merged.virtualRender}
-          fallback={
-            <List
-              as="div"
-              items={visibleGroups()}
-              itemRender={(context) => (
-                <div data-slot="command-palette-group" {...resolved.styles.group}>
-                  <Show when={context.item.label}>
-                    <span data-slot="command-palette-group-label" {...resolved.styles.groupLabel}>
-                      {context.item.label}
-                    </span>
-                  </Show>
-
-                  <For each={context.item.items}>{(item) => renderVisibleItem(item)}</For>
-                </div>
-              )}
-              id={listboxId()}
-              role="listbox"
-              data-slot="command-palette-listbox"
-              {...merged.listboxProps}
-              ref={(element: HTMLDivElement) => {
-                listboxElement = element
-                callRef(merged.listboxProps?.ref, element)
-              }}
-              style={{
-                ...merged.listboxProps?.style,
-                ...resolved.styles.listbox.style,
-              }}
-              class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
-            />
-          }
-        >
-          {(virtualRender) => (
-            <List
-              as="div"
-              items={virtualEntries()}
-              virtualRender={virtualRender()}
-              itemRender={(context) => (
-                <Show
-                  when={context.item.type === 'label'}
-                  fallback={
-                    <Show when={visibleItemByKey().get(context.item.key)}>
-                      {(item) => renderVisibleItem(item(), context.props)}
-                    </Show>
-                  }
-                >
-                  <div
-                    role="presentation"
-                    data-slot="command-palette-group"
-                    {...context.props}
-                    style={{
-                      ...context.props?.style,
-                      ...resolved.styles.group.style,
-                    }}
-                    class={cn(resolved.styles.group.class, context.props?.class)}
-                  >
-                    <span data-slot="command-palette-group-label" {...resolved.styles.groupLabel}>
-                      {context.item.type === 'label' ? context.item.label : ''}
-                    </span>
-                  </div>
+        {(virtualRender) => (
+          <List
+            as="div"
+            items={hasItems() ? virtualEntries() : []}
+            fallback={
+              <div data-slot="command-palette-empty" {...resolved.styles.empty}>
+                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                  {renderComponentOrElement(merged.emptyRender, getContext())}
                 </Show>
-              )}
-              id={listboxId()}
-              role="listbox"
-              data-slot="command-palette-listbox"
-              {...merged.listboxProps}
-              ref={(element: HTMLDivElement) => {
-                listboxElement = element
-                callRef(merged.listboxProps?.ref, element)
-              }}
-              style={{
-                ...merged.listboxProps?.style,
-                ...resolved.styles.listbox.style,
-              }}
-              class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
-            />
-          )}
-        </Show>
+              </div>
+            }
+            virtualRender={virtualRender()}
+            itemRender={(context) => (
+              <Show
+                when={context.item.type === 'label'}
+                fallback={
+                  <Show when={visibleItemByKey().get(context.item.key)}>
+                    {(item) => renderVisibleItem(item(), context.props)}
+                  </Show>
+                }
+              >
+                <div
+                  role="presentation"
+                  data-slot="command-palette-group"
+                  {...context.props}
+                  style={{
+                    ...context.props?.style,
+                    ...resolved.styles.group.style,
+                  }}
+                  class={cn(resolved.styles.group.class, context.props?.class)}
+                >
+                  <span data-slot="command-palette-group-label" {...resolved.styles.groupLabel}>
+                    {context.item.type === 'label' ? context.item.label : ''}
+                  </span>
+                </div>
+              </Show>
+            )}
+            {...merged.listboxProps}
+            id={listboxId()}
+            role="listbox"
+            data-slot="command-palette-listbox"
+            ref={(element: HTMLDivElement) => {
+              listboxElement = element
+              callRef(merged.listboxProps?.ref, element)
+            }}
+            style={{
+              ...merged.listboxProps?.style,
+              ...resolved.styles.listbox.style,
+            }}
+            class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
+          />
+        )}
       </Show>
 
       <Show when={merged.footerRender !== undefined}>

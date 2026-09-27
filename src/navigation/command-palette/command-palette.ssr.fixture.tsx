@@ -16,3 +16,7 @@ export function renderCommandPaletteFixture(): string {
     />
   ))
 }
+
+export function renderEmptyCommandPaletteFixture(): string {
+  return renderToString(() => <CommandPalette autofocus={false} groups={[]} />)
+}

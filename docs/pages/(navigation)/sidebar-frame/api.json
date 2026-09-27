@@ -279,6 +279,11 @@
           "description": "Whether this trigger is disabled."
         },
         {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

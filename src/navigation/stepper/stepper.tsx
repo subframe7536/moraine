@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { DEV, For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index.ts'
 import { useCn } from '../../provider/cn-context.ts'
@@ -18,6 +18,7 @@ interface NormalizedStepperItem {
   item: StepperT.Item
   index: number
   value: StepperT.Value
+  instanceKey: string
 }
 
 /**
@@ -42,6 +43,8 @@ export function Stepper(props: StepperProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'aria-label',
+    'aria-labelledby',
   ])
   const resolved = createStyles(stepperRecipe, local)
   const merged = mergeProps(
@@ -62,10 +65,19 @@ export function Stepper(props: StepperProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? null,
   })
-  const triggerRefs = new Map<StepperT.Value, HTMLButtonElement>()
+  const triggerRefs = new Map<string, HTMLButtonElement>()
+  const warnedDuplicateValues = new Set<StepperT.Value>()
 
-  const normalizedItems = createMemo<NormalizedStepperItem[]>(() =>
-    (merged.items ?? []).map((item, index) => {
+  const normalizedItems = createMemo<NormalizedStepperItem[]>(() => {
+    const occurrences = new Map<StepperT.Value, number>()
+    return (merged.items ?? []).map((item, index) => {
+      const value = item.value ?? String(index)
+      const occurrence = occurrences.get(value) ?? 0
+      occurrences.set(value, occurrence + 1)
+      if (DEV && occurrence > 0 && !warnedDuplicateValues.has(value)) {
+        warnedDuplicateValues.add(value)
+        console.warn(`[moraine] Stepper received duplicate item value "${value}".`)
+      }
       const title = createLazyMemo(() => item.title)
       const description = createLazyMemo(() => item.description)
       const icon = createLazyMemo(() => item.icon)
@@ -87,45 +99,42 @@ export function Stepper(props: StepperProps): JSX.Element {
       return {
         item: mergedItem,
         index,
-        value: item.value ?? String(index),
+        value,
+        instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
       }
-    }),
-  )
+    })
+  })
 
-  const resolvedValue = createMemo(() => {
-    const value = requestedValue()
-    if (value === null) {
-      const firstEnabled = normalizedItems().find((entry) => !entry.item.disabled)
-      return firstEnabled?.value ?? normalizedItems()[0]?.value
-    }
+  const selectedItem = createMemo(() => {
     const items = normalizedItems()
-    if (items.length === 0) {
-      return undefined
-    }
-
-    if (items.some((entry) => entry.value === value)) {
-      return value
-    }
-
-    const firstEnabled = items.find((entry) => !entry.item.disabled)
-    return firstEnabled?.value ?? items[0]?.value
+    const value = requestedValue()
+    return (
+      (value === null
+        ? undefined
+        : items.find((entry) => entry.value === value && !entry.item.disabled)) ??
+      items.find((entry) => !entry.item.disabled)
+    )
   })
 
   const currentIndex = createMemo(() => {
-    const value = resolvedValue()
-    return normalizedItems().findIndex((item) => item.value === value)
+    return selectedItem()?.index ?? -1
   })
   const { onNavigationKeyDown } = useSelectableCollectionNavigation<
     NormalizedStepperItem,
     StepperT.Value
   >({
     items: normalizedItems,
-    getValue: (entry) => entry.value,
+    getValue: (entry) => entry.instanceKey,
     isDisabled: isItemDisabled,
     loop: () => merged.loop,
     activationMode: () => merged.activationMode ?? 'automatic',
-    focusValue: (value) => triggerRefs.get(value)?.focus(),
-    onSelect: selectStep,
+    focusValue: (key) => triggerRefs.get(key)?.focus(),
+    onSelect: (key) => {
+      const entry = normalizedItems().find((item) => item.instanceKey === key)
+      if (entry) {
+        selectStep(entry.value)
+      }
+    },
   })
 
   function getItemState(index: number): StepperState {
@@ -163,7 +172,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   function selectStep(nextValue: StepperT.Value): void {
-    if (merged.disabled || nextValue === resolvedValue()) {
+    if (merged.disabled || nextValue === selectedItem()?.value) {
       return
     }
 
@@ -174,18 +183,20 @@ export function Stepper(props: StepperProps): JSX.Element {
     }
   }
 
-  function getTriggerId(value: StepperT.Value): string {
-    return `${id()}-${value}-trigger`
+  function getTriggerId(key: string): string {
+    return `${id()}-${key}-trigger`
   }
 
-  function getContentId(value: StepperT.Value): string {
-    return `${id()}-${value}-content`
+  function getContentId(key: string): string {
+    return `${id()}-${key}-content`
   }
 
   return (
     <div id={id()} data-slot="stepper" {...resolved.styles.root} {...rest}>
       <div
         role="tablist"
+        aria-label={local['aria-label']}
+        aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="stepper-header"
         {...resolved.styles.header}
@@ -194,12 +205,14 @@ export function Stepper(props: StepperProps): JSX.Element {
           {(entry) => {
             const state = createMemo(() => getItemState(entry.index))
             const disabled = createMemo(() => isItemDisabled(entry))
-            const triggerId = createMemo(() => getTriggerId(entry.value))
-            const contentId = createMemo(() => getContentId(entry.value))
+            const triggerId = createMemo(() => getTriggerId(entry.instanceKey))
+            const contentId = createMemo(() => getContentId(entry.instanceKey))
             const titleId = createMemo(() => `${contentId()}-step-${entry.index}-title`)
             const descriptionId = createMemo(() => `${contentId()}-step-${entry.index}-description`)
-            const selected = createMemo(() => resolvedValue() === entry.value)
-            const panelMounted = createMemo(() => selected() && Boolean(entry.item.content))
+            const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
+            const panelMounted = createMemo(
+              () => selected() && entry.item.content !== undefined && entry.item.content !== null,
+            )
 
             return (
               <div
@@ -214,7 +227,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                 <button
                   id={triggerId()}
                   ref={(element) => {
-                    triggerRefs.set(entry.value, element)
+                    triggerRefs.set(entry.instanceKey, element)
                   }}
                   type="button"
                   role="tab"
@@ -233,7 +246,11 @@ export function Stepper(props: StepperProps): JSX.Element {
                   {...resolved.styles.trigger}
                   onClick={() => selectStep(entry.value)}
                   onKeyDown={(event) => {
-                    onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
+                    onNavigationKeyDown(
+                      event,
+                      entry.instanceKey,
+                      merged.orientation ?? 'horizontal',
+                    )
                   }}
                 >
                   <span
@@ -288,15 +305,21 @@ export function Stepper(props: StepperProps): JSX.Element {
 
       <For each={normalizedItems()}>
         {(entry) => (
-          <Show when={resolvedValue() === entry.value && entry.item.content}>
+          <Show
+            when={
+              selectedItem()?.instanceKey === entry.instanceKey &&
+              entry.item.content !== undefined &&
+              entry.item.content !== null
+            }
+          >
             <div
-              id={getContentId(entry.value)}
+              id={getContentId(entry.instanceKey)}
               role="tabpanel"
               tabIndex={0}
-              aria-labelledby={getTriggerId(entry.value)}
+              aria-labelledby={getTriggerId(entry.instanceKey)}
               {...stepperDataAttributes.content({ selected: true })}
               data-slot="stepper-content"
-              class={cn(resolved.styles.content.class, entry.item.class)}
+              class={resolved.styles.content.class}
               style={resolved.styles.content.style}
             >
               {entry.item.content}

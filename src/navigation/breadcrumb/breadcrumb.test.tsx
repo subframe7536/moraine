@@ -187,17 +187,36 @@ describe('Breadcrumb', () => {
     const current = screen.getByText('Current').closest('[data-slot="breadcrumb-page"]')
 
     expect(current?.tagName).toBe('SPAN')
-    expect(current?.getAttribute('role')).toBe('link')
+    expect(current?.getAttribute('role')).toBeNull()
     expect(current?.getAttribute('aria-current')).toBe('page')
     expect(current?.hasAttribute('data-current')).toBe(true)
-    expect(current?.getAttribute('aria-disabled')).toBe('true')
-    expect(current?.hasAttribute('data-disabled')).toBe(true)
+    expect(current?.getAttribute('aria-disabled')).toBeNull()
+    expect(current?.hasAttribute('data-disabled')).toBe(false)
     expect(current?.getAttribute('href')).toBeNull()
     expect(current?.getAttribute('target')).toBeNull()
     expect(current?.getAttribute('rel')).toBeNull()
     expect(current?.className).toContain('inline-flex')
     expect(current?.className).toContain('items-center')
     expect(current?.className).toContain('gap-1')
+  })
+
+  test('keeps current-page semantics when the source item is explicitly disabled', () => {
+    const renderItem = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
+      <span>
+        {String(context.current)}:{String(context.disabled)}
+      </span>
+    ))
+    const custom = render(() => (
+      <Breadcrumb items={[{ label: 'Current', disabled: true }]} itemRender={renderItem} />
+    ))
+    expect(custom.getByText('true:true')).not.toBeNull()
+    const defaultView = render(() => <Breadcrumb items={[{ label: 'Current', disabled: true }]} />)
+    const page = defaultView.container.querySelector('[data-slot="breadcrumb-page"]')
+    expect(page?.tagName).toBe('SPAN')
+    expect(page?.getAttribute('aria-current')).toBe('page')
+    expect(page?.getAttribute('aria-disabled')).toBeNull()
+    expect(page?.getAttribute('role')).toBeNull()
+    expect(page?.hasAttribute('data-disabled')).toBe(false)
   })
 
   test('supports explicit active item', () => {
@@ -389,7 +408,7 @@ describe('Breadcrumb', () => {
     ).toBe(true)
     expect(
       contexts.some(
-        (context) => context.index === 1 && context.current === true && context.disabled === true,
+        (context) => context.index === 1 && context.current === true && context.disabled === false,
       ),
     ).toBe(true)
   })

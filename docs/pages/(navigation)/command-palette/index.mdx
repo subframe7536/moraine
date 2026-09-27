@@ -111,8 +111,8 @@ root
 │   ├── inputLeading
 │   ├── input (role="combobox")
 │   └── close (optional)
-├── listbox (optional)
-│   └── group (×n)
+├── listbox (role="listbox")
+│   ├── group (×n)
 │       ├── groupLabel (optional)
 │       └── item (×n)
 │           ├── itemLeading (optional)
@@ -120,11 +120,11 @@ root
 │           │   ├── itemLabel
 │           │   └── itemDescription (optional)
 │           └── itemTrailing (optional)
-├── empty (optional)
+│   └── empty (when no items match)
 └── footer (optional)
 ```
 
-The listbox and empty state are mutually exclusive. With `virtualRender`, group labels and items can be flat rows. When `descriptionPosition="trailing"`, itemDescription moves inside itemLabel.
+The listbox remains mounted when no items match, and the empty state appears inside it. With `virtualRender`, group labels and items can be flat rows. When `descriptionPosition="trailing"`, itemDescription moves inside itemLabel.
 
 ## Usage
 
