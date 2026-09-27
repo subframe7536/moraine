@@ -17,7 +17,7 @@ type DialogConfigKeys =
   | 'overlay'
   | 'scrollable'
   | 'fullscreen'
-  | 'trapFocus'
+  | 'modal'
   | 'ariaLabel'
   | 'close'
   | 'portalMount'
@@ -27,7 +27,7 @@ type SheetConfigKeys =
   | 'side'
   | 'inset'
   | 'transition'
-  | 'trapFocus'
+  | 'modal'
   | 'ariaLabel'
   | 'close'
   | 'portalMount'
@@ -50,7 +50,7 @@ export type OverlayConfigPlacement = [
   overlay={false}
   scrollable
   fullscreen
-  trapFocus={false}
+  modal={false}
   ariaLabel="Dialog"
   close={false}
   portalMount={document.body}
@@ -68,7 +68,7 @@ export type OverlayConfigPlacement = [
 // @ts-expect-error Dialog layout belongs to the root.
 ;<Dialog.Content scrollable fullscreen />
 // @ts-expect-error Dialog behavior belongs to the root.
-;<Dialog.Content trapFocus={false} close={false} ariaLabel="Dialog" />
+;<Dialog.Content modal={false} close={false} ariaLabel="Dialog" />
 ;<Dialog.Header class="header" />
 // @ts-expect-error Shorthand mode is internal to Dialog.Content.
 ;<Dialog.Header shorthand />
@@ -99,16 +99,16 @@ export type OverlayConfigPlacement = [
   inset
   overlay={false}
   transition={false}
-  trapFocus={false}
+  modal={false}
   ariaLabel="Sheet"
   close={false}
   portalMount={document.body}
   closeIcon="icon-close"
 />
-;<Modal trapFocus={false} portalMount={document.body} />
+;<Modal modal={false} portalMount={document.body} />
 ;<Modal.Portal mount={document.body} />
 // @ts-expect-error Modal behavior belongs to the root.
-;<Modal.Content trapFocus={false} />
+;<Modal.Content modal={false} />
 // @ts-expect-error Sheet.close no longer accepts custom JSX.
 ;<Sheet close={<span />} />
 // @ts-expect-error A headless root has no primary DOM element.
@@ -123,7 +123,7 @@ export type OverlayConfigPlacement = [
 // @ts-expect-error Sheet layout belongs to the root.
 ;<Sheet.Content side="left" inset />
 // @ts-expect-error Sheet behavior belongs to the root.
-;<Sheet.Content transition={false} trapFocus={false} close={false} ariaLabel="Sheet" />
+;<Sheet.Content transition={false} modal={false} close={false} ariaLabel="Sheet" />
 ;<Sheet.Header class="header" />
 // @ts-expect-error Shorthand mode is internal to Sheet.Content.
 ;<Sheet.Header shorthand />

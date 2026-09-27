@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 
 import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
@@ -61,8 +62,8 @@ export namespace SheetT {
   }
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
   export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>

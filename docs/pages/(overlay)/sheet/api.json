@@ -86,6 +86,16 @@
           }
         },
         {
+          "name": "modal",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface contains focus and isolates outside content from assistive technology.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "onClosePrevent",
           "optional": true,
           "type": "() => void",
@@ -156,16 +166,6 @@
           "optional": true,
           "type": "boolean",
           "description": "Whether to enable transition animations.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
           "default": {
             "kind": "literal",
             "value": true

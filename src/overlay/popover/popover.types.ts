@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
-import type { ModalT } from '../modal/modal.types'
+import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
 import type { PopoverStyleSlot, PopoverStyleVariant } from './popover.style-types'
 
@@ -71,8 +71,8 @@ export namespace PopoverT {
   }
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export type ContentClasses = Pick<Classes, 'content' | 'body'>
   export type ContentStyles = Pick<Styles, 'content' | 'body'>
@@ -87,8 +87,8 @@ export namespace PopoverT {
    */
   export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
 
-  export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
+  export type CloseBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 }
 
 /**

@@ -4,7 +4,7 @@ import type { KbdGroupT } from '../../element/kbd/kbd-group.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { OverlayPlacement } from '../../theme/style/style-types.ts'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
-import type { ModalT } from '../modal/modal.types'
+import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
 import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
 
@@ -60,8 +60,8 @@ export namespace TooltipT {
   }
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds'>
   export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds'>

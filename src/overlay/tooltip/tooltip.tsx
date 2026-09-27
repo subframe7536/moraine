@@ -41,53 +41,71 @@ interface ActiveTooltip {
 
 interface TooltipSkipDelay {
   id: string
-  timer: ReturnType<typeof setTimeout>
+  timer: number
 }
 
-let activeTooltip: ActiveTooltip | undefined
-let skipDelay: TooltipSkipDelay | undefined
+interface TooltipScope {
+  activeTooltip?: ActiveTooltip
+  skipDelay?: TooltipSkipDelay
+}
 
-function clearSkipDelay(id?: string): void {
-  if (id && skipDelay?.id !== id) {
+const tooltipScopes = new WeakMap<Document, TooltipScope>()
+
+function getTooltipScope(ownerDocument: Document): TooltipScope {
+  let scope = tooltipScopes.get(ownerDocument)
+  if (!scope) {
+    scope = {}
+    tooltipScopes.set(ownerDocument, scope)
+  }
+  return scope
+}
+
+function clearSkipDelay(ownerDocument: Document, id?: string): void {
+  const scope = getTooltipScope(ownerDocument)
+  if (id && scope.skipDelay?.id !== id) {
     return
   }
 
-  clearTimeout(skipDelay?.timer)
-  skipDelay = undefined
+  ownerDocument.defaultView?.clearTimeout(scope.skipDelay?.timer)
+  scope.skipDelay = undefined
 }
 
-function startSkipDelay(id: string, duration: number): void {
-  clearSkipDelay()
+function startSkipDelay(ownerDocument: Document, id: string, duration: number): void {
+  clearSkipDelay(ownerDocument)
 
-  if (duration <= 0) {
+  const ownerWindow = ownerDocument.defaultView
+  if (duration <= 0 || !ownerWindow) {
     return
   }
 
-  skipDelay = {
+  getTooltipScope(ownerDocument).skipDelay = {
     id,
-    timer: setTimeout(() => {
-      clearSkipDelay(id)
+    timer: ownerWindow.setTimeout(() => {
+      clearSkipDelay(ownerDocument, id)
     }, duration),
   }
 }
 
-function setActiveTooltip(tooltip: ActiveTooltip): void {
-  if (activeTooltip?.id !== tooltip.id) {
-    activeTooltip?.close()
+function setActiveTooltip(ownerDocument: Document, tooltip: ActiveTooltip): void {
+  const scope = getTooltipScope(ownerDocument)
+  if (scope.activeTooltip?.id !== tooltip.id) {
+    scope.activeTooltip?.close()
   }
 
-  activeTooltip = tooltip
-  clearSkipDelay()
+  scope.activeTooltip = tooltip
+  clearSkipDelay(ownerDocument)
 }
 
-function clearActiveTooltip(id: string): void {
-  if (activeTooltip?.id === id) {
-    activeTooltip = undefined
+function clearActiveTooltip(ownerDocument: Document, id: string): void {
+  const scope = getTooltipScope(ownerDocument)
+  if (scope.activeTooltip?.id === id) {
+    scope.activeTooltip = undefined
   }
 }
 
-function shouldOpenImmediately(): boolean {
-  return Boolean(activeTooltip || skipDelay)
+function shouldOpenImmediately(ownerDocument: Document | undefined): boolean {
+  const scope = ownerDocument && tooltipScopes.get(ownerDocument)
+  return Boolean(scope?.activeTooltip || scope?.skipDelay)
 }
 
 const [TooltipProvider, useTooltipContext] = createContextProvider<{
@@ -133,11 +151,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     'tooltip',
   )
+  const ownerDocument = () => popper.triggerElement()?.ownerDocument
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
   let ownerAlive = true
   let timerVersion = 0
-  let wasResolvedOpen = false
+  let activeDocument: Document | undefined
+  const skipDelayDocuments = new Set<Document>()
   let dismissedByPress = false
   let disabledInitialized = false
   let wasDisabled = false
@@ -146,8 +166,12 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   onCleanup(() => {
     ownerAlive = false
     invalidateTimers()
-    clearActiveTooltip(tooltipId())
-    clearSkipDelay(tooltipId())
+    if (activeDocument) {
+      clearActiveTooltip(activeDocument, tooltipId())
+    }
+    for (const ownerDocument of skipDelayDocuments) {
+      clearSkipDelay(ownerDocument, tooltipId())
+    }
   })
 
   function clearOpenTimer(): void {
@@ -210,7 +234,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       return
     }
 
-    if (shouldOpenImmediately()) {
+    if (shouldOpenImmediately(ownerDocument())) {
       requestTooltipOpen(true)
       return
     }
@@ -278,39 +302,41 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     ),
   )
 
-  if (typeof window !== 'undefined') {
-    const onWindowBlur = (): void => {
-      ignoreNextFocusAfterWindowBlur = true
-      clearOpenTimer()
-    }
-    window.addEventListener('blur', onWindowBlur)
-    onCleanup(() => window.removeEventListener('blur', onWindowBlur))
-  }
+  createEffect(
+    on(ownerDocument, (currentDocument) => {
+      const ownerWindow = currentDocument?.defaultView
+      if (!ownerWindow) {
+        return
+      }
+      const onWindowBlur = (): void => {
+        ignoreNextFocusAfterWindowBlur = true
+        clearOpenTimer()
+      }
+      ownerWindow.addEventListener('blur', onWindowBlur)
+      onCleanup(() => ownerWindow.removeEventListener('blur', onWindowBlur))
+    }),
+  )
 
   createEffect(
-    on(
-      () => open() && !merged.disabled,
-      (isResolvedOpen) => {
-        const id = tooltipId()
-        if (isResolvedOpen) {
-          if (!wasResolvedOpen) {
-            setActiveTooltip({
-              id,
-              close: closeImmediately,
-            })
-          }
+    on([() => open() && !merged.disabled, ownerDocument], ([isResolvedOpen, currentDocument]) => {
+      const id = tooltipId()
+      if (activeDocument && (activeDocument !== currentDocument || !isResolvedOpen)) {
+        clearActiveTooltip(activeDocument, id)
+        startSkipDelay(activeDocument, id, merged.instantOpenDelay)
+        skipDelayDocuments.add(activeDocument)
+        activeDocument = undefined
+      }
 
-          wasResolvedOpen = true
-          return
+      if (isResolvedOpen && currentDocument) {
+        if (!activeDocument) {
+          setActiveTooltip(currentDocument, {
+            id,
+            close: closeImmediately,
+          })
+          activeDocument = currentDocument
         }
-
-        if (wasResolvedOpen) {
-          wasResolvedOpen = false
-          clearActiveTooltip(id)
-          startSkipDelay(id, merged.instantOpenDelay)
-        }
-      },
-    ),
+      }
+    }),
   )
 
   const behavior: ReturnType<typeof useTooltipContext> = {
@@ -328,7 +354,10 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     },
     keepOpen: () => {
       clearCloseTimer()
-      clearSkipDelay(tooltipId())
+      const currentDocument = ownerDocument()
+      if (currentDocument) {
+        clearSkipDelay(currentDocument, tooltipId())
+      }
     },
     get presentation() {
       return { classes: merged.classes, styles: merged.styles }

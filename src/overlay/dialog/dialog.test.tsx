@@ -321,13 +321,13 @@ describe('Dialog', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('inherits non-modal trapFocus false behavior', async () => {
+  test('inherits non-modal modal false behavior', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Dialog defaultOpen trapFocus={false}>
+        <Dialog defaultOpen modal={false}>
           <Dialog.Content title="Dialog">
             <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
@@ -342,7 +342,7 @@ describe('Dialog', () => {
     const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
     expect(document.activeElement).toBe(outside)
     screen.unmount()
   })
@@ -729,9 +729,7 @@ describe('Dialog', () => {
     const content = contents[contents.length - 1]
 
     expect(overlay).not.toBeNull()
-    expect(overlay?.contains(content ?? null)).toBe(false)
-    expect(overlay?.parentElement).toBe(content?.parentElement)
-    expect(overlay?.parentElement?.parentElement).toBe(content?.parentElement?.parentElement)
+    expect(overlay?.contains(content ?? null)).toBe(true)
     expect(content?.className).toContain('fixed')
     expect(content?.className).toContain('flex-col')
     expect(content?.className).toContain('max-h-[calc(100dvh-2rem)]')
@@ -803,20 +801,68 @@ describe('Dialog', () => {
 
     const overlay = () => document.body.querySelector('[data-slot="dialog-overlay"]')
     const content = () => document.body.querySelector('[data-slot="dialog-content"]')
-    expect(overlay()?.contains(content())).toBe(false)
+    const originalContent = content()
+    expect(overlay()?.contains(content())).toBe(true)
     expect(content()?.className).toContain('fixed')
 
     setScrollable(true)
+    expect(content()).toBe(originalContent)
     expect(overlay()?.contains(content())).toBe(true)
     expect(content()?.className).toContain('relative')
 
     setFullscreen(true)
-    expect(overlay()?.contains(content())).toBe(false)
+    expect(content()).toBe(originalContent)
+    expect(overlay()?.contains(content())).toBe(true)
     expect(content()?.className).toContain('size-full')
 
     setOverlayVisible(false)
     expect(overlay()).toBeNull()
-    expect(content()).not.toBeNull()
+    expect(content()).toBe(originalContent)
+  })
+
+  test('keeps content, focus, and uncontrolled input state across layout changes', async () => {
+    const [scrollable, setScrollable] = createSignal(false)
+    const [fullscreen, setFullscreen] = createSignal(false)
+    const [overlay, setOverlay] = createSignal(true)
+    const screen = render(() => (
+      <Dialog open scrollable={scrollable()} fullscreen={fullscreen()} overlay={overlay()}>
+        <Dialog.Content title="Stable content">
+          <input data-testid="stable-input" value="initial" />
+        </Dialog.Content>
+      </Dialog>
+    ))
+    const content = document.body.querySelector('[data-slot="dialog-content"]')
+    const input = document.body.querySelector<HTMLInputElement>('[data-testid="stable-input"]')!
+    await Promise.resolve()
+    input.focus()
+    input.value = 'edited'
+
+    setScrollable(true)
+    setFullscreen(true)
+    setOverlay(false)
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
+    expect(document.body.querySelector('[data-testid="stable-input"]')).toBe(input)
+    expect(document.activeElement).toBe(input)
+    expect(input.value).toBe('edited')
+    screen.unmount()
+  })
+
+  test('updates the scroll lock reference when overlay scrolling changes', async () => {
+    const [scrollable, setScrollable] = createSignal(false)
+    const screen = render(() => (
+      <Dialog open scrollable={scrollable()}>
+        <Dialog.Content title="Scroll reference" styles={{ overlay: { 'overflow-y': 'auto' } }}>
+          Body
+        </Dialog.Content>
+      </Dialog>
+    ))
+    const overlay = document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!
+    expect(overlay.style.overflow).toBe('hidden')
+    setScrollable(true)
+    await waitFor(() => expect(overlay.style.overflow).toBe(''))
+    expect(overlay.style.overflowY).toBe('auto')
+    expect(document.body.style.overflow).toBe('hidden')
+    screen.unmount()
   })
 
   test('keeps shorthand JSX within one presence cycle across scroll layout changes', () => {

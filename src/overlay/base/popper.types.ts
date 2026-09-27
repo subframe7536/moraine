@@ -3,7 +3,8 @@ import type { Accessor, JSX } from 'solid-js'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types.ts'
 import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types.ts'
-import type { ModalT } from '../modal/modal.types'
+
+import type { OverlayTriggerComponentProps } from './trigger'
 
 export interface PopperInteractOutsideEvent {
   defaultPrevented: boolean
@@ -57,18 +58,19 @@ export interface PopperProps {
   /** Composed trigger and content primitives. */
   children?: JSX.Element
 }
-export type PopperTriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T> & {
-  /**
-   * Whether the trigger describes the content.
-   * @default false
-   */
-  describeTrigger?: boolean
-  /**
-   * Whether clicking the trigger toggles the open state.
-   * @default true
-   */
-  toggleOnClick?: boolean
-}
+export type PopperTriggerProps<T extends ValidComponent = 'button'> =
+  OverlayTriggerComponentProps<T> & {
+    /**
+     * Whether the trigger describes the content.
+     * @default false
+     */
+    describeTrigger?: boolean
+    /**
+     * Whether clicking the trigger toggles the open state.
+     * @default true
+     */
+    toggleOnClick?: boolean
+  }
 export interface PopperContentOptions {
   /** Id of the element that describes the positioned content. */
   ariaDescribedBy?: string

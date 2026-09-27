@@ -87,7 +87,7 @@ Modal (state only; no DOM)
 
 Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship and automatic open/exit lifecycle. Without `Modal.Portal`, both parts render in place and you control when they mount and unmount. `Dialog.Content` and `Sheet.Content` include a Portal internally. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/styling/customization#style-overrides).
 
-Set `trapFocus={false}` on the root for a non-modal surface. A root owns one active `Modal.Content`; use a separate nested `Modal` root for another surface. Set `portalMount` on the root to mount controlled Dialog or Sheet content without a Trigger in a chosen container. `Modal.Portal mount` overrides that default.
+`modal` controls focus containment, initial and restored focus, and assistive-technology isolation. It defaults to `true`. `preventScroll` independently controls body scroll locking and also defaults to `true`. For example, `modal={false} preventScroll` allows focus outside while keeping the page locked; `modal preventScroll={false}` retains modal focus and accessibility behavior while allowing page scroll. A root owns one active `Modal.Content`; use a separate nested `Modal` root for another surface. Set `portalMount` on the root to mount controlled Dialog or Sheet content without a Trigger in a chosen container. `Modal.Portal mount` overrides that default.
 
 <Preview path="./modal-composition" />
 

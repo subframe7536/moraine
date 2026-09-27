@@ -1,12 +1,12 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
 import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
-import { modalDataAttributes } from '../modal/modal.recipe.ts'
+import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
 import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
 
 export const tooltipDataAttributes = {
-  trigger: modalDataAttributes.trigger,
+  trigger: overlayTriggerDataAttributes,
   content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side', 'align'),
 } satisfies DataAttributeContract<keyof TooltipStyleSlot>
 

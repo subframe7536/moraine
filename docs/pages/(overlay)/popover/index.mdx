@@ -110,7 +110,7 @@ Escape and outside interaction close a dismissible popover. When a popover has n
 
 ### Keyboard interaction
 
-Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. Moraine does not imply a focus trap unless modal behavior is explicitly enabled by the underlying overlay configuration.
+Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. `modal` controls focus containment and assistive-technology isolation. `preventScroll` can request body scroll locking without enabling modal behavior.
 
 ## Examples
 

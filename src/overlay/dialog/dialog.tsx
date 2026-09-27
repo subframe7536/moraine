@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
@@ -8,6 +7,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useRegisteredContentId } from '../base/content-anatomy'
+import { renderModalAnatomyPart } from '../base/modal-anatomy'
 import { createShorthandContent } from '../base/shorthand-content'
 import { Modal, ModalInternal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
@@ -83,6 +83,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
       <ModalPortal>
         <ModalSurface
           {...rest}
+          composite
           overlayScroll={overlayScroll()}
           overlay={merged.overlay}
           overlayClass={resolved.styles.overlay.class}
@@ -158,16 +159,14 @@ function renderDialogHeader<T extends ValidComponent>(
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-header"
-      {...rest}
-      {...resolved.styles.header}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'div',
+    slot: 'dialog-header',
+    attributes: rest,
+    binding: resolved.styles.header,
+    children: () => local.children,
+  })
 }
 
 function DialogTitle<T extends ValidComponent = 'h2'>(props: DialogT.TitleProps<T>): JSX.Element {
@@ -180,17 +179,15 @@ function DialogTitle<T extends ValidComponent = 'h2'>(props: DialogT.TitleProps<
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'h2'}
-      data-slot="dialog-title"
-      {...rest}
-      id={id()}
-      {...resolved.styles.title}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'h2',
+    slot: 'dialog-title',
+    attributes: rest,
+    binding: resolved.styles.title,
+    id,
+    children: () => local.children,
+  })
 }
 
 function DialogDescription<T extends ValidComponent = 'p'>(
@@ -205,17 +202,15 @@ function DialogDescription<T extends ValidComponent = 'p'>(
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'p'}
-      data-slot="dialog-description"
-      {...rest}
-      id={id()}
-      {...resolved.styles.description}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'p',
+    slot: 'dialog-description',
+    attributes: rest,
+    binding: resolved.styles.description,
+    id,
+    children: () => local.children,
+  })
 }
 
 function DialogAction<T extends ValidComponent = 'div'>(
@@ -229,16 +224,14 @@ function DialogAction<T extends ValidComponent = 'div'>(
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-action"
-      {...rest}
-      {...resolved.styles.action}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'div',
+    slot: 'dialog-action',
+    attributes: rest,
+    binding: resolved.styles.action,
+    children: () => local.children,
+  })
 }
 
 function DialogBody<T extends ValidComponent = 'div'>(props: DialogT.BodyProps<T>): JSX.Element {
@@ -255,17 +248,15 @@ function DialogBody<T extends ValidComponent = 'div'>(props: DialogT.BodyProps<T
     footer: content.hasFooter,
     scroll: () => !content.overlayScroll(),
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-body"
-      {...rest}
-      {...bodyAttrs}
-      {...resolved.styles.body}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'div',
+    slot: 'dialog-body',
+    attributes: rest,
+    additionalAttributes: bodyAttrs,
+    binding: resolved.styles.body,
+    children: () => local.children,
+  })
 }
 
 function DialogFooter<T extends ValidComponent = 'div'>(
@@ -281,16 +272,14 @@ function DialogFooter<T extends ValidComponent = 'div'>(
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-footer"
-      {...rest}
-      {...resolved.styles.footer}
-    >
-      {local.children}
-    </Dynamic>
-  )
+  return renderModalAnatomyPart({
+    as: () => local.as,
+    defaultAs: 'div',
+    slot: 'dialog-footer',
+    attributes: rest,
+    binding: resolved.styles.footer,
+    children: () => local.children,
+  })
 }
 
 Dialog.Trigger = DialogTrigger

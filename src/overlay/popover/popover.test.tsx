@@ -13,6 +13,71 @@ let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
 
 describe('Popover', () => {
+  test('opens in the trigger Document when the trigger is in an iframe', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <Popover>
+          <Popover.Trigger>Foreign popover</Popover.Trigger>
+          <Popover.Content>Content</Popover.Content>
+        </Popover>
+      ),
+      { container: host },
+    )
+    try {
+      const trigger = host.querySelector<HTMLElement>('[data-slot="popover-trigger"]')!
+      fireEvent.click(trigger)
+      await waitFor(() =>
+        expect(ownerDocument.body.querySelector('[data-slot="popover-content"]')).not.toBeNull(),
+      )
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
+
+  test('isolates modal content opened from a ShadowRoot', async () => {
+    const outside = document.createElement('main')
+    const host = document.createElement('div')
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    const container = document.createElement('div')
+    shadowRoot.append(container)
+    document.body.append(outside, host)
+    const screen = render(
+      () => (
+        <Popover modal defaultOpen>
+          <Popover.Trigger>Shadow trigger</Popover.Trigger>
+          <Popover.Content>
+            <Popover.Close>Close</Popover.Close>
+          </Popover.Content>
+        </Popover>
+      ),
+      { container },
+    )
+    try {
+      await waitFor(() =>
+        expect(
+          document.body.querySelector('[data-slot="popover-content"][aria-modal]'),
+        ).not.toBeNull(),
+      )
+      await waitFor(() => expect(outside.getAttribute('aria-hidden')).toBe('true'))
+      expect(
+        document.body
+          .querySelector('[data-slot="popover-content"]')
+          ?.closest('[aria-hidden="true"]'),
+      ).toBeNull()
+    } finally {
+      screen.unmount()
+      expect(outside.hasAttribute('aria-hidden')).toBe(false)
+      outside.remove()
+      host.remove()
+    }
+  })
   test.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()

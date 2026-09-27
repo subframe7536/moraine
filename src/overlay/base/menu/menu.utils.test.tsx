@@ -116,6 +116,7 @@ describe('createPointerGraceIntent', () => {
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
 
         layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
         layer.setPointerGraceIntent(
@@ -174,6 +175,7 @@ describe('createPointerGraceIntent', () => {
 
       createRoot((dispose) => {
         const layer = useOverlayMenuLayerState()
+        layer.setContentElement({ ownerDocument: { defaultView: globalThis } } as HTMLDivElement)
 
         layer.queuePointerEnter(pendingTarget, pendingPointerEnter)
         layer.setPointerGraceIntent(

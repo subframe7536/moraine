@@ -20,6 +20,7 @@ import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'
+import { attachEventListener } from '../../shared/use-event-listener'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { callHandler, callRef, useId } from '../../shared/utils'
 
@@ -40,7 +41,7 @@ import {
   acquireBodyScrollLock,
   focusContent,
   focusTrigger,
-  trapFocusInContainer,
+  containFocusInContainer,
 } from './utils'
 export type * from './popper.types'
 
@@ -205,17 +206,60 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     },
     interaction,
   )
+  const handledEvents = new WeakSet<Event>()
+  const forwardEvent = (
+    key:
+      | 'onClick'
+      | 'onKeyDown'
+      | 'onKeyUp'
+      | 'onPointerDown'
+      | 'onPointerEnter'
+      | 'onPointerLeave'
+      | 'onFocus'
+      | 'onBlur',
+    event: Event,
+  ): void => {
+    if (handledEvents.has(event)) {
+      return
+    }
+    handledEvents.add(event)
+    callHandler(event, interaction[key])
+  }
   const children = resolveChildren(() => local.children)
   return (
     <Dynamic
       {...binding}
+      onClick={(event: MouseEvent) => forwardEvent('onClick', event)}
+      onKeyDown={(event: KeyboardEvent) => forwardEvent('onKeyDown', event)}
+      onKeyUp={(event: KeyboardEvent) => forwardEvent('onKeyUp', event)}
+      onPointerDown={(event: PointerEvent) => forwardEvent('onPointerDown', event)}
+      onPointerEnter={(event: PointerEvent) => forwardEvent('onPointerEnter', event)}
+      onPointerLeave={(event: PointerEvent) => forwardEvent('onPointerLeave', event)}
+      onFocus={(event: FocusEvent) => forwardEvent('onFocus', event)}
+      onBlur={(event: FocusEvent) => forwardEvent('onBlur', event)}
       component={tag()}
       class={cn(local.class)}
       style={local.style}
       ref={(element: HTMLElement) => {
         context.setTriggerElement(element)
         callRef(local.ref, element)
+        const eventKeys = {
+          click: 'onClick',
+          keydown: 'onKeyDown',
+          keyup: 'onKeyUp',
+          pointerdown: 'onPointerDown',
+          pointerenter: 'onPointerEnter',
+          pointerleave: 'onPointerLeave',
+          focus: 'onFocus',
+          blur: 'onBlur',
+        } as const
+        const releases = Object.entries(eventKeys).map(([name, key]) =>
+          attachEventListener(element, name as keyof HTMLElementEventMap, (event) =>
+            forwardEvent(key, event),
+          ),
+        )
         onCleanup(() => {
+          releases.forEach((release) => release())
           if (context.triggerElement() === element) {
             context.setTriggerElement(undefined)
           }
@@ -346,7 +390,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
 
   createEffect(
     on(contentPresence.present, (present) => {
-      if (!present || typeof document === 'undefined') {
+      if (!present) {
         return
       }
       const modal = options.modal
@@ -476,7 +520,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
     if (options.modal) {
-      trapFocusInContainer(event, context.contentElement())
+      containFocusInContainer(event, context.contentElement())
     }
   }
 

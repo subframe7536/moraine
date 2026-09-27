@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../provider'
 import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
+import { isHTMLElement } from '../base/dom'
 import { setPopperTestPlacementAccessor } from '../base/popper'
 
 import { Tooltip } from './tooltip'
@@ -18,7 +19,7 @@ function mockInstantTooltipExit(): void {
   vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
     const style = readComputedStyle(element)
     const isInstantExit =
-      element instanceof HTMLElement &&
+      isHTMLElement(element) &&
       element.hasAttribute('data-closed') &&
       element.hasAttribute('data-instant-motion')
 
@@ -36,6 +37,96 @@ function mockInstantTooltipExit(): void {
 }
 
 describe('Tooltip', () => {
+  test('coordinates independently across Documents', async () => {
+    const firstFrame = document.createElement('iframe')
+    const secondFrame = document.createElement('iframe')
+    document.body.append(firstFrame, secondFrame)
+    const firstDocument = firstFrame.contentDocument!
+    const secondDocument = secondFrame.contentDocument!
+    const firstHost = firstDocument.createElement('div')
+    const secondHost = secondDocument.createElement('div')
+    firstDocument.body.append(firstHost)
+    secondDocument.body.append(secondHost)
+    const first = render(
+      () => (
+        <Tooltip defaultOpen>
+          <Tooltip.Trigger>First trigger</Tooltip.Trigger>
+          <Tooltip.Content text="First tooltip" />
+        </Tooltip>
+      ),
+      { container: firstHost },
+    )
+    const second = render(
+      () => (
+        <Tooltip defaultOpen>
+          <Tooltip.Trigger>Second trigger</Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
+        </Tooltip>
+      ),
+      { container: secondHost },
+    )
+    try {
+      await waitFor(() => {
+        expect(firstDocument.body.querySelector('[role="tooltip"]')).not.toBeNull()
+        expect(secondDocument.body.querySelector('[role="tooltip"]')).not.toBeNull()
+      })
+      first.unmount()
+      expect(secondDocument.body.querySelector('[role="tooltip"]')).not.toBeNull()
+    } finally {
+      second.unmount()
+      firstFrame.remove()
+      secondFrame.remove()
+    }
+  })
+
+  test('does not share skip delay with a different Document', async () => {
+    vi.useFakeTimers()
+    const firstFrame = document.createElement('iframe')
+    const secondFrame = document.createElement('iframe')
+    document.body.append(firstFrame, secondFrame)
+    const firstDocument = firstFrame.contentDocument!
+    const secondDocument = secondFrame.contentDocument!
+    const firstHost = firstDocument.createElement('div')
+    const secondHost = secondDocument.createElement('div')
+    firstDocument.body.append(firstHost)
+    secondDocument.body.append(secondHost)
+    const [open, setOpen] = createSignal(true)
+    const first = render(
+      () => (
+        <Tooltip open={open()} instantOpenDelay={1000}>
+          <Tooltip.Trigger>First</Tooltip.Trigger>
+          <Tooltip.Content text="First tooltip" />
+        </Tooltip>
+      ),
+      { container: firstHost },
+    )
+    const second = render(
+      () => (
+        <Tooltip openDelay={600}>
+          <Tooltip.Trigger>Second</Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
+        </Tooltip>
+      ),
+      { container: secondHost },
+    )
+    try {
+      setOpen(false)
+      fireEvent.pointerEnter(secondHost.querySelector('[data-slot="tooltip-trigger"]')!, {
+        pointerType: 'mouse',
+      })
+      expect(secondDocument.body.querySelector('[role="tooltip"]')).toBeNull()
+      await vi.advanceTimersByTimeAsync(599)
+      expect(secondDocument.body.querySelector('[role="tooltip"]')).toBeNull()
+      await vi.advanceTimersByTimeAsync(1)
+      expect(secondDocument.body.querySelector('[role="tooltip"]')).not.toBeNull()
+    } finally {
+      first.unmount()
+      second.unmount()
+      firstFrame.remove()
+      secondFrame.remove()
+      vi.useRealTimers()
+    }
+  })
   test.each([0, 600])('dismisses activation and cancels reopening after %i ms', async (delay) => {
     vi.useFakeTimers()
     mockInstantTooltipExit()

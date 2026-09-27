@@ -8,6 +8,38 @@ import { renderWithTheme } from '../../test-util/theme-render'
 import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
+  test('opens and restores focus in a foreign Document', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <DropdownMenu>
+          <DropdownMenu.Trigger>Foreign trigger</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Foreign action' }]} />
+        </DropdownMenu>
+      ),
+      { container: host },
+    )
+    try {
+      const trigger = host.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]')!
+      fireEvent.click(trigger)
+      await waitFor(() => expect(ownerDocument.body.querySelector('[role="menu"]')).not.toBeNull())
+      expect(document.body.querySelector('[role="menu"]')).toBeNull()
+      fireEvent.keyDown(ownerDocument.body.querySelector('[role="menu"]')!, { key: 'Escape' })
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+      await waitFor(() => expect(ownerDocument.activeElement).toBe(trigger))
+      fireEvent.click(trigger)
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'))
+      fireEvent.click(ownerDocument.body.querySelector('[role="menuitem"]')!)
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
   test.each(['checkbox', 'radio'] as const)(
     'reserves an inline indicator for an unchecked %s item',
     async (type) => {

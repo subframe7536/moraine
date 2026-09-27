@@ -1,6 +1,7 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
 import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
+import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 import {
   MODAL_CONTENT_CLASS,
   MODAL_OVERLAY_CLASS,
@@ -10,7 +11,7 @@ import {
 import type { DialogStyleSlot, DialogStyleVariant } from './dialog.style-types'
 
 export const dialogDataAttributes = {
-  trigger: modalDataAttributes.trigger,
+  trigger: overlayTriggerDataAttributes,
   overlay: modalDataAttributes.overlay,
   content: modalDataAttributes.content,
   body: createDataAttributes('footer', 'header', 'scroll'),

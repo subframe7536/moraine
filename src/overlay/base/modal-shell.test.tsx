@@ -261,12 +261,12 @@ describe.each([
     expect(document.activeElement).toBe(content)
   })
 
-  test('updates modal isolation when root trapFocus changes', async () => {
-    const [trapFocus, setTrapFocus] = createSignal(false)
+  test('updates modal isolation when root modal changes', async () => {
+    const [modal, setModal] = createSignal(false)
     const screen = render(() => (
       <>
         <main data-testid="background">Background</main>
-        <Root defaultOpen trapFocus={trapFocus()}>
+        <Root defaultOpen modal={modal()}>
           <Root.Content title="Title">Content</Root.Content>
         </Root>
       </>
@@ -276,20 +276,20 @@ describe.each([
 
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
 
-    setTrapFocus(true)
+    setModal(true)
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBe('true')
       expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setTrapFocus(false)
+    setModal(false)
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()
-      expect(document.body.style.overflow).toBe('')
+      expect(document.body.style.overflow).toBe('hidden')
     })
   })
 })
