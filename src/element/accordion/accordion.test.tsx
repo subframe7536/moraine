@@ -28,7 +28,7 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
 
 describe('Accordion', () => {
   test('renders component defaults when provider is absent', () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue="one" />)
+    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
     const root = screen.container.firstElementChild
     expect(root?.className).not.toBe('')
     const trigger = screen.getByRole('button', { name: 'One' })
@@ -38,7 +38,7 @@ describe('Accordion', () => {
   })
 
   test('renders default expanded item in single mode', () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue="one" />)
+    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const headings = screen.getAllByRole('heading')
@@ -60,7 +60,7 @@ describe('Accordion', () => {
     const onChange = vi.fn()
 
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} collapsible defaultValue="one" onChange={onChange} />
+      <Accordion items={BASE_ITEMS} collapsible defaultValue={['one']} onChange={onChange} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -71,18 +71,18 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
-    expect(onChange).toHaveBeenCalledWith(null)
+    expect(onChange).toHaveBeenCalledWith([])
 
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
-    expect(onChange).toHaveBeenLastCalledWith('one')
+    expect(onChange).toHaveBeenLastCalledWith(['one'])
   })
 
   test('single mode does not close same item when collapsible=false', async () => {
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} collapsible={false} defaultValue="one" />
+      <Accordion items={BASE_ITEMS} collapsible={false} defaultValue={['one']} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -112,7 +112,7 @@ describe('Accordion', () => {
   })
 
   test('collapsible mode toggles with Enter on the focused trigger', async () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} collapsible defaultValue="one" />)
+    const screen = render(() => <Accordion items={BASE_ITEMS} collapsible defaultValue={['one']} />)
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
 
@@ -156,8 +156,8 @@ describe('Accordion', () => {
   })
 
   test('keeps generated item values and focused triggers stable through reorder', async () => {
-    const first: AccordionT.Item = { value: 'first', label: 'First', content: 'First content' }
-    const second: AccordionT.Item = { value: 'second', label: 'Second', content: 'Second content' }
+    const first: AccordionT.Item = { label: 'First', content: 'First content' }
+    const second: AccordionT.Item = { label: 'Second', content: 'Second content' }
     const [items, setItems] = createSignal([first, second])
     const screen = render(() => <Accordion items={items()} multiple />)
 
@@ -194,7 +194,7 @@ describe('Accordion', () => {
     }
     const third: AccordionT.Item = { value: 'third', label: 'Third' }
     const [items, setItems] = createSignal([first, second, third])
-    const screen = render(() => <Accordion items={items()} defaultValue="second" />)
+    const screen = render(() => <Accordion items={items()} defaultValue={['second']} />)
 
     const secondTrigger = screen.getByRole('button', { name: 'Second' })
     const thirdTrigger = screen.getByRole('button', { name: 'Third' })
@@ -226,7 +226,7 @@ describe('Accordion', () => {
       },
       { value: 'outer-two', label: 'Outer two' },
     ]
-    const screen = render(() => <Accordion defaultValue="outer-one" items={items} />)
+    const screen = render(() => <Accordion defaultValue={['outer-one']} items={items} />)
 
     const outerOne = screen.getByRole('button', { name: 'Outer one' })
     outerOne.focus()
@@ -235,19 +235,23 @@ describe('Accordion', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Outer two' }))
   })
 
-  test('rejects duplicate item values', () => {
-    expect(() =>
-      render(() => (
-        <Accordion
-          id="duplicate"
-          defaultValue="same"
-          items={[
-            { value: 'same', label: 'First', content: 'First content' },
-            { value: 'same', label: 'Second', content: 'Second content' },
-          ]}
-        />
-      )),
-    ).toThrow(/must be unique/)
+  test('keeps duplicate values from producing duplicate part ids', () => {
+    const screen = render(() => (
+      <Accordion
+        id="duplicate"
+        defaultValue={['same']}
+        items={[
+          { value: 'same', label: 'First', content: 'First content' },
+          { value: 'same', label: 'Second', content: 'Second content' },
+        ]}
+      />
+    ))
+    const triggers = screen.getAllByRole('button')
+    const panels = screen.getAllByRole('region')
+    expect(new Set(triggers.map((trigger) => trigger.id)).size).toBe(2)
+    expect(new Set(panels.map((panel) => panel.id)).size).toBe(2)
+    expect(triggers[0]?.getAttribute('aria-controls')).toBe(panels[0]?.id)
+    expect(triggers[1]?.getAttribute('aria-controls')).toBe(panels[1]?.id)
   })
 
   test('keeps business values out of DOM ids and closed shells in the DOM', () => {
@@ -302,7 +306,7 @@ describe('Accordion', () => {
     expect(emptyScreen.queryByRole('heading')).toBeNull()
 
     const panelScreen = render(() => (
-      <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue="empty" />
+      <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue={['empty']} />
     ))
     const panel = panelScreen.getByRole('region', { name: 'Empty' })
     expect(panel.childElementCount).toBe(0)
@@ -385,7 +389,9 @@ describe('Accordion', () => {
   })
 
   test('uses stable aria ids for trigger and content relationships', () => {
-    const screen = render(() => <Accordion id="settings" items={BASE_ITEMS} defaultValue="one" />)
+    const screen = render(() => (
+      <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} />
+    ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const contentOne = screen.getByRole('region', { name: 'One' })
@@ -426,7 +432,9 @@ describe('Accordion', () => {
   test('single controlled mode emits onChange and keeps controlled UI state', async () => {
     const onChange = vi.fn()
 
-    const screen = render(() => <Accordion items={BASE_ITEMS} value="one" onChange={onChange} />)
+    const screen = render(() => (
+      <Accordion items={BASE_ITEMS} value={['one']} onChange={onChange} />
+    ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerTwo = screen.getByRole('button', { name: 'Two' })
@@ -435,7 +443,7 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenCalledWith('two')
+    expect(onChange).toHaveBeenCalledWith(['two'])
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
   })
@@ -475,7 +483,7 @@ describe('Accordion', () => {
 
   test('disabled state stays on root, item, and trigger owners', () => {
     const rootDisabledScreen = render(() => (
-      <Accordion items={BASE_ITEMS} disabled defaultValue="one" />
+      <Accordion items={BASE_ITEMS} disabled defaultValue={['one']} />
     ))
 
     const root = rootDisabledScreen.container.querySelector('[data-slot="accordion"]')
@@ -499,7 +507,7 @@ describe('Accordion', () => {
           },
           BASE_ITEMS[1],
         ]}
-        defaultValue="one"
+        defaultValue={['one']}
       />
     ))
 
@@ -548,7 +556,7 @@ describe('Accordion', () => {
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(onChange).toHaveBeenCalledWith('one')
+    expect(onChange).toHaveBeenCalledWith(['one'])
   })
 
   test('respects unmountOnHide=true/false', () => {
@@ -617,7 +625,7 @@ describe('Accordion', () => {
   })
 
   test('restores focus to the trigger when a controlled update closes its panel', async () => {
-    let setValue: ((value: string | null) => void) | undefined
+    let setValue: ((value: string[]) => void) | undefined
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
     const ownerDocument = iframe.contentDocument
@@ -627,7 +635,7 @@ describe('Accordion', () => {
     }
 
     const ControlledAccordion = () => {
-      const [value, setControlledValue] = createSignal<string | null>('one')
+      const [value, setControlledValue] = createSignal<string[]>(['one'])
       setValue = setControlledValue
 
       return (
@@ -651,7 +659,7 @@ describe('Accordion', () => {
       const input = screen.getByRole('textbox', { name: 'Panel input' })
 
       input.focus()
-      setValue?.(null)
+      setValue?.([])
       await Promise.resolve()
 
       expect(ownerDocument.activeElement).toBe(trigger)
@@ -665,7 +673,7 @@ describe('Accordion', () => {
 
     try {
       const ControlledAccordion = () => {
-        const [openValue, setOpenValue] = createSignal<string | null>(null)
+        const [openValue, setOpenValue] = createSignal<string[]>([])
 
         return (
           <>
@@ -675,7 +683,7 @@ describe('Accordion', () => {
               value={openValue()}
               onChange={setOpenValue}
             />
-            <span data-testid="open-value">{openValue() ?? 'none'}</span>
+            <span data-testid="open-value">{openValue()[0] ?? 'none'}</span>
           </>
         )
       }
@@ -726,7 +734,9 @@ describe('Accordion', () => {
     const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(48)
 
     try {
-      const screen = render(() => <Accordion id="settings" items={BASE_ITEMS} defaultValue="one" />)
+      const screen = render(() => (
+        <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} />
+      ))
 
       const triggerTwo = screen.getByRole('button', { name: 'Two' })
 
@@ -754,7 +764,7 @@ describe('Accordion', () => {
 
   test('keeps content mounted until the close transition ends', async () => {
     const screen = render(() => (
-      <Accordion id="settings" items={BASE_ITEMS} defaultValue="one" unmountOnHide />
+      <Accordion id="settings" items={BASE_ITEMS} defaultValue={['one']} unmountOnHide />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -778,7 +788,7 @@ describe('Accordion', () => {
     const screen = render(() => (
       <Accordion
         items={[BASE_ITEMS[0]]}
-        defaultValue="one"
+        defaultValue={['one']}
         classes={{
           root: 'root-override',
           item: 'item-override',
@@ -815,7 +825,7 @@ describe('Accordion', () => {
     const screen = render(() => (
       <Accordion
         items={[BASE_ITEMS[0]]}
-        defaultValue="one"
+        defaultValue={['one']}
         styles={{
           root: { width: '200px' },
           item: { width: '200px' },

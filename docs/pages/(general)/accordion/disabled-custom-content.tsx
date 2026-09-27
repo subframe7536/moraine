@@ -3,7 +3,7 @@ import { Accordion } from '@src'
 export function DisabledCustomContent() {
   return (
     <Accordion
-      defaultValue="setup"
+      defaultValue={['setup']}
       trailing="icon-plus"
       items={[
         {

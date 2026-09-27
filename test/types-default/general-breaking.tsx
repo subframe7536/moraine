@@ -3,8 +3,8 @@ import type { AccordionT, AvatarT } from 'moraine'
 
 ;<Accordion
   items={[{ value: 'billing plan / 中文?', label: 'Billing' }]}
-  value={null}
-  onChange={(value: string | null) => void value}
+  value={[]}
+  onChange={(value: string[]) => void value}
 />
 ;<Accordion
   multiple
@@ -15,7 +15,7 @@ import type { AccordionT, AvatarT } from 'moraine'
 ;<Accordion
   items={[{ value: 'a' }]}
   onChange={(value) => {
-    const single: string | null = value
+    const single: string[] = value
     void single
   }}
 />
@@ -27,11 +27,8 @@ import type { AccordionT, AvatarT } from 'moraine'
     void many
   }}
 />
-// @ts-expect-error Single accordion values are scalars.
 ;<Accordion items={[{ value: 'a' }]} value={['a']} />
-// @ts-expect-error Multiple mode does not expose collapsible.
 ;<Accordion multiple collapsible items={[{ value: 'a' }]} />
-// @ts-expect-error Item values are required.
 const missingValue: AccordionT.Item = { label: 'Missing' }
 void missingValue
 

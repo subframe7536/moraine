@@ -60,36 +60,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const rootId = useId(() => merged.id, 'accordion')
   const trailing = createMemo(() => merged.trailing)
   const [selectedValues, setSelectedValues] = useControllableValue<string[]>({
-    value: () => {
-      if (merged.value === undefined) {
-        return undefined
-      }
-      return merged.multiple
-        ? (merged.value as string[])
-        : merged.value === null
-          ? []
-          : [merged.value as string]
-    },
-    defaultValue: () => {
-      const value = merged.defaultValue
-      return merged.multiple
-        ? ((value as string[] | undefined) ?? [])
-        : value === null || value === undefined
-          ? []
-          : [value as string]
-    },
+    value: () => merged.value,
+    defaultValue: () => merged.defaultValue ?? [],
   })
-  const items = createMemo(() => {
-    const next = merged.items ?? []
-    const values = new Set<string>()
-    for (const item of next) {
-      if (values.has(item.value)) {
-        throw new Error(`Accordion item value must be unique: ${item.value}`)
-      }
-      values.add(item.value)
-    }
-    return next
-  })
+  const items = createMemo(() => merged.items ?? [])
   let rootElement: HTMLDivElement | undefined
   let lastFocusedIndex = -1
   let lastFocusedTrigger: HTMLButtonElement | undefined
@@ -132,12 +106,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function setValue(nextValue: string[]): void {
     setSelectedValues(nextValue)
-
-    if (merged.multiple) {
-      ;(merged.onChange as ((value: string[]) => void) | undefined)?.(nextValue)
-    } else {
-      ;(merged.onChange as ((value: string | null) => void) | undefined)?.(nextValue[0] ?? null)
-    }
+    merged.onChange?.(nextValue)
   }
 
   function toggleValue(itemValue: string): void {
@@ -250,7 +219,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       <For each={items()}>
         {(item) => {
           const itemIdSegment = useId(undefined, 'accordion-item')
-          const itemValue = createMemo(() => item.value)
+          const itemValue = createMemo(() => item.value ?? itemIdSegment())
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
           const leading = createMemo(() => item.leading)

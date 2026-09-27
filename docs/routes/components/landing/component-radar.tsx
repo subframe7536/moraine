@@ -244,7 +244,7 @@ export function ComponentRadar() {
           class="lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
         >
           <Accordion
-            defaultValue="keyboard"
+            defaultValue={['keyboard']}
             items={[
               {
                 value: 'keyboard',

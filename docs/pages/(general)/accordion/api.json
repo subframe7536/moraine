@@ -30,7 +30,7 @@
           "name": "collapsible",
           "optional": true,
           "type": "boolean",
-          "description": "Allow closing the last expanded item in single mode.",
+          "description": "Whether the last expanded item can be collapsed.",
           "default": {
             "kind": "literal",
             "value": true
@@ -39,8 +39,12 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string | null | string[]",
-          "description": "Initial expanded value for uncontrolled usage."
+          "type": "string[]",
+          "description": "Default list of expanded item values for uncontrolled usage.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          }
         },
         {
           "name": "disabled",
@@ -62,7 +66,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Unique value for the accordion item. */\n  value: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. */\n  content?: JSX.Element;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
+          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Unique value for the accordion item. */\n  value?: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. */\n  content?: JSX.Element;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
           "description": "Array of accordion items to render."
         },
         {
@@ -79,7 +83,7 @@
           "name": "multiple",
           "optional": true,
           "type": "boolean",
-          "description": "Allow several items to be expanded.",
+          "description": "Whether multiple accordion items can be expanded at the same time.",
           "default": {
             "kind": "literal",
             "value": false
@@ -88,8 +92,8 @@
         {
           "name": "onChange",
           "optional": true,
-          "type": "((value: string | null) => void) | ((value: string[]) => void)",
-          "description": "Called when the expanded value changes, using the selected mode's value shape."
+          "type": "(value: string[]) => void",
+          "description": "Callback when the expanded item values change."
         },
         {
           "name": "style",
@@ -126,8 +130,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string | null | string[]",
-          "description": "Controlled expanded value: a string or null in single mode, an array in multiple mode."
+          "type": "string[]",
+          "description": "Controlled list of expanded item values."
         }
       ]
     }
@@ -170,7 +174,7 @@
       },
       {
         "name": "value",
-        "optional": false,
+        "optional": true,
         "type": "string",
         "description": "Unique value for the accordion item."
       }
