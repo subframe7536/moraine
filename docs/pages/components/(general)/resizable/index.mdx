@@ -1,0 +1,95 @@
+---
+title: Resizable
+description: Arrange panels with draggable and keyboard-operated size boundaries.
+api:
+  path: src/element/resizable/resizable
+  parts: [Panel, Handle]
+sidebar:
+  order: 12
+search:
+  tags: [panels, splitter, drag, resize, split view, resizable]
+---
+
+import { Resizable } from '@src'
+
+`Resizable` owns the whole size vector through `value`/`defaultValue`. Numbers are pixels and percentage strings are relative to the root. Missing or extra entries are normalized against the current panel count. `Resizable.Panel` owns constraints and collapse capability. Place `Resizable.Handle` only where adjacent panels should interact; omitting it leaves the panels adjacent without a separator.
+
+## Basic usage
+
+```tsx
+import { Resizable } from 'moraine'
+
+export function Example() {
+  return (
+    <Resizable>
+      <Resizable.Panel>Left</Resizable.Panel>
+      <Resizable.Handle />
+      <Resizable.Panel>Right</Resizable.Panel>
+    </Resizable>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[{ kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false }]}
+>
+  {(props) => (
+    <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
+      <Resizable disabled={props.disabled} defaultValue={['35%', '65%']}>
+        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
+          Sidebar Panel
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel min="30%" class="p-4 bg-background/50">
+          Main Editor Content
+        </Resizable.Panel>
+      </Resizable>
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Resizable [component; slot=root]
+├── Resizable.Panel [part; slot=panel]
+├── Resizable.Handle [part; slot=handle]
+│   ├── intersection [slot]
+│   ├── handleControl [slot]
+│   └── intersection [slot]
+└── Resizable.Panel [part; slot=panel]
+```
+
+Each handle can independently set `action="collapse"`, enable `intersection`, or render a custom grip through its children. Use `children={false}` to keep the divider while omitting the inner grip.
+
+## Usage
+
+### Panel constraints
+
+Give the root `defaultValue` for initial sizes and set each panel's minimum or maximum as needed. The handle changes the sizes of its adjacent panels; a panel without a neighboring handle remains fixed at that boundary. Use `value` with `onChange` when the surrounding layout needs to persist or reset a split. Callbacks return pixel sizes.
+
+<Preview path="./constraints" />
+
+### Keyboard interaction
+
+| Key                                          | Description                                                   |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Resizes in the decreasing direction for the active separator. |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Resizes in the increasing direction for the active separator. |
+| <kbd>Home</kbd>                              | Moves the adjacent panel toward its minimum permitted size.   |
+| <kbd>End</kbd>                               | Moves the adjacent panel toward its maximum permitted size.   |
+| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel for collapse handles.   |
+
+## Examples
+
+<Preview path="./composition" />
+
+<Preview path="./controlled" />
+
+<Preview path="./collapsible" />
+
+<Preview path="./vertical-disable" />
+
+<Preview path="./nested-panels" />

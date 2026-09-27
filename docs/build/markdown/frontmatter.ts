@@ -46,19 +46,33 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   }
 
   const data = value as FrontmatterRecord
+  const checkKeys = (record: FrontmatterRecord, allowed: readonly string[], prefix = '') => {
+    for (const key of Object.keys(record)) {
+      if (!allowed.includes(key)) {
+        fail(`${prefix}${key}`, 'is not a supported field')
+      }
+    }
+  }
+  checkKeys(data, ['title', 'description', 'sidebar', 'search', 'api', 'upstreamHref'])
   const sidebarValue = data.sidebar
-  if (!sidebarValue || typeof sidebarValue !== 'object' || Array.isArray(sidebarValue)) {
-    return fail('sidebar', 'must be an object')
-  }
-  const sidebar = sidebarValue as FrontmatterRecord
-  if (!Number.isInteger(sidebar.order) || (sidebar.order as number) < 0) {
-    return fail('sidebar.order', 'must be a non-negative integer')
-  }
-  if (
-    sidebar.badge !== undefined &&
-    (typeof sidebar.badge !== 'string' || sidebar.badge.trim() === '')
-  ) {
-    return fail('sidebar.badge', 'must be a non-empty string when provided')
+  let sidebar: FrontmatterRecord | undefined
+  if (sidebarValue !== undefined) {
+    if (!sidebarValue || typeof sidebarValue !== 'object' || Array.isArray(sidebarValue)) {
+      return fail('sidebar', 'must be an object')
+    }
+    sidebar = sidebarValue as FrontmatterRecord
+    checkKeys(sidebar, ['order', 'badge'], 'sidebar.')
+    if (sidebar.order !== undefined) {
+      if (!Number.isInteger(sidebar.order) || (sidebar.order as number) < 0) {
+        return fail('sidebar.order', 'must be a non-negative integer')
+      }
+    }
+    if (
+      sidebar.badge !== undefined &&
+      (typeof sidebar.badge !== 'string' || sidebar.badge.trim() === '')
+    ) {
+      return fail('sidebar.badge', 'must be a non-empty string when provided')
+    }
   }
 
   const searchValue = data.search
@@ -66,6 +80,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     return fail('search', 'must be an object')
   }
   const search = searchValue as FrontmatterRecord
+  checkKeys(search, ['tags'], 'search.')
   if (!Array.isArray(search.tags) || search.tags.length === 0) {
     return fail('search.tags', 'must be a non-empty string array')
   }
@@ -82,6 +97,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
       return fail('api', 'must be an object')
     }
     const apiValue = data.api as FrontmatterRecord
+    checkKeys(apiValue, ['path', 'parts', 'root'], 'api.')
     const apiPath = readString(apiValue, 'path')
     if (
       !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(apiPath) ||
@@ -116,6 +132,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
           return fail(`api.parts[${index}]`, 'must be a non-empty string or object')
         }
         const partValue = part as FrontmatterRecord
+        checkKeys(partValue, ['name', 'path'], `api.parts[${index}].`)
         const name = readString(partValue, 'name')
         if (seenParts.has(name)) {
           return fail(`api.parts[${index}]`, `duplicates part "${name}"`)
@@ -137,15 +154,19 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   }
 
   return {
-    ...data,
     title: readString(data, 'title'),
     description: readString(data, 'description'),
-    sidebar: {
-      order: sidebar.order as number,
-      ...(typeof sidebar.badge === 'string' ? { badge: sidebar.badge.trim() } : {}),
-    },
+    ...(sidebar
+      ? {
+          sidebar: {
+            ...(sidebar.order !== undefined ? { order: sidebar.order as number } : {}),
+            ...(typeof sidebar.badge === 'string' ? { badge: sidebar.badge.trim() } : {}),
+          },
+        }
+      : {}),
     search: { tags },
     ...(api ? { api } : {}),
+    ...(data.upstreamHref === undefined ? {} : { upstreamHref: readString(data, 'upstreamHref') }),
   }
 }
 

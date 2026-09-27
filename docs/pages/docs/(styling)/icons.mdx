@@ -1,0 +1,57 @@
+---
+title: Icons
+description: Built-in Lucide mask icons, Icon component, component icon props, and interactive icon gallery.
+sidebar:
+  order: 4
+search:
+  tags: [icons, Lucide, Icon, leading, trailing, IconGallery, mask icons]
+---
+
+Moraine provides built-in CSS mask styles for Lucide icons. Mask icons render as pure CSS, inheriting text color and size automatically without runtime SVGs or flash-of-unstyled-content.
+
+## Zero-Config Setup
+
+To enable built-in icons, import Moraine's icon stylesheet into your main application entry:
+
+```css title="src/index.css"
+@import 'moraine/icon.css';
+```
+
+## The `<Icon>` Component
+
+Render standalone icons using the `<Icon>` component:
+
+```tsx
+import { Icon } from 'moraine'
+
+export function SearchIndicator() {
+  return <Icon name="icon-search" class="text-primary size-5" />
+}
+```
+
+## Component Icon Props
+
+Interactive components such as `Button`, `Input`, `Badge`, and `Tabs` accept `leading` and `trailing` icon props directly:
+
+```tsx
+import { Button, Input } from 'moraine'
+
+export function SearchBar() {
+  return (
+    <div class="flex items-center gap-2">
+      <Input leading="icon-search" placeholder="Search components..." />
+      <Button leading="icon-plus" variant="default">
+        New Item
+      </Button>
+    </div>
+  )
+}
+```
+
+Components accept both short icon class names (`icon-search`, `icon-chevron-down`) and Iconify-style identifiers (`i-lucide:search`).
+
+## Icon Gallery
+
+Browse and search all built-in Lucide icons below. Click any icon to copy its name to your clipboard:
+
+<IconGallery />

@@ -1,0 +1,90 @@
+---
+title: Field
+description: Associate a control with its label, help, error, and inherited state.
+api:
+  path: src/form/field/field
+sidebar:
+  order: 1
+search:
+  tags: [field, label, description, error, accessibility, form control]
+---
+
+import { Field, Input } from '@src'
+
+`Field` is a standalone presentational component with no form validation or form integration.
+It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
+
+For form integration, use `form.Field` returned by `createForm()`.
+
+## Basic usage
+
+```tsx
+import { Field, Input } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Email">
+      <Input name="email" type="email" />
+    </Field>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <Field label="Email" orientation={props.orientation}>
+      <Input type="email" placeholder="you@example.com" />
+    </Field>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Field [component; slot=root]
+├── wrapper [slot]
+│   ├── labelWrapper [slot]
+│   │   ├── label [slot]
+│   │   └── hint [slot]
+│   └── description [slot]
+└── container [slot]
+    ├── help [slot]
+    └── error [slot]
+```
+
+Help and error are mutually exclusive; the error takes its place when the field is invalid.
+
+## Usage
+
+Put a Moraine control inside `Field` so its label, description, and error IDs are registered with the actual focusable element. Standalone `Field` does not validate or submit values; use `form.Field` from `createForm()` when a schema owns the field. For local validation, pass the current message to `error`.
+
+<Preview path="./field-usage" />
+
+## Examples
+
+### Inherited state
+
+<Preview path="./inherited-state" />
+
+### Manual validation
+
+<Preview path="./manual-validation" />
+
+### Horizontal layout
+
+<Preview path="./horizontal-layout" />

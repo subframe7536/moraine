@@ -1,0 +1,65 @@
+---
+title: createContextProvider
+description: Create a typed SolidJS Context Provider component and consumer hook pair with optional or required fallback enforcement.
+search:
+  tags: [createContextProvider, context, createContext, useContext, provider, solidjs]
+---
+
+`createContextProvider` simplifies creating typed SolidJS Contexts. It returns a `[Provider, useContextHook]` pair with built-in boundary checks and descriptive runtime errors when used outside of its provider.
+
+## Import
+
+```tsx
+import { createContextProvider } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function createContextProvider<CtxValue>(
+  name: string,
+  defaultValue?: CtxValue,
+): [
+  Provider: (props: { value: CtxValue; children: JSX.Element }) => JSX.Element,
+  useContextHook: () => CtxValue,
+]
+```
+
+## Usage Example
+
+### Required Context (Throws if Missing)
+
+```tsx title="src/TabContext.tsx"
+import { createContextProvider } from 'moraine/utils'
+
+interface TabContextValue {
+  selectedTab: () => string
+  selectTab: (id: string) => void
+}
+
+// Without defaultValue, throws descriptive Error if called outside <TabProvider />
+export const [TabProvider, useTabContext] = createContextProvider<TabContextValue>('Tab')
+```
+
+### Optional Context (With Fallback)
+
+```tsx title="src/ConfigContext.tsx"
+import { createContextProvider } from 'moraine/utils'
+
+interface AppConfig {
+  density: 'compact' | 'normal'
+}
+
+const defaultAppConfig: AppConfig = { density: 'normal' }
+
+// With defaultValue, returns defaultAppConfig when no provider is found:
+export const [ConfigProvider, useConfigContext] = createContextProvider<AppConfig>(
+  'Config',
+  defaultAppConfig,
+)
+```
+
+## Error Safety
+
+When created without a `defaultValue`, the returned hook verifies that `ctx` is non-null. If invoked outside `<NameProvider />`, it throws:
+`use{Name}Context must be used within <{Name}Provider />`.

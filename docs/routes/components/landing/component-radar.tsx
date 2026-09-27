@@ -66,7 +66,13 @@ export function ComponentRadar() {
             patterns.
           </p>
         </div>
-        <Button as="a" href="/button" size="sm" variant="link" trailing="icon-arrow-right">
+        <Button
+          as="a"
+          href="/components/button"
+          size="sm"
+          variant="link"
+          trailing="icon-arrow-right"
+        >
           Browse all components
         </Button>
       </div>
@@ -75,7 +81,7 @@ export function ComponentRadar() {
         <SamplerItem
           title="Tabs"
           description="Switch between related views."
-          href="/tabs"
+          href="/components/tabs"
           class="md:col-span-2"
         >
           <div class="max-w-xl">
@@ -132,7 +138,11 @@ export function ComponentRadar() {
           </div>
         </SamplerItem>
 
-        <SamplerItem title="Slider" description="Choose a value from a range." href="/slider">
+        <SamplerItem
+          title="Slider"
+          description="Choose a value from a range."
+          href="/components/slider"
+        >
           <div class="max-w-sm space-y-5">
             <div>
               <div class="mb-2 flex justify-between text-sm">
@@ -169,7 +179,7 @@ export function ComponentRadar() {
         <SamplerItem
           title="Switch"
           description="Choose where deployment alerts appear."
-          href="/switch"
+          href="/components/switch"
         >
           <div class="space-y-4">
             <Switch
@@ -190,7 +200,11 @@ export function ComponentRadar() {
           </output>
         </SamplerItem>
 
-        <SamplerItem title="Popover" description="Show content beside an action." href="/popover">
+        <SamplerItem
+          title="Popover"
+          description="Show content beside an action."
+          href="/components/popover"
+        >
           <Popover>
             <Popover.Trigger as={Button} variant="outline" size="sm">
               Open popover
@@ -209,7 +223,7 @@ export function ComponentRadar() {
         <SamplerItem
           title="Input number"
           description="Step within a defined range."
-          href="/input-number"
+          href="/components/input-number"
         >
           <InputNumber aria-label="Item count" defaultValue={3} minValue={1} maxValue={10} />
         </SamplerItem>
@@ -217,12 +231,16 @@ export function ComponentRadar() {
         <SamplerItem
           title="Combobox"
           description="Search and select from a collection."
-          href="/combobox"
+          href="/components/combobox"
         >
           <Combobox items={OPTIONS} placeholder="Search technologies..." allowClear />
         </SamplerItem>
 
-        <SamplerItem title="Dialog" description="Focus attention on a task." href="/dialog">
+        <SamplerItem
+          title="Dialog"
+          description="Focus attention on a task."
+          href="/components/dialog"
+        >
           <Dialog>
             <Dialog.Trigger as={Button} variant="outline" size="sm">
               Open dialog
@@ -240,7 +258,7 @@ export function ComponentRadar() {
         <SamplerItem
           title="Accordion"
           description="Reveal details without leaving the page."
-          href="/accordion"
+          href="/components/accordion"
           class="lg:row-span-2 md:col-span-2 lg:col-start-3 lg:row-start-2"
         >
           <Accordion

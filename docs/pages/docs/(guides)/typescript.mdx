@@ -1,0 +1,137 @@
+---
+title: TypeScript
+description: Type component props, supporting namespaces, collections, and global compiler options in SolidJS.
+sidebar:
+  order: 3
+search:
+  tags: [types, typescript, namespaces, generics, props, MoraineTypeConfig, SolidJS]
+---
+
+Moraine provides end-to-end type safety for SolidJS. All component props, slot overrides, collection items, and polymorphic targets are fully typed without requiring `any` or manual type assertions.
+
+## Props vs Namespaces
+
+Moraine uses a clear two-tier export convention for every component:
+
+| Pattern    | Purpose                                         | Example                           |
+| :--------- | :---------------------------------------------- | :-------------------------------- |
+| `XxxProps` | Full public props for a component               | `ButtonProps`, `SelectProps`      |
+| `XxxT.*`   | Supporting types (slots, variants, items, etc.) | `ButtonT.Variant`, `SelectT.Item` |
+
+```tsx
+import type { ButtonProps, ButtonT, SelectProps, SelectT } from 'moraine'
+```
+
+### Component Props (`XxxProps`)
+
+Use `XxxProps` when wrapping a component, typing function parameters, or defining extended prop interfaces:
+
+```tsx
+import type { ButtonProps } from 'moraine'
+import { Button } from 'moraine'
+
+interface SubmitButtonProps extends ButtonProps {
+  trackingId?: string
+}
+
+export function SubmitButton(props: SubmitButtonProps) {
+  return <Button variant="default" {...props} />
+}
+```
+
+### Component Namespaces (`XxxT`)
+
+The `XxxT` namespace organizes all auxiliary types for a component under a single import:
+
+```tsx
+import type { SelectT } from 'moraine'
+
+const countries: SelectT.Item[] = [
+  { label: 'Canada', value: 'ca' },
+  { label: 'Japan', value: 'jp' },
+]
+```
+
+#### Namespace Members Reference
+
+| Member    | Description                                                                      |
+| :-------- | :------------------------------------------------------------------------------- |
+| `Props`   | Complete component props interface (identical to `XxxProps`).                    |
+| `Base`    | Core business props without native HTML attributes.                              |
+| `Slot`    | Union of all available styling slot names (e.g. `'root' \| 'header' \| 'body'`). |
+| `Variant` | Object shape of all public visual variants (accepts `null` to clear defaults).   |
+| `Classes` | Type-safe record for slot class overrides (`Record<Slot, string>`).              |
+| `Styles`  | Type-safe record for slot inline style overrides.                                |
+| `Item`    | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).      |
+| `Value`   | Value domain type for form controls with value semantics.                        |
+
+## Visual Variants (`XxxT.Variant`)
+
+Components supporting visual variants expose their options under `XxxT.Variant`. Variant properties accept `null` to explicitly clear library defaults:
+
+```tsx
+import type { ButtonT } from 'moraine'
+import { Button } from 'moraine'
+
+type VariantName = ButtonT.Variant['variant'] // 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null
+
+// Explicitly unstyled button:
+export function RawButton() {
+  return <Button variant={null}>Unstyled</Button>
+}
+```
+
+## Slot Classes & Styles (`XxxT.Classes`, `XxxT.Styles`)
+
+Use `Classes` and `Styles` to type slot override records when customizing composite elements:
+
+```tsx
+import type { CardT } from 'moraine'
+import { Card } from 'moraine'
+
+const customCardClasses: CardT.Classes = {
+  header: 'border-b border-border/80 pb-3',
+  body: 'space-y-4 py-4',
+  footer: 'border-t border-border/80 pt-3',
+}
+
+export function StyledCard() {
+  return <Card classes={customCardClasses} />
+}
+```
+
+## Global Type Configuration (`MoraineTypeConfig`)
+
+You can customize Moraine's compile-time type behavior across your entire application using TypeScript module augmentation.
+
+Create a declaration file (e.g. `src/env.d.ts` or `src/moraine.d.ts`) in your project:
+
+```ts title="src/moraine.d.ts"
+declare module 'moraine' {
+  interface MoraineTypeConfig {
+    /**
+     * When true, relaxes root element attributes to component props + Record<string, unknown>.
+     * Non-standard attributes are accepted without type errors, improving type-checking speed.
+     * Defaults to false (strict checking against JSX.IntrinsicElements).
+     */
+    simpleRootAttributes?: boolean
+
+    /**
+     * When true, restricts polymorphic `as` tags to JSX.HTMLElementTags (HTML tags only).
+     * Excludes SVG and MathML intrinsic tags from `as` autocompletion.
+     * Defaults to false (allows all keyof JSX.IntrinsicElements).
+     */
+    simpleHtmlTags?: boolean
+  }
+}
+```
+
+### `simpleRootAttributes`
+
+- **`false` (default)**: Strict type checking against intrinsic elements. Non-standard attributes trigger compile-time errors.
+- **`true`**: Relaxes attribute checks while maintaining strict verification for known component props (`variant`, `size`, `disabled`).
+
+### `simpleHtmlTags`
+
+- **`false` (default)**: Autocompletes all elements in `keyof JSX.IntrinsicElements` (including SVG tags like `path`, `g`, `svg`).
+- **`true`**: Filters autocompletion down to standard `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, etc.), reducing suggestion noise.

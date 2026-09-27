@@ -8,15 +8,17 @@ const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/mai
 
 export interface DocsPageHeaderProps {
   pageKey: string
+  surface: string
+  section: string
+  markdownPath: string
   apiDoc?: ComponentApi
   frontmatter: FrontmatterData
-  markdownSource?: string
 }
 
 export function DocsPageHeader(props: DocsPageHeaderProps) {
   const component = () => props.apiDoc
-  const componentKey = () => props.frontmatter.componentKey ?? component()?.key
-  const category = () => props.frontmatter.category ?? props.frontmatter.api?.path.split('/')[1]
+  const componentKey = () => (props.surface === 'components' ? props.pageKey : undefined)
+  const category = () => (props.surface === 'components' ? props.section : undefined)
   const isPolymorphic = () =>
     component()?.parts.some((part) => part.props.some((prop) => prop.name === 'as')) ?? false
   const githubSourceHref = () => {
@@ -26,13 +28,12 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
   const [copyState, setCopyState] = createSignal<'idle' | 'copied' | 'failed'>('idle')
 
   const copyMarkdownSource = async () => {
-    const markdownSource = props.markdownSource
-    if (!markdownSource) {
-      return
-    }
-
     try {
-      await navigator.clipboard.writeText(markdownSource)
+      const response = await fetch(props.markdownPath)
+      if (!response.ok) {
+        throw new Error(`Markdown request failed: ${response.status}`)
+      }
+      await navigator.clipboard.writeText(await response.text())
       setCopyState('copied')
       window.setTimeout(() => setCopyState('idle'), 1600)
     } catch {
@@ -59,8 +60,8 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
         <Show when={component()?.kind}>
           {(kind) => (
             <a
-              href="/styling/customization#component-kinds"
-              aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: styling guide`}
+              href="/docs/composition#component-kinds"
+              aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: composition guide`}
               class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
             >
               {kind() === 'single' ? 'Single' : 'Composite'}
@@ -69,7 +70,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
         </Show>
         <Show when={isPolymorphic()}>
           <a
-            href="/typescript#polymorphic-rendering-as-prop"
+            href="/docs/composition#polymorphic-composition"
             aria-label="Polymorphic: at least one component supports the as prop; see each component's Props"
             class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
@@ -87,36 +88,33 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
       </p>
 
       <div class="mt-4 flex flex-wrap gap-2 items-center text-xs">
-        <Show when={props.markdownSource}>
-          <Button
-            as="a"
-            href={`/${props.pageKey}.md`}
-            aria-label="View markdown source"
-            rel="alternate external"
-            type="text/markdown"
-            variant="outline"
-            size="sm"
-            leading="i-lucide:file-text"
-            class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-          >
-            View as Markdown
-          </Button>
-          <Button
-            aria-label="Copy markdown source"
-            variant="outline"
-            size="sm"
-            leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
-            disabled={!props.markdownSource}
-            onClick={copyMarkdownSource}
-            class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-          >
-            {copyState() === 'copied'
-              ? 'Copied Markdown'
-              : copyState() === 'failed'
-                ? 'Copy Failed'
-                : 'Copy as Markdown'}
-          </Button>
-        </Show>
+        <Button
+          as="a"
+          href={props.markdownPath}
+          aria-label="View markdown source"
+          rel="alternate external"
+          type="text/markdown"
+          variant="outline"
+          size="sm"
+          leading="i-lucide:file-text"
+          class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+        >
+          View as Markdown
+        </Button>
+        <Button
+          aria-label="Copy markdown source"
+          variant="outline"
+          size="sm"
+          leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
+          onClick={copyMarkdownSource}
+          class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+        >
+          {copyState() === 'copied'
+            ? 'Copied Markdown'
+            : copyState() === 'failed'
+              ? 'Copy Failed'
+              : 'Copy as Markdown'}
+        </Button>
         <Show when={githubSourceHref()}>
           {(href) => (
             <Button

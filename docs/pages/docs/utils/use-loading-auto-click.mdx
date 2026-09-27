@@ -1,0 +1,63 @@
+---
+title: useLoadingAutoClick
+description: Automatically derive a reactive loading state while an async click promise is pending.
+search:
+  tags: [useLoadingAutoClick, loading, button, async, promise, click handler]
+---
+
+`useLoadingAutoClick` wraps an asynchronous click handler and automatically tracks its pending promise state. It provides the derived `isLoading` boolean used by Moraine's `Button` for `loadingAuto`.
+
+## Import
+
+```tsx
+import { useLoadingAutoClick } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useLoadingAutoClick<T, E extends Event = MouseEvent>(
+  options: UseLoadingAutoClickOptions<T, E>,
+): {
+  isLoading: Accessor<boolean>
+  onClick: JSX.EventHandler<T, E>
+}
+
+interface UseLoadingAutoClickOptions<T, E extends Event> {
+  loading?: Accessor<boolean | undefined>
+  loadingAuto?: Accessor<boolean | undefined>
+  onClick?: JSX.EventHandlerUnion<T, E>
+}
+```
+
+## Usage Example
+
+```tsx title="src/AsyncActionButton.tsx"
+import { useLoadingAutoClick } from 'moraine/utils'
+
+export function AsyncActionButton(props: { onSave: () => Promise<void> }) {
+  const action = useLoadingAutoClick({
+    loadingAuto: () => true,
+    onClick: async () => {
+      await props.onSave()
+    },
+  })
+
+  return (
+    <button
+      type="button"
+      onClick={action.onClick}
+      disabled={action.isLoading()}
+      class="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50"
+    >
+      {action.isLoading() ? 'Saving...' : 'Save Changes'}
+    </button>
+  )
+}
+```
+
+## Details
+
+- **Automatic Promise Detection**: Inspects the return value of `onClick`. If it returns a promise, increments the internal pending count until settled (`resolve` or `reject`).
+- **Concurrent Click Safe**: Handles rapid consecutive clicks by counting pending tasks.
+- **Manual Override**: If `options.loading()` is true, `isLoading()` remains true regardless of async task status.

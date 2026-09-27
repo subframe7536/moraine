@@ -1,0 +1,140 @@
+---
+title: CheckboxGroup
+description: Collect multiple choices as one array-valued field.
+api:
+  path: src/form/checkbox-group/checkbox-group
+sidebar:
+  order: 7
+search:
+  tags: [multiple selection, checked, options, table, checkbox list, permissions]
+---
+
+import { CheckboxGroup } from '@src'
+import { createSignal } from 'solid-js'
+
+Use CheckboxGroup for several choices submitted as one array. Use individual [Checkbox](/components/checkbox) controls when the fields are independent.
+
+## Basic usage
+
+```tsx
+import { CheckboxGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <CheckboxGroup
+      aria-label="Preferences"
+      items={[
+        { value: 'email', label: 'Email' },
+        { value: 'sms', label: 'SMS' },
+      ]}
+    />
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select', prop: 'variant', label: 'Variant', defaultValue: 'card',
+      options: [
+        { label: 'List', value: 'list' },
+        { label: 'Card', value: 'card' },
+        { label: 'Table', value: 'table' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'size', label: 'Size', defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select', prop: 'orientation', label: 'Orientation', defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const NOTIFICATION_OPTIONS = [
+      { label: 'Email alerts', value: 'email', description: 'Weekly digests and critical updates' },
+      { label: 'Push notifications', value: 'push', description: 'Instant alerts on mobile and desktop' },
+      { label: 'SMS updates', value: 'sms', description: 'Security and login codes' },
+    ]
+    const [value, setValue] = createSignal(['email'])
+
+    return (
+      <div class="max-w-full w-96">
+        <CheckboxGroup
+          items={NOTIFICATION_OPTIONS}
+          value={value()}
+          onChange={setValue}
+          variant={props.variant}
+          size={props.size}
+          disabled={props.disabled}
+          orientation={props.orientation}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+CheckboxGroup [component; slot=root; <div>]
+└── fieldset [slot]
+    ├── legend [slot]
+    └── item [slot]
+        ├── container [slot]
+        │   ├── input [internal]
+        │   └── control [slot]
+        │       └── indicator [slot]
+        │           └── icon [slot]
+        └── wrapper [slot]
+            ├── label [slot]
+            └── description [slot]
+```
+
+The outer `root` owns styling and forwarded root props. The nested `<fieldset>` owns group semantics, disabled state, and the optional `<legend>` association.
+
+## Usage
+
+### Selection model
+
+The group value is an array of item values. Pair `value` with `onChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
+
+<Preview path="./selection-model" />
+
+### Forms and keyboard behavior
+
+The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `Field` for schema-bound fields.
+
+<Preview path="./form-behavior" />
+
+### Keyboard interaction
+
+Each item keeps native checkbox keyboard behavior; the group does not implement radio-style roving focus.
+
+## Examples
+
+### Controlled value and disabled items
+
+<Preview path="./controlled-disabled-items" />
+
+### Custom indicator
+
+<Preview path="./indicator" />
+
+### Form integration
+
+<Preview path="./form-integration" />

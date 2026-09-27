@@ -9,13 +9,16 @@ export function getAdjacentDocsPages(
   pages: DocsPageEntry[],
   currentPageKey: string,
 ): AdjacentDocsPages {
-  const currentIndex = pages.findIndex((page) => page.key === currentPageKey)
+  const currentIndex = pages.findIndex((page) => page.path === currentPageKey)
   if (currentIndex < 0) {
     return {}
   }
 
+  const surface = pages[currentIndex]?.surface
+  const previous = pages[currentIndex - 1]
+  const next = pages[currentIndex + 1]
   return {
-    ...(currentIndex > 0 ? { previous: pages[currentIndex - 1] } : {}),
-    ...(currentIndex < pages.length - 1 ? { next: pages[currentIndex + 1] } : {}),
+    ...(previous?.surface === surface ? { previous } : {}),
+    ...(next?.surface === surface ? { next } : {}),
   }
 }

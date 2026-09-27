@@ -1,0 +1,207 @@
+---
+title: MultiSelect
+description: Choose multiple collection items in a searchable tag field.
+api:
+  path: src/form/multi-select/multi-select
+sidebar:
+  order: 13
+search:
+  tags: [combobox, multiple selection, items, multi-select, tags, chips]
+---
+
+import { MultiSelect } from '@src'
+
+Use MultiSelect for several selected collection items displayed as tags. Its values resolve through collection items; use [Select](/components/select) for one choice or [Combobox](/components/combobox) for editable single selection.
+
+## Basic usage
+
+```tsx
+import { MultiSelect } from 'moraine'
+
+export function Example() {
+  return (
+    <MultiSelect
+      items={[
+        { label: 'Design', value: 'design' },
+        { label: 'Code', value: 'code' },
+      ]}
+      placeholder="Choose skills"
+    />
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
+    {
+      kind: 'switch',
+      prop: 'openOnControlClick',
+      label: 'Open on control click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <MultiSelect
+      items={[
+        { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
+        { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+        { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+        { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+        { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+      ]}
+      defaultValue={['design']}
+      placeholder="Select topics..."
+      variant={props.variant}
+      size={props.size}
+      search={props.search}
+      openOnControlClick={props.openOnControlClick}
+      disabled={props.disabled}
+      class="max-w-96 min-w-40 w-60%"
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+MultiSelect [component; no DOM]
+├── control [slot]
+│   ├── leading [slot]
+│   ├── tagsContainer [slot]
+│   │   ├── tag [slot]
+│   │   │   ├── tagLabel [slot]
+│   │   │   └── tagRemove [slot]
+│   │   ├── tagOverflow [slot]
+│   │   └── input [slot]
+│   ├── clear [slot]
+│   └── trigger [slot]
+└── positioner [internal]
+    └── content [slot]
+        ├── listbox [slot]
+        │   ├── group [slot]
+        │   │   └── groupLabel [slot]
+        │   └── item [slot]
+        │       ├── itemLeading [slot]
+        │       ├── itemWrapper [slot]
+        │       │   ├── itemLabel [slot]
+        │       │   └── itemDescription [slot]
+        │       └── itemIndicator [slot]
+        └── empty [slot]
+```
+
+The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
+
+The popup slots belong to MultiSelect's default collection content. Use `itemRender` for a custom option body; tags have their own rendering path through `tagRender`.
+Group headings and options render as sibling rows in the default listbox. The non-editable placeholder is an internal element, not a style slot.
+
+## Usage
+
+### Values and tag lifecycle
+
+`value` contains the selected item values as an array. An empty array means no selection; an empty
+string can be one of the item values. The array type is `TItem['value'][]`.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
+users to type directly in the field to filter available options.
+
+<Preview path="./usage-tags" />
+
+### Item creation and delimiters
+
+Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
+separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
+parsed through the same creation path.
+
+<Preview path="./usage-creation" />
+
+### Keyboard interaction
+
+| Key                 | Behavior                                                                   |
+| ------------------- | -------------------------------------------------------------------------- |
+| Backspace           | When input is empty, deletes the immediately preceding tag                 |
+| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
+| Enter               | Commit the highlighted item (or create an item when input text is present) |
+| Escape              | Close the dropdown or clear active query text                              |
+
+## Examples
+
+### Custom tag rendering
+
+Use `tagRender` to customize chip presentation with colors, status dots, badges, or custom remove buttons.
+
+<Preview path="./custom-tags" />
+
+### Project assignees
+
+<Preview path="./user-chips" />
+
+### Selection and display limits
+
+`maxCount` is a behavioral constraint preventing additional selections. `maxTagCount` is purely
+visual: surplus selections stay committed and are summarized in a `+N` badge. Use `tagOverflow`
+to render the hidden tags in a Tooltip or another custom presentation.
+
+<Preview path="./max-count-max-tag-count" />
+
+### Creatable collection items
+
+Allow users to select from existing options or dynamically generate new tags via an empty state button.
+
+<Preview path="./create-new-tags" />
+
+### Free-form tags
+
+Without predefined items, combine `createItem` and `tokenSeparators` for a lightweight tag input.
+
+<Preview path="./free-form-tags" />
+
+### Grouped options
+
+Organize large collections into categorized option groups.
+
+<Preview path="./grouped-items" />
+
+### Clearable, disabled, and locked states
+
+Pre-locked items cannot be deselected, while individual options can be disabled in the listbox.
+
+<Preview path="./clear-and-disabled" />
+
+### Virtualization
+
+Render 10,000+ items smoothly using TanStack Virtualizer.
+
+<Preview path="./virtualization" />
+
+### Form integration
+
+Validate multi-selection schemas (e.g. requiring a minimum number of tags) with `createForm`.
+
+<Preview path="./form-integration" />

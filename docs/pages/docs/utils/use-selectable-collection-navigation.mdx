@@ -1,0 +1,99 @@
+---
+title: useSelectableCollectionNavigation
+description: Add accessible keyboard navigation (arrow keys, Home/End, RTL) for tabs, radio groups, and listboxes.
+search:
+  tags:
+    [
+      useSelectableCollectionNavigation,
+      keyboard,
+      navigation,
+      tabs,
+      listbox,
+      radio group,
+      focus,
+      a11y,
+    ]
+---
+
+`useSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End, PageUp, PageDown) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
+
+## Import
+
+```tsx
+import { useSelectableCollectionNavigation } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useSelectableCollectionNavigation<TItem, TValue extends string | number>(
+  options: UseSelectableCollectionNavigationOptions<TItem, TValue>,
+): {
+  onKeyDown: (event: KeyboardEvent) => void
+}
+
+interface UseSelectableCollectionNavigationOptions<TItem, TValue> {
+  items: Accessor<TItem[]>
+  getValue: (item: TItem) => TValue
+  onSelect: (value: TValue) => void
+  orientation?: Accessor<'horizontal' | 'vertical'>
+  isDisabled?: (item: TItem) => boolean
+  loop?: Accessor<boolean>
+  activationMode?: Accessor<'automatic' | 'manual'>
+  focusValue?: (value: TValue) => void
+}
+```
+
+## Usage Example
+
+```tsx title="src/CustomTabs.tsx"
+import { For, createSignal } from 'solid-js'
+import { useSelectableCollectionNavigation } from 'moraine/utils'
+
+interface TabItem {
+  id: string
+  label: string
+}
+
+export function CustomTabs() {
+  const tabs: TabItem[] = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'settings', label: 'Settings' },
+    { id: 'billing', label: 'Billing' },
+  ]
+  const [selectedId, setSelectedId] = createSignal('overview')
+
+  const nav = useSelectableCollectionNavigation({
+    items: () => tabs,
+    getValue: (item) => item.id,
+    onSelect: (id) => setSelectedId(id),
+    orientation: () => 'horizontal',
+    loop: () => true,
+  })
+
+  return (
+    <div role="tablist" onKeyDown={nav.onKeyDown} class="flex gap-2 border-b">
+      <For each={tabs}>
+        {(tab) => (
+          <button
+            role="tab"
+            aria-selected={selectedId() === tab.id}
+            tabIndex={selectedId() === tab.id ? 0 : -1}
+            onClick={() => setSelectedId(tab.id)}
+            class="px-3 py-1.5 border-b-2"
+          >
+            {tab.label}
+          </button>
+        )}
+      </For>
+    </div>
+  )
+}
+```
+
+## Key Bindings
+
+- **ArrowLeft / ArrowRight**: Move previous / next in horizontal collections (respects RTL).
+- **ArrowUp / ArrowDown**: Move previous / next in vertical collections.
+- **Home / End**: Jump directly to first / last enabled item.
+- **Automatic vs Manual**: In `automatic` mode, navigation selects immediately. In `manual` mode, pressing Enter or Space confirms selection.

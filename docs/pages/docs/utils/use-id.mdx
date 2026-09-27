@@ -1,0 +1,56 @@
+---
+title: useId
+description: Generate unique, SSR-safe identifiers for accessibility relationships and form controls.
+search:
+  tags: [useId, id, accessibility, a11y, unique id, ssr]
+---
+
+`useId` generates unique string identifiers for accessibility bindings (`aria-labelledby`, `aria-describedby`, `aria-controls`, `for`). It prioritizes user-supplied deterministic IDs when provided and falls back to prefixed, auto-generated unique IDs.
+
+## Import
+
+```tsx
+import { useId } from 'moraine'
+```
+
+## Signature
+
+```ts
+function useId(deterministicId?: () => string | null | undefined, prefix = 'mo'): Accessor<string>
+```
+
+## Usage Example
+
+```tsx title="src/CustomField.tsx"
+import { useId } from 'moraine'
+
+interface CustomFieldProps {
+  id?: string
+  label: string
+}
+
+export function CustomField(props: CustomFieldProps) {
+  // Uses props.id if supplied; otherwise generates "input-mo-..."
+  const inputId = useId(() => props.id, 'input')
+  const descriptionId = `${inputId()}-desc`
+
+  return (
+    <div>
+      <label for={inputId()}>{props.label}</label>
+      <input
+        id={inputId()}
+        aria-describedby={descriptionId}
+        class="border px-3 py-1.5 rounded-md"
+      />
+      <p id={descriptionId} class="text-xs text-muted-foreground">
+        Required field
+      </p>
+    </div>
+  )
+}
+```
+
+## Priority Rules
+
+1. If `deterministicId` is provided and returns a non-empty string, that string is returned.
+2. If `deterministicId` is omitted, `null`, or `undefined`, a unique ID with the specified prefix (default: `'mo'`) is generated using Solid's `createUniqueId()`.

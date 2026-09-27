@@ -1,0 +1,49 @@
+---
+title: createMediaQuery
+description: Create a reactive boolean accessor tracking the match status of any CSS media query.
+search:
+  tags: [createMediaQuery, media query, responsive, mobile, matchMedia]
+---
+
+`createMediaQuery` returns a reactive boolean accessor that tracks whether a CSS media query matches the current viewport or system setting. It updates automatically when the screen resizes or system settings change.
+
+## Import
+
+```tsx
+import { createMediaQuery } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function createMediaQuery(
+  query: string | Accessor<string>,
+  defaultValue?: boolean,
+): Accessor<boolean>
+```
+
+## Usage Example
+
+```tsx title="src/ResponsiveLayout.tsx"
+import { Show } from 'solid-js'
+import { createMediaQuery } from 'moraine/utils'
+
+export function ResponsiveLayout() {
+  const isMobile = createMediaQuery('(max-width: 768px)', false)
+  const prefersDark = createMediaQuery('(prefers-color-scheme: dark)', false)
+
+  return (
+    <div>
+      <Show when={isMobile()} fallback={<div>Desktop Navigation</div>}>
+        <div>Mobile Drawer Navigation</div>
+      </Show>
+    </div>
+  )
+}
+```
+
+## Features
+
+- **SSR Safe**: Uses `defaultValue` during server rendering and attaches `matchMedia` listeners in the browser.
+- **Dynamic Queries**: The `query` argument can be a reactive accessor function (e.g. `() => isDesktop() ? '(min-width: 1024px)' : '(min-width: 640px)'`).
+- **Auto Cleanup**: Disposes of the underlying media listener when the Solid owner scope disposes.

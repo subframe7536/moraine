@@ -1,0 +1,131 @@
+---
+title: Installation
+description: Install Moraine, configure atomic styling, and verify your SolidJS application setup.
+sidebar:
+  order: 2
+search:
+  tags: [installation, setup, package, npm, pnpm, bun, yarn, prerequisites]
+---
+
+# Installation
+
+This guide walks you through installing Moraine in your SolidJS application and configuring its atomic styling integration.
+
+## Prerequisites
+
+Before installing, ensure your environment meets the following requirements:
+
+- **SolidJS**: `>= 1.9.0`
+- **Build Tool**: Vite `>= 6.0` or [SolidStart](https://start.solidjs.com)
+- **TypeScript**: `>= 5.0` (recommended)
+- **Styling**: [UnoCSS](https://unocss.dev) or [Tailwind CSS](https://tailwindcss.com)
+
+## 1. Install the Package
+
+Add the `moraine` package to your project using your preferred package manager:
+
+```shell title="pnpm" group-id="install"
+pnpm add moraine
+```
+
+```shell title="bun" group-id="install"
+bun add moraine
+```
+
+```shell title="npm" group-id="install"
+npm install moraine
+```
+
+```shell title="yarn" group-id="install"
+yarn add moraine
+```
+
+## 2. Configure Atomic Class Styling
+
+Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-md`, etc.) and semantic CSS variables. Configure your preferred styling tool:
+
+### Option A: UnoCSS (Recommended)
+
+UnoCSS provides the fastest compilation speeds and native support for Moraine's recipe variant groups.
+
+Install `moraine/unocss` and configure `unocss.config.ts`:
+
+```ts title="unocss.config.ts"
+import { defineConfig, presetWind4 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+    pipeline: {
+      include: [/\.(?:ts|tsx|mdx)(?:\?|$)/],
+    },
+  },
+})
+```
+
+See the [UnoCSS Setup Guide](/docs/unocss) for advanced configurations, variant groups, and color tokens.
+
+### Option B: Tailwind CSS
+
+If you use Tailwind CSS (v4 or v3), install the official plugin from `moraine/tailwind`:
+
+```css title="src/index.css"
+@import 'tailwindcss';
+@plugin 'moraine/tailwind';
+@source '../node_modules/moraine/dist';
+```
+
+See the [Tailwind CSS Guide](/docs/tailwind) for Tailwind v4 `@source` configuration, monorepo paths, and Tailwind v3 setup.
+
+## 3. Verify the Installation
+
+Render a test button in your application to confirm that behavioral scripts and utility classes are functioning correctly:
+
+```tsx title="src/App.tsx"
+import { Button } from 'moraine'
+
+export function App() {
+  return (
+    <div class="p-8">
+      <Button variant="default" onClick={() => alert('Moraine is working!')}>
+        Click me
+      </Button>
+    </div>
+  )
+}
+```
+
+If the button renders with a solid primary background, rounded corners, and proper padding, your setup is complete.
+
+## Troubleshooting
+
+### Styles Are Missing or Unstyled
+
+If the button renders as a plain unstyled HTML button:
+
+- **UnoCSS**: Ensure your `content.filesystem` includes `./node_modules/moraine/dist/**/*.{mjs,jsx}` so UnoCSS can extract classes from precompiled library components.
+- **Tailwind v4**: Verify that `@source` points correctly to the `moraine/dist` directory relative to your CSS file.
+
+### JSX TypeScript Errors
+
+If TypeScript complains about JSX elements or missing types, ensure your `tsconfig.json` includes:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  }
+}
+```
+
+## Next Steps
+
+Now that Moraine is installed and configured:
+
+- Learn about [Component Composition](/docs/composition) and public parts.
+- Understand how to render custom tags or components using [Polymorphism](/docs/polymorphism).
+- Customize theme colors, radiuses, and elevation in [Design Tokens](/docs/design).
+- Browse interactive specimens across the [Component Library](/components).

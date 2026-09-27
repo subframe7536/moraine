@@ -6,21 +6,29 @@ import path from 'node:path'
 
 import { describe, expect, test, vi } from 'vitest'
 
-import { resolveDocsPageContext } from './core/paths'
-import { createDocsRouteInfo, scanDocsRoutes } from './routes'
+import { resolveDocsPageContext } from './core/paths.ts'
+import { createDocsRouteInfo, scanDocsRoutes } from './routes.ts'
 
 vi.mock('virtual:routes', () => ({
   routeInfo: {
     '/': {},
-    '/start': {
-      key: 'start',
+    '/docs/getting-started': {
+      key: 'getting-started',
+      surface: 'docs',
+      section: 'overview',
+      routePath: '/docs/getting-started',
+      markdownPath: '/docs/getting-started.md',
       title: 'Getting Started',
       description: 'Setup.',
       order: 1,
       tags: ['installation'],
     },
-    '/button': {
+    '/components/button': {
       key: 'button',
+      surface: 'components',
+      section: 'general',
+      routePath: '/components/button',
+      markdownPath: '/components/button.md',
       title: 'Button',
       description: 'Button description.',
       order: 1,
@@ -29,199 +37,166 @@ vi.mock('virtual:routes', () => ({
         { id: 'usage', label: 'Usage', level: 2 },
         null,
         { id: '', label: 'Missing ID', level: 2 },
-        { id: 'invalid-level', label: 'Invalid level', level: 7 },
       ],
-    },
-    '/input': {
-      key: 'input',
-      title: 'Input',
-      description: 'Input description.',
-      order: 2,
-      tags: ['input'],
-      sections: [null, { id: 'label', label: 'Label', level: '2' }],
     },
   },
 }))
 
-async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
+function pageSource(title: string, order: number): string {
+  return `---\ntitle: ${title}\ndescription: ${title} page description.\nsidebar:\n  order: ${order}\nsearch:\n  tags: [docs]\n---\n`
 }
 
-async function writeProjectFile(projectRoot: string, filePath: string, content: string) {
-  const absolutePath = path.join(projectRoot, filePath)
-  await mkdir(path.dirname(absolutePath), { recursive: true })
-  await writeFile(absolutePath, content, 'utf8')
-}
-
-function pageSource(title: string, order: number, badge?: string): string {
-  return `---
-title: ${title}
-description: ${title} page description.
-sidebar:
-  order: ${order}${badge ? `\n  badge: ${badge}` : ''}
-search:
-  tags: [${title.toLowerCase()}, docs]
----
-`
+async function writeProjectFile(projectRoot: string, relative: string, content: string) {
+  const file = path.join(projectRoot, relative)
+  await mkdir(path.dirname(file), { recursive: true })
+  await writeFile(file, content)
 }
 
 describe('docs route metadata', () => {
-  test('retains valid pages while dropping malformed optional section entries', async () => {
-    const { getDocsPages } = await import('../routes/docs-route')
-
-    expect(getDocsPages()).toMatchObject([
-      { key: 'start', path: '/start', sections: [] },
-      {
-        key: 'button',
-        path: '/button',
-        sections: [{ id: 'usage', label: 'Usage', level: 2 }],
-      },
-      {
-        key: 'input',
-        path: '/input',
-        sections: [],
-      },
-    ])
-    expect(getDocsPages().some((page) => page.path === '/' || page.key === 'introduction')).toBe(
-      false,
+  test('resolves canonical paths for both surfaces and pathless groups', () => {
+    const cases = [
+      ['docs/(overview)/getting-started.mdx', 'docs', 'overview', '/docs/getting-started'],
+      ['docs/(styling)/design.mdx', 'docs', 'styling', '/docs/design'],
+      ['docs/(guides)/composition.mdx', 'docs', 'guides', '/docs/composition'],
+      ['docs/utils/class-merging.mdx', 'docs', 'utils', '/docs/utils/class-merging'],
+      ['components/index.mdx', 'components', 'overview', '/components'],
+      ['components/(general)/button/index.mdx', 'components', 'general', '/components/button'],
+    ] as const
+    for (const [relative, surface, section, routePath] of cases) {
+      expect(resolveDocsPageContext(`/tmp/docs/pages/${relative}`)).toMatchObject({
+        surface,
+        section,
+        routePath,
+        markdownPath: `${routePath}.md`,
+      })
+    }
+    expect(() => resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toThrow(
+      'reserved for the landing route',
     )
   })
 
-  test('scans mdx pages into metadata', async () => {
-    const projectRoot = await createTempProject()
+  test('filters malformed sections and sorts pages across surfaces', async () => {
+    const { getDocsPages } = await import('../routes/docs-route.ts')
+    expect(getDocsPages()).toMatchObject([
+      { path: '/docs/getting-started', surface: 'docs', sections: [] },
+      {
+        path: '/components/button',
+        surface: 'components',
+        sections: [{ id: 'usage', label: 'Usage', level: 2 }],
+      },
+    ])
+  })
 
+  test('scans pages and rejects duplicate order within one section', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-docs-routes-'))
     try {
       await writeProjectFile(
         projectRoot,
         'docs/pages/_api-index.json',
-        JSON.stringify({ components: [{ key: 'button', name: 'Button' }] }),
+        '{"components":[{"key":"button","name":"Button"}]}',
       )
-      await writeProjectFile(projectRoot, 'docs/pages/start.mdx', pageSource('Getting Started', 1))
       await writeProjectFile(
         projectRoot,
-        'docs/pages/(general)/button/index.mdx',
-        pageSource('Button', 20, 'New'),
+        'docs/pages/docs/(overview)/getting-started.mdx',
+        pageSource('Getting Started', 1),
       )
-
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/components/(general)/button/index.mdx',
+        pageSource('Button', 1),
+      )
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
-        { info: { key: 'start', title: 'Getting Started' } },
+        { info: { surface: 'docs', routePath: '/docs/getting-started' } },
         {
-          info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
+          info: {
+            surface: 'components',
+            section: 'general',
+            routePath: '/components/button',
+            api: 'button',
+          },
         },
+      ])
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/components/(general)/badge/index.mdx',
+        pageSource('Badge', 1),
+      )
+      expect(() => scanDocsRoutes(projectRoot)).toThrow('duplicate sidebar.order 1')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('preserves sections on canonical metadata', () => {
+    const page = resolveDocsPageContext('/tmp/docs/pages/components/(general)/button/index.mdx')
+    const info = createDocsRouteInfo(
+      page,
+      {
+        title: 'Button',
+        description: 'Actions.',
+        sidebar: { order: 1 },
+        search: { tags: ['button'] },
+      },
+      new Set(['button']),
+      [{ id: 'usage', label: 'Usage', level: 2 }],
+    )
+    expect(info).toMatchObject({
+      key: 'button',
+      surface: 'components',
+      section: 'general',
+      routePath: '/components/button',
+      markdownPath: '/components/button.md',
+      api: 'button',
+      sections: [{ id: 'usage' }],
+    })
+  })
+
+  test('sorts utils section alphabetically with class-merging first when order is omitted', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-docs-utils-'))
+    try {
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/use-slider.mdx',
+        '---\ntitle: useSlider\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/class-merging.mdx',
+        '---\ntitle: Class Merging\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/create-media-query.mdx',
+        '---\ntitle: createMediaQuery\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      const scanned = scanDocsRoutes(projectRoot)
+      expect(scanned.map((r) => r.info.key)).toEqual([
+        'class-merging',
+        'create-media-query',
+        'use-slider',
       ])
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
 
-  test('rejects duplicate sidebar orders within a group', async () => {
-    const projectRoot = await createTempProject()
-
-    try {
-      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/button/index.mdx',
-        pageSource('Button', 10),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/input/index.mdx',
-        pageSource('Input', 10),
-      )
-
-      expect(() => scanDocsRoutes(projectRoot)).toThrow('duplicate sidebar.order 10')
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
-    }
-  })
-
-  test('reserves the root index for the dedicated landing route', () => {
-    expect(() => resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toThrow(
-      'reserved for the landing route',
-    )
-    expect(resolveDocsPageContext('/tmp/docs/pages/start.mdx')).toMatchObject({
-      pageKey: 'start',
-      group: undefined,
-    })
-    expect(resolveDocsPageContext('/tmp/docs/pages/(general)/button/index.mdx')).toMatchObject({
-      pageKey: 'button',
-      group: 'general',
-      relativePath: '(general)/button/index.mdx',
-    })
-  })
-
-  test('builds route metadata independently from provider paths', () => {
-    expect(
-      createDocsRouteInfo(
-        'button',
-        'general',
-        {
-          title: 'Button',
-          description: 'Button description.',
-          sidebar: { order: 1 },
-          search: { tags: ['button'] },
-        },
-        new Set(['button']),
-      ),
-    ).toEqual({
-      key: 'button',
-      title: 'Button',
-      description: 'Button description.',
-      order: 1,
-      tags: ['button'],
-      group: 'general',
-      api: 'button',
-    })
-  })
-
-  test('includes non-empty document sections without changing other metadata', () => {
-    expect(
-      createDocsRouteInfo(
-        'button',
-        'general',
-        {
-          title: 'Button',
-          description: 'Button description.',
-          sidebar: { order: 1, badge: 'New' },
-          search: { tags: ['button'] },
-        },
-        new Set(['button']),
-        [
-          { id: 'usage', label: 'Usage', level: 2 },
-          { id: 'usage-1', label: 'Usage', level: 2 },
-        ],
-      ),
-    ).toEqual({
-      key: 'button',
-      title: 'Button',
-      description: 'Button description.',
-      order: 1,
-      tags: ['button'],
-      group: 'general',
-      badge: 'New',
-      api: 'button',
-      sections: [
-        { id: 'usage', label: 'Usage', level: 2 },
-        { id: 'usage-1', label: 'Usage', level: 2 },
-      ],
-    })
-  })
-
-  test('omits empty document sections from route metadata', () => {
-    expect(
-      createDocsRouteInfo(
-        'button',
-        undefined,
-        {
-          title: 'Button',
-          description: 'Button description.',
-          sidebar: { order: 1 },
-          search: { tags: ['button'] },
-        },
-        new Set(),
-        [],
-      ),
-    ).not.toHaveProperty('sections')
+  test('scans repository utils routes with class-merging first and remainder alphabetically', () => {
+    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'utils')
+    expect(scanned.map((r) => r.info.key)).toEqual([
+      'class-merging',
+      'create-context-provider',
+      'create-media-query',
+      'use-base-select-search-input',
+      'use-controllable-value',
+      'use-disclosure-state',
+      'use-event-listener',
+      'use-id',
+      'use-list-virtualizer',
+      'use-loading-auto-click',
+      'use-search-value',
+      'use-selectable-collection-navigation',
+      'use-slider',
+      'use-transition-presence',
+    ])
   })
 })

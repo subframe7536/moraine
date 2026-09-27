@@ -1,0 +1,68 @@
+---
+title: useSlider
+description: Headless pointer dragging, keyboard stepping, step snapping, and thumb styles for single or multi-thumb range sliders.
+search:
+  tags: [useSlider, slider, range, dragging, pointer, keyboard, step, thumb]
+---
+
+`useSlider` is the headless interaction engine behind Moraine's `Slider` component. It provides pointer capture dragging, keyboard arrow stepping, value clamping, step snapping, and thumb/range inline style calculations.
+
+## Import
+
+```tsx
+import { useSlider } from 'moraine/utils'
+```
+
+## Features
+
+- **Single & Multi-thumb**: Supports numeric values or tuples (`[min, max]`) for dual-thumb range selection.
+- **Pointer Capture**: Smooth pointer tracking that prevents cursor escape during fast mouse or touch gestures.
+- **Keyboard Stepping**: Handles Arrow Left/Right/Up/Down, PageUp/PageDown, and Home/End.
+- **Orientation & Inversion**: Supports horizontal or vertical orientation, as well as inverted axes and RTL.
+
+## Signature
+
+```ts
+function useSlider<TValue extends number | number[]>(
+  props: UseSliderProps<TValue>,
+  options?: UseSliderOptions<TValue>,
+): SliderState
+```
+
+## Usage Example
+
+```tsx title="src/CustomSlider.tsx"
+import { useSlider } from 'moraine/utils'
+
+export function CustomSlider() {
+  const slider = useSlider({
+    min: 0,
+    max: 100,
+    step: 5,
+    defaultValue: 50,
+  })
+
+  return (
+    <div
+      ref={slider.setRootEl}
+      onPointerDown={slider.handlePointerDown}
+      class="relative h-6 flex items-center cursor-pointer touch-none"
+    >
+      <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+        <div class="h-full bg-primary" style={slider.rangeStyle()} />
+      </div>
+
+      <div
+        tabIndex={0}
+        role="slider"
+        aria-valuenow={slider.values()[0]}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        onKeyDown={slider.handleKeyDown}
+        style={slider.thumbStyles()[0]}
+        class="absolute size-5 rounded-full bg-primary ring-2 ring-background shadow-md -translate-x-1/2"
+      />
+    </div>
+  )
+}
+```

@@ -1,0 +1,62 @@
+---
+title: List
+description: Render caller-defined rows with optional virtual scrolling.
+api:
+  path: src/element/list/list
+sidebar:
+  order: 11
+search:
+  tags: [list, collection, virtualization, headless, virtual list, dynamic height]
+---
+
+import { List } from '@src'
+
+Use List when the caller owns each row’s markup and needs a stable collection surface. Pass `items` and an `itemRender` component; List does not take row content through `children`. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
+
+## Basic usage
+
+```tsx
+import { List } from 'moraine'
+
+export function Example() {
+  return <List items={['Alpha', 'Beta']} itemRender={(item) => <li>{item.item}</li>} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[{ kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false }]}
+>
+  {(props) => (
+    <List
+      items={props.empty ? [] : ['Alpha', 'Beta']}
+      fallback={<li>No items</li>}
+      itemRender={(item) => <li>{item.item}</li>}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+List [component; slot=root; <ul>]
+```
+
+When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
+
+## Usage
+
+### Row ownership and virtualization
+
+`itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure. TypeScript infers the item and root element types from `items` and `as`.
+
+`useListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs `@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or measured row sizes.
+
+<Preview path="./virtualization" />
+
+## Examples
+
+### Dynamic heights
+
+<Preview path="./dynamic-height" />

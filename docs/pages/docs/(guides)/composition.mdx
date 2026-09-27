@@ -1,0 +1,119 @@
+---
+title: Composition
+description: Understand Moraine component architecture, single vs composite components, public parts, style slots, and DOM ownership.
+sidebar:
+  order: 1
+search:
+  tags: [composition, parts, slots, anatomy, dom ownership, single, composite]
+---
+
+Moraine components balance ergonomic simplicity with deep compositional control. Every component exposes its structure through JSX parts and its styling surface through slots.
+
+## Component Kinds
+
+### Single Components
+
+A Single component renders through a single JSX element. It manages its internal DOM structure and styling slots internally.
+
+Examples include `Button`, `Badge`, `Input`, and `Checkbox`:
+
+```tsx
+import { Button } from 'moraine'
+
+export function Action() {
+  return <Button variant="default">Save</Button>
+}
+```
+
+### Composite Components
+
+A Composite component exposes modular, attached JSX parts that you arrange in your layout. This gives you direct control over markup order, nested text, and layout wrappers.
+
+Examples include `Card`, `Dialog`, `Accordion`, and `SidebarFrame`:
+
+```tsx
+import { Card } from 'moraine'
+
+export function UserCard() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Profile</Card.Title>
+        <Card.Description>Manage your public identity</Card.Description>
+      </Card.Header>
+      <Card.Body>Main settings content</Card.Body>
+      <Card.Footer>
+        <Card.Action>Save changes</Card.Action>
+      </Card.Footer>
+    </Card>
+  )
+}
+```
+
+## Parts vs Slots
+
+Understanding the distinction between **parts** and **slots** is key to working effectively with Moraine:
+
+| Concept  | What it is                                  | How to use                                         |
+| :------- | :------------------------------------------ | :------------------------------------------------- |
+| **Part** | An attached JSX component                   | Arranged directly in template (`<Dialog.Content>`) |
+| **Slot** | A named styling target within the component | Targeted via `classes={{ slotName: '...' }}`       |
+
+- A public **part** is a real JSX component that can accept child elements, props, and DOM attributes.
+- A **slot** is an internal styling hook (such as `contentClose` or `itemLabel`). Slots appear in the `classes` and `styles` types and match `data-slot` attributes in the rendered DOM.
+- Not every slot corresponds to an attached public part. For detailed styling rules, see [Customization](/docs/customization).
+
+## DOM Ownership
+
+### DOM Roots
+
+Components like `Card`, `Button`, and `Input` render their own top-level container element in the DOM. DOM attributes (`id`, `aria-*`, `data-*`, `class`) placed on the component pass directly to that root element.
+
+### State-only Roots
+
+Components like `Dialog`, `Popover`, `Sheet`, and `BaseSelect` manage reactive state, context, and focus trapping **without rendering a wrapper element in the DOM**:
+
+```tsx
+import { Button, Dialog } from 'moraine'
+
+export function ModalExample() {
+  return (
+    // State-only root: manages open state and context, renders no wrapper <div>
+    <Dialog>
+      <Dialog.Trigger as={Button}>Open Modal</Dialog.Trigger>
+      {/* Renders portaled DOM content */}
+      <Dialog.Content title="Settings">
+        <Dialog.Body>Modal Body</Dialog.Body>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+```
+
+In state-only roots:
+
+- Direct DOM attributes belong on rendered parts (such as `Dialog.Content` or `Dialog.Trigger`).
+- Setting `classes` or `styles` on the root sets default slot styles that cascade to all descendant parts.
+
+## Polymorphism (`as` Prop)
+
+All Moraine components support rendering as a different HTML tag or SolidJS component via the `as` prop:
+
+```tsx
+import { Button } from 'moraine'
+
+// Render a Button styled and typed as an anchor <a>
+;<Button as="a" href="/docs/installation">
+  Get Started
+</Button>
+```
+
+For complete details on type preservation and event forwarding, see the dedicated [Polymorphism guide](/docs/polymorphism).
+
+## Reading Component Anatomy
+
+Every component documentation page includes an **Anatomy** diagram. The anatomy diagram shows:
+
+- The hierarchy of attached public **parts**
+- The corresponding **slot** names
+- Visual indicators showing whether a root renders a DOM node (`slot=root`) or manages state (`no DOM`)

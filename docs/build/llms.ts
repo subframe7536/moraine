@@ -62,11 +62,15 @@ interface PageConversionContext {
   markdownSource?: string
 }
 
-const GROUP_TITLES = new Map<string, string>([
-  ['', 'Guides'],
+const SECTION_TITLES = new Map<string, string>([
+  ['overview', 'Overview'],
+  ['guides', 'Guides'],
   ['styling', 'Styling'],
-  ['form', 'Form'],
+  ['utils', 'Utilities'],
+  ['composition', 'Composition'],
+  ['reference', 'Reference'],
   ['general', 'General'],
+  ['form', 'Form'],
   ['navigation', 'Navigation'],
   ['overlay', 'Overlay'],
 ])
@@ -82,24 +86,19 @@ function absoluteUrl(siteUrl: string, value: string): string {
 }
 
 function markdownFileName(route: DocsRouteEntry): string {
-  return `${route.info.key}.md`
+  return route.info.markdownPath.slice(1)
 }
 
 function markdownPageUrl(siteUrl: string, route: DocsRouteEntry): string {
   return absoluteUrl(siteUrl, markdownFileName(route))
 }
 
-function routeByKey(routes: DocsRouteEntry[]): Map<string, DocsRouteEntry> {
-  return new Map(routes.map((route) => [route.info.key, route]))
+function routeByPath(routes: DocsRouteEntry[]): Map<string, DocsRouteEntry> {
+  return new Map(routes.map((route) => [route.info.routePath, route]))
 }
 
 function escapeTableCell(value: string): string {
   return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, '<br>')
-}
-
-function readFrontmatterBlock(source: string): string {
-  const match = source.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/)
-  return match?.[0].trimEnd() ?? ''
 }
 
 function removePlaygroundSections(source: string): string {
@@ -260,6 +259,25 @@ function renderComponentNode(
   if (node.name === 'IconGallery') {
     return DEFAULT_ICON_SHORTCUTS.map(([name]) => `- \`${name}\``).join('\n')
   }
+  if (node.name === 'ComponentsIndex') {
+    const output: string[] = []
+    for (const section of ['general', 'form', 'navigation', 'overlay']) {
+      output.push(`## ${SECTION_TITLES.get(section)}`, '')
+      const pages = context.routes
+        .filter((route) => route.info.surface === 'components' && route.info.section === section)
+        .sort((a, b) => a.info.title.localeCompare(b.info.title))
+      for (const page of pages) {
+        output.push(
+          `- [${page.info.title}](${markdownPageUrl(context.siteUrl, page)}): ${page.info.description}`,
+        )
+      }
+      output.push('')
+    }
+    return output.join('\n')
+  }
+  if (node.name === '__esm__') {
+    return ''
+  }
   if (node.name === 'Preview') {
     return renderPreviewNode(node, context)
   }
@@ -332,6 +350,21 @@ function createLlmsMdastPlugin(sourcePath: string, nodes: MdxComponentNode[]) {
     name: `moraine-llms-components-${path.basename(sourcePath)}`,
     mdxJsxFlowElement: visit,
     mdxJsxTextElement: visit,
+    mdxjsEsm(node: unknown) {
+      const record = asObjectRecord(node)
+      const position = asObjectRecord(record?.position)
+      const start = asObjectRecord(position?.start)
+      const end = asObjectRecord(position?.end)
+      if (typeof start?.offset === 'number' && typeof end?.offset === 'number') {
+        nodes.push({
+          name: '__esm__',
+          attributes: [],
+          start: start.offset,
+          end: end.offset,
+          hasChildren: false,
+        })
+      }
+    },
   })
 }
 
@@ -379,7 +412,6 @@ async function convertPageMarkdown(
   }
 
   const frontmatter = readFrontmatterData(source.slice(0, 4096), context.sourcePath)
-  const frontmatterBlock = readFrontmatterBlock(source)
   output = output.replace(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/, '')
   output = normalizeInternalLinks(output, context.siteUrl, context.routes)
   const header = `# ${frontmatter.title}\n\n> ${frontmatter.description}\n`
@@ -387,7 +419,7 @@ async function convertPageMarkdown(
   const apiDoc = loadComponentApiDoc(context.sourcePath)
   const content = `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`
   const normalizedContent = content.replace(/\n{3,}/g, '\n\n')
-  return `${frontmatterBlock ? `${frontmatterBlock}\n\n` : ''}${normalizedContent}`
+  return normalizedContent
 }
 
 function normalizeInternalLinks(
@@ -395,14 +427,13 @@ function normalizeInternalLinks(
   siteUrl: string,
   routes: DocsRouteEntry[],
 ): string {
-  const routeMap = routeByKey(routes)
+  const routeMap = routeByPath(routes)
   return markdown.replace(/\]\((\/[^)]+)\)/g, (match, href: string) => {
     const hrefMatch = href.match(/^\/([^?#]*)([?#].*)?$/)
     if (!hrefMatch) {
       return match
     }
-    const key = hrefMatch[1]?.split('/').pop() ?? ''
-    const route = routeMap.get(key)
+    const route = routeMap.get(`/${hrefMatch[1]}`)
     return route ? `](${markdownPageUrl(siteUrl, route)}${hrefMatch[2] ?? ''})` : match
   })
 }
@@ -416,14 +447,20 @@ export function buildLlmsTxt(
     '',
     `> ${options.description}`,
     '',
-    'Start with /start.md for installation and styling setup. Use the linked Markdown pages for component behavior, examples, and API details.',
+    'Start with Getting Started and Installation. Use the linked Markdown pages for component behavior, examples, and API details.',
   ]
-  let currentGroup: string | undefined
+  let currentSurface: string | undefined
+  let currentSection: string | undefined
   for (const route of routes) {
-    const group = route.info.group ?? ''
-    if (group !== currentGroup) {
-      currentGroup = group
-      output.push('', `## ${GROUP_TITLES.get(group) ?? group}`, '')
+    const { surface, section } = route.info
+    if (surface !== currentSurface) {
+      currentSurface = surface
+      currentSection = undefined
+      output.push('', `## ${surface === 'docs' ? 'Docs' : 'Components'}`, '')
+    }
+    if (section !== currentSection) {
+      currentSection = section
+      output.push('', `### ${SECTION_TITLES.get(section) ?? section}`, '')
     }
     output.push(
       `- [${route.info.title}](${markdownPageUrl(options.siteUrl, route)}): ${route.info.description}`,
@@ -453,7 +490,10 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
 }
 
 function isLlmsPath(url: string): boolean {
-  return url === '/llms.txt' || /^\/[a-z0-9-]+\.md$/.test(url)
+  return (
+    url === '/llms.txt' ||
+    /^\/(?:docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+|components(?:\/[a-z0-9-]+)?)\.md$/.test(url)
+  )
 }
 
 function sendMarkdownResponse(res: ServerResponse, document: LlmsDocument): void {

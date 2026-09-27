@@ -47,9 +47,9 @@ export function DocsPageNavigationCard(props: {
   )
 }
 
-export function DocsPageNavigation(props: { currentPageKey: string }) {
+export function DocsPageNavigation(props: { currentPagePath: string }) {
   const pages = getDocsPages()
-  const adjacent = createMemo(() => getAdjacentDocsPages(pages, props.currentPageKey))
+  const adjacent = createMemo(() => getAdjacentDocsPages(pages, props.currentPagePath))
 
   return (
     <nav

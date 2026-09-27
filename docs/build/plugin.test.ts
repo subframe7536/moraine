@@ -23,7 +23,7 @@ async function createTempProject(): Promise<string> {
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
   await mkdir(path.join(projectRoot, 'src/element/button'), { recursive: true })
-  await mkdir(path.join(projectRoot, 'docs/pages/(general)/button'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'docs/pages/components/(general)/button'), { recursive: true })
 
   await writeFile(
     path.join(projectRoot, 'src/index.ts'),
@@ -61,7 +61,7 @@ export type ButtonProps = ButtonT.Props
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'docs/pages/(general)/button/index.mdx'),
+    path.join(projectRoot, 'docs/pages/components/(general)/button/index.mdx'),
     `---
 title: Button
 description: Test button page.
@@ -80,7 +80,7 @@ api:
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx'),
+    path.join(projectRoot, 'docs/pages/components/(general)/button/basic-example.tsx'),
     'export const BasicExample = () => <button>Basic</button>\n',
     'utf8',
   )
@@ -109,7 +109,7 @@ export type ButtonProps = ButtonT.Props
       const configResolved = plugin.configResolved as (config: { root: string }) => Promise<void>
       await configResolved({ root: path.join(projectRoot, 'docs') })
       const indexPath = path.join(projectRoot, 'docs/pages/_api-index.json')
-      const apiPath = path.join(projectRoot, 'docs/pages/(general)/button/api.json')
+      const apiPath = path.join(projectRoot, 'docs/pages/components/(general)/button/api.json')
       const future = new Date(Date.now() + 60_000)
       await utimes(indexPath, future, future)
       await writeFile(
@@ -187,7 +187,10 @@ export type ButtonProps = ButtonT.Props
       ) as { components: Array<{ key: string }> }
       expect(apiDocJson.components.map((component) => component.key)).toContain('button')
       expect(
-        await readFile(path.join(projectRoot, 'docs/pages/(general)/button/api.json'), 'utf8'),
+        await readFile(
+          path.join(projectRoot, 'docs/pages/components/(general)/button/api.json'),
+          'utf8',
+        ),
       ).toContain('"button"')
 
       await expect(access(path.join(projectRoot, 'docs/.generated'))).rejects.toThrow()
@@ -206,22 +209,25 @@ export type ButtonProps = ButtonT.Props
       const previewModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
         'export const BasicExample = () => <button>Basic</button>\n',
-        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?preview'),
+        path.join(projectRoot, 'docs/pages/components/(general)/button/basic-example.tsx?preview'),
       )
       expect(previewModule).toContain('export default { component, source: __PreviewSource }')
       expect(previewModule).toContain('?preview-source')
 
       const markdownModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
-        await readFile(path.join(projectRoot, 'docs/pages/(general)/button/index.mdx'), 'utf8'),
-        path.join(projectRoot, 'docs/pages/(general)/button/index.mdx'),
+        await readFile(
+          path.join(projectRoot, 'docs/pages/components/(general)/button/index.mdx'),
+          'utf8',
+        ),
+        path.join(projectRoot, 'docs/pages/components/(general)/button/index.mdx'),
       )
       expect(markdownModule).toBeNull()
 
       const ssrPreviewModule = await transform?.handler.call(
         TRANSFORM_CONTEXT,
         'export const BasicExample = () => <button>Basic</button>\n',
-        path.join(projectRoot, 'docs/pages/(general)/button/basic-example.tsx?preview'),
+        path.join(projectRoot, 'docs/pages/components/(general)/button/basic-example.tsx?preview'),
         { ssr: true },
       )
       expect(ssrPreviewModule).toContain('const component = () => null')
@@ -250,7 +256,7 @@ export type ButtonProps = ButtonT.Props
       expect(apiCode).toContain('"button"')
 
       const previewModule = await server.transformRequest(
-        '/pages/(general)/button/basic-example.tsx?preview',
+        '/pages/components/(general)/button/basic-example.tsx?preview',
       )
       expect(previewModule?.code).toContain('export default')
       expect(previewModule?.code).toContain('source: __PreviewSource')

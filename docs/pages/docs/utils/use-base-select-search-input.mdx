@@ -1,0 +1,68 @@
+---
+title: useBaseSelectSearchInput
+description: Bind an external text input to a BaseSelect composition with full IME composition support, ARIA attributes, and keybindings.
+search:
+  tags: [useBaseSelectSearchInput, base-select, search, combobox, ime, autocomplete, a11y]
+---
+
+`useBaseSelectSearchInput` supplies IME-safe input, ARIA attributes, and focus bindings to connect an external `<input>` to a `BaseSelect` primitive. It allows the search input to remain completely owned by the caller while `BaseSelect` manages popup disclosure, keyboard navigation, and item selection.
+
+## Import
+
+```tsx
+import { useBaseSelectSearchInput } from 'moraine/utils'
+```
+
+## Features
+
+- **IME Composition Safety**: Prevents premature query committing during Japanese/Chinese/Korean composition.
+- **ARIA Integration**: Attaches `aria-autocomplete="list"`, `aria-controls`, `aria-expanded`, and `aria-activedescendant`.
+- **Keyboard Forwarding**: Automatically forwards Arrow Down/Up, Enter, and Escape to the listbox navigation controller.
+
+## Signature
+
+```ts
+function useBaseSelectSearchInput(
+  state: BaseSelectSearchInputState,
+  options: Pick<SearchValueOptions, 'searchMaxLength' | 'autocomplete'>,
+  enabled: Accessor<boolean>,
+  search: SearchValue,
+  display?: Accessor<string>,
+  transformInput?: (value: string) => string,
+): {
+  readonly props: Accessor<JSX.InputHTMLAttributes<HTMLInputElement>>
+  readonly composing: Accessor<boolean>
+}
+```
+
+## Usage Example
+
+```tsx title="src/CustomCombobox.tsx"
+import { BaseSelect } from 'moraine'
+import { useBaseSelectSearchInput, useSearchValue } from 'moraine/utils'
+
+export function CustomCombobox() {
+  const search = useSearchValue()
+
+  return (
+    <BaseSelect items={['Apple', 'Banana', 'Cherry']}>
+      {(select) => {
+        const input = useBaseSelectSearchInput(select, { autocomplete: 'off' }, () => true, search)
+
+        return (
+          <div class="relative">
+            <input
+              {...input.props()}
+              placeholder="Search fruits..."
+              class="px-3 py-1.5 border rounded-md"
+            />
+            <BaseSelect.Content>
+              <BaseSelect.List>{/* List items */}</BaseSelect.List>
+            </BaseSelect.Content>
+          </div>
+        )
+      }}
+    </BaseSelect>
+  )
+}
+```

@@ -1,0 +1,63 @@
+---
+title: useListVirtualizer
+description: High-performance virtual scrolling adapter for large datasets with TanStack Virtual.
+search:
+  tags: [useListVirtualizer, virtualizer, virtual scrolling, list, performance, tanstack]
+---
+
+`useListVirtualizer` adapts `@tanstack/virtual-core` for Moraine collection components (`List`, `Select`, `MultiSelect`). It enables high-performance virtual rendering for lists containing thousands of items without freezing the browser DOM.
+
+## Installation
+
+Install TanStack Virtual alongside Moraine:
+
+```shell title="pnpm"
+pnpm add @tanstack/virtual-core
+```
+
+## Import
+
+```tsx
+import { useListVirtualizer } from 'moraine/virtualizer'
+```
+
+## Signature
+
+```ts
+function useListVirtualizer<TItem>(options: ListVirtualizerOptions<TItem>): ListVirtualizerReturn
+```
+
+## Usage Example
+
+```tsx title="src/VirtualizedSelect.tsx"
+import { Select } from 'moraine'
+import { useListVirtualizer } from 'moraine/virtualizer'
+
+// Generate 10,000 items
+const largeItemSet = Array.from({ length: 10000 }, (_, i) => ({
+  label: `Item ${i + 1}`,
+  value: `item-${i + 1}`,
+}))
+
+export function VirtualizedSelect() {
+  const virtualizer = useListVirtualizer({
+    estimateSize: () => 36, // Row height in px
+    overscan: 5, // Pre-render 5 rows offscreen
+  })
+
+  return (
+    <Select
+      items={largeItemSet}
+      virtualRender={virtualizer.virtualRender}
+      scrollToItem={virtualizer.scrollToItem}
+      placeholder="Select from 10k items..."
+    />
+  )
+}
+```
+
+## Features
+
+- **Row Measurement**: Measures dynamic row heights automatically with resize observers.
+- **Scroll Sync**: Synchronizes keyboard navigation to automatically reveal off-screen highlighted items via `scrollToItem`.
+- **RTL Support**: Handles horizontal list virtualization and right-to-left scrolling seamlessly.

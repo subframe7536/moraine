@@ -34,8 +34,8 @@ export function buildDocsCommandItems(
         href: page.path,
         value: page.path,
         label: page.label,
-        description: page.description,
-        keywords: [...page.tags, page.path],
+        description: `${page.surface === 'docs' ? 'Docs' : 'Components'} · ${page.section[0]?.toUpperCase()}${page.section.slice(1)}`,
+        keywords: [...page.tags, page.path, page.description],
       })
       destinations.add(page.path)
     }

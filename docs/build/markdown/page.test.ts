@@ -70,9 +70,9 @@ describe('createDocsMdxOptions', () => {
         data: { __moraineOnThisPageEntries: [{ id: 'button', label: 'Button', level: 1 }] },
       },
       {
-        path: '(general)/button/index.tsx',
-        routeId: '/button',
-        sourcePath: 'pages/(general)/button/index.mdx',
+        path: 'components/(general)/button/index.tsx',
+        routeId: '/components/button',
+        sourcePath: 'pages/components/(general)/button/index.mdx',
         moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
@@ -81,7 +81,9 @@ describe('createDocsMdxOptions', () => {
       key: 'button',
       title: 'Button',
       order: 10,
-      group: 'general',
+      surface: 'components',
+      section: 'general',
+      markdownPath: '/components/button.md',
       sections: [
         { id: 'button', label: 'Button', level: 1 },
         { id: 'api-reference', label: 'Props', level: 1 },
@@ -90,11 +92,11 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.metadata).toEqual({
       title: 'Button | Moraine',
       description: 'Button description.',
-      canonical: 'https://ui.subf.dev/button',
+      canonical: 'https://ui.subf.dev/components/button',
       meta: [
         { property: 'og:title', content: 'Button | Moraine' },
         { property: 'og:description', content: 'Button description.' },
-        { property: 'og:url', content: 'https://ui.subf.dev/button' },
+        { property: 'og:url', content: 'https://ui.subf.dev/components/button' },
         { name: 'twitter:title', content: 'Button | Moraine' },
         { name: 'twitter:description', content: 'Button description.' },
       ],
@@ -102,6 +104,7 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.mdxContent).toContain('<components.Markdown')
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
     expect(extension?.mdxContent).toContain('metadata={')
+    expect(extension?.mdxContent).toContain('markdownPath={"/components/button.md"}')
     expect(extension?.mdxContent).toContain('"kind":"single"')
     expect(extension?.mdxContent).toContain('"typeHtml":')
     expect(extension?.mdxContent).toContain('--shiki-dark')
@@ -120,9 +123,9 @@ describe('createDocsMdxOptions', () => {
         data: { __moraineOnThisPageEntries: [{ id: 'usage', label: 'Usage', level: 1 }] },
       },
       {
-        path: '(general)/button/index.tsx',
-        routeId: '/button',
-        sourcePath: 'pages/(general)/button/index.mdx',
+        path: 'components/(general)/button/index.tsx',
+        routeId: '/components/button',
+        sourcePath: 'pages/components/(general)/button/index.mdx',
         moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
@@ -147,9 +150,9 @@ describe('createDocsMdxOptions', () => {
         data: { __moraineOnThisPageEntries: [{ id: 'usage', label: 'Usage', level: 1 }] },
       },
       {
-        path: '(form)/input/index.tsx',
-        routeId: '/input',
-        sourcePath: 'pages/(form)/input/index.mdx',
+        path: 'components/(form)/input/index.tsx',
+        routeId: '/components/input',
+        sourcePath: 'pages/components/(form)/input/index.mdx',
         moduleId: '/tmp/input.mdx.solid-file-router.tsx',
       },
     )
@@ -176,17 +179,20 @@ describe('createDocsMdxOptions', () => {
         data: {},
       },
       {
-        path: 'start.tsx',
-        routeId: '/start',
-        sourcePath: 'pages/start.mdx',
+        path: 'docs/(overview)/getting-started.tsx',
+        routeId: '/docs/getting-started',
+        sourcePath: 'pages/docs/(overview)/getting-started.mdx',
         moduleId: '/tmp/start.mdx.solid-file-router.tsx',
       },
     )
 
-    expect(extension?.routeConfig?.info).toMatchObject({ key: 'start', title: 'Getting Started' })
+    expect(extension?.routeConfig?.info).toMatchObject({
+      key: 'getting-started',
+      title: 'Getting Started',
+    })
     expect(extension?.routeConfig?.metadata).toMatchObject({
       title: 'Getting Started | Moraine',
-      canonical: 'https://ui.subf.dev/start',
+      canonical: 'https://ui.subf.dev/docs/getting-started',
     })
   })
 })

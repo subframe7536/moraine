@@ -42,9 +42,9 @@ describe('writeJsonFiles', () => {
   test('writes changed files, preserves unchanged files, and removes stale files', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-'))
     const pagesRoot = path.join(projectRoot, 'docs/pages')
-    const pageDir = path.join(pagesRoot, 'general/demo')
+    const pageDir = path.join(pagesRoot, 'components/(general)/demo')
     const apiPath = path.join(pageDir, 'api.json')
-    const stalePath = path.join(pagesRoot, 'general/stale/api.json')
+    const stalePath = path.join(pagesRoot, 'components/(general)/stale/api.json')
     await mkdir(pageDir, { recursive: true })
     await mkdir(path.dirname(stalePath), { recursive: true })
     await writeFile(path.join(pageDir, 'demo.mdx'), '---\ntitle: Demo\n---\n', 'utf8')
@@ -73,7 +73,7 @@ describe('writeJsonFiles', () => {
   test('preserves existing files when validation fails', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-fail-'))
     const pagesRoot = path.join(projectRoot, 'docs/pages')
-    const pageDir = path.join(pagesRoot, 'general/demo')
+    const pageDir = path.join(pagesRoot, 'components/(general)/demo')
     const apiPath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
     await writeFile(path.join(pageDir, 'demo.mdx'), '---\ntitle: Demo\n---\n', 'utf8')

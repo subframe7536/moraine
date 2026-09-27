@@ -1,7 +1,7 @@
 import { routeInfo } from 'virtual:routes'
 
-import { DOCS_GROUP_ORDER } from '../shared/docs-route.ts'
-import type { DocsRouteInfo, DocsRouteSection } from '../shared/docs-route.ts'
+import { DOCS_SECTION_ORDER } from '../shared/docs-route.ts'
+import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route.ts'
 
 export interface DocsPageEntry {
   key: string
@@ -9,7 +9,9 @@ export interface DocsPageEntry {
   description: string
   order: number
   tags: string[]
-  group?: string
+  surface: DocsSurface
+  section: string
+  markdownPath: string
   badge?: string
   path: string
   sections: DocsRouteSection[]
@@ -23,6 +25,10 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   const route = value as Partial<DocsRouteInfo>
   return (
     typeof route.key === 'string' &&
+    (route.surface === 'docs' || route.surface === 'components') &&
+    typeof route.section === 'string' &&
+    typeof route.routePath === 'string' &&
+    typeof route.markdownPath === 'string' &&
     typeof route.title === 'string' &&
     typeof route.description === 'string' &&
     typeof route.order === 'number' &&
@@ -57,7 +63,7 @@ function normalizeSections(value: unknown): DocsRouteSection[] {
 
 export function getDocsPages(): DocsPageEntry[] {
   return Object.entries(routeInfo)
-    .map(([path, info]) => {
+    .map(([, info]) => {
       if (!isDocsRouteInfo(info)) {
         return null
       }
@@ -68,11 +74,11 @@ export function getDocsPages(): DocsPageEntry[] {
         description: info.description,
         order: info.order,
         tags: info.tags,
-        path,
+        path: info.routePath,
+        surface: info.surface,
+        section: info.section,
+        markdownPath: info.markdownPath,
         sections: normalizeSections(info.sections),
-      }
-      if (info.group) {
-        page.group = info.group
       }
       if (info.badge) {
         page.badge = info.badge
@@ -81,11 +87,11 @@ export function getDocsPages(): DocsPageEntry[] {
     })
     .filter((page): page is DocsPageEntry => Boolean(page))
     .sort((left, right) => {
-      const leftGroup = left.group ?? ''
-      const rightGroup = right.group ?? ''
+      const leftGroup = `${left.surface}:${left.section}`
+      const rightGroup = `${right.surface}:${right.section}`
       const groupDifference =
-        (DOCS_GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
-        (DOCS_GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
+        (DOCS_SECTION_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
+        (DOCS_SECTION_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
       if (groupDifference !== 0) {
         return groupDifference
       }

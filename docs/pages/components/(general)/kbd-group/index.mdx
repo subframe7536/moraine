@@ -1,0 +1,81 @@
+---
+title: KbdGroup
+description: Display a multi-key shortcut with shared styling.
+api:
+  path: src/element/kbd/kbd-group
+sidebar:
+  order: 14
+search:
+  tags: [keyboard, shortcut, hotkey, kbd group]
+---
+
+import { KbdGroup } from '@src'
+
+Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the application owns the shortcut listener.
+
+## Basic usage
+
+```tsx
+import { KbdGroup } from 'moraine'
+
+export function Example() {
+  return <KbdGroup items={['Ctrl', 'K']} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Invert', value: 'invert' },
+      ],
+    },
+  ]}
+>
+  {(props) => {
+    return (
+      <div class="flex gap-2 items-center">
+        <span class="text-xs text-muted-foreground">Quick save:</span>
+        <KbdGroup items={['ctrl', 'shift', 'S']} size={props.size} variant={props.variant} />
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+KbdGroup [component; slot=root; <kbd>]
+├── item [slot]
+```
+
+The only theme slots are `root` and `item`. Separator content is rendered inline and is not a theme slot.
+
+## Usage
+
+The `separator` is inline shortcut notation such as `"+"`; it is unrelated to the standalone layout [Separator](/components/separator).
+
+### Grouping shortcuts
+
+Use `KbdGroup` to display keys that are pressed together. The rendered notation is descriptive and does not register a shortcut.
+
+<Preview path="./kbd-group-usage" />

@@ -78,10 +78,10 @@ export function LandingPage() {
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3 items-center justify-center">
-          <Button as="a" size="xl" href="/start" trailing="icon-arrow-right">
+          <Button as="a" size="xl" href="/docs/getting-started" trailing="icon-arrow-right">
             Get started
           </Button>
-          <Button as="a" size="xl" href="/button" variant="outline">
+          <Button as="a" size="xl" href="/components" variant="outline">
             Browse components
           </Button>
         </div>
@@ -112,7 +112,7 @@ export function LandingPage() {
 
           <nav aria-label="Explore Moraine" class="md:ps-8">
             <a
-              href="/form"
+              href="/components"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>
@@ -127,7 +127,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/styling/customization"
+              href="/docs/customization"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>
@@ -142,7 +142,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/styling/unocss"
+              href="/docs/unocss"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>
@@ -157,7 +157,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/styling/tailwind"
+              href="/docs/tailwind"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>

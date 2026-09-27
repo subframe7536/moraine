@@ -6,6 +6,7 @@ import { Dynamic } from 'solid-js/web'
 import { Kbd, cn } from '../../../../src'
 
 import { CodeBlock, CodeTabs } from './code'
+import { ComponentsIndex } from './components-index'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
 import {
@@ -45,6 +46,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
   Playground,
   IconGallery,
+  ComponentsIndex,
 
   Preview(props: MdxProps) {
     const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)

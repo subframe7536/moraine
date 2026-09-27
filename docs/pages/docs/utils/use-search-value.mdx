@@ -1,0 +1,63 @@
+---
+title: useSearchValue
+description: Manage controlled or uncontrolled search query text for custom searchable selection controls.
+search:
+  tags: [useSearchValue, search, query, filter, combobox, select, input]
+---
+
+`useSearchValue` manages query string state for searchable dropdowns, comboboxes, and pickers. It handles controlled and uncontrolled modes, maximum length truncation, and search change callbacks.
+
+## Import
+
+```tsx
+import { useSearchValue } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useSearchValue(options?: SearchValueOptions): SearchValue
+
+interface SearchValueOptions {
+  searchValue?: string
+  defaultSearchValue?: string
+  onSearch?: (value: string) => void
+  searchMaxLength?: number
+}
+
+interface SearchValue {
+  readonly query: Accessor<string>
+  setQuery: (value: string) => string
+}
+```
+
+## Usage Example
+
+```tsx title="src/CustomSearch.tsx"
+import { useSearchValue } from 'moraine/utils'
+
+export function CustomSearch() {
+  const search = useSearchValue({
+    defaultSearchValue: '',
+    searchMaxLength: 50,
+    onSearch: (text) => console.log('Searching:', text),
+  })
+
+  return (
+    <div class="relative">
+      <input
+        type="search"
+        value={search.query()}
+        onInput={(e) => search.setQuery(e.currentTarget.value)}
+        placeholder="Type to filter..."
+        class="border px-3 py-1.5 rounded-md"
+      />
+      {search.query() && <button onClick={() => search.setQuery('')}>Clear</button>}
+    </div>
+  )
+}
+```
+
+## Related
+
+Combine with [`useBaseSelectSearchInput`](/docs/utils/use-base-select-search-input) to attach search queries to a `BaseSelect` primitive.

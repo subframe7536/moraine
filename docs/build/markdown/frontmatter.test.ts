@@ -54,6 +54,17 @@ describe('parseFrontmatterData', () => {
     ).toThrow('api.parts[1] duplicates part "Trigger"')
   })
 
+  test('rejects removed and unknown frontmatter fields', () => {
+    for (const field of ['related: [input]', 'sidebar:\n  order: 10\n  icon: test']) {
+      const source = field.startsWith('sidebar:')
+        ? VALID_FRONTMATTER.replace('sidebar:\n  order: 10', field)
+        : `${VALID_FRONTMATTER}\n${field}\n`
+      expect(() => parseFrontmatterData(source, '/docs/button.mdx')).toThrow(
+        'is not a supported field',
+      )
+    }
+  })
+
   test.each([
     ['', 'frontmatter is required'],
     [VALID_FRONTMATTER.replace('title: Button\n', ''), 'title must be a non-empty string'],

@@ -1,0 +1,113 @@
+---
+title: Textarea
+description: Edit multi-line text with optional auto-sizing and Field integration.
+api:
+  path: src/form/textarea/textarea
+sidebar:
+  order: 4
+search:
+  tags: [multiline, text field, autoresize, form control, textarea, notes, composer]
+---
+
+import { Textarea } from '@src'
+
+Use Textarea for multi-line native text entry. Use [InputGroup](/components/input-group) to put controls around it without changing which element receives typing and focus.
+
+## Basic usage
+
+```tsx
+import { Textarea } from 'moraine'
+
+export function Example() {
+  return <Textarea placeholder="Write a message" />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Write a comment or description...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'autoResize', label: 'Auto-resize', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Textarea
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      autoResize={props.autoResize}
+      rows={3}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Textarea [component; slot=root; <textarea>]
+```
+
+`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native textarea. Put container styling and refs on `InputGroup` when composing supporting content.
+
+## Usage
+
+### Native text behavior
+
+`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values. Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
+
+<Preview path="./native-behavior" />
+
+### Size and composition
+
+Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions. Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+
+<Preview path="./composition" />
+
+## Examples
+
+### Autoresize
+
+<Preview path="./autoresize" />
+
+### Header and footer
+
+<Preview path="./header-footer" />
+
+### Character count
+
+<Preview path="./character-count" />
+
+### Form integration
+
+<Preview path="./form-integration" />

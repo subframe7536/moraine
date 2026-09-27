@@ -1,0 +1,136 @@
+---
+title: Modal
+description: Compose a modal trigger, backdrop, and content surface.
+api:
+  path: src/overlay/modal/modal
+  parts: [Trigger, Portal, Overlay, Content, Close]
+sidebar:
+  order: 1
+search:
+  tags: [modal, primitive, overlay, focus trap, dialog primitive]
+---
+
+import { Show } from 'solid-js'
+import { Button, Modal } from '@src'
+
+Use Modal when you need to compose backdrop, trigger, and content directly. Use [Dialog](/components/dialog) for a structured title, description, body, and footer.
+
+## Basic usage
+
+```tsx
+import { Button, Modal } from 'moraine'
+
+export function Example() {
+  return (
+    <Modal>
+      <Modal.Trigger as={Button}>Open</Modal.Trigger>
+      <Modal.Portal>
+        <Modal.Overlay />
+        <Modal.Content>
+          Modal content<Modal.Close as={Button}>Close</Modal.Close>
+        </Modal.Content>
+      </Modal.Portal>
+    </Modal>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'ariaLabel', label: 'Accessible name', defaultValue: 'Project details' },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    return (
+      <Modal dismissible={props.dismissible}>
+        <Modal.Trigger as={Button} variant="outline">
+          Open Modal
+        </Modal.Trigger>
+        <Modal.Portal>
+          <Show when={props.overlay}>
+            <Modal.Overlay />
+          </Show>
+          <Modal.Content ariaLabel={props.ariaLabel}>
+            {(context) => (
+              <div class="p-5 gap-4 grid">
+                <div>
+                  <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
+                  <p class="text-xs text-muted-foreground leading-relaxed mt-1">
+                    Modal provides focus management, scroll locking, dismissal, and overridable
+                    default surface styles.
+                  </p>
+                </div>
+                <div class="flex gap-2 justify-end">
+                  <Modal.Close as={Button} size="sm" variant="outline">
+                    Got it
+                  </Modal.Close>
+                </div>
+              </div>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+Modal [component; no DOM]
+├── Modal.Trigger [part]
+└── Modal.Portal [part]
+    ├── Modal.Overlay [part; slot=overlay]
+    └── Modal.Content [part; slot=content]
+```
+
+- `Modal.Trigger`: Polymorphic element that opens the modal.
+- `Modal.Portal`: Mounts its children in its `mount` node, the root `portalMount`, or the trigger document's body, in that order, and keeps them mounted through the exit transition.
+- `Modal.Overlay`: Backdrop layer with entry/exit motion.
+- `Modal.Content`: The root's single active dialog content surface.
+
+## Usage
+
+### Composition
+
+Compose `Modal.Trigger` with `Modal.Portal`, `Modal.Overlay`, and `Modal.Content`. The root renders no element, so put direct `class` and `style` on the rendered parts; root `classes` and `styles` set defaults for this Modal. Place Overlay and Content inside the same Portal to preserve their DOM relationship and automatic open/exit lifecycle. Without `Modal.Portal`, both parts render in place and you control when they mount and unmount. `Dialog.Content` and `Sheet.Content` include a Portal internally. Use `Dialog` or `Sheet` when you need their structured content regions. See [Styling](/docs/customization#style-overrides).
+
+`modal` defaults to `true`. It contains focus, manages initial and restored focus, sets `aria-modal`, hides outside content from assistive technology, and prevents the native default action of outside pointer events. With `modal={false}`, outside pointer interactions and Escape are still handled: `dismissible` controls whether they close the surface. `preventScroll` independently controls body scroll locking and defaults to `true`, so `modal={false}` alone does not unlock the page. An explicitly rendered `Modal.Overlay` also remains in place and can intercept pointer input; omit it and set `preventScroll={false}` if outside page interaction is needed. A root owns one active `Modal.Content`; use a separate nested `Modal` root for another surface. Set `portalMount` on the root to mount controlled Dialog or Sheet content without a Trigger in a chosen container. `Modal.Portal mount` overrides that default.
+
+<Preview path="./modal-composition" />
+
+### State, styling, and exit lifecycle
+
+Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay and content exit animations to finish. An empty `class` does not disable built-in styles.
+
+<Preview path="./modal-lifecycle" />
+
+### Keyboard interaction
+
+| Key                    | Description                                        |
+| ---------------------- | -------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.      |
+| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.  |
+| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope. |
+
+## Examples
+
+### Controlled state
+
+<Preview path="./controlled" />
+
+### Without backdrop
+
+<Preview path="./no-overlay" />
+
+### Draggable title
+
+<Preview path="./draggable" />
+
+### Exit lifecycle
+
+<Preview path="./exit-lifecycle" />

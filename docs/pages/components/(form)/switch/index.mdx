@@ -1,0 +1,101 @@
+---
+title: Switch
+description: Toggle an on/off setting with switch semantics and form values.
+api:
+  path: src/form/switch/switch
+sidebar:
+  order: 9
+search:
+  tags: [toggle, boolean, checked, setting, switch, preferences]
+---
+
+import { Switch } from '@src'
+
+Use Switch for an on/off setting whose state is immediately meaningful. For an independent form choice that may be part of a set, use [Checkbox](/components/checkbox).
+
+## Basic usage
+
+```tsx
+import { Switch } from 'moraine'
+
+export function Example() {
+  return <Switch label="Notifications" />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Email alerts' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Switch
+      label={props.label}
+      description="Receive a notification when a deployment completes."
+      size={props.size}
+      defaultChecked
+      disabled={props.disabled}
+      loading={props.loading}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Switch [component; slot=root]
+├── input [internal]
+├── track [slot]
+│   └── thumb [slot]
+│       └── icon [slot]
+└── wrapper [slot]
+    ├── label [slot]
+    └── description [slot]
+```
+
+## Usage
+
+### Checked state and forms
+
+`Switch` has checkbox semantics and a hidden native input. Use `checked` with `onChange` for controlled state, or `defaultChecked` for an initial value. `trueValue` and `falseValue` map that state to domain values for form integration.
+
+<Preview path="./state-forms" />
+
+### Loading ownership
+
+`loading` is visual state supplied by the application. It does not represent an asynchronous operation on its own; decide whether the switch should also be disabled while that operation is pending.
+
+<Preview path="./loading-state" />
+
+## Examples
+
+### Controlled state
+
+<Preview path="./controlled" />
+
+### Custom true and false values
+
+<Preview path="./custom-true-false-values" />
+
+### Loading icons
+
+<Preview path="./loading-icons" />
+
+### Form integration
+
+<Preview path="./form-integration" />

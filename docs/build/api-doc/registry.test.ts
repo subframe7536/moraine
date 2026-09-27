@@ -57,10 +57,13 @@ afterEach(async () => {
 describe('loadApiRegistry', () => {
   test('loads single and composite registrations from frontmatter', async () => {
     const root = await fixture({
-      'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo'),
+      'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
       'src/element/demo/demo.types.ts': types('Demo', 'single'),
       'src/element/demo/demo.recipe.ts': `export const demoRecipe = defineRecipe('demo', { base: { root: '' } })`,
-      'docs/pages/(overlay)/panel/index.mdx': page('src/overlay/panel/panel', '[Trigger, Content]'),
+      'docs/pages/components/(overlay)/panel/index.mdx': page(
+        'src/overlay/panel/panel',
+        '[Trigger, Content]',
+      ),
       'src/overlay/panel/panel.types.ts': types(
         'Panel',
         'composite',
@@ -80,7 +83,7 @@ describe('loadApiRegistry', () => {
 
   test('supports the explicit Form factory exception', async () => {
     const root = await fixture({
-      'docs/pages/(form)/form/index.mdx': page('src/form/form/form'),
+      'docs/pages/components/(form)/form/index.mdx': page('src/form/form/form'),
       'src/form/form/form.types.ts': types('Form', 'single', 'export interface FieldProps {}'),
       'src/form/form/form.recipe.ts': `export const formRecipe = defineRecipe('form', { base: { root: '' } })`,
     })
@@ -96,13 +99,13 @@ describe('loadApiRegistry', () => {
   test.each([
     {
       name: 'missing types',
-      files: { 'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo') },
+      files: { 'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo') },
       error: 'Missing types file',
     },
     {
       name: 'missing recipe for styled component',
       files: {
-        'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo'),
+        'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
         'src/element/demo/demo.types.ts': types('Demo', 'single'),
       },
       error: 'Missing recipe file',
@@ -110,7 +113,10 @@ describe('loadApiRegistry', () => {
     {
       name: 'unknown part',
       files: {
-        'docs/pages/(overlay)/panel/index.mdx': page('src/overlay/panel/panel', '[Trigger]'),
+        'docs/pages/components/(overlay)/panel/index.mdx': page(
+          'src/overlay/panel/panel',
+          '[Trigger]',
+        ),
         'src/overlay/panel/panel.types.ts': types('Panel', 'composite'),
         'src/overlay/panel/panel.recipe.ts': `export const panelRecipe = defineRecipe('panel', { base: { root: '' } })`,
       },
@@ -128,15 +134,15 @@ describe('loadApiRegistry', () => {
     }
     const duplicateKeys = await fixture({
       ...shared,
-      'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo'),
-      'docs/pages/(form)/demo/index.mdx': page('src/element/demo/demo'),
+      'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
+      'docs/pages/components/(form)/demo/index.mdx': page('src/element/demo/demo'),
     })
     await expect(loadRegistry(duplicateKeys)).rejects.toThrow('Duplicate API page key "demo"')
 
     const duplicateComponent = await fixture({
       ...shared,
-      'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo'),
-      'docs/pages/(general)/other/index.mdx': page('src/element/demo/demo'),
+      'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
+      'docs/pages/components/(general)/other/index.mdx': page('src/element/demo/demo'),
     })
     await expect(loadRegistry(duplicateComponent)).rejects.toThrow(
       'registered by more than one docs page',

@@ -213,7 +213,6 @@ type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 // @ts-expect-error Slider hook is only public from the utils entry.
 type RootUseSlider = typeof import('moraine').useSlider
 type UtilsSliderHook = typeof import('moraine/utils').useSlider
-type UtilsResizableHandleHook = typeof import('moraine/utils').useResizableHandle
 type UtilsUseSliderProps = import('moraine/utils').UseSliderProps
 type UtilsUseSliderOptions = import('moraine/utils').UseSliderOptions
 type UtilsUseSliderReturn = import('moraine/utils').UseSliderReturn
@@ -226,7 +225,6 @@ export type PublicEntryIsolation = [
   UtilsCn,
   UtilsStyleVarRecord,
   Assert<UtilsSliderHook extends (...args: any[]) => any ? true : false>,
-  Assert<UtilsResizableHandleHook extends (...args: any[]) => any ? true : false>,
   Assert<UtilsUseSliderProps extends {} ? true : false>,
   Assert<UtilsUseSliderOptions extends {} ? true : false>,
   Assert<'onValueReset' extends keyof UtilsUseSliderOptions ? false : true>,

@@ -1,0 +1,72 @@
+---
+title: useEventListener
+description: Attach typed DOM event listeners that clean up automatically when the Solid owner scope disposes.
+search:
+  tags: [useEventListener, useEventListenerMap, events, addEventListener, cleanup, window, dom]
+---
+
+`useEventListener` and `useEventListenerMap` attach DOM event listeners to Window, Document, or HTML elements. They automatically register `onCleanup()` in the active SolidJS reactive scope to prevent memory leaks.
+
+## Import
+
+```tsx
+import { useEventListener, useEventListenerMap } from 'moraine/utils'
+```
+
+## Signatures
+
+```ts
+function useEventListener<TTarget extends EventTarget, TType extends EventTypeForTarget<TTarget>>(
+  target: TTarget | null | undefined,
+  type: TType,
+  listener: (event: EventMapForTarget<TTarget>[TType]) => void,
+  options?: boolean | AddEventListenerOptions,
+): void
+
+function useEventListenerMap<TTarget extends EventTarget>(
+  target: TTarget | null | undefined,
+  listeners: EventListenerMap<TTarget>,
+  options?: boolean | AddEventListenerOptions,
+): void
+```
+
+## Usage Example
+
+### Single Event with `useEventListener`
+
+```tsx title="src/EscapeListener.tsx"
+import { useEventListener } from 'moraine/utils'
+
+export function EscapeListener(props: { onEscape: () => void }) {
+  // Strongly typed: e is KeyboardEvent when listening to 'keydown' on window
+  useEventListener(window, 'keydown', (e) => {
+    if (e.key === 'Escape') {
+      props.onEscape()
+    }
+  })
+
+  return null
+}
+```
+
+### Multiple Events with `useEventListenerMap`
+
+```tsx title="src/DragObserver.tsx"
+import { useEventListenerMap } from 'moraine/utils'
+
+export function DragObserver() {
+  useEventListenerMap(window, {
+    pointermove: (e) => console.log('Pointer at:', e.clientX, e.clientY),
+    pointerup: () => console.log('Drag ended'),
+    pointercancel: () => console.log('Drag cancelled'),
+  })
+
+  return null
+}
+```
+
+## Features
+
+- **Type Inferred**: Event types automatically narrow according to the target (e.g. `window.resize` gives `UIEvent`, `document.keydown` gives `KeyboardEvent`).
+- **Owner Scope Bound**: Cleanups are registered with `onCleanup` immediately during component initialization.
+- **Safe Null Handling**: Passes `null` or `undefined` targets safely without runtime exceptions.
