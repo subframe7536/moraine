@@ -1,5 +1,5 @@
 export interface FrontmatterSidebar {
-  order: number
+  order?: number
   badge?: string
 }
 
@@ -21,7 +21,7 @@ export interface FrontmatterApi {
 export interface FrontmatterData {
   title: string
   description: string
-  sidebar: FrontmatterSidebar
+  sidebar?: FrontmatterSidebar
   search: FrontmatterSearch
   api?: FrontmatterApi
   upstreamHref?: string

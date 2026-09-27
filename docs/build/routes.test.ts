@@ -150,4 +150,53 @@ describe('docs route metadata', () => {
       sections: [{ id: 'usage' }],
     })
   })
+
+  test('sorts utils section alphabetically with class-merging first when order is omitted', async () => {
+    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-docs-utils-'))
+    try {
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/use-slider.mdx',
+        '---\ntitle: useSlider\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/class-merging.mdx',
+        '---\ntitle: Class Merging\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/docs/utils/create-media-query.mdx',
+        '---\ntitle: createMediaQuery\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+      )
+      const scanned = scanDocsRoutes(projectRoot)
+      expect(scanned.map((r) => r.info.key)).toEqual([
+        'class-merging',
+        'create-media-query',
+        'use-slider',
+      ])
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('scans repository utils routes with class-merging first and remainder alphabetically', () => {
+    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'utils')
+    expect(scanned.map((r) => r.info.key)).toEqual([
+      'class-merging',
+      'create-context-provider',
+      'create-media-query',
+      'use-base-select-search-input',
+      'use-controllable-value',
+      'use-disclosure-state',
+      'use-event-listener',
+      'use-id',
+      'use-list-virtualizer',
+      'use-loading-auto-click',
+      'use-search-value',
+      'use-selectable-collection-navigation',
+      'use-slider',
+      'use-transition-presence',
+    ])
+  })
 })

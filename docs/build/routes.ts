@@ -54,6 +54,15 @@ function compareRoutes(left: DocsRouteEntry, right: DocsRouteEntry): number {
   if (leftGroup !== rightGroup) {
     return leftGroup.localeCompare(rightGroup)
   }
+  if (left.info.section === 'utils') {
+    if (left.info.key === 'class-merging') {
+      return -1
+    }
+    if (right.info.key === 'class-merging') {
+      return 1
+    }
+    return left.info.title.localeCompare(right.info.title)
+  }
   return left.info.order - right.info.order
 }
 
@@ -77,6 +86,13 @@ export function scanDocsRoutes(
   const ordersByGroup = new Map<string, Map<number, string>>()
   for (const route of routes) {
     const group = `${route.info.surface}:${route.info.section}`
+    if (route.info.section === 'utils') {
+      const orders = ordersByGroup.get(group) ?? new Map<number, string>()
+      route.info.order = orders.size
+      orders.set(route.info.order, route.sourcePath)
+      ordersByGroup.set(group, orders)
+      continue
+    }
     const orders = ordersByGroup.get(group) ?? new Map<number, string>()
     const duplicatePath = orders.get(route.info.order)
     if (duplicatePath) {
@@ -105,9 +121,9 @@ export function createDocsRouteInfo(
     markdownPath: page.markdownPath,
     title: frontmatter.title,
     description: frontmatter.description,
-    order: frontmatter.sidebar.order,
+    order: frontmatter.sidebar?.order ?? 0,
     tags: frontmatter.search.tags,
-    ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
+    ...(frontmatter.sidebar?.badge ? { badge: frontmatter.sidebar.badge } : {}),
     ...(componentKeys.has(page.pageKey) ? { api: page.pageKey } : {}),
     ...(sections.length > 0 ? { sections: [...sections] } : {}),
   }

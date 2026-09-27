@@ -55,19 +55,24 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   }
   checkKeys(data, ['title', 'description', 'sidebar', 'search', 'api', 'upstreamHref'])
   const sidebarValue = data.sidebar
-  if (!sidebarValue || typeof sidebarValue !== 'object' || Array.isArray(sidebarValue)) {
-    return fail('sidebar', 'must be an object')
-  }
-  const sidebar = sidebarValue as FrontmatterRecord
-  checkKeys(sidebar, ['order', 'badge'], 'sidebar.')
-  if (!Number.isInteger(sidebar.order) || (sidebar.order as number) < 0) {
-    return fail('sidebar.order', 'must be a non-negative integer')
-  }
-  if (
-    sidebar.badge !== undefined &&
-    (typeof sidebar.badge !== 'string' || sidebar.badge.trim() === '')
-  ) {
-    return fail('sidebar.badge', 'must be a non-empty string when provided')
+  let sidebar: FrontmatterRecord | undefined
+  if (sidebarValue !== undefined) {
+    if (!sidebarValue || typeof sidebarValue !== 'object' || Array.isArray(sidebarValue)) {
+      return fail('sidebar', 'must be an object')
+    }
+    sidebar = sidebarValue as FrontmatterRecord
+    checkKeys(sidebar, ['order', 'badge'], 'sidebar.')
+    if (sidebar.order !== undefined) {
+      if (!Number.isInteger(sidebar.order) || (sidebar.order as number) < 0) {
+        return fail('sidebar.order', 'must be a non-negative integer')
+      }
+    }
+    if (
+      sidebar.badge !== undefined &&
+      (typeof sidebar.badge !== 'string' || sidebar.badge.trim() === '')
+    ) {
+      return fail('sidebar.badge', 'must be a non-empty string when provided')
+    }
   }
 
   const searchValue = data.search
@@ -151,10 +156,14 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   return {
     title: readString(data, 'title'),
     description: readString(data, 'description'),
-    sidebar: {
-      order: sidebar.order as number,
-      ...(typeof sidebar.badge === 'string' ? { badge: sidebar.badge.trim() } : {}),
-    },
+    ...(sidebar
+      ? {
+          sidebar: {
+            ...(sidebar.order !== undefined ? { order: sidebar.order as number } : {}),
+            ...(typeof sidebar.badge === 'string' ? { badge: sidebar.badge.trim() } : {}),
+          },
+        }
+      : {}),
     search: { tags },
     ...(api ? { api } : {}),
     ...(data.upstreamHref === undefined ? {} : { upstreamHref: readString(data, 'upstreamHref') }),
