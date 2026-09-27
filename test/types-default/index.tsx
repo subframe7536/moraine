@@ -106,6 +106,59 @@ export type ReadOnlyContracts = [
   Assert<'readOnly' extends keyof MultiSelectT.Props ? true : false>,
 ]
 
+const objectForm = createForm({
+  schema: v.object({
+    email: v.string(),
+    profile: v.object({ name: v.string() }),
+    users: v.array(v.object({ name: v.string() })),
+    coordinates: v.tuple([v.number(), v.number()]),
+    nestedTuple: v.object({ point: v.tuple([v.string(), v.number()]) }),
+    optionalProfile: v.optional(v.object({ name: v.string() })),
+    nullishProfile: v.nullish(v.object({ name: v.string() })),
+  }),
+})
+;<objectForm.Field name="email" />
+;<objectForm.Field name="profile" />
+;<objectForm.Field name={['profile']} />
+;<objectForm.Field name={['profile', 'name']} />
+;<objectForm.Field name="users" />
+;<objectForm.Field name={['users']} />
+;<objectForm.Field name={['users', 123]} />
+;<objectForm.Field name={['users', 123, 'name']} />
+;<objectForm.Field name={['coordinates', 0]} />
+;<objectForm.Field name={['coordinates', 1]} />
+;<objectForm.Field name={['nestedTuple', 'point', 1]} />
+;<objectForm.Field name={['optionalProfile', 'name']} />
+;<objectForm.Field name={['nullishProfile', 'name']} />
+// @ts-expect-error Unknown object key.
+;<objectForm.Field name="missing" />
+// @ts-expect-error Unknown nested key.
+;<objectForm.Field name={['profile', 'missing']} />
+// @ts-expect-error Tuple indices stay exact.
+;<objectForm.Field name={['coordinates', 2]} />
+// @ts-expect-error Tuple indices stay exact when nested.
+;<objectForm.Field name={['nestedTuple', 'point', 999]} />
+// @ts-expect-error Arrays do not expose a length field.
+;<objectForm.Field name={['users', 'length']} />
+
+const arrayForm = createForm({ schema: v.array(v.string()) })
+;<arrayForm.Field name={[0]} />
+;<arrayForm.Field name={[123]} />
+// @ts-expect-error Root arrays have no string shorthand.
+;<arrayForm.Field name="length" />
+// @ts-expect-error Root array indices must be numeric.
+;<arrayForm.Field name="0" />
+
+const tupleForm = createForm({ schema: v.tuple([v.string(), v.number()]) })
+;<tupleForm.Field name={[0]} />
+;<tupleForm.Field name={[1]} />
+// @ts-expect-error Root tuple indices stay exact.
+;<tupleForm.Field name={[2]} />
+// @ts-expect-error Root tuples have no string shorthand.
+;<tupleForm.Field name="length" />
+// @ts-expect-error Root tuple indices must be numeric.
+;<tupleForm.Field name="0" />
+
 const destructiveMenuItem: DropdownMenuT.Item = {
   label: 'Delete',
   variant: 'destructive',

@@ -1,10 +1,13 @@
 import type {
+  DeepPartial,
+  FormConfig,
   FormProps as FormischFormProps,
   FormSchema,
   FormStore,
-  SubmitEventHandler,
+  Schema,
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
+import type * as v from 'valibot'
 
 import type {
   BaseProps,
@@ -16,14 +19,34 @@ import type { FieldProps as StandaloneFieldProps } from '../field'
 
 import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
 
-type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
-  ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
-  : TValue extends Record<PropertyKey, unknown>
+type PathKey = string | number
+type ExactKeysOf<TValue> = 0 extends 1 & TValue
+  ? never
+  : TValue extends readonly unknown[]
+    ? number extends TValue['length']
+      ? number
+      : {
+          [TKey in keyof TValue]: TKey extends `${infer TIndex extends number}` ? TIndex : never
+        }[number]
+    : TValue extends Record<PropertyKey, unknown>
+      ? keyof TValue & PathKey
+      : never
+type PropertiesOf<TValue> = {
+  [TKey in ExactKeysOf<TValue>]: TValue extends Partial<Record<TKey, infer TItem>> ? TItem : never
+}
+type DeepFieldPath<TChild, TKey extends PathKey, TDepth extends 0[]> = TChild extends
+  | readonly unknown[]
+  | Record<PropertyKey, unknown>
+  ? readonly [TKey, ...SchemaPath<TChild, [...TDepth, 0]>]
+  : never
+type SchemaPath<TValue, TDepth extends 0[] = []> = TDepth['length'] extends 5
+  ? readonly [PathKey, ...PathKey[]]
+  : TValue extends readonly unknown[] | Record<PropertyKey, unknown>
     ? {
-        [TKey in Extract<keyof TValue, string | number>]:
+        [TKey in ExactKeysOf<TValue>]:
           | readonly [TKey]
-          | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
-      }[Extract<keyof TValue, string | number>]
+          | DeepFieldPath<NonNullable<PropertiesOf<TValue>[TKey]>, TKey, TDepth>
+      }[ExactKeysOf<TValue>]
     : never
 
 export namespace FormT {
@@ -33,27 +56,39 @@ export namespace FormT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type FieldName<TSchema extends FormSchema> = NonNullable<
-    TSchema['~types']
-  >['input'] extends infer Input
-    ? Extract<keyof Input, string> | SchemaPath<Input>
-    : never
+  export type FieldName<TSchema extends Schema> =
+    v.InferInput<TSchema> extends infer Input
+      ?
+          | (Input extends Record<PropertyKey, unknown> ? Extract<keyof Input, string> : never)
+          | SchemaPath<Input>
+      : never
 
-  export interface Instance<TSchema extends FormSchema = FormSchema> extends FormStore<TSchema> {
+  export type Store<TSchema extends Schema> = FormStore<
+    TSchema extends FormSchema ? TSchema : FormSchema
+  >
+
+  export type Config<TSchema extends Schema> = TSchema extends FormSchema
+    ? FormConfig<TSchema>
+    : Omit<FormConfig, 'schema' | 'initialInput'> & {
+        schema: TSchema
+        initialInput?: DeepPartial<v.InferInput<TSchema>>
+      }
+
+  export type Instance<TSchema extends Schema = FormSchema> = Store<TSchema> & {
     Form: (props: Props<TSchema>) => JSX.Element
     Field: <T extends ValidComponent = 'div'>(props: FieldProps<TSchema, T>) => JSX.Element
   }
 
-  export interface Base<TSchema extends FormSchema = FormSchema> extends Omit<
-    FormischFormProps<TSchema>,
+  export interface Base<TSchema extends Schema = FormSchema> extends Omit<
+    FormischFormProps,
     'children' | 'class' | 'onSubmit' | 'style' | 'of'
   > {
     children?: JSX.Element
     /** Called with validated schema output and the native submit event. */
-    onSubmit?: SubmitEventHandler<TSchema>
+    onSubmit?: (output: v.InferOutput<TSchema>, event: SubmitEvent) => unknown
   }
 
-  export type Props<TSchema extends FormSchema = FormSchema> = BaseProps<
+  export type Props<TSchema extends Schema = FormSchema> = BaseProps<
     'form',
     Base<TSchema>,
     Variant,
@@ -62,9 +97,9 @@ export namespace FormT {
   >
 
   export type FieldProps<
-    TSchema extends FormSchema = FormSchema,
+    TSchema extends Schema = FormSchema,
     T extends ValidComponent = 'div',
   > = Omit<StandaloneFieldProps<T>, 'name'> & { name: FieldName<TSchema> }
 }
 
-export type FormProps<TSchema extends FormSchema = FormSchema> = FormT.Props<TSchema>
+export type FormProps<TSchema extends Schema = FormSchema> = FormT.Props<TSchema>

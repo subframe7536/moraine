@@ -14,7 +14,7 @@
       "generics": [
         {
           "name": "TSchema",
-          "constraint": "FormSchema",
+          "constraint": "Schema",
           "default": "FormSchema"
         }
       ],
@@ -40,7 +40,7 @@
         {
           "name": "onSubmit",
           "optional": true,
-          "type": "SubmitEventHandler<TSchema>",
+          "type": "(output: v.InferOutput<TSchema>, event: SubmitEvent) => unknown",
           "description": "Called with validated schema output and the native submit event."
         },
         {
@@ -68,7 +68,7 @@
       "generics": [
         {
           "name": "TSchema",
-          "constraint": "FormSchema",
+          "constraint": "Schema",
           "default": "FormSchema"
         },
         {
