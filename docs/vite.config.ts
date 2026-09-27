@@ -29,7 +29,13 @@ export default defineConfig({
     solid({ ssr: true, extensions: ['.mdx'] }),
     fileRouter({
       pagesDir: 'routes',
-      ignore: [...DEFAULT_IGNORES, 'hooks', '**/*.test.tsx'],
+      // MDX pages live under pages/components; ignore only route UI source files.
+      ignore: [
+        ...DEFAULT_IGNORES.filter((pattern) => pattern !== '**/components/**'),
+        '**/components/**/*.{ts,tsx}',
+        'hooks',
+        '**/*.test.tsx',
+      ],
       mdx: createDocsMdxOptions(projectRoot),
       output: 'routes.d.ts',
       ssg: {
@@ -42,7 +48,10 @@ export default defineConfig({
         description: 'string',
         order: 'number',
         tags: 'string[]',
-        group: 'string',
+        surface: "'docs' | 'components'",
+        section: 'string',
+        routePath: 'string',
+        markdownPath: 'string',
         badge: 'string',
         api: 'string',
         sections: '{ id: string; label: string; level: number }[]',

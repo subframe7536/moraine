@@ -1,0 +1,401 @@
+---
+title: Form
+description: Bind schema fields, validation, submission, and reset through createForm.
+api:
+  path: src/form/form/form
+sidebar:
+  order: 0
+search:
+  tags:
+    [
+      Formisch,
+      validation,
+      submit,
+      store,
+      Valibot,
+      form container,
+      schemas,
+      Field,
+      field,
+      label,
+      error,
+    ]
+---
+
+import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup, Icon } from '@src'
+import { Show, createSignal, createComponent } from 'solid-js'
+import * as v from 'valibot'
+
+Define a schema, instantiate the form with `createForm`, and render `<form.Form>` and `<form.Field>`:
+
+`createForm()` returns the underlying reactive Formisch store enhanced with `form.Form` and
+`form.Field`. You can use Formisch's public store methods and helpers, including programmatic
+field focus, with the bound controls.
+
+`<form.Form>` manages submission: it always prevents native navigation, validates against the
+schema, and calls `onSubmit` after successful validation. Native attributes such as `action` and
+`method` are forwarded to the form element, but they do not enable a browser navigation submit.
+
+## Basic usage
+
+```tsx
+import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
+import * as v from 'valibot'
+
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Enter a valid email address')),
+  enabled: v.boolean(),
+})
+
+export function NotificationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+
+  return (
+    <form.Form onSubmit={(output) => console.log(output)}>
+      <form.Field name="email" label="Email Address">
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="i-lucide:mail" />
+          </InputGroup.Leading>
+          <Input />
+        </InputGroup>
+      </form.Field>
+      <form.Field name="enabled" label="Enable Notifications">
+        <Switch />
+      </form.Field>
+      <Button type="submit">Save Changes</Button>
+    </form.Form>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'required', label: 'Required', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'showDescription', label: 'Description', defaultValue: true },
+    { kind: 'switch', prop: 'showHint', label: 'Hint', defaultValue: true },
+    { kind: 'switch', prop: 'showHelp', label: 'Help text', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const ProfileSchema = v.object({
+      username: v.pipe(v.string(), v.minLength(3, 'Username must be at least 3 characters.')),
+      role: v.pipe(v.string(), v.nonEmpty('Please select a role.')),
+      experience: v.number(),
+      bio: v.optional(v.string()),
+      notifications: v.boolean(),
+    })
+
+    const [submitted, setSubmitted] = createSignal(null)
+    const form = createForm({
+      schema: ProfileSchema,
+      initialInput: { username: '', role: '', experience: 3, bio: '', notifications: true },
+    })
+
+    const ROLE_OPTIONS = [
+      { label: 'Developer', value: 'dev' },
+      { label: 'Designer', value: 'designer' },
+      { label: 'Product Manager', value: 'pm' },
+      { label: 'Other', value: 'other' },
+    ]
+
+    const handleSubmit = (values) => {
+      setSubmitted(values)
+    }
+
+    return (
+      <div class="max-w-lg w-full">
+        {createComponent(form.Form, {
+          onSubmit: handleSubmit,
+          onReset: () => setSubmitted(null),
+          class: 'w-full',
+          get children() {
+            return [
+              createComponent(form.Field, {
+                name: 'username',
+                label: 'Username',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? (props.required ? 'Required' : undefined) : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your unique public handle.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Visible to all members in workspace.' : undefined
+                },
+                get children() {
+                  return (
+                    <InputGroup>
+                      <InputGroup.Leading><Icon name="i-lucide:user" /></InputGroup.Leading>
+                      <Input placeholder="alex_dev" disabled={props.disabled} />
+                    </InputGroup>
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'role',
+                label: 'Role',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? 'Team' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your primary function on the team.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Used to configure team permissions.' : undefined
+                },
+                get children() {
+                  return (
+                    <Select
+                      items={ROLE_OPTIONS}
+                      placeholder="Select a role"
+                      disabled={props.disabled}
+                      allowClear
+                    />
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'experience',
+                label: 'Experience',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? '0–10 years' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Years of experience in your role.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Choose a whole number of years.' : undefined
+                },
+                get children() {
+                  return <Slider defaultValue={3} min={0} max={10} step={1} size={props.size} disabled={props.disabled} />
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'bio',
+                label: 'About',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? 'Optional' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Brief introduction for your profile.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Markdown is supported.' : undefined
+                },
+                get children() {
+                  return (
+                    <Textarea
+                      placeholder="Tell us about yourself..."
+                      rows={2}
+                      disabled={props.disabled}
+                    />
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'notifications',
+                label: props.orientation === 'horizontal' ? 'Alerts' : undefined,
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get children() {
+                  return (
+                    <Switch
+                      label="Email notifications"
+                      description={
+                        props.showDescription
+                          ? 'Receive periodic digests and security updates'
+                          : undefined
+                      }
+                      disabled={props.disabled}
+                    />
+                  )
+                },
+              }),
+              <div class="flex gap-2 justify-end pt-2">
+                <Button
+                  type="reset"
+                  variant="outline"
+                  size={props.size}
+                  disabled={props.disabled || form.isSubmitting}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  size={props.size}
+                  loading={form.isSubmitting}
+                  disabled={props.disabled || form.isSubmitting}
+                >
+                  Save Profile
+                </Button>
+              </div>,
+              <Show when={submitted()}>
+                {(data) => (
+                  <div class="mt-4 p-3 border border-border/80 rounded-lg bg-muted/40 text-xs font-mono">
+                    <p class="text-primary font-medium mb-1">Form Submitted:</p>
+                    <pre class="overflow-x-auto text-foreground whitespace-pre-wrap">
+                      {JSON.stringify(data(), null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </Show>,
+            ]
+          },
+        })}
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+form.Form [component; slot=root; <form>]
+└── form.Field [part]
+```
+
+Each `form.Field` uses the Field layout. Help and error are mutually exclusive; the error takes its place when the field is invalid.
+
+`<form.Form>` does not automatically disable child controls during submission. Use `form.isSubmitting` when your application needs that behavior.
+
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Design. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
+
+## Usage
+
+### Basic form and submission
+
+Create the form with `createForm`, then render `<form.Form>` and `<form.Field>`. The submit handler receives the validated schema output.
+
+<Preview path="./basic-form" />
+
+### Bound field outside the form root
+
+`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering `form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
+
+```tsx
+const form = createForm({ schema })
+
+<form.Field name="email" label="Email">
+  <Input />
+</form.Field>
+```
+
+### Field labels and messages
+
+Configure `label`, `hint`, `description`, `help`, and `required` indicators on `<form.Field>`. Supported Moraine controls automatically link with helper descriptions and error messages via deterministic ARIA attributes.
+
+<Preview path="./labels-messages" />
+
+### Horizontal layout
+
+Set `orientation="horizontal"` to switch from the default stacked layout to a side-by-side grid arrangement, common in settings panels and administrative consoles.
+
+<Preview path="./horizontal-layout" />
+
+### Nested and array paths
+
+Target nested object and array fields by supplying path tuples (for example, `['profile', 'email']`) to the `name` prop. Path types are fully validated and autocompleted based on your schema.
+
+<Preview path="./nested-path" />
+
+### Submission and loading state
+
+Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
+
+<Preview path="./async-submit" />
+
+### Reset and state restoration
+
+Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+
+<Preview path="./reset" />
+
+## Examples
+
+### Schema validation
+
+Formisch validates fields according to schema rules and updates errors in real-time or upon submission, linking error messages directly to the associated controls.
+
+<Preview path="./validation" />
+
+### Manual and server errors
+
+Pass application or server-returned error strings directly to `<form.Field error={...}>` to force an error state or display external validation messages.
+
+<Preview path="./manual-error" />
+
+### Render context
+
+Provide a render function as child to `<form.Field>` to access the current effective `{ error }` while the child control continues to inherit the bound field state.
+
+<Preview path="./render-context" />
+
+### Mixed form controls
+
+Compose multiple Moraine controls—such as `Input`, `Textarea`, `Select`, and `Checkbox`—within a single schema-validated form.
+
+<Preview path="./mixed-fields" />

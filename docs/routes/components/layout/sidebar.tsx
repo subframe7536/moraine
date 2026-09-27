@@ -21,44 +21,56 @@ export interface SidebarHeaderProps {
 }
 
 interface SidebarSection {
-  group?: string
+  section: string
   pages: SidebarPage[]
 }
 
 export const Sidebar = (props: SidebarProps) => {
   const grouped = createMemo<SidebarSection[]>(() => {
-    const ungrouped: SidebarPage[] = []
     const groupedMap = new Map<string, SidebarPage[]>()
 
     for (const page of props.pages) {
-      const group = page.group?.trim()
-      if (!group) {
-        ungrouped.push(page)
-        continue
-      }
+      const group = page.section
 
       const list = groupedMap.get(group) ?? []
       list.push(page)
       groupedMap.set(group, list)
     }
 
-    return [
-      ...(ungrouped.length > 0 ? [{ pages: ungrouped }] : []),
-      ...[...groupedMap.entries()].map(([group, pages]) => ({ group, pages })),
-    ]
+    return [...groupedMap.entries()].map(([section, pages]) => ({ section, pages }))
   })
 
   return (
     <div class="px-3 pb-10 pt-3 h-full min-h-0 overflow-y-auto">
+      <div class="mb-3 p-1 border border-border flex gap-1 rounded-lg sm:hidden">
+        <a
+          href="/docs/getting-started"
+          class={cn(
+            'px-3 py-1.5 text-center flex-1 text-sm rounded-md',
+            props.pages[0]?.surface === 'docs' ? 'font-medium bg-muted' : 'text-muted-foreground',
+          )}
+        >
+          Docs
+        </a>
+        <a
+          href="/components"
+          class={cn(
+            'px-3 py-1.5 text-center flex-1 text-sm rounded-md',
+            props.pages[0]?.surface === 'components'
+              ? 'font-medium bg-muted'
+              : 'text-muted-foreground',
+          )}
+        >
+          Components
+        </a>
+      </div>
       <nav class="pb-2 flex flex-col gap-5">
         <For each={grouped()}>
           {(section) => (
-            <section aria-label={section.group}>
-              <Show when={section.group}>
-                <div class="text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase text-xs">
-                  {section.group}
-                </div>
-              </Show>
+            <section aria-label={section.section}>
+              <div class="text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase text-xs">
+                {section.section}
+              </div>
 
               <List
                 as="div"
@@ -68,11 +80,11 @@ export const Sidebar = (props: SidebarProps) => {
                   <a
                     href={context.item.path}
                     aria-current={
-                      props.activePage() === context.item.key ? ('page' as const) : undefined
+                      props.activePage() === context.item.path ? ('page' as const) : undefined
                     }
                     class={cn(
                       'px-2.5 py-1.5 text-left transition-([background-color,color] duration-150 ease-out) text-sm rounded-lg hover:cursor-pointer',
-                      props.activePage() === context.item.key
+                      props.activePage() === context.item.path
                         ? 'text-primary font-medium bg-primary/10 dark:bg-primary/15'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
                     )}
@@ -84,12 +96,14 @@ export const Sidebar = (props: SidebarProps) => {
                         !event.shiftKey &&
                         !event.altKey
                       ) {
-                        props.setActivePage(context.item.key)
+                        props.setActivePage(context.item.path)
                       }
                     }}
                   >
                     <span class="flex gap-2 min-w-0 w-full items-center justify-between">
-                      <span class="truncate">{context.item.label}</span>
+                      <span class="truncate">
+                        {context.item.path === '/components' ? 'Overview' : context.item.label}
+                      </span>
                       <Show when={context.item.badge}>
                         {(badge) => (
                           <Badge variant="outline" size="sm" class="text-[0.7rem] px-1.5 py-0">
@@ -101,7 +115,7 @@ export const Sidebar = (props: SidebarProps) => {
                   </a>
                 )}
               />
-              <Show when={!section.group}>
+              <Show when={section.section === 'overview' && props.pages[0]?.surface === 'docs'}>
                 <a
                   href="/llms.txt"
                   rel="alternate external"

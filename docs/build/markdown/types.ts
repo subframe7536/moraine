@@ -23,11 +23,7 @@ export interface FrontmatterData {
   description: string
   sidebar: FrontmatterSidebar
   search: FrontmatterSearch
-  category?: string
-  component?: string
-  componentKey?: string
   api?: FrontmatterApi
-  related?: string[]
   upstreamHref?: string
 }
 

@@ -1,0 +1,72 @@
+---
+title: Composition
+description: Understand Moraine component structure, public parts, style slots, DOM ownership, and polymorphic composition.
+sidebar:
+  order: 1
+search:
+  tags: [composition, parts, slots, DOM, polymorphic, as]
+---
+
+Moraine components expose their structure through JSX parts and their appearance through style slots. A slot is a styling target; it does not imply a matching JSX component. Check each component's Anatomy for its public parts and slots.
+
+## Component kinds
+
+### Single components
+
+A Single component is used through one JSX element, even if it renders several internal nodes or style slots. `Button`, `Badge`, and `Input` are examples.
+
+### Composite components
+
+A Composite component exposes attached parts that you can arrange in JSX. `Card.Header` and `Card.Body`, for example, are public parts of `Card`:
+
+```tsx
+import { Card } from 'moraine'
+
+export function SettingsCard() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Settings</Card.Title>
+      </Card.Header>
+      <Card.Body>Account preferences</Card.Body>
+    </Card>
+  )
+}
+```
+
+## Parts and slots
+
+A **part** is an attached component such as `Dialog.Content`. A **slot** names a style target such as `contentClose` or `itemLabel`. Slots appear in the `classes` and `styles` types and in rendered `data-slot` attributes where applicable. `Select.ItemLabel` is only valid if it is listed as a public part; a `select-item-label` slot alone does not create that part. See [Customization](/docs/styling/customization) for style override rules.
+
+## DOM ownership
+
+### DOM roots
+
+A root such as `Card` renders its own container and can receive DOM attributes and a direct `class`. Its parts own their respective rendered nodes.
+
+### State-only roots
+
+A root such as `Dialog`, `Sheet`, `Modal`, `Popover`, or `BaseSelect` manages shared state without rendering a root DOM element. Put DOM attributes on a rendered part such as `Dialog.Content`; root `classes` and `styles` set defaults for its family of parts. A part marked `internal` in Anatomy is an implementation detail, not an attached public component.
+
+## Polymorphic composition
+
+The `as` prop selects the DOM element or Solid component rendered by a part. For example, `as={Button}` lets a dialog trigger use the public Button component while keeping trigger behavior:
+
+```tsx
+import { Button, Dialog } from 'moraine'
+
+export function Example() {
+  return (
+    <Dialog>
+      <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+      <Dialog.Content title="Settings">Preferences</Dialog.Content>
+    </Dialog>
+  )
+}
+```
+
+The [TypeScript reference](/docs/reference/typescript#polymorphic-rendering-as-prop) covers how `as` preserves element and component props.
+
+## Reading component anatomy
+
+Each component reference has a fenced text tree. `component` identifies the top-level public component; `part` identifies an attached JSX component; `slot` identifies a styling target; `internal` marks a node that cannot be composed directly. A root explicitly says `slot=root` or `no DOM`. Use the [component directory](/components) to find a component, then check its Anatomy before composing parts.

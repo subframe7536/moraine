@@ -22,9 +22,8 @@ export interface DocsHeaderProps {
 export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const frame = useSidebarFrame()
   const location = useLocation()
-  const isStyling = createMemo(() => location.pathname.startsWith('/styling'))
-  const isForm = createMemo(() => location.pathname.startsWith('/form'))
-  const isDocs = createMemo(() => !props.isLanding() && location.pathname.startsWith('/start'))
+  const isComponents = createMemo(() => location.pathname.startsWith('/components'))
+  const isDocs = createMemo(() => location.pathname.startsWith('/docs'))
 
   return (
     <header class="bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
@@ -52,7 +51,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           </a>
           <div class="gap-4 hidden items-center sm:flex">
             <a
-              href="/start"
+              href="/docs/getting-started"
               class={cn(
                 'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
                 isDocs() ? 'text-foreground font-medium' : 'text-muted-foreground',
@@ -61,19 +60,10 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
               Docs
             </a>
             <a
-              href="/styling/unocss"
+              href="/components"
               class={cn(
                 'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
-                isStyling() ? 'text-foreground font-medium' : 'text-muted-foreground',
-              )}
-            >
-              Styling
-            </a>
-            <a
-              href="/form"
-              class={cn(
-                'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
-                isForm() ? 'text-foreground font-medium' : 'text-muted-foreground',
+                isComponents() ? 'text-foreground font-medium' : 'text-muted-foreground',
               )}
             >
               Components

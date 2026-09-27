@@ -51,19 +51,25 @@ function createDocsRouteMetadata(
 
 function createMarkdownContent(
   pageKey: string,
+  surface: string,
+  section: string,
+  routePath: string,
+  markdownPath: string,
   frontmatter: unknown,
   apiDoc: unknown,
   onThisPageEntries: readonly OnThisPageEntryLiteral[],
-  markdownSource: string,
   metadata: DocsRouteMetadata,
 ): string {
   return `<components.Markdown
   {...props}
   pageKey=${serializeJsxExpression(pageKey)}
+  surface=${serializeJsxExpression(surface)}
+  section=${serializeJsxExpression(section)}
+  routePath=${serializeJsxExpression(routePath)}
+  markdownPath=${serializeJsxExpression(markdownPath)}
   frontmatter=${serializeJsxExpression(frontmatter)}
   apiDoc=${serializeJsxExpression(apiDoc)}
   onThisPageEntries=${serializeJsxExpression(onThisPageEntries)}
-  markdownSource=${serializeJsxExpression(markdownSource)}
   metadata=${serializeJsxExpression(metadata)}
 >
   <MDXContent {...props} />
@@ -84,6 +90,11 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     async extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
+      if (context.routeId !== page.routePath) {
+        throw new Error(
+          `[docs-mdx] route mismatch for ${sourcePath}: ${context.routeId} != ${page.routePath}`,
+        )
+      }
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
       const componentKeys = new Set(loadApiDocIndex(projectRoot)?.components.map(({ key }) => key))
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
@@ -91,20 +102,23 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
         : []
       const sourceApiDoc = loadComponentApiDoc(sourcePath)
       const apiDoc = sourceApiDoc ? await highlightApiTypes(sourceApiDoc) : undefined
-      const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys, [
+      const info = createDocsRouteInfo(page, frontmatter, componentKeys, [
         ...onThisPageEntries,
         ...getApiReferenceTocEntries(apiDoc),
       ])
-      const metadata = createDocsRouteMetadata(context.routeId, frontmatter)
+      const metadata = createDocsRouteMetadata(page.routePath, frontmatter)
 
       return {
         routeConfig: { info, metadata },
         mdxContent: createMarkdownContent(
           page.pageKey,
+          page.surface,
+          page.section,
+          page.routePath,
+          page.markdownPath,
           frontmatter,
           apiDoc,
           onThisPageEntries,
-          document.source,
           metadata,
         ),
       }

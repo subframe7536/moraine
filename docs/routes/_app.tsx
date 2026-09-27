@@ -25,7 +25,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
-    return pages.find((page) => page.path === normalizedPath)?.key ?? pages[0]?.key ?? ''
+    return pages.find((page) => page.path === normalizedPath)?.path ?? ''
   })
 
   const [committedPage, setCommittedPage] = createSignal(untrack(activePage))
@@ -60,8 +60,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }),
   )
 
-  const navigateToPage = (key: string) => {
-    const path = pages.find((page) => page.key === key)?.path
+  const navigateToPage = (pagePath: string) => {
+    const path = pages.find((page) => page.path === pagePath)?.path
     if (path) {
       navigate(path)
     }
@@ -110,10 +110,14 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               </Show>
               <SidebarFrame.SidebarBody>
                 <Sidebar
-                  pages={pages}
+                  pages={pages.filter((page) =>
+                    location.pathname.startsWith('/components')
+                      ? page.surface === 'components'
+                      : page.surface === 'docs',
+                  )}
                   activePage={committedPage}
-                  setActivePage={(key) => {
-                    navigateToPage(key)
+                  setActivePage={(pagePath) => {
+                    navigateToPage(pagePath)
                     if (frame.isMobile()) {
                       frame.setOpen(false)
                     }

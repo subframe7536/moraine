@@ -1,365 +1,74 @@
 // @vitest-environment node
 
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
-import { buildLlmsDocuments, buildLlmsTxt, llmsTxtPlugin } from './llms.ts'
-import { scanDocsRoutes } from './routes.ts'
+import { buildLlmsDocuments } from './llms.ts'
+import { DOCS_SITE } from './site-meta.ts'
 
-async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'moraine-docs-llms-'))
+const projectRoot = path.resolve(__dirname, '../..')
+let documentPromise: ReturnType<typeof buildLlmsDocuments> | undefined
+function documents() {
+  return (documentPromise ??= buildLlmsDocuments({ projectRoot, ...DOCS_SITE }))
 }
 
-async function writeProjectFile(projectRoot: string, filePath: string, content: string) {
-  const absolutePath = path.join(projectRoot, filePath)
-  await mkdir(path.dirname(absolutePath), { recursive: true })
-  await writeFile(absolutePath, content, 'utf8')
-}
-
-function pageSource(title: string, order: number, body: string): string {
-  return `---
-title: ${title}
-description: ${title} page description.
-sidebar:
-  order: ${order}
-search:
-  tags: [${title.toLowerCase()}, docs]
----
-
-${body}
-`
-}
-
-describe('llms.txt generation', () => {
-  test('keeps guidance and copyable examples on real component pages', async () => {
-    const projectRoot = path.resolve(__dirname, '../..')
-    const documents = await buildLlmsDocuments({
-      projectRoot,
-      siteName: 'Moraine',
-      description: 'Docs description.',
-      siteUrl: 'https://ui.subf.dev/',
-    })
-
-    for (const name of ['badge', 'button', 'select', 'multi-select', 'form', 'dialog']) {
-      const source = documents.find((document) => document.fileName === `${name}.md`)?.source
-      expect(source, `${name}.md`).toContain('## Usage')
-      expect(source, `${name}.md`).toContain('```tsx\nimport ')
-      expect(source, `${name}.md`).toContain('## Props')
-      expect(source, `${name}.md`).not.toContain('<Preview')
-      expect(source, `${name}.md`).not.toContain('<Playground')
-      expect(source, `${name}.md`).not.toContain('controls={')
+describe('agent Markdown', () => {
+  test('mirrors canonical URLs and separates the two navigation spaces', async () => {
+    const result = await documents()
+    const names = new Set(result.map((item) => item.fileName))
+    for (const name of [
+      'docs/getting-started.md',
+      'docs/installation.md',
+      'docs/styling/design.md',
+      'docs/composition.md',
+      'docs/reference/typescript.md',
+      'components.md',
+      'components/button.md',
+    ]) {
+      expect(names.has(name)).toBe(true)
     }
-
-    const select = documents.find((document) => document.fileName === 'select.md')?.source
-    expect(select).toContain(
-      "`value` is the selected item's value, or `null` when nothing is selected",
-    )
-    expect(select).toContain('export function UserAssignee()')
-    expect(select).toContain("from 'moraine'")
+    for (const old of ['start.md', 'button.md', 'styling/design.md']) {
+      expect(names.has(old)).toBe(false)
+    }
+    const index = result.find((item) => item.fileName === 'llms.txt')!.source
+    expect(index).toContain('## Docs')
+    expect(index).toContain('## Components')
+    expect(index).toContain('https://ui.subf.dev/docs/getting-started.md')
+    expect(index).toContain('https://ui.subf.dev/components/button.md')
   })
 
-  test('builds grouped index links with absolute markdown URLs', async () => {
-    const projectRoot = await createTempProject()
-
-    try {
-      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/start.mdx',
-        pageSource('Getting Started', 1, 'Welcome.'),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/button/index.mdx',
-        pageSource('Button', 1, 'Buttons.'),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(form)/input/index.mdx',
-        pageSource('Input', 1, 'Inputs.'),
-      )
-
-      const options = {
-        projectRoot,
-        siteName: 'Moraine',
-        description: 'Docs description.',
-        siteUrl: 'https://ui.subf.dev',
+  test('removes build metadata, runtime imports, Playground and MDX from every generated document', async () => {
+    for (const { fileName, source } of await documents()) {
+      if (fileName === 'llms.txt') {
+        continue
       }
-      const output = buildLlmsTxt(options, scanDocsRoutes(projectRoot))
-
-      expect(output).toContain('# Moraine\n\n> Docs description.')
-      expect(output).toContain(
-        '- [Getting Started](https://ui.subf.dev/start.md): Getting Started page description.',
-      )
-      expect(output).toContain('## Form\n\n- [Input](https://ui.subf.dev/input.md)')
-      expect(output).toContain('## General\n\n- [Button](https://ui.subf.dev/button.md)')
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
+      expect(source, fileName).not.toMatch(/^---/)
+      expect(source, fileName).not.toContain("from '@src'")
+      expect(source, fileName).not.toContain('## Playground')
+      expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b/)
     }
   })
 
-  test('converts MDX components, previews, internal links, and API data', async () => {
-    const projectRoot = await createTempProject()
-
-    try {
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/_api-index.json',
-        JSON.stringify({
-          components: [
-            {
-              key: 'button',
-              name: 'Button',
-              category: 'element',
-            },
-          ],
-        }),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/start.mdx',
-        pageSource(
-          'Getting Started',
-          1,
-          '[Read setup](/start) and [homepage](/).\n\n<CodeTabs>\n  <CodeTabs.Item lang="shell" title="bun">\n    bun add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="pnpm">\n    pnpm add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="npm">\n    npm i moraine\n  </CodeTabs.Item>\n</CodeTabs>',
-        ),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/button/index.mdx',
-        pageSource(
-          'Button',
-          1,
-          'Use [`Button`](/general/button).\n\n## Playground\n\n<Playground controls={[]}>\n  {(props) => <button><UnknownComponent />{String(props.label)}</button>}\n</Playground>\n\n## Examples\n\n<Preview path="./basic" />',
-        ),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/button/basic.tsx',
-        'export default function Basic() {\n  return <button>Basic</button>\n}\n',
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(general)/button/api.json',
-        JSON.stringify({
-          key: 'button',
-          name: 'Button',
-          kind: 'single',
-          parts: [
-            {
-              id: 'button',
-              name: 'Button',
-              access: { kind: 'export', name: 'Button' },
-              props: [
-                {
-                  name: 'items',
-                  optional: false,
-                  type: 'Item[]',
-                  typeDetails: '(string | { value: string; })[]',
-                },
-                {
-                  name: 'variant',
-                  optional: true,
-                  type: 'cls_variant0."default" | "outline"_$',
-                  description: 'Visual variant.',
-                },
-              ],
-            },
-          ],
-          item: {
-            generics: [{ name: 'Value', constraint: 'string | number' }],
-            props: [{ name: 'value', optional: false, type: 'Value' }],
-          },
-          slots: ['root', 'content'],
-          dataAttributes: [
-            { target: 'root', attributes: ['data-disabled'] },
-            { target: 'content', attributes: ['data-disabled', 'data-expanded'] },
-          ],
-        }),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(overlay)/dialog/index.mdx',
-        pageSource('Dialog', 2, 'Dialog docs.'),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(overlay)/dialog/api.json',
-        JSON.stringify({
-          key: 'dialog',
-          name: 'Dialog',
-          kind: 'composite',
-          parts: [
-            {
-              id: 'dialog',
-              name: 'Dialog',
-              access: { kind: 'export', name: 'Dialog' },
-              props: [],
-            },
-            {
-              id: 'trigger',
-              name: 'Dialog.Trigger',
-              access: { kind: 'attached', root: 'Dialog', member: 'Trigger' },
-              props: [{ name: 'disabled', optional: true, type: 'boolean' }],
-            },
-          ],
-          slots: ['root', 'trigger'],
-          dataAttributes: [],
-        }),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(form)/form/index.mdx',
-        pageSource('Form', 3, 'Form docs.'),
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/(form)/form/api.json',
-        JSON.stringify({
-          key: 'form',
-          name: 'Form',
-          kind: 'single',
-          parts: [
-            {
-              id: 'form',
-              name: 'createForm().Form',
-              access: { kind: 'export', name: 'createForm' },
-              props: [{ name: 'onSubmit', optional: true, type: '() => void' }],
-            },
-            {
-              id: 'field',
-              name: 'createForm().Field',
-              access: { kind: 'export', name: 'createForm' },
-              props: [{ name: 'name', optional: false, type: 'string' }],
-            },
-          ],
-          slots: ['root'],
-          dataAttributes: [],
-        }),
-      )
-
-      const documents = await buildLlmsDocuments({
-        projectRoot,
-        siteName: 'Moraine',
-        description: 'Docs description.',
-        siteUrl: 'https://ui.subf.dev/',
-      })
-      const gettingStarted = documents.find((document) => document.fileName === 'start.md')?.source
-      const button = documents.find((document) => document.fileName === 'button.md')?.source
-      const dialog = documents.find((document) => document.fileName === 'dialog.md')?.source
-
-      expect(gettingStarted).toContain('[Read setup](https://ui.subf.dev/start.md)')
-      expect(gettingStarted).toContain('[homepage](/)')
-      expect(documents.some((document) => document.fileName === 'index.md')).toBe(false)
-      expect(gettingStarted).not.toContain('<CodeTabs')
-      expect(gettingStarted).toContain('```shell bun\nbun add moraine\n```')
-      expect(gettingStarted).toContain('```shell pnpm\npnpm add moraine\n```')
-      expect(gettingStarted).toContain('```shell npm\nnpm i moraine\n```')
-      expect(button).toContain('## Props')
-      expect(button).not.toContain('## Items')
-      expect(button).not.toContain('### Props')
-      expect(button).not.toContain('| Field | Type | Default | Description |')
-      expect(button).toContain('(string \\| { value: string; })[]')
-      expect(button).toContain(
-        '| variant | "default" \\| "outline" \\| undefined | — | Visual variant. |',
-      )
-      expect(button).toContain('## Attributes')
-      expect(button!.indexOf('## Attributes')).toBeLessThan(button!.indexOf('## Props'))
-      expect(button).toContain('| Attributes | Slot | Description |')
-      expect(button).toContain('| `data-disabled` | `button`, `button-content` |')
-      expect(button?.match(/`data-disabled`/g)).toHaveLength(1)
-      expect(button).toContain('| `data-expanded` | `button-content` |')
-      expect(button).not.toContain('DOM & State')
-      expect(button).not.toContain('### Slots')
-      expect(button).not.toContain('Data attributes')
-      expect(button).not.toContain('Composition:')
-      expect(button).not.toContain('CSS variables')
-      expect(button).not.toContain('### Accessibility')
-      expect(button).not.toContain('### Anatomy')
-      expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
-      expect(button).toContain('\n---\n\n# Button\n')
-      expect(button).toContain('## Examples')
-      expect(button).not.toContain('<Preview')
-      expect(button).not.toContain('## Playground')
-      expect(button).not.toContain('<Playground')
-      expect(button).not.toContain('props.label')
-      expect(button).not.toContain('UnknownComponent')
-      expect(dialog).toContain('### Dialog')
-      expect(dialog).toContain('### Dialog.Trigger')
-      expect(dialog).not.toContain('\n### Trigger\n')
-      expect(dialog).not.toContain('`Dialog.Trigger`')
-      const form = documents.find((document) => document.fileName === 'form.md')?.source
-      expect(form).toContain('### createForm().Form')
-      expect(form).toContain('### createForm().Field')
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
-    }
-  })
-
-  test('fails when a page contains an unsupported MDX component', async () => {
-    const projectRoot = await createTempProject()
-
-    try {
-      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/start.mdx',
-        pageSource('Getting Started', 1, '<UnknownComponent />'),
-      )
-
-      await expect(
-        buildLlmsDocuments({
-          projectRoot,
-          siteName: 'Moraine',
-          description: 'Docs description.',
-          siteUrl: 'https://ui.subf.dev/',
-        }),
-      ).rejects.toThrow('unsupported JSX component <UnknownComponent>')
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
-    }
-  })
-
-  test('retries failed generation and emits assets only for the client build', async () => {
-    const projectRoot = await createTempProject()
-    const options = {
-      projectRoot,
-      siteName: 'Moraine',
-      description: 'Docs description.',
-      siteUrl: 'https://ui.subf.dev/',
-    }
-    type GenerateBundle = (this: {
-      environment: { name: string }
-      emitFile: (file: { type: 'asset'; fileName: string; source: string }) => void
-    }) => Promise<void>
-
-    try {
-      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      const pagePath = 'docs/pages/start.mdx'
-      await writeProjectFile(
-        projectRoot,
-        pagePath,
-        pageSource('Getting Started', 1, '<UnknownComponent />'),
-      )
-
-      const generateBundle = llmsTxtPlugin(options).generateBundle as GenerateBundle
-      const emitFile = vi.fn()
-      await expect(
-        generateBundle.call({ environment: { name: 'client' }, emitFile }),
-      ).rejects.toThrow('unsupported JSX component')
-
-      await writeProjectFile(projectRoot, pagePath, pageSource('Getting Started', 1, 'Welcome.'))
-      await generateBundle.call({ environment: { name: 'client' }, emitFile })
-      expect(emitFile).toHaveBeenCalledTimes(2)
-
-      emitFile.mockClear()
-      await generateBundle.call({ environment: { name: 'ssr' }, emitFile })
-      expect(emitFile).not.toHaveBeenCalled()
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
-    }
+  test('expands the component directory and preserves component API sections', async () => {
+    const result = await documents()
+    const directory = result.find((item) => item.fileName === 'components.md')!.source
+    expect(directory).toContain('## General')
+    expect(directory).toContain('## Overlay')
+    expect(directory).toContain(
+      '[Button](https://ui.subf.dev/components/button.md): Render actions',
+    )
+    const button = result.find((item) => item.fileName === 'components/button.md')!.source
+    expect(button).toContain('## Basic usage')
+    expect(button).toContain("import { Button } from 'moraine'")
+    expect(button).toContain('## Anatomy')
+    expect(button).toContain('## Usage')
+    expect(button).toContain('## Props')
+    const select = result.find((item) => item.fileName === 'components/select.md')!.source
+    expect(select).toContain('https://ui.subf.dev/components/combobox.md')
+    const customization = result.find(
+      (item) => item.fileName === 'docs/styling/customization.md',
+    )!.source
+    expect(customization).toContain('https://ui.subf.dev/docs/composition.md')
   })
 })

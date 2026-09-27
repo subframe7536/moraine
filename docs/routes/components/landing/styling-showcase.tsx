@@ -87,7 +87,7 @@ export function StylingShowcase() {
         </div>
         <Button
           as="a"
-          href="/styling/customization"
+          href="/docs/styling/customization"
           size="sm"
           variant="link"
           trailing="icon-arrow-right"

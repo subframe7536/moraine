@@ -1,0 +1,120 @@
+---
+title: Pagination
+description: Navigate a result set by page using state or destinations.
+api:
+  path: src/navigation/pagination/pagination
+sidebar:
+  order: 4
+search:
+  tags: [pages, previous, next, navigation, pagination, table paging]
+---
+
+import { Pagination } from '@src'
+import { createSignal } from 'solid-js'
+
+Use Pagination when a result set has a known page count. The application owns data fetching and the mapping from page numbers to URLs or controlled state.
+
+## Basic usage
+
+```tsx
+import { Pagination } from 'moraine'
+
+export function Example() {
+  return <Pagination total={100} itemsPerPage={10} defaultPage={1} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'input',
+      prop: 'itemsPerPage',
+      label: 'Items per page',
+      defaultValue: 10,
+      inputType: 'number',
+    },
+    { kind: 'switch', prop: 'showControls', label: 'Show arrows', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    const [page, setPage] = createSignal(1)
+    const itemsPerPage = () => {
+      const value = Number(props.itemsPerPage)
+      return Number.isFinite(value) ? Math.max(1, Math.trunc(value)) : 10
+    }
+    const pageCount = () => Math.ceil(100 / itemsPerPage())
+    const currentPage = () => Math.min(page(), pageCount())
+    return (
+      <div class="flex flex-col gap-3 items-center">
+        <Pagination
+          total={100}
+          page={currentPage()}
+          onPageChange={setPage}
+          itemsPerPage={itemsPerPage()}
+          size={props.size}
+          showControls={props.showControls}
+        />
+        <span class="text-xs text-muted-foreground font-mono">
+          Current Page: {currentPage()} of {pageCount()}
+        </span>
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+Pagination [component; slot=root; <nav>]
+├── list [slot]
+│   ├── listItem [slot]
+│   │   └── prev [slot]
+│   ├── listItem [slot]
+│   │   └── item [slot]
+│   └── listItem [slot]
+│       └── next [slot]
+└── status [internal]
+```
+
+## Usage
+
+### Current page
+
+Use `page` with `onPageChange` for controlled navigation. `total` is the number of records, not the page count; the component derives the page count from `itemsPerPage`. The surrounding application owns data fetching and URL updates.
+
+<Preview path="./page-state" />
+
+### Rendering links
+
+Use `to(page)` by itself to render enabled page controls as anchors. For router integration, use `itemAs` for numbered items and `controlAs` for Previous/Next; these props are independent and `to` still only generates the destination. This example uses Solid Router's `A` and `useSearchParams` to keep the current page synchronized with destinations such as `/pagination?page=2`. Boundary Previous/Next controls remain native disabled buttons even when `controlAs` is set.
+
+<Preview path="./link-rendering" />
+
+### Keyboard interaction
+
+Pagination does not add collection-style arrow navigation. Each interactive page control uses the keyboard semantics of its rendered button, link, or custom polymorphic element.
+
+## Examples
+
+### Controlled page
+
+<Preview path="./controlled" />
+
+### Page size and results
+
+Keep the requested page within the new page count when users change how many results are shown.
+
+<Preview path="./page-size" />

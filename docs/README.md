@@ -1,152 +1,61 @@
 # Docs Architecture
 
-The docs app is the private `@moraine/docs` pnpm workspace package. It imports the root `src/`
-directly, so component edits update the development server through Vite HMR. The app uses Vite +
-SolidJS with `solid-file-router` for file-based routing and SSG prerendering.
+The private `@moraine/docs` workspace imports the Moraine library from `src/`. Vite, SolidJS, and `solid-file-router` build the site and prerender its pages.
 
-## Build Pipeline
+## Information architecture
 
-- `docs/build/plugin.ts` owns docs-specific build work.
-- `configResolved` regenerates component API JSON from `src/` types, recipes, and JSX.
-- `docs/build/markdown/page.ts` configures the built-in `mdxRouteProvider` with docs metadata, previews, code tabs, and rendered Markdown layout.
-- `solid-file-router` discovers `docs/routes` through its built-in `fsRouteProvider`, discovers `docs/pages/**/*.mdx` through its built-in `mdxRouteProvider`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
-
-Generated route types are ignored by git and should not be edited by hand. MDX routes use the
-same file-name resolution as the default file router: `index.mdx` removes the final segment and
-directories wrapped in parentheses are pathless groups.
-
-## Routing
-
-Source content stays colocated:
+The landing is `/`. Conceptual documentation lives under `/docs/**`, and component reference lives at `/components` and `/components/**`. These are separate navigation spaces in the header, sidebar, and Previous/Next controls. Search covers both spaces.
 
 ```text
-docs/pages/(<group>)/<page>/index.mdx
-docs/pages/(<group>)/<page>/*.tsx
-docs/pages/(<group>)/<page>/api.json
+docs/pages/docs/(overview)/getting-started.mdx       → /docs/getting-started
+docs/pages/docs/(overview)/installation.mdx          → /docs/installation
+docs/pages/docs/styling/design.mdx                   → /docs/styling/design
+docs/pages/docs/(composition)/composition.mdx        → /docs/composition
+docs/pages/docs/reference/typescript.mdx             → /docs/reference/typescript
+docs/pages/components/index.mdx                      → /components
+docs/pages/components/(general)/button/index.mdx     → /components/button
 ```
 
-Generated routes use pathless groups to keep short URLs:
+Docs sections run Overview → Styling → Composition → Reference. Components run Overview → General → Form → Navigation → Overlay. `sidebar.order` controls ordering within each section. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
+
+`docs/build/core/paths.ts` derives `surface`, `section`, `routePath`, and `markdownPath` from the source path. The canonical route path is used for metadata and page links; Markdown mirrors it with `.md`. The root landing has no Markdown page. Old root-level URLs have no redirect.
+
+`docs/vite.config.ts` excludes the UI implementation in `docs/routes/components/**/*.tsx` while allowing the MDX provider to discover `docs/pages/components/**/*.mdx`. Keep these ignore rules distinct.
+
+## Content contract
+
+All pages have validated frontmatter with `title`, `description`, `sidebar.order`, and nonempty `search.tags`. A component can additionally register `api.path`, optional API parts, and `upstreamHref`. Unknown fields fail the build. Surface and section come from the path rather than frontmatter.
+
+A component page uses this order:
 
 ```text
-docs/pages/(general)/button/index.mdx -> /button
-docs/pages/(form)/input/index.mdx -> /input
-docs/routes/index.tsx -> / (dedicated landing route)
-docs/pages/start.mdx -> /start
+intro → Basic usage → Playground → Anatomy → Usage → Examples? → generated Attributes / Props
 ```
 
-The app layout is defined in `docs/routes/_app.tsx`; its route-local implementation components live in
-`docs/routes/components/`, which the built-in router ignores during route discovery.
+`Basic usage` starts with one fenced TSX example using the public package, complete enough to copy. Playground controls show only visually meaningful primitive states. `Usage` explains behavior, value models, and constraints beyond the API table; optional `Examples` contain real application patterns. Keep simple pages short. Explain managed keyboard or accessibility behavior beside the relevant usage section, without repeating native browser behavior.
 
-Route metadata is exposed through `routeInfo` from `virtual:routes` and consumed by the sidebar and command palette.
+Anatomy is an authored fenced `text` tree. Every node identifies a public `component` or attached `part`, a style `slot`, or an `internal` detail. Root nodes say `slot=root` or `no DOM`. The build validates names against `api.json`; see `docs/build/anatomy.ts` and `docs/build/content.test.ts`. A style slot does not imply a matching attached JSX part.
 
-`docs/DESIGN.md` is the visual and interaction contract. Keep it aligned with the shared shell instead
-of introducing page-local visual systems. Route headings, including generated API sections, flow from the
-MDX build into the section-search index, so every search result is a semantic destination with a stable
-route and hash. The sidebar uses the same route metadata and path-derived group ordering as search, which
-keeps its navigation order and search destinations consistent.
+Preview paths are static, relative to a page, and point to a self-contained TSX file. Their copyable source appears in both the web page and generated Markdown. Do not add a Preview merely to meet a quota.
 
-Every MDX page owns its navigation and discovery metadata:
+## Build pipeline and Markdown
 
-```yaml
----
-title: Button
-description: Button component with polymorphic rendering and automatic loading state.
-sidebar:
-  order: 2
-  badge: New # optional
-search:
-  tags: [action, click, submit, loading]
----
-```
+`docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt` and a `.md` counterpart for each page. The development server serves the same Markdown paths.
 
-`title`, `description`, `sidebar.order`, and a non-empty `search.tags` array are required.
-Orders must be unique within a path-derived group. The visible group order is root, form, general,
-navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
+Markdown removes build frontmatter, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components directory with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
 
-## MDX And Previews
-
-- MDX page module generation is handled by `solid-file-router`; `docs/build/markdown/page.ts` only supplies the provider extensions.
-- All docs pages use frontmatter for the visible header, route metadata, search, and per-route SEO.
-- Component API reference sections render automatically from colocated `api.json`.
-- Previews use the built-in MDX component with a static relative path:
-
-  ```mdx
-  <Preview path="./variants" />
-  <Preview path="../shared/advanced.tsx" />
-  ```
-
-- Preview paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
-- Each preview file directly exports exactly one component. The internal `?preview` module exposes its component and highlighted source as a default descriptor.
-- Keep each preview self-contained in one TSX file. Its data, types, and helpers must be in that file so the displayed source and generated Markdown have no local docs imports.
-- Fenced blocks, Preview sources, and package-manager tabs are pre-rendered at build time with Shiki using `docs/build/core/shiki.ts`.
-- Code block styling uses dual-theme CSS variables in `docs/code.css` without runtime highlighter overhead; `<CodeBlock />` provides the shared interactive container for normal blocks, `<CodeTabs />`, and `<Preview />`.
-- During SSR, Preview descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the Preview container and source.
-- Previous/next cards use the flattened sidebar order and continue across group boundaries.
-
-Each page's `<Playground>` selects a few meaningful primitive Input, Switch, or Select controls and
-renders its live specimen in MDX. `<Preview>` loads a separate, self-contained TSX example and its
-copyable source. JSX, callbacks, object values, render props, and complex state belong in those
-dedicated examples. The `llms` output omits Playground implementation and expands Preview source.
-
-## Shell, Scrolling, And Theme
-
-`docs/routes/_app.tsx` owns route and hash scrolling. The table of contents only observes heading visibility
-and exposes the active section; it never competes to scroll the document. The shared shell provides the
-skip link, navigation, responsive inline/rail table of contents, search, pagination, code-block controls,
-and heading permalinks.
-
-Theme preference is persisted and applied before paint, then reconciled by the theme runtime. Keep this
-pre-paint behavior intact so a saved dark theme does not flash light during navigation or reload.
-
-## Landing and Getting Started
-
-`/` is a dedicated TSX product landing route with a lightweight shell and live Moraine components.
-It is separate from the docs route registry. `/start` is the first MDX documentation page,
-with installation, required styling setup, and first component usage. The docs shell, sidebar,
-search, and Markdown rendering apply to `/start` and other documentation routes.
-
-## SSG
-
-`docs/vite.config.ts` configures:
-
-- `solid({ ssr: true })`
-- `fileRouter({ pagesDir: 'routes', mdx: createDocsMdxOptions(projectRoot), ssg: { id: 'app' } })`
-
-`pnpm run docs:build` emits the prerendered site under `docs/dist/client`.
+The shared shell in `docs/routes/_app.tsx` owns route scrolling and hash navigation; the table of contents observes visible headings. `docs/DESIGN.md` defines visual and interaction guidelines. Generated route types and `docs/dist` are build artifacts.
 
 ## Verification
 
-**NEVER WRITE TEST FOR docs/routes/**
-
-Run focused checks while changing the relevant area, then run the complete production gates before release:
+Do not add tests under `docs/routes/**`. Build logic has focused tests under `docs/build`.
 
 ```bash
-# Focused checks, selected for the area being changed.
-pnpm run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
-pnpm run test sidebar.test.tsx docs-command-palette.test.tsx
-pnpm run test docs/build/content.test.ts docs/build/previews/source.test.ts
-
-# Repository and SSG gates.
+pnpm vitest run docs/build/routes.test.ts docs/build/content.test.ts docs/build/llms.test.ts docs/build/markdown/frontmatter.test.ts docs/build/markdown/page.test.ts
 pnpm run test
 pnpm run qa
 pnpm run docs:build
 git diff --check
-
-# Production browser verification after the SSG build.
-pnpm run docs:preview
 ```
 
-Use the production preview to check representative component routes at narrow and desktop widths,
-including Playground controls, Preview source and rendering, anchors, themes, keyboard focus, and
-overlays. Check the browser console for errors and uncaught exceptions. Generated output under
-`docs/dist` must never be edited to make a check pass.
-
-## LLM-Friendly Documentation
-
-The docs build emits an `llms.txt` index and a Markdown representation for every page:
-
-- `/llms.txt` lists all documentation pages by group with absolute Markdown URLs.
-- `/start.md` is the Markdown version of Getting Started; the landing has no Markdown export.
-- `/<page>.md` contains the page prose, expanded example source, installation commands, and generated API reference when available.
-
-The same endpoints are served by the Vite development server. Markdown output is generated from the page frontmatter, MDX source, colocated previews, and API JSON, so it should not be edited by hand.
+Serve the production output with `pnpm run docs:preview` and check landing, both navigation spaces, representative component pages, nested Markdown URLs, keyboard navigation, and mobile layout.

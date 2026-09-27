@@ -4,6 +4,26 @@ This document is the visual and interaction contract for the Moraine documentati
 executable tokens live in `docs/unocss.config.ts`; route and component work must use those tokens
 instead of introducing a parallel docs system.
 
+## Information architecture and page writing
+
+The landing is independent. Header links lead to Docs (`/docs/getting-started`) and Components
+(`/components`); these are navigation anchors, not ARIA tabs. On mobile, the sidebar provides the
+same surface switch. Sidebars and Previous/Next stay within the current surface; search spans both.
+Docs groups are Overview, Styling, Composition, and Reference. Components groups are Overview,
+General, Form, Navigation, and Overlay.
+
+The Components overview is a grouped text-link directory: alphabetical within each category,
+three or four columns on desktop and one or two on mobile. Use small badge labels when available.
+No preview grid, card wall, or repeated description accompanies each link. Route descriptions
+continue to support search, SEO, and agent Markdown.
+
+Component pages lead with a short choice-oriented introduction, then Basic usage as copyable public
+TSX, Playground for simple visual changes, annotated Anatomy, behavior-focused Usage, optional
+real-task Examples, and generated API tables. Keep a single source for web and agent output.
+Do not re-list props, create a separate Import/Features/Related section, repeat native browser
+keyboard behavior, or add examples only to show every variant and size. Simple components stay simple;
+complex components explain their state and composition model.
+
 ## Product Character and Copy
 
 The documentation is a calm, dense technical workbench: ruled surfaces, clear hierarchy, and

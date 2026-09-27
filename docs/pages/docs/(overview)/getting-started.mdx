@@ -1,0 +1,28 @@
+---
+title: Getting Started
+description: Get to know Moraine and render your first SolidJS component.
+sidebar:
+  order: 1
+search:
+  tags: [getting started, SolidJS, setup]
+---
+
+Moraine provides composable, styled components for SolidJS. It is pre-1.0, so breaking changes may occur as its APIs evolve.
+
+## Set up Moraine
+
+Follow [Installation](/docs/installation) to add the package and configure UnoCSS or Tailwind CSS. Styling integration is required before rendering components.
+
+## Render a component
+
+```tsx
+import { Button } from 'moraine'
+
+export function SaveButton() {
+  return <Button onClick={() => console.log('Saved')}>Save</Button>
+}
+```
+
+## Next steps
+
+Browse the [component directory](/components), learn how [composition](/docs/composition) works, or configure your [design tokens](/docs/styling/design). The [UnoCSS](/docs/styling/unocss) and [Tailwind CSS](/docs/styling/tailwind) guides cover each styling path.

@@ -23,10 +23,13 @@ export interface DocsMdxCodeTabItem {
 
 export interface RenderExampleMarkdownPageInput {
   pageKey: string
+  surface: string
+  section: string
+  routePath: string
+  markdownPath: string
   apiDoc?: ExamplePageApiDoc
   frontmatter: FrontmatterData
   onThisPageEntries?: OnThisPageEntry[]
-  markdownSource?: string
   metadata?: DocsRouteMetadata
   children?: JSX.Element
 }
@@ -91,9 +94,11 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
       <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
         <DocsPageHeader
           pageKey={input.pageKey}
+          surface={input.surface}
+          section={input.section}
+          markdownPath={input.markdownPath}
           apiDoc={input.apiDoc}
           frontmatter={input.frontmatter}
-          markdownSource={input.markdownSource}
         />
 
         <div class="mb-24 mt-8 min-w-0 w-full">
@@ -101,7 +106,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             {input.children}
           </DocsPlaygroundApiContext.Provider>
           <DocsApiReference apiDoc={input.apiDoc} />
-          <DocsPageNavigation currentPageKey={input.pageKey} />
+          <DocsPageNavigation currentPagePath={input.routePath} />
         </div>
       </div>
       <OnThisPage

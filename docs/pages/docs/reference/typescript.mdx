@@ -1,0 +1,217 @@
+---
+title: TypeScript
+description: Type component props, slots, collection items, and polymorphic roots in SolidJS.
+sidebar:
+  order: 1
+search:
+  tags:
+    [types, typescript, namespaces, generics, props, polymorphic, as, MoraineTypeConfig, SolidJS]
+---
+
+## Overview
+
+Moraine exposes component props and supporting types for SolidJS. The project is **pre-1.0; breaking changes may occur**.
+
+| I want to…                                 | Use                                                      |
+| ------------------------------------------ | -------------------------------------------------------- |
+| Type a component's full props              | `ButtonProps`                                            |
+| Access component-specific supporting types | `ButtonT.*`                                              |
+| Type collection items or selected values   | `SelectT.Item`, `SelectT.NormalizedItem<TItem>['value']` |
+| Type slot overrides                        | `CardT.Classes`, `CardT.Styles`                          |
+| Change the rendered element or component   | `as`                                                     |
+| Adjust global type behavior                | `MoraineTypeConfig`                                      |
+
+```tsx
+import type { ButtonProps, ButtonT, DropdownMenuT, SelectProps, SelectT } from 'moraine'
+```
+
+## Component Props (`XxxProps`)
+
+Every component exports a `Props` type named after the component (e.g. `ButtonProps`, `SelectProps`, `DialogProps`). Use this type when wrapping a component, typing caller functions, or extending its props interface.
+
+```tsx
+import type { ButtonProps } from 'moraine'
+import { Button } from 'moraine'
+
+interface PrimaryButtonProps extends ButtonProps {
+  trackingId?: string
+}
+
+export function PrimaryButton(props: PrimaryButtonProps) {
+  return <Button variant="default" {...props} />
+}
+```
+
+## Component Namespaces (`XxxT`)
+
+Use `XxxProps` when you need the component's full props. Use `XxxT` for its supporting item, value, slot, variant, and style types. For example, `SelectT` groups the types related to Select under one import.
+
+```tsx
+import type { SelectProps, SelectT } from 'moraine'
+
+const regionOptions: SelectT.Item[] = [
+  { label: 'Asia', value: 'asia' },
+  { label: 'Europe', value: 'europe' },
+]
+
+let selected: SelectT.Item['value'] | null = null
+```
+
+### Namespace Reference
+
+Common supporting types are listed below. Unsupported members use `never`; component-specific collection and render types appear where relevant.
+
+| Member    | Description                                                                       |
+| --------- | --------------------------------------------------------------------------------- |
+| `Slot`    | Generic documented map of presentation slots, or `never` for headless components. |
+| `Variant` | Nullable visual variant options, or `never` when unavailable.                     |
+| `Classes` | Typed slot-class overrides, or `never` when unavailable.                          |
+| `Styles`  | Typed slot-style overrides, or `never` when unavailable.                          |
+| `Item`    | Data model for genuine collection components such as `Select` and `Tabs`.         |
+| `Value`   | Domain type only when the component has meaningful value semantics.               |
+| `Base`    | Component-specific base/business props without root HTML attributes.              |
+| `Props`   | Final public props shape (identical to `XxxProps`).                               |
+
+### Visual Variants (`XxxT.Variant`)
+
+Components that support visual variants expose `XxxT.Variant`. Variant fields accept `null` to explicitly clear a default variant without applying another variant's classes:
+
+```tsx
+import type { ButtonT } from 'moraine'
+import { Button } from 'moraine'
+
+type ButtonVariant = ButtonT.Variant['variant'] // 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null
+
+// Explicitly unstyled button:
+;<Button variant={null}>Unstyled Action</Button>
+```
+
+### Slot Classes & Styles (`XxxT.Classes`, `XxxT.Styles`)
+
+Use `Classes` and `Styles` to type slot override records when customizing composite elements:
+
+```tsx
+import type { CardT } from 'moraine'
+import { Card } from 'moraine'
+
+const cardStyles: CardT.Classes = {
+  header: 'border-b border-border pb-2',
+  body: 'space-y-4 py-3',
+  footer: 'border-t border-border pt-2',
+}
+
+<Card classes={cardStyles}><Card.Body>Account Content</Card.Body></Card>
+```
+
+## Where DOM props apply
+
+Put native attributes on the component that renders the element. For example, `Card` accepts its `aria-*` and `data-*` attributes; `Button as="a"` accepts anchor attributes. Moraine types the target's native Solid attributes:
+
+- **Standard HTML & ARIA attributes**: `aria-*`, `data-*`, `id`, `tabIndex`, and standard attributes are fully typed.
+- **CamelCase event handlers**: `onClick`, `onInput`, `onKeyDown`, etc. Lowercase aliases (`onclick`) and Solid directive prefixes (`use:*`) are omitted to keep autocompletion focused.
+- **Unknown attributes**: Unrecognized attributes fail type checking by default to catch typos early.
+
+```tsx
+<Card aria-describedby="details" data-testid="card" />
+<Button as="a" href="/docs/getting-started" ref={(anchor) => anchor.focus()}>Docs</Button>
+```
+
+### Editable Element Ownership (`Input`, `Textarea`)
+
+`Input` and `Textarea` apply native attributes, events, `ref`, `class`, and `style` to their editable `<input>` or `<textarea>`, rather than the outer layout container:
+
+- Attributes like `form`, `list`, `enterkeyhint`, `placeholder`, `disabled`, and `aria-label` bind to the `<input>` or `<textarea>`.
+- Clipboard, composition, focus, keyboard, and input events fire from the native control.
+- `class`, `style`, and `ref` also target the native control. Use `InputGroup` when you need a shared wrapper with leading/trailing adornments.
+
+```tsx
+<Input
+  form="checkout-form"
+  list="cities"
+  ref={(input) => input.select()}
+  onValueChange={(value) => console.log('Normalized string:', value)}
+  onInput={(event) => console.log('Native event:', event.currentTarget.value)}
+/>
+```
+
+`onValueChange` is the normalized-value callback. `onInput`, `onChange`, `onBlur`, and `onFocus` receive native DOM events after internal synchronization.
+
+The [Composition guide](/docs/composition#dom-ownership) explains which public part owns each DOM element.
+
+## Polymorphic Rendering (`as` Prop)
+
+See [Composition](/docs/composition#polymorphic-composition) for the structural model. TypeScript narrows `as` to the target element or Solid component and preserves its props.
+
+### HTML Element Tags (`as="tag"`)
+
+When rendering as an HTML element tag, Moraine narrows the allowed attributes, event types, and `ref` callback parameter to match that specific tag:
+
+```tsx
+import { Button } from 'moraine'
+
+// Valid: 'href' and 'target' are valid on anchor elements
+<Button as="a" href="/dashboard" target="_blank" ref={(anchor) => anchor.focus()}>
+  Dashboard
+</Button>
+
+// Type error: 'href' does not exist on button elements
+<Button as="button" href="/dashboard">
+  Dashboard
+</Button>
+```
+
+### Component Polymorphism (`as={Component}`)
+
+You can pass another Solid component to `as`. Moraine preserves the target component's custom props, providing full IDE autocompletion, type validation, and "Go to Definition" navigation:
+
+```tsx
+import { Button, DropdownMenu } from 'moraine'
+
+;<DropdownMenu>
+  {/* Preserves Button's 'variant', 'size', and 'loadingAuto' props with full intellisense */}
+  <DropdownMenu.Trigger as={Button} variant="ghost" size="icon-xs">
+    Open Menu
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content items={[{ label: 'Profile' }]} />
+</DropdownMenu>
+```
+
+### Overlay Triggers
+
+Overlay triggers (`DropdownMenu.Trigger`, `ContextMenu.Trigger`, `Dialog.Trigger`, `Sheet.Trigger`, `Modal.Trigger`) merge caller event listeners, ARIA attributes, and refs with their own trigger behavior when rendered `as={Button}`.
+
+## Global Type Configuration (`MoraineTypeConfig`)
+
+You can customize Moraine's compile-time type behavior across your entire application using TypeScript module augmentation.
+
+Create a type declaration file (e.g. `src/env.d.ts` or `src/types.d.ts`) in your project:
+
+```ts title="src/env.d.ts"
+declare module 'moraine' {
+  interface MoraineTypeConfig {
+    /**
+     * When true, relaxes root element attributes to component props + `Record<string, unknown>`.
+     * Unknown attributes will be accepted without type errors, improving type-checking speed.
+     * Defaults to false (strict checking against JSX.IntrinsicElements).
+     */
+    simpleRootAttributes?: boolean
+
+    /**
+     * When true, restricts polymorphic `as` tags to `JSX.HTMLElementTags` (HTML tags only).
+     * Excludes SVG and MathML intrinsic tags from `as` autocompletion.
+     * Defaults to false (allows all keyof JSX.IntrinsicElements).
+     */
+    simpleHtmlTags?: boolean
+  }
+}
+```
+
+### `simpleRootAttributes`
+
+- **`false` (default)**: All intrinsic HTML attributes are strictly verified against `StrictedAttributes<T>`. Custom, misspelled, or non-standard attributes (outside `data-*` and `aria-*`) trigger TypeScript errors.
+- **`true`**: Root attributes accept component props + `Record<string, unknown>`. Unknown attributes pass without errors, while known component props (`variant`, `size`, `disabled`) remain strictly checked. This can reduce type-checking work at the cost of typo checking for unknown attributes.
+
+### `simpleHtmlTags`
+
+- **`false` (default)**: `as` autocompletes all valid tags in `keyof JSX.IntrinsicElements`, including SVG (`svg`, `path`, `g`) and MathML elements.
+- **`true`**: Limits `as` tag completion to standard `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, etc.), reducing autocompletion noise.

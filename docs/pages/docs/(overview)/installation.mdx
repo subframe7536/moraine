@@ -1,0 +1,40 @@
+---
+title: Installation
+description: Install Moraine and configure its required styles for SolidJS.
+sidebar:
+  order: 2
+search:
+  tags: [installation, setup, UnoCSS, Tailwind CSS]
+---
+
+Install the package with your package manager:
+
+```shell title="bun" group-id="install"
+bun add moraine
+```
+
+```shell title="pnpm" group-id="install"
+pnpm add moraine
+```
+
+```shell title="npm" group-id="install"
+npm install moraine
+```
+
+## Configure styles
+
+Choose [UnoCSS](/docs/styling/unocss) or [Tailwind CSS](/docs/styling/tailwind) and follow its integration steps. Both paths supply Moraine's utility classes and design tokens. The [Design](/docs/styling/design) guide lists the CSS variables that you can customize.
+
+## Verify the installation
+
+After configuring styles, render a component and check that its visual styles appear:
+
+```tsx
+import { Button } from 'moraine'
+
+export function App() {
+  return <Button>Ready</Button>
+}
+```
+
+Continue with [Getting Started](/docs/getting-started) or browse [Components](/components).

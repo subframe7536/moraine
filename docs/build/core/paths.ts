@@ -1,6 +1,8 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
+import type { DocsSurface } from '../../shared/docs-route.ts'
+
 import { toPosixPath } from './strings.ts'
 
 export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
@@ -10,7 +12,10 @@ export interface DocsPageContext {
   pagesRoot: string
   relativePath: string
   pageKey: string
-  group?: string
+  surface: DocsSurface
+  section: string
+  routePath: string
+  markdownPath: string
 }
 
 function derivePageKey(relativePath: string): string {
@@ -27,14 +32,35 @@ function derivePageKey(relativePath: string): string {
   return parentDirectory === fileBaseName ? parentDirectory : fileBaseName
 }
 
-function deriveGroup(relativePath: string): string | undefined {
-  const firstDirectory = toPosixPath(path.dirname(relativePath)).split('/')[0]
-  if (!firstDirectory || firstDirectory === '.') {
-    return undefined
+function deriveRoute(relativePath: string) {
+  const segments = toPosixPath(relativePath)
+    .replace(/\.mdx$/, '')
+    .split('/')
+  const firstSegment = segments.shift()
+  if (firstSegment !== 'docs' && firstSegment !== 'components') {
+    throw new Error(`[docs-plugin] unknown docs surface in ${relativePath}`)
   }
-
-  const pathlessGroup = firstDirectory.match(/^\(([^()]+)\)$/)
-  return pathlessGroup?.[1] ?? firstDirectory
+  const surface: DocsSurface = firstSegment
+  const sectionSegment = segments.find((segment) =>
+    surface === 'docs'
+      ? /^(\(overview\)|styling|\(composition\)|reference)$/.test(segment)
+      : /^(\(general\)|\(form\)|\(navigation\)|\(overlay\))$/.test(segment),
+  )
+  const section =
+    sectionSegment?.replace(/[()]/g, '') ?? (surface === 'components' ? 'overview' : '')
+  if (!section) {
+    throw new Error(`[docs-plugin] unknown docs section in ${relativePath}`)
+  }
+  const routeSegments = segments.filter((segment) => !/^\([^)]+\)$/.test(segment))
+  if (routeSegments.at(-1) === 'index') {
+    routeSegments.pop()
+  }
+  if (surface === 'components') {
+    // Component groups are organizational; all component URLs have one public segment.
+    routeSegments.splice(0, routeSegments.length - 1)
+  }
+  const routePath = `/${[surface, ...routeSegments].join('/')}`
+  return { surface, section, routePath, markdownPath: `${routePath}.md` }
 }
 
 export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
@@ -48,12 +74,14 @@ export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
   const docsRoot = path.normalize(normalized.slice(0, markerIndex + '/docs'.length))
   const pagesRoot = path.join(docsRoot, 'pages')
   const relativePath = normalized.slice(markerIndex + marker.length)
+  const pageKey = derivePageKey(relativePath)
+  const route = deriveRoute(relativePath)
   return {
     absolutePath: path.normalize(absolutePath),
     pagesRoot,
     relativePath,
-    pageKey: derivePageKey(relativePath),
-    group: deriveGroup(relativePath),
+    pageKey,
+    ...route,
   }
 }
 

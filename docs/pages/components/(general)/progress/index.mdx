@@ -1,0 +1,78 @@
+---
+title: Progress
+description: Show measurable or indeterminate task progress.
+api:
+  path: src/element/progress/progress
+sidebar:
+  order: 10
+search:
+  tags: [loading, percentage, steps, indicator, progress bar, meter]
+---
+
+import { Progress } from '@src'
+
+Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
+
+## Basic usage
+
+```tsx
+import { Progress } from 'moraine'
+
+export function Example() {
+  return <Progress value={40} max={100} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Progress
+      value={props.value}
+      size={props.size}
+      status={props.status}
+      animation={props.animation}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Progress [component; slot=root]
+├── status [slot]
+├── track [slot]
+│   └── indicator [slot]
+└── steps [slot]
+    └── step [slot]
+```
+
+## Usage
+
+### Progress models
+
+Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+
+<Preview path="./models" />
+
+### Semantics and animation
+
+The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+
+<Preview path="./semantics" />

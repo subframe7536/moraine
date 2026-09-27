@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { DOCS_GROUP_ORDER } from '../shared/docs-route.ts'
+import { DOCS_SECTION_ORDER } from '../shared/docs-route.ts'
 import type { DocsRouteInfo, DocsRouteSection } from '../shared/docs-route.ts'
 
 import { loadApiDocIndex } from './api-doc/load.ts'
@@ -43,11 +43,11 @@ function createComponentKeySet(projectRoot: string): Set<string> {
 }
 
 function compareRoutes(left: DocsRouteEntry, right: DocsRouteEntry): number {
-  const leftGroup = left.info.group ?? ''
-  const rightGroup = right.info.group ?? ''
+  const leftGroup = `${left.info.surface}:${left.info.section}`
+  const rightGroup = `${right.info.surface}:${right.info.section}`
   const groupDifference =
-    (DOCS_GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
-    (DOCS_GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
+    (DOCS_SECTION_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
+    (DOCS_SECTION_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
   if (groupDifference !== 0) {
     return groupDifference
   }
@@ -65,8 +65,7 @@ export function scanDocsRoutes(
 
   const routes = pages
     .map(({ page, frontmatter }) => {
-      const key = page.pageKey
-      const info = createDocsRouteInfo(key, page.group, frontmatter, componentKeys)
+      const info = createDocsRouteInfo(page, frontmatter, componentKeys)
 
       return {
         info,
@@ -77,7 +76,7 @@ export function scanDocsRoutes(
 
   const ordersByGroup = new Map<string, Map<number, string>>()
   for (const route of routes) {
-    const group = route.info.group ?? ''
+    const group = `${route.info.surface}:${route.info.section}`
     const orders = ordersByGroup.get(group) ?? new Map<number, string>()
     const duplicatePath = orders.get(route.info.order)
     if (duplicatePath) {
@@ -93,21 +92,23 @@ export function scanDocsRoutes(
 }
 
 export function createDocsRouteInfo(
-  key: string,
-  group: string | undefined,
+  page: DocsPageContext,
   frontmatter: FrontmatterData,
   componentKeys: ReadonlySet<string>,
   sections: readonly DocsRouteSection[] = [],
 ): DocsRouteInfo {
   return {
-    key,
+    key: page.pageKey,
+    surface: page.surface,
+    section: page.section,
+    routePath: page.routePath,
+    markdownPath: page.markdownPath,
     title: frontmatter.title,
     description: frontmatter.description,
     order: frontmatter.sidebar.order,
     tags: frontmatter.search.tags,
-    ...(group ? { group } : {}),
     ...(frontmatter.sidebar.badge ? { badge: frontmatter.sidebar.badge } : {}),
-    ...(componentKeys.has(key) ? { api: key } : {}),
+    ...(componentKeys.has(page.pageKey) ? { api: page.pageKey } : {}),
     ...(sections.length > 0 ? { sections: [...sections] } : {}),
   }
 }

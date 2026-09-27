@@ -1,0 +1,94 @@
+---
+title: Breadcrumb
+description: Show a resource hierarchy and mark its current page.
+api:
+  path: src/navigation/breadcrumb/breadcrumb
+sidebar:
+  order: 1
+search:
+  tags: [path, hierarchy, navigation, trail, breadcrumb, routing, sitemap]
+---
+
+import { Breadcrumb } from '@src'
+
+Use Breadcrumb to show a resource’s place in a navigation hierarchy. The current page is represented as a non-link item.
+
+## Basic usage
+
+```tsx
+import { Breadcrumb } from 'moraine'
+
+export function Example() {
+  return <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const TRAIL_ITEMS = [
+      { label: 'Home', href: '#', icon: 'i-lucide:home' },
+      { label: 'Projects', href: '#' },
+      { label: 'Design System', href: '#' },
+      { label: 'Components' },
+    ]
+
+    return (
+      <Breadcrumb
+        items={TRAIL_ITEMS}
+        separator={props.separator || 'i-lucide:chevron-right'}
+        wrap={props.wrap}
+        size={props.size}
+      />
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+```text
+Breadcrumb [component; slot=root; <nav>]
+└── list [slot]
+    ├── item [slot]
+    │   └── link [slot]
+    │       ├── leading [slot]
+    │       └── label [slot]
+    └── separator [slot]
+```
+
+## Usage
+
+### Items and current page
+
+Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. The current page is a non-link `span` with `aria-current="page"`. Explicitly disabled ancestors remain non-interactive and expose `aria-disabled="true"`.
+
+<Preview path="./items-page" />
+
+## Examples
+
+### Custom separator and disabled item
+
+<Preview path="./custom-separator-disabled" />
+
+### Wrapping
+
+<Preview path="./wrapping" />

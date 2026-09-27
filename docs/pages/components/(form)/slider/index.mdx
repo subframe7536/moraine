@@ -1,0 +1,152 @@
+---
+title: Slider
+description: Choose a number or range by moving one or more thumbs.
+api:
+  path: src/form/slider/slider
+sidebar:
+  order: 15
+search:
+  tags: [range, value, thumb, step, slider, volume, fader, audio, dual handle]
+---
+
+import { Slider } from '@src'
+import { createSignal } from 'solid-js'
+
+Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric field when users need precise text entry.
+
+## Basic usage
+
+```tsx
+import { Slider } from 'moraine'
+
+export function Example() {
+  return <Slider defaultValue={50} />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Bold', value: 'bold' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0, inputType: 'number' },
+    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: false },
+    { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const [value, setValue] = createSignal(65)
+    return (
+      <div
+        class={
+          props.vertical ? 'flex flex-col items-center gap-3 h-56' : 'space-y-3 w-full max-w-sm'
+        }
+      >
+        <div
+          class={`text-xs text-muted-foreground flex items-center justify-between ${
+            props.vertical ? 'flex-col gap-1' : 'w-full'
+          }`}
+        >
+          <span>Volume</span>
+          <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
+        </div>
+        <Slider
+          value={value()}
+          onValueChange={(val) => {
+            if (typeof val === 'number') setValue(val)
+          }}
+          orientation={props.vertical ? 'vertical' : 'horizontal'}
+          variant={props.variant}
+          size={props.size}
+          step={props.step}
+          marker={props.marker}
+          disabled={props.disabled}
+          inverted={props.inverted}
+        />
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+Slider [component; slot=root]
+├── track [slot]
+│   ├── range [slot]
+│   └── marker [slot]
+└── thumb [slot]
+```
+
+## Usage
+
+### Single values and ranges
+
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onChange` for controlled state; `onValueChange` is useful when the application needs immediate updates during drag.
+
+<Preview path="./values" />
+
+### Step and markers
+
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to render visual tick marks at each step interval across the track rail.
+
+<Preview path="./step-marker" />
+
+### Keyboard and forms
+
+The thumb supports keyboard stepping, including page-sized increments. Add a `name` for native form participation or use `Field` when the slider belongs to a Formisch store.
+
+<Preview path="./keyboard-forms" />
+
+### Keyboard interaction
+
+When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized movement is approximately 10% of the range and is snapped to `step` when one is defined.
+
+| Key                                         | Description                                             |
+| ------------------------------------------- | ------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step. |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step. |
+| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                      |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                      |
+| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value. |
+| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value. |
+
+## Examples
+
+### Controlled value
+
+<Preview path="./controlled-single" />
+
+### Range
+
+<Preview path="./range-slider" />
+
+### Form integration
+
+<Preview path="./form-integration" />
+
+### Blur slider
+
+<Preview path="./blur-slider" />

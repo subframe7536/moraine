@@ -1,0 +1,81 @@
+---
+title: Icon
+description: Render decorative or named icons from utility names or JSX.
+api:
+  path: src/element/icon/icon
+sidebar:
+  order: 2
+search:
+  tags: [Iconify, Lucide, symbol, SVG, icon, vector, glyph]
+---
+
+import { Icon } from '@src'
+
+Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it an accessible name; otherwise it is hidden from assistive technology.
+
+## Basic usage
+
+```tsx
+import { Icon } from 'moraine'
+
+export function Example() {
+  return <Icon name="i-lucide:check" />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
+    { kind: 'input', prop: 'name', label: 'Icon identifier', defaultValue: 'i-lucide-sparkles' },
+  ]}
+>
+  {(props) => (
+    <div class="p-4 flex items-center justify-center">
+      <Icon name={props.name} size={props.size} class="text-primary" />
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Icon [component; slot=root; <div>]
+```
+
+For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.
+
+Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is rendered:
+
+```tsx
+<Show when={visible()}>
+  <Icon name={<StatusGlyph />} />
+</Show>
+```
+
+## Usage
+
+### Icon sources
+
+Pass a supported icon name, JSX element, or component source. Use an icon as decoration only when adjacent text already names the meaning; otherwise provide an accessible label on the meaningful control or icon.
+
+Use `<Icon name="icon-search" />` or `<Icon name="icon-success" />` for Moraine's semantic aliases. Editor completion suggests the built-in names, while `<Icon name="i-lucide-search" />` and `<Icon name="app-logo" />` remain valid. `Icon` applies string names as classes; your UnoCSS or Tailwind setup must generate the corresponding CSS for custom names.
+
+<Preview path="./sources" />
+
+### Root styling
+
+`Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props because there are no child slots to target. `slotName` only changes the emitted `data-slot` value.
+
+<Preview path="./slots" />
+
+## Examples
+
+### JSX icon
+
+<Preview path="./icon-as-jsx" />
+
+### Accessibility
+
+<Preview path="./accessibility" />

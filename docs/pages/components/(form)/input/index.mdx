@@ -1,0 +1,102 @@
+---
+title: Input
+description: Edit single-line text with native input events and Field integration.
+api:
+  path: src/form/input/input
+sidebar:
+  order: 3
+search:
+  tags: [text field, textbox, form control, loading, search input, password]
+---
+
+import { Input } from '@src'
+
+Use Input for native single-line text editing. Compose it with [Field](/components/field) for a label and validation message, or [InputGroup](/components/input-group) for adjacent controls.
+
+## Basic usage
+
+```tsx
+import { Input } from 'moraine'
+
+export function Example() {
+  return <Input placeholder="Your name" />
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Search repositories...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Input
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+Input [component; slot=root; <input>]
+```
+
+`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native input. Put container styling and refs on `InputGroup` when composing supporting content.
+
+## Usage
+
+### Native input behavior
+
+`Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and `defaultValue` for an initial uncontrolled value. `readOnly` keeps the field focusable without allowing edits; `disabled` removes it from interaction.
+
+<Preview path="./controlled-input" />
+
+### Composed controls
+
+Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit. Password visibility, clearing, copying, and loading remain application behavior: compose buttons and icons into these parts and provide their labels and handlers.
+
+<Preview path="./composed-controls" />
+
+## Examples
+
+### Leading and trailing content
+
+<Preview path="./input-with-icons" />
+
+### Form integration
+
+<Preview path="./form-integration" />

@@ -1,0 +1,110 @@
+---
+title: ButtonGroup
+description: Join related buttons into one visual control set.
+api:
+  path: src/element/button/button-group
+  parts: [Separator]
+sidebar:
+  order: 1
+search:
+  tags: [button, actions, toolbar, group, split button, segment]
+---
+
+import { Button, ButtonGroup } from '@src'
+
+Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own interactive control; the group supplies layout and shared presentation.
+
+## Basic usage
+
+```tsx
+import { Button, ButtonGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <ButtonGroup>
+      <Button>Copy</Button>
+      <Button variant="outline">Share</Button>
+    </ButtonGroup>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <ButtonGroup
+      variant={props.variant}
+      orientation={props.orientation}
+      aria-label="Document history"
+    >
+      <Button leading="i-lucide:undo-2">Undo</Button>
+      <Button leading="i-lucide:redo-2">Redo</Button>
+    </ButtonGroup>
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+ButtonGroup [component; slot=root]
+├── ButtonGroup.Separator [part; slot=separator]
+```
+
+- `root`: Flex container managing border collapsing and role orientation.
+- `separator`: Explicit semantic divider with ButtonGroup-specific presentation.
+
+## Usage
+
+### Composition
+
+Use `ButtonGroup` to align related actions without changing their semantics. Add `ButtonGroup.Separator` where a divider helps; it accepts direct `class` and `style`. Root `classes` and `styles` set defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an action needs an overlay.
+
+<Preview path="./group-composition" />
+
+## Examples
+
+### Separator
+
+Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation follows the group axis: vertical in a horizontal group and horizontal in a vertical group. An explicit `orientation` overrides this default.
+
+<Preview path="./separator" />
+
+### Dropdown menu composition
+
+<Preview path="./button-dropdown" />
+
+### Popover composition
+
+<Preview path="./button-popover" />
+
+### Vertical layout
+
+<Preview path="./vertical" />
