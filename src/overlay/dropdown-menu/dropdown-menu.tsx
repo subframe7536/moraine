@@ -8,6 +8,7 @@ import {
   on,
   onMount,
   splitProps,
+  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -216,14 +217,17 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const binding = mergeMenuTriggerProps(rest, context.triggerProps)
+  const customTrigger = createMemo(() => typeof local.as === 'function')
+  const binding = untrack(() => mergeMenuTriggerProps(rest, context.triggerProps, customTrigger))
+  const [, triggerAttributes] = splitProps(binding, ['onClick'])
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
     <Dynamic
       component={local.as ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
-      {...binding}
+      {...triggerAttributes}
+      onClick={customTrigger() ? undefined : binding.onClick}
       data-slot="dropdown-menu-trigger"
       {...resolved.styles.trigger}
     >

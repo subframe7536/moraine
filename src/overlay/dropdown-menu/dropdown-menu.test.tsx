@@ -1,13 +1,54 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { callHandler } from '../../shared/utils'
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
 
 import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
+  test('opens once from a custom trigger', () => {
+    const onOpenChange = vi.fn()
+    const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button {...props} />
+    )
+    const screen = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as={CustomButton}>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Action' }]} />
+      </DropdownMenu>
+    ))
+
+    fireEvent.click(screen.getByText('Actions'))
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+  })
+
+  test('honors a custom trigger that cancels click before forwarding it', async () => {
+    const onOpenChange = vi.fn()
+    const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button
+        {...props}
+        onClick={(event) => {
+          event.preventDefault()
+          callHandler(event, props.onClick)
+        }}
+      />
+    )
+    const screen = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as={CancelingButton}>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Action' }]} />
+      </DropdownMenu>
+    ))
+
+    fireEvent.click(screen.getByText('Actions'))
+    await Promise.resolve()
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('opens and restores focus in a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
@@ -35,6 +76,40 @@ describe('DropdownMenu', () => {
       await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'))
       fireEvent.click(ownerDocument.body.querySelector('[role="menuitem"]')!)
       await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
+
+  test('opens a submenu from a foreign Document', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <DropdownMenu>
+          <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          />
+        </DropdownMenu>
+      ),
+      { container: host },
+    )
+    try {
+      fireEvent.click(host.querySelector('[data-slot="dropdown-menu-trigger"]')!)
+      const item = await waitFor(() => {
+        const element = ownerDocument.body.querySelector('[role="menuitem"][aria-haspopup="menu"]')
+        expect(element).not.toBeNull()
+        return element!
+      })
+      fireEvent.keyDown(item, { key: 'ArrowRight' })
+      await waitFor(() =>
+        expect(ownerDocument.body.querySelectorAll('[role="menu"]')).toHaveLength(2),
+      )
     } finally {
       screen.unmount()
       iframe.remove()
@@ -1491,6 +1566,38 @@ describe('DropdownMenu', () => {
 
     const item = await waitFor(() => {
       const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    await waitFor(() =>
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull(),
+    )
+    fireEvent.keyDown(item, { key: 'Escape' })
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+    ).not.toBeNull()
+  })
+
+  test('lets a submenu item key handler cancel Escape before the menu handles it', async () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          itemProps={() => ({ onKeyDown })}
+        />
+      </DropdownMenu>
+    ))
+
+    const item = await waitFor(() => {
+      const element = document.body.querySelector('[role="menuitem"][aria-haspopup="menu"]')
       expect(element).not.toBeNull()
       return element!
     })

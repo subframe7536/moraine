@@ -1,4 +1,4 @@
-import type { FormConfig, RequiredPath, Schema } from '@formisch/solid'
+import type { FormConfig, FormStore, RequiredPath, Schema } from '@formisch/solid'
 import { createForm as createFormischForm, reset as resetForm } from '@formisch/solid'
 import { INTERNAL, validateFormInput } from '@formisch/solid/internals'
 import type { JSX } from 'solid-js'
@@ -127,7 +127,7 @@ export function createForm<TSchema extends Schema>(
     props: FormT.FieldProps<TSchema, T>,
   ): JSX.Element => {
     const binding = useFormischFieldBinding(
-      store,
+      store as FormStore,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
       focusManager,
     )

@@ -609,14 +609,17 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const binding = mergeMenuTriggerProps(rest, context.triggerProps)
+  const customTrigger = createMemo(() => typeof local.as === 'function')
+  const binding = untrack(() => mergeMenuTriggerProps(rest, context.triggerProps, customTrigger))
+  const [, triggerAttributes] = splitProps(binding, ['onClick'])
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
     <Dynamic
       component={local.as ?? 'div'}
       type={undefined}
-      {...binding}
+      {...triggerAttributes}
+      onClick={customTrigger() ? undefined : binding.onClick}
       data-slot="context-menu-trigger"
       {...resolved.styles.trigger}
     >

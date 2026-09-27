@@ -11,7 +11,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js'
-import { Dynamic, Portal } from 'solid-js/web'
+import { Dynamic, Portal, delegateEvents } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { dataSlotName } from '../../shared/data-slot.ts'
@@ -206,58 +206,43 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     },
     interaction,
   )
-  const handledEvents = new WeakSet<Event>()
-  const forwardEvent = (
-    key:
-      | 'onClick'
-      | 'onKeyDown'
-      | 'onKeyUp'
-      | 'onPointerDown'
-      | 'onPointerEnter'
-      | 'onPointerLeave'
-      | 'onFocus'
-      | 'onBlur',
-    event: Event,
-  ): void => {
-    if (handledEvents.has(event)) {
-      return
-    }
-    handledEvents.add(event)
-    callHandler(event, interaction[key])
-  }
   const children = resolveChildren(() => local.children)
+  const [, triggerAttributes] = splitProps(binding, ['onClick'])
   return (
     <Dynamic
-      {...binding}
-      onClick={(event: MouseEvent) => forwardEvent('onClick', event)}
-      onKeyDown={(event: KeyboardEvent) => forwardEvent('onKeyDown', event)}
-      onKeyUp={(event: KeyboardEvent) => forwardEvent('onKeyUp', event)}
-      onPointerDown={(event: PointerEvent) => forwardEvent('onPointerDown', event)}
-      onPointerEnter={(event: PointerEvent) => forwardEvent('onPointerEnter', event)}
-      onPointerLeave={(event: PointerEvent) => forwardEvent('onPointerLeave', event)}
-      onFocus={(event: FocusEvent) => forwardEvent('onFocus', event)}
-      onBlur={(event: FocusEvent) => forwardEvent('onBlur', event)}
+      {...triggerAttributes}
+      onClick={typeof tag() === 'function' ? undefined : interaction.onClick}
       component={tag()}
       class={cn(local.class)}
       style={local.style}
       ref={(element: HTMLElement) => {
         context.setTriggerElement(element)
         callRef(local.ref, element)
-        const eventKeys = {
-          click: 'onClick',
-          keydown: 'onKeyDown',
-          keyup: 'onKeyUp',
-          pointerdown: 'onPointerDown',
-          pointerenter: 'onPointerEnter',
-          pointerleave: 'onPointerLeave',
-          focus: 'onFocus',
-          blur: 'onBlur',
-        } as const
-        const releases = Object.entries(eventKeys).map(([name, key]) =>
-          attachEventListener(element, name as keyof HTMLElementEventMap, (event) =>
-            forwardEvent(key, event),
-          ),
+        // Let a custom root cancel the click before handling it on the document.
+        if (typeof tag() === 'function') {
+          delegateEvents(['click'], document)
+        }
+        const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map(
+          (key) =>
+            attachEventListener(
+              element,
+              key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
+              (event) => {
+                if (element.ownerDocument !== document) {
+                  ;(interaction[key] as EventListener)(event)
+                }
+              },
+            ),
         )
+        if (typeof tag() === 'function') {
+          releases.push(
+            attachEventListener(document, 'click', (event) => {
+              if (event.target instanceof Node && element.contains(event.target)) {
+                callHandler(event, interaction.onClick)
+              }
+            }),
+          )
+        }
         onCleanup(() => {
           releases.forEach((release) => release())
           if (context.triggerElement() === element) {
