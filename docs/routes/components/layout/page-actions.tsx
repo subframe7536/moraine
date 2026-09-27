@@ -32,7 +32,7 @@ export function PageActions(props: {
         variant="ghost"
         size="icon-sm"
         aria-label="GitHub repository"
-        class="text-muted-foreground hover:text-foreground"
+        class="text-muted-foreground hover:text-foreground active:translate-y-0!"
       >
         <Icon name="i-lucide-github" />
       </Button>

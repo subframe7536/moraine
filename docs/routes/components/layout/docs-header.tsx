@@ -27,7 +27,13 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
 
   return (
     <header class="bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
-      <nav aria-label="Main" class="px-4 flex h-13 w-full items-center justify-between sm:px-8">
+      <nav
+        aria-label="Main"
+        class={cn(
+          'px-3 flex h-13 w-full items-center justify-between sm:px-5',
+          props.isLanding() && 'sm:px-8',
+        )}
+      >
         <div class="flex gap-2.5 items-center sm:gap-6">
           <Show when={!props.isLanding() && frame.isMobile()}>
             <SidebarFrame.Trigger
@@ -49,25 +55,31 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
               v{packageMetadata.version}
             </Badge>
           </a>
-          <div class="gap-4 hidden items-center sm:flex">
-            <a
+          <div class="gap-1 hidden items-center sm:flex">
+            <Button
+              as="a"
+              variant="ghost"
+              size="sm"
               href="/docs/getting-started"
               class={cn(
-                'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
-                isDocs() ? 'text-foreground font-medium' : 'text-muted-foreground',
+                'active:translate-y-0!',
+                isDocs() ? 'text-foreground' : 'text-muted-foreground',
               )}
             >
               Docs
-            </a>
-            <a
+            </Button>
+            <Button
+              as="a"
+              variant="ghost"
+              size="sm"
               href="/components"
               class={cn(
-                'transition-colors text-sm hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
-                isComponents() ? 'text-foreground font-medium' : 'text-muted-foreground',
+                'active:translate-y-0!',
+                isComponents() ? 'text-foreground' : 'text-muted-foreground',
               )}
             >
               Components
-            </a>
+            </Button>
           </div>
         </div>
         <PageActions
