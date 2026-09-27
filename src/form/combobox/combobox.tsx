@@ -5,8 +5,8 @@ import { Icon } from '../../element/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
+import { useBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
 import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
-import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -65,14 +65,19 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           ? String(state.value()[0])
           : ''
     }
-    const input = useBaseSelectSearchInput(
+    const input = useBaseSelectSearchInput({
       state,
-      local,
-      () => true,
-      search,
-      () => (state.open() ? search.query() : selectedLabel()),
-    )
-    const canClear = () => state.value().length > 0 || Boolean(search.query())
+      searchValue: search.value,
+      setSearchValue: search.setValue,
+      get maxLength() {
+        return local.searchMaxLength
+      },
+      get autocomplete() {
+        return local.autocomplete
+      },
+      displayValue: () => (state.open() ? search.value() : selectedLabel()),
+    })
+    const canClear = () => state.value().length > 0 || Boolean(search.value())
     function focusInput(): void {
       state.focusOwner()?.focus()
     }
@@ -82,7 +87,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       }
       input.discardComposition()
       state.change([])
-      search.setQuery('')
+      search.setValue('')
       local.onClear?.()
       focusInput()
     }
@@ -127,13 +132,13 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             )}
           </Show>
           <input
-            {...input.binding}
+            {...input.inputProps}
             {...state.field.ariaAttrs()}
             data-slot="combobox-input"
             {...styles.styles.input}
             placeholder={local.placeholder}
             ref={(element) => {
-              input.binding.ref(element)
+              input.inputProps.ref(element)
               callRef(local.inputRef, element)
             }}
           />
@@ -193,13 +198,13 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
         <DefaultSelectContent
           {...local}
           view={search.view()}
-          onExitComplete={() => search.setQuery('')}
+          onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
               ? renderComponentOrElement(local.emptyRender, {
                   get inputValue() {
-                    return search.query()
+                    return search.value()
                   },
                   get hasMatches() {
                     return state.items().length > 0
@@ -227,7 +232,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       defaultValue={defaultSelection()}
       onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
       onReset={() => {
-        search.setQuery('')
+        search.setValue('')
         local.onReset?.()
       }}
       multiple={false}

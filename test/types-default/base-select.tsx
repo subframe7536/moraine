@@ -1,4 +1,4 @@
-import { BaseSelect, Button, Combobox, MultiSelect, Select } from 'moraine'
+import { BaseSelect, Button, Combobox, MultiSelect, Select, useSelectState } from 'moraine'
 import type {
   BaseSelectT,
   ComboboxProps,
@@ -8,6 +8,8 @@ import type {
   SelectProps,
   SelectT,
 } from 'moraine'
+import { useBaseSelectSearchInput } from 'moraine/utils'
+import { createSignal } from 'solid-js'
 
 type Assert<T extends true> = T
 type Equal<T, U> =
@@ -24,6 +26,25 @@ const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
 const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
 const divRef = (element: HTMLDivElement) => element.focus()
 const inputRef = (element: HTMLInputElement) => element.focus()
+
+function CustomSearchControl() {
+  const state = useSelectState()
+  const [searchValue, setSearchValue] = createSignal('')
+  const { inputProps } = useBaseSelectSearchInput({
+    state,
+    searchValue,
+    setSearchValue,
+    maxLength: 20,
+  })
+  return (
+    <BaseSelect.Control>
+      <input {...inputProps} />
+    </BaseSelect.Control>
+  )
+}
+;<BaseSelect items={items}>
+  <CustomSearchControl />
+</BaseSelect>
 
 export type SelectFamilyPropAliases = [
   Assert<Equal<SelectProps<UserItem>, SelectT.Props<UserItem>>>,

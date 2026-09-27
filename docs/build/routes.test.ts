@@ -193,7 +193,6 @@ describe('docs route metadata', () => {
       'use-id',
       'use-list-virtualizer',
       'use-loading-auto-click',
-      'use-search-value',
       'use-selectable-collection-navigation',
       'use-slider',
       'use-transition-presence',

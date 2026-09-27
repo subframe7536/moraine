@@ -1,7 +1,7 @@
 import { BaseSelect, Icon, useSelectState } from '@src'
-import { useBaseSelectSearchInput, useSearchValue } from '@src/utils'
-import type { SearchValue } from '@src/utils'
-import { createMemo, For, untrack } from 'solid-js'
+import { useBaseSelectSearchInput } from '@src/utils'
+import type { BaseSelectSearchInputOptions } from '@src/utils'
+import { createMemo, createSignal, For } from 'solid-js'
 
 const FRAMEWORKS = [
   { value: 'solid', label: 'Solid', description: 'Fine-grained reactive UI' },
@@ -10,14 +10,19 @@ const FRAMEWORKS = [
   { value: 'sveltekit', label: 'SvelteKit', description: 'Application framework for Svelte' },
 ]
 
-function SearchControl(props: { search: SearchValue }) {
-  const search = untrack(() => props.search)
+function SearchControl(
+  props: Pick<BaseSelectSearchInputOptions, 'searchValue' | 'setSearchValue'>,
+) {
   const state = useSelectState()
-  const input = useBaseSelectSearchInput(state, {}, () => true, search)
+  const input = useBaseSelectSearchInput({
+    state,
+    searchValue: () => props.searchValue(),
+    setSearchValue: (value) => props.setSearchValue(value),
+  })
   return (
     <BaseSelect.Control class="px-2 border border-input flex w-64 items-center rounded-md">
       <input
-        {...input.binding}
+        {...input.inputProps}
         class="py-1.5 outline-none bg-transparent flex-1"
         placeholder="Search frameworks…"
       />
@@ -42,9 +47,9 @@ function SearchControl(props: { search: SearchValue }) {
 }
 
 export default function Example() {
-  const search = useSearchValue()
+  const [searchValue, setSearchValue] = createSignal('')
   const items = createMemo(() => {
-    const query = search.query().toLowerCase()
+    const query = searchValue().toLowerCase()
     return query
       ? FRAMEWORKS.filter(
           (item) =>
@@ -59,8 +64,8 @@ export default function Example() {
       getItemByValue={(value) => FRAMEWORKS.find((item) => item.value === value)}
       itemToLabelString={(item) => `${item.label} ${item.description}`}
     >
-      <SearchControl search={search} />
-      <BaseSelect.Content onExitComplete={() => search.setQuery('')}>
+      <SearchControl searchValue={searchValue} setSearchValue={setSearchValue} />
+      <BaseSelect.Content onExitComplete={() => setSearchValue('')}>
         <BaseSelect.Listbox>
           <For each={items()}>
             {(item) => (

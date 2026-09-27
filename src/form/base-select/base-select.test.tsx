@@ -13,8 +13,8 @@ import { createForm } from '../form/index.ts'
 import { MultiSelect } from '../multi-select/multi-select.tsx'
 import { Select } from '../select/select.tsx'
 
+import { useBaseSelectSearchInput } from './base-select-search-input.ts'
 import { BaseSelect, useSelectState } from './base-select.tsx'
-import { useBaseSelectSearchInput, useSearchValue } from './utils.ts'
 
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
@@ -143,11 +143,11 @@ test('uses completed primary presses for outside dismissal', () => {
 test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   function SearchControl() {
     const state = useSelectState()
-    const search = useSearchValue()
-    const input = useBaseSelectSearchInput(state, {}, () => true, search)
+    const [value, setValue] = createSignal('')
+    const input = useBaseSelectSearchInput({ state, searchValue: value, setSearchValue: setValue })
     return (
       <BaseSelect.Control>
-        <input {...input.binding} />
+        <input {...input.inputProps} />
         <button type="button" onClick={() => state.setOpen(!state.open())}>
           Toggle
         </button>
@@ -171,6 +171,110 @@ test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   expect(input.getAttribute('aria-expanded')).toBe('true')
   fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
   expect(input.getAttribute('aria-expanded')).toBe('false')
+})
+
+test('custom search input exposes reactive attributes and releases its focus owner', () => {
+  const [enabled, setEnabled] = createSignal(true)
+  const [readOnly, setReadOnly] = createSignal(false)
+  const [maxLength, setMaxLength] = createSignal(4)
+  let focusOwner = (): HTMLElement | undefined => undefined
+
+  function SearchControl() {
+    const state = useSelectState()
+    focusOwner = state.focusOwner
+    const [value, setValue] = createSignal('')
+    const input = useBaseSelectSearchInput({
+      state,
+      searchValue: value,
+      setSearchValue: setValue,
+      enabled,
+      get maxLength() {
+        return maxLength()
+      },
+      autocomplete: 'off email',
+    })
+    return <input {...input.inputProps} />
+  }
+
+  const screen = render(() => (
+    <BaseSelect items={items} defaultOpen readOnly={readOnly()}>
+      <SearchControl />
+      <BaseSelect.Content>
+        <BaseSelect.Listbox />
+      </BaseSelect.Content>
+    </BaseSelect>
+  ))
+  const input = screen.getByRole<HTMLInputElement>('combobox')
+  expect(focusOwner()).toBe(input)
+  expect(input.getAttribute('aria-controls')).toBeTruthy()
+  expect(input.getAttribute('aria-expanded')).toBe('true')
+  expect(input.getAttribute('aria-autocomplete')).toBe('list')
+  expect(input.maxLength).toBe(4)
+  expect(input.getAttribute('autocomplete')).toBe('off email')
+
+  setEnabled(false)
+  expect(input.readOnly).toBe(true)
+  expect(input.getAttribute('aria-autocomplete')).toBe('none')
+  setEnabled(true)
+  setReadOnly(true)
+  expect(input.getAttribute('aria-autocomplete')).toBe('none')
+  setMaxLength(8)
+  expect(input.maxLength).toBe(8)
+  screen.unmount()
+  expect(focusOwner()).toBeUndefined()
+})
+
+test('custom search input commits only completed composition and discards stale drafts', () => {
+  let searchValue = () => ''
+  let setSearchValue = (_value: string) => ''
+  let isComposing = () => false
+  const onValueChange = vi.fn()
+
+  function SearchControl() {
+    const state = useSelectState()
+    const [value, setValue] = createSignal('')
+    function updateValue(next: string): string {
+      setValue(next)
+      onValueChange(next)
+      return next
+    }
+    searchValue = value
+    setSearchValue = updateValue
+    const input = useBaseSelectSearchInput({
+      state,
+      searchValue: value,
+      setSearchValue: updateValue,
+    })
+    isComposing = input.isComposing
+    return <input {...input.inputProps} />
+  }
+
+  const screen = render(() => (
+    <BaseSelect items={items}>
+      <SearchControl />
+    </BaseSelect>
+  ))
+  const input = screen.getByRole<HTMLInputElement>('combobox')
+  fireEvent.compositionStart(input)
+  fireEvent.input(input, { target: { value: '未' } })
+  expect(isComposing()).toBe(true)
+  expect(input.value).toBe('未')
+  expect(searchValue()).toBe('')
+  expect(onValueChange).not.toHaveBeenCalled()
+  fireEvent.compositionEnd(input, { target: { value: '未' } })
+  expect(isComposing()).toBe(false)
+  expect(searchValue()).toBe('未')
+  expect(onValueChange).toHaveBeenLastCalledWith('未')
+
+  fireEvent.compositionStart(input)
+  fireEvent.input(input, { target: { value: '未完' } })
+  expect(isComposing()).toBe(true)
+  setSearchValue('server')
+  expect(isComposing()).toBe(false)
+  fireEvent.compositionEnd(input, { target: { value: '未完' } })
+  expect(input.value).toBe('server')
+  expect(searchValue()).toBe('server')
+  expect(onValueChange).toHaveBeenCalledTimes(2)
 })
 function Parts() {
   return (

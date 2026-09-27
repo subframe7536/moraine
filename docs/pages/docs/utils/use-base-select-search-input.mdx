@@ -1,11 +1,11 @@
 ---
 title: useBaseSelectSearchInput
-description: Bind an external text input to a BaseSelect composition with full IME composition support, ARIA attributes, and keybindings.
+description: Bind a custom text input to BaseSelect with accessible keyboard and IME behavior.
 search:
   tags: [useBaseSelectSearchInput, base-select, search, combobox, ime, autocomplete, a11y]
 ---
 
-`useBaseSelectSearchInput` supplies IME-safe input, ARIA attributes, and focus bindings to connect an external `<input>` to a `BaseSelect` primitive. It allows the search input to remain completely owned by the caller while `BaseSelect` manages popup disclosure, keyboard navigation, and item selection.
+`useBaseSelectSearchInput` connects a caller-owned `<input>` to a `BaseSelect`. Call `useSelectState()` inside a BaseSelect child component and pass that state to the hook. It supplies input attributes, keyboard handling, focus registration, and IME-safe query commits.
 
 ## Import
 
@@ -13,55 +13,72 @@ search:
 import { useBaseSelectSearchInput } from 'moraine/utils'
 ```
 
-## Features
-
-- **IME Composition Safety**: Prevents premature query committing during Japanese/Chinese/Korean composition.
-- **ARIA Integration**: Attaches `aria-autocomplete="list"`, `aria-controls`, `aria-expanded`, and `aria-activedescendant`.
-- **Keyboard Forwarding**: Automatically forwards Arrow Down/Up, Enter, and Escape to the listbox navigation controller.
-
-## Signature
+## Options and result
 
 ```ts
-function useBaseSelectSearchInput(
-  state: BaseSelectSearchInputState,
-  options: Pick<SearchValueOptions, 'searchMaxLength' | 'autocomplete'>,
-  enabled: Accessor<boolean>,
-  search: SearchValue,
-  display?: Accessor<string>,
-  transformInput?: (value: string) => string,
-): {
-  readonly props: Accessor<JSX.InputHTMLAttributes<HTMLInputElement>>
-  readonly composing: Accessor<boolean>
+interface BaseSelectSearchInputOptions {
+  state: BaseSelectSearchInputState
+  searchValue: Accessor<string>
+  setSearchValue: (value: string) => string
+  enabled?: Accessor<boolean>
+  displayValue?: Accessor<string>
+  transformInput?: (value: string) => string
+  maxLength?: number
+  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 }
+
+const { inputProps, isComposing, discardComposition } = useBaseSelectSearchInput(options)
 ```
 
-## Usage Example
+Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or provide equivalent functions. `setSearchValue` must return the text it applies. Spread `inputProps` directly on an `<input>`. The other result methods let a custom control defer its own keyboard work during composition or discard a draft before clearing the selection.
 
-```tsx title="src/CustomCombobox.tsx"
-import { BaseSelect } from 'moraine'
-import { useBaseSelectSearchInput, useSearchValue } from 'moraine/utils'
+`enabled` defaults to `true`. When false, the input is read-only and BaseSelect handles keys as a non-editable control. `displayValue` defaults to `searchValue`; a Combobox can supply the selected label while closed. `transformInput` runs before a completed input is committed. `maxLength` sets the native input attribute; clamp the value in your setter too when programmatic updates must obey the same limit. `autocomplete` defaults to `off`.
 
-export function CustomCombobox() {
-  const search = useSearchValue()
+## Example
+
+```tsx title="src/CustomSearchSelect.tsx"
+import { createSignal, For } from 'solid-js'
+import { BaseSelect, useSelectState } from 'moraine'
+import { useBaseSelectSearchInput } from 'moraine/utils'
+import type { BaseSelectSearchInputOptions } from 'moraine/utils'
+
+const fruits = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry' },
+]
+
+function SearchControl(
+  props: Pick<BaseSelectSearchInputOptions, 'searchValue' | 'setSearchValue'>,
+) {
+  const state = useSelectState()
+  const { inputProps } = useBaseSelectSearchInput({
+    state,
+    searchValue: () => props.searchValue(),
+    setSearchValue: (value) => props.setSearchValue(value),
+  })
+  return (
+    <BaseSelect.Control>
+      <input {...inputProps} placeholder="Search fruits" />
+    </BaseSelect.Control>
+  )
+}
+
+export function CustomSearchSelect() {
+  const [searchValue, setSearchValue] = createSignal('')
+  const matches = () =>
+    fruits.filter((fruit) => fruit.label.toLowerCase().includes(searchValue().toLowerCase()))
 
   return (
-    <BaseSelect items={['Apple', 'Banana', 'Cherry']}>
-      {(select) => {
-        const input = useBaseSelectSearchInput(select, { autocomplete: 'off' }, () => true, search)
-
-        return (
-          <div class="relative">
-            <input
-              {...input.props()}
-              placeholder="Search fruits..."
-              class="px-3 py-1.5 border rounded-md"
-            />
-            <BaseSelect.Content>
-              <BaseSelect.List>{/* List items */}</BaseSelect.List>
-            </BaseSelect.Content>
-          </div>
-        )
-      }}
+    <BaseSelect items={matches()}>
+      <SearchControl searchValue={searchValue} setSearchValue={setSearchValue} />
+      <BaseSelect.Content>
+        <BaseSelect.Listbox>
+          <For each={matches()}>
+            {(fruit) => <BaseSelect.Item item={fruit}>{fruit.label}</BaseSelect.Item>}
+          </For>
+        </BaseSelect.Listbox>
+      </BaseSelect.Content>
     </BaseSelect>
   )
 }

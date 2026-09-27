@@ -18,7 +18,7 @@
 - [x] collapsible: move data-transition on wrapper to eliminate `:has` selector
 - [x] landing page polish
 - [x] resizable: refresh docs
-- [ ] `useBaseSelectSearchInput` should change a better name and more intuitive props as a public hook, also on `useSeearchValue`
+- [x] expose `useBaseSelectSearchInput` with explicit BaseSelect state and keep query state internal
 - [ ] unocss presetTheme option update.
 - [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
 - [ ] basic docs polish

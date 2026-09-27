@@ -5,8 +5,8 @@ import { Icon } from '../../element/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
+import { useBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
 import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
-import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -118,10 +118,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       return true
     }
 
-    function create(input = search.query()): boolean {
+    function create(input = search.value()): boolean {
       const committed = commitInput(input)
       if (committed) {
-        search.setQuery('')
+        search.setValue('')
       }
       return committed
     }
@@ -131,8 +131,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       change: state.change,
       getFocusOwner: state.focusOwner,
       maxVisible: () => local.maxTagCount,
-      query: search.query,
-      setQuery: search.setQuery,
+      query: search.value,
+      setQuery: search.setValue,
       commitInput,
       tokenSeparators: () => local.tokenSeparators,
       locked: state.locked,
@@ -156,14 +156,20 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         }
       },
     })
-    const inputBinding = useBaseSelectSearchInput(
+    const inputBinding = useBaseSelectSearchInput({
       state,
-      local,
-      editable,
-      search,
-      () => (editable() ? search.query() : ''),
-      tags.tokenize,
-    )
+      searchValue: search.value,
+      setSearchValue: search.setValue,
+      enabled: editable,
+      displayValue: () => (editable() ? search.value() : ''),
+      transformInput: tags.tokenize,
+      get maxLength() {
+        return local.searchMaxLength
+      },
+      get autocomplete() {
+        return local.autocomplete
+      },
+    })
     const overflowTags = () => tags.tags().slice(tags.visible().length)
     const overflowRenderTags = (): readonly MultiSelectT.TagOverflowEntry<T>[] =>
       overflowTags().map((tag) => ({
@@ -172,7 +178,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         label: tag.label,
       }))
     const isDuplicate = () => {
-      const query = search.query().trim()
+      const query = search.value().trim()
       if (!query) {
         return false
       }
@@ -197,16 +203,16 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           return item !== undefined && state.itemDisabled(item)
         }),
       )
-      search.setQuery('')
+      search.setValue('')
       local.onClear?.()
       focusControl()
     }
 
     function onEditableInputKeyDown(event: KeyboardEvent): void {
-      if (inputBinding.composing() || event.isComposing || state.locked()) {
+      if (inputBinding.isComposing() || event.isComposing || state.locked()) {
         return
       }
-      if (tags.onFocusOwnerKeyDown(event, search.query())) {
+      if (tags.onFocusOwnerKeyDown(event, search.value())) {
         return
       }
       if (event.key === 'Enter') {
@@ -223,17 +229,17 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               event.preventDefault()
               return
             }
-            inputBinding.binding.onKeyDown(event)
+            inputBinding.inputProps.onKeyDown(event)
             return
           }
         }
-        if (search.query()) {
+        if (search.value()) {
           event.preventDefault()
           create()
           return
         }
       }
-      inputBinding.binding.onKeyDown(event)
+      inputBinding.inputProps.onKeyDown(event)
     }
 
     function onNonEditableTriggerKeyDown(event: KeyboardEvent): void {
@@ -356,22 +362,22 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               }
             >
               <input
-                {...inputBinding.binding}
+                {...inputBinding.inputProps}
                 {...state.field.ariaAttrs()}
                 data-slot="multi-select-input"
                 {...multiSelectDataAttributes.input({ duplicate: isDuplicate })}
                 {...styles.styles.input}
                 placeholder={tags.tags().length ? '' : local.placeholder}
                 ref={(element) => {
-                  inputBinding.binding.ref(element)
+                  inputBinding.inputProps.ref(element)
                   callRef(local.inputRef, element)
                 }}
-                onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
+                onPaste={(event) => tags.onPaste(event, inputBinding.isComposing())}
                 onKeyDown={onEditableInputKeyDown}
               />
             </Show>
           </div>
-          <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.query()))}>
+          <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.value()))}>
             <button
               type="button"
               tabIndex={-1}
@@ -479,13 +485,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         <DefaultSelectContent
           {...local}
           view={search.view()}
-          onExitComplete={() => search.setQuery('')}
+          onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
               ? renderComponentOrElement(local.emptyRender, {
                   get inputValue() {
-                    return search.query()
+                    return search.value()
                   },
                   get hasMatches() {
                     return state.items().length > 0
@@ -499,8 +505,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   create,
                   close: () => state.setOpen(false),
                 })
-              : local.createItem && search.query()
-                ? `Press Enter to create “${search.query()}”`
+              : local.createItem && search.value()
+                ? `Press Enter to create “${search.value()}”`
                 : 'No items'
           }
         />
@@ -518,11 +524,11 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       value={local.value}
       defaultValue={local.defaultValue}
       onValueChange={(values) => {
-        search.setQuery('')
+        search.setValue('')
         local.onValueChange?.(values)
       }}
       onReset={() => {
-        search.setQuery('')
+        search.setValue('')
         setCreated([])
         local.onReset?.()
       }}
