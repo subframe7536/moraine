@@ -1,10 +1,9 @@
 import { useLocation, useNavigate } from '@solidjs/router'
-import { Icon } from 'moraine'
 import type { Accessor } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, cn, List, Tabs } from '../../../../src'
+import { Icon, Badge, Button, cn, List, Tabs } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 
 const { version } = packageMetadata
