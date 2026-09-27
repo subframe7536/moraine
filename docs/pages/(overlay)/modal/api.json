@@ -50,6 +50,16 @@
           "description": "Unique identifier used to derive the content id."
         },
         {
+          "name": "modal",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer and Escape dismissal remain controlled by `dismissible`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "onClosePrevent",
           "optional": true,
           "type": "() => void",
@@ -94,16 +104,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this Modal instance."
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the surface contains focus, isolates outside content, and locks body scroll.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         }
       ]
     },
@@ -332,14 +332,6 @@
     "content"
   ],
   "dataAttributes": [
-    {
-      "target": "trigger",
-      "attributes": [
-        "data-closed",
-        "data-disabled",
-        "data-expanded"
-      ]
-    },
     {
       "target": "overlay",
       "attributes": [

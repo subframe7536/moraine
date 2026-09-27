@@ -1,3 +1,5 @@
+import { isNativeButtonElement } from '../../shared/native-button'
+
 /** Cross-realm-safe DOM guards and composed-tree traversal for overlay internals. */
 export function isNode(value: unknown): value is Node {
   return Boolean(value) && typeof (value as Node).nodeType === 'number'
@@ -8,7 +10,33 @@ export function isElement(value: unknown): value is Element {
 }
 
 export function isHTMLElement(value: unknown): value is HTMLElement {
-  return isElement(value) && typeof (value as HTMLElement).focus === 'function'
+  return (
+    isElement(value) &&
+    value.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+    typeof (value as HTMLElement).focus === 'function'
+  )
+}
+
+export function getOwnerDocument(node?: Node): Document | undefined {
+  return node?.nodeType === 9 ? (node as Document) : (node?.ownerDocument ?? undefined)
+}
+
+export function getOwnerWindow(node?: Node): Window | undefined {
+  return getOwnerDocument(node)?.defaultView ?? undefined
+}
+
+export function isHTMLButtonElement(value: unknown): value is HTMLButtonElement {
+  return isHTMLElement(value) && value.localName === 'button'
+}
+
+export { isNativeButtonElement }
+
+export function isPointerEvent(value: unknown): value is PointerEvent {
+  return (
+    isNode((value as Event | undefined)?.target) &&
+    typeof (value as PointerEvent).pointerId === 'number' &&
+    typeof (value as PointerEvent).pointerType === 'string'
+  )
 }
 
 function getComposedParent(node: Node): Node | null {
@@ -66,24 +94,24 @@ export function getComposedElementAncestors(element: Element): Element[] {
   return ancestors
 }
 
+export function getComposedElementChildren(element: Element): Element[] {
+  if (element.localName === 'slot') {
+    const assigned = (element as HTMLSlotElement).assignedElements({ flatten: true })
+    if (assigned.length > 0) {
+      return assigned
+    }
+  }
+
+  return Array.from(element.shadowRoot?.children ?? element.children)
+}
+
 /** Enumerates element descendants in composed order without visiting assigned slot content twice. */
 export function getComposedElementDescendants(container: Element): Element[] {
   const descendants: Element[] = []
   const visited = new Set<Element>()
 
-  const childrenOf = (element: Element): Element[] => {
-    if (element.localName === 'slot') {
-      const assigned = (element as HTMLSlotElement).assignedElements({ flatten: true })
-      if (assigned.length > 0) {
-        return assigned
-      }
-    }
-
-    return Array.from(element.shadowRoot?.children ?? element.children)
-  }
-
   const walk = (element: Element): void => {
-    for (const child of childrenOf(element)) {
+    for (const child of getComposedElementChildren(element)) {
       if (visited.has(child)) {
         continue
       }

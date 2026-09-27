@@ -104,13 +104,13 @@ Render the trigger with the supplied props. Click mode is the default; hover mod
 
 ### Dismissal and accessibility
 
-Escape and outside interaction close a dismissible popover. When a popover has no visible label, provide `ariaLabel`. Modal and scroll-prevention behavior should be used only when the interaction genuinely requires it.
+Escape and outside interaction close a dismissible popover. When a popover has no visible label, provide `ariaLabel`. `modal` defaults to `false`; when enabled with a composed `Popover.Close`, it contains focus, hides outside content from assistive technology, prevents the native default action of outside pointer events, and locks body scroll. Without a composed Close, it stays non-modal so assistive-technology users retain a dismissal route. `modal={false}` does not disable outside or Escape dismissal; use `dismissible` for that. `preventScroll` can lock body scroll independently of `modal`.
 
 <Preview path="./dismissal-usage" />
 
 ### Keyboard interaction
 
-Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside the content participate in normal document focus order. Moraine does not imply a focus trap unless modal behavior is explicitly enabled by the underlying overlay configuration.
+Keyboard behavior depends on the trigger element and Popper mode. Escape requests dismissal when the popover is dismissible; focusable controls inside non-modal content participate in normal document focus order. Modal content contains focus.
 
 ## Examples
 

@@ -300,6 +300,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
   let pointerGraceTimeoutId = 0
+  let pointerGraceWindow: Window | undefined
   let queuedPointerEnter:
     | {
         callback: () => void
@@ -427,8 +428,9 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
       }
 
       pointerGraceIntent = null
-      window.clearTimeout(pointerGraceTimeoutId)
+      pointerGraceWindow?.clearTimeout(pointerGraceTimeoutId)
       pointerGraceTimeoutId = 0
+      pointerGraceWindow = undefined
       clearQueuedPointerEnter()
       return
     }
@@ -439,11 +441,17 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
       return
     }
 
-    window.clearTimeout(pointerGraceTimeoutId)
+    const ownerWindow = contentElement()?.ownerDocument.defaultView
+    pointerGraceWindow?.clearTimeout(pointerGraceTimeoutId)
+    if (!ownerWindow) {
+      return
+    }
 
-    pointerGraceTimeoutId = window.setTimeout(() => {
+    pointerGraceWindow = ownerWindow
+    pointerGraceTimeoutId = ownerWindow.setTimeout(() => {
       pointerGraceIntent = null
       pointerGraceTimeoutId = 0
+      pointerGraceWindow = undefined
 
       const pendingPointerEnter = queuedPointerEnter
 
@@ -457,7 +465,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   }
 
   onCleanup(() => {
-    window.clearTimeout(pointerGraceTimeoutId)
+    pointerGraceWindow?.clearTimeout(pointerGraceTimeoutId)
     queuedPointerEnter = undefined
   })
 

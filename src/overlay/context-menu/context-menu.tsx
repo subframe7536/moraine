@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
 import {
   children as resolveChildren,
+  createEffect,
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   splitProps,
@@ -15,11 +17,12 @@ import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../shared/use-event-listener'
+import { attachEventListener } from '../../shared/use-event-listener'
 import { useId } from '../../shared/utils'
+import { containsComposed, isElement, isNode, isPointerEvent } from '../base/dom'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
-import type { OverlayTriggerProps } from '../base/trigger'
+import type { OverlayTriggerBinding } from '../base/trigger'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
@@ -78,11 +81,16 @@ function createContextMenu(props: ContextMenuProps) {
     createSignal<OverlayMenuFocusStrategy>('content')
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
   const trigger = createOverlayTriggerRef()
+  const ownerDocument = () => trigger.element()?.ownerDocument
+  const ownerWindow = () => ownerDocument()?.defaultView
   const resolvedId = useId(() => merged.id, 'contextmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   let longPressTimeoutId = 0
   let pointerEventGuardTimeoutId = 0
   let suppressionTimeoutId = 0
+  let longPressWindow: Window | undefined
+  let pointerEventGuardWindow: Window | undefined
+  let suppressionWindow: Window | undefined
   let initiatingPointerId: number | undefined
   let longPressStartPoint: { x: number; y: number } | undefined
   let longPressGestureBlocked = false
@@ -134,10 +142,7 @@ function createContextMenu(props: ContextMenuProps) {
       return false
     }
 
-    const eventPointerType =
-      typeof PointerEvent !== 'undefined' && event instanceof PointerEvent
-        ? event.pointerType
-        : undefined
+    const eventPointerType = isPointerEvent(event) ? event.pointerType : undefined
     const matchesPointerType = !eventPointerType || eventPointerType === suppression.pointerType
     const matchesPoint =
       Math.abs(event.clientX - suppression.x) <= 1 && Math.abs(event.clientY - suppression.y) <= 1
@@ -146,8 +151,9 @@ function createContextMenu(props: ContextMenuProps) {
       return false
     }
 
-    window.clearTimeout(suppressionTimeoutId)
+    suppressionWindow?.clearTimeout(suppressionTimeoutId)
     suppressionTimeoutId = 0
+    suppressionWindow = undefined
     suppressedContextMenu = undefined
     event.preventDefault()
     event.stopPropagation()
@@ -155,10 +161,16 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const setContextMenuSuppression = (pointerType: string, x: number, y: number): void => {
-    window.clearTimeout(suppressionTimeoutId)
+    suppressionWindow?.clearTimeout(suppressionTimeoutId)
+    const currentWindow = ownerWindow()
+    if (!currentWindow) {
+      return
+    }
     suppressedContextMenu = { pointerType, x, y }
-    suppressionTimeoutId = window.setTimeout(() => {
+    suppressionWindow = currentWindow
+    suppressionTimeoutId = currentWindow.setTimeout(() => {
       suppressionTimeoutId = 0
+      suppressionWindow = undefined
       suppressedContextMenu = undefined
     }, CONTEXT_MENU_SUPPRESSION_DELAY)
   }
@@ -171,10 +183,7 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const onContentPointerDown = (event: PointerEvent): void => {
-    if (
-      event.target instanceof Element &&
-      event.target.closest('[data-slot="context-menu-item"]')
-    ) {
+    if (isElement(event.target) && event.target.closest('[data-slot="context-menu-item"]')) {
       return
     }
 
@@ -183,34 +192,35 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const clearLongPressTimeout = (): void => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    window.clearTimeout(longPressTimeoutId)
+    longPressWindow?.clearTimeout(longPressTimeoutId)
     longPressTimeoutId = 0
+    longPressWindow = undefined
     longPressStartPoint = undefined
     initiatingPointerId = undefined
   }
 
   const setCompletingPointerEventGuard = (pointerId: number, pointerType: string): void => {
-    window.clearTimeout(pointerEventGuardTimeoutId)
+    pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
+    const currentWindow = ownerWindow()
+    if (!currentWindow) {
+      return
+    }
     pointerEventGuard = {
       pointerId,
       pointerType,
     }
-    pointerEventGuardTimeoutId = window.setTimeout(() => {
+    pointerEventGuardWindow = currentWindow
+    pointerEventGuardTimeoutId = currentWindow.setTimeout(() => {
       pointerEventGuardTimeoutId = 0
+      pointerEventGuardWindow = undefined
       pointerEventGuard = undefined
     }, CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY)
   }
 
   onCleanup(() => {
     clearLongPressTimeout()
-    if (typeof window !== 'undefined') {
-      window.clearTimeout(pointerEventGuardTimeoutId)
-      window.clearTimeout(suppressionTimeoutId)
-    }
+    pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
+    suppressionWindow?.clearTimeout(suppressionTimeoutId)
     activeLongPressPointers.clear()
     pointerEventGuard = undefined
     suppressedContextMenu = undefined
@@ -232,54 +242,74 @@ function createContextMenu(props: ContextMenuProps) {
     )
   }
 
-  onMount(() => {
-    useEventListener(
-      document,
-      'pointerdown',
-      (event) => {
-        const guard = pointerEventGuard
-        if (
-          guard &&
-          event.pointerId === guard.pointerId &&
-          event.pointerType === guard.pointerType
-        ) {
-          event.preventDefault()
+  createEffect(
+    on(ownerDocument, (currentDocument) => {
+      if (!currentDocument) {
+        return
+      }
+      const releasePointerDown = attachEventListener(
+        currentDocument,
+        'pointerdown',
+        (event) => {
+          const guard = pointerEventGuard
+          if (
+            guard &&
+            event.pointerId === guard.pointerId &&
+            event.pointerType === guard.pointerType
+          ) {
+            event.preventDefault()
+          }
+        },
+        true,
+      )
+
+      const onDocumentContextMenuCapture = (event: MouseEvent): void => {
+        if (consumeSuppressedContextMenu(event)) {
+          return
         }
-      },
-      true,
-    )
 
-    const onDocumentContextMenuCapture = (event: MouseEvent): void => {
-      if (consumeSuppressedContextMenu(event)) {
-        return
+        if (merged.disabled) {
+          return
+        }
+
+        const targetInsideTrigger =
+          isNode(event.target) &&
+          Boolean(trigger.element() && containsComposed(trigger.element()!, event.target))
+        const pointerInsideTrigger = isPointerInsideTrigger(event)
+
+        // Let the trigger handler compose user callbacks for events targeted inside the trigger.
+        if (targetInsideTrigger || !pointerInsideTrigger) {
+          return
+        }
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (open()) {
+          commitOpen(false)
+          return
+        }
+
+        openFromPoint(event.clientX, event.clientY)
       }
 
-      if (merged.disabled) {
-        return
-      }
-
-      const targetInsideTrigger =
-        event.target instanceof Node && Boolean(trigger.element()?.contains(event.target))
-      const pointerInsideTrigger = isPointerInsideTrigger(event)
-
-      // Let the trigger handler compose user callbacks for events targeted inside the trigger.
-      if (targetInsideTrigger || !pointerInsideTrigger) {
-        return
-      }
-
-      event.preventDefault()
-      event.stopPropagation()
-
-      if (open()) {
-        commitOpen(false)
-        return
-      }
-
-      openFromPoint(event.clientX, event.clientY)
-    }
-
-    useEventListener(document, 'contextmenu', onDocumentContextMenuCapture, true)
-  })
+      const releaseContextMenu = attachEventListener(
+        currentDocument,
+        'contextmenu',
+        onDocumentContextMenuCapture,
+        true,
+      )
+      onCleanup(() => {
+        releasePointerDown()
+        releaseContextMenu()
+        clearLongPressTimeout()
+        pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
+        suppressionWindow?.clearTimeout(suppressionTimeoutId)
+        pointerEventGuard = undefined
+        suppressedContextMenu = undefined
+      })
+    }),
+  )
 
   const onContextMenu = (event: MouseEvent): void => {
     if (consumeSuppressedContextMenu(event)) {
@@ -349,9 +379,15 @@ function createContextMenu(props: ContextMenuProps) {
     const pointerId = event.pointerId
     const pointerType = event.pointerType
 
-    // oxlint-disable-next-line subf/solid-reactivity
-    longPressTimeoutId = window.setTimeout(() => {
+    const currentWindow = ownerWindow()
+    if (!currentWindow) {
+      return
+    }
+    longPressWindow = currentWindow
+    // oxlint-disable-next-line subf/solid-reactivity -- Read current disabled state when the timer fires.
+    longPressTimeoutId = currentWindow.setTimeout(() => {
       longPressTimeoutId = 0
+      longPressWindow = undefined
       if (initiatingPointerId !== pointerId) {
         return
       }
@@ -507,7 +543,7 @@ function createContextMenu(props: ContextMenuProps) {
 
       openFromTriggerCenter('first')
     },
-  }) as OverlayTriggerProps
+  }) as OverlayTriggerBinding
 
   return {
     get presentation() {

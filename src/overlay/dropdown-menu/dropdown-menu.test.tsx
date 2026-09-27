@@ -8,6 +8,38 @@ import { renderWithTheme } from '../../test-util/theme-render'
 import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
+  test('opens and restores focus in a foreign Document', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <DropdownMenu>
+          <DropdownMenu.Trigger>Foreign trigger</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Foreign action' }]} />
+        </DropdownMenu>
+      ),
+      { container: host },
+    )
+    try {
+      const trigger = host.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]')!
+      fireEvent.click(trigger)
+      await waitFor(() => expect(ownerDocument.body.querySelector('[role="menu"]')).not.toBeNull())
+      expect(document.body.querySelector('[role="menu"]')).toBeNull()
+      fireEvent.keyDown(ownerDocument.body.querySelector('[role="menu"]')!, { key: 'Escape' })
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+      await waitFor(() => expect(ownerDocument.activeElement).toBe(trigger))
+      fireEvent.click(trigger)
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'))
+      fireEvent.click(ownerDocument.body.querySelector('[role="menuitem"]')!)
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
   test.each(['checkbox', 'radio'] as const)(
     'reserves an inline indicator for an unchecked %s item',
     async (type) => {
@@ -1420,6 +1452,60 @@ describe('DropdownMenu', () => {
         document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
       ).not.toBeNull()
     })
+  })
+
+  test.each(['item', 'checkbox', 'radio'] as const)(
+    'calls itemProps click once for a %s item',
+    async (type) => {
+      const onClick = vi.fn()
+      render(() => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ type, label: 'Action', group: 'choice', value: 'action' }]}
+            itemProps={() => ({ onClick })}
+          />
+        </DropdownMenu>
+      ))
+
+      const item = await waitFor(() => {
+        const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+        expect(element).not.toBeNull()
+        return element!
+      })
+      fireEvent.click(item)
+
+      expect(onClick).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  test('lets an item key handler cancel Escape before the menu handles it', async () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
+    const onOpenChange = vi.fn()
+    render(() => (
+      <DropdownMenu defaultOpen onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Action' }]} itemProps={() => ({ onKeyDown })} />
+      </DropdownMenu>
+    ))
+
+    const item = await waitFor(() => {
+      const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
+      expect(element).not.toBeNull()
+      return element!
+    })
+    await waitFor(() =>
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull(),
+    )
+    fireEvent.keyDown(item, { key: 'Escape' })
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+    ).not.toBeNull()
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {

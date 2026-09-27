@@ -4,6 +4,7 @@ import {
   containsComposed,
   getActiveElement,
   getComposedElementAncestors,
+  getComposedElementChildren,
   getComposedElementDescendants,
   isHTMLElement,
   isNode,
@@ -226,6 +227,7 @@ interface AriaHideLayer {
   root: HTMLElement
   target: Element
   walk: (element: Element) => void
+  observe: () => void
 }
 
 const ariaHiddenStates = new WeakMap<Element, AriaHiddenState>()
@@ -267,12 +269,12 @@ export function acquireAriaHideOutside(
   }
 
   const walk = (element: Element): void => {
-    if (element === target || target.contains(element)) {
+    if (containsComposed(target, element)) {
       return
     }
 
-    if (element.contains(target)) {
-      for (const child of element.children) {
+    if (containsComposed(element, target)) {
+      for (const child of getComposedElementChildren(element)) {
         walk(child)
       }
       return
@@ -305,7 +307,7 @@ export function acquireAriaHideOutside(
       const mutationTarget = record.target
       if (
         mutationTarget.nodeType === 1 &&
-        [...hiddenElements].some((element) => element.contains(mutationTarget))
+        [...hiddenElements].some((element) => containsComposed(element, mutationTarget))
       ) {
         continue
       }
@@ -317,9 +319,17 @@ export function acquireAriaHideOutside(
       }
     }
   })
-  const layer: AriaHideLayer = { hiddenElements, observer, root, target, walk }
+  const observe = (): void => {
+    observer.observe(root, { childList: true, subtree: true })
+    for (const ancestor of getComposedElementAncestors(target)) {
+      if (ancestor.shadowRoot && containsComposed(root, ancestor)) {
+        observer.observe(ancestor.shadowRoot, { childList: true, subtree: true })
+      }
+    }
+  }
+  const layer: AriaHideLayer = { hiddenElements, observer, root, target, walk, observe }
   layers.push(layer)
-  observer.observe(root, { childList: true, subtree: true })
+  observe()
 
   let released = false
 
@@ -362,7 +372,7 @@ export function acquireAriaHideOutside(
         for (const child of previousLayer.root.children) {
           previousLayer.walk(child)
         }
-        previousLayer.observer.observe(previousLayer.root, { childList: true, subtree: true })
+        previousLayer.observe()
       }
     }
   }
@@ -686,7 +696,7 @@ export function getTransformOrigin(
   return `${sideOrigin} ${crossOrigin}`
 }
 
-export function trapFocusInContainer(
+export function containFocusInContainer(
   event: KeyboardEvent,
   container: HTMLElement | undefined,
 ): void {

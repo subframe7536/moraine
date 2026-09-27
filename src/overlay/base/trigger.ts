@@ -1,11 +1,32 @@
-import type { Accessor } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import { createSignal, mergeProps, onCleanup } from 'solid-js'
 
-import type { ElementProps, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, ElementProps, SlotStyleValue, ValidComponent } from '../../shared/types'
+import { attachEventListener } from '../../shared/use-event-listener'
 import { callHandler, callRef } from '../../shared/utils'
 
+import { isHTMLElement, isNativeButtonElement } from './dom'
+
+export interface OverlayTriggerBase<T extends ValidComponent = 'button'> {
+  /** Element or component to render as. */
+  as?: T
+  /** Whether this trigger is disabled. */
+  disabled?: boolean
+  /** Trigger label and visual content. */
+  children?: JSX.Element
+}
+
+export type OverlayTriggerComponentProps<T extends ValidComponent = 'button'> = BaseProps<
+  T,
+  OverlayTriggerBase<T>,
+  never,
+  never,
+  never,
+  'button'
+>
+
 /** Props that an overlay render prop must forward to its trigger root. */
-export type OverlayTriggerProps = Omit<
+export type OverlayTriggerBinding = Omit<
   ElementProps,
   'children' | 'class' | 'disabled' | 'onContextMenu' | 'ref' | 'style'
 > & {
@@ -25,17 +46,14 @@ export type OverlayTriggerProps = Omit<
   style?: SlotStyleValue
 }
 
-function isNativeButtonTrigger(element: HTMLElement | undefined): element is HTMLButtonElement {
-  return typeof HTMLButtonElement !== 'undefined' && element instanceof HTMLButtonElement
-}
-
 /** Compose consumer events before menu behavior, retaining canceled pointer-up cleanup. */
 export function mergeMenuTriggerProps<T extends object>(
   user: T,
-  internal: OverlayTriggerProps,
-): OverlayTriggerProps & T {
+  internal: OverlayTriggerBinding,
+): OverlayTriggerBinding & T {
   const userHandlers = user as Record<string, unknown>
   const handlers: Record<string, unknown> = {}
+  const handledEvents = new WeakSet<Event>()
   for (const key of [
     'onClick',
     'onKeyDown',
@@ -46,6 +64,10 @@ export function mergeMenuTriggerProps<T extends object>(
     'onPointerCancel',
   ] as const) {
     handlers[key] = (event: Event) => {
+      if (handledEvents.has(event)) {
+        return
+      }
+      handledEvents.add(event)
       callHandler(event, userHandlers[key])
       if (userHandlers.disabled) {
         event.preventDefault()
@@ -58,10 +80,20 @@ export function mergeMenuTriggerProps<T extends object>(
       internal.ref(element)
       callRef(userHandlers.ref, element)
       if (element) {
-        onCleanup(() => callRef(userHandlers.ref, undefined))
+        const releases = Object.entries(handlers).map(([key, handler]) =>
+          attachEventListener(
+            element,
+            key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
+            handler as (event: Event) => void,
+          ),
+        )
+        onCleanup(() => {
+          releases.forEach((release) => release())
+          callRef(userHandlers.ref, undefined)
+        })
       }
     },
-  }) as OverlayTriggerProps & T
+  }) as OverlayTriggerBinding & T
   return triggerProps
 }
 
@@ -96,7 +128,7 @@ export function getOverlayTriggerAccessibility(
   disabled: boolean | undefined
   tabIndex: number | undefined
 } {
-  if (isNativeButtonTrigger(element)) {
+  if (isNativeButtonElement(element)) {
     return { ariaDisabled: undefined, disabled, tabIndex: undefined }
   }
 
@@ -111,7 +143,7 @@ export function validateOverlayTrigger(
   element: HTMLElement | undefined,
   overlayName: string,
 ): void {
-  if (element instanceof HTMLElement) {
+  if (isHTMLElement(element)) {
     return
   }
 

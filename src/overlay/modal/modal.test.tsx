@@ -15,13 +15,137 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test('isolates a modal in a ShadowRoot without hiding its host', async () => {
+    const outside = document.createElement('main')
+    const host = document.createElement('div')
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    document.body.append(outside, host)
+    const screen = render(() => (
+      <Modal defaultOpen portalMount={shadowRoot}>
+        <Modal.Portal>
+          <Modal.Content ariaLabel="Shadow modal">Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    await waitFor(() => expect(outside.getAttribute('aria-hidden')).toBe('true'))
+    expect(host.hasAttribute('aria-hidden')).toBe(false)
+    expect(shadowRoot.querySelector('[aria-modal="true"]')).not.toBeNull()
+    screen.unmount()
+    expect(outside.hasAttribute('aria-hidden')).toBe(false)
+    outside.remove()
+    host.remove()
+  })
+
+  test('restores outer isolation after a nested shadow modal closes', async () => {
+    const outside = document.createElement('main')
+    const host = document.createElement('div')
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    document.body.append(outside, host)
+    const [innerOpen, setInnerOpen] = createSignal(true)
+    const screen = render(() => (
+      <Modal defaultOpen portalMount={shadowRoot}>
+        <Modal.Portal>
+          <Modal.Content ariaLabel="Outer">
+            <Modal open={innerOpen()} portalMount={shadowRoot}>
+              <Modal.Portal>
+                <Modal.Content ariaLabel="Inner">Inner</Modal.Content>
+              </Modal.Portal>
+            </Modal>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+    try {
+      await waitFor(() =>
+        expect(shadowRoot.querySelectorAll('[aria-modal="true"]')).toHaveLength(2),
+      )
+      expect(host.hasAttribute('aria-hidden')).toBe(false)
+      expect(outside.getAttribute('aria-hidden')).toBe('true')
+      const innerContent = shadowRoot.querySelectorAll<HTMLElement>(
+        '[data-slot="modal-content"]',
+      )[1]!
+      setInnerOpen(false)
+      await finishExitMotion(innerContent)
+      await waitFor(() =>
+        expect(shadowRoot.querySelectorAll('[aria-modal="true"]')).toHaveLength(1),
+      )
+      expect(host.hasAttribute('aria-hidden')).toBe(false)
+      expect(outside.getAttribute('aria-hidden')).toBe('true')
+    } finally {
+      screen.unmount()
+      expect(outside.hasAttribute('aria-hidden')).toBe(false)
+      outside.remove()
+      host.remove()
+    }
+  })
+
+  test('opens from a native trigger in a foreign Document', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <Modal>
+          <Modal.Trigger>Foreign modal trigger</Modal.Trigger>
+          <Modal.Portal>
+            <Modal.Content ariaLabel="Foreign modal">Content</Modal.Content>
+          </Modal.Portal>
+        </Modal>
+      ),
+      { container: host },
+    )
+    try {
+      const trigger = host.querySelector<HTMLButtonElement>('[data-slot="modal-trigger"]')!
+      expect(trigger.disabled).toBe(false)
+      expect(trigger.tabIndex).toBe(0)
+      fireEvent.click(trigger)
+      await waitFor(() =>
+        expect(ownerDocument.body.querySelector('[data-slot="modal-content"]')).not.toBeNull(),
+      )
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
+
+  test.each([
+    [true, true, 'true', 'true', 'hidden'],
+    [true, false, 'true', 'true', ''],
+    [false, true, null, null, 'hidden'],
+    [false, false, null, null, ''],
+  ] as const)(
+    'keeps modal %s and preventScroll %s independent',
+    async (modal, preventScroll, ariaModal, ariaHidden, overflow) => {
+      const outside = document.createElement('main')
+      document.body.append(outside)
+      const screen = render(() => (
+        <Modal defaultOpen modal={modal} preventScroll={preventScroll}>
+          <Modal.Portal>
+            <Modal.Content ariaLabel="Matrix">Content</Modal.Content>
+          </Modal.Portal>
+        </Modal>
+      ))
+      await Promise.resolve()
+      await Promise.resolve()
+      const content = document.body.querySelector('[data-slot="modal-content"]')
+      expect(content?.getAttribute('aria-modal')).toBe(ariaModal)
+      expect(outside.getAttribute('aria-hidden')).toBe(ariaHidden)
+      expect(document.body.style.overflow).toBe(overflow)
+      screen.unmount()
+      outside.remove()
+    },
+  )
   test.each([
     [
       'dialog',
       () => (
         <Dialog defaultOpen>
           <Dialog.Content>
-            <Modal defaultOpen trapFocus={false}>
+            <Modal defaultOpen modal={false}>
               <Modal.Portal>
                 <Modal.Content>Nested modal</Modal.Content>
               </Modal.Portal>
@@ -35,7 +159,7 @@ describe('Modal primitives', () => {
       () => (
         <Sheet defaultOpen>
           <Sheet.Content>
-            <Modal defaultOpen trapFocus={false}>
+            <Modal defaultOpen modal={false}>
               <Modal.Portal>
                 <Modal.Content>Nested modal</Modal.Content>
               </Modal.Portal>
@@ -84,7 +208,7 @@ describe('Modal primitives', () => {
     },
   )
 
-  test('samples scroll prevention when entering a presence cycle', async () => {
+  test('updates scroll prevention while present', async () => {
     const [open, setOpen] = createSignal(true)
     const [preventScroll, setPreventScroll] = createSignal(true)
     const screen = render(() => (
@@ -114,7 +238,7 @@ describe('Modal primitives', () => {
       second.focus()
       setPreventScroll(false)
       await Promise.resolve()
-      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.body.style.overflow).toBe('')
       expect(document.activeElement).toBe(second)
       setOpen(false)
       await finishExitMotion()
@@ -488,7 +612,9 @@ describe('Modal primitives', () => {
     expect(buttonTrigger.tagName).toBe('BUTTON')
     expect(buttonTrigger.className).toContain('border')
 
-    fireEvent.keyDown(divTrigger, { key: 'Enter' })
+    const keyEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    divTrigger.dispatchEvent(keyEvent)
+    expect(keyEvent.defaultPrevented).toBe(true)
 
     expect(document.body.textContent).toContain('Div content')
     screen.unmount()
@@ -829,7 +955,7 @@ describe('Modal primitives', () => {
     const [open, setOpen] = createSignal(true)
     const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Modal open={open()} trapFocus={false} onExitComplete={onExitComplete}>
+      <Modal open={open()} modal={false} onExitComplete={onExitComplete}>
         <div data-testid="inline-host">
           <Modal.Overlay />
           <Modal.Content>Inline content</Modal.Content>
@@ -1473,13 +1599,13 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('keeps trapFocus false surfaces consistently non-modal', async () => {
+  test('keeps modal false surfaces consistently non-modal', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Modal defaultOpen trapFocus={false}>
+        <Modal defaultOpen modal={false}>
           <Modal.Portal>
             <Modal.Content>
               <button type="button" data-testid="first-btn">
@@ -1501,7 +1627,7 @@ describe('Modal primitives', () => {
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
     expect(document.activeElement).toBe(outside)
     last.focus()
 
@@ -1528,12 +1654,84 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('updates modal isolation when trapFocus changes while open', async () => {
-    const [trapFocus, setTrapFocus] = createSignal(false)
+  test.each([true, false])(
+    'keeps outside and Escape handling when modal is false and dismissible is %s',
+    async (dismissible) => {
+      const onOpenChange = vi.fn()
+      const onClosePrevent = vi.fn()
+      const screen = render(() => (
+        <>
+          <button type="button" data-testid="outside">
+            Outside
+          </button>
+          <Modal
+            open
+            modal={false}
+            dismissible={dismissible}
+            onOpenChange={onOpenChange}
+            onClosePrevent={onClosePrevent}
+          >
+            <Modal.Portal>
+              <Modal.Content ariaLabel="Content">Content</Modal.Content>
+            </Modal.Portal>
+          </Modal>
+        </>
+      ))
+      await Promise.resolve()
+
+      const pointerDown = new PointerEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        cancelable: true,
+        pointerType: 'mouse',
+      })
+      screen.getByTestId('outside').dispatchEvent(pointerDown)
+      expect(pointerDown.defaultPrevented).toBe(false)
+
+      const escape = new KeyboardEvent('keydown', {
+        bubbles: true,
+        cancelable: true,
+        key: 'Escape',
+      })
+      document.dispatchEvent(escape)
+      expect(escape.defaultPrevented).toBe(true)
+      expect(onOpenChange).toHaveBeenCalledTimes(dismissible ? 2 : 0)
+      expect(onClosePrevent).toHaveBeenCalledTimes(dismissible ? 0 : 2)
+      screen.unmount()
+    },
+  )
+
+  test('restores trigger focus after enabling modal behavior while open', async () => {
+    const [open, setOpen] = createSignal(true)
+    const [modal, setModal] = createSignal(false)
+    const screen = render(() => (
+      <Modal open={open()} modal={modal()}>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content>
+            <button type="button">Inside</button>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Open' })
+    const inside = document.body.querySelector<HTMLButtonElement>(
+      '[data-slot="modal-content"] button',
+    )!
+    setModal(true)
+    await waitFor(() => expect(document.activeElement).toBe(inside))
+    setOpen(false)
+    await finishExitMotion(document.body.querySelector<HTMLElement>('[data-slot="modal-content"]'))
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
+    screen.unmount()
+  })
+
+  test('updates modal isolation when modal changes while open', async () => {
+    const [modal, setModal] = createSignal(false)
     const screen = render(() => (
       <>
         <main data-testid="background">Background</main>
-        <Modal defaultOpen trapFocus={trapFocus()}>
+        <Modal defaultOpen modal={modal()}>
           <Modal.Portal>
             <Modal.Content>Content</Modal.Content>
           </Modal.Portal>
@@ -1545,20 +1743,20 @@ describe('Modal primitives', () => {
 
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(background.closest('[aria-hidden="true"]')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
 
-    setTrapFocus(true)
+    setModal(true)
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBe('true')
       expect(background.closest('[aria-hidden="true"]')).not.toBeNull()
       expect(document.body.style.overflow).toBe('hidden')
     })
 
-    setTrapFocus(false)
+    setModal(false)
     await waitFor(() => {
       expect(content.getAttribute('aria-modal')).toBeNull()
       expect(background.closest('[aria-hidden="true"]')).toBeNull()
-      expect(document.body.style.overflow).toBe('')
+      expect(document.body.style.overflow).toBe('hidden')
     })
     screen.unmount()
   })

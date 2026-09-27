@@ -14,7 +14,7 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
 } from '../base/menu'
-import type { ModalT } from '../modal/modal.types'
+import type { OverlayTriggerBase } from '../base/trigger'
 
 import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types'
 
@@ -61,7 +61,7 @@ export namespace ContextMenuT {
   }
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'div'> = ModalT.TriggerBase<T>
+  export type TriggerBase<T extends ValidComponent = 'div'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'div'> = BaseProps<
     T,
     TriggerBase<T>,

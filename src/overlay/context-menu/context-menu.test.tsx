@@ -1,5 +1,6 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
+import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-util/overlay-test'
@@ -8,6 +9,94 @@ import { renderWithTheme } from '../../test-util/theme-render'
 import { ContextMenu } from './context-menu'
 
 describe('ContextMenu', () => {
+  test('opens and dismisses in a foreign Document', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const host = ownerDocument.createElement('div')
+    ownerDocument.body.append(host)
+    const screen = render(
+      () => (
+        <ContextMenu>
+          <ContextMenu.Trigger as="div">Foreign row</ContextMenu.Trigger>
+          <ContextMenu.Content items={[{ label: 'Foreign action' }]} />
+        </ContextMenu>
+      ),
+      { container: host },
+    )
+    try {
+      const trigger = host.querySelector<HTMLElement>('[data-slot="context-menu-trigger"]')!
+      fireEvent.contextMenu(trigger, { clientX: 12, clientY: 18 })
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      await waitFor(() => expect(ownerDocument.body.querySelector('[role="menu"]')).not.toBeNull())
+      expect(document.body.querySelector('[role="menu"]')).toBeNull()
+      fireEvent.keyDown(ownerDocument.body.querySelector('[role="menu"]')!, { key: 'Escape' })
+      await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    } finally {
+      screen.unmount()
+      iframe.remove()
+    }
+  })
+
+  test('moves Document listeners and long-press timers with the trigger', () => {
+    const firstFrame = document.createElement('iframe')
+    const secondFrame = document.createElement('iframe')
+    document.body.append(firstFrame, secondFrame)
+    const firstDocument = firstFrame.contentDocument!
+    const secondDocument = secondFrame.contentDocument!
+    const removeFirst = vi.spyOn(firstDocument, 'removeEventListener')
+    const addSecond = vi.spyOn(secondDocument, 'addEventListener')
+    const removeSecond = vi.spyOn(secondDocument, 'removeEventListener')
+    const setSecondTimeout = vi.spyOn(secondFrame.contentWindow!, 'setTimeout')
+    const [second, setSecond] = createSignal(false)
+    const screen = render(() => (
+      <ContextMenu>
+        <Show
+          when={second()}
+          fallback={
+            <Portal mount={firstDocument.body}>
+              <ContextMenu.Trigger>First</ContextMenu.Trigger>
+            </Portal>
+          }
+        >
+          <Portal mount={secondDocument.body}>
+            <ContextMenu.Trigger>Second</ContextMenu.Trigger>
+          </Portal>
+        </Show>
+        <ContextMenu.Content items={[{ label: 'Action' }]} />
+      </ContextMenu>
+    ))
+    try {
+      expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).not.toBeNull()
+      setSecond(true)
+      expect(firstDocument.body.querySelector('[data-slot="context-menu-trigger"]')).toBeNull()
+      const trigger = secondDocument.body.querySelector<HTMLElement>(
+        '[data-slot="context-menu-trigger"]',
+      )!
+      expect(trigger).not.toBeNull()
+      expect(removeFirst.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
+      expect(addSecond.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
+      fireEvent.pointerDown(trigger, {
+        pointerId: 42,
+        pointerType: 'touch',
+        clientX: 20,
+        clientY: 30,
+      })
+      expect(setSecondTimeout).toHaveBeenCalled()
+      fireEvent.pointerCancel(trigger, { pointerId: 42, pointerType: 'touch' })
+    } finally {
+      screen.unmount()
+      expect(addSecond.mock.calls.some(([name]) => name === 'pointerdown')).toBe(true)
+      expect(removeSecond.mock.calls.some(([name]) => name === 'contextmenu')).toBe(true)
+      expect(removeSecond.mock.calls.some(([name]) => name === 'pointerdown')).toBe(true)
+      firstFrame.remove()
+      secondFrame.remove()
+      removeFirst.mockRestore()
+      addSecond.mockRestore()
+      removeSecond.mockRestore()
+      setSecondTimeout.mockRestore()
+    }
+  })
   test('renders a div trigger root by default', () => {
     render(() => (
       <ContextMenu>

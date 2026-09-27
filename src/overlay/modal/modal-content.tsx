@@ -1,11 +1,18 @@
 import type { Accessor, JSX } from 'solid-js'
-import { Show, children as resolveChildren, onCleanup, splitProps } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createEffect,
+  on,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callHandler, callRef } from '../../shared/utils'
-import { trapFocusInContainer } from '../base/utils'
+import { containFocusInContainer } from '../base/utils'
 
 import { useModalContext } from './modal-context'
 import { modalDataAttributes, modalRecipe } from './modal.recipe'
@@ -13,6 +20,7 @@ import type { ModalT } from './modal.types'
 
 export type ModalSurfaceProps = ModalT.ContentProps & {
   /** Internal overlay support for composed overlays (Dialog, Sheet). */
+  composite?: boolean
   overlay?: boolean
   overlayScroll?: boolean
   overlayClass?: string
@@ -40,6 +48,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const cn = useCn()
   const [local, rest] = splitProps(props, [
     'ref',
+    'composite',
     'overlay',
     'overlayScroll',
     'overlayClass',
@@ -54,6 +63,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   ])
   const context = useModalContext()
   const overlayScroll = () => Boolean(local.overlayScroll && local.overlay)
+  createEffect(on(overlayScroll, context.setOverlayScroll))
+  onCleanup(() => context.setOverlayScroll(false))
   const presence = context.presence
   const body = resolveChildren(() =>
     renderComponentOrElement(local.children, {
@@ -63,7 +74,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
 
   const renderOverlay = (content?: JSX.Element): JSX.Element => (
     <div
-      data-slot={context.slotName('overlay')}
+      data-slot={local.overlay ? context.slotName('overlay') : undefined}
       {...modalDataAttributes.overlay({
         overlayScroll,
         expanded: () => presence.dataAttrs()['data-expanded'],
@@ -72,8 +83,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       ref={(element) => {
         onCleanup(presence.registerElement(element))
       }}
-      class={cn(local.overlayClass)}
-      style={local.overlayStyle}
+      class={local.overlay ? cn(local.overlayClass) : undefined}
+      style={local.overlay ? local.overlayStyle : undefined}
     >
       {content}
     </div>
@@ -114,7 +125,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
           return
         }
         if (context.isModal()) {
-          trapFocusInContainer(event, context.contentElement())
+          containFocusInContainer(event, context.contentElement())
         }
       }}
     >
@@ -124,7 +135,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
 
   return (
     <Show
-      when={overlayScroll()}
+      when={local.composite}
       fallback={
         <>
           <Show when={local.overlay}>{(_value) => renderOverlay()}</Show>

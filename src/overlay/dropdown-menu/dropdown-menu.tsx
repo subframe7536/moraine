@@ -18,7 +18,7 @@ import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
-import type { OverlayTriggerProps } from '../base/trigger'
+import type { OverlayTriggerBinding } from '../base/trigger'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
@@ -116,7 +116,7 @@ function createDropdownMenu(props: DropdownMenuProps) {
         openWithStrategy('first')
       }
     },
-  }) as OverlayTriggerProps
+  }) as OverlayTriggerBinding
 
   createEffect(
     on(

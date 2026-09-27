@@ -3,6 +3,7 @@ import { cleanup, render, waitFor } from '@solidjs/testing-library'
 import { batch, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { isElement } from './dom'
 import { useFloatingPosition } from './floating.ts'
 import type { FloatingPositionOptions } from './floating.ts'
 
@@ -379,7 +380,7 @@ async function useGeometry(clippingSize = 500, beforeMeasure?: () => Promise<voi
     getClippingRect: () => ({ x: 0, y: 0, width: clippingSize, height: clippingSize }),
     getDimensions: () => ({ width: 80, height: 40 }),
     getOffsetParent: () => window,
-    isElement: (element) => element instanceof Element,
+    isElement,
     convertOffsetParentRelativeRectToViewportRelativeRect: ({ rect }) => rect,
     getScale: () => ({ x: 1, y: 1 }),
     getDocumentElement: () => document.documentElement,

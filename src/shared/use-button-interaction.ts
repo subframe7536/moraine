@@ -1,10 +1,9 @@
 import type { Accessor, JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
+import { isNativeButtonElement, isNativeButtonTag } from './native-button'
 import type { ValidComponent } from './types.ts'
 import { callHandler } from './utils'
-
-const BUTTON_INPUT_TYPES = new Set(['button', 'color', 'file', 'image', 'reset', 'submit'])
 
 export interface UseButtonInteractionOptions {
   disabled: Accessor<boolean>
@@ -48,16 +47,7 @@ export function useButtonInteraction(
   const isNativeButton = () => {
     const element = options.element?.()
     if (element) {
-      const tagName = element.tagName.toLowerCase()
-      if (tagName === 'button') {
-        return true
-      }
-      if (tagName === 'input') {
-        const type =
-          typeof props.type === 'string' ? props.type : (element as HTMLInputElement).type
-        return BUTTON_INPUT_TYPES.has(type.toLowerCase())
-      }
-      return false
+      return isNativeButtonElement(element, typeof props.type === 'string' ? props.type : undefined)
     }
 
     const tag = options.tag()
@@ -65,15 +55,7 @@ export function useButtonInteraction(
       return false
     }
 
-    const tagName = tag.toLowerCase()
-    if (tagName === 'button') {
-      return true
-    }
-    if (tagName === 'input') {
-      const type = typeof props.type === 'string' ? props.type : 'button'
-      return BUTTON_INPUT_TYPES.has(type.toLowerCase())
-    }
-    return false
+    return isNativeButtonTag(tag, typeof props.type === 'string' ? props.type : undefined)
   }
 
   const isNativeLink = () => {

@@ -265,13 +265,13 @@ describe('Sheet', () => {
     expectAriaReferencesToResolve(content)
   })
 
-  test('inherits non-modal trapFocus false behavior', async () => {
+  test('inherits non-modal modal false behavior', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
           Outside
         </button>
-        <Sheet defaultOpen trapFocus={false}>
+        <Sheet defaultOpen modal={false}>
           <Sheet.Content title="Sheet">
             <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
@@ -285,8 +285,9 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
     expect(document.activeElement).toBe(outside)
     screen.unmount()
   })

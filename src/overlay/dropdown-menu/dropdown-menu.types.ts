@@ -14,7 +14,7 @@ import type {
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
 } from '../base/menu'
-import type { ModalT } from '../modal/modal.types'
+import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
 import type { DropdownMenuStyleSlot, DropdownMenuStyleVariant } from './dropdown-menu.style-types'
 
@@ -61,8 +61,8 @@ export namespace DropdownMenuT {
   }
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export type ContentClasses = Omit<Classes, 'trigger'>
   export type ContentStyles = Omit<Styles, 'trigger'>

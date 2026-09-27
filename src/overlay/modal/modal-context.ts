@@ -31,6 +31,7 @@ export interface ModalContext {
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
+  setOverlayScroll: (enabled: boolean) => void
   isModal: Accessor<boolean>
   portalMount: Accessor<Node | undefined>
 }

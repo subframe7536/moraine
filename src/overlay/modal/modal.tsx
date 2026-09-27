@@ -42,17 +42,28 @@ export function ModalInternal<K extends ModalKind>(
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [overlayScroll, setOverlayScroll] = createSignal(false)
   const presence = useTransitionPresence({ open })
   const dismissible = () => props.dismissible ?? true
   const contentMounted = () => contentElement() !== undefined
   const isPresent = createMemo(() => contentMounted() && presence.present())
-  const isModal = () => props.trapFocus !== false
+  const isModal = () => props.modal !== false
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
   let restoreFocusOnDeactivate = false
   let hadOpenContent = false
   let closeCycleActive = false
+
+  const captureRestoreFocus = (ownerDocument: Document): void => {
+    capturedTrigger = untrack(triggerElement)
+    const activeElement = getActiveElement(ownerDocument)
+    capturedRestoreTarget =
+      capturedTrigger ??
+      (isHTMLElement(activeElement) && activeElement !== ownerDocument.body
+        ? activeElement
+        : undefined)
+  }
 
   const updateOpen = (nextOpen: boolean): void => {
     if (nextOpen === open()) {
@@ -100,21 +111,26 @@ export function ModalInternal<K extends ModalKind>(
   )
 
   createEffect(
+    on(
+      [isPresent, contentElement, () => props.preventScroll !== false, overlayScroll],
+      ([present, currentContent, preventScroll]) => {
+        if (!present || !currentContent || !preventScroll) {
+          return
+        }
+        const scrollContainer = currentContent.parentElement
+        const releaseScrollLock = acquireBodyScrollLock(
+          scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
+        )
+        onCleanup(releaseScrollLock)
+      },
+    ),
+  )
+
+  createEffect(
     on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
-      if (!present || !modal || !currentContent || typeof document === 'undefined') {
+      if (!present || !modal || !currentContent) {
         return
       }
-      const preventScroll = props.preventScroll
-      const scrollContainer = currentContent.parentElement
-      const releaseScrollLock =
-        preventScroll === false
-          ? undefined
-          : acquireBodyScrollLock(
-              scrollContainer?.hasAttribute('data-overlay-scroll')
-                ? scrollContainer
-                : currentContent,
-            )
-
       let active = true
       let release: (() => void) | undefined
       queueMicrotask(() => {
@@ -127,8 +143,24 @@ export function ModalInternal<K extends ModalKind>(
       onCleanup(() => {
         active = false
         release?.()
-        releaseScrollLock?.()
       })
+    }),
+  )
+
+  createEffect(
+    on(isModal, (modal) => {
+      const currentContent = contentElement()
+      if (!isPresent() || !currentContent) {
+        return
+      }
+      if (modal && !restoreFocusOnDeactivate) {
+        restoreFocusOnDeactivate = true
+        captureRestoreFocus(currentContent.ownerDocument)
+      } else if (!modal) {
+        restoreFocusOnDeactivate = false
+        capturedTrigger = undefined
+        capturedRestoreTarget = undefined
+      }
     }),
   )
 
@@ -139,13 +171,7 @@ export function ModalInternal<K extends ModalKind>(
     onActivate: (context) => {
       restoreFocusOnDeactivate = isModal()
       if (restoreFocusOnDeactivate) {
-        capturedTrigger = untrack(triggerElement)
-        const activeElement = getActiveElement(context.entry.ownerDocument!)
-        capturedRestoreTarget =
-          capturedTrigger ??
-          (isHTMLElement(activeElement) && activeElement !== context.entry.ownerDocument?.body
-            ? activeElement
-            : undefined)
+        captureRestoreFocus(context.entry.ownerDocument!)
       } else {
         capturedTrigger = undefined
         capturedRestoreTarget = undefined
@@ -244,6 +270,7 @@ export function ModalInternal<K extends ModalKind>(
     setTriggerElement,
     contentElement,
     setContentElement,
+    setOverlayScroll,
     isModal,
     portalMount: () => props.portalMount,
   }

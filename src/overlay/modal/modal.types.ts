@@ -7,6 +7,7 @@ import type {
   SlotStyleValue,
   ValidComponent,
 } from '../../shared/types.ts'
+import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
 import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
 
@@ -57,10 +58,12 @@ export namespace ModalT {
     preventScroll?: boolean
 
     /**
-     * Whether the surface contains focus, isolates outside content, and locks body scroll.
+     * Whether the surface contains focus, restores focus on close, hides outside content from
+     * assistive technology, and prevents the native default action of outside pointer events.
+     * Outside pointer and Escape dismissal remain controlled by `dismissible`.
      * @default true
      */
-    trapFocus?: boolean
+    modal?: boolean
 
     /** Default destination for Modal.Portal; defaults to the trigger document body. */
     portalMount?: Node
@@ -86,23 +89,8 @@ export namespace ModalT {
 
   export type PortalProps = PortalBase
 
-  export interface TriggerBase<T extends ValidComponent = 'button'> {
-    /** Element or component to render as. */
-    as?: T
-    /** Whether this trigger is disabled. */
-    disabled?: boolean
-    /** Trigger label and visual content. */
-    children?: JSX.Element
-  }
-
-  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
-    T,
-    TriggerBase<T>,
-    never,
-    never,
-    never,
-    'button'
-  >
+  export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export interface OverlayBase {
     /** Receives the mounted overlay element and `undefined` when it unmounts. */
