@@ -1,0 +1,78 @@
+---
+title: Class Merging
+description: Configure custom class conflict rules, createCn, useCn, and MoraineProvider cnConfig integration.
+sidebar:
+  order: 1
+search:
+  tags: [cn, createCn, useCn, cnConfig, class merging, conflict, tailwind-merge]
+---
+
+Moraine includes a built-in class merging utility on top of [cn](https://github.com/shadcn-ui/cn), configured for UnoCSS and Tailwind CSS. It resolves conflicting utility classes (e.g. `p-2` vs `p-4` or `bg-primary` vs `bg-muted`) and provides extensions for Moraine's semantic z-index, animation keyframes, and parametric transform utilities.
+
+## Merging Classes
+
+```tsx
+import { cn } from 'moraine'
+
+// Conflicting padding resolves to the last applied class ('p-4'):
+const className = cn('p-2 text-sm', 'p-4 text-foreground')
+// => "text-sm p-4 text-foreground"
+```
+
+## Custom Class Conflict Rules
+
+If your project adds custom utility classes that conflict with each other (such as custom density or brand utility prefixes), configure how they merge using `createCn` or `MoraineProvider`:
+
+```ts title="src/lib/app-cn.ts"
+import { createCn } from 'moraine'
+import type { CnConfig } from 'moraine'
+
+export const appCnConfig = {
+  extend: {
+    classGroups: {
+      density: ['density-roomy', 'density-compact'],
+    },
+  },
+} satisfies CnConfig
+
+const appCn = createCn(appCnConfig)
+
+const className = appCn('density-roomy', 'density-compact')
+// => "density-compact"
+```
+
+## Scoping with `MoraineProvider`
+
+Pass your `cnConfig` to `MoraineProvider` so all nested Moraine components and calls to `useCn()` inherit your custom conflict rules:
+
+```tsx title="src/App.tsx"
+import { Button, MoraineProvider, useCn } from 'moraine'
+import { appCnConfig } from './lib/app-cn'
+
+function DensityExample() {
+  const scopedCn = useCn()
+
+  return (
+    <div class={scopedCn('density-roomy', 'density-compact')}>
+      {/* Button automatically uses the nearest Provider's merger */}
+      <Button class="density-roomy density-compact">Compact Action</Button>
+    </div>
+  )
+}
+
+export function App() {
+  return (
+    <MoraineProvider cnConfig={appCnConfig}>
+      <DensityExample />
+    </MoraineProvider>
+  )
+}
+```
+
+### `cnConfig` Inheritance
+
+| `cnConfig` prop        | Behavior                                                              |
+| :--------------------- | :-------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherits parent merger, or uses default Moraine rules at root.        |
+| Configuration object   | Replaces parent merger with Moraine defaults plus supplied extension. |
+| `{}`                   | Resets to clean Moraine default rules without parent extensions.      |

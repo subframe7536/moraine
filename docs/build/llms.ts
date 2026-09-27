@@ -64,7 +64,9 @@ interface PageConversionContext {
 
 const SECTION_TITLES = new Map<string, string>([
   ['overview', 'Overview'],
+  ['guides', 'Guides'],
   ['styling', 'Styling'],
+  ['utils', 'Utilities'],
   ['composition', 'Composition'],
   ['reference', 'Reference'],
   ['general', 'General'],

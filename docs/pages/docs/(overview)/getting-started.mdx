@@ -1,28 +1,51 @@
 ---
-title: Getting Started
-description: Get to know Moraine and render your first SolidJS component.
+title: Introduction
+description: Overview of Moraine, a composable, styled component library for SolidJS.
 sidebar:
   order: 1
 search:
-  tags: [getting started, SolidJS, setup]
+  tags: [introduction, getting started, solidjs, overview, philosophy]
 ---
 
-Moraine provides composable, styled components for SolidJS. It is pre-1.0, so breaking changes may occur as its APIs evolve.
+Moraine is a comprehensive SolidJS component library combining accessible, headless behavioral primitives with ready-to-use atomic class styling inspired by Nuxt UI and Shadcn.
 
-## Set up Moraine
+Unlike React-first libraries ported to Solid, Moraine is engineered from the ground up for Solid's fine-grained reactivity. Components never re-render unnecessarily, produce zero synthetic DOM wrappers, and provide full SSR and streaming hydration safety.
 
-Follow [Installation](/docs/installation) to add the package and configure UnoCSS or Tailwind CSS. Styling integration is required before rendering components.
+## Fine-Grained Reactivity First
 
-## Render a component
+Moraine embraces SolidJS signals, memos, and ownership scopes as first-class citizens:
 
-```tsx
-import { Button } from 'moraine'
+- **No Virtual DOM Overhead**: Components execute once during creation and bind directly to the real DOM.
+- **Reactive Prop Access**: Props and controlled states remain fully reactive without defensive prop-tracking wrappers.
+- **SSR & Hydration Safety**: Built-in deterministic IDs via `useId`, hydration-safe portals, and transition presence management for SolidStart and Vite SSR.
 
-export function SaveButton() {
-  return <Button onClick={() => console.log('Saved')}>Save</Button>
-}
-```
+## Headless Behaviors with Ready-to-Use Styling
 
-## Next steps
+You don't have to choose between writing accessibility from scratch or being locked into a rigid design system:
 
-Browse the [component directory](/components), learn how [composition](/docs/composition) works, or configure your [design tokens](/docs/styling/design). The [UnoCSS](/docs/styling/unocss) and [Tailwind CSS](/docs/styling/tailwind) guides cover each styling path.
+- **WAI-ARIA Compliance**: Automatic keyboard navigation (roving `tabIndex`), focus trapping in dialogs, and ARIA state attribute management (`aria-expanded`, `aria-selected`, `aria-activedescendant`).
+- **Atomic Class Styling**: Styled with composable utility classes powered by official presets and plugins for both [UnoCSS](/docs/unocss) and [Tailwind CSS](/docs/tailwind). No CSS-in-JS runtime overhead.
+
+## Composable Anatomy & Polymorphism
+
+- **Single vs Composite**: Simple components (like `Button` or `Input`) work as single elements with rich props, while complex widgets (like `Dialog`, `Card`, or `Select`) expose composable parts (`Dialog.Trigger`, `Dialog.Content`, `Dialog.Close`).
+- **Render Delegation (`as`)**: Every component supports the polymorphic `as` prop, letting you render as native HTML elements (`as="a"`) or compose other components (`as={Button}`) while preserving type safety and forwarded props.
+
+## Multi-Layer Customization
+
+Moraine provides four deterministic styling layers so you can customize without messy CSS specificity wars:
+
+1. **Direct Attributes**: Pass `class` and `style` directly on JSX parts.
+2. **Type-Safe Slot Classes**: Target inner elements through `classes={{ control: '...', indicator: '...' }}` with full autocompletion.
+3. **Semantic Design Tokens**: Configure CSS variables for colors, radiuses, shadows, and z-indexes across your whole project.
+4. **App-Wide Theming**: Override default recipes globally with `MoraineProvider` and `createTheme()`.
+
+## Getting Started
+
+Ready to build with Moraine? Follow these guides to get up and running:
+
+- **[Installation](/docs/installation)**: Step-by-step setup guide, package managers, and verification.
+- **[UnoCSS Setup](/docs/unocss)**: Configure compilation pipelines and the Moraine preset.
+- **[Tailwind CSS Setup](/docs/tailwind)**: Configure the Moraine plugin for Tailwind CSS v4 or v3.
+- **[Guides](/docs/composition)**: Dive into component composition, polymorphism, and TypeScript types.
+- **[Components](/components)**: Browse the complete catalog of interactive UI elements and specimens.

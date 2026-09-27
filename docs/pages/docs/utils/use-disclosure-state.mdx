@@ -1,0 +1,70 @@
+---
+title: useDisclosureState
+description: Track open-state metadata, dynamic content height measurements, and data attributes for collapsible panels.
+sidebar:
+  order: 3
+search:
+  tags: [useDisclosureState, disclosure, collapsible, accordion, height, animation]
+---
+
+`useDisclosureState` manages state, content height measurements, and DOM data attributes for expandable/collapsible components like `Collapsible` and `Accordion`.
+
+## Import
+
+```tsx
+import { useDisclosureState } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useDisclosureState(options: UseDisclosureStateOptions): {
+  readonly contentHeight: Accessor<number>
+  readonly dataAttrs: Accessor<{
+    'data-closed'?: string
+    'data-disabled'?: string
+    'data-expanded'?: string
+  }>
+  readonly disabled: Accessor<boolean>
+  readonly setContentElement: (element: HTMLElement | undefined) => void
+}
+
+interface UseDisclosureStateOptions {
+  disabled?: Accessor<boolean>
+  open: Accessor<boolean>
+}
+```
+
+## Usage Example
+
+```tsx title="src/MyCollapsible.tsx"
+import { createSignal } from 'solid-js'
+import { useDisclosureState } from 'moraine/utils'
+
+export function MyCollapsible() {
+  const [open, setOpen] = createSignal(false)
+  const disclosure = useDisclosureState({ open })
+
+  return (
+    <div>
+      <button onClick={() => setOpen(!open())}>Toggle Panel</button>
+
+      <div
+        {...disclosure.dataAttrs()}
+        ref={disclosure.setContentElement}
+        style={{
+          '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
+        }}
+        class="overflow-hidden transition-[height] duration-200"
+      >
+        <div class="p-4 bg-muted rounded-md">Collapsible panel content dynamically measured!</div>
+      </div>
+    </div>
+  )
+}
+```
+
+## Features
+
+- **Height Tracking**: Automatically attaches a `ResizeObserver` to the content element to measure `scrollHeight` accurately even when children change dynamically.
+- **Data Attributes**: Supplies `data-expanded`, `data-closed`, and `data-disabled` to drive CSS animations and transitions cleanly.

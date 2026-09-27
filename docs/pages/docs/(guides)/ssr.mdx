@@ -1,0 +1,100 @@
+---
+title: Server-Side Rendering
+description: Guidelines and patterns for SSR and hydration safety in Moraine and SolidStart.
+sidebar:
+  order: 4
+search:
+  tags: [ssr, hydration, solidstart, server, vite]
+---
+
+Moraine is designed from the ground up for SolidJS server-side rendering (SSR), streaming HTML, and client hydration. All primitives and styled components are safe to run in SSR environments like SolidStart, Astro, and Vite SSR.
+
+This guide outlines how Moraine handles the SSR lifecycle and how you can ensure hydration safety in your application.
+
+## Deterministic Hydration IDs
+
+Accessible components require matching IDs between elements (for example, connecting a trigger's `aria-controls` to a content panel's `id`). When server rendering, randomly generated IDs could differ between server and client, causing hydration mismatches.
+
+Moraine exports `useId`, which leverages Solid's internal hydration context to generate deterministic, synchronized IDs across the server and client:
+
+```tsx
+import { useId } from 'moraine/utils'
+
+function CustomField() {
+  const id = useId() // Generates stable, synchronized IDs across SSR and hydration
+
+  return (
+    <div>
+      <label for={id()}>Username</label>
+      <input id={id()} type="text" />
+    </div>
+  )
+}
+```
+
+## Hydration-Safe Portals
+
+Floating overlays—such as `Dialog`, `Sheet`, `Popover`, `Tooltip`, and `ContextMenu`—frequently render into `document.body` via a Solid `<Portal>`.
+
+In Moraine:
+
+- Overlays default to closed states, rendering nothing or minimal placeholders during initial server rendering.
+- When an overlay opens, Moraine delays portal insertion until hydration completes in the browser, preventing server/client DOM mismatch.
+- When nesting Moraine primitives, avoid rendering browser-only DOM elements directly outside `onMount`.
+
+```tsx
+import { Button, Dialog } from 'moraine'
+
+export function UserDialog() {
+  return (
+    <Dialog>
+      <Dialog.Trigger as={Button}>Edit Profile</Dialog.Trigger>
+      {/* Content safely portals to body on client without hydration error */}
+      <Dialog.Content title="Edit Profile">
+        <p>Update your profile details below.</p>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+```
+
+## Responsive Queries in SSR
+
+Browser APIs like `window.matchMedia` do not exist on the server. If a component conditionally renders layout based on screen width, it must provide a deterministic server default.
+
+Moraine's `createMediaQuery` accepts a `defaultValue` to define the fallback state during SSR:
+
+```tsx
+import { createMediaQuery } from 'moraine/utils'
+import { Show } from 'solid-js'
+
+export function Navigation() {
+  // Defaults to false on the server; synchronizes with matchMedia on the client
+  const isDesktop = createMediaQuery('(min-width: 1024px)', {
+    defaultValue: false,
+  })
+
+  return (
+    <nav>
+      <Show when={isDesktop()} fallback={<MobileDrawer />}>
+        <DesktopNav />
+      </Show>
+    </nav>
+  )
+}
+```
+
+## Transition Presence & Exit Lifecycles
+
+SolidJS conditional `<Show>` primitives unmount elements immediately when their condition becomes false. Moraine components use `useTransitionPresence` internally to keep exiting overlays mounted while CSS exit animations run.
+
+During server rendering:
+
+- Hidden or transitioning elements maintain deterministic closed states.
+- Style attributes and animation variables (such as `--mo-collapsible-content-height`) resolve gracefully to safe initial values without triggering layout thrashing or browser DOM measurement calls.
+
+## Best Practices for SSR Safety
+
+1. **Avoid `window` or `document` in Component Body**: Read window dimensions, localStorage, or DOM properties inside `onMount` or inside user event handlers (`onClick`, `onInput`), never at component execution time.
+2. **Deterministic Initial State**: For controlled signals, initialize with static defaults that the server can evaluate consistently.
+3. **Use Moraine Primitives for Overlays**: Built-in primitives already manage portal scopes, scroll locks, and focus traps so you do not need custom SSR guard wrappers.

@@ -9,8 +9,9 @@ const FAQ_ITEMS = [
   },
   {
     value: 'q2',
-    label: 'What styling engine is used?',
-    content: 'Moraine uses UnoCSS with customizable Tailwind-compatible theme tokens.',
+    label: 'How does styling work?',
+    content:
+      'Moraine uses atomic class styling with official presets and plugins for UnoCSS and Tailwind CSS.',
   },
 ]
 

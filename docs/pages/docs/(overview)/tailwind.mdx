@@ -2,12 +2,12 @@
 title: Tailwind CSS
 description: Configure the Moraine Tailwind CSS plugin for Tailwind CSS v4 or v3, scanner paths, and custom utilities.
 sidebar:
-  order: 3
+  order: 4
 search:
   tags: [Tailwind CSS, v4, v3, plugin, '@source', utilities, data variants]
 ---
 
-Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It provides 1:1 parity with the [UnoCSS preset](/docs/styling/unocss), injecting design tokens, semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
+Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It provides 1:1 parity with the [UnoCSS preset](/docs/unocss), injecting design tokens, semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
 
 ## Tailwind CSS v4
 
@@ -76,7 +76,7 @@ Combine with `animate-mo-enter` and `animate-mo-exit` to customize motion:
 - **Translate**: `enter-translate-x-<num>`, `enter-translate-y-<num>`, `exit-translate-x-<num>`, `exit-translate-y-<num>`
 - **Rotate**: `enter-rotate-<deg>`, `exit-rotate-<deg>`
 
-See the [Animations guide](/docs/styling/animations) for details and interactive specimens.
+See the [Animations guide](/docs/animations) for details and interactive specimens.
 
 ### Semantic z-index utilities
 
@@ -103,4 +103,4 @@ Target component DOM states cleanly using utility prefixes:
 
 ## Design tokens and CSS variables
 
-The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/styling/design#css-variables).
+The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/design#css-variables).

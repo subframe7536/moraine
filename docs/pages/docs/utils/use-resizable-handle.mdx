@@ -1,0 +1,70 @@
+---
+title: useResizableHandle
+description: Pointer drag interactions, keyboard resizing, and intersection hit-testing for custom resizable layout handles.
+sidebar:
+  order: 9
+search:
+  tags: [useResizableHandle, resizable, splitter, drag, resize, panels]
+---
+
+`useResizableHandle` manages pointer dragging, keyboard resizing, and intersection detection for custom divider handles in resizable panel layouts.
+
+## Import
+
+```tsx
+import { useResizableHandle } from 'moraine/utils'
+```
+
+## Features
+
+- **Pointer Tracking**: Captures pointer events during resize drags to prevent loss of focus or selection jumps across iframes/documents.
+- **Keyboard Resizing**: Translates arrow keys into pixel delta steps for accessibility.
+- **Intersection Hit-testing**: Coordinates drag targets when handles intersect in 2D grid/cross-pane layouts.
+
+## Signature
+
+```ts
+function useResizableHandle(options: UseResizableHandleOptions): ResizableHandleState
+
+interface UseResizableHandleOptions {
+  handleIndex: Accessor<number>
+  orientation: Accessor<'horizontal' | 'vertical'>
+  disabled: Accessor<boolean | undefined>
+  intersection?: Accessor<boolean | undefined>
+  onDrag: (handleIndex: number, deltaPx: number, altKey: boolean) => void
+  onDragEnd: () => void
+  onKeyDown: (handleIndex: number, event: KeyboardEvent, altKey: boolean) => void
+}
+```
+
+## Usage Example
+
+```tsx title="src/CustomSplitter.tsx"
+import { useResizableHandle } from 'moraine/utils'
+
+export function CustomSplitter(props) {
+  const handle = useResizableHandle({
+    handleIndex: () => props.index,
+    orientation: () => props.orientation ?? 'horizontal',
+    disabled: () => props.disabled,
+    onDrag: (index, deltaPx) => props.onResize(index, deltaPx),
+    onDragEnd: () => props.onResizeEnd?.(),
+    onKeyDown: (index, e) => {
+      if (e.key === 'ArrowLeft') props.onResize(index, -10)
+      if (e.key === 'ArrowRight') props.onResize(index, 10)
+    },
+  })
+
+  return (
+    <div
+      ref={handle.setElement}
+      tabIndex={props.disabled ? -1 : 0}
+      role="separator"
+      aria-orientation={props.orientation}
+      onPointerDown={handle.onPointerDown}
+      onKeyDown={handle.onKeyDown}
+      class="w-1.5 bg-border hover:bg-primary/50 cursor-col-resize transition-colors"
+    />
+  )
+}
+```

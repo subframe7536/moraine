@@ -56,9 +56,9 @@ describe('docs route metadata', () => {
   test('resolves canonical paths for both surfaces and pathless groups', () => {
     const cases = [
       ['docs/(overview)/getting-started.mdx', 'docs', 'overview', '/docs/getting-started'],
-      ['docs/styling/design.mdx', 'docs', 'styling', '/docs/styling/design'],
-      ['docs/(composition)/composition.mdx', 'docs', 'composition', '/docs/composition'],
-      ['docs/reference/typescript.mdx', 'docs', 'reference', '/docs/reference/typescript'],
+      ['docs/(styling)/design.mdx', 'docs', 'styling', '/docs/design'],
+      ['docs/(guides)/composition.mdx', 'docs', 'guides', '/docs/composition'],
+      ['docs/utils/class-merging.mdx', 'docs', 'utils', '/docs/utils/class-merging'],
       ['components/index.mdx', 'components', 'overview', '/components'],
       ['components/(general)/button/index.mdx', 'components', 'general', '/components/button'],
     ] as const

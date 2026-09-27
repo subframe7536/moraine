@@ -1,6 +1,6 @@
 ---
 title: Animations
-description: Explore built-in keyframe animations, duration CSS variables, and transform utilities.
+description: Built-in keyframe animations, duration CSS variables, and parametric transform utilities.
 sidebar:
   order: 5
 search:
@@ -9,9 +9,7 @@ search:
 
 Moraine provides a composable CSS animation and transition system shared across both the UnoCSS preset and the Tailwind CSS plugin. It combines built-in keyframes, parametric transform utilities, and semantic duration variables.
 
-<Preview path="./animation-explorer" />
-
-## Built-in animation utilities
+## Built-in Animation Utilities
 
 The following animation utilities are registered by `presetMoraine()` and `moraine/tailwind`:
 
@@ -30,14 +28,18 @@ The following animation utilities are registered by `presetMoraine()` and `morai
 | `animate-elastic`           | Horizontal stretch and snap translation.                            | Infinite  |
 | `animate-elastic-vertical`  | Vertical stretch and snap translation.                              | Infinite  |
 
-## Parametric transform utilities
+## Parametric Transform Utilities
 
 `animate-mo-enter` and `animate-mo-exit` read parametric CSS variables defined by matching utility classes. Combine them to create custom entrance and exit choreographies without writing custom keyframes:
 
 ```tsx
-<div class="animate-mo-enter enter-opacity-0 enter-scale-95 enter-translate-y-2">
-  Dropdown or popover content
-</div>
+export function AnimatedPopover() {
+  return (
+    <div class="animate-mo-enter enter-opacity-0 enter-scale-95 enter-translate-y-2">
+      Dropdown or popover content
+    </div>
+  )
+}
 ```
 
 | Utility pattern           | Target variable          | Values                        | Example                                       |
@@ -53,7 +55,7 @@ The following animation utilities are registered by `presetMoraine()` and `morai
 | `enter-rotate-<val>`      | `--mo-enter-rotate`      | Degrees or arbitrary          | `enter-rotate-12`, `-enter-rotate-45`         |
 | `exit-rotate-<val>`       | `--mo-exit-rotate`       | Degrees or arbitrary          | `exit-rotate-12`                              |
 
-## Animation durations and easing
+## Animation Durations and Easing
 
 Moraine defines default durations and easing curves for each animation type:
 
@@ -78,9 +80,9 @@ Moraine defines default durations and easing curves for each animation type:
   - `loop`: `ease-in-out`
   - `spin`: `linear`
 
-## Disclosure height token
+## Disclosure Height Token
 
-Collapsible and Accordion components calculate their rendered panel dimensions and set the CSS variable `--mo-collapsible-content-height` on the disclosure container element. The `animate-accordion-down` and `animate-accordion-up` keyframes read this variable to animate smoothly between `0` and the exact natural content height.
+Collapsible and Accordion components calculate their rendered panel dimensions and set `--mo-collapsible-content-height` on the disclosure container element. The `animate-accordion-down` and `animate-accordion-up` keyframes read this variable to animate smoothly between `0` and the exact natural content height.
 
 ```css
 @keyframes accordion-down {
@@ -95,7 +97,7 @@ Collapsible and Accordion components calculate their rendered panel dimensions a
 }
 ```
 
-## Reduced motion
+## Reduced Motion
 
 To respect user preferences for reduced motion, pair animation utilities with `motion-reduce:animate-none` or `motion-reduce:transition-none`:
 

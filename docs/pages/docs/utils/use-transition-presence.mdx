@@ -1,0 +1,71 @@
+---
+title: useTransitionPresence
+description: Keep elements mounted in the DOM until exit transitions or CSS animations finish.
+sidebar:
+  order: 4
+search:
+  tags: [useTransitionPresence, presence, exit animation, transition, animation, mounting]
+---
+
+`useTransitionPresence` coordinates enter and exit animations for conditionally rendered UI. It ensures that an element remains mounted in the DOM until its CSS exit animations or transitions complete.
+
+## Import
+
+```tsx
+import { useTransitionPresence } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useTransitionPresence(options: UseTransitionPresenceOptions): TransitionPresenceState
+
+interface UseTransitionPresenceOptions {
+  open: Accessor<boolean>
+  onExitComplete?: () => void
+}
+
+interface TransitionPresenceState {
+  present: Accessor<boolean>
+  dataAttrs: Accessor<{
+    'data-closed'?: string
+    'data-expanded'?: string
+  }>
+  setElement: (element: HTMLElement | undefined) => void
+  registerElement: (element: HTMLElement) => () => void
+}
+```
+
+## Usage Example
+
+```tsx title="src/AnimatedDialog.tsx"
+import { Show, createSignal } from 'solid-js'
+import { useTransitionPresence } from 'moraine/utils'
+
+export function AnimatedDialog() {
+  const [open, setOpen] = createSignal(false)
+  const presence = useTransitionPresence({ open })
+
+  return (
+    <>
+      <button onClick={() => setOpen(!open())}>Toggle Modal</button>
+
+      {/* Renders as long as present() is true */}
+      <Show when={presence.present()}>
+        <div
+          ref={presence.setElement}
+          {...presence.dataAttrs()}
+          class="data-expanded:animate-mo-enter data-closed:animate-mo-exit p-6 bg-card border rounded-xl"
+        >
+          Animated dialog with exit animation support!
+        </div>
+      </Show>
+    </>
+  )
+}
+```
+
+## Details
+
+- **Automatic Listener**: Detects `animationend` and `transitionend` events automatically on the registered element.
+- **Fallbacks**: Handles cancelled transitions, zero-duration animations, and instant updates safely without getting stuck in mounted state.

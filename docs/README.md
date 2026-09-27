@@ -9,14 +9,25 @@ The landing is `/`. Conceptual documentation lives under `/docs/**`, and compone
 ```text
 docs/pages/docs/(overview)/getting-started.mdx       → /docs/getting-started
 docs/pages/docs/(overview)/installation.mdx          → /docs/installation
-docs/pages/docs/styling/design.mdx                   → /docs/styling/design
-docs/pages/docs/(composition)/composition.mdx        → /docs/composition
-docs/pages/docs/reference/typescript.mdx             → /docs/reference/typescript
+docs/pages/docs/(overview)/unocss.mdx                → /docs/unocss
+docs/pages/docs/(overview)/tailwind.mdx              → /docs/tailwind
+docs/pages/docs/(guides)/composition.mdx             → /docs/composition
+docs/pages/docs/(guides)/polymorphism.mdx            → /docs/polymorphism
+docs/pages/docs/(guides)/typescript.mdx              → /docs/typescript
+docs/pages/docs/(guides)/ssr.mdx                     → /docs/ssr
+docs/pages/docs/(guides)/accessibility.mdx           → /docs/accessibility
+docs/pages/docs/(styling)/design.mdx                 → /docs/design
+docs/pages/docs/(styling)/customization.mdx          → /docs/customization
+docs/pages/docs/(styling)/theming.mdx                → /docs/theming
+docs/pages/docs/(styling)/icons.mdx                  → /docs/icons
+docs/pages/docs/(styling)/animations.mdx             → /docs/animations
+docs/pages/docs/utils/class-merging.mdx              → /docs/utils/class-merging
+docs/pages/docs/utils/use-*.mdx                      → /docs/utils/use-*
 docs/pages/components/index.mdx                      → /components
 docs/pages/components/(general)/button/index.mdx     → /components/button
 ```
 
-Docs sections run Overview → Styling → Composition → Reference. Components run Overview → General → Form → Navigation → Overlay. `sidebar.order` controls ordering within each section. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
+Docs sections run Overview → Guides → Styling → Utils. Components run Overview → General → Form → Navigation → Overlay. `sidebar.order` controls ordering within each section. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
 
 `docs/build/core/paths.ts` derives `surface`, `section`, `routePath`, and `markdownPath` from the source path. The canonical route path is used for metadata and page links; Markdown mirrors it with `.md`. The root landing has no Markdown page. Old root-level URLs have no redirect.
 

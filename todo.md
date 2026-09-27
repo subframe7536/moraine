@@ -16,9 +16,12 @@
 - [x] icon card copy should not cause layout shift
 - [x] make card composite, add `as`.
 - [x] collapsible: move data-transition on wrapper to eliminate `:has` selector
+- [x] landing page polish
+- [ ] basic docs polish
 - [ ] resizable: refresh docs
-- [ ] landing page polish
-- [ ] styling page polish
+- [ ] unocss presetTheme option update.
+- [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
+- [ ] styling guide polish
 
 # V1
 

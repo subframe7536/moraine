@@ -1,0 +1,103 @@
+---
+title: Customization
+description: Style override layers, slot-based styling, and data-slot DOM contracts.
+sidebar:
+  order: 2
+search:
+  tags: [classes, styles, slots, customization, single, composite, data-slot, overrides]
+---
+
+Moraine provides a granular, deterministic customization architecture. Rather than forcing a choice between rigid monolithic classes or completely unstyled primitives, every Moraine component exposes typed slots and four override layers.
+
+## The 4-Layer Override Hierarchy
+
+When styling a component, choose the layer matching your intended scope:
+
+| Layer | Surface            | Scope                           | How to configure                                           |
+| :---: | :----------------- | :------------------------------ | :--------------------------------------------------------- |
+| **1** | **Base Recipe**    | Library defaults                | Built-in styles shipped with Moraine.                      |
+| **2** | **Theme Layer**    | Application or subtree defaults | Wrap in `<MoraineProvider theme={defineTheme(...)}>`       |
+| **3** | **Instance Slots** | Named slots on one instance     | `classes={{ slot: '...' }}` / `styles={{ slot: { ... } }}` |
+| **4** | **Direct Element** | Target DOM element on a part    | `class="..."` / `style={{ ... }}` directly on the element  |
+
+### How Classes Merge Across Layers
+
+Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) using Moraine's `cn` merger. Conflicting Tailwind/UnoCSS classes (e.g. `bg-primary` vs `bg-destructive` or `p-2` vs `p-4`) resolve with the higher layer winning:
+
+```tsx
+import { Button } from 'moraine'
+
+export function CustomAction() {
+  return (
+    <Button
+      // Layer 4: direct class overrides background and adds a shadow
+      class="bg-destructive hover:bg-destructive-hover shadow-lg"
+      // Layer 3: instance slot classes customize inner elements
+      classes={{
+        label: 'font-mono uppercase tracking-widest',
+        leadingIcon: 'text-destructive-foreground',
+      }}
+    >
+      Delete Project
+    </Button>
+  )
+}
+```
+
+See [Composition](/docs/composition) for public parts vs style slots, and [Theming](/docs/theming) for app-wide defaults (Layer 2).
+
+## Style Slots & the `data-slot` Contract
+
+### CamelCase in TSX Props
+
+In TypeScript JSX, slot names on `classes` and `styles` are always camelCase:
+
+```tsx
+import { Select } from 'moraine'
+
+export function StyledSelect() {
+  return (
+    <Select
+      classes={{
+        control: 'rounded-xl border-primary/50 shadow-sm',
+        content: 'p-1 rounded-xl shadow-xl',
+        item: 'py-2 px-3 rounded-lg',
+        itemLabel: 'font-medium',
+      }}
+    />
+  )
+}
+```
+
+### Kebab-case `data-slot` in DOM
+
+In the rendered DOM, Moraine tags elements with standardized kebab-case `data-slot` attributes:
+
+- **Root elements**: `data-slot="<component>"` (e.g. `data-slot="select"`, `data-slot="button"`).
+- **Child slots**: `data-slot="<component>-<slot>"` (e.g. `data-slot="select-control"`, `data-slot="select-item-label"`).
+
+This contract enables clean global CSS selectors or testing queries:
+
+```css
+/* Custom backdrop blur for all Moraine select dropdowns */
+[data-slot='select-content'] {
+  backdrop-filter: blur(12px);
+}
+```
+
+## TypeScript Slot Types
+
+Each component namespace exports typed `Classes`, `Styles`, and `Slot` shapes:
+
+```ts
+import type { ButtonT, CardT } from 'moraine'
+
+// Type-safe slot class overrides
+const buttonClasses: ButtonT.Classes = {
+  root: 'rounded-full px-5',
+  label: 'tracking-wide font-medium',
+}
+
+// Union of all available slot names for Card
+type CardSlots = CardT.Slot // 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
+```

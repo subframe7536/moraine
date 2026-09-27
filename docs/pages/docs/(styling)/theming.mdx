@@ -1,0 +1,153 @@
+---
+title: Theming
+description: Define application-wide theme presets, provider scoping, dynamic theme switching, and portal styling.
+sidebar:
+  order: 3
+search:
+  tags: [theming, defineTheme, MoraineProvider, theme, presets, portals, design system]
+---
+
+Moraine allows you to establish design system defaults for every component across your application or within specific subtrees using `defineTheme()` and `MoraineProvider`.
+
+## Defining a Theme with `defineTheme`
+
+Use `defineTheme()` from `moraine/theme` to create a reusable theme configuration:
+
+```ts title="src/theme/brand-theme.ts"
+import { defineTheme } from 'moraine/theme'
+
+export const brandTheme = defineTheme({
+  button: {
+    defaultVariants: {
+      size: 'sm',
+    },
+    base: {
+      root: 'rounded-xl font-medium tracking-tight shadow-xs',
+    },
+    variants: {
+      variant: {
+        outline: {
+          root: 'border-primary/40 text-primary hover:bg-primary/10',
+        },
+      },
+    },
+    compoundVariants: [
+      {
+        variants: { size: 'sm', variant: 'outline' },
+        root: 'border-2',
+      },
+    ],
+  },
+  card: {
+    base: {
+      root: 'rounded-2xl border-border/80 shadow-sm bg-card',
+      header: 'border-b border-border/60 pb-3',
+    },
+  },
+})
+```
+
+### Extending Themes
+
+Pass an existing theme to `extends` to build specialized themes (such as high-contrast or compact modes):
+
+```ts
+export const highContrastTheme = defineTheme({
+  extends: brandTheme,
+  button: {
+    base: {
+      root: 'border-2 font-bold contrast-125',
+    },
+  },
+})
+```
+
+## Scoping with `MoraineProvider`
+
+Wrap your application root or any subtree in `MoraineProvider` to activate your theme:
+
+```tsx title="src/App.tsx"
+import { MoraineProvider } from 'moraine'
+import { brandTheme } from './theme/brand-theme'
+
+export function App(props) {
+  return <MoraineProvider theme={brandTheme}>{props.children}</MoraineProvider>
+}
+```
+
+### Provider Nesting Behavior
+
+| `theme` prop           | Behavior                                                                      |
+| :--------------------- | :---------------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherits the parent Provider's theme. At root, uses built-in recipe defaults. |
+| `defineTheme(...)`     | Applies specified theme overrides on top of built-in component recipes.       |
+| `theme={null}`         | Clears inherited theme overrides, resetting the subtree to Moraine defaults.  |
+
+## Dynamic Theme Switching
+
+Because Moraine is built natively for SolidJS fine-grained reactivity, changing the `theme` prop updates classes instantly **without unmounting DOM nodes**:
+
+```tsx
+import { createSignal } from 'solid-js'
+import { MoraineProvider, Button } from 'moraine'
+import { defaultTheme, compactTheme } from './themes'
+
+export function ThemeSwitcherApp() {
+  const [currentTheme, setCurrentTheme] = createSignal(defaultTheme)
+
+  return (
+    <MoraineProvider theme={currentTheme()}>
+      <Button onClick={() => setCurrentTheme(compactTheme)}>Switch Theme</Button>
+    </MoraineProvider>
+  )
+}
+```
+
+Interactive elements keep their focus, text selection, and native element references when themes switch.
+
+## State Selectors in Themes
+
+Variants define stable design dimensions (`size`, `variant`, `color`). Transient state (such as disabled, active, or loading) should use attribute selectors in the `base` configuration:
+
+```ts
+const theme = defineTheme({
+  button: {
+    base: {
+      root: 'data-disabled:(opacity-50 cursor-not-allowed) data-loading:cursor-wait',
+    },
+  },
+  select: {
+    base: {
+      control: 'focus-within:(ring-2 ring-ring)',
+    },
+  },
+})
+```
+
+## Portals & CSS Variables
+
+Overlay components (`Dialog.Content`, `Popover.Content`, `Tooltip.Content`) render into a Portal attached to `document.body` by default.
+
+Because portaled nodes are physically rendered outside their parent container in the DOM tree, **CSS custom properties declared on local container elements do not cascade into portaled overlays**.
+
+To pass custom variables or classes to portaled overlays, pass them directly to the overlay's root or content slots:
+
+```tsx
+import { Dialog, Button } from 'moraine'
+
+export function ScopedDialog() {
+  return (
+    <Dialog
+      styles={{
+        overlay: { '--backdrop-opacity': '0.75' },
+        content: { '--card': 'oklch(25% 0 0)' },
+      }}
+    >
+      <Dialog.Trigger as={Button}>Open Modal</Dialog.Trigger>
+      <Dialog.Content title="Custom Styled Dialog">
+        <Dialog.Body>The scoped variables apply correctly here.</Dialog.Body>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+```

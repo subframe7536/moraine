@@ -43,7 +43,7 @@ function deriveRoute(relativePath: string) {
   const surface: DocsSurface = firstSegment
   const sectionSegment = segments.find((segment) =>
     surface === 'docs'
-      ? /^(\(overview\)|styling|\(composition\)|reference)$/.test(segment)
+      ? /^(\(overview\)|\(guides\)|\(styling\)|utils)$/.test(segment)
       : /^(\(general\)|\(form\)|\(navigation\)|\(overlay\))$/.test(segment),
   )
   const section =

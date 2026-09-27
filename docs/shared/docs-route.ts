@@ -23,9 +23,9 @@ export interface DocsRouteSection {
 
 export const DOCS_SECTION_ORDER = new Map<string, number>([
   ['docs:overview', 0],
-  ['docs:styling', 1],
-  ['docs:composition', 2],
-  ['docs:reference', 3],
+  ['docs:guides', 1],
+  ['docs:styling', 2],
+  ['docs:utils', 3],
   ['components:overview', 4],
   ['components:general', 5],
   ['components:form', 6],

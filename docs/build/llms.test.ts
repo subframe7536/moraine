@@ -20,15 +20,17 @@ describe('agent Markdown', () => {
     for (const name of [
       'docs/getting-started.md',
       'docs/installation.md',
-      'docs/styling/design.md',
+      'docs/design.md',
       'docs/composition.md',
-      'docs/reference/typescript.md',
+      'docs/typescript.md',
+      'docs/ssr.md',
+      'docs/accessibility.md',
       'components.md',
       'components/button.md',
     ]) {
       expect(names.has(name)).toBe(true)
     }
-    for (const old of ['start.md', 'button.md', 'styling/design.md']) {
+    for (const old of ['start.md', 'button.md', 'styling/design.md', 'docs/styling/design.md']) {
       expect(names.has(old)).toBe(false)
     }
     const index = result.find((item) => item.fileName === 'llms.txt')!.source
@@ -66,9 +68,7 @@ describe('agent Markdown', () => {
     expect(button).toContain('## Props')
     const select = result.find((item) => item.fileName === 'components/select.md')!.source
     expect(select).toContain('https://ui.subf.dev/components/combobox.md')
-    const customization = result.find(
-      (item) => item.fileName === 'docs/styling/customization.md',
-    )!.source
+    const customization = result.find((item) => item.fileName === 'docs/customization.md')!.source
     expect(customization).toContain('https://ui.subf.dev/docs/composition.md')
   })
 })

@@ -127,7 +127,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/docs/styling/customization"
+              href="/docs/customization"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>
@@ -142,7 +142,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/docs/styling/unocss"
+              href="/docs/unocss"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>
@@ -157,7 +157,7 @@ export function LandingPage() {
               />
             </a>
             <a
-              href="/docs/styling/tailwind"
+              href="/docs/tailwind"
               class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
             >
               <span>

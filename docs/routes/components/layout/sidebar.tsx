@@ -41,7 +41,7 @@ export const Sidebar = (props: SidebarProps) => {
   })
 
   return (
-    <div class="px-3 pb-10 pt-3 h-full min-h-0 overflow-y-auto">
+    <div class="px-3 pb-10 pt-3 bg-background h-full min-h-0 overflow-y-auto">
       <div class="mb-3 p-1 border border-border flex gap-1 rounded-lg sm:hidden">
         <a
           href="/docs/getting-started"
@@ -68,7 +68,7 @@ export const Sidebar = (props: SidebarProps) => {
         <For each={grouped()}>
           {(section) => (
             <section aria-label={section.section}>
-              <div class="text-muted-foreground/80 tracking-tight font-bold mb-1.5 mt-3 px-2 uppercase text-xs">
+              <div class="text-muted-foreground tracking-tight font-medium mb-1.5 mt-3 px-2 py-0.5 bg-muted/60 w-fit uppercase text-xs rounded-md">
                 {section.section}
               </div>
 
@@ -115,19 +115,27 @@ export const Sidebar = (props: SidebarProps) => {
                   </a>
                 )}
               />
-              <Show when={section.section === 'overview' && props.pages[0]?.surface === 'docs'}>
-                <a
-                  href="/llms.txt"
-                  rel="alternate external"
-                  type="text/markdown"
-                  class="text-muted-foreground px-2.5 py-1.5 flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center text-sm rounded-sm hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-                >
-                  <span class="truncate">llms.txt</span>
-                </a>
-              </Show>
             </section>
           )}
         </For>
+
+        <Show when={props.pages[0]?.surface === 'docs'}>
+          <section aria-label="agents">
+            <div class="text-muted-foreground tracking-tight font-medium mb-1.5 mt-3 px-2 py-0.5 bg-muted/60 w-fit uppercase text-xs rounded-md">
+              Agents
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <a
+                href="/llms.txt"
+                rel="alternate external"
+                type="text/markdown"
+                class="text-muted-foreground px-2.5 py-1.5 flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+              >
+                <span class="truncate">llms.txt</span>
+              </a>
+            </div>
+          </section>
+        </Show>
 
         <Show when={grouped().length === 0}>
           <p class="text-muted-foreground px-2 py-3 text-xs">No results</p>
