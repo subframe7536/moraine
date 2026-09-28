@@ -33,6 +33,64 @@
           "description": "Family slot class defaults for this DropdownMenu instance."
         },
         {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial open state when the component is uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether trigger interactions should be ignored.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap between the anchor and the content.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique base id used to derive trigger and content ids."
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Called whenever the menu requests an open state change."
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled open state of the menu."
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Padding applied to the overflow area when calculating the menu's position.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
           "name": "placement",
           "optional": true,
           "type": "'top' | 'right' | 'bottom' | 'left'",
@@ -40,6 +98,26 @@
           "default": {
             "kind": "literal",
             "value": "bottom"
+          }
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether body scroll should be locked while the menu is open.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "shift",
+          "optional": true,
+          "type": "number",
+          "description": "Cross-axis or alignment offset relative to the anchor.",
+          "default": {
+            "kind": "literal",
+            "value": 0
           }
         },
         {
@@ -115,6 +193,26 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment along the cross axis.",
+          "default": {
+            "kind": "literal",
+            "value": "start"
+          }
+        },
+        {
+          "name": "checkedIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon used for checked checkbox items.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-check"
+          }
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -125,6 +223,54 @@
           "optional": true,
           "type": "ContentClasses",
           "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "contentBottom",
+          "optional": true,
+          "type": "OverlayMenuContentSlot",
+          "description": "Content rendered after the resolved item groups."
+        },
+        {
+          "name": "contentTop",
+          "optional": true,
+          "type": "OverlayMenuContentSlot",
+          "description": "Content rendered before the resolved item groups."
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial open state when the component is uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether trigger interactions should be ignored.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap between the anchor and the content.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique base id used to derive trigger and content ids."
         },
         {
           "name": "itemProps",
@@ -139,10 +285,64 @@
           "description": "Custom renderer for individual items."
         },
         {
+          "name": "items",
+          "optional": true,
+          "type": "(Item)[]",
+          "description": "Items rendered in the menu body."
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Called whenever the menu requests an open state change."
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled open state of the menu."
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Padding applied to the overflow area when calculating the menu's position.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Preferred content placement relative to the trigger or anchor point."
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether body scroll should be locked while the menu is open.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "shift",
+          "optional": true,
+          "type": "number",
+          "description": "Cross-axis or alignment offset relative to the anchor.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
-          "description": "Visual size of menu items.",
+          "description": "Menu item size variant.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -159,12 +359,137 @@
           "optional": true,
           "type": "ContentStyles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "submenuIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon used for submenu trigger items.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
         }
       ]
     }
   ],
   "item": {
-    "props": []
+    "props": [
+      {
+        "name": "checked",
+        "optional": true,
+        "type": "boolean",
+        "description": "Controlled checked state for checkbox and radio items."
+      },
+      {
+        "name": "children",
+        "optional": true,
+        "type": "(Item)[]",
+        "description": "Nested menu items for creating submenus."
+      },
+      {
+        "name": "defaultChecked",
+        "optional": true,
+        "type": "boolean",
+        "description": "Initial checked state for uncontrolled checkbox and radio items."
+      },
+      {
+        "name": "defaultOpen",
+        "optional": true,
+        "type": "boolean",
+        "description": "Initial open state for submenus."
+      },
+      {
+        "name": "description",
+        "optional": true,
+        "type": "JSX.Element",
+        "description": "Secondary description text displayed below the label."
+      },
+      {
+        "name": "disabled",
+        "optional": true,
+        "type": "boolean",
+        "description": "Whether the item is non-interactive.",
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
+      },
+      {
+        "name": "group",
+        "optional": true,
+        "type": "string",
+        "description": "Radio group identifier. Radio items with the same group are mutually exclusive."
+      },
+      {
+        "name": "icon",
+        "optional": true,
+        "type": "IconT.Name",
+        "description": "Icon name or custom element to display at the start of the item."
+      },
+      {
+        "name": "kbds",
+        "optional": true,
+        "type": "string[]",
+        "description": "Array of keyboard shortcuts to display as keys."
+      },
+      {
+        "name": "label",
+        "optional": true,
+        "type": "JSX.Element",
+        "description": "Primary label text or element."
+      },
+      {
+        "name": "onCheckedChange",
+        "optional": true,
+        "type": "(checked: boolean) => void",
+        "description": "Event handler called when a checkbox item's state changes."
+      },
+      {
+        "name": "onSelect",
+        "optional": true,
+        "type": "() => void",
+        "description": "Event handler called when the item is activated."
+      },
+      {
+        "name": "onValueChange",
+        "optional": true,
+        "type": "(value: string) => void",
+        "description": "Event handler called when a radio item is selected."
+      },
+      {
+        "name": "open",
+        "optional": true,
+        "type": "boolean",
+        "description": "Controlled open state for submenus."
+      },
+      {
+        "name": "type",
+        "optional": true,
+        "type": "OverlayMenuItemType",
+        "description": "The type of menu item to render.",
+        "default": {
+          "kind": "literal",
+          "value": "item"
+        }
+      },
+      {
+        "name": "value",
+        "optional": true,
+        "type": "string",
+        "description": "Radio item value reported by onValueChange and used for grouped selection."
+      },
+      {
+        "name": "variant",
+        "optional": true,
+        "type": "'default' | 'destructive'",
+        "description": "Visual treatment of the menu item.",
+        "default": {
+          "kind": "literal",
+          "value": "default"
+        }
+      }
+    ]
   },
   "slots": [
     "trigger",

@@ -23,6 +23,7 @@
 - [ ] unocss presetTheme option refactor
 - [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
 - [ ] basic docs polish
+  - [ ] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
   - [ ] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
   - [ ] move `docs/pages/docs/utils/create-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
   - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
