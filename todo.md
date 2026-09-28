@@ -19,7 +19,6 @@
 - [x] landing page polish
 - [x] resizable: refresh docs
 - [x] expose `useBaseSelectSearchInput` with explicit BaseSelect state and keep query state internal
-- [ ] decompose valibot in form.test.ts, the type should be standard
 - [ ] unify public utils name with prefix `use` and avoid `export * from '...'` across all files under src/
 - [ ] unocss presetTheme option refactor
 - [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
