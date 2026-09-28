@@ -1,22 +1,22 @@
 ---
-title: useDisclosureState
+title: createDisclosureState
 description: Track open-state metadata, dynamic content height measurements, and data attributes for collapsible panels.
 search:
-  tags: [useDisclosureState, disclosure, collapsible, accordion, height, animation]
+  tags: [createDisclosureState, disclosure, collapsible, accordion, height, animation]
 ---
 
-`useDisclosureState` manages state, content height measurements, and DOM data attributes for expandable/collapsible components like `Collapsible` and `Accordion`.
+`createDisclosureState` manages state, content height measurements, and DOM data attributes for expandable/collapsible components like `Collapsible` and `Accordion`.
 
 ## Import
 
 ```tsx
-import { useDisclosureState } from 'moraine/utils'
+import { createDisclosureState } from 'moraine/utils'
 ```
 
 ## Signature
 
 ```ts
-function useDisclosureState(options: UseDisclosureStateOptions): {
+function createDisclosureState(options: CreateDisclosureStateOptions): {
   readonly contentHeight: Accessor<number>
   readonly dataAttrs: Accessor<{
     'data-closed'?: string
@@ -27,7 +27,7 @@ function useDisclosureState(options: UseDisclosureStateOptions): {
   readonly setContentElement: (element: HTMLElement | undefined) => void
 }
 
-interface UseDisclosureStateOptions {
+interface CreateDisclosureStateOptions {
   disabled?: Accessor<boolean>
   open: Accessor<boolean>
 }
@@ -37,11 +37,11 @@ interface UseDisclosureStateOptions {
 
 ```tsx title="src/MyCollapsible.tsx"
 import { createSignal } from 'solid-js'
-import { useDisclosureState } from 'moraine/utils'
+import { createDisclosureState } from 'moraine/utils'
 
 export function MyCollapsible() {
   const [open, setOpen] = createSignal(false)
-  const disclosure = useDisclosureState({ open })
+  const disclosure = createDisclosureState({ open })
 
   return (
     <div>

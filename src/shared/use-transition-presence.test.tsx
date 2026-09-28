@@ -2,8 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createRoot, createSignal, onCleanup, Show } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { useTransitionPresence } from './use-transition-presence'
-import type { TransitionPresenceState } from './use-transition-presence'
+import { createTransitionPresence } from './transition-presence'
+import type { TransitionPresenceState } from './transition-presence'
 
 interface PresenceFixture {
   element: HTMLElement
@@ -16,7 +16,7 @@ function renderPresence(): PresenceFixture {
 
   render(() => {
     const [open, setOpen] = createSignal(true)
-    const presence = useTransitionPresence({ open })
+    const presence = createTransitionPresence({ open })
 
     return (
       <Show when={presence.present()}>
@@ -74,7 +74,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('useTransitionPresence', () => {
+describe('createTransitionPresence', () => {
   test('keeps a stable shell registered across repeated exits', async () => {
     let element: HTMLElement | undefined
     let setOpen: ((open: boolean) => void) | undefined
@@ -86,7 +86,7 @@ describe('useTransitionPresence', () => {
     }))
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
-      const state = useTransitionPresence({ open })
+      const state = createTransitionPresence({ open })
       setOpen = updateOpen
       presence = state
       return (
@@ -116,7 +116,7 @@ describe('useTransitionPresence', () => {
   test('is browser-independent while initially closed and reacts to opening', async () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
-      const presence = useTransitionPresence({ open })
+      const presence = createTransitionPresence({ open })
 
       expect(presence.present()).toBe(false)
       expect(presence.dataAttrs()).toEqual({ 'data-closed': '' })
@@ -136,7 +136,7 @@ describe('useTransitionPresence', () => {
   test('settles synchronously when no elements are registered', () => {
     const lifecycle = createRoot((dispose) => {
       const [open, setOpen] = createSignal(true)
-      const presence = useTransitionPresence({ open })
+      const presence = createTransitionPresence({ open })
 
       return { dispose, presence, setOpen }
     })
@@ -249,7 +249,7 @@ describe('useTransitionPresence', () => {
 
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
-      const currentPresence = useTransitionPresence({ open })
+      const currentPresence = createTransitionPresence({ open })
       presence = currentPresence
       setOpen = updateOpen
 
@@ -301,7 +301,7 @@ describe('useTransitionPresence', () => {
 
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
-      const currentPresence = useTransitionPresence({ open })
+      const currentPresence = createTransitionPresence({ open })
       presence = currentPresence
       setOpen = updateOpen
 
@@ -433,7 +433,7 @@ describe('useTransitionPresence', () => {
 
     const screen = render(() => {
       const [open, updateOpen] = createSignal(true)
-      const presence = useTransitionPresence({ open })
+      const presence = createTransitionPresence({ open })
       setOpen = updateOpen
 
       return (
@@ -480,7 +480,7 @@ test('notifies completed exits without animations and never initial absence or d
   const exit = vi.fn()
   const [open, setOpen] = createSignal(false)
   const screen = render(() => {
-    const presence = useTransitionPresence({ open, onExitComplete: exit })
+    const presence = createTransitionPresence({ open, onExitComplete: exit })
     return (
       <Show when={presence.present()}>
         <div ref={presence.setElement} />

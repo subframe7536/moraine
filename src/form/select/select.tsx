@@ -5,7 +5,7 @@ import { Icon } from '../../element/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
-import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -46,7 +46,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
-    const state = useSelectState<SelectT.NormalizedItem<T>>()
+    const state = useSelectContext<SelectT.NormalizedItem<T>>()
     const selectedItem = () => source().byValue.get(state.value()[0]!)
     const hasValue = () => state.value().length > 0
     function clear(): void {

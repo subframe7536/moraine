@@ -10,7 +10,10 @@ type ActivationMode = 'automatic' | 'manual'
  * @template TItem - Item type in the collection.
  * @template TValue - String or number used to identify an item.
  */
-export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string | number> {
+export interface CreateSelectableCollectionNavigationOptions<
+  TItem,
+  TValue extends string | number,
+> {
   /** Accessor returning the items in the collection. */
   items: Accessor<TItem[]>
   /** Returns the unique value that identifies an item. */
@@ -61,7 +64,7 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  *
  * @example
  * ```tsx
- * const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+ * const { onNavigationKeyDown } = createSelectableCollectionNavigation({
  *   items: () => tabs,
  *   getValue: (tab) => tab.id,
  *   isDisabled: (tab) => tab.disabled,
@@ -94,8 +97,8 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * - Automatic: Arrow keys immediately select and focus
  * - Manual: Arrow keys only focus, Enter/Space required to select
  */
-export function useSelectableCollectionNavigation<TItem, TValue extends string | number>(
-  options: UseSelectableCollectionNavigationOptions<TItem, TValue>,
+export function createSelectableCollectionNavigation<TItem, TValue extends string | number>(
+  options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ) {
   function getEnabledItems(): TItem[] {
     return options.items().filter((item) => !options.isDisabled?.(item))

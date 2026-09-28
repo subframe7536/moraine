@@ -1,16 +1,16 @@
 ---
-title: useSlider
+title: createSlider
 description: Headless pointer dragging, keyboard stepping, step snapping, and thumb styles for single or multi-thumb range sliders.
 search:
-  tags: [useSlider, slider, range, dragging, pointer, keyboard, step, thumb]
+  tags: [createSlider, slider, range, dragging, pointer, keyboard, step, thumb]
 ---
 
-`useSlider` is the headless interaction engine behind Moraine's `Slider` component. It provides pointer capture dragging, keyboard arrow stepping, value clamping, step snapping, and thumb/range inline style calculations.
+`createSlider` is the headless interaction engine behind Moraine's `Slider` component. It provides pointer capture dragging, keyboard arrow stepping, value clamping, step snapping, and thumb/range inline style calculations.
 
 ## Import
 
 ```tsx
-import { useSlider } from 'moraine/utils'
+import { createSlider } from 'moraine/utils'
 ```
 
 ## Features
@@ -23,19 +23,19 @@ import { useSlider } from 'moraine/utils'
 ## Signature
 
 ```ts
-function useSlider<TValue extends number | number[]>(
-  props: UseSliderProps<TValue>,
-  options?: UseSliderOptions<TValue>,
+function createSlider<TValue extends number | number[]>(
+  props: CreateSliderProps<TValue>,
+  options?: CreateSliderOptions<TValue>,
 ): SliderState
 ```
 
 ## Usage Example
 
 ```tsx title="src/CustomSlider.tsx"
-import { useSlider } from 'moraine/utils'
+import { createSlider } from 'moraine/utils'
 
 export function CustomSlider() {
-  const slider = useSlider({
+  const slider = createSlider({
     min: 0,
     max: 100,
     step: 5,

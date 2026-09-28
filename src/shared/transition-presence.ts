@@ -1,9 +1,9 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 
-import { attachEventListener } from './use-event-listener'
+import { attachEventListener } from './event-listener'
 
-export interface UseTransitionPresenceOptions {
+export interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
 }
@@ -102,8 +102,8 @@ function getChangedAnimationEntries(
 /**
  * Keeps registered elements mounted until their CSS exit animations settle.
  */
-export function useTransitionPresence(
-  options: UseTransitionPresenceOptions,
+export function createTransitionPresence(
+  options: CreateTransitionPresenceOptions,
 ): TransitionPresenceState {
   const [present, setPresent] = createSignal(options.open())
   const dataAttrs: TransitionPresenceState['dataAttrs'] = () =>

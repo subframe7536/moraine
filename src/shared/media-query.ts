@@ -1,7 +1,7 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import { useEventListener } from './use-event-listener'
+import { createEventListener } from './event-listener'
 
 export function createMediaQuery(
   query: string | Accessor<string>,
@@ -31,7 +31,7 @@ export function createMediaQuery(
       }
 
       if (typeof media.addEventListener === 'function') {
-        useEventListener(media, 'change', onChange)
+        createEventListener(media, 'change', onChange)
       } else {
         media.addListener(onChange)
         onCleanup(() => {

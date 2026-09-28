@@ -1,7 +1,7 @@
 import { For, Show, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
-import { Button, Icon, cn, useId } from '../../../../../src'
+import { Button, Icon, cn, createId } from '../../../../../src'
 import { DOCS_PLAYGROUND_CLASS, DOCS_PLAYGROUND_PREVIEW_CLASS } from '../markdown.class.ts'
 
 import {
@@ -36,7 +36,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
   let previewElement: HTMLDivElement | undefined
   const controls = untrack(() => normalizeDocsPlaygroundControls(props.controls))
   const defaultValues = getDocsPlaygroundControlDefaults(controls)
-  const idPrefix = useId(undefined, 'docs-example-control')
+  const idPrefix = createId(undefined, 'docs-example-control')
   const [values, setValues] = createStore<DocsPlaygroundControlValues>(defaultValues)
   const hasChanges = createMemo(() =>
     controls.some((control) => !Object.is(values[control.prop], control.defaultValue)),

@@ -2,8 +2,8 @@ import type { Accessor, JSX } from 'solid-js'
 import { createSignal, mergeProps, onCleanup } from 'solid-js'
 import { delegateEvents } from 'solid-js/web'
 
+import { attachEventListener } from '../../shared/event-listener'
 import type { BaseProps, ElementProps, SlotStyleValue, ValidComponent } from '../../shared/types'
-import { attachEventListener } from '../../shared/use-event-listener'
 import { callHandler, callRef } from '../../shared/utils'
 
 import { isHTMLElement, isNativeButtonElement } from './dom'

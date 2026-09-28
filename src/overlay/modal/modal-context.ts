@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import type { useTransitionPresence } from '../../shared/use-transition-presence'
+import type { createTransitionPresence } from '../../shared/transition-presence'
 import type { DialogT } from '../dialog/dialog.types'
 import type { SheetT } from '../sheet/sheet.types'
 
@@ -24,7 +24,7 @@ export interface ModalContext {
   slotName: (slot: string) => string
   readonly presentation: { classes?: ModalT.Classes; styles?: ModalT.Styles }
   open: Accessor<boolean>
-  presence: ReturnType<typeof useTransitionPresence>
+  presence: ReturnType<typeof createTransitionPresence>
   contentId: Accessor<string>
   updateOpen: (open: boolean) => void
   triggerElement: Accessor<HTMLElement | undefined>

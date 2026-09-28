@@ -1,26 +1,26 @@
 ---
-title: useControllableValue
+title: createControllableValue
 description: Bridge controlled and uncontrolled component state with a single reactive accessor and setter pair.
 search:
-  tags: [useControllableValue, state, controlled, uncontrolled, hook]
+  tags: [createControllableValue, state, controlled, uncontrolled, hook]
 ---
 
-`useControllableValue` bridges controlled and uncontrolled component state. It allows custom form controls to seamlessly support both caller-managed values (`props.value`) and self-managed fallback values (`props.defaultValue`).
+`createControllableValue` bridges controlled and uncontrolled component state. It allows custom form controls to seamlessly support both caller-managed values (`props.value`) and self-managed fallback values (`props.defaultValue`).
 
 ## Import
 
 ```tsx
-import { useControllableValue } from 'moraine/utils'
+import { createControllableValue } from 'moraine/utils'
 ```
 
 ## Signature
 
 ```ts
-function useControllableValue<T extends {} | null>(
-  options: UseControllableValueOptions<T>,
+function createControllableValue<T extends {} | null>(
+  options: CreateControllableValueOptions<T>,
 ): readonly [Accessor<T>, (update: T | ((previous: T) => T)) => void]
 
-interface UseControllableValueOptions<T> {
+interface CreateControllableValueOptions<T> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
 }
@@ -29,7 +29,7 @@ interface UseControllableValueOptions<T> {
 ## Usage Example
 
 ```tsx title="src/CustomToggle.tsx"
-import { useControllableValue } from 'moraine/utils'
+import { createControllableValue } from 'moraine/utils'
 
 interface CustomToggleProps {
   value?: boolean
@@ -38,7 +38,7 @@ interface CustomToggleProps {
 }
 
 export function CustomToggle(props: CustomToggleProps) {
-  const [checked, setChecked] = useControllableValue({
+  const [checked, setChecked] = createControllableValue({
     value: () => props.value,
     defaultValue: () => props.defaultValue ?? false,
   })

@@ -74,7 +74,7 @@ export function attachEventListenerMap(
   }
 }
 
-export function useEventListener<
+export function createEventListener<
   TTarget extends EventTarget,
   TType extends EventTypeForTarget<TTarget>,
 >(
@@ -86,7 +86,7 @@ export function useEventListener<
   onCleanup(attachEventListener(target, type, listener, options))
 }
 
-export function useEventListenerMap<TTarget extends EventTarget>(
+export function createEventListenerMap<TTarget extends EventTarget>(
   target: TTarget | null | undefined,
   listeners: EventListenerMap<TTarget>,
   options?: boolean | AddEventListenerOptions,

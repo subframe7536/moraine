@@ -3,7 +3,7 @@ import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js
 
 import { createStyles } from '../../provider/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, createId } from '../../shared/utils.ts'
 import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'
 import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
@@ -65,7 +65,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   )
   const modelModifiers = createMemo(() => merged.modelModifiers)
 
-  const generatedId = useId(() => merged.id, 'input')
+  const generatedId = createId(() => merged.id, 'input')
   const field = useFormField(
     () => ({
       id: merged.id,

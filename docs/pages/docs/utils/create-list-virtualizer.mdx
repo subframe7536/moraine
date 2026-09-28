@@ -1,11 +1,11 @@
 ---
-title: useListVirtualizer
+title: createListVirtualizer
 description: High-performance virtual scrolling adapter for large datasets with TanStack Virtual.
 search:
-  tags: [useListVirtualizer, virtualizer, virtual scrolling, list, performance, tanstack]
+  tags: [createListVirtualizer, virtualizer, virtual scrolling, list, performance, tanstack]
 ---
 
-`useListVirtualizer` adapts `@tanstack/virtual-core` for Moraine collection components (`List`, `Select`, `MultiSelect`). It enables high-performance virtual rendering for lists containing thousands of items without freezing the browser DOM.
+`createListVirtualizer` adapts `@tanstack/virtual-core` for Moraine collection components (`List`, `Select`, `MultiSelect`). It enables high-performance virtual rendering for lists containing thousands of items without freezing the browser DOM.
 
 ## Installation
 
@@ -18,20 +18,20 @@ pnpm add @tanstack/virtual-core
 ## Import
 
 ```tsx
-import { useListVirtualizer } from 'moraine/virtualizer'
+import { createListVirtualizer } from 'moraine/virtualizer'
 ```
 
 ## Signature
 
 ```ts
-function useListVirtualizer<TItem>(options: ListVirtualizerOptions<TItem>): ListVirtualizerReturn
+function createListVirtualizer<TItem>(options: ListVirtualizerOptions<TItem>): ListVirtualizerReturn
 ```
 
 ## Usage Example
 
 ```tsx title="src/VirtualizedSelect.tsx"
 import { Select } from 'moraine'
-import { useListVirtualizer } from 'moraine/virtualizer'
+import { createListVirtualizer } from 'moraine/virtualizer'
 
 // Generate 10,000 items
 const largeItemSet = Array.from({ length: 10000 }, (_, i) => ({
@@ -40,7 +40,7 @@ const largeItemSet = Array.from({ length: 10000 }, (_, i) => ({
 }))
 
 export function VirtualizedSelect() {
-  const virtualizer = useListVirtualizer({
+  const virtualizer = createListVirtualizer({
     estimateSize: () => 36, // Row height in px
     overscan: 5, // Pre-render 5 rows offscreen
   })

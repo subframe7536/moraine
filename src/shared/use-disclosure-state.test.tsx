@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { useDisclosureState } from './use-disclosure-state'
+import { createDisclosureState } from './disclosure-state'
 
 function setScrollHeight(element: HTMLElement, getValue: () => number): void {
   Object.defineProperty(element, 'scrollHeight', {
@@ -43,12 +43,12 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('useDisclosureState', () => {
+describe('createDisclosureState', () => {
   test('exposes reactive open and disabled data attributes', () => {
     createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
       const [disabled, setDisabled] = createSignal(false)
-      const state = useDisclosureState({ open, disabled })
+      const state = createDisclosureState({ open, disabled })
 
       expect(state.disabled()).toBe(false)
       expect(state.dataAttrs()).toEqual({
@@ -73,7 +73,7 @@ describe('useDisclosureState', () => {
   test('ignores a queued measurement after the content element detaches', async () => {
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useDisclosureState({ open: () => true }),
+      state: createDisclosureState({ open: () => true }),
     }))
     const element = document.createElement('div')
     let scrollHeight = 10
@@ -96,7 +96,7 @@ describe('useDisclosureState', () => {
 
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useDisclosureState({ open: () => true }),
+      state: createDisclosureState({ open: () => true }),
     }))
     const element = document.createElement('div')
     let scrollHeight = 10
@@ -121,7 +121,7 @@ describe('useDisclosureState', () => {
       return {
         dispose,
         setOpen,
-        state: useDisclosureState({ open }),
+        state: createDisclosureState({ open }),
       }
     })
     const element = document.createElement('div')
@@ -146,7 +146,7 @@ describe('useDisclosureState', () => {
     const observers = installResizeObserverMock()
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useDisclosureState({ open: () => true }),
+      state: createDisclosureState({ open: () => true }),
     }))
     const firstElement = document.createElement('div')
     const secondElement = document.createElement('div')
@@ -182,7 +182,7 @@ describe('useDisclosureState', () => {
     const observers = installResizeObserverMock()
     const lifecycle = createRoot((dispose) => ({
       dispose,
-      state: useDisclosureState({ open: () => true }),
+      state: createDisclosureState({ open: () => true }),
     }))
     const first = document.createElement('div')
     const second = document.createElement('div')
@@ -203,7 +203,7 @@ describe('useDisclosureState', () => {
     expect(() => {
       createRoot((dispose) => {
         const [open, setOpen] = createSignal(false)
-        const state = useDisclosureState({ open })
+        const state = createDisclosureState({ open })
 
         expect(state.contentHeight()).toBe(0)
         setOpen(true)

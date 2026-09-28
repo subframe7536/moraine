@@ -10,7 +10,7 @@ import { FieldProvider } from '../field/field-context'
 import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
-import { useSlider } from './hook'
+import { createSlider } from './hook'
 import { Slider } from './slider'
 
 const render: typeof baseRender = (ui, options) =>
@@ -964,12 +964,12 @@ describe('Slider', () => {
     })
   })
 
-  test('useSlider.markerIndexes reacts when step increases', async () => {
+  test('createSlider.markerIndexes reacts when step increases', async () => {
     const [step, setStep] = createSignal<number | undefined>(0)
-    let sliderResult!: ReturnType<typeof useSlider>
+    let sliderResult!: ReturnType<typeof createSlider>
 
     render(() => {
-      sliderResult = useSlider({
+      sliderResult = createSlider({
         min: 0,
         max: 100,
         get step() {
@@ -1675,9 +1675,9 @@ test('updates thumb dimensions with size and accepts an independent override', (
   expect(screen.container.querySelector('[data-slot="slider"]')).toBe(root)
 })
 
-test('useSlider works standalone with minimal options', () => {
+test('createSlider works standalone with minimal options', () => {
   createRoot((dispose) => {
-    const slider = useSlider({ value: 40 })
+    const slider = createSlider({ value: 40 })
 
     expect(slider.currentValues()).toEqual([40])
     expect(slider.dragging()).toBe(false)

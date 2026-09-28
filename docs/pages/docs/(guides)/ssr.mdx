@@ -15,13 +15,13 @@ This guide outlines how Moraine handles the SSR lifecycle and how you can ensure
 
 Accessible components require matching IDs between elements (for example, connecting a trigger's `aria-controls` to a content panel's `id`). When server rendering, randomly generated IDs could differ between server and client, causing hydration mismatches.
 
-Moraine exports `useId`, which leverages Solid's internal hydration context to generate deterministic, synchronized IDs across the server and client:
+Moraine exports `createId`, which leverages Solid's internal hydration context to generate deterministic, synchronized IDs across the server and client:
 
 ```tsx
-import { useId } from 'moraine/utils'
+import { createId } from 'moraine'
 
 function CustomField() {
-  const id = useId() // Generates stable, synchronized IDs across SSR and hydration
+  const id = createId() // Generates stable, synchronized IDs across SSR and hydration
 
   return (
     <div>
@@ -86,7 +86,7 @@ export function Navigation() {
 
 ## Transition Presence & Exit Lifecycles
 
-SolidJS conditional `<Show>` primitives unmount elements immediately when their condition becomes false. Moraine components use `useTransitionPresence` internally to keep exiting overlays mounted while CSS exit animations run.
+SolidJS conditional `<Show>` primitives unmount elements immediately when their condition becomes false. Moraine components use `createTransitionPresence` internally to keep exiting overlays mounted while CSS exit animations run.
 
 During server rendering:
 

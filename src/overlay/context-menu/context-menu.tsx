@@ -14,11 +14,11 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value.ts'
 import { createContextProvider } from '../../shared/create-context-provider'
+import { attachEventListener } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { attachEventListener } from '../../shared/use-event-listener'
-import { useId } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../base/dom'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
@@ -73,7 +73,7 @@ function createContextMenu(props: ContextMenuProps) {
     props,
   )
 
-  const [open, setOpen] = useControllableValue<boolean>({
+  const [open, setOpen] = createControllableValue<boolean>({
     value: () => merged.open,
     defaultValue: () => Boolean(merged.defaultOpen),
   })
@@ -83,7 +83,7 @@ function createContextMenu(props: ContextMenuProps) {
   const trigger = createOverlayTriggerRef()
   const ownerDocument = () => trigger.element()?.ownerDocument
   const ownerWindow = () => ownerDocument()?.defaultView
-  const resolvedId = useId(() => merged.id, 'contextmenu')
+  const resolvedId = createId(() => merged.id, 'contextmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   let longPressTimeoutId = 0
   let pointerEventGuardTimeoutId = 0

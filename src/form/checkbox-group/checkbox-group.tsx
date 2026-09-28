@@ -11,7 +11,7 @@ import {
 } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useId } from '../../shared/utils'
+import { createId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -116,7 +116,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   const initialDefaultValue = untrack(() =>
     Array.isArray(merged.defaultValue) ? merged.defaultValue.slice() : [],
   )
-  const groupId = useId(() => merged.id, 'checkbox-group')
+  const groupId = createId(() => merged.id, 'checkbox-group')
   const field = useFormField(
     () => ({
       id: merged.id,
@@ -302,7 +302,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
         <For each={items()}>
           {(sourceItem, index) => {
-            const itemId = useId(undefined, 'checkbox-group-item')
+            const itemId = createId(undefined, 'checkbox-group-item')
             const item = createMemo(() => normalizeCheckboxGroupItem(sourceItem, index()))
 
             return (

@@ -5,8 +5,8 @@ import { Portal } from 'solid-js/web'
 
 import { useCn } from '../../../provider/cn-context'
 import { dataSlotName } from '../../../shared/data-slot.ts'
-import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { useId } from '../../../shared/utils'
+import { createTransitionPresence } from '../../../shared/transition-presence'
+import { createId } from '../../../shared/utils'
 import { containsComposed, isNode } from '../dom'
 import { useOverlayInteraction } from '../interaction'
 import {
@@ -25,9 +25,9 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
-  const rootId = useId(() => props.id, 'overlaymenu')
+  const rootId = createId(() => props.id, 'overlaymenu')
   const contentId = createMemo(() => `${rootId()}-content`)
-  const contentPresence = useTransitionPresence({
+  const contentPresence = createTransitionPresence({
     open: () => props.open,
   })
   const branches = new Set<HTMLElement>()

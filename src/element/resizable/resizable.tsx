@@ -16,7 +16,7 @@ import {
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 
 import {
   EPSILON,
@@ -197,7 +197,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     localProps,
   )
 
-  const panelIdPrefix = useId(() => local.id, 'resizable')
+  const panelIdPrefix = createId(() => local.id, 'resizable')
   const orientation = () => resolved.variants.orientation ?? 'horizontal'
   const content = resolveChildren(() => local.children)
 

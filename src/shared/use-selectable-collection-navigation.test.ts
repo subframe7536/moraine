@@ -1,14 +1,14 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useSelectableCollectionNavigation } from './use-selectable-collection-navigation'
+import { createSelectableCollectionNavigation } from './selectable-collection-navigation'
 
 interface TestItem {
   value: string
   disabled?: boolean
 }
 
-describe('useSelectableCollectionNavigation', () => {
+describe('createSelectableCollectionNavigation', () => {
   function createMockKeyboardEvent(key: string, target?: Element): KeyboardEvent {
     return {
       key,
@@ -21,7 +21,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('uses ArrowDown/ArrowUp for vertical orientation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -43,7 +43,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('ignores horizontal arrow keys in vertical orientation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -59,7 +59,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('uses ArrowRight/ArrowLeft for horizontal LTR orientation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -84,7 +84,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('flips arrow keys for RTL horizontal orientation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -109,7 +109,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('detects direction from element computed style when getDirection not provided', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -130,7 +130,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('RTL does not affect vertical orientation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -148,7 +148,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('Home jumps to first enabled item', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -164,7 +164,7 @@ describe('useSelectableCollectionNavigation', () => {
     test('End jumps to last enabled item', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }, { value: 'c' }])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -185,7 +185,7 @@ describe('useSelectableCollectionNavigation', () => {
         { value: 'd' },
       ])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         isDisabled: (item) => item.disabled ?? false,
@@ -207,7 +207,7 @@ describe('useSelectableCollectionNavigation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()
       const focusValue = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -233,7 +233,7 @@ describe('useSelectableCollectionNavigation', () => {
       const focusValue = vi.fn()
       const [activationMode] = createSignal<'automatic' | 'manual'>('automatic')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -254,7 +254,7 @@ describe('useSelectableCollectionNavigation', () => {
       const focusValue = vi.fn()
       const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -274,7 +274,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
       const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -293,7 +293,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
       const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -313,7 +313,7 @@ describe('useSelectableCollectionNavigation', () => {
       const focusValue = vi.fn()
       const [activationMode] = createSignal<'automatic' | 'manual'>('manual')
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -333,7 +333,7 @@ describe('useSelectableCollectionNavigation', () => {
   test('ignores printable keys', () => {
     const [items] = createSignal<TestItem[]>([{ value: 'apple' }, { value: 'banana' }])
     const onSelect = vi.fn()
-    const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+    const { onNavigationKeyDown } = createSelectableCollectionNavigation({
       items,
       getValue: (item) => item.value,
       onSelect,
@@ -350,7 +350,7 @@ describe('useSelectableCollectionNavigation', () => {
     const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
     const onSelect = vi.fn()
     const getDirection = vi.fn(() => 'ltr' as const)
-    const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+    const { onNavigationKeyDown } = createSelectableCollectionNavigation({
       items,
       getValue: (item) => item.value,
       onSelect,
@@ -372,7 +372,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
       const [loop] = createSignal(true)
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -390,7 +390,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
       const [loop] = createSignal(true)
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -408,7 +408,7 @@ describe('useSelectableCollectionNavigation', () => {
       const onSelect = vi.fn()
       const [loop] = createSignal(false)
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -431,7 +431,7 @@ describe('useSelectableCollectionNavigation', () => {
       ])
       const onSelect = vi.fn()
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         isDisabled: (item) => item.disabled ?? false,
@@ -453,7 +453,7 @@ describe('useSelectableCollectionNavigation', () => {
         { value: 'c' },
       ])
       const onSelect = vi.fn()
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -472,7 +472,7 @@ describe('useSelectableCollectionNavigation', () => {
       const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b' }])
       const onSelect = vi.fn()
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -489,7 +489,7 @@ describe('useSelectableCollectionNavigation', () => {
       const [items] = createSignal<TestItem[]>([])
       const onSelect = vi.fn()
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         onSelect,
@@ -508,7 +508,7 @@ describe('useSelectableCollectionNavigation', () => {
       ])
       const onSelect = vi.fn()
 
-      const { onNavigationKeyDown } = useSelectableCollectionNavigation({
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
         items,
         getValue: (item) => item.value,
         isDisabled: (item) => item.disabled ?? false,

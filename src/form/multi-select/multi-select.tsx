@@ -5,8 +5,8 @@ import { Icon } from '../../element/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
-import { useBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
-import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
+import { createBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -55,7 +55,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   )
 
   function Control(): JSX.Element {
-    const state = useSelectState<T>()
+    const state = useSelectContext<T>()
     const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
 
     function resolveInputItem(input: string): T | undefined {
@@ -156,8 +156,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         }
       },
     })
-    const inputBinding = useBaseSelectSearchInput({
-      state,
+    const inputBinding = createBaseSelectSearchInput({
+      state: state.context,
       searchValue: search.value,
       setSearchValue: search.setValue,
       enabled: editable,

@@ -4,12 +4,12 @@ import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from '
 import { Icon } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd'
 import type { SlotBinding } from '../../../provider/create-styles'
+import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
+import { attachEventListener } from '../../../shared/event-listener'
 import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ClassValue, ElementProps } from '../../../shared/types'
-import { useControllableValue } from '../../../shared/use-controllable-value'
-import { attachEventListener } from '../../../shared/use-event-listener'
-import { callHandler, callRef, useId } from '../../../shared/utils'
+import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/style/cn'
 
 import { overlayMenuDataAttributes } from './menu.recipe'
@@ -314,7 +314,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
   }
 
   function LeafItem(itemProps: { item: TItem }): JSX.Element {
-    const itemId = useId(undefined, `${props.id}-item`)
+    const itemId = createId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const itemAttributes = createMemo(() =>
       props.itemProps?.(getItemRenderProps(itemProps.item, false, false, false)),
@@ -382,9 +382,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
   }
 
   function CheckboxMenuItem(itemProps: { item: TItem }): JSX.Element {
-    const itemId = useId(undefined, `${props.id}-checkbox`)
+    const itemId = createId(undefined, `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [checked, setCheckedState] = useControllableValue<boolean>({
+    const [checked, setCheckedState] = createControllableValue<boolean>({
       value: () => itemProps.item.checked,
       defaultValue: () => itemProps.item.defaultChecked ?? false,
     })
@@ -462,9 +462,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
   }
 
   function RadioMenuItem(itemProps: { item: TItem }): JSX.Element {
-    const itemId = useId(undefined, `${props.id}-radio`)
+    const itemId = createId(undefined, `${props.id}-radio`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [checkedState, setCheckedState] = useControllableValue<boolean>({
+    const [checkedState, setCheckedState] = createControllableValue<boolean>({
       value: () => itemProps.item.checked,
       defaultValue: () => itemProps.item.defaultChecked ?? false,
     })

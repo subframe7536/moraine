@@ -1,12 +1,12 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
 
-export interface UseDisclosureStateOptions {
+export interface CreateDisclosureStateOptions {
   disabled?: Accessor<boolean>
   open: Accessor<boolean>
 }
 
-export function useDisclosureState(options: UseDisclosureStateOptions) {
+export function createDisclosureState(options: CreateDisclosureStateOptions) {
   const disabled = createMemo(() => Boolean(options.disabled?.()))
   const dataAttrs = createMemo(() => ({
     'data-closed': options.open() ? undefined : '',

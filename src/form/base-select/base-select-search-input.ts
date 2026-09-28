@@ -1,25 +1,27 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import type { useSelectState } from './base-select.tsx'
+import type { BaseSelectT } from './base-select.types.ts'
 
-export type BaseSelectSearchInputState = Pick<
-  ReturnType<typeof useSelectState>,
-  | 'field'
-  | 'listboxId'
-  | 'open'
-  | 'setOpen'
-  | 'highlightedValue'
-  | 'itemId'
-  | 'locked'
-  | 'focusOwner'
-  | 'setFocusOwner'
-  | 'registerCompositionDiscarder'
-  | 'keyDown'
->
-
-export interface BaseSelectSearchInputOptions {
-  state: BaseSelectSearchInputState
+export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
+  state: Pick<
+    BaseSelectT.Context<TItem>,
+    | 'id'
+    | 'listboxId'
+    | 'open'
+    | 'setOpen'
+    | 'highlightedValue'
+    | 'itemId'
+    | 'locked'
+    | 'disabled'
+    | 'readOnly'
+    | 'focusOwner'
+    | 'setFocusOwner'
+    | 'registerCompositionDiscarder'
+    | 'keyDown'
+    | 'focus'
+    | 'blur'
+  >
   searchValue: Accessor<string>
   setSearchValue: (value: string) => string
   enabled?: Accessor<boolean>
@@ -30,7 +32,9 @@ export interface BaseSelectSearchInputOptions {
 }
 
 /** Binds a caller-owned input to BaseSelect state. */
-export function useBaseSelectSearchInput(options: BaseSelectSearchInputOptions) {
+export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = BaseSelectT.Item>(
+  options: BaseSelectSearchInputOptions<TItem>,
+) {
   const state = options.state
   const [compositionDraft, setCompositionDraft] = createSignal<string>()
   const isComposing = () => compositionDraft() !== undefined
@@ -60,7 +64,7 @@ export function useBaseSelectSearchInput(options: BaseSelectSearchInputOptions) 
 
   const inputProps = {
     get id() {
-      return state.field.id()
+      return state.id()
     },
     role: 'combobox' as const,
     get 'aria-controls'() {
@@ -71,17 +75,17 @@ export function useBaseSelectSearchInput(options: BaseSelectSearchInputOptions) 
     },
     'aria-haspopup': 'listbox' as const,
     get 'aria-autocomplete'() {
-      return state.field.readOnly() || !enabled() ? ('none' as const) : ('list' as const)
+      return state.readOnly() || !enabled() ? ('none' as const) : ('list' as const)
     },
     get 'aria-activedescendant'() {
       const highlighted = state.highlightedValue()
       return state.open() && highlighted !== undefined ? state.itemId(highlighted) : undefined
     },
     get disabled() {
-      return state.field.disabled()
+      return state.disabled()
     },
     get readOnly() {
-      return state.field.readOnly() || !enabled()
+      return state.readOnly() || !enabled()
     },
     get maxLength() {
       return options.maxLength
@@ -131,10 +135,10 @@ export function useBaseSelectSearchInput(options: BaseSelectSearchInputOptions) 
       }
     },
     onFocus(event: FocusEvent) {
-      state.field.emit('focus', event)
+      state.focus(event)
     },
     onBlur(event: FocusEvent) {
-      state.field.emit('blur', event)
+      state.blur(event)
     },
   }
 

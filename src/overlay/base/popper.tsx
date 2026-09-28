@@ -14,15 +14,15 @@ import {
 import { Dynamic, Portal, delegateEvents } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
+import { createControllableValue } from '../../shared/controllable-value'
 import { dataSlotName } from '../../shared/data-slot.ts'
+import { attachEventListener } from '../../shared/event-listener'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { applyDataAttributes } from '../../shared/style-contract.ts'
+import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { attachEventListener } from '../../shared/use-event-listener'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
@@ -103,7 +103,7 @@ interface PopperContext {
   setContentElement: (element: HTMLDivElement | undefined) => void
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
-  contentPresence: ReturnType<typeof useTransitionPresence>
+  contentPresence: ReturnType<typeof createTransitionPresence>
 }
 
 export function setPopperTestPlacementAccessor(accessor: Accessor<string> | undefined): void {
@@ -112,16 +112,16 @@ export function setPopperTestPlacementAccessor(accessor: Accessor<string> | unde
 
 /** Creates shared state for positioned overlay primitives in the current owner. */
 export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): PopperContext {
-  const rootId = useId(() => props.id, 'popper')
+  const rootId = createId(() => props.id, 'popper')
   const contentId = createMemo(() => `${rootId()}-content`)
-  const [open, setControlledOpen] = useControllableValue<boolean>({
+  const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
   const isOpen = createMemo(() => open() && !props.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const contentPresence = useTransitionPresence({ open: isOpen })
+  const contentPresence = createTransitionPresence({ open: isOpen })
 
   function setOpen(nextOpen: boolean): void {
     if (props.disabled || nextOpen === isOpen()) {

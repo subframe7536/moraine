@@ -5,8 +5,8 @@ import { Icon } from '../../element/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
-import { useBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
-import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
+import { createBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -55,7 +55,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
-    const state = useSelectState<ComboboxT.NormalizedItem<T>>()
+    const state = useSelectContext<ComboboxT.NormalizedItem<T>>()
     const selectedItem = () => source().byValue.get(state.value()[0]!)
     const selectedLabel = () => {
       const item = selectedItem()
@@ -65,8 +65,8 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           ? String(state.value()[0])
           : ''
     }
-    const input = useBaseSelectSearchInput({
-      state,
+    const input = createBaseSelectSearchInput({
+      state: state.context,
       searchValue: search.value,
       setSearchValue: search.setValue,
       get maxLength() {

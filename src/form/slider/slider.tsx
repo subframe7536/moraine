@@ -3,11 +3,11 @@ import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import { callRef, useId } from '../../shared/utils'
+import { callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import { useSlider } from './hook'
+import { createSlider } from './hook'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
 
@@ -61,7 +61,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     local,
   )
 
-  const generatedId = useId(() => merged.id, 'slider')
+  const generatedId = createId(() => merged.id, 'slider')
   const field = useFormField(
     () => ({
       id: merged.id,
@@ -77,7 +77,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   )
   const inputEls: HTMLInputElement[] = []
 
-  const slider = useSlider<TValue>(merged, {
+  const slider = createSlider<TValue>(merged, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)

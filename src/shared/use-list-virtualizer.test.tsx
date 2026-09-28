@@ -2,18 +2,18 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { RowProps } from './use-list-virtualizer'
-import { useListVirtualizer } from './use-list-virtualizer'
+import type { RowProps } from './list-virtualizer'
+import { createListVirtualizer } from './list-virtualizer'
 
-describe('useListVirtualizer', () => {
+describe('createListVirtualizer', () => {
   test('defers scroll-element attachment and client rows until after the hydration microtask', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const renderRow = vi.fn((item: string, _index: number, props) => <div {...props}>{item}</div>)
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
         observeElementOffset: (_instance, callback) => callback(0, false),
@@ -44,10 +44,10 @@ describe('useListVirtualizer', () => {
     document.body.append(scrollElement)
     const cleanupRect = vi.fn()
     const cleanupOffset = vi.fn()
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect: (_instance, callback) => {
           callback({ width: 100, height: 40 })
@@ -87,7 +87,7 @@ describe('useListVirtualizer', () => {
     ))
 
     const screen = render(() => {
-      const virtualizer = useListVirtualizer<string>({
+      const virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
         observeElementOffset: (_instance, callback) => callback(0, false),
@@ -120,11 +120,11 @@ describe('useListVirtualizer', () => {
       { id: 'b', label: 'Beta' },
     ])
     let virtualizer:
-      | ReturnType<typeof useListVirtualizer<{ id: string; label: string }>>
+      | ReturnType<typeof createListVirtualizer<{ id: string; label: string }>>
       | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<{ id: string; label: string }>({
+      virtualizer = createListVirtualizer<{ id: string; label: string }>({
         estimateSize: () => 20,
         getItemKey: (item) => item.id,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
@@ -176,10 +176,10 @@ describe('useListVirtualizer', () => {
     document.body.append(scrollElement)
     const entries = Array.from({ length: 100 }, (_, index) => `Item ${index}`)
     const [estimatedSize, setEstimatedSize] = createSignal(20)
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => estimatedSize(),
         measureElement: () => 20,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
@@ -215,7 +215,7 @@ describe('useListVirtualizer', () => {
     const cleanups: Array<ReturnType<typeof vi.fn>> = []
 
     const screen = render(() => {
-      const virtualizer = useListVirtualizer<string>({
+      const virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect: (instance, callback) => {
           observedElements.push(instance.scrollElement)
@@ -262,10 +262,10 @@ describe('useListVirtualizer', () => {
     })
     document.body.append(scrollElement)
     const scrollToFn = vi.fn()
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
         observeElementOffset: (_instance, callback) => callback(0, false),
@@ -304,7 +304,7 @@ describe('useListVirtualizer', () => {
     const entries = [20, 35, 25]
 
     const ltrScreen = render(() => {
-      const virtualizer = useListVirtualizer<number>({
+      const virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
         observeElementOffset: (_instance, callback) => callback(0, false),
@@ -325,7 +325,7 @@ describe('useListVirtualizer', () => {
     })
 
     const rtlScreen = render(() => {
-      const virtualizer = useListVirtualizer<number>({
+      const virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
         isRtl: true,
@@ -376,10 +376,10 @@ describe('useListVirtualizer', () => {
       scrollWidth: { configurable: true, value: 110 },
     })
     document.body.append(scrollElement)
-    let virtualizer: ReturnType<typeof useListVirtualizer<number>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<number>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<number>({
+      virtualizer = createListVirtualizer<number>({
         estimateSize: (size) => size,
         horizontal: true,
         isRtl: true,
@@ -411,10 +411,10 @@ describe('useListVirtualizer', () => {
     const resizeObserverDescriptor = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
     Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: undefined })
     const renderRow = vi.fn()
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({ estimateSize: () => 20 })
+      virtualizer = createListVirtualizer<string>({ estimateSize: () => 20 })
       const VirtualRender = virtualizer.virtualRender
 
       return createComponent(VirtualRender, {
@@ -442,10 +442,10 @@ describe('useListVirtualizer', () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     const observeElementRect = vi.fn()
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         observeElementRect,
       })
@@ -470,10 +470,10 @@ describe('useListVirtualizer', () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)
     let publishOffset: ((offset: number, isScrolling: boolean) => void) | undefined
-    let virtualizer: ReturnType<typeof useListVirtualizer<string>> | undefined
+    let virtualizer: ReturnType<typeof createListVirtualizer<string>> | undefined
 
     const screen = render(() => {
-      virtualizer = useListVirtualizer<string>({
+      virtualizer = createListVirtualizer<string>({
         estimateSize: () => 20,
         measureElement: () => 20,
         observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),

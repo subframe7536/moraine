@@ -2,10 +2,10 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { useId } from '../../shared/utils'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createDisclosureState } from '../../shared/disclosure-state'
+import { createTransitionPresence } from '../../shared/transition-presence'
+import { createId } from '../../shared/utils'
 
 import { CollapsibleContent } from './collapsible-content'
 import type { CollapsibleContext } from './collapsible-context'
@@ -31,18 +31,18 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(collapsibleRecipe, local)
-  const rootId = useId(() => local.id, 'collapsible')
+  const rootId = createId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
-  const [open, setControlledOpen] = useControllableValue<boolean>({
+  const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),
   })
-  const { contentHeight, dataAttrs, disabled, registerElement } = useDisclosureState({
+  const { contentHeight, dataAttrs, disabled, registerElement } = createDisclosureState({
     open,
     disabled: () => Boolean(local.disabled),
   })
-  const contentPresence = useTransitionPresence({ open })
+  const contentPresence = createTransitionPresence({ open })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setCurrentContentElement] = createSignal<HTMLElement | undefined>()
   let registeredContentElement: HTMLElement | undefined

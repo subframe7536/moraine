@@ -12,7 +12,7 @@ import {
 
 import { createStyles } from '../../provider/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, createId } from '../../shared/utils.ts'
 import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'
 import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
@@ -96,7 +96,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   )
   const modelModifiers = createMemo(() => merged.modelModifiers)
 
-  const generatedId = useId(() => merged.id, 'textarea')
+  const generatedId = createId(() => merged.id, 'textarea')
   const field = useFormField(
     () => ({
       id: merged.id,

@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
+import { createControllableValue } from '../../shared/controllable-value'
 import { dataSlotName } from '../../shared/data-slot.ts'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { useId } from '../../shared/utils'
+import { createTransitionPresence } from '../../shared/transition-presence'
+import { createId } from '../../shared/utils'
 import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../base/dom'
 import { useOverlayInteraction } from '../base/interaction'
 import {
@@ -34,16 +34,16 @@ export function ModalInternal<K extends ModalKind>(
 ): JSX.Element {
   // oxlint-disable-next-line subf/solid-reactivity -- The family is fixed for this root; props retain their reactive getters.
   const configuration = { kind: props.kind, props } as ModalConfiguration
-  const rootId = useId(() => props.id, 'modal')
+  const rootId = createId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
-  const [open, setOpen] = useControllableValue<boolean>({
+  const [open, setOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [overlayScroll, setOverlayScroll] = createSignal(false)
-  const presence = useTransitionPresence({ open })
+  const presence = createTransitionPresence({ open })
   const dismissible = () => props.dismissible ?? true
   const contentMounted = () => contentElement() !== undefined
   const isPresent = createMemo(() => contentMounted() && presence.present())

@@ -19,16 +19,16 @@ import { useFloatingPosition } from '../../overlay/base/floating.ts'
 import { useOverlayInteraction } from '../../overlay/base/interaction.ts'
 import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlay/base/utils.ts'
 import { createStyles } from '../../provider/create-styles.ts'
+import { createControllableValue } from '../../shared/controllable-value.ts'
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import { dataSlotName } from '../../shared/data-slot.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createTransitionPresence } from '../../shared/transition-presence.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, createId } from '../../shared/utils.ts'
 import { useFormField } from '../field/field-context.ts'
 import {
   diagnoseDuplicateItems,
@@ -62,7 +62,7 @@ function createSelectState<T extends BaseSelectT.Item>(
   type Value = readonly T['value'][]
   const normalize = (values: Value): T['value'][] =>
     normalizeSelection(values, props.multiple === true)
-  const id = useId(() => props.id, 'select')
+  const id = createId(() => props.id, 'select')
   const initial = untrack(() => normalize(props.defaultValue ?? []))
   const field = useFormField(
     () => props,
@@ -85,7 +85,7 @@ function createSelectState<T extends BaseSelectT.Item>(
   function getCanonicalItem(value: T['value']): T | undefined {
     return props.getItemByValue ? props.getItemByValue(value) : itemByValue().get(value)
   }
-  const [selection, setSelection] = useControllableValue<Value>({
+  const [selection, setSelection] = createControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
         return props.value
@@ -112,7 +112,7 @@ function createSelectState<T extends BaseSelectT.Item>(
     const canonical = getCanonicalItem(item.value) ?? item
     return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
   }
-  const [open, setOpenValue] = useControllableValue<boolean>({
+  const [open, setOpenValue] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
@@ -362,7 +362,33 @@ function createSelectState<T extends BaseSelectT.Item>(
       return field.readOnly()
     },
   }
+  const context: BaseSelectT.Context<T> = {
+    items,
+    value,
+    open,
+    setOpen,
+    highlightedValue,
+    setHighlightedValue,
+    id: field.id,
+    disabled: field.disabled,
+    readOnly: field.readOnly,
+    required: field.required,
+    invalid: field.invalid,
+    locked,
+    focusOwner,
+    setFocusOwner,
+    listboxId,
+    itemId,
+    itemDisabled,
+    change,
+    select,
+    keyDown,
+    registerCompositionDiscarder,
+    focus: (event) => field.emit('focus', event),
+    blur: (event) => field.emit('blur', event),
+  }
   return {
+    context,
     props,
     items,
     value,
@@ -434,12 +460,11 @@ function createSelectState<T extends BaseSelectT.Item>(
 }
 
 type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
-const [SelectProvider, useSelectContext] =
+const [SelectProvider, readSelectContext] =
   createContextProvider<SelectState<BaseSelectT.Item>>('BaseSelect')
-/** Accesses BaseSelect state when composing custom controls. */
-export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
-  // Solid context erases the item generic; the root and its parts share the same T.
-  return useSelectContext() as unknown as SelectState<T>
+/** Private state shared by built-in select parts. */
+export function useSelectContext<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
+  return readSelectContext() as unknown as SelectState<T>
 }
 
 /** Public selection primitive for a flat navigation collection. */
@@ -462,7 +487,7 @@ export function BaseSelectRoot<T extends BaseSelectT.Item = BaseSelectT.Item>(
 }
 
 function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   const resolved = createStyles(baseSelectRecipe, local, {
     rootSlot: 'control',
@@ -501,7 +526,7 @@ function BaseSelectTrigger<
   T extends ValidComponent = 'button',
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
-  const state = useSelectState<TItem>()
+  const state = useSelectContext<TItem>()
   const [local, rest] = splitProps(props, [
     'as',
     'children',
@@ -608,7 +633,7 @@ function BaseSelectTrigger<
 }
 
 function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const [local, rest] = splitProps(props, [
     'children',
     'ref',
@@ -623,7 +648,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     inheritedStyles: () => state.stylePresentation,
     inheritedVariants: () => ({ size: state.styleSize }),
   })
-  const presence = useTransitionPresence({
+  const presence = createTransitionPresence({
     open: state.open,
     onExitComplete: () => {
       state.setHighlightedValue(undefined)
@@ -708,7 +733,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   )
 }
 function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   const resolved = createStyles(baseSelectRecipe, local, {
     rootSlot: 'listbox',
@@ -758,7 +783,7 @@ function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   )
 }
 function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps<T>): JSX.Element {
-  const state = useSelectState<T>()
+  const state = useSelectContext<T>()
   const [local, rest] = splitProps(props, [
     'item',
     'children',
@@ -854,7 +879,7 @@ const [GroupProvider, useGroupContext] = createContextProvider<{
   setLabelId: (id: string | undefined) => void
 } | null>('BaseSelectGroup', null)
 function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'group',
@@ -876,9 +901,9 @@ function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   )
 }
 function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const group = useGroupContext()
-  const id = useId(() => props.id, 'select-group-label')
+  const id = createId(() => props.id, 'select-group-label')
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'groupLabel',
     inheritedStyles: () => state.stylePresentation,
@@ -902,7 +927,7 @@ function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   )
 }
 function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'separator',
     inheritedStyles: () => state.stylePresentation,
@@ -919,7 +944,7 @@ function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
   )
 }
 function BaseSelectEmpty(props: BaseSelectPartProps): JSX.Element {
-  const state = useSelectState()
+  const state = useSelectContext()
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'empty',
     inheritedStyles: () => state.stylePresentation,
@@ -942,3 +967,8 @@ BaseSelect.Group = BaseSelectGroup
 BaseSelect.GroupLabel = BaseSelectGroupLabel
 BaseSelect.Separator = BaseSelectSeparator
 BaseSelect.Empty = BaseSelectEmpty
+BaseSelect.useContext = function useContext<
+  T extends BaseSelectT.Item = BaseSelectT.Item,
+>(): BaseSelectT.Context<T> {
+  return useSelectContext<T>().context
+}

@@ -4,10 +4,10 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
@@ -74,7 +74,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
-  const generatedId = useId(() => merged.id, 'switch')
+  const generatedId = createId(() => merged.id, 'switch')
   const field = useFormField(
     () => ({
       id: merged.id,
@@ -131,7 +131,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     return value
   }
 
-  const [checked, setChecked] = useControllableValue<boolean>({
+  const [checked, setChecked] = createControllableValue<boolean>({
     value: () => {
       if (merged.checked !== undefined) {
         return toCheckedState(merged.checked)

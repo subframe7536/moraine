@@ -1,5 +1,5 @@
-import { BaseSelect, Icon, useSelectState } from '@src'
-import { useBaseSelectSearchInput } from '@src/utils'
+import { BaseSelect, Icon } from '@src'
+import { createBaseSelectSearchInput } from '@src/utils'
 import type { BaseSelectSearchInputOptions } from '@src/utils'
 import { createMemo, createSignal, For } from 'solid-js'
 
@@ -13,8 +13,8 @@ const FRAMEWORKS = [
 function SearchControl(
   props: Pick<BaseSelectSearchInputOptions, 'searchValue' | 'setSearchValue'>,
 ) {
-  const state = useSelectState()
-  const input = useBaseSelectSearchInput({
+  const state = BaseSelect.useContext()
+  const input = createBaseSelectSearchInput({
     state,
     searchValue: () => props.searchValue(),
     setSearchValue: (value) => props.setSearchValue(value),

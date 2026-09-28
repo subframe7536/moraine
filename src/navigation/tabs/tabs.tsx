@@ -14,10 +14,10 @@ import {
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useId } from '../../shared/utils'
+import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
+import { createId } from '../../shared/utils'
 
 import { tabsDataAttributes, tabsRecipe } from './tabs.recipe'
 import type { TabsProps, TabsT } from './tabs.types'
@@ -68,8 +68,8 @@ export function Tabs(props: TabsProps): JSX.Element {
     local,
   )
 
-  const rootId = useId(() => merged.id, 'tabs')
-  const [requestedValue, setRequestedValue] = useControllableValue<string | null>({
+  const rootId = createId(() => merged.id, 'tabs')
+  const [requestedValue, setRequestedValue] = createControllableValue<string | null>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? null,
   })
@@ -139,7 +139,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     height: undefined,
   })
   let listRef: HTMLDivElement | undefined
-  const { onNavigationKeyDown } = useSelectableCollectionNavigation<NormalizedTabItem, string>({
+  const { onNavigationKeyDown } = createSelectableCollectionNavigation<NormalizedTabItem, string>({
     items: normalizedItems,
     getValue: (item) => item.instanceKey,
     isDisabled: (item) => Boolean(merged.disabled || item.disabled),

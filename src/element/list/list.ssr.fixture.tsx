@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { useListVirtualizer } from '../../virtualizer.ts'
+import { createListVirtualizer } from '../../virtualizer.ts'
 
 import { List } from './list.tsx'
 
@@ -18,7 +18,7 @@ export function ListHydrationFixture(props: { items?: string[] }) {
 }
 
 export function VirtualListHydrationFixture() {
-  const virtualizer = useListVirtualizer<string>({
+  const virtualizer = createListVirtualizer<string>({
     estimateSize: () => 32,
     observeElementRect: (_instance, callback) => {
       callback({ width: 200, height: 96 })

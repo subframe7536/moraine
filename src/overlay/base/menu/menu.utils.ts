@@ -2,8 +2,8 @@ import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import { createSignal, onCleanup, untrack } from 'solid-js'
 
+import { createSelectableCollectionNavigation } from '../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../shared/typeahead'
-import { useSelectableCollectionNavigation } from '../../../shared/use-selectable-collection-navigation'
 import { focusWithoutScrolling } from '../utils'
 
 export function getOverlayMenuTextValue(item: {
@@ -333,7 +333,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusWithoutScrolling(contentElement())
   }
 
-  const { focusBoundary, focusByOffset } = useSelectableCollectionNavigation<
+  const { focusBoundary, focusByOffset } = createSelectableCollectionNavigation<
     OverlayMenuRegisteredItem,
     string
   >({
