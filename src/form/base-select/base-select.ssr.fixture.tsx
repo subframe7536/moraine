@@ -1,7 +1,7 @@
 import { Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { BaseSelect } from './base-select.tsx'
+import { BaseSelect } from './base-select'
 export function renderBaseSelectFixture(): string {
   return renderToString(() => (
     <BaseSelect

@@ -1,7 +1,7 @@
 import { createRoot } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { callRef, cn, useId } from './utils'
+import { callRef, cn, createId } from './utils'
 
 describe('callRef', () => {
   test('ignores element-valued refs', () => {
@@ -24,14 +24,14 @@ describe('callRef', () => {
 
 function resolveId(deterministicId?: () => string | null | undefined, prefix?: string): string {
   return createRoot((dispose) => {
-    const id = useId(deterministicId, prefix)
+    const id = createId(deterministicId, prefix)
     const value = id()
     dispose()
     return value
   })
 }
 
-describe('useId', () => {
+describe('createId', () => {
   test('returns deterministic id when provided', () => {
     expect(resolveId(() => 'custom-id', 'dialog')).toBe('custom-id')
   })

@@ -156,8 +156,8 @@ describe('docs route metadata', () => {
     try {
       await writeProjectFile(
         projectRoot,
-        'docs/pages/docs/utils/use-slider.mdx',
-        '---\ntitle: useSlider\ndescription: d\nsearch:\n  tags: [t]\n---\n',
+        'docs/pages/docs/utils/create-slider.mdx',
+        '---\ntitle: createSlider\ndescription: d\nsearch:\n  tags: [t]\n---\n',
       )
       await writeProjectFile(
         projectRoot,
@@ -173,7 +173,7 @@ describe('docs route metadata', () => {
       expect(scanned.map((r) => r.info.key)).toEqual([
         'class-merging',
         'create-media-query',
-        'use-slider',
+        'create-slider',
       ])
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
@@ -184,18 +184,16 @@ describe('docs route metadata', () => {
     const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'utils')
     expect(scanned.map((r) => r.info.key)).toEqual([
       'class-merging',
-      'create-context-provider',
+      'create-base-select-search-input',
+      'create-controllable-value',
+      'create-disclosure-state',
+      'create-event-listener',
+      'create-id',
+      'create-list-virtualizer',
       'create-media-query',
-      'use-base-select-search-input',
-      'use-controllable-value',
-      'use-disclosure-state',
-      'use-event-listener',
-      'use-id',
-      'use-list-virtualizer',
-      'use-loading-auto-click',
-      'use-selectable-collection-navigation',
-      'use-slider',
-      'use-transition-presence',
+      'create-selectable-collection-navigation',
+      'create-slider',
+      'create-transition-presence',
     ])
   })
 })

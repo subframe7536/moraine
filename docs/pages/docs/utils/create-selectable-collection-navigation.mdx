@@ -1,10 +1,10 @@
 ---
-title: useSelectableCollectionNavigation
+title: createSelectableCollectionNavigation
 description: Add accessible keyboard navigation (arrow keys, Home/End, RTL) for tabs, radio groups, and listboxes.
 search:
   tags:
     [
-      useSelectableCollectionNavigation,
+      createSelectableCollectionNavigation,
       keyboard,
       navigation,
       tabs,
@@ -15,24 +15,24 @@ search:
     ]
 ---
 
-`useSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End, PageUp, PageDown) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
+`createSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End, PageUp, PageDown) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
 
 ## Import
 
 ```tsx
-import { useSelectableCollectionNavigation } from 'moraine/utils'
+import { createSelectableCollectionNavigation } from 'moraine/utils'
 ```
 
 ## Signature
 
 ```ts
-function useSelectableCollectionNavigation<TItem, TValue extends string | number>(
-  options: UseSelectableCollectionNavigationOptions<TItem, TValue>,
+function createSelectableCollectionNavigation<TItem, TValue extends string | number>(
+  options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ): {
   onKeyDown: (event: KeyboardEvent) => void
 }
 
-interface UseSelectableCollectionNavigationOptions<TItem, TValue> {
+interface CreateSelectableCollectionNavigationOptions<TItem, TValue> {
   items: Accessor<TItem[]>
   getValue: (item: TItem) => TValue
   onSelect: (value: TValue) => void
@@ -48,7 +48,7 @@ interface UseSelectableCollectionNavigationOptions<TItem, TValue> {
 
 ```tsx title="src/CustomTabs.tsx"
 import { For, createSignal } from 'solid-js'
-import { useSelectableCollectionNavigation } from 'moraine/utils'
+import { createSelectableCollectionNavigation } from 'moraine/utils'
 
 interface TabItem {
   id: string
@@ -63,7 +63,7 @@ export function CustomTabs() {
   ]
   const [selectedId, setSelectedId] = createSignal('overview')
 
-  const nav = useSelectableCollectionNavigation({
+  const nav = createSelectableCollectionNavigation({
     items: () => tabs,
     getValue: (item) => item.id,
     onSelect: (id) => setSelectedId(id),

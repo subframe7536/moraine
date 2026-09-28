@@ -17,8 +17,8 @@ import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
 import { getActiveElement } from '../../overlay/base/dom'
 import { createStyles } from '../../provider'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { createControllableValue } from '../../shared/controllable-value'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { mergeAriaTokens } from '../shared/merge-aria-tokens'
 import { useFormReset } from '../shared/use-form-reset'
@@ -271,7 +271,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return initialDefaultValue
   })
 
-  const generatedId = useId(() => merged.id, 'input-number')
+  const generatedId = createId(() => merged.id, 'input-number')
   const field = useFormField(
     () => ({
       id: merged.id,
@@ -302,7 +302,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return undefined
   })
 
-  const [resolvedValue, setResolvedValue] = useControllableValue<number>({
+  const [resolvedValue, setResolvedValue] = createControllableValue<number>({
     value: () => {
       const controlledValue = explicitControlledValue()
       if (controlledValue !== undefined) {

@@ -1,23 +1,40 @@
 ---
-title: useBaseSelectSearchInput
+title: createBaseSelectSearchInput
 description: Bind a custom text input to BaseSelect with accessible keyboard and IME behavior.
 search:
-  tags: [useBaseSelectSearchInput, base-select, search, combobox, ime, autocomplete, a11y]
+  tags: [createBaseSelectSearchInput, base-select, search, combobox, ime, autocomplete, a11y]
 ---
 
-`useBaseSelectSearchInput` connects a caller-owned `<input>` to a `BaseSelect`. Call `useSelectState()` inside a BaseSelect child component and pass that state to the hook. It supplies input attributes, keyboard handling, focus registration, and IME-safe query commits.
+`createBaseSelectSearchInput` connects a caller-owned `<input>` to a `BaseSelect`. Call `BaseSelect.useContext()` inside a BaseSelect child component and pass that state to the hook. It supplies input attributes, keyboard handling, focus registration, and IME-safe query commits.
 
 ## Import
 
 ```tsx
-import { useBaseSelectSearchInput } from 'moraine/utils'
+import { createBaseSelectSearchInput } from 'moraine/utils'
 ```
 
 ## Options and result
 
 ```ts
 interface BaseSelectSearchInputOptions {
-  state: BaseSelectSearchInputState
+  state: Pick<
+    BaseSelectT.Context,
+    | 'id'
+    | 'listboxId'
+    | 'open'
+    | 'setOpen'
+    | 'highlightedValue'
+    | 'itemId'
+    | 'locked'
+    | 'disabled'
+    | 'readOnly'
+    | 'focusOwner'
+    | 'setFocusOwner'
+    | 'registerCompositionDiscarder'
+    | 'keyDown'
+    | 'focus'
+    | 'blur'
+  >
   searchValue: Accessor<string>
   setSearchValue: (value: string) => string
   enabled?: Accessor<boolean>
@@ -27,7 +44,7 @@ interface BaseSelectSearchInputOptions {
   autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 }
 
-const { inputProps, isComposing, discardComposition } = useBaseSelectSearchInput(options)
+const { inputProps, isComposing, discardComposition } = createBaseSelectSearchInput(options)
 ```
 
 Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or provide equivalent functions. `setSearchValue` must return the text it applies. Spread `inputProps` directly on an `<input>`. The other result methods let a custom control defer its own keyboard work during composition or discard a draft before clearing the selection.
@@ -38,8 +55,8 @@ Pass a Solid signal as `searchValue` and its setter as `setSearchValue`, or prov
 
 ```tsx title="src/CustomSearchSelect.tsx"
 import { createSignal, For } from 'solid-js'
-import { BaseSelect, useSelectState } from 'moraine'
-import { useBaseSelectSearchInput } from 'moraine/utils'
+import { BaseSelect } from 'moraine'
+import { createBaseSelectSearchInput } from 'moraine/utils'
 import type { BaseSelectSearchInputOptions } from 'moraine/utils'
 
 const fruits = [
@@ -51,8 +68,8 @@ const fruits = [
 function SearchControl(
   props: Pick<BaseSelectSearchInputOptions, 'searchValue' | 'setSearchValue'>,
 ) {
-  const state = useSelectState()
-  const { inputProps } = useBaseSelectSearchInput({
+  const state = BaseSelect.useContext()
+  const { inputProps } = createBaseSelectSearchInput({
     state,
     searchValue: () => props.searchValue(),
     setSearchValue: (value) => props.setSearchValue(value),

@@ -1,29 +1,33 @@
 ---
-title: useEventListener
+title: createEventListener
 description: Attach typed DOM event listeners that clean up automatically when the Solid owner scope disposes.
 search:
-  tags: [useEventListener, useEventListenerMap, events, addEventListener, cleanup, window, dom]
+  tags:
+    [createEventListener, createEventListenerMap, events, addEventListener, cleanup, window, dom]
 ---
 
-`useEventListener` and `useEventListenerMap` attach DOM event listeners to Window, Document, or HTML elements. They automatically register `onCleanup()` in the active SolidJS reactive scope to prevent memory leaks.
+`createEventListener` and `createEventListenerMap` attach DOM event listeners to Window, Document, or HTML elements. They automatically register `onCleanup()` in the active SolidJS reactive scope to prevent memory leaks.
 
 ## Import
 
 ```tsx
-import { useEventListener, useEventListenerMap } from 'moraine/utils'
+import { createEventListener, createEventListenerMap } from 'moraine/utils'
 ```
 
 ## Signatures
 
 ```ts
-function useEventListener<TTarget extends EventTarget, TType extends EventTypeForTarget<TTarget>>(
+function createEventListener<
+  TTarget extends EventTarget,
+  TType extends EventTypeForTarget<TTarget>,
+>(
   target: TTarget | null | undefined,
   type: TType,
   listener: (event: EventMapForTarget<TTarget>[TType]) => void,
   options?: boolean | AddEventListenerOptions,
 ): void
 
-function useEventListenerMap<TTarget extends EventTarget>(
+function createEventListenerMap<TTarget extends EventTarget>(
   target: TTarget | null | undefined,
   listeners: EventListenerMap<TTarget>,
   options?: boolean | AddEventListenerOptions,
@@ -32,14 +36,14 @@ function useEventListenerMap<TTarget extends EventTarget>(
 
 ## Usage Example
 
-### Single Event with `useEventListener`
+### Single Event with `createEventListener`
 
 ```tsx title="src/EscapeListener.tsx"
-import { useEventListener } from 'moraine/utils'
+import { createEventListener } from 'moraine/utils'
 
 export function EscapeListener(props: { onEscape: () => void }) {
   // Strongly typed: e is KeyboardEvent when listening to 'keydown' on window
-  useEventListener(window, 'keydown', (e) => {
+  createEventListener(window, 'keydown', (e) => {
     if (e.key === 'Escape') {
       props.onEscape()
     }
@@ -49,13 +53,13 @@ export function EscapeListener(props: { onEscape: () => void }) {
 }
 ```
 
-### Multiple Events with `useEventListenerMap`
+### Multiple Events with `createEventListenerMap`
 
 ```tsx title="src/DragObserver.tsx"
-import { useEventListenerMap } from 'moraine/utils'
+import { createEventListenerMap } from 'moraine/utils'
 
 export function DragObserver() {
-  useEventListenerMap(window, {
+  createEventListenerMap(window, {
     pointermove: (e) => console.log('Pointer at:', e.clientX, e.clientY),
     pointerup: () => console.log('Drag ended'),
     pointercancel: () => console.log('Drag cancelled'),

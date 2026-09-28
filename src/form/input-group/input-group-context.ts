@@ -1,6 +1,6 @@
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { createContextProvider } from '../../shared/create-context-provider'
 
-import type { InputGroupT } from './input-group.types.ts'
+import type { InputGroupT } from './input-group.types'
 
 interface InputGroupContextValue {
   readonly size: InputGroupT.Variant['size'] | null

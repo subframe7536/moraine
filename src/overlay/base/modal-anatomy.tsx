@@ -2,7 +2,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { SlotBinding } from '../../provider/create-styles'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 
 export function renderModalAnatomyPart(options: {
   as: Accessor<ValidComponent | undefined>

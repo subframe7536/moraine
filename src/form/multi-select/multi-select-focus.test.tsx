@@ -1,10 +1,10 @@
 import { fireEvent, render as baseRender } from '@solidjs/testing-library'
 import { expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../provider/index.ts'
+import { MoraineProvider } from '../../provider/index'
 
-import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectT } from './multi-select.types.ts'
+import { MultiSelect } from './multi-select'
+import type { MultiSelectT } from './multi-select.types'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

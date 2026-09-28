@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { CardHydrationFixture } from './card.ssr.fixture.tsx'
+import { CardHydrationFixture } from './card.ssr.fixture'
 
 test.each([true, false])(
   'hydrates compound parts and updates conditional body (initially present=%s)',

@@ -1,16 +1,16 @@
 import type { JSX } from 'solid-js'
 import { DEV, For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../element/icon/index.ts'
-import { useCn } from '../../provider/cn-context.ts'
-import { createStyles } from '../../provider/index.ts'
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { useId } from '../../shared/utils.ts'
+import { Icon } from '../../element/icon/index'
+import { useCn } from '../../provider/cn-context'
+import { createStyles } from '../../provider/index'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
+import { createId } from '../../shared/utils'
 
 import { stepperDataAttributes, stepperRecipe } from './stepper.recipe'
-import type { StepperProps, StepperT } from './stepper.types.ts'
+import type { StepperProps, StepperT } from './stepper.types'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 
@@ -60,8 +60,8 @@ export function Stepper(props: StepperProps): JSX.Element {
     local,
   )
 
-  const id = useId(() => merged.id, 'stepper')
-  const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value | null>({
+  const id = createId(() => merged.id, 'stepper')
+  const [requestedValue, setRequestedValue] = createControllableValue<StepperT.Value | null>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? null,
   })
@@ -119,7 +119,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   const currentIndex = createMemo(() => {
     return selectedItem()?.index ?? -1
   })
-  const { onNavigationKeyDown } = useSelectableCollectionNavigation<
+  const { onNavigationKeyDown } = createSelectableCollectionNavigation<
     NormalizedStepperItem,
     StepperT.Value
   >({

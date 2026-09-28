@@ -18,10 +18,10 @@ import type { ListT } from '../../element/list'
 import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { createControllableValue } from '../../shared/controllable-value'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
+import { callHandler, callRef, createId } from '../../shared/utils'
 
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
@@ -167,14 +167,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     local,
   )
 
-  const [currentSearchTerm, setSearchTerm] = useControllableValue<string>({
+  const [currentSearchTerm, setSearchTerm] = createControllableValue<string>({
     value: () => merged.searchTerm,
     defaultValue: () => '',
   })
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
-  const listboxId = useId(undefined, 'command-palette-listbox')
+  const listboxId = createId(undefined, 'command-palette-listbox')
   const descriptionPosition = () => resolved.variants.descriptionPosition
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
@@ -340,7 +340,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     ),
   )
 
-  const { onNavigationKeyDown } = useSelectableCollectionNavigation<NormalizedItem<TItem>, string>({
+  const { onNavigationKeyDown } = createSelectableCollectionNavigation<
+    NormalizedItem<TItem>,
+    string
+  >({
     items: () => visibleItems(),
     getValue: (item) => item.key,
     isDisabled: (item) => item.disabled,

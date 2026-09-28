@@ -1,28 +1,31 @@
 ---
-title: useId
+title: createId
 description: Generate unique, SSR-safe identifiers for accessibility relationships and form controls.
 search:
-  tags: [useId, id, accessibility, a11y, unique id, ssr]
+  tags: [createId, id, accessibility, a11y, unique id, ssr]
 ---
 
-`useId` generates unique string identifiers for accessibility bindings (`aria-labelledby`, `aria-describedby`, `aria-controls`, `for`). It prioritizes user-supplied deterministic IDs when provided and falls back to prefixed, auto-generated unique IDs.
+`createId` generates unique string identifiers for accessibility bindings (`aria-labelledby`, `aria-describedby`, `aria-controls`, `for`). It prioritizes user-supplied deterministic IDs when provided and falls back to prefixed, auto-generated unique IDs.
 
 ## Import
 
 ```tsx
-import { useId } from 'moraine'
+import { createId } from 'moraine'
 ```
 
 ## Signature
 
 ```ts
-function useId(deterministicId?: () => string | null | undefined, prefix = 'mo'): Accessor<string>
+function createId(
+  deterministicId?: () => string | null | undefined,
+  prefix = 'mo',
+): Accessor<string>
 ```
 
 ## Usage Example
 
 ```tsx title="src/CustomField.tsx"
-import { useId } from 'moraine'
+import { createId } from 'moraine'
 
 interface CustomFieldProps {
   id?: string
@@ -31,7 +34,7 @@ interface CustomFieldProps {
 
 export function CustomField(props: CustomFieldProps) {
   // Uses props.id if supplied; otherwise generates "input-mo-..."
-  const inputId = useId(() => props.id, 'input')
+  const inputId = createId(() => props.id, 'input')
   const descriptionId = `${inputId()}-desc`
 
   return (

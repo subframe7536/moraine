@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 export interface AvatarStyleSlot<T = unknown> {
   /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
   root?: T

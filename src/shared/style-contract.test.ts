@@ -1,8 +1,8 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, expectTypeOf, test } from 'vitest'
 
-import { applyDataAttributes, createDataAttributes } from './style-contract.ts'
-import type { DataAttributeContract } from './style-contract.ts'
+import { applyDataAttributes, createDataAttributes } from './style-contract'
+import type { DataAttributeContract } from './style-contract'
 
 describe('style contract helpers', () => {
   test('normalizes static data attribute values and prefixes their names', () => {

@@ -2,10 +2,10 @@ import type { Accessor } from 'solid-js'
 import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import { useControllableValue } from './use-controllable-value'
-import type { UseControllableValueOptions } from './use-controllable-value'
+import { createControllableValue } from './controllable-value'
+import type { CreateControllableValueOptions } from './controllable-value'
 
-type ConcreteOptions = UseControllableValueOptions<string>
+type ConcreteOptions = CreateControllableValueOptions<string>
 const invalidDefault: ConcreteOptions = {
   value: () => undefined,
   // @ts-expect-error The uncontrolled fallback must be concrete.
@@ -14,18 +14,18 @@ const invalidDefault: ConcreteOptions = {
 void invalidDefault
 
 // @ts-expect-error Undefined cannot be part of the resolved state type.
-const invalidOptions: UseControllableValueOptions<string | undefined> = {
+const invalidOptions: CreateControllableValueOptions<string | undefined> = {
   value: () => undefined,
   defaultValue: () => 'default',
 }
 void invalidOptions
 
-describe('useControllableValue', () => {
+describe('createControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
     createRoot((dispose) => {
       const [controlledValue, setControlledValue] = createSignal<string>()
       const [defaultValue, setDefaultValue] = createSignal('initial')
-      const [value] = useControllableValue({
+      const [value] = createControllableValue({
         value: controlledValue,
         defaultValue,
       })
@@ -46,7 +46,7 @@ describe('useControllableValue', () => {
 
   it('applies functional updates to the latest uncontrolled value', () => {
     createRoot((dispose) => {
-      const [value, setValue] = useControllableValue<number>({
+      const [value, setValue] = createControllableValue<number>({
         value: () => undefined,
         defaultValue: () => 1,
       })
@@ -62,7 +62,7 @@ describe('useControllableValue', () => {
   it('computes controlled updates without mutating the preserved uncontrolled value', () => {
     createRoot((dispose) => {
       const [controlledValue, setControlledValue] = createSignal<number | undefined>(10)
-      const [value, setValue] = useControllableValue({
+      const [value, setValue] = createControllableValue({
         value: controlledValue,
         defaultValue: () => 1,
       })
@@ -85,7 +85,7 @@ describe('useControllableValue', () => {
 
   it('does not publish Object.is-equal updates', () => {
     createRoot((dispose) => {
-      const [value, setValue] = useControllableValue<number>({
+      const [value, setValue] = createControllableValue<number>({
         value: () => undefined,
         defaultValue: () => Number.NaN,
       })
@@ -112,7 +112,7 @@ describe('useControllableValue', () => {
   it('does not publish equal resolved values across controlled mode transitions', () => {
     createRoot((dispose) => {
       const [controlledValue, setControlledValue] = createSignal<boolean>()
-      const [value] = useControllableValue({
+      const [value] = createControllableValue({
         value: controlledValue,
         defaultValue: () => false,
       })
@@ -146,7 +146,7 @@ describe('useControllableValue', () => {
 
   it('keeps the resolved API concrete', () => {
     createRoot((dispose) => {
-      const [value, setValue] = useControllableValue<string>({
+      const [value, setValue] = createControllableValue<string>({
         value: () => undefined,
         defaultValue: () => 'default',
       })
@@ -165,7 +165,7 @@ describe('useControllableValue', () => {
       const [controlledValue, setControlledValue] = createSignal<number>()
       let valueReads = 0
       let defaultValueReads = 0
-      const [value, setValue] = useControllableValue({
+      const [value, setValue] = createControllableValue({
         value: () => {
           valueReads += 1
           return controlledValue()

@@ -1,17 +1,17 @@
 import type { JSX } from 'solid-js'
 import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/index.ts'
-import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFieldContext } from '../field/field-context.ts'
-import { useInputGroupContext } from '../input-group/input-group-context.ts'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+import { createStyles } from '../../provider/index'
+import type { ModelModifiers } from '../../shared/input-modifiers'
+import { callHandler, callRef, createId } from '../../shared/utils'
+import { useFormField, useFieldContext } from '../field/field-context'
+import { useInputGroupContext } from '../input-group/input-group-context'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
 import { inputDataAttributes, inputRecipe } from './input.recipe'
-import type { InputProps, InputT } from './input.types.ts'
+import type { InputProps, InputT } from './input.types'
 /** Native text input with value modifiers and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,
@@ -65,7 +65,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   )
   const modelModifiers = createMemo(() => merged.modelModifiers)
 
-  const generatedId = useId(() => merged.id, 'input')
+  const generatedId = createId(() => merged.id, 'input')
   const field = useFormField(
     () => ({
       id: merged.id,

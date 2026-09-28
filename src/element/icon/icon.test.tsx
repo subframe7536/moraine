@@ -6,7 +6,7 @@ import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Icon } from './icon'
-import type { IconProps } from './icon.types.ts'
+import type { IconProps } from './icon.types'
 
 describe('Icon', () => {
   test('uses the default recipe when provider is absent and applies theme overrides when provided', () => {

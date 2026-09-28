@@ -1,8 +1,5 @@
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
-import type {
-  SelectControlStyleVariant,
-  SelectItemStyleSlot,
-} from '../shared/select/style-types.ts'
+import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
 
 export interface SelectControlStyleSlot<T = unknown> {
   /** Outer visual field and floating anchor. */

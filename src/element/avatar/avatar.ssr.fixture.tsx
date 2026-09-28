@@ -1,7 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
-import { AvatarGroup } from './avatar-group.tsx'
-import { Avatar } from './avatar.tsx'
+import { Avatar } from './avatar'
+import { AvatarGroup } from './avatar-group'
 
 export function AvatarHydrationFixture(props: { max?: number }) {
   return (

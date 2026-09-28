@@ -1,4 +1,4 @@
-import { attachEventListenerMap } from '../../../shared/use-event-listener'
+import { attachEventListenerMap } from '../../../shared/event-listener'
 
 import type { ResizableOrientation } from './types'
 

@@ -4,9 +4,9 @@ import path from 'node:path'
 import { parse } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
-import { PREVIEW_PARSE_OPTIONS } from './ast'
-import { transformPreviewModule } from './module'
-import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source'
+import { PREVIEW_PARSE_OPTIONS } from './ast.ts'
+import { transformPreviewModule } from './module.ts'
+import { resolvePreviewComponentSource, transformPreviewSourceModule } from './source.ts'
 
 async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program
@@ -76,7 +76,7 @@ export function BasicExample() {
   })
 
   test('converts subpath imports (@src/utils.ts, @src/unocss, @src/element/...)', async () => {
-    const source = `import { useListVirtualizer } from '@src/virtualizer.ts'
+    const source = `import { createListVirtualizer } from '@src/virtualizer.ts'
 import { unocssPreset } from '@src/unocss'
 import { Button } from '@src/element/button/button.tsx'
 import '@src/icon.css'
@@ -85,7 +85,7 @@ export const VirtualList = () => <div />
 `
 
     expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
-      `import { useListVirtualizer } from 'moraine/virtualizer'
+      `import { createListVirtualizer } from 'moraine/virtualizer'
 import { unocssPreset } from 'moraine/unocss'
 import { Button } from 'moraine'
 import 'moraine/icon.css'

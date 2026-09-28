@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { RecipeExtractor } from './recipe'
+import { RecipeExtractor } from './recipe.ts'
 
 const roots: string[] = []
 

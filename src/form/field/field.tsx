@@ -5,8 +5,8 @@ import { Dynamic } from 'solid-js/web'
 import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { ValidComponent } from '../../shared/types.ts'
-import { useId } from '../../shared/utils'
+import type { ValidComponent } from '../../shared/types'
+import { createId } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
@@ -55,7 +55,7 @@ export function renderField<T extends ValidComponent = 'div'>(
   const error = createMemo(() => local.error)
   const activeBinding = () => binding?.()
 
-  const ariaId = useId(() => local.id, 'field')
+  const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
     { id: () => string; bind: () => boolean; key: symbol }[]
   >([])

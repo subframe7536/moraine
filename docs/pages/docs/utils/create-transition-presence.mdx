@@ -1,24 +1,24 @@
 ---
-title: useTransitionPresence
+title: createTransitionPresence
 description: Keep elements mounted in the DOM until exit transitions or CSS animations finish.
 search:
-  tags: [useTransitionPresence, presence, exit animation, transition, animation, mounting]
+  tags: [createTransitionPresence, presence, exit animation, transition, animation, mounting]
 ---
 
-`useTransitionPresence` coordinates enter and exit animations for conditionally rendered UI. It ensures that an element remains mounted in the DOM until its CSS exit animations or transitions complete.
+`createTransitionPresence` coordinates enter and exit animations for conditionally rendered UI. It ensures that an element remains mounted in the DOM until its CSS exit animations or transitions complete.
 
 ## Import
 
 ```tsx
-import { useTransitionPresence } from 'moraine/utils'
+import { createTransitionPresence } from 'moraine/utils'
 ```
 
 ## Signature
 
 ```ts
-function useTransitionPresence(options: UseTransitionPresenceOptions): TransitionPresenceState
+function createTransitionPresence(options: CreateTransitionPresenceOptions): TransitionPresenceState
 
-interface UseTransitionPresenceOptions {
+interface CreateTransitionPresenceOptions {
   open: Accessor<boolean>
   onExitComplete?: () => void
 }
@@ -38,11 +38,11 @@ interface TransitionPresenceState {
 
 ```tsx title="src/AnimatedDialog.tsx"
 import { Show, createSignal } from 'solid-js'
-import { useTransitionPresence } from 'moraine/utils'
+import { createTransitionPresence } from 'moraine/utils'
 
 export function AnimatedDialog() {
   const [open, setOpen] = createSignal(false)
-  const presence = useTransitionPresence({ open })
+  const presence = createTransitionPresence({ open })
 
   return (
     <>

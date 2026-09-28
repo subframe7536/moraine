@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../shared/create-context-provider.tsx'
+import { createContextProvider } from '../shared/create-context-provider'
 import type { Cn } from '../theme/style/cn'
 import { cn } from '../theme/style/cn'
 

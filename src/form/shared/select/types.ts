@@ -1,12 +1,12 @@
 import type { Component, JSX } from 'solid-js'
 
-import type { IconT } from '../../../element/icon/index.ts'
-import type { ListT } from '../../../element/list/index.ts'
-import type { ComponentOrElement } from '../../../shared/render-prop.ts'
-import type { ElementProps } from '../../../shared/types.ts'
-import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types.ts'
+import type { IconT } from '../../../element/icon/index'
+import type { ListT } from '../../../element/list/index'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import type { ElementProps } from '../../../shared/types'
+import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types'
 
-import type { SelectControlStyleVariant, SelectItemStyleSlot } from './style-types.ts'
+import type { SelectControlStyleVariant, SelectItemStyleSlot } from './style-types'
 
 export interface SelectItem<
   V extends BaseSelectValue = BaseSelectValue,

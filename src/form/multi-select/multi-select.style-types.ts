@@ -1,8 +1,5 @@
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
-import type {
-  SelectControlStyleVariant,
-  SelectItemStyleSlot,
-} from '../shared/select/style-types.ts'
+import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
 
 export interface MultiSelectControlStyleSlot<T = unknown> {
   /** Multi-select control that displays selected tags and opens the popup. */

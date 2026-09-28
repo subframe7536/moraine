@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { dataSlotName } from './data-slot.ts'
+import { dataSlotName } from './data-slot'
 
 describe('dataSlotName', () => {
   test.each([

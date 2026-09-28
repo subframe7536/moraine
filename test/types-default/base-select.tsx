@@ -1,4 +1,4 @@
-import { BaseSelect, Button, Combobox, MultiSelect, Select, useSelectState } from 'moraine'
+import { BaseSelect, Button, Combobox, MultiSelect, Select } from 'moraine'
 import type {
   BaseSelectT,
   ComboboxProps,
@@ -8,7 +8,7 @@ import type {
   SelectProps,
   SelectT,
 } from 'moraine'
-import { useBaseSelectSearchInput } from 'moraine/utils'
+import { createBaseSelectSearchInput } from 'moraine/utils'
 import { createSignal } from 'solid-js'
 
 type Assert<T extends true> = T
@@ -28,9 +28,19 @@ const divRef = (element: HTMLDivElement) => element.focus()
 const inputRef = (element: HTMLInputElement) => element.focus()
 
 function CustomSearchControl() {
-  const state = useSelectState()
+  const state = BaseSelect.useContext<UserItem>()
+  const item: UserItem = state.items()[0]
+  void item
+  // @ts-expect-error Internal form binding is not part of the composition API.
+  void state.field
+  // @ts-expect-error Internal styles are not part of the composition API.
+  void state.stylePresentation
+  // @ts-expect-error Slot naming is private.
+  void state.slotName
+  // @ts-expect-error Native form controls are private.
+  void state.formControls
   const [searchValue, setSearchValue] = createSignal('')
-  const { inputProps } = useBaseSelectSearchInput({
+  const { inputProps } = createBaseSelectSearchInput({
     state,
     searchValue,
     setSearchValue,

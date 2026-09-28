@@ -1,5 +1,5 @@
 import type { ButtonStyleVariant } from '../../element/button/button.style-types'
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 
 export interface PaginationStyleSlot<T = unknown> {
   /**

@@ -1,7 +1,7 @@
 import { For, createSignal, onCleanup } from 'solid-js'
 
-import { Icon } from '../../../../src/index.ts'
-import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/style/icons.ts'
+import { Icon } from '../../../../src/index'
+import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/style/icons'
 
 export function IconGallery() {
   const [feedback, setFeedback] = createSignal<{

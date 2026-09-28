@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type { Orientation } from '../../theme/style/style-types.ts'
+import type { Orientation } from '../../theme/style/style-types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.types.ts'
+} from '../shared/form-options.types'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
 

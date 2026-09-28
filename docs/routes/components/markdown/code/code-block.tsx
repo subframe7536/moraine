@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
 
-import { Button, cn, Icon } from '../../../../../src/index.ts'
-import type { IconT } from '../../../../../src/index.ts'
+import { Button, cn, Icon } from '../../../../../src/index'
+import type { IconT } from '../../../../../src/index'
 import {
   DOCS_BLOCK_CONTAINER_CLASS,
   DOCS_BLOCK_HEADER_CLASS,
@@ -10,11 +10,11 @@ import {
   DOCS_CODE_EXPAND_BUTTON_CLASS,
   DOCS_CODE_FALLBACK_PRE_CLASS,
   DOCS_CODE_SOURCE_CLASS,
-} from '../markdown.class.ts'
+} from '../markdown.class'
 
-import { CopyButton } from './copy-button.tsx'
+import { CopyButton } from './copy-button'
 
-export { CopyButton, extractCodeText } from './copy-button.tsx'
+export { CopyButton, extractCodeText } from './copy-button'
 export {
   DOCS_BLOCK_CONTAINER_CLASS,
   DOCS_BLOCK_HEADER_CLASS,

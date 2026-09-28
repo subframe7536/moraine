@@ -13,10 +13,10 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { ValidComponent } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useId } from '../../shared/utils'
+import type { ValidComponent } from '../../shared/types'
+import { createId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
 import type { OverlayTriggerBinding } from '../base/trigger'
@@ -34,9 +34,9 @@ import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
  * Triggered action menu anchored to its child content.
  */
 function createDropdownMenu(props: DropdownMenuProps) {
-  const resolvedId = useId(() => props.id, 'dropdownmenu')
+  const resolvedId = createId(() => props.id, 'dropdownmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
-  const [isOpen, setOpenState] = useControllableValue<boolean>({
+  const [isOpen, setOpenState] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })

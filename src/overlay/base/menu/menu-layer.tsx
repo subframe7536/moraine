@@ -17,14 +17,14 @@ import { Portal } from 'solid-js/web'
 
 import { List } from '../../../element/list'
 import { useCn } from '../../../provider/cn-context'
-import { dataSlotName } from '../../../shared/data-slot.ts'
-import { useControllableValue } from '../../../shared/use-controllable-value'
-import { useEventListener, attachEventListener } from '../../../shared/use-event-listener'
-import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { callHandler, callRef, useId } from '../../../shared/utils'
+import { createControllableValue } from '../../../shared/controllable-value'
+import { dataSlotName } from '../../../shared/data-slot'
+import { createEventListener, attachEventListener } from '../../../shared/event-listener'
+import { createTransitionPresence } from '../../../shared/transition-presence'
+import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/style/cn'
 import { useFloatingPosition } from '../floating'
-import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement.ts'
+import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement'
 import { focusWithoutScrolling, resolveDirection } from '../utils'
 
 import {
@@ -288,7 +288,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         return
       }
 
-      useEventListener(
+      createEventListener(
         content,
         'keydown',
         (event) => {
@@ -360,15 +360,15 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   function SubmenuItem(itemProps: { item: TItem }): JSX.Element {
-    const submenuId = useId(undefined, `${props.id}-sub`)
+    const submenuId = createId(undefined, `${props.id}-sub`)
     const submenuContentId = createMemo(() => `${submenuId()}-content`)
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [isOpen, setOpenState] = useControllableValue<boolean>({
+    const [isOpen, setOpenState] = createControllableValue<boolean>({
       value: () => itemProps.item.open,
       defaultValue: () => itemProps.item.defaultOpen ?? false,
     })
     const [autoFocusStrategy, setAutoFocusStrategy] = createSignal<OverlayMenuFocusStrategy>('none')
-    const contentPresence = useTransitionPresence({
+    const contentPresence = createTransitionPresence({
       open: isOpen,
     })
     const itemAttributes = createMemo(() =>

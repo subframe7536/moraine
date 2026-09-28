@@ -14,11 +14,11 @@ import {
 
 import { KbdGroup } from '../../element/kbd'
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { ValidComponent } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useId } from '../../shared/utils'
-import { parseFloatingPlacement } from '../base/placement.ts'
+import type { ValidComponent } from '../../shared/types'
+import { createId } from '../../shared/utils'
+import { parseFloatingPlacement } from '../base/placement'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
@@ -131,8 +131,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     props,
   )
 
-  const tooltipId = useId(() => merged.id, 'tooltip')
-  const [open, setOpen] = useControllableValue<boolean>({
+  const tooltipId = createId(() => merged.id, 'tooltip')
+  const [open, setOpen] = createControllableValue<boolean>({
     value: () => merged.open,
     defaultValue: () => merged.defaultOpen ?? false,
   })

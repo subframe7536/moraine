@@ -4,7 +4,7 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 
 import { AvatarFace } from './avatar'
-import { avatarGroupRecipe } from './avatar-group.recipe.ts'
+import { avatarGroupRecipe } from './avatar-group.recipe'
 import type { AvatarGroupProps } from './avatar-group.types'
 
 /** Group of overlapping avatars with optional overflow count. */

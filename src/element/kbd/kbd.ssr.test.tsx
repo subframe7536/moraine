@@ -1,10 +1,10 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import type { KbdGroupT } from './kbd-group.types.ts'
-import { KbdHydrationFixture } from './kbd.ssr.fixture.tsx'
+import type { KbdGroupT } from './kbd-group.types'
+import { KbdHydrationFixture } from './kbd.ssr.fixture'
 
 test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')

@@ -1,4 +1,4 @@
-import type { Orientation } from '../../theme/style/style-types.ts'
+import type { Orientation } from '../../theme/style/style-types'
 export interface SeparatorStyleSlot<T = unknown> {
   /** Visual divider element. */
   root?: T

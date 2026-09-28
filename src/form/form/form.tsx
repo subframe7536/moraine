@@ -5,10 +5,10 @@ import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { renderField } from '../field/field'
-import { scheduleFormReset } from '../shared/form-reset-scheduler.ts'
+import { scheduleFormReset } from '../shared/form-reset-scheduler'
 
 import { useFormischFieldBinding } from './form-field-binding'
 import { formDataAttributes, formRecipe } from './form.recipe'

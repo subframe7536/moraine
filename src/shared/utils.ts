@@ -17,16 +17,16 @@ export { cn } from '../theme/style/cn'
  * @example
  * ```tsx
  * // Auto-generated ID
- * const id = useId()
+ * const id = createId()
  * id() // 'mo-1'
  *
  * // With custom prefix
  * const [local, rest] = splitProps(props, ['id'])
- * const id = useId(() => local.id, 'dialog')
+ * const id = createId(() => local.id, 'dialog')
  * id() // 'dialog-cl-2'
  * ```
  */
-export function useId(
+export function createId(
   deterministicId?: () => string | null | undefined,
   prefix = 'mo',
 ): Accessor<string> {

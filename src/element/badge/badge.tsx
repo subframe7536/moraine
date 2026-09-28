@@ -3,7 +3,7 @@ import { Show, children as resolveChildren, createMemo, mergeProps, splitProps }
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { Icon } from '../icon'
 
 import { badgeRecipe } from './badge.recipe'

@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useListVirtualizer } from '../../virtualizer'
+import { createListVirtualizer } from '../../virtualizer'
 
 import { List } from './list'
 import type { ListT } from './list.types'
@@ -207,7 +207,7 @@ describe('List', () => {
 
   test('renders visible virtual rows on the initial mount and after scrolling', async () => {
     const items = Array.from({ length: 100 }, (_, index) => `Result ${index + 1}`)
-    const virtualRendering = useListVirtualizer<string, HTMLElement, HTMLDivElement>({
+    const virtualRendering = createListVirtualizer<string, HTMLElement, HTMLDivElement>({
       estimateSize: () => 36,
       measureElement: () => 36,
       observeElementRect: (instance, callback) => {
@@ -240,7 +240,7 @@ describe('List', () => {
 
   test('keeps horizontal virtual rows and the scroll container in RTL directions', async () => {
     const screen = render(() => {
-      const virtualRendering = useListVirtualizer<number, HTMLElement, HTMLDivElement>({
+      const virtualRendering = createListVirtualizer<number, HTMLElement, HTMLDivElement>({
         estimateSize: () => 20,
         horizontal: true,
         isRtl: true,
@@ -275,7 +275,7 @@ describe('List', () => {
       { id: 'second', label: 'Second', size: 48 },
       { id: 'third', label: 'Third', size: 30 },
     ]
-    const virtualRendering = useListVirtualizer<
+    const virtualRendering = createListVirtualizer<
       (typeof items)[number],
       HTMLElement,
       HTMLDivElement

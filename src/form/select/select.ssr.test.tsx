@@ -2,10 +2,10 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { Select } from './select.tsx'
-import type { SelectT } from './select.types.ts'
+import { Select } from './select'
+import type { SelectT } from './select.types'
 
 test('hydrates Select Control/Trigger/Value anatomy in place', () => {
   const { container } = hydrateFixture(

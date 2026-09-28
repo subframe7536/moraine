@@ -1,6 +1,6 @@
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract'
 import { defineRecipe } from '../../theme/style/recipe'
-import { overlayMenuDataAttributes, overlayMenuRecipeOptions } from '../base/menu/menu.recipe.ts'
+import { overlayMenuDataAttributes, overlayMenuRecipeOptions } from '../base/menu/menu.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
 import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types'

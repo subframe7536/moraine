@@ -76,7 +76,7 @@ export type ListVirtualizerReturn<
 }
 
 /** Creates a ready-to-use virtual renderer for List and List-based components. */
-export function useListVirtualizer<
+export function createListVirtualizer<
   TItem,
   TScrollElement extends HTMLElement = HTMLElement,
   TItemElement extends HTMLElement = HTMLElement,

@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import type { UseFormFieldReturn } from '../field/field-context.ts'
+import type { UseFormFieldReturn } from '../field/field-context'
 
 export interface UseFormValueOptions<T> {
   value?: Accessor<T | undefined>

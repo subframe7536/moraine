@@ -1,2 +1,2 @@
-export { InputGroup } from './input-group.tsx'
-export type { InputGroupT, InputGroupProps } from './input-group.types.ts'
+export { InputGroup } from './input-group'
+export type { InputGroupT, InputGroupProps } from './input-group.types'

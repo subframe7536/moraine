@@ -4,9 +4,9 @@ import { describe, expect, test, vi } from 'vitest'
 import {
   attachEventListener,
   attachEventListenerMap,
-  useEventListener,
-  useEventListenerMap,
-} from './use-event-listener'
+  createEventListener,
+  createEventListenerMap,
+} from './event-listener'
 
 function createTarget() {
   return {
@@ -94,13 +94,13 @@ describe('attachEventListeners', () => {
   })
 })
 
-describe('useEventListener', () => {
+describe('createEventListener', () => {
   test('registers a listener and removes it on cleanup', () => {
     const target = createTarget()
     const listener = vi.fn<(event: MouseEvent) => void>()
 
     createRoot((dispose) => {
-      useEventListener(target, 'click', listener, true)
+      createEventListener(target, 'click', listener, true)
 
       expect(target.addEventListener).toHaveBeenCalledTimes(1)
       expect(target.addEventListener).toHaveBeenCalledWith('click', expect.any(Function), true)
@@ -126,7 +126,7 @@ describe('useEventListener', () => {
     const target = createTarget()
 
     createRoot((dispose) => {
-      useEventListener(target, 'click', () => {}, { capture: true, passive: true })
+      createEventListener(target, 'click', () => {}, { capture: true, passive: true })
       dispose()
     })
 
@@ -148,7 +148,7 @@ describe('useEventListener', () => {
 
       createEffect(
         on(target, (element) => {
-          useEventListener(element, 'click', () => {})
+          createEventListener(element, 'click', () => {})
         }),
       )
 
@@ -182,7 +182,7 @@ describe('useEventListener', () => {
     createRoot((dispose) => {
       const [value, setValue] = createSignal('first')
 
-      useEventListener(target, 'click', () => {
+      createEventListener(target, 'click', () => {
         seen.push(value())
       })
 
@@ -207,7 +207,7 @@ describe('useEventListener', () => {
 
       createEffect(
         on(capture, (capture) => {
-          useEventListener(target, 'click', () => {}, { capture, passive: true })
+          createEventListener(target, 'click', () => {}, { capture, passive: true })
         }),
       )
 
@@ -235,19 +235,19 @@ describe('useEventListener', () => {
   test('is safe to construct without a browser target', () => {
     expect(() => {
       createRoot((dispose) => {
-        useEventListener(undefined, 'custom', () => {})
+        createEventListener(undefined, 'custom', () => {})
         dispose()
       })
     }).not.toThrow()
   })
 })
 
-describe('useEventListeners', () => {
+describe('createEventListeners', () => {
   test('registers multiple listeners and removes them on cleanup', () => {
     const target = createTarget()
 
     createRoot((dispose) => {
-      useEventListenerMap(target, {
+      createEventListenerMap(target, {
         click: () => {},
         focusin: () => {},
       })

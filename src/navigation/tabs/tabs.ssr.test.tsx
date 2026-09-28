@@ -6,7 +6,7 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
 import { Tabs } from './tabs'
-import { createTabItems } from './tabs.ssr.fixture.tsx'
+import { createTabItems } from './tabs.ssr.fixture'
 
 describe('Tabs SSR Hydration', () => {
   test('keeps dynamic inactive panel content lazy through hydration and keyboard selection', () => {

@@ -4,7 +4,7 @@ import type { IconT } from '../../../element/icon'
 import type { SlotBinding as ComponentSlotBinding } from '../../../provider/create-styles'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
-import type { OverlayAlign, OverlayPlacement } from '../../../theme/style/style-types.ts'
+import type { OverlayAlign, OverlayPlacement } from '../../../theme/style/style-types'
 
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'

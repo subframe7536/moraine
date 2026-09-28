@@ -17,11 +17,11 @@ import { containsComposed, getActiveElement, isNode } from '../../overlay/base/d
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
-import { useFormValue } from '../shared/use-form-value.ts'
+import { useFormValue } from '../shared/use-form-value'
 
 import { radioGroupDataAttributes, radioGroupRecipe } from './radio-group.recipe'
 import type { RadioGroupProps } from './radio-group.types'
@@ -85,7 +85,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
-  const groupId = useId(() => merged.id, 'radio-group')
+  const groupId = createId(() => merged.id, 'radio-group')
   const field = useFormField(
     () => ({
       id: merged.id,
@@ -197,7 +197,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     setSelectedValue(nextValue)
     syncInputCheckedState()
   }
-  const { onNavigationKeyDown } = useSelectableCollectionNavigation<
+  const { onNavigationKeyDown } = createSelectableCollectionNavigation<
     NormalizedRadioGroupItem,
     string
   >({

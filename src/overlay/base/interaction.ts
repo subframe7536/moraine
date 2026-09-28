@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
-import { useEventListenerMap } from '../../shared/use-event-listener'
+import { createEventListenerMap } from '../../shared/event-listener'
 
 import { isNode } from './dom'
 import { isInsideOverlayLayer, isTopOverlay, pushOverlayLayer } from './overlay-stack'
@@ -224,7 +224,7 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
           options.onPointerOutside?.(event, context)
         }
 
-        useEventListenerMap(ownerDocument, {
+        createEventListenerMap(ownerDocument, {
           pointerdown: onDocumentPointerDown,
           pointermove: outsidePress.pointermove,
           pointerup: onDocumentPointerUp,

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import type {
   BaseProps,
@@ -6,13 +6,13 @@ import type {
   SlotClassValue,
   SlotStyleValue,
   ValidComponent,
-} from '../../shared/types.ts'
+} from '../../shared/types'
 import type {
   FormIdentityOptions,
   FormDisableOption,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.types.ts'
+} from '../shared/form-options.types'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 
@@ -114,6 +114,33 @@ export namespace BaseSelectT {
     label: JSX.Element
     /** Whether this item cannot be selected. */
     disabled?: boolean
+  }
+
+  /** Stable composition surface available to children of BaseSelect. */
+  export interface Context<TItem extends Item = Item> {
+    items: Accessor<readonly TItem[]>
+    value: Accessor<TItem['value'][]>
+    open: Accessor<boolean>
+    setOpen: (open: boolean) => void
+    highlightedValue: Accessor<TItem['value'] | undefined>
+    setHighlightedValue: (value: TItem['value'] | undefined) => void
+    id: Accessor<string>
+    disabled: Accessor<boolean>
+    readOnly: Accessor<boolean>
+    required: Accessor<boolean>
+    invalid: Accessor<boolean>
+    locked: Accessor<boolean>
+    focusOwner: Accessor<HTMLElement | undefined>
+    setFocusOwner: (element: HTMLElement | undefined) => void
+    listboxId: Accessor<string>
+    itemId: (value: BaseSelectValue) => string
+    itemDisabled: (item: TItem) => boolean
+    change: (values: readonly TItem['value'][]) => void
+    select: (item: TItem) => void
+    keyDown: (event: KeyboardEvent, textInput?: boolean) => void
+    registerCompositionDiscarder: (discard: () => void) => void
+    focus: (event: FocusEvent) => void
+    blur: (event: FocusEvent) => void
   }
 
   export interface TriggerRenderProps<TItem extends Item = Item> {

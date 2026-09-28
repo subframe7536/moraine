@@ -1,8 +1,8 @@
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
-import { defineRecipe } from '../../theme/style/recipe.ts'
+import type { DataAttributeContract } from '../../shared/style-contract'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types.ts'
-import { avatarDataAttributes } from './avatar.recipe.ts'
+import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
+import { avatarDataAttributes } from './avatar.recipe'
 
 export const avatarGroupDataAttributes = {
   item: avatarDataAttributes.root,

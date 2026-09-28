@@ -1,7 +1,7 @@
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract'
+import type { DataAttributeContract } from '../../shared/style-contract'
 import { defineRecipe } from '../../theme/style/recipe'
-import { checkboxDataAttributes } from '../checkbox/checkbox.recipe.ts'
+import { checkboxDataAttributes } from '../checkbox/checkbox.recipe'
 
 import type {
   CheckboxGroupStyleSlot,

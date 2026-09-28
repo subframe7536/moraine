@@ -14,10 +14,10 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useDisclosureState } from '../../shared/use-disclosure-state'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callRef, useId } from '../../shared/utils'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createDisclosureState } from '../../shared/disclosure-state'
+import { createTransitionPresence } from '../../shared/transition-presence'
+import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
@@ -57,9 +57,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
     local,
   )
 
-  const rootId = useId(() => merged.id, 'accordion')
+  const rootId = createId(() => merged.id, 'accordion')
   const trailing = createMemo(() => merged.trailing)
-  const [selectedValues, setSelectedValues] = useControllableValue<string[]>({
+  const [selectedValues, setSelectedValues] = createControllableValue<string[]>({
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
@@ -218,7 +218,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     >
       <For each={items()}>
         {(item) => {
-          const itemIdSegment = useId(undefined, 'accordion-item')
+          const itemIdSegment = createId(undefined, 'accordion-item')
           const itemValue = createMemo(() => item.value ?? itemIdSegment())
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
@@ -237,12 +237,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
             contentHeight,
             dataAttrs: contentDataAttrs,
             registerElement,
-          } = useDisclosureState({
+          } = createDisclosureState({
             open: contentExpanded,
             disabled,
           })
           const [contentHidden, setContentHidden] = createSignal(!untrack(expanded))
-          const contentPresence = useTransitionPresence({
+          const contentPresence = createTransitionPresence({
             open: expanded,
             onExitComplete: () => {
               setContentHidden(true)

@@ -2,12 +2,12 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal, Show } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Icon } from '../../element/icon/index.ts'
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
-import { Input } from '../input/input.tsx'
-import { Textarea } from '../textarea/textarea.tsx'
+import { Icon } from '../../element/icon/index'
+import { hydrateFixture } from '../../test-util/ssr-test'
+import { Input } from '../input/input'
+import { Textarea } from '../textarea/textarea'
 
-import { InputGroup } from './input-group.tsx'
+import { InputGroup } from './input-group'
 
 describe('InputGroup SSR hydration', () => {
   test('reuses group, control and part nodes through hydration and reactive replacement', () => {

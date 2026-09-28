@@ -11,12 +11,7 @@ import type {
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
 
-import type {
-  BaseProps,
-  SlotClassValue,
-  SlotStyleValue,
-  ValidComponent,
-} from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { FieldProps as StandaloneFieldProps } from '../field'
 
 import type { FormStyleSlot, FormStyleVariant } from './form.style-types'

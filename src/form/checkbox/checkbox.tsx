@@ -4,9 +4,9 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 import { useFormReset } from '../shared/use-form-reset'
@@ -71,7 +71,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   const description = createMemo(() => merged.description)
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
-  const generatedId = useId(() => merged.id, 'checkbox')
+  const generatedId = createId(() => merged.id, 'checkbox')
 
   const field = useFormField(
     () => ({
@@ -137,7 +137,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     return nextChecked ? (merged.trueValue as TTrue) : (merged.falseValue as TFalse)
   }
 
-  const [checked, setChecked] = useControllableValue<boolean | 'indeterminate'>({
+  const [checked, setChecked] = createControllableValue<boolean | 'indeterminate'>({
     value: () => {
       if (merged.checked !== undefined) {
         return toCheckedState(merged.checked)

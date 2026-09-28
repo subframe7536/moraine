@@ -9,8 +9,8 @@ import {
   onMount,
 } from 'solid-js'
 
-import { useControllableValue } from '../../../shared/use-controllable-value.ts'
-import type { Orientation } from '../../../theme/style/style-types.ts'
+import { createControllableValue } from '../../../shared/controllable-value'
+import type { Orientation } from '../../../theme/style/style-types'
 import type { SliderT } from '../slider.types'
 import {
   clamp,
@@ -25,7 +25,7 @@ import {
 } from '../utils'
 import type { SliderValue } from '../utils'
 
-export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
+export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
   inverted?: boolean
@@ -41,7 +41,7 @@ export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
   variant?: SliderT.Variant['variant'] | null
 }
 
-export type UseSliderOptions<TValue extends SliderValue = SliderValue> = {
+export type CreateSliderOptions<TValue extends SliderValue = SliderValue> = {
   disabled?: () => boolean | undefined
   onBlur?: (event: FocusEvent) => void
   onFocus?: (event: FocusEvent) => void
@@ -49,7 +49,7 @@ export type UseSliderOptions<TValue extends SliderValue = SliderValue> = {
   onValueInput?: (value: TValue) => void
 }
 
-export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
+export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   activeThumbIndexState: () => number | undefined
   currentValues: () => number[]
   definedStep: () => number | undefined
@@ -78,10 +78,10 @@ export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
   thumbStyles: () => JSX.CSSProperties[]
 }
 
-export function useSlider<TValue extends SliderValue = SliderValue>(
-  rawProps: UseSliderProps<TValue>,
-  options: UseSliderOptions<TValue> = {},
-): UseSliderReturn<TValue> {
+export function createSlider<TValue extends SliderValue = SliderValue>(
+  rawProps: CreateSliderProps<TValue>,
+  options: CreateSliderOptions<TValue> = {},
+): CreateSliderReturn<TValue> {
   const merged = mergeProps(
     {
       min: 0,
@@ -96,7 +96,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
   const getInitialValues = () => normalizeValues(merged.defaultValue) ?? [merged.min]
-  const [currentValues, setCurrentValues] = useControllableValue<number[]>({
+  const [currentValues, setCurrentValues] = createControllableValue<number[]>({
     value: () => normalizeValues(merged.value),
     defaultValue: getInitialValues,
   })

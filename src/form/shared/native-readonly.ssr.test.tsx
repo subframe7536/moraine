@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
-import { NativeReadonlyFixture } from './native-readonly.ssr.fixture.tsx'
+import { NativeReadonlyFixture } from './native-readonly.ssr.fixture'
 
 test.each([false, true])('preserves native readonly=%s before and after hydration', (initial) => {
   const fixturePath = '/src/form/shared/native-readonly.ssr.fixture.tsx'

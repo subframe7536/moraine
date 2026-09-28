@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
+import type { ComponentSize, Orientation } from '../../theme/style/style-types'
 export interface ProgressStyleSlot<T = unknown> {
   /** Progress container that owns track, indicator, labels, and step markers. */
   root?: T

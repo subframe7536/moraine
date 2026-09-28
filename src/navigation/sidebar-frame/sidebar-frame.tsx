@@ -13,7 +13,7 @@ import {
 
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
-import { createMediaQuery } from '../../shared/use-media-query'
+import { createMediaQuery } from '../../shared/media-query'
 import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'

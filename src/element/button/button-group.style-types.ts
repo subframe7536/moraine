@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
+import type { ComponentSize, Orientation } from '../../theme/style/style-types'
 
 import type { ButtonStyleVariant } from './button.style-types'
 

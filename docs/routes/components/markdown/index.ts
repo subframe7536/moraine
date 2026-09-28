@@ -2,7 +2,7 @@ export * from './api-reference'
 export * from './code'
 export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
 export { IconGallery } from './icon-gallery'
-export * from './markdown.class.ts'
+export * from './markdown.class'
 export {
   Markdown,
   useDocsPage,

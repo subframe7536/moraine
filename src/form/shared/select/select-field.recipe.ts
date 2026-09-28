@@ -1,4 +1,4 @@
-import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../shared/recipe-common.recipe.ts'
+import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../shared/recipe-common.recipe'
 
 import {
   FIELD_CONTROL_CLASS,
@@ -11,7 +11,7 @@ import {
   SELECT_TRIGGER_FOCUS_CLASS,
   TAG_FIELD_CONTROL_CLASS,
   TAG_FIELD_INPUT_CLASS,
-} from './select-field.class.ts'
+} from './select-field.class'
 
 export const SELECT_FAMILY_SLOTS = {
   control: FIELD_CONTROL_CLASS,

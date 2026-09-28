@@ -1,7 +1,7 @@
-import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.recipe.ts'
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
-import { defineRecipe } from '../../theme/style/recipe.ts'
+import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.recipe'
+import { createDataAttributes } from '../../shared/style-contract'
+import type { DataAttributeContract } from '../../shared/style-contract'
+import { defineRecipe } from '../../theme/style/recipe'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 const SELECT_CONTENT_CLASS =

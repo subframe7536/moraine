@@ -3,7 +3,7 @@
 import { mdxToJs } from 'satteri'
 import { describe, expect, test } from 'vitest'
 
-import { createDocsCodePlugin, createDocsCodeTabsPlugin } from './plugins'
+import { createDocsCodePlugin, createDocsCodeTabsPlugin } from './plugins.ts'
 
 describe('createDocsCodeTabsPlugin with group-id', () => {
   test('transforms consecutive code blocks with group-id into CodeTabs', async () => {

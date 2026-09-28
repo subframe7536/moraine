@@ -1,6 +1,6 @@
 import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
-import { useListVirtualizer } from '@src/virtualizer'
+import { createListVirtualizer } from '@src/virtualizer'
 
 const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index) => ({
   value: `option-${index}`,
@@ -8,7 +8,7 @@ const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, 
 }))
 
 export function Virtualization() {
-  const virtualizer = useListVirtualizer<
+  const virtualizer = createListVirtualizer<
     MultiSelectT.Row<MultiSelectT.Item<string>>,
     HTMLDivElement,
     HTMLDivElement

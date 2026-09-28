@@ -1,9 +1,9 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { UseFormFieldReturn } from '../field/field-context.ts'
+import type { UseFormFieldReturn } from '../field/field-context'
 
-import { useFormValue } from './use-form-value.ts'
+import { useFormValue } from './use-form-value'
 
 function createMockField(): UseFormFieldReturn & {
   lastFormValue: unknown

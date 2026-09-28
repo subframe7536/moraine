@@ -1,6 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 
-import type { BaseProps, ValidComponent } from '../../shared/types.ts'
+import type { BaseProps, ValidComponent } from '../../shared/types'
 
 export namespace ListT {
   export type Kind = 'single'

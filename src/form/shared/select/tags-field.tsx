@@ -1,9 +1,9 @@
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
-import { Icon } from '../../../element/icon/index.ts'
-import type { IconT } from '../../../element/icon/index.ts'
-import type { SlotBinding } from '../../../provider/create-styles.ts'
+import { Icon } from '../../../element/icon/index'
+import type { IconT } from '../../../element/icon/index'
+import type { SlotBinding } from '../../../provider/create-styles'
 
 export interface TagsFieldEntry<TValue> {
   value: TValue

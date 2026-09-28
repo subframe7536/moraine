@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { expect, test, vi } from 'vitest'
 
-import { useSearchQuery } from './search-query.ts'
+import { useSearchQuery } from './search-query'
 
 test('keeps uncontrolled query text and applies the current length limit', () => {
   createRoot((dispose) => {

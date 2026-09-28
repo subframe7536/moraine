@@ -5,8 +5,8 @@ import { Button } from '../../element/button'
 import type { ButtonProps } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import type { ValidComponent } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { createControllableValue } from '../../shared/controllable-value'
+import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
@@ -119,7 +119,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     local,
   )
 
-  const [page, setPage] = useControllableValue<number>({
+  const [page, setPage] = createControllableValue<number>({
     value: () =>
       merged.page !== undefined
         ? normalizeInteger(merged.page, 1, 1, Number.MAX_SAFE_INTEGER)

@@ -3,7 +3,7 @@ import { Show, createSignal, untrack } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { finishExitMotion } from '../../test-util/overlay-test.ts'
+import { finishExitMotion } from '../../test-util/overlay-test'
 import { Popover } from '../popover/popover'
 import { Tooltip } from '../tooltip/tooltip'
 

@@ -2,17 +2,17 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, Show, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Icon } from '../../../element/icon/index.ts'
-import type { ListT } from '../../../element/list/index.ts'
-import { useCn } from '../../../provider/cn-context.ts'
-import type { SlotBinding } from '../../../provider/create-styles.ts'
-import { renderComponentOrElement } from '../../../shared/render-prop.ts'
-import { callHandler, callRef } from '../../../shared/utils.ts'
-import { BaseSelect, useSelectState } from '../../base-select/base-select.tsx'
-import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+import { Icon } from '../../../element/icon/index'
+import type { ListT } from '../../../element/list/index'
+import { useCn } from '../../../provider/cn-context'
+import type { SlotBinding } from '../../../provider/create-styles'
+import { renderComponentOrElement } from '../../../shared/render-prop'
+import { callHandler, callRef } from '../../../shared/utils'
+import { BaseSelect, useSelectContext } from '../../base-select/base-select'
+import type { BaseSelectT } from '../../base-select/base-select.types'
 
-import { sameValue } from './collection.ts'
-import type { ContentProps, SelectItem, SelectRow, SelectView } from './types.ts'
+import { sameValue } from './collection'
+import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
   view: SelectView<T>
@@ -27,7 +27,7 @@ export interface DefaultSelectContentProps<T extends SelectItem> extends Content
 function DefaultSelectContentBody<T extends SelectItem>(
   props: DefaultSelectContentProps<T>,
 ): JSX.Element {
-  const state = useSelectState<T>()
+  const state = useSelectContext<T>()
   const cn = useCn()
   const itemRender = createMemo(() => props.itemRender)
   const [listbox, setListbox] = createSignal<HTMLDivElement>()

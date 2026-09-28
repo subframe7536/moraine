@@ -3,7 +3,7 @@ import { children as resolveChildren, onCleanup, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 

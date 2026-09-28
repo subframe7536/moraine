@@ -4,8 +4,8 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { TypeExtractor } from './extract-types'
-import { RecipeExtractor } from './recipe'
+import { TypeExtractor } from './extract-types.ts'
+import { RecipeExtractor } from './recipe.ts'
 
 describe('TypeExtractor', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
@@ -251,7 +251,7 @@ export namespace TestT {
   }
 }
 `
-    const source = await import('./ast').then((m) =>
+    const source = await import('./ast.ts').then((m) =>
       m.parseTypeScript('test.ts', fixtureSource, 'ts'),
     )
     const nss = new Map()
@@ -294,7 +294,7 @@ export namespace DefaultsT {
   }
 }
 `
-    const source = await import('./ast').then((m) =>
+    const source = await import('./ast.ts').then((m) =>
       m.parseTypeScript('defaults.ts', fixtureSource, 'ts'),
     )
     const nss = new Map()
@@ -343,7 +343,7 @@ export namespace NeverT {
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 `
-    const source = await import('./ast').then((m) =>
+    const source = await import('./ast.ts').then((m) =>
       m.parseTypeScript('never.ts', fixtureSource, 'ts'),
     )
     const nss = new Map()

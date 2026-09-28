@@ -2,9 +2,9 @@
 
 import { describe, expect, test, vi } from 'vitest'
 
-import type { ComponentApi } from '../api-doc/types'
+import type { ComponentApi } from '../api-doc/types.ts'
 
-import { createDocsMdxOptions } from './page'
+import { createDocsMdxOptions } from './page.ts'
 
 const BUTTON_API_DOC: ComponentApi = {
   key: 'button',

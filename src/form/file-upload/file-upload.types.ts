@@ -8,7 +8,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.types.ts'
+} from '../shared/form-options.types'
 
 import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
 

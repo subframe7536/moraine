@@ -1,4 +1,5 @@
 import './base-select'
+import './public-entries'
 import './children'
 import './composite-styling'
 import './component-namespaces'
@@ -70,7 +71,7 @@ import type {
   RecipeVariant,
 } from 'moraine/styles'
 import { defineTheme } from 'moraine/theme'
-import { useSlider } from 'moraine/utils'
+import { createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -211,11 +212,11 @@ type UtilsCn = typeof import('moraine/utils').cn
 // @ts-expect-error CSS-variable types are not public from utils.
 type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 // @ts-expect-error Slider hook is only public from the utils entry.
-type RootUseSlider = typeof import('moraine').useSlider
-type UtilsSliderHook = typeof import('moraine/utils').useSlider
-type UtilsUseSliderProps = import('moraine/utils').UseSliderProps
-type UtilsUseSliderOptions = import('moraine/utils').UseSliderOptions
-type UtilsUseSliderReturn = import('moraine/utils').UseSliderReturn
+type RootUseSlider = typeof import('moraine').createSlider
+type UtilsSliderHook = typeof import('moraine/utils').createSlider
+type UtilsUseSliderProps = import('moraine/utils').CreateSliderProps
+type UtilsUseSliderOptions = import('moraine/utils').CreateSliderOptions
+type UtilsUseSliderReturn = import('moraine/utils').CreateSliderReturn
 
 export type PublicEntryIsolation = [
   RecipeEntry,
@@ -890,7 +891,7 @@ type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
 type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
 const buttonRoot: keyof ButtonRecipeSlots = 'root'
 const sliderSize: SliderRecipeVariant['size'] = 'sm'
-const hookSlider = useSlider({ min: 0, max: 100, value: 50 })
+const hookSlider = createSlider({ min: 0, max: 100, value: 50 })
 void [buttonRoot, sliderSize, hookSlider.currentValues(), hookSlider.resetValues()]
 
 export type DefaultTagAssertions = [

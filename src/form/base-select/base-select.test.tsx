@@ -4,17 +4,17 @@ import { createSignal, For, Show } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../element/button/index.ts'
-import { renderWithOwner } from '../../test-util/owner-render.tsx'
-import { Combobox } from '../combobox/combobox.tsx'
-import type { FieldBinding } from '../field/field-context.ts'
-import { FieldProvider } from '../field/field-context.ts'
-import { createForm } from '../form/index.ts'
-import { MultiSelect } from '../multi-select/multi-select.tsx'
-import { Select } from '../select/select.tsx'
+import { Button } from '../../element/button/index'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { Combobox } from '../combobox/combobox'
+import type { FieldBinding } from '../field/field-context'
+import { FieldProvider } from '../field/field-context'
+import { createForm } from '../form/index'
+import { MultiSelect } from '../multi-select/multi-select'
+import { Select } from '../select/select'
 
-import { useBaseSelectSearchInput } from './base-select-search-input.ts'
-import { BaseSelect, useSelectState } from './base-select.tsx'
+import { BaseSelect, useSelectContext } from './base-select'
+import { createBaseSelectSearchInput } from './base-select-search-input'
 
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
@@ -46,7 +46,7 @@ test('separates the Control anchor from the Trigger focus owner and cleans both 
   let anchor = (): HTMLElement | undefined => undefined
   let focusOwner = (): HTMLElement | undefined => undefined
   function Anatomy() {
-    const state = useSelectState()
+    const state = useSelectContext()
     anchor = state.anchor
     focusOwner = state.focusOwner
     return (
@@ -80,7 +80,7 @@ test('falls back to the focus owner when Control is omitted', () => {
   let anchor = (): HTMLElement | undefined => undefined
   let focusOwner = (): HTMLElement | undefined => undefined
   function Anatomy() {
-    const state = useSelectState()
+    const state = useSelectContext()
     anchor = state.anchor
     focusOwner = state.focusOwner
     return <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
@@ -142,9 +142,13 @@ test('uses completed primary presses for outside dismissal', () => {
 
 test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   function SearchControl() {
-    const state = useSelectState()
+    const state = BaseSelect.useContext()
     const [value, setValue] = createSignal('')
-    const input = useBaseSelectSearchInput({ state, searchValue: value, setSearchValue: setValue })
+    const input = createBaseSelectSearchInput({
+      state,
+      searchValue: value,
+      setSearchValue: setValue,
+    })
     return (
       <BaseSelect.Control>
         <input {...input.inputProps} />
@@ -180,10 +184,10 @@ test('custom search input exposes reactive attributes and releases its focus own
   let focusOwner = (): HTMLElement | undefined => undefined
 
   function SearchControl() {
-    const state = useSelectState()
+    const state = BaseSelect.useContext()
     focusOwner = state.focusOwner
     const [value, setValue] = createSignal('')
-    const input = useBaseSelectSearchInput({
+    const input = createBaseSelectSearchInput({
       state,
       searchValue: value,
       setSearchValue: setValue,
@@ -231,7 +235,7 @@ test('custom search input commits only completed composition and discards stale 
   const onValueChange = vi.fn()
 
   function SearchControl() {
-    const state = useSelectState()
+    const state = BaseSelect.useContext()
     const [value, setValue] = createSignal('')
     function updateValue(next: string): string {
       setValue(next)
@@ -240,7 +244,7 @@ test('custom search input commits only completed composition and discards stale 
     }
     searchValue = value
     setSearchValue = updateValue
-    const input = useBaseSelectSearchInput({
+    const input = createBaseSelectSearchInput({
       state,
       searchValue: value,
       setSearchValue: updateValue,

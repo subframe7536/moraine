@@ -15,10 +15,10 @@ import {
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import { callHandler, callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
-import { useFormValue } from '../shared/use-form-value.ts'
+import { useFormValue } from '../shared/use-form-value'
 
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
@@ -320,7 +320,7 @@ export function FileUpload<Multiple extends boolean = false>(
     return (merged.multiple ? [] : null) as FileUploadT.Value<Multiple>
   })
 
-  const generatedId = useId(() => merged.id, 'file-upload')
+  const generatedId = createId(() => merged.id, 'file-upload')
   const field = useFormField(
     () => ({
       id: merged.id,

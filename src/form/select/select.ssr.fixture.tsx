@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Select } from './select.tsx'
+import { Select } from './select'
 
 export function renderSelectFixture(): string {
   return renderToString(() => (

@@ -2,9 +2,9 @@ import { fireEvent, render, within } from '@solidjs/testing-library'
 import { For } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { BaseSelect, useSelectState } from '../../base-select/base-select.tsx'
-import { Combobox } from '../../combobox/combobox.tsx'
-import { MultiSelect } from '../../multi-select/multi-select.tsx'
+import { BaseSelect, useSelectContext } from '../../base-select/base-select'
+import { Combobox } from '../../combobox/combobox'
+import { MultiSelect } from '../../multi-select/multi-select'
 
 const items = [
   { value: 'US', label: 'United States' },
@@ -15,7 +15,7 @@ describe('Select family state ownership', () => {
   test('BaseSelect normalizes single selection and Control stays non-interactive', () => {
     const onValueChange = vi.fn()
     function Parts() {
-      const state = useSelectState()
+      const state = useSelectContext()
       return (
         <>
           <BaseSelect.Control data-testid="control">

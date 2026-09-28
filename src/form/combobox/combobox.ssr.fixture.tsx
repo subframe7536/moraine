@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Combobox } from './combobox.tsx'
+import { Combobox } from './combobox'
 
 export function renderComboboxFixture(): string {
   return renderToString(() => (

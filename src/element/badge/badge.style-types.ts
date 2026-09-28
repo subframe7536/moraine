@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 export interface BadgeStyleSlot<T = unknown> {
   /**
    * Inline badge container that carries the variant, size, and interactive state.

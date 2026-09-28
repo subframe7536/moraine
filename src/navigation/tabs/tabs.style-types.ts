@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
+import type { ComponentSize, Orientation } from '../../theme/style/style-types'
 export interface TabsStyleSlot<T = unknown> {
   /**
    * Tabs container that owns tab selection and panel rendering.

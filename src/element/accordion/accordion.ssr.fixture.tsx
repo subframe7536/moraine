@@ -1,7 +1,7 @@
 import { onCleanup } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { Accordion } from './accordion.tsx'
+import { Accordion } from './accordion'
 
 export function AccordionHydrationFixture(props: { onMount?: () => void; onCleanup?: () => void }) {
   return (

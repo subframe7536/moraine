@@ -1,27 +1,27 @@
 import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
-import { Icon } from '../../element/icon/index.ts'
-import { createStyles } from '../../provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callRef } from '../../shared/utils.ts'
-import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
-import { useFieldContext } from '../field/field-context.ts'
+import { Icon } from '../../element/icon/index'
+import { createStyles } from '../../provider/index'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callRef } from '../../shared/utils'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
+import { useFieldContext } from '../field/field-context'
 import {
   createSource,
   normalizeSelectEntries,
   serializeSourceValue,
   singleValueToSelection,
-} from '../shared/select/collection.ts'
-import { DefaultSelectContent } from '../shared/select/default-content.tsx'
+} from '../shared/select/collection'
+import { DefaultSelectContent } from '../shared/select/default-content'
 import {
   createBaseSelectStyleProps,
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
-} from '../shared/select/props.ts'
+} from '../shared/select/props'
 
 import { selectDataAttributes, selectRecipe } from './select.recipe'
-import type { SelectProps, SelectT } from './select.types.ts'
+import type { SelectProps, SelectT } from './select.types'
 
 /** Single, non-editable collection selection. */
 export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
@@ -46,7 +46,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
-    const state = useSelectState<SelectT.NormalizedItem<T>>()
+    const state = useSelectContext<SelectT.NormalizedItem<T>>()
     const selectedItem = () => source().byValue.get(state.value()[0]!)
     const hasValue = () => state.value().length > 0
     function clear(): void {

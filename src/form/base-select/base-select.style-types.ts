@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 export interface BaseSelectStyleSlot<T = unknown> {
   /** Optional non-interactive layout container and floating anchor. */
   control?: T
