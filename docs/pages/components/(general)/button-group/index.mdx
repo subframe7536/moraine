@@ -37,7 +37,7 @@ export function Example() {
       kind: 'select',
       prop: 'variant',
       label: 'Variant',
-      defaultValue: 'default',
+      defaultValue: 'outline',
       options: [
         { label: 'Default', value: 'default' },
         { label: 'Secondary', value: 'secondary' },
@@ -76,10 +76,8 @@ export function Example() {
 ```text
 ButtonGroup [component; slot=root]
 ├── ButtonGroup.Separator [part; slot=separator]
+└── Button [component]
 ```
-
-- `root`: Flex container managing border collapsing and role orientation.
-- `separator`: Explicit semantic divider with ButtonGroup-specific presentation.
 
 ## Usage
 

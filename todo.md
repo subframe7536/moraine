@@ -19,9 +19,15 @@
 - [x] landing page polish
 - [x] resizable: refresh docs
 - [x] expose `useBaseSelectSearchInput` with explicit BaseSelect state and keep query state internal
-- [ ] unocss presetTheme option update.
+- [ ] decompose valibot in form.test.ts, the type should be standard
+- [ ] unify public utils name with prefix `use` and avoid `export * from '...'` across all files under src/
+- [ ] unocss presetTheme option refactor
 - [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
 - [ ] basic docs polish
+  - [ ] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
+  - [ ] move `docs/pages/docs/utils/use-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
+  - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
+  - [ ] add docs header composition & polymorphism badge link
 - [ ] styling guide polish
 
 # V1

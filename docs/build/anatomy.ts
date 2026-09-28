@@ -51,8 +51,6 @@ export function validateAnatomy(
       ) {
         fail('component root requires slot=root or no DOM')
       }
-    } else if (kind === 'component') {
-      fail('only the root may be annotated as component')
     }
     if (kind === 'part' && !parts.has(name!)) {
       fail(`unknown part ${name}`)

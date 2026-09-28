@@ -10,7 +10,6 @@ import type {
   ValidPath,
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
-import type * as v from 'valibot'
 
 import type {
   BaseProps,
@@ -57,6 +56,9 @@ type SchemaPath<TValue, TDepth extends 0[] = []> = TDepth['length'] extends 5
       }[ExactKeysOf<TValue>]
     : never
 
+type InferInput<T extends Schema> = NonNullable<T['~types']>['input']
+type InferOutput<T extends Schema> = NonNullable<T['~types']>['output']
+
 export namespace FormT {
   export type Kind = 'single'
   export type Slot<T = unknown> = FormStyleSlot<T>
@@ -65,7 +67,7 @@ export namespace FormT {
   export type Styles = Slot<SlotStyleValue>
 
   export type FieldName<TSchema extends Schema> =
-    v.InferInput<TSchema> extends infer Input
+    InferInput<TSchema> extends infer Input
       ?
           | (Input extends Record<PropertyKey, unknown> ? Extract<keyof Input, string> : never)
           | SchemaPath<Input>
@@ -79,7 +81,7 @@ export namespace FormT {
     ? FormConfig<TSchema>
     : Omit<FormConfig, 'schema' | 'initialInput'> & {
         schema: TSchema
-        initialInput?: DeepPartial<v.InferInput<TSchema>>
+        initialInput?: DeepPartial<InferInput<TSchema>>
       }
 
   export type Instance<TSchema extends Schema = FormSchema> = Store<TSchema> & {
@@ -93,7 +95,7 @@ export namespace FormT {
   > {
     children?: JSX.Element
     /** Called with validated schema output and the native submit event. */
-    onSubmit?: (output: v.InferOutput<TSchema>, event: SubmitEvent) => unknown
+    onSubmit?: (output: InferOutput<TSchema>, event: SubmitEvent) => unknown
   }
 
   export type Props<TSchema extends Schema = FormSchema> = BaseProps<
@@ -115,7 +117,7 @@ export type FormProps<TSchema extends Schema = FormSchema> = FormT.Props<TSchema
 declare module '@formisch/solid' {
   function focus<TSchema extends Schema, TPath extends RequiredPath>(
     form: RootStore<TSchema>,
-    config: { readonly path: ValidPath<v.InferInput<TSchema>, TPath> },
+    config: { readonly path: ValidPath<InferInput<TSchema>, TPath> },
   ): void
 
   function getInput<TSchema extends Schema>(
@@ -124,6 +126,6 @@ declare module '@formisch/solid' {
 
   function setInput<TSchema extends Schema>(
     form: RootStore<TSchema>,
-    config: { readonly path?: undefined; readonly input: v.InferInput<TSchema> },
+    config: { readonly path?: undefined; readonly input: InferInput<TSchema> },
   ): void
 }

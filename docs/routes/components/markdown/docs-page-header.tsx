@@ -16,11 +16,6 @@ export interface DocsPageHeaderProps {
 }
 
 export function DocsPageHeader(props: DocsPageHeaderProps) {
-  const component = () => props.apiDoc
-  const componentKey = () => (props.surface === 'components' ? props.pageKey : undefined)
-  const category = () => (props.surface === 'components' ? props.section : undefined)
-  const isPolymorphic = () =>
-    component()?.parts.some((part) => part.props.some((prop) => prop.name === 'as')) ?? false
   const githubSourceHref = () => {
     const sourcePath = props.frontmatter.api?.path
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined
@@ -43,42 +38,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
   }
 
   return (
-    <header class="text-foreground mt-3">
-      <div class="flex flex-wrap gap-2 items-center">
-        <Show when={category()}>
-          {(nextCategory) => (
-            <span class="text-muted-foreground tracking-[0.16em] font-semibold uppercase text-xs">
-              {nextCategory()}
-            </span>
-          )}
-        </Show>
-        <Show when={componentKey()}>
-          {(nextComponentKey) => (
-            <span class="text-muted-foreground font-mono text-xs">{nextComponentKey()}</span>
-          )}
-        </Show>
-        <Show when={component()?.kind}>
-          {(kind) => (
-            <a
-              href="/docs/composition#component-kinds"
-              aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: composition guide`}
-              class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-            >
-              {kind() === 'single' ? 'Single' : 'Composite'}
-            </a>
-          )}
-        </Show>
-        <Show when={isPolymorphic()}>
-          <a
-            href="/docs/composition#polymorphic-composition"
-            aria-label="Polymorphic: at least one component supports the as prop; see each component's Props"
-            class="text-muted-foreground px-2 py-0.5 border border-border bg-muted/40 transition-colors text-xs rounded-md hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-          >
-            Polymorphic
-          </a>
-        </Show>
-      </div>
-
+    <header class="text-foreground mt-4 md:mt-8">
       <h1 class="font-bold mt-3 outline-none text-2xl sm:text-3xl" tabIndex={-1}>
         {props.frontmatter.title}
       </h1>

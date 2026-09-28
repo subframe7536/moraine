@@ -73,7 +73,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Run changed library tests
+      - name: Run changed tests
         env:
           BASE_REF: ${{ github.base_ref }}
           BEFORE: ${{ github.event.before }}

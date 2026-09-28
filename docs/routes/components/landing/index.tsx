@@ -118,7 +118,7 @@ export function LandingPage() {
               <span>
                 <span class="font-medium block text-sm">Components</span>
                 <span class="text-muted-foreground mt-1 block text-xs">
-                  Forms, navigation, overlays, and more.
+                  Form, navigation, overlay, and more.
                 </span>
               </span>
               <Icon
@@ -133,7 +133,7 @@ export function LandingPage() {
               <span>
                 <span class="font-medium block text-sm">Customization</span>
                 <span class="text-muted-foreground mt-1 block text-xs">
-                  Themes, recipes, and component slots.
+                  Theme, composition, and component slots.
                 </span>
               </span>
               <Icon
@@ -179,7 +179,7 @@ export function LandingPage() {
             <img src="/favicon.svg" alt="" class="size-5" />
             Moraine
           </a>
-          <span class="text-muted-foreground">v{packageMetadata.version} pre-release · MIT</span>
+          <span class="text-muted-foreground">v{packageMetadata.version} · MIT</span>
           <a
             href="https://github.com/subframe7536/moraine"
             class={`text-muted-foreground ms-auto flex gap-1.5 items-center hover:text-foreground ${linkFocus}`}

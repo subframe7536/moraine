@@ -102,7 +102,7 @@ export const Sidebar = (props: SidebarProps) => {
           {(section) => (
             <>
               <section aria-label={section.section}>
-                <div class="text-muted-foreground tracking-tight font-medium mb-1.5 mt-3 px-2 py-0.5 bg-muted/60 w-fit uppercase text-xs rounded-md">
+                <div class="text-foreground tracking-tight font-bold mb-1.5 mt-3 px-2 py-0.5 capitalize">
                   {section.section}
                 </div>
 
