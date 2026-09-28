@@ -1,14 +1,8 @@
 import { DEV } from 'solid-js'
 
-import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types.ts'
+import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types'
 
-import type {
-  SelectEntry,
-  SelectGroup,
-  SelectView,
-  SelectRow,
-  NormalizedSelectItem,
-} from './types.ts'
+import type { SelectEntry, SelectGroup, SelectView, SelectRow, NormalizedSelectItem } from './types'
 
 export function isGroup<T extends string | BaseSelectT.Item>(
   entry: SelectEntry<T>,

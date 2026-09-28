@@ -18,7 +18,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
-import { useFormValue } from '../shared/use-form-value.ts'
+import { useFormValue } from '../shared/use-form-value'
 
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'

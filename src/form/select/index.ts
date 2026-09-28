@@ -1,2 +1,2 @@
-export { Select } from './select.tsx'
-export type { SelectT, SelectProps } from './select.types.ts'
+export { Select } from './select'
+export type { SelectT, SelectProps } from './select.types'

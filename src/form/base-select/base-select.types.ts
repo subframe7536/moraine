@@ -6,13 +6,13 @@ import type {
   SlotClassValue,
   SlotStyleValue,
   ValidComponent,
-} from '../../shared/types.ts'
+} from '../../shared/types'
 import type {
   FormIdentityOptions,
   FormDisableOption,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.types.ts'
+} from '../shared/form-options.types'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 

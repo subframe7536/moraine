@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { Combobox } from './combobox.tsx'
+import { Combobox } from './combobox'
 
 test('hydrates Combobox with one input focus owner', () => {
   const { container } = hydrateFixture(

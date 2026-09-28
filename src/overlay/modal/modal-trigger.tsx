@@ -3,7 +3,7 @@ import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps
 import { Dynamic, delegateEvents } from 'solid-js/web'
 
 import { attachEventListener } from '../../shared/event-listener'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler, callRef } from '../../shared/utils'
 import { validateOverlayTrigger } from '../base/trigger'

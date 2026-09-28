@@ -2,7 +2,7 @@ import { For, Show, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
 import { Button, Icon, cn, createId } from '../../../../../src'
-import { DOCS_PLAYGROUND_CLASS, DOCS_PLAYGROUND_PREVIEW_CLASS } from '../markdown.class.ts'
+import { DOCS_PLAYGROUND_CLASS, DOCS_PLAYGROUND_PREVIEW_CLASS } from '../markdown.class'
 
 import {
   DocsPlaygroundControlField,

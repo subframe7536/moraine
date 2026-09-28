@@ -5,7 +5,7 @@ import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import { useFormReset } from '../shared/use-form-reset'
 
 import { createSlider } from './hook'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'

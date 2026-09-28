@@ -1,31 +1,31 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
-import { Icon } from '../../element/icon/index.ts'
-import { createStyles } from '../../provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef } from '../../shared/utils.ts'
-import { createBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
-import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select.tsx'
-import { useFieldContext } from '../field/field-context.ts'
+import { Icon } from '../../element/icon/index'
+import { createStyles } from '../../provider/index'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callHandler, callRef } from '../../shared/utils'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
+import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
+import { useFieldContext } from '../field/field-context'
 import {
   createSource,
   labelString,
   sameValue,
   serializeSourceValue,
-} from '../shared/select/collection.ts'
-import { DefaultSelectContent } from '../shared/select/default-content.tsx'
+} from '../shared/select/collection'
+import { DefaultSelectContent } from '../shared/select/default-content'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   createBaseSelectStyleProps,
   MULTI_SELECT_LOCAL_PROP_KEYS,
-} from '../shared/select/props.ts'
-import { useComboboxSearch } from '../shared/select/search.ts'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
-import { createTagsField } from '../shared/select/tags-field.tsx'
+} from '../shared/select/props'
+import { useComboboxSearch } from '../shared/select/search'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
+import { createTagsField } from '../shared/select/tags-field'
 
 import { multiSelectDataAttributes, multiSelectRecipe } from './multi-select.recipe'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 /** Collection-backed multiple selection with tags and optional search or creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   props: MultiSelectProps<T>,

@@ -16,7 +16,7 @@ import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
-import { useFormValue } from '../shared/use-form-value.ts'
+import { useFormValue } from '../shared/use-form-value'
 
 import { checkboxGroupDataAttributes, checkboxGroupRecipe } from './checkbox-group.recipe'
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'

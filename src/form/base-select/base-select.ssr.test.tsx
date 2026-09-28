@@ -2,9 +2,9 @@ import { fireEvent } from '@solidjs/testing-library'
 import { createSignal, Show } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { BaseSelect } from './base-select.tsx'
+import { BaseSelect } from './base-select'
 test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   const { container } = hydrateFixture(
     '/src/form/base-select/base-select.ssr.fixture.tsx',

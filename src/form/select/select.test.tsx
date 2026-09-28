@@ -4,11 +4,11 @@ import { createSignal, For } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider/index.ts'
-import { renderWithOwner } from '../../test-util/owner-render.tsx'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../provider/index'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { createForm } from '../form/index'
 
-import { Select } from './select.tsx'
+import { Select } from './select'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

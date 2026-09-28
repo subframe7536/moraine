@@ -1,4 +1,4 @@
-import type { Orientation } from '../../theme/style/style-types.ts'
+import type { Orientation } from '../../theme/style/style-types'
 import type { InputStyleVariant } from '../input/input.style-types'
 
 export interface InputGroupStyleSlot<T = unknown> {

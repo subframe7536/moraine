@@ -1,4 +1,4 @@
-import { createControllableValue } from '../../../shared/controllable-value.ts'
+import { createControllableValue } from '../../../shared/controllable-value'
 
 /** Controlled or uncontrolled text used to search a collection. */
 interface SearchQueryOptions {

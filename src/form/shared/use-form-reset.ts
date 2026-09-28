@@ -2,7 +2,7 @@ import { onMount } from 'solid-js'
 
 import { createEventListener } from '../../shared/event-listener'
 
-import { scheduleFormReset } from './form-reset-scheduler.ts'
+import { scheduleFormReset } from './form-reset-scheduler'
 
 export function useFormReset(
   getForm: () => HTMLFormElement | null | undefined,

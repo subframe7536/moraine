@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../shared/create-context-provider.tsx'
+import { createContextProvider } from '../shared/create-context-provider'
 import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
 
 export interface ThemeResolver {

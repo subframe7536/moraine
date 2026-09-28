@@ -12,7 +12,7 @@ import type { Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
-import { getTransformOrigin, resolveDirection } from './utils.ts'
+import { getTransformOrigin, resolveDirection } from './utils'
 
 const PLACEMENT_PATTERN = /^(?:top|bottom|left|right)(?:-(?:start|end))?$/
 

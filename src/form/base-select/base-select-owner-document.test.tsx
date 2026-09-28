@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../provider/index.ts'
-import { Combobox } from '../combobox/combobox.tsx'
-import { MultiSelect } from '../multi-select/multi-select.tsx'
-import { Select } from '../select/select.tsx'
+import { MoraineProvider } from '../../provider/index'
+import { Combobox } from '../combobox/combobox'
+import { MultiSelect } from '../multi-select/multi-select'
+import { Select } from '../select/select'
 
 const ITEMS = [
   { label: 'Apple', value: 'apple' },

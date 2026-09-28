@@ -1,7 +1,7 @@
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
-import { defineRecipe } from '../../theme/style/recipe.ts'
-import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
+import { createDataAttributes } from '../../shared/style-contract'
+import type { DataAttributeContract } from '../../shared/style-contract'
+import { defineRecipe } from '../../theme/style/recipe'
+import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
 import {
   SECONDARY_TRIGGER_CLASS,
   SELECT_FAMILY_SLOTS,
@@ -10,7 +10,7 @@ import {
   TAG_FIELD_INPUT_CLASS,
   TAG_SIZES,
   TAG_SLOTS,
-} from '../shared/select/select-field.recipe.ts'
+} from '../shared/select/select-field.recipe'
 
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
 

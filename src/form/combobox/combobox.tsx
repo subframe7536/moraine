@@ -1,31 +1,31 @@
 import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
-import { Icon } from '../../element/icon/index.ts'
-import { createStyles } from '../../provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef } from '../../shared/utils.ts'
-import { createBaseSelectSearchInput } from '../base-select/base-select-search-input.ts'
-import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select.tsx'
-import { useFieldContext } from '../field/field-context.ts'
+import { Icon } from '../../element/icon/index'
+import { createStyles } from '../../provider/index'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callHandler, callRef } from '../../shared/utils'
+import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
+import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
+import { useFieldContext } from '../field/field-context'
 import {
   createSource,
   normalizeSelectEntries,
   labelString,
   serializeSourceValue,
   singleValueToSelection,
-} from '../shared/select/collection.ts'
-import { DefaultSelectContent } from '../shared/select/default-content.tsx'
+} from '../shared/select/collection'
+import { DefaultSelectContent } from '../shared/select/default-content'
 import {
   COMBOBOX_LOCAL_PROP_KEYS,
   createBaseSelectStyleProps,
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
-} from '../shared/select/props.ts'
-import { useComboboxSearch } from '../shared/select/search.ts'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
+} from '../shared/select/props'
+import { useComboboxSearch } from '../shared/select/search'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
 
 import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
-import type { ComboboxProps, ComboboxT } from './combobox.types.ts'
+import type { ComboboxProps, ComboboxT } from './combobox.types'
 /** Single collection selection with an editable query input. */
 export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.Item>(
   props: ComboboxProps<T>,

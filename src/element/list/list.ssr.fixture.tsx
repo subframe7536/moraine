@@ -1,8 +1,8 @@
 import { renderToString } from 'solid-js/web'
 
-import { createListVirtualizer } from '../../virtualizer.ts'
+import { createListVirtualizer } from '../../virtualizer'
 
-import { List } from './list.tsx'
+import { List } from './list'
 
 export function ListHydrationFixture(props: { items?: string[] }) {
   return (

@@ -4,12 +4,12 @@ import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider/index.ts'
-import { renderWithOwner } from '../../test-util/owner-render.tsx'
-import { Field } from '../field/field.tsx'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../provider/index'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { Field } from '../field/field'
+import { createForm } from '../form/index'
 
-import { Combobox } from './combobox.tsx'
+import { Combobox } from './combobox'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

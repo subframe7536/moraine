@@ -4,13 +4,13 @@ import { createSignal, For, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider/index.ts'
-import { renderWithOwner } from '../../test-util/owner-render.tsx'
-import { Field } from '../field/field.tsx'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../provider/index'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { Field } from '../field/field'
+import { createForm } from '../form/index'
 
-import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectT } from './multi-select.types.ts'
+import { MultiSelect } from './multi-select'
+import type { MultiSelectT } from './multi-select.types'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

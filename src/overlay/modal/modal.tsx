@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
-import { dataSlotName } from '../../shared/data-slot.ts'
+import { dataSlotName } from '../../shared/data-slot'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../base/dom'

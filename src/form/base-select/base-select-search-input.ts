@@ -1,7 +1,7 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import type { BaseSelectT } from './base-select.types.ts'
+import type { BaseSelectT } from './base-select.types'
 
 export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
   state: Pick<

@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { AvatarHydrationFixture } from './avatar.ssr.fixture.tsx'
+import { AvatarHydrationFixture } from './avatar.ssr.fixture'
 
 test('hydrates a real image src and group overflow', () => {
   const [max, setMax] = createSignal(1)

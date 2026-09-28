@@ -15,18 +15,18 @@ import { Dynamic, Portal, delegateEvents } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { dataSlotName } from '../../shared/data-slot.ts'
+import { dataSlotName } from '../../shared/data-slot'
 import { attachEventListener } from '../../shared/event-listener'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import { applyDataAttributes } from '../../shared/style-contract.ts'
+import { applyDataAttributes } from '../../shared/style-contract'
 import { createTransitionPresence } from '../../shared/transition-presence'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
-import { resolveFloatingPlacement } from './placement.ts'
+import { resolveFloatingPlacement } from './placement'
 import { popperDataAttributes } from './popper.recipe'
 import type {
   PopperProps,

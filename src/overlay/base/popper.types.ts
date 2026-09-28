@@ -1,8 +1,8 @@
 import type { Accessor, JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type { ValidComponent } from '../../shared/types.ts'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types.ts'
+import type { ValidComponent } from '../../shared/types'
+import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types'
 
 import type { OverlayTriggerComponentProps } from './trigger'
 

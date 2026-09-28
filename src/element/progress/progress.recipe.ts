@@ -1,5 +1,5 @@
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
-import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract'
+import { createDataAttributes } from '../../shared/style-contract'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'

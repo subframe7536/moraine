@@ -149,7 +149,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
 - **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
 - **Imports:** Organize imports: external lib -> internal shared -> component files.
-- **Internal Import Extensions:** Relative and `@src` imports must use the source file extension (`.ts` or `.tsx`). Never use emitted `.js` or `.jsx` extensions in source code.
+- **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) for relative and `@src` imports in `docs/build/**` and files matching `**/*.config.ts`. Omit extensions from other imports under `src/**` and `docs/**`. Never use emitted `.js` or `.jsx` extensions in source import paths.
 
 ### Styling (UnoCSS)
 

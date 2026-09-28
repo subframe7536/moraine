@@ -4,7 +4,7 @@ import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMou
 
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
-import { DOCS_INLINE_CODE_CLASS } from '../markdown.class.ts'
+import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
 
 export { type OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 

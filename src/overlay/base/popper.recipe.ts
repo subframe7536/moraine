@@ -1,5 +1,5 @@
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract'
+import type { DataAttributeContract } from '../../shared/style-contract'
 
 type PopperDataSlot = 'trigger' | 'content' | 'positioner'
 

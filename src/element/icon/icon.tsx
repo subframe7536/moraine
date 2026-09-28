@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 
 import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'

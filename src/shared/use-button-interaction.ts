@@ -2,7 +2,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
 import { isNativeButtonElement, isNativeButtonTag } from './native-button'
-import type { ValidComponent } from './types.ts'
+import type { ValidComponent } from './types'
 import { callHandler } from './utils'
 
 export interface UseButtonInteractionOptions {

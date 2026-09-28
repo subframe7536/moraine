@@ -1,14 +1,14 @@
 import { renderToString } from 'solid-js/web'
 
-import { CheckboxGroup } from '../checkbox-group/checkbox-group.tsx'
-import { Checkbox } from '../checkbox/checkbox.tsx'
-import { FileUpload } from '../file-upload/file-upload.tsx'
-import { InputNumber } from '../input-number/input-number.tsx'
-import { Input } from '../input/input.tsx'
-import { RadioGroup } from '../radio-group/radio-group.tsx'
-import { Slider } from '../slider/slider.tsx'
-import { Switch } from '../switch/switch.tsx'
-import { Textarea } from '../textarea/textarea.tsx'
+import { CheckboxGroup } from '../checkbox-group/checkbox-group'
+import { Checkbox } from '../checkbox/checkbox'
+import { FileUpload } from '../file-upload/file-upload'
+import { InputNumber } from '../input-number/input-number'
+import { Input } from '../input/input'
+import { RadioGroup } from '../radio-group/radio-group'
+import { Slider } from '../slider/slider'
+import { Switch } from '../switch/switch'
+import { Textarea } from '../textarea/textarea'
 
 export function NativeReadonlyFixture(props: { readOnly: boolean }) {
   return (

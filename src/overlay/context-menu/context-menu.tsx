@@ -14,10 +14,10 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import { createControllableValue } from '../../shared/controllable-value.ts'
+import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { attachEventListener } from '../../shared/event-listener'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../base/dom'
 import { OverlayMenu } from '../base/menu'

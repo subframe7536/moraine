@@ -7,7 +7,7 @@ import type {
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.types.ts'
+} from '../shared/form-options.types'
 
 import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
 

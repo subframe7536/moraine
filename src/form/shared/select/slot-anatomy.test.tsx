@@ -1,9 +1,9 @@
 import { render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { Combobox } from '../../combobox/combobox.tsx'
-import { MultiSelect } from '../../multi-select/multi-select.tsx'
-import { Select } from '../../select/select.tsx'
+import { Combobox } from '../../combobox/combobox'
+import { MultiSelect } from '../../multi-select/multi-select'
+import { Select } from '../../select/select'
 
 const items = [{ value: 'one', label: 'One', description: 'First option', icon: 'icon-check' }]
 

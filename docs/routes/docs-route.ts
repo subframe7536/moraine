@@ -1,7 +1,7 @@
 import { routeInfo } from 'virtual:routes'
 
-import { DOCS_SECTION_ORDER } from '../shared/docs-route.ts'
-import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route.ts'
+import { DOCS_SECTION_ORDER } from '../shared/docs-route'
+import type { DocsRouteInfo, DocsRouteSection, DocsSurface } from '../shared/docs-route'
 
 export interface DocsPageEntry {
   key: string

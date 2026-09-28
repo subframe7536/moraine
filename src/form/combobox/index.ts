@@ -1,2 +1,2 @@
-export { Combobox } from './combobox.tsx'
-export type { ComboboxProps, ComboboxT } from './combobox.types.ts'
+export { Combobox } from './combobox'
+export type { ComboboxProps, ComboboxT } from './combobox.types'

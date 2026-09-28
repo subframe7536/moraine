@@ -3,10 +3,10 @@ import { For, Show, createComponent, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
-import type { ValidComponent } from '../../shared/types.ts'
-import { callRef } from '../../shared/utils.ts'
+import type { ValidComponent } from '../../shared/types'
+import { callRef } from '../../shared/utils'
 
-import type { ListProps, ListT } from './list.types.ts'
+import type { ListProps, ListT } from './list.types'
 
 /** Headless polymorphic list with optional caller-controlled virtualization. */
 export function List<

@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/index.ts'
+import { createStyles } from '../../provider/index'
 
-import { useInputGroupContext } from './input-group-context.ts'
+import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
-import type { InputGroupT } from './input-group.types.ts'
+import type { InputGroupT } from './input-group.types'
 
 export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element {
   const [local, rest] = splitProps(props, ['children', 'compact', 'class', 'style'])

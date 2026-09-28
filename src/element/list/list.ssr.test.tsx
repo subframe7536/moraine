@@ -2,9 +2,9 @@ import { waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { ListHydrationFixture, VirtualListHydrationFixture } from './list.ssr.fixture.tsx'
+import { ListHydrationFixture, VirtualListHydrationFixture } from './list.ssr.fixture'
 
 test('hydrates keyed list items and moves the same rows on reorder', () => {
   const [items, setItems] = createSignal(['Alpha', 'Beta'])

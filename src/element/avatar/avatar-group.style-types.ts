@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 export interface AvatarGroupStyleSlot<T = unknown> {
   /** Container of grouped avatars. */
   root?: T

@@ -1,11 +1,11 @@
 import { Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { Icon } from '../../element/icon/index.ts'
-import { Input } from '../input/input.tsx'
-import { Textarea } from '../textarea/textarea.tsx'
+import { Icon } from '../../element/icon/index'
+import { Input } from '../input/input'
+import { Textarea } from '../textarea/textarea'
 
-import { InputGroup } from './input-group.tsx'
+import { InputGroup } from './input-group'
 
 export function renderInputGroupFixture(): string {
   return renderToString(() => (

@@ -1,11 +1,11 @@
 import { createMemo } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+import type { BaseSelectT } from '../../base-select/base-select.types'
 
-import { filterView, labelString } from './collection.ts'
-import { useSearchQuery } from './search-query.ts'
-import type { SearchProps, SelectView } from './types.ts'
+import { filterView, labelString } from './collection'
+import { useSearchQuery } from './search-query'
+import type { SearchProps, SelectView } from './types'
 
 export function useComboboxSearch<T extends BaseSelectT.Item>(
   props: SearchProps<T>,

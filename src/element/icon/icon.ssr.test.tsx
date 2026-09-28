@@ -1,9 +1,9 @@
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { IconHydrationFixture } from './icon.ssr.fixture.tsx'
+import { IconHydrationFixture } from './icon.ssr.fixture'
 
 test('hydrates class, caller-controlled JSX, and component icons with reactive props', () => {
   const [label, setLabel] = createSignal('Status')

@@ -1,2 +1,2 @@
-export { BaseSelect } from './base-select.tsx'
-export type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
+export { BaseSelect } from './base-select'
+export type { BaseSelectProps, BaseSelectT } from './base-select.types'

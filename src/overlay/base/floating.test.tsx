@@ -4,8 +4,8 @@ import { batch, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { isElement } from './dom'
-import { useFloatingPosition } from './floating.ts'
-import type { FloatingPositionOptions } from './floating.ts'
+import { useFloatingPosition } from './floating'
+import type { FloatingPositionOptions } from './floating'
 
 const floatingMocks = vi.hoisted(() => ({
   computePosition: vi.fn(),

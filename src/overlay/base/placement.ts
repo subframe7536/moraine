@@ -1,6 +1,6 @@
 import type { Placement } from '@floating-ui/dom'
 
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types.ts'
+import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types'
 
 export function resolveFloatingPlacement(
   placement: OverlayPlacement,

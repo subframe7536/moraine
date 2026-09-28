@@ -1,8 +1,8 @@
-import type { DataAttributeContract } from '../../../shared/style-contract.ts'
-import { createDataAttributes } from '../../../shared/style-contract.ts'
-import type { RecipeConfig } from '../../../theme/style/recipe.ts'
+import type { DataAttributeContract } from '../../../shared/style-contract'
+import { createDataAttributes } from '../../../shared/style-contract'
+import type { RecipeConfig } from '../../../theme/style/recipe'
 
-import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types.ts'
+import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
 
 export const overlayMenuDataAttributes = {
   content: createDataAttributes('align', 'closed', 'expanded', 'side'),

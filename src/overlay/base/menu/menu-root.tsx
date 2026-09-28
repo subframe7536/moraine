@@ -4,7 +4,7 @@ import { Show, createEffect, createMemo, createSignal, on, onCleanup, untrack } 
 import { Portal } from 'solid-js/web'
 
 import { useCn } from '../../../provider/cn-context'
-import { dataSlotName } from '../../../shared/data-slot.ts'
+import { dataSlotName } from '../../../shared/data-slot'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import { createId } from '../../../shared/utils'
 import { containsComposed, isNode } from '../dom'

@@ -6,8 +6,8 @@ import {
   formatDefaultValue,
   getApiReferenceTocEntries,
   getDomSlotName,
-} from './presentation'
-import type { ComponentApi } from './types'
+} from './presentation.ts'
+import type { ComponentApi } from './types.ts'
 
 const component: ComponentApi = {
   key: 'demo',

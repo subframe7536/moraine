@@ -9,8 +9,8 @@ import {
   onMount,
 } from 'solid-js'
 
-import { createControllableValue } from '../../../shared/controllable-value.ts'
-import type { Orientation } from '../../../theme/style/style-types.ts'
+import { createControllableValue } from '../../../shared/controllable-value'
+import type { Orientation } from '../../../theme/style/style-types'
 import type { SliderT } from '../slider.types'
 import {
   clamp,

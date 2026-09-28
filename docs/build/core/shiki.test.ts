@@ -8,7 +8,7 @@ import {
   parseCodeTitle,
   parseHighlightedLines,
   renderDocsCodeHtml,
-} from './shiki'
+} from './shiki.ts'
 
 describe('docs shiki code highlighter', () => {
   test('parses code group id from meta', () => {

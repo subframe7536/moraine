@@ -1,9 +1,9 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-util/ssr-test.ts'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
-import { DuplicateStepperFixture, StepperHydrationFixture } from './stepper.ssr.fixture.tsx'
+import { DuplicateStepperFixture, StepperHydrationFixture } from './stepper.ssr.fixture'
 
 test('hydrates encoded duplicate step IDs without changing their relationships', () => {
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})

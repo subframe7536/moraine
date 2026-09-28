@@ -3,7 +3,7 @@ import { For, Show } from 'solid-js'
 
 import { Collapsible, Icon, cn } from '../../../../../src'
 import type { PresentationPropItem } from '../../../../build/api-doc/presentation'
-import { DOCS_INLINE_CODE_CLASS } from '../markdown.class.ts'
+import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
 
 export type PropDoc = PresentationPropItem
 

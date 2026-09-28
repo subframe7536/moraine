@@ -4,17 +4,17 @@ import { createSignal, For, Show } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../element/button/index.ts'
-import { renderWithOwner } from '../../test-util/owner-render.tsx'
-import { Combobox } from '../combobox/combobox.tsx'
-import type { FieldBinding } from '../field/field-context.ts'
-import { FieldProvider } from '../field/field-context.ts'
-import { createForm } from '../form/index.ts'
-import { MultiSelect } from '../multi-select/multi-select.tsx'
-import { Select } from '../select/select.tsx'
+import { Button } from '../../element/button/index'
+import { renderWithOwner } from '../../test-util/owner-render'
+import { Combobox } from '../combobox/combobox'
+import type { FieldBinding } from '../field/field-context'
+import { FieldProvider } from '../field/field-context'
+import { createForm } from '../form/index'
+import { MultiSelect } from '../multi-select/multi-select'
+import { Select } from '../select/select'
 
-import { createBaseSelectSearchInput } from './base-select-search-input.ts'
-import { BaseSelect, useSelectContext } from './base-select.tsx'
+import { BaseSelect, useSelectContext } from './base-select'
+import { createBaseSelectSearchInput } from './base-select-search-input'
 
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },

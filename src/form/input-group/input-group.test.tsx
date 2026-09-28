@@ -3,17 +3,17 @@ import { createComponent, createSignal, onCleanup, onMount, Show } from 'solid-j
 import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../element/button/button.tsx'
-import { Icon } from '../../element/icon/index.ts'
-import { DropdownMenu } from '../../overlay/dropdown-menu/dropdown-menu.tsx'
-import { MoraineProvider } from '../../provider/index.ts'
-import { defineTheme } from '../../theme/create-theme.ts'
+import { Button } from '../../element/button/button'
+import { Icon } from '../../element/icon/index'
+import { DropdownMenu } from '../../overlay/dropdown-menu/dropdown-menu'
+import { MoraineProvider } from '../../provider/index'
+import { defineTheme } from '../../theme/create-theme'
 import { Field } from '../field'
-import { Input } from '../input/input.tsx'
-import { Textarea } from '../textarea/textarea.tsx'
+import { Input } from '../input/input'
+import { Textarea } from '../textarea/textarea'
 
-import { InputGroup } from './input-group.tsx'
-import type { InputGroupT } from './input-group.types.ts'
+import { InputGroup } from './input-group'
+import type { InputGroupT } from './input-group.types'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

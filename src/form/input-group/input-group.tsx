@@ -1,16 +1,16 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { containsComposed, isNode } from '../../overlay/base/dom.ts'
-import { createStyles } from '../../provider/index.ts'
-import { callHandler } from '../../shared/utils.ts'
-import { useFieldContext } from '../field/field-context.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { containsComposed, isNode } from '../../overlay/base/dom'
+import { createStyles } from '../../provider/index'
+import { callHandler } from '../../shared/utils'
+import { useFieldContext } from '../field/field-context'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
 
-import { InputGroupProvider } from './input-group-context.ts'
-import { InputGroupLeading, InputGroupTrailing } from './input-group-parts.tsx'
+import { InputGroupProvider } from './input-group-context'
+import { InputGroupLeading, InputGroupTrailing } from './input-group-parts'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
-import type { InputGroupProps } from './input-group.types.ts'
+import type { InputGroupProps } from './input-group.types'
 /** Shared frame for one independently exported Input or Textarea and supporting content. */
 export function InputGroup(props: InputGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [

@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
+import type { ComponentSize, Orientation } from '../../theme/style/style-types'
 export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Group container that owns checkbox collection state and layout. */
   root?: T

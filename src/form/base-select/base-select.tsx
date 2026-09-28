@@ -15,29 +15,29 @@ import {
 } from 'solid-js'
 import { Dynamic, Portal } from 'solid-js/web'
 
-import { useFloatingPosition } from '../../overlay/base/floating.ts'
-import { useOverlayInteraction } from '../../overlay/base/interaction.ts'
-import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlay/base/utils.ts'
-import { createStyles } from '../../provider/create-styles.ts'
-import { createControllableValue } from '../../shared/controllable-value.ts'
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { dataSlotName } from '../../shared/data-slot.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { createTransitionPresence } from '../../shared/transition-presence.ts'
-import { createTypeahead } from '../../shared/typeahead.ts'
-import type { ValidComponent } from '../../shared/types.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { callHandler, callRef, createId } from '../../shared/utils.ts'
-import { useFormField } from '../field/field-context.ts'
+import { useFloatingPosition } from '../../overlay/base/floating'
+import { useOverlayInteraction } from '../../overlay/base/interaction'
+import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlay/base/utils'
+import { createStyles } from '../../provider/create-styles'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { dataSlotName } from '../../shared/data-slot'
+import { HiddenInput } from '../../shared/hidden-input'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { createTransitionPresence } from '../../shared/transition-presence'
+import { createTypeahead } from '../../shared/typeahead'
+import type { ValidComponent } from '../../shared/types'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callHandler, callRef, createId } from '../../shared/utils'
+import { useFormField } from '../field/field-context'
 import {
   diagnoseDuplicateItems,
   labelString,
   normalizeSelection,
   sameValue,
   selectionEqual,
-} from '../shared/select/collection.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/select/collection'
+import { useFormReset } from '../shared/use-form-reset'
 
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type {
@@ -45,7 +45,7 @@ import type {
   BaseSelectProps,
   BaseSelectT,
   BaseSelectValue,
-} from './base-select.types.ts'
+} from './base-select.types'
 
 function selectionToFormValue<T extends BaseSelectValue>(
   values: readonly T[],

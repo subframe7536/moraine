@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types.ts'
+import type { ComponentSize } from '../../theme/style/style-types'
 export interface CheckboxStyleSlot<T = unknown> {
   /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
   root?: T

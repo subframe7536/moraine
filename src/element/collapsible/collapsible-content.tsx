@@ -3,7 +3,7 @@ import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } 
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'

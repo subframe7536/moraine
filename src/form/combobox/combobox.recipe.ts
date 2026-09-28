@@ -1,14 +1,14 @@
-import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { DataAttributeContract } from '../../shared/style-contract.ts'
-import { defineRecipe } from '../../theme/style/recipe.ts'
-import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
+import { createDataAttributes } from '../../shared/style-contract'
+import type { DataAttributeContract } from '../../shared/style-contract'
+import { defineRecipe } from '../../theme/style/recipe'
+import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
 import {
   FIELD_INPUT_CLASS,
   FIELD_SIZES,
   FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
   SELECT_FAMILY_SLOTS,
-} from '../shared/select/select-field.recipe.ts'
+} from '../shared/select/select-field.recipe'
 
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
 

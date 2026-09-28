@@ -423,7 +423,7 @@ test('resolves classes and variables from the same matched branches', () => {
 })
 
 test('supports variable-only recipes and scoped merging without changing style output', async () => {
-  const { createCn } = await import('./cn.ts')
+  const { createCn } = await import('./cn')
   const recipe = testRecipe<RootSlot>('root', {
     base: { root: '', '--zero': 0, '--length': '20px' },
   })

@@ -9,7 +9,7 @@ import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
 import { mergeAriaTokens } from './merge-aria-tokens'
-import { useTextControlValue } from './use-text-control-value.ts'
+import { useTextControlValue } from './use-text-control-value'
 
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   test('owns native attributes, handlers and refs on the editable element', () => {

@@ -1,8 +1,8 @@
 import { Show } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { Icon } from './icon.tsx'
-import type { IconProps } from './icon.types.ts'
+import { Icon } from './icon'
+import type { IconProps } from './icon.types'
 
 function Glyph(props: Omit<IconProps, 'name'>) {
   return (

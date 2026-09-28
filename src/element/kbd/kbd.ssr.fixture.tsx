@@ -1,8 +1,8 @@
 import { renderToString } from 'solid-js/web'
 
-import { KbdGroup } from './kbd-group.tsx'
-import type { KbdGroupT } from './kbd-group.types.ts'
-import { Kbd } from './kbd.tsx'
+import { Kbd } from './kbd'
+import { KbdGroup } from './kbd-group'
+import type { KbdGroupT } from './kbd-group.types'
 
 export function KbdHydrationFixture(props: { keyName?: string; items?: KbdGroupT.Item[] }) {
   return (

@@ -10,17 +10,17 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../provider/index.ts'
-import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { callHandler, callRef, createId } from '../../shared/utils.ts'
-import { useFormField, useFieldContext } from '../field/field-context.ts'
-import { useInputGroupContext } from '../input-group/input-group-context.ts'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+import { createStyles } from '../../provider/index'
+import type { ModelModifiers } from '../../shared/input-modifiers'
+import { callHandler, callRef, createId } from '../../shared/utils'
+import { useFormField, useFieldContext } from '../field/field-context'
+import { useInputGroupContext } from '../input-group/input-group-context'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
 import { textareaDataAttributes, textareaRecipe } from './textarea.recipe'
-import type { TextareaProps, TextareaT } from './textarea.types.ts'
+import type { TextareaProps, TextareaT } from './textarea.types'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {

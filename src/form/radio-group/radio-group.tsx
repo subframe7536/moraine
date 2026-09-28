@@ -21,7 +21,7 @@ import { createSelectableCollectionNavigation } from '../../shared/selectable-co
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
-import { useFormValue } from '../shared/use-form-value.ts'
+import { useFormValue } from '../shared/use-form-value'
 
 import { radioGroupDataAttributes, radioGroupRecipe } from './radio-group.recipe'
 import type { RadioGroupProps } from './radio-group.types'

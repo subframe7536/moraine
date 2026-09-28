@@ -1,9 +1,9 @@
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
-import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe.ts'
-import { sliderRecipe } from '../form/slider/slider.recipe.ts'
-import { cn } from '../theme/style/cn.ts'
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
+import { sliderRecipe } from '../form/slider/slider.recipe'
+import { cn } from '../theme/style/cn'
 
 import { presetMoraine, resolvePresetThemeOptions } from './theme'
 

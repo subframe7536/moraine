@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../element/icon/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../element/icon/index'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   BaseSelectCloseOnSelectOption,
   BaseSelectDisclosureProps,
@@ -10,8 +10,8 @@ import type {
   BaseSelectItemBehaviorProps,
   BaseSelectResetProps,
   BaseSelectT,
-} from '../base-select/base-select.types.ts'
-import type { FormValueOptions } from '../shared/form-options.types.ts'
+} from '../base-select/base-select.types'
+import type { FormValueOptions } from '../shared/form-options.types'
 import type {
   NormalizedSelectItem,
   ContentProps,
@@ -19,7 +19,7 @@ import type {
   SelectGroup,
   SelectEntry,
   SelectVirtualRenderProps,
-} from '../shared/select/types.ts'
+} from '../shared/select/types'
 
 import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 

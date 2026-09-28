@@ -5,8 +5,8 @@ import {
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
-} from '../theme/style/animations.ts'
-import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons.ts'
+} from '../theme/style/animations'
+import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -15,7 +15,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../theme/style/theme.ts'
+} from '../theme/style/theme'
 
 export { DEFAULT_ICON_SHORTCUTS }
 
