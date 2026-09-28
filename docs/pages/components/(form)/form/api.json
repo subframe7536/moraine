@@ -40,7 +40,7 @@
         {
           "name": "onSubmit",
           "optional": true,
-          "type": "(output: v.InferOutput<TSchema>, event: SubmitEvent) => unknown",
+          "type": "(output: InferOutput<TSchema>, event: SubmitEvent) => unknown",
           "description": "Called with validated schema output and the native submit event."
         },
         {

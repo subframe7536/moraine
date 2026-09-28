@@ -122,7 +122,7 @@ declare module '@formisch/solid' {
 
   function getInput<TSchema extends Schema>(
     form: RootStore<TSchema>,
-  ): PartialValues<v.InferInput<TSchema>>
+  ): PartialValues<InferInput<TSchema>>
 
   function setInput<TSchema extends Schema>(
     form: RootStore<TSchema>,
