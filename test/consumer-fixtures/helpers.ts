@@ -120,17 +120,42 @@ const specifiers = [
   'moraine/unocss',
   'moraine/utils',
   'moraine/theme',
-  'moraine/styles',
   'moraine/virtualizer',
 ]
 
 const { defineTheme } = await import('moraine/theme')
-const { buttonRecipe } = await import('moraine/styles')
 if (Object.keys(defineTheme()).length !== 0) throw new Error('Expected opaque Theme')
-if (buttonRecipe.key !== 'button') throw new Error('Button Recipe is missing')
+
+const unocss = await import('moraine/unocss')
+if (Object.keys(unocss).join(',') !== 'presetMoraine') {
+  throw new Error('UnoCSS must expose only presetMoraine at runtime')
+}
+
+const utils = await import('moraine/utils')
+const utilityNames = [
+  'createBaseSelectSearchInput',
+  'createControllableValue',
+  'createDisclosureState',
+  'createEventListener',
+  'createEventListenerMap',
+  'createMediaQuery',
+  'createSelectableCollectionNavigation',
+  'createSlider',
+  'createTransitionPresence',
+]
+if (Object.keys(utils).sort().join(',') !== utilityNames.join(',')) {
+  throw new Error('Unexpected moraine/utils runtime exports')
+}
 
 for (const specifier of specifiers) {
   import.meta.resolve(specifier)
+}
+
+try {
+  import.meta.resolve('moraine/styles')
+  throw new Error('moraine/styles must not be a public entry')
+} catch (error) {
+  if (error?.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') throw error
 }
 `,
   )

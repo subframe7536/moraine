@@ -25,6 +25,7 @@ function createDisclosureState(options: CreateDisclosureStateOptions): {
   }>
   readonly disabled: Accessor<boolean>
   readonly setContentElement: (element: HTMLElement | undefined) => void
+  readonly registerElement: (element: HTMLElement) => () => void
 }
 
 interface CreateDisclosureStateOptions {

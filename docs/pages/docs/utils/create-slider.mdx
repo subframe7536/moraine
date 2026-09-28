@@ -26,7 +26,7 @@ import { createSlider } from 'moraine/utils'
 function createSlider<TValue extends number | number[]>(
   props: CreateSliderProps<TValue>,
   options?: CreateSliderOptions<TValue>,
-): SliderState
+): CreateSliderReturn<TValue>
 ```
 
 ## Usage Example
@@ -43,24 +43,36 @@ export function CustomSlider() {
   })
 
   return (
-    <div
-      ref={slider.setRootEl}
-      onPointerDown={slider.handlePointerDown}
-      class="relative h-6 flex items-center cursor-pointer touch-none"
-    >
-      <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
-        <div class="h-full bg-primary" style={slider.rangeStyle()} />
+    <div class="relative h-6">
+      <div
+        ref={(element) => slider.setTrackRef(element)}
+        class="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-muted touch-none"
+        onPointerDown={slider.onTrackPointerDown}
+        onPointerMove={slider.onTrackPointerMove}
+        onPointerUp={slider.onTrackPointerUp}
+        onPointerCancel={slider.onPointerCancel}
+        onLostPointerCapture={slider.onPointerCancel}
+      >
+        <div class="absolute h-full rounded-full bg-primary" style={slider.rangeStyle()} />
       </div>
 
       <div
+        ref={(element) => slider.setThumbRefs(() => [element])}
         tabIndex={0}
         role="slider"
-        aria-valuenow={slider.values()[0]}
+        aria-label="Amount"
+        aria-valuenow={slider.currentValues()[0] ?? 0}
         aria-valuemin={0}
         aria-valuemax={100}
-        onKeyDown={slider.handleKeyDown}
+        onPointerDown={(event) => slider.onThumbPointerDown(0, event)}
+        onPointerMove={slider.onThumbPointerMove}
+        onPointerUp={slider.onThumbPointerUp}
+        onPointerCancel={slider.onPointerCancel}
+        onLostPointerCapture={slider.onPointerCancel}
+        onKeyDown={(event) => slider.onThumbKeyDown(0, event)}
+        onKeyUp={slider.onThumbKeyUp}
         style={slider.thumbStyles()[0]}
-        class="absolute size-5 rounded-full bg-primary ring-2 ring-background shadow-md -translate-x-1/2"
+        class="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ring-2 ring-background shadow-md touch-none"
       />
     </div>
   )

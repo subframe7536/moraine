@@ -39,14 +39,17 @@ function createEventListenerMap<TTarget extends EventTarget>(
 ### Single Event with `createEventListener`
 
 ```tsx title="src/EscapeListener.tsx"
+import { onMount } from 'solid-js'
 import { createEventListener } from 'moraine/utils'
 
 export function EscapeListener(props: { onEscape: () => void }) {
-  // Strongly typed: e is KeyboardEvent when listening to 'keydown' on window
-  createEventListener(window, 'keydown', (e) => {
-    if (e.key === 'Escape') {
-      props.onEscape()
-    }
+  onMount(() => {
+    // Strongly typed: e is KeyboardEvent for window keydown.
+    createEventListener(window, 'keydown', (e) => {
+      if (e.key === 'Escape') {
+        props.onEscape()
+      }
+    })
   })
 
   return null
@@ -56,13 +59,16 @@ export function EscapeListener(props: { onEscape: () => void }) {
 ### Multiple Events with `createEventListenerMap`
 
 ```tsx title="src/DragObserver.tsx"
+import { onMount } from 'solid-js'
 import { createEventListenerMap } from 'moraine/utils'
 
 export function DragObserver() {
-  createEventListenerMap(window, {
-    pointermove: (e) => console.log('Pointer at:', e.clientX, e.clientY),
-    pointerup: () => console.log('Drag ended'),
-    pointercancel: () => console.log('Drag cancelled'),
+  onMount(() => {
+    createEventListenerMap(window, {
+      pointermove: (e) => console.log('Pointer at:', e.clientX, e.clientY),
+      pointerup: () => console.log('Drag ended'),
+      pointercancel: () => console.log('Drag cancelled'),
+    })
   })
 
   return null
@@ -72,5 +78,5 @@ export function DragObserver() {
 ## Features
 
 - **Type Inferred**: Event types automatically narrow according to the target (e.g. `window.resize` gives `UIEvent`, `document.keydown` gives `KeyboardEvent`).
-- **Owner Scope Bound**: Cleanups are registered with `onCleanup` immediately during component initialization.
+- **Owner Scope Bound**: Cleanups are registered with `onCleanup` in the active Solid owner, including when called from `onMount`.
 - **Safe Null Handling**: Passes `null` or `undefined` targets safely without runtime exceptions.

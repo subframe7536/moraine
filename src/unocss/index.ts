@@ -1,4 +1,4 @@
-export { DEFAULT_ICON_SHORTCUTS, resolvePresetThemeOptions, presetMoraine } from './theme'
+export { presetMoraine } from './theme'
 export type {
   PresetThemeOptions,
   MoraineColorState,

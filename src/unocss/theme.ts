@@ -17,8 +17,6 @@ import {
   MORAINE_Z_INDEX,
 } from '../theme/style/theme'
 
-export { DEFAULT_ICON_SHORTCUTS }
-
 export interface PresetThemeOptions {
   /**
    * Controls whether to inject default global styles for CSS variables and base styles.

@@ -15,7 +15,7 @@ search:
     ]
 ---
 
-`createSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End, PageUp, PageDown) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
+`createSelectableCollectionNavigation` provides keyboard navigation (Arrow Up/Down/Left/Right, Home, End) and activation modes for selectable item collections like Tabs, Radio Groups, and Listboxes.
 
 ## Import
 
@@ -29,18 +29,25 @@ import { createSelectableCollectionNavigation } from 'moraine/utils'
 function createSelectableCollectionNavigation<TItem, TValue extends string | number>(
   options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ): {
-  onKeyDown: (event: KeyboardEvent) => void
+  onNavigationKeyDown: (
+    event: KeyboardEvent,
+    currentValue: TValue | undefined,
+    orientation: 'horizontal' | 'vertical',
+  ) => void
+  focusByOffset: (currentValue: TValue | undefined, offset: number) => void
+  focusBoundary: (kind: 'first' | 'last') => void
+  moveSelection: (currentValue: TValue, offset: number) => void
 }
 
 interface CreateSelectableCollectionNavigationOptions<TItem, TValue> {
   items: Accessor<TItem[]>
   getValue: (item: TItem) => TValue
   onSelect: (value: TValue) => void
-  orientation?: Accessor<'horizontal' | 'vertical'>
   isDisabled?: (item: TItem) => boolean
   loop?: Accessor<boolean>
   activationMode?: Accessor<'automatic' | 'manual'>
   focusValue?: (value: TValue) => void
+  getDirection?: () => 'ltr' | 'rtl'
 }
 ```
 
@@ -62,24 +69,27 @@ export function CustomTabs() {
     { id: 'billing', label: 'Billing' },
   ]
   const [selectedId, setSelectedId] = createSignal('overview')
+  const tabRefs = new Map<string, HTMLButtonElement>()
 
   const nav = createSelectableCollectionNavigation({
     items: () => tabs,
     getValue: (item) => item.id,
     onSelect: (id) => setSelectedId(id),
-    orientation: () => 'horizontal',
+    focusValue: (id) => tabRefs.get(id)?.focus(),
     loop: () => true,
   })
 
   return (
-    <div role="tablist" onKeyDown={nav.onKeyDown} class="flex gap-2 border-b">
+    <div role="tablist" aria-label="Project sections" class="flex gap-2 border-b">
       <For each={tabs}>
         {(tab) => (
           <button
+            ref={(element) => tabRefs.set(tab.id, element)}
             role="tab"
             aria-selected={selectedId() === tab.id}
             tabIndex={selectedId() === tab.id ? 0 : -1}
             onClick={() => setSelectedId(tab.id)}
+            onKeyDown={(event) => nav.onNavigationKeyDown(event, tab.id, 'horizontal')}
             class="px-3 py-1.5 border-b-2"
           >
             {tab.label}

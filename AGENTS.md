@@ -43,7 +43,6 @@ The `src` directory is organized by component role and shared infrastructure:
 src/
 ├── index.ts                # Main public entry point; re-exports component categories and shared APIs.
 ├── theme.ts                # Public theme entry point.
-├── styles.ts               # Public style-contract entry point.
 ├── utils.ts                # Public utility entry point.
 ├── virtualizer.ts          # Public virtual-list entry point.
 ├── element/                # Basic, non-form UI elements.

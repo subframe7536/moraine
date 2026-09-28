@@ -5,7 +5,6 @@ import { resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import * as stylesApi from '../../src/styles'
 import * as themeApi from '../../src/theme'
 import { defineTheme } from '../../src/theme'
 import { getThemeRecipeLayers } from '../../src/theme/create-theme'
@@ -16,12 +15,6 @@ describe('Theme architecture', () => {
   test('exposes only the supported Theme builder at runtime', () => {
     expect(Object.keys(themeApi).sort()).toEqual(['defineTheme'])
     expect(Object.keys(defineTheme())).toEqual([])
-  })
-
-  test('exports component recipe definitions through the styles entry', () => {
-    expect(stylesApi.buttonRecipe.key).toBe('button')
-    expect(stylesApi.buttonRecipe.slots).toContain('root')
-    expect(stylesApi.dialogRecipe.key).toBe('dialog')
   })
 
   test('keeps component runtime resolution recipe-symbol based', () => {

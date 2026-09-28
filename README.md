@@ -65,7 +65,7 @@ function App() {
 
 Import components and `MoraineProvider` from `moraine`. Component subpaths and internal files are not supported entry points.
 
-Use `moraine/theme` for Theme authoring, `moraine/styles` for readonly built-in style definitions, `moraine/utils` for shared reactive primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` adapter and requires `@tanstack/virtual-core`.
+Use `moraine/theme` for Theme authoring, `moraine/utils` for composable behavior primitives, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `createListVirtualizer` adapter and requires `@tanstack/virtual-core`.
 
 ## Development
 

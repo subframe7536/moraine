@@ -1,5 +1,4 @@
 import './base-select'
-import './public-entries'
 import './children'
 import './composite-styling'
 import './component-namespaces'
@@ -60,16 +59,11 @@ import type {
   MultiSelectT,
   SelectT,
   SidebarFrameT,
+  SliderT,
   Tags,
   TextareaT,
   ValidComponent,
 } from 'moraine'
-import type {
-  buttonRecipe,
-  sliderRecipe as publicSliderRecipe,
-  RecipeSlots,
-  RecipeVariant,
-} from 'moraine/styles'
 import { defineTheme } from 'moraine/theme'
 import { createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
@@ -887,10 +881,8 @@ const cnConfig = {
 const customCn: Cn = createCn(cnConfig)
 const scopedCn: Cn = useCn()
 const _mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
-type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
-type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
-const buttonRoot: keyof ButtonRecipeSlots = 'root'
-const sliderSize: SliderRecipeVariant['size'] = 'sm'
+const buttonRoot: keyof ButtonT.Slot = 'root'
+const sliderSize: SliderT.Variant['size'] = 'sm'
 const hookSlider = createSlider({ min: 0, max: 100, value: 50 })
 void [buttonRoot, sliderSize, hookSlider.currentValues(), hookSlider.resetValues()]
 

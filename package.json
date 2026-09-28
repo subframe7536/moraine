@@ -58,10 +58,6 @@
     "./theme": {
       "types": "./dist/theme.d.mts",
       "default": "./dist/theme.mjs"
-    },
-    "./styles": {
-      "types": "./dist/styles.d.mts",
-      "default": "./dist/styles.mjs"
     }
   },
   "publishConfig": {
