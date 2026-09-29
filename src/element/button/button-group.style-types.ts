@@ -1,4 +1,5 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 
 import type { ButtonStyleVariant } from './button.style-types'
 
@@ -23,3 +24,8 @@ export interface ButtonGroupStyleVariant {
 
 export type ButtonGroupRecipeVariant = ButtonGroupStyleVariant
 export type ButtonGroupThemeVariant = ButtonGroupStyleVariant
+
+export type ButtonGroupStyleConfig = ComponentStyleConfig<
+  ButtonGroupStyleSlot,
+  ButtonGroupThemeVariant
+>

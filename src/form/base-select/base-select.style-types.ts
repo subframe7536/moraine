@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface BaseSelectStyleSlot<T = unknown> {
   /** Optional non-interactive layout container and floating anchor. */
   control?: T
@@ -35,3 +36,8 @@ export interface BaseSelectStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type BaseSelectStyleConfig = ComponentStyleConfig<
+  BaseSelectStyleSlot,
+  BaseSelectStyleVariant
+>

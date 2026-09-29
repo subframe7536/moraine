@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface ModalStyleSlot<T = unknown> {
   /** Fixed backdrop that contains the modal shell. */
   overlay?: T
@@ -7,3 +9,5 @@ export interface ModalStyleSlot<T = unknown> {
 }
 
 export type ModalStyleVariant = never
+
+export type ModalStyleConfig = ComponentStyleConfig<ModalStyleSlot>

@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface SwitchStyleSlot<T = unknown> {
   /**
    * Switch wrapper that coordinates input, track, thumb, and text content.
@@ -30,3 +31,5 @@ export interface SwitchStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type SwitchStyleConfig = ComponentStyleConfig<SwitchStyleSlot, SwitchStyleVariant>

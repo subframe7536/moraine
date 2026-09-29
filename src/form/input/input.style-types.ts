@@ -1,4 +1,5 @@
 import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface InputStyleSlot<T = unknown> {
   /** Native text input element. */
@@ -22,3 +23,5 @@ export interface InputRecipeVariant extends InputStyleVariant {
   /** Internal axis inherited from InputGroup. */
   groupedOrientation?: Orientation
 }
+
+export type InputStyleConfig = ComponentStyleConfig<InputStyleSlot, InputRecipeVariant>

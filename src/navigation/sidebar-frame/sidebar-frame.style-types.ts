@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface SidebarFrameStyleSlot<T = unknown> {
   /** Frame that contains the sidebar and main regions. */
   root?: T
@@ -22,3 +24,8 @@ export interface SidebarFrameStyleVariant {
   side?: 'left' | 'right'
   variant?: 'default' | 'floating' | 'inset'
 }
+
+export type SidebarFrameStyleConfig = ComponentStyleConfig<
+  SidebarFrameStyleSlot,
+  SidebarFrameStyleVariant
+>

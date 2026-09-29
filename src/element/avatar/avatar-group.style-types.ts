@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface AvatarGroupStyleSlot<T = unknown> {
   /** Container of grouped avatars. */
   root?: T
@@ -28,3 +29,8 @@ export interface AvatarGroupStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type AvatarGroupStyleConfig = ComponentStyleConfig<
+  AvatarGroupStyleSlot,
+  AvatarGroupStyleVariant
+>

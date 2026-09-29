@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface ButtonStyleSlot<T = unknown> {
   /**
    * Interactive button element, or the polymorphic element provided through `as`.
@@ -34,3 +36,5 @@ export interface ButtonStyleVariant {
     | 'icon-lg'
     | 'icon-xl'
 }
+
+export type ButtonStyleConfig = ComponentStyleConfig<ButtonStyleSlot, ButtonStyleVariant>

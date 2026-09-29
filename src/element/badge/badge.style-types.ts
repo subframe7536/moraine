@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface BadgeStyleSlot<T = unknown> {
   /**
    * Inline badge container that carries the variant, size, and interactive state.
@@ -29,3 +30,5 @@ export interface BadgeStyleVariant {
 export interface BadgeRecipeVariant extends BadgeStyleVariant {
   square?: boolean
 }
+
+export type BadgeStyleConfig = ComponentStyleConfig<BadgeStyleSlot, BadgeRecipeVariant>

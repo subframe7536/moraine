@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface DialogStyleSlot<T = unknown> {
   /** Element that opens the dialog. */
   trigger?: T
@@ -40,3 +42,5 @@ export interface DialogStyleVariant {
    */
   scrollable?: boolean
 }
+
+export type DialogStyleConfig = ComponentStyleConfig<DialogStyleSlot, DialogStyleVariant>

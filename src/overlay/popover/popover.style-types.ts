@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface PopoverStyleSlot<T = unknown> {
   /** Element that opens the popover. */
   trigger?: T
@@ -10,3 +12,5 @@ export interface PopoverStyleSlot<T = unknown> {
 }
 
 export type PopoverStyleVariant = never
+
+export type PopoverStyleConfig = ComponentStyleConfig<PopoverStyleSlot>

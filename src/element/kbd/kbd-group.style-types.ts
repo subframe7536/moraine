@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 
 import type { KbdStyleVariant } from './kbd.style-types'
 
@@ -18,3 +19,5 @@ export interface KbdGroupStyleVariant {
   /** Visual style variant applied to rendered shortcut keys. */
   variant?: KbdStyleVariant['variant']
 }
+
+export type KbdGroupStyleConfig = ComponentStyleConfig<KbdGroupStyleSlot, KbdGroupStyleVariant>

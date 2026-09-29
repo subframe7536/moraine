@@ -1,5 +1,6 @@
 import type { ButtonStyleVariant } from '../../element/button/button.style-types'
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface PaginationStyleSlot<T = unknown> {
   /**
@@ -54,3 +55,8 @@ export interface PaginationStyleVariant {
    */
   controlVariant?: ButtonStyleVariant['variant']
 }
+
+export type PaginationStyleConfig = ComponentStyleConfig<
+  PaginationStyleSlot,
+  PaginationStyleVariant
+>

@@ -1,4 +1,5 @@
 import type { ComponentSize, TextControlVariant, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface TextareaStyleSlot<T = unknown> {
   /** Native textarea element. */
@@ -22,3 +23,5 @@ export interface TextareaRecipeVariant extends TextareaStyleVariant {
   /** Internal axis inherited from InputGroup. */
   groupedOrientation?: Orientation
 }
+
+export type TextareaStyleConfig = ComponentStyleConfig<TextareaStyleSlot, TextareaRecipeVariant>

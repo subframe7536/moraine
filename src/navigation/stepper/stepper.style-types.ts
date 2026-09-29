@@ -1,4 +1,5 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface StepperStyleSlot<T = unknown> {
   /**
    * Stepper container that owns orientation, step state, and panel rendering.
@@ -45,3 +46,5 @@ export interface StepperStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type StepperStyleConfig = ComponentStyleConfig<StepperStyleSlot, StepperStyleVariant>

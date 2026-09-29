@@ -1,4 +1,5 @@
 import type { Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 import type { InputStyleVariant } from '../input/input.style-types'
 
 export interface InputGroupStyleSlot<T = unknown> {
@@ -29,3 +30,8 @@ export interface InputGroupRecipeVariant extends InputGroupStyleVariant {
    */
   compact?: boolean
 }
+
+export type InputGroupStyleConfig = ComponentStyleConfig<
+  InputGroupStyleSlot,
+  InputGroupRecipeVariant
+>

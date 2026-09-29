@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface FieldStyleSlot<T = unknown> {
   /** Field wrapper that links label, control, description, and messages. */
   root?: T
@@ -38,3 +39,5 @@ export interface FieldStyleVariant {
    */
   orientation?: 'vertical' | 'horizontal'
 }
+
+export type FieldStyleConfig = ComponentStyleConfig<FieldStyleSlot, FieldStyleVariant>

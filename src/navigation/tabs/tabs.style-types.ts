@@ -1,4 +1,5 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface TabsStyleSlot<T = unknown> {
   /**
    * Tabs container that owns tab selection and panel rendering.
@@ -37,3 +38,5 @@ export interface TabsStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type TabsStyleConfig = ComponentStyleConfig<TabsStyleSlot, TabsStyleVariant>
