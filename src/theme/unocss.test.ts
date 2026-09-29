@@ -284,6 +284,9 @@ describe('presetMoraine', () => {
     expect(css).toContain('--background: rgb(255, 255, 255);')
     expect(css).toContain('--primary: rgb(23, 23, 23);')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
+    expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
+    expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
+    expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
     expect(css).toContain('.dark {')
     expect(css).toContain('--background: rgb(10, 10, 10);')
     expect(css).toContain('--primary: rgb(229, 229, 229);')
@@ -320,6 +323,9 @@ describe('presetMoraine', () => {
     const { css } = await generator.generate(new Set(['bg-primary-hover']), { preflights: true })
 
     expect(css).toContain('--font-sans: Inter;')
+    expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
+    expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
+    expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
     expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n}')
     expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('html {\n  background-color: var(--background);')
@@ -363,9 +369,9 @@ describe('presetMoraine', () => {
     const activeResolver = vi.fn(() => '#135')
     const options: PresetMoraineOptions = {
       fonts: { sans: 'Inter', mono: 'monospace', serif: 'Georgia' },
-      radius: '0.625rem',
-      fontSize: '1rem',
-      spacing: '0.25rem',
+      radius: '0.75rem',
+      fontSize: '1.125rem',
+      spacing: '0.5rem',
       sidebarWidth: '18rem',
       colorStates: { hover: 6 },
       override: {
@@ -407,9 +413,9 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/:root \{[^}]*--shadow-2xs: 0 1px #111;/)
     expect(css).toMatch(/\.dark \{[^}]*--shadow-sm: 0 2px #111;/)
     expect(css).not.toMatch(/\.dark \{[^}]*--shadow-2xs:/)
-    expect(css).toContain('--radius: 0.625rem;')
-    expect(css).toContain('--font-size: 1rem;')
-    expect(css).toContain('--spacing: 0.25rem;')
+    expect(css).toContain('--radius: 0.75rem;')
+    expect(css).toContain('--font-size: 1.125rem;')
+    expect(css).toContain('--spacing: 0.5rem;')
     expect(css).toContain('--sidebar-width: 18rem;')
     expect(css).toContain('--primary-hover: #369;')
     expect(css).toContain('[data-theme="brand"] {')

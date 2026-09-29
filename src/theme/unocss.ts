@@ -55,7 +55,7 @@ export type MoraineThemeColors = {
 
 export interface MorainePresetTheme {
   colors?: MoraineThemeColors
-  fonts?: Partial<Record<keyof typeof MORAINE_FONT, string>>
+  fonts?: Partial<Record<keyof typeof MORAINE_FONT | (string & {}), string>>
   shadows?: Partial<Record<Exclude<keyof typeof MORAINE_SHADOW, 'DEFAULT'> | 'base', string>>
   radius?: string
   fontSize?: string
@@ -191,9 +191,9 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const darkSelector = dark?.selector ?? '.dark'
   const shared: MorainePresetTheme = {
     fonts: options.fonts,
-    radius: options.radius,
-    fontSize: options.fontSize,
-    spacing: options.spacing,
+    radius: options.radius ?? '0.625rem',
+    fontSize: options.fontSize ?? '1rem',
+    spacing: options.spacing ?? '0.25rem',
     sidebarWidth: options.sidebarWidth,
   }
   const builtIn = options.themeDefaults !== false
