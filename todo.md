@@ -30,6 +30,7 @@
   - [ ] move and flatten src/unocss & src/tailwind into src/theme, flatten src/theme/style
   - [ ] move css engine specific logic back to their entry files
   - [ ] styling guide polish
+- [ ] reconsider `renderComponentOrElement` and its usage, cleanup small helpers
 - [ ] docs page polish
   - [ ] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
   - [ ] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
