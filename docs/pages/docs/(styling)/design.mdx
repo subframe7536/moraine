@@ -84,7 +84,7 @@ For each surface color, Moraine supports dedicated `--*-hover` and `--*-active` 
 - `--<color>-hover` uses the generated hover color, then `--<color>`.
 - `--<color>-active` uses the generated active color, then hover and the base color.
 
-The UnoCSS [preset](/docs/unocss#hover-and-active-colors) supplies precomputed RGB states for its neutral defaults in browsers without `color-mix()`. Custom CSS themes use the base color in those browsers unless you define explicit state variables. Tailwind uses the same base-color fallback and does not emit theme color values. `--destructive-foreground` falls back to `--background`, so a shadcn/ui palette without that variable remains usable.
+Without `color-mix(in oklch, …)`, Moraine's state expression falls back to the base color in the utility's scope unless you define an explicit state variable. This keeps nested CSS themes from inheriting a state color computed for an ancestor. Wind4's own color utilities require `color-mix(in srgb, …)`; see the [UnoCSS guide](/docs/unocss#hover-and-active-colors) for older-browser use. Tailwind does not emit theme color values. `--destructive-foreground` falls back to `--background`, so a shadcn/ui palette without that variable remains usable.
 
 ## Border Radius Scale
 

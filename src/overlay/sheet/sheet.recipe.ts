@@ -26,7 +26,7 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
       description: 'text-sm text-muted-foreground col-start-1',
       action: 'col-start-2 row-start-1 row-span-2 self-start justify-self-end',
       contentClose:
-        'absolute top-4 right-4 inline-flex items-center justify-center size-8 rounded-md hover:bg-accent-hover active:bg-accent-active focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)',
+        'absolute top-4 right-4 inline-flex items-center justify-center size-8 rounded-md hover:(bg-accent-hover text-accent-foreground) active:(bg-accent-active text-accent-foreground) focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)',
       body: 'flex-1 overflow-auto data-header:(px-4 pb-4 pt-0)',
       footer: 'mt-auto p-4 flex flex-col gap-2',
     },

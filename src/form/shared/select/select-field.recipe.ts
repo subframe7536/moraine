@@ -27,7 +27,8 @@ export const SELECT_FAMILY_SLOTS = {
   itemLeading: 'shrink-0',
   itemWrapper: 'flex-1 min-w-0 truncate',
   itemLabel: '',
-  itemDescription: 'text-xs text-muted-foreground block',
+  itemDescription:
+    'text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground block',
   itemIndicator: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
 } as const
 

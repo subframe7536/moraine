@@ -182,7 +182,7 @@ function defaultSelector(name: string): string {
   return `[data-theme="${escaped}"]`
 }
 
-type ResolvedTheme = [selector: string, theme: MorainePresetTheme, builtIn: boolean]
+type ResolvedTheme = [selector: string, theme: MorainePresetTheme]
 
 function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const light = options.override?.light
@@ -199,21 +199,20 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const builtIn = options.themeDefaults !== false
   const defaultLight = mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.light } : {}, shared)
   const themes: ResolvedTheme[] = [
-    [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight, builtIn],
+    [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight],
   ]
   if (lightSelector !== ':root') {
-    themes.push([lightSelector, mergeTheme(defaultLight, light), builtIn])
+    themes.push([lightSelector, mergeTheme(defaultLight, light)])
   }
   if (builtIn || dark) {
     themes.push([
       darkSelector,
       mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.dark } : {}, dark),
-      builtIn,
     ])
   }
   for (const [name, theme] of Object.entries(options.override ?? {})) {
     if (name !== 'light' && name !== 'dark' && theme) {
-      themes.push([theme.selector ?? defaultSelector(name), theme, false])
+      themes.push([theme.selector ?? defaultSelector(name), theme])
     }
   }
   return themes
@@ -238,16 +237,6 @@ function stateForegroundReference(color: string): string {
     return colorReference('foreground')
   }
   return `var(${colorVariable(color, 'foreground')}, ${colorReference(color === 'destructive' ? 'background' : 'foreground')})`
-}
-
-function mixRgb(base: string, foreground: string, adjustment: number): string | undefined {
-  const parse = (value: string) => /^rgb\((\d+), (\d+), (\d+)\)$/.exec(value)?.slice(1).map(Number)
-  const baseChannels = parse(base)
-  const foregroundChannels = parse(foreground)
-  if (!baseChannels || !foregroundChannels) {
-    return undefined
-  }
-  return `rgb(${baseChannels.map((channel, index) => Math.round(channel * (1 - adjustment / 100) + (foregroundChannels[index]! * adjustment) / 100)).join(', ')})`
 }
 
 function resolveColorStateValue(options: {
@@ -299,13 +288,19 @@ function createThemeCSS(
     }
   }
 
-  const numericStateCSS: string[] = []
-  const fallbackCSS: string[] = []
+  const supportedCSS = adjustments
+    ? `@supports (color: color-mix(in oklch, red, white)) {\n  *, ::before, ::after {\n${MORAINE_STATE_COLORS.flatMap(
+        (color) =>
+          (['hover', 'active'] as const).map(
+            (state) =>
+              `    --mo-auto-${color}-${state}: color-mix(in oklch, ${colorReference(color)}, ${stateForegroundReference(color)} ${adjustments[state]}%);`,
+          ),
+      ).join('\n')}\n  }\n}`
+    : ''
   const themeCSS = themes
-    .map(([selector, theme, builtIn]) => {
+    .map(([selector, theme]) => {
       const declarations: string[] = []
       const numericDeclarations: string[] = []
-      const fallbackDeclarations: string[] = []
       const emit = (name: string, value: string | undefined) => {
         if (value !== undefined) {
           declarations.push(`  --${name}: ${value};`)
@@ -375,39 +370,6 @@ function createThemeCSS(
           }
         }
       }
-      if (adjustments) {
-        for (const color of MORAINE_STATE_COLORS) {
-          const entry = palette?.[color]
-          const group = typeof entry === 'string' ? { base: entry } : entry
-          const values =
-            group && typeof group === 'object' ? (group as Record<string, unknown>) : {}
-          const base = typeof values.base === 'string' ? values.base : colorReference(color)
-          const background = palette?.background
-          const foreground =
-            color === 'background'
-              ? palette?.foreground
-              : typeof values.foreground === 'string'
-                ? values.foreground
-                : color === 'destructive'
-                  ? typeof background === 'string'
-                    ? background
-                    : background && typeof background === 'object'
-                      ? (background as Record<string, unknown>).base
-                      : undefined
-                  : undefined
-          for (const state of ['hover', 'active'] as const) {
-            const adjustment =
-              typeof values[state] === 'number' ? values[state] : adjustments[state]
-            const fallback =
-              builtIn && typeof base === 'string' && typeof foreground === 'string'
-                ? mixRgb(base, foreground, adjustment)
-                : undefined
-            fallbackDeclarations.push(
-              `  --mo-auto-${color}-${state}: ${fallback ?? colorReference(color)};`,
-            )
-          }
-        }
-      }
       for (const font of Object.keys(MORAINE_FONT) as Array<keyof typeof MORAINE_FONT>) {
         emit(`font-${font}`, theme.fonts?.[font])
       }
@@ -421,38 +383,19 @@ function createThemeCSS(
       emit('font-size', theme.fontSize)
       emit('spacing', theme.spacing)
       emit('sidebar-width', theme.sidebarWidth)
-      if (numericDeclarations.length) {
-        numericStateCSS.push(`${selector} {\n${numericDeclarations.join('\n')}\n}`)
-      }
-      if (fallbackDeclarations.length) {
-        fallbackCSS.push(`${selector} {\n${fallbackDeclarations.join('\n')}\n}`)
-      }
-      return declarations.length ? `${selector} {\n${declarations.join('\n')}\n}` : ''
+      const numericBlock = `${selector} {\n${numericDeclarations.join('\n')}\n}`
+      return [
+        declarations.length ? `${selector} {\n${declarations.join('\n')}\n}` : '',
+        numericDeclarations.length
+          ? `@supports (color: color-mix(in oklch, red, white)) {\n  ${numericBlock.replaceAll('\n', '\n  ')}\n}`
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n\n')
     })
     .filter(Boolean)
     .join('\n\n')
-  const supportedCSS: string[] = []
-  if (adjustments) {
-    const declarations = MORAINE_STATE_COLORS.flatMap((color) =>
-      (['hover', 'active'] as const).map(
-        (state) =>
-          `    --mo-auto-${color}-${state}: color-mix(in oklch, ${colorReference(color)}, ${stateForegroundReference(color)} ${adjustments[state]}%);`,
-      ),
-    )
-    supportedCSS.push(`  *, ::before, ::after {\n${declarations.join('\n')}\n  }`)
-  }
-  supportedCSS.push(...numericStateCSS.map((block) => `  ${block.replaceAll('\n', '\n  ')}`))
-  return [
-    themeCSS,
-    fallbackCSS.length
-      ? `@supports not (color: color-mix(in oklch, red, white)) {\n${fallbackCSS.map((block) => `  ${block.replaceAll('\n', '\n  ')}`).join('\n\n')}\n}`
-      : '',
-    supportedCSS.length
-      ? `@supports (color: color-mix(in oklch, red, white)) {\n${supportedCSS.join('\n\n')}\n}`
-      : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n')
+  return [supportedCSS, themeCSS].filter(Boolean).join('\n\n')
 }
 
 function resolveTranslateValue(value: string, theme: Record<string, any>): string | undefined {

@@ -55,6 +55,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'z-floating',
         'bg-primary',
         'data-highlighted:bg-accent-hover',
+        'data-highlighted:text-accent-foreground',
         'hover:bg-accent-hover',
         'active:bg-accent-active',
         'w-(--mo-popper-anchor-width)',
@@ -96,9 +97,10 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('var(--primary)')
       expect(css).toContain('var(--mo-auto-accent-hover')
       expect(css).toContain('var(--accent-hover')
+      expect(css).toContain('var(--accent-foreground)')
       expect(css).toContain('var(--accent-active')
       expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
-      expect(css).toContain('@supports not (color: color-mix(in oklch, red, white))')
+      expect(css).not.toContain('@supports not (color: color-mix(in oklch, red, white))')
       expect(css).toContain('width:var(--mo-popper-anchor-width)')
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')

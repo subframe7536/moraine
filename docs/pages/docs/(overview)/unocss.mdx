@@ -116,7 +116,7 @@ presetMoraine({
 
 The callback receives its selector, color name, state, configured base or CSS variable reference, foreground value or reference, and current adjustment. Percentages must be finite values from 0 to 100. `colorStates: false` stops automatic generation; explicit states still emit. Generated utilities retain their CSS fallbacks: active → hover → base.
 
-In browsers without `color-mix()`, the built-in neutral themes use precomputed RGB hover and active colors, including numeric state overrides when their colors are plain RGB. Custom themes and colors that cannot be computed ahead of time fall back to their base color unless you provide explicit state colors. Use a widely supported CSS color string when an explicit state must work in older browsers. When you paste a complete shadcn/ui palette into your stylesheet, disable the built-in palette:
+Without `color-mix(in oklch, …)`, Moraine's state expression falls back to the base color in the utility's scope unless you provide an explicit state color. This keeps nested CSS themes from inheriting a stale state color from their parent. Numeric state overrides need `color-mix()`; use a widely supported CSS color string when a distinct state must work in older browsers. Wind4 itself emits `color-mix(in srgb, …)` for color utilities, so browsers without any `color-mix()` support need Wind3. When you paste a complete shadcn/ui palette into your stylesheet, disable the built-in palette:
 
 ```ts
 presetMoraine({ themeDefaults: false })
