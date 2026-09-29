@@ -18,7 +18,7 @@ Before installing, ensure your environment meets the following requirements:
 - **SolidJS**: `>= 1.9.0`
 - **Build Tool**: Vite `>= 6.0` or [SolidStart](https://start.solidjs.com)
 - **TypeScript**: `>= 5.0` (recommended)
-- **Styling**: [UnoCSS](https://unocss.dev) or [Tailwind CSS](https://tailwindcss.com)
+- **Styling**: [UnoCSS](https://unocss.dev) or [Tailwind CSS v4](https://tailwindcss.com)
 
 ## 1. Install the Package
 
@@ -48,14 +48,15 @@ Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-
 
 UnoCSS provides the fastest compilation speeds and native support for Moraine's recipe variant groups.
 
-Install `moraine/unocss` and configure `unocss.config.ts`:
+Import `moraine/unocss` and configure `unocss.config.ts`:
 
 ```ts title="unocss.config.ts"
-import { defineConfig, presetWind4 } from '@subf/unocss'
+import { defineConfig, presetWind4, transformerVariantGroup } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
+  transformers: [transformerVariantGroup()],
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
     pipeline: {
@@ -69,7 +70,7 @@ See the [UnoCSS Setup Guide](/docs/unocss) for advanced configurations, variant 
 
 ### Option B: Tailwind CSS
 
-If you use Tailwind CSS (v4 or v3), install the official plugin from `moraine/tailwind`:
+If you use Tailwind CSS v4, register the plugin from `moraine/tailwind`:
 
 ```css title="src/index.css"
 @import 'tailwindcss';
@@ -77,7 +78,7 @@ If you use Tailwind CSS (v4 or v3), install the official plugin from `moraine/ta
 @source '../node_modules/moraine/dist';
 ```
 
-See the [Tailwind CSS Guide](/docs/tailwind) for Tailwind v4 `@source` configuration, monorepo paths, and Tailwind v3 setup.
+Define your theme variables in CSS. See the [Tailwind CSS Guide](/docs/tailwind) for `@source` configuration and monorepo paths.
 
 ## 3. Verify the Installation
 

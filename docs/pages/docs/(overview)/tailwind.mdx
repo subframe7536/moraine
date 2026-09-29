@@ -7,7 +7,7 @@ search:
   tags: [Tailwind CSS, v4, plugin, '@source', utilities, data variants]
 ---
 
-Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It provides 1:1 parity with the [UnoCSS preset](/docs/unocss), injecting design tokens, semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
+Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It maps Moraine tokens to CSS variables and registers semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
 
 ## Tailwind CSS v4
 
@@ -45,9 +45,7 @@ You can pass options directly in CSS or in a JS wrapper:
 | `globalStyles` | `boolean` | `true`  | Injects default base styles (`html { background-color: var(--background); color: var(--foreground); }`). Set to `false` if your application owns root HTML styling. |
 | `icons`        | `boolean` | `true`  | Emits empty utility stubs for `icon-*` shortcuts so Tailwind's scanner recognizes them when paired with `@iconify/tailwind` or `moraine/icon.css`.                  |
 
-Moraine's component recipes use Tailwind v4 syntax. Tailwind v3 is not a supported consumer target.
-
-Theme variables for Tailwind are declared in CSS. UnoCSS's optional `themes` configuration does not affect this plugin.
+Theme variables for Tailwind are declared in CSS, you can reuse css variables from `shadcn/ui` config
 
 ## Injected utilities and variants
 

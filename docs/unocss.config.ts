@@ -35,15 +35,15 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetMoraine({
-      themes: {
-        ':root': {
-          fonts: {
-            sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-            mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-          },
-          radius: '0.625rem',
-          fontSize: '1rem',
-          spacing: '0.25rem',
+      fonts: {
+        sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+        mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      },
+      radius: '0.625rem',
+      fontSize: '1rem',
+      spacing: '0.25rem',
+      override: {
+        light: {
           shadows: {
             '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.03)',
             xs: '0 1px 2px 0 hsl(0 0% 0% / 0.04)',
@@ -54,61 +54,8 @@ export default defineConfig<PresetWind4Theme>({
             xl: '0 10px 20px -3px hsl(0 0% 0% / 0.07), 0 4px 8px -4px hsl(0 0% 0% / 0.07)',
             '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.12)',
           },
-          colors: {
-            background: {
-              base: 'hsl(0 0% 100%)',
-              hover: 'hsl(220 14% 98%)',
-              active: 'hsl(220 14% 96%)',
-            },
-            foreground: 'hsl(224 71.4% 4.1%)',
-            card: {
-              base: 'hsl(220 14% 99%)',
-              foreground: 'hsl(224 71.4% 4.1%)',
-              hover: 'hsl(220 14% 97%)',
-              active: 'hsl(220 14% 95%)',
-            },
-            popover: {
-              base: 'hsl(0 0% 100%)',
-              foreground: 'hsl(224 71.4% 4.1%)',
-              hover: 'hsl(220 14% 98%)',
-              active: 'hsl(220 14% 96%)',
-            },
-            primary: {
-              base: 'hsl(221.2 83.2% 53.3%)',
-              foreground: 'hsl(210 40% 98%)',
-              hover: 'hsl(221.2 83.2% 48.3%)',
-              active: 'hsl(221.2 83.2% 43.3%)',
-            },
-            secondary: {
-              base: 'hsl(220 14.3% 95.9%)',
-              foreground: 'hsl(220.9 39.3% 11%)',
-              hover: 'hsl(220 14.3% 92%)',
-              active: 'hsl(220 14.3% 88%)',
-            },
-            muted: {
-              base: 'hsl(220 14.3% 95.9%)',
-              foreground: 'hsl(220 8.9% 46.1%)',
-              hover: 'hsl(220 14.3% 92%)',
-              active: 'hsl(220 14.3% 88%)',
-            },
-            accent: {
-              base: 'hsl(220 14.3% 95.9%)',
-              foreground: 'hsl(220.9 39.3% 11%)',
-              hover: 'hsl(220 14.3% 91%)',
-              active: 'hsl(220 14.3% 86%)',
-            },
-            destructive: {
-              base: 'hsl(0 84.2% 60.2%)',
-              foreground: 'hsl(210 40% 98%)',
-              hover: 'hsl(0 84.2% 55.2%)',
-              active: 'hsl(0 84.2% 50.2%)',
-            },
-            border: 'hsl(220 13% 91%)',
-            input: 'hsl(220 13% 91%)',
-            ring: 'hsl(221.2 83.2% 53.3%)',
-          },
         },
-        '.dark': {
+        dark: {
           shadows: {
             '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
             xs: '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
@@ -119,62 +66,8 @@ export default defineConfig<PresetWind4Theme>({
             xl: '0 10px 20px -3px hsl(0 0% 0% / 0.14), 0 4px 8px -4px hsl(0 0% 0% / 0.14)',
             '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.20)',
           },
-          colors: {
-            background: {
-              base: 'hsl(224 71.4% 4.1%)',
-              hover: 'hsl(224 50% 7%)',
-              active: 'hsl(224 50% 10%)',
-            },
-            foreground: 'hsl(210 20% 98%)',
-            card: {
-              base: 'hsl(224 71.4% 4.1%)',
-              foreground: 'hsl(210 20% 98%)',
-              hover: 'hsl(224 50% 7%)',
-              active: 'hsl(224 50% 10%)',
-            },
-            popover: {
-              base: 'hsl(224 71.4% 4.1%)',
-              foreground: 'hsl(210 20% 98%)',
-              hover: 'hsl(224 50% 7%)',
-              active: 'hsl(224 50% 10%)',
-            },
-            primary: {
-              base: 'hsl(217.2 91.2% 59.8%)',
-              foreground: 'hsl(222.2 47.4% 11.2%)',
-              hover: 'hsl(217.2 91.2% 64.8%)',
-              active: 'hsl(217.2 91.2% 69.8%)',
-            },
-            secondary: {
-              base: 'hsl(215 27.9% 16.9%)',
-              foreground: 'hsl(210 20% 98%)',
-              hover: 'hsl(215 27.9% 21.9%)',
-              active: 'hsl(215 27.9% 26.9%)',
-            },
-            muted: {
-              base: 'hsl(215 27.9% 16.9%)',
-              foreground: 'hsl(217.9 10.6% 64.9%)',
-              hover: 'hsl(215 27.9% 21.9%)',
-              active: 'hsl(215 27.9% 26.9%)',
-            },
-            accent: {
-              base: 'hsl(215 27.9% 16.9%)',
-              foreground: 'hsl(210 20% 98%)',
-              hover: 'hsl(215 27.9% 22%)',
-              active: 'hsl(215 27.9% 27%)',
-            },
-            destructive: {
-              base: 'hsl(0 84.2% 60.2%)',
-              foreground: 'hsl(210 20% 98%)',
-              hover: 'hsl(0 84.2% 65.2%)',
-              active: 'hsl(0 84.2% 70.2%)',
-            },
-            border: 'hsl(215 27.9% 18.9%)',
-            input: 'hsl(215 27.9% 24.9%)',
-            ring: 'hsl(217.2 91.2% 59.8%)',
-          },
         },
       },
-      baseStyles: true,
     }),
   ],
   transformers: [transformerVariantGroup()],
@@ -214,55 +107,10 @@ export default defineConfig<PresetWind4Theme>({
   preflights: [
     {
       getCSS: () => `
-:root {
-  --chart-1: hsl(221.2 83.2% 53.3%);
-  --chart-2: hsl(212 95% 68%);
-  --chart-3: hsl(216 92% 60%);
-  --chart-4: hsl(210 98% 78%);
-  --chart-5: hsl(212 97% 87%);
-  --sidebar: hsl(220 14% 99%);
-  --sidebar-foreground: hsl(220.9 39.3% 11%);
-  --sidebar-primary: hsl(221.2 83.2% 53.3%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(220 14.3% 95.9%);
-  --sidebar-accent-foreground: hsl(220.9 39.3% 11%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(221.2 83.2% 53.3%);
-  --shadow-x: 0;
-  --shadow-y: 1px;
-  --shadow-blur: 2px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.04;
-  --shadow-color: oklch(0 0 0);
-  --tracking-normal: -0.012em;
-}
-
-.dark {
-  --chart-1: hsl(224.3 76.3% 48%);
-  --chart-2: hsl(221 83% 53%);
-  --chart-3: hsl(199 89% 48%);
-  --chart-4: hsl(215 25% 27%);
-  --chart-5: hsl(224 71% 45%);
-  --sidebar: hsl(224 71.4% 4.1%);
-  --sidebar-foreground: hsl(210 20% 98%);
-  --sidebar-primary: hsl(217.2 91.2% 59.8%);
-  --sidebar-primary-foreground: hsl(222.2 47.4% 11.2%);
-  --sidebar-accent: hsl(215 27.9% 16.9%);
-  --sidebar-accent-foreground: hsl(210 20% 98%);
-  --sidebar-border: hsl(215 27.9% 16.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-  --shadow-x: 0;
-  --shadow-y: 1px;
-  --shadow-blur: 2px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.08;
-  --shadow-color: oklch(0 0 0);
-}
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 180ms;
 }
-
       `,
     },
   ],

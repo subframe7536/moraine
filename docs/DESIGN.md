@@ -1,8 +1,8 @@
 # Moraine documentation design contract
 
 This document is the visual and interaction contract for the Moraine documentation site. The
-executable tokens live in `docs/unocss.config.ts`; route and component work must use those tokens
-instead of introducing a parallel docs system.
+preset supplies core colors, while `docs/unocss.config.ts` supplies documentation fonts and shadows;
+route and component work must use those tokens instead of introducing a parallel docs system.
 
 ## Information architecture and page writing
 

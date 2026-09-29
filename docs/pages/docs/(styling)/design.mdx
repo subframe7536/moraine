@@ -11,56 +11,56 @@ Moraine decouples component layout and logic from design tokens using semantic C
 
 ## CSS Variables
 
-Define design tokens in your stylesheet under `:root` for light mode and `.dark` for dark mode, or use UnoCSS's typed [`themes` option](/docs/unocss#theme-tokens) to generate Moraine variables. Both the UnoCSS preset and Tailwind CSS plugin map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
+UnoCSS emits neutral light and dark colors by default and accepts named [`override` entries](/docs/unocss#theme-tokens). With Tailwind, define the variables in your stylesheet under `:root` and `.dark`. Both the UnoCSS preset and Tailwind CSS plugin map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
 Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically scale utilities within that subtree:
 
 ```css title="src/theme.css"
 :root {
-  --background: oklch(100% 0 0);
-  --foreground: oklch(20% 0 0);
-  --primary: oklch(55% 0.2 260);
-  --primary-foreground: white;
-  --secondary: oklch(96% 0 0);
-  --secondary-foreground: oklch(20% 0 0);
-  --card: oklch(99% 0 0);
-  --card-foreground: oklch(20% 0 0);
-  --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(20% 0 0);
-  --muted: oklch(96% 0 0);
-  --muted-foreground: oklch(50% 0 0);
-  --accent: oklch(96% 0 0);
-  --accent-foreground: oklch(20% 0 0);
-  --destructive: oklch(62% 0.22 25);
-  --destructive-foreground: white;
-  --border: oklch(90% 0 0);
-  --input: oklch(90% 0 0);
-  --ring: oklch(55% 0.2 260);
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(10, 10, 10);
+  --card: rgb(255, 255, 255);
+  --card-foreground: rgb(10, 10, 10);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(10, 10, 10);
+  --primary: rgb(23, 23, 23);
+  --primary-foreground: rgb(250, 250, 250);
+  --secondary: rgb(245, 245, 245);
+  --secondary-foreground: rgb(23, 23, 23);
+  --muted: rgb(245, 245, 245);
+  --muted-foreground: rgb(115, 115, 115);
+  --accent: rgb(245, 245, 245);
+  --accent-foreground: rgb(23, 23, 23);
+  --destructive: rgb(231, 0, 11);
+  --destructive-foreground: rgb(250, 250, 250);
+  --border: rgb(229, 229, 229);
+  --input: rgb(229, 229, 229);
+  --ring: rgb(161, 161, 161);
   --radius: 0.625rem;
   --spacing: 0.25rem;
   --font-size: 1rem;
 }
 
 .dark {
-  --background: oklch(18% 0 0);
-  --foreground: oklch(96% 0 0);
-  --primary: oklch(70% 0.16 260);
-  --primary-foreground: oklch(18% 0 0);
-  --secondary: oklch(26% 0 0);
-  --secondary-foreground: oklch(96% 0 0);
-  --card: oklch(22% 0 0);
-  --card-foreground: oklch(96% 0 0);
-  --popover: oklch(20% 0 0);
-  --popover-foreground: oklch(96% 0 0);
-  --muted: oklch(26% 0 0);
-  --muted-foreground: oklch(65% 0 0);
-  --accent: oklch(26% 0 0);
-  --accent-foreground: oklch(96% 0 0);
-  --destructive: oklch(65% 0.22 25);
-  --destructive-foreground: oklch(18% 0 0);
-  --border: oklch(32% 0 0);
-  --input: oklch(32% 0 0);
-  --ring: oklch(70% 0.16 260);
+  --background: rgb(10, 10, 10);
+  --foreground: rgb(250, 250, 250);
+  --card: rgb(23, 23, 23);
+  --card-foreground: rgb(250, 250, 250);
+  --popover: rgb(23, 23, 23);
+  --popover-foreground: rgb(250, 250, 250);
+  --primary: rgb(229, 229, 229);
+  --primary-foreground: rgb(23, 23, 23);
+  --secondary: rgb(38, 38, 38);
+  --secondary-foreground: rgb(250, 250, 250);
+  --muted: rgb(38, 38, 38);
+  --muted-foreground: rgb(161, 161, 161);
+  --accent: rgb(38, 38, 38);
+  --accent-foreground: rgb(250, 250, 250);
+  --destructive: rgb(255, 100, 103);
+  --destructive-foreground: rgb(250, 250, 250);
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: rgb(115, 115, 115);
 }
 ```
 
@@ -86,7 +86,7 @@ For each surface color, Moraine supports dedicated `--*-hover` and `--*-active` 
 - If `--<color>-hover` is not defined, it falls back to `--<color>`.
 - If `--<color>-active` is not defined, it falls back to `--<color>-hover`, then `--<color>`.
 
-In UnoCSS, [`presetMoraine({ themes })`](/docs/unocss#hover-and-active-colors) generates missing hover and active colors from configured base colors using CSS `color-mix()`.
+In UnoCSS, [`presetMoraine()`](/docs/unocss#hover-and-active-colors) generates missing hover and active colors from its defaults and named overrides using CSS `color-mix()`.
 
 ## Border Radius Scale
 

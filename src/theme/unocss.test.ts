@@ -273,104 +273,96 @@ describe('presetMoraine', () => {
     expect(css).not.toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
-  test('does not emit color variables without configuration', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine()],
-    })
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('emits the neutral light and dark defaults with %s', async (_name, wind) => {
+    const generator = await createGenerator({ presets: [wind(), presetMoraine()] })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css).not.toContain('--primary:')
-    expect(css).toContain('background-color: var(--background)')
-  })
-
-  test('emits configured color variables and state adjustments', async () => {
-    const activeResolver = vi.fn(() => '#135')
-    const generator = await createGenerator({
-      presets: [
-        presetWind4(),
-        presetMoraine({
-          themes: {
-            ':root': {
-              colors: {
-                background: '#fff',
-                foreground: '#111',
-                primary: { base: '#246', foreground: '#fff', active: activeResolver },
-              },
-            },
-          },
-          colorStates: { hover: 6 },
-        }),
-      ],
-    })
-    const { css } = await generator.generate(new Set(), { preflights: true })
-
-    expect(css).toContain('--background: #fff;')
+    expect(css).toContain(':root {')
+    expect(css).toContain('--background: rgb(255, 255, 255);')
+    expect(css).toContain('--primary: rgb(23, 23, 23);')
+    expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
+    expect(css).toContain('.dark {')
+    expect(css).toContain('--background: rgb(10, 10, 10);')
+    expect(css).toContain('--primary: rgb(229, 229, 229);')
+    expect(css).toContain('--border: rgba(255, 255, 255, 0.1);')
+    expect(css).toContain('--input: rgba(255, 255, 255, 0.15);')
+    expect(css).not.toMatch(/--[\w-]+: oklch\(/)
     expect(css).toContain(
-      '--background-hover: color-mix(in oklch, var(--background), var(--foreground) 6%);',
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
     )
-    expect(css).toContain('--primary-active: #135;')
-    expect(activeResolver).toHaveBeenCalledWith(
-      expect.objectContaining({ color: 'primary', state: 'active', selector: ':root' }),
-    )
-  })
-
-  test('rejects invalid adjustments', () => {
-    expect(() => presetMoraine({ colorStates: { hover: Number.POSITIVE_INFINITY } })).toThrow(
-      'colorStates.hover',
-    )
+    expect(css).toContain('background-color: var(--background)')
+    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
   })
 
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('emits scoped theme tokens and default states with %s', async (_name, wind) => {
+  ])('applies named overrides and top-level tokens with %s', async (_name, wind) => {
+    const activeResolver = vi.fn(() => '#135')
     const options: PresetMoraineOptions = {
-      themes: {
-        ':root': {
+      fonts: { sans: 'Inter', mono: 'monospace', serif: 'Georgia' },
+      radius: '0.625rem',
+      fontSize: '1rem',
+      spacing: '0.25rem',
+      sidebarWidth: '18rem',
+      colorStates: { hover: 6 },
+      override: {
+        light: {
+          shadows: { base: '0 1px 2px #111', '2xs': '0 1px #111' },
           colors: {
-            foreground: '#111',
-            primary: '#246',
+            primary: { base: '#246', active: activeResolver },
             secondary: { foreground: '#fff' },
           },
-          fonts: { sans: 'Inter', mono: 'monospace', serif: 'Georgia' },
-          shadows: { base: '0 1px 2px #111', '2xs': '0 1px #111', sm: '0 2px #111' },
-          radius: '0.625rem',
-          fontSize: '1rem',
-          spacing: '0.25rem',
-          sidebarWidth: '18rem',
         },
-        '[data-theme="brand"]': {
-          colors: { primary: { hover: '#369' } },
+        dark: {
+          colors: { primary: { foreground: '#111', hover: '#369' } },
+          shadows: { sm: '0 2px #111' },
+        },
+        brand: { colors: { primary: '#369' } },
+        custom: {
+          selector: '[data-theme="custom"]',
+          colors: { primary: { foreground: '#fff', hover: 5 } },
         },
       },
     }
     const generator = await createGenerator({ presets: [wind(), presetMoraine(options)] })
     const { css } = await generator.generate(new Set(), { preflights: true })
+
     expect(css).toContain(':root {')
     expect(css).toContain('--primary: #246;')
+    expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(css).toContain(
-      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 6%);',
     )
-    expect(css).toContain(
-      '--primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 12%);',
-    )
+    expect(css).toContain('--primary-active: #135;')
+    expect(css).toContain('--secondary: rgb(245, 245, 245);')
     expect(css).toContain('--secondary-foreground: #fff;')
-    expect(css).not.toContain('--secondary-hover:')
     expect(css).toContain('--font-sans: Inter;')
     expect(css).toContain('--font-mono: monospace;')
     expect(css).toContain('--font-serif: Georgia;')
-    expect(css).toContain('--shadow: 0 1px 2px #111;')
-    expect(css).toContain('--shadow-2xs: 0 1px #111;')
-    expect(css).toContain('--shadow-sm: 0 2px #111;')
+    expect(css).toMatch(/:root \{[^}]*--shadow: 0 1px 2px #111;/)
+    expect(css).toMatch(/:root \{[^}]*--shadow-2xs: 0 1px #111;/)
+    expect(css).toMatch(/\.dark \{[^}]*--shadow-sm: 0 2px #111;/)
+    expect(css).not.toMatch(/\.dark \{[^}]*--shadow-2xs:/)
     expect(css).toContain('--radius: 0.625rem;')
     expect(css).toContain('--font-size: 1rem;')
     expect(css).toContain('--spacing: 0.25rem;')
     expect(css).toContain('--sidebar-width: 18rem;')
-    expect(css).toContain('[data-theme="brand"] {\n  --primary-hover: #369;\n}')
-    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
+    expect(css).toContain('--primary-hover: #369;')
+    expect(css).toContain('[data-theme="brand"] {')
+    expect(css).toContain('[data-theme="custom"] {\n  --primary-foreground: #fff;')
+    expect(css).not.toContain('[data-theme="custom"] {\n  --primary:')
+    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
+    expect(css.indexOf('.dark {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
+    expect(activeResolver).toHaveBeenCalledWith(
+      expect.objectContaining({ selector: ':root', color: 'primary', base: '#246' }),
+    )
   })
 
-  test('supports explicit state forms and disabling automatic generation', async () => {
+  test('uses an explicit selector and keeps explicit states when generation is disabled', async () => {
     const active = vi.fn(() => '#135')
     const generator = await createGenerator({
       presets: [
@@ -378,49 +370,37 @@ describe('presetMoraine', () => {
         presetMoraine({
           colorStates: false,
           baseStyles: false,
-          themes: {
-            ':root': {
-              colors: {
-                foreground: '#111',
-                background: { base: '#fff', active },
-                primary: { base: '#246', hover: 5 },
-                card: '#eee',
-              },
+          override: {
+            dark: {
+              selector: '[data-mode="night"]',
+              colors: { background: { active }, primary: { hover: 5 } },
             },
           },
         }),
       ],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
+
+    expect(css).toContain('[data-mode="night"] {')
+    expect(css).not.toContain('.dark {')
+    expect(css).toContain('--background-active: #135;')
     expect(css).toContain(
       '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 5%);',
     )
-    expect(css).toContain('--background-active: #135;')
-    expect(css).not.toContain('--card-hover:')
     expect(css).not.toContain('--primary-active:')
     expect(css).not.toContain('background-color: var(--background)')
     expect(active).toHaveBeenCalledWith(
-      expect.objectContaining({
-        selector: ':root',
-        state: 'active',
-        base: '#fff',
-        foreground: '#111',
-        adjustment: undefined,
-      }),
+      expect.objectContaining({ selector: '[data-mode="night"]', base: 'rgb(10, 10, 10)' }),
     )
   })
 
-  test('resolves a state override from inherited CSS variables without emitting a base', async () => {
+  test('does not generate extra states for a custom theme without a base', async () => {
     const hover = vi.fn(() => '#369')
     const generator = await createGenerator({
       presets: [
         presetWind4(),
         presetMoraine({
-          themes: {
-            '[data-theme="brand"]': {
-              colors: { primary: { foreground: '#fff', hover } },
-            },
-          },
+          override: { brand: { colors: { primary: { foreground: '#fff', hover } } } },
         }),
       ],
     })
@@ -428,9 +408,15 @@ describe('presetMoraine', () => {
     expect(css).toContain(
       '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-hover: #369;\n}',
     )
-    expect(css).not.toContain('--primary-active:')
+    expect(css).not.toContain('[data-theme="brand"] {\n  --primary:')
     expect(hover).toHaveBeenCalledWith(
-      expect.objectContaining({ base: 'var(--primary)', foreground: '#fff', adjustment: 8 }),
+      expect.objectContaining({ selector: '[data-theme="brand"]', base: 'var(--primary)' }),
+    )
+  })
+
+  test('rejects invalid adjustments', () => {
+    expect(() => presetMoraine({ colorStates: { hover: Number.POSITIVE_INFINITY } })).toThrow(
+      'colorStates.hover',
     )
   })
 })

@@ -62,13 +62,15 @@ export interface MorainePresetTheme {
   sidebarWidth?: string
 }
 
-export interface PresetMoraineOptions {
+export interface PresetMoraineOptions extends Omit<MorainePresetTheme, 'colors' | 'shadows'> {
   /** Emit default HTML background and foreground styles. @default true */
   baseStyles?: boolean
   /** Generate missing semantic hover and active colors. @default { hover: 8, active: 12 } */
   colorStates?: false | Partial<Record<MoraineColorState, number>>
-  /** CSS selector to Moraine token values. */
-  themes?: Record<string, MorainePresetTheme>
+  /** Named theme overrides; selectors default to :root, .dark, or [data-theme="name"]. */
+  override?: Partial<
+    Record<'light' | 'dark' | (string & {}), MorainePresetTheme & { selector?: string }>
+  >
 }
 
 /** Convert a single keyframe frames object to a UnoCSS-style string. */
@@ -113,6 +115,99 @@ const RADIUS_CORNERS: Record<string, string[]> = {
 }
 
 const DEFAULT_COLOR_STATES = { hover: 8, active: 12 } as const
+
+const DEFAULT_THEME_COLORS = {
+  light: {
+    background: { base: 'rgb(255, 255, 255)' },
+    foreground: 'rgb(10, 10, 10)',
+    card: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
+    popover: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
+    primary: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
+    secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
+    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
+    accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
+    destructive: { base: 'rgb(231, 0, 11)', foreground: 'rgb(250, 250, 250)' },
+    border: 'rgb(229, 229, 229)',
+    input: 'rgb(229, 229, 229)',
+    ring: 'rgb(161, 161, 161)',
+  },
+  dark: {
+    background: { base: 'rgb(10, 10, 10)' },
+    foreground: 'rgb(250, 250, 250)',
+    card: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
+    popover: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
+    primary: { base: 'rgb(229, 229, 229)', foreground: 'rgb(23, 23, 23)' },
+    secondary: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
+    muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
+    accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
+    destructive: { base: 'rgb(255, 100, 103)', foreground: 'rgb(250, 250, 250)' },
+    border: 'rgba(255, 255, 255, 0.1)',
+    input: 'rgba(255, 255, 255, 0.15)',
+    ring: 'rgb(115, 115, 115)',
+  },
+} satisfies Record<'light' | 'dark', MoraineThemeColors>
+
+function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): MorainePresetTheme {
+  const colors = { ...base.colors } as Record<string, unknown>
+  for (const [name, value] of Object.entries(override?.colors ?? {})) {
+    const previous = colors[name]
+    colors[name] =
+      previous && typeof previous === 'object' && value && typeof value === 'object'
+        ? { ...previous, ...value }
+        : previous && typeof previous === 'object' && typeof value === 'string'
+          ? { ...previous, base: value }
+          : value
+  }
+  return {
+    ...base,
+    ...override,
+    colors,
+    fonts: { ...base.fonts, ...override?.fonts },
+    shadows: { ...base.shadows, ...override?.shadows },
+  }
+}
+
+function defaultSelector(name: string): string {
+  if (name === 'light') {
+    return ':root'
+  }
+  if (name === 'dark') {
+    return '.dark'
+  }
+  const escaped = name.replace(
+    /[\p{Cc}"\\]/gu,
+    (character) => `\\${character.codePointAt(0)!.toString(16)} `,
+  )
+  return `[data-theme="${escaped}"]`
+}
+
+function resolveThemes(options: PresetMoraineOptions): Array<[string, MorainePresetTheme]> {
+  const light = options.override?.light
+  const dark = options.override?.dark
+  const lightSelector = light?.selector ?? ':root'
+  const darkSelector = dark?.selector ?? '.dark'
+  const shared: MorainePresetTheme = {
+    fonts: options.fonts,
+    radius: options.radius,
+    fontSize: options.fontSize,
+    spacing: options.spacing,
+    sidebarWidth: options.sidebarWidth,
+  }
+  const defaultLight = mergeTheme({ colors: DEFAULT_THEME_COLORS.light }, shared)
+  const themes: Array<[string, MorainePresetTheme]> = [
+    [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight],
+  ]
+  if (lightSelector !== ':root') {
+    themes.push([lightSelector, mergeTheme(defaultLight, light)])
+  }
+  themes.push([darkSelector, mergeTheme({ colors: DEFAULT_THEME_COLORS.dark }, dark)])
+  for (const [name, theme] of Object.entries(options.override ?? {})) {
+    if (name !== 'light' && name !== 'dark' && theme) {
+      themes.push([theme.selector ?? defaultSelector(name), theme])
+    }
+  }
+  return themes
+}
 
 function assertColorAdjustment(value: number, label: string): void {
   if (!Number.isFinite(value) || value < 0 || value > 100) {
@@ -160,7 +255,7 @@ function resolveColorStateValue(options: {
 }
 
 function createThemeCSS(
-  themes: PresetMoraineOptions['themes'],
+  themes: Array<[string, MorainePresetTheme]>,
   colorStates: PresetMoraineOptions['colorStates'],
 ): string {
   const adjustments =
@@ -177,7 +272,7 @@ function createThemeCSS(
     }
   }
 
-  return Object.entries(themes ?? {})
+  return themes
     .map(([selector, theme]) => {
       const declarations: string[] = []
       const emit = (name: string, value: string | undefined) => {
@@ -334,7 +429,7 @@ function resolveRotateValue(value: string): string | undefined {
 }
 
 export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
-  const themeCSS = createThemeCSS(options.themes, options.colorStates)
+  const themeCSS = createThemeCSS(resolveThemes(options), options.colorStates)
   const variants: Preset['variants'] = [
     {
       name: 'moraine-attribute',

@@ -14,12 +14,26 @@ const theme = {
   sidebarWidth: '18rem',
 } satisfies MorainePresetTheme
 
-presetMoraine({ themes: { ':root': theme }, colorStates: false } satisfies PresetMoraineOptions)
+presetMoraine({
+  fonts: { sans: 'Inter' },
+  override: {
+    light: theme,
+    dark: { selector: '.night', colors: { primary: '#eee' } },
+    brand: { colors: { primary: '#369' } },
+  },
+  colorStates: false,
+} satisfies PresetMoraineOptions)
 
 // @ts-expect-error Unknown semantic colors belong in CSS.
-presetMoraine({ themes: { ':root': { colors: { brand: '#369' } } } })
+presetMoraine({ override: { light: { colors: { brand: '#369' } } } })
 // @ts-expect-error Theme variables are grouped by purpose.
-presetMoraine({ themes: { ':root': { '--radius': '1rem' } } })
+presetMoraine({ override: { light: { '--radius': '1rem' } } })
+// @ts-expect-error Colors are configured within named themes.
+presetMoraine({ colors: { primary: '#369' } })
+// @ts-expect-error Shadows are configured within named themes.
+presetMoraine({ shadows: { sm: '0 1px #000' } })
+// @ts-expect-error The selector-based themes option has been removed.
+presetMoraine({ themes: { ':root': theme } })
 // @ts-expect-error The removed colorVariables option is not accepted.
 presetMoraine({ colorVariables: {} })
 // @ts-expect-error The removed globalStyles option is not accepted.

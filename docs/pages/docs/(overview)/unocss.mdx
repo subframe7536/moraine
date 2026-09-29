@@ -57,33 +57,30 @@ Moraine's recipes and templates use UnoCSS's parenthesized variant groups (such 
 
 ## Preset options
 
-`presetMoraine()` provides Moraine's utility tokens and state variants. Its optional `themes` setting emits CSS custom properties grouped by selector. Omit it when your application already defines those properties in CSS.
+`presetMoraine()` provides Moraine's utility tokens, state variants, and the neutral light and dark colors. The default selectors are `:root` and `.dark`. Configure shared fonts and single-value tokens at the top level; put colors and shadows in named `override` entries.
 
 ```ts
 presetMoraine({
-  baseStyles: true,
-  colorStates: { hover: 8, active: 12 },
-  themes: {
-    ':root': {
-      colors: {
-        background: '#fff',
-        foreground: '#18181b',
-        primary: { base: '#2563eb', foreground: '#fff' },
-        secondary: '#f4f4f5',
-      },
-      fonts: { sans: 'Inter, sans-serif', mono: 'monospace' },
+  fonts: { sans: 'Inter, sans-serif', mono: 'monospace' },
+  radius: '0.625rem',
+  fontSize: '1rem',
+  spacing: '0.25rem',
+  sidebarWidth: '18rem',
+  override: {
+    light: {
       shadows: { sm: '0 1px 2px rgb(0 0 0 / 0.05)' },
-      radius: '0.625rem',
-      fontSize: '1rem',
-      spacing: '0.25rem',
-      sidebarWidth: '18rem',
-    },
-    '.dark': {
       colors: {
-        background: '#18181b',
-        foreground: '#fafafa',
+        primary: { base: '#2563eb', foreground: '#fff' },
+      },
+    },
+    dark: {
+      colors: {
         primary: { base: '#60a5fa', foreground: '#172554', hover: '#93c5fd' },
       },
+    },
+    brand: {
+      selector: '[data-theme="brand"]',
+      colors: { primary: '#7c3aed' },
     },
   },
 })
@@ -92,14 +89,14 @@ presetMoraine({
 | Option        | Default                    | Behavior                                                                                      |
 | :------------ | :------------------------- | :-------------------------------------------------------------------------------------------- |
 | `baseStyles`  | `true`                     | Adds HTML background and foreground styles. Set `false` if your app owns them.                |
-| `themes`      | omitted                    | Emits only the configured Moraine token variables for each CSS selector.                      |
+| `override`    | omitted                    | Overrides the built-in neutral light and dark colors or adds named themes.                    |
 | `colorStates` | `{ hover: 8, active: 12 }` | Generates missing hover and active colors for configured base colors. Set `false` to disable. |
 
 ### Theme tokens
 
-Color strings are shorthand for `{ base: value }`. Expand a color to override `foreground`, `hover`, or `active` without repeating `base`. Available color names and fields match Moraine's semantic colors. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports `base`, `2xs`, `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`. Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
+Color strings are shorthand for `{ base: value }`. Expand a color to override `foreground`, `hover`, or `active` without repeating `base`. Available color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports `base`, `2xs`, `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`. Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
 
-Selectors such as `:root`, `.dark`, and `[data-theme="brand"]` are emitted in configuration order. A partial theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
+`light` and `dark` default to `:root` and `.dark`. Another name defaults to `[data-theme="name"]`; set `selector` on any entry to use a complete CSS selector. The preset emits the default light colors first, then dark colors, then custom themes in configuration order. Light and dark overrides merge with their respective defaults. A partial custom theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
 
 ### Hover and active colors
 
@@ -108,8 +105,8 @@ For each color with a configured base, missing states use `color-mix(in oklch, �
 ```ts
 presetMoraine({
   colorStates: { hover: 6 }, // active keeps the default 12%
-  themes: {
-    ':root': {
+  override: {
+    light: {
       colors: {
         primary: {
           base: '#2563eb',
@@ -125,5 +122,3 @@ presetMoraine({
 ```
 
 The callback receives its selector, color name, state, configured base or CSS variable reference, foreground value or reference, and current adjustment. Percentages must be finite values from 0 to 100. `colorStates: false` stops automatic generation; explicit states still emit. Generated utilities retain their CSS fallbacks: active → hover → base.
-
-The former `globalStyles` and `colorVariables` options have been removed. Tailwind users define theme variables in CSS; this preset option applies to UnoCSS only.
