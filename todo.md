@@ -37,6 +37,7 @@
   - [ ] move `docs/pages/docs/utils/create-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
   - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
   - [ ] add docs header composition & polymorphism badge link
+  - [ ] update playground, try to showcase more slots
 
 # V1
 

@@ -12,6 +12,7 @@ import {
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
+  MORAINE_STATE_COLORS,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
@@ -31,7 +32,24 @@ function buildTailwindAnimations(): Record<string, string> {
   )
 }
 export const moraineTailwind = plugin(
-  ({ addUtilities, matchUtilities, matchVariant, theme }) => {
+  ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
+    addBase({
+      '@supports (color: color-mix(in oklch, red, white))': {
+        '*, ::before, ::after': Object.fromEntries(
+          MORAINE_STATE_COLORS.flatMap((color) => {
+            const foreground =
+              color === 'background'
+                ? 'var(--foreground)'
+                : `var(--${color}-foreground, var(--${color === 'destructive' ? 'background' : 'foreground'}))`
+            return (['hover', 'active'] as const).map((state) => [
+              `--mo-auto-${color}-${state}`,
+              `color-mix(in oklch, var(--${color}), ${foreground} ${state === 'hover' ? 8 : 12}%)`,
+            ])
+          }),
+        ),
+      },
+    })
+
     // Icon styles come from the optional moraine/icon.css asset.
     addUtilities(Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}])))
 

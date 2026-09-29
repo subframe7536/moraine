@@ -25,7 +25,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     footer: 'text-sm text-muted-foreground p-3',
     group: 'text-foreground overflow-hidden mt-1 first:mt-0',
     groupLabel: 'text-muted-foreground block px-2 py-1 text-xs leading-4 font-medium',
-    item: 'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted-hover data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
+    item: 'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-accent-hover data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
     itemLeading: 'text-muted-foreground shrink-0 [&_svg]:size-4',
     itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
     itemLabel: 'min-w-0 truncate items-baseline',

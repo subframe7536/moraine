@@ -10,7 +10,6 @@ search:
 ---
 
 import { RadioGroup } from '@src'
-import { createSignal } from 'solid-js'
 
 Use RadioGroup for one choice from a small visible set. For a longer or space-constrained collection, use [Select](/components/select).
 
@@ -67,14 +66,11 @@ export function Example() {
       { label: 'Pro', value: 'pro', description: '$20/month for growing teams' },
       { label: 'Enterprise', value: 'enterprise', description: 'Custom scale and security' },
     ]
-    const [selected, setSelected] = createSignal('pro')
-
     return (
       <div class="max-w-full w-96">
         <RadioGroup
           items={PLAN_OPTIONS}
-          value={selected()}
-          onChange={setSelected}
+          defaultValue="pro"
           variant={props.variant}
           size={props.size}
           disabled={props.disabled}
@@ -105,7 +101,7 @@ RadioGroup [component; slot=root]
 
 ### Single selection
 
-Use one string value for the selected item and pair `value` with `onChange` for controlled state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior rather than the independent focus order of checkboxes.
+Use one string value for the selected item and pair `value` with `onValueChange` for controlled state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior rather than the independent focus order of checkboxes.
 
 <Preview path="./selection" />
 

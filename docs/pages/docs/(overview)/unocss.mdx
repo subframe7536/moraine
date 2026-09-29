@@ -78,11 +78,11 @@ presetMoraine({
 })
 ```
 
-| Option        | Default                    | Behavior                                                                                      |
-| :------------ | :------------------------- | :-------------------------------------------------------------------------------------------- |
-| `baseStyles`  | `true`                     | Adds HTML background and foreground styles. Set `false` if your app owns them.                |
-| `override`    | omitted                    | Overrides the built-in neutral light and dark colors or adds named themes.                    |
-| `colorStates` | `{ hover: 8, active: 12 }` | Generates missing hover and active colors for configured base colors. Set `false` to disable. |
+| Option          | Default                    | Behavior                                                                                                      |
+| :-------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| `themeDefaults` | `true`                     | Emits neutral light/dark colors and HTML background/text styles. Set `false` when your CSS defines the theme. |
+| `override`      | omitted                    | Overrides the built-in neutral light and dark colors or adds named themes.                                    |
+| `colorStates`   | `{ hover: 8, active: 12 }` | Generates missing hover and active colors for configured base colors. Set `false` to disable.                 |
 
 ### Theme tokens
 
@@ -92,7 +92,7 @@ Color strings are shorthand for `{ base: value }`. Expand a color to override `f
 
 ### Hover and active colors
 
-For each color with a configured base, missing states use `color-mix(in oklch, …)` toward its foreground. `background` uses the global foreground; other colors use their own foreground with the global foreground as a fallback. An explicit state can be a CSS color, a mixing percentage, or a callback:
+When `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other colors use their own foreground with the global foreground as a fallback. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
 
 ```ts
 presetMoraine({
@@ -114,3 +114,11 @@ presetMoraine({
 ```
 
 The callback receives its selector, color name, state, configured base or CSS variable reference, foreground value or reference, and current adjustment. Percentages must be finite values from 0 to 100. `colorStates: false` stops automatic generation; explicit states still emit. Generated utilities retain their CSS fallbacks: active → hover → base.
+
+In browsers without `color-mix()`, the built-in neutral themes use precomputed RGB hover and active colors, including numeric state overrides when their colors are plain RGB. Custom themes and colors that cannot be computed ahead of time fall back to their base color unless you provide explicit state colors. Use a widely supported CSS color string when an explicit state must work in older browsers. When you paste a complete shadcn/ui palette into your stylesheet, disable the built-in palette:
+
+```ts
+presetMoraine({ themeDefaults: false })
+```
+
+Define your `:root` and `.dark` variables in CSS as usual. You can add `--primary-hover` and other state variables there when older browsers need a distinct state color. `baseStyles` has been removed; `themeDefaults` is its replacement and also controls the built-in colors.

@@ -19,7 +19,7 @@ export const BUTTON_VARIANTS = {
     root: 'border-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
   },
   ghost: {
-    root: 'border-transparent active:(text-foreground bg-muted-active) hover:(text-foreground bg-muted-hover)',
+    root: 'border-transparent active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
   },
   link: {
     root: 'text-primary border-transparent underline-offset-4 hover:underline',

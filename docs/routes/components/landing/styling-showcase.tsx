@@ -59,8 +59,6 @@ export function StylingShowcase() {
     return {
       '--primary': preset.primary,
       '--primary-foreground': preset.foreground,
-      '--primary-hover': `color-mix(in oklab, ${preset.primary}, black 8%)`,
-      '--primary-active': `color-mix(in oklab, ${preset.primary}, black 15%)`,
       '--ring': preset.primary,
       '--radius': preset.radius,
       '--spacing': preset.spacing,
@@ -69,7 +67,6 @@ export function StylingShowcase() {
   }
   const cssTokens = () =>
     Object.entries(cardTheme())
-      .filter(([name]) => name !== '--primary-hover' && name !== '--primary-active')
       .map(([name, value]) => `${name}: ${value};`)
       .join('\n')
 
@@ -115,15 +112,11 @@ export function StylingShowcase() {
                   class={cn(
                     toolbarButtonClass,
                     presetIndex() === idx()
-                      ? 'text-foreground'
+                      ? 'text-foreground bg-accent'
                       : 'text-muted-foreground border-border/70 hover:bg-muted/50',
                   )}
                   style={{
                     'border-color': presetIndex() === idx() ? p.primary : undefined,
-                    'background-color':
-                      presetIndex() === idx()
-                        ? `color-mix(in oklab, ${p.primary} 10%, transparent)`
-                        : undefined,
                   }}
                 >
                   <span

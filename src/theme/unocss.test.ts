@@ -290,11 +290,70 @@ describe('presetMoraine', () => {
     expect(css).toContain('--border: rgba(255, 255, 255, 0.1);')
     expect(css).toContain('--input: rgba(255, 255, 255, 0.15);')
     expect(css).not.toMatch(/--[\w-]+: oklch\(/)
+    expect(css).toContain('@supports not (color: color-mix(in oklch, red, white))')
+    expect(css).toContain('--mo-auto-primary-hover: rgb(41, 41, 41);')
+    expect(css).toContain('--mo-auto-primary-active: rgb(50, 50, 50);')
+    expect(css).toContain('--mo-auto-destructive-hover: rgb(233, 20, 31);')
+    expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
-      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
+      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
     )
+    expect(css).not.toContain('--primary-hover: color-mix(')
     expect(css).toContain('background-color: var(--background)')
     expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('lets CSS own theme colors with %s', async (_name, wind) => {
+    const generator = await createGenerator({
+      presets: [
+        wind(),
+        presetMoraine({
+          themeDefaults: false,
+          fonts: { sans: 'Inter' },
+          override: { brand: { colors: { primary: '#369' } } },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(['bg-primary-hover']), { preflights: true })
+
+    expect(css).toContain('--font-sans: Inter;')
+    expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n}')
+    expect(css).not.toContain('--background: rgb(')
+    expect(css).not.toContain('html {\n  background-color: var(--background);')
+    expect(css).toContain('--mo-auto-primary-hover: var(--primary);')
+    expect(css).toContain('*, ::before, ::after {')
+    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+  })
+
+  test('uses configured proportions for neutral RGB fallbacks', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine({ colorStates: { hover: 20, active: 40 } })],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+
+    expect(css).toContain('--mo-auto-primary-hover: rgb(68, 68, 68);')
+    expect(css).toContain('--mo-auto-primary-active: rgb(114, 114, 114);')
+    expect(css).toContain(
+      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 20%);',
+    )
+  })
+
+  test('uses a numeric state override for the neutral RGB fallback', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({ override: { light: { colors: { primary: { hover: 5 } } } } }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+
+    expect(css).toContain('--mo-auto-primary-hover: rgb(34, 34, 34);')
+    expect(css).toContain(
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 5%);',
+    )
   })
 
   test.each([
@@ -335,8 +394,9 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary: #246;')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(css).toContain(
-      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 6%);',
+      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 6%);',
     )
+    expect(css).toContain('--mo-auto-primary-hover: var(--primary);')
     expect(css).toContain('--primary-active: #135;')
     expect(css).toContain('--secondary: rgb(245, 245, 245);')
     expect(css).toContain('--secondary-foreground: #fff;')
@@ -369,7 +429,7 @@ describe('presetMoraine', () => {
         presetWind4(),
         presetMoraine({
           colorStates: false,
-          baseStyles: false,
+          themeDefaults: false,
           override: {
             dark: {
               selector: '[data-mode="night"]',
@@ -388,9 +448,11 @@ describe('presetMoraine', () => {
       '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 5%);',
     )
     expect(css).not.toContain('--primary-active:')
+    expect(css).not.toContain('--mo-auto-primary-hover:')
+    expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('background-color: var(--background)')
     expect(active).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: '[data-mode="night"]', base: 'rgb(10, 10, 10)' }),
+      expect.objectContaining({ selector: '[data-mode="night"]', base: 'var(--background)' }),
     )
   })
 

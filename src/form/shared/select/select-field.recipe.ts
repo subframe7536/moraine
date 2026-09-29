@@ -68,7 +68,7 @@ export const TAG_SLOTS = {
   tag: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
   tagLabel: 'min-w-0 truncate',
   tagRemove:
-    'p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-opacity opacity-50 hover:opacity-100 disabled:(pointer-events-none opacity-50)',
+    'text-muted-foreground p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-colors hover:(bg-accent-hover text-accent-foreground) active:bg-accent-active disabled:(pointer-events-none opacity-50)',
 } as const
 
 export const TAG_SIZES = {

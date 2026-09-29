@@ -13,7 +13,7 @@ export const PRIMARY_TRIGGER_CLASS =
   'static outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center text-start disabled:pointer-events-none'
 
 const SELECT_FIELD_ACTION_CLASS =
-  'text-muted-foreground opacity-80 p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer items-center justify-center transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active disabled:pointer-events-none'
+  'text-muted-foreground p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer items-center justify-center transition-colors hover:(bg-accent-hover text-accent-foreground) active:bg-accent-active disabled:pointer-events-none'
 
 export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} static outline-none data-loading:cursor-wait`
 

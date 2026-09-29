@@ -21,6 +21,13 @@ const UTILITIES_CSS = readFileSync(
 )
 const BASE_CSS = `${THEME_CSS}\n${UTILITIES_CSS}`
 
+function withoutAutoStateBase(css: string): string {
+  return css.replace(
+    /\n@layer base \{\n {2}@supports \(color: color-mix\(in oklch, red, white\)\) \{\n {4}\*, ::before, ::after \{[\s\S]*?\n {4}\}\n {2}\}\n\}/,
+    '',
+  )
+}
+
 function moraineLoadModule() {
   return async (id: string) => ({
     path: id,
@@ -53,11 +60,15 @@ async function loadDesignSystem() {
   })
 }
 
-async function compileCSS(candidates: string[]) {
+async function compileCSS(candidates: string[], includeAutoStates = false) {
   const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
     loadModule: moraineLoadModule(),
   })
-  return build(candidates)
+  const css = build(candidates)
+  if (includeAutoStates) {
+    return css
+  }
+  return withoutAutoStateBase(css)
 }
 
 async function loadDesignSystemWithIconify() {
@@ -68,11 +79,12 @@ async function loadDesignSystemWithIconify() {
 }
 
 async function compileCSSWithIconify(candidates: string[]) {
-  const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
-  const { build } = await compile(css, {
+  const inputCSS = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
+  const { build } = await compile(inputCSS, {
     loadModule: combinedLoadModule(),
   })
-  return build(candidates)
+  const css = build(candidates)
+  return withoutAutoStateBase(css)
 }
 
 // ─── Colors ───────────────────────────────────────────────────────────
@@ -186,7 +198,7 @@ describe('colors', () => {
         background-color: var(--destructive);
       }
       .text-destructive-foreground {
-        color: var(--destructive-foreground);
+        color: var(--destructive-foreground, var(--background));
       }
       "
     `)
@@ -204,35 +216,24 @@ describe('colors', () => {
       'bg-destructive-active',
     ])
 
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .bg-accent-hover {
-        background-color: var(--accent-hover, var(--accent));
-      }
-      .bg-background-hover {
-        background-color: var(--background-hover, var(--background));
-      }
-      .bg-card-active {
-        background-color: var(--card-active, var(--card-hover, var(--card)));
-      }
-      .bg-destructive-active {
-        background-color: var(--destructive-active, var(--destructive-hover, var(--destructive)));
-      }
-      .bg-muted-active {
-        background-color: var(--muted-active, var(--muted-hover, var(--muted)));
-      }
-      .bg-popover-hover {
-        background-color: var(--popover-hover, var(--popover));
-      }
-      .bg-primary-active {
-        background-color: var(--primary-active, var(--primary-hover, var(--primary)));
-      }
-      .bg-secondary-hover {
-        background-color: var(--secondary-hover, var(--secondary));
-      }
-      "
-    `)
+    expect(css).toContain('var(--primary-active, var(--mo-auto-primary-active,')
+    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+    expect(css).toContain(
+      'var(--background-hover, var(--mo-auto-background-hover, var(--background)))',
+    )
     expect(css).not.toContain('-focus')
+  })
+
+  test('mixes colors in the local scope only when supported', async () => {
+    const css = await compileCSS(['bg-primary-hover'], true)
+    expect(css).toContain(
+      'background-color: var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))',
+    )
+    expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
+    expect(css).toContain(
+      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%)',
+    )
+    expect(css).not.toMatch(/--primary:\s/)
   })
 
   test('border/ring/input tokens resolve', async () => {

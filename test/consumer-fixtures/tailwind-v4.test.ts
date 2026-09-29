@@ -29,7 +29,7 @@ const CANDIDATES = [
   'font-sans',
   'text-5xl',
   'w-sidebar',
-  'data-highlighted:bg-muted-hover',
+  'data-highlighted:bg-accent-hover',
   'hover:bg-accent-hover',
   'active:bg-accent-active',
   'h-(--s-size)',
@@ -110,9 +110,11 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('font-family: var(--font-sans)')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
     expect(css).toContain('width: var(--sidebar-width,clamp(14rem,25%,20rem))')
-    expect(css).toContain('var(--muted-hover')
+    expect(css).toContain('var(--mo-auto-accent-hover')
     expect(css).toContain('var(--accent-hover')
     expect(css).toContain('var(--accent-active')
+    expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
+    expect(css).toContain('--mo-auto-accent-hover: color-mix(in oklch, var(--accent),')
     expect(css).toContain('height: var(--s-size)')
     expect(css).toContain('var(--st-size)')
     expect(css).toContain('var(--st-sep-x)')

@@ -39,6 +39,7 @@
   position: absolute;
   inset-block: 0;
   inset-inline: -1rem;
+  background-color: var(--muted);
   background-color: color-mix(in srgb, var(--primary) 12%, transparent);
   border-inline-start: 2px solid var(--primary);
   pointer-events: none;

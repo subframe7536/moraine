@@ -16,6 +16,7 @@ const theme = {
 
 presetMoraine({
   fonts: { sans: 'Inter' },
+  themeDefaults: false,
   override: {
     light: theme,
     dark: { selector: '.night', colors: { primary: '#eee' } },
@@ -38,3 +39,5 @@ presetMoraine({ themes: { ':root': theme } })
 presetMoraine({ colorVariables: {} })
 // @ts-expect-error The removed globalStyles option is not accepted.
 presetMoraine({ globalStyles: false })
+// @ts-expect-error The old baseStyles option has been replaced by themeDefaults.
+presetMoraine({ baseStyles: false })

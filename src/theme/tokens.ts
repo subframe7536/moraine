@@ -57,60 +57,79 @@ export const MORAINE_FONT = {
   serif: 'var(--font-serif)',
 } as const
 
+function stateColor(color: string, state: 'hover' | 'active'): string {
+  const base = `var(--${color})`
+  const hover = `var(--${color}-hover, var(--mo-auto-${color}-hover, ${base}))`
+  return state === 'hover'
+    ? hover
+    : `var(--${color}-active, var(--mo-auto-${color}-active, ${hover}))`
+}
+
 /** Design-token color map shared by UnoCSS and Tailwind. */
 export const MORAINE_COLORS = {
   background: {
     DEFAULT: 'var(--background)',
-    hover: 'var(--background-hover, var(--background))',
-    active: 'var(--background-active, var(--background-hover, var(--background)))',
+    hover: stateColor('background', 'hover'),
+    active: stateColor('background', 'active'),
   },
   foreground: 'var(--foreground)',
   primary: {
     DEFAULT: 'var(--primary)',
     foreground: 'var(--primary-foreground)',
-    hover: 'var(--primary-hover, var(--primary))',
-    active: 'var(--primary-active, var(--primary-hover, var(--primary)))',
+    hover: stateColor('primary', 'hover'),
+    active: stateColor('primary', 'active'),
   },
   secondary: {
     DEFAULT: 'var(--secondary)',
     foreground: 'var(--secondary-foreground)',
-    hover: 'var(--secondary-hover, var(--secondary))',
-    active: 'var(--secondary-active, var(--secondary-hover, var(--secondary)))',
+    hover: stateColor('secondary', 'hover'),
+    active: stateColor('secondary', 'active'),
   },
   card: {
     DEFAULT: 'var(--card)',
     foreground: 'var(--card-foreground)',
-    hover: 'var(--card-hover, var(--card))',
-    active: 'var(--card-active, var(--card-hover, var(--card)))',
+    hover: stateColor('card', 'hover'),
+    active: stateColor('card', 'active'),
   },
   popover: {
     DEFAULT: 'var(--popover)',
     foreground: 'var(--popover-foreground)',
-    hover: 'var(--popover-hover, var(--popover))',
-    active: 'var(--popover-active, var(--popover-hover, var(--popover)))',
+    hover: stateColor('popover', 'hover'),
+    active: stateColor('popover', 'active'),
   },
   muted: {
     DEFAULT: 'var(--muted)',
     foreground: 'var(--muted-foreground)',
-    hover: 'var(--muted-hover, var(--muted))',
-    active: 'var(--muted-active, var(--muted-hover, var(--muted)))',
+    hover: stateColor('muted', 'hover'),
+    active: stateColor('muted', 'active'),
   },
   accent: {
     DEFAULT: 'var(--accent)',
     foreground: 'var(--accent-foreground)',
-    hover: 'var(--accent-hover, var(--accent))',
-    active: 'var(--accent-active, var(--accent-hover, var(--accent)))',
+    hover: stateColor('accent', 'hover'),
+    active: stateColor('accent', 'active'),
   },
   destructive: {
     DEFAULT: 'var(--destructive)',
-    foreground: 'var(--destructive-foreground)',
-    hover: 'var(--destructive-hover, var(--destructive))',
-    active: 'var(--destructive-active, var(--destructive-hover, var(--destructive)))',
+    foreground: 'var(--destructive-foreground, var(--background))',
+    hover: stateColor('destructive', 'hover'),
+    active: stateColor('destructive', 'active'),
   },
   border: 'var(--border)',
   input: 'var(--input)',
   ring: 'var(--ring)',
 } as const
+
+export const MORAINE_STATE_COLORS = [
+  'background',
+  'primary',
+  'secondary',
+  'card',
+  'popover',
+  'muted',
+  'accent',
+  'destructive',
+] as const
 
 export const MORAINE_WIDTH = {
   sidebar: 'var(--sidebar-width,clamp(14rem,25%,20rem))',

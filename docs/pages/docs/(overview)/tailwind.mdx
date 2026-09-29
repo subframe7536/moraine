@@ -29,7 +29,7 @@ Tailwind CSS v4 uses `@source` to scan precompiled third-party packages. Note th
    @source '../../../node_modules/moraine/dist';
    ```
 
-Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme.
+Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme. Hover and active utilities prefer explicit variables such as `--primary-hover`; otherwise they mix the current scoped color in browsers that support `color-mix(in oklch, …)`. Older browsers use the base color unless you define a state variable.
 
 ## Injected utilities and variants
 

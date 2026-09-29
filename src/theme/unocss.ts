@@ -12,6 +12,7 @@ import {
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
+  MORAINE_STATE_COLORS,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
@@ -63,8 +64,8 @@ export interface MorainePresetTheme {
 }
 
 export interface PresetMoraineOptions extends Omit<MorainePresetTheme, 'colors' | 'shadows'> {
-  /** Emit default HTML background and foreground styles. @default true */
-  baseStyles?: boolean
+  /** Emit neutral light/dark colors and HTML background/foreground styles. @default true */
+  themeDefaults?: boolean
   /** Generate missing semantic hover and active colors. @default { hover: 8, active: 12 } */
   colorStates?: false | Partial<Record<MoraineColorState, number>>
   /** Named theme overrides; selectors default to :root, .dark, or [data-theme="name"]. */
@@ -126,7 +127,7 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    destructive: { base: 'rgb(231, 0, 11)', foreground: 'rgb(250, 250, 250)' },
+    destructive: { base: 'rgb(231, 0, 11)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     ring: 'rgb(161, 161, 161)',
@@ -140,7 +141,7 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
     muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
     accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
-    destructive: { base: 'rgb(255, 100, 103)', foreground: 'rgb(250, 250, 250)' },
+    destructive: { base: 'rgb(255, 100, 103)' },
     border: 'rgba(255, 255, 255, 0.1)',
     input: 'rgba(255, 255, 255, 0.15)',
     ring: 'rgb(115, 115, 115)',
@@ -181,7 +182,9 @@ function defaultSelector(name: string): string {
   return `[data-theme="${escaped}"]`
 }
 
-function resolveThemes(options: PresetMoraineOptions): Array<[string, MorainePresetTheme]> {
+type ResolvedTheme = [selector: string, theme: MorainePresetTheme, builtIn: boolean]
+
+function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const light = options.override?.light
   const dark = options.override?.dark
   const lightSelector = light?.selector ?? ':root'
@@ -193,17 +196,24 @@ function resolveThemes(options: PresetMoraineOptions): Array<[string, MorainePre
     spacing: options.spacing,
     sidebarWidth: options.sidebarWidth,
   }
-  const defaultLight = mergeTheme({ colors: DEFAULT_THEME_COLORS.light }, shared)
-  const themes: Array<[string, MorainePresetTheme]> = [
-    [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight],
+  const builtIn = options.themeDefaults !== false
+  const defaultLight = mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.light } : {}, shared)
+  const themes: ResolvedTheme[] = [
+    [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight, builtIn],
   ]
   if (lightSelector !== ':root') {
-    themes.push([lightSelector, mergeTheme(defaultLight, light)])
+    themes.push([lightSelector, mergeTheme(defaultLight, light), builtIn])
   }
-  themes.push([darkSelector, mergeTheme({ colors: DEFAULT_THEME_COLORS.dark }, dark)])
+  if (builtIn || dark) {
+    themes.push([
+      darkSelector,
+      mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.dark } : {}, dark),
+      builtIn,
+    ])
+  }
   for (const [name, theme] of Object.entries(options.override ?? {})) {
     if (name !== 'light' && name !== 'dark' && theme) {
-      themes.push([theme.selector ?? defaultSelector(name), theme])
+      themes.push([theme.selector ?? defaultSelector(name), theme, false])
     }
   }
   return themes
@@ -221,6 +231,23 @@ function colorVariable(color: string, key?: string): string {
 
 function colorReference(color: string, key?: string): string {
   return `var(${colorVariable(color, key)})`
+}
+
+function stateForegroundReference(color: string): string {
+  if (color === 'background') {
+    return colorReference('foreground')
+  }
+  return `var(${colorVariable(color, 'foreground')}, ${colorReference(color === 'destructive' ? 'background' : 'foreground')})`
+}
+
+function mixRgb(base: string, foreground: string, adjustment: number): string | undefined {
+  const parse = (value: string) => /^rgb\((\d+), (\d+), (\d+)\)$/.exec(value)?.slice(1).map(Number)
+  const baseChannels = parse(base)
+  const foregroundChannels = parse(foreground)
+  if (!baseChannels || !foregroundChannels) {
+    return undefined
+  }
+  return `rgb(${baseChannels.map((channel, index) => Math.round(channel * (1 - adjustment / 100) + (foregroundChannels[index]! * adjustment) / 100)).join(', ')})`
 }
 
 function resolveColorStateValue(options: {
@@ -255,7 +282,7 @@ function resolveColorStateValue(options: {
 }
 
 function createThemeCSS(
-  themes: Array<[string, MorainePresetTheme]>,
+  themes: ResolvedTheme[],
   colorStates: PresetMoraineOptions['colorStates'],
 ): string {
   const adjustments =
@@ -272,9 +299,13 @@ function createThemeCSS(
     }
   }
 
-  return themes
-    .map(([selector, theme]) => {
+  const numericStateCSS: string[] = []
+  const fallbackCSS: string[] = []
+  const themeCSS = themes
+    .map(([selector, theme, builtIn]) => {
       const declarations: string[] = []
+      const numericDeclarations: string[] = []
+      const fallbackDeclarations: string[] = []
       const emit = (name: string, value: string | undefined) => {
         if (value !== undefined) {
           declarations.push(`  --${name}: ${value};`)
@@ -296,10 +327,7 @@ function createThemeCSS(
         }
         const group = entry as Record<string, unknown>
         const base = typeof group.base === 'string' ? group.base : colorReference(color)
-        const foregroundReference =
-          color === 'background'
-            ? colorReference('foreground')
-            : `var(${colorVariable(color, 'foreground')}, ${colorReference('foreground')})`
+        const foregroundReference = stateForegroundReference(color)
         const foreground =
           color === 'background'
             ? typeof palette?.foreground === 'string'
@@ -307,7 +335,9 @@ function createThemeCSS(
               : foregroundReference
             : typeof group.foreground === 'string'
               ? group.foreground
-              : foregroundReference
+              : color === 'destructive' && typeof palette?.background === 'string'
+                ? palette.background
+                : foregroundReference
         if (typeof group.base === 'string') {
           emit(color, group.base)
         }
@@ -326,22 +356,56 @@ function createThemeCSS(
               `[preset-moraine] ${color}.${state} must be a CSS string, percentage, or resolver function.`,
             )
           }
-          if (value === undefined && typeof group.base !== 'string') {
+          if (value === undefined) {
             continue
           }
-          emit(
-            `${color}-${state}`,
-            resolveColorStateValue({
-              adjustment: adjustments?.[state],
-              base,
-              color: color as MoraineGroupedColorName,
-              foreground,
-              foregroundReference,
-              selector,
-              state,
-              value: value as MoraineColorStateValue | undefined,
-            }),
-          )
+          const resolved = resolveColorStateValue({
+            adjustment: adjustments?.[state],
+            base,
+            color: color as MoraineGroupedColorName,
+            foreground,
+            foregroundReference,
+            selector,
+            state,
+            value: value as MoraineColorStateValue | undefined,
+          })
+          if (resolved !== undefined) {
+            const declaration = `  --${color}-${state}: ${resolved};`
+            ;(typeof value === 'number' ? numericDeclarations : declarations).push(declaration)
+          }
+        }
+      }
+      if (adjustments) {
+        for (const color of MORAINE_STATE_COLORS) {
+          const entry = palette?.[color]
+          const group = typeof entry === 'string' ? { base: entry } : entry
+          const values =
+            group && typeof group === 'object' ? (group as Record<string, unknown>) : {}
+          const base = typeof values.base === 'string' ? values.base : colorReference(color)
+          const background = palette?.background
+          const foreground =
+            color === 'background'
+              ? palette?.foreground
+              : typeof values.foreground === 'string'
+                ? values.foreground
+                : color === 'destructive'
+                  ? typeof background === 'string'
+                    ? background
+                    : background && typeof background === 'object'
+                      ? (background as Record<string, unknown>).base
+                      : undefined
+                  : undefined
+          for (const state of ['hover', 'active'] as const) {
+            const adjustment =
+              typeof values[state] === 'number' ? values[state] : adjustments[state]
+            const fallback =
+              builtIn && typeof base === 'string' && typeof foreground === 'string'
+                ? mixRgb(base, foreground, adjustment)
+                : undefined
+            fallbackDeclarations.push(
+              `  --mo-auto-${color}-${state}: ${fallback ?? colorReference(color)};`,
+            )
+          }
         }
       }
       for (const font of Object.keys(MORAINE_FONT) as Array<keyof typeof MORAINE_FONT>) {
@@ -357,8 +421,36 @@ function createThemeCSS(
       emit('font-size', theme.fontSize)
       emit('spacing', theme.spacing)
       emit('sidebar-width', theme.sidebarWidth)
+      if (numericDeclarations.length) {
+        numericStateCSS.push(`${selector} {\n${numericDeclarations.join('\n')}\n}`)
+      }
+      if (fallbackDeclarations.length) {
+        fallbackCSS.push(`${selector} {\n${fallbackDeclarations.join('\n')}\n}`)
+      }
       return declarations.length ? `${selector} {\n${declarations.join('\n')}\n}` : ''
     })
+    .filter(Boolean)
+    .join('\n\n')
+  const supportedCSS: string[] = []
+  if (adjustments) {
+    const declarations = MORAINE_STATE_COLORS.flatMap((color) =>
+      (['hover', 'active'] as const).map(
+        (state) =>
+          `    --mo-auto-${color}-${state}: color-mix(in oklch, ${colorReference(color)}, ${stateForegroundReference(color)} ${adjustments[state]}%);`,
+      ),
+    )
+    supportedCSS.push(`  *, ::before, ::after {\n${declarations.join('\n')}\n  }`)
+  }
+  supportedCSS.push(...numericStateCSS.map((block) => `  ${block.replaceAll('\n', '\n  ')}`))
+  return [
+    themeCSS,
+    fallbackCSS.length
+      ? `@supports not (color: color-mix(in oklch, red, white)) {\n${fallbackCSS.map((block) => `  ${block.replaceAll('\n', '\n  ')}`).join('\n\n')}\n}`
+      : '',
+    supportedCSS.length
+      ? `@supports (color: color-mix(in oklch, red, white)) {\n${supportedCSS.join('\n\n')}\n}`
+      : '',
+  ]
     .filter(Boolean)
     .join('\n\n')
 }
@@ -554,7 +646,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       },
       {
         getCSS: () =>
-          options.baseStyles !== false
+          options.themeDefaults !== false
             ? `
 html {
   background-color: var(--background);

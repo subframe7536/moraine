@@ -44,17 +44,18 @@ lists and repeating native keyboard behavior where Moraine adds no special rule.
 Use the semantic variables configured in `docs/unocss.config.ts`; no raw documentation color
 palette is allowed.
 
-| Role           | Variables                                                                           | Use                                                                                       |
-| -------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Background     | `--background`, `--foreground`                                                      | Page canvas and default readable text.                                                    |
-| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground`              | Examples, transient surfaces, and grouped content.                                        |
-| Border         | `--border`, `--input`                                                               | Rules, field boundaries, and quiet structural separation.                                 |
-| Muted text     | `--muted-foreground`                                                                | Metadata and secondary explanation; never the sole signal for state.                      |
-| Action         | `--primary` / `--primary-foreground`, with `--primary-hover` and `--primary-active` | Primary links, selected navigation, and deliberate calls to action.                       |
-| Focus          | `--ring` with `--background` offset                                                 | Keyboard focus treatment through `docs-focus-visible`.                                    |
-| Success        | `--primary` / `--primary-foreground`                                                | A confirmed non-destructive completion when no dedicated success token exists.            |
-| Warning        | `--accent` / `--accent-foreground`                                                  | A caution paired with explicit text or an icon; do not imply a dedicated warning palette. |
-| Destructive    | `--destructive` / `--destructive-foreground`, with state variants                   | Failures, destructive actions, and irreversible consequences.                             |
+| Role           | Variables                                                                           | Use                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Background     | `--background`, `--foreground`                                                      | Page canvas and default readable text.                                                 |
+| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground`              | Examples, transient surfaces, and grouped content.                                     |
+| Border         | `--border`, `--input`                                                               | Rules, field boundaries, and quiet structural separation.                              |
+| Muted          | `--muted` / `--muted-foreground`                                                    | Quiet static surfaces, metadata, and secondary explanation.                            |
+| Accent         | `--accent` / `--accent-foreground`, with hover and active states                    | Hover, highlight, and other interactive emphasis.                                      |
+| Action         | `--primary` / `--primary-foreground`, with `--primary-hover` and `--primary-active` | Primary links, selected navigation, and deliberate calls to action.                    |
+| Focus          | `--ring` with `--background` offset                                                 | Keyboard focus treatment through `docs-focus-visible`.                                 |
+| Success        | `--primary` / `--primary-foreground`                                                | A confirmed non-destructive completion when no dedicated success token exists.         |
+| Warning        | `--foreground` on `--background`                                                    | A caution paired with explicit text or an icon; there is no dedicated warning palette. |
+| Destructive    | `--destructive` / `--destructive-foreground`, with state variants                   | Failures, destructive actions, and irreversible consequences.                          |
 
 ## Typography
 

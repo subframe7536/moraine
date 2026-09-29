@@ -10,6 +10,6 @@ export const TEXT_CONTROL_GROUPED = {
 export const TEXT_CONTROL_VARIANT = {
   outline: { root: 'border border-input bg-transparent shadow-xs dark:bg-input/30' },
   subtle: { root: 'border border-input bg-input/30 shadow-xs' },
-  ghost: { root: 'hover:bg-muted-hover focus-within:bg-muted-hover' },
+  ghost: { root: 'hover:bg-accent-hover focus-within:bg-accent-hover' },
   none: { root: 'focus:ring-0' },
 } as const
