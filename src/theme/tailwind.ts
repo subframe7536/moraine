@@ -17,20 +17,6 @@ import {
   MORAINE_Z_INDEX,
 } from './tokens'
 
-export interface MorainePluginOptions {
-  /**
-   * Emit default page background and text colors.
-   * @default true
-   */
-  globalStyles?: boolean
-  /**
-   * Emit `icon-*` utility stubs so Tailwind's scanner recognises them.
-   * Actual icon rendering is handled by `@iconify/tailwind` or `moraine/icon.css`.
-   * @default true
-   */
-  icons?: boolean
-}
-
 /** All animations as Tailwind shorthand strings (`name duration timing count`). */
 function buildTailwindAnimations(): Record<string, string> {
   const durations = getMoraineAnimDurations()
@@ -44,131 +30,108 @@ function buildTailwindAnimations(): Record<string, string> {
     ]),
   )
 }
-/**
- * Generate empty CSS stubs for each `icon-*` shortcut so Tailwind's scanner
- * Actual icon rendering comes from `@iconify/tailwind` or `moraine/icon.css`.
- */
-function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
-  return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
-}
+export const moraineTailwind = plugin(
+  ({ addUtilities, matchUtilities, matchVariant, theme }) => {
+    // Icon styles come from the optional moraine/icon.css asset.
+    addUtilities(Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}])))
 
-type MoraineTailwindPlugin = ((options?: MorainePluginOptions) => ReturnType<typeof plugin>) & {
-  __isOptionsFunction: true
-}
+    matchUtilities(
+      {
+        'enter-opacity': (value) => ({ '--mo-enter-opacity': value }),
+        'exit-opacity': (value) => ({ '--mo-exit-opacity': value }),
+      },
+      { values: theme('opacity') },
+    )
 
-export const moraineTailwind: MoraineTailwindPlugin = plugin.withOptions<MorainePluginOptions>(
-  (options = {}) =>
-    ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
-      if (options.globalStyles !== false) {
-        addBase({
-          html: {
-            backgroundColor: 'var(--background)',
-            color: 'var(--foreground)',
-          },
-        })
-      }
+    matchUtilities(
+      {
+        'enter-scale': (value) => ({ '--mo-enter-scale': value }),
+        'exit-scale': (value) => ({ '--mo-exit-scale': value }),
+      },
+      { values: theme('scale') },
+    )
 
-      if (options.icons !== false) {
-        addUtilities(buildIconShortcutUtilities())
-      }
+    matchUtilities(
+      {
+        'enter-translate-x': (value) => ({ '--mo-enter-translate-x': value }),
+        'exit-translate-x': (value) => ({ '--mo-exit-translate-x': value }),
+        'enter-translate-y': (value) => ({ '--mo-enter-translate-y': value }),
+        'exit-translate-y': (value) => ({ '--mo-exit-translate-y': value }),
+      },
+      {
+        values: { ...theme('spacing'), ...theme('translate') },
+        supportsNegativeValues: true,
+      },
+    )
 
-      matchUtilities(
-        {
-          'enter-opacity': (value) => ({ '--mo-enter-opacity': value }),
-          'exit-opacity': (value) => ({ '--mo-exit-opacity': value }),
-        },
-        { values: theme('opacity') },
-      )
+    matchUtilities(
+      {
+        'enter-rotate': (value) => ({ '--mo-enter-rotate': value }),
+        'exit-rotate': (value) => ({ '--mo-exit-rotate': value }),
+      },
+      {
+        values: theme('rotate'),
+        supportsNegativeValues: true,
+      },
+    )
 
-      matchUtilities(
-        {
-          'enter-scale': (value) => ({ '--mo-enter-scale': value }),
-          'exit-scale': (value) => ({ '--mo-exit-scale': value }),
-        },
-        { values: theme('scale') },
-      )
+    // Attribute variants for data-* and aria-* selectors
+    // Enables utilities like data-active:bg-primary -> [data-active]:bg-primary
+    matchVariant('data', (value) => `&[data-${value}]`, {
+      values: Object.fromEntries(
+        [
+          'active',
+          'checked',
+          'clickable',
+          'closed',
+          'cross',
+          'disabled',
+          'dragging',
+          'duplicate',
+          'editable',
+          'expanded',
+          'focused',
+          'footer',
+          'header',
+          'highlighted',
+          'hidden',
+          'indeterminate',
+          'instant-motion',
+          'invalid',
+          'loading',
+          'multiple',
+          'open',
+          'positioned',
+          'selected',
+          'scroll',
+          'pressed',
+          'submitting',
+          'transitioning',
+          'transition',
+          'unchecked',
+        ].map((v) => [v, v]),
+      ),
+    })
 
-      matchUtilities(
-        {
-          'enter-translate-x': (value) => ({ '--mo-enter-translate-x': value }),
-          'exit-translate-x': (value) => ({ '--mo-exit-translate-x': value }),
-          'enter-translate-y': (value) => ({ '--mo-enter-translate-y': value }),
-          'exit-translate-y': (value) => ({ '--mo-exit-translate-y': value }),
-        },
-        {
-          values: { ...theme('spacing'), ...theme('translate') },
-          supportsNegativeValues: true,
-        },
-      )
-
-      matchUtilities(
-        {
-          'enter-rotate': (value) => ({ '--mo-enter-rotate': value }),
-          'exit-rotate': (value) => ({ '--mo-exit-rotate': value }),
-        },
-        {
-          values: theme('rotate'),
-          supportsNegativeValues: true,
-        },
-      )
-
-      // Attribute variants for data-* and aria-* selectors
-      // Enables utilities like data-active:bg-primary -> [data-active]:bg-primary
-      matchVariant('data', (value) => `&[data-${value}]`, {
-        values: Object.fromEntries(
-          [
-            'active',
-            'checked',
-            'clickable',
-            'closed',
-            'cross',
-            'disabled',
-            'dragging',
-            'duplicate',
-            'editable',
-            'expanded',
-            'focused',
-            'footer',
-            'header',
-            'highlighted',
-            'hidden',
-            'indeterminate',
-            'instant-motion',
-            'invalid',
-            'loading',
-            'multiple',
-            'open',
-            'positioned',
-            'selected',
-            'scroll',
-            'pressed',
-            'submitting',
-            'transitioning',
-            'transition',
-            'unchecked',
-          ].map((v) => [v, v]),
-        ),
-      })
-
-      matchVariant('aria', (value) => `&[aria-${value}]`, {
-        values: Object.fromEntries(
-          [
-            'busy',
-            'checked',
-            'disabled',
-            'expanded',
-            'hidden',
-            'invalid',
-            'modal',
-            'pressed',
-            'readonly',
-            'required',
-            'selected',
-          ].map((v) => [v, v]),
-        ),
-      })
-    },
-  () => ({
+    matchVariant('aria', (value) => `&[aria-${value}]`, {
+      values: Object.fromEntries(
+        [
+          'busy',
+          'checked',
+          'disabled',
+          'expanded',
+          'hidden',
+          'invalid',
+          'modal',
+          'pressed',
+          'readonly',
+          'required',
+          'selected',
+        ].map((v) => [v, v]),
+      ),
+    })
+  },
+  {
     theme: {
       extend: {
         borderRadius: MORAINE_RADIUS,
@@ -194,7 +157,7 @@ export const moraineTailwind: MoraineTailwindPlugin = plugin.withOptions<Moraine
         animationIterationCount: getMoraineAnimCounts(),
       },
     },
-  }),
+  },
 )
 
 export default moraineTailwind

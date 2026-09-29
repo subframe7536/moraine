@@ -9,9 +9,7 @@ import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collap
 import { sliderRecipe } from '../form/slider/slider.recipe'
 
 import { cn } from './cn'
-import { DEFAULT_ICON_SHORTCUTS } from './icons'
 import { moraineTailwind } from './tailwind'
-import type { MorainePluginOptions } from './tailwind'
 
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
@@ -23,11 +21,11 @@ const UTILITIES_CSS = readFileSync(
 )
 const BASE_CSS = `${THEME_CSS}\n${UTILITIES_CSS}`
 
-function moraineLoadModule(options?: MorainePluginOptions) {
+function moraineLoadModule() {
   return async (id: string) => ({
     path: id,
     base: '',
-    module: moraineTailwind(options),
+    module: moraineTailwind,
   })
 }
 
@@ -37,10 +35,10 @@ function moraineLoadModule(options?: MorainePluginOptions) {
  *   plugin 'moraine/tailwind';
  *   plugin '@iconify/tailwind' { collections: lucide; }
  */
-function combinedLoadModule(moraineOptions?: MorainePluginOptions) {
+function combinedLoadModule() {
   return async (id: string) => {
     if (id === 'virtual:moraine') {
-      return { path: id, base: '', module: moraineTailwind(moraineOptions) }
+      return { path: id, base: '', module: moraineTailwind }
     }
     if (id === 'virtual:iconify') {
       return { path: id, base: '', module: addIconSelectors(['lucide']) }
@@ -49,30 +47,30 @@ function combinedLoadModule(moraineOptions?: MorainePluginOptions) {
   }
 }
 
-async function loadDesignSystem(options?: MorainePluginOptions) {
+async function loadDesignSystem() {
   return __unstable__loadDesignSystem(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
+    loadModule: moraineLoadModule(),
   })
 }
 
-async function compileCSS(candidates: string[], options?: MorainePluginOptions) {
+async function compileCSS(candidates: string[]) {
   const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
+    loadModule: moraineLoadModule(),
   })
   return build(candidates)
 }
 
-async function loadDesignSystemWithIconify(moraineOptions?: MorainePluginOptions) {
+async function loadDesignSystemWithIconify() {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   return __unstable__loadDesignSystem(css, {
-    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
+    loadModule: combinedLoadModule(),
   })
 }
 
-async function compileCSSWithIconify(candidates: string[], moraineOptions?: MorainePluginOptions) {
+async function compileCSSWithIconify(candidates: string[]) {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   const { build } = await compile(css, {
-    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
+    loadModule: combinedLoadModule(),
   })
   return build(candidates)
 }
@@ -1098,62 +1096,16 @@ describe('enter and exit animation utilities', () => {
 // ─── Icon Utilities ──────────────────────────────────────────────────
 
 describe('icon utilities', () => {
-  test('icon classes appear in class list when icons enabled', async () => {
-    const ds = await loadDesignSystem({ icons: true })
+  test('registers semantic icon names without generating CSS', async () => {
+    const ds = await loadDesignSystem()
     const classList = ds.getClassList()
     const iconClasses = classList.filter(([name]) => name.startsWith('icon-')).map(([name]) => name)
 
-    expect(iconClasses.length).toBe(DEFAULT_ICON_SHORTCUTS.length)
-
-    for (const [name] of DEFAULT_ICON_SHORTCUTS) {
-      expect(iconClasses).toContain(name)
-    }
-  })
-
-  test('icon classes do not appear when icons disabled', async () => {
-    const ds = await loadDesignSystem({ icons: false })
-    const classList = ds.getClassList()
-    const iconClasses = classList.filter(([name]) => name.startsWith('icon-'))
-    expect(iconClasses).toHaveLength(0)
-  })
-
-  test('icons default to enabled', async () => {
-    const ds = await loadDesignSystem()
-    const classList = ds.getClassList()
-    const iconClasses = classList.filter(([name]) => name.startsWith('icon-'))
-    expect(iconClasses.length).toBe(DEFAULT_ICON_SHORTCUTS.length)
-  })
-
-  test('icon stubs produce no CSS (handled by iconify)', async () => {
-    const ds = await loadDesignSystem({ icons: true })
+    expect(iconClasses).toContain('icon-check')
+    expect(iconClasses).toContain('icon-close')
     const cssResults = ds.candidatesToCss(['icon-arrow-down', 'icon-check', 'icon-close'])
     for (const result of cssResults) {
       expect(result).toBeNull()
-    }
-  })
-
-  test('all expected icon names are registered', async () => {
-    const ds = await loadDesignSystem({ icons: true })
-    const classList = ds.getClassList()
-    const iconNames = classList.filter(([name]) => name.startsWith('icon-')).map(([name]) => name)
-
-    const expected = [
-      'icon-arrow-down',
-      'icon-arrow-up',
-      'icon-arrow-left',
-      'icon-arrow-right',
-      'icon-check',
-      'icon-close',
-      'icon-menu',
-      'icon-plus',
-      'icon-minus',
-      'icon-chevron-down',
-      'icon-chevron-up',
-      'icon-chevron-left',
-      'icon-chevron-right',
-    ]
-    for (const icon of expected) {
-      expect(iconNames).toContain(icon)
     }
   })
 })
@@ -1565,13 +1517,6 @@ describe('with @iconify/tailwind (docs config)', () => {
     `)
   })
 
-  test('moraine icon stubs still registered in class list', async () => {
-    const ds = await loadDesignSystemWithIconify()
-    const classList = ds.getClassList()
-    const moraineIcons = classList.filter(([n]) => n.startsWith('icon-'))
-    expect(moraineIcons.length).toBe(DEFAULT_ICON_SHORTCUTS.length)
-  })
-
   test('lucide icon classes registered from iconify', async () => {
     const ds = await loadDesignSystemWithIconify()
     const classList = ds.getClassList()
@@ -1607,26 +1552,6 @@ describe('with @iconify/tailwind (docs config)', () => {
     expect(results[3]).toBeNull()
   })
 
-  test('moraine icons disabled still allows iconify icons', async () => {
-    const ds = await loadDesignSystemWithIconify({ icons: false })
-    const classList = ds.getClassList()
-
-    // moraine stubs gone
-    expect(classList.filter(([n]) => n.startsWith('icon-'))).toHaveLength(0)
-
-    // iconify still works
-    const lucideClasses = classList.filter(([n]) => n.startsWith('lucide--'))
-    expect(lucideClasses.length).toBeGreaterThan(1000)
-
-    const results = ds.candidatesToCss(['lucide--arrow-down'])
-    expect(results[0]).toMatchInlineSnapshot(`
-      ".lucide--arrow-down {
-        --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
-      }
-      "
-    `)
-  })
-
   test('iconify icons work with variants', async () => {
     const css = await compileCSSWithIconify(['hover:lucide--arrow-down'])
     expect(css).toMatchInlineSnapshot(`
@@ -1638,22 +1563,5 @@ describe('with @iconify/tailwind (docs config)', () => {
       }
       "
     `)
-  })
-})
-
-describe('global styles', () => {
-  test('emits default page colors in the base layer without utility candidates', async () => {
-    const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-      loadModule: moraineLoadModule(),
-    })
-    const css = build([])
-    expect(css).toMatch(
-      /@layer base\s*\{\s*html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);/,
-    )
-  })
-
-  test('allows disabling the default page colors', async () => {
-    const css = await compileCSS([], { globalStyles: false })
-    expect(css).not.toMatch(/html\s*\{/)
   })
 })

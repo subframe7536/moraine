@@ -24,6 +24,11 @@ const CANDIDATES = [
   'animate-mo-exit',
   'z-floating',
   'bg-primary',
+  'rounded-md',
+  'shadow-md',
+  'font-sans',
+  'text-5xl',
+  'w-sidebar',
   'data-highlighted:bg-muted-hover',
   'hover:bg-accent-hover',
   'active:bg-accent-active',
@@ -45,19 +50,14 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     removeIsolatedConsumer(consumer)
   })
 
-  async function compileConsumerCSS(
-    includeIcons = false,
-    pluginOptions = '',
-  ): Promise<{
+  async function compileConsumerCSS(includeIcons = false): Promise<{
     css: string
     sources: Array<{ base: string; pattern: string; negated: boolean }>
   }> {
     const input = [
       `@import "tailwindcss";`,
       includeIcons ? `@import "moraine/icon.css";` : '',
-      pluginOptions
-        ? `@plugin "moraine/tailwind" { ${pluginOptions} }`
-        : `@plugin "moraine/tailwind";`,
+      `@plugin "moraine/tailwind";`,
       `@source "node_modules/moraine/dist";`,
     ]
       .filter(Boolean)
@@ -105,6 +105,11 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('z-index: 50')
     expect(css).toContain('opacity: 64%')
     expect(css).toContain('var(--primary)')
+    expect(css).toContain('border-radius: calc(var(--radius) * 0.8)')
+    expect(css).toContain('var(--shadow-md)')
+    expect(css).toContain('font-family: var(--font-sans)')
+    expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
+    expect(css).toContain('width: var(--sidebar-width,clamp(14rem,25%,20rem))')
     expect(css).toContain('var(--muted-hover')
     expect(css).toContain('var(--accent-hover')
     expect(css).toContain('var(--accent-active')
@@ -114,9 +119,8 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('width: var(--s-thumb-size)')
     expect(css).toContain('height: var(--s-thumb-size)')
     expect(css).toContain('left: var(--s-marker-position)')
-    expect(css).toMatch(
-      /html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);\s*\}/,
-    )
+    expect(css).not.toMatch(/html\s*\{\s*background-color: var\(--background\)/)
+    expect(css).not.toMatch(/--primary:\s/)
     expect(css).not.toContain('.icon-check')
   })
 
@@ -129,11 +133,5 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(iconAsset).toContain('.icon-check')
     expect(withIcons.css).toContain('.icon-check')
     expect(withIcons.css).toContain('.animate-mo-enter')
-  })
-
-  test('applies options passed through the published CSS plugin entry', async () => {
-    const { css } = await compileConsumerCSS(false, 'globalStyles: false; icons: false;')
-    expect(css).not.toMatch(/html\s*\{\s*background-color: var\(--background\)/)
-    expect(css).toContain('.animate-mo-enter')
   })
 })

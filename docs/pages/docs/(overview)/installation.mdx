@@ -46,21 +46,19 @@ Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-
 
 ### Option A: UnoCSS (Recommended)
 
-UnoCSS provides the fastest compilation speeds and native support for Moraine's recipe variant groups.
+UnoCSS compiles Moraine's published utility classes and resolves its semantic tokens through the preset.
 
 Import `moraine/unocss` and configure `unocss.config.ts`:
 
 ```ts title="unocss.config.ts"
-import { defineConfig, presetWind4, transformerVariantGroup } from '@subf/unocss'
+import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
-  transformers: [transformerVariantGroup()],
   content: {
-    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
     pipeline: {
-      include: [/\.(?:ts|tsx|mdx)(?:\?|$)/],
+      include: [/\.(?:mjs|js|ts|jsx|tsx|mdx?|html)(?:\?|$)/],
     },
   },
 })
@@ -106,7 +104,7 @@ If the button renders with a solid primary background, rounded corners, and prop
 
 If the button renders as a plain unstyled HTML button:
 
-- **UnoCSS**: Ensure your `content.filesystem` includes `./node_modules/moraine/dist/**/*.{mjs,jsx}` so UnoCSS can extract classes from precompiled library components.
+- **UnoCSS**: Include `.mjs` and `.jsx` in `content.pipeline.include` so UnoCSS scans imported Moraine modules.
 - **Tailwind v4**: Verify that `@source` points correctly to the `moraine/dist` directory relative to your CSS file.
 
 ### JSX TypeScript Errors

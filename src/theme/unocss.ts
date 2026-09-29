@@ -5,8 +5,8 @@ import {
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   MORAINE_KEYFRAMES,
-} from './animations'
-import { DEFAULT_ICON_SHORTCUTS } from './icons'
+} from './animations.ts'
+import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -15,7 +15,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from './tokens'
+} from './tokens.ts'
 
 type MoraineColorMap = typeof MORAINE_COLORS
 
