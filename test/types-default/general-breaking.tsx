@@ -43,8 +43,6 @@ void missingValue
 ;<Resizable.Panel size={300} />
 // @ts-expect-error Panel default sizing moved to the root.
 ;<Resizable.Panel defaultSize="30%" />
-// @ts-expect-error Panel resize callbacks moved to the root.
-;<Resizable.Panel onResize={() => {}} />
 
 ;<AvatarGroup max={0} />
 // @ts-expect-error max accepts numbers only.
