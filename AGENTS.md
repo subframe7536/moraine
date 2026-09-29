@@ -94,18 +94,19 @@ src/
 │   └── tooltip/            # Tooltip.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
-├── tailwind/               # Tailwind integration.
 ├── test-utils/             # SSR, owner, overlay, and global test utilities.
 ├── theme/                  # Theme configuration, contracts, and creation primitives.
-│   └── style/              # Class merging, recipe definitions, tokens, and shared style utilities.
-└── unocss/                 # UnoCSS integration and preset helpers.
+│   ├── recipe.ts           # Component recipes and variant resolution.
+│   ├── tokens.ts           # Shared design tokens.
+│   ├── unocss.ts           # UnoCSS preset and theme variable generation.
+│   └── tailwind.ts         # Tailwind plugin.
 ```
 
 Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.class.ts` file. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is used by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.
 
 ## Style Implementation Details
 
-- Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/style/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
+- Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
 - Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
 - Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts`. Use the returned stable `styles.<slot>.class` and `styles.<slot>.style` bindings directly; do not add memos solely for class or style resolution.
 - Put truly reusable static class values in a `*.class.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.

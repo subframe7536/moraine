@@ -136,38 +136,3 @@ export function getMoraineAnimCounts(): Record<string, string> {
     ]),
   )
 }
-
-/** Convert a single keyframe frames object to a UnoCSS-style string. */
-function keyframeFramesToString(frames: KeyframeFrames): string {
-  const parts = Object.entries(frames).map(([stop, props]) => {
-    const css = Object.entries(props)
-      .map(([p, v]) => `${p}: ${v}`)
-      .join('; ')
-    return `${stop} { ${css} }`
-  })
-  return `{ ${parts.join(' ')} }`
-}
-
-/** All keyframes as UnoCSS-format strings (`{ stop { prop: val } }`). */
-export function toUnocssKeyframes(): Record<string, string> {
-  return Object.fromEntries(
-    Object.entries(MORAINE_KEYFRAMES).map(([name, frames]) => [
-      name,
-      keyframeFramesToString(frames),
-    ]),
-  )
-}
-
-/** All animations as Tailwind shorthand strings (`name duration timing count`). */
-export function buildTailwindAnimations(): Record<string, string> {
-  const durations = getMoraineAnimDurations()
-  const timingFns = getMoraineAnimTimingFns()
-  const counts = getMoraineAnimCounts()
-
-  return Object.fromEntries(
-    Object.keys(MORAINE_KEYFRAMES).map((name) => [
-      name,
-      `${name} ${durations[name]} ${timingFns[name]} ${counts[name]}`,
-    ]),
-  )
-}

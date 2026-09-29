@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
 export interface FieldStyleSlot<T = unknown> {
   /** Field wrapper that links label, control, description, and messages. */
   root?: T

@@ -26,7 +26,7 @@ interface TypeBinding {
 function isStyleTypeModule(filePath: string): boolean {
   return (
     filePath.replaceAll('\\', '/').endsWith('.style-types.ts') ||
-    filePath.replaceAll('\\', '/').endsWith('/theme/style/style-types.ts')
+    filePath.replaceAll('\\', '/').endsWith('/theme/style-types.ts')
   )
 }
 

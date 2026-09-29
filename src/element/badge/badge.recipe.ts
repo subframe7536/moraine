@@ -1,4 +1,4 @@
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
 
 import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types'
 

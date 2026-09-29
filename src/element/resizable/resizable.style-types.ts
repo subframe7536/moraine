@@ -1,4 +1,4 @@
-import type { Orientation } from '../../theme/style/style-types'
+import type { Orientation } from '../../theme/style-types'
 export interface ResizableStyleSlot<T = unknown> {
   /** Layout container that owns resizable panels and handles. */
   root?: T

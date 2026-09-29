@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation } from '../../theme/style-types'
 export interface SliderStyleSlot<T = unknown> {
   /**
    * Slider container that owns track, range, thumbs, and labels.

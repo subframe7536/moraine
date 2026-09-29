@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
 
 import type { KbdStyleVariant } from './kbd.style-types'
 

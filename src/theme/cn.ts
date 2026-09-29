@@ -1,16 +1,6 @@
+import type { ClassValue } from 'cn'
 import type { ConfigExtension } from 'cn/config'
 import { createCn as upstreamCreateCn, defaultConfig, mergeConfigs, validators } from 'cn/config'
-
-/** Conditional class inputs shared by recipes and standalone mergers. */
-export type ClassValue =
-  | string
-  | number
-  | bigint
-  | boolean
-  | undefined
-  | null
-  | ClassValue[]
-  | Record<string, unknown>
 
 /** An independent class merger; empty input produces undefined for DOM bindings. */
 export type Cn = (...classes: ClassValue[]) => string | undefined

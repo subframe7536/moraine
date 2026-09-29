@@ -7,11 +7,11 @@ import { describe, expect, test } from 'vitest'
 
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
 import { sliderRecipe } from '../form/slider/slider.recipe'
-import { cn } from '../theme/style/cn'
-import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 
-import { moraineTailwind } from './'
-import type { MorainePluginOptions } from './'
+import { cn } from './cn'
+import { DEFAULT_ICON_SHORTCUTS } from './icons'
+import { moraineTailwind } from './tailwind'
+import type { MorainePluginOptions } from './tailwind'
 
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),

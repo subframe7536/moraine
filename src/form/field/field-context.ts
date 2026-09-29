@@ -2,7 +2,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
 
 export type FieldPath = readonly (string | number)[]
 export type FieldName = string | FieldPath

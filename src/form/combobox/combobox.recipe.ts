@@ -1,6 +1,6 @@
 import { createDataAttributes } from '../../shared/style-contract'
 import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
 import {
   FIELD_INPUT_CLASS,

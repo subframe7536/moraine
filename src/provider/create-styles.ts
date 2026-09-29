@@ -7,8 +7,8 @@ import type {
   RecipeSlots,
   RecipeVariant,
   RecipeVariantSelection,
-} from '../theme/style/recipe'
-import { getRecipeDefaultVariants, resolveRecipe } from '../theme/style/recipe'
+} from '../theme/recipe'
+import { getRecipeDefaultVariants, resolveRecipe } from '../theme/recipe'
 
 import { useCn } from './cn-context'
 import { useThemeResolver } from './theme-context'

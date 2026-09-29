@@ -10,7 +10,7 @@ import {
 } from 'solid-js'
 
 import { createControllableValue } from '../../../shared/controllable-value'
-import type { Orientation } from '../../../theme/style/style-types'
+import type { Orientation } from '../../../theme/style-types'
 import type { SliderT } from '../slider.types'
 import {
   clamp,

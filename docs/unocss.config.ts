@@ -2,7 +2,7 @@ import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import type { PresetWind4Theme } from '@subf/unocss'
 import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from '@subf/unocss'
 
-import { presetMoraine } from '../src/unocss/theme.ts'
+import { presetMoraine } from '../src/theme/unocss.ts'
 
 const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
@@ -35,123 +35,150 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetMoraine({
-      colorVariables: {
-        light: {
-          background: {
-            DEFAULT: 'hsl(0 0% 100%)',
-            hover: 'hsl(220 14% 98%)',
-            active: 'hsl(220 14% 96%)',
+      themes: {
+        ':root': {
+          fonts: {
+            sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+            mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
           },
-          foreground: 'hsl(224 71.4% 4.1%)',
-          card: {
-            DEFAULT: 'hsl(220 14% 99%)',
+          radius: '0.625rem',
+          fontSize: '1rem',
+          spacing: '0.25rem',
+          shadows: {
+            '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.03)',
+            xs: '0 1px 2px 0 hsl(0 0% 0% / 0.04)',
+            sm: '0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05)',
+            base: '0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05)',
+            md: '0 3px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05)',
+            lg: '0 6px 12px -2px hsl(0 0% 0% / 0.06), 0 3px 6px -3px hsl(0 0% 0% / 0.06)',
+            xl: '0 10px 20px -3px hsl(0 0% 0% / 0.07), 0 4px 8px -4px hsl(0 0% 0% / 0.07)',
+            '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.12)',
+          },
+          colors: {
+            background: {
+              base: 'hsl(0 0% 100%)',
+              hover: 'hsl(220 14% 98%)',
+              active: 'hsl(220 14% 96%)',
+            },
             foreground: 'hsl(224 71.4% 4.1%)',
-            hover: 'hsl(220 14% 97%)',
-            active: 'hsl(220 14% 95%)',
+            card: {
+              base: 'hsl(220 14% 99%)',
+              foreground: 'hsl(224 71.4% 4.1%)',
+              hover: 'hsl(220 14% 97%)',
+              active: 'hsl(220 14% 95%)',
+            },
+            popover: {
+              base: 'hsl(0 0% 100%)',
+              foreground: 'hsl(224 71.4% 4.1%)',
+              hover: 'hsl(220 14% 98%)',
+              active: 'hsl(220 14% 96%)',
+            },
+            primary: {
+              base: 'hsl(221.2 83.2% 53.3%)',
+              foreground: 'hsl(210 40% 98%)',
+              hover: 'hsl(221.2 83.2% 48.3%)',
+              active: 'hsl(221.2 83.2% 43.3%)',
+            },
+            secondary: {
+              base: 'hsl(220 14.3% 95.9%)',
+              foreground: 'hsl(220.9 39.3% 11%)',
+              hover: 'hsl(220 14.3% 92%)',
+              active: 'hsl(220 14.3% 88%)',
+            },
+            muted: {
+              base: 'hsl(220 14.3% 95.9%)',
+              foreground: 'hsl(220 8.9% 46.1%)',
+              hover: 'hsl(220 14.3% 92%)',
+              active: 'hsl(220 14.3% 88%)',
+            },
+            accent: {
+              base: 'hsl(220 14.3% 95.9%)',
+              foreground: 'hsl(220.9 39.3% 11%)',
+              hover: 'hsl(220 14.3% 91%)',
+              active: 'hsl(220 14.3% 86%)',
+            },
+            destructive: {
+              base: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 40% 98%)',
+              hover: 'hsl(0 84.2% 55.2%)',
+              active: 'hsl(0 84.2% 50.2%)',
+            },
+            border: 'hsl(220 13% 91%)',
+            input: 'hsl(220 13% 91%)',
+            ring: 'hsl(221.2 83.2% 53.3%)',
           },
-          popover: {
-            DEFAULT: 'hsl(0 0% 100%)',
-            foreground: 'hsl(224 71.4% 4.1%)',
-            hover: 'hsl(220 14% 98%)',
-            active: 'hsl(220 14% 96%)',
-          },
-          primary: {
-            DEFAULT: 'hsl(221.2 83.2% 53.3%)',
-            foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(221.2 83.2% 48.3%)',
-            active: 'hsl(221.2 83.2% 43.3%)',
-          },
-          secondary: {
-            DEFAULT: 'hsl(220 14.3% 95.9%)',
-            foreground: 'hsl(220.9 39.3% 11%)',
-            hover: 'hsl(220 14.3% 92%)',
-            active: 'hsl(220 14.3% 88%)',
-          },
-          muted: {
-            DEFAULT: 'hsl(220 14.3% 95.9%)',
-            foreground: 'hsl(220 8.9% 46.1%)',
-            hover: 'hsl(220 14.3% 92%)',
-            active: 'hsl(220 14.3% 88%)',
-          },
-          accent: {
-            DEFAULT: 'hsl(220 14.3% 95.9%)',
-            foreground: 'hsl(220.9 39.3% 11%)',
-            hover: 'hsl(220 14.3% 91%)',
-            active: 'hsl(220 14.3% 86%)',
-          },
-          destructive: {
-            DEFAULT: 'hsl(0 84.2% 60.2%)',
-            foreground: 'hsl(210 40% 98%)',
-            hover: 'hsl(0 84.2% 55.2%)',
-            active: 'hsl(0 84.2% 50.2%)',
-          },
-          border: 'hsl(220 13% 91%)',
-          input: 'hsl(220 13% 91%)',
-          ring: 'hsl(221.2 83.2% 53.3%)',
         },
-        dark: {
-          background: {
-            DEFAULT: 'hsl(224 71.4% 4.1%)',
-            hover: 'hsl(224 50% 7%)',
-            active: 'hsl(224 50% 10%)',
+        '.dark': {
+          shadows: {
+            '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
+            xs: '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
+            sm: '0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
+            base: '0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
+            md: '0 3px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10)',
+            lg: '0 6px 12px -2px hsl(0 0% 0% / 0.12), 0 3px 6px -3px hsl(0 0% 0% / 0.12)',
+            xl: '0 10px 20px -3px hsl(0 0% 0% / 0.14), 0 4px 8px -4px hsl(0 0% 0% / 0.14)',
+            '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.20)',
           },
-          foreground: 'hsl(210 20% 98%)',
-          card: {
-            DEFAULT: 'hsl(224 71.4% 4.1%)',
+          colors: {
+            background: {
+              base: 'hsl(224 71.4% 4.1%)',
+              hover: 'hsl(224 50% 7%)',
+              active: 'hsl(224 50% 10%)',
+            },
             foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(224 50% 7%)',
-            active: 'hsl(224 50% 10%)',
+            card: {
+              base: 'hsl(224 71.4% 4.1%)',
+              foreground: 'hsl(210 20% 98%)',
+              hover: 'hsl(224 50% 7%)',
+              active: 'hsl(224 50% 10%)',
+            },
+            popover: {
+              base: 'hsl(224 71.4% 4.1%)',
+              foreground: 'hsl(210 20% 98%)',
+              hover: 'hsl(224 50% 7%)',
+              active: 'hsl(224 50% 10%)',
+            },
+            primary: {
+              base: 'hsl(217.2 91.2% 59.8%)',
+              foreground: 'hsl(222.2 47.4% 11.2%)',
+              hover: 'hsl(217.2 91.2% 64.8%)',
+              active: 'hsl(217.2 91.2% 69.8%)',
+            },
+            secondary: {
+              base: 'hsl(215 27.9% 16.9%)',
+              foreground: 'hsl(210 20% 98%)',
+              hover: 'hsl(215 27.9% 21.9%)',
+              active: 'hsl(215 27.9% 26.9%)',
+            },
+            muted: {
+              base: 'hsl(215 27.9% 16.9%)',
+              foreground: 'hsl(217.9 10.6% 64.9%)',
+              hover: 'hsl(215 27.9% 21.9%)',
+              active: 'hsl(215 27.9% 26.9%)',
+            },
+            accent: {
+              base: 'hsl(215 27.9% 16.9%)',
+              foreground: 'hsl(210 20% 98%)',
+              hover: 'hsl(215 27.9% 22%)',
+              active: 'hsl(215 27.9% 27%)',
+            },
+            destructive: {
+              base: 'hsl(0 84.2% 60.2%)',
+              foreground: 'hsl(210 20% 98%)',
+              hover: 'hsl(0 84.2% 65.2%)',
+              active: 'hsl(0 84.2% 70.2%)',
+            },
+            border: 'hsl(215 27.9% 18.9%)',
+            input: 'hsl(215 27.9% 24.9%)',
+            ring: 'hsl(217.2 91.2% 59.8%)',
           },
-          popover: {
-            DEFAULT: 'hsl(224 71.4% 4.1%)',
-            foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(224 50% 7%)',
-            active: 'hsl(224 50% 10%)',
-          },
-          primary: {
-            DEFAULT: 'hsl(217.2 91.2% 59.8%)',
-            foreground: 'hsl(222.2 47.4% 11.2%)',
-            hover: 'hsl(217.2 91.2% 64.8%)',
-            active: 'hsl(217.2 91.2% 69.8%)',
-          },
-          secondary: {
-            DEFAULT: 'hsl(215 27.9% 16.9%)',
-            foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(215 27.9% 21.9%)',
-            active: 'hsl(215 27.9% 26.9%)',
-          },
-          muted: {
-            DEFAULT: 'hsl(215 27.9% 16.9%)',
-            foreground: 'hsl(217.9 10.6% 64.9%)',
-            hover: 'hsl(215 27.9% 21.9%)',
-            active: 'hsl(215 27.9% 26.9%)',
-          },
-          accent: {
-            DEFAULT: 'hsl(215 27.9% 16.9%)',
-            foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(215 27.9% 22%)',
-            active: 'hsl(215 27.9% 27%)',
-          },
-          destructive: {
-            DEFAULT: 'hsl(0 84.2% 60.2%)',
-            foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(0 84.2% 65.2%)',
-            active: 'hsl(0 84.2% 70.2%)',
-          },
-          border: 'hsl(215 27.9% 18.9%)',
-          input: 'hsl(215 27.9% 24.9%)',
-          ring: 'hsl(217.2 91.2% 59.8%)',
         },
       },
-      globalStyles: true,
+      baseStyles: true,
     }),
   ],
   transformers: [transformerVariantGroup()],
   theme: {
-    font: {
-      sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-      mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-    },
     animation: {
       keyframes: {
         'docs-page-slide-up': '{ from { opacity: 0; transform: translateY(8px); } }',
@@ -201,24 +228,13 @@ export default defineConfig<PresetWind4Theme>({
   --sidebar-accent-foreground: hsl(220.9 39.3% 11%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(221.2 83.2% 53.3%);
-  --radius: 0.625rem;
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 2px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.04;
   --shadow-color: oklch(0 0 0);
-  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
-  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
-  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05);
-  --shadow-md: 0 3px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
-  --shadow-lg: 0 6px 12px -2px hsl(0 0% 0% / 0.06), 0 3px 6px -3px hsl(0 0% 0% / 0.06);
-  --shadow-xl: 0 10px 20px -3px hsl(0 0% 0% / 0.07), 0 4px 8px -4px hsl(0 0% 0% / 0.07);
-  --shadow-2xl: 0 16px 32px -8px hsl(0 0% 0% / 0.12);
   --tracking-normal: -0.012em;
-  --spacing: 0.25rem;
-  --font-size: 1rem;
 }
 
 .dark {
@@ -241,14 +257,6 @@ export default defineConfig<PresetWind4Theme>({
   --shadow-spread: 0px;
   --shadow-opacity: 0.08;
   --shadow-color: oklch(0 0 0);
-  --shadow-2xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
-  --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.08);
-  --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 0 3px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 0 6px 12px -2px hsl(0 0% 0% / 0.12), 0 3px 6px -3px hsl(0 0% 0% / 0.12);
-  --shadow-xl: 0 10px 20px -3px hsl(0 0% 0% / 0.14), 0 4px 8px -4px hsl(0 0% 0% / 0.14);
-  --shadow-2xl: 0 16px 32px -8px hsl(0 0% 0% / 0.20);
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {

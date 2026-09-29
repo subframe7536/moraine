@@ -24,6 +24,9 @@ const CANDIDATES = [
   'animate-mo-exit',
   'z-floating',
   'bg-primary',
+  'data-highlighted:bg-muted-hover',
+  'hover:bg-accent-hover',
+  'active:bg-accent-active',
   'h-(--s-size)',
   'size-(--s-thumb-size)',
   'size-(--st-size)',
@@ -42,14 +45,19 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     removeIsolatedConsumer(consumer)
   })
 
-  async function compileConsumerCSS(includeIcons = false): Promise<{
+  async function compileConsumerCSS(
+    includeIcons = false,
+    pluginOptions = '',
+  ): Promise<{
     css: string
     sources: Array<{ base: string; pattern: string; negated: boolean }>
   }> {
     const input = [
       `@import "tailwindcss";`,
       includeIcons ? `@import "moraine/icon.css";` : '',
-      `@plugin "moraine/tailwind";`,
+      pluginOptions
+        ? `@plugin "moraine/tailwind" { ${pluginOptions} }`
+        : `@plugin "moraine/tailwind";`,
       `@source "node_modules/moraine/dist";`,
     ]
       .filter(Boolean)
@@ -97,6 +105,9 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('z-index: 50')
     expect(css).toContain('opacity: 64%')
     expect(css).toContain('var(--primary)')
+    expect(css).toContain('var(--muted-hover')
+    expect(css).toContain('var(--accent-hover')
+    expect(css).toContain('var(--accent-active')
     expect(css).toContain('height: var(--s-size)')
     expect(css).toContain('var(--st-size)')
     expect(css).toContain('var(--st-sep-x)')
@@ -118,5 +129,11 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(iconAsset).toContain('.icon-check')
     expect(withIcons.css).toContain('.icon-check')
     expect(withIcons.css).toContain('.animate-mo-enter')
+  })
+
+  test('applies options passed through the published CSS plugin entry', async () => {
+    const { css } = await compileConsumerCSS(false, 'globalStyles: false; icons: false;')
+    expect(css).not.toMatch(/html\s*\{\s*background-color: var\(--background\)/)
+    expect(css).toContain('.animate-mo-enter')
   })
 })

@@ -2,12 +2,11 @@ import plugin from 'tailwindcss/plugin'
 
 import {
   MORAINE_KEYFRAMES,
-  buildTailwindAnimations,
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
-} from '../theme/style/animations'
-import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
+} from './animations'
+import { DEFAULT_ICON_SHORTCUTS } from './icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -16,7 +15,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../theme/style/theme'
+} from './tokens'
 
 export interface MorainePluginOptions {
   /**
@@ -32,6 +31,19 @@ export interface MorainePluginOptions {
   icons?: boolean
 }
 
+/** All animations as Tailwind shorthand strings (`name duration timing count`). */
+function buildTailwindAnimations(): Record<string, string> {
+  const durations = getMoraineAnimDurations()
+  const timingFns = getMoraineAnimTimingFns()
+  const counts = getMoraineAnimCounts()
+
+  return Object.fromEntries(
+    Object.keys(MORAINE_KEYFRAMES).map((name) => [
+      name,
+      `${name} ${durations[name]} ${timingFns[name]} ${counts[name]}`,
+    ]),
+  )
+}
 /**
  * Generate empty CSS stubs for each `icon-*` shortcut so Tailwind's scanner
  * Actual icon rendering comes from `@iconify/tailwind` or `moraine/icon.css`.
@@ -40,10 +52,12 @@ function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
 }
 
-type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plugin>
+type MoraineTailwindPlugin = ((options?: MorainePluginOptions) => ReturnType<typeof plugin>) & {
+  __isOptionsFunction: true
+}
 
-export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
-  plugin(
+export const moraineTailwind: MoraineTailwindPlugin = plugin.withOptions<MorainePluginOptions>(
+  (options = {}) =>
     ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
       if (options.globalStyles !== false) {
         addBase({
@@ -154,33 +168,33 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
         ),
       })
     },
-    {
-      theme: {
-        extend: {
-          borderRadius: MORAINE_RADIUS,
-          boxShadow: MORAINE_SHADOW,
-          fontFamily: MORAINE_FONT,
-          fontSize: Object.fromEntries(
-            Object.entries(MORAINE_TEXT_SIZE).map(([size, [fontSize, lineHeight]]) => [
-              size,
-              [fontSize, { lineHeight }],
-            ]),
-          ),
-          colors: MORAINE_COLORS,
-          spacing: MORAINE_WIDTH,
-          zIndex: MORAINE_Z_INDEX,
-          keyframes: MORAINE_KEYFRAMES,
-          animation: buildTailwindAnimations(),
-          transitionDuration: {
-            ...getMoraineAnimDurations(),
-          },
-          transitionTimingFunction: {
-            ...getMoraineAnimTimingFns(),
-          },
-          animationIterationCount: getMoraineAnimCounts(),
+  () => ({
+    theme: {
+      extend: {
+        borderRadius: MORAINE_RADIUS,
+        boxShadow: MORAINE_SHADOW,
+        fontFamily: MORAINE_FONT,
+        fontSize: Object.fromEntries(
+          Object.entries(MORAINE_TEXT_SIZE).map(([size, [fontSize, lineHeight]]) => [
+            size,
+            [fontSize, { lineHeight }],
+          ]),
+        ),
+        colors: MORAINE_COLORS,
+        spacing: MORAINE_WIDTH,
+        zIndex: MORAINE_Z_INDEX,
+        keyframes: MORAINE_KEYFRAMES,
+        animation: buildTailwindAnimations(),
+        transitionDuration: {
+          ...getMoraineAnimDurations(),
         },
+        transitionTimingFunction: {
+          ...getMoraineAnimTimingFns(),
+        },
+        animationIterationCount: getMoraineAnimCounts(),
       },
     },
-  )
+  }),
+)
 
-export default moraineTailwind()
+export default moraineTailwind

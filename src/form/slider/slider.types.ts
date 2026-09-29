@@ -1,7 +1,7 @@
 import type { Ref } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type { Orientation } from '../../theme/style/style-types'
+import type { Orientation } from '../../theme/style-types'
 import type {
   FormDisableOption,
   FormIdentityOptions,

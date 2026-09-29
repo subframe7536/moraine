@@ -8,7 +8,7 @@ import type {
   SlotStyleValue,
   ValidComponent,
 } from '../../shared/types'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types'
+import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
 import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,

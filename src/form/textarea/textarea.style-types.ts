@@ -1,4 +1,4 @@
-import type { ComponentSize, TextControlVariant, Orientation } from '../../theme/style/style-types'
+import type { ComponentSize, TextControlVariant, Orientation } from '../../theme/style-types'
 
 export interface TextareaStyleSlot<T = unknown> {
   /** Native textarea element. */

@@ -3,9 +3,10 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
 import { sliderRecipe } from '../form/slider/slider.recipe'
-import { cn } from '../theme/style/cn'
 
-import { presetMoraine, resolvePresetThemeOptions } from './theme'
+import { cn } from './cn'
+import { presetMoraine } from './unocss'
+import type { PresetMoraineOptions } from './unocss'
 
 async function generate(
   tokens: string[],
@@ -288,19 +289,16 @@ describe('presetMoraine', () => {
       presets: [
         presetWind4(),
         presetMoraine({
-          colorVariables: {
-            light: {
-              background: { DEFAULT: '#fff' },
-              foreground: '#111',
-              primary: {
-                DEFAULT: '#246',
-                foreground: '#fff',
-                active: activeResolver,
+          themes: {
+            ':root': {
+              colors: {
+                background: '#fff',
+                foreground: '#111',
+                primary: { base: '#246', foreground: '#fff', active: activeResolver },
               },
             },
-            hoverAdjustment: 6,
-            activeAdjustment: 12,
           },
+          colorStates: { hover: 6 },
         }),
       ],
     })
@@ -312,22 +310,127 @@ describe('presetMoraine', () => {
     )
     expect(css).toContain('--primary-active: #135;')
     expect(activeResolver).toHaveBeenCalledWith(
-      expect.objectContaining({ color: 'primary', state: 'active', theme: 'light' }),
+      expect.objectContaining({ color: 'primary', state: 'active', selector: ':root' }),
     )
   })
 
-  test('normalizes selectors and rejects invalid adjustments', () => {
-    expect(
-      resolvePresetThemeOptions({
-        colorVariables: { light: { foreground: '#111' } },
-      }),
-    ).toMatchObject({
-      globalStyles: true,
-      colorVariables: { lightSelector: ':root', darkSelector: '.dark' },
-    })
+  test('rejects invalid adjustments', () => {
+    expect(() => presetMoraine({ colorStates: { hover: Number.POSITIVE_INFINITY } })).toThrow(
+      'colorStates.hover',
+    )
+  })
 
-    expect(() =>
-      presetMoraine({ colorVariables: { hoverAdjustment: Number.POSITIVE_INFINITY } }),
-    ).toThrow('colorVariables.hoverAdjustment')
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('emits scoped theme tokens and default states with %s', async (_name, wind) => {
+    const options: PresetMoraineOptions = {
+      themes: {
+        ':root': {
+          colors: {
+            foreground: '#111',
+            primary: '#246',
+            secondary: { foreground: '#fff' },
+          },
+          fonts: { sans: 'Inter', mono: 'monospace', serif: 'Georgia' },
+          shadows: { base: '0 1px 2px #111', '2xs': '0 1px #111', sm: '0 2px #111' },
+          radius: '0.625rem',
+          fontSize: '1rem',
+          spacing: '0.25rem',
+          sidebarWidth: '18rem',
+        },
+        '[data-theme="brand"]': {
+          colors: { primary: { hover: '#369' } },
+        },
+      },
+    }
+    const generator = await createGenerator({ presets: [wind(), presetMoraine(options)] })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain(':root {')
+    expect(css).toContain('--primary: #246;')
+    expect(css).toContain(
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
+    )
+    expect(css).toContain(
+      '--primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 12%);',
+    )
+    expect(css).toContain('--secondary-foreground: #fff;')
+    expect(css).not.toContain('--secondary-hover:')
+    expect(css).toContain('--font-sans: Inter;')
+    expect(css).toContain('--font-mono: monospace;')
+    expect(css).toContain('--font-serif: Georgia;')
+    expect(css).toContain('--shadow: 0 1px 2px #111;')
+    expect(css).toContain('--shadow-2xs: 0 1px #111;')
+    expect(css).toContain('--shadow-sm: 0 2px #111;')
+    expect(css).toContain('--radius: 0.625rem;')
+    expect(css).toContain('--font-size: 1rem;')
+    expect(css).toContain('--spacing: 0.25rem;')
+    expect(css).toContain('--sidebar-width: 18rem;')
+    expect(css).toContain('[data-theme="brand"] {\n  --primary-hover: #369;\n}')
+    expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
+  })
+
+  test('supports explicit state forms and disabling automatic generation', async () => {
+    const active = vi.fn(() => '#135')
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          colorStates: false,
+          baseStyles: false,
+          themes: {
+            ':root': {
+              colors: {
+                foreground: '#111',
+                background: { base: '#fff', active },
+                primary: { base: '#246', hover: 5 },
+                card: '#eee',
+              },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain(
+      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 5%);',
+    )
+    expect(css).toContain('--background-active: #135;')
+    expect(css).not.toContain('--card-hover:')
+    expect(css).not.toContain('--primary-active:')
+    expect(css).not.toContain('background-color: var(--background)')
+    expect(active).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selector: ':root',
+        state: 'active',
+        base: '#fff',
+        foreground: '#111',
+        adjustment: undefined,
+      }),
+    )
+  })
+
+  test('resolves a state override from inherited CSS variables without emitting a base', async () => {
+    const hover = vi.fn(() => '#369')
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          themes: {
+            '[data-theme="brand"]': {
+              colors: { primary: { foreground: '#fff', hover } },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain(
+      '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-hover: #369;\n}',
+    )
+    expect(css).not.toContain('--primary-active:')
+    expect(hover).toHaveBeenCalledWith(
+      expect.objectContaining({ base: 'var(--primary)', foreground: '#fff', adjustment: 8 }),
+    )
   })
 })

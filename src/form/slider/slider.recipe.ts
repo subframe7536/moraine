@@ -1,6 +1,6 @@
 import type { DataAttributeContract } from '../../shared/style-contract'
 import { createDataAttributes } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
 
 import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
 

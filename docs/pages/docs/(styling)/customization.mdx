@@ -7,7 +7,7 @@ search:
   tags: [classes, styles, slots, customization, single, composite, data-slot, overrides]
 ---
 
-Moraine provides a granular, deterministic customization architecture. Rather than forcing a choice between rigid monolithic classes or completely unstyled primitives, every Moraine component exposes typed slots and four override layers.
+Moraine components expose typed slots and four class override layers. CSS theme tokens are a separate choice: change a semantic color or radius in CSS to update every component using that token. With UnoCSS, `presetMoraine({ themes })` can generate those variables; with Tailwind, define them in CSS. Use `defineTheme()` when you need to change component recipes or default variants.
 
 ## The 4-Layer Override Hierarchy
 

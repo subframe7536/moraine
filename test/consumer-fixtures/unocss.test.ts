@@ -54,6 +54,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-closed:animate-mo-exit',
         'z-floating',
         'bg-primary',
+        'data-highlighted:bg-muted-hover',
+        'hover:bg-accent-hover',
+        'active:bg-accent-active',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
         'after:h-(--s-offset)',
@@ -91,6 +94,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('z-index:50')
       expect(css).toMatch(/opacity:(0\.64|64%)/)
       expect(css).toContain('var(--primary)')
+      expect(css).toContain('var(--muted-hover')
+      expect(css).toContain('var(--accent-hover')
+      expect(css).toContain('var(--accent-active')
       expect(css).toContain('width:var(--mo-popper-anchor-width)')
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')

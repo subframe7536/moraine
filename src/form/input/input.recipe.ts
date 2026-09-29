@@ -1,6 +1,6 @@
 import { createDataAttributes } from '../../shared/style-contract'
 import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
 import { TEXT_CONTROL_CLASS } from '../shared/text-control.class'
 import { TEXT_CONTROL_GROUPED, TEXT_CONTROL_VARIANT } from '../shared/text-control.recipe'
 

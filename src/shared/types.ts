@@ -1,10 +1,7 @@
+import type { ClassValue as SlotClassValue } from 'cn'
 import type { Component, JSX } from 'solid-js'
 
-import type { ClassValue } from '../theme/style/recipe'
-
-export type { ClassValue } from '../theme/style/recipe'
-
-export type SlotClassValue = ClassValue
+export type { ClassValue as SlotClassValue } from 'cn'
 
 export type SlotStyleValue = JSX.CSSProperties
 

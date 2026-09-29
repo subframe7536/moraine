@@ -12,7 +12,7 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
-import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/style/icons.ts'
+import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/icons.ts'
 
 import { loadComponentApiDoc } from './api-doc/load.ts'
 import { createApiReferenceModel } from './api-doc/presentation.ts'

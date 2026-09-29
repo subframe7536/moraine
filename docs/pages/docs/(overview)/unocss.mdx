@@ -57,87 +57,73 @@ Moraine's recipes and templates use UnoCSS's parenthesized variant groups (such 
 
 ## Preset options
 
+`presetMoraine()` provides Moraine's utility tokens and state variants. Its optional `themes` setting emits CSS custom properties grouped by selector. Omit it when your application already defines those properties in CSS.
+
 ```ts
 presetMoraine({
-  globalStyles: true,
-  colorVariables: {/* ... */},
-})
-```
-
-| Option           | Type                           | Default     | Description                                                                                                            |
-| :--------------- | :----------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------- |
-| `globalStyles`   | `boolean`                      | `true`      | When `true`, injects baseline HTML styles (`html { background-color: var(--background); color: var(--foreground); }`). |
-| `colorVariables` | `MoraineColorVariablesOptions` | `undefined` | Automatically generates light and dark CSS variable declarations from your palette.                                    |
-
-## Generating color variables
-
-If you prefer not to write raw CSS variable blocks in your stylesheet, `colorVariables` can automatically synthesize complete light and dark CSS variable declarations, including interactive hover and active color calculations.
-
-```ts title="unocss.config.ts"
-presetMoraine({
-  colorVariables: {
-    light: {
-      background: 'oklch(100% 0 0)',
-      foreground: 'oklch(20% 0 0)',
-      primary: {
-        DEFAULT: 'oklch(55% 0.2 260)',
-        foreground: 'white',
-        // Optional: override auto-calculated hover
-        hover: 'oklch(50% 0.2 260)',
+  baseStyles: true,
+  colorStates: { hover: 8, active: 12 },
+  themes: {
+    ':root': {
+      colors: {
+        background: '#fff',
+        foreground: '#18181b',
+        primary: { base: '#2563eb', foreground: '#fff' },
+        secondary: '#f4f4f5',
       },
-      card: {
-        DEFAULT: 'oklch(99% 0 0)',
-        foreground: 'oklch(20% 0 0)',
-      },
-      border: 'oklch(90% 0 0)',
-      ring: 'oklch(55% 0.2 260)',
+      fonts: { sans: 'Inter, sans-serif', mono: 'monospace' },
+      shadows: { sm: '0 1px 2px rgb(0 0 0 / 0.05)' },
+      radius: '0.625rem',
+      fontSize: '1rem',
+      spacing: '0.25rem',
+      sidebarWidth: '18rem',
     },
-    dark: {
-      background: 'oklch(18% 0 0)',
-      foreground: 'oklch(96% 0 0)',
-      primary: {
-        DEFAULT: 'oklch(70% 0.16 260)',
-        foreground: 'oklch(18% 0 0)',
+    '.dark': {
+      colors: {
+        background: '#18181b',
+        foreground: '#fafafa',
+        primary: { base: '#60a5fa', foreground: '#172554', hover: '#93c5fd' },
       },
-      card: {
-        DEFAULT: 'oklch(22% 0 0)',
-        foreground: 'oklch(96% 0 0)',
-      },
-      border: 'oklch(32% 0 0)',
-      ring: 'oklch(70% 0.16 260)',
     },
-    hoverAdjustment: 6,
-    activeAdjustment: 12,
   },
 })
 ```
 
-### Hover and active color calculation
+| Option        | Default                    | Behavior                                                                                      |
+| :------------ | :------------------------- | :-------------------------------------------------------------------------------------------- |
+| `baseStyles`  | `true`                     | Adds HTML background and foreground styles. Set `false` if your app owns them.                |
+| `themes`      | omitted                    | Emits only the configured Moraine token variables for each CSS selector.                      |
+| `colorStates` | `{ hover: 8, active: 12 }` | Generates missing hover and active colors for configured base colors. Set `false` to disable. |
 
-When `hover` and `active` are not explicitly provided for a surface color, `presetMoraine` generates them automatically using native CSS `color-mix()` against the surface's foreground:
+### Theme tokens
 
-```css
---primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground) 6%);
---primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground) 12%);
-```
+Color strings are shorthand for `{ base: value }`. Expand a color to override `foreground`, `hover`, or `active` without repeating `base`. Available color names and fields match Moraine's semantic colors. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports `base`, `2xs`, `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`. Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
 
-You can customize this behavior:
+Selectors such as `:root`, `.dark`, and `[data-theme="brand"]` are emitted in configuration order. A partial theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
 
-- **`hoverAdjustment` / `activeAdjustment`**: Change the default mixing percentage globally (default `6` and `12`).
-- **Numeric value on a color**: Set a color-specific adjustment percentage (e.g. `hover: 8`).
-- **Fixed color string**: Provide an explicit CSS color string.
-- **Custom resolver function**: Provide a callback `({ base, foreground, selector, state, theme }) => string`.
+### Hover and active colors
 
-### Custom dark selector
-
-By default, light variables are emitted under `:root` and dark variables under `.dark`. Customize these with `lightSelector` and `darkSelector`:
+For each color with a configured base, missing states use `color-mix(in oklch, …)` toward its foreground. `background` uses the global foreground; other colors use their own foreground with the global foreground as a fallback. An explicit state can be a CSS color, a mixing percentage, or a callback:
 
 ```ts
 presetMoraine({
-  colorVariables: {
-    darkSelector: '[data-theme="dark"]',
-    lightSelector: ':root',
-    /* ... */
+  colorStates: { hover: 6 }, // active keeps the default 12%
+  themes: {
+    ':root': {
+      colors: {
+        primary: {
+          base: '#2563eb',
+          hover: '#1d4ed8',
+          active: ({ selector, color, state, base, foreground, adjustment }) =>
+            `color-mix(in oklch, ${base}, ${foreground} ${adjustment ?? 12}%)`,
+        },
+        secondary: { hover: 5 },
+      },
+    },
   },
 })
 ```
+
+The callback receives its selector, color name, state, configured base or CSS variable reference, foreground value or reference, and current adjustment. Percentages must be finite values from 0 to 100. `colorStates: false` stops automatic generation; explicit states still emit. Generated utilities retain their CSS fallbacks: active → hover → base.
+
+The former `globalStyles` and `colorVariables` options have been removed. Tailwind users define theme variables in CSS; this preset option applies to UnoCSS only.

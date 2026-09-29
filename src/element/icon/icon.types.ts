@@ -1,7 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type { DEFAULT_ICON_SHORTCUTS } from '../../theme/style/icons'
+import type { DEFAULT_ICON_SHORTCUTS } from '../../theme/icons'
 
 import type { IconStyleSlot, IconStyleVariant } from './icon.style-types'
 

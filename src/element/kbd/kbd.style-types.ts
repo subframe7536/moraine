@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
 export interface KbdStyleSlot<T = unknown> {
   /** Keyboard keycap element. */
   root?: T

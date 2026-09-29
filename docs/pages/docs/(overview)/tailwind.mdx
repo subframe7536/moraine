@@ -1,10 +1,10 @@
 ---
 title: Tailwind CSS
-description: Configure the Moraine Tailwind CSS plugin for Tailwind CSS v4 or v3, scanner paths, and custom utilities.
+description: Configure the Moraine Tailwind CSS plugin for Tailwind CSS v4, scanner paths, and custom utilities.
 sidebar:
   order: 4
 search:
-  tags: [Tailwind CSS, v4, v3, plugin, '@source', utilities, data variants]
+  tags: [Tailwind CSS, v4, plugin, '@source', utilities, data variants]
 ---
 
 Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`. It provides 1:1 parity with the [UnoCSS preset](/docs/unocss), injecting design tokens, semantic z-index utilities, keyframe animations, parametric transform modifiers, and `data-*` / `aria-*` state variants.
@@ -45,27 +45,13 @@ You can pass options directly in CSS or in a JS wrapper:
 | `globalStyles` | `boolean` | `true`  | Injects default base styles (`html { background-color: var(--background); color: var(--foreground); }`). Set to `false` if your application owns root HTML styling. |
 | `icons`        | `boolean` | `true`  | Emits empty utility stubs for `icon-*` shortcuts so Tailwind's scanner recognizes them when paired with `@iconify/tailwind` or `moraine/icon.css`.                  |
 
-## Tailwind CSS v3
+Moraine's component recipes use Tailwind v4 syntax. Tailwind v3 is not a supported consumer target.
 
-For projects on Tailwind CSS v3, register the plugin in your `tailwind.config.js` and add Moraine's distribution files to your `content` array:
-
-```ts title="tailwind.config.ts"
-import moraineTailwind from 'moraine/tailwind'
-import type { Config } from 'tailwindcss'
-
-export default {
-  content: ['./index.html', './src/**/*.{ts,tsx}', './node_modules/moraine/dist/**/*.{mjs,jsx}'],
-  plugins: [
-    moraineTailwind({
-      globalStyles: true,
-    }),
-  ],
-} satisfies Config
-```
+Theme variables for Tailwind are declared in CSS. UnoCSS's optional `themes` configuration does not affect this plugin.
 
 ## Injected utilities and variants
 
-The plugin registers the following utilities and variants across both Tailwind v3 and v4:
+The plugin registers the following utilities and variants with Tailwind v4:
 
 ### Parametric transform utilities
 

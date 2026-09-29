@@ -1,22 +1,12 @@
+import type { RecipeLayerConfig } from './recipe'
 import type { MoraineStyleSchema, StyleContract } from './style-contract'
-import type {
-  RecipeCompoundVariant,
-  RecipeContribution,
-  RecipeDefaultVariants,
-  RecipeVariants,
-} from './style/recipe'
 
 export type { MoraineStyleSchema } from './style-contract'
 
-type ContractSlots<C extends StyleContract<object, any>> = C['slots']
-type ContractVariants<C extends StyleContract<object, any>> = C['variants']
-
-export type ThemeRecipeOverride<C extends StyleContract<object, any>> = {
-  base?: RecipeContribution<ContractSlots<C>>
-  variants?: RecipeVariants<ContractSlots<C>, ContractVariants<C>>
-  compoundVariants?: readonly RecipeCompoundVariant<ContractSlots<C>, ContractVariants<C>>[]
-  defaultVariants?: RecipeDefaultVariants<ContractVariants<C>>
-}
+export type ThemeRecipeOverride<C extends StyleContract<object, unknown>> = RecipeLayerConfig<
+  C['slots'],
+  C['variants']
+>
 
 type ThemeEntries = {
   [K in keyof MoraineStyleSchema]?: ThemeRecipeOverride<MoraineStyleSchema[K]>

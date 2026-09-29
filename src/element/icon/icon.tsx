@@ -66,7 +66,7 @@ export function Icon(props: IconProps): JSX.Element {
         'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
         ...resolved.styles.root.style,
       }}
-      class={cn(typeof name() === 'string' && (name() as string), resolved.styles.root.class)}
+      class={cn(typeof name() === 'string' && name(), resolved.styles.root.class)}
     />
   )
 }

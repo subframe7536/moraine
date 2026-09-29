@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 
 import type { KbdGroupT } from '../../element/kbd/kbd-group.types'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
-import type { OverlayPlacement } from '../../theme/style/style-types'
+import type { OverlayPlacement } from '../../theme/style-types'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 

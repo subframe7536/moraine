@@ -1,4 +1,4 @@
-import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style-types'
 
 export interface InputStyleSlot<T = unknown> {
   /** Native text input element. */
