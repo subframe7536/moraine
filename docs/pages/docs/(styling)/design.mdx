@@ -28,10 +28,10 @@ Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically sc
   --secondary: rgb(245, 245, 245);
   --secondary-foreground: rgb(23, 23, 23);
   --muted: rgb(245, 245, 245);
-  --muted-foreground: rgb(115, 115, 115);
+  --muted-foreground: rgb(82, 82, 82);
   --accent: rgb(245, 245, 245);
   --accent-foreground: rgb(23, 23, 23);
-  --destructive: rgb(231, 0, 11);
+  --destructive: rgb(190, 0, 9);
   --border: rgb(229, 229, 229);
   --input: rgb(229, 229, 229);
   --ring: rgb(161, 161, 161);
@@ -124,6 +124,8 @@ Moraine computes a proportional radius scale from the base `--radius` variable:
 | `--font-size`     | Base for `text-xs`–`text-9xl`   | `1rem`                     |
 | `--spacing`       | Base spacing unit               | `0.25rem`                  |
 | `--sidebar-width` | Width of `SidebarFrame.Sidebar` | `clamp(14rem, 25%, 20rem)` |
+
+Numeric spacing utilities use the local `--spacing` in Tailwind 4, Wind3, and Wind4. For example, `p-4` becomes `32px` under `--spacing: 0.5rem`. Explicit UnoCSS theme entries take precedence. A `leading-*` utility overrides the default line height of `text-*`; numeric leading uses the spacing unit, while named leading values are ratios of the local font size.
 
 ## Semantic Z-Index Utilities
 

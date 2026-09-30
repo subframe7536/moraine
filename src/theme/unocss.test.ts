@@ -324,16 +324,36 @@ describe('presetMoraine', () => {
     expect(css).toContain('.enter-opacity-50{--mo-enter-opacity:0.5;}')
     expect(css).toContain('.enter-scale-95{--mo-enter-scale:0.95;}')
     expect(css).toContain('.exit-scale-95{--mo-exit-scale:0.95;}')
-    expect(css).toContain('.enter-translate-x-1{--mo-enter-translate-x:0.25rem;}')
-    expect(css).toContain('.-enter-translate-x-1{--mo-enter-translate-x:-0.25rem;}')
-    expect(css).toContain('.exit-translate-x-1{--mo-exit-translate-x:0.25rem;}')
-    expect(css).toContain('.-exit-translate-x-1{--mo-exit-translate-x:-0.25rem;}')
-    expect(css).toContain('.enter-translate-y-1{--mo-enter-translate-y:0.25rem;}')
-    expect(css).toContain('.-enter-translate-y-1{--mo-enter-translate-y:-0.25rem;}')
-    expect(css).toContain('.exit-translate-y-1{--mo-exit-translate-y:0.25rem;}')
-    expect(css).toContain('.-exit-translate-y-1{--mo-exit-translate-y:-0.25rem;}')
-    expect(css).toContain('.enter-translate-y-10{--mo-enter-translate-y:2.5rem;}')
-    expect(css).toContain('.-enter-translate-y-10{--mo-enter-translate-y:-2.5rem;}')
+    expect(css).toContain(
+      '.enter-translate-x-1{--mo-enter-translate-x:calc(var(--spacing, 0.25rem) * 1);}',
+    )
+    expect(css).toContain(
+      '.-enter-translate-x-1{--mo-enter-translate-x:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+    )
+    expect(css).toContain(
+      '.exit-translate-x-1{--mo-exit-translate-x:calc(var(--spacing, 0.25rem) * 1);}',
+    )
+    expect(css).toContain(
+      '.-exit-translate-x-1{--mo-exit-translate-x:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+    )
+    expect(css).toContain(
+      '.enter-translate-y-1{--mo-enter-translate-y:calc(var(--spacing, 0.25rem) * 1);}',
+    )
+    expect(css).toContain(
+      '.-enter-translate-y-1{--mo-enter-translate-y:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+    )
+    expect(css).toContain(
+      '.exit-translate-y-1{--mo-exit-translate-y:calc(var(--spacing, 0.25rem) * 1);}',
+    )
+    expect(css).toContain(
+      '.-exit-translate-y-1{--mo-exit-translate-y:calc(calc(var(--spacing, 0.25rem) * 1) * -1);}',
+    )
+    expect(css).toContain(
+      '.enter-translate-y-10{--mo-enter-translate-y:calc(var(--spacing, 0.25rem) * 10);}',
+    )
+    expect(css).toContain(
+      '.-enter-translate-y-10{--mo-enter-translate-y:calc(calc(var(--spacing, 0.25rem) * 10) * -1);}',
+    )
     expect(css).toContain('.enter-translate-y-full{--mo-enter-translate-y:100%;}')
     expect(css).toContain('.-enter-translate-y-full{--mo-enter-translate-y:-100%;}')
     expect(css).toContain('.enter-rotate-45{--mo-enter-rotate:45deg;}')
@@ -578,5 +598,60 @@ describe('presetMoraine', () => {
     expect(() => presetMoraine({ colorStates: { hover: Number.POSITIVE_INFINITY } })).toThrow(
       'colorStates.hover',
     )
+  })
+})
+
+describe('Wind3 semantic color and layout compatibility', () => {
+  test('applies alpha to semantic variables through interaction variants', async () => {
+    const css = await generate(
+      [
+        'bg-primary/20',
+        'text-primary/50',
+        'border-destructive/50',
+        'ring-ring/50',
+        'bg-primary/[0.2]',
+        'data-destructive:data-highlighted:bg-destructive/15',
+        'hover:bg-primary-hover/30',
+      ],
+      false,
+      presetWind3,
+    )
+    expect(css).toContain(
+      'background-color:var(--primary);background-color:color-mix(in srgb,var(--primary) 20%,transparent)',
+    )
+    expect(css).toContain('color-mix(in srgb,var(--primary) calc(0.2 * 100%),transparent)')
+    expect(css).toContain('color-mix(in srgb,var(--primary) 50%,transparent)')
+    expect(css).toContain('color-mix(in srgb,var(--destructive) 15%,transparent)')
+    expect(css).toContain('color-mix(in srgb,var(--ring) 50%,transparent)')
+    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary))) 30%')
+    expect(css).toContain('[data-highlighted][data-destructive]')
+  })
+
+  test('keeps numeric spacing and leading local while preserving user spacing', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind3(), presetMoraine()],
+      theme: { spacing: { 4: '2rem' } },
+    })
+    const { css } = await generator.generate(
+      new Set([
+        'p-4',
+        'px-2.5',
+        'gap-1.5',
+        'h-8',
+        '-mt-3',
+        'text-sm',
+        'leading-tight',
+        'leading-5',
+        'leading-[1.7]',
+      ]),
+    )
+    expect(css).toContain('padding:2rem')
+    expect(css).toContain('calc(var(--spacing, 0.25rem) * 2.5)')
+    expect(css).toContain('calc(var(--spacing, 0.25rem) * 1.5)')
+    expect(css).toContain('height:calc(var(--spacing, 0.25rem) * 8)')
+    expect(css).toContain('--un-leading:1.25;line-height:1.25')
+    expect(css).toContain('--un-leading:calc(var(--spacing, 0.25rem) * 5)')
+    expect(css).toContain('--un-leading:1.7;line-height:1.7')
+    expect(css).toContain('line-height:var(--un-leading,')
   })
 })

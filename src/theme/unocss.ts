@@ -1,4 +1,4 @@
-import type { Preset } from '@subf/unocss'
+import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
 import {
   getMoraineAnimCounts,
@@ -19,6 +19,7 @@ import {
 } from './tokens.ts'
 
 type MoraineColorMap = typeof MORAINE_COLORS
+type UtilityTheme = PresetWind3Theme & PresetWind4Theme
 
 export type MoraineColorState = 'hover' | 'active'
 export type MoraineGroupedColorName = {
@@ -125,9 +126,9 @@ const DEFAULT_THEME_COLORS = {
     popover: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
     primary: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
+    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(82, 82, 82)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    destructive: { base: 'rgb(231, 0, 11)' },
+    destructive: { base: 'rgb(190, 0, 9)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     ring: 'rgb(161, 161, 161)',
@@ -425,7 +426,7 @@ function resolveTranslateValue(value: string, theme: Record<string, any>): strin
   }
   const num = Number(value)
   if (!Number.isNaN(num)) {
-    return `${num * 0.25}rem`
+    return `calc(var(--spacing, 0.25rem) * ${num})`
   }
   return undefined
 }
@@ -467,6 +468,48 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
   const themeCSS = createThemeCSS(resolveThemes(options), options.colorStates)
   const variants: Preset['variants'] = [
     {
+      name: 'moraine-color-alpha',
+      multiPass: true,
+      match(matcher, { theme, generator }) {
+        if (!generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
+          return matcher
+        }
+        const match = matcher.match(
+          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
+        )
+        if (!match) {
+          return matcher
+        }
+        const [, utility, groupName, state, alpha] = match
+        const group = (theme as UtilityTheme).colors?.[groupName!]
+        const color =
+          typeof group === 'string' ? (state ? undefined : group) : group?.[state ?? 'DEFAULT']
+        if (typeof color !== 'string') {
+          return matcher
+        }
+        const opacity = resolveOpacityValue(alpha!)!
+        const percentage = alpha!.startsWith('[')
+          ? opacity.endsWith('%')
+            ? opacity
+            : `calc(${opacity} * 100%)`
+          : `${alpha}%`
+        const mixedColor = `color-mix(in srgb,${color} ${percentage},transparent)`
+        return {
+          matcher: `${utility}-[${mixedColor.replaceAll(' ', '_')}]`,
+          body(entries) {
+            const result: typeof entries = []
+            for (const entry of entries) {
+              if (entry[1] === mixedColor) {
+                result.push([entry[0], color])
+              }
+              result.push(entry)
+            }
+            return result
+          },
+        }
+      },
+    },
+    {
       name: 'moraine-attribute',
       multiPass: true,
       match(matcher) {
@@ -485,6 +528,26 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
   return {
     name: 'preset-theme-moraine',
     rules: [
+      [
+        /^leading-(.+)$/,
+        ([, value], { theme, generator }) => {
+          if (!generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
+            return
+          }
+          const utilityTheme = theme as UtilityTheme
+          const lineHeight =
+            utilityTheme.lineHeight?.[value!] ??
+            utilityTheme.leading?.[value!] ??
+            (/^\d+(?:\.\d+)?$/.test(value!)
+              ? `calc(var(--spacing, 0.25rem) * ${value})`
+              : value!.startsWith('[') && value!.endsWith(']')
+                ? value!.slice(1, -1).replaceAll('_', ' ')
+                : undefined)
+          if (lineHeight !== undefined) {
+            return { '--un-leading': lineHeight, 'line-height': lineHeight }
+          }
+        },
+      ],
       [
         /^text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
         ([, size]) => {
@@ -553,6 +616,37 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
         { autocomplete: ['(enter|exit)-rotate-<percent>'] },
       ],
     ],
+    extendTheme(theme, config) {
+      if (config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
+        // Keep native utility handling and explicit theme entries, replacing
+        // Wind3's numeric quarter-rem fallback with the local spacing token.
+        const utilityTheme = theme as UtilityTheme
+        const spacing = utilityTheme.spacing ?? {}
+        for (const dimension of [
+          'spacing',
+          'width',
+          'height',
+          'minWidth',
+          'minHeight',
+          'maxWidth',
+          'maxHeight',
+          'inlineSize',
+          'blockSize',
+          'maxInlineSize',
+          'maxBlockSize',
+        ] as const) {
+          utilityTheme[dimension] = new Proxy(utilityTheme[dimension] ?? {}, {
+            get(target, key, receiver) {
+              const value = Reflect.get(target, key, receiver)
+              if (value !== undefined || typeof key !== 'string' || !/^\d+(?:\.\d+)?$/.test(key)) {
+                return value
+              }
+              return spacing[key] ?? `calc(var(--spacing, 0.25rem) * ${key})`
+            },
+          })
+        }
+      }
+    },
     theme: {
       // Wind4 theme keys
       radius: MORAINE_RADIUS,
@@ -596,6 +690,12 @@ html {
   color: var(--foreground);
 }
 `
+            : '',
+      },
+      {
+        getCSS: ({ generator }) =>
+          generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')
+            ? '@property --un-leading { syntax: "*"; inherits: false; }'
             : '',
       },
     ],
