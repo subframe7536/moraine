@@ -19,6 +19,34 @@ const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('InputGroup', () => {
+  test('updates supporting parts when the group variant changes', () => {
+    let setVariant!: (value: 'outline' | 'ghost') => void
+    const screen = render(() => {
+      const [variant, setValue] = createSignal<'outline' | 'ghost'>('outline')
+      setVariant = setValue
+      return (
+        <InputGroup variant={variant()}>
+          <InputGroup.Leading>Prefix</InputGroup.Leading>
+          <Input />
+          <InputGroup.Trailing>Suffix</InputGroup.Trailing>
+        </InputGroup>
+      )
+    })
+    const parts = [screen.getByText('Prefix'), screen.getByText('Suffix')]
+    for (const part of parts) {
+      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+    }
+    setVariant('ghost')
+    for (const part of parts) {
+      expect(part.className).toContain('group-hover/input-group:text-accent-foreground')
+      expect(part.className).toContain('group-focus-within/input-group:text-accent-foreground')
+    }
+    setVariant('outline')
+    for (const part of parts) {
+      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+    }
+  })
+
   test.each([Input, Textarea])('allows %s to render outside an InputGroup', (Control) => {
     const screen = baseRender(() => <Control />)
 

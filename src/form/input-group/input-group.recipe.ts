@@ -63,7 +63,14 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
         root: INPUT_VARIANT.subtle,
         frame: '-inset-px border border-transparent',
       },
-      ghost: { root: `${INPUT_VARIANT.ghost} group/input-group`, frame: 'inset-0' },
+      ghost: {
+        root: `${INPUT_VARIANT.ghost} group/input-group`,
+        leading:
+          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+        trailing:
+          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+        frame: 'inset-0',
+      },
       none: {
         frame: 'inset-0 peer-focus:ring-0',
       },

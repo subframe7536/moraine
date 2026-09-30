@@ -15,7 +15,11 @@ export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element 
   }
   const resolved = createStyles(inputGroupRecipe, local, {
     rootSlot: 'leading',
-    inheritedVariants: () => ({ size: group.size, orientation: group.orientation }),
+    inheritedVariants: () => ({
+      size: group.size,
+      orientation: group.orientation,
+      variant: group.variant,
+    }),
     inheritedStyles: () => group.presentation,
   })
   return (
@@ -41,7 +45,11 @@ export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Elemen
   }
   const resolved = createStyles(inputGroupRecipe, local, {
     rootSlot: 'trailing',
-    inheritedVariants: () => ({ size: group.size, orientation: group.orientation }),
+    inheritedVariants: () => ({
+      size: group.size,
+      orientation: group.orientation,
+      variant: group.variant,
+    }),
     inheritedStyles: () => group.presentation,
   })
   return (

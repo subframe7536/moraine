@@ -35,14 +35,27 @@ export const SELECT_FAMILY_SLOTS = {
 export const FIELD_VARIANTS = {
   outline: { control: INPUT_VARIANT.outline },
   subtle: { control: INPUT_VARIANT.subtle },
-  ghost: { control: INPUT_VARIANT.ghost },
+  ghost: {
+    control: `${INPUT_VARIANT.ghost} group/select-control`,
+    leading:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    clear:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    trigger:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    input:
+      'group-hover/select-control:placeholder:text-accent-foreground group-focus-within/select-control:placeholder:text-accent-foreground',
+  },
   none: { control: INPUT_VARIANT.none },
 } as const
 
 export const SELECT_TRIGGER_FIELD_VARIANTS = {
   outline: { ...FIELD_VARIANTS.outline, trigger: SELECT_TRIGGER_FOCUS_CLASS },
   subtle: { ...FIELD_VARIANTS.subtle, trigger: SELECT_TRIGGER_FOCUS_CLASS },
-  ghost: { ...FIELD_VARIANTS.ghost, trigger: SELECT_TRIGGER_FOCUS_CLASS },
+  ghost: {
+    ...FIELD_VARIANTS.ghost,
+    trigger: `${SELECT_TRIGGER_FOCUS_CLASS} ${FIELD_VARIANTS.ghost.trigger}`,
+  },
   none: FIELD_VARIANTS.none,
 } as const
 

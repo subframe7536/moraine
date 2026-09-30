@@ -33,7 +33,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     itemDescription:
       'text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground truncate',
     itemTrailing:
-      'text-muted-foreground group-data-[highlighted]:text-accent-foreground ml-auto flex shrink-0 gap-2 items-center text-xs tracking-widest',
+      'text-muted-foreground group-data-[highlighted]:text-accent-foreground ml-auto flex shrink-0 gap-2 items-center text-xs tracking-widest [&_[data-slot=kbd-group]]:text-inherit',
     inputLeading:
       'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
     close:

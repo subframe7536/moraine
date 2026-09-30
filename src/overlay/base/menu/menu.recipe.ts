@@ -23,7 +23,7 @@ export const overlayMenuRecipeOptions = {
     itemDescription: 'text-xs truncate',
     itemTrailing:
       'text-sm ms-auto inline-flex shrink-0 gap-2 pointer-events-none items-center justify-end',
-    itemKbds: '',
+    itemKbds: 'text-inherit',
     itemIndicator: 'flex shrink-0 size-4 pointer-events-none items-center justify-center',
     itemSubIndicator: '',
     groupLabel: 'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',

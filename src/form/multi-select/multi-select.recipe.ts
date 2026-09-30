@@ -45,7 +45,14 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: { variant: 'outline', size: 'md' },
   variants: {
-    variant: SELECT_TRIGGER_FIELD_VARIANTS,
+    variant: {
+      ...SELECT_TRIGGER_FIELD_VARIANTS,
+      ghost: {
+        ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
+        tagOverflow:
+          'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+      },
+    },
     size: TAG_SIZES,
   },
 })

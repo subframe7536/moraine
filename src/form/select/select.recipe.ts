@@ -28,6 +28,16 @@ export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, Select
       value: 'flex-1 min-w-0 truncate py-1.5 data-placeholder:text-muted-foreground',
     },
     defaultVariants: { variant: 'outline', size: 'md' },
-    variants: { variant: SELECT_TRIGGER_FIELD_VARIANTS, size: FIELD_SIZES },
+    variants: {
+      variant: {
+        ...SELECT_TRIGGER_FIELD_VARIANTS,
+        ghost: {
+          ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
+          value:
+            'group-hover/select-control:data-placeholder:text-accent-foreground group-focus-within/select-control:data-placeholder:text-accent-foreground',
+        },
+      },
+      size: FIELD_SIZES,
+    },
   } as const,
 )

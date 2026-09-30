@@ -63,6 +63,10 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       ghost: {
         root: `${INPUT_VARIANT.ghost} group/input-number`,
         input:
+          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground group-hover/input-number:placeholder:text-accent-foreground group-focus-within/input-number:placeholder:text-accent-foreground',
+        increment:
+          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground',
+        decrement:
           'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground',
       },
       none: { root: INPUT_VARIANT.none },
