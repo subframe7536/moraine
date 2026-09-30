@@ -1566,3 +1566,39 @@ describe('with @iconify/tailwind (docs config)', () => {
     `)
   })
 })
+
+describe('component attribute states', () => {
+  test('compiles required, dropzone, mobile and text-control states', async () => {
+    const candidates = [
+      "data-required:after:content-['*']",
+      'data-dropzone:border-dashed',
+      'data-dropzone:min-h-40',
+      'data-mobile:hidden',
+      'data-placeholder:text-muted-foreground',
+      'data-compact:px-1',
+      'data-tags:ps-1',
+      'data-has-text:px-3',
+      'data-autoresize:resize-none',
+      'data-auto-align:text-start',
+      'data-destructive:data-highlighted:bg-destructive/15',
+    ]
+    const designSystem = await loadDesignSystem()
+    expect(designSystem.candidatesToCss(candidates).every(Boolean)).toBe(true)
+    const css = await compileCSS(candidates)
+    for (const attribute of [
+      'required',
+      'dropzone',
+      'mobile',
+      'placeholder',
+      'compact',
+      'tags',
+      'has-text',
+      'autoresize',
+      'auto-align',
+      'destructive',
+      'highlighted',
+    ]) {
+      expect(css).toContain(`[data-${attribute}]`)
+    }
+  })
+})
