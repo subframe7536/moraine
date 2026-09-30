@@ -68,7 +68,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           range: 'rounded-full',
           marker: 'bg-background',
           thumb:
-            'size-(--s-thumb-size) outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none ring-3 ring-ring/50) hover:(ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding',
+            'size-(--s-thumb-size) outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none border border-ring ring-3 ring-ring/50) hover:(ring-3 border border-ring ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding',
         },
         bold: {
           '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',

@@ -8,27 +8,6 @@ export const buttonDataAttributes = {
   root: createDataAttributes('disabled', 'loading'),
 } satisfies DataAttributeContract<keyof ButtonStyleSlot>
 
-export const BUTTON_VARIANTS = {
-  default: {
-    root: 'text-primary-foreground border-transparent bg-primary active:bg-primary-active hover:bg-primary-hover',
-  },
-  secondary: {
-    root: 'text-secondary-foreground border-transparent bg-secondary active:bg-secondary-active hover:bg-secondary-hover',
-  },
-  outline: {
-    root: 'border-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
-  },
-  ghost: {
-    root: 'border-transparent active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
-  },
-  link: {
-    root: 'text-primary border-transparent underline-offset-4 hover:underline',
-  },
-  destructive: {
-    root: 'text-destructive-foreground border-transparent bg-destructive focus-visible:(border-destructive/40 ring-destructive/20) active:bg-destructive-active hover:bg-destructive-hover dark:focus-visible:ring-destructive/40',
-  },
-}
-
 export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariant>(
   'button',
   {
@@ -44,7 +23,24 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
     },
     variants: {
       variant: {
-        ...BUTTON_VARIANTS,
+        default: {
+          root: 'text-primary-foreground border-transparent bg-primary active:bg-primary-active hover:bg-primary-hover',
+        },
+        secondary: {
+          root: 'text-secondary-foreground border-transparent bg-secondary active:bg-secondary-active hover:bg-secondary-hover',
+        },
+        outline: {
+          root: 'border-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
+        },
+        ghost: {
+          root: 'border-transparent active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
+        },
+        link: {
+          root: 'text-primary border-transparent underline-offset-4 hover:underline',
+        },
+        destructive: {
+          root: 'text-destructive-foreground border-transparent bg-destructive focus-visible:(border-destructive/40 ring-destructive/20) active:bg-destructive-active hover:bg-destructive-hover dark:focus-visible:ring-destructive/40',
+        },
       },
       size: {
         xs: { root: 'text-xs px-1.5 rounded-sm h-6' },
