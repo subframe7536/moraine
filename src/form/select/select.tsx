@@ -3,7 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { useFieldContext } from '../field/field-context'
@@ -114,7 +114,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
           slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
+              ? renderWithProps(local.emptyRender, {
                   get hasMatches() {
                     return state.items().length > 0
                   },

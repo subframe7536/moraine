@@ -26,7 +26,7 @@ export namespace IconT {
     /**
      * Icon source. Strings should be Uno icon classes such as `i-lucide-search`
      * or app-config aliases such as `icon-search`.
-     * Non-string values can be JSX nodes or render functions.
+     * Non-string values can be JSX nodes or Solid components.
      * Wrap Icon in Solid control flow instead of passing a control-flow node as `name`.
      */
     name: Name

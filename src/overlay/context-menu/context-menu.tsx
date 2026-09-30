@@ -16,19 +16,15 @@ import { Dynamic } from 'solid-js/web'
 import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { attachEventListener } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types'
-import { createId } from '../../shared/utils'
+import { callHandler, createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../base/dom'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
 import type { OverlayTriggerBinding } from '../base/trigger'
-import {
-  createOverlayTriggerRef,
-  getOverlayTriggerAccessibility,
-  mergeMenuTriggerProps,
-  validateOverlayTrigger,
-} from '../base/trigger'
+import { getContextMenuTriggerAccessibility, validateOverlayTrigger } from '../base/trigger'
 
 import { contextMenuDataAttributes, contextMenuRecipe } from './context-menu.recipe'
 import type { ContextMenuProps, ContextMenuT } from './context-menu.types'
@@ -80,8 +76,8 @@ function createContextMenu(props: ContextMenuProps) {
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
-  const trigger = createOverlayTriggerRef()
-  const ownerDocument = () => trigger.element()?.ownerDocument
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement>()
+  const ownerDocument = () => triggerElement()?.ownerDocument
   const ownerWindow = () => ownerDocument()?.defaultView
   const resolvedId = createId(() => merged.id, 'contextmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
@@ -122,7 +118,7 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const openFromTriggerCenter = (strategy: OverlayMenuFocusStrategy): void => {
-    const rect = trigger.element()?.getBoundingClientRect()
+    const rect = triggerElement()?.getBoundingClientRect()
 
     if (!rect) {
       openFromPoint(0, 0, strategy)
@@ -227,7 +223,7 @@ function createContextMenu(props: ContextMenuProps) {
   })
 
   const isPointerInsideTrigger = (event: MouseEvent): boolean => {
-    const element = trigger.element()
+    const element = triggerElement()
     if (!element) {
       return false
     }
@@ -274,7 +270,7 @@ function createContextMenu(props: ContextMenuProps) {
 
         const targetInsideTrigger =
           isNode(event.target) &&
-          Boolean(trigger.element() && containsComposed(trigger.element()!, event.target))
+          Boolean(triggerElement() && containsComposed(triggerElement()!, event.target))
         const pointerInsideTrigger = isPointerInsideTrigger(event)
 
         // Let the trigger handler compose user callbacks for events targeted inside the trigger.
@@ -490,17 +486,17 @@ function createContextMenu(props: ContextMenuProps) {
     },
     'data-slot': 'context-menu-trigger',
     get disabled() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)).disabled
     },
     get 'aria-disabled'() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled))
         .ariaDisabled
     },
     get tabIndex() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+      return getContextMenuTriggerAccessibility(triggerElement(), Boolean(merged.disabled)).tabIndex
     },
     ref: (element: HTMLElement | undefined) => {
-      trigger.ref(element)
+      setTriggerElement(element)
     },
     onContextMenu: (event: MouseEvent) => {
       if (event.defaultPrevented) {
@@ -550,7 +546,7 @@ function createContextMenu(props: ContextMenuProps) {
       return { classes: props.classes, styles: props.styles }
     },
     triggerProps,
-    triggerElement: trigger.element,
+    triggerElement,
     menuProps: {
       get id() {
         return resolvedId()
@@ -560,7 +556,7 @@ function createContextMenu(props: ContextMenuProps) {
       },
       onClose: () => commitOpen(false),
       get triggerElement() {
-        return trigger.element()
+        return triggerElement()
       },
       get placement() {
         return merged.placement
@@ -609,17 +605,40 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const customTrigger = createMemo(() => typeof local.as === 'function')
-  const binding = untrack(() => mergeMenuTriggerProps(rest, context.triggerProps, customTrigger))
-  const [, triggerAttributes] = splitProps(binding, ['onClick'])
+  const tag = () => local.as ?? 'div'
+  const root = createPolymorphicRoot({
+    tag,
+    ref: () => rest.ref,
+    registration: { element: context.triggerElement, ref: context.triggerProps.ref },
+  })
+  const userEvents = rest as Record<string, unknown>
+  const events: Record<string, (event: Event) => void> = {}
+  for (const key of [
+    'onClick',
+    'onKeyDown',
+    'onContextMenu',
+    'onPointerDown',
+    'onPointerMove',
+    'onPointerUp',
+    'onPointerCancel',
+  ] as const) {
+    events[key] = function onEvent(event) {
+      callHandler(event, userEvents[key])
+      if (userEvents.disabled) {
+        event.preventDefault()
+      }
+      callHandler(event, context.triggerProps[key])
+    }
+  }
+  const triggerProps = mergeProps(context.triggerProps, rest, events)
+  const binding = root.bind(triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
     <Dynamic
-      component={local.as ?? 'div'}
+      component={tag()}
       type={undefined}
-      {...triggerAttributes}
-      onClick={customTrigger() ? undefined : binding.onClick}
+      {...binding}
       data-slot="context-menu-trigger"
       {...resolved.styles.trigger}
     >

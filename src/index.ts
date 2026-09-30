@@ -139,7 +139,6 @@ export type {
   TooltipProps,
   TooltipT,
 } from './overlay'
-export type { ComponentOrElement } from './shared/render-prop'
 export { MoraineProvider, useCn } from './provider'
 export type { MoraineProviderProps } from './provider'
 export { createId } from './shared/utils'

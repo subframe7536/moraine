@@ -15,7 +15,7 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
 import {
@@ -970,7 +970,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           {...resolved.styles.handleControl}
                         >
                           <Show when={handlePart().content() !== undefined}>
-                            {renderComponentOrElement(handlePart().content(), handleContext)}
+                            {renderWithProps(handlePart().content(), handleContext)}
                           </Show>
                         </button>
                       </Show>

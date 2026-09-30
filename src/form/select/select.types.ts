@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -69,8 +68,8 @@ export namespace SelectT {
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
-    /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
+    /** Content or render function for the empty state. */
+    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

@@ -83,14 +83,14 @@
         {
           "name": "statusRender",
           "optional": true,
-          "type": "ComponentOrElement<StatusRenderProps>",
-          "description": "Custom render function for the status label."
+          "type": "JSX.Element | ((props: StatusRenderProps) => JSX.Element)",
+          "description": "Content or render function for the status label."
         },
         {
           "name": "stepRender",
           "optional": true,
-          "type": "ComponentOrElement<StepRenderProps>",
-          "description": "Custom render function for each step when `max` is an array."
+          "type": "(props: StepRenderProps) => JSX.Element",
+          "description": "Renderer for each step when `max` is an array."
         },
         {
           "name": "style",

@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
+import { ErrorBoundary, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -242,6 +242,8 @@ describe('Progress', () => {
   test('preserves renderer instances while the normalized value updates', () => {
     const [value, setValue] = createSignal(1)
     const reads = { statusRender: 0, stepRender: 0 }
+    let mounts = 0
+    let cleanups = 0
     const screen = render(() =>
       createComponent(Progress, {
         max: ['One', 'Two', 'Three'],
@@ -251,7 +253,17 @@ describe('Progress', () => {
         },
         get stepRender() {
           reads.stepRender += 1
-          return (context: ProgressT.StepRenderProps) => <span>{context.step}</span>
+          return (context: ProgressT.StepRenderProps) => {
+            mounts += 1
+            onCleanup(() => {
+              cleanups += 1
+            })
+            return (
+              <span data-index={context.index} data-state={context.state}>
+                {context.step}
+              </span>
+            )
+          }
         },
         get value() {
           return value()
@@ -268,6 +280,11 @@ describe('Progress', () => {
       steps,
     )
     expect(reads).toEqual({ statusRender: 1, stepRender: 1 })
+    expect([mounts, cleanups]).toEqual([3, 0])
+    expect(steps.map((step) => step.querySelector('span')?.dataset.index)).toEqual(['0', '1', '2'])
+    expect(steps[2]?.querySelector('span')?.dataset.state).toBe('last')
+    screen.unmount()
+    expect(cleanups).toBe(3)
   })
 
   test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1])(

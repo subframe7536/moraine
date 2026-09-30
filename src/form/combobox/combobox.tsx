@@ -3,7 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -202,7 +202,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
+              ? renderWithProps(local.emptyRender, {
                   get inputValue() {
                     return search.value()
                   },

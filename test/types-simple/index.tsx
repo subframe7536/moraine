@@ -1,5 +1,5 @@
 import { Badge, Button, Card, List, Separator, Slider } from 'moraine'
-import type { ComponentOrElement, BaseSelect, createId, useCn, Tags, ValidComponent } from 'moraine'
+import type { BaseSelect, createId, useCn, Tags, ValidComponent } from 'moraine'
 import type { createSlider, createTransitionPresence, createControllableValue } from 'moraine/utils'
 import type { createListVirtualizer } from 'moraine/virtualizer'
 import type { JSX } from 'solid-js'
@@ -58,7 +58,6 @@ export type SimpleTagAssertions = [
   Assert<typeof createTransitionPresence extends Callable ? true : false>,
   Assert<typeof createControllableValue extends Callable ? true : false>,
   Assert<typeof createListVirtualizer extends Callable ? true : false>,
-  Assert<ComponentOrElement extends unknown ? true : false>,
   Assert<Tags extends keyof JSX.HTMLElementTags ? true : false>,
   Assert<'svg' extends Tags ? false : true>,
   Assert<'div' extends Tags ? true : false>,

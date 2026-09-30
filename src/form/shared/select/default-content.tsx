@@ -1,12 +1,11 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, Show, on } from 'solid-js'
+import { createComponent, createEffect, createMemo, createSignal, For, Show, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../../element/icon/index'
 import type { ListT } from '../../../element/list/index'
 import { useCn } from '../../../provider/cn-context'
 import type { SlotBinding } from '../../../provider/create-styles'
-import { renderComponentOrElement } from '../../../shared/render-prop'
 import { callHandler, callRef } from '../../../shared/utils'
 import { BaseSelect, useSelectContext } from '../../base-select/base-select'
 import type { BaseSelectT } from '../../base-select/base-select.types'
@@ -104,7 +103,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
       >
         {(itemState) => (
           <Show
-            when={itemRender() !== undefined}
+            when={itemRender()}
             fallback={
               <>
                 <Show when={item().icon}>
@@ -142,7 +141,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {renderComponentOrElement(itemRender(), presentation)}
+            {(renderer) => createComponent(renderer(), presentation)}
           </Show>
         )}
       </BaseSelect.Item>

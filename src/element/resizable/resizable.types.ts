@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -141,8 +140,8 @@ export namespace ResizableT {
      */
     intersection?: boolean
 
-    /** Custom grip content, or a component receiving the live handle state. */
-    children?: ComponentOrElement<HandleRenderProps>
+    /** Content or render function receiving the live handle state. */
+    children?: JSX.Element | ((props: HandleRenderProps) => JSX.Element)
   }
 
   export type HandleProps = BaseProps<'div', HandleBase, never, never, never>

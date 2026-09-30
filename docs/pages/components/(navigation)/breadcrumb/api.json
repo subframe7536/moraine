@@ -29,8 +29,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<ItemRenderProps>",
-          "description": "Custom renderer for individual breadcrumb items."
+          "type": "(props: ItemRenderProps) => JSX.Element",
+          "description": "Renderer for each breadcrumb item."
         },
         {
           "name": "items",

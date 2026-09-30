@@ -1,5 +1,5 @@
 import { render, screen } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -182,12 +182,16 @@ describe('KbdGroup', () => {
     expect(single.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('K')
   })
 
-  test('supports custom string and JSX separators', () => {
+  test('supports string shorthand and independent custom separators', () => {
     const stringSeparator = render(() => <KbdGroup items={['Ctrl', 'K']} separator="/" />)
     const jsxSeparator = render(() => (
       <KbdGroup
         items={['Ctrl', 'Shift', 'P']}
-        separator={<span data-testid="custom-separator">·</span>}
+        separator={(props) => (
+          <span data-testid="custom-separator" data-index={props.index}>
+            ·
+          </span>
+        )}
       />
     ))
 
@@ -195,9 +199,43 @@ describe('KbdGroup', () => {
       'Ctrl/K',
     )
     expect(jsxSeparator.getAllByTestId('custom-separator')).toHaveLength(2)
+    expect(
+      jsxSeparator.getAllByTestId('custom-separator').map((element) => element.dataset.index),
+    ).toEqual(['0', '1'])
     expect(jsxSeparator.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe(
       'Ctrl·⇧·P',
     )
+  })
+
+  test('retains independent separator instances and cleans up removed positions', () => {
+    const [items, setItems] = createSignal(['Ctrl', 'Shift', 'P'])
+    const [text, setText] = createSignal('+')
+    let mounts = 0
+    let cleanups = 0
+    const view = render(() => (
+      <KbdGroup
+        items={items()}
+        separator={(props) => {
+          mounts += 1
+          onCleanup(() => {
+            cleanups += 1
+          })
+          return <span data-index={props.index}>{text()}</span>
+        }}
+      />
+    ))
+    const separators = [...view.container.querySelectorAll('span')]
+    expect(separators).toHaveLength(2)
+    expect(separators[0]).not.toBe(separators[1])
+    setText('/')
+    expect([...view.container.querySelectorAll('span')]).toEqual(separators)
+    expect(separators.map((node) => node.textContent)).toEqual(['/', '/'])
+    expect([mounts, cleanups]).toEqual([2, 0])
+    setItems(['Ctrl', 'Shift'])
+    expect(view.container.querySelectorAll('span')).toHaveLength(1)
+    expect(cleanups).toBe(1)
+    view.unmount()
+    expect(cleanups).toBe(2)
   })
 
   test('propagates size and variant to generated Kbd items', () => {

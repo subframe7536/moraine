@@ -16,10 +16,10 @@ import { Dynamic } from 'solid-js/web'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { createContextProvider } from '../../shared/create-context-provider'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callRef } from '../../shared/utils'
 import { parseFloatingPlacement } from '../base/placement'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
@@ -409,17 +409,18 @@ function PopoverClose<T extends ValidComponent = 'button'>(
   const cn = useCn()
   const behavior = usePopoverContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
-  const [element, setElement] = createSignal<HTMLElement>()
+  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
   const interaction = useButtonInteraction(
     {
       disabled: () => Boolean(local.disabled),
       disabledForComponent: true,
-      element,
+      element: root.element,
       onPress: () => behavior.popper.setOpen(false),
       tag,
     },
     rest,
   )
+  const binding = root.bind(interaction)
   const children = resolveChildren(() => local.children)
   const unregisterClose = behavior.registerClose()
   onCleanup(unregisterClose)
@@ -427,20 +428,10 @@ function PopoverClose<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       data-slot="popover-close"
-      {...interaction}
+      {...binding}
       component={tag()}
       class={cn(local.class)}
       style={local.style}
-      ref={(nextElement: HTMLElement) => {
-        setElement(nextElement)
-        callRef(local.ref, nextElement)
-        onCleanup(() => {
-          if (element() === nextElement) {
-            setElement(undefined)
-          }
-          callRef(local.ref, undefined)
-        })
-      }}
     >
       {children()}
     </Dynamic>

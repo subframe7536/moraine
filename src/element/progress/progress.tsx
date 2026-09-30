@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import { For, Show, createComponent, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
@@ -176,7 +176,7 @@ export function Progress(props: ProgressProps): JSX.Element {
                 style={{ ...statusStyle(), ...resolved.styles.status.style }}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
-                  {renderComponentOrElement(statusRender(), {
+                  {renderWithProps(statusRender(), {
                     get percent() {
                       return percent()
                     },
@@ -210,18 +210,20 @@ export function Progress(props: ProgressProps): JSX.Element {
                     {...progressDataAttributes.step({ state: () => stepState(index()) })}
                     {...resolved.styles.step}
                   >
-                    <Show when={stepRender() !== undefined} fallback={step}>
-                      {renderComponentOrElement(stepRender(), {
-                        get step() {
-                          return step
-                        },
-                        get index() {
-                          return index()
-                        },
-                        get state() {
-                          return stepState(index())
-                        },
-                      })}
+                    <Show when={stepRender()} fallback={step}>
+                      {(renderer) =>
+                        createComponent(renderer(), {
+                          get step() {
+                            return step
+                          },
+                          get index() {
+                            return index()
+                          },
+                          get state() {
+                            return stepState(index())
+                          },
+                        })
+                      }
                     </Show>
                   </div>
                 )}

@@ -21,8 +21,9 @@ import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlay/base/
 import { createStyles } from '../../provider/create-styles'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { HiddenInput } from '../../shared/hidden-input'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createTypeahead } from '../../shared/typeahead'
 import type { ValidComponent } from '../../shared/types'
@@ -545,9 +546,20 @@ function BaseSelectTrigger<
     inheritedVariants: () => ({ size: state.styleSize }),
   })
   const resolvedChildren = resolveChildren(() =>
-    renderComponentOrElement(local.children, state.presentation),
+    renderWithProps(local.children, state.presentation),
   )
   const tag = () => local.as ?? 'button'
+  const root = createPolymorphicRoot({
+    tag,
+    ref: () => local.ref,
+    registration: {
+      element: state.focusOwner,
+      ref: (element) => {
+        state.setFocusOwner(element)
+        state.field.setControlRef(element)
+      },
+    },
+  })
   const eventProps = mergeProps(rest, {
     onPointerDown(event: PointerEvent) {
       callHandler(event, local.onPointerDown)
@@ -583,7 +595,7 @@ function BaseSelectTrigger<
       tag,
       disabledForComponent: true,
       disabled: () => state.field.disabled() || Boolean(local.disabled),
-      element: state.focusOwner,
+      element: root.element,
       onPress: () => {
         state.focusOwner()?.focus()
         state.setOpen(!state.open())
@@ -591,9 +603,10 @@ function BaseSelectTrigger<
     },
     eventProps,
   )
+  const rootBinding = root.bind(binding)
   return (
     <Dynamic
-      {...binding}
+      {...rootBinding}
       component={tag()}
       {...state.field.ariaAttrs()}
       id={state.field.id()}
@@ -614,18 +627,6 @@ function BaseSelectTrigger<
           : undefined
       }
       {...resolved.styles.trigger}
-      ref={(element: HTMLElement) => {
-        state.setFocusOwner(element)
-        state.field.setControlRef(element)
-        callRef(local.ref, element)
-        onCleanup(() => {
-          if (state.focusOwner() === element) {
-            state.setFocusOwner(undefined)
-            state.field.setControlRef(undefined)
-          }
-          callRef(local.ref, undefined)
-        })
-      }}
     >
       {resolvedChildren()}
     </Dynamic>
@@ -823,7 +824,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     if (value === undefined) {
       return item().label
     }
-    return renderComponentOrElement(value, presentation)
+    return renderWithProps(value, presentation)
   })
   return (
     <div

@@ -102,8 +102,8 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "ComponentOrElement<EmptyRenderProps<TItem>>",
-          "description": "Custom renderer for the filtered empty state."
+          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "description": "Content or render function for the filtered empty state."
         },
         {
           "name": "filterItem",
@@ -152,8 +152,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>>",
-          "description": "Custom item presentation."
+          "type": "(props: BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>) => JSX.Element",
+          "description": "Renderer for each collection item."
         },
         {
           "name": "items",

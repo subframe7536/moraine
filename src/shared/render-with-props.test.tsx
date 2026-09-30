@@ -1,22 +1,26 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal, onCleanup } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { Show, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderComponentOrElement } from './render-prop'
+import { renderWithProps } from './render-with-props'
 
-describe('renderComponentOrElement', () => {
+describe('renderWithProps', () => {
   test('returns static JSX unchanged', () => {
-    const element = <span>Static content</span>
-    const screen = render(() => renderComponentOrElement(element, {}))
+    let element!: JSX.Element
+    const screen = render(() => {
+      element = <span>Static content</span>
+      return renderWithProps(element, {})
+    })
 
     expect(screen.container.firstChild).toBe(element)
   })
 
-  test('mounts components with reactive props', () => {
+  test('mounts a renderer with reactive props', () => {
     const [value, setValue] = createSignal('first')
     const Value = (props: { value: string }) => <span>{props.value}</span>
     const screen = render(() =>
-      renderComponentOrElement(Value, {
+      renderWithProps(Value, {
         get value() {
           return value()
         },
@@ -33,9 +37,9 @@ describe('renderComponentOrElement', () => {
   test('preserves undefined and static primitive values', () => {
     const screen = render(() => (
       <div>
-        <span data-testid="undefined">{renderComponentOrElement(undefined, {})}</span>
-        <span data-testid="zero">{renderComponentOrElement(0, {})}</span>
-        <span data-testid="false">{renderComponentOrElement(false, {})}</span>
+        <span data-testid="undefined">{renderWithProps(undefined, {})}</span>
+        <span data-testid="zero">{renderWithProps(0, {})}</span>
+        <span data-testid="false">{renderWithProps(false, {})}</span>
       </div>
     ))
 
@@ -44,18 +48,22 @@ describe('renderComponentOrElement', () => {
     expect(screen.getByTestId('false').textContent).toBe('')
   })
 
-  test('preserves component ownership and cleanup', () => {
+  test('owns renderer cleanup across conditional mounts', () => {
     const cleanup = vi.fn()
     const Owned = () => {
       onCleanup(cleanup)
       return <span>Owned content</span>
     }
-    const screen = render(() => renderComponentOrElement(Owned, {}))
+    const [visible, setVisible] = createSignal(true)
+    const screen = render(() => <Show when={visible()}>{renderWithProps(Owned, {})}</Show>)
 
     expect(cleanup).not.toHaveBeenCalled()
 
-    screen.unmount()
-
+    setVisible(false)
     expect(cleanup).toHaveBeenCalledOnce()
+
+    setVisible(true)
+    screen.unmount()
+    expect(cleanup).toHaveBeenCalledTimes(2)
   })
 })

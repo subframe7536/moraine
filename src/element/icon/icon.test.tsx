@@ -77,13 +77,13 @@ describe('Icon', () => {
     expect(screen.getByTestId('cached-icon').textContent).toBe('C')
   })
 
-  test('supports component/render-function icons', () => {
+  test('supports zero-argument Solid component icons', () => {
     const screen = render(() => <Icon name={() => <span data-testid="fn-icon">R</span>} />)
 
     expect(screen.getByTestId('fn-icon').textContent).toBe('R')
   })
 
-  test('preserves a zero-argument renderer and its cleanup while its JSX updates', () => {
+  test('preserves a zero-argument component and its cleanup while its JSX updates', () => {
     const [label, setLabel] = createSignal('Before')
     let mounts = 0
     let cleanups = 0
@@ -103,14 +103,29 @@ describe('Icon', () => {
     expect(cleanups).toBe(1)
   })
 
-  test('forwards reactive attributes to renderers with default parameters', () => {
+  test('forwards reactive attributes to Solid components with default parameters', () => {
     const [label, setLabel] = createSignal('Before')
+    const [size, setSize] = createSignal(18)
     const Glyph = (props: Omit<IconProps, 'name'> = {}) => (
-      <svg aria-hidden={props['aria-hidden']} aria-label={props['aria-label']} role={props.role} />
+      <svg
+        aria-hidden={props['aria-hidden']}
+        aria-label={props['aria-label']}
+        role={props.role}
+        class={props.class as string}
+        style={props.style}
+        data-title={props.title}
+      />
     )
-    const screen = render(() => <Icon name={Glyph} aria-label={label()} />)
+    const screen = render(() => (
+      <Icon name={Glyph} aria-label={label()} size={size()} class="glyph" title="Status" />
+    ))
     const glyph = screen.getByRole('img', { name: 'Before' })
     expect(glyph.getAttribute('aria-label')).toBe('Before')
+    expect(glyph.getAttribute('class')).toContain('glyph')
+    expect(glyph.getAttribute('data-title')).toBe('Status')
+    expect(glyph.style.fontSize).toBe('18px')
+    setSize(24)
+    expect(glyph.style.fontSize).toBe('24px')
     setLabel('After')
     expect(glyph.getAttribute('aria-label')).toBe('After')
     expect(screen.getByRole('img', { name: 'After' })).toBe(glyph)

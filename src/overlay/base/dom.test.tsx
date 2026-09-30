@@ -8,7 +8,7 @@ import {
   isHTMLElement,
   isNode,
 } from './dom'
-import { getOverlayTriggerAccessibility, validateOverlayTrigger } from './trigger'
+import { getContextMenuTriggerAccessibility, validateOverlayTrigger } from './trigger'
 
 describe('overlay DOM realm', () => {
   test('recognizes foreign HTML roots and native input buttons', () => {
@@ -28,17 +28,17 @@ describe('overlay DOM realm', () => {
       expect(getOwnerWindow(button)).toBe(iframe.contentWindow)
       expect(() => validateOverlayTrigger(button, 'Modal')).not.toThrow()
       expect(() => validateOverlayTrigger(div, 'ContextMenu')).not.toThrow()
-      expect(getOverlayTriggerAccessibility(button, true)).toEqual({
+      expect(getContextMenuTriggerAccessibility(button, true)).toEqual({
         ariaDisabled: undefined,
         disabled: true,
         tabIndex: undefined,
       })
-      expect(getOverlayTriggerAccessibility(input, true)).toEqual({
+      expect(getContextMenuTriggerAccessibility(input, true)).toEqual({
         ariaDisabled: undefined,
         disabled: true,
         tabIndex: undefined,
       })
-      expect(getOverlayTriggerAccessibility(div, true)).toEqual({
+      expect(getContextMenuTriggerAccessibility(div, true)).toEqual({
         ariaDisabled: 'true',
         disabled: undefined,
         tabIndex: -1,

@@ -9,7 +9,7 @@ import type { ValidComponent } from '../../shared/types'
 import { iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
 
-/** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
+/** Renders an icon from a UnoCSS icon class, JSX element, or Solid component. */
 export function Icon(props: IconProps): JSX.Element {
   const cn = useCn()
   const [local, rest] = splitProps(props, [
@@ -43,11 +43,7 @@ export function Icon(props: IconProps): JSX.Element {
     }
 
     if (typeof value === 'function') {
-      return {
-        // Dynamic invokes components untracked; render zero-argument functions through JSX.
-        component:
-          value.length > 0 ? value : (props: Omit<IconProps, 'name'>) => <>{value(props)}</>,
-      }
+      return { component: value }
     }
 
     return {

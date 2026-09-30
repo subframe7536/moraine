@@ -9,6 +9,25 @@ import { renderWithTheme } from '../../test-util/theme-render'
 import { ContextMenu } from './context-menu'
 
 describe('ContextMenu', () => {
+  test('keeps ordinary Enter and Space inert while supporting the ContextMenu key', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <ContextMenu onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger>Target</ContextMenu.Trigger>
+        <ContextMenu.Content items={[{ label: 'Action' }]} />
+      </ContextMenu>
+    ))
+    const trigger = screen.getByText('Target')
+    expect(trigger.hasAttribute('role')).toBe(false)
+    for (const key of ['Enter', ' ']) {
+      fireEvent.keyDown(trigger, { key })
+      fireEvent.keyUp(trigger, { key })
+    }
+    expect(onOpenChange).not.toHaveBeenCalled()
+    fireEvent.keyDown(trigger, { key: 'ContextMenu' })
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+  })
+
   test('opens and dismisses in a foreign Document', async () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)

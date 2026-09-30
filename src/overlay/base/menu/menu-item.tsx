@@ -1,6 +1,14 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
+import {
+  Show,
+  createComponent,
+  createMemo,
+  createSignal,
+  onCleanup,
+  onMount,
+  splitProps,
+} from 'solid-js'
 
 import { Icon } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd'
@@ -8,7 +16,6 @@ import type { SlotBinding } from '../../../provider/create-styles'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListener } from '../../../shared/event-listener'
-import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
@@ -243,15 +250,21 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     return (
       <Show
         when={itemRender() === undefined}
-        fallback={renderComponentOrElement(
-          itemRender(),
-          getItemRenderProps(
-            contentProps.item,
-            contentProps.hasChildren,
-            contentProps.isCheckbox,
-            contentProps.isRadio,
-          ),
-        )}
+        fallback={
+          <Show when={itemRender()}>
+            {(renderer) =>
+              createComponent(
+                renderer(),
+                getItemRenderProps(
+                  contentProps.item,
+                  contentProps.hasChildren,
+                  contentProps.isCheckbox,
+                  contentProps.isRadio,
+                ),
+              )
+            }
+          </Show>
+        }
       >
         <Show when={contentProps.item.icon}>
           <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>

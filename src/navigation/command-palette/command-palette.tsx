@@ -3,6 +3,7 @@ import {
   DEV,
   For,
   Show,
+  createComponent,
   createEffect,
   createMemo,
   createSignal,
@@ -19,7 +20,7 @@ import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
@@ -464,12 +465,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   ): JSX.Element {
     return (
       <Show
-        when={merged.itemRender !== undefined}
+        when={merged.itemRender}
         fallback={
           <>
             <Show when={item.item.leadingRender !== undefined}>
               <span data-slot="command-palette-item-leading" {...resolved.styles.itemLeading}>
-                {renderComponentOrElement(item.item.leadingRender, itemContext)}
+                {renderWithProps(item.item.leadingRender, itemContext)}
               </span>
             </Show>
 
@@ -485,13 +486,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
             <Show when={item.item.trailingRender !== undefined}>
               <span data-slot="command-palette-item-trailing" {...resolved.styles.itemTrailing}>
-                {renderComponentOrElement(item.item.trailingRender, itemContext)}
+                {renderWithProps(item.item.trailingRender, itemContext)}
               </span>
             </Show>
           </>
         }
       >
-        {renderComponentOrElement(merged.itemRender, itemContext)}
+        {(renderer) => createComponent(renderer(), itemContext)}
       </Show>
     )
   }
@@ -647,7 +648,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback="No results.">
-                  {renderComponentOrElement(merged.emptyRender, getContext())}
+                  {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
             }
@@ -685,7 +686,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback="No results.">
-                  {renderComponentOrElement(merged.emptyRender, getContext())}
+                  {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
             }
@@ -734,7 +735,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
       <Show when={merged.footerRender !== undefined}>
         <div data-slot="command-palette-footer" {...resolved.styles.footer}>
-          {renderComponentOrElement(merged.footerRender, getContext())}
+          {renderWithProps(merged.footerRender, getContext())}
         </div>
       </Show>
     </div>

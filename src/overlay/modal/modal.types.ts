@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
@@ -102,8 +101,8 @@ export namespace ModalT {
   export type OverlayProps = BaseProps<'div', OverlayBase, Variant, never, never>
 
   export interface ContentBase {
-    /** Component or element rendered inside the modal content surface. */
-    children: ComponentOrElement<ContentRenderProps>
+    /** Content or render function inside the modal content surface. */
+    children: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
 
     /** Accessible name used when no visible label is available. */
     ariaLabel?: string

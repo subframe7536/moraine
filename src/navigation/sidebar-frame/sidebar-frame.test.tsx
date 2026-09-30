@@ -537,7 +537,7 @@ describe('SidebarFrame.Trigger', () => {
     const trigger = screen.getByText('Toggle')
     expect(trigger.getAttribute('aria-disabled')).toBe('true')
     expect(trigger.getAttribute('data-disabled')).toBe('')
-    expect(trigger.hasAttribute('tabindex')).toBe(false)
+    expect(trigger.getAttribute('tabindex')).toBe('-1')
 
     fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(trigger.getAttribute('aria-expanded')).toBe('true')

@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
+import { createComponent, createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -312,16 +312,15 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           <div data-slot="multi-select-tags-container" {...styles.styles.tagsContainer}>
             <For each={tags.visible()}>
               {(tag, index) => (
-                <Show
-                  when={local.tagRender !== undefined}
-                  fallback={tags.renderDefault(tag, index)}
-                >
-                  {renderComponentOrElement(local.tagRender, {
-                    item: source().byValue.get(tag.value),
-                    value: tag.value,
-                    label: tag.label,
-                    onClose: () => tags.remove(index()),
-                  } satisfies MultiSelectT.TagRenderProps<T>)}
+                <Show when={local.tagRender} fallback={tags.renderDefault(tag, index)}>
+                  {(renderer) =>
+                    createComponent(renderer(), {
+                      item: source().byValue.get(tag.value),
+                      value: tag.value,
+                      label: tag.label,
+                      onClose: () => tags.remove(index()),
+                    } satisfies MultiSelectT.TagRenderProps<T>)
+                  }
                 </Show>
               )}
             </For>
@@ -338,7 +337,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   </span>
                 }
               >
-                {renderComponentOrElement(local.tagOverflow, {
+                {renderWithProps(local.tagOverflow, {
                   get count() {
                     return tags.overflow()
                   },
@@ -489,7 +488,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
+              ? renderWithProps(local.emptyRender, {
                   get inputValue() {
                     return search.value()
                   },

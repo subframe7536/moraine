@@ -18,15 +18,20 @@ export namespace KbdGroupT {
 
   export type Item = KbdT.Key | KbdT.Base
 
+  export interface SeparatorRenderProps {
+    /** Separator index between key[index] and key[index + 1]. */
+    index: number
+  }
+
   export interface Base {
     /** Keyboard keys displayed as one simultaneous shortcut. */
     items: Item[]
 
     /**
-     * Inline content rendered between keys.
+     * String or number shorthand, or a renderer for each separator between keys.
      * @default '+'
      */
-    separator?: JSX.Element
+    separator?: string | number | ((props: SeparatorRenderProps) => JSX.Element)
   }
 
   /** Props for the KbdGroup component. */

@@ -1,7 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -72,8 +71,8 @@ export namespace ComboboxT {
     items?: Entry<TItem>[]
     /** Called when the committed selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
-    /** Custom renderer for the filtered empty state. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
+    /** Content or render function for the filtered empty state. */
+    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
     /** Placeholder shown when there is no selected value or query. */
     placeholder?: string
     /** Whether the control is loading. */

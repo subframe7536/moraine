@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 
@@ -168,7 +168,7 @@ export function renderField<T extends ValidComponent = 'div'>(
 
   function RenderFieldRoot(): JSX.Element {
     const fieldChildren = resolveChildren(() =>
-      renderComponentOrElement(local.children, {
+      renderWithProps(local.children, {
         get error() {
           return resolvedError()
         },

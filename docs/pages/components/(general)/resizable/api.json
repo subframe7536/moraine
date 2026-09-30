@@ -233,8 +233,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "ComponentOrElement<HandleRenderProps>",
-          "description": "Custom grip content, or a component receiving the live handle state."
+          "type": "JSX.Element | ((props: HandleRenderProps) => JSX.Element)",
+          "description": "Content or render function receiving the live handle state."
         },
         {
           "name": "class",

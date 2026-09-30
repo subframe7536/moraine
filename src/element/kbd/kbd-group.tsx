@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, splitProps } from 'solid-js'
+import { For, Show, createComponent, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 
@@ -39,7 +39,21 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 {...resolved.styles.item}
                 slotName="kbd-group-item"
               />
-              <Show when={index() < local.items.length - 1}>{local.separator ?? '+'}</Show>
+              <Show when={index() < local.items.length - 1}>
+                {(_separator) => {
+                  const content = createMemo(() => {
+                    const separator = local.separator ?? '+'
+                    return typeof separator === 'function'
+                      ? createComponent(separator, {
+                          get index() {
+                            return index()
+                          },
+                        })
+                      : separator
+                  })
+                  return <>{content()}</>
+                }}
+              </Show>
             </>
           )}
         </For>

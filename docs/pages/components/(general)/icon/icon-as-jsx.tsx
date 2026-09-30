@@ -1,5 +1,7 @@
 import { Icon } from '@src'
 
+const ZapIcon = () => <div class="i-lucide-zap size-6" />
+
 export function IconAsJSX() {
   return (
     <div class="flex flex-wrap gap-6 items-center">
@@ -24,8 +26,8 @@ export function IconAsJSX() {
         <span class="text-[10px] text-muted-foreground">JSX element</span>
       </div>
       <div class="flex flex-col gap-1 items-center">
-        <Icon name={() => <div class="i-lucide-zap size-6" />} />
-        <span class="text-[10px] text-muted-foreground">Render function</span>
+        <Icon name={ZapIcon} />
+        <span class="text-[10px] text-muted-foreground">Solid component</span>
       </div>
     </div>
   )

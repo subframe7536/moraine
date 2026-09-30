@@ -10,7 +10,7 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { containFocusInContainer } from '../base/utils'
 
@@ -67,7 +67,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   onCleanup(() => context.setOverlayScroll(false))
   const presence = context.presence
   const body = resolveChildren(() =>
-    renderComponentOrElement(local.children, {
+    renderWithProps(local.children, {
       close: () => context.updateOpen(false),
     }),
   )

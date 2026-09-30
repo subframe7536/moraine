@@ -1,7 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -117,12 +116,12 @@ export namespace MultiSelectT {
      * @default [',']
      */
     tokenSeparators?: string[]
-    /** Custom renderer for each selected tag. */
-    tagRender?: ComponentOrElement<TagRenderProps<TItem>>
-    /** Custom renderer for tags hidden by `maxTagCount`. */
-    tagOverflow?: ComponentOrElement<TagOverflowRenderProps<TItem>>
-    /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
+    /** Renderer for each selected tag. */
+    tagRender?: (props: TagRenderProps<TItem>) => JSX.Element
+    /** Content or render function for tags hidden by `maxTagCount`. */
+    tagOverflow?: JSX.Element | ((props: TagOverflowRenderProps<TItem>) => JSX.Element)
+    /** Content or render function for the empty state. */
+    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

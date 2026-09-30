@@ -1,11 +1,10 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import { For, Show, createComponent, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import type { IconT } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { renderComponentOrElement } from '../../shared/render-prop'
 import { callRef } from '../../shared/utils'
 
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
@@ -98,7 +97,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     }
                   >
                     {(renderer) =>
-                      renderComponentOrElement(renderer(), {
+                      createComponent(renderer(), {
                         item,
                         get index() {
                           return index()
