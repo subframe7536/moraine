@@ -1,7 +1,7 @@
-import type { ClassValue, Cn } from './cn'
-import { cn } from './cn'
+import type { ClassValue } from 'cn'
 
-export type { ClassValue } from './cn'
+import type { Cn } from './cn'
+import { cn } from './cn'
 
 export type RecipeSlot<S extends object> = Extract<keyof S, string>
 
@@ -117,6 +117,21 @@ function freezeVariants<S extends object, V>(
 type VariantKey = string | number | boolean
 type ActiveVariants = Record<string, string>
 
+function getActiveVariants(
+  keys: Iterable<string>,
+  defaults: Record<string, unknown>,
+  supplied: Record<string, unknown> | undefined,
+): ActiveVariants {
+  const active: ActiveVariants = {}
+  for (const key of keys) {
+    const value = supplied?.[key] === undefined ? defaults[key] : supplied[key]
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      active[key] = String(value)
+    }
+  }
+  return active
+}
+
 function getVariantMatch(compoundVariant: { class?: unknown; variants?: object }): object {
   if (compoundVariant.variants) {
     return compoundVariant.variants
@@ -179,23 +194,17 @@ export function resolveRecipe<S extends object, V>(
   const defaults = getRecipeDefaultVariants(recipe) as Record<string, unknown>
   const suppliedValues: Record<string, unknown> = {}
   for (const key of Object.keys(variants ?? {})) {
-    suppliedValues[key] = (variants as Record<string, unknown> | undefined)?.[key]
+    suppliedValues[key] = (variants as Record<string, unknown>)[key]
   }
   const keys = new Set<string>([
     ...Object.keys(defaults),
-    ...Object.keys(suppliedValues),
+    ...Object.keys(suppliedValues ?? {}),
     ...layers.flatMap((layer) => Object.keys(layer.variants ?? {})),
     ...layers.flatMap((layer) =>
       (layer.compoundVariants ?? []).flatMap((compound) => Object.keys(compound.variants)),
     ),
   ])
-  const activeVariants: ActiveVariants = {}
-  for (const key of keys) {
-    const value = suppliedValues[key] === undefined ? defaults[key] : suppliedValues[key]
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      activeVariants[key] = String(value)
-    }
-  }
+  const activeVariants = getActiveVariants(keys, defaults, suppliedValues)
 
   const style: RecipeResult<S>['style'] = {}
   const classes = {} as Record<RecipeSlot<S>, ClassValue[]>
@@ -277,8 +286,7 @@ function getAtomicActiveVariants(
   options: AtomicRecipeOptions<any>,
   variants?: object,
 ): ActiveVariants {
-  const active: ActiveVariants = {}
-  const defaults = options.defaults as Record<string, unknown> | undefined
+  const defaults = (options.defaults ?? {}) as Record<string, unknown>
   const keys = new Set([
     ...Object.keys(options.variants ?? {}),
     ...Object.keys(defaults ?? {}),
@@ -286,14 +294,7 @@ function getAtomicActiveVariants(
       Object.keys(getVariantMatch(compound)),
     ),
   ])
-  for (const key of keys) {
-    const supplied = (variants as Record<string, unknown> | undefined)?.[key]
-    const value = supplied === undefined ? defaults?.[key] : supplied
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      active[key] = String(value)
-    }
-  }
-  return active
+  return getActiveVariants(keys, defaults, variants as Record<string, unknown> | undefined)
 }
 
 export function atomicRecipe<V extends Record<string, Record<string, ClassValue>>>(

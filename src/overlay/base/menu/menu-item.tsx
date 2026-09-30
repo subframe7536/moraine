@@ -1,3 +1,4 @@
+import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Setter } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
@@ -8,9 +9,9 @@ import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListener } from '../../../shared/event-listener'
 import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { ClassValue, ElementProps } from '../../../shared/types'
+import type { ElementProps } from '../../../shared/types'
 import { callHandler, callRef, createId } from '../../../shared/utils'
-import type { Cn } from '../../../theme/style/cn'
+import type { Cn } from '../../../theme/cn'
 
 import { overlayMenuDataAttributes } from './menu.recipe'
 import { focusElement, getOverlayMenuTextValue } from './menu.utils'

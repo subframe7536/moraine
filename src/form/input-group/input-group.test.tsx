@@ -19,6 +19,34 @@ const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('InputGroup', () => {
+  test('updates supporting parts when the group variant changes', () => {
+    let setVariant!: (value: 'outline' | 'ghost') => void
+    const screen = render(() => {
+      const [variant, setValue] = createSignal<'outline' | 'ghost'>('outline')
+      setVariant = setValue
+      return (
+        <InputGroup variant={variant()}>
+          <InputGroup.Leading>Prefix</InputGroup.Leading>
+          <Input />
+          <InputGroup.Trailing>Suffix</InputGroup.Trailing>
+        </InputGroup>
+      )
+    })
+    const parts = [screen.getByText('Prefix'), screen.getByText('Suffix')]
+    for (const part of parts) {
+      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+    }
+    setVariant('ghost')
+    for (const part of parts) {
+      expect(part.className).toContain('group-hover/input-group:text-accent-foreground')
+      expect(part.className).toContain('group-focus-within/input-group:text-accent-foreground')
+    }
+    setVariant('outline')
+    for (const part of parts) {
+      expect(part.className).not.toContain('group-hover/input-group:text-accent-foreground')
+    }
+  })
+
   test.each([Input, Textarea])('allows %s to render outside an InputGroup', (Control) => {
     const screen = baseRender(() => <Control />)
 
@@ -87,6 +115,23 @@ describe('InputGroup', () => {
       expect(frame.className).toContain('peer-aria-invalid:border-destructive')
     },
   )
+
+  test.each([Input, Textarea])('colors the %s control with a ghost group', (Control) => {
+    const screen = render(() => (
+      <InputGroup variant="ghost">
+        <Control />
+      </InputGroup>
+    ))
+    const rootClasses = screen.getByRole('group').className.split(/\s+/)
+    const controlClasses = screen.getByRole('textbox').className.split(/\s+/)
+
+    expect(rootClasses).toContain('group/input-group')
+    for (const state of ['hover', 'focus-within']) {
+      expect(rootClasses).toContain(`${state}:bg-accent-hover`)
+      expect(controlClasses).toContain(`group-${state}/input-group:text-accent-foreground`)
+    }
+    expect(controlClasses).toContain('text-foreground')
+  })
 
   test.each([Input, Textarea])(
     'keeps the grouped none variant frame free of its normal focus ring for %s',

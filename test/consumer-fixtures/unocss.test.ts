@@ -54,6 +54,10 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-closed:animate-mo-exit',
         'z-floating',
         'bg-primary',
+        'data-highlighted:bg-accent-hover',
+        'data-highlighted:text-accent-foreground',
+        'hover:bg-accent-hover',
+        'active:bg-accent-active',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
         'after:h-(--s-offset)',
@@ -91,6 +95,12 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('z-index:50')
       expect(css).toMatch(/opacity:(0\.64|64%)/)
       expect(css).toContain('var(--primary)')
+      expect(css).toContain('var(--mo-auto-accent-hover')
+      expect(css).toContain('var(--accent-hover')
+      expect(css).toContain('var(--accent-foreground)')
+      expect(css).toContain('var(--accent-active')
+      expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
+      expect(css).not.toContain('@supports not (color: color-mix(in oklch, red, white))')
       expect(css).toContain('width:var(--mo-popper-anchor-width)')
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
@@ -102,6 +112,35 @@ describe('isolated built-dist UnoCSS consumer', () => {
     },
     15_000,
   )
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('uses external colors and scoped overrides with %s', async (_name, wind) => {
+    const modulePath = join(consumer.packageDir, 'dist/unocss.mjs')
+    const { presetMoraine } = await import(pathToFileURL(modulePath).href)
+    const generator = await createGenerator({
+      presets: [
+        wind(),
+        presetMoraine({
+          themeDefaults: false,
+          override: {
+            brand: {
+              selector: '[data-theme="brand"]',
+              colors: { primary: { base: '#369', hover: '#258' } },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(['hover:bg-primary-hover']), {
+      preflights: true,
+    })
+
+    expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n  --primary-hover: #258;\n}')
+    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+    expect(css).not.toContain('--background: rgb(')
+  })
 
   test('keeps icon masks in the optional asset', () => {
     const iconCSS = readFileSync(join(consumer.packageDir, 'dist/icon.css'), 'utf8')

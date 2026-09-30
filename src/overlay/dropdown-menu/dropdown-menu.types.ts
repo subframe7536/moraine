@@ -1,14 +1,13 @@
 import type { JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type {
-  BaseProps,
-  ElementProps,
   SlotClassValue,
   SlotStyleValue,
-  ValidComponent,
-} from '../../shared/types'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types'
+  OverlayAlign,
+  OverlayPlacement,
+} from '../../theme/style-types'
 import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,

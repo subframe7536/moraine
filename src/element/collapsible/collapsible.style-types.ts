@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface CollapsibleStyleSlot<T = unknown> {
   /** Container that owns the trigger and expandable content. */
   root?: T
@@ -10,3 +12,5 @@ export interface CollapsibleStyleSlot<T = unknown> {
 }
 
 export type CollapsibleStyleVariant = never
+
+export type CollapsibleStyleConfig = ComponentStyleConfig<CollapsibleStyleSlot>

@@ -1,4 +1,5 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface BreadcrumbStyleSlot<T = unknown> {
   /**
    * Navigation container for the breadcrumb trail.
@@ -37,3 +38,8 @@ export interface BreadcrumbStyleVariant {
    */
   wrap?: boolean
 }
+
+export type BreadcrumbStyleConfig = ComponentStyleConfig<
+  BreadcrumbStyleSlot,
+  BreadcrumbStyleVariant
+>

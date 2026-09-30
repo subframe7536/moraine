@@ -1,5 +1,5 @@
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
 import { avatarDataAttributes } from './avatar.recipe'

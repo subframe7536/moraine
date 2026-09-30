@@ -11,7 +11,7 @@ import {
 } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import type { SlotClassValue } from '../../shared/types'
+import type { SlotClassValue } from '../../theme/style-types'
 import { Icon } from '../icon'
 
 import { avatarDataAttributes, avatarRecipe } from './avatar.recipe'

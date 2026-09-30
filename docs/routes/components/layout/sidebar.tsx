@@ -116,7 +116,7 @@ export const Sidebar = (props: SidebarProps) => {
 
               <Show when={section.section === 'overview' && props.pages[0]?.surface === 'docs'}>
                 <section aria-label="agents">
-                  <div class="text-muted-foreground tracking-tight font-medium mb-1.5 mt-3 px-2 py-0.5 bg-muted/60 w-fit uppercase text-xs rounded-md">
+                  <div class="text-foreground tracking-tight font-bold mb-1.5 mt-3 px-2 py-0.5 capitalize">
                     Agents
                   </div>
                   <div class="flex flex-col gap-0.5">

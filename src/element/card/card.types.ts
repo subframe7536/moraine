@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type { BaseProps, ValidComponent } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
 

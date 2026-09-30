@@ -40,7 +40,7 @@ describe('Pagination', () => {
     const next = screen.container.querySelector('[data-slot="pagination-next"]')!
     expect(root.className).not.toMatch(/bg-|hover:|border-/)
     expect(current.className).toContain('bg-background')
-    expect(next.className).toContain('bg-muted-hover')
+    expect(next.className).toContain('bg-accent-hover')
 
     setDestructive(true)
     expect(root.className).not.toMatch(/bg-|hover:|border-/)

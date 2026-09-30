@@ -1,4 +1,4 @@
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
 
 import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
 

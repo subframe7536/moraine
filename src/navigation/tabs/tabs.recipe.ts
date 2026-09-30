@@ -1,6 +1,7 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import { DISABLED_CLASS, FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
 
@@ -15,8 +16,7 @@ export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleV
     root: '',
     list: 'p-1 inline-flex items-center relative',
     indicator: 'rounded-md transition-transform absolute',
-    trigger:
-      'text-muted-foreground rounded-md font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:(outline-none border-ring ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none)',
+    trigger: `text-muted-foreground rounded-md font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground ${FOCUS_VISIBLE_CLASS} ${DISABLED_CLASS}`,
     leading: 'inline-flex shrink-0 items-center justify-center',
     label: 'truncate',
     content: 'text-sm outline-none w-full',

@@ -38,10 +38,10 @@ function convertSrcImport(specifier: string): string {
   if (specifier === '@src/utils' || specifier === '@src/utils.ts') {
     return 'moraine/utils'
   }
-  if (specifier === '@src/unocss' || specifier === '@src/unocss.ts') {
+  if (specifier === '@src/theme/unocss' || specifier === '@src/theme/unocss.ts') {
     return 'moraine/unocss'
   }
-  if (specifier === '@src/tailwind' || specifier === '@src/tailwind.ts') {
+  if (specifier === '@src/theme/tailwind' || specifier === '@src/theme/tailwind.ts') {
     return 'moraine/tailwind'
   }
   if (specifier === '@src/icon.css') {

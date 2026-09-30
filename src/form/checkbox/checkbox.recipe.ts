@@ -1,6 +1,12 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DATA_INVALID_CLASS,
+  DISABLED_CLASS,
+  FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
 
@@ -32,8 +38,7 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, Ch
   {
     base: {
       root: 'flex items-start relative',
-      control:
-        'disabled:(opacity-64 pointer-events-none) outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-checked:(border-primary bg-primary) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) dark:bg-input/30',
+      control: `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} dark:bg-input/30`,
       indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
       icon: 'shrink-0 size-full',
       wrapper: 'flex flex-col gap-0.5 w-full',

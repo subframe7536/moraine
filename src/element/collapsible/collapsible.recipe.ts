@@ -1,6 +1,6 @@
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { createDataAttributes } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import type { DataAttributeContract } from '../../theme/style-contract'
+import { createDataAttributes } from '../../theme/style-contract'
 
 import type { CollapsibleStyleSlot } from './collapsible.style-types'
 

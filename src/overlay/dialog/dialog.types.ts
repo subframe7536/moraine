@@ -1,7 +1,8 @@
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type { BaseProps, ValidComponent } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 

@@ -1,6 +1,7 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import { ARIA_DISABLED_CLASS } from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
 
@@ -11,7 +12,7 @@ export const breadcrumbDataAttributes = {
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'
 export const BREADCRUMB_PAGE_CLASS = 'text-foreground font-normal inline-flex items-center gap-1'
-export const BREADCRUMB_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-none)'
+export const BREADCRUMB_DISABLED_CLASS = `${ARIA_DISABLED_CLASS}`
 export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
 export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<

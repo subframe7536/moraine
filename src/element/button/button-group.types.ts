@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { SeparatorT } from '../separator/separator.types'
 
 import type { ButtonGroupStyleSlot, ButtonGroupStyleVariant } from './button-group.style-types'

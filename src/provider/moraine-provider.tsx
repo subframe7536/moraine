@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
+import type { CnConfig } from '../theme/cn'
+import { createCn } from '../theme/cn'
 import { getThemeRecipeLayers } from '../theme/create-theme'
-import type { CnConfig } from '../theme/style/cn'
-import { createCn } from '../theme/style/cn'
-import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
+import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnProvider, useCnAccessor } from './cn-context'

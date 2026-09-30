@@ -1,12 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import type {
-  BaseProps,
-  ElementProps,
-  SlotClassValue,
-  SlotStyleValue,
-  ValidComponent,
-} from '../../shared/types'
+import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
   FormIdentityOptions,
   FormDisableOption,

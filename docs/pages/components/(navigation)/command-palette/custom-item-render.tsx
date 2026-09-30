@@ -37,10 +37,10 @@ export function CustomItemRender() {
         autofocus={false}
         itemRender={(ctx) => (
           <div class="flex flex-1 gap-3 min-w-0 items-center">
-            <Icon name="i-lucide-folder-kanban text-muted-foreground shrink-0" />
+            <Icon name="i-lucide-folder-kanban text-muted-foreground group-data-[highlighted]:text-accent-foreground shrink-0" />
             <span class="flex flex-1 flex-col min-w-0">
               <span class="font-medium truncate text-sm">{ctx.item.label}</span>
-              <span class="text-muted-foreground truncate text-xs">
+              <span class="text-muted-foreground truncate text-xs group-data-[highlighted]:text-accent-foreground">
                 {ctx.item.owner} · {ctx.item.description}
               </span>
             </span>

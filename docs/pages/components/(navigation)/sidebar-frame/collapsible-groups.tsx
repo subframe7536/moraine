@@ -90,7 +90,7 @@ export function CollapsibleGroups() {
                         onClick={() => setActivePage(item)}
                         class={`px-2 py-1 text-left rounded w-full transition-colors text-xs ${
                           activePage() === item
-                            ? 'text-primary font-semibold bg-accent/60'
+                            ? 'text-accent-foreground font-semibold bg-accent/60'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
                         }`}
                       >
@@ -121,7 +121,7 @@ export function CollapsibleGroups() {
                         onClick={() => setActivePage(item)}
                         class={`px-2 py-1 text-left rounded w-full transition-colors text-xs ${
                           activePage() === item
-                            ? 'text-primary font-semibold bg-accent/60'
+                            ? 'text-accent-foreground font-semibold bg-accent/60'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
                         }`}
                       >

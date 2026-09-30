@@ -1,24 +1,13 @@
+import type { ClassValue } from 'cn'
 import type { ConfigExtension } from 'cn/config'
 import { createCn as upstreamCreateCn, defaultConfig, mergeConfigs, validators } from 'cn/config'
 
-/** Conditional class inputs shared by recipes and standalone mergers. */
-export type ClassValue =
-  | string
-  | number
-  | bigint
-  | boolean
-  | undefined
-  | null
-  | ClassValue[]
-  | Record<string, unknown>
+export type { ConfigExtension as CnConfig } from 'cn/config'
 
 /** An independent class merger; empty input produces undefined for DOM bindings. */
 export type Cn = (...classes: ClassValue[]) => string | undefined
 
-/** Upstream extension options applied after Moraine's built-in rules. */
-export type CnConfig = ConfigExtension
-
-const MORAINE_CN_RULES: CnConfig = {
+const MORAINE_CN_RULES: ConfigExtension = {
   extend: {
     classGroups: {
       z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
@@ -37,7 +26,7 @@ const MORAINE_CN_RULES: CnConfig = {
 }
 
 /** Creates an owner-independent merger using defaults, Moraine rules, then application rules. */
-export function createCn(config: CnConfig = {}): Cn {
+export function createCn(config: ConfigExtension = {}): Cn {
   const resolved = mergeConfigs(mergeConfigs(defaultConfig(), MORAINE_CN_RULES), config)
   // Use extension input so upstream preserves cacheSize, including zero.
   const engineCn = upstreamCreateCn({

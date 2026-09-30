@@ -78,9 +78,8 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
           <Show when={blockStyle()}>
             {(style) => (
               <div
-                data-toc-active-range
                 aria-hidden="true"
-                class="pointer-events-none inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:animate-none"
+                class="pointer-events-none transition-clip-path inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:animate-none"
                 style={style()}
               />
             )}

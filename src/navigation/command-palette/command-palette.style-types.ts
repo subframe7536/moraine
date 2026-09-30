@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface CommandPaletteStyleSlot<T = unknown> {
   /**
    * Command palette container that owns search and option list.
@@ -56,3 +58,8 @@ export interface CommandPaletteStyleVariant {
    */
   descriptionPosition?: 'bottom' | 'trailing'
 }
+
+export type CommandPaletteStyleConfig = ComponentStyleConfig<
+  CommandPaletteStyleSlot,
+  CommandPaletteStyleVariant
+>

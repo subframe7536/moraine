@@ -1,4 +1,5 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface ProgressStyleSlot<T = unknown> {
   /** Progress container that owns track, indicator, labels, and step markers. */
   root?: T
@@ -33,3 +34,5 @@ export interface ProgressStyleVariant {
    */
   animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'
 }
+
+export type ProgressStyleConfig = ComponentStyleConfig<ProgressStyleSlot, ProgressStyleVariant>

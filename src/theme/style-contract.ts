@@ -1,156 +1,94 @@
-import type { AccordionStyleSlot } from '../element/accordion/accordion.style-types'
-import type {
-  AvatarGroupStyleSlot,
-  AvatarGroupStyleVariant,
-} from '../element/avatar/avatar-group.style-types'
-import type { AvatarStyleSlot, AvatarStyleVariant } from '../element/avatar/avatar.style-types'
-import type { BadgeStyleSlot, BadgeRecipeVariant } from '../element/badge/badge.style-types'
-import type {
-  ButtonGroupStyleSlot,
-  ButtonGroupThemeVariant,
-} from '../element/button/button-group.style-types'
-import type { ButtonStyleSlot, ButtonStyleVariant } from '../element/button/button.style-types'
-import type { CardStyleSlot, CardStyleVariant } from '../element/card/card.style-types'
-import type { CollapsibleStyleSlot } from '../element/collapsible/collapsible.style-types'
-import type { IconStyleSlot } from '../element/icon/icon.style-types'
-import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from '../element/kbd/kbd-group.style-types'
-import type { KbdStyleSlot, KbdStyleVariant } from '../element/kbd/kbd.style-types'
-import type {
-  ProgressStyleSlot,
-  ProgressStyleVariant,
-} from '../element/progress/progress.style-types'
-import type {
-  ResizableStyleSlot,
-  ResizableStyleVariant,
-} from '../element/resizable/resizable.style-types'
-import type {
-  SeparatorStyleSlot,
-  SeparatorStyleVariant,
-} from '../element/separator/separator.style-types'
-import type {
-  BaseSelectStyleSlot,
-  BaseSelectStyleVariant,
-} from '../form/base-select/base-select.style-types'
-import type {
-  CheckboxGroupStyleSlot,
-  CheckboxGroupStyleVariant,
-} from '../form/checkbox-group/checkbox-group.style-types'
-import type { CheckboxStyleSlot, CheckboxStyleVariant } from '../form/checkbox/checkbox.style-types'
-import type { ComboboxStyleSlot, ComboboxStyleVariant } from '../form/combobox/combobox.style-types'
-import type { FieldStyleSlot, FieldStyleVariant } from '../form/field/field.style-types'
-import type {
-  FileUploadStyleSlot,
-  FileUploadStyleVariant,
-} from '../form/file-upload/file-upload.style-types'
-import type { FormStyleSlot } from '../form/form/form.style-types'
-import type {
-  InputGroupStyleSlot,
-  InputGroupRecipeVariant,
-} from '../form/input-group/input-group.style-types'
-import type {
-  InputNumberStyleSlot,
-  InputNumberStyleVariant,
-} from '../form/input-number/input-number.style-types'
-import type { InputStyleSlot, InputRecipeVariant } from '../form/input/input.style-types'
-import type {
-  MultiSelectStyleSlot,
-  MultiSelectStyleVariant,
-} from '../form/multi-select/multi-select.style-types'
-import type {
-  RadioGroupStyleSlot,
-  RadioGroupStyleVariant,
-} from '../form/radio-group/radio-group.style-types'
-import type { SelectStyleSlot, SelectStyleVariant } from '../form/select/select.style-types'
-import type { SliderStyleSlot, SliderStyleVariant } from '../form/slider/slider.style-types'
-import type { SwitchStyleSlot, SwitchStyleVariant } from '../form/switch/switch.style-types'
-import type {
-  TextareaStyleSlot,
-  TextareaRecipeVariant,
-} from '../form/textarea/textarea.style-types'
-import type {
-  BreadcrumbStyleSlot,
-  BreadcrumbStyleVariant,
-} from '../navigation/breadcrumb/breadcrumb.style-types'
-import type {
-  CommandPaletteStyleSlot,
-  CommandPaletteStyleVariant,
-} from '../navigation/command-palette/command-palette.style-types'
-import type {
-  PaginationStyleSlot,
-  PaginationStyleVariant,
-} from '../navigation/pagination/pagination.style-types'
-import type {
-  SidebarFrameStyleSlot,
-  SidebarFrameStyleVariant,
-} from '../navigation/sidebar-frame/sidebar-frame.style-types'
-import type {
-  StepperStyleSlot,
-  StepperStyleVariant,
-} from '../navigation/stepper/stepper.style-types'
-import type { TabsStyleSlot, TabsStyleVariant } from '../navigation/tabs/tabs.style-types'
-import type {
-  ContextMenuStyleSlot,
-  ContextMenuStyleVariant,
-} from '../overlay/context-menu/context-menu.style-types'
-import type { DialogStyleSlot, DialogStyleVariant } from '../overlay/dialog/dialog.style-types'
-import type {
-  DropdownMenuStyleSlot,
-  DropdownMenuStyleVariant,
-} from '../overlay/dropdown-menu/dropdown-menu.style-types'
-import type { ModalStyleSlot } from '../overlay/modal/modal.style-types'
-import type { PopoverStyleSlot } from '../overlay/popover/popover.style-types'
-import type { SheetStyleSlot, SheetStyleVariant } from '../overlay/sheet/sheet.style-types'
-import type { TooltipStyleSlot, TooltipStyleVariant } from '../overlay/tooltip/tooltip.style-types'
+import type { Accessor } from 'solid-js'
 
-/** Lightweight type-only style contract used by theme declarations. */
-export interface StyleContract<Slots extends object, Variants = never> {
-  readonly slots: Slots
-  readonly variants: Variants
+export type DataAttributeValue = string | number | boolean | null | undefined
+type MaybeAccessor<T> = T | Accessor<T>
+
+export type AttributeNameWithoutDataPrefix<Name extends string = string> =
+  Name extends `data-${string}` ? never : Name
+
+type CamelCase<Name extends string> = Name extends `${infer Head}-${infer Tail}`
+  ? `${Head}${Capitalize<CamelCase<Tail>>}`
+  : Name
+
+type DataAttributeState<Names extends readonly string[]> = {
+  [Name in Names[number] as CamelCase<Name>]: MaybeAccessor<DataAttributeValue>
 }
 
-/** Declarative registry of Moraine component style contracts. */
-export interface MoraineStyleSchema {
-  accordion: StyleContract<AccordionStyleSlot>
-  avatar: StyleContract<AvatarStyleSlot, AvatarStyleVariant>
-  avatarGroup: StyleContract<AvatarGroupStyleSlot, AvatarGroupStyleVariant>
-  badge: StyleContract<BadgeStyleSlot, BadgeRecipeVariant>
-  buttonGroup: StyleContract<ButtonGroupStyleSlot, ButtonGroupThemeVariant>
-  button: StyleContract<ButtonStyleSlot, ButtonStyleVariant>
-  card: StyleContract<CardStyleSlot, CardStyleVariant>
-  collapsible: StyleContract<CollapsibleStyleSlot>
-  icon: StyleContract<IconStyleSlot>
-  kbd: StyleContract<KbdStyleSlot, KbdStyleVariant>
-  kbdGroup: StyleContract<KbdGroupStyleSlot, KbdGroupStyleVariant>
-  progress: StyleContract<ProgressStyleSlot, ProgressStyleVariant>
-  resizable: StyleContract<ResizableStyleSlot, ResizableStyleVariant>
-  separator: StyleContract<SeparatorStyleSlot, SeparatorStyleVariant>
-  baseSelect: StyleContract<BaseSelectStyleSlot, BaseSelectStyleVariant>
-  checkbox: StyleContract<CheckboxStyleSlot, CheckboxStyleVariant>
-  checkboxGroup: StyleContract<CheckboxGroupStyleSlot, CheckboxGroupStyleVariant>
-  combobox: StyleContract<ComboboxStyleSlot, ComboboxStyleVariant>
-  field: StyleContract<FieldStyleSlot, FieldStyleVariant>
-  fileUpload: StyleContract<FileUploadStyleSlot, FileUploadStyleVariant>
-  form: StyleContract<FormStyleSlot>
-  input: StyleContract<InputStyleSlot, InputRecipeVariant>
-  inputGroup: StyleContract<InputGroupStyleSlot, InputGroupRecipeVariant>
-  inputNumber: StyleContract<InputNumberStyleSlot, InputNumberStyleVariant>
-  multiSelect: StyleContract<MultiSelectStyleSlot, MultiSelectStyleVariant>
-  radioGroup: StyleContract<RadioGroupStyleSlot, RadioGroupStyleVariant>
-  select: StyleContract<SelectStyleSlot, SelectStyleVariant>
-  slider: StyleContract<SliderStyleSlot, SliderStyleVariant>
-  switch: StyleContract<SwitchStyleSlot, SwitchStyleVariant>
-  textarea: StyleContract<TextareaStyleSlot, TextareaRecipeVariant>
-  breadcrumb: StyleContract<BreadcrumbStyleSlot, BreadcrumbStyleVariant>
-  commandPalette: StyleContract<CommandPaletteStyleSlot, CommandPaletteStyleVariant>
-  pagination: StyleContract<PaginationStyleSlot, PaginationStyleVariant>
-  sidebarFrame: StyleContract<SidebarFrameStyleSlot, SidebarFrameStyleVariant>
-  stepper: StyleContract<StepperStyleSlot, StepperStyleVariant>
-  tabs: StyleContract<TabsStyleSlot, TabsStyleVariant>
-  contextMenu: StyleContract<ContextMenuStyleSlot, ContextMenuStyleVariant>
-  dialog: StyleContract<DialogStyleSlot, DialogStyleVariant>
-  dropdownMenu: StyleContract<DropdownMenuStyleSlot, DropdownMenuStyleVariant>
-  modal: StyleContract<ModalStyleSlot>
-  popover: StyleContract<PopoverStyleSlot>
-  sheet: StyleContract<SheetStyleSlot, SheetStyleVariant>
-  tooltip: StyleContract<TooltipStyleSlot, TooltipStyleVariant>
+type DataAttributeResult<Names extends readonly string[]> = {
+  readonly [Name in Names[number] as `data-${Name}`]: string | number | undefined
+}
+
+declare const DATA_ATTRIBUTE_RESOLVER: unique symbol
+
+interface DataAttributeResolverMarker {
+  readonly [DATA_ATTRIBUTE_RESOLVER]: true
+}
+
+export type DataAttributeResolver<Names extends readonly string[]> = ((
+  state: DataAttributeState<Names>,
+) => DataAttributeResult<Names>) &
+  DataAttributeResolverMarker
+
+export type DataAttributeContract<Slot extends string> = Partial<
+  Record<Slot, DataAttributeResolverMarker>
+>
+
+function readSource(source: MaybeAccessor<DataAttributeValue>): DataAttributeValue {
+  return typeof source === 'function' ? source() : source
+}
+
+function normalizeStyleContractValue(value: DataAttributeValue): string | number | undefined {
+  if (value === true) {
+    return ''
+  }
+  if (value === false || value === null || value === undefined) {
+    return undefined
+  }
+  return value
+}
+
+function stateKey(attributeName: string): string {
+  return attributeName.replace(/-([a-z0-9])/gu, (_match, character: string) =>
+    character.toUpperCase(),
+  )
+}
+
+export function createDataAttributes<const Names extends readonly string[]>(
+  ...names: Names & {
+    [Index in keyof Names]: Names[Index] extends string
+      ? AttributeNameWithoutDataPrefix<Names[Index]>
+      : never
+  }
+): DataAttributeResolver<Names> {
+  const mappings = names.map((name) => [`data-${name}`, stateKey(name)] as const)
+  return ((state: DataAttributeState<Names>) => {
+    const result = {} as DataAttributeResult<Names>
+    for (const [attributeName, sourceName] of mappings) {
+      Object.defineProperty(result, attributeName, {
+        enumerable: true,
+        configurable: false,
+        get: () =>
+          normalizeStyleContractValue(
+            readSource(
+              (state as Readonly<Record<string, MaybeAccessor<DataAttributeValue>>>)[sourceName],
+            ),
+          ),
+      })
+    }
+    return result
+  }) as DataAttributeResolver<Names>
+}
+
+export function applyDataAttributes(
+  element: Element,
+  attributes: Readonly<Record<string, string | number | undefined>>,
+): void {
+  for (const key of Object.keys(attributes)) {
+    const value = attributes[key]
+    if (value === undefined) {
+      element.removeAttribute(key)
+    } else {
+      element.setAttribute(key, String(value))
+    }
+  }
 }

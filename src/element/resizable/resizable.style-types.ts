@@ -1,4 +1,5 @@
-import type { Orientation } from '../../theme/style/style-types'
+import type { Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface ResizableStyleSlot<T = unknown> {
   /** Layout container that owns resizable panels and handles. */
   root?: T
@@ -20,3 +21,5 @@ export interface ResizableStyleVariant {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation | null
 }
+
+export type ResizableStyleConfig = ComponentStyleConfig<ResizableStyleSlot, ResizableStyleVariant>

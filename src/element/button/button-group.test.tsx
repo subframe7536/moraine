@@ -215,7 +215,7 @@ describe('ButtonGroup', () => {
     ['default', 'bg-primary'],
     ['secondary', 'bg-secondary'],
     ['outline', 'border-border'],
-    ['ghost', 'hover:text-foreground'],
+    ['ghost', 'hover:text-accent-foreground'],
     ['link', 'hover:underline'],
     ['destructive', 'bg-destructive'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {

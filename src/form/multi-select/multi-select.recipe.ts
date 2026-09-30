@@ -1,6 +1,6 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
 import {
   SECONDARY_TRIGGER_CLASS,
@@ -45,7 +45,14 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: { variant: 'outline', size: 'md' },
   variants: {
-    variant: SELECT_TRIGGER_FIELD_VARIANTS,
+    variant: {
+      ...SELECT_TRIGGER_FIELD_VARIANTS,
+      ghost: {
+        ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
+        tagOverflow:
+          'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+      },
+    },
     size: TAG_SIZES,
   },
 })

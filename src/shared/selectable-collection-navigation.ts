@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 
-import type { Orientation } from '../theme/style/style-types'
+import type { Orientation } from '../theme/style-types'
 
 type ActivationMode = 'automatic' | 'manual'
 

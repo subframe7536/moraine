@@ -1,7 +1,11 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.recipe'
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import {
+  PEER_FOCUS_CLASS,
+  PEER_INVALID_CLASS,
+  INPUT_VARIANT,
+} from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 
@@ -19,8 +23,7 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
     root: 'relative flex flex-wrap w-full items-center cursor-text transition-[colors,box-shadow]',
     leading: 'flex shrink-0 items-center text-muted-foreground',
     trailing: 'flex shrink-0 items-center text-muted-foreground',
-    frame:
-      'absolute pointer-events-none transition-[colors,box-shadow] peer-focus:(border-ring ring-3 ring-ring/50) peer-aria-invalid:(border-destructive ring-3 ring-destructive/20) dark:peer-aria-invalid:(border-destructive/50 ring-destructive/40)',
+    frame: `absolute pointer-events-none transition-[colors,box-shadow] ${PEER_FOCUS_CLASS} ${PEER_INVALID_CLASS}`,
   },
   defaultVariants: { size: 'md', variant: 'outline', orientation: 'horizontal', compact: false },
   variants: {
@@ -63,7 +66,14 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
         root: INPUT_VARIANT.subtle,
         frame: '-inset-px border border-transparent',
       },
-      ghost: { root: INPUT_VARIANT.ghost, frame: 'inset-0' },
+      ghost: {
+        root: `${INPUT_VARIANT.ghost} group/input-group`,
+        leading:
+          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+        trailing:
+          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+        frame: 'inset-0',
+      },
       none: {
         frame: 'inset-0 peer-focus:ring-0',
       },

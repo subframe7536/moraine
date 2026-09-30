@@ -1,12 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 
-import type { ClassValue } from '../theme/style/recipe'
-
-export type { ClassValue } from '../theme/style/recipe'
-
-export type SlotClassValue = ClassValue
-
-export type SlotStyleValue = JSX.CSSProperties
+import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
 
 export type ElementProps<
   T extends HTMLElement = HTMLElement,

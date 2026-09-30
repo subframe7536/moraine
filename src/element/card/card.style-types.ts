@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface CardStyleSlot<T = unknown> {
   /** Card surface. */
   root?: T
@@ -21,3 +23,5 @@ export interface CardStyleVariant {
   /** Density of all Card parts. @default 'md' */
   size?: 'sm' | 'md' | 'lg'
 }
+
+export type CardStyleConfig = ComponentStyleConfig<CardStyleSlot, CardStyleVariant>

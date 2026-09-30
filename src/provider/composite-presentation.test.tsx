@@ -13,7 +13,7 @@ import { Popover } from '../overlay/popover'
 import { Sheet } from '../overlay/sheet'
 import { Tooltip } from '../overlay/tooltip'
 import { defineTheme } from '../theme'
-import type { CnConfig } from '../theme/style/cn'
+import type { CnConfig } from '../theme/cn'
 
 import { MoraineProvider } from './moraine-provider'
 

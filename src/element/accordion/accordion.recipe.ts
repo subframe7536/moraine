@@ -1,6 +1,11 @@
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { createDataAttributes } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import {
+  DATA_DISABLED_CLASS,
+  DISABLED_CLASS,
+  FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.class'
+import type { DataAttributeContract } from '../../theme/style-contract'
+import { createDataAttributes } from '../../theme/style-contract'
 
 import type { AccordionStyleSlot } from './accordion.style-types'
 
@@ -13,11 +18,10 @@ export const accordionDataAttributes = {
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {
   base: {
-    root: 'flex flex-col w-full data-disabled:(opacity-64 pointer-events-none)',
-    item: '[&:not(:last-child)]:(border-b border-border) data-disabled:(opacity-64 pointer-events-none)',
+    root: `flex flex-col w-full ${DATA_DISABLED_CLASS}`,
+    item: `[&:not(:last-child)]:(border-b border-border) ${DATA_DISABLED_CLASS}`,
     header: 'flex',
-    trigger:
-      'group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none) hover:underline cursor-pointer',
+    trigger: `group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative ${FOCUS_VISIBLE_CLASS} ${DISABLED_CLASS} hover:underline cursor-pointer`,
     leading: 'shrink-0 mr-1.5',
     label: 'text-start break-words',
     trailing:

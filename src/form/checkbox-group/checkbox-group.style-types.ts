@@ -1,4 +1,5 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Group container that owns checkbox collection state and layout. */
   root?: T
@@ -48,3 +49,8 @@ export interface CheckboxGroupStyleVariant {
    */
   variant?: 'card' | 'table' | 'list'
 }
+
+export type CheckboxGroupStyleConfig = ComponentStyleConfig<
+  CheckboxGroupStyleSlot,
+  CheckboxGroupStyleVariant
+>

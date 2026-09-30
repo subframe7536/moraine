@@ -1,6 +1,7 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
-import { defineRecipe } from '../../theme/style/recipe'
+import { defineRecipe } from '../../theme/recipe'
+import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
 
@@ -18,9 +19,8 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
     base: {
       root: 'flex gap-2',
       header: 'flex min-w-0',
-      item: 'min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',
-      trigger:
-        'rounded-md inline-flex min-w-0 items-center text-start focus-visible:(outline-none ring-3 ring-ring/50) data-clickable:cursor-pointer',
+      item: `min-w-0 relative ${DATA_DISABLED_CLASS}`,
+      trigger: `rounded-md inline-flex min-w-0 items-center text-start ${FOCUS_VISIBLE_RING_CLASS} data-clickable:cursor-pointer`,
       indicator:
         'inline-flex shrink-0 items-center justify-center rounded-full transition-colors data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-xs) data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary)',
       icon: '',

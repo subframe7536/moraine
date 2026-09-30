@@ -1,3 +1,4 @@
+import type { ComponentStyleConfig } from '../../theme/types'
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
 import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
 
@@ -23,3 +24,5 @@ export interface SelectControlStyleSlot<T = unknown> {
 export interface SelectStyleSlot<T = unknown>
   extends BaseSelectStyleSlot<T>, SelectControlStyleSlot<T>, SelectItemStyleSlot<T> {}
 export type SelectStyleVariant = SelectControlStyleVariant
+
+export type SelectStyleConfig = ComponentStyleConfig<SelectStyleSlot, SelectStyleVariant>

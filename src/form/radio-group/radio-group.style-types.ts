@@ -1,4 +1,5 @@
-import type { ComponentSize, Orientation } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface RadioGroupStyleSlot<T = unknown> {
   /**
    * Radio group container that owns selection state and layout.
@@ -44,3 +45,8 @@ export interface RadioGroupStyleVariant {
    */
   indicator?: 'start' | 'end' | 'hidden'
 }
+
+export type RadioGroupStyleConfig = ComponentStyleConfig<
+  RadioGroupStyleSlot,
+  RadioGroupStyleVariant
+>

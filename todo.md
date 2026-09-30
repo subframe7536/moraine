@@ -20,16 +20,16 @@
 - [x] resizable: refresh docs
 - [x] expose `useBaseSelectSearchInput` with explicit BaseSelect state and keep query state internal
 - [x] normalize public reactive utility naming and replace wildcard re-exports with explicit exports across `src/`
-- [ ] refactor theme and css engine
-  - [ ] remove `ClassValue`, reuse it from `cn`, remove pure type alias export , use `export type { XXX as XXX }`
-  - [ ] simplify recipe and theme generator
-  - [ ] avoid circular type import
-  - [ ] unocss presetTheme option refactor, make it flatten, intuitive, and agent friendly, handles all css variables but optional
-  - [ ] reconsider color state usage, fill missing place
-  - [ ] tailwind3/tailwind4/unocss presetWind3/unocss presetWind4 support verfication
-  - [ ] move and flatten src/unocss & src/tailwind into src/theme, flatten src/theme/style
-  - [ ] move css engine specific logic back to their entry files
-  - [ ] styling guide polish
+- [x] refactor theme and css engine
+  - [x] remove local `ClassValue`, reuse it from `cn`, and use direct type re-exports
+  - [x] simplify recipe and theme generator
+  - [x] avoid circular type imports
+  - [x] make UnoCSS theme options selector-scoped, grouped, typed, and optional
+  - [x] complete semantic hover and active color usage
+  - [x] verify Tailwind 4 and UnoCSS Wind3/Wind4; document Tailwind 3 as unsupported
+  - [x] flatten CSS engine and style modules into `src/theme`
+  - [x] move engine-specific logic to its entry file
+  - [x] polish styling guides
 - [ ] reconsider `renderComponentOrElement` and its usage, cleanup small helpers
 - [ ] docs page polish
   - [ ] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
@@ -37,6 +37,7 @@
   - [ ] move `docs/pages/docs/utils/create-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
   - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
   - [ ] add docs header composition & polymorphism badge link
+  - [ ] update playground, try to showcase more slots
 
 # V1
 

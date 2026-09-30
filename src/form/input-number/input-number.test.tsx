@@ -1445,7 +1445,7 @@ describe('InputNumber', () => {
   test.each([
     ['outline', ['border', 'border-input', 'bg-transparent', 'shadow-xs']],
     ['subtle', ['border', 'border-input', 'bg-input/30', 'shadow-xs']],
-    ['ghost', ['hover:bg-muted-hover', 'focus-within:bg-muted-hover']],
+    ['ghost', ['hover:bg-accent-hover', 'focus-within:bg-accent-hover']],
     ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {
     const screen = render(() => <InputNumber variant={variant} />)
@@ -1454,6 +1454,21 @@ describe('InputNumber', () => {
     for (const expectedClass of expectedClasses) {
       expect(root?.className).toContain(expectedClass)
     }
+  })
+
+  test('colors the inner input when the ghost root is hovered or focused', () => {
+    const screen = render(() => <InputNumber variant="ghost" />)
+    const root = screen.getByRole('spinbutton').closest('[data-slot="input-number"]')!
+    const inputClasses = screen.getByRole('spinbutton').className.split(/\s+/)
+    const rootClasses = root.className.split(/\s+/)
+
+    expect(rootClasses).toContain('group/input-number')
+    for (const state of ['hover', 'focus-within']) {
+      expect(rootClasses).toContain(`${state}:bg-accent-hover`)
+      expect(rootClasses).toContain(`${state}:text-accent-foreground`)
+      expect(inputClasses).toContain(`group-${state}/input-number:text-accent-foreground`)
+    }
+    expect(inputClasses).toContain('text-foreground')
   })
 
   test('defaults to outline and exposes only the supported variants', () => {

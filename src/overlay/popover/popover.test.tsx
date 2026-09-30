@@ -1,8 +1,10 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { createComponent, createSignal } from 'solid-js'
+import { Show, createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../element/button'
+import type { ButtonProps } from '../../element/button'
 import { callHandler } from '../../shared/utils'
 import { finishExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
@@ -14,6 +16,56 @@ let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
 
 describe('Popover', () => {
+  test('releases a custom trigger ref before replacement and after unmount', async () => {
+    let setVisible!: (value: boolean) => void
+    const errors: string[] = []
+    const handleError = (event: ErrorEvent) => {
+      errors.push(event.message)
+      event.preventDefault()
+    }
+    window.addEventListener('error', handleError)
+    const screen = render(() => {
+      const [visible, setValue] = createSignal(true)
+      setVisible = setValue
+      const CustomTrigger = (props: ButtonProps) => (
+        <Show when={visible()}>
+          <Button {...props} />
+        </Show>
+      )
+      return (
+        <Popover>
+          <Popover.Trigger as={CustomTrigger}>Replaceable trigger</Popover.Trigger>
+          <Popover.Content>Replacement content</Popover.Content>
+        </Popover>
+      )
+    })
+    try {
+      const original = screen.getByRole('button', { name: 'Replaceable trigger' })
+      setVisible(false)
+      await waitFor(() => expect(original.isConnected).toBe(false))
+      fireEvent.click(document.body)
+      document.body.append(original)
+      fireEvent.click(original)
+      expect(document.querySelector('[data-slot="popover-content"]')).toBeNull()
+      original.remove()
+      setVisible(true)
+      const replacement = await screen.findByRole('button', { name: 'Replaceable trigger' })
+      expect(replacement).not.toBe(original)
+      fireEvent.click(replacement)
+      await waitFor(() =>
+        expect(document.querySelector('[data-slot="popover-content"]')?.textContent).toBe(
+          'Replacement content',
+        ),
+      )
+      screen.unmount()
+      fireEvent.click(document.body)
+      expect(errors).toEqual([])
+    } finally {
+      screen.unmount()
+      window.removeEventListener('error', handleError)
+    }
+  })
+
   test('honors a custom trigger that cancels click before forwarding it', async () => {
     const onOpenChange = vi.fn()
     const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (

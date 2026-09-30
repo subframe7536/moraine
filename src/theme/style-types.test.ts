@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { getJsDoc, parseTypeScript, walkAst } from '../../docs/build/api-doc/ast'
 
-import type { SlotClassValue, SlotStyleValue } from './types'
+import type { SlotClassValue, SlotStyleValue } from './style-types'
 
 interface TestSlot<T = unknown> {
   root?: T

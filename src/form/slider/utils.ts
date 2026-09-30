@@ -1,4 +1,4 @@
-import type { Orientation } from '../../theme/style/style-types'
+import type { Orientation } from '../../theme/style-types'
 
 export type SliderEdge = 'left' | 'right' | 'top' | 'bottom'
 

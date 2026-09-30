@@ -1,4 +1,5 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface AvatarStyleSlot<T = unknown> {
   /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
   root?: T
@@ -26,3 +27,5 @@ export interface AvatarStyleVariant {
    */
   badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
+
+export type AvatarStyleConfig = ComponentStyleConfig<AvatarStyleSlot, AvatarStyleVariant>

@@ -73,7 +73,7 @@ export function Example() {
           <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
         </div>
         <Slider
-          value={value()}
+          defaultValue={65}
           onValueChange={(val) => {
             if (typeof val === 'number') setValue(val)
           }}
@@ -104,7 +104,7 @@ Slider [component; slot=root]
 
 ### Single values and ranges
 
-Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onChange` for controlled state; `onValueChange` is useful when the application needs immediate updates during drag.
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onValueChange` for controlled state; `onValueChange` also reports immediate updates during drag when the slider owns its value.
 
 <Preview path="./values" />
 

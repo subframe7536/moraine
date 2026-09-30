@@ -1,4 +1,5 @@
-import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation, TextControlVariant } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface InputNumberStyleSlot<T = unknown> {
   /**
    * Number input wrapper that owns the input and step controls.
@@ -35,3 +36,8 @@ export interface InputNumberStyleVariant {
    */
   orientation?: Orientation
 }
+
+export type InputNumberStyleConfig = ComponentStyleConfig<
+  InputNumberStyleSlot,
+  InputNumberStyleVariant
+>

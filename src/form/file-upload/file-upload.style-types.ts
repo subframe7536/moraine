@@ -1,4 +1,5 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize } from '../../theme/style-types'
+import type { ComponentStyleConfig } from '../../theme/types'
 export interface FileUploadStyleSlot<T = unknown> {
   /** Upload component container that owns dropzone, file input, and file list. */
   root?: T
@@ -46,3 +47,8 @@ export interface FileUploadStyleVariant {
    */
   size?: ComponentSize
 }
+
+export type FileUploadStyleConfig = ComponentStyleConfig<
+  FileUploadStyleSlot,
+  FileUploadStyleVariant
+>

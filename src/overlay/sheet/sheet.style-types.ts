@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface SheetStyleSlot<T = unknown> {
   /** Element that opens the sheet. */
   trigger?: T
@@ -39,3 +41,5 @@ export interface SheetStyleVariant {
    */
   inset?: boolean
 }
+
+export type SheetStyleConfig = ComponentStyleConfig<SheetStyleSlot, SheetStyleVariant>

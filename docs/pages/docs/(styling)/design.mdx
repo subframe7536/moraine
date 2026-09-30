@@ -11,82 +11,80 @@ Moraine decouples component layout and logic from design tokens using semantic C
 
 ## CSS Variables
 
-Define your design tokens in your application stylesheet under `:root` for light mode and `.dark` for dark mode. Both the UnoCSS preset and the Tailwind CSS plugin map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
+UnoCSS emits neutral light and dark colors by default and accepts named [`override` entries](/docs/unocss#theme-tokens). Set `themeDefaults: false` if you provide a complete shadcn/ui palette in CSS. With Tailwind, define the variables in your stylesheet under `:root` and `.dark`. Both engines map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
 Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically scale utilities within that subtree:
 
 ```css title="src/theme.css"
 :root {
-  --background: oklch(100% 0 0);
-  --foreground: oklch(20% 0 0);
-  --primary: oklch(55% 0.2 260);
-  --primary-foreground: white;
-  --secondary: oklch(96% 0 0);
-  --secondary-foreground: oklch(20% 0 0);
-  --card: oklch(99% 0 0);
-  --card-foreground: oklch(20% 0 0);
-  --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(20% 0 0);
-  --muted: oklch(96% 0 0);
-  --muted-foreground: oklch(50% 0 0);
-  --accent: oklch(96% 0 0);
-  --accent-foreground: oklch(20% 0 0);
-  --destructive: oklch(62% 0.22 25);
-  --destructive-foreground: white;
-  --border: oklch(90% 0 0);
-  --input: oklch(90% 0 0);
-  --ring: oklch(55% 0.2 260);
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(10, 10, 10);
+  --card: rgb(255, 255, 255);
+  --card-foreground: rgb(10, 10, 10);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(10, 10, 10);
+  --primary: rgb(23, 23, 23);
+  --primary-foreground: rgb(250, 250, 250);
+  --secondary: rgb(245, 245, 245);
+  --secondary-foreground: rgb(23, 23, 23);
+  --muted: rgb(245, 245, 245);
+  --muted-foreground: rgb(82, 82, 82);
+  --accent: rgb(245, 245, 245);
+  --accent-foreground: rgb(23, 23, 23);
+  --destructive: rgb(190, 0, 9);
+  --border: rgb(229, 229, 229);
+  --input: rgb(229, 229, 229);
+  --ring: rgb(161, 161, 161);
   --radius: 0.625rem;
   --spacing: 0.25rem;
   --font-size: 1rem;
 }
 
 .dark {
-  --background: oklch(18% 0 0);
-  --foreground: oklch(96% 0 0);
-  --primary: oklch(70% 0.16 260);
-  --primary-foreground: oklch(18% 0 0);
-  --secondary: oklch(26% 0 0);
-  --secondary-foreground: oklch(96% 0 0);
-  --card: oklch(22% 0 0);
-  --card-foreground: oklch(96% 0 0);
-  --popover: oklch(20% 0 0);
-  --popover-foreground: oklch(96% 0 0);
-  --muted: oklch(26% 0 0);
-  --muted-foreground: oklch(65% 0 0);
-  --accent: oklch(26% 0 0);
-  --accent-foreground: oklch(96% 0 0);
-  --destructive: oklch(65% 0.22 25);
-  --destructive-foreground: oklch(18% 0 0);
-  --border: oklch(32% 0 0);
-  --input: oklch(32% 0 0);
-  --ring: oklch(70% 0.16 260);
+  --background: rgb(10, 10, 10);
+  --foreground: rgb(250, 250, 250);
+  --card: rgb(23, 23, 23);
+  --card-foreground: rgb(250, 250, 250);
+  --popover: rgb(23, 23, 23);
+  --popover-foreground: rgb(250, 250, 250);
+  --primary: rgb(229, 229, 229);
+  --primary-foreground: rgb(23, 23, 23);
+  --secondary: rgb(38, 38, 38);
+  --secondary-foreground: rgb(250, 250, 250);
+  --muted: rgb(38, 38, 38);
+  --muted-foreground: rgb(161, 161, 161);
+  --accent: rgb(38, 38, 38);
+  --accent-foreground: rgb(250, 250, 250);
+  --destructive: rgb(255, 100, 103);
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: rgb(115, 115, 115);
 }
 ```
 
 ### Surface Colors and Contrast Pairing
 
-Every surface color pairs with a corresponding `-foreground` variable to guarantee accessible contrast for text, icons, and indicators:
+Surface colors use corresponding `-foreground` variables for text, icons, and indicators. Check contrast when replacing a palette:
 
-| Role            | Surface token   | Foreground token           | Primary use                                                 |
-| :-------------- | :-------------- | :------------------------- | :---------------------------------------------------------- |
-| **Page**        | `--background`  | `--foreground`             | Default viewport canvas and readable body text.             |
-| **Primary**     | `--primary`     | `--primary-foreground`     | High-emphasis actions, active selections, focus rings.      |
-| **Secondary**   | `--secondary`   | `--secondary-foreground`   | Secondary action buttons, subtle badges.                    |
-| **Card**        | `--card`        | `--card-foreground`        | Grouped containers, cards, tables.                          |
-| **Popover**     | `--popover`     | `--popover-foreground`     | Floating overlays, menus, tooltips, dialogs.                |
-| **Muted**       | `--muted`       | `--muted-foreground`       | Subtle backgrounds, secondary descriptions, disabled state. |
-| **Accent**      | `--accent`      | `--accent-foreground`      | Hover states, tab indicators, highlighted list items.       |
-| **Destructive** | `--destructive` | `--destructive-foreground` | Irreversible actions, error banners, validation errors.     |
+| Role            | Surface token   | Foreground token                      | Primary use                                                 |
+| :-------------- | :-------------- | :------------------------------------ | :---------------------------------------------------------- |
+| **Page**        | `--background`  | `--foreground`                        | Default viewport canvas and readable body text.             |
+| **Primary**     | `--primary`     | `--primary-foreground`                | High-emphasis actions, active selections, focus rings.      |
+| **Secondary**   | `--secondary`   | `--secondary-foreground`              | Secondary action buttons, subtle badges.                    |
+| **Card**        | `--card`        | `--card-foreground`                   | Grouped containers, cards, tables.                          |
+| **Popover**     | `--popover`     | `--popover-foreground`                | Floating overlays, menus, tooltips, dialogs.                |
+| **Muted**       | `--muted`       | `--muted-foreground`                  | Subtle backgrounds, secondary descriptions, disabled state. |
+| **Accent**      | `--accent`      | `--accent-foreground`                 | Hover states, tab indicators, highlighted list items.       |
+| **Destructive** | `--destructive` | `--destructive-foreground` (optional) | Irreversible actions, error banners, validation errors.     |
 
 ### Interactive State Cascade
 
-For each surface color, Moraine supports dedicated `--*-hover` and `--*-active` variables. When omitted, they cascade naturally:
+For each surface color, Moraine supports dedicated `--*-hover` and `--*-active` variables. Explicit values take priority. When omitted, supported browsers mix the current color toward its foreground in the scope where the utility is used:
 
-- If `--<color>-hover` is not defined, it falls back to `--<color>`.
-- If `--<color>-active` is not defined, it falls back to `--<color>-hover`, then `--<color>`.
+- `--<color>-hover` uses the generated hover color, then `--<color>`.
+- `--<color>-active` uses the generated active color, then hover and the base color.
 
-In UnoCSS, [`presetMoraine({ colorVariables })`](/docs/unocss#color-variables) can automatically synthesize these states using CSS `color-mix()`.
+Without `color-mix(in oklch, …)`, Moraine's state expression falls back to the base color in the utility's scope unless you define an explicit state variable. This keeps nested CSS themes from inheriting a state color computed for an ancestor. Wind4's own color utilities require `color-mix(in srgb, …)`; see the [UnoCSS guide](/docs/unocss#hover-and-active-colors) for older-browser use. Tailwind does not emit theme color values. `--destructive-foreground` falls back to `--background`, so a shadcn/ui palette without that variable remains usable.
 
 ## Border Radius Scale
 
@@ -126,6 +124,8 @@ Moraine computes a proportional radius scale from the base `--radius` variable:
 | `--font-size`     | Base for `text-xs`–`text-9xl`   | `1rem`                     |
 | `--spacing`       | Base spacing unit               | `0.25rem`                  |
 | `--sidebar-width` | Width of `SidebarFrame.Sidebar` | `clamp(14rem, 25%, 20rem)` |
+
+Numeric spacing utilities use the local `--spacing` in Tailwind 4, Wind3, and Wind4. For example, `p-4` becomes `32px` under `--spacing: 0.5rem`. Explicit UnoCSS theme entries take precedence. A `leading-*` utility overrides the default line height of `text-*`; numeric leading uses the spacing unit, while named leading values are ratios of the local font size.
 
 ## Semantic Z-Index Utilities
 

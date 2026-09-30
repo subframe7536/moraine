@@ -3,8 +3,9 @@ import { createSignal, mergeProps, onCleanup } from 'solid-js'
 import { delegateEvents } from 'solid-js/web'
 
 import { attachEventListener } from '../../shared/event-listener'
-import type { BaseProps, ElementProps, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
+import type { SlotStyleValue } from '../../theme/style-types'
 
 import { isHTMLElement, isNativeButtonElement } from './dom'
 

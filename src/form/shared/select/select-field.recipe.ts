@@ -1,4 +1,8 @@
-import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../shared/recipe-common.recipe'
+import {
+  INPUT_VARIANT,
+  TEXT_SIZE_VARIANT,
+  SELECT_TRIGGER_FOCUS_CLASS,
+} from '../../../theme/recipe-common.class'
 
 import {
   FIELD_CONTROL_CLASS,
@@ -8,7 +12,6 @@ import {
   SELECT_LEADING_ICON_CLASS,
   SELECT_LOADING_ICON_CLASS,
   SECONDARY_TRIGGER_CLASS,
-  SELECT_TRIGGER_FOCUS_CLASS,
   TAG_FIELD_CONTROL_CLASS,
   TAG_FIELD_INPUT_CLASS,
 } from './select-field.class'
@@ -27,21 +30,35 @@ export const SELECT_FAMILY_SLOTS = {
   itemLeading: 'shrink-0',
   itemWrapper: 'flex-1 min-w-0 truncate',
   itemLabel: '',
-  itemDescription: 'text-xs text-muted-foreground block',
+  itemDescription:
+    'text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground block',
   itemIndicator: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
 } as const
 
 export const FIELD_VARIANTS = {
   outline: { control: INPUT_VARIANT.outline },
   subtle: { control: INPUT_VARIANT.subtle },
-  ghost: { control: INPUT_VARIANT.ghost },
+  ghost: {
+    control: `${INPUT_VARIANT.ghost} group/select-control`,
+    leading:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    clear:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    trigger:
+      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+    input:
+      'group-hover/select-control:placeholder:text-accent-foreground group-focus-within/select-control:placeholder:text-accent-foreground',
+  },
   none: { control: INPUT_VARIANT.none },
 } as const
 
 export const SELECT_TRIGGER_FIELD_VARIANTS = {
   outline: { ...FIELD_VARIANTS.outline, trigger: SELECT_TRIGGER_FOCUS_CLASS },
   subtle: { ...FIELD_VARIANTS.subtle, trigger: SELECT_TRIGGER_FOCUS_CLASS },
-  ghost: { ...FIELD_VARIANTS.ghost, trigger: SELECT_TRIGGER_FOCUS_CLASS },
+  ghost: {
+    ...FIELD_VARIANTS.ghost,
+    trigger: `${SELECT_TRIGGER_FOCUS_CLASS} ${FIELD_VARIANTS.ghost.trigger}`,
+  },
   none: FIELD_VARIANTS.none,
 } as const
 
@@ -68,7 +85,7 @@ export const TAG_SLOTS = {
   tag: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
   tagLabel: 'min-w-0 truncate',
   tagRemove:
-    'p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-opacity opacity-50 hover:opacity-100 disabled:(pointer-events-none opacity-50)',
+    'text-muted-foreground p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-colors hover:(bg-accent-hover text-accent-foreground) active:bg-accent-active disabled:(pointer-events-none opacity-50)',
 } as const
 
 export const TAG_SIZES = {

@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
 import type { AccordionStyleSlot, AccordionStyleVariant } from './accordion.style-types'

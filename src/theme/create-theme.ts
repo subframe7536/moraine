@@ -1,4 +1,4 @@
-import type { RecipeLayerConfig } from './style/recipe'
+import type { RecipeLayerConfig } from './recipe'
 import type { DefineThemeOptions, MoraineTheme } from './types'
 
 // Public subpath bundles may contain separate copies of this module. Use the
@@ -6,9 +6,7 @@ import type { DefineThemeOptions, MoraineTheme } from './types'
 // readable by the resolver bundled into the main `moraine` entry.
 const THEME_LAYERS: unique symbol = Symbol.for('moraine.theme.layers') as never
 
-export interface ThemeLayer {
-  readonly overrides: Readonly<Record<string, Readonly<Record<string, unknown>>>>
-}
+type ThemeLayer = Readonly<Record<string, Readonly<Record<string, unknown>>>>
 
 type InternalTheme = MoraineTheme & {
   readonly [THEME_LAYERS]: readonly ThemeLayer[]
@@ -38,10 +36,7 @@ export function defineTheme(options: DefineThemeOptions = {}): MoraineTheme {
     }
     overrides[key] = cloneAndFreeze(value) as Readonly<Record<string, unknown>>
   }
-  const layers = Object.freeze([
-    ...getThemeLayers(parent),
-    Object.freeze({ overrides: Object.freeze(overrides) }),
-  ])
+  const layers = Object.freeze([...getThemeLayers(parent), Object.freeze(overrides)])
   return Object.freeze(
     Object.defineProperty({}, THEME_LAYERS, { value: layers, enumerable: false }),
   ) as MoraineTheme
@@ -56,7 +51,7 @@ export function getThemeRecipeLayers<S extends object, V>(
   key: string,
 ): readonly RecipeLayerConfig<S, V>[] {
   return getThemeLayers(theme).flatMap((layer) => {
-    const override = layer.overrides[key]
+    const override = layer[key]
     return override ? [override] : []
   })
 }

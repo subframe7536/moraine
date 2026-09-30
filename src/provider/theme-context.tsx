@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../shared/create-context-provider'
-import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
+import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 
 export interface ThemeResolver {
   resolve: <S extends object, V>(
