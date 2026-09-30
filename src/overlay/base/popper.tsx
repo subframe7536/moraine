@@ -208,6 +208,51 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   )
   const children = resolveChildren(() => local.children)
   const [, triggerAttributes] = splitProps(binding, ['onClick'])
+  let currentTrigger: HTMLElement | undefined
+  let releaseTrigger: VoidFunction = () => {}
+  function setTriggerRef(element: HTMLElement | undefined): void {
+    if (currentTrigger === element) {
+      return
+    }
+    releaseTrigger()
+    releaseTrigger = () => {}
+    if (element || context.triggerElement() === currentTrigger) {
+      context.setTriggerElement(element)
+    }
+    currentTrigger = element
+    callRef(local.ref, element)
+    if (!element) {
+      return
+    }
+    // Let a custom root cancel the click before handling it on the document.
+    if (typeof tag() === 'function') {
+      delegateEvents(['click'], document)
+    }
+    const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map((key) =>
+      attachEventListener(
+        element,
+        key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
+        (event) => {
+          if (element.ownerDocument !== document) {
+            ;(interaction[key] as EventListener)(event)
+          }
+        },
+      ),
+    )
+    if (typeof tag() === 'function') {
+      releases.push(
+        attachEventListener(document, 'click', (event) => {
+          if (event.target instanceof Node && element.contains(event.target)) {
+            callHandler(event, interaction.onClick)
+          }
+        }),
+      )
+    }
+    releaseTrigger = () => {
+      releases.forEach((release) => release())
+    }
+  }
+  onCleanup(() => setTriggerRef(undefined))
   return (
     <Dynamic
       {...triggerAttributes}
@@ -215,42 +260,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       component={tag()}
       class={cn(local.class)}
       style={local.style}
-      ref={(element: HTMLElement) => {
-        context.setTriggerElement(element)
-        callRef(local.ref, element)
-        // Let a custom root cancel the click before handling it on the document.
-        if (typeof tag() === 'function') {
-          delegateEvents(['click'], document)
-        }
-        const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map(
-          (key) =>
-            attachEventListener(
-              element,
-              key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-              (event) => {
-                if (element.ownerDocument !== document) {
-                  ;(interaction[key] as EventListener)(event)
-                }
-              },
-            ),
-        )
-        if (typeof tag() === 'function') {
-          releases.push(
-            attachEventListener(document, 'click', (event) => {
-              if (event.target instanceof Node && element.contains(event.target)) {
-                callHandler(event, interaction.onClick)
-              }
-            }),
-          )
-        }
-        onCleanup(() => {
-          releases.forEach((release) => release())
-          if (context.triggerElement() === element) {
-            context.setTriggerElement(undefined)
-          }
-          callRef(local.ref, undefined)
-        })
-      }}
+      ref={setTriggerRef}
     >
       {children()}
     </Dynamic>
