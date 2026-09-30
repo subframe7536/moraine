@@ -1,4 +1,4 @@
-import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../shared/recipe-common.recipe'
+import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../theme/recipe-common.class'
 
 import {
   FIELD_CONTROL_CLASS,

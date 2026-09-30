@@ -1,7 +1,7 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.recipe'
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
 import { defineRecipe } from '../../theme/recipe'
+import { INPUT_VARIANT } from '../../theme/recipe-common.class'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 

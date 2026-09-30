@@ -1,9 +1,6 @@
-import type { ClassValue as SlotClassValue } from 'cn'
 import type { Component, JSX } from 'solid-js'
 
-export type { ClassValue as SlotClassValue } from 'cn'
-
-export type SlotStyleValue = JSX.CSSProperties
+import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
 
 export type ElementProps<
   T extends HTMLElement = HTMLElement,

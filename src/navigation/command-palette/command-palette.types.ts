@@ -3,13 +3,8 @@ import type { Component, Ref } from 'solid-js'
 import type { IconT } from '../../element/icon'
 import type { ListT } from '../../element/list'
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type {
-  BaseProps,
-  ElementProps,
-  InputElementProps,
-  SlotClassValue,
-  SlotStyleValue,
-} from '../../shared/types'
+import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type {
   CommandPaletteStyleSlot,

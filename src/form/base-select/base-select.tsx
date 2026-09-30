@@ -21,7 +21,6 @@ import { acquireBodyScrollLock, scrollIntoViewWithin } from '../../overlay/base/
 import { createStyles } from '../../provider/create-styles'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { dataSlotName } from '../../shared/data-slot'
 import { HiddenInput } from '../../shared/hidden-input'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -29,6 +28,7 @@ import { createTypeahead } from '../../shared/typeahead'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler, callRef, createId } from '../../shared/utils'
+import { dataSlotName } from '../../theme/data-slot'
 import { useFormField } from '../field/field-context'
 import {
   diagnoseDuplicateItems,

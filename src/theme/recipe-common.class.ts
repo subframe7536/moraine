@@ -49,3 +49,17 @@ export const POPPER_CONTENT_SIDE_VARIANT = {
   bottom: 'mt-(--mo-popper-content-overflow-padding) -enter-translate-y-1 -exit-translate-y-1',
   left: 'mr-(--mo-popper-content-overflow-padding) enter-translate-x-1 exit-translate-x-1',
 } as const
+
+export const INPUT_VARIANT = {
+  outline: 'border border-input bg-transparent shadow-xs dark:bg-input/30',
+  subtle: 'border border-input bg-input/30 shadow-xs',
+  ghost:
+    'hover:(bg-accent-hover text-accent-foreground) focus-within:(bg-accent-hover text-accent-foreground)',
+  none: 'focus-within:ring-0',
+} as const
+
+export const TEXT_SIZE_VARIANT = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+} as const

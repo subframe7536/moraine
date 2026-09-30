@@ -1,6 +1,6 @@
-import { createDataAttributes } from '../../shared/style-contract'
-import type { DataAttributeContract } from '../../shared/style-contract'
 import { defineRecipe } from '../../theme/recipe'
+import { createDataAttributes } from '../../theme/style-contract'
+import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type {
   CommandPaletteStyleSlot,

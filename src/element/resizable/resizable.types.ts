@@ -1,7 +1,8 @@
 import type { JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ResizableOrientation, ResizableSize } from './hook'
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'

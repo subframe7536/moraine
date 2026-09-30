@@ -2,11 +2,10 @@ import type { Accessor, JSX, Ref } from 'solid-js'
 
 import type {
   BaseProps,
-  SlotClassValue,
-  SlotStyleValue,
   TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
 

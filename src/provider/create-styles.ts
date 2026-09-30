@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
-import type { SlotClassValue } from '../shared/types'
 import type {
   RecipeDefinition,
   RecipeSlots,
@@ -9,6 +8,7 @@ import type {
   RecipeVariantSelection,
 } from '../theme/recipe'
 import { getRecipeDefaultVariants, resolveRecipe } from '../theme/recipe'
+import type { SlotClassValue } from '../theme/style-types'
 
 import { useCn } from './cn-context'
 import { useThemeResolver } from './theme-context'

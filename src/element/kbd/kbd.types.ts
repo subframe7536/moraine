@@ -1,4 +1,5 @@
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
 
