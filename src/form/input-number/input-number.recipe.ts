@@ -1,5 +1,13 @@
 import { defineRecipe } from '../../theme/recipe'
-import { INPUT_VARIANT } from '../../theme/recipe-common.class'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DATA_DISABLED_CLASS,
+  DATA_INVALID_CLASS,
+  DISABLED_CLASS,
+  FOCUS_WITHIN_CLASS,
+  FOCUS_WITHIN_INVALID_CLASS,
+  INPUT_VARIANT,
+} from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -19,13 +27,11 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   InputNumberStyleVariant
 >('inputNumber', {
   base: {
-    root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
+    root: `inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} ${DATA_DISABLED_CLASS} ${FOCUS_WITHIN_INVALID_CLASS}`,
     input:
       'placeholder:text-muted-foreground text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0 text-center data-auto-align:text-start',
-    increment:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center disabled:(opacity-64 pointer-events-none) hover:text-primary-hover active:text-primary-active',
-    decrement:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center disabled:(opacity-64 pointer-events-none) hover:text-primary-hover active:text-primary-active',
+    increment: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center ${DISABLED_CLASS} hover:text-primary-hover active:text-primary-active`,
+    decrement: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center ${DISABLED_CLASS} hover:text-primary-hover active:text-primary-active`,
     controls: 'flex shrink-0 flex-col h-full',
   },
   defaultVariants: {

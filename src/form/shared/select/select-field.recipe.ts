@@ -1,4 +1,8 @@
-import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../theme/recipe-common.class'
+import {
+  INPUT_VARIANT,
+  TEXT_SIZE_VARIANT,
+  SELECT_TRIGGER_FOCUS_CLASS,
+} from '../../../theme/recipe-common.class'
 
 import {
   FIELD_CONTROL_CLASS,
@@ -8,7 +12,6 @@ import {
   SELECT_LEADING_ICON_CLASS,
   SELECT_LOADING_ICON_CLASS,
   SECONDARY_TRIGGER_CLASS,
-  SELECT_TRIGGER_FOCUS_CLASS,
   TAG_FIELD_CONTROL_CLASS,
   TAG_FIELD_INPUT_CLASS,
 } from './select-field.class'

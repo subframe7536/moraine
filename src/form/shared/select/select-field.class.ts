@@ -1,13 +1,17 @@
-export const FIELD_CONTROL_CLASS =
-  'relative text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-editable:focus-within:(outline-none border-ring ring-3 ring-ring/50) data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20) data-invalid:(border-destructive ring-3 ring-destructive/20) data-disabled:(opacity-64 pointer-events-none) dark:data-editable:focus-within:data-invalid:(border-destructive/50 ring-destructive/40) dark:data-invalid:(border-destructive/50 ring-destructive/40)'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
+  DATA_DISABLED_CLASS,
+  DATA_INVALID_CLASS,
+  DISABLED_CLASS,
+  EDITABLE_FOCUS_WITHIN_CLASS,
+  EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
+} from '../../../theme/recipe-common.class'
+export const FIELD_CONTROL_CLASS = `relative text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center ${EDITABLE_FOCUS_WITHIN_CLASS} ${EDITABLE_FOCUS_WITHIN_INVALID_CLASS} ${DATA_INVALID_CLASS} ${DATA_DISABLED_CLASS} ${DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS}`
 
-export const FIELD_INPUT_CLASS =
-  'outline-none bg-transparent flex-1 w-full disabled:(opacity-64 pointer-events-none) read-only:cursor-pointer'
+export const FIELD_INPUT_CLASS = `outline-none bg-transparent flex-1 w-full ${DISABLED_CLASS} read-only:cursor-pointer`
 
 export const SELECT_LOADING_ICON_CLASS = 'data-loading:animate-spin'
-
-export const SELECT_TRIGGER_FOCUS_CLASS =
-  "focus-visible:after:(content-[''] pointer-events-none absolute inset-0 z-10 rounded-md border border-ring ring-3 ring-ring/50) focus-visible:data-invalid:after:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:after:(border-destructive/50 ring-destructive/40)"
 
 export const PRIMARY_TRIGGER_CLASS =
   'static outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center text-start disabled:pointer-events-none'

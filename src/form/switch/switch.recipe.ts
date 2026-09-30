@@ -1,4 +1,10 @@
 import { defineRecipe } from '../../theme/recipe'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DATA_DISABLED_CLASS,
+  DATA_INVALID_CLASS,
+  FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -25,8 +31,7 @@ export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, Switch
   {
     base: {
       root: 'flex flex-row items-start',
-      track:
-        'data-disabled:(opacity-64 pointer-events-none) p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-xs transition-[color,background-color,box-shadow] items-center focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80',
+      track: `${DATA_DISABLED_CLASS} p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-xs transition-[color,background-color,box-shadow] items-center ${FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
       thumb:
         'rounded-full bg-background flex pointer-events-none shadow-sm transition-transform items-center justify-center relative',
       icon: 'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',

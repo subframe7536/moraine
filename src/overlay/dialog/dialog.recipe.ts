@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
@@ -40,7 +41,7 @@ export const dialogRecipe = /* @__PURE__ */ defineRecipe<DialogStyleSlot, Dialog
       title: `${DIALOG_TITLE_CLASS} col-start-1`,
       description: `${DIALOG_DESCRIPTION_CLASS} col-start-1`,
       action: 'col-start-2 row-start-1 row-span-2 self-start justify-self-end',
-      contentClose: `${DIALOG_CONTENT_CLOSE_CLASS} inline-flex items-center justify-center size-8 rounded-md hover:(bg-accent-hover text-accent-foreground) active:(bg-accent-active text-accent-foreground) focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)`,
+      contentClose: `${DIALOG_CONTENT_CLOSE_CLASS} ${OVERLAY_CLOSE_BUTTON_CLASS}`,
       body: `${DIALOG_BODY_CLASS} pt-6 pb-6 data-header:pt-0 data-footer:pb-2 data-scroll:overflow-y-auto`,
       footer: DIALOG_FOOTER_CLASS,
     },

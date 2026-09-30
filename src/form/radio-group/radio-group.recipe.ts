@@ -1,4 +1,10 @@
 import { defineRecipe } from '../../theme/recipe'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DATA_DISABLED_CLASS,
+  DATA_INVALID_CLASS,
+  PEER_FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -17,9 +23,8 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
 >('radioGroup', {
   base: {
     root: 'flex relative',
-    item: 'flex items-start data-disabled:(opacity-64 pointer-events-none)',
-    control:
-      'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) peer-focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) dark:bg-input/30',
+    item: `flex items-start ${DATA_DISABLED_CLASS}`,
+    control: `outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) ${PEER_FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} dark:bg-input/30`,
     container: 'flex items-center',
     indicator: 'rounded-full bg-primary-foreground',
     wrapper: 'flex flex-col gap-0.5 w-full',

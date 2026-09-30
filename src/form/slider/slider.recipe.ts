@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_BORDER_CLASS } from '../../theme/recipe-common.class'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
@@ -29,7 +30,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
   'slider',
   {
     base: {
-      root: 'group flex select-none items-center relative touch-none data-disabled:(opacity-64 pointer-events-none)',
+      root: `group flex select-none items-center relative touch-none ${DATA_DISABLED_CLASS}`,
       track: 'bg-input select-none translate-z-0 relative overflow-hidden',
       range: 'bg-primary select-none absolute z-raised',
       marker: 'pointer-events-none absolute',
@@ -67,8 +68,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           track: 'rounded-full',
           range: 'rounded-full',
           marker: 'bg-background',
-          thumb:
-            'size-(--s-thumb-size) outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none border border-ring ring-3 ring-ring/50) hover:(ring-3 border border-ring ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding',
+          thumb: `size-(--s-thumb-size) outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] ${FOCUS_VISIBLE_BORDER_CLASS} hover:(ring-3 border border-ring ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding`,
         },
         bold: {
           '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',

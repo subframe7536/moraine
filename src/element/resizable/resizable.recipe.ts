@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -23,10 +24,8 @@ export const resizableRecipe = /* @__PURE__ */ defineRecipe<
     root: 'flex h-full min-h-0 min-w-0 w-full',
     panel:
       'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
-    handle:
-      "bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:(outline-none ring-3 ring-ring/50) aria-disabled:cursor-default data-cross:cursor-move after:(content-[''] absolute)",
-    handleControl:
-      'rounded-lg bg-border flex shrink-0 cursor-inherit select-none items-center justify-center z-sticky touch-none focus-visible:(outline-none ring-3 ring-ring/50) data-collapse:active:cursor-pointer data-collapse:hover:cursor-pointer',
+    handle: `bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none ${FOCUS_VISIBLE_RING_CLASS} aria-disabled:cursor-default data-cross:cursor-move after:(content-[''] absolute)`,
+    handleControl: `rounded-lg bg-border flex shrink-0 cursor-inherit select-none items-center justify-center z-sticky touch-none ${FOCUS_VISIBLE_RING_CLASS} data-collapse:active:cursor-pointer data-collapse:hover:cursor-pointer`,
     intersection: 'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-base',
   },
   defaultVariants: {

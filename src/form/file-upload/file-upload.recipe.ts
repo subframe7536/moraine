@@ -1,4 +1,9 @@
 import { defineRecipe } from '../../theme/recipe'
+import {
+  DARK_DATA_INVALID_CLASS,
+  DATA_INVALID_CLASS,
+  FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -16,8 +21,7 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
 >('fileUpload', {
   base: {
     root: 'relative flex min-w-0 flex-col data-disabled:(pointer-events-none opacity-64)',
-    control:
-      'relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border-2 border-input bg-background text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-background-hover active:bg-background-active focus-visible:(border-ring ring-3 ring-ring/50) data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:bg-input/30 dark:hover:bg-background-hover dark:active:bg-background-active dark:data-invalid:(border-destructive/50 ring-destructive/40) aria-readonly:(cursor-default hover:bg-background active:bg-background) dark:aria-readonly:hover:bg-input/30',
+    control: `relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border-2 border-input bg-background text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-background-hover active:bg-background-active focus-visible:(border-ring ring-3 ring-ring/50) data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) ${DATA_INVALID_CLASS} dark:bg-input/30 dark:hover:bg-background-hover dark:active:bg-background-active ${DARK_DATA_INVALID_CLASS} aria-readonly:(cursor-default hover:bg-background active:bg-background) dark:aria-readonly:hover:bg-input/30`,
     wrapper:
       'pointer-events-none grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 data-dropzone:(flex flex-col justify-center text-center)',
     icon: 'row-span-2 shrink-0 text-muted-foreground',
@@ -30,8 +34,7 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
     fileMeta: 'flex min-w-0 flex-1 flex-col gap-0.5',
     fileName: 'truncate font-medium text-foreground',
     fileSize: 'truncate text-xs text-muted-foreground',
-    fileRemove:
-      'inline-flex shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:(bg-accent-hover text-accent-foreground) focus-visible:(outline-none border-ring ring-3 ring-ring/50) active:bg-accent-active disabled:(pointer-events-none opacity-64)',
+    fileRemove: `inline-flex shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:(bg-accent-hover text-accent-foreground) ${FOCUS_VISIBLE_CLASS} active:bg-accent-active disabled:(pointer-events-none opacity-64)`,
   },
   defaultVariants: {
     size: 'md',
