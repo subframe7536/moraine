@@ -52,7 +52,6 @@ export function createPolymorphicRoot(options: {
         return
       }
       options.registration?.ref(next)
-      callRef(consumerRef, next)
 
       const bridgeCustomClick = untrack(
         () => options.bridgeClick && typeof options.tag() !== 'string',
@@ -106,6 +105,8 @@ export function createPolymorphicRoot(options: {
           ref(undefined)
         }
       })
+      // Register inner trigger behavior before an enclosing root receives the same ref.
+      callRef(consumerRef, next)
     }
 
     onCleanup(() => ref(undefined))

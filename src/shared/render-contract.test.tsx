@@ -217,6 +217,27 @@ describe('render and polymorphic contracts', () => {
     expect(onOpenChange).not.toHaveBeenCalled()
   })
 
+  test('nested custom overlay triggers cancel before outer activation', () => {
+    const onOpenChange = vi.fn()
+    const Native = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
+    const Custom = (
+      props: Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
+        style?: JSX.CSSProperties
+      },
+    ) => (
+      <Popover>
+        <Popover.Trigger {...props} as={Native} onClick={(event) => event.preventDefault()} />
+      </Popover>
+    )
+    const view = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as={Custom}>Open</DropdownMenu.Trigger>
+      </DropdownMenu>
+    ))
+    fireEvent.click(view.getByText('Open'))
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('foreign custom root cancels keyboard before activation', () => {
     const iframe = document.createElement('iframe')
     document.body.append(iframe)
