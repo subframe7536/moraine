@@ -104,6 +104,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
         {(itemState) => (
           <Show
             when={itemRender()}
+            keyed
             fallback={
               <>
                 <Show when={item().icon}>
@@ -141,7 +142,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {(renderer) => createComponent(renderer(), presentation)}
+            {(renderer) => createComponent(renderer, presentation)}
           </Show>
         )}
       </BaseSelect.Item>

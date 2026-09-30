@@ -466,6 +466,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     return (
       <Show
         when={merged.itemRender}
+        keyed
         fallback={
           <>
             <Show when={item.item.leadingRender !== undefined}>
@@ -492,7 +493,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           </>
         }
       >
-        {(renderer) => createComponent(renderer(), itemContext)}
+        {(renderer) => createComponent(renderer, itemContext)}
       </Show>
     )
   }

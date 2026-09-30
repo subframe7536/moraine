@@ -169,6 +169,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
+    bridgeClick: true,
     ref: () => local.ref,
     registration: { element: context.triggerElement, ref: context.setTriggerElement },
   })

@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { Show, createSignal, splitProps } from 'solid-js'
+import { Show, createSignal, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -14,6 +14,7 @@ import { callHandler } from './utils'
 
 const NativeButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />
 const NativeLink = (props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
+const NativeSpan = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
 const CancelingButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     {...props}
@@ -33,6 +34,7 @@ function Root(
     focusableWhenDisabled?: boolean
     ref?: (element: HTMLElement | undefined) => void
     onPress?: () => void
+    bridgeClick?: boolean
   },
 ) {
   const [local, rest] = splitProps(props, [
@@ -41,9 +43,14 @@ function Root(
     'focusableWhenDisabled',
     'ref',
     'onPress',
+    'bridgeClick',
   ])
   const tag = () => local.as ?? 'button'
-  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
+  const root = createPolymorphicRoot({
+    tag,
+    bridgeClick: untrack(() => local.bridgeClick),
+    ref: () => local.ref,
+  })
   const binding = root.bind(
     useButtonInteraction(
       {
@@ -224,7 +231,7 @@ describe('polymorphic root', () => {
       </Show>
     )
     const screen = render(() => (
-      <Root as={ConditionalButton} onPress={press}>
+      <Root as={ConditionalButton} onPress={press} bridgeClick>
         Action
       </Root>
     ))
@@ -244,4 +251,33 @@ describe('polymorphic root', () => {
     add.mockRestore()
     remove.mockRestore()
   })
+
+  test.each(['span', NativeSpan] as const)(
+    'delegates the first keyboard event after adopting %s into an iframe',
+    (as) => {
+      const iframe = document.createElement('iframe')
+      document.body.append(iframe)
+      const ownerDocument = iframe.contentDocument!
+      const press = vi.fn()
+      const keyDown = vi.fn()
+      const screen = render(() => (
+        <Root as={as} onPress={press} onKeyDown={keyDown} bridgeClick>
+          Action
+        </Root>
+      ))
+      const element = screen.getByRole('button')
+      ownerDocument.body.append(ownerDocument.adoptNode(element))
+      try {
+        fireEvent.keyDown(element, { key: 'Enter' })
+        expect(keyDown).toHaveBeenCalledOnce()
+        expect(press).toHaveBeenCalledOnce()
+        fireEvent.keyDown(element, { key: ' ' })
+        fireEvent.keyUp(element, { key: ' ' })
+        expect(press).toHaveBeenCalledTimes(2)
+      } finally {
+        screen.unmount()
+        iframe.remove()
+      }
+    },
+  )
 })

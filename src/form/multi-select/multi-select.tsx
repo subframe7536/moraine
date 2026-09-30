@@ -312,9 +312,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           <div data-slot="multi-select-tags-container" {...styles.styles.tagsContainer}>
             <For each={tags.visible()}>
               {(tag, index) => (
-                <Show when={local.tagRender} fallback={tags.renderDefault(tag, index)}>
+                <Show when={local.tagRender} fallback={tags.renderDefault(tag, index)} keyed>
                   {(renderer) =>
-                    createComponent(renderer(), {
+                    createComponent(renderer, {
                       item: source().byValue.get(tag.value),
                       value: tag.value,
                       label: tag.label,

@@ -1,12 +1,12 @@
 import type { Accessor } from 'solid-js'
 import { createSignal, mergeProps, onCleanup, onMount, splitProps, untrack } from 'solid-js'
-import { delegateEvents } from 'solid-js/web'
+import { DelegatedEvents, delegateEvents } from 'solid-js/web'
 
 import { attachEventListener } from './event-listener'
 import type { ValidComponent } from './types'
 import { callHandler, callRef } from './utils'
 
-const EVENT_KEYS = [
+const DELEGATED_EVENTS = [
   'onClick',
   'onKeyDown',
   'onKeyUp',
@@ -17,11 +17,15 @@ const EVENT_KEYS = [
   'onPointerMove',
   'onPointerUp',
   'onPointerCancel',
-] as const
+]
+  .map((key) => key.slice(2).toLowerCase())
+  .filter((name) => DelegatedEvents.has(name))
 
 /** Tracks a Dynamic root and bridges events from custom and foreign-document roots. */
 export function createPolymorphicRoot(options: {
   tag: Accessor<ValidComponent>
+  /** Run custom trigger clicks after the target's own handler, allowing it to cancel activation. */
+  bridgeClick?: boolean
   ref?: Accessor<unknown>
   registration?: {
     element: Accessor<HTMLElement | undefined>
@@ -35,18 +39,6 @@ export function createPolymorphicRoot(options: {
   function bind<T extends object>(
     props: T,
   ): Omit<T, 'ref'> & { ref: (element: HTMLElement | undefined) => void } {
-    const handlers: Record<string, (event: Event) => void> = {}
-    const handled = new WeakSet<Event>()
-    for (const key of EVENT_KEYS) {
-      handlers[key] = (event) => {
-        if (!current || handled.has(event)) {
-          return
-        }
-        handled.add(event)
-        callHandler(event, (props as Record<string, unknown>)[key])
-      }
-    }
-
     function ref(next: HTMLElement | undefined): void {
       if (next === current) {
         return
@@ -62,18 +54,19 @@ export function createPolymorphicRoot(options: {
       options.registration?.ref(next)
       callRef(consumerRef, next)
 
-      const custom = untrack(() => typeof options.tag() !== 'string')
+      const bridgeCustomClick = untrack(
+        () => options.bridgeClick && typeof options.tag() !== 'string',
+      )
       let bridgeDocument: Document | undefined
       let releaseDocument: VoidFunction = () => {}
       const bridgeClick = (event: MouseEvent) => {
-        const target = event.target as Node | null
-        if (!target || !next.contains(target)) {
+        if (current !== next || !event.composedPath().includes(next)) {
           return
         }
         const descriptor = Object.getOwnPropertyDescriptor(event, 'currentTarget')
         Object.defineProperty(event, 'currentTarget', { configurable: true, value: next })
         try {
-          handlers.onClick!(event)
+          callHandler(event, (props as Record<string, unknown>).onClick)
         } finally {
           if (descriptor) {
             Object.defineProperty(event, 'currentTarget', descriptor)
@@ -83,27 +76,22 @@ export function createPolymorphicRoot(options: {
         }
       }
       const registerDocument = () => {
-        if (!custom || bridgeDocument === next.ownerDocument) {
+        if (current !== next || bridgeDocument === next.ownerDocument) {
           return
         }
         releaseDocument()
         bridgeDocument = next.ownerDocument
-        delegateEvents(['click'], bridgeDocument)
-        releaseDocument = attachEventListener(bridgeDocument, 'click', bridgeClick)
+        // Let Solid dispatch the target's handlers before trigger behavior, including in iframes.
+        delegateEvents(DELEGATED_EVENTS, bridgeDocument)
+        releaseDocument = bridgeCustomClick
+          ? attachEventListener(bridgeDocument, 'click', bridgeClick)
+          : () => {}
       }
       registerDocument()
       onMount(registerDocument)
-      const releases = EVENT_KEYS.map((key) =>
-        attachEventListener(
-          next,
-          key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-          (event) => {
-            registerDocument()
-            if (next.ownerDocument !== document && (!custom || key !== 'onClick')) {
-              handlers[key]!(event)
-            }
-          },
-        ),
+      // A root may be adopted after mounting. Register on its new document before bubbling.
+      const releases = DELEGATED_EVENTS.map((name) =>
+        attachEventListener(next, name as keyof HTMLElementEventMap, registerDocument, true),
       )
       release = () => {
         releases.forEach((dispose) => dispose())
@@ -122,10 +110,11 @@ export function createPolymorphicRoot(options: {
 
     onCleanup(() => ref(undefined))
     const [, attributes] = splitProps(props, ['onClick' as keyof T])
-    const { onClick: _click, ...forwardedHandlers } = handlers
-    const binding = mergeProps(attributes, forwardedHandlers, {
+    const binding = mergeProps(attributes, {
       get onClick() {
-        return typeof options.tag() === 'string' ? handlers.onClick : undefined
+        return options.bridgeClick && typeof options.tag() !== 'string'
+          ? undefined
+          : (props as Record<string, unknown>).onClick
       },
       ref,
     }) as Omit<T, 'ref'> & { ref: (element: HTMLElement | undefined) => void }

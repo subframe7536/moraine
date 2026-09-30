@@ -251,10 +251,10 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       <Show
         when={itemRender() === undefined}
         fallback={
-          <Show when={itemRender()}>
+          <Show when={itemRender()} keyed>
             {(renderer) =>
               createComponent(
-                renderer(),
+                renderer,
                 getItemRenderProps(
                   contentProps.item,
                   contentProps.hasChildren,

@@ -141,7 +141,11 @@ export function useButtonInteraction(
   const interactionProps = mergeProps(props, {
     get type() {
       if (isNativeButton()) {
-        return props.type ?? 'button'
+        const element = options.element?.()
+        return (
+          props.type ??
+          (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
+        )
       }
       return props.type
     },

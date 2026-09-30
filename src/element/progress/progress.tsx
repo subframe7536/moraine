@@ -210,9 +210,9 @@ export function Progress(props: ProgressProps): JSX.Element {
                     {...progressDataAttributes.step({ state: () => stepState(index()) })}
                     {...resolved.styles.step}
                   >
-                    <Show when={stepRender()} fallback={step}>
+                    <Show when={stepRender()} fallback={step} keyed>
                       {(renderer) =>
-                        createComponent(renderer(), {
+                        createComponent(renderer, {
                           get step() {
                             return step
                           },

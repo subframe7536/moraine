@@ -62,6 +62,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                 <li data-slot="breadcrumb-item" {...resolved.styles.item}>
                   <Show
                     when={itemRender()}
+                    keyed
                     fallback={
                       <Dynamic
                         component={isCurrent() || isDisabled() ? 'span' : 'a'}
@@ -97,7 +98,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     }
                   >
                     {(renderer) =>
-                      createComponent(renderer(), {
+                      createComponent(renderer, {
                         item,
                         get index() {
                           return index()
