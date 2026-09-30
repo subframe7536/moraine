@@ -88,6 +88,23 @@ describe('InputGroup', () => {
     },
   )
 
+  test.each([Input, Textarea])('colors the %s control with a ghost group', (Control) => {
+    const screen = render(() => (
+      <InputGroup variant="ghost">
+        <Control />
+      </InputGroup>
+    ))
+    const rootClasses = screen.getByRole('group').className.split(/\s+/)
+    const controlClasses = screen.getByRole('textbox').className.split(/\s+/)
+
+    expect(rootClasses).toContain('group/input-group')
+    for (const state of ['hover', 'focus-within']) {
+      expect(rootClasses).toContain(`${state}:bg-accent-hover`)
+      expect(controlClasses).toContain(`group-${state}/input-group:text-accent-foreground`)
+    }
+    expect(controlClasses).toContain('text-foreground')
+  })
+
   test.each([Input, Textarea])(
     'keeps the grouped none variant frame free of its normal focus ring for %s',
     (Control) => {

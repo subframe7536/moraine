@@ -60,6 +60,17 @@ describe('Input', () => {
     expect(input.getAttribute('data-disabled')).toBe('')
   })
 
+  test('pairs the ghost accent background with its foreground on hover and focus', () => {
+    const screen = render(() => <Input variant="ghost" />)
+    const classes = screen.getByRole('textbox').className.split(/\s+/)
+
+    for (const state of ['hover', 'focus-within']) {
+      expect(classes).toContain(`${state}:bg-accent-hover`)
+      expect(classes).toContain(`${state}:text-accent-foreground`)
+    }
+    expect(classes).toContain('text-foreground')
+  })
+
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Input readOnly />)
     const input = screen.getByRole<HTMLInputElement>('textbox')

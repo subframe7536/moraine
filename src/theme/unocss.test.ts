@@ -3,6 +3,9 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
 import { baseSelectRecipe } from '../form/base-select/base-select.recipe'
+import { inputGroupRecipe } from '../form/input-group/input-group.recipe'
+import { inputNumberRecipe } from '../form/input-number/input-number.recipe'
+import { inputRecipe } from '../form/input/input.recipe'
 import { SELECT_FAMILY_SLOTS } from '../form/shared/select/select-field.recipe'
 import { sliderRecipe } from '../form/slider/slider.recipe'
 import { commandPaletteRecipe } from '../navigation/command-palette/command-palette.recipe'
@@ -25,6 +28,39 @@ async function generate(
 }
 
 describe('presetMoraine', () => {
+  test('compiles high-contrast accent colors for ghost controls and their text slots', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          override: {
+            light: {
+              colors: {
+                accent: { base: 'rgb(10, 10, 10)', foreground: 'rgb(250, 250, 250)' },
+              },
+            },
+          },
+        }),
+      ],
+    })
+    const tokens = [
+      inputRecipe.config.compoundVariants?.find((variant) => variant.variants.variant === 'ghost')
+        ?.root,
+      inputNumberRecipe.config.variants?.variant?.ghost?.root,
+      inputNumberRecipe.config.variants?.variant?.ghost?.input,
+      inputGroupRecipe.config.variants?.variant?.ghost?.root,
+      'group-hover/input-group:text-accent-foreground',
+      'group-focus-within/input-group:text-accent-foreground',
+    ].flatMap((classes) => cn(classes)?.split(' ') ?? [])
+    const { css } = await generator.generate(new Set(tokens), { preflights: true })
+
+    expect(css).toContain('--accent: rgb(10, 10, 10);')
+    expect(css).toContain('--accent-foreground: rgb(250, 250, 250);')
+    expect(css).toContain('var(--accent-hover')
+    expect(css).toContain('color:color-mix(in srgb, var(--accent-foreground)')
+    expect(css).toContain('group\\/input-number')
+    expect(css).toContain('group\\/input-group')
+  })
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],

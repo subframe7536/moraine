@@ -1456,6 +1456,21 @@ describe('InputNumber', () => {
     }
   })
 
+  test('colors the inner input when the ghost root is hovered or focused', () => {
+    const screen = render(() => <InputNumber variant="ghost" />)
+    const root = screen.getByRole('spinbutton').closest('[data-slot="input-number"]')!
+    const inputClasses = screen.getByRole('spinbutton').className.split(/\s+/)
+    const rootClasses = root.className.split(/\s+/)
+
+    expect(rootClasses).toContain('group/input-number')
+    for (const state of ['hover', 'focus-within']) {
+      expect(rootClasses).toContain(`${state}:bg-accent-hover`)
+      expect(rootClasses).toContain(`${state}:text-accent-foreground`)
+      expect(inputClasses).toContain(`group-${state}/input-number:text-accent-foreground`)
+    }
+    expect(inputClasses).toContain('text-foreground')
+  })
+
   test('defaults to outline and exposes only the supported variants', () => {
     const screen = render(() => <InputNumber />)
     const root = screen.container.querySelector('[data-slot="input-number"]')

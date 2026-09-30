@@ -63,7 +63,7 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
         root: INPUT_VARIANT.subtle,
         frame: '-inset-px border border-transparent',
       },
-      ghost: { root: INPUT_VARIANT.ghost, frame: 'inset-0' },
+      ghost: { root: `${INPUT_VARIANT.ghost} group/input-group`, frame: 'inset-0' },
       none: {
         frame: 'inset-0 peer-focus:ring-0',
       },

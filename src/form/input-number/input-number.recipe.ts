@@ -60,7 +60,11 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
     variant: {
       outline: { root: INPUT_VARIANT.outline },
       subtle: { root: INPUT_VARIANT.subtle },
-      ghost: { root: INPUT_VARIANT.ghost },
+      ghost: {
+        root: `${INPUT_VARIANT.ghost} group/input-number`,
+        input:
+          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground',
+      },
       none: { root: INPUT_VARIANT.none },
     },
     align: {
