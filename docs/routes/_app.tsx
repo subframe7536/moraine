@@ -4,7 +4,7 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import { MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
 
 import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'
 import { DOCS_MDX_COMPONENTS } from './components/markdown'
@@ -97,11 +97,10 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           onNavigate={navigateToPage}
           theme={theme}
           updateTheme={updateTheme}
-          isLanding={isLanding}
         />
 
         <div class="flex flex-1 min-h-0 overflow-hidden">
-          <Show when={!isLanding()}>
+          <Show when={!isLanding() || frame.isMobile()}>
             <SidebarFrame.Sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
                 <SidebarFrame.SidebarHeader>
@@ -124,6 +123,22 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                   }}
                 />
               </SidebarFrame.SidebarBody>
+              <Show when={frame.isMobile()}>
+                <SidebarFrame.SidebarFooter class="px-5 pb-5 pt-3">
+                  <Button
+                    as="a"
+                    href="https://github.com/subframe7536/moraine"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="ghost"
+                    size="sm"
+                    leading="i-lucide:github"
+                    class="w-full justify-start"
+                  >
+                    GitHub repository
+                  </Button>
+                </SidebarFrame.SidebarFooter>
+              </Show>
             </SidebarFrame.Sidebar>
           </Show>
 

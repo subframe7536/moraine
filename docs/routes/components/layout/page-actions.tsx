@@ -1,10 +1,12 @@
 import type { Accessor } from 'solid-js'
+import { Show } from 'solid-js'
 
-import { Button, Icon, Switch } from '../../../../src'
+import { Button, Icon, cn } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
 import { DocsCommandPalette } from './docs-command-palette'
+import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.class'
 
 export function PageActions(props: {
   pages: DocsPageEntry[]
@@ -16,7 +18,7 @@ export function PageActions(props: {
   updateTheme: (theme: ThemeMode) => void
 }) {
   return (
-    <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
+    <div class="flex shrink-0 gap-1 items-center" aria-label="Page actions">
       <DocsCommandPalette
         pages={props.pages}
         open={props.paletteOpen}
@@ -24,27 +26,30 @@ export function PageActions(props: {
         onNavigate={props.onNavigate}
         variant={props.mobile ? 'mobile' : 'desktop'}
       />
+      <Show when={!props.mobile}>
+        <Button
+          as="a"
+          href="https://github.com/subframe7536/moraine"
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="GitHub repository"
+          class={cn(DOCS_HEADER_CONTROL_CLASS, 'size-9')}
+        >
+          <Icon name="i-lucide:github" class="size-4" />
+        </Button>
+      </Show>
       <Button
-        as="a"
-        href="https://github.com/subframe7536/moraine"
-        target="_blank"
-        rel="noopener noreferrer"
         variant="ghost"
         size="icon-sm"
-        aria-label="GitHub repository"
-        class="text-muted-foreground hover:text-foreground active:translate-y-0!"
+        aria-label={props.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        title={props.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        onClick={() => props.updateTheme(props.theme() === 'dark' ? 'light' : 'dark')}
+        class={cn(DOCS_HEADER_CONTROL_CLASS, props.mobile ? 'size-11 -me-3' : 'size-9')}
       >
-        <Icon name="i-lucide-github" />
+        <Icon name={props.theme() === 'dark' ? 'i-lucide:moon' : 'i-lucide:sun'} class="size-4" />
       </Button>
-      <Switch
-        size="sm"
-        label="Toggle color theme"
-        classes={{ wrapper: 'sr-only' }}
-        checked={props.theme() === 'dark'}
-        onCheckedChange={(next) => props.updateTheme(next ? 'dark' : 'light')}
-        checkedIcon="i-lucide-moon"
-        uncheckedIcon="i-lucide-sun"
-      />
     </div>
   )
 }

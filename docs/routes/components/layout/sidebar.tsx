@@ -93,6 +93,7 @@ export const Sidebar = (props: SidebarProps) => {
           value={currentSurface()}
           onChange={(value) => {
             navigate(value === 'components' ? '/components' : '/docs/getting-started')
+            frame.setOpen(false)
           }}
           items={[
             { value: 'docs', label: 'Docs' },

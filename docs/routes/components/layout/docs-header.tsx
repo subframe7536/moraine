@@ -3,10 +3,11 @@ import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, cn, SidebarFrame, useSidebarFrame } from '../../../../src'
+import { Badge, Button, cn, Icon, SidebarFrame, useSidebarFrame } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
+import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.class'
 import { PageActions } from './page-actions'
 
 export interface DocsHeaderProps {
@@ -16,7 +17,6 @@ export interface DocsHeaderProps {
   onNavigate: (key: string) => void
   theme: Accessor<ThemeMode>
   updateTheme: (theme: ThemeMode) => void
-  isLanding: Accessor<boolean>
 }
 
 export function DocsHeader(props: DocsHeaderProps): JSX.Element {
@@ -26,38 +26,51 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const isDocs = createMemo(() => location.pathname.startsWith('/docs'))
 
   return (
-    <header class="bg-background/80 shrink-0 h-13 z-sticky backdrop-blur-md">
-      <nav aria-label="Main" class="px-5 flex h-13 w-full items-center justify-between sm:px-8">
-        <div class="flex gap-2.5 items-center sm:gap-6">
-          <Show when={!props.isLanding() && frame.isMobile()}>
+    <header class="font-sans border-b border-border/60 bg-background shrink-0 h-13 z-sticky">
+      <nav
+        aria-label="Main"
+        class="px-5 flex gap-4 h-full w-full items-center justify-between sm:px-8"
+      >
+        <div class="flex gap-1 min-w-0 items-center">
+          <Show when={frame.isMobile()}>
             <SidebarFrame.Trigger
               as={Button}
               variant="ghost"
-              size="sm"
-              leading="i-lucide-menu"
+              size="icon-sm"
               aria-label="Toggle sidebar"
-            />
+              class={cn(DOCS_HEADER_CONTROL_CLASS, 'size-11 -ms-3')}
+            >
+              <Icon name="i-lucide:menu" class="size-5" />
+            </SidebarFrame.Trigger>
           </Show>
           <a
             href="/"
             aria-label="Moraine home"
-            class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            class="text-foreground flex shrink-0 gap-2 items-center rounded-sm focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
           >
             <img src="/favicon.svg" alt="" class="size-6" />
             <span class="font-semibold text-base">Moraine</span>
-            <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono px-1.5 py-0">
-              v{packageMetadata.version}
-            </Badge>
+            <Show when={!frame.isMobile()}>
+              <Badge
+                size="sm"
+                variant="outline"
+                class="text-muted-foreground font-mono px-1.5 py-0 text-xs"
+              >
+                v{packageMetadata.version}
+              </Badge>
+            </Show>
           </a>
           <Show when={!frame.isMobile()}>
-            <div class="flex gap-1 items-center">
+            <div class="ms-5 flex gap-1 items-center">
               <Button
                 as="a"
                 variant="ghost"
                 size="sm"
                 href="/docs/getting-started"
+                aria-current={isDocs() ? 'true' : undefined}
                 class={cn(
-                  'active:translate-y-0!',
+                  DOCS_HEADER_CONTROL_CLASS,
+                  'px-3 h-9 text-sm',
                   isDocs() ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >
@@ -68,8 +81,10 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 variant="ghost"
                 size="sm"
                 href="/components"
+                aria-current={isComponents() ? 'true' : undefined}
                 class={cn(
-                  'active:translate-y-0!',
+                  DOCS_HEADER_CONTROL_CLASS,
+                  'px-3 h-9 text-sm',
                   isComponents() ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >

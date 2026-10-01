@@ -5,6 +5,7 @@ import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from '
 import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
 import type { CommandPaletteT, DialogT } from '../../../../src'
 
+import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.class'
 import type { SidebarPage } from './sidebar'
 
 export type DocsCommandPaletteVariant = 'desktop' | 'mobile'
@@ -117,16 +118,23 @@ export function DocsSearchTrigger(
       {...triggerProps}
       aria-label="Open search"
       aria-keyshortcuts="Meta+K Control+K"
-      variant="outline"
-      size={variant() === 'mobile' ? 'icon-sm' : 'md'}
+      variant={variant() === 'mobile' ? 'ghost' : 'outline'}
+      size={variant() === 'mobile' ? 'icon-sm' : 'sm'}
       leading="i-lucide-search"
-      trailing={
-        <Show when={variant() === 'desktop'}>
-          <KbdGroup items={['⌘', 'K']} variant="outline" />
-        </Show>
-      }
+      class={[
+        DOCS_HEADER_CONTROL_CLASS,
+        variant() === 'mobile'
+          ? 'size-11'
+          : 'ms-1 me-2 h-9 w-52 justify-start border-border/70 bg-muted/40 hover:bg-muted/70',
+      ]}
+      classes={{ label: 'flex-1 min-w-0' }}
     >
-      <Show when={variant() === 'desktop'}>Search docs</Show>
+      <Show when={variant() === 'desktop'}>
+        <span class="flex gap-3 w-full items-center justify-between text-sm">
+          <span>Search docs</span>
+          <KbdGroup items={['⌘', 'K']} separator="" size="sm" variant="outline" />
+        </span>
+      </Show>
     </Button>
   )
 }
