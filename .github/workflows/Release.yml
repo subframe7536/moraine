@@ -29,6 +29,6 @@ jobs:
         run: curl -d "" ${PAGES_BUILD_HOOK_URL}
         env:
           PAGES_BUILD_HOOK_URL: ${{ secrets.PAGES_BUILD_HOOK_URL }}
-      - run: pnpm dlx changelogithub -y
+      - run: pnpm dlx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
