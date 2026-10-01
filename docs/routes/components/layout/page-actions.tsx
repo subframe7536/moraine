@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { Button, Icon, cn } from '../../../../src'
+import { Button, Icon, SidebarFrame, cn } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
@@ -46,10 +46,21 @@ export function PageActions(props: {
         aria-label={props.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
         title={props.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
         onClick={() => props.updateTheme(props.theme() === 'dark' ? 'light' : 'dark')}
-        class={cn(DOCS_HEADER_CONTROL_CLASS, props.mobile ? 'size-11 -me-3' : 'size-9')}
+        class={cn(DOCS_HEADER_CONTROL_CLASS, props.mobile ? 'size-11' : 'size-9')}
       >
         <Icon name={props.theme() === 'dark' ? 'i-lucide:moon' : 'i-lucide:sun'} class="size-4" />
       </Button>
+      <Show when={props.mobile}>
+        <SidebarFrame.Trigger
+          as={Button}
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Toggle sidebar"
+          class={cn(DOCS_HEADER_CONTROL_CLASS, 'size-11 -me-3')}
+        >
+          <Icon name="i-lucide:menu" class="size-5" />
+        </SidebarFrame.Trigger>
+      </Show>
     </div>
   )
 }

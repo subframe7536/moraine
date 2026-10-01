@@ -3,7 +3,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, cn, Icon, SidebarFrame, useSidebarFrame } from '../../../../src'
+import { Badge, Button, cn, useSidebarFrame } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
@@ -32,17 +32,6 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
         class="px-5 flex gap-4 h-full w-full items-center justify-between sm:px-8"
       >
         <div class="flex gap-1 min-w-0 items-center">
-          <Show when={frame.isMobile()}>
-            <SidebarFrame.Trigger
-              as={Button}
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Toggle sidebar"
-              class={cn(DOCS_HEADER_CONTROL_CLASS, 'size-11 -ms-3')}
-            >
-              <Icon name="i-lucide:menu" class="size-5" />
-            </SidebarFrame.Trigger>
-          </Show>
           <a
             href="/"
             aria-label="Moraine home"
