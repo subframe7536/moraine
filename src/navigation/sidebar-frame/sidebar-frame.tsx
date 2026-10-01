@@ -18,6 +18,7 @@ import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
+import { SIDEBAR_FRAME_MOBILE_QUERY } from './sidebar-frame.constants'
 import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
@@ -170,7 +171,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     local,
   )
 
-  const mediaMatches = createMediaQuery('(max-width: 768px)', false)
+  const mediaMatches = createMediaQuery(SIDEBAR_FRAME_MOBILE_QUERY, false)
   const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
   const [isOpen, setOpen] = createSignal(untrack(() => !isMobile()))
   const [scrolled, setScrolled] = createSignal(false)

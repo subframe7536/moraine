@@ -119,7 +119,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           <Show
             when={(!isLanding() || frame.isMobile()) && (!frame.isMobile() || mobileSidebarReady())}
           >
-            <SidebarFrame.Sidebar class="border-r-0 bg-background">
+            <SidebarFrame.Sidebar data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
                 <SidebarFrame.SidebarHeader>
                   <SidebarHeader onClose={() => frame.setOpen(false)} isMobile={true} />

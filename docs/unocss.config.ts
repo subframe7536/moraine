@@ -2,6 +2,7 @@ import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import type { PresetWind4Theme } from '@subf/unocss'
 import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from '@subf/unocss'
 
+import { SIDEBAR_FRAME_MOBILE_QUERY } from '../src/navigation/sidebar-frame/sidebar-frame.constants.ts'
 import { presetMoraine } from '../src/theme/unocss.ts'
 
 const markdownShortCuts = {
@@ -104,6 +105,13 @@ export default defineConfig<PresetWind4Theme>({
   preflights: [
     {
       getCSS: () => `
+/* The server renders the desktop rail before SidebarFrame resolves the viewport. */
+@media ${SIDEBAR_FRAME_MOBILE_QUERY} {
+  [data-docs-sidebar]:not([data-mobile]) {
+    display: none;
+  }
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 180ms;
