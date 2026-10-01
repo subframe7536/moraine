@@ -109,30 +109,19 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
   },
 }
 
-/** Generate animation durations for all keyframes. */
-export function getMoraineAnimDurations(): Record<string, string> {
-  return Object.fromEntries(
-    Object.keys(MORAINE_KEYFRAMES).map((name) => {
-      return [name, ANIMATION_DURATIONS[getAnimType(name)]]
-    }),
-  )
-}
-
-/** Generate animation timing functions for all keyframes. */
-export function getMoraineAnimTimingFns(): Record<string, string> {
-  return Object.fromEntries(
-    Object.keys(MORAINE_KEYFRAMES).map((name) => {
-      return [name, ANIMATION_TIMING_FUNCTIONS[getAnimType(name)]]
-    }),
-  )
-}
-
-/** Generate animation iteration counts for all keyframes. */
-export function getMoraineAnimCounts(): Record<string, string> {
-  return Object.fromEntries(
-    Object.keys(MORAINE_KEYFRAMES).map((name) => [
-      name,
-      ['loop', 'spin'].includes(getAnimType(name)) ? 'infinite' : '1',
-    ]),
-  )
+export function getMoraineAnimations(): {
+  durations: Record<string, string>
+  timingFns: Record<string, string>
+  counts: Record<string, string>
+} {
+  const durations: Record<string, string> = {}
+  const timingFns: Record<string, string> = {}
+  const counts: Record<string, string> = {}
+  for (const name of Object.keys(MORAINE_KEYFRAMES)) {
+    const type = getAnimType(name)
+    durations[name] = ANIMATION_DURATIONS[type]
+    timingFns[name] = ANIMATION_TIMING_FUNCTIONS[type]
+    counts[name] = type === 'loop' || type === 'spin' ? 'infinite' : '1'
+  }
+  return { durations, timingFns, counts }
 }

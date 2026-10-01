@@ -120,7 +120,7 @@ export const MORAINE_COLORS = {
   ring: 'var(--ring)',
 } as const
 
-export const MORAINE_STATE_COLORS = [
+const MORAINE_STATE_COLORS = [
   'background',
   'primary',
   'secondary',
@@ -133,4 +133,22 @@ export const MORAINE_STATE_COLORS = [
 
 export const MORAINE_WIDTH = {
   sidebar: 'var(--sidebar-width,clamp(14rem,25%,20rem))',
+}
+
+export function createStateColorDeclarations(adjustments: {
+  hover: number
+  active: number
+}): Record<string, string> {
+  return Object.fromEntries(
+    MORAINE_STATE_COLORS.flatMap((color) => {
+      const foreground =
+        color === 'background'
+          ? 'var(--foreground)'
+          : `var(--${color}-foreground, var(--${color === 'destructive' ? 'background' : 'foreground'}))`
+      return (['hover', 'active'] as const).map((state) => [
+        `--mo-auto-${color}-${state}`,
+        `color-mix(in oklch, var(--${color}), ${foreground} ${adjustments[state]}%)`,
+      ])
+    }),
+  )
 }

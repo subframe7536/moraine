@@ -1,18 +1,13 @@
 import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
-import {
-  getMoraineAnimCounts,
-  getMoraineAnimDurations,
-  getMoraineAnimTimingFns,
-  MORAINE_KEYFRAMES,
-} from './animations.ts'
+import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
 import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
-  MORAINE_STATE_COLORS,
+  createStateColorDeclarations,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
@@ -290,13 +285,11 @@ function createThemeCSS(
   }
 
   const supportedCSS = adjustments
-    ? `@supports (color: color-mix(in oklch, red, white)) {\n  *, ::before, ::after {\n${MORAINE_STATE_COLORS.flatMap(
-        (color) =>
-          (['hover', 'active'] as const).map(
-            (state) =>
-              `    --mo-auto-${color}-${state}: color-mix(in oklch, ${colorReference(color)}, ${stateForegroundReference(color)} ${adjustments[state]}%);`,
-          ),
-      ).join('\n')}\n  }\n}`
+    ? `@supports (color: color-mix(in oklch, red, white)) {\n  *, ::before, ::after {\n${Object.entries(
+        createStateColorDeclarations(adjustments),
+      )
+        .map(([name, value]) => `    ${name}: ${value};`)
+        .join('\n')}\n  }\n}`
     : ''
   const themeCSS = themes
     .map(([selector, theme]) => {
@@ -399,7 +392,7 @@ function createThemeCSS(
   return [supportedCSS, themeCSS].filter(Boolean).join('\n\n')
 }
 
-function resolveTranslateValue(value: string, theme: Record<string, any>): string | undefined {
+function resolveTranslateValue(value: string, theme: UtilityTheme): string | undefined {
   if (value.startsWith('[') && value.endsWith(']')) {
     return value.slice(1, -1)
   }
@@ -431,24 +424,13 @@ function resolveTranslateValue(value: string, theme: Record<string, any>): strin
   return undefined
 }
 
-function resolveScaleValue(value: string): string | undefined {
+function resolvePercentageValue(value: string): string | undefined {
   if (value.startsWith('[') && value.endsWith(']')) {
     return value.slice(1, -1)
   }
   const num = Number(value)
   if (!Number.isNaN(num)) {
     return `${num / 100}`
-  }
-  return undefined
-}
-
-function resolveOpacityValue(value: string): string | undefined {
-  if (value.startsWith('[') && value.endsWith(']')) {
-    return value.slice(1, -1)
-  }
-  const num = Number(value)
-  if (!Number.isNaN(num)) {
-    return num === 0 ? '0' : `${num / 100}`
   }
   return undefined
 }
@@ -487,7 +469,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
         if (typeof color !== 'string') {
           return matcher
         }
-        const opacity = resolveOpacityValue(alpha!)!
+        const opacity = resolvePercentageValue(alpha!)!
         const percentage = alpha!.startsWith('[')
           ? opacity.endsWith('%')
             ? opacity
@@ -566,10 +548,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       [
         /^(enter|exit)-opacity-(.+)$/,
         ([, type, value]) => {
-          if (value === undefined) {
-            return
-          }
-          const resolved = resolveOpacityValue(value)
+          const resolved = resolvePercentageValue(value!)
           if (resolved !== undefined) {
             return { [`--mo-${type}-opacity`]: resolved }
           }
@@ -579,10 +558,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       [
         /^(enter|exit)-scale-(.+)$/,
         ([, type, value]) => {
-          if (value === undefined) {
-            return
-          }
-          const resolved = resolveScaleValue(value)
+          const resolved = resolvePercentageValue(value!)
           if (resolved !== undefined) {
             return { [`--mo-${type}-scale`]: resolved }
           }
@@ -592,10 +568,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       [
         /^(enter|exit)-translate-([xy])-(.+)$/,
         ([, type, axis, value], { theme }) => {
-          if (value === undefined) {
-            return
-          }
-          const resolved = resolveTranslateValue(value, theme as Record<string, any>)
+          const resolved = resolveTranslateValue(value!, theme)
           if (resolved !== undefined) {
             return { [`--mo-${type}-translate-${axis}`]: resolved }
           }
@@ -605,10 +578,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       [
         /^(enter|exit)-rotate-(.+)$/,
         ([, type, value]) => {
-          if (value === undefined) {
-            return
-          }
-          const resolved = resolveRotateValue(value)
+          const resolved = resolveRotateValue(value!)
           if (resolved !== undefined) {
             return { [`--mo-${type}-rotate`]: resolved }
           }
@@ -664,9 +634,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       colors: MORAINE_COLORS,
       animation: {
         keyframes: toUnocssKeyframes(),
-        timingFns: getMoraineAnimTimingFns(),
-        durations: getMoraineAnimDurations(),
-        counts: getMoraineAnimCounts(),
+        ...getMoraineAnimations(),
       },
     },
     variants,

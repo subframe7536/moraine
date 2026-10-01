@@ -30,7 +30,7 @@
   - [x] flatten CSS engine and style modules into `src/theme`
   - [x] move engine-specific logic to its entry file
   - [x] polish styling guides
-- [ ] reconsider `renderComponentOrElement` and its usage, cleanup small helpers
+- [x] reconsider `renderComponentOrElement` and its usage, cleanup small helpers
 - [ ] docs page polish
   - [ ] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
   - [ ] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
@@ -38,6 +38,7 @@
   - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
   - [ ] add docs header composition & polymorphism badge link
   - [ ] update playground, try to showcase more slots
+  - [ ] add `data-loaded` state on toc indicator to prevent clip-path transition on load from 0 to target
 
 # V1
 

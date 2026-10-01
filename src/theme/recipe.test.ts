@@ -2,14 +2,15 @@ import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { cn } from './cn'
-import type { RecipeConfig } from './recipe'
-import { atomicRecipe, defineRecipe, resolveRecipe } from './recipe'
+import type { RecipeConfig, RecipeVariantSelection } from './recipe'
+import { defineRecipe, resolveRecipe } from './recipe'
 
 function testRecipe<S extends object, V = never>(key: string, config: RecipeConfig<S, V>) {
   const definition = defineRecipe<S, V>(key, config)
-  const fn = (variants?: any) => resolveRecipe(definition, variants, cn)
+  const fn = (variants?: RecipeVariantSelection<V>) => resolveRecipe(definition, variants, cn)
   return Object.assign(fn, {
-    resolve: (variants: any, merge: typeof cn) => resolveRecipe(definition, variants, merge),
+    resolve: (variants: RecipeVariantSelection<V> | undefined, merge: typeof cn) =>
+      resolveRecipe(definition, variants, merge),
   })
 }
 
@@ -65,130 +66,6 @@ void missingSlotBase
 void unknownVariantSlot
 
 describe('recipe', () => {
-  describe('atomic recipe', () => {
-    const button = atomicRecipe({
-      base: 'inline-flex items-center px-4 py-2 text-sm',
-      variants: {
-        variant: {
-          primary: 'bg-primary text-primary-foreground',
-          secondary: 'bg-secondary text-secondary-foreground',
-          outline: 'border border-border bg-background',
-        },
-        size: {
-          sm: 'h-8 px-3 text-xs',
-          md: 'h-9 px-4 text-sm',
-          lg: 'h-10 px-6 text-base',
-        },
-        rounded: {
-          true: 'rounded-full',
-          false: 'rounded-none',
-        },
-      },
-      compoundVariants: [
-        {
-          variants: { variant: 'outline', size: 'lg' },
-          class: 'border-2',
-        },
-        {
-          variants: { variant: ['primary', 'secondary'], rounded: true },
-          class: 'shadow-lg',
-        },
-      ],
-      defaults: {
-        variant: 'primary',
-        size: 'md',
-        rounded: false,
-      },
-    })
-    const atomicClass: string | undefined = button()
-
-    void atomicClass
-
-    test('applies defaults when no options provided', () => {
-      expect(button()).toBe(
-        'inline-flex items-center py-2 bg-primary text-primary-foreground h-9 px-4 text-sm rounded-none',
-      )
-    })
-
-    test('uses defaults for undefined and suppresses them for null', () => {
-      expect(button({ variant: undefined })).toBe(
-        'inline-flex items-center py-2 bg-primary text-primary-foreground h-9 px-4 text-sm rounded-none',
-      )
-      expect(button({ variant: null, size: undefined })).toBe(
-        'inline-flex items-center py-2 h-9 px-4 text-sm rounded-none',
-      )
-    })
-
-    test('applies selected variants and boolean variants', () => {
-      expect(button({ variant: 'secondary', size: 'sm', rounded: true })).toBe(
-        'inline-flex items-center py-2 bg-secondary text-secondary-foreground h-8 px-3 text-xs rounded-full shadow-lg',
-      )
-    })
-
-    test('applies compound variants with single matcher and array matcher', () => {
-      // Single matcher: outline + lg -> border-2 overrides border
-      expect(button({ variant: 'outline', size: 'lg' })).toBe(
-        'inline-flex items-center py-2 border-border bg-background h-10 px-6 text-base rounded-none border-2',
-      )
-
-      // Array matcher: primary + rounded: true -> shadow-lg
-      expect(button({ variant: 'primary', rounded: true })).toBe(
-        'inline-flex items-center py-2 bg-primary text-primary-foreground h-9 px-4 text-sm rounded-full shadow-lg',
-      )
-      // Array matcher: secondary + rounded: true -> shadow-lg
-      expect(button({ variant: 'secondary', rounded: true })).toBe(
-        'inline-flex items-center py-2 bg-secondary text-secondary-foreground h-9 px-4 text-sm rounded-full shadow-lg',
-      )
-    })
-
-    test('supports flat compound variants and numeric variant values', () => {
-      const spacing = atomicRecipe({
-        base: 'block',
-        variants: {
-          columns: {
-            1: 'grid-cols-1',
-            2: 'grid-cols-2',
-          },
-        },
-        compoundVariants: [{ columns: 2, class: 'gap-4' }],
-      })
-
-      expect(spacing({ columns: 2 })).toBe('block grid-cols-2 gap-4')
-    })
-
-    test('matches boolean variants against string compound matchers', () => {
-      const toggle = atomicRecipe({
-        base: 'inline-flex',
-        variants: {
-          active: {
-            true: 'opacity-100',
-            false: 'opacity-50',
-          },
-        },
-        compoundVariants: [{ variants: { active: 'true' }, class: 'font-bold' }],
-      })
-
-      expect(toggle({ active: true })).toBe('inline-flex opacity-100 font-bold')
-    })
-
-    test('returns undefined when no classes are selected', () => {
-      expect(atomicRecipe({ base: '' })()).toBeUndefined()
-    })
-
-    test('applies extra classes with cn conflict resolution and ordering', () => {
-      // Extra class px-8 should override px-4
-      expect(button({ size: 'md' }, 'px-8', 'font-bold')).toBe(
-        'inline-flex items-center py-2 bg-primary text-primary-foreground h-9 text-sm rounded-none px-8 font-bold',
-      )
-    })
-
-    test('returns new class evaluation without caching or object identity dependence', () => {
-      const res1 = button({ variant: 'secondary' })
-      const res2 = button({ variant: 'secondary' })
-      expect(res1).toBe(res2)
-    })
-  })
-
   describe('multi-slot recipe', () => {
     const card = testRecipe<CardSlot, CardVariant>('card', {
       base: {
@@ -269,13 +146,6 @@ describe('recipe', () => {
       expect(slots.classes.footer).toBe('mt-4 flex items-center justify-end')
     })
 
-    test('returns new instance on each call without caching', () => {
-      const run1 = card({ variant: 'ghost' })
-      const run2 = card({ variant: 'ghost' })
-      expect(run1).not.toBe(run2)
-      expect(run1).toEqual(run2)
-    })
-
     test('resolves declared slots without a runtime slots array', () => {
       const inferred = testRecipe<InferredSlot>('inferred', {
         base: {
@@ -293,24 +163,7 @@ describe('recipe', () => {
 
     test('derives classes from reactive getter variants in caller memos', () => {
       createRoot((dispose) => {
-        const [atomicVariant, setAtomicVariant] = createSignal<'primary' | 'secondary'>('primary')
         const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid')
-        const reactiveButton = atomicRecipe({
-          base: 'inline-flex',
-          variants: {
-            variant: {
-              primary: 'bg-primary',
-              secondary: 'bg-secondary',
-            },
-          },
-        })
-        const atomicClass = createMemo(() =>
-          reactiveButton({
-            get variant() {
-              return atomicVariant()
-            },
-          }),
-        )
         const slotClass = createMemo(
           () =>
             card({
@@ -321,15 +174,10 @@ describe('recipe', () => {
         )
 
         // oxlint-disable-next-line subf/solid-reactivity
-        expect(atomicClass()).toContain('bg-primary')
-        // oxlint-disable-next-line subf/solid-reactivity
         expect(slotClass()).toContain('bg-muted')
 
-        setAtomicVariant('secondary')
         setSlotVariant('ghost')
 
-        // oxlint-disable-next-line subf/solid-reactivity
-        expect(atomicClass()).toContain('bg-secondary')
         // oxlint-disable-next-line subf/solid-reactivity
         expect(slotClass()).toContain('border-transparent')
         dispose()
@@ -349,21 +197,14 @@ test('matches sparse compound-only keys and preserves false, zero, empty string,
   expect(sparse({ count: null })).toEqual({ classes: {}, style: {} })
 })
 
-test('resolves base, variant, compound, and extra classes with an explicit merger', async () => {
+test('resolves base, variant, and compound classes with an explicit merger', async () => {
   const { cn, createCn } = await import('./cn')
   const customCn = createCn({ override: { classGroups: { p: [] } } })
-  const atomic = atomicRecipe({
-    base: 'p-2',
-    variants: { active: { true: 'p-4' } },
-    compoundVariants: [{ active: true, class: 'p-6' }],
-  })
   const slots = testRecipe<RootSlot, { active?: boolean }>('slots', {
     base: { root: 'p-2' },
     variants: { active: { true: { root: 'p-4' } } },
     compoundVariants: [{ variants: { active: true }, root: 'p-6' }],
   })
-  expect(atomic({ active: true }, 'p-8')).toBe('p-8')
-  expect(atomic.resolve({ active: true }, customCn, 'p-8')).toBe('p-2 p-4 p-6 p-8')
   expect(slots({ active: true })).toEqual({ classes: { root: 'p-6' }, style: {} })
   expect(slots.resolve({ active: true }, customCn)).toEqual({
     classes: { root: 'p-2 p-4 p-6' },
@@ -419,7 +260,6 @@ test('resolves classes and variables from the same matched branches', () => {
   })
   expect(recipe({ size: undefined }).style['--size']).toBe('8px')
   expect(recipe({ size: null }).style['--size']).toBe('4px')
-  expect(recipe()).not.toBe(recipe())
 })
 
 test('supports variable-only recipes and scoped merging without changing style output', async () => {
@@ -439,3 +279,19 @@ const invalidVariable = testRecipe<RootSlot>('root', {
   base: { size: '4px' },
 })
 void invalidVariable
+
+test.each([
+  [1, true, 'block grid-cols-1 opacity-100'],
+  [2, true, 'block grid-cols-2 opacity-100 gap-4'],
+  [2, false, 'block grid-cols-2 opacity-50'],
+] as const)('matches numeric and boolean variants (%i, %s)', (columns, enabled, expected) => {
+  const recipe = testRecipe<RootSlot, { columns?: 1 | 2; enabled?: boolean }>('grid', {
+    base: { root: 'block' },
+    variants: {
+      columns: { 1: { root: 'grid-cols-1' }, 2: { root: 'grid-cols-2' } },
+      enabled: { true: { root: 'opacity-100' }, false: { root: 'opacity-50' } },
+    },
+    compoundVariants: [{ variants: { columns: 2, enabled: true }, root: 'gap-4' }],
+  })
+  expect(recipe({ columns, enabled }).classes.root).toBe(expected)
+})

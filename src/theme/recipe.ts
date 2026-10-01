@@ -1,7 +1,6 @@
 import type { ClassValue } from 'cn'
 
 import type { Cn } from './cn'
-import { cn } from './cn'
 
 export type RecipeSlot<S extends object> = Extract<keyof S, string>
 
@@ -118,13 +117,17 @@ type VariantKey = string | number | boolean
 type ActiveVariants = Record<string, string>
 
 function getActiveVariants(
-  keys: Iterable<string>,
   defaults: Record<string, unknown>,
-  supplied: Record<string, unknown> | undefined,
+  supplied: object | undefined,
 ): ActiveVariants {
+  const selected = { ...defaults }
+  for (const [key, value] of Object.entries(supplied ?? {})) {
+    if (value !== undefined) {
+      selected[key] = value
+    }
+  }
   const active: ActiveVariants = {}
-  for (const key of keys) {
-    const value = supplied?.[key] === undefined ? defaults[key] : supplied[key]
+  for (const [key, value] of Object.entries(selected)) {
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       active[key] = String(value)
     }
@@ -132,18 +135,10 @@ function getActiveVariants(
   return active
 }
 
-function getVariantMatch(compoundVariant: { class?: unknown; variants?: object }): object {
-  if (compoundVariant.variants) {
-    return compoundVariant.variants
-  }
-  const { class: _class, ...variants } = compoundVariant
-  return variants
-}
-
 function matchesVariants(activeVariants: ActiveVariants, expectedVariants: object): boolean {
   const entries = Object.entries(expectedVariants) as [
     string,
-    VariantMatcher<VariantKey> | null | undefined,
+    VariantKey | readonly VariantKey[] | null | undefined,
   ][]
   return (
     entries.length > 0 &&
@@ -192,19 +187,7 @@ export function resolveRecipe<S extends object, V>(
 ): RecipeResult<S> {
   const layers = 'layers' in recipe ? recipe.layers : [recipe.config]
   const defaults = getRecipeDefaultVariants(recipe) as Record<string, unknown>
-  const suppliedValues: Record<string, unknown> = {}
-  for (const key of Object.keys(variants ?? {})) {
-    suppliedValues[key] = (variants as Record<string, unknown>)[key]
-  }
-  const keys = new Set<string>([
-    ...Object.keys(defaults),
-    ...Object.keys(suppliedValues ?? {}),
-    ...layers.flatMap((layer) => Object.keys(layer.variants ?? {})),
-    ...layers.flatMap((layer) =>
-      (layer.compoundVariants ?? []).flatMap((compound) => Object.keys(compound.variants)),
-    ),
-  ])
-  const activeVariants = getActiveVariants(keys, defaults, suppliedValues)
+  const activeVariants = getActiveVariants(defaults, variants)
 
   const style: RecipeResult<S>['style'] = {}
   const classes = {} as Record<RecipeSlot<S>, ClassValue[]>
@@ -244,86 +227,4 @@ export function resolveRecipe<S extends object, V>(
     resolvedClasses[slot] = merge(classes[slot])
   }
   return { classes: resolvedClasses, style }
-}
-
-type AtomicBaseClassValue = Exclude<ClassValue, Record<string, unknown>>
-export type VariantValue<T> = string extends T
-  ? string | number | boolean
-  : T extends 'true' | 'false'
-    ? boolean | 'true' | 'false'
-    : T
-export type VariantMatcher<T> = VariantValue<T> | readonly VariantValue<T>[]
-export type VariantSchema = Record<string, Record<string, unknown>>
-export type VariantSelection<T extends VariantSchema> = {
-  [K in keyof T]?: VariantValue<keyof T[K]> | null | undefined
-}
-export type VariantMatch<T extends VariantSchema> = {
-  [K in keyof T]?: VariantMatcher<keyof T[K]> | null | undefined
-}
-type CompoundVariant<V extends VariantSchema, C> =
-  | { variants: VariantMatch<V>; class: C }
-  | (VariantMatch<V> & { class: C; variants?: never })
-export type AtomicCompoundVariant<V extends VariantSchema> = CompoundVariant<V, ClassValue>
-export interface AtomicRecipeOptions<
-  V extends Record<string, Record<string, ClassValue>> = Record<string, Record<string, ClassValue>>,
-> {
-  base?: AtomicBaseClassValue
-  variants?: V
-  compoundVariants?: readonly AtomicCompoundVariant<V>[]
-  defaults?: VariantSelection<V>
-}
-export interface AtomicRecipeFn<V extends Record<string, Record<string, ClassValue>>> {
-  (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]): string | undefined
-  resolve: (
-    variants: VariantSelection<V> | undefined,
-    cn: Cn,
-    ...extraClasses: ClassValue[]
-  ) => string | undefined
-  readonly options: AtomicRecipeOptions<V>
-}
-
-function getAtomicActiveVariants(
-  options: AtomicRecipeOptions<any>,
-  variants?: object,
-): ActiveVariants {
-  const defaults = (options.defaults ?? {}) as Record<string, unknown>
-  const keys = new Set([
-    ...Object.keys(options.variants ?? {}),
-    ...Object.keys(defaults ?? {}),
-    ...(options.compoundVariants ?? []).flatMap((compound) =>
-      Object.keys(getVariantMatch(compound)),
-    ),
-  ])
-  return getActiveVariants(keys, defaults, variants as Record<string, unknown> | undefined)
-}
-
-export function atomicRecipe<V extends Record<string, Record<string, ClassValue>>>(
-  options: AtomicRecipeOptions<V>,
-): AtomicRecipeFn<V> {
-  const resolve = (
-    variants: VariantSelection<V> | undefined,
-    merge: Cn,
-    ...extraClasses: ClassValue[]
-  ) => {
-    const activeVariants = getAtomicActiveVariants(options, variants)
-    const classes: ClassValue[] = [options.base]
-    for (const selectedClass of getSelectedVariantValues(options.variants, activeVariants)) {
-      if (selectedClass) {
-        classes.push(selectedClass)
-      }
-    }
-    for (const compound of options.compoundVariants ?? []) {
-      if (matchesVariants(activeVariants, getVariantMatch(compound))) {
-        classes.push(compound.class)
-      }
-    }
-    return merge(classes, ...extraClasses)
-  }
-  const recipeFn = Object.assign(
-    (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]) =>
-      resolve(variants, cn, ...extraClasses),
-    { resolve },
-  )
-  Object.defineProperty(recipeFn, 'options', { value: options, enumerable: true })
-  return recipeFn as AtomicRecipeFn<V>
 }

@@ -904,3 +904,10 @@ export type DefaultTagAssertions = [
 ;<DropdownMenu placement="bottom-end" />
 // @ts-expect-error left is a side, not an alignment
 ;<Popover align="left" />
+
+const slotClasses: ButtonT.Classes = { root: 'custom' }
+slotClasses.root = ['custom', { 'font-bold': true }]
+const slotStyles: ButtonT.Styles = { root: { color: 'red' } }
+slotStyles.root = { color: 'blue' }
+// @ts-expect-error Slot styles must use CSS property objects.
+slotStyles.root = 'color: red'

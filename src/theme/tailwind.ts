@@ -1,28 +1,23 @@
 import plugin from 'tailwindcss/plugin'
 
-import {
-  MORAINE_KEYFRAMES,
-  getMoraineAnimCounts,
-  getMoraineAnimDurations,
-  getMoraineAnimTimingFns,
-} from './animations'
+import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations'
 import { DEFAULT_ICON_SHORTCUTS } from './icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
-  MORAINE_STATE_COLORS,
+  createStateColorDeclarations,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
 } from './tokens'
 
+const animations = getMoraineAnimations()
+
 /** All animations as Tailwind shorthand strings (`name duration timing count`). */
 function buildTailwindAnimations(): Record<string, string> {
-  const durations = getMoraineAnimDurations()
-  const timingFns = getMoraineAnimTimingFns()
-  const counts = getMoraineAnimCounts()
+  const { durations, timingFns, counts } = animations
 
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => [
@@ -35,18 +30,7 @@ export const moraineTailwind = plugin(
   ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
     addBase({
       '@supports (color: color-mix(in oklch, red, white))': {
-        '*, ::before, ::after': Object.fromEntries(
-          MORAINE_STATE_COLORS.flatMap((color) => {
-            const foreground =
-              color === 'background'
-                ? 'var(--foreground)'
-                : `var(--${color}-foreground, var(--${color === 'destructive' ? 'background' : 'foreground'}))`
-            return (['hover', 'active'] as const).map((state) => [
-              `--mo-auto-${color}-${state}`,
-              `color-mix(in oklch, var(--${color}), ${foreground} ${state === 'hover' ? 8 : 12}%)`,
-            ])
-          }),
-        ),
+        '*, ::before, ::after': createStateColorDeclarations({ hover: 8, active: 12 }),
       },
     })
 
@@ -184,13 +168,9 @@ export const moraineTailwind = plugin(
         zIndex: MORAINE_Z_INDEX,
         keyframes: MORAINE_KEYFRAMES,
         animation: buildTailwindAnimations(),
-        transitionDuration: {
-          ...getMoraineAnimDurations(),
-        },
-        transitionTimingFunction: {
-          ...getMoraineAnimTimingFns(),
-        },
-        animationIterationCount: getMoraineAnimCounts(),
+        transitionDuration: animations.durations,
+        transitionTimingFunction: animations.timingFns,
+        animationIterationCount: animations.counts,
       },
     },
   },
