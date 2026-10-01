@@ -1,18 +1,5 @@
-import type { JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-  untrack,
-} from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount, untrack } from 'solid-js'
 
-import { Badge, Icon, Switch } from '../../../../../src'
 import { getDomSlotName } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
 
@@ -101,10 +88,10 @@ function sameBoxes(previous: HighlightBox[], next: HighlightBox[]): boolean {
   )
 }
 
-export function DocsPlaygroundSlots(props: {
+export function createDocsPlaygroundSlots(props: {
   api: ComponentApi
   preview: () => HTMLElement | undefined
-}): JSX.Element {
+}) {
   const slots: SlotDescriptor[] = untrack(() =>
     props.api.slots.map((name) => ({
       name,
@@ -115,7 +102,7 @@ export function DocsPlaygroundSlots(props: {
   const [nodes, setNodes] = createSignal(new Map<string, HTMLElement[]>())
   const [listHovered, setListHovered] = createSignal<string>()
   const [previewHovered, setPreviewHovered] = createSignal<string>()
-  const [autoHover, setAutoHover] = createSignal(false)
+  const [autoHover, setAutoHoverState] = createSignal(false)
   const [locked, setLocked] = createSignal<string>()
   const [boxes, setBoxes] = createSignal<HighlightBox[]>([])
   const activeSlot = createMemo(() => listHovered() ?? previewHovered() ?? locked())
@@ -243,88 +230,30 @@ export function DocsPlaygroundSlots(props: {
     }),
   )
 
-  return (
-    <section
-      class="pt-3 border-t border-border/60 flex flex-col gap-3.5"
-      aria-label="Component slots"
-    >
-      <div class="flex gap-2 items-center justify-between">
-        <span class="text-foreground/90 font-semibold flex gap-1.5 items-center text-xs">
-          <Icon name="i-lucide:layers" class="text-muted-foreground size-3.5" />
-          <span>Slots</span>
-        </span>
-        <Switch
-          size="sm"
-          label="Auto"
-          checked={autoHover()}
-          onCheckedChange={(value) => {
-            setAutoHover(value)
-            if (!value) {
-              setPreviewHovered(undefined)
-            }
-          }}
-        />
-      </div>
-      <div class="flex flex-wrap gap-1.5">
-        <For each={slots}>
-          {(slot) => (
-            <Badge
-              as="button"
-              type="button"
-              size="md"
-              variant="outline"
-              class={[
-                'font-mono cursor-pointer transition-colors focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-40 cursor-not-allowed pointer-events-none)',
-                locked() === slot.name
-                  ? 'text-primary border-primary bg-primary/12'
-                  : 'enabled:hover:(border-primary/60 bg-primary/8)',
-              ]}
-              disabled={!nodes().has(slot.name)}
-              aria-pressed={locked() === slot.name}
-              onPointerEnter={() => setListHovered(slot.name)}
-              onPointerLeave={() => setListHovered(undefined)}
-              onFocus={() => setListHovered(slot.name)}
-              onBlur={() => setListHovered(undefined)}
-              onClick={() => {
-                if (locked() === slot.name) {
-                  clearHighlight()
-                } else {
-                  setLocked(slot.name)
-                }
-              }}
-            >
-              {slot.name}
-            </Badge>
-          )}
-        </For>
-      </div>
-      <Show when={boxes().length > 0}>
-        {(_boxes) => (
-          <Portal mount={props.preview()!.ownerDocument.body}>
-            <For each={boxes()}>
-              {(box, index) => (
-                <div
-                  aria-hidden="true"
-                  data-docs-slot-highlight={activeSlot()}
-                  class="border-2 border-primary bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647] rounded-sm"
-                  style={{
-                    top: `${box.top}px`,
-                    left: `${box.left}px`,
-                    width: `${box.width}px`,
-                    height: `${box.height}px`,
-                  }}
-                >
-                  <Show when={index() === 0}>
-                    <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 bg-primary whitespace-nowrap left-0 absolute rounded-sm -top-6">
-                      {activeSlot()}
-                    </span>
-                  </Show>
-                </div>
-              )}
-            </For>
-          </Portal>
-        )}
-      </Show>
-    </section>
-  )
+  function setAutoHover(value: boolean) {
+    setAutoHoverState(value)
+    if (!value) {
+      setPreviewHovered(undefined)
+    }
+  }
+
+  function toggleSlot(name: string) {
+    if (locked() === name) {
+      clearHighlight()
+    } else {
+      setLocked(name)
+    }
+  }
+
+  return {
+    slots,
+    nodes,
+    autoHover,
+    setAutoHover,
+    locked,
+    toggleSlot,
+    setListHovered,
+    boxes,
+    activeSlot,
+  }
 }

@@ -118,6 +118,17 @@ source panel; regular `Preview` blocks provide source for usage subsections and 
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
 
+Playground headings retain section anchors but omit the standard heading rule, with a 12 px gap
+before the panel. Frame the panel with a muted ribbon, 8 px on narrow screens and 12 px from `sm`,
+between an outer `rounded-2xl` radius and an inner `rounded-xl` radius. Use semantic borders and
+background colors, without additional elevation. Both outlines use the same opaque `input` color
+to stay consistent across surfaces. The preview leads, with Props and Slots stacked in
+the right pane from `md` and below the preview on narrow screens. Separate Slots from Props with a
+full-width top rule that meets both edges of the control pane. Narrow-screen value controls use two
+columns. Group switches below value controls; use two columns when their labels fit and let long
+labels occupy a full row. On desktop, stack both groups in one column. Keep switch labels on one
+line and preserve the visual order in keyboard navigation. Slot badges wrap within the control pane.
+
 Use dedicated previews in `Usage` for core API guides and in `Examples` for useful application tasks,
 complex compositions, state transitions, or layout constraints. A Preview is the copyable TSX source;
 keep its data and helpers in the same file. Prefer replacing a redundant prop demonstration with a
