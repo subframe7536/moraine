@@ -69,7 +69,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
       return undefined
     }
     return {
-      'clip-path': `inset(${first[0]}px 0 ${Math.max(0, height - last[1])}px 0 round 8px)`,
+      'clip-path': `inset(${Math.max(0, first[0] - 4)}px 0 ${Math.max(0, height - last[1] - 4)}px 0 round 8px)`,
     }
   })
 
@@ -86,14 +86,14 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
 
   return (
     <nav ref={setNav} aria-label="On This Page" class={props.class}>
-      <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold uppercase">
+      <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold px-3 uppercase">
         On This Page
       </p>
       <Show
         when={props.entries.length > 0}
         fallback={<p class="text-muted-foreground mt-3 text-xs">No sections</p>}
       >
-        <div ref={setList} class="mt-2.5 flex flex-col gap-0.5 relative">
+        <div ref={setList} class="mt-2 py-1 flex flex-col relative">
           <Show when={blockStyle()}>
             {(style) => (
               <div
@@ -112,7 +112,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                class="text-muted-foreground leading-7 px-3 py-1 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

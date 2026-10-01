@@ -27,7 +27,7 @@ export function anatomyNodeKind(node: AnatomyNode): 'part' | 'slot' | 'internal'
   return node.part !== undefined ? 'part' : node.internal !== undefined ? 'internal' : 'slot'
 }
 
-/** Dense text output for agent Markdown, derived from the same hierarchy as the Web list. */
+/** Shared text tree for the documentation code block and agent Markdown. */
 export function renderAnatomyText(componentName: string, config: AnatomyConfig): string {
   const annotation = config.root.noDom
     ? 'no DOM'

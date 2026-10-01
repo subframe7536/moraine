@@ -29,7 +29,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
     <header class="font-sans border-b border-border/60 bg-background shrink-0 h-13 z-sticky">
       <nav
         aria-label="Main"
-        class="px-5 flex gap-4 h-full w-full items-center justify-between sm:px-8"
+        class="px-5 flex gap-4 h-full w-full items-center justify-between sm:px-8 lg:ps-6"
       >
         <div class="flex gap-1 min-w-0 items-center">
           <a

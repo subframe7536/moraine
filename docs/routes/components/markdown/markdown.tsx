@@ -9,7 +9,7 @@ import { DocsApiReference, getDocsApiReferenceTocEntries } from './api-reference
 import { ComponentDocContext } from './component-doc.context'
 import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
-import { OnThisPage } from './toc'
+import { CompactOnThisPage, OnThisPage } from './toc'
 
 export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
 
@@ -90,7 +90,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
   ])
 
   return (
-    <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8 lg:gap-12">
+    <article class="text-foreground px-5 flex gap-8 min-h-screen w-full items-start sm:px-8">
       <div class="mx-auto flex-1 max-w-4xl min-w-0 w-full">
         <DocsPageHeader
           pageKey={input.pageKey}
@@ -100,6 +100,8 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
           apiDoc={input.apiDoc}
           frontmatter={input.frontmatter}
         />
+
+        <CompactOnThisPage entries={onThisPageEntries()} />
 
         <div class="mb-24 mt-8 min-w-0 w-full">
           <ComponentDocContext.Provider
@@ -115,7 +117,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         </div>
       </div>
       <OnThisPage
-        class="shrink-0 h-fit w-60 hidden lg:(block top-6 sticky)"
+        class="overscroll-contain shrink-0 max-h-[calc(100dvh-100px)] w-60 hidden overflow-y-auto xl:(block top-6 sticky)"
         entries={onThisPageEntries()}
       />
     </article>

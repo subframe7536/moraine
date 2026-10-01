@@ -62,13 +62,35 @@ export function Example() {
             label: 'Edit',
             children: [
               { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
-              { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
+              {
+                label: 'Copy',
+                description: 'Copy to the clipboard',
+                icon: 'i-lucide:copy',
+                kbds: ['⌘', 'C'],
+              },
               { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
+              {
+                label: 'Move to',
+                icon: 'i-lucide:folder-input',
+                children: [
+                  { label: 'Inbox', icon: 'i-lucide:inbox' },
+                  { label: 'Archive', icon: 'i-lucide:archive' },
+                ],
+              },
             ],
           },
           {
             type: 'group',
-            children: [{ label: 'Delete', icon: 'i-lucide:trash-2', variant: 'destructive' }],
+            children: [
+              { type: 'separator' },
+              {
+                type: 'checkbox',
+                label: 'Favorite',
+                icon: 'i-lucide:star',
+                defaultChecked: true,
+              },
+              { label: 'Delete', icon: 'i-lucide:trash-2', variant: 'destructive' },
+            ],
           },
         ]}
         size={props.size}
