@@ -85,17 +85,32 @@ export function Example() {
 
 ## Anatomy
 
-```text
-RadioGroup [component; slot=root]
-└── item [slot]
-    ├── container [slot]
-    │   ├── input [internal]
-    │   └── control [slot]
-    │       └── indicator [slot]
-    └── wrapper [slot]
-        ├── label [slot]
-        └── description [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'item',
+        children: [
+          {
+            slot: 'container',
+            children: [
+              { internal: 'input' },
+              {
+                slot: 'control',
+                children: [{ slot: 'indicator' }],
+              },
+            ],
+          },
+          {
+            slot: 'wrapper',
+            children: [{ slot: 'label' }, { slot: 'description' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

@@ -2,7 +2,14 @@ import { DEV } from 'solid-js'
 
 import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types'
 
-import type { SelectEntry, SelectGroup, SelectView, SelectRow, NormalizedSelectItem } from './types'
+import type {
+  SelectEntry,
+  SelectGroup,
+  SelectSeparator,
+  SelectView,
+  SelectRow,
+  NormalizedSelectItem,
+} from './types'
 
 export function isGroup<T extends string | BaseSelectT.Item>(
   entry: SelectEntry<T>,
@@ -14,6 +21,17 @@ export function isGroup<T extends string | BaseSelectT.Item>(
     !('value' in entry) &&
     'items' in entry &&
     Array.isArray(entry.items)
+  )
+}
+
+function isSeparator<T extends string | BaseSelectT.Item>(
+  entry: SelectEntry<T>,
+): entry is SelectSeparator {
+  return (
+    typeof entry === 'object' &&
+    'type' in entry &&
+    entry.type === 'separator' &&
+    !('value' in entry)
   )
 }
 
@@ -33,7 +51,7 @@ export function normalizeSelectEntries<T extends string | BaseSelectT.Item>(
         items: entry.items.map(normalize),
       }
     }
-    return normalize(entry)
+    return isSeparator(entry) ? entry : normalize(entry)
   })
 }
 
@@ -137,6 +155,9 @@ export function createSource<T extends BaseSelectT.Item>(
         }
         view.rows.push(...items.map((item): SelectRow<T> => getRow(itemRowKey(item.value), item)))
       }
+    } else if (isSeparator(entry)) {
+      const key = `separator:${index}`
+      view.rows.push(previousRows.get(key) ?? { type: 'separator', key })
     } else {
       append(entry)
     }
@@ -162,17 +183,29 @@ export function filterView<T extends BaseSelectT.Item>(
 ): SelectView<T> {
   const items = source.items.filter(matches)
   const values = new Set(items.map((item) => item.value))
-  return {
-    items,
-    byValue: source.byValue,
-    rows: source.rows.flatMap<SelectRow<T>>((row) => {
-      if (row.type === 'item') {
-        return values.has(row.item.value) ? [row] : []
+  const rows: SelectRow<T>[] = []
+  let separator: SelectRow<T> | undefined
+  for (const row of source.rows) {
+    if (row.type === 'separator') {
+      separator = row
+      continue
+    }
+    let visible: SelectRow<T> | undefined
+    if (row.type === 'item') {
+      visible = values.has(row.item.value) ? row : undefined
+    } else {
+      const groupValues = row.values.filter((value) => values.has(value))
+      visible = groupValues.length ? { ...row, values: groupValues } : undefined
+    }
+    if (visible) {
+      if (separator && rows.length) {
+        rows.push(separator)
       }
-      const visible = row.values.filter((value) => values.has(value))
-      return visible.length ? [{ ...row, values: visible }] : []
-    }),
+      separator = undefined
+      rows.push(visible)
+    }
   }
+  return { items, byValue: source.byValue, rows }
 }
 
 export function labelString<T extends BaseSelectT.Item>(

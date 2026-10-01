@@ -44,10 +44,19 @@ export function Example() {
         { label: 'Horizontal', value: 'horizontal' },
       ],
     },
+    { kind: 'switch', prop: 'invalid', label: 'Invalid', defaultValue: false },
   ]}
 >
   {(props) => (
-    <Field label="Email" orientation={props.orientation}>
+    <Field
+      label="Email"
+      required
+      hint="Required"
+      description="Use your work email address."
+      help="We use this address for account notifications."
+      error={props.invalid ? 'Enter a valid email address.' : undefined}
+      orientation={props.orientation}
+    >
       <Input type="email" placeholder="you@example.com" />
     </Field>
   )}
@@ -55,19 +64,29 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Field [component; slot=root]
-├── wrapper [slot]
-│   ├── labelWrapper [slot]
-│   │   ├── label [slot]
-│   │   └── hint [slot]
-│   └── description [slot]
-└── container [slot]
-    ├── help [slot]
-    └── error [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'wrapper',
+        children: [
+          {
+            slot: 'labelWrapper',
+            children: [{ slot: 'label' }, { slot: 'hint' }],
+          },
+          { slot: 'description' },
+        ],
+      },
+      {
+        slot: 'container',
+        children: [{ slot: 'help' }, { slot: 'error' }],
+      },
+    ],
+  }}
+/>
 
-Help and error are mutually exclusive; the error takes its place when the field is invalid.
+Help and error are mutually exclusive; the error replaces help when the field is invalid.
 
 ## Usage
 

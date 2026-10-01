@@ -77,17 +77,34 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Pagination [component; slot=root; <nav>]
-├── list [slot]
-│   ├── listItem [slot]
-│   │   └── prev [slot]
-│   ├── listItem [slot]
-│   │   └── item [slot]
-│   └── listItem [slot]
-│       └── next [slot]
-└── status [internal]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'nav',
+    },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          {
+            slot: 'listItem',
+            children: [{ slot: 'prev' }],
+          },
+          {
+            slot: 'listItem',
+            children: [{ slot: 'item' }],
+          },
+          {
+            slot: 'listItem',
+            children: [{ slot: 'next' }],
+          },
+        ],
+      },
+      { internal: 'status' },
+    ],
+  }}
+/>
 
 ## Usage
 

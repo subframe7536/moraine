@@ -37,6 +37,7 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
 >('multiSelect', {
   base: {
     ...SELECT_FAMILY_SLOTS,
+    empty: '',
     control: TAG_FIELD_CONTROL_CLASS,
     input: TAG_FIELD_INPUT_CLASS,
     trigger: SECONDARY_TRIGGER_CLASS,

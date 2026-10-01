@@ -88,21 +88,26 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Resizable [component; slot=root]
-├── Resizable.Panel [part; slot=panel]
-├── Resizable.Handle [part; slot=handle]
-│   ├── intersection [slot]
-│   ├── handleControl [slot]
-│   └── intersection [slot]
-└── Resizable.Panel [part; slot=panel]
-```
-
-- `root`: Container owning the flex layout and normalized size vector.
-- `panel`: Flex child with size constraints, overflow management, and collapse state attributes (`data-collapsed`, `data-expanded`, `data-resizing`, `data-transitioning`).
-- `handle`: Divider element with `role="separator"` and expanded pointer hit target.
-- `handleControl`: Center grip pill; becomes an interactive toggle button when `action="collapse"`.
-- `intersection`: Optional corner intersection hit zones for synchronized 2D dragging at junctions.
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+      {
+        part: 'Resizable.Handle',
+        slot: 'handle',
+        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
+      },
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

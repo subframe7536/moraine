@@ -27,7 +27,6 @@ export function Example() {
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'alt', label: 'Alternative text', defaultValue: 'Sarah Connor' },
     { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
     {
       kind: 'select',
@@ -45,8 +44,7 @@ export function Example() {
   {(props) => (
     <div class="flex gap-4 items-center">
       <Avatar
-        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-        alt={props.alt}
+        alt="Sarah Connor"
         text={props.text}
         size={props.size}
         badge="i-lucide:check"
@@ -58,13 +56,22 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Avatar [component; slot=root; <span>]
-├── image [slot]
-├── fallback [slot]
-│   └── fallbackContent [slot]
-└── badge [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'span',
+    },
+    children: [
+      { slot: 'image' },
+      {
+        slot: 'fallback',
+        children: [{ slot: 'fallbackContent' }],
+      },
+      { slot: 'badge' },
+    ],
+  }}
+/>
 
 ## Usage
 

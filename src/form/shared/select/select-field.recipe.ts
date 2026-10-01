@@ -24,7 +24,6 @@ export const SELECT_FAMILY_SLOTS = {
   group: '',
   groupLabel: '',
   separator: '',
-  empty: '',
   leading: SELECT_LEADING_ICON_CLASS,
   clear: SELECT_CLEAR_ACTION_CLASS,
   itemLeading: 'shrink-0',

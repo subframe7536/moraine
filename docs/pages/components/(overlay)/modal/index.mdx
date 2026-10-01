@@ -39,7 +39,6 @@ export function Example() {
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'ariaLabel', label: 'Accessible name', defaultValue: 'Project details' },
     { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
     { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
   ]}
@@ -54,8 +53,8 @@ export function Example() {
           <Show when={props.overlay}>
             <Modal.Overlay />
           </Show>
-          <Modal.Content ariaLabel={props.ariaLabel}>
-            {(context) => (
+          <Modal.Content ariaLabel="Project details">
+            {() => (
               <div class="p-5 gap-4 grid">
                 <div>
                   <h4 class="text-sm text-foreground font-semibold">Custom Modal Surface</h4>
@@ -80,18 +79,31 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Modal [component; no DOM]
-├── Modal.Trigger [part]
-└── Modal.Portal [part]
-    ├── Modal.Overlay [part; slot=overlay]
-    └── Modal.Content [part; slot=content]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      { part: 'Modal.Trigger' },
+      {
+        part: 'Modal.Portal',
+        children: [
+          {
+            part: 'Modal.Overlay',
+            slot: 'overlay',
+          },
+          {
+            part: 'Modal.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-- `Modal.Trigger`: Polymorphic element that opens the modal.
-- `Modal.Portal`: Mounts its children in its `mount` node, the root `portalMount`, or the trigger document's body, in that order, and keeps them mounted through the exit transition.
-- `Modal.Overlay`: Backdrop layer with entry/exit motion.
-- `Modal.Content`: The root's single active dialog content surface.
+Portal owns the mounted Overlay and Content subtree and preserves it through exit motion.
 
 ## Usage
 

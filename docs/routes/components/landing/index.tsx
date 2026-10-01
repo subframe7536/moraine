@@ -1,7 +1,7 @@
-import { createSignal } from 'solid-js'
-
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon, cn } from '../../../../src'
+import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
+import type { ClipboardCopyState } from '../../hooks/create-clipboard-copy'
 
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
@@ -9,7 +9,7 @@ import { StylingShowcase } from './styling-showcase'
 const linkFocus =
   'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
 
-function InstallCommand(props: { copied: boolean; onClick: () => void; class?: string }) {
+function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void; class?: string }) {
   return (
     <button
       type="button"
@@ -20,14 +20,20 @@ function InstallCommand(props: { copied: boolean; onClick: () => void; class?: s
         props.class,
       )}
       aria-label="Copy install command"
-      title={props.copied ? 'Copied to clipboard' : 'Click to copy'}
+      title={
+        props.state === 'copied'
+          ? 'Copied to clipboard'
+          : props.state === 'failed'
+            ? 'Copy failed; try again'
+            : 'Click to copy'
+      }
     >
       <span class="text-primary font-medium font-mono select-none">$</span>
       <code class="text-foreground font-mono text-sm">npm i moraine</code>
       <span class="text-muted-foreground inline-flex transition-colors items-center group-hover:text-foreground">
         <Icon
-          name={props.copied ? 'i-lucide:check' : 'i-lucide:copy'}
-          class={cn('size-4 transition-colors', props.copied && 'text-primary')}
+          name={props.state === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
+          class={cn('size-4 transition-colors', props.state === 'copied' && 'text-primary')}
         />
       </span>
     </button>
@@ -38,17 +44,8 @@ export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
 
 export function LandingPage() {
-  const [copied, setCopied] = createSignal(false)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText('npm i moraine')
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      setCopied(false)
-    }
-  }
+  const clipboard = createClipboardCopy()
+  const handleCopy = () => clipboard.copy('npm i moraine')
 
   return (
     <div class="mx-auto px-5 max-w-6xl sm:px-8">
@@ -86,7 +83,7 @@ export function LandingPage() {
           </Button>
         </div>
 
-        <InstallCommand copied={copied()} onClick={handleCopy} class="mt-6" />
+        <InstallCommand state={clipboard.state()} onClick={handleCopy} class="mt-6" />
       </section>
 
       <StylingShowcase />
@@ -103,10 +100,14 @@ export function LandingPage() {
               your interface.
             </p>
 
-            <InstallCommand class="mt-6" copied={copied()} onClick={handleCopy} />
+            <InstallCommand class="mt-6" state={clipboard.state()} onClick={handleCopy} />
 
             <span class="sr-only" aria-live="polite">
-              {copied() ? 'Install command copied' : ''}
+              {clipboard.state() === 'copied'
+                ? 'Install command copied'
+                : clipboard.state() === 'failed'
+                  ? 'Copy failed; try again'
+                  : ''}
             </span>
           </div>
 

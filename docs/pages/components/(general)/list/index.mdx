@@ -39,11 +39,14 @@ export function Example() {
 
 ## Anatomy
 
-```text
-List [component; slot=root; <ul>]
-```
-
-When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'ul',
+    },
+  }}
+/>
 
 ## Usage
 
@@ -52,6 +55,8 @@ When virtualization is enabled, `props` contains attributes supplied by the virt
 `itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure. TypeScript infers the item and root element types from `items` and `as`.
 
 `createListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs `@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or measured row sizes.
+
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
 
 <Preview path="./virtualization" />
 

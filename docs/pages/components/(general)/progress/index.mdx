@@ -47,21 +47,29 @@ export function Example() {
       value={props.value}
       size={props.size}
       status={props.status}
-      animation={props.animation}
+      aria-label="Upload progress"
     />
   )}
 </Playground>
 
 ## Anatomy
 
-```text
-Progress [component; slot=root]
-├── status [slot]
-├── track [slot]
-│   └── indicator [slot]
-└── steps [slot]
-    └── step [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'status' },
+      {
+        slot: 'track',
+        children: [{ slot: 'indicator' }],
+      },
+      {
+        slot: 'steps',
+        children: [{ slot: 'step' }],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

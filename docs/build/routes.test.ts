@@ -58,6 +58,7 @@ describe('docs route metadata', () => {
       ['docs/(overview)/getting-started.mdx', 'docs', 'overview', '/docs/getting-started'],
       ['docs/(styling)/design.mdx', 'docs', 'styling', '/docs/design'],
       ['docs/(guides)/composition.mdx', 'docs', 'guides', '/docs/composition'],
+      ['docs/(guides)/virtualization.mdx', 'docs', 'guides', '/docs/virtualization'],
       ['docs/utils/class-merging.mdx', 'docs', 'utils', '/docs/utils/class-merging'],
       ['components/index.mdx', 'components', 'overview', '/components'],
       ['components/(general)/button/index.mdx', 'components', 'general', '/components/button'],
@@ -189,11 +190,26 @@ describe('docs route metadata', () => {
       'create-disclosure-state',
       'create-event-listener',
       'create-id',
-      'create-list-virtualizer',
       'create-media-query',
       'create-selectable-collection-navigation',
       'create-slider',
       'create-transition-presence',
     ])
+  })
+
+  test('registers virtualization once as a guide for all route-derived consumers', () => {
+    const routes = scanDocsRoutes(process.cwd())
+    expect(routes.filter((route) => route.info.key === 'virtualization')).toMatchObject([
+      {
+        info: {
+          surface: 'docs',
+          section: 'guides',
+          routePath: '/docs/virtualization',
+          markdownPath: '/docs/virtualization.md',
+          title: 'Virtualization',
+        },
+      },
+    ])
+    expect(routes.some((route) => route.info.key === 'create-list-virtualizer')).toBe(false)
   })
 })

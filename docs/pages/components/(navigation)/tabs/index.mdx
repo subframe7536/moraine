@@ -71,17 +71,26 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Tabs [component; slot=root]
-├── list [slot]
-│   ├── indicator [slot]
-│   └── trigger [slot]
-│       ├── leading [slot]
-│       └── label [slot]
-└── content [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          { slot: 'indicator' },
+          {
+            slot: 'trigger',
+            children: [{ slot: 'leading' }, { slot: 'label' }],
+          },
+        ],
+      },
+      { slot: 'content' },
+    ],
+  }}
+/>
 
-String labels use the `label` slot; JSX labels render directly inside the trigger.
+String labels use the label slot; JSX labels render directly inside the trigger.
 
 ## Usage
 

@@ -70,6 +70,7 @@ export function Example() {
     return (
       <div class="max-w-full w-96">
         <CheckboxGroup
+          legend="Notification channels"
           items={NOTIFICATION_OPTIONS}
           defaultValue={['email']}
           variant={props.variant}
@@ -86,22 +87,48 @@ export function Example() {
 
 ## Anatomy
 
-```text
-CheckboxGroup [component; slot=root; <div>]
-└── fieldset [slot]
-    ├── legend [slot]
-    └── item [slot]
-        ├── container [slot]
-        │   ├── input [internal]
-        │   └── control [slot]
-        │       └── indicator [slot]
-        │           └── icon [slot]
-        └── wrapper [slot]
-            ├── label [slot]
-            └── description [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+    children: [
+      {
+        slot: 'fieldset',
+        children: [
+          { slot: 'legend' },
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'container',
+                children: [
+                  { internal: 'input' },
+                  {
+                    slot: 'control',
+                    children: [
+                      {
+                        slot: 'indicator',
+                        children: [{ slot: 'icon' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                slot: 'wrapper',
+                children: [{ slot: 'label' }, { slot: 'description' }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-The outer `root` owns styling and forwarded root props. The nested `<fieldset>` owns group semantics, disabled state, and the optional `<legend>` association.
+The nested `<fieldset>` owns group semantics and the optional `<legend>` association.
 
 ## Usage
 

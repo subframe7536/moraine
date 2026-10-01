@@ -138,8 +138,8 @@ const DEFAULT_THEME_COLORS = {
     muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
     accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
     destructive: { base: 'rgb(255, 100, 103)' },
-    border: 'rgba(255, 255, 255, 0.1)',
-    input: 'rgba(255, 255, 255, 0.15)',
+    border: 'rgb(35, 35, 35)',
+    input: 'rgb(47, 47, 47)',
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>

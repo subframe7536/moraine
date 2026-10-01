@@ -57,24 +57,39 @@ export function Example() {
 
 ## Anatomy
 
-```text
-FileUpload [component; slot=root]
-├── control [slot]
-│   └── wrapper [slot]
-│       ├── icon [slot]
-│       ├── label [slot]
-│       └── description [slot]
-├── input [internal]
-└── files [slot]
-    └── file [slot]
-        ├── filePreview [slot]
-        ├── fileMeta [slot]
-        │   ├── fileName [slot]
-        │   └── fileSize [slot]
-        └── fileRemove [slot]
-```
-
-The control opens the native file picker and can also accept dropped files. The preview list appears only when previews are enabled and files are selected.
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'control',
+        children: [
+          {
+            slot: 'wrapper',
+            children: [{ slot: 'icon' }, { slot: 'label' }, { slot: 'description' }],
+          },
+        ],
+      },
+      { internal: 'input' },
+      {
+        slot: 'files',
+        children: [
+          {
+            slot: 'file',
+            children: [
+              { slot: 'filePreview' },
+              {
+                slot: 'fileMeta',
+                children: [{ slot: 'fileName' }, { slot: 'fileSize' }],
+              },
+              { slot: 'fileRemove' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

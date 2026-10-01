@@ -66,6 +66,7 @@ export function Example() {
       aria-label="Document history"
     >
       <Button leading="i-lucide:undo-2">Undo</Button>
+      <ButtonGroup.Separator />
       <Button leading="i-lucide:redo-2">Redo</Button>
     </ButtonGroup>
   )}
@@ -73,11 +74,20 @@ export function Example() {
 
 ## Anatomy
 
-```text
-ButtonGroup [component; slot=root]
-├── ButtonGroup.Separator [part; slot=separator]
-└── Button [component]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'ButtonGroup.Separator',
+        slot: 'separator',
+      },
+      { internal: 'children' },
+    ],
+  }}
+/>
+
+The group owns its separators; the caller supplies the child Buttons and their content.
 
 ## Usage
 

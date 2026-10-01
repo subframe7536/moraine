@@ -183,3 +183,25 @@ test('applies the same duplicate policy to string and object entries', () => {
   expect(error).toHaveBeenCalledOnce()
   error.mockRestore()
 })
+
+test('filters separators with their surrounding options without selecting them', () => {
+  const source = createSource(
+    normalizeSelectEntries([
+      { type: 'separator' },
+      { type: 'group', label: 'First', items: ['Apple'] },
+      { type: 'separator' },
+      { type: 'group', label: 'Middle', items: ['Banana'] },
+      { type: 'separator' },
+      { type: 'group', label: 'Last', items: ['Carrot'] },
+      { type: 'separator' },
+    ]),
+  )
+  expect(source.items.map((item) => item.value)).toEqual(['Apple', 'Banana', 'Carrot'])
+  expect(filterView(source, (item) => item.value !== 'Banana').rows.map((row) => row.type)).toEqual(
+    ['label', 'item', 'separator', 'label', 'item'],
+  )
+  expect(filterView(source, (item) => item.value === 'Carrot').rows.map((row) => row.type)).toEqual(
+    ['label', 'item'],
+  )
+  expect(filterView(source, () => false).rows).toEqual([])
+})

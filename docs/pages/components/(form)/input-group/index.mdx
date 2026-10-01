@@ -82,16 +82,24 @@ export function Example() {
 
 ## Anatomy
 
-```text
-InputGroup [component; slot=root]
-├── InputGroup.Leading [part; slot=leading]
-├── InputGroup.Trailing [part; slot=trailing]
-└── frame [internal]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'InputGroup.Leading',
+        slot: 'leading',
+      },
+      {
+        part: 'InputGroup.Trailing',
+        slot: 'trailing',
+      },
+      { internal: 'frame' },
+    ],
+  }}
+/>
 
-Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to use denser padding for the part. Child type never changes spacing implicitly; use `compact` explicitly when a `Button`, `Kbd`, or other addon should occupy less surrounding space. Both parts accept ordinary JSX.
-
-The final frame element paints the shared boundary and does not receive focus or control attributes.
+Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
 
 ## Usage
 

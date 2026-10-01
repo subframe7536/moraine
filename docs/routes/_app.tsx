@@ -2,9 +2,20 @@ import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import { createRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
-import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
+import {
+  Show,
+  Suspense,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onMount,
+  untrack,
+} from 'solid-js'
 
-import { MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { createMediaQuery } from '../../src/utils'
+import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
 import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'
 import { DOCS_MDX_COMPONENTS } from './components/markdown'
@@ -31,6 +42,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const [committedPage, setCommittedPage] = createSignal(untrack(activePage))
   const navigationLoading = createMemo(() => isRouting() && location.pathname === routingFromPath())
   const isLanding = createMemo(() => location.pathname === '/')
+  const isMobile = createMediaQuery(DOCS_MOBILE_QUERY)
   let renderedPage = untrack(committedPage)
 
   createEffect(
@@ -80,6 +92,24 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   function DocsShell() {
     const frame = useSidebarFrame()
+    const [mobileSidebarReady, setMobileSidebarReady] = createSignal(false)
+
+    onMount(() => {
+      // SidebarFrame resolves its media query in a microtask. Mount the mobile Sheet only
+      // after its open state has caught up, so hydration cannot play a closing animation.
+      queueMicrotask(() => setMobileSidebarReady(true))
+    })
+
+    createEffect(
+      on(
+        () => location.pathname,
+        () => {
+          if (frame.isMobile()) {
+            frame.setOpen(false)
+          }
+        },
+      ),
+    )
 
     return (
       <>
@@ -97,33 +127,37 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           onNavigate={navigateToPage}
           theme={theme}
           updateTheme={updateTheme}
-          isLanding={isLanding}
         />
 
-        <div class="flex flex-1 min-h-0 overflow-hidden">
-          <Show when={!isLanding()}>
-            <SidebarFrame.Sidebar class="border-r-0 bg-background">
+        <div class="flex flex-1 min-h-0 w-full overflow-hidden">
+          <Show
+            when={(!isLanding() || frame.isMobile()) && (!frame.isMobile() || mobileSidebarReady())}
+          >
+            <SidebarFrame.Sidebar data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
-                <SidebarFrame.SidebarHeader>
-                  <SidebarHeader onClose={() => frame.setOpen(false)} isMobile={true} />
+                <SidebarFrame.SidebarHeader class="p-0 shrink-0">
+                  <SidebarHeader />
                 </SidebarFrame.SidebarHeader>
               </Show>
-              <SidebarFrame.SidebarBody>
-                <Sidebar
-                  pages={pages.filter((page) =>
-                    location.pathname.startsWith('/components')
-                      ? page.surface === 'components'
-                      : page.surface === 'docs',
-                  )}
-                  activePage={committedPage}
-                  setActivePage={(pagePath) => {
-                    navigateToPage(pagePath)
-                    if (frame.isMobile()) {
-                      frame.setOpen(false)
-                    }
-                  }}
-                />
+              <SidebarFrame.SidebarBody class="overscroll-contain">
+                <Sidebar pages={pages} activePage={committedPage} />
               </SidebarFrame.SidebarBody>
+              <Show when={frame.isMobile()}>
+                <SidebarFrame.SidebarFooter class="px-5 pb-5 pt-3">
+                  <Button
+                    as="a"
+                    href="https://github.com/subframe7536/moraine"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="ghost"
+                    size="sm"
+                    leading="i-lucide:github"
+                    class="min-h-11 w-full justify-start"
+                  >
+                    GitHub repository
+                  </Button>
+                </SidebarFrame.SidebarFooter>
+              </Show>
             </SidebarFrame.Sidebar>
           </Show>
 
@@ -178,7 +212,11 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <SidebarFrame class="flex-col h-screen max-h-screen overflow-hidden" scrollThreshold={4}>
+      <SidebarFrame
+        isMobile={isMobile()}
+        class="flex-col overflow-hidden h-dvh max-h-dvh"
+        scrollThreshold={4}
+      >
         <DocsShell />
       </SidebarFrame>
     </>

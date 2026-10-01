@@ -62,7 +62,7 @@ describe('createDocsMdxOptions', () => {
     const options = createDocsMdxOptions(projectRoot)
     const extension = await options.extendLoad?.(
       {
-        source: '# Button',
+        source: "## Anatomy\n\n<Anatomy value={{root: {slot: 'root'}}} />",
         code: 'function MDXContent() {}',
         component: 'MDXContent',
         frontmatter: FRONTMATTER,
@@ -111,7 +111,7 @@ describe('createDocsMdxOptions', () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
-        source: '## Usage',
+        source: '## Anatomy\n\n<Anatomy value={{root: {noDom: true}}} />',
         code: 'function MDXContent() {}',
         component: 'MDXContent',
         frontmatter: FRONTMATTER,
@@ -138,7 +138,7 @@ describe('createDocsMdxOptions', () => {
     const options = createDocsMdxOptions('/tmp/moraine-project')
     const extension = await options.extendLoad?.(
       {
-        source: '## Usage',
+        source: '## Anatomy\n\n<Anatomy value={{root: {noDom: true}}} />',
         code: 'function MDXContent() {}',
         component: 'MDXContent',
         frontmatter: FRONTMATTER,

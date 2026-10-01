@@ -1,0 +1,143 @@
+---
+title: Virtualization
+description: Configure virtual scrolling for long lists and searchable collections.
+sidebar:
+  order: 6
+search:
+  tags: [createListVirtualizer, virtualizer, virtual scrolling, list, combobox, tanstack]
+---
+
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List` or a collection component such as `Combobox`, `Select`, or `MultiSelect`.
+
+## When to virtualize
+
+Start with ordinary rendering. Add virtualization when a long collection makes opening, filtering, or scrolling noticeably slow. It reduces mounted DOM; it does not reduce the cost of loading or filtering the data itself. Small collections usually do not need it.
+
+## Installation
+
+Install the optional TanStack Virtual dependency alongside Moraine:
+
+<CodeTabs package="@tanstack/virtual-core" />
+
+## List
+
+Give the list a bounded height and scrolling overflow. Apply `context.props` to the actual row DOM element: those props carry positioning styles, the measurement ref, and `data-index`.
+
+```tsx
+import { List } from 'moraine'
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+type Item = { id: number; label: string }
+const items: Item[] = Array.from({ length: 10_000 }, (_, index) => ({
+  id: index + 1,
+  label: `Result ${index + 1}`,
+}))
+
+export function VirtualizedList() {
+  const virtualizer = createListVirtualizer<Item>({
+    estimateSize: () => 36,
+    getItemKey: (item) => item.id,
+    overscan: 8,
+  })
+
+  return (
+    <List
+      as="div"
+      items={items}
+      role="list"
+      aria-label="Results"
+      class="h-72 overflow-y-auto"
+      virtualRender={virtualizer.virtualRender}
+      itemRender={(context) => (
+        <div {...context.props} role="listitem">
+          <div class="flex h-9 items-center px-3">{context.item.label}</div>
+        </div>
+      )}
+    />
+  )
+}
+```
+
+Keep custom padding and row content inside the positioned row when they could replace its inline styles. See the [List examples](/components/list#row-ownership-and-virtualization) for fixed and dynamic heights.
+
+## Combobox
+
+A collection virtualizes **rows**, not just your input items. Group labels and options can both be virtual rows. Use `ComboboxT.Row<ComboboxT.Item<string>>` as the virtualizer item type, estimate each row kind, and key it with `row.key`.
+
+```tsx
+import { Combobox } from 'moraine'
+import type { ComboboxT } from 'moraine'
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+const items: ComboboxT.Entry<ComboboxT.Item<string>>[] = [
+  {
+    type: 'group',
+    label: 'Projects',
+    items: Array.from({ length: 10_000 }, (_, index) => ({
+      value: `project-${index}`,
+      label: `Project ${index + 1}`,
+    })),
+  },
+]
+
+export function VirtualizedCombobox() {
+  const virtualizer = createListVirtualizer<
+    ComboboxT.Row<ComboboxT.Item<string>>,
+    HTMLDivElement,
+    HTMLDivElement
+  >({
+    estimateSize: (row) => (row.type === 'label' ? 30 : 36),
+    getItemKey: (row) => row.key,
+    overscan: 8,
+  })
+
+  return (
+    <Combobox
+      items={items}
+      placeholder="Find a project..."
+      leadingIcon="icon-search"
+      openOnControlClick
+      classes={{ listbox: 'h-80 max-h-80' }}
+      virtualRender={virtualizer.virtualRender}
+      scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+    />
+  )
+}
+```
+
+Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `Select` and `MultiSelect` use the same row model through their respective `Row` types.
+
+## How it works
+
+The adapter reads the component's current entries and scroll container, allocates the total scroll size, and positions only the visible rows. Create one virtualizer per list inside a Solid component so its instance and cleanup belong to that component.
+
+### estimateSize
+
+Return a positive estimate in pixels for each row before it is measured. Choose a value close to the expected height; distinguish group labels from options when their sizes differ. Estimates affect the initial scroll range and the accuracy of jumps to unmeasured rows.
+
+### getItemKey
+
+Return a stable, unique identity. Use an item ID for `List` and the supplied `row.key` for collections. The default is the row index; IDs preserve measurements more reliably when rows are reordered or filtered.
+
+### overscan
+
+`overscan` is the number of extra rows rendered around the visible range. A modest buffer such as `8` helps scrolling without mounting the whole collection. Increase it only when fast scrolling reveals gaps; larger values increase DOM work.
+
+### Dynamic measurements
+
+Rows are measured automatically through the ref in the virtual row props. Content that wraps or changes size can update its measured height. Do not discard the ref, `data-index`, or positioning style when adding your own attributes. Avoid competing layout margins and put spacing inside the measured row.
+
+### Keyboard navigation
+
+Virtualized collection options outside the window have no DOM node to scroll into view. Connect the component's `scrollToItem` callback to `virtualizer.scrollToIndex(entryIndex)`. Use the second argument, which includes structural rows such as group labels; an option index can point to the wrong row.
+
+For a caller-owned `List`, the application owns keyboard behavior and can call `scrollToIndex` directly. `instance()` exposes the underlying TanStack virtualizer after virtual content mounts; before mounting it is undefined.
+
+## Common pitfalls
+
+- An unbounded scroll container can render the whole collection. Set a height or max height and scrolling overflow.
+- Applying `context.props` to an inner label prevents correct row positioning and measurement. Spread them onto the outer row DOM.
+- Using item values as collection row keys ignores group labels. Use the row type and `row.key`.
+- Omitting the keyboard bridge leaves off-screen options unreachable by collection navigation.
+- Sharing one adapter across multiple mounted lists makes its instance ambiguous. Create one per list.
+- Virtualization only mounts a window of rows, so browser find and DOM queries cannot inspect the full dataset. Provide filtering or search for large collections.

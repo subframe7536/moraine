@@ -1,8 +1,9 @@
-import { Show, createSignal } from 'solid-js'
+import { Show } from 'solid-js'
 
-import { Button } from '../../../../src'
+import { Badge, Button } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { FrontmatterData } from '../../../build/markdown/types'
+import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
@@ -20,21 +21,16 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
     const sourcePath = props.frontmatter.api?.path
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined
   }
-  const [copyState, setCopyState] = createSignal<'idle' | 'copied' | 'failed'>('idle')
-
-  const copyMarkdownSource = async () => {
-    try {
-      const response = await fetch(props.markdownPath)
+  const clipboard = createClipboardCopy({ resetAfter: 1600 })
+  const copyMarkdownSource = () => {
+    const markdownPath = props.markdownPath
+    return clipboard.copy(async () => {
+      const response = await fetch(markdownPath)
       if (!response.ok) {
         throw new Error(`Markdown request failed: ${response.status}`)
       }
-      await navigator.clipboard.writeText(await response.text())
-      setCopyState('copied')
-      window.setTimeout(() => setCopyState('idle'), 1600)
-    } catch {
-      setCopyState('failed')
-      window.setTimeout(() => setCopyState('idle'), 1600)
-    }
+      return response.text()
+    })
   }
 
   return (
@@ -46,6 +42,39 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
       <p class="text-muted-foreground mt-2 max-w-3xl text-sm sm:text-base">
         {props.frontmatter.description}
       </p>
+
+      <Show
+        when={
+          props.surface === 'components' &&
+          (props.apiDoc?.kind === 'composite' ||
+            props.apiDoc?.parts[0]?.props.some((prop) => prop.name === 'as'))
+        }
+      >
+        <div class="mt-3 flex flex-wrap gap-2 items-center">
+          <Show when={props.apiDoc?.kind === 'composite'}>
+            <Badge
+              as="a"
+              href="/docs/composition"
+              variant="outline"
+              size="sm"
+              class="transition-colors focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:bg-accent"
+            >
+              Composition
+            </Badge>
+          </Show>
+          <Show when={props.apiDoc?.parts[0]?.props.some((prop) => prop.name === 'as')}>
+            <Badge
+              as="a"
+              href="/docs/polymorphism"
+              variant="outline"
+              size="sm"
+              class="transition-colors focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:bg-accent"
+            >
+              Polymorphic
+            </Badge>
+          </Show>
+        </div>
+      </Show>
 
       <div class="mt-4 flex flex-wrap gap-2 items-center text-xs">
         <Button
@@ -65,13 +94,13 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
           aria-label="Copy markdown source"
           variant="outline"
           size="sm"
-          leading={copyState() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
+          leading={clipboard.state() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
           onClick={copyMarkdownSource}
           class="h-8 focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
         >
-          {copyState() === 'copied'
+          {clipboard.state() === 'copied'
             ? 'Copied Markdown'
-            : copyState() === 'failed'
+            : clipboard.state() === 'failed'
               ? 'Copy Failed'
               : 'Copy as Markdown'}
         </Button>

@@ -7,9 +7,20 @@ route and component work must use those tokens instead of introducing a parallel
 ## Information architecture and page writing
 
 The landing is independent. Header links lead to Docs (`/docs/getting-started`) and Components
-(`/components`); these are navigation anchors, not ARIA tabs. On mobile, the sidebar provides the
-same surface switch. Sidebars and Previous/Next stay within the current surface; search spans both.
-Docs groups are Overview, Styling, Composition, and Reference. Components groups are Overview,
+(`/components`); these are navigation anchors, not ARIA tabs. The mobile Sheet starts with fixed,
+vertically stacked Docs and Components links, separated from the independently scrolling directory
+by a rule. Each link is 48 px tall, with sans-serif, 14 px, medium-weight text and a Lucide icon in a
+24 px rounded tile. Start the links 16 px below the Sheet's top edge. Highlight Components for paths
+starting with `/component` and Docs otherwise, using a muted surface, a thin border, and a short
+2 px indicator at the start edge. Mark the selected section with `aria-current="location"`.
+Ordinary section clicks navigate to their landing pages and close the Sheet; modified clicks preserve
+browser behavior. Mobile and desktop directories show only the current surface, with all categories
+expanded and no repeated surface heading. Previous/Next stays within the current surface; search
+spans both.
+Do not add a title or close-button row above the section links. Brand identity and the home link stay
+in the page header. Dismiss the Sheet through its backdrop, Escape, or ordinary navigation; preserve
+focus restoration to its trigger.
+Docs groups are Overview, Guides, Styling, and Utils. Components groups are Overview,
 General, Form, Navigation, and Overlay.
 
 The Components overview is a grouped text-link directory: alphabetical within each category,
@@ -20,6 +31,7 @@ continue to support search, SEO, and agent Markdown.
 Component pages lead with a short choice-oriented introduction, then Basic usage as copyable public
 TSX, Playground for simple visual changes, annotated Anatomy, behavior-focused Usage, optional
 real-task Examples, and generated API tables. Keep a single source for web and agent output.
+Render Anatomy as a copyable text code block using the same tree as agent Markdown.
 Do not re-list props, create a separate Import/Features/Related section, repeat native browser
 keyboard behavior, or add examples only to show every variant and size. Simple components stay simple;
 complex components explain their state and composition model.
@@ -75,7 +87,9 @@ multiples of four pixels, and use a rule or surface change when sections need st
 
 | Token or area           | Contract                                                                     |
 | ----------------------- | ---------------------------------------------------------------------------- |
+| `docs-shell-width`      | Full viewport width for the shell and header content.                        |
 | `docs-shell-header`     | 52 px (`h-13`) sticky header height.                                         |
+| Header desktop inset    | 24 px at the start edge, aligned with navigation category text.              |
 | `docs-anchor-offset`    | 24 px (`scroll-mt-6`) anchor margin below the sticky header.                 |
 | `docs-content-gutter`   | 20 px on narrow screens and 32 px from `sm` upward.                          |
 | `docs-article-measure`  | Maximum article width of 896 px (`max-w-4xl`).                               |
@@ -83,10 +97,14 @@ multiples of four pixels, and use a rule or surface change when sections need st
 | `docs-toc-width`        | Desktop contextual TOC width of 240 px (`w-60`).                             |
 | TOC sticky boundary     | Align below the 52 px header; its scrollable height accounts for the header. |
 
-At 320, 375, and 414 CSS pixels, content remains in one column with the navigation in its mobile
-sheet and the contextual TOC hidden. At 768 pixels, retain the gutters and avoid overflow before
-introducing secondary columns. At 1440 pixels, the navigation rail and contextual TOC may frame the
-article without widening the article measure. The page must never create horizontal overflow, and
+Below 1024 CSS pixels, content remains in one column with a compact header and complete navigation
+in its mobile Sheet. At 1024–1279 pixels, show the full header and current-surface navigation rail.
+Below 1280 pixels, provide a default-closed On This Page disclosure after the page title and actions;
+selecting an anchor closes it. At 1280 pixels and above, show the contextual TOC on the right with
+a bounded, independently scrollable height, without widening the article measure. Navigation links
+in the mobile Sheet have at least 44 px hit areas, allow long names to wrap, and keep the active page
+visible when opening. Ordinary navigation and path changes close the Sheet; modified clicks preserve
+browser behavior. The page must never create horizontal overflow, and
 primary control labels must remain on one line; controls may wrap as groups or move below content.
 
 ## Interaction states
@@ -108,6 +126,17 @@ Every interactive Playground has a clear preview and compact controls. Playgroun
 source panel; regular `Preview` blocks provide source for usage subsections and standalone examples.
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
+
+Playground headings retain section anchors but omit the standard heading rule, with a 12 px gap
+before the panel. Frame the panel with a muted ribbon, 8 px on narrow screens and 12 px from `sm`,
+between an outer `rounded-2xl` radius and an inner `rounded-xl` radius. Use semantic borders and
+background colors, without additional elevation. Both outlines use the same opaque `input` color
+to stay consistent across surfaces. The preview leads, with Props and Slots stacked in
+the right pane from `md` and below the preview on narrow screens. Separate Slots from Props with a
+full-width top rule that meets both edges of the control pane. Narrow-screen value controls use two
+columns. Group switches below value controls; use two columns when their labels fit and let long
+labels occupy a full row. On desktop, stack both groups in one column. Keep switch labels on one
+line and preserve the visual order in keyboard navigation. Slot badges wrap within the control pane.
 
 Use dedicated previews in `Usage` for core API guides and in `Examples` for useful application tasks,
 complex compositions, state transitions, or layout constraints. A Preview is the copyable TSX source;

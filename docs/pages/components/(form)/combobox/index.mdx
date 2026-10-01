@@ -71,12 +71,19 @@ export function Example() {
   {(props) => (
     <Combobox
       items={[
-        { label: 'SolidJS', value: 'solid' },
-        { label: 'Vue.js', value: 'vue' },
+        {
+          label: 'SolidJS',
+          description: 'Fine-grained reactivity',
+          icon: 'i-lucide:atom',
+          value: 'solid',
+        },
+        { label: 'Vue.js', description: 'Progressive framework', value: 'vue' },
         { label: 'React', value: 'react' },
         { label: 'Svelte', value: 'svelte' },
         { label: 'Astro', value: 'astro' },
       ]}
+      defaultValue="solid"
+      leadingIcon="i-lucide:code"
       placeholder="Search frameworks..."
       variant={props.variant}
       size={props.size}
@@ -90,33 +97,52 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Combobox [component; no DOM]
-├── control [slot]
-│   ├── leading [slot]
-│   ├── input [slot]
-│   ├── clear [slot]
-│   └── trigger [slot]
-└── positioner [internal]
-    └── content [slot]
-        ├── listbox [slot]
-        │   ├── group [slot]
-        │   │   └── groupLabel [slot]
-        │   └── item [slot]
-        │       ├── itemLeading [slot]
-        │       ├── itemWrapper [slot]
-        │       │   ├── itemLabel [slot]
-        │       │   └── itemDescription [slot]
-        │       └── itemIndicator [slot]
-        └── empty [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        slot: 'control',
+        children: [{ slot: 'leading' }, { slot: 'input' }, { slot: 'clear' }, { slot: 'trigger' }],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            slot: 'content',
+            children: [
+              {
+                slot: 'listbox',
+                children: [
+                  {
+                    slot: 'group',
+                    children: [{ slot: 'groupLabel' }],
+                  },
+                  {
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      {
+                        slot: 'itemWrapper',
+                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                      },
+                      { slot: 'itemIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'empty' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-Control is the visual field and floating anchor. Input is the sole combobox ARIA and focus owner.
-Trigger is an always-present secondary button with `tabIndex={-1}` that toggles the dropdown without
-creating competing focus targets.
-
-Combobox renders the popup collection internally. Its content, listbox, and item names are style slots; customize item output with `itemRender` rather than composing attached child parts.
-Group headings and options render as sibling rows in the default listbox.
+Combobox renders the portaled popup collection internally; its content and item names are style slots, rather than attached child parts.
 
 ## Usage
 
@@ -161,6 +187,14 @@ if you want any click on the field to open the options list.
 | Escape              | Revert query text or close the dropdown                                     |
 | Home / End          | Move text cursor within input (or navigate options when listbox is focused) |
 
+### Virtualization
+
+Virtualize large lists of 10,000+ items using TanStack Virtualizer.
+
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
+
+<Preview path="./virtualization" />
+
 ## Examples
 
 ### Basic autocomplete
@@ -196,12 +230,6 @@ Simulate async fetching by combining `searchValue`, `onSearch`, and `loading`.
 Organize options into categories and customize the empty state when no matches exist.
 
 <Preview path="./groups" />
-
-### Virtualization
-
-Virtualize large lists of 10,000+ items using TanStack Virtualizer.
-
-<Preview path="./virtualization" />
 
 ### Form integration
 

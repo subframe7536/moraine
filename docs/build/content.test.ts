@@ -18,7 +18,7 @@ function componentPages(): string[] {
   )
 }
 
-test('component pages follow the shared content and anatomy contract', () => {
+test('component pages follow the shared content and anatomy contract', async () => {
   const failures: string[] = []
   for (const page of componentPages()) {
     const source = readFileSync(page, 'utf8')
@@ -74,12 +74,7 @@ test('component pages follow the shared content and anatomy contract', () => {
       failures.push(`${name}: Basic usage follows Playground`)
     }
     try {
-      validateAnatomy(
-        source,
-        path.basename(path.dirname(page)),
-        page,
-        loadComponentApiDoc(page) ?? undefined,
-      )
+      await validateAnatomy(source, page, loadComponentApiDoc(page) ?? undefined)
     } catch (error) {
       failures.push(String(error))
     }
@@ -92,24 +87,4 @@ test('component pages follow the shared content and anatomy contract', () => {
     }
   }
   expect(failures).toEqual([])
-})
-
-test('anatomy validator rejects unknown parts and slots while allowing internal nodes and no-DOM roots', () => {
-  const source = (node: string) =>
-    `## Anatomy\n\n\`\`\`text\nDialog [component; no DOM]\n└── ${node}\n\`\`\``
-  const api = { slots: ['content'], parts: [{ name: 'Dialog.Content' }] } as Parameters<
-    typeof validateAnatomy
-  >[3]
-  expect(() =>
-    validateAnatomy(source('Dialog.Content [part; slot=content]'), 'Dialog', 'dialog.mdx', api),
-  ).not.toThrow()
-  expect(() =>
-    validateAnatomy(source('wrapper [internal]'), 'Dialog', 'dialog.mdx', api),
-  ).not.toThrow()
-  expect(() => validateAnatomy(source('Dialog.Fake [part]'), 'Dialog', 'dialog.mdx', api)).toThrow(
-    'unknown part Dialog.Fake',
-  )
-  expect(() => validateAnatomy(source('fake [slot]'), 'Dialog', 'dialog.mdx', api)).toThrow(
-    'unknown slot fake',
-  )
 })

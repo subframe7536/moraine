@@ -61,12 +61,12 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Badge [component; slot=root]
-├── leading [slot]
-├── label [slot]
-└── trailing [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
 
 ## Usage
 

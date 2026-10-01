@@ -58,14 +58,35 @@ export function Example() {
             type: 'group',
             label: 'Account',
             children: [
-              { label: 'Profile', icon: 'i-lucide:user' },
+              {
+                label: 'Profile',
+                description: 'Manage your public profile',
+                icon: 'i-lucide:user',
+              },
               { label: 'Billing', icon: 'i-lucide:credit-card' },
               { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
+              {
+                label: 'Workspace',
+                icon: 'i-lucide:building-2',
+                children: [
+                  { label: 'Personal', icon: 'i-lucide:user' },
+                  { label: 'Team', icon: 'i-lucide:users' },
+                ],
+              },
             ],
           },
           {
             type: 'group',
-            children: [{ label: 'Sign out', icon: 'i-lucide:log-out', variant: 'destructive' }],
+            children: [
+              { type: 'separator' },
+              {
+                type: 'checkbox',
+                label: 'Notifications',
+                icon: 'i-lucide:bell',
+                defaultChecked: true,
+              },
+              { label: 'Sign out', icon: 'i-lucide:log-out', variant: 'destructive' },
+            ],
           },
         ]}
         size={props.size}
@@ -76,28 +97,56 @@ export function Example() {
 
 ## Anatomy
 
-```text
-DropdownMenu [component; no DOM]
-├── DropdownMenu.Trigger [part; slot=trigger]
-├── overlay [slot]
-└── positioner [internal]
-    └── DropdownMenu.Content [part; slot=content]
-        ├── group [slot]
-        │   ├── groupLabel [slot]
-        │   └── item [slot]
-        ├── item [slot]
-        │   ├── itemLeading [slot]
-        │   ├── itemWrapper [slot]
-        │   │   ├── itemLabel [slot]
-        │   │   └── itemDescription [slot]
-        │   └── itemTrailing [slot]
-        │       ├── itemKbds [slot]
-        │       ├── itemIndicator [slot]
-        │       └── itemSubIndicator [slot]
-        └── separator [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'DropdownMenu.Trigger',
+        slot: 'trigger',
+      },
+      { slot: 'overlay' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'DropdownMenu.Content',
+            slot: 'content',
+            children: [
+              {
+                slot: 'group',
+                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
+              },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  {
+                    slot: 'itemTrailing',
+                    children: [
+                      { slot: 'itemKbds' },
+                      { slot: 'itemIndicator' },
+                      { slot: 'itemSubIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-Items inside a group use the same subtree as ungrouped items. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this menu; Content can override its slots, including nested submenu layers. See [Styling](/docs/customization#style-overrides).
+Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Usage
 

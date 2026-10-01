@@ -19,6 +19,14 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
   const [list, setList] = createSignal<HTMLElement>()
   const [positions, setPositions] = createSignal(new Map<string, [number, number]>())
   const [listHeight, setListHeight] = createSignal(0)
+  const [loaded, setLoaded] = createSignal(false)
+  let loadedFrame: number | undefined
+
+  onCleanup(() => {
+    if (loadedFrame !== undefined) {
+      cancelAnimationFrame(loadedFrame)
+    }
+  })
   const { activeIds, primaryActiveId } = useTableOfContents(
     () => props.entries,
     () => location.hash || (typeof window === 'undefined' ? '' : window.location.hash),
@@ -61,25 +69,37 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
       return undefined
     }
     return {
-      'clip-path': `inset(${first[0]}px 0 ${Math.max(0, height - last[1])}px 0 round 8px)`,
+      'clip-path': `inset(${Math.max(0, first[0] - 4)}px 0 ${Math.max(0, height - last[1] - 4)}px 0 round 8px)`,
     }
   })
 
+  createEffect(
+    on(blockStyle, (style) => {
+      if (style && !loaded() && loadedFrame === undefined) {
+        loadedFrame = requestAnimationFrame(() => {
+          loadedFrame = undefined
+          setLoaded(true)
+        })
+      }
+    }),
+  )
+
   return (
     <nav ref={setNav} aria-label="On This Page" class={props.class}>
-      <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold uppercase">
+      <p class="text-[0.68rem] text-muted-foreground/80 tracking-[0.14em] font-semibold px-3 uppercase">
         On This Page
       </p>
       <Show
         when={props.entries.length > 0}
         fallback={<p class="text-muted-foreground mt-3 text-xs">No sections</p>}
       >
-        <div ref={setList} class="mt-2.5 flex flex-col gap-0.5 relative">
+        <div ref={setList} class="mt-2 py-1 flex flex-col relative">
           <Show when={blockStyle()}>
             {(style) => (
               <div
                 aria-hidden="true"
-                class="pointer-events-none transition-clip-path inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:animate-none"
+                data-loaded={loaded() ? '' : undefined}
+                class="pointer-events-none inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:transition-none motion-reduce:animate-none motion-safe:data-loaded:transition-clip-path"
                 style={style()}
               />
             )}
@@ -92,7 +112,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-muted-foreground leading-7 px-2 py-0.5 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                class="text-muted-foreground leading-7 px-3 py-1 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

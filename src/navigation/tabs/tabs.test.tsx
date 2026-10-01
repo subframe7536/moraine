@@ -649,6 +649,57 @@ describe('Tabs', () => {
     }
   })
 
+  test('measures the selected indicator after detached tabs are inserted into the document', () => {
+    const originalResizeObserver = globalThis.ResizeObserver
+    const observers: Array<{ targets: Set<Element>; notify: () => void }> = []
+    globalThis.ResizeObserver = class {
+      readonly targets = new Set<Element>()
+
+      constructor(callback: ResizeObserverCallback) {
+        observers.push({ targets: this.targets, notify: () => callback([], this) })
+      }
+
+      observe(target: Element) {
+        this.targets.add(target)
+      }
+
+      unobserve(target: Element) {
+        this.targets.delete(target)
+      }
+
+      disconnect() {
+        this.targets.clear()
+      }
+    }
+    const container = document.createElement('div')
+
+    try {
+      const screen = render(() => <Tabs items={ITEMS} defaultValue="settings" />, { container })
+      const selected = screen.getByRole('tab', { name: 'Settings' })
+      const indicator = container.querySelector<HTMLElement>('[data-slot="tabs-indicator"]')!
+      expect(selected.getAttribute('aria-selected')).toBe('true')
+      expect(indicator.style.width).toBe('0px')
+      Object.defineProperties(selected, {
+        offsetLeft: { get: () => 124 },
+        offsetWidth: { get: () => 120 },
+      })
+
+      document.body.append(container)
+      for (const observer of observers) {
+        if (observer.targets.has(selected)) {
+          observer.notify()
+        }
+      }
+
+      expect(indicator.style.width).toBe('120px')
+      expect(indicator.style.transform).toBe('translateX(124px)')
+      screen.unmount()
+    } finally {
+      container.remove()
+      globalThis.ResizeObserver = originalResizeObserver
+    }
+  })
+
   test('derives a fallback when the selected tab is disabled and restores the request later', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const onChange = vi.fn()

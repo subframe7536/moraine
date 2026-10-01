@@ -225,6 +225,8 @@ export function DocsPlaygroundControlField(props: {
       <Match when={props.control.kind === 'switch'}>
         <SwitchComp
           id={props.controlId}
+          class="basis-[calc(50%-0.5rem)] min-h-9 min-w-max items-center md:basis-auto md:min-h-6"
+          classes={{ label: 'whitespace-nowrap' }}
           label={props.control.label}
           size="sm"
           checked={Boolean(props.value)}

@@ -11,6 +11,5 @@ export {
   type DocsPlaygroundSelectControl,
   type DocsPlaygroundSwitchControl,
 } from './docs-playground-controls'
-export { DocsPlaygroundApiContext } from './docs-playground.context'
-export { DocsPlaygroundSlots } from './docs-playground-slots'
+export { createDocsPlaygroundSlots } from './create-docs-playground-slots'
 export { DocsPlayground } from './docs-playground'

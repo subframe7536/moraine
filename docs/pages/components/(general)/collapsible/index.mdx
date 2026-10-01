@@ -76,12 +76,26 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Collapsible [component; slot=root]
-├── Collapsible.Trigger [part; slot=trigger]
-└── contentWrapper [internal]
-    └── Collapsible.Content [part; slot=content]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Collapsible.Trigger',
+        slot: 'trigger',
+      },
+      {
+        internal: 'contentWrapper',
+        children: [
+          {
+            part: 'Collapsible.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

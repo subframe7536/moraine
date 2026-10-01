@@ -16,7 +16,6 @@ import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
   view: SelectView<T>
   onExitComplete?: () => void
-  empty?: JSX.Element
   emptyRender?: () => JSX.Element
   slot: (
     name: 'itemLeading' | 'itemWrapper' | 'itemLabel' | 'itemDescription' | 'itemIndicator',
@@ -166,6 +165,9 @@ function DefaultSelectContentBody<T extends SelectItem>(
             </BaseSelect.Group>
           )}
         </Match>
+        <Match when={rowProps.entry.type === 'separator'}>
+          <BaseSelect.Separator {...rowProps.props} />
+        </Match>
       </Switch>
     )
   }
@@ -210,11 +212,13 @@ function DefaultSelectContentBody<T extends SelectItem>(
           )}
         </Show>
       </BaseSelect.Listbox>
-      <BaseSelect.Empty>
-        <Show when={props.emptyRender} keyed fallback={props.empty}>
-          {(EmptyRender) => <EmptyRender />}
-        </Show>
-      </BaseSelect.Empty>
+      <Show when={props.emptyRender} keyed>
+        {(EmptyRender) => (
+          <BaseSelect.Empty>
+            <EmptyRender />
+          </BaseSelect.Empty>
+        )}
+      </Show>
     </>
   )
 }

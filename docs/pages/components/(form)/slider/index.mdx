@@ -49,15 +49,15 @@ export function Example() {
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0, inputType: 'number' },
-    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: false },
+    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 10, inputType: 'number' },
+    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
     { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
   ]}
 >
   {(props) => {
-    const [value, setValue] = createSignal(65)
+    const [value, setValue] = createSignal(60)
     return (
       <div
         class={
@@ -73,7 +73,7 @@ export function Example() {
           <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
         </div>
         <Slider
-          defaultValue={65}
+          defaultValue={60}
           onValueChange={(val) => {
             if (typeof val === 'number') setValue(val)
           }}
@@ -92,13 +92,18 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Slider [component; slot=root]
-├── track [slot]
-│   ├── range [slot]
-│   └── marker [slot]
-└── thumb [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'track',
+        children: [{ slot: 'range' }, { slot: 'marker' }],
+      },
+      { slot: 'thumb' },
+    ],
+  }}
+/>
 
 ## Usage
 

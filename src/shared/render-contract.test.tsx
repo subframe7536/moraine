@@ -108,12 +108,6 @@ describe('render and polymorphic contracts', () => {
 
   test.each([
     [
-      'Select',
-      (props: { emptyRender?: () => JSX.Element }) => (
-        <Select defaultOpen items={[]} emptyRender={props.emptyRender} />
-      ),
-    ],
-    [
       'Combobox',
       (props: { emptyRender?: () => JSX.Element }) => (
         <Combobox defaultOpen items={[]} emptyRender={props.emptyRender} />

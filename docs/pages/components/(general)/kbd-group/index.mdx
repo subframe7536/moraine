@@ -63,12 +63,17 @@ export function Example() {
 
 ## Anatomy
 
-```text
-KbdGroup [component; slot=root; <kbd>]
-├── item [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'kbd',
+    },
+    children: [{ slot: 'item' }],
+  }}
+/>
 
-The only theme slots are `root` and `item`. Separator content is rendered inline and is not a theme slot.
+Separator content is inline and is not a theme slot.
 
 ## Usage
 

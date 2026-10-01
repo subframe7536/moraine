@@ -13,7 +13,9 @@ import {
 import type { Plugin } from 'vite'
 
 import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/icons.ts'
+import { renderAnatomyText } from '../shared/anatomy.ts'
 
+import { parseAnatomyNode, validateAnatomy, validateAnatomyConfig } from './anatomy.ts'
 import { loadComponentApiDoc } from './api-doc/load.ts'
 import { createApiReferenceModel } from './api-doc/presentation.ts'
 import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation.ts'
@@ -256,6 +258,16 @@ function renderComponentNode(
   node: MdxComponentNode,
   context: PageConversionContext,
 ): Promise<string> | string {
+  if (node.name === 'Anatomy') {
+    return parseAnatomyNode(node, context.sourcePath).then((value) => {
+      const api = loadComponentApiDoc(context.sourcePath)
+      const config = validateAnatomyConfig(value, context.sourcePath, api ?? undefined)
+      const name =
+        api?.parts[0]?.name ??
+        readFrontmatterData(context.markdownSource ?? '', context.sourcePath).title
+      return codeFence('text', renderAnatomyText(name, config))
+    })
+  }
   if (node.name === 'IconGallery') {
     return DEFAULT_ICON_SHORTCUTS.map(([name]) => `- \`${name}\``).join('\n')
   }
@@ -476,6 +488,13 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
   ]
   for (const route of routes) {
     const source = readFileSync(route.sourcePath, 'utf8')
+    if (route.info.surface === 'components' && route.info.routePath !== '/components') {
+      await validateAnatomy(
+        source,
+        route.sourcePath,
+        loadComponentApiDoc(route.sourcePath) ?? undefined,
+      )
+    }
     documents.push({
       fileName: markdownFileName(route),
       source: await convertPageMarkdown(source, {
