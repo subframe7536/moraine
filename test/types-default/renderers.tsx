@@ -20,6 +20,10 @@ export type PublicRenderTypes = [RemovedRenderType]
 ;<Breadcrumb itemRender={<span />} />
 // @ts-expect-error Each option requires its own renderer instance.
 ;<Select itemRender={<span />} />
+// @ts-expect-error Select no longer supports virtual rendering.
+;<Select virtualRender={() => <span />} />
+// @ts-expect-error Select no longer exposes a virtual scrolling bridge.
+;<Select scrollToItem={() => {}} />
 // @ts-expect-error Each option requires its own renderer instance.
 ;<Combobox itemRender={<span />} />
 // @ts-expect-error Each option requires its own renderer instance.

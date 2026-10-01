@@ -333,7 +333,6 @@ export type RetainedNamespaceMembers = [
   FormT.Instance<typeof Schema>,
   InputNumberT.PointerType,
   StepperT.Value,
-  SelectT.Row,
   SelectT.Entry,
   ComboboxT.Row,
   MultiSelectT.TagRenderProps,

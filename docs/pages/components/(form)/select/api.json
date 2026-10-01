@@ -243,12 +243,6 @@
           }
         },
         {
-          "name": "scrollToItem",
-          "optional": true,
-          "type": "(item: NormalizedItem<TItem>, entryIndex: number) => void",
-          "description": "Scroll a highlighted item to its logical entry index."
-        },
-        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -295,12 +289,6 @@
             "kind": "literal",
             "value": "outline"
           }
-        },
-        {
-          "name": "virtualRender",
-          "optional": true,
-          "type": "Component<SelectVirtualRenderProps<NormalizedItem<TItem>>>",
-          "description": "Virtual rendering adapter."
         }
       ]
     }

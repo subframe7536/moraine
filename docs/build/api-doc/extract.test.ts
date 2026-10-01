@@ -94,8 +94,6 @@ describe('generateApiDoc', () => {
           'itemRender',
           'itemProps',
           'listboxProps',
-          'virtualRender',
-          'scrollToItem',
           'onScrollBottom',
           'scrollBottomThreshold',
           'gutter',
@@ -105,6 +103,8 @@ describe('generateApiDoc', () => {
       if (key !== 'select') {
         expect(props.map((prop) => prop.name)).toEqual(
           expect.arrayContaining([
+            'virtualRender',
+            'scrollToItem',
             'searchValue',
             'defaultSearchValue',
             'onSearch',
@@ -112,6 +112,9 @@ describe('generateApiDoc', () => {
             'searchMaxLength',
           ]),
         )
+      } else {
+        expect(props.map((prop) => prop.name)).not.toContain('virtualRender')
+        expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
       }
     }
     for (const key of ['collapsible', 'sidebar-frame']) {

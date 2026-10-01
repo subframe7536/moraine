@@ -7,7 +7,7 @@ search:
   tags: [createListVirtualizer, virtualizer, virtual scrolling, list, combobox, tanstack]
 ---
 
-Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List` or a collection component such as `Combobox`, `Select`, or `MultiSelect`.
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, or `MultiSelect`.
 
 ## When to virtualize
 
@@ -105,7 +105,7 @@ export function VirtualizedCombobox() {
 }
 ```
 
-Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `Select` and `MultiSelect` use the same row model through their respective `Row` types.
+Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
 
 ## How it works
 

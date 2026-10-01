@@ -1,6 +1,6 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
-import { createSignal, For } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -208,7 +208,6 @@ describe('Select', () => {
   })
 
   test('forwards shared content behavior through the reactive local props proxy', async () => {
-    const scrollToItem = vi.fn()
     const onScrollBottom = vi.fn()
     const screen = render(() => (
       <Select
@@ -217,12 +216,6 @@ describe('Select', () => {
         itemRender={(state) => `Rendered ${state.item.label}`}
         itemProps={() => ({ 'data-item-prop': '' })}
         listboxProps={{ 'data-testid': 'forwarded-listbox' }}
-        virtualRender={(context) => (
-          <For each={context.entries}>
-            {(entry, index) => <>{context.render(entry, index())}</>}
-          </For>
-        )}
-        scrollToItem={scrollToItem}
         onScrollBottom={onScrollBottom}
         scrollBottomThreshold={7}
         gutter={8}
@@ -234,7 +227,6 @@ describe('Select', () => {
     expect(first.textContent).toBe('Rendered Apple')
     expect(first.getAttribute('data-item-prop')).toBe('')
     await Promise.resolve()
-    expect(scrollToItem).toHaveBeenCalledWith(ITEMS[0], 0)
     Object.defineProperties(listbox, {
       scrollTop: { configurable: true, value: 73 },
       clientHeight: { configurable: true, value: 20 },

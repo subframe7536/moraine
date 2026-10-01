@@ -15,10 +15,8 @@ import type { FormValueOptions } from '../shared/form-options.types'
 import type {
   NormalizedSelectItem,
   ContentProps,
-  SelectRow,
   SelectGroup,
   SelectEntry,
-  SelectVirtualRenderProps,
 } from '../shared/select/types'
 
 import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
@@ -41,9 +39,6 @@ export namespace SelectT {
   export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
   export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
   export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
-  export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
-  export type VirtualRenderProps<TItem extends string | Item = string | Item> =
-    SelectVirtualRenderProps<NormalizedItem<TItem>>
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
 
@@ -54,7 +49,7 @@ export namespace SelectT {
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      ContentProps<NormalizedItem<TItem>>,
+      Omit<ContentProps<NormalizedItem<TItem>>, 'virtualRender' | 'scrollToItem'>,
       FormValueOptions<NormalizedItem<TItem>['value'] | null> {
     /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
