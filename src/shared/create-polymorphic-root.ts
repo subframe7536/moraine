@@ -7,19 +7,17 @@ import type { ValidComponent } from './types'
 import { callHandler, callRef } from './utils'
 
 const DELEGATED_EVENTS = [
-  'onClick',
-  'onKeyDown',
-  'onKeyUp',
-  'onBlur',
-  'onFocus',
-  'onContextMenu',
-  'onPointerDown',
-  'onPointerMove',
-  'onPointerUp',
-  'onPointerCancel',
-]
-  .map((key) => key.slice(2).toLowerCase())
-  .filter((name) => DelegatedEvents.has(name))
+  'click',
+  'keydown',
+  'keyup',
+  'blur',
+  'focus',
+  'contextmenu',
+  'pointerdown',
+  'pointermove',
+  'pointerup',
+  'pointercancel',
+].filter((name) => DelegatedEvents.has(name))
 
 /** Tracks a Dynamic root and bridges events from custom and foreign-document roots. */
 export function createPolymorphicRoot(options: {

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createComponent, createEffect, createMemo, createSignal, For, Show, on } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../../element/icon/index'
@@ -17,7 +17,7 @@ export interface DefaultSelectContentProps<T extends SelectItem> extends Content
   view: SelectView<T>
   onExitComplete?: () => void
   empty?: JSX.Element
-  renderEmpty?: () => JSX.Element
+  emptyRender?: () => JSX.Element
   slot: (
     name: 'itemLeading' | 'itemWrapper' | 'itemLabel' | 'itemDescription' | 'itemIndicator',
   ) => SlotBinding
@@ -28,7 +28,6 @@ function DefaultSelectContentBody<T extends SelectItem>(
 ): JSX.Element {
   const state = useSelectContext<T>()
   const cn = useCn()
-  const itemRender = createMemo(() => props.itemRender)
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   const positions = createMemo(
     () => new Map(props.view.items.map((item, index) => [item.value, index + 1])),
@@ -55,8 +54,8 @@ function DefaultSelectContentBody<T extends SelectItem>(
     ),
   )
   let atBottom = false
-  function renderItem(entryItem: T, rowProps?: ListT.RowProps<HTMLDivElement>) {
-    const item = () => props.view.byValue?.get(entryItem.value) ?? entryItem
+  function SelectItem(itemProps: { item: T; rowProps?: ListT.RowProps<HTMLDivElement> }) {
+    const item = () => props.view.byValue?.get(itemProps.item.value) ?? itemProps.item
     const presentation: BaseSelectT.ItemRenderProps<T> = {
       get item() {
         return item()
@@ -76,34 +75,34 @@ function DefaultSelectContentBody<T extends SelectItem>(
       <BaseSelect.Item<T>
         item={item()}
         {...attributes()}
-        {...rowProps}
+        {...itemProps.rowProps}
         ref={(element) => {
           callRef(attributes()?.ref, element)
-          rowProps?.ref?.(element)
+          itemProps.rowProps?.ref?.(element)
         }}
-        class={cn(attributes()?.class, rowProps?.class)}
+        class={cn(attributes()?.class, itemProps.rowProps?.class)}
         style={{
           ...attributes()?.style,
-          ...rowProps?.style,
+          ...itemProps.rowProps?.style,
         }}
         onClick={(event) => {
           callHandler(event, attributes()?.onClick)
-          callHandler(event, rowProps?.onClick)
+          callHandler(event, itemProps.rowProps?.onClick)
         }}
         onPointerMove={(event) => {
           callHandler(event, attributes()?.onPointerMove)
-          callHandler(event, rowProps?.onPointerMove)
+          callHandler(event, itemProps.rowProps?.onPointerMove)
         }}
         onPointerDown={(event) => {
           callHandler(event, attributes()?.onPointerDown)
-          callHandler(event, rowProps?.onPointerDown)
+          callHandler(event, itemProps.rowProps?.onPointerDown)
         }}
         aria-posinset={props.virtualRender ? positions().get(item().value) : undefined}
         aria-setsize={props.virtualRender ? props.view.items.length : undefined}
       >
         {(itemState) => (
           <Show
-            when={itemRender()}
+            when={props.itemRender}
             keyed
             fallback={
               <>
@@ -142,24 +141,32 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {(renderer) => createComponent(renderer, presentation)}
+            {(ItemRender) => <ItemRender {...presentation} />}
           </Show>
         )}
       </BaseSelect.Item>
     )
   }
-  function renderRow(
-    entry: SelectRow<T>,
-    _index: number,
-    rowProps?: ListT.RowProps<HTMLDivElement>,
-  ) {
-    if (entry.type === 'item') {
-      return renderItem(entry.item, rowProps)
-    }
+  function Row(rowProps: {
+    entry: SelectRow<T>
+    props?: ListT.RowProps<HTMLDivElement>
+  }): JSX.Element {
     return (
-      <BaseSelect.Group {...rowProps} aria-owns={entry.values.map(state.itemId).join(' ')}>
-        <BaseSelect.GroupLabel>{entry.label}</BaseSelect.GroupLabel>
-      </BaseSelect.Group>
+      <Switch>
+        <Match when={rowProps.entry.type === 'item' && rowProps.entry.item}>
+          {(item) => <SelectItem item={item()} rowProps={rowProps.props} />}
+        </Match>
+        <Match when={rowProps.entry.type === 'label' && rowProps.entry}>
+          {(entry) => (
+            <BaseSelect.Group
+              {...rowProps.props}
+              aria-owns={entry().values.map(state.itemId).join(' ')}
+            >
+              <BaseSelect.GroupLabel>{entry().label}</BaseSelect.GroupLabel>
+            </BaseSelect.Group>
+          )}
+        </Match>
+      </Switch>
     )
   }
   return (
@@ -187,19 +194,27 @@ function DefaultSelectContentBody<T extends SelectItem>(
       >
         <Show
           when={props.virtualRender}
-          fallback={<For each={props.view.rows}>{(row) => renderRow(row, 0)}</For>}
+          fallback={<For each={props.view.rows}>{(row) => <Row entry={row} />}</For>}
         >
           {(renderer) => (
             <Dynamic
               component={renderer()}
               entries={props.view.rows}
               scrollElement={listbox()}
-              render={renderRow}
+              render={(
+                entry: SelectRow<T>,
+                _index: number,
+                rowProps?: ListT.RowProps<HTMLDivElement>,
+              ) => <Row entry={entry} props={rowProps} />}
             />
           )}
         </Show>
       </BaseSelect.Listbox>
-      <BaseSelect.Empty>{props.renderEmpty ? props.renderEmpty() : props.empty}</BaseSelect.Empty>
+      <BaseSelect.Empty>
+        <Show when={props.emptyRender} keyed fallback={props.empty}>
+          {(EmptyRender) => <EmptyRender />}
+        </Show>
+      </BaseSelect.Empty>
     </>
   )
 }

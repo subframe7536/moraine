@@ -136,23 +136,22 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
 function DialogHeader<T extends ValidComponent = 'div'>(
   props: DialogT.HeaderProps<T>,
 ): JSX.Element {
-  return renderDialogHeader(props, 'explicit')
+  return <DialogHeaderRoot {...props} headerKind="explicit" />
 }
 
 function DialogShorthandHeader<T extends ValidComponent = 'div'>(
   props: DialogT.HeaderProps<T>,
 ): JSX.Element {
-  return renderDialogHeader(props, 'shorthand')
+  return <DialogHeaderRoot {...props} headerKind="shorthand" />
 }
 
-function renderDialogHeader<T extends ValidComponent>(
-  props: DialogT.HeaderProps<T>,
-  kind: 'explicit' | 'shorthand',
+function DialogHeaderRoot<T extends ValidComponent>(
+  props: DialogT.HeaderProps<T> & { headerKind: 'explicit' | 'shorthand' },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'headerKind'])
   const family = useModalContext()
   const content = useDialogContent()
-  const unregister = content.registerHeader(kind)
+  const unregister = content.registerHeader(untrack(() => local.headerKind))
   onCleanup(unregister)
   const resolved = createStyles(dialogRecipe, local, {
     rootSlot: 'header',

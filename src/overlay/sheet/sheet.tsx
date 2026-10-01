@@ -128,23 +128,22 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
 }
 
 function SheetHeader<T extends ValidComponent = 'div'>(props: SheetT.HeaderProps<T>): JSX.Element {
-  return renderSheetHeader(props, 'explicit')
+  return <SheetHeaderRoot {...props} headerKind="explicit" />
 }
 
 function SheetShorthandHeader<T extends ValidComponent = 'div'>(
   props: SheetT.HeaderProps<T>,
 ): JSX.Element {
-  return renderSheetHeader(props, 'shorthand')
+  return <SheetHeaderRoot {...props} headerKind="shorthand" />
 }
 
-function renderSheetHeader<T extends ValidComponent>(
-  props: SheetT.HeaderProps<T>,
-  kind: 'explicit' | 'shorthand',
+function SheetHeaderRoot<T extends ValidComponent>(
+  props: SheetT.HeaderProps<T> & { headerKind: 'explicit' | 'shorthand' },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'headerKind'])
   const family = useModalContext()
   const content = useSheetContent()
-  const unregister = content.registerHeader(kind)
+  const unregister = content.registerHeader(untrack(() => local.headerKind))
   onCleanup(unregister)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'header',

@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
-  createComponent,
   createEffect,
   createMemo,
   createSignal,
@@ -402,7 +401,7 @@ function TooltipTrigger<T extends ValidComponent = 'button'>(
     resolved.styles.trigger,
     { context: popper, toggleOnClick: false, describeTrigger: true },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
-  return createComponent(PopperTrigger<T>, triggerProps)
+  return <PopperTrigger<T> {...triggerProps} />
 }
 
 function TooltipContent(props: TooltipT.ContentProps): JSX.Element {

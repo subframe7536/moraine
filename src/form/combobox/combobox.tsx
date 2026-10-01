@@ -200,22 +200,22 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           view={search.view()}
           onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
-          renderEmpty={() =>
-            local.emptyRender !== undefined
-              ? renderWithProps(local.emptyRender, {
-                  get inputValue() {
-                    return search.value()
-                  },
-                  get hasMatches() {
-                    return state.items().length > 0
-                  },
-                  get selectedValue() {
-                    return state.value()[0] ?? null
-                  },
-                  close: () => state.setOpen(false),
-                })
-              : 'No items'
-          }
+          emptyRender={() => (
+            <Show when={local.emptyRender !== undefined} fallback="No items">
+              {renderWithProps(local.emptyRender, {
+                get inputValue() {
+                  return search.value()
+                },
+                get hasMatches() {
+                  return state.items().length > 0
+                },
+                get selectedValue() {
+                  return state.value()[0] ?? null
+                },
+                close: () => state.setOpen(false),
+              })}
+            </Show>
+          )}
         />
       </>
     )

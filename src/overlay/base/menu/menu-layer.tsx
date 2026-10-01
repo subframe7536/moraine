@@ -699,18 +699,30 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     }
   }
 
-  function renderListEntry(entry: OverlayMenuListEntry<TItem>): JSX.Element {
-    if (entry.type === 'contentTop') {
-      return <Show when={props.contentTop}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
-    }
+  function ListEntry(entryProps: { item: OverlayMenuListEntry<TItem> }): JSX.Element {
+    return (
+      <Switch>
+        <Match when={entryProps.item.type === 'contentTop'}>
+          <Show when={props.contentTop} keyed>
+            {(ContentTopRender) => <ContentTopRender sub={props.depth > 0} />}
+          </Show>
+        </Match>
+        <Match when={entryProps.item.type === 'contentBottom'}>
+          <Show when={props.contentBottom} keyed>
+            {(ContentBottomRender) => <ContentBottomRender sub={props.depth > 0} />}
+          </Show>
+        </Match>
+        <Match when={entryProps.item.type === 'group' && entryProps.item.group}>
+          {(group) => <MenuGroup group={group()} />}
+        </Match>
+      </Switch>
+    )
+  }
 
-    if (entry.type === 'contentBottom') {
-      return <Show when={props.contentBottom}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
-    }
-
-    const groupLabel = createMemo(() => entry.group.label)
+  function MenuGroup(groupProps: { group: OverlayMenuResolvedGroup<TItem> }): JSX.Element {
+    const groupLabel = createMemo(() => groupProps.group.label)
     const groupLabelId = createMemo(() =>
-      groupLabel() ? `${props.id}-group-${groups().indexOf(entry.group)}-label` : undefined,
+      groupLabel() ? `${props.id}-group-${groups().indexOf(groupProps.group)}-label` : undefined,
     )
 
     return (
@@ -731,7 +743,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           </div>
         </Show>
 
-        <For each={entry.group.items}>
+        <For each={groupProps.group.items}>
           {(item) => (
             <Switch fallback={<LeafItem item={item} />}>
               <Match when={item.type === 'separator'}>
@@ -784,7 +796,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <List
         as="div"
         items={listEntries()}
-        itemRender={(context) => renderListEntry(context.item)}
+        itemRender={ListEntry}
         id={props.id}
         data-slot={slotName('content')}
         role="menu"

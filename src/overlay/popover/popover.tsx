@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
-  createComponent,
   createEffect,
   createMemo,
   createSignal,
@@ -236,7 +235,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
       },
     },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
-  return createComponent(PopperTrigger<T>, triggerProps)
+  return <PopperTrigger<T> {...triggerProps} />
 }
 
 function PopoverContent(props: PopoverT.ContentProps): JSX.Element {

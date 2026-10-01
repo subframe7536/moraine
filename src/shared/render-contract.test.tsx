@@ -106,6 +106,51 @@ describe('render and polymorphic contracts', () => {
     expect(screen.getByText('B')).toBeTruthy()
   })
 
+  test.each([
+    [
+      'Select',
+      (props: { emptyRender?: () => JSX.Element }) => (
+        <Select defaultOpen items={[]} emptyRender={props.emptyRender} />
+      ),
+    ],
+    [
+      'Combobox',
+      (props: { emptyRender?: () => JSX.Element }) => (
+        <Combobox defaultOpen items={[]} emptyRender={props.emptyRender} />
+      ),
+    ],
+    [
+      'MultiSelect',
+      (props: { emptyRender?: () => JSX.Element }) => (
+        <MultiSelect defaultOpen items={[]} emptyRender={props.emptyRender} />
+      ),
+    ],
+  ] as const)('%s replaces empty renderers and restores the default content', (_name, Control) => {
+    const cleanedA = vi.fn()
+    const cleanedB = vi.fn()
+    const A = () => {
+      onCleanup(cleanedA)
+      return <span>Empty A</span>
+    }
+    const B = () => {
+      onCleanup(cleanedB)
+      return <span>Empty B</span>
+    }
+    const [emptyRender, setEmptyRender] = createSignal<(() => JSX.Element) | undefined>(A)
+    render(() => <Control emptyRender={emptyRender()} />)
+    expect(screen.getByText('Empty A')).toBeTruthy()
+
+    setEmptyRender(() => B)
+    expect(screen.queryByText('Empty A')).toBeNull()
+    expect(screen.getByText('Empty B')).toBeTruthy()
+    expect(cleanedA).toHaveBeenCalledTimes(1)
+
+    setEmptyRender(undefined)
+    expect(screen.queryByText('Empty B')).toBeNull()
+    expect(screen.getByText('No items')).toBeTruthy()
+    expect(cleanedB).toHaveBeenCalledTimes(1)
+  })
+
   test('CommandPalette replaces item renderer A with B', () => {
     const A = () => <span>A</span>
     const B = () => <span>B</span>

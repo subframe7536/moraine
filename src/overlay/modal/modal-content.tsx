@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -72,7 +72,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     }),
   )
 
-  const renderOverlay = (content?: JSX.Element): JSX.Element => (
+  const Overlay = (overlayProps: { children?: JSX.Element }): JSX.Element => (
     <div
       data-slot={local.overlay ? context.slotName('overlay') : undefined}
       {...modalDataAttributes.overlay({
@@ -86,11 +86,11 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       class={local.overlay ? cn(local.overlayClass) : undefined}
       style={local.overlay ? local.overlayStyle : undefined}
     >
-      {content}
+      {overlayProps.children}
     </div>
   )
 
-  const renderContent = (body: Accessor<JSX.Element>): JSX.Element => (
+  const Content = (): JSX.Element => (
     <div
       {...rest}
       {...modalDataAttributes.content({
@@ -138,12 +138,16 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       when={local.composite}
       fallback={
         <>
-          <Show when={local.overlay}>{(_value) => renderOverlay()}</Show>
-          {renderContent(body)}
+          <Show when={local.overlay}>
+            <Overlay />
+          </Show>
+          <Content />
         </>
       }
     >
-      {(_value) => renderOverlay(renderContent(body))}
+      <Overlay>
+        <Content />
+      </Overlay>
     </Show>
   )
 }

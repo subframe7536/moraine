@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createComponent, createMemo, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -198,39 +198,23 @@ export function Progress(props: ProgressProps): JSX.Element {
       </div>
 
       <Show when={hasSteps()}>
-        {(_hasSteps) => {
-          const stepRender = createMemo(() => local.stepRender)
-
-          return (
-            <div data-slot="progress-steps" {...resolved.styles.steps}>
-              <For each={steps()}>
-                {(step, index) => (
-                  <div
-                    data-slot="progress-step"
-                    {...progressDataAttributes.step({ state: () => stepState(index()) })}
-                    {...resolved.styles.step}
-                  >
-                    <Show when={stepRender()} fallback={step} keyed>
-                      {(renderer) =>
-                        createComponent(renderer, {
-                          get step() {
-                            return step
-                          },
-                          get index() {
-                            return index()
-                          },
-                          get state() {
-                            return stepState(index())
-                          },
-                        })
-                      }
-                    </Show>
-                  </div>
-                )}
-              </For>
-            </div>
-          )
-        }}
+        <div data-slot="progress-steps" {...resolved.styles.steps}>
+          <For each={steps()}>
+            {(step, index) => (
+              <div
+                data-slot="progress-step"
+                {...progressDataAttributes.step({ state: () => stepState(index()) })}
+                {...resolved.styles.step}
+              >
+                <Show when={local.stepRender} fallback={step} keyed>
+                  {(StepRender) => (
+                    <StepRender step={step} index={index()} state={stepState(index())} />
+                  )}
+                </Show>
+              </div>
+            )}
+          </For>
+        </div>
       </Show>
     </div>
   )

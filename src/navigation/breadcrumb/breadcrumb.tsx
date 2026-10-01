@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createComponent, createMemo, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
@@ -29,7 +29,6 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
 
   const items = createMemo(() => local.items ?? [])
-  const itemRender = createMemo(() => local.itemRender)
   const currentIndex = createMemo(() => {
     const resolvedItems = items()
     const explicitIndex = resolvedItems.findIndex((item) => item.active)
@@ -61,7 +60,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
               <>
                 <li data-slot="breadcrumb-item" {...resolved.styles.item}>
                   <Show
-                    when={itemRender()}
+                    when={local.itemRender}
                     keyed
                     fallback={
                       <Dynamic
@@ -97,20 +96,14 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       </Dynamic>
                     }
                   >
-                    {(renderer) =>
-                      createComponent(renderer, {
-                        item,
-                        get index() {
-                          return index()
-                        },
-                        get current() {
-                          return isCurrent()
-                        },
-                        get disabled() {
-                          return isDisabled()
-                        },
-                      })
-                    }
+                    {(ItemRender) => (
+                      <ItemRender
+                        item={item}
+                        index={index()}
+                        current={isCurrent()}
+                        disabled={isDisabled()}
+                      />
+                    )}
                   </Show>
                 </li>
 

@@ -254,14 +254,21 @@ export function Accordion(props: AccordionProps): JSX.Element {
           let triggerElement: HTMLButtonElement | undefined
           let spaceKeyDown = false
 
-          function renderContent(): JSX.Element {
+          function Content(): JSX.Element {
             // Create this memo only after the expanded branch mounts so closed content is not evaluated and hydration creates nodes in the same order.
             const content = createMemo(() => item.content)
 
             return (
               <Show when={content()}>
                 {(value) => (
-                  <div data-slot="accordion-body" {...resolved.styles.body}>
+                  <div
+                    ref={(element) => {
+                      // Measure natural content, independently of the shell's animated height.
+                      onCleanup(registerElement(element))
+                    }}
+                    data-slot="accordion-body"
+                    {...resolved.styles.body}
+                  >
                     {value()}
                   </div>
                 )}
@@ -411,11 +418,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
               <div
                 ref={(element) => {
                   contentElement = element
-                  const releaseDisclosure = registerElement(element)
                   const releasePresence = contentPresence.registerElement(element)
                   onCleanup(() => {
                     releasePresence()
-                    releaseDisclosure()
                     if (contentElement === element) {
                       contentElement = undefined
                     }
@@ -445,7 +450,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 })}
               >
                 <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
-                  {renderContent()}
+                  <Content />
                 </Show>
               </div>
             </div>

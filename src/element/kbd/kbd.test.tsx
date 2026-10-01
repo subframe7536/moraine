@@ -7,6 +7,7 @@ import { defineTheme } from '../../theme'
 
 import { Kbd } from './kbd'
 import { KbdGroup } from './kbd-group'
+import type { KbdGroupT } from './kbd-group.types'
 
 describe('Kbd', () => {
   test('renders component defaults when provider is absent', () => {
@@ -212,18 +213,15 @@ describe('KbdGroup', () => {
     const [text, setText] = createSignal('+')
     let mounts = 0
     let cleanups = 0
-    const view = render(() => (
-      <KbdGroup
-        items={items()}
-        separator={(props) => {
-          mounts += 1
-          onCleanup(() => {
-            cleanups += 1
-          })
-          return <span data-index={props.index}>{text()}</span>
-        }}
-      />
-    ))
+    const SeparatorRender = (props: KbdGroupT.SeparatorRenderProps) => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span data-index={props.index}>{text()}</span>
+    }
+    const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>(SeparatorRender)
+    const view = render(() => <KbdGroup items={items()} separator={separator()} />)
     const separators = [...view.container.querySelectorAll('span')]
     expect(separators).toHaveLength(2)
     expect(separators[0]).not.toBe(separators[1])
@@ -231,11 +229,27 @@ describe('KbdGroup', () => {
     expect([...view.container.querySelectorAll('span')]).toEqual(separators)
     expect(separators.map((node) => node.textContent)).toEqual(['/', '/'])
     expect([mounts, cleanups]).toEqual([2, 0])
-    setItems(['Ctrl', 'Shift'])
+    setItems(['Shift', 'Ctrl', 'P'])
+    expect([...view.container.querySelectorAll('span')]).toEqual([separators[1], separators[0]])
+    expect(separators.map((node) => node.dataset.index)).toEqual(['1', '0'])
+    expect([mounts, cleanups]).toEqual([2, 0])
+    setItems(['Shift', 'Ctrl'])
     expect(view.container.querySelectorAll('span')).toHaveLength(1)
     expect(cleanups).toBe(1)
-    view.unmount()
+    setSeparator('/')
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧/Ctrl')
+    expect(view.container.querySelectorAll('span')).toHaveLength(0)
     expect(cleanups).toBe(2)
+    setSeparator(() => SeparatorRender)
+    expect(view.container.querySelectorAll('span')).toHaveLength(1)
+    expect([mounts, cleanups]).toEqual([3, 2])
+    setSeparator(0)
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧0Ctrl')
+    expect(cleanups).toBe(3)
+    setSeparator(undefined)
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+Ctrl')
+    view.unmount()
+    expect(cleanups).toBe(3)
   })
 
   test('propagates size and variant to generated Kbd items', () => {

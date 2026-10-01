@@ -1,14 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Setter } from 'solid-js'
-import {
-  Show,
-  createComponent,
-  createMemo,
-  createSignal,
-  onCleanup,
-  onMount,
-  splitProps,
-} from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { Icon } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd'
@@ -252,17 +244,16 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         when={itemRender() === undefined}
         fallback={
           <Show when={itemRender()} keyed>
-            {(renderer) =>
-              createComponent(
-                renderer,
-                getItemRenderProps(
+            {(ItemRender) => (
+              <ItemRender
+                {...getItemRenderProps(
                   contentProps.item,
                   contentProps.hasChildren,
                   contentProps.isCheckbox,
                   contentProps.isRadio,
-                ),
-              )
-            }
+                )}
+              />
+            )}
           </Show>
         }
       >
