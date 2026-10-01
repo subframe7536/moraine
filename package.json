@@ -81,38 +81,38 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.8.0",
+    "@floating-ui/dom": "catalog:",
     "@formisch/solid": "^1.1.0",
-    "cn": "^0.4.0"
+    "cn": "catalog:"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.129",
+    "@iconify-json/lucide": "catalog:",
     "@iconify/tailwind": "1.2.0",
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.4.0",
-    "@tanstack/virtual-core": "^3.17.8",
-    "@types/node": "^24.13.3",
+    "@tanstack/virtual-core": "^3.17.11",
+    "@types/node": "^24.19.0",
     "bumpp": "^11.1.0",
     "jsdom": "^30.1.1",
-    "magic-string": "^1.2.3",
-    "oxfmt": "^0.70.0",
-    "oxlint": "^1.81.0",
-    "oxlint-tsgolint": "^7.0.2001",
+    "magic-string": "^1.4.2",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "oxlint-tsgolint": "^7.0.2003",
     "rolldown-plugin-unocss": "^0.1.0",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "catalog:",
     "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
-    "valibot": "^1.4.2",
-    "vite": "^8.2.2",
-    "vite-plugin-solid": "^2.11.14",
-    "vitest": "^5.0.1"
+    "valibot": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:",
+    "vitest": "^5.0.3"
   },
   "peerDependencies": {
     "@iconify/tailwind": "1.2.0",
-    "@subf/unocss": "^0.3.0",
+    "@subf/unocss": "catalog:peers",
     "@tanstack/virtual-core": "^3.17.4",
-    "solid-js": "^1.9.15",
-    "tailwindcss": "^4.0.0"
+    "solid-js": "catalog:",
+    "tailwindcss": "catalog:peers"
   },
   "peerDependenciesMeta": {
     "@iconify/tailwind": {
