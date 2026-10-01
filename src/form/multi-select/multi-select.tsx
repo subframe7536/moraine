@@ -3,7 +3,7 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -313,15 +313,18 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
-                  when={local.tagRender !== undefined}
-                  fallback={tags.renderDefault(tag, index)}
+                  when={local.tagRender}
+                  fallback={<tags.DefaultTag tag={tag} index={index()} />}
+                  keyed
                 >
-                  {renderComponentOrElement(local.tagRender, {
-                    item: source().byValue.get(tag.value),
-                    value: tag.value,
-                    label: tag.label,
-                    onClose: () => tags.remove(index()),
-                  } satisfies MultiSelectT.TagRenderProps<T>)}
+                  {(TagRender) => (
+                    <TagRender
+                      item={source().byValue.get(tag.value)}
+                      value={tag.value}
+                      label={tag.label}
+                      onClose={() => tags.remove(index())}
+                    />
+                  )}
                 </Show>
               )}
             </For>
@@ -338,7 +341,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   </span>
                 }
               >
-                {renderComponentOrElement(local.tagOverflow, {
+                {renderWithProps(local.tagOverflow, {
                   get count() {
                     return tags.overflow()
                   },
@@ -487,28 +490,33 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           view={search.view()}
           onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
-          renderEmpty={() =>
-            local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
-                  get inputValue() {
-                    return search.value()
-                  },
-                  get hasMatches() {
-                    return state.items().length > 0
-                  },
-                  get selectedValues() {
-                    return state.value()
-                  },
-                  get isAtMaxCount() {
-                    return atMax()
-                  },
-                  create,
-                  close: () => state.setOpen(false),
-                })
-              : local.createItem && search.value()
-                ? `Press Enter to create “${search.value()}”`
-                : 'No items'
-          }
+          emptyRender={() => (
+            <Show
+              when={local.emptyRender !== undefined}
+              fallback={
+                <Show when={local.createItem && search.value()} fallback="No items">
+                  {(value) => `Press Enter to create “${value()}”`}
+                </Show>
+              }
+            >
+              {renderWithProps(local.emptyRender, {
+                get inputValue() {
+                  return search.value()
+                },
+                get hasMatches() {
+                  return state.items().length > 0
+                },
+                get selectedValues() {
+                  return state.value()
+                },
+                get isAtMaxCount() {
+                  return atMax()
+                },
+                create,
+                close: () => state.setOpen(false),
+              })}
+            </Show>
+          )}
         />
       </>
     )

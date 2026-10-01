@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../../element/icon'
 import type { SlotBinding as ComponentSlotBinding } from '../../../provider/create-styles'
-import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
 import type {
   SlotClassValue,
@@ -190,8 +189,8 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
    */
   shift?: number
 
-  /** Custom renderer for individual items. */
-  itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
+  /** Renderer for each menu item. */
+  itemRender?: (props: OverlayMenuSharedItemRenderProps<TItem>) => JSX.Element
 
   /** Additional attributes for each menu layer content element. */
   contentProps?: Omit<ElementProps<HTMLDivElement>, 'children'>

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
@@ -176,7 +176,7 @@ export function Progress(props: ProgressProps): JSX.Element {
                 style={{ ...statusStyle(), ...resolved.styles.status.style }}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
-                  {renderComponentOrElement(statusRender(), {
+                  {renderWithProps(statusRender(), {
                     get percent() {
                       return percent()
                     },
@@ -198,37 +198,23 @@ export function Progress(props: ProgressProps): JSX.Element {
       </div>
 
       <Show when={hasSteps()}>
-        {(_hasSteps) => {
-          const stepRender = createMemo(() => local.stepRender)
-
-          return (
-            <div data-slot="progress-steps" {...resolved.styles.steps}>
-              <For each={steps()}>
-                {(step, index) => (
-                  <div
-                    data-slot="progress-step"
-                    {...progressDataAttributes.step({ state: () => stepState(index()) })}
-                    {...resolved.styles.step}
-                  >
-                    <Show when={stepRender() !== undefined} fallback={step}>
-                      {renderComponentOrElement(stepRender(), {
-                        get step() {
-                          return step
-                        },
-                        get index() {
-                          return index()
-                        },
-                        get state() {
-                          return stepState(index())
-                        },
-                      })}
-                    </Show>
-                  </div>
-                )}
-              </For>
-            </div>
-          )
-        }}
+        <div data-slot="progress-steps" {...resolved.styles.steps}>
+          <For each={steps()}>
+            {(step, index) => (
+              <div
+                data-slot="progress-step"
+                {...progressDataAttributes.step({ state: () => stepState(index()) })}
+                {...resolved.styles.step}
+              >
+                <Show when={local.stepRender} fallback={step} keyed>
+                  {(StepRender) => (
+                    <StepRender step={step} index={index()} state={stepState(index())} />
+                  )}
+                </Show>
+              </div>
+            )}
+          </For>
+        </div>
       </Show>
     </div>
   )

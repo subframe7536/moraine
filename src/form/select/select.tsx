@@ -3,7 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { useFieldContext } from '../field/field-context'
@@ -112,19 +112,19 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
           {...local}
           view={source()}
           slot={(slot) => styles.styles[slot]}
-          renderEmpty={() =>
-            local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
-                  get hasMatches() {
-                    return state.items().length > 0
-                  },
-                  get selectedValue() {
-                    return state.value()[0] ?? null
-                  },
-                  close: () => state.setOpen(false),
-                })
-              : 'No items'
-          }
+          emptyRender={() => (
+            <Show when={local.emptyRender !== undefined} fallback="No items">
+              {renderWithProps(local.emptyRender, {
+                get hasMatches() {
+                  return state.items().length > 0
+                },
+                get selectedValue() {
+                  return state.value()[0] ?? null
+                },
+                close: () => state.setOpen(false),
+              })}
+            </Show>
+          )}
         />
       </>
     )

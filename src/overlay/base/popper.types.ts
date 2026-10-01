@@ -1,6 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
 
@@ -206,8 +205,8 @@ export interface PopperContentOptions {
   slide?: boolean
 }
 export interface PopperContentProps extends PopperContentOptions {
-  /** Component or element rendered inside the positioned content. */
-  children: ComponentOrElement<PopperContentContext>
+  /** Content or render function inside the positioned content. */
+  children: JSX.Element | ((props: PopperContentContext) => JSX.Element)
 
   /** Class applied to the positioning wrapper. */
   positionerClass?: string

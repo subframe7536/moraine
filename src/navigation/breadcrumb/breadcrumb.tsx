@@ -5,7 +5,6 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../element/icon'
 import type { IconT } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { renderComponentOrElement } from '../../shared/render-prop'
 import { callRef } from '../../shared/utils'
 
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
@@ -30,7 +29,6 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
 
   const items = createMemo(() => local.items ?? [])
-  const itemRender = createMemo(() => local.itemRender)
   const currentIndex = createMemo(() => {
     const resolvedItems = items()
     const explicitIndex = resolvedItems.findIndex((item) => item.active)
@@ -62,7 +60,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
               <>
                 <li data-slot="breadcrumb-item" {...resolved.styles.item}>
                   <Show
-                    when={itemRender()}
+                    when={local.itemRender}
+                    keyed
                     fallback={
                       <Dynamic
                         component={isCurrent() || isDisabled() ? 'span' : 'a'}
@@ -97,20 +96,14 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       </Dynamic>
                     }
                   >
-                    {(renderer) =>
-                      renderComponentOrElement(renderer(), {
-                        item,
-                        get index() {
-                          return index()
-                        },
-                        get current() {
-                          return isCurrent()
-                        },
-                        get disabled() {
-                          return isDisabled()
-                        },
-                      })
-                    }
+                    {(ItemRender) => (
+                      <ItemRender
+                        item={item}
+                        index={index()}
+                        current={isCurrent()}
+                        disabled={isDisabled()}
+                      />
+                    )}
                   </Show>
                 </li>
 

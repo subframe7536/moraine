@@ -102,8 +102,8 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "ComponentOrElement<EmptyRenderProps<TItem>>",
-          "description": "Custom renderer for the empty state when current filtered result has no matches."
+          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "description": "Content or render function for the empty state."
         },
         {
           "name": "filterItem",
@@ -152,8 +152,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<TItem>>",
-          "description": "Custom item presentation."
+          "type": "(props: BaseSelectT.ItemRenderProps<TItem>) => JSX.Element",
+          "description": "Renderer for each collection item."
         },
         {
           "name": "items",
@@ -365,14 +365,14 @@
         {
           "name": "tagOverflow",
           "optional": true,
-          "type": "ComponentOrElement<TagOverflowRenderProps<TItem>>",
-          "description": "Custom renderer for tags hidden by `maxTagCount`."
+          "type": "JSX.Element | ((props: TagOverflowRenderProps<TItem>) => JSX.Element)",
+          "description": "Content or render function for tags hidden by `maxTagCount`."
         },
         {
           "name": "tagRender",
           "optional": true,
-          "type": "ComponentOrElement<TagRenderProps<TItem>>",
-          "description": "Custom renderer for each selected tag."
+          "type": "(props: TagRenderProps<TItem>) => JSX.Element",
+          "description": "Renderer for each selected tag."
         },
         {
           "name": "tokenSeparators",

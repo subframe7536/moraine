@@ -36,8 +36,8 @@
         {
           "name": "separator",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Inline content rendered between keys.",
+          "type": "string | number | ((props: SeparatorRenderProps) => JSX.Element)",
+          "description": "String or number shorthand, or a renderer for each separator between keys.",
           "default": {
             "kind": "literal",
             "value": "+"

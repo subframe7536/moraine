@@ -173,31 +173,31 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     return true
   }
 
-  function renderDefault(tag: TagsFieldEntry<TValue>, index: Accessor<number>): JSX.Element {
+  function DefaultTag(tagProps: { tag: TagsFieldEntry<TValue>; index: number }): JSX.Element {
     return (
-      <span title={tag.title} data-slot={options.slotName('tag')} {...options.slot('tag')}>
+      <span title={tagProps.tag.title} data-slot={options.slotName('tag')} {...options.slot('tag')}>
         <span
-          title={tag.title}
+          title={tagProps.tag.title}
           data-slot={options.slotName('tagLabel')}
           {...options.slot('tagLabel')}
         >
-          {tag.label}
+          {tagProps.tag.label}
         </span>
         <button
           type="button"
           data-slot={options.slotName('tagRemove')}
-          aria-label={`Remove ${tag.title}`}
+          aria-label={`Remove ${tagProps.tag.title}`}
           tabIndex={-1}
-          disabled={!tag.removable}
+          disabled={!tagProps.tag.removable}
           {...options.slot('tagRemove')}
           ref={(element) => {
-            removeButtons[index()] = element
+            removeButtons[tagProps.index] = element
           }}
           onPointerDown={isolatePointer}
-          onKeyDown={(event) => onRemoveKeyDown(event, index())}
+          onKeyDown={(event) => onRemoveKeyDown(event, tagProps.index)}
           onClick={(event) => {
             event.stopPropagation()
-            remove(index())
+            remove(tagProps.index)
           }}
         >
           <Icon name={options.closeIcon() ?? 'icon-close'} />
@@ -216,6 +216,6 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     isolatePointer,
     tokenize,
     onPaste,
-    renderDefault,
+    DefaultTag,
   }
 }

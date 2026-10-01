@@ -256,8 +256,8 @@
         {
           "name": "children",
           "optional": false,
-          "type": "ComponentOrElement<ContentRenderProps>",
-          "description": "Component or element rendered inside the modal content surface."
+          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
+          "description": "Content or render function inside the modal content surface."
         },
         {
           "name": "class",

@@ -3,7 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
@@ -200,22 +200,22 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           view={search.view()}
           onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
-          renderEmpty={() =>
-            local.emptyRender !== undefined
-              ? renderComponentOrElement(local.emptyRender, {
-                  get inputValue() {
-                    return search.value()
-                  },
-                  get hasMatches() {
-                    return state.items().length > 0
-                  },
-                  get selectedValue() {
-                    return state.value()[0] ?? null
-                  },
-                  close: () => state.setOpen(false),
-                })
-              : 'No items'
-          }
+          emptyRender={() => (
+            <Show when={local.emptyRender !== undefined} fallback="No items">
+              {renderWithProps(local.emptyRender, {
+                get inputValue() {
+                  return search.value()
+                },
+                get hasMatches() {
+                  return state.items().length > 0
+                },
+                get selectedValue() {
+                  return state.value()[0] ?? null
+                },
+                close: () => state.setOpen(false),
+              })}
+            </Show>
+          )}
         />
       </>
     )

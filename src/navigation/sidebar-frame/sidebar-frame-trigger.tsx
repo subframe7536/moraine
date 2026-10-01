@@ -2,9 +2,9 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callRef } from '../../shared/utils'
 
 import { useSidebarFrameContext } from './sidebar-frame-context'
 import { sidebarFrameDataAttributes } from './sidebar-frame.recipe'
@@ -17,23 +17,26 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style', 'ref'])
   const context = useSidebarFrameContext()
   const tag = createMemo(() => local.as ?? 'button')
+  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
   const disabled = () => Boolean(local.disabled)
 
   const interactionProps = useButtonInteraction(
     {
       disabled,
+      element: root.element,
       disabledForComponent: true,
       onPress: context.toggle,
       tag,
     },
     rest,
   )
+  const binding = root.bind(interactionProps)
   const children = resolveChildren(() => local.children)
 
   return (
     <Dynamic
       data-slot="sidebar-frame-trigger"
-      {...interactionProps}
+      {...binding}
       component={tag()}
       class={local.class}
       style={local.style}
@@ -43,7 +46,6 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
         closed: () => !context.isOpen(),
         disabled,
       })}
-      ref={(element: HTMLElement) => callRef(local.ref, element)}
     >
       {children()}
     </Dynamic>

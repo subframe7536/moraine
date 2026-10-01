@@ -1,8 +1,7 @@
-import type { Component, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { ListT } from '../../element/list'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -37,10 +36,10 @@ export namespace CommandPaletteT {
     description?: string
     /** Additional keywords included in built-in search matching. */
     keywords?: string[]
-    /** Custom visual rendered at the start of the item. */
-    leadingRender?: ComponentOrElement<ItemRenderProps>
-    /** Custom visual rendered at the end of the item. */
-    trailingRender?: ComponentOrElement<ItemRenderProps>
+    /** Content or render function at the start of this item. */
+    leadingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element)
+    /** Content or render function at the end of this item. */
+    trailingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element)
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
@@ -174,12 +173,12 @@ export namespace CommandPaletteT {
     getItemSearchText?: (item: TItem, group: Group<TItem>) => string
     /** Custom filter function that fully controls which groups and items are visible. */
     filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
-    /** Custom empty state renderer. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /** Custom footer renderer. */
-    footerRender?: ComponentOrElement<FooterRenderProps<TItem>>
-    /** Custom command row content renderer. */
-    itemRender?: ComponentOrElement<ItemRenderProps<TItem>>
+    /** Content or render function for the empty state. */
+    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
+    /** Content or render function for the footer. */
+    footerRender?: JSX.Element | ((props: FooterRenderProps<TItem>) => JSX.Element)
+    /** Renderer for each command row. */
+    itemRender?: (props: ItemRenderProps<TItem>) => JSX.Element
     /** Renders flattened group labels and commands through a virtualization layer. */
     virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted command into view using its flattened entry index. */

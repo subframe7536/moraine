@@ -1,7 +1,6 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, ComponentSize } from '../../theme/style-types'
 
@@ -105,9 +104,9 @@ export namespace BreadcrumbT {
     size?: ComponentSize
 
     /**
-     * Custom renderer for individual breadcrumb items.
+     * Renderer for each breadcrumb item.
      */
-    itemRender?: ComponentOrElement<ItemRenderProps>
+    itemRender?: (props: ItemRenderProps) => JSX.Element
   }
 
   /**

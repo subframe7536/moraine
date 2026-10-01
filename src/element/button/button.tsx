@@ -1,21 +1,14 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createMemo,
-  createSignal,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
-import { callRef } from '../../shared/utils'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
@@ -60,7 +53,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
-  const [rootElement, setRootElement] = createSignal<HTMLElement>()
+  const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const leading = createMemo(() => local.leading)
@@ -98,7 +91,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const interactionProps = useButtonInteraction(
     {
       disabled: isDisabledOrLoading,
-      element: rootElement,
+      disabledForComponent: true,
+      element: root.element,
       focusableWhenDisabled: () => isLoading() && !local.disabled,
       onClickOverride: onClick,
       tag,
@@ -106,9 +100,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     rest,
   )
 
+  const binding = root.bind(interactionProps)
   const child = resolveChildren(() => local.children)
   const resolvedChildren = createMemo(() =>
-    renderComponentOrElement(child(), {
+    renderWithProps(child(), {
       get loading() {
         return isLoading()
       },
@@ -127,18 +122,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         loading: isLoading,
         disabled: () => local.disabled,
       })}
-      {...interactionProps}
+      {...binding}
       component={tag()}
-      ref={(element: HTMLElement) => {
-        setRootElement(element)
-        callRef(local.ref, element)
-        onCleanup(() => {
-          if (rootElement() === element) {
-            setRootElement(undefined)
-          }
-          callRef(local.ref, undefined)
-        })
-      }}
       {...resolved.styles.root}
     >
       <Show when={resolvedLeading()}>

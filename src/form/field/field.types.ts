@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -55,8 +54,8 @@ export namespace FieldT {
     disabled?: boolean
     /** Whether controls inherit a read-only state. */
     readOnly?: boolean
-    /** Children of the field, can be a render function. */
-    children?: ComponentOrElement<RenderProps>
+    /** Content or render function receiving the field state. */
+    children?: JSX.Element | ((props: RenderProps) => JSX.Element)
   }
 
   /** Props for the Field component. */

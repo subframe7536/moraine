@@ -281,8 +281,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<ItemRenderProps>",
-          "description": "Custom renderer for individual items."
+          "type": "(props: ItemRenderProps) => JSX.Element",
+          "description": "Renderer for each menu item."
         },
         {
           "name": "items",

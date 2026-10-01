@@ -11,12 +11,12 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js'
-import { Dynamic, Portal, delegateEvents } from 'solid-js/web'
+import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { attachEventListener } from '../../shared/event-listener'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -163,12 +163,18 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   ])
   const context = untrack(() => props.context)
   const tag = () => local.as ?? 'button'
+  const root = createPolymorphicRoot({
+    tag,
+    bridgeClick: true,
+    ref: () => local.ref,
+    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+  })
   const disabled = () => Boolean(local.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
-      element: context.triggerElement,
+      element: root.element,
       tag,
       onPress: () => {
         if (local.toggleOnClick ?? true) {
@@ -207,61 +213,9 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     interaction,
   )
   const children = resolveChildren(() => local.children)
-  const [, triggerAttributes] = splitProps(binding, ['onClick'])
-  let currentTrigger: HTMLElement | undefined
-  let releaseTrigger: VoidFunction = () => {}
-  function setTriggerRef(element: HTMLElement | undefined): void {
-    if (currentTrigger === element) {
-      return
-    }
-    releaseTrigger()
-    releaseTrigger = () => {}
-    if (element || context.triggerElement() === currentTrigger) {
-      context.setTriggerElement(element)
-    }
-    currentTrigger = element
-    callRef(local.ref, element)
-    if (!element) {
-      return
-    }
-    // Let a custom root cancel the click before handling it on the document.
-    if (typeof tag() === 'function') {
-      delegateEvents(['click'], document)
-    }
-    const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map((key) =>
-      attachEventListener(
-        element,
-        key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-        (event) => {
-          if (element.ownerDocument !== document) {
-            ;(interaction[key] as EventListener)(event)
-          }
-        },
-      ),
-    )
-    if (typeof tag() === 'function') {
-      releases.push(
-        attachEventListener(document, 'click', (event) => {
-          if (event.target instanceof Node && element.contains(event.target)) {
-            callHandler(event, interaction.onClick)
-          }
-        }),
-      )
-    }
-    releaseTrigger = () => {
-      releases.forEach((release) => release())
-    }
-  }
-  onCleanup(() => setTriggerRef(undefined))
+  const rootBinding = root.bind(binding)
   return (
-    <Dynamic
-      {...triggerAttributes}
-      onClick={typeof tag() === 'function' ? undefined : interaction.onClick}
-      component={tag()}
-      class={cn(local.class)}
-      style={local.style}
-      ref={setTriggerRef}
-    >
+    <Dynamic {...rootBinding} component={tag()} class={cn(local.class)} style={local.style}>
       {children()}
     </Dynamic>
   )
@@ -558,7 +512,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     <Show when={contentMounted()}>
       {(_present) => {
         const content = resolveChildren(() =>
-          renderComponentOrElement(props.children, {
+          renderWithProps(props.children, {
             close: () => context.setOpen(false),
             contentProps,
             currentPlacement,

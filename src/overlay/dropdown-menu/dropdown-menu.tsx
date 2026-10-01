@@ -8,24 +8,19 @@ import {
   on,
   onMount,
   splitProps,
-  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
-import { createId } from '../../shared/utils'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callHandler, createId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
-import type { OverlayTriggerBinding } from '../base/trigger'
-import {
-  createOverlayTriggerRef,
-  getOverlayTriggerAccessibility,
-  mergeMenuTriggerProps,
-  validateOverlayTrigger,
-} from '../base/trigger'
+import { validateOverlayTrigger } from '../base/trigger'
 
 import { dropdownMenuDataAttributes, dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
@@ -42,7 +37,7 @@ function createDropdownMenu(props: DropdownMenuProps) {
   })
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
-  const trigger = createOverlayTriggerRef()
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement>()
 
   const triggerDataAttrs = dropdownMenuDataAttributes.trigger({
     closed: () => !isOpen(),
@@ -54,70 +49,12 @@ function createDropdownMenu(props: DropdownMenuProps) {
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined
     },
-    'aria-haspopup': 'menu',
+    'aria-haspopup': 'menu' as const,
     get 'aria-expanded'() {
       return isOpen() ? 'true' : 'false'
     },
     'data-slot': 'dropdown-menu-trigger',
-    get disabled() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).disabled
-    },
-    get 'aria-disabled'() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).ariaDisabled
-    },
-    get tabIndex() {
-      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).tabIndex
-    },
-    ref: (element: HTMLElement | undefined) => {
-      trigger.ref(element)
-    },
-    onClick: (event: MouseEvent) => {
-      if (event.defaultPrevented || props.disabled) {
-        return
-      }
-
-      if (isOpen()) {
-        commitOpen(false)
-        return
-      }
-
-      openWithStrategy('content')
-    },
-    onKeyDown: (event: KeyboardEvent) => {
-      if (event.defaultPrevented || props.disabled) {
-        return
-      }
-
-      if (event.key === 'Escape' && isOpen()) {
-        event.preventDefault()
-        commitOpen(false)
-        return
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        openWithStrategy('first')
-        return
-      }
-
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        openWithStrategy('last')
-        return
-      }
-
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-
-        if (isOpen()) {
-          commitOpen(false)
-          return
-        }
-
-        openWithStrategy('first')
-      }
-    },
-  }) as OverlayTriggerBinding
+  })
 
   createEffect(
     on(
@@ -160,7 +97,12 @@ function createDropdownMenu(props: DropdownMenuProps) {
       return { classes: props.classes, styles: props.styles }
     },
     triggerProps,
-    triggerElement: trigger.element,
+    triggerElement,
+    setTriggerElement,
+    disabled: () => Boolean(props.disabled),
+    isOpen,
+    commitOpen,
+    openWithStrategy,
     menuProps: {
       get id() {
         return resolvedId()
@@ -170,7 +112,7 @@ function createDropdownMenu(props: DropdownMenuProps) {
       },
       onClose: () => commitOpen(false),
       get triggerElement() {
-        return trigger.element()
+        return triggerElement()
       },
       get placement() {
         return props.placement
@@ -210,24 +152,88 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
 function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'children',
+    'class',
+    'style',
+    'disabled',
+    'ref' as any,
+  ])
   const context = useDropdownMenuContext()
 
   const resolved = createStyles(dropdownMenuRecipe, local, {
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const customTrigger = createMemo(() => typeof local.as === 'function')
-  const binding = untrack(() => mergeMenuTriggerProps(rest, context.triggerProps, customTrigger))
-  const [, triggerAttributes] = splitProps(binding, ['onClick'])
+  const tag = () => local.as ?? 'button'
+  const root = createPolymorphicRoot({
+    tag,
+    bridgeClick: true,
+    ref: () => local.ref,
+    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+  })
+  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const userEvents = rest as Record<string, unknown>
+  let keyboardActivation = false
+  const events = mergeProps(rest, {
+    onKeyDown(event: KeyboardEvent) {
+      callHandler(event, userEvents.onKeyDown)
+      if (event.defaultPrevented || disabled() || event.target !== event.currentTarget) {
+        return
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault()
+        context.openWithStrategy(event.key === 'ArrowDown' ? 'first' : 'last')
+      } else if (event.key === 'Escape' && context.isOpen()) {
+        event.preventDefault()
+        context.commitOpen(false)
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        keyboardActivation = true
+      }
+    },
+    onKeyUp(event: KeyboardEvent) {
+      callHandler(event, userEvents.onKeyUp)
+      queueMicrotask(() => {
+        keyboardActivation = false
+      })
+    },
+    onBlur(event: FocusEvent) {
+      keyboardActivation = false
+      callHandler(event, userEvents.onBlur)
+    },
+    onPointerDown(event: PointerEvent) {
+      keyboardActivation = false
+      callHandler(event, userEvents.onPointerDown)
+    },
+  })
+  const interaction = useButtonInteraction(
+    {
+      tag,
+      element: root.element,
+      disabled,
+      disabledForComponent: true,
+      manualKeyboardActivation: true,
+      onPress(event) {
+        const strategy = keyboardActivation && event.detail === 0 ? 'first' : 'content'
+        keyboardActivation = false
+        if (context.isOpen()) {
+          context.commitOpen(false)
+        } else {
+          context.openWithStrategy(strategy)
+        }
+      },
+    },
+    events,
+  )
+  const triggerProps = mergeProps(context.triggerProps, interaction)
+  const binding = root.bind(triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
     <Dynamic
-      component={local.as ?? 'button'}
-      type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
-      {...triggerAttributes}
-      onClick={customTrigger() ? undefined : binding.onClick}
+      component={tag()}
+      {...binding}
       data-slot="dropdown-menu-trigger"
       {...resolved.styles.trigger}
     >

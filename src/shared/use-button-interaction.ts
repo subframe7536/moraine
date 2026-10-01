@@ -13,10 +13,12 @@ export interface UseButtonInteractionOptions {
   focusableWhenDisabled?: Accessor<boolean>
   /** Whether custom component roots should receive disabled before their DOM root resolves. */
   disabledForComponent?: boolean
+  /** Uses the shared keyboard click path for native roots as well. */
+  manualKeyboardActivation?: boolean
   /** Replaces the caller click handler while preserving Button interaction semantics. */
   onClickOverride?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
   /** Semantic action performed after an uncancelled click. */
-  onPress?: () => void
+  onPress?: (event: MouseEvent) => void
   tag: Accessor<ValidComponent>
 }
 
@@ -74,6 +76,7 @@ export function useButtonInteraction(
   }
 
   const needsButtonRole = () => !isNativeButton() && !isNativeLink()
+  const handlesKeyboardActivation = () => needsButtonRole() || options.manualKeyboardActivation
   let spaceKeyDownArmed = false
 
   const onKeyDown = (event: KeyboardEvent): void => {
@@ -92,7 +95,7 @@ export function useButtonInteraction(
     }
 
     const { defaultPrevented } = callHandler<HTMLElement, KeyboardEvent>(event, props.onKeyDown)
-    if (defaultPrevented || !isCurrentTarget || !needsButtonRole()) {
+    if (defaultPrevented || !isCurrentTarget || !handlesKeyboardActivation()) {
       return
     }
 
@@ -113,7 +116,7 @@ export function useButtonInteraction(
       event.key === ' ' &&
       spaceKeyDownArmed &&
       event.target === event.currentTarget &&
-      needsButtonRole()
+      handlesKeyboardActivation()
 
     if (event.key === ' ') {
       spaceKeyDownArmed = false
@@ -138,7 +141,11 @@ export function useButtonInteraction(
   const interactionProps = mergeProps(props, {
     get type() {
       if (isNativeButton()) {
-        return props.type ?? 'button'
+        const element = options.element?.()
+        return (
+          props.type ??
+          (element?.localName === 'input' ? (element as HTMLInputElement).type : 'button')
+        )
       }
       return props.type
     },
@@ -146,15 +153,19 @@ export function useButtonInteraction(
       return props.role ?? (needsButtonRole() ? 'button' : undefined)
     },
     get tabIndex() {
-      if (!needsButtonRole()) {
-        return props.tabIndex
-      }
-
       if (props.tabIndex !== undefined) {
         return props.tabIndex
       }
 
-      return !options.disabled() || isFocusableWhenDisabled() ? 0 : undefined
+      if (options.disabled() && !isNativeButton() && !isFocusableWhenDisabled()) {
+        return -1
+      }
+
+      if (!needsButtonRole()) {
+        return undefined
+      }
+
+      return 0
     },
     get 'aria-disabled'() {
       if (!options.disabled()) {
@@ -162,7 +173,7 @@ export function useButtonInteraction(
       }
 
       if (!isNativeButton() || isFocusableWhenDisabled()) {
-        return true
+        return props['aria-disabled'] ?? true
       }
 
       return props['aria-disabled']
@@ -194,7 +205,7 @@ export function useButtonInteraction(
         options.onClickOverride ?? props.onClick,
       )
       if (!defaultPrevented) {
-        options.onPress?.()
+        options.onPress?.(event)
       }
     },
     onKeyDown,

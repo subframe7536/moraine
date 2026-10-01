@@ -39,7 +39,15 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 {...resolved.styles.item}
                 slotName="kbd-group-item"
               />
-              <Show when={index() < local.items.length - 1}>{local.separator ?? '+'}</Show>
+              <Show when={index() < local.items.length - 1}>
+                <Show
+                  when={typeof local.separator === 'function' && local.separator}
+                  fallback={(local.separator as string | number) ?? '+'}
+                  keyed
+                >
+                  {(SeparatorRender) => <SeparatorRender index={index()} />}
+                </Show>
+              </Show>
             </>
           )}
         </For>

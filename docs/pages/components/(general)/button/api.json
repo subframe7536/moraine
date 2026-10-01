@@ -34,8 +34,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "ComponentOrElement<{ loading: boolean }>",
-          "description": "Children of the button. Supports render function form."
+          "type": "JSX.Element | ((props: { loading: boolean }) => JSX.Element)",
+          "description": "Content or render function receiving the loading state."
         },
         {
           "name": "class",

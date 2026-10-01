@@ -668,6 +668,79 @@ describe('Accordion', () => {
     }
   })
 
+  test('remeasures natural content height when an open item grows or shrinks', async () => {
+    let naturalHeight = 48
+    const observers: { notify: () => void; disconnect: ReturnType<typeof vi.fn> }[] = []
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        disconnect = vi.fn()
+        observe = vi.fn()
+        unobserve = vi.fn()
+
+        constructor(callback: ResizeObserverCallback) {
+          observers.push({ notify: () => callback([], this), disconnect: this.disconnect })
+        }
+      },
+    )
+    const scrollHeight = vi
+      .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.dataset.slot === 'accordion-body') {
+          return naturalHeight
+        }
+        return Math.max(
+          naturalHeight,
+          Number.parseFloat(this.style.getPropertyValue('--mo-collapsible-content-height')) || 0,
+        )
+      })
+
+    try {
+      const [visible, setVisible] = createSignal(true)
+      const screen = render(() => (
+        <Accordion
+          items={[
+            {
+              value: 'one',
+              label: 'One',
+              get content() {
+                return visible() ? 'Resizable content' : undefined
+              },
+            },
+          ]}
+          defaultValue={['one']}
+        />
+      ))
+      const content = screen.getByRole('region', { name: 'One' })
+      const body = screen.getByText('Resizable content')
+      await Promise.resolve()
+      expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe('48px')
+
+      for (const height of [72, 24]) {
+        naturalHeight = height
+        observers.forEach((observer) => observer.notify())
+        await waitFor(() => {
+          expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe(
+            `${height}px`,
+          )
+        })
+      }
+
+      expect(screen.getByText('Resizable content')).toBe(body)
+      setVisible(false)
+      expect(screen.queryByText('Resizable content')).toBeNull()
+      expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe('0px')
+      setVisible(true)
+      await Promise.resolve()
+      expect(content.style.getPropertyValue('--mo-collapsible-content-height')).toBe('24px')
+      screen.unmount()
+      expect(observers.every((observer) => observer.disconnect.mock.calls.length > 0)).toBe(true)
+    } finally {
+      scrollHeight.mockRestore()
+      vi.unstubAllGlobals()
+    }
+  })
+
   test('controlled item opens from empty value with measured height', async () => {
     const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(48)
 

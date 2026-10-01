@@ -1,11 +1,10 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
-import { Dynamic, delegateEvents } from 'solid-js/web'
+import { children as resolveChildren, createMemo, onMount, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
-import { attachEventListener } from '../../shared/event-listener'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, callRef } from '../../shared/utils'
 import { validateOverlayTrigger } from '../base/trigger'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
@@ -26,57 +25,25 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   ])
   const context = useModalContext()
   const tag = createMemo(() => local.as ?? 'button')
+  const root = createPolymorphicRoot({
+    tag,
+    bridgeClick: true,
+    ref: () => local.ref,
+    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+  })
   const disabled = () => Boolean(local.disabled)
   const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
-      element: context.triggerElement,
+      element: root.element,
       onPress: () => context.updateOpen(true),
       tag,
     },
     rest,
   )
   const children = resolveChildren(() => local.children)
-  const [, triggerAttributes] = splitProps(interactionProps, ['onClick'])
-  const setTriggerRef = (element: HTMLElement | undefined) => {
-    context.setTriggerElement(element)
-    callRef(local.ref, element)
-
-    if (element) {
-      // Let a custom root cancel the click before handling it on the document.
-      if (typeof tag() === 'function') {
-        delegateEvents(['click'], document)
-      }
-      const releases = (['onClick', 'onKeyDown', 'onKeyUp', 'onPointerDown'] as const).map((key) =>
-        attachEventListener(
-          element,
-          key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-          (event) => {
-            if (element.ownerDocument !== document) {
-              ;(interactionProps[key] as EventListener)(event)
-            }
-          },
-        ),
-      )
-      if (typeof tag() === 'function') {
-        releases.push(
-          attachEventListener(document, 'click', (event) => {
-            if (event.target instanceof Node && element.contains(event.target)) {
-              callHandler(event, interactionProps.onClick)
-            }
-          }),
-        )
-      }
-      onCleanup(() => {
-        releases.forEach((release) => release())
-        if (context.triggerElement() === element) {
-          context.setTriggerElement(undefined)
-        }
-        callRef(local.ref, undefined)
-      })
-    }
-  }
+  const binding = root.bind(interactionProps)
 
   onMount(() => {
     validateOverlayTrigger(context.triggerElement(), 'Modal')
@@ -85,8 +52,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       data-slot={context.slotName('trigger')}
-      {...triggerAttributes}
-      onClick={typeof tag() === 'function' ? undefined : interactionProps.onClick}
+      {...binding}
       component={tag()}
       style={local.style}
       class={local.class}
@@ -98,7 +64,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
         closed: () => !context.open(),
         disabled,
       })}
-      ref={setTriggerRef}
     >
       {children()}
     </Dynamic>

@@ -2,7 +2,6 @@ import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../../element/icon/index'
 import type { ListT } from '../../../element/list/index'
-import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
 import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types'
 
@@ -74,8 +73,8 @@ export interface SearchProps<T extends BaseSelectT.Item> {
     | ((query: string, item: T) => boolean)
 }
 export interface ContentProps<T extends BaseSelectT.Item> {
-  /** Custom item presentation. */
-  itemRender?: ComponentOrElement<BaseSelectT.ItemRenderProps<T>>
+  /** Renderer for each collection item. */
+  itemRender?: (props: BaseSelectT.ItemRenderProps<T>) => JSX.Element
   /** Additional row attributes. */
   itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
   /** Additional listbox attributes. */

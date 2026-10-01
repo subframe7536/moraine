@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../element/button'
 import { callHandler } from '../../shared/utils'
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { renderWithTheme } from '../../test-util/theme-render'
@@ -10,6 +11,50 @@ import { renderWithTheme } from '../../test-util/theme-render'
 import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
+  test.each([
+    ['ArrowDown', 'First'],
+    ['ArrowUp', 'Last'],
+    ['Enter', 'First'],
+    [' ', 'First'],
+  ])('opens a nested Button with %s and focuses %s', async (key, label) => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as={Button}>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'First' }, { label: 'Last' }]} />
+      </DropdownMenu>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Actions' })
+    fireEvent.keyDown(trigger, { key })
+    if (key === ' ') {
+      fireEvent.keyUp(trigger, { key })
+    }
+    await waitFor(() => expect(document.activeElement?.textContent).toBe(label))
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    fireEvent.keyDown(trigger, { key: 'Escape' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('lets nested Button consumers cancel click and keyboard activation', () => {
+    const onOpenChange = vi.fn()
+    const cancel = (event: Event) => event.preventDefault()
+    const screen = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as={Button} onClick={cancel} onKeyDown={cancel}>
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Action' }]} />
+      </DropdownMenu>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Actions' })
+    fireEvent.click(trigger)
+    for (const key of ['ArrowDown', 'ArrowUp', 'Enter', ' ']) {
+      fireEvent.keyDown(trigger, { key })
+      fireEvent.keyUp(trigger, { key })
+    }
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
   test('opens once from a custom trigger', () => {
     const onOpenChange = vi.fn()
     const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (

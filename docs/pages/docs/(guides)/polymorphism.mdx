@@ -60,6 +60,8 @@ export function MenuExample() {
 }
 ```
 
+Custom components receive ordinary event props and can wrap, conditionally forward, or invoke them. Forward the root `ref` to let Moraine resolve native element semantics and manage focus. Ordinary event callbacks remain available even when the target does not forward its ref.
+
 ## Overlay Triggers and Composition
 
 Overlay triggers (`Dialog.Trigger`, `Popover.Trigger`, `Sheet.Trigger`, `DropdownMenu.Trigger`, `ContextMenu.Trigger`) are designed to be composed with `as={Button}`:
@@ -67,6 +69,8 @@ Overlay triggers (`Dialog.Trigger`, `Popover.Trigger`, `Sheet.Trigger`, `Dropdow
 1. **State Injection**: The trigger automatically injects `aria-haspopup`, `aria-expanded`, and required click or pointer handlers into the rendered element.
 2. **Event Merging**: If you provide your own `onClick` handler on `<Dialog.Trigger as={Button} onClick={...}>`, Moraine calls your handler first. If you call `event.preventDefault()`, the disclosure action is canceled.
 3. **Ref Forwarding**: Refs point directly to the underlying DOM button, allowing easy focus management.
+
+Modal, Dialog, Sheet, Popover, Tooltip, and DropdownMenu triggers handle composed clicks after a custom root's own click handler. For these triggers, the custom target does not receive the composed `onClick` prop; its own DOM click handler can call `preventDefault()` to cancel activation. Other polymorphic roots, including BaseSelect and ContextMenu triggers, forward `onClick` normally. Keyboard handlers run through the target's forwarding path in both the main document and iframe documents.
 
 ```tsx
 import { Button, Dialog } from 'moraine'

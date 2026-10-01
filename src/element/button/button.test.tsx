@@ -768,7 +768,7 @@ describe('Button', () => {
       expect(onclick).not.toHaveBeenCalled()
     })
 
-    test('blocks keyboard and pointer interactions and removes tabIndex when disabled for non-native button', async () => {
+    test('blocks keyboard and pointer interactions and removes disabled non-native buttons from tab order', async () => {
       const onclick = vi.fn()
       const onpointerdown = vi.fn()
       const screen = render(() => (
@@ -779,7 +779,7 @@ describe('Button', () => {
 
       const button = screen.getByRole('button', { name: 'Disabled' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
-      expect(button.hasAttribute('tabIndex')).toBe(false)
+      expect(button.getAttribute('tabIndex')).toBe('-1')
 
       fireEvent.keyDown(button, { key: 'Enter' })
       fireEvent.click(button)

@@ -1,11 +1,11 @@
 import type { Accessor, JSX } from 'solid-js'
-import { children as resolveChildren, onCleanup, splitProps } from 'solid-js'
+import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
+import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
@@ -31,37 +31,30 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const disabled = () => Boolean(context.disabled() || local.disabled)
 
-  const handleRef = (element: HTMLElement | undefined) => {
-    context.setTriggerElement(element)
-    callRef(local.ref, element)
-
-    if (element) {
-      onCleanup(() => {
-        if (context.triggerElement() === element) {
-          context.setTriggerElement(undefined)
-        }
-        callRef(local.ref, undefined)
-      })
-    }
-  }
+  const root = createPolymorphicRoot({
+    tag,
+    ref: () => local.ref,
+    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+  })
 
   const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
-      element: context.triggerElement,
+      element: root.element,
       onPress: context.toggle,
       tag,
     },
     rest,
   )
+  const binding = root.bind(interactionProps)
   const children = resolveChildren(() => local.children)
 
   return (
     <Dynamic
       id={context.triggerId()}
       data-slot="collapsible-trigger"
-      {...interactionProps}
+      {...binding}
       component={tag()}
       {...resolved.styles.trigger}
       aria-controls={context.contentId()}
@@ -71,7 +64,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
         closed: () => context.dataAttrs()['data-closed'],
         disabled,
       })}
-      ref={handleRef}
     >
       {children()}
     </Dynamic>

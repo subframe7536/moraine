@@ -413,8 +413,7 @@ describe('Breadcrumb', () => {
     ).toBe(true)
   })
 
-  test('reads itemRender once and invokes it once per item', () => {
-    let reads = 0
+  test('mounts one custom renderer per item', () => {
     const itemRender = vi.fn((context: BreadcrumbT.ItemRenderProps) => (
       <span data-slot="custom-item">{context.item.label}</span>
     ))
@@ -426,14 +425,10 @@ describe('Breadcrumb', () => {
           { label: 'Disabled', href: '/disabled', disabled: true },
           { label: 'Current', href: '/current', active: true },
         ],
-        get itemRender() {
-          reads += 1
-          return itemRender
-        },
+        itemRender,
       }),
     )
 
-    expect(reads).toBe(1)
     expect(itemRender).toHaveBeenCalledTimes(3)
     expect(screen.container.querySelectorAll('[data-slot="custom-item"]')).toHaveLength(3)
     expect(screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')).toHaveLength(2)

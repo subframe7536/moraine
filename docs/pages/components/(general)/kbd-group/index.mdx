@@ -72,7 +72,9 @@ The only theme slots are `root` and `item`. Separator content is rendered inline
 
 ## Usage
 
-The `separator` is inline shortcut notation such as `"+"`; it is unrelated to the standalone layout [Separator](/components/separator).
+The `separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It is unrelated to the standalone layout [Separator](/components/separator).
+
+<Preview path="./custom-separator" />
 
 ### Grouping shortcuts
 

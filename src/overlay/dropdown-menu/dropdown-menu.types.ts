@@ -1,6 +1,5 @@
 import type { JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type {
   SlotClassValue,
@@ -69,8 +68,8 @@ export namespace DropdownMenuT {
     OverlayMenuRootProps<Item>,
     keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps'
   > {
-    /** Custom renderer for individual items. */
-    itemRender?: ComponentOrElement<ItemRenderProps>
+    /** Renderer for each menu item. */
+    itemRender?: (props: ItemRenderProps) => JSX.Element
     /** Additional attributes for an interactive menu item. */
     itemProps?: (props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined
   }

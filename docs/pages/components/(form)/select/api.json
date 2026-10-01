@@ -78,8 +78,8 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "ComponentOrElement<EmptyRenderProps<TItem>>",
-          "description": "Custom renderer for the empty state when current filtered result has no matches."
+          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "description": "Content or render function for the empty state."
         },
         {
           "name": "gutter",
@@ -112,8 +112,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>>",
-          "description": "Custom item presentation."
+          "type": "(props: BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>) => JSX.Element",
+          "description": "Renderer for each collection item."
         },
         {
           "name": "items",

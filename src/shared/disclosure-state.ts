@@ -46,6 +46,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions) {
     resizeObserver = undefined
     contentEl = element
     if (!element) {
+      setContentHeight(0)
       return
     }
     measureContentHeight(element)

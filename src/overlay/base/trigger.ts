@@ -1,10 +1,6 @@
-import type { Accessor, JSX } from 'solid-js'
-import { createSignal, mergeProps, onCleanup } from 'solid-js'
-import { delegateEvents } from 'solid-js/web'
+import type { JSX } from 'solid-js'
 
-import { attachEventListener } from '../../shared/event-listener'
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils'
 import type { SlotStyleValue } from '../../theme/style-types'
 
 import { isHTMLElement, isNativeButtonElement } from './dom'
@@ -48,99 +44,7 @@ export type OverlayTriggerBinding = Omit<
   style?: SlotStyleValue
 }
 
-/** Compose consumer events before menu behavior, retaining canceled pointer-up cleanup. */
-export function mergeMenuTriggerProps<T extends object>(
-  user: T,
-  internal: OverlayTriggerBinding,
-  customTrigger: Accessor<boolean> = () => false,
-): OverlayTriggerBinding & T {
-  const userHandlers = user as Record<string, unknown>
-  const handlers: Record<string, unknown> = {}
-  const handledEvents = new WeakSet<Event>()
-  for (const key of [
-    'onClick',
-    'onKeyDown',
-    'onContextMenu',
-    'onPointerDown',
-    'onPointerMove',
-    'onPointerUp',
-    'onPointerCancel',
-  ] as const) {
-    handlers[key] = (event: Event) => {
-      if (handledEvents.has(event)) {
-        return
-      }
-      handledEvents.add(event)
-      callHandler(event, userHandlers[key])
-      if (userHandlers.disabled) {
-        event.preventDefault()
-      }
-      callHandler(event, internal[key])
-    }
-  }
-  const triggerProps = mergeProps(internal, user, handlers, {
-    ref: (element: HTMLElement | undefined) => {
-      internal.ref(element)
-      callRef(userHandlers.ref, element)
-      if (element) {
-        // A custom root may cancel a click after spreading trigger props.
-        if (customTrigger()) {
-          delegateEvents(['click'], document)
-        }
-        const releases = Object.entries(handlers).map(([key, handler]) =>
-          attachEventListener(
-            element,
-            key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-            (event) => {
-              if (element.ownerDocument !== document) {
-                ;(handler as EventListener)(event)
-              }
-            },
-          ),
-        )
-        if (customTrigger()) {
-          releases.push(
-            attachEventListener(document, 'click', (event) => {
-              if (event.target instanceof Node && element.contains(event.target)) {
-                ;(handlers.onClick as EventListener)(event)
-              }
-            }),
-          )
-        }
-        onCleanup(() => {
-          releases.forEach((release) => release())
-          callRef(userHandlers.ref, undefined)
-        })
-      }
-    },
-  }) as OverlayTriggerBinding & T
-  return triggerProps
-}
-
-export function createOverlayTriggerRef(): {
-  element: Accessor<HTMLElement | undefined>
-  ref: (element: HTMLElement | undefined) => void
-} {
-  const [element, setElement] = createSignal<HTMLElement | undefined>(undefined)
-
-  const ref = (nextElement: HTMLElement | undefined): void => {
-    setElement(nextElement)
-
-    if (!nextElement) {
-      return
-    }
-
-    onCleanup(() => {
-      if (element() === nextElement) {
-        setElement(undefined)
-      }
-    })
-  }
-
-  return { element, ref }
-}
-
-export function getOverlayTriggerAccessibility(
+export function getContextMenuTriggerAccessibility(
   element: HTMLElement | undefined,
   disabled: boolean,
 ): {

@@ -1,4 +1,5 @@
-import type { ComponentOrElement } from '../../shared/render-prop'
+import type { JSX } from 'solid-js'
+
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -54,14 +55,14 @@ export namespace ProgressT {
     getValueLabel?: (params: { value: number; min: number; max: number }) => string
 
     /**
-     * Custom render function for the status label.
+     * Content or render function for the status label.
      */
-    statusRender?: ComponentOrElement<StatusRenderProps>
+    statusRender?: JSX.Element | ((props: StatusRenderProps) => JSX.Element)
 
     /**
-     * Custom render function for each step when `max` is an array.
+     * Renderer for each step when `max` is an array.
      */
-    stepRender?: ComponentOrElement<StepRenderProps>
+    stepRender?: (props: StepRenderProps) => JSX.Element
   }
 
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

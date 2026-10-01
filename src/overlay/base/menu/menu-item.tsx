@@ -8,7 +8,6 @@ import type { SlotBinding } from '../../../provider/create-styles'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListener } from '../../../shared/event-listener'
-import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ElementProps } from '../../../shared/types'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
@@ -243,15 +242,20 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     return (
       <Show
         when={itemRender() === undefined}
-        fallback={renderComponentOrElement(
-          itemRender(),
-          getItemRenderProps(
-            contentProps.item,
-            contentProps.hasChildren,
-            contentProps.isCheckbox,
-            contentProps.isRadio,
-          ),
-        )}
+        fallback={
+          <Show when={itemRender()} keyed>
+            {(ItemRender) => (
+              <ItemRender
+                {...getItemRenderProps(
+                  contentProps.item,
+                  contentProps.hasChildren,
+                  contentProps.isCheckbox,
+                  contentProps.isRadio,
+                )}
+              />
+            )}
+          </Show>
+        }
       >
         <Show when={contentProps.item.icon}>
           <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>

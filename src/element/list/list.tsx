@@ -1,5 +1,5 @@
 import type { Component, JSX } from 'solid-js'
-import { For, Show, createComponent, createSignal, splitProps } from 'solid-js'
+import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
@@ -47,14 +47,7 @@ export function List<
             when={local.virtualRender}
             fallback={
               <For each={local.items}>
-                {(item, index) =>
-                  createComponent(local.itemRender, {
-                    item,
-                    get index() {
-                      return index()
-                    },
-                  })
-                }
+                {(item, index) => <local.itemRender item={item} index={index()} />}
               </For>
             }
           >
@@ -63,13 +56,9 @@ export function List<
                 component={virtualRender()}
                 entries={local.items ?? []}
                 scrollElement={scrollElement()}
-                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) =>
-                  createComponent(local.itemRender, {
-                    item,
-                    index,
-                    props: rowProps,
-                  })
-                }
+                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) => (
+                  <local.itemRender item={item} index={index} props={rowProps} />
+                )}
               />
             )}
           </Show>

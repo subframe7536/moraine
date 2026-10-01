@@ -111,6 +111,44 @@ describe('CommandPalette', () => {
     expect(option.getAttribute('data-slot')).toBe('command-palette-item')
   })
 
+  test('updates replacement item data in a retained virtual row renderer', () => {
+    const initial = { value: 'run', label: 'Run', disabled: false }
+    const replacement = { value: 'run', label: 'Run again', disabled: true }
+    const [item, setItem] = createSignal(initial)
+    const onSelect = vi.fn()
+    render(() => (
+      <CommandPalette
+        autofocus={false}
+        groups={[{ id: 'actions', items: [item()] }]}
+        onSelect={onSelect}
+        itemRender={(context) => (
+          <span>
+            {context.item.label}:{context.disabled ? 'disabled' : 'enabled'}
+          </span>
+        )}
+        virtualRender={(context) => {
+          const entry = context.entries[0]!
+          return context.render(entry, 0, { 'data-index': 0 })
+        }}
+      />
+    ))
+
+    expect(body().getByRole('option').textContent).toBe('Run:enabled')
+    setItem(replacement)
+    const disabledOption = body().getByRole('option')
+    expect(disabledOption.textContent).toBe('Run again:disabled')
+    expect(disabledOption.getAttribute('aria-disabled')).toBe('true')
+    fireEvent.click(disabledOption)
+    expect(onSelect).not.toHaveBeenCalled()
+
+    const enabled = { ...replacement, disabled: false }
+    setItem(enabled)
+    const enabledOption = body().getByRole('option')
+    expect(enabledOption.textContent).toBe('Run again:enabled')
+    fireEvent.click(enabledOption)
+    expect(onSelect).toHaveBeenCalledWith(enabled)
+  })
+
   test('protects listbox and option semantics from forwarded props', async () => {
     const select = vi.fn()
     render(() => (

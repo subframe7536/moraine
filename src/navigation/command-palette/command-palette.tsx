@@ -19,7 +19,7 @@ import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
@@ -418,10 +418,63 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function getItemContext(item: NormalizedItem<TItem>): CommandPaletteT.ItemRenderProps<TItem> {
-    const isActive = () => activeKey() === item.key
+  function ItemDescription(itemProps: { item: NormalizedItem<TItem> }): JSX.Element {
+    return (
+      <Show when={itemProps.item.item.description}>
+        <span data-slot="command-palette-item-description" {...resolved.styles.itemDescription}>
+          {itemProps.item.item.description}
+        </span>
+      </Show>
+    )
+  }
+
+  function CommandItem(itemProps: {
+    item: NormalizedItem<TItem>
+    context: CommandPaletteT.ItemRenderProps<TItem>
+  }): JSX.Element {
+    return (
+      <Show
+        when={merged.itemRender}
+        keyed
+        fallback={
+          <>
+            <Show when={itemProps.item.item.leadingRender !== undefined}>
+              <span data-slot="command-palette-item-leading" {...resolved.styles.itemLeading}>
+                {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
+              </span>
+            </Show>
+
+            <span data-slot="command-palette-item-wrapper" {...resolved.styles.itemWrapper}>
+              <span data-slot="command-palette-item-label" {...resolved.styles.itemLabel}>
+                <span>{itemProps.item.item.label ?? itemProps.item.label}</span>
+                <Show when={descriptionPosition() === 'trailing'}>
+                  <ItemDescription item={itemProps.item} />
+                </Show>
+              </span>
+              <Show when={descriptionPosition() === 'bottom'}>
+                <ItemDescription item={itemProps.item} />
+              </Show>
+            </span>
+
+            <Show when={itemProps.item.item.trailingRender !== undefined}>
+              <span data-slot="command-palette-item-trailing" {...resolved.styles.itemTrailing}>
+                {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
+              </span>
+            </Show>
+          </>
+        }
+      >
+        {(ItemRender) => <ItemRender {...itemProps.context} />}
+      </Show>
+    )
+  }
+
+  function VisibleItem(itemProps: {
+    item: NormalizedItem<TItem>
+    virtualProps?: ListT.RowProps<HTMLDivElement>
+  }): JSX.Element {
     const context = getContext()
-    return {
+    const itemContext: CommandPaletteT.ItemRenderProps<TItem> = {
       get searchTerm() {
         return context.searchTerm
       },
@@ -437,108 +490,67 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       get visibleGroups() {
         return context.visibleGroups
       },
-      item: item.item,
-      group: item.group,
+      get item() {
+        return itemProps.item.item
+      },
+      get group() {
+        return itemProps.item.group
+      },
       get highlighted() {
-        return isActive()
+        return activeKey() === itemProps.item.key
       },
       get disabled() {
-        return item.disabled
+        return itemProps.item.disabled
       },
     }
-  }
 
-  function renderItemDescription(item: NormalizedItem<TItem>): JSX.Element {
-    return (
-      <Show when={item.item.description}>
-        <span data-slot="command-palette-item-description" {...resolved.styles.itemDescription}>
-          {item.item.description}
-        </span>
-      </Show>
-    )
-  }
-
-  function renderCommandItem(
-    item: NormalizedItem<TItem>,
-    itemContext = getItemContext(item),
-  ): JSX.Element {
-    return (
-      <Show
-        when={merged.itemRender !== undefined}
-        fallback={
-          <>
-            <Show when={item.item.leadingRender !== undefined}>
-              <span data-slot="command-palette-item-leading" {...resolved.styles.itemLeading}>
-                {renderComponentOrElement(item.item.leadingRender, itemContext)}
-              </span>
-            </Show>
-
-            <span data-slot="command-palette-item-wrapper" {...resolved.styles.itemWrapper}>
-              <span data-slot="command-palette-item-label" {...resolved.styles.itemLabel}>
-                <span>{item.item.label ?? item.label}</span>
-                <Show when={descriptionPosition() === 'trailing'}>
-                  {renderItemDescription(item)}
-                </Show>
-              </span>
-              <Show when={descriptionPosition() === 'bottom'}>{renderItemDescription(item)}</Show>
-            </span>
-
-            <Show when={item.item.trailingRender !== undefined}>
-              <span data-slot="command-palette-item-trailing" {...resolved.styles.itemTrailing}>
-                {renderComponentOrElement(item.item.trailingRender, itemContext)}
-              </span>
-            </Show>
-          </>
-        }
-      >
-        {renderComponentOrElement(merged.itemRender, itemContext)}
-      </Show>
-    )
-  }
-
-  function renderVisibleItem(
-    item: NormalizedItem<TItem>,
-    virtualProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    const itemContext = getItemContext(item)
     const itemAttributes = createMemo(() => merged.itemProps?.(itemContext))
 
     return (
       <div
         {...itemAttributes()}
-        {...virtualProps}
-        id={`${listboxId()}-${encodeURIComponent(item.key)}`}
+        {...itemProps.virtualProps}
+        id={`${listboxId()}-${encodeURIComponent(itemProps.item.key)}`}
         role="option"
         tabIndex={-1}
         data-slot="command-palette-item"
         {...commandPaletteDataAttributes.item({
-          disabled: () => item.disabled,
-          highlighted: () => activeKey() === item.key,
+          disabled: () => itemProps.item.disabled,
+          highlighted: () => activeKey() === itemProps.item.key,
         })}
-        aria-selected={activeKey() === item.key}
-        aria-disabled={item.disabled || undefined}
-        aria-posinset={merged.virtualRender ? visibleItemPositionByKey().get(item.key) : undefined}
+        aria-selected={activeKey() === itemProps.item.key}
+        aria-disabled={itemProps.item.disabled || undefined}
+        aria-posinset={
+          merged.virtualRender ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
+        }
         aria-setsize={merged.virtualRender ? visibleItems().length : undefined}
         ref={(element) => {
           callRef(itemAttributes()?.ref, element)
-          virtualProps?.ref?.(element)
+          itemProps.virtualProps?.ref?.(element)
         }}
         style={{
           ...itemAttributes()?.style,
-          ...virtualProps?.style,
+          ...itemProps.virtualProps?.style,
           ...resolved.styles.item.style,
         }}
-        class={cn(resolved.styles.item.class, [itemAttributes()?.class, virtualProps?.class])}
+        class={cn(resolved.styles.item.class, [
+          itemAttributes()?.class,
+          itemProps.virtualProps?.class,
+        ])}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
-          callHandler(event, virtualProps?.onPointerMove)
-          if (!event.defaultPrevented && event.pointerType === 'mouse' && !item.disabled) {
-            setActiveKey(item.key)
+          callHandler(event, itemProps.virtualProps?.onPointerMove)
+          if (
+            !event.defaultPrevented &&
+            event.pointerType === 'mouse' &&
+            !itemProps.item.disabled
+          ) {
+            setActiveKey(itemProps.item.key)
           }
         }}
         onPointerDown={(event) => {
           callHandler(event, itemAttributes()?.onPointerDown)
-          callHandler(event, virtualProps?.onPointerDown)
+          callHandler(event, itemProps.virtualProps?.onPointerDown)
           if (
             !event.defaultPrevented &&
             event.pointerType !== 'touch' &&
@@ -549,16 +561,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         }}
         onClick={(event) => {
           callHandler(event, itemAttributes()?.onClick)
-          callHandler(event, virtualProps?.onClick)
-          if (event.defaultPrevented || item.disabled) {
+          callHandler(event, itemProps.virtualProps?.onClick)
+          if (event.defaultPrevented || itemProps.item.disabled) {
             return
           }
 
-          setActiveKey(item.key)
-          activateItem(item.item)
+          setActiveKey(itemProps.item.key)
+          activateItem(itemProps.item.item)
         }}
       >
-        {renderCommandItem(item, itemContext)}
+        <CommandItem item={itemProps.item} context={itemContext} />
       </div>
     )
   }
@@ -647,7 +659,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback="No results.">
-                  {renderComponentOrElement(merged.emptyRender, getContext())}
+                  {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
             }
@@ -659,7 +671,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   </span>
                 </Show>
 
-                <For each={context.item.items}>{(item) => renderVisibleItem(item)}</For>
+                <For each={context.item.items}>{(item) => <VisibleItem item={item} />}</For>
               </div>
             )}
             {...merged.listboxProps}
@@ -685,7 +697,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback="No results.">
-                  {renderComponentOrElement(merged.emptyRender, getContext())}
+                  {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
             }
@@ -695,7 +707,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                 when={context.item.type === 'label'}
                 fallback={
                   <Show when={visibleItemByKey().get(context.item.key)}>
-                    {(item) => renderVisibleItem(item(), context.props)}
+                    {(item) => <VisibleItem item={item()} virtualProps={context.props} />}
                   </Show>
                 }
               >
@@ -734,7 +746,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
       <Show when={merged.footerRender !== undefined}>
         <div data-slot="command-palette-footer" {...resolved.styles.footer}>
-          {renderComponentOrElement(merged.footerRender, getContext())}
+          {renderWithProps(merged.footerRender, getContext())}
         </div>
       </Show>
     </div>

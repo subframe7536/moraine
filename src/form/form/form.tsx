@@ -7,7 +7,7 @@ import { onCleanup, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
-import { renderField } from '../field/field'
+import { FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form-reset-scheduler'
 
 import { useFormischFieldBinding } from './form-field-binding'
@@ -131,7 +131,7 @@ export function createForm<TSchema extends Schema>(
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
       focusManager,
     )
-    return renderField(props, () => binding)
+    return <FieldInternal {...props} binding={binding} />
   }
 
   return Object.assign(store, {

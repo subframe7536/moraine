@@ -1,4 +1,5 @@
-import type { ComponentOrElement } from '../../shared/render-prop'
+import type { JSX } from 'solid-js'
+
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
@@ -62,14 +63,16 @@ export namespace ButtonT {
     trailing?: IconT.Name
 
     /**
-     * Children of the button. Supports render function form.
+     * Content or render function receiving the loading state.
      */
-    children?: ComponentOrElement<{
-      /**
-       * Whether the button is currently in loading state.
-       */
-      loading: boolean
-    }>
+    children?:
+      | JSX.Element
+      | ((props: {
+          /**
+           * Whether the button is currently in loading state.
+           */
+          loading: boolean
+        }) => JSX.Element)
   }
 
   /**

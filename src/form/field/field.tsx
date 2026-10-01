@@ -1,10 +1,10 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { renderComponentOrElement } from '../../shared/render-prop'
+import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 
@@ -14,18 +14,18 @@ import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
 /** Generic field layout and accessibility primitive. */
 export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
-  return renderField(props)
+  return <FieldInternal {...props} />
 }
 
 /**
- * Form adapter entry for supplying a generic field binding.
+ * Shared field layout with an optional form binding.
  * @internal
  */
-export function renderField<T extends ValidComponent = 'div'>(
-  props: FieldProps<T>,
-  binding?: Accessor<FieldBinding | undefined>,
+export function FieldInternal<T extends ValidComponent = 'div'>(
+  props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
+    'binding',
     'as',
     'id',
     'name',
@@ -53,7 +53,6 @@ export function renderField<T extends ValidComponent = 'div'>(
   const hint = createMemo(() => local.hint)
   const help = createMemo(() => local.help)
   const error = createMemo(() => local.error)
-  const activeBinding = () => binding?.()
 
   const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
@@ -95,7 +94,7 @@ export function renderField<T extends ValidComponent = 'div'>(
     if (value !== undefined && value !== null) {
       return value
     }
-    return activeBinding()?.error
+    return local.binding?.error
   })
 
   const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
@@ -148,7 +147,7 @@ export function renderField<T extends ValidComponent = 'div'>(
       return standalonePath()
     },
     get binding() {
-      return activeBinding()
+      return local.binding
     },
     get size() {
       return resolved.variants.size
@@ -166,9 +165,9 @@ export function renderField<T extends ValidComponent = 'div'>(
     registerControl,
   }
 
-  function RenderFieldRoot(): JSX.Element {
+  function RenderFieldInternal(): JSX.Element {
     const fieldChildren = resolveChildren(() =>
-      renderComponentOrElement(local.children, {
+      renderWithProps(local.children, {
         get error() {
           return resolvedError()
         },
@@ -235,7 +234,7 @@ export function renderField<T extends ValidComponent = 'div'>(
 
   return (
     <FieldProvider value={fieldContextValue}>
-      <RenderFieldRoot />
+      <RenderFieldInternal />
     </FieldProvider>
   )
 }

@@ -25,7 +25,7 @@ export function IconAsJSX() {
       </div>
       <div class="flex flex-col gap-1 items-center">
         <Icon name={() => <div class="i-lucide-zap size-6" />} />
-        <span class="text-[10px] text-muted-foreground">Render function</span>
+        <span class="text-[10px] text-muted-foreground">Solid component</span>
       </div>
     </div>
   )

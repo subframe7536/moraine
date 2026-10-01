@@ -7,7 +7,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { createContentAnatomy, useRegisteredContentId } from '../base/content-anatomy'
-import { renderModalAnatomyPart } from '../base/modal-anatomy'
+import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { createShorthandContent } from '../base/shorthand-content'
 import { Modal, ModalInternal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
@@ -128,37 +128,39 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
 }
 
 function SheetHeader<T extends ValidComponent = 'div'>(props: SheetT.HeaderProps<T>): JSX.Element {
-  return renderSheetHeader(props, 'explicit')
+  return <SheetHeaderRoot {...props} headerKind="explicit" />
 }
 
 function SheetShorthandHeader<T extends ValidComponent = 'div'>(
   props: SheetT.HeaderProps<T>,
 ): JSX.Element {
-  return renderSheetHeader(props, 'shorthand')
+  return <SheetHeaderRoot {...props} headerKind="shorthand" />
 }
 
-function renderSheetHeader<T extends ValidComponent>(
-  props: SheetT.HeaderProps<T>,
-  kind: 'explicit' | 'shorthand',
+function SheetHeaderRoot<T extends ValidComponent>(
+  props: SheetT.HeaderProps<T> & { headerKind: 'explicit' | 'shorthand' },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'headerKind'])
   const family = useModalContext()
   const content = useSheetContent()
-  const unregister = content.registerHeader(kind)
+  const unregister = content.registerHeader(untrack(() => local.headerKind))
   onCleanup(unregister)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'header',
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'div',
-    slot: 'sheet-header',
-    attributes: rest,
-    binding: resolved.styles.header,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="div"
+      slot="sheet-header"
+      attributes={rest}
+      binding={resolved.styles.header}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 function SheetTitle<T extends ValidComponent = 'h2'>(props: SheetT.TitleProps<T>): JSX.Element {
@@ -171,15 +173,18 @@ function SheetTitle<T extends ValidComponent = 'h2'>(props: SheetT.TitleProps<T>
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'h2',
-    slot: 'sheet-title',
-    attributes: rest,
-    binding: resolved.styles.title,
-    id,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="h2"
+      slot="sheet-title"
+      attributes={rest}
+      binding={resolved.styles.title}
+      id={id()}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 function SheetDescription<T extends ValidComponent = 'p'>(
@@ -194,15 +199,18 @@ function SheetDescription<T extends ValidComponent = 'p'>(
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'p',
-    slot: 'sheet-description',
-    attributes: rest,
-    binding: resolved.styles.description,
-    id,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="p"
+      slot="sheet-description"
+      attributes={rest}
+      binding={resolved.styles.description}
+      id={id()}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 function SheetAction<T extends ValidComponent = 'div'>(props: SheetT.ActionProps<T>): JSX.Element {
@@ -214,14 +222,17 @@ function SheetAction<T extends ValidComponent = 'div'>(props: SheetT.ActionProps
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'div',
-    slot: 'sheet-action',
-    attributes: rest,
-    binding: resolved.styles.action,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="div"
+      slot="sheet-action"
+      attributes={rest}
+      binding={resolved.styles.action}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 function SheetBody<T extends ValidComponent = 'div'>(props: SheetT.BodyProps<T>): JSX.Element {
@@ -234,15 +245,18 @@ function SheetBody<T extends ValidComponent = 'div'>(props: SheetT.BodyProps<T>)
     inheritedStyles: () => family.presentation,
   })
   const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'div',
-    slot: 'sheet-body',
-    attributes: rest,
-    additionalAttributes: bodyAttrs,
-    binding: resolved.styles.body,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="div"
+      slot="sheet-body"
+      attributes={rest}
+      additionalAttributes={bodyAttrs}
+      binding={resolved.styles.body}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 function SheetFooter<T extends ValidComponent = 'div'>(props: SheetT.FooterProps<T>): JSX.Element {
@@ -254,14 +268,17 @@ function SheetFooter<T extends ValidComponent = 'div'>(props: SheetT.FooterProps
     inheritedVariants: () => content.variants,
     inheritedStyles: () => family.presentation,
   })
-  return renderModalAnatomyPart({
-    as: () => local.as,
-    defaultAs: 'div',
-    slot: 'sheet-footer',
-    attributes: rest,
-    binding: resolved.styles.footer,
-    children: () => local.children,
-  })
+  return (
+    <ModalAnatomyPart
+      as={local.as}
+      defaultAs="div"
+      slot="sheet-footer"
+      attributes={rest}
+      binding={resolved.styles.footer}
+    >
+      {local.children}
+    </ModalAnatomyPart>
+  )
 }
 
 Sheet.Trigger = SheetTrigger
