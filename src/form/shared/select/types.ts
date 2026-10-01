@@ -30,10 +30,16 @@ export interface SelectGroup<T extends string | BaseSelectT.Item> {
   label: JSX.Element
   items: T[]
 }
-export type SelectEntry<T extends string | BaseSelectT.Item> = T | SelectGroup<T>
+export interface SelectSeparator {
+  /** Structural separator discriminator. */
+  type: 'separator'
+  value?: never
+}
+export type SelectEntry<T extends string | BaseSelectT.Item> = T | SelectGroup<T> | SelectSeparator
 export type SelectRow<T extends BaseSelectT.Item> =
   | { type: 'label'; key: string; label: JSX.Element; values: T['value'][] }
   | { type: 'item'; key: string; item: T }
+  | { type: 'separator'; key: string }
 export interface SelectView<T extends BaseSelectT.Item> {
   items: T[]
   rows: SelectRow<T>[]

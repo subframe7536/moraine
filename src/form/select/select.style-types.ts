@@ -22,7 +22,10 @@ export interface SelectControlStyleSlot<T = unknown> {
   clear?: T
 }
 export interface SelectStyleSlot<T = unknown>
-  extends BaseSelectStyleSlot<T>, SelectControlStyleSlot<T>, SelectItemStyleSlot<T> {}
+  extends
+    Omit<BaseSelectStyleSlot<T>, 'empty'>,
+    SelectControlStyleSlot<T>,
+    Omit<SelectItemStyleSlot<T>, 'empty'> {}
 export type SelectStyleVariant = SelectControlStyleVariant
 
 export type SelectStyleConfig = ComponentStyleConfig<SelectStyleSlot, SelectStyleVariant>

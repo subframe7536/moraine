@@ -41,7 +41,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
+  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
   const [created, setCreated] = createSignal<T[]>([])
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], created(), prev),

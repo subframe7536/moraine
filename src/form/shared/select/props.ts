@@ -59,7 +59,6 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'scrollBottomThreshold',
   'gutter',
   'overflowPadding',
-  'emptyRender',
   'placeholder',
   'allowClear',
   'onClear',
@@ -74,6 +73,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
 /** Local props intercepted by Combobox. */
 export const COMBOBOX_LOCAL_PROP_KEYS = [
   ...SELECT_LOCAL_PROP_KEYS,
+  'emptyRender',
   'searchValue',
   'defaultSearchValue',
   'onSearch',
@@ -112,19 +112,25 @@ export const BASE_SELECT_SHARED_SLOTS = [
 
 /** Maps resolved Select-family popup slots to reactive BaseSelect style props. */
 export function createBaseSelectStyleProps(
-  slot: (name: (typeof BASE_SELECT_SHARED_SLOTS)[number]) => SlotBinding,
+  slots: Partial<Record<(typeof BASE_SELECT_SHARED_SLOTS)[number], SlotBinding>>,
 ) {
   const classes = createMemo<BaseSelectT.Classes>(() => {
     const result: BaseSelectT.Classes = {}
     for (const name of BASE_SELECT_SHARED_SLOTS) {
-      result[name] = slot(name).class
+      const slot = slots[name]
+      if (slot) {
+        result[name] = slot.class
+      }
     }
     return result
   })
   const styles = createMemo<BaseSelectT.Styles>(() => {
     const result: BaseSelectT.Styles = {}
     for (const name of BASE_SELECT_SHARED_SLOTS) {
-      result[name] = slot(name).style
+      const slot = slots[name]
+      if (slot) {
+        result[name] = slot.style
+      }
     }
     return result
   })

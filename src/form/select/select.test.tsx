@@ -142,23 +142,43 @@ describe('Select', () => {
     expect(new FormData(form).getAll('choice')).toEqual([''])
   })
 
-  test('preserves grouped rows and disabled items', () => {
-    render(() => (
+  test('renders groups and separators while navigating only enabled options', () => {
+    const screen = render(() => (
       <Select
         defaultOpen
         items={[
           { type: 'group', label: 'Fruit', items: ITEMS },
+          { type: 'separator' },
+          { type: 'group', label: 'Vegetables', items: [{ label: 'Carrot', value: 'carrot' }] },
           { type: 'group', label: 'Empty', items: [] },
         ]}
       />
     ))
-    expect(within(document.body).getByRole('group').textContent).toContain('Fruit')
-    expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(3)
+    expect(
+      within(document.body)
+        .getAllByRole('group')
+        .map((group) => group.textContent),
+    ).toEqual(['Fruit', 'Vegetables'])
+    expect(document.body.querySelector('[data-slot="select-separator"]')).not.toBeNull()
+    expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(4)
     expect(
       within(document.body)
         .getByRole('option', { hidden: true, name: 'Cherry' })
         .getAttribute('aria-disabled'),
     ).toBe('true')
+    const trigger = screen.getByRole('combobox')
+    fireEvent.keyDown(trigger, { key: 'Home' })
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    expect(trigger.textContent).toContain('Carrot')
+  })
+
+  test('omits the empty state for an empty collection', () => {
+    render(() => <Select defaultOpen items={[]} />)
+    expect(within(document.body).getByRole('listbox')).toBeTruthy()
+    expect(document.body.querySelector('[data-slot="select-empty"]')).toBeNull()
+    expect(within(document.body).queryByText('No items')).toBeNull()
   })
 
   test('keeps the trigger structure while loading', () => {

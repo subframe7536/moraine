@@ -66,20 +66,33 @@ export function Example() {
     <Select
       items={[
         {
-          label: 'SolidJS',
-          description: 'Fine-grained reactivity',
-          value: 'solid',
-          icon: 'i-lucide:atom',
+          type: 'group',
+          label: 'Client frameworks',
+          items: [
+            {
+              label: 'SolidJS',
+              description: 'Fine-grained reactivity',
+              value: 'solid',
+              icon: 'i-lucide:atom',
+            },
+            {
+              label: 'Vue.js',
+              description: 'Progressive framework',
+              value: 'vue',
+              icon: 'i-lucide:sparkles',
+            },
+            { label: 'React', value: 'react', icon: 'i-lucide:box' },
+          ],
         },
+        { type: 'separator' },
         {
-          label: 'Vue.js',
-          description: 'Progressive framework',
-          value: 'vue',
-          icon: 'i-lucide:sparkles',
+          type: 'group',
+          label: 'Compiler-based frameworks',
+          items: [
+            { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
+            { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
+          ],
         },
-        { label: 'React', value: 'react', icon: 'i-lucide:box' },
-        { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
-        { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
       ]}
       defaultValue="solid"
       leadingIcon="i-lucide:code"
@@ -128,6 +141,7 @@ export function Example() {
                     slot: 'group',
                     children: [{ slot: 'groupLabel' }],
                   },
+                  { slot: 'separator' },
                   {
                     slot: 'item',
                     children: [
@@ -141,7 +155,6 @@ export function Example() {
                   },
                 ],
               },
-              { slot: 'empty' },
             ],
           },
         ],
@@ -208,7 +221,7 @@ Each item supports an `icon` and secondary `description` without requiring custo
 
 ### Grouped options
 
-Organize options into labeled categories using `type: 'group'`.
+Organize options into labeled categories using `type: 'group'`. Insert `{ type: 'separator' }` between groups or items to show a divider. Labels and separators are excluded from selection and keyboard navigation.
 
 <Preview path="./grouped-items" />
 

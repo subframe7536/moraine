@@ -37,7 +37,7 @@ export type PublicRenderTypes = [RemovedRenderType]
 
 ;<Progress statusRender={<span />} stepRender={(props) => <span>{props.step}</span>} />
 ;<Breadcrumb itemRender={(props) => <span>{props.index}</span>} />
-;<Select emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
+;<Select itemRender={(props) => <span>{props.item.label}</span>} />
 ;<Combobox emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
 ;<MultiSelect
   emptyRender={<span />}

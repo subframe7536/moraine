@@ -159,7 +159,7 @@
           "name": "items",
           "optional": true,
           "type": "Entry<TItem>[]",
-          "typeDetails": "(string | {\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: (string | {\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  })[];\n})[]",
+          "typeDetails": "(string | {\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: (string | {\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  })[];\n} | {\n  /** Structural separator discriminator. */\n  type: 'separator';\n})[]",
           "description": "String shorthand or object items, optionally grouped. Item values must be unique."
         },
         {
@@ -424,7 +424,6 @@
     "group",
     "groupLabel",
     "separator",
-    "empty",
     "leading",
     "clear",
     "itemLeading",
@@ -432,6 +431,7 @@
     "itemLabel",
     "itemDescription",
     "itemIndicator",
+    "empty",
     "input",
     "trigger"
   ],

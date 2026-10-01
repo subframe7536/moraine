@@ -40,7 +40,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
+  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<ComboboxT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),

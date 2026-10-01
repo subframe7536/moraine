@@ -46,14 +46,6 @@ export namespace SelectT {
     SelectVirtualRenderProps<NormalizedItem<TItem>>
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
-  export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
-    /** Whether the collection has any selectable items. */
-    hasMatches: boolean
-    /** Currently selected value. */
-    selectedValue: NormalizedItem<TItem>['value'] | null
-    /** Close the dropdown menu. */
-    close: () => void
-  }
 
   export interface Base<TItem extends string | Item = string | Item>
     extends
@@ -64,12 +56,10 @@ export namespace SelectT {
       BaseSelectResetProps,
       ContentProps<NormalizedItem<TItem>>,
       FormValueOptions<NormalizedItem<TItem>['value'] | null> {
-    /** String shorthand or object items, optionally grouped. Item values must be unique within the collection. */
+    /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
-    /** Content or render function for the empty state. */
-    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

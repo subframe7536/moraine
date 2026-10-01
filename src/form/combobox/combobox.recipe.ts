@@ -32,6 +32,7 @@ export const comboboxRecipe = /* @__PURE__ */ defineRecipe<ComboboxStyleSlot, Co
   {
     base: {
       ...SELECT_FAMILY_SLOTS,
+      empty: '',
       input: `${FIELD_INPUT_CLASS} text-start min-w-0 truncate py-1.5`,
       trigger: SECONDARY_TRIGGER_CLASS,
     },

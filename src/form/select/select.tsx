@@ -3,7 +3,6 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { useFieldContext } from '../field/field-context'
@@ -37,7 +36,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
+  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
@@ -108,24 +107,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             />
           </BaseSelect.Trigger>
         </BaseSelect.Control>
-        <DefaultSelectContent
-          {...local}
-          view={source()}
-          slot={(slot) => styles.styles[slot]}
-          emptyRender={() => (
-            <Show when={local.emptyRender !== undefined} fallback="No items">
-              {renderWithProps(local.emptyRender, {
-                get hasMatches() {
-                  return state.items().length > 0
-                },
-                get selectedValue() {
-                  return state.value()[0] ?? null
-                },
-                close: () => state.setOpen(false),
-              })}
-            </Show>
-          )}
-        />
+        <DefaultSelectContent {...local} view={source()} slot={(slot) => styles.styles[slot]} />
       </>
     )
   }
