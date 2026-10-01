@@ -255,7 +255,7 @@ export function Tabs(props: TabsProps): JSX.Element {
 
       if (
         typeof ResizeObserver === 'undefined' ||
-        !selectedTrigger?.isConnected ||
+        !selectedTrigger ||
         !items.some((item) => item.instanceKey === currentKey)
       ) {
         return
@@ -265,6 +265,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         computeIndicatorStyle(selectedKey(), merged.orientation)
       })
 
+      // Overlays may insert these nodes after the effect runs, so observe detached triggers too.
       resizeObserver.observe(selectedTrigger)
 
       if (listRef) {

@@ -7,10 +7,19 @@ route and component work must use those tokens instead of introducing a parallel
 ## Information architecture and page writing
 
 The landing is independent. Header links lead to Docs (`/docs/getting-started`) and Components
-(`/components`); these are navigation anchors, not ARIA tabs. On mobile, the Sheet presents the
-complete Docs and Components directories in that order, with
-ordinary links as surface headings and all categories expanded. Desktop sidebars and Previous/Next
-stay within the current surface; search spans both.
+(`/components`); these are navigation anchors, not ARIA tabs. The mobile Sheet starts with fixed,
+vertically stacked Docs and Components links, separated from the independently scrolling directory
+by a rule. Each link is 48 px tall, with sans-serif, 14 px, medium-weight text and a Lucide icon in a
+24 px rounded tile. Start the links 16 px below the Sheet's top edge. Highlight Components for paths
+starting with `/component` and Docs otherwise, using a muted surface, a thin border, and a short
+2 px indicator at the start edge. Mark the selected section with `aria-current="location"`.
+Ordinary section clicks navigate to their landing pages and close the Sheet; modified clicks preserve
+browser behavior. Mobile and desktop directories show only the current surface, with all categories
+expanded and no repeated surface heading. Previous/Next stays within the current surface; search
+spans both.
+Do not add a title or close-button row above the section links. Brand identity and the home link stay
+in the page header. Dismiss the Sheet through its backdrop, Escape, or ordinary navigation; preserve
+focus restoration to its trigger.
 Docs groups are Overview, Guides, Styling, and Utils. Components groups are Overview,
 General, Form, Navigation, and Overlay.
 

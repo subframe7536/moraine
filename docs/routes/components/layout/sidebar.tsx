@@ -2,11 +2,8 @@ import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
-import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Icon, Badge, Button, cn, useSidebarFrame } from '../../../../src'
+import { Icon, Badge, cn, useSidebarFrame } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
-
-const { version } = packageMetadata
 
 export type SidebarPage = DocsPageEntry
 
@@ -15,43 +12,55 @@ export interface SidebarProps {
   activePage: Accessor<string>
 }
 
-export interface SidebarHeaderProps {
-  isMobile?: boolean
-  onClose?: () => void
+const SURFACES = [
+  { value: 'docs', label: 'Docs', href: '/docs/getting-started', icon: 'i-lucide:book-open' },
+  { value: 'components', label: 'Components', href: '/components', icon: 'i-lucide:layout-grid' },
+] as const
+
+function getCurrentSurface(pathname: string) {
+  return pathname.startsWith('/component') ? 'components' : 'docs'
 }
 
-const SURFACES = [
-  { value: 'docs', label: 'Docs', href: '/docs/getting-started' },
-  { value: 'components', label: 'Components', href: '/components' },
-] as const
+function closeSidebarOnLinkClick(event: MouseEvent, frame: ReturnType<typeof useSidebarFrame>) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    !(event.target instanceof Element)
+  ) {
+    return
+  }
+  if (event.target.closest('a') && frame.isMobile()) {
+    frame.setOpen(false)
+  }
+}
 
 export const Sidebar = (props: SidebarProps) => {
   const frame = useSidebarFrame()
   const location = useLocation()
   let nav: HTMLElement | undefined
-  const currentSurface = () => (location.pathname.startsWith('/components') ? 'components' : 'docs')
   const surfaces = createMemo(() => {
-    const visible = frame.isMobile()
-      ? SURFACES
-      : SURFACES.filter((surface) => surface.value === currentSurface())
-
-    return visible.map((surface) => {
-      const groups = new Map<string, SidebarPage[]>()
-      for (const page of props.pages) {
-        if (page.surface !== surface.value || page.path === '/components') {
-          continue
+    return SURFACES.filter((surface) => surface.value === getCurrentSurface(location.pathname)).map(
+      (surface) => {
+        const groups = new Map<string, SidebarPage[]>()
+        for (const page of props.pages) {
+          if (page.surface !== surface.value || page.path === '/components') {
+            continue
+          }
+          const pages = groups.get(page.section) ?? []
+          pages.push(page)
+          groups.set(page.section, pages)
         }
-        const pages = groups.get(page.section) ?? []
-        pages.push(page)
-        groups.set(page.section, pages)
-      }
-      return {
-        value: surface.value,
-        label: surface.label,
-        href: surface.href,
-        sections: [...groups.entries()].map(([section, pages]) => ({ section, pages })),
-      }
-    })
+        return {
+          value: surface.value,
+          label: surface.label,
+          sections: [...groups.entries()].map(([section, pages]) => ({ section, pages })),
+        }
+      },
+    )
   })
 
   createEffect(
@@ -95,6 +104,48 @@ export const Sidebar = (props: SidebarProps) => {
     </li>
   )
 
+  const renderSurface = (surface: ReturnType<typeof surfaces>[number]) => (
+    <section aria-label={surface.label}>
+      <div class="flex flex-col gap-5">
+        <For each={surface.sections}>
+          {(section) => (
+            <>
+              <section aria-label={section.section}>
+                <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 capitalize text-sm">
+                  {section.section}
+                </h2>
+                <ul class="flex flex-col gap-0.5">
+                  <For each={section.pages}>{renderSidebarItem}</For>
+                </ul>
+              </section>
+              <Show when={surface.value === 'docs' && section.section === 'overview'}>
+                <section aria-label="Agents">
+                  <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 text-sm">
+                    Agents
+                  </h2>
+                  <a
+                    href="/llms.txt"
+                    rel="alternate external"
+                    type="text/markdown"
+                    class={cn(
+                      'text-muted-foreground px-2.5 py-1.5 flex items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+                      frame.isMobile() ? 'min-h-11' : '',
+                    )}
+                  >
+                    llms.txt
+                  </a>
+                </section>
+              </Show>
+            </>
+          )}
+        </For>
+      </div>
+      <Show when={surface.sections.length === 0}>
+        <p class="text-muted-foreground px-2 py-3 text-xs">No results</p>
+      </Show>
+    </section>
+  )
+
   return (
     <nav
       ref={(element) => {
@@ -102,113 +153,56 @@ export const Sidebar = (props: SidebarProps) => {
       }}
       aria-label="Documentation"
       class="px-4 pb-10 pt-3 bg-background flex flex-col gap-8"
-      onClick={(event) => {
-        if (
-          event.defaultPrevented ||
-          event.button !== 0 ||
-          event.metaKey ||
-          event.ctrlKey ||
-          event.shiftKey ||
-          event.altKey ||
-          !(event.target instanceof Element)
-        ) {
-          return
-        }
-        const anchor = event.target.closest('a')
-        if (anchor && frame.isMobile()) {
-          frame.setOpen(false)
-        }
-      }}
+      onClick={(event) => closeSidebarOnLinkClick(event, frame)}
     >
-      <For each={surfaces()}>
-        {(surface) => (
-          <section aria-label={surface.label}>
-            <Show when={frame.isMobile()}>
-              <a
-                href={surface.href}
-                aria-current={
-                  surface.value === 'components' && props.activePage() === surface.href
-                    ? 'page'
-                    : undefined
-                }
-                class="text-foreground font-semibold px-2 flex min-h-11 items-center text-base rounded-md focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:bg-muted/60"
-              >
-                {surface.label}
-              </a>
-            </Show>
-            <div class="flex flex-col gap-5">
-              <For each={surface.sections}>
-                {(section) => (
-                  <>
-                    <section aria-label={section.section}>
-                      <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 capitalize text-sm">
-                        {section.section}
-                      </h2>
-                      <ul class="flex flex-col gap-0.5">
-                        <For each={section.pages}>{renderSidebarItem}</For>
-                      </ul>
-                    </section>
-                    <Show when={surface.value === 'docs' && section.section === 'overview'}>
-                      <section aria-label="Agents">
-                        <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 text-sm">
-                          Agents
-                        </h2>
-                        <a
-                          href="/llms.txt"
-                          rel="alternate external"
-                          type="text/markdown"
-                          class={cn(
-                            'text-muted-foreground px-2.5 py-1.5 flex items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
-                            frame.isMobile() ? 'min-h-11' : '',
-                          )}
-                        >
-                          llms.txt
-                        </a>
-                      </section>
-                    </Show>
-                  </>
-                )}
-              </For>
-            </div>
-          </section>
-        )}
-      </For>
-      <Show when={surfaces().every((surface) => surface.sections.length === 0)}>
-        <p class="text-muted-foreground px-2 py-3 text-xs">No results</p>
-      </Show>
+      <For each={surfaces()}>{renderSurface}</For>
     </nav>
   )
 }
 
-export const SidebarHeader = (props: SidebarHeaderProps) => {
+export const SidebarHeader = () => {
+  const frame = useSidebarFrame()
+  const location = useLocation()
   return (
-    <div
-      class={cn('px-4 flex h-13 w-full items-center justify-between', props.isMobile ? 'mt-1' : '')}
+    <nav
+      aria-label="Documentation sections"
+      class="font-sans px-4 py-4 border-b border-border flex flex-col gap-1 w-full"
+      onClick={(event) => closeSidebarOnLinkClick(event, frame)}
     >
-      <a
-        href="/"
-        class="flex gap-2.5 min-h-11 min-w-0 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-        aria-label="Moraine home"
-      >
-        <img src="/favicon.svg" alt="" class="size-6" />
-        <span class="font-semibold flex truncate items-center text-base">
-          Moraine
-          <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono ms-2 px-1.5 py-0">
-            v{version}
-          </Badge>
-        </span>
-      </a>
-      <Show when={props.onClose}>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          class="size-11"
-          aria-label="Close sidebar"
-          onClick={props.onClose}
-        >
-          <Icon name="icon-close" />
-        </Button>
-      </Show>
-    </div>
+      <For each={SURFACES}>
+        {(surface) => {
+          const selected = () => getCurrentSurface(location.pathname) === surface.value
+          return (
+            <a
+              href={surface.href}
+              aria-current={selected() ? 'location' : undefined}
+              class={cn(
+                'font-medium px-3 border flex gap-3 h-12 transition-colors items-center relative text-sm rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+                selected()
+                  ? 'text-foreground border-border bg-muted'
+                  : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',
+              )}
+            >
+              <Show when={selected()}>
+                <span
+                  aria-hidden="true"
+                  class="rounded-full bg-foreground h-5 w-0.5 left-0 top-1/2 absolute -translate-y-1/2"
+                />
+              </Show>
+              <span
+                aria-hidden="true"
+                class={cn(
+                  'flex shrink-0 size-6 items-center justify-center rounded-md',
+                  selected() ? 'bg-foreground/10' : 'bg-muted',
+                )}
+              >
+                <Icon name={surface.icon} class="size-4" />
+              </span>
+              {surface.label}
+            </a>
+          )
+        }}
+      </For>
+    </nav>
   )
 }

@@ -135,8 +135,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           >
             <SidebarFrame.Sidebar data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
-                <SidebarFrame.SidebarHeader>
-                  <SidebarHeader onClose={() => frame.setOpen(false)} isMobile={true} />
+                <SidebarFrame.SidebarHeader class="p-0 shrink-0">
+                  <SidebarHeader />
                 </SidebarFrame.SidebarHeader>
               </Show>
               <SidebarFrame.SidebarBody class="overscroll-contain">
