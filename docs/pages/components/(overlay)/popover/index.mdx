@@ -91,16 +91,32 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Popover [component; no DOM]
-├── Popover.Trigger [part; slot=trigger]
-├── Popover.Close [part]
-└── positioner [internal]
-    └── Popover.Content [part; slot=content]
-        └── body [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Popover.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Popover.Close' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'Popover.Content',
+            slot: 'content',
+            children: [{ slot: 'body' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-Put native surface attributes on Content. Root `classes` and `styles` set defaults for this Popover; Content can override its `content` and `body` slots. See [Styling](/docs/customization#style-overrides).
+Content is portaled inside an internal positioning wrapper.
 
 ## Usage
 

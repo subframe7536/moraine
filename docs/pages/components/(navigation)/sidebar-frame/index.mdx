@@ -69,6 +69,9 @@ export function Example() {
       <div class="border border-border/70 rounded-xl bg-muted/20 h-80 max-w-2xl w-full shadow-xs overflow-hidden">
         <SidebarFrame variant={props.variant} side={props.side} isMobile={false}>
           <SidebarFrame.Sidebar class="w-48">
+            <SidebarFrame.SidebarHeader class="px-3 py-2 text-xs font-semibold">
+              Workspace
+            </SidebarFrame.SidebarHeader>
             <SidebarFrame.SidebarBody class="p-2 space-y-1">
               <For each={navItems}>
                 {(item) => (
@@ -85,6 +88,9 @@ export function Example() {
                 )}
               </For>
             </SidebarFrame.SidebarBody>
+            <SidebarFrame.SidebarFooter class="px-3 py-2 text-xs text-muted-foreground">
+              Personal workspace
+            </SidebarFrame.SidebarFooter>
           </SidebarFrame.Sidebar>
           <SidebarFrame.Main class="p-2.5 flex flex-col gap-3">
             <div class="flex items-center gap-2 shrink-0">
@@ -122,27 +128,48 @@ export function Example() {
 
 ## Anatomy
 
-```text
-SidebarFrame [component; slot=root]
-├── SidebarFrame.Sidebar [part; slot=sidebar]
-│   ├── SidebarFrame.SidebarHeader [part; slot=sidebarHeader]
-│   ├── SidebarFrame.SidebarBody [part; slot=sidebarBody]
-│   └── SidebarFrame.SidebarFooter [part; slot=sidebarFooter]
-├── SidebarFrame.Main [part; slot=main]
-└── SidebarFrame.Trigger [part]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'SidebarFrame.Sidebar',
+        slot: 'sidebar',
+        children: [
+          {
+            part: 'SidebarFrame.SidebarHeader',
+            slot: 'sidebarHeader',
+          },
+          {
+            part: 'SidebarFrame.SidebarBody',
+            slot: 'sidebarBody',
+          },
+          {
+            part: 'SidebarFrame.SidebarFooter',
+            slot: 'sidebarFooter',
+          },
+        ],
+      },
+      {
+        part: 'SidebarFrame.Main',
+        slot: 'main',
+      },
+      { part: 'SidebarFrame.Trigger' },
+    ],
+  }}
+/>
 
-`SidebarFrame.Trigger` can appear anywhere inside `SidebarFrame` to toggle sidebar visibility, without requiring a structural placement inside `SidebarFrame.Main`. Composing with `<SidebarFrame.Trigger as={Button} ... />` is the recommended way to obtain standard Moraine button styling.
-
-Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, and `main`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
-
-Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regions inside an internal Sheet.
 
 ## Usage
 
 ### Responsive navigation ownership
 
 `SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
+
+Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, and `main`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
+
+Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
 <Preview path="./responsive-usage" />
 

@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import type { MdxOptions } from 'solid-file-router/plugin'
 
+import { validateAnatomy } from '../anatomy.ts'
 import { highlightApiTypes } from '../api-doc/highlight.ts'
 import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
 import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
@@ -101,6 +102,9 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
       const sourceApiDoc = loadComponentApiDoc(sourcePath)
+      if (page.surface === 'components' && page.routePath !== '/components') {
+        await validateAnatomy(document.source, sourcePath, sourceApiDoc ?? undefined)
+      }
       const apiDoc = sourceApiDoc ? await highlightApiTypes(sourceApiDoc) : undefined
       const info = createDocsRouteInfo(page, frontmatter, componentKeys, [
         ...onThisPageEntries,

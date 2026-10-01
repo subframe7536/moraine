@@ -112,26 +112,43 @@ export function Example() {
 
 ## Anatomy
 
-```text
-CommandPalette [component; slot=root]
-├── inputWrapper [slot]
-│   ├── inputLeading [slot]
-│   ├── input [slot]
-│   └── close [slot]
-├── listbox [slot]
-│   ├── group [slot]
-│       ├── groupLabel [slot]
-│       └── item [slot]
-│           ├── itemLeading [slot]
-│           ├── itemWrapper [slot]
-│           │   ├── itemLabel [slot]
-│           │   └── itemDescription [slot]
-│           └── itemTrailing [slot]
-│   └── empty [slot]
-└── footer [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'inputWrapper',
+        children: [{ slot: 'inputLeading' }, { slot: 'input' }, { slot: 'close' }],
+      },
+      {
+        slot: 'listbox',
+        children: [
+          {
+            slot: 'group',
+            children: [
+              { slot: 'groupLabel' },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  { slot: 'itemTrailing' },
+                ],
+              },
+            ],
+          },
+          { slot: 'empty' },
+        ],
+      },
+      { slot: 'footer' },
+    ],
+  }}
+/>
 
-The listbox remains mounted when no items match, and the empty state appears inside it. With `virtualRender`, group labels and items can be flat rows. When `descriptionPosition="trailing"`, itemDescription moves inside itemLabel.
+Group labels and items may be flattened into sibling rows when virtualized. Trailing descriptions render inside itemLabel.
 
 ## Usage
 

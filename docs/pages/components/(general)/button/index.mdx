@@ -66,6 +66,7 @@ export function Example() {
         disabled={props.disabled}
         loading={props.loading}
         leading="i-lucide:rocket"
+        trailing="icon-arrow-right"
       >
         Deploy Project
       </Button>
@@ -75,16 +76,15 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Button [component; slot=root; <button>]
-├── leading [slot]
-├── label [slot]
-└── trailing [slot]
-```
-
-- `root`: Interactive element with hover, active, disabled, and focus-visible states.
-- `leading`: Leading adornment; may be replaced by the loading icon.
-- `trailing`: Trailing adornment; may be replaced by the loading icon when no leading adornment exists.
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'button',
+    },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
 
 ## Usage
 

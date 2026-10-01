@@ -55,7 +55,7 @@ export function Example() {
   {(props) => (
     <Checkbox
       label={props.label}
-      description={props.description}
+      description="I agree to the privacy policy and terms of service."
       variant={props.variant}
       size={props.size}
       disabled={props.disabled}
@@ -66,17 +66,32 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Checkbox [component; slot=root]
-├── container [slot]
-│   ├── input [internal]
-│   └── control [slot]
-│       └── indicator [slot]
-│           └── icon [slot]
-└── wrapper [slot]
-    ├── label [slot]
-    └── description [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'container',
+        children: [
+          { internal: 'input' },
+          {
+            slot: 'control',
+            children: [
+              {
+                slot: 'indicator',
+                children: [{ slot: 'icon' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        slot: 'wrapper',
+        children: [{ slot: 'label' }, { slot: 'description' }],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

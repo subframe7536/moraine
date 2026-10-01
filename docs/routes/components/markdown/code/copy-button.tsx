@@ -1,6 +1,5 @@
-import { createSignal, onCleanup } from 'solid-js'
-
 import { Button, Icon, cn } from '../../../../../src'
+import { createClipboardCopy } from '../../../hooks/create-clipboard-copy'
 
 export function extractCodeText(element?: HTMLElement): string {
   if (!element) {
@@ -11,30 +10,18 @@ export function extractCodeText(element?: HTMLElement): string {
 }
 
 export function CopyButton(props: { code?: string; getTarget?: () => HTMLElement | undefined }) {
-  const [copied, setCopied] = createSignal(false)
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => {
-    if (timer) {
-      clearTimeout(timer)
-    }
-  })
-
-  const handleCopy = async () => {
+  const clipboard = createClipboardCopy()
+  const copied = () => clipboard.state() === 'copied'
+  const label = () =>
+    copied()
+      ? 'Copied to clipboard'
+      : clipboard.state() === 'failed'
+        ? 'Copy failed; try again'
+        : 'Copy code'
+  const handleCopy = () => {
     const text = props.code ?? extractCodeText(props.getTarget?.())
-    if (!text) {
-      return
-    }
-
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      if (timer) {
-        clearTimeout(timer)
-      }
-      timer = setTimeout(() => setCopied(false), 2000)
-    } catch (e) {
-      console.error('Failed to copy code:', e)
+    if (text) {
+      return clipboard.copy(text)
     }
   }
 
@@ -42,8 +29,8 @@ export function CopyButton(props: { code?: string; getTarget?: () => HTMLElement
     <Button
       variant="ghost"
       size="icon-xs"
-      aria-label={copied() ? 'Copied to clipboard' : 'Copy code'}
-      title={copied() ? 'Copied' : 'Copy code'}
+      aria-label={label()}
+      title={label()}
       onClick={handleCopy}
       class="text-muted-foreground size-7 transition-colors rounded-md hover:text-foreground hover:bg-muted/80"
     >

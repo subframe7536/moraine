@@ -313,16 +313,17 @@ export function NotificationForm() {
 
 ## Anatomy
 
-```text
-form.Form [component; slot=root; <form>]
-└── form.Field [part]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'form',
+    },
+    children: [{ part: 'form.Field' }],
+  }}
+/>
 
-Each `form.Field` uses the Field layout. Help and error are mutually exclusive; the error takes its place when the field is invalid.
-
-`<form.Form>` does not automatically disable child controls during submission. Use `form.isSubmitting` when your application needs that behavior.
-
-`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Design. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
+Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
 
 ## Usage
 
@@ -331,6 +332,10 @@ Each `form.Field` uses the Field layout. Help and error are mutually exclusive; 
 Create the form with `createForm`, then render `<form.Form>` and `<form.Field>`. The submit handler receives the validated schema output.
 
 <Preview path="./basic-form" />
+
+### Root styling
+
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Design. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
 
 ### Bound field outside the form root
 
@@ -364,7 +369,7 @@ Target nested object and array fields by supplying path tuples (for example, `['
 
 ### Submission and loading state
 
-Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
+`form.Form` does not automatically disable child controls during submission. Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
 
 <Preview path="./async-submit" />
 

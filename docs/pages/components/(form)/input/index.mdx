@@ -71,11 +71,14 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Input [component; slot=root; <input>]
-```
-
-`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native input. Put container styling and refs on `InputGroup` when composing supporting content.
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'input',
+    },
+  }}
+/>
 
 ## Usage
 

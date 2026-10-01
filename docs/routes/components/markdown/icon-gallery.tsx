@@ -1,43 +1,29 @@
-import { For, createSignal, onCleanup } from 'solid-js'
+import { For } from 'solid-js'
 
 import { Icon } from '../../../../src/index'
 import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/icons'
+import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 export function IconGallery() {
-  const [feedback, setFeedback] = createSignal<{
-    name: string
-    message: 'Copied' | 'Copy failed'
-  }>()
-  let feedbackTimer: ReturnType<typeof setTimeout> | undefined
-
-  onCleanup(() => clearTimeout(feedbackTimer))
-
-  async function copyIcon(name: string) {
-    try {
-      await navigator.clipboard.writeText(name)
-      setFeedback({ name, message: 'Copied' })
-    } catch {
-      setFeedback({ name, message: 'Copy failed' })
-    }
-
-    clearTimeout(feedbackTimer)
-    feedbackTimer = setTimeout(() => setFeedback(undefined), 1800)
-  }
-
   return (
     <div class="gap-2 grid grid-cols-3 lg:grid-cols-6 sm:grid-cols-4">
       <For each={DEFAULT_ICON_SHORTCUTS}>
         {([name]) => {
-          const message = () => (feedback()?.name === name ? feedback()?.message : undefined)
+          const clipboard = createClipboardCopy({ resetAfter: 1800 })
+          const message = () =>
+            clipboard.state() === 'copied'
+              ? 'Copied'
+              : clipboard.state() === 'failed'
+                ? 'Copy failed'
+                : undefined
 
           return (
             <button
               type="button"
-              data-copying={feedback() ? '' : undefined}
-              class="group border border-border flex min-w-0 aspect-square transition-colors items-center justify-center relative rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:(border-primary/60 bg-primary/5) data-copy:pointer-events-none"
+              class="group border border-border flex min-w-0 aspect-square transition-colors items-center justify-center relative rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:(border-primary/60 bg-primary/5)"
               aria-label={`Copy ${name}`}
               title={name}
-              onClick={() => void copyIcon(name)}
+              onClick={() => void clipboard.copy(name)}
             >
               <Icon name={name} size={28} class="size-7" />
               <Icon

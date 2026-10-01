@@ -75,27 +75,47 @@ export default function App() {
   ]}
 >
   {(props) => {
+    const options = { toasterId: 'toast-playground' }
     const showToast = () => {
       const message = props.message
       switch (props.tone) {
         case 'warning':
-          toast.warning(message)
+          toast.warning(message, options)
           break
         case 'error':
-          toast.error(message)
+          toast.error(message, options)
           break
         case 'info':
-          toast.info(message)
+          toast.info(message, options)
           break
         default:
-          toast.success(message)
+          toast.success(message, options)
       }
     }
 
     return (
-      <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
-        Trigger Toast Notification
-      </Button>
+      <>
+        <BaseToaster
+          id="toast-playground"
+          preventDuplicate={props.preventDuplicate}
+          icons={{
+            success: () => <Icon name="icon-success" />,
+            error: () => <Icon name="icon-error" />,
+            warning: () => <Icon name="icon-warning" />,
+            info: () => <Icon name="icon-info" />,
+            close: () => <Icon name="icon-close" />,
+          }}
+          style={{
+            '--normal-bg': 'var(--popover)',
+            '--normal-text': 'var(--popover-foreground)',
+            '--normal-border': 'var(--border)',
+            '--border-radius': 'var(--radius)',
+          }}
+        />
+        <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
+          Trigger Toast Notification
+        </Button>
+      </>
     )
 
 }
@@ -105,12 +125,13 @@ export default function App() {
 
 ## Anatomy
 
-```text
-BaseToaster [component; slot=root]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+  }}
+/>
 
-- `BaseToaster`: Mounts at top-level root managing stacking, gaps, and z-index.
-- `Toast`: Individual animated notification card.
+The rendered root is the solid-toaster BaseToaster host, which manages the notification stack.
 
 ## Usage
 

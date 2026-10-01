@@ -2,6 +2,7 @@ import { For, Show, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
 import { Button, Icon, cn, createId } from '../../../../../src'
+import { ComponentDocContext } from '../component-doc.context'
 import { DOCS_PLAYGROUND_CLASS, DOCS_PLAYGROUND_PREVIEW_CLASS } from '../markdown.class'
 
 import {
@@ -11,7 +12,6 @@ import {
 } from './docs-playground-controls'
 import type { DocsPlaygroundControlValues, DocsPlaygroundProps } from './docs-playground-controls'
 import { DocsPlaygroundSlots } from './docs-playground-slots'
-import { DocsPlaygroundApiContext } from './docs-playground.context'
 
 export {
   DocsPlaygroundControlField,
@@ -26,13 +26,12 @@ export {
   type DocsPlaygroundSelectControl,
   type DocsPlaygroundSwitchControl,
 } from './docs-playground-controls'
-export { DocsPlaygroundApiContext } from './docs-playground.context'
 export { DocsPlaygroundSlots } from './docs-playground-slots'
 export { DOCS_PLAYGROUND_CLASS, DOCS_PLAYGROUND_PREVIEW_CLASS }
 
 /** Compact, controlled primitive inputs for an interactive docs example. */
 export function DocsPlayground(props: DocsPlaygroundProps) {
-  const api = useContext(DocsPlaygroundApiContext)
+  const api = useContext(ComponentDocContext)?.api
   let previewElement: HTMLDivElement | undefined
   const controls = untrack(() => normalizeDocsPlaygroundControls(props.controls))
   const defaultValues = getDocsPlaygroundControlDefaults(controls)

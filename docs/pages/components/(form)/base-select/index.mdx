@@ -81,27 +81,79 @@ export function Example() {
 
 ## Anatomy
 
-```text
-BaseSelect [component; no DOM]
-├── BaseSelect.Control [part; slot=control]
-│   └── BaseSelect.Trigger [part; slot=trigger]
-└── positioner [internal]
-    └── BaseSelect.Content [part; slot=content]
-        ├── BaseSelect.Listbox [part; slot=listbox]
-        │   ├── BaseSelect.Group [part; slot=group]
-        │   │   ├── BaseSelect.GroupLabel [part; slot=groupLabel]
-        │   │   └── BaseSelect.Item [part; slot=item]
-        │   ├── BaseSelect.Item [part; slot=item]
-        │   └── BaseSelect.Separator [part; slot=separator]
-        └── BaseSelect.Empty [part; slot=empty]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'BaseSelect.Control',
+        slot: 'control',
+        children: [
+          {
+            part: 'BaseSelect.Trigger',
+            slot: 'trigger',
+          },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'BaseSelect.Content',
+            slot: 'content',
+            children: [
+              {
+                part: 'BaseSelect.Listbox',
+                slot: 'listbox',
+                children: [
+                  {
+                    part: 'BaseSelect.Group',
+                    slot: 'group',
+                    children: [
+                      {
+                        part: 'BaseSelect.GroupLabel',
+                        slot: 'groupLabel',
+                      },
+                      {
+                        part: 'BaseSelect.Item',
+                        slot: 'item',
+                      },
+                    ],
+                  },
+                  {
+                    part: 'BaseSelect.Item',
+                    slot: 'item',
+                  },
+                  {
+                    part: 'BaseSelect.Separator',
+                    slot: 'separator',
+                  },
+                ],
+              },
+              {
+                part: 'BaseSelect.Empty',
+                slot: 'empty',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Control is an optional layout container and floating anchor; without it, Content uses the registered focus owner as its anchor.
+
+## Usage
+
+### Control and focus ownership
 
 Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
 own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
 select-like focus owner and activator. If Control is omitted, Content falls back to the registered
 focus owner for positioning.
-
-## Usage
 
 ### Standard composition
 

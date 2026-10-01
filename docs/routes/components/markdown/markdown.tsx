@@ -6,9 +6,9 @@ import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference, getDocsApiReferenceTocEntries } from './api-reference'
+import { ComponentDocContext } from './component-doc.context'
 import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
-import { DocsPlaygroundApiContext } from './playground'
 import { OnThisPage } from './toc'
 
 export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
@@ -102,9 +102,14 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         />
 
         <div class="mb-24 mt-8 min-w-0 w-full">
-          <DocsPlaygroundApiContext.Provider value={input.apiDoc}>
+          <ComponentDocContext.Provider
+            value={{
+              name: input.apiDoc?.parts[0]?.name ?? input.frontmatter.title,
+              api: input.apiDoc,
+            }}
+          >
             {input.children}
-          </DocsPlaygroundApiContext.Provider>
+          </ComponentDocContext.Provider>
           <DocsApiReference apiDoc={input.apiDoc} />
           <DocsPageNavigation currentPagePath={input.routePath} />
         </div>

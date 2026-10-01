@@ -65,15 +65,31 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Breadcrumb [component; slot=root; <nav>]
-└── list [slot]
-    ├── item [slot]
-    │   └── link [slot]
-    │       ├── leading [slot]
-    │       └── label [slot]
-    └── separator [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'nav',
+    },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'link',
+                children: [{ slot: 'leading' }, { slot: 'label' }],
+              },
+            ],
+          },
+          { slot: 'separator' },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

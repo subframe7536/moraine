@@ -92,15 +92,39 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Card [component; slot=root]
-├── Card.Header [part; slot=header]
-│   ├── Card.Title [part; slot=title]
-│   ├── Card.Description [part; slot=description]
-│   └── Card.Action [part; slot=action]
-├── Card.Body [part; slot=body]
-└── Card.Footer [part; slot=footer]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Card.Header',
+        slot: 'header',
+        children: [
+          {
+            part: 'Card.Title',
+            slot: 'title',
+          },
+          {
+            part: 'Card.Description',
+            slot: 'description',
+          },
+          {
+            part: 'Card.Action',
+            slot: 'action',
+          },
+        ],
+      },
+      {
+        part: 'Card.Body',
+        slot: 'body',
+      },
+      {
+        part: 'Card.Footer',
+        slot: 'footer',
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

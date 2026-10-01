@@ -16,8 +16,6 @@ import { Badge, Icon, Switch } from '../../../../../src'
 import { getDomSlotName } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
 
-export { DocsPlaygroundApiContext } from './docs-playground.context'
-
 interface SlotDescriptor {
   name: string
   domName: string

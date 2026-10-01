@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Icon, Badge, Button, cn, List, Tabs } from '../../../../src'
+import { Icon, Badge, Button, cn, List, Tabs, useSidebarFrame } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 
 const { version } = packageMetadata
@@ -27,6 +27,7 @@ interface SidebarSection {
 }
 
 export const Sidebar = (props: SidebarProps) => {
+  const frame = useSidebarFrame()
   const location = useLocation()
   const navigate = useNavigate()
   const currentSurface = createMemo(() =>
@@ -86,17 +87,19 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <div class="px-4 pb-10 pt-3 bg-background h-full min-h-0 overflow-y-auto">
-      <Tabs
-        class="mb-3 sm:hidden"
-        value={currentSurface()}
-        onChange={(value) => {
-          navigate(value === 'components' ? '/components' : '/docs/getting-started')
-        }}
-        items={[
-          { value: 'docs', label: 'Docs' },
-          { value: 'components', label: 'Components' },
-        ]}
-      />
+      <Show when={frame.isMobile()}>
+        <Tabs
+          class="mb-3"
+          value={currentSurface()}
+          onChange={(value) => {
+            navigate(value === 'components' ? '/components' : '/docs/getting-started')
+          }}
+          items={[
+            { value: 'docs', label: 'Docs' },
+            { value: 'components', label: 'Components' },
+          ]}
+        />
+      </Show>
       <nav class="pb-2 flex flex-col gap-5">
         <For each={grouped()}>
           {(section) => (

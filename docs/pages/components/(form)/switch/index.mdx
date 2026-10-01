@@ -48,6 +48,8 @@ export function Example() {
       label={props.label}
       description="Receive a notification when a deployment completes."
       size={props.size}
+      checkedIcon="icon-check"
+      uncheckedIcon="icon-close"
       defaultChecked
       disabled={props.disabled}
       loading={props.loading}
@@ -57,16 +59,27 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Switch [component; slot=root]
-├── input [internal]
-├── track [slot]
-│   └── thumb [slot]
-│       └── icon [slot]
-└── wrapper [slot]
-    ├── label [slot]
-    └── description [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { internal: 'input' },
+      {
+        slot: 'track',
+        children: [
+          {
+            slot: 'thumb',
+            children: [{ slot: 'icon' }],
+          },
+        ],
+      },
+      {
+        slot: 'wrapper',
+        children: [{ slot: 'label' }, { slot: 'description' }],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

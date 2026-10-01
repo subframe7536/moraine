@@ -72,22 +72,40 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Stepper [component; slot=root]
-├── header [slot]
-│   └── item [slot]
-│       ├── trigger [slot]
-│       │   ├── indicator [slot]
-│       │   │   └── icon [slot]
-│       │   └── wrapper [slot]
-│       │       ├── title [slot]
-│       │       └── description [slot]
-│       └── separator [slot]
-└── content [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'header',
+        children: [
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'trigger',
+                children: [
+                  {
+                    slot: 'indicator',
+                    children: [{ slot: 'icon' }],
+                  },
+                  {
+                    slot: 'wrapper',
+                    children: [{ slot: 'title' }, { slot: 'description' }],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+      { slot: 'content' },
+    ],
+  }}
+/>
 
-Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration. The indicator, title, and description share one trigger. Horizontal navigation scrolls when the steps cannot fit.
-Separators render between items, never after the last item.
+The indicator, title, and description share one trigger; separators appear only between items.
 
 ## Usage
 

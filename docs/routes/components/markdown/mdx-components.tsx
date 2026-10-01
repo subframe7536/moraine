@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Kbd, cn } from '../../../../src'
 
+import { Anatomy } from './anatomy'
 import { CodeBlock, CodeTabs } from './code'
 import { ComponentsIndex } from './components-index'
 import { IconGallery } from './icon-gallery'
@@ -44,6 +45,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
     <code {...props} class={cn(DOCS_INLINE_CODE_CLASS, props.class)} />
   ),
 
+  Anatomy,
   Playground,
   IconGallery,
   ComponentsIndex,

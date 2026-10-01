@@ -22,6 +22,7 @@ describe('agent Markdown', () => {
       'docs/installation.md',
       'docs/design.md',
       'docs/composition.md',
+      'docs/virtualization.md',
       'docs/typescript.md',
       'docs/ssr.md',
       'docs/accessibility.md',
@@ -30,13 +31,22 @@ describe('agent Markdown', () => {
     ]) {
       expect(names.has(name)).toBe(true)
     }
-    for (const old of ['start.md', 'button.md', 'styling/design.md', 'docs/styling/design.md']) {
+    for (const old of [
+      'start.md',
+      'button.md',
+      'styling/design.md',
+      'docs/styling/design.md',
+      'docs/create-list-virtualizer.md',
+      'docs/utils/create-list-virtualizer.md',
+    ]) {
       expect(names.has(old)).toBe(false)
     }
     const index = result.find((item) => item.fileName === 'llms.txt')!.source
     expect(index).toContain('## Docs')
     expect(index).toContain('## Components')
     expect(index).toContain('https://ui.subf.dev/docs/getting-started.md')
+    expect(index).toContain('https://ui.subf.dev/docs/virtualization.md')
+    expect(index).not.toContain('create-list-virtualizer')
     expect(index).toContain('https://ui.subf.dev/components/button.md')
   })
 
@@ -48,7 +58,7 @@ describe('agent Markdown', () => {
       expect(source, fileName).not.toMatch(/^---/)
       expect(source, fileName).not.toContain("from '@src'")
       expect(source, fileName).not.toContain('## Playground')
-      expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b/)
+      expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b|<Anatomy\b/)
     }
   })
 
@@ -64,10 +74,17 @@ describe('agent Markdown', () => {
     expect(button).toContain('## Basic usage')
     expect(button).toContain("import { Button } from 'moraine'")
     expect(button).toContain('## Anatomy')
+    expect(button).toContain('Button [component; slot=root; <button>]')
+    expect(button).toContain('├── leading [slot]')
+    expect(button).not.toContain('value={{')
     expect(button).toContain('## Usage')
     expect(button).toContain('## Props')
     const select = result.find((item) => item.fileName === 'components/select.md')!.source
     expect(select).toContain('https://ui.subf.dev/components/combobox.md')
+    const virtualization = result.find((item) => item.fileName === 'docs/virtualization.md')!.source
+    expect(virtualization).toContain('ComboboxT.Row<ComboboxT.Item<string>>')
+    expect(virtualization).toContain('virtualizer.scrollToIndex(entryIndex)')
+    expect(virtualization).not.toContain('virtualizer.scrollToItem')
     const customization = result.find((item) => item.fileName === 'docs/customization.md')!.source
     expect(customization).toContain('https://ui.subf.dev/docs/composition.md')
   })

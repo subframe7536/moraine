@@ -38,16 +38,19 @@ export function Example() {
       {
         value: 'install',
         label: 'How do I install Moraine?',
+        leading: 'i-lucide:download',
         content: 'Install moraine and configure either UnoCSS or Tailwind CSS before rendering components.',
       },
       {
         value: 'ssr',
         label: 'Is server-side rendering supported?',
+        leading: 'i-lucide:server',
         content: 'Moraine components are designed for Solid applications that render on the server and hydrate on the client.',
       },
       {
         value: 'customize',
         label: 'Can I customize component styles?',
+        leading: 'i-lucide:palette',
         content: 'Components expose root class/style props and named slot classes/styles where applicable.',
       },
     ]
@@ -69,17 +72,31 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Accordion [component; slot=root]
-└── item [slot]
-    ├── header [slot]
-    │   └── trigger [slot]
-    │       ├── leading [slot]
-    │       ├── label [slot]
-    │       └── trailing [slot]
-    └── content [slot]
-        └── body [slot]
-```
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'item',
+        children: [
+          {
+            slot: 'header',
+            children: [
+              {
+                slot: 'trigger',
+                children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+              },
+            ],
+          },
+          {
+            slot: 'content',
+            children: [{ slot: 'body' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Usage
 

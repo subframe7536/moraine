@@ -11,6 +11,7 @@
     "@floating-ui/dom": "^1.8.0",
     "@iconify-json/lucide": "^1.2.129",
     "@rolldown/pluginutils": "*",
+    "@solid-primitives/clipboard": "^1.6.6",
     "@solidjs/router": "^1.0.0",
     "@subf/unocss": "^0.3.1",
     "cn": "^0.4.0",

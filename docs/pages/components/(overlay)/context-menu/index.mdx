@@ -79,28 +79,56 @@ export function Example() {
 
 ## Anatomy
 
-```text
-ContextMenu [component; no DOM]
-├── ContextMenu.Trigger [part; slot=trigger]
-├── overlay [slot]
-└── positioner [internal]
-    └── ContextMenu.Content [part; slot=content]
-        ├── group [slot]
-        │   ├── groupLabel [slot]
-        │   └── item [slot]
-        ├── item [slot]
-        │   ├── itemLeading [slot]
-        │   ├── itemWrapper [slot]
-        │   │   ├── itemLabel [slot]
-        │   │   └── itemDescription [slot]
-        │   └── itemTrailing [slot]
-        │       ├── itemKbds [slot]
-        │       ├── itemIndicator [slot]
-        │       └── itemSubIndicator [slot]
-        └── separator [slot]
-```
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'ContextMenu.Trigger',
+        slot: 'trigger',
+      },
+      { slot: 'overlay' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'ContextMenu.Content',
+            slot: 'content',
+            children: [
+              {
+                slot: 'group',
+                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
+              },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  {
+                    slot: 'itemTrailing',
+                    children: [
+                      { slot: 'itemKbds' },
+                      { slot: 'itemIndicator' },
+                      { slot: 'itemSubIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
-Items inside a group use the same subtree as ungrouped items. Put native surface attributes on Content. Root `classes` and `styles` set defaults for this menu; Content can override its slots, including nested submenu layers. See [Styling](/docs/customization#style-overrides).
+Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Usage
 

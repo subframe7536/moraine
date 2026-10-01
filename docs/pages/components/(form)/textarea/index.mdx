@@ -74,11 +74,14 @@ export function Example() {
 
 ## Anatomy
 
-```text
-Textarea [component; slot=root; <textarea>]
-```
-
-`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native textarea. Put container styling and refs on `InputGroup` when composing supporting content.
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'textarea',
+    },
+  }}
+/>
 
 ## Usage
 

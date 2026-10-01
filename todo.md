@@ -31,14 +31,14 @@
   - [x] move engine-specific logic to its entry file
   - [x] polish styling guides
 - [x] reconsider `renderComponentOrElement` and its usage, cleanup small helpers
-- [ ] docs page polish
-  - [ ] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
-  - [ ] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
-  - [ ] move `docs/pages/docs/utils/create-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
-  - [ ] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
-  - [ ] add docs header composition & polymorphism badge link
-  - [ ] update playground, try to showcase more slots
-  - [ ] add `data-loaded` state on toc indicator to prevent clip-path transition on load from 0 to target
+- [x] docs page polish
+  - [x] fix: landing page and docs 's header padding are not same; docs&components link button on header 's visibility detection should same as sidebar
+  - [x] use `@solid-primitives/clipboard` to unify docs/ 's copy logic
+  - [x] move `docs/pages/docs/utils/create-list-virtualizer.mdx` to docs guide as a new page "Virtualization", make it more user and agent friendly, provider guides to setup `List` and `Combobox`
+  - [x] cleanup `## Anatomy` section, cleanup descriptions, generate tree via config object instead of writing raw codeblock
+  - [x] add docs header composition & polymorphism badge link
+  - [x] update playground, try to showcase more slots
+  - [x] add `data-loaded` state on toc indicator to prevent clip-path transition on load from 0 to target
 
 # V1
 
