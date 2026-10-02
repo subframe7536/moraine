@@ -239,10 +239,13 @@ export async function extractAnatomyConfig(source: string, sourcePath: string): 
   } finally {
     dropHandle(handle)
   }
+  if (headings === 0 && nodes.length === 0) {
+    return undefined
+  }
   if (headings !== 1 || nodes.length !== 1) {
     fail(
       sourcePath,
-      `component pages require exactly one ## Anatomy and one <Anatomy /> (found ${headings} headings and ${nodes.length} components)`,
+      `when present, Anatomy requires exactly one ## Anatomy and one <Anatomy /> (found ${headings} headings and ${nodes.length} components)`,
     )
   }
   return parseAnatomyNode(nodes[0]!, sourcePath)
@@ -252,6 +255,7 @@ export async function validateAnatomy(
   source: string,
   sourcePath: string,
   api?: ComponentApi,
-): Promise<AnatomyConfig> {
-  return validateAnatomyConfig(await extractAnatomyConfig(source, sourcePath), sourcePath, api)
+): Promise<AnatomyConfig | undefined> {
+  const config = await extractAnatomyConfig(source, sourcePath)
+  return config === undefined ? undefined : validateAnatomyConfig(config, sourcePath, api)
 }

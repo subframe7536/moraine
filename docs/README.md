@@ -40,12 +40,12 @@ All pages have validated frontmatter with `title`, `description`, `sidebar.order
 A component page uses this order:
 
 ```text
-intro → Basic usage → Playground → Anatomy → Usage → Examples? → generated Attributes / Props
+intro → Basic usage → Playground → Anatomy? → Usage → Examples? → generated Attributes / Props
 ```
 
 `Basic usage` starts with one fenced TSX example using the public package, complete enough to copy. Playground controls show only visually meaningful primitive states. `Usage` explains behavior, value models, and constraints beyond the API table; optional `Examples` contain real application patterns. Keep simple pages short. Explain managed keyboard or accessibility behavior beside the relevant usage section, without repeating native browser behavior.
 
-Anatomy is an authored fenced `text` tree. Every node identifies a public `component` or attached `part`, a style `slot`, or an `internal` detail. Root nodes say `slot=root` or `no DOM`. The build validates names against `api.json`; see `docs/build/anatomy.ts` and `docs/build/content.test.ts`. A style slot does not imply a matching attached JSX part.
+Anatomy is optional. When included, use one `## Anatomy` heading and one `<Anatomy value={...} />` with a static configuration, rendered as a fenced `text` tree. Every node identifies a public `component` or attached `part`, a style `slot`, or an `internal` detail. Root nodes say `slot=root` or `no DOM`. The build validates names against `api.json`; see `docs/build/anatomy.ts` and `docs/build/content.test.ts`. A style slot does not imply a matching attached JSX part.
 
 Preview paths are static, relative to a page, and point to a self-contained TSX file. Their copyable source appears in both the web page and generated Markdown. Do not add a Preview merely to meet a quota.
 
@@ -53,7 +53,7 @@ Preview paths are static, relative to a page, and point to a self-contained TSX 
 
 `docs/build/plugin.ts` regenerates API JSON from source types and recipes. `docs/build/markdown/page.ts` adds metadata, highlighted code, previews, and the shared page shell to MDX routes. `docs/build/routes.ts` scans the same MDX pages for navigation and Markdown generation. `docs/build/llms.ts` emits `/llms.txt` and a `.md` counterpart for each page. The development server serves the same Markdown paths.
 
-Markdown removes build frontmatter, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components directory with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
+Every generated document, including `/llms.txt`, starts with YAML frontmatter containing `title`, `description`, `package`, `version`, and `repository`. Package metadata comes from the root `package.json`; the repository is a browser-friendly GitHub URL. Markdown removes build-only frontmatter fields, MDX imports, Playground, and docs-only UI controls. It expands Preview TSX and generated API reference, converts internal links through exact canonical route paths, and expands the Components directory with descriptions from route metadata. The web directory stays a compact text-link grid. The page header's View and Copy Markdown actions use the same `.md` resource.
 
 The shared shell in `docs/routes/_app.tsx` owns route scrolling and hash navigation; the table of contents observes visible headings. `docs/DESIGN.md` defines visual and interaction guidelines. Generated route types and `docs/dist` are build artifacts.
 

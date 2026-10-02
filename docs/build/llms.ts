@@ -11,7 +11,9 @@ import {
   visitMdastHandle,
 } from 'satteri'
 import type { Plugin } from 'vite'
+import YAML from 'yaml'
 
+import packageMetadata from '../../package.json' with { type: 'json' }
 import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/icons.ts'
 import { renderAnatomyText } from '../shared/anatomy.ts'
 
@@ -93,6 +95,16 @@ function markdownFileName(route: DocsRouteEntry): string {
 
 function markdownPageUrl(siteUrl: string, route: DocsRouteEntry): string {
   return absoluteUrl(siteUrl, markdownFileName(route))
+}
+
+function renderFrontmatter(title: string, description: string): string {
+  return `---\n${YAML.stringify({
+    title,
+    description,
+    package: packageMetadata.name,
+    version: packageMetadata.version,
+    repository: packageMetadata.repository.url.replace(/^git\+/, '').replace(/\.git$/, ''),
+  })}---\n\n`
 }
 
 function routeByPath(routes: DocsRouteEntry[]): Map<string, DocsRouteEntry> {
@@ -431,7 +443,7 @@ async function convertPageMarkdown(
   const apiDoc = loadComponentApiDoc(context.sourcePath)
   const content = `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`
   const normalizedContent = content.replace(/\n{3,}/g, '\n\n')
-  return normalizedContent
+  return `${renderFrontmatter(frontmatter.title, frontmatter.description)}${normalizedContent}`
 }
 
 function normalizeInternalLinks(
@@ -478,7 +490,7 @@ export function buildLlmsTxt(
       `- [${route.info.title}](${markdownPageUrl(options.siteUrl, route)}): ${route.info.description}`,
     )
   }
-  return `${output.join('\n').trimEnd()}\n`
+  return `${renderFrontmatter(options.siteName, options.description)}${output.join('\n').trimEnd()}\n`
 }
 
 export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise<LlmsDocument[]> {

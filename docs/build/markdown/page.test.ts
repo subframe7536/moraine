@@ -62,7 +62,7 @@ describe('createDocsMdxOptions', () => {
     const options = createDocsMdxOptions(projectRoot)
     const extension = await options.extendLoad?.(
       {
-        source: "## Anatomy\n\n<Anatomy value={{root: {slot: 'root'}}} />",
+        source: '## Usage\n\nUse Button.',
         code: 'function MDXContent() {}',
         component: 'MDXContent',
         frontmatter: FRONTMATTER,

@@ -102,7 +102,14 @@ describe('Anatomy static config', () => {
     await expect(extractAnatomyConfig(source(value), 'card.mdx')).rejects.toThrow('card.mdx')
   })
 
-  test('requires one heading and one component, ignoring examples in code fences', async () => {
+  test('allows omitted Anatomy, including examples that only appear in code fences', async () => {
+    await expect(validateAnatomy('## Usage\n\nUse Card.', 'card.mdx', api)).resolves.toBeUndefined()
+    await expect(
+      validateAnatomy('```mdx\n## Anatomy\n<Anatomy value={config} />\n```', 'card.mdx', api),
+    ).resolves.toBeUndefined()
+  })
+
+  test('requires one heading and one component when present, ignoring examples in code fences', async () => {
     await expect(
       extractAnatomyConfig('## Anatomy\n```text\nCard\n```', 'card.mdx'),
     ).rejects.toThrow('exactly one')

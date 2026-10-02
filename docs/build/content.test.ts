@@ -32,16 +32,19 @@ test('component pages follow the shared content and anatomy contract', async () 
     if (!intro || intro.startsWith('##')) {
       failures.push(`${name}: missing introduction`)
     }
-    const required = ['Basic usage', 'Playground', 'Anatomy', 'Usage']
+    const required = ['Basic usage', 'Playground', 'Usage']
     for (const section of required) {
       if (!labels.includes(section)) {
         failures.push(`${name}: missing ${section}`)
       }
     }
+    const ordered = ['Basic usage', 'Playground', 'Anatomy', 'Usage'].filter((section) =>
+      labels.includes(section),
+    )
     if (
-      required.some(
+      ordered.some(
         (section, index) =>
-          index > 0 && labels.indexOf(section) < labels.indexOf(required[index - 1]),
+          index > 0 && labels.indexOf(section) < labels.indexOf(ordered[index - 1]),
       )
     ) {
       failures.push(`${name}: incorrect section order`)

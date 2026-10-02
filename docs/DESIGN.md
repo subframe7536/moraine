@@ -29,7 +29,7 @@ No preview grid, card wall, or repeated description accompanies each link. Route
 continue to support search, SEO, and agent Markdown.
 
 Component pages lead with a short choice-oriented introduction, then Basic usage as copyable public
-TSX, Playground for simple visual changes, annotated Anatomy, behavior-focused Usage, optional
+TSX, Playground for simple visual changes, optional annotated Anatomy, behavior-focused Usage, optional
 real-task Examples, and generated API tables. Keep a single source for web and agent output.
 Render Anatomy as a copyable text code block using the same tree as agent Markdown.
 Do not re-list props, create a separate Import/Features/Related section, repeat native browser

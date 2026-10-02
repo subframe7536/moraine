@@ -3,6 +3,9 @@
 import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
+import YAML from 'yaml'
+
+import packageMetadata from '../../package.json' with { type: 'json' }
 
 import { buildLlmsDocuments } from './llms.ts'
 import { DOCS_SITE } from './site-meta.ts'
@@ -50,12 +53,23 @@ describe('agent Markdown', () => {
     expect(index).toContain('https://ui.subf.dev/components/button.md')
   })
 
-  test('removes build metadata, runtime imports, Playground and MDX from every generated document', async () => {
+  test('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
     for (const { fileName, source } of await documents()) {
-      if (fileName === 'llms.txt') {
-        continue
-      }
-      expect(source, fileName).not.toMatch(/^---/)
+      const match = source.match(/^---\n([\s\S]*?)\n---\n\n/)
+      expect(match, fileName).not.toBeNull()
+      const frontmatter = YAML.parse(match![1]!) as { title: string; description: string }
+      expect(frontmatter, fileName).toEqual({
+        title: expect.any(String),
+        description: expect.any(String),
+        package: 'moraine',
+        version: packageMetadata.version,
+        repository: 'https://github.com/subframe7536/moraine',
+      })
+      const body = source.slice(match![0].length)
+      expect(
+        body.startsWith(`# ${frontmatter.title}\n\n> ${frontmatter.description}\n`),
+        fileName,
+      ).toBe(true)
       expect(source, fileName).not.toContain("from '@src'")
       expect(source, fileName).not.toContain('## Playground')
       expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b|<Anatomy\b/)
