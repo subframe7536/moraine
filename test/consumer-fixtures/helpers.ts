@@ -123,6 +123,7 @@ const utilityNames = [
   'createDisclosureState',
   'createEventListener',
   'createEventListenerMap',
+  'createId',
   'createMediaQuery',
   'createSelectableCollectionNavigation',
   'createSlider',

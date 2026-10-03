@@ -1,3 +1,4 @@
+export { createId } from './shared/utils'
 export { createControllableValue } from './shared/controllable-value'
 export type { CreateControllableValueOptions } from './shared/controllable-value'
 export { createDisclosureState } from './shared/disclosure-state'

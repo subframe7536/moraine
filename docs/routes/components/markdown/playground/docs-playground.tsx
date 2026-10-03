@@ -2,7 +2,8 @@ import { For, Show, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { Portal } from 'solid-js/web'
 
-import { Badge, Button, Icon, Switch, createId } from '../../../../../src'
+import { Badge, Button, Icon, Switch } from '../../../../../src'
+import { createId } from '../../../../../src/utils'
 import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
 import { ComponentDocContext } from '../component-doc.context'
 

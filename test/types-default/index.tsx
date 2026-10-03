@@ -70,6 +70,9 @@ import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
 type Assert<T extends true> = T
+export type UtilityExports = Assert<
+  'createId' extends keyof typeof import('moraine') ? false : true
+>
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,

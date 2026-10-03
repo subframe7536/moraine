@@ -10,7 +10,7 @@ search:
 ## Import
 
 ```tsx
-import { createId } from 'moraine'
+import { createId } from 'moraine/utils'
 ```
 
 ## Signature
@@ -25,7 +25,7 @@ function createId(
 ## Usage Example
 
 ```tsx title="src/CustomField.tsx"
-import { createId } from 'moraine'
+import { createId } from 'moraine/utils'
 
 interface CustomFieldProps {
   id?: string
@@ -33,19 +33,19 @@ interface CustomFieldProps {
 }
 
 export function CustomField(props: CustomFieldProps) {
-  // Uses props.id if supplied; otherwise generates "input-mo-..."
+  // Uses props.id if supplied; otherwise generates a unique "input-..." ID.
   const inputId = createId(() => props.id, 'input')
-  const descriptionId = `${inputId()}-desc`
+  const descriptionId = () => `${inputId()}-desc`
 
   return (
     <div>
       <label for={inputId()}>{props.label}</label>
       <input
         id={inputId()}
-        aria-describedby={descriptionId}
+        aria-describedby={descriptionId()}
         class="border px-3 py-1.5 rounded-md"
       />
-      <p id={descriptionId} class="text-xs text-muted-foreground">
+      <p id={descriptionId()} class="text-xs text-muted-foreground">
         Required field
       </p>
     </div>

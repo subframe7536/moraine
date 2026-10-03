@@ -15,10 +15,10 @@ This guide outlines how Moraine handles the SSR lifecycle and how you can ensure
 
 Accessible components require matching IDs between elements (for example, connecting a trigger's `aria-controls` to a content panel's `id`). When server rendering, randomly generated IDs could differ between server and client, causing hydration mismatches.
 
-Moraine exports `createId`, which leverages Solid's internal hydration context to generate deterministic, synchronized IDs across the server and client:
+Use `createId` from `moraine/utils` to generate matching IDs across server rendering and client hydration:
 
 ```tsx
-import { createId } from 'moraine'
+import { createId } from 'moraine/utils'
 
 function CustomField() {
   const id = createId() // Generates stable, synchronized IDs across SSR and hydration
