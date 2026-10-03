@@ -13,17 +13,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: pnpm/setup@v3
         with:
-          node-version-file: .node-version
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
+          runtime: node@24
+          cache: true
       - run: pnpm publish --provenance --no-git-checks
       - name: Trigger Cloudflare Pages build
         run: curl -d "" ${PAGES_BUILD_HOOK_URL}

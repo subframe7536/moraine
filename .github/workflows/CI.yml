@@ -42,18 +42,12 @@ jobs:
     name: QA
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
         with:
-          node-version-file: .node-version
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
+          runtime: node@24
+          cache: true
       - run: pnpm run qa
-
       - name: Ensure QA fixes are committed
         run: git diff --exit-code
 
@@ -61,18 +55,11 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
         with:
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
+          runtime: node@24
+          cache: true
       - name: Run changed tests
         env:
           BASE_REF: ${{ github.base_ref }}
