@@ -7,7 +7,7 @@ search:
   tags: [polymorphism, as, polymorphic, element, trigger, component polymorphism]
 ---
 
-Moraine provides complete polymorphic rendering via the `as` prop. You can change what element or component is rendered without losing component styles, accessibility semantics, or TypeScript safety.
+Moraine components and parts that expose `as` can render a different element or Solid component while preserving their styles and typed props. State-only roots and native form controls such as `Input` do not expose `as`. When changing an element, ensure the result still provides an accessible name and appropriate semantics.
 
 ## Rendering as an HTML Element (`as="tag"`)
 

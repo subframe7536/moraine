@@ -42,7 +42,7 @@ Import `./index.css` in `src/main.tsx` and define the theme variables described 
 
 Tailwind CSS v4 ignores `node_modules` during automatic source detection. The Moraine plugin registers utility rules and variants; it does not register component files as sources. Use `@source` even when the plugin is already configured. See [Tailwind's source detection guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources).
 
-Scan the full published `moraine/dist` directory; individual component, recipe, or chunk paths are not needed. Note the following requirements:
+Scan the full `moraine/dist` directory. Note the following requirements:
 
 1. **Path resolution**: `@source` paths are filesystem paths relative to the stylesheet, not package imports. Use a path to the published `dist` folder (e.g. `'../node_modules/moraine/dist'` for `src/index.css`).
 2. **Monorepos and workspaces**: If `moraine` is hoisted to a root `node_modules` directory in a pnpm or npm workspace, adjust the relative path to point to the repository root:
@@ -68,7 +68,7 @@ Theme variables and page background/text styles belong in your CSS. The plugin r
 }
 ```
 
-`SidebarFrame.Sidebar` reads the global `--sidebar-width` variable with a recipe fallback of `clamp(14rem, 25%, 20rem)`. Set it in `:root` to customize the default width.
+Set the global `--sidebar-width` in `:root` to customize the desktop sidebar width. SidebarFrame uses `clamp(14rem, 25%, 20rem)` when unset.
 
 `bg-control` supplies outline field, unchecked choice, and upload surfaces; `border-input` keeps the existing boundary role, including neutral tracks/separators elsewhere. `control` uses existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
 
@@ -117,6 +117,8 @@ Target component DOM states cleanly using utility prefixes:
 ## Design tokens and CSS variables
 
 The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/design#css-variables).
+
+The default `text-xs` through `text-9xl` scale reads the local `--font-size`, and named radius utilities read `--radius`. Explicit Tailwind theme values can replace these mappings. For class overrides that also work with UnoCSS Wind3 and Wind4, see [Utilities across CSS engines](/docs/customization#utilities-across-css-engines).
 
 ## Troubleshooting
 

@@ -35,7 +35,7 @@ export function CustomAction() {
       // Layer 3: instance slot classes customize inner elements
       classes={{
         label: 'font-mono uppercase tracking-widest',
-        leadingIcon: 'text-destructive-foreground',
+        leading: 'text-destructive-foreground',
       }}
     >
       Delete Project
@@ -99,5 +99,5 @@ const buttonClasses: ButtonT.Classes = {
 }
 
 // Union of all available slot names for Card
-type CardSlots = CardT.Slot // 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
+type CardSlots = keyof CardT.Slot // 'root' | 'header' | 'title' | 'description' | 'action' | 'body' | 'footer'
 ```

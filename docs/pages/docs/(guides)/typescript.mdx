@@ -54,30 +54,30 @@ const countries: SelectT.Item[] = [
 
 #### Namespace Members Reference
 
-| Member    | Description                                                                      |
-| :-------- | :------------------------------------------------------------------------------- |
-| `Props`   | Complete component props interface (identical to `XxxProps`).                    |
-| `Base`    | Core business props without native HTML attributes.                              |
-| `Slot`    | Union of all available styling slot names (e.g. `'root' \| 'header' \| 'body'`). |
-| `Variant` | Object shape of all public visual variants (accepts `null` to clear defaults).   |
-| `Classes` | Type-safe record for slot class overrides (`Record<Slot, string>`).              |
-| `Styles`  | Type-safe record for slot inline style overrides.                                |
-| `Item`    | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).      |
-| `Value`   | Value domain type for form controls with value semantics.                        |
+| Member    | Description                                                                         |
+| :-------- | :---------------------------------------------------------------------------------- |
+| `Props`   | Complete component props interface (identical to `XxxProps`).                       |
+| `Base`    | Core business props without native HTML attributes.                                 |
+| `Slot<T>` | Object shape of optional styling slots; `keyof XxxT.Slot` gives the slot names.     |
+| `Variant` | Object shape of visual variant options; component props additionally accept `null`. |
+| `Classes` | Slot shape containing `cn` class values, including strings, arrays, and objects.    |
+| `Styles`  | Slot shape containing `JSX.CSSProperties` objects; string styles are unsupported.   |
+| `Item`    | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).         |
+| `Value`   | Value domain type for form controls with value semantics.                           |
 
 ## Visual Variants (`XxxT.Variant`)
 
-Components supporting visual variants expose their options under `XxxT.Variant`. Variant properties accept `null` to explicitly clear library defaults:
+Components supporting visual variants expose their options under `XxxT.Variant`. The corresponding properties on `XxxProps` accept `null` to explicitly clear defaults for that variant, while base recipe styles and other variants remain active:
 
 ```tsx
-import type { ButtonT } from 'moraine'
+import type { ButtonProps } from 'moraine'
 import { Button } from 'moraine'
 
-type VariantName = ButtonT.Variant['variant'] // 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null
+type VariantName = ButtonProps['variant'] // 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null | undefined
 
-// Explicitly unstyled button:
+// Clear the default visual variant while retaining base and size styles:
 export function RawButton() {
-  return <Button variant={null}>Unstyled</Button>
+  return <Button variant={null}>No visual variant</Button>
 }
 ```
 
@@ -107,24 +107,17 @@ You can customize Moraine's compile-time type behavior across your entire applic
 Create a declaration file (e.g. `src/env.d.ts` or `src/moraine.d.ts`) in your project:
 
 ```ts title="src/moraine.d.ts"
+import 'moraine'
+
 declare module 'moraine' {
   interface MoraineTypeConfig {
-    /**
-     * When true, relaxes root element attributes to component props + Record<string, unknown>.
-     * Non-standard attributes are accepted without type errors, improving type-checking speed.
-     * Defaults to false (strict checking against JSX.IntrinsicElements).
-     */
-    simpleRootAttributes?: boolean
-
-    /**
-     * When true, restricts polymorphic `as` tags to JSX.HTMLElementTags (HTML tags only).
-     * Excludes SVG and MathML intrinsic tags from `as` autocompletion.
-     * Defaults to false (allows all keyof JSX.IntrinsicElements).
-     */
-    simpleHtmlTags?: boolean
+    simpleRootAttributes: true
+    simpleHtmlTags: true
   }
 }
 ```
+
+Enable only the options you need, using required properties with the literal type `true`. Omit an option to retain its default behavior; optional `boolean` properties do not enable it.
 
 ### `simpleRootAttributes`
 

@@ -94,13 +94,11 @@ Use the `App` from the [installation example](/docs/installation#3-verify-the-in
 
 ### Scanning component classes
 
-The preset defines how utilities become CSS; it does not register files to scan. Moraine publishes component classes in `.mjs` and `.jsx` files. Scan the whole `moraine/dist` directory with the glob above; individual component, recipe, or chunk paths are not needed.
+Scan the whole `moraine/dist` directory with the glob above. The preset does not configure scanning paths for your application.
 
 Filesystem scanning reads these classes independently of which modules have been requested through Vite. Keep both the application and package globs, including lazy-loaded route files and `.ts` files containing class maps. The `pipeline.include` filter also applies to filesystem extraction in `@subf/unocss/vite`; UnoCSS's default filter omits `.mjs` and `.ts`. Keep the extensions your app uses when changing this filter because it replaces the default. See [UnoCSS's extraction guide](https://unocss.dev/guide/extracting).
 
 Filesystem globs are relative to Vite's root. The examples assume `src/` and `node_modules/moraine` live under that root. If you set a different Vite root, keep routes outside `src/`, or use a workspace with Moraine installed at the repository root, adjust the globs to match those locations. Add your Markdown or MDX directories when they contain application classes.
-
-Moraine expands variant groups in its published component classes. If your own app uses grouped utilities such as `hover:(bg-primary text-primary-foreground)`, add `transformerVariantGroup()` from `@subf/unocss` to your `transformers` array.
 
 ### Verification and troubleshooting
 
@@ -161,7 +159,7 @@ presetMoraine({
 
 | Option                        | Default                                                                          | Behavior                                                                                                                                          |
 | :---------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `wind3`                       | `false`                                                                          | Enables Wind3 theme mappings, and semantic color alpha compatibility. Native numeric spacing and sizes remain unchanged.                          |
+| `wind3`                       | `false`                                                                          | Enables Wind3 theme mappings and semantic color alpha compatibility. Native numeric spacing and sizes remain unchanged.                           |
 | `themeDefaults`               | `true`                                                                           | Emits neutral light/dark colors and color schemes, default shadows, and HTML background/text styles. Set `false` when your CSS defines the theme. |
 | `override`                    | omitted                                                                          | Overrides the built-in neutral light and dark colors or adds named themes.                                                                        |
 | `override.<name>.colorScheme` | `light` for the built-in light theme; `dark` for dark; omitted for custom themes | Accepts `light` or `dark` only. Emits `color-scheme` on the theme selector; explicit values still apply with `themeDefaults: false`.              |
@@ -187,7 +185,28 @@ Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb,
 
 Use `presetMoraine({ wind3: true })` with `presetWind3()`. This enables Wind3's semantic token mappings and color alpha compatibility. Numeric spacing and size utilities keep Wind3's native values and explicit theme overrides; changing `--spacing` does not scale them. Use explicit variable utilities such as `p-(--app-padding)` for runtime spacing changes.
 
-Wind3 resolves `text-*`, `rounded-*`, and leading utilities through its native rules. Configure font sizes with UnoCSS's `theme.fontSize`; `--font-size` does not scale Wind3 typography. Moraine supplies its radius scale through `theme.borderRadius`, and explicit theme values take precedence. Wind4 uses its native typography and radius rules. Moraine postprocesses the resolved `theme.text` and `theme.radius` values inline so local `--font-size` and `--radius` changes scale the utilities without changing their native class order. Explicit UnoCSS theme values take precedence, and text utilities retain Wind4's native `--un-leading` behavior.
+With Wind3, configure font sizes through UnoCSS's `theme.fontSize`; `--font-size` does not scale typography. Customize named radiuses through `theme.borderRadius`. With Wind4, local `--font-size` and `--radius` values scale the default typography and radius tokens; customize them through `theme.text` and `theme.radius`. Explicit UnoCSS theme values take precedence in both modes. Use `leading-*` to set line height independently of font size.
+
+### Font families
+
+Configure font families through UnoCSS's theme object, separately from `presetMoraine()` options. Wind4 uses `theme.font`; Wind3 uses `theme.fontFamily`:
+
+```ts title="Wind4 font configuration"
+import { defineConfig, presetWind4 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind4(), presetMoraine()],
+  theme: {
+    font: {
+      sans: 'Inter, system-ui, sans-serif',
+      mono: 'ui-monospace, monospace',
+    },
+  },
+})
+```
+
+For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and put the same family entries under `theme.fontFamily`. These explicit theme values take precedence over Moraine's variable references. To keep runtime font switching, use values such as `sans: 'var(--font-sans)'` and define the corresponding CSS variables in your stylesheet. Load any custom font files separately.
 
 ### Hover and active colors
 

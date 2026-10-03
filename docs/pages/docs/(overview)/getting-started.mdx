@@ -9,7 +9,7 @@ search:
 
 Moraine is a comprehensive SolidJS component library combining accessible, headless behavioral primitives with ready-to-use atomic class styling inspired by Nuxt UI and Shadcn.
 
-Unlike React-first libraries ported to Solid, Moraine is engineered from the ground up for Solid's fine-grained reactivity. Components never re-render unnecessarily, produce zero synthetic DOM wrappers, and provide full SSR and streaming hydration safety.
+Moraine supports reactive props, server rendering, and hydration in SolidJS applications.
 
 ## Fine-Grained Reactivity First
 
@@ -28,17 +28,14 @@ You don't have to choose between writing accessibility from scratch or being loc
 
 ## Composable Anatomy & Polymorphism
 
-- **Single vs Composite**: Simple components (like `Button` or `Input`) work as single elements with rich props, while complex widgets (like `Dialog`, `Card`, or `Select`) expose composable parts (`Dialog.Trigger`, `Dialog.Content`, `Dialog.Close`).
-- **Render Delegation (`as`)**: Every component supports the polymorphic `as` prop, letting you render as native HTML elements (`as="a"`) or compose other components (`as={Button}`) while preserving type safety and forwarded props.
+- **Single vs Composite**: Components like `Button`, `Input`, and `Select` expose one JSX entry point. Components like `Dialog`, `Card`, and `SidebarFrame` expose attached parts that you arrange in your layout (`Dialog.Trigger`, `Dialog.Content`, `Dialog.Close`).
+- **Render Delegation (`as`)**: Components and parts that expose `as` can render native HTML elements (`as="a"`) or other components (`as={Button}`) with typed, forwarded props.
 
 ## Multi-Layer Customization
 
-Moraine provides four deterministic styling layers so you can customize without messy CSS specificity wars:
+Moraine merges four styling layers in increasing priority: built-in recipes, `defineTheme()` overrides, instance slot `classes` / `styles`, and direct part `class` / `style` props. Use `MoraineProvider` to scope a component theme to the application or a subtree.
 
-1. **Direct Attributes**: Pass `class` and `style` directly on JSX parts.
-2. **Type-Safe Slot Classes**: Target inner elements through `classes={{ control: '...', indicator: '...' }}` with full autocompletion.
-3. **Semantic Design Tokens**: Configure CSS variables for colors, radiuses, shadows, and z-indexes across your whole project.
-4. **App-Wide Theming**: Override default recipes globally with `MoraineProvider` and `createTheme()`.
+Semantic CSS variables are a separate styling surface: configure colors, radiuses, shadows, and dimensions across your application without changing component recipes. See [Customization](/docs/customization) for the override hierarchy and [Design Tokens](/docs/design) for variable roles.
 
 ## Getting Started
 

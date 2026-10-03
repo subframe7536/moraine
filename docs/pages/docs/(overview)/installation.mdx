@@ -38,7 +38,7 @@ yarn add moraine
 
 ## 2. Configure Atomic Class Styling
 
-Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-md`, etc.) and semantic CSS variables. Configure your preferred styling tool:
+Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-surface`, etc.) and semantic CSS variables. Configure your preferred styling tool:
 
 ### Option A: UnoCSS (Recommended)
 
@@ -65,7 +65,7 @@ export default defineConfig({
 })
 ```
 
-See the [UnoCSS Setup Guide](/docs/unocss) for advanced configurations, variant groups, and color tokens.
+For Wind3, replace the presets with `[presetWind3(), presetMoraine({ wind3: true })]`. Wind3 compatibility must be enabled explicitly. See the [UnoCSS Setup Guide](/docs/unocss) for integration, scanning, variant groups, and color tokens.
 
 ### Option B: Tailwind CSS
 

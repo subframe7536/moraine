@@ -139,8 +139,8 @@ export function ScopedDialog() {
   return (
     <Dialog
       styles={{
-        overlay: { '--backdrop-opacity': '0.75' },
-        content: { '--card': 'oklch(25% 0 0)' },
+        overlay: { '--backdrop': 'rgb(0 0 0 / 0.75)' },
+        content: { '--popover': 'oklch(25% 0 0)', '--popover-foreground': 'white' },
       }}
     >
       <Dialog.Trigger as={Button}>Open Modal</Dialog.Trigger>

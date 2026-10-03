@@ -31,15 +31,20 @@ export function SearchIndicator() {
 
 ## Component Icon Props
 
-Interactive components such as `Button`, `Input`, `Badge`, and `Tabs` accept `leading` and `trailing` icon props directly:
+`Button` and `Badge` accept `leading` and `trailing` icon props. Select-family controls use `leadingIcon` and `trailingIcon`; tabs use each item's `icon`. Wrap a native-style `Input` in `InputGroup` to add an icon:
 
 ```tsx
-import { Button, Input } from 'moraine'
+import { Button, Icon, Input, InputGroup } from 'moraine'
 
 export function SearchBar() {
   return (
     <div class="flex items-center gap-2">
-      <Input leading="icon-search" placeholder="Search components..." />
+      <InputGroup>
+        <InputGroup.Leading>
+          <Icon name="icon-search" />
+        </InputGroup.Leading>
+        <Input aria-label="Search components" placeholder="Search components..." />
+      </InputGroup>
       <Button leading="icon-plus" variant="default">
         New Item
       </Button>
@@ -48,7 +53,7 @@ export function SearchBar() {
 }
 ```
 
-Components accept both short icon class names (`icon-search`, `icon-chevron-down`) and Iconify-style identifiers (`i-lucide:search`).
+The published stylesheet includes Moraine's semantic aliases such as `icon-search` and `icon-chevron-down`. Other names such as `i-lucide-search` need their own CSS generator, for example UnoCSS's `presetIcons()` with the Lucide collection. Passing an icon name does not load its CSS.
 
 ## Icon Gallery
 

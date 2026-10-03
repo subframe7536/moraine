@@ -97,7 +97,7 @@ In state-only roots:
 
 ## Polymorphism (`as` Prop)
 
-All Moraine components support rendering as a different HTML tag or SolidJS component via the `as` prop:
+Components and rendered parts that expose `as` support a different HTML tag or SolidJS component. State-only roots and native form controls such as `Input` do not expose this prop. Check the component's API before changing its element:
 
 ```tsx
 import { Button } from 'moraine'
@@ -112,7 +112,7 @@ For complete details on type preservation and event forwarding, see the dedicate
 
 ## Reading Component Anatomy
 
-All builtin components documentation page includes an **Anatomy** tree in a copyable text code block, matching the agent Markdown output. When present, the tree shows:
+Component documentation includes an **Anatomy** tree showing:
 
 - The hierarchy of attached public **parts**
 - The corresponding **slot** names
