@@ -8,7 +8,6 @@ const theme = {
     control: 'var(--palette-field)',
     primary: { foreground: '#fff', hover: 8, active: () => '#124' },
   },
-  fonts: { sans: 'Inter' },
   shadows: { surface: '0 1px #000', overlay: '0 4px #111', input: 'none' },
   radius: '1rem',
   fontSize: '1rem',
@@ -17,7 +16,6 @@ const theme = {
 } satisfies MorainePresetTheme
 
 presetMoraine({
-  fonts: { sans: 'Inter' },
   themeDefaults: false,
   override: {
     light: theme,
@@ -35,6 +33,10 @@ presetMoraine({ override: { light: { '--radius': '1rem' } } })
 presetMoraine({ colors: { primary: '#369' } })
 // @ts-expect-error Shadows are configured within named themes.
 presetMoraine({ shadows: { surface: '0 1px #000' } })
+// @ts-expect-error Font families belong in CSS.
+presetMoraine({ fonts: { sans: 'Inter' } })
+// @ts-expect-error Theme font families belong in CSS.
+presetMoraine({ override: { light: { fonts: { sans: 'Inter' } } } })
 // @ts-expect-error Color schemes are configured within named themes.
 presetMoraine({ colorScheme: 'light' })
 // @ts-expect-error Color schemes must be light or dark.

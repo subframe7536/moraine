@@ -78,11 +78,11 @@ A shadcn/ui palette supplies the shared color roles and `--radius`. Moraine adds
 | `--<color>-hover`, `--<color>-active`                                                                       | Explicit interaction colors, such as `--primary-hover` and `--accent-active`.                            | Generated state color, then the documented [state cascade](#interactive-state-cascade).                                |
 | `--destructive-foreground`                                                                                  | Optional text and icon color for destructive surfaces.                                                   | `--background`.                                                                                                        |
 | `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale and its default line heights.                | `1rem`.                                                                                                                |
-| `--sidebar-width`                                                                                           | Width used by the `w-sidebar` utility.                                                                   | `clamp(14rem, 25%, 20rem)`.                                                                                            |
+| `--sidebar-width`                                                                                           | Global desktop sidebar width; also used by `w-sidebar`.                                                  | `clamp(14rem, 25%, 20rem)`.                                                                                            |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
 | `--mo-anim-duration-enter`, `--mo-anim-duration-exit`, `--mo-anim-duration-loop`, `--mo-anim-duration-spin` | Duration per animation family when the global duration is unset.                                         | `250ms`, `150ms`, `2s`, and `1s`, respectively.                                                                        |
 
-UnoCSS emits default `control`, `backdrop`, and semantic shadows only when `themeDefaults` is enabled or the values are explicitly configured. The backdrop utility retains its fallback when the variable is absent. `--font-size`, `--spacing`, and `--radius` keep their root defaults when `themeDefaults: false`; `--sidebar-width` and the animation duration variables use CSS fallbacks unless configured. The Tailwind plugin registers Moraine's utilities and automatic state colors, while your stylesheet supplies the palette and shadow values.
+UnoCSS emits default `control`, `backdrop`, and semantic shadows only when `themeDefaults` is enabled or the values are explicitly configured. The backdrop utility retains its fallback when the variable is absent. `--font-size`, `--spacing`, and `--radius` keep their root defaults when `themeDefaults: false`. Animation duration variables use CSS fallbacks unless configured. The preset emits `--sidebar-width` only when configured; SidebarFrame supplies its fallback through the recipe variable `--mo-sidebar-width`. The Tailwind plugin registers Moraine's utilities and automatic state colors, while your stylesheet supplies the palette and shadow values.
 
 Use `override.<theme>.colors` for `control`, `backdrop`, and explicit interaction colors; use `override.<theme>.shadows` for semantic shadows. The preset also accepts `fontSize`, `spacing`, `radius`, and `sidebarWidth` at the top level or inside a theme override. Set animation controls directly in CSS. For example, customize the density, sidebar width, and motion of an application container:
 
@@ -95,8 +95,6 @@ Use `override.<theme>.colors` for `control`, `backdrop`, and explicit interactio
   --mo-anim-duration-exit: 120ms;
 }
 ```
-
-Apply `class="w-sidebar"` to `SidebarFrame.Sidebar` to use `--sidebar-width`; its default recipe uses `w-64` instead.
 
 Variables inherit through DOM ancestors. Portaled overlays need these values on an ancestor of the portal container, such as the document root, or a portal mounted inside the themed container.
 
@@ -187,14 +185,23 @@ Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS eng
 
 ## Typography and Spacing
 
-| Token             | Description                   | Fallback                   |
-| :---------------- | :---------------------------- | :------------------------- |
-| `--font-sans`     | Primary UI typeface           | System sans-serif stack    |
-| `--font-mono`     | Code, numbers, and Kbd        | System monospace stack     |
-| `--font-serif`    | Editorial serif typeface      | System serif stack         |
-| `--font-size`     | Base for `text-xs`–`text-9xl` | `1rem`                     |
-| `--spacing`       | Base spacing unit             | `0.25rem`                  |
-| `--sidebar-width` | Width used by `w-sidebar`     | `clamp(14rem, 25%, 20rem)` |
+| Token          | Description                   | Fallback        |
+| :------------- | :---------------------------- | :-------------- |
+| `--font-sans`  | Primary UI typeface           | None in Moraine |
+| `--font-mono`  | Code, numbers, and Kbd        | None in Moraine |
+| `--font-serif` | Editorial serif typeface      | None in Moraine |
+| `--font-size`  | Base for `text-xs`–`text-9xl` | `1rem`          |
+| `--spacing`    | Base spacing unit             | `0.25rem`       |
+
+`font-sans`, `font-mono`, and `font-serif` read the corresponding CSS variables. Moraine does not configure font families or emit their variables. Define them in your stylesheet:
+
+```css title="src/theme.css"
+:root {
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: 'Maple Mono', ui-monospace, monospace;
+  --font-serif: Georgia, serif;
+}
+```
 
 Numeric spacing utilities use the local `--spacing` in Tailwind 4, Wind3, and Wind4. For example, `p-4` becomes `32px` under `--spacing: 0.5rem`. Explicit UnoCSS theme entries take precedence. A `leading-*` utility overrides the default line height of `text-*`; numeric leading uses the spacing unit, while named leading values are ratios of the local font size.
 

@@ -169,6 +169,8 @@ Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regi
 
 Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, and `main`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
 
+`SidebarFrame` declares `--mo-sidebar-width: var(--sidebar-width, clamp(14rem, 25%, 20rem))` on its root; the sidebar inherits it. Set the global `--sidebar-width` in CSS or with `presetMoraine({ sidebarWidth: '18rem' })`; the preset emits no sidebar width by default. Width classes on `SidebarFrame.Sidebar` take precedence.
+
 Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
 <Preview path="./responsive-usage" />

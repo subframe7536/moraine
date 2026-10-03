@@ -18,11 +18,12 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'opacity-100 flex flex-col h-full min-size-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! w-64 shrink-0 max-w-[45%] data-mobile:(w-full max-w-none shrink)',
+      'opacity-100 flex flex-col h-full min-size-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! w-(--mo-sidebar-width) shrink-0 max-w-[45%] data-mobile:(w-full max-w-none shrink)',
     sidebarHeader: 'flex gap-2 p-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'flex gap-2 p-2',
     main: 'relative flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
+    '--mo-sidebar-width': 'var(--sidebar-width, clamp(14rem, 25%, 20rem))',
   },
   defaultVariants: {
     side: 'left',

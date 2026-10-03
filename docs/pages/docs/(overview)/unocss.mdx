@@ -122,13 +122,12 @@ Keep the CSS import in the application entry when using lazy routes; do not rely
 
 ## Preset options
 
-`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`; their colors stay the same across parent surfaces. The default selectors are `:root` and `.dark`. Configure shared fonts and single-value tokens at the top level; put colors, shadows, and `colorScheme` in named `override` entries.
+`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`; their colors stay the same across parent surfaces. The default selectors are `:root` and `.dark`. Configure single-value tokens at the top level; put colors, shadows, and `colorScheme` in named `override` entries.
 
 Semantic shadow defaults use the Tailwind values inherited by the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css): surface → `sm`, overlay → `md`, input → `xs`. The preset emits `--shadow-surface`, `--shadow-overlay`, and `--shadow-input` at `:root`; dark mode inherits these values unless `override.dark.shadows` supplies replacements. Native size utilities such as `shadow-xs` retain the CSS engine's own values and configuration. Set `themeDefaults: false` to omit default colors and semantic shadows while retaining explicit overrides.
 
 ```ts
 presetMoraine({
-  fonts: { sans: 'Inter, sans-serif', mono: 'monospace' },
   radius: '0.75rem',
   sidebarWidth: '18rem',
   override: {
@@ -169,10 +168,11 @@ presetMoraine({
 | `radius`                      | `0.625rem`                                                                       | Base radius written to `--radius` at `:root`; override per theme when needed.                                                                     |
 | `fontSize`                    | `1rem`                                                                           | Base font size written to `--font-size` at `:root`.                                                                                               |
 | `spacing`                     | `0.25rem`                                                                        | Base spacing unit written to `--spacing` at `:root`.                                                                                              |
+| `sidebarWidth`                | omitted                                                                          | Writes an explicit global `--sidebar-width` at `:root`; overridable per theme. SidebarFrame supplies its own fallback when unset.                 |
 
 ### Theme tokens
 
-For grouped colors such as `primary` and `muted`, strings are shorthand for `{ base: value }`. Expand these colors to override `foreground`, `hover`, or `active` without repeating `base`. Single-value colors such as `control`, `input`, `border`, `ring`, and `backdrop` accept CSS strings only. `control` overrides field fills independently of boundaries and parent surfaces. Available color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports only `surface`, `overlay`, and `input`. The semantic keys emit `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`; see [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows). Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
+For grouped colors such as `primary` and `muted`, strings are shorthand for `{ base: value }`. Expand these colors to override `foreground`, `hover`, or `active` without repeating `base`. Single-value colors such as `control`, `input`, `border`, `ring`, and `backdrop` accept CSS strings only. `control` overrides field fills independently of boundaries and parent surfaces. Available color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `shadows` supports only `surface`, `overlay`, and `input`. The semantic keys emit `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`; see [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows). Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Font families are configured in CSS through `--font-sans`, `--font-mono`, and `--font-serif`; see [Typography and Spacing](/docs/design#typography-and-spacing). Other custom properties belong in your CSS file.
 
 `light` and `dark` default to `:root` and `.dark`. Another name defaults to `[data-theme="name"]`; set `selector` on any entry to use a complete CSS selector. The preset emits the default light colors first, then dark colors, then custom themes in configuration order. Light and dark overrides merge with their respective defaults. A partial custom theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
 

@@ -53,7 +53,6 @@ export interface MorainePresetTheme {
   /** CSS color-scheme declaration for this theme's selector. */
   colorScheme?: 'light' | 'dark'
   colors?: MoraineThemeColors
-  fonts?: Partial<Record<keyof typeof MORAINE_FONT | (string & {}), string>>
   shadows?: Partial<Record<keyof typeof MORAINE_SHADOW, string>>
   radius?: string
   fontSize?: string
@@ -176,7 +175,6 @@ function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): Mo
     ...base,
     ...override,
     colors,
-    fonts: { ...base.fonts, ...override?.fonts },
     shadows: { ...base.shadows, ...override?.shadows },
   }
 }
@@ -203,7 +201,6 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const lightSelector = light?.selector ?? ':root'
   const darkSelector = dark?.selector ?? '.dark'
   const shared: MorainePresetTheme = {
-    fonts: options.fonts,
     radius: options.radius ?? '0.625rem',
     fontSize: options.fontSize ?? '1rem',
     spacing: options.spacing ?? '0.25rem',
@@ -385,9 +382,6 @@ function createThemeCSS(
             ;(typeof value === 'number' ? numericDeclarations : declarations).push(declaration)
           }
         }
-      }
-      for (const font of Object.keys(MORAINE_FONT) as Array<keyof typeof MORAINE_FONT>) {
-        emit(`font-${font}`, theme.fonts?.[font])
       }
       for (const shadow of Object.keys(MORAINE_SHADOW) as Array<keyof typeof MORAINE_SHADOW>) {
         emit(`shadow-${shadow}`, theme.shadows?.[shadow])

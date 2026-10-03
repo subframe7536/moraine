@@ -106,6 +106,7 @@ export function createStyles<R extends RecipeDefinition>(
     equals: false,
   })
   const rootSlot = resolveRootSlot(recipe.slots, options.rootSlot)
+  const recipeStyleSlot = recipe.slots.includes('root') ? 'root' : rootSlot
   const cache = new Map<Slots, SlotBinding>()
   const styles = {} as SlotBindings<Slots>
 
@@ -125,7 +126,7 @@ export function createStyles<R extends RecipeDefinition>(
       },
       get style() {
         return {
-          ...(slot === rootSlot ? output().style : undefined),
+          ...(slot === recipeStyleSlot ? output().style : undefined),
           ...options.inheritedStyles?.()?.styles?.[slot],
           ...props.styles?.[slot],
           ...(slot === rootSlot ? props.style : undefined),

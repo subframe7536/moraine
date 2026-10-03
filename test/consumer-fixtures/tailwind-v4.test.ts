@@ -33,6 +33,7 @@ const CANDIDATES = [
   'font-sans',
   'text-5xl',
   'w-sidebar',
+  'w-(--mo-sidebar-width)',
   'data-highlighted:bg-accent-hover',
   'hover:bg-accent-hover',
   'active:bg-accent-active',
@@ -101,6 +102,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('[data-disabled]')
     expect(css).toContain('[data-focused]')
     expect(css).toContain('[aria-invalid]')
+    expect(css).toMatch(/width:\s*var\(--mo-sidebar-width\)/)
     expect(css).toContain('.animate-mo-enter')
     expect(css).toContain('.animate-mo-exit')
     expect(css).toContain('@keyframes mo-enter')

@@ -39,10 +39,6 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
     presetMoraine({
-      fonts: {
-        sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-        mono: 'Maple Mono NF CN, Maple Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      },
       override: {
         light: {
           shadows: {
@@ -63,6 +59,10 @@ export default defineConfig<PresetWind4Theme>({
   ],
   transformers: [transformerVariantGroup()],
   theme: {
+    font: {
+      sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+      mono: '"Maple Mono NF CN", "Maple Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    },
     animation: {
       keyframes: {
         'docs-page-slide-up': '{ from { opacity: 0; transform: translateY(8px); } }',

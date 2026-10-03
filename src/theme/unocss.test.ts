@@ -430,6 +430,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(root).toContain('--muted-foreground: rgb(115, 115, 115);')
     expect(root).toContain('--destructive: rgb(231, 0, 11);')
+    expect(css).not.toContain('--sidebar-width:')
     expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
     expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
     expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
@@ -465,14 +466,13 @@ describe('presetMoraine', () => {
         wind(),
         presetMoraine({
           themeDefaults: false,
-          fonts: { sans: 'Inter' },
           override: { brand: { colors: { primary: '#369' } } },
         }),
       ],
     })
     const { css } = await generator.generate(new Set(['bg-primary-hover']), { preflights: true })
 
-    expect(css).toContain('--font-sans: Inter;')
+    expect(css).not.toContain('--sidebar-width:')
     expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
     expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
     expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
@@ -566,7 +566,6 @@ describe('presetMoraine', () => {
   ])('applies named overrides and top-level tokens with %s', async (_name, wind) => {
     const activeResolver = vi.fn(() => '#135')
     const options: PresetMoraineOptions = {
-      fonts: { sans: 'Inter', mono: 'monospace', serif: 'Georgia' },
       radius: '0.75rem',
       fontSize: '1.125rem',
       spacing: '0.5rem',
@@ -614,9 +613,6 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary-active: #135;')
     expect(css).toContain('--secondary: rgb(245, 245, 245);')
     expect(css).toContain('--secondary-foreground: #fff;')
-    expect(css).toContain('--font-sans: Inter;')
-    expect(css).toContain('--font-mono: monospace;')
-    expect(css).toContain('--font-serif: Georgia;')
     expect(css).toMatch(/:root \{[^}]*--shadow-surface: 0 2px 4px #123;/)
     expect(css).toMatch(/:root \{[^}]*--shadow-overlay: 0 8px 16px #456;/)
     expect(css).toMatch(/:root \{[^}]*--shadow-input: none;/)

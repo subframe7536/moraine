@@ -148,7 +148,18 @@ describe('SidebarFrame', () => {
     const sidebarClass = screen.container.querySelector(
       '[data-slot="sidebar-frame-sidebar"]',
     )?.className
-    expect(sidebarClass).toContain('w-64')
+    expect(sidebarClass).toContain('w-(--mo-sidebar-width)')
+    expect(
+      screen.container
+        .querySelector<HTMLElement>('[data-slot="sidebar-frame"]')
+        ?.style.getPropertyValue('--mo-sidebar-width'),
+    ).toBe('var(--sidebar-width, clamp(14rem, 25%, 20rem))')
+    for (const element of screen.container.querySelectorAll<HTMLElement>('[data-slot]')) {
+      expect(element.style.getPropertyValue('--sidebar-width')).toBe('')
+      if (element.dataset.slot !== 'sidebar-frame') {
+        expect(element.style.getPropertyValue('--mo-sidebar-width')).toBe('')
+      }
+    }
     expect(sidebarClass).toContain('min-size-0')
     expect(screen.container.querySelector('[data-slot="sidebar-frame-main"]')?.className).toContain(
       'flex-1',
@@ -333,7 +344,7 @@ describe('SidebarFrame', () => {
     let mainRef: HTMLDivElement | undefined
     const screen = render(() => (
       <SidebarFrame isMobile={false}>
-        <SidebarFrame.Sidebar data-testid="sidebar" class="custom-sidebar" />
+        <SidebarFrame.Sidebar data-testid="sidebar" class="custom-sidebar w-48" />
         <SidebarFrame.Main
           ref={(element) => (mainRef = element)}
           data-testid="main"
@@ -346,6 +357,8 @@ describe('SidebarFrame', () => {
 
     fireEvent.scroll(screen.getByTestId('main'))
     expect(screen.getByTestId('sidebar').className).toContain('custom-sidebar')
+    expect(screen.getByTestId('sidebar').className).toContain('w-48')
+    expect(screen.getByTestId('sidebar').className).not.toContain('w-(--mo-sidebar-width)')
     expect(screen.getByTestId('main').className).toContain('custom-main')
     expect(screen.getByTestId('main').style.color).toBe('red')
     expect(mainRef).toBe(screen.getByTestId('main'))

@@ -280,9 +280,9 @@ export class RecipeExtractor {
       return []
     }
     const object = await this.#resolveObject(base.module, base.value, 'recipe base')
-    return (await this.#objectProperties(object, 'recipe base', true)).map(
-      (property) => property.name,
-    )
+    return (await this.#objectProperties(object, 'recipe base', true))
+      .map((property) => property.name)
+      .filter((name) => !name.startsWith('--'))
   }
 
   async #extractVariants(

@@ -68,6 +68,8 @@ Theme variables and page background/text styles belong in your CSS. The plugin r
 }
 ```
 
+`SidebarFrame.Sidebar` reads the global `--sidebar-width` variable with a recipe fallback of `clamp(14rem, 25%, 20rem)`. Set it in `:root` to customize the default width.
+
 `bg-control` supplies outline field, unchecked choice, and upload surfaces; `border-input` keeps the existing boundary role, including neutral tracks/separators elsewhere. `control` uses existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
 
 Hover and active utilities prefer explicit variables such as `--primary-hover`; otherwise they mix the current scoped color in browsers that support `color-mix(in oklch, …)`. Older browsers use the base color unless you define a state variable.

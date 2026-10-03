@@ -29,7 +29,7 @@ describe('RecipeExtractor', () => {
   test('extracts composed slots, variants, and data attributes', async () => {
     const extractor = await fixture({
       'shared.recipe.ts': `
-export const SHARED_BASE = { root: '', trigger: '' }
+export const SHARED_BASE = { root: '', trigger: '', '--mo-sidebar-width': 'var(--sidebar-width, 16rem)' }
 export const sharedDataAttributes = {
   root: createDataAttributes('disabled')
 }

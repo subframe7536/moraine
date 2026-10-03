@@ -53,6 +53,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-expanded:animate-mo-enter',
         'data-closed:animate-mo-exit',
         'z-floating',
+        'w-(--mo-sidebar-width)',
         'bg-primary',
         'data-highlighted:bg-accent-hover',
         'data-highlighted:text-accent-foreground',
@@ -93,6 +94,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('@keyframes mo-exit')
       expect(css).toContain('.z-floating')
       expect(css).toContain('z-index:50')
+      expect(css).toMatch(/width:\s*var\(--mo-sidebar-width\)/)
       expect(css).toMatch(/opacity:(0\.64|64%)/)
       expect(css).toContain('var(--primary)')
       expect(css).toContain('var(--mo-auto-accent-hover')

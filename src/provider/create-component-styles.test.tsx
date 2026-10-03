@@ -117,6 +117,7 @@ describe('createStyles', () => {
   test('preserves false over inherited and theme defaults', () => {
     const theme = defineTheme({
       tooltip: {
+        base: { '--tooltip-color': 'purple' },
         defaultVariants: { invert: true },
         variants: {
           invert: {
@@ -146,6 +147,7 @@ describe('createStyles', () => {
     ))
     const root = screen.getByTestId('select')
     expect(root.className).toContain('plain')
+    expect(root.style.getPropertyValue('--tooltip-color')).toBe('purple')
     setInvert(undefined)
     expect(root.className).toContain('inverted')
   })
