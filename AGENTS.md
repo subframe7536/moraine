@@ -35,6 +35,13 @@ Run workspace commands from the repository root.
 - `pnpm vitest run <test-file>` - Run a single test file after building if it reads `dist/`.
 - **Note:** Tests use `jsdom` environment.
 
+### Commit Messages
+
+- Follow Conventional Commits: `<type>(<scope>): <description>`. Omit the scope only when no single component or area describes the change.
+- Use a lowercase type such as `feat`, `fix`, `refactor`, `docs`, `test`, `style`, `perf`, `build`, `ci`, `chore`, or `revert`. Choose a scope for the affected area, such as `form`, `theme`, or `docs`.
+- Write a concise English description in the imperative mood without a trailing period, describing the final change. For example: `feat(form): support hidden field labels`.
+- Mark breaking changes with `!` before the colon or a `BREAKING CHANGE:` footer, and explain the breaking behavior.
+
 ## Source Structure
 
 The `src` directory is organized by component role and shared infrastructure:
