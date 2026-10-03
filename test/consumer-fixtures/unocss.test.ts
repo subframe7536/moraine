@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import {
   createIsolatedConsumer,
-  readPublishedModules,
+  readBuiltClassTokens,
   removeIsolatedConsumer,
   verifyConsumerPackageExports,
 } from './helpers'
@@ -30,7 +30,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
   ])(
-    'scans published modules and compiles component contracts with %s',
+    'compiles all build class tokens and component contracts with %s',
     async (_name, wind) => {
       verifyConsumerPackageExports(consumer)
       const modulePath = join(consumer.packageDir, 'dist/unocss.mjs')
@@ -38,17 +38,17 @@ describe('isolated built-dist UnoCSS consumer', () => {
       const generator = await createGenerator({
         presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
       })
-      const tokens = new Set<string>()
-
-      for (const module of readPublishedModules(consumer.packageDir)) {
-        await generator.applyExtractors(module.code, module.id, tokens)
-      }
+      // Group and peer markers intentionally emit no declarations.
+      const candidates = readBuiltClassTokens().filter(
+        (token) => !/^(?:group|peer)(?:\/.*)?$/.test(token),
+      )
+      const tokens = new Set(candidates)
 
       const requiredTokens = [
         'data-disabled:opacity-64',
         'focus:ring-3',
         'peer-focus:ring-3',
-        'peer-aria-invalid:border-destructive',
+        'peer-aria-[invalid=true]:border-destructive',
         'aria-invalid:border-destructive',
         'data-expanded:animate-mo-enter',
         'data-closed:animate-mo-exit',
@@ -74,15 +74,11 @@ describe('isolated built-dist UnoCSS consumer', () => {
         expect(tokens).toContain(token)
       }
 
-      // Component CSS must compile without installing an icon preset. Icon masks are
-      // verified independently through the optional published stylesheet below.
-      for (const token of tokens) {
-        if (token.startsWith('icon-') || token.startsWith('i-lucide-')) {
-          tokens.delete(token)
-        }
-      }
-
-      const { css } = await generator.generate(tokens, { preflights: true })
+      const { css, matched } = await generator.generate(tokens, { preflights: true })
+      expect(candidates.filter((token) => !matched.has(token))).toEqual([])
+      expect(css).not.toMatch(/transition-property:\s*[^;]*\bcolors\b/)
+      expect(css).toMatch(/\[aria-invalid=(?:"true"|true)\]/)
+      expect(css).toContain('blur(4px)')
       expect(css).toContain('[data-disabled]')
       expect(css).toContain(':focus')
       expect(css).toContain('.peer')

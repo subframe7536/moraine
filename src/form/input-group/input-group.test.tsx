@@ -112,7 +112,7 @@ describe('InputGroup', () => {
       expect(control.hasAttribute('data-input-group-control')).toBe(false)
       expect(frame.getAttribute('aria-hidden')).toBe('true')
       expect(frame.className).toContain('peer-focus:ring-3')
-      expect(frame.className).toContain('peer-aria-invalid:border-destructive')
+      expect(frame.className).toContain('peer-aria-[invalid=true]:border-destructive')
     },
   )
 

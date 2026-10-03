@@ -11,7 +11,7 @@ export const modalDataAttributes = {
 
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =
-  'bg-backdrop inset-0 fixed z-floating data-closed:(animate-mo-exit exit-opacity-0) data-expanded:(animate-mo-enter enter-opacity-0) motion-reduce:animate-none supports-[backdrop-filter]:backdrop-blur-xs'
+  'bg-backdrop inset-0 fixed z-floating data-closed:(animate-mo-exit exit-opacity-0) data-expanded:(animate-mo-enter enter-opacity-0) motion-reduce:animate-none supports-[backdrop-filter]:backdrop-blur-[4px]'
 
 /** Default transition classes for custom modal content. */
 export const MODAL_CONTENT_CLASS =

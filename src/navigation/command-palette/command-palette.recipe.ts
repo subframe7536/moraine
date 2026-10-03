@@ -21,7 +21,8 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     root: 'text-popover-foreground border border-border rounded-lg bg-popover flex flex-col min-h-0 shadow-overlay overflow-hidden',
     inputWrapper: 'px-2.5 border-b border-border/60 flex gap-2 h-11 items-center',
     input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-sm h-10 w-full`,
-    listbox: 'no-scrollbar p-1 outline-none max-h-72 overflow-x-hidden overflow-y-auto scroll-py-1',
+    listbox:
+      'p-1 outline-none max-h-72 [scrollbar-width:none] overflow-x-hidden overflow-y-auto scroll-py-1 [&::-webkit-scrollbar]:hidden',
     footer: 'text-sm text-muted-foreground p-3',
     group: 'text-foreground mt-1 overflow-hidden first:mt-0',
     groupLabel: 'text-xs text-muted-foreground leading-4 font-medium px-2 py-1 block',

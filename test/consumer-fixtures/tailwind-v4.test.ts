@@ -4,12 +4,13 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { compile } from 'tailwindcss'
+import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import {
   createIsolatedConsumer,
   loadStylesheet,
+  readBuiltClassTokens,
   removeIsolatedConsumer,
   resolveStylesheet,
   verifyConsumerPackageExports,
@@ -55,10 +56,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     removeIsolatedConsumer(consumer)
   })
 
-  async function compileConsumerCSS(includeIcons = false): Promise<{
-    css: string
-    sources: Array<{ base: string; pattern: string; negated: boolean }>
-  }> {
+  async function compileConsumerCSS(includeIcons = false, candidates = CANDIDATES) {
     const input = [
       `@import "tailwindcss";`,
       includeIcons ? `@import "moraine/icon.css";` : '',
@@ -68,7 +66,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
       .filter(Boolean)
       .join('\n')
     const pluginPath = join(consumer.packageDir, 'dist/tailwind.mjs')
-    const compiled = await compile(input, {
+    const options: Parameters<typeof compile>[1] = {
       base: consumer.root,
       from: join(consumer.root, 'app.css'),
       async loadModule(id) {
@@ -85,10 +83,25 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
       async loadStylesheet(id, base) {
         return loadStylesheet(resolveStylesheet(id, base, consumer.packageDir))
       },
-    })
+    }
+    const compiled = await compile(input, options)
+    const designSystem = await __unstable__loadDesignSystem(input, options)
 
-    return { css: compiled.build(CANDIDATES), sources: compiled.sources }
+    return { css: compiled.build(candidates), sources: compiled.sources, designSystem }
   }
+
+  test('compiles all build class tokens with valid transition properties', async () => {
+    // Group and peer markers intentionally emit no declarations.
+    const candidates = readBuiltClassTokens().filter(
+      (token) => !/^(?:group|peer)(?:\/.*)?$/.test(token),
+    )
+    const { css, designSystem } = await compileConsumerCSS(false, candidates)
+    const output = designSystem.candidatesToCss(candidates)
+    expect.soft(candidates.filter((_token, index) => output[index] === null)).toEqual([])
+    expect(css).not.toMatch(/transition-property:\s*[^;]*\bcolors\b/)
+    expect(css).toMatch(/\[aria-invalid=(?:"true"|true)\]/)
+    expect(css).toContain('blur(4px)')
+  })
 
   test('loads the package plugin and compiles published component contracts', async () => {
     verifyConsumerPackageExports(consumer)

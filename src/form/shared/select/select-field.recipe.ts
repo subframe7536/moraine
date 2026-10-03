@@ -81,7 +81,7 @@ export const FIELD_SIZES = {
 
 export const TAG_SLOTS = {
   tagsContainer: 'py-1 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-  tag: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+  tag: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-[50%] w-fit whitespace-nowrap items-center justify-center',
   tagLabel: 'min-w-0 truncate',
   tagRemove:
     'text-muted-foreground p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-colors hover:(bg-accent-hover text-accent-foreground) active:bg-accent-active disabled:(pointer-events-none opacity-50)',

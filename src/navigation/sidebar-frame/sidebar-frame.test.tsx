@@ -160,7 +160,6 @@ describe('SidebarFrame', () => {
         expect(element.style.getPropertyValue('--mo-sidebar-width')).toBe('')
       }
     }
-    expect(sidebarClass).toContain('min-size-0')
     expect(screen.container.querySelector('[data-slot="sidebar-frame-main"]')?.className).toContain(
       'flex-1',
     )

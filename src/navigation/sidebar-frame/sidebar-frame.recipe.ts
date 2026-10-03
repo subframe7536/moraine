@@ -18,7 +18,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'min-size-0 opacity-100 flex shrink-0 flex-col h-full max-w-[45%] w-(--mo-sidebar-width) translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0!',
+      'opacity-100 flex shrink-0 flex-col h-full max-w-[45%] min-h-0 min-w-0 w-(--mo-sidebar-width) translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0!',
     sidebarHeader: 'p-2 flex gap-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'p-2 flex gap-2',

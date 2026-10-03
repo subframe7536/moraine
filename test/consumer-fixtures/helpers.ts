@@ -4,10 +4,8 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
   rmSync,
-  statSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
@@ -15,10 +13,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 
 export const PROJECT_ROOT = resolve(import.meta.dirname, '../..')
+const CLASS_TOKENS_PATH = join(PROJECT_ROOT, 'node_modules/.cache/moraine/class-tokens.json')
 
 let built = false
 
-function ensureBuild(): void {
+export function ensureBuild(): void {
   if (!built) {
     // Fixture tests must not inherit an unpublished or stale distribution.
     const distMjs = join(PROJECT_ROOT, 'dist/index.mjs')
@@ -89,23 +88,9 @@ export function removeIsolatedConsumer(consumer: IsolatedConsumer): void {
   rmSync(consumer.root, { recursive: true, force: true })
 }
 
-export function readPublishedModules(packageDir: string): Array<{ id: string; code: string }> {
-  const distDir = join(packageDir, 'dist')
-  const modules: Array<{ id: string; code: string }> = []
-
-  function visit(directory: string): void {
-    for (const name of readdirSync(directory)) {
-      const path = join(directory, name)
-      if (statSync(path).isDirectory()) {
-        visit(path)
-      } else if (path.endsWith('.mjs') || path.endsWith('.jsx')) {
-        modules.push({ id: path, code: readFileSync(path, 'utf8') })
-      }
-    }
-  }
-
-  visit(distDir)
-  return modules
+/** Reads distribution classes collected by the consumer test setup. */
+export function readBuiltClassTokens(): string[] {
+  return JSON.parse(readFileSync(CLASS_TOKENS_PATH, 'utf8')) as string[]
 }
 
 export function verifyConsumerPackageExports(consumer: IsolatedConsumer): void {

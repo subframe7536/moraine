@@ -7,7 +7,7 @@ import {
   EDITABLE_FOCUS_WITHIN_CLASS,
   EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
 } from '../../../theme/recipe-common.class'
-export const FIELD_CONTROL_CLASS = `text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center relative ${EDITABLE_FOCUS_WITHIN_CLASS}  ${EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
+export const FIELD_CONTROL_CLASS = `text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[color,background-color,border-color,box-shadow] items-center relative ${EDITABLE_FOCUS_WITHIN_CLASS}  ${EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
 
 export const FIELD_INPUT_CLASS = `outline-none bg-transparent flex-1 w-full ${DISABLED_CLASS} read-only:cursor-pointer`
 

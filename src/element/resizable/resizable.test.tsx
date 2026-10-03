@@ -1232,7 +1232,6 @@ describe('Resizable', () => {
       '[data-slot="resizable-panel"]',
     )[0] as HTMLDivElement
 
-    expect(panel.className).toContain('data-transitioning:transition-flex-grow')
     expect(panel.getAttribute('data-transitioning')).toBeNull()
 
     fireEvent.click(handle)

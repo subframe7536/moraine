@@ -20,10 +20,10 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   InputGroupRecipeVariant
 >('inputGroup', {
   base: {
-    root: 'flex flex-wrap w-full cursor-text transition-[colors,box-shadow] items-center relative',
+    root: 'flex flex-wrap w-full cursor-text transition-[color,background-color] items-center relative',
     leading: 'text-muted-foreground flex shrink-0 items-center',
     trailing: 'text-muted-foreground flex shrink-0 items-center',
-    frame: `pointer-events-none transition-[colors,box-shadow] absolute ${PEER_FOCUS_CLASS}  ${PEER_INVALID_CLASS}`,
+    frame: `pointer-events-none transition-[border-color,box-shadow] absolute ${PEER_FOCUS_CLASS}  ${PEER_INVALID_CLASS}`,
   },
   defaultVariants: { size: 'md', variant: 'outline', orientation: 'horizontal', compact: false },
   variants: {

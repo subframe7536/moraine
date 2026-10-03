@@ -44,7 +44,7 @@ export default defineConfig({
             'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
             'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
           ],
-          exclude: VM_INCOMPATIBLE_TESTS,
+          exclude: [...VM_INCOMPATIBLE_TESTS, 'test/consumer-fixtures/**'],
         },
       },
       {
@@ -52,6 +52,15 @@ export default defineConfig({
           name: 'forks',
           pool: 'forks',
           include: VM_INCOMPATIBLE_TESTS,
+        },
+      },
+      {
+        test: {
+          name: 'consumer',
+          pool: 'vmThreads',
+          environment: 'node',
+          include: ['test/consumer-fixtures/**/*.test.ts'],
+          globalSetup: ['./test/consumer-fixtures/global-setup.ts'],
         },
       },
     ],

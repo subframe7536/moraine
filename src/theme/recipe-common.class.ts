@@ -1,55 +1,3 @@
-export const REQUIRED_MARK_VARIANT = {
-  true: "after:(text-destructive ms-0.5 content-['*'])",
-} as const
-
-export const FLEX_ORIENTATION_VARIANT = {
-  horizontal: 'flex-row',
-  vertical: 'flex-col',
-} as const
-
-export const CHECKABLE_CONTAINER_SIZE_VARIANT = {
-  sm: 'h-4',
-  md: 'h-5',
-  lg: 'h-6',
-} as const
-
-export const CHECKABLE_BASE_SIZE_VARIANT = {
-  sm: 'size-3.5',
-  md: 'size-4',
-  lg: 'size-4.5',
-} as const
-
-export const CHECKABLE_INDICATOR_VARIANT = {
-  start: 'flex-row',
-  end: 'flex-row-reverse',
-} as const
-
-export const CHECKABLE_WRAPPER_ALIGN_VARIANT = {
-  start: 'ms-2',
-  end: 'me-2',
-  hidden: '',
-} as const
-
-export const TABLE_EDGE_ORIENTATION_VARIANT = {
-  horizontal: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
-  vertical: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
-} as const
-
-export const CARD_PADDING_SIZE_VARIANT = {
-  sm: 'p-3',
-  md: 'p-3.5',
-  lg: 'p-4',
-} as const
-
-export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'
-
-export const POPPER_CONTENT_SIDE_VARIANT = {
-  top: 'mb-(--mo-popper-content-overflow-padding) enter-translate-y-1 exit-translate-y-1',
-  right: 'ml-(--mo-popper-content-overflow-padding) -enter-translate-x-1 -exit-translate-x-1',
-  bottom: 'mt-(--mo-popper-content-overflow-padding) -enter-translate-y-1 -exit-translate-y-1',
-  left: 'mr-(--mo-popper-content-overflow-padding) enter-translate-x-1 exit-translate-x-1',
-} as const
-
 export const INPUT_VARIANT = {
   outline: 'border border-input bg-control shadow-input',
   subtle: 'border border-input bg-muted shadow-input',
@@ -85,7 +33,7 @@ export const FOCUS_INVALID_CLASS =
 export const FOCUS_WITHIN_INVALID_CLASS =
   'focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)'
 export const PEER_INVALID_CLASS =
-  'peer-aria-invalid:border-destructive peer-aria-invalid:ring-3 peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:border-destructive/50 dark:peer-aria-invalid:ring-destructive/40'
+  'peer-aria-[invalid=true]:border-destructive peer-aria-[invalid=true]:ring-3 peer-aria-[invalid=true]:ring-destructive/20 dark:peer-aria-[invalid=true]:border-destructive/50 dark:peer-aria-[invalid=true]:ring-destructive/40'
 export const EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
   'data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20)'
 export const DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
