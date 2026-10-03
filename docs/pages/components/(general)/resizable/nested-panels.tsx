@@ -10,7 +10,7 @@ const FILES = [
 
 export function NestedPanels() {
   return (
-    <div class="border border-border/70 bg-card/30 h-80 w-full shadow-xs overflow-hidden rounded-xl">
+    <div class="border border-border/70 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
       <Resizable defaultValue={['28%', '72%']}>
         {/* Sidebar explorer */}
         <Resizable.Panel min="20%" max="40%" class="bg-muted/25 flex flex-col justify-between">
@@ -23,7 +23,7 @@ export function NestedPanels() {
               <For each={FILES}>
                 {(file) => (
                   <div
-                    class={`px-2 py-1 flex gap-2 cursor-pointer transition-colors items-center text-xs rounded-md ${
+                    class={`text-xs px-2 py-1 rounded-md flex gap-2 cursor-pointer transition-colors items-center ${
                       file.active
                         ? 'bg-accent text-accent-foreground font-medium'
                         : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -50,12 +50,12 @@ export function NestedPanels() {
           <Resizable orientation="vertical" defaultValue={['62%', '38%']}>
             {/* Editor buffer */}
             <Resizable.Panel min="30%" class="bg-background flex flex-col">
-              <div class="px-3 border-b border-border/50 bg-muted/30 flex gap-2 h-8 items-center text-xs">
+              <div class="text-xs px-3 border-b border-border/50 bg-muted/30 flex gap-2 h-8 items-center">
                 <Icon name="i-lucide:file-code" class="text-blue-500 size-3.5" />
                 <span class="text-foreground font-medium">app.tsx</span>
                 <span class="rounded-full bg-blue-500 size-1.5" />
               </div>
-              <div class="text-muted-foreground font-mono p-3 bg-background/50 flex-1 overflow-auto space-y-1 text-xs">
+              <div class="text-xs text-muted-foreground font-mono p-3 bg-background/50 flex-1 overflow-auto space-y-1">
                 <div class="text-muted-foreground/60">// Resizable Workspace Composition</div>
                 <div>
                   <span class="text-purple-500">export function</span>{' '}
@@ -89,7 +89,7 @@ export function NestedPanels() {
                 <span>Output</span>
                 <span>Problems (0)</span>
               </div>
-              <div class="text-foreground font-mono p-2.5 space-y-0.5 text-xs">
+              <div class="text-xs text-foreground font-mono p-2.5 space-y-0.5">
                 <div class="text-muted-foreground">$ vite --host</div>
                 <div class="text-emerald-600 dark:text-emerald-400">
                   ➜ Local: http://localhost:5173/

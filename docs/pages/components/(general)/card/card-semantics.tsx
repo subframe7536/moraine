@@ -11,7 +11,7 @@ export function CardSemantics() {
         </Card.Action>
       </Card.Header>
       <Card.Body>
-        <p class="text-muted-foreground text-sm">
+        <p class="text-sm text-muted-foreground">
           Includes performance optimizations, smaller bundle sizes, and refreshed component styles.
         </p>
       </Card.Body>

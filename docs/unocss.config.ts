@@ -57,7 +57,7 @@ export default defineConfig<PresetWind4Theme>({
       },
     }),
   ],
-  transformers: [transformerVariantGroup()],
+  transformers: [transformerVariantGroup({ separators: [':'] })],
   theme: {
     font: {
       sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',

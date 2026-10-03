@@ -20,16 +20,16 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
       root: 'flex gap-2',
       header: 'flex min-w-0',
       item: `min-w-0 relative ${DATA_DISABLED_CLASS}`,
-      trigger: `rounded-md inline-flex min-w-0 items-center text-start ${FOCUS_VISIBLE_RING_CLASS} data-clickable:cursor-pointer`,
+      trigger: `text-start rounded-md inline-flex min-w-0 items-center ${FOCUS_VISIBLE_RING_CLASS} data-clickable:cursor-pointer`,
       indicator:
-        'inline-flex shrink-0 items-center justify-center rounded-full transition-colors data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-surface) data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary)',
+        'rounded-full inline-flex shrink-0 transition-colors items-center justify-center data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary) data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-surface)',
       icon: '',
       separator:
         'rounded-full bg-border transition-colors data-[state=completed]:bg-primary data-disabled:opacity-75',
       wrapper: 'flex flex-col min-w-0',
       title: 'text-foreground leading-snug font-medium',
       description: 'text-muted-foreground leading-normal text-wrap',
-      content: 'w-full min-w-0',
+      content: 'min-w-0 w-full',
     },
     defaultVariants: {
       orientation: 'horizontal',
@@ -39,34 +39,34 @@ export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, Step
       orientation: {
         horizontal: {
           root: 'flex-col w-full',
-          header: 'w-full gap-3 overflow-x-auto p-1',
-          item: 'flex flex-1 min-w-min items-center gap-3 last:flex-none',
-          separator: 'h-px min-w-4 flex-1',
+          header: 'p-1 gap-3 w-full overflow-x-auto',
+          item: 'flex flex-1 gap-3 min-w-min items-center last:flex-none',
+          separator: 'flex-1 h-px min-w-4',
         },
         vertical: {
           root: 'flex-row gap-6 w-full items-start',
           header: 'flex-col',
           item: 'not-last:pb-6',
           trigger: 'items-start',
-          separator: 'absolute w-px bottom-1 -translate-x-1/2 rtl:translate-x-1/2',
+          separator: 'w-px bottom-1 absolute -translate-x-1/2 rtl:translate-x-1/2',
         },
       },
       size: {
         sm: {
           trigger: 'gap-2',
-          indicator: 'size-8 text-xs',
+          indicator: 'text-xs size-8',
           title: 'text-xs',
           description: 'text-xs',
         },
         md: {
           trigger: 'gap-2.5',
-          indicator: 'size-9 text-sm',
+          indicator: 'text-sm size-9',
           title: 'text-sm',
           description: 'text-sm',
         },
         lg: {
           trigger: 'gap-3',
-          indicator: 'size-10 text-base',
+          indicator: 'text-base size-10',
           title: 'text-base',
           description: 'text-base',
         },

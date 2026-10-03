@@ -9,7 +9,7 @@ export function Basic() {
       <ContextMenu>
         <ContextMenu.Trigger
           as="div"
-          class="text-muted-foreground border border-border border-dashed flex h-28 max-w-sm select-none items-center justify-center text-sm rounded-lg"
+          class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center"
         >
           Right click here
         </ContextMenu.Trigger>
@@ -26,7 +26,7 @@ export function Basic() {
           ]}
         />
       </ContextMenu>
-      <p class="text-muted-foreground text-sm">{message()}</p>
+      <p class="text-sm text-muted-foreground">{message()}</p>
     </div>
   )
 }

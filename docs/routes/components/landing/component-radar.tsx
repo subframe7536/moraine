@@ -37,8 +37,8 @@ function SamplerItem(props: {
       class={cn('p-6 border-b border-e border-border/70 flex flex-col min-w-0', props.class)}
     >
       <div>
-        <h3 class="font-semibold text-base">{props.title}</h3>
-        <p class="text-muted-foreground mt-1 text-sm">{props.description}</p>
+        <h3 class="text-base font-semibold">{props.title}</h3>
+        <p class="text-sm text-muted-foreground mt-1">{props.description}</p>
       </div>
       <div class="mt-6 min-w-0">{props.children}</div>
       <a href={props.href} class={cn(docsLink, 'mt-auto pt-6')}>
@@ -58,10 +58,10 @@ export function ComponentRadar() {
     <section aria-labelledby="radar-title" class="py-12 sm:py-16">
       <div class="mb-6 flex flex-wrap gap-4 items-end justify-between">
         <div>
-          <h2 id="radar-title" class="tracking-tight font-semibold text-2xl sm:text-3xl">
+          <h2 id="radar-title" class="text-2xl tracking-tight font-semibold sm:text-3xl">
             Explore the components
           </h2>
-          <p class="text-muted-foreground mt-2 max-w-2xl text-sm sm:text-base">
+          <p class="text-sm text-muted-foreground mt-2 max-w-2xl sm:text-base">
             Accessible building blocks for forms, navigation, overlays, and everyday interface
             patterns.
           </p>
@@ -94,11 +94,11 @@ export function ComponentRadar() {
                   value: 'preferences',
                   content: (
                     <div class="pt-4">
-                      <p class="font-medium text-sm">Workspace preferences</p>
-                      <p class="text-muted-foreground mt-1 text-sm">
+                      <p class="text-sm font-medium">Workspace preferences</p>
+                      <p class="text-sm text-muted-foreground mt-1">
                         Choose how this workspace looks and feels.
                       </p>
-                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                      <dl class="text-sm mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2">
                         <div>
                           <dt class="text-muted-foreground">Appearance</dt>
                           <dd class="font-medium mt-1">System theme</dd>
@@ -116,11 +116,11 @@ export function ComponentRadar() {
                   value: 'access',
                   content: (
                     <div class="pt-4">
-                      <p class="font-medium text-sm">Workspace access</p>
-                      <p class="text-muted-foreground mt-1 text-sm">
+                      <p class="text-sm font-medium">Workspace access</p>
+                      <p class="text-sm text-muted-foreground mt-1">
                         Manage who can view and join this workspace.
                       </p>
-                      <dl class="mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2 text-sm">
+                      <dl class="text-sm mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2">
                         <div>
                           <dt class="text-muted-foreground">Visibility</dt>
                           <dd class="font-medium mt-1">Private</dd>
@@ -145,7 +145,7 @@ export function ComponentRadar() {
         >
           <div class="max-w-sm space-y-5">
             <div>
-              <div class="mb-2 flex justify-between text-sm">
+              <div class="text-sm mb-2 flex justify-between">
                 <span>Default</span>
                 <output class="text-muted-foreground font-mono">{value()}</output>
               </div>
@@ -158,7 +158,7 @@ export function ComponentRadar() {
               />
             </div>
             <div>
-              <div class="mb-2 flex justify-between text-sm">
+              <div class="text-sm mb-2 flex justify-between">
                 <span>Bold</span>
                 <output class="text-muted-foreground font-mono">{boldValue().toFixed(2)}</output>
               </div>
@@ -195,7 +195,7 @@ export function ComponentRadar() {
               onCheckedChange={setInAppAlerts}
             />
           </div>
-          <output aria-live="polite" class="text-muted-foreground mt-4 block text-xs">
+          <output aria-live="polite" class="text-xs text-muted-foreground mt-4 block">
             {Number(emailAlerts()) + Number(inAppAlerts())} of 2 channels on
           </output>
         </SamplerItem>
@@ -211,8 +211,8 @@ export function ComponentRadar() {
             </Popover.Trigger>
             <Popover.Content ariaLabel="Popover example">
               <div class="p-4 max-w-52 space-y-1">
-                <p class="font-medium text-sm">Contextual content</p>
-                <p class="text-muted-foreground text-xs">
+                <p class="text-sm font-medium">Contextual content</p>
+                <p class="text-xs text-muted-foreground">
                   This panel stays close to the action that opened it.
                 </p>
               </div>
@@ -247,7 +247,7 @@ export function ComponentRadar() {
             </Dialog.Trigger>
             <Dialog.Content title="Dialog example">
               <Dialog.Body>
-                <p class="text-muted-foreground text-sm">
+                <p class="text-sm text-muted-foreground">
                   A focused space for content that needs a response.
                 </p>
               </Dialog.Body>

@@ -36,11 +36,11 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
 
   return (
     <header class="text-foreground mt-4 md:mt-8">
-      <h1 class="font-bold mt-3 outline-none text-2xl sm:text-3xl" tabIndex={-1}>
+      <h1 class="text-2xl font-bold mt-3 outline-none sm:text-3xl" tabIndex={-1}>
         {props.frontmatter.title}
       </h1>
 
-      <p class="text-muted-foreground mt-2 max-w-3xl text-sm sm:text-base">
+      <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
         {props.frontmatter.description}
       </p>
 
@@ -77,7 +77,7 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
         </div>
       </Show>
 
-      <div class="mt-4 flex flex-wrap gap-2 items-center text-xs">
+      <div class="text-xs mt-4 flex flex-wrap gap-2 items-center">
         <Button
           as="a"
           href={props.markdownPath}

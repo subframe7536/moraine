@@ -19,9 +19,9 @@ export const inputRecipe = /* @__PURE__ */ defineRecipe<InputStyleSlot, InputRec
     defaultVariants: { size: 'md', variant: 'outline', grouped: false },
     variants: {
       size: {
-        sm: { root: 'text-xs rounded-sm h-7 leading-4 px-1.5 py-1' },
-        md: { root: 'text-sm rounded-md h-8 leading-5 px-2 py-1.5' },
-        lg: { root: 'text-base rounded-lg h-9 leading-6 px-2.5 py-2' },
+        sm: { root: 'text-xs leading-4 px-1.5 py-1 rounded-sm h-7' },
+        md: { root: 'text-sm leading-5 px-2 py-1.5 rounded-md h-8' },
+        lg: { root: 'text-base leading-6 px-2.5 py-2 rounded-lg h-9' },
       },
       variant: { outline: {}, subtle: {}, ghost: {}, none: {} },
       grouped: TEXT_CONTROL_GROUPED,

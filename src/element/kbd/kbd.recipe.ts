@@ -18,7 +18,7 @@ export const kbdRecipe = /* @__PURE__ */ defineRecipe<KbdStyleSlot, KbdStyleVari
     },
     variant: {
       default: { root: 'text-muted-foreground bg-muted' },
-      outline: { root: 'text-muted-foreground border border-b-2 border-border' },
+      outline: { root: 'text-muted-foreground border border-border border-b-2' },
       invert: { root: 'text-muted bg-muted-foreground' },
     },
   },

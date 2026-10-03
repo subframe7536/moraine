@@ -71,7 +71,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
           >
             <div class="p-4 flex flex-col gap-4">
               <div class="flex shrink-0 min-h-6 items-center justify-between">
-                <span class="text-foreground/90 tracking-tight font-semibold flex gap-1.5 items-center text-xs">
+                <span class="text-xs text-foreground/90 tracking-tight font-semibold flex gap-1.5 items-center">
                   <Icon name="i-lucide:sliders-horizontal" class="text-muted-foreground size-3.5" />
                   <span>Props</span>
                 </span>
@@ -129,7 +129,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
                     aria-label="Component slots"
                   >
                     <div class="flex gap-2 items-center justify-between">
-                      <span class="text-foreground/90 font-semibold flex gap-1.5 items-center text-xs">
+                      <span class="text-xs text-foreground/90 font-semibold flex gap-1.5 items-center">
                         <Icon name="i-lucide:layers" class="text-muted-foreground size-3.5" />
                         <span>Slots</span>
                       </span>
@@ -175,7 +175,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
                               <div
                                 aria-hidden="true"
                                 data-docs-slot-highlight={slots.activeSlot()}
-                                class="border-2 border-primary bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647] rounded-sm"
+                                class="border-2 border-primary rounded-sm bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647]"
                                 style={{
                                   top: `${box.top}px`,
                                   left: `${box.left}px`,
@@ -184,7 +184,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
                                 }}
                               >
                                 <Show when={index() === 0}>
-                                  <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 bg-primary whitespace-nowrap left-0 absolute rounded-sm -top-6">
+                                  <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute -top-6">
                                     {slots.activeSlot()}
                                   </span>
                                 </Show>

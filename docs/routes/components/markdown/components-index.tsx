@@ -16,7 +16,7 @@ export function ComponentsIndex() {
       <For each={SECTIONS}>
         {(section) => (
           <section aria-label={section}>
-            <h2 class="font-semibold mb-4 capitalize text-xl">{section}</h2>
+            <h2 class="text-xl font-semibold mb-4 capitalize">{section}</h2>
             <ul class="gap-x-6 gap-y-1 grid grid-cols-1 lg:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
               <For
                 each={pages
@@ -27,7 +27,7 @@ export function ComponentsIndex() {
                   <li>
                     <a
                       href={page.path}
-                      class={`px-2 py-2 flex gap-2 transition-colors items-center text-sm rounded-md hover:(text-primary bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
+                      class={`text-sm px-2 py-2 rounded-md flex gap-2 transition-colors items-center hover:(text-primary bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
                     >
                       <span>{page.label}</span>
                       <Show when={page.badge}>

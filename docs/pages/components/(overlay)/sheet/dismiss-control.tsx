@@ -22,10 +22,10 @@ export function DismissControl() {
         >
           <Sheet.Body>
             <div class="py-2 space-y-3">
-              <p class="text-muted-foreground text-sm">
+              <p class="text-sm text-muted-foreground">
                 This sheet cannot be dismissed by clicking the overlay or pressing Escape.
               </p>
-              <p class="text-foreground text-sm">
+              <p class="text-sm text-foreground">
                 Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
               </p>
             </div>

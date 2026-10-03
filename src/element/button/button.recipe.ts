@@ -17,7 +17,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
   'button',
   {
     base: {
-      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform,box-shadow] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-destructive ring-3 ring-destructive/20) ${ARIA_DISABLED_CLASS} ${DISABLED_CLASS} [&:active:not([aria-haspopup])]:translate-y-px`,
+      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform,box-shadow] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-destructive ring-3 ring-destructive/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS} [&:active:not([aria-haspopup])]:translate-y-px`,
       leading: '',
       label: 'min-w-0 truncate',
       trailing: '',

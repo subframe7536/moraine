@@ -18,27 +18,27 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   CommandPaletteStyleVariant
 >('commandPalette', {
   base: {
-    root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-overlay overflow-hidden',
-    inputWrapper: 'px-2.5 gap-2 h-11 border-b border-border/60 flex items-center',
+    root: 'text-popover-foreground border border-border rounded-lg bg-popover flex flex-col min-h-0 shadow-overlay overflow-hidden',
+    inputWrapper: 'px-2.5 border-b border-border/60 flex gap-2 h-11 items-center',
     input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-sm h-10 w-full`,
-    listbox: 'no-scrollbar max-h-72 scroll-py-1 p-1 outline-none overflow-x-hidden overflow-y-auto',
+    listbox: 'no-scrollbar p-1 outline-none max-h-72 overflow-x-hidden overflow-y-auto scroll-py-1',
     footer: 'text-sm text-muted-foreground p-3',
-    group: 'text-foreground overflow-hidden mt-1 first:mt-0',
-    groupLabel: 'text-muted-foreground block px-2 py-1 text-xs leading-4 font-medium',
-    item: 'group text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-accent-hover data-highlighted:text-accent-foreground data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
+    group: 'text-foreground mt-1 overflow-hidden first:mt-0',
+    groupLabel: 'text-xs text-muted-foreground leading-4 font-medium px-2 py-1 block',
+    item: 'group text-sm text-foreground px-2 py-1 outline-none rounded-sm flex gap-2 min-h-8 w-full cursor-default select-none items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
     itemLeading:
-      'text-muted-foreground group-data-[highlighted]:text-accent-foreground shrink-0 [&_svg]:size-4',
+      'text-muted-foreground shrink-0 group-data-[highlighted]:text-accent-foreground [&_svg]:size-4',
     itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
     itemLabel: 'min-w-0 truncate items-baseline',
     itemDescription:
-      'text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground truncate',
+      'text-xs text-muted-foreground truncate group-data-[highlighted]:text-accent-foreground',
     itemTrailing:
-      'text-muted-foreground group-data-[highlighted]:text-accent-foreground ml-auto flex shrink-0 gap-2 items-center text-xs tracking-widest [&_[data-slot=kbd-group]]:text-inherit',
+      'text-xs text-muted-foreground tracking-widest ml-auto flex shrink-0 gap-2 items-center group-data-[highlighted]:text-accent-foreground [&_[data-slot=kbd-group]]:text-inherit',
     inputLeading:
       'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
     close:
-      'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:(bg-accent-hover text-accent-foreground) active:(bg-accent-active text-accent-foreground)',
-    empty: 'text-muted-foreground py-6 text-center text-sm',
+      'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
+    empty: 'text-sm text-muted-foreground py-6 text-center',
   },
   defaultVariants: {
     descriptionPosition: 'bottom',

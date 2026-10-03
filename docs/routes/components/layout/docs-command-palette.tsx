@@ -102,7 +102,7 @@ function createDocsCommandItem(
       }}
     >
       <span class="truncate">{context.item.label}</span>
-      <span class="text-muted-foreground truncate text-xs">{context.item.description}</span>
+      <span class="text-xs text-muted-foreground truncate">{context.item.description}</span>
     </a>
   )
 }
@@ -130,7 +130,7 @@ export function DocsSearchTrigger(
       classes={{ label: 'flex-1 min-w-0' }}
     >
       <Show when={variant() === 'desktop'}>
-        <span class="flex gap-3 w-full items-center justify-between text-sm">
+        <span class="text-sm flex gap-3 w-full items-center justify-between">
           <span>Search docs</span>
           <KbdGroup items={['⌘', 'K']} separator="" size="sm" variant="outline" />
         </span>

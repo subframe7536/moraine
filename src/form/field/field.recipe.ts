@@ -20,7 +20,7 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldRec
         "text-foreground font-medium block data-required:after:(text-destructive ms-0.5 content-['*'])",
       container: 'flex flex-col gap-1.5 relative',
       description: 'text-muted-foreground leading-normal',
-      error: 'text-destructive font-medium leading-normal',
+      error: 'text-destructive leading-normal font-medium',
       hint: 'text-muted-foreground',
       help: 'text-muted-foreground leading-normal',
     },

@@ -10,7 +10,7 @@ export function PanelsUsage() {
             value: 'details',
             title: 'Project details',
             content: (
-              <div class="text-muted-foreground p-4 text-xs">
+              <div class="text-xs text-muted-foreground p-4">
                 Configure project name and workspace root.
               </div>
             ),
@@ -19,7 +19,7 @@ export function PanelsUsage() {
             value: 'target',
             title: 'Deploy target',
             content: (
-              <div class="text-muted-foreground p-4 text-xs">
+              <div class="text-xs text-muted-foreground p-4">
                 Select cloud provider and cluster region.
               </div>
             ),

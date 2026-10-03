@@ -20,7 +20,7 @@ function SearchControl(
     setSearchValue: (value) => props.setSearchValue(value),
   })
   return (
-    <BaseSelect.Control class="px-2 border border-input flex w-64 items-center rounded-md">
+    <BaseSelect.Control class="px-2 border border-input rounded-md flex w-64 items-center">
       <input
         {...input.inputProps}
         class="py-1.5 outline-none bg-transparent flex-1"

@@ -15,7 +15,7 @@ export function Controlled() {
           <Modal.Content ariaLabel="Controlled modal">
             {(context) => (
               <div class="p-4 gap-4 grid">
-                <p class="text-foreground text-sm">
+                <p class="text-sm text-foreground">
                   The parent owns the open state through onOpenChange.
                 </p>
                 <Button class="justify-self-end" onClick={context.close}>

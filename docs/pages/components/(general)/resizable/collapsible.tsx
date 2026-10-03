@@ -14,7 +14,7 @@ export function Collapsible() {
 
   return (
     <div class="space-y-3">
-      <div class="flex items-center justify-between text-xs">
+      <div class="text-xs flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <Button
             variant="outline"
@@ -31,7 +31,7 @@ export function Collapsible() {
         </span>
       </div>
 
-      <div class="border border-border/60 bg-card/30 h-64 w-full shadow-xs overflow-hidden rounded-xl">
+      <div class="border border-border/60 rounded-xl bg-card/30 h-64 w-full shadow-xs overflow-hidden">
         <Resizable>
           <Resizable.Panel
             min="20%"
@@ -52,7 +52,7 @@ export function Collapsible() {
               <For each={NAV_ITEMS}>
                 {(item) => (
                   <div
-                    class={`px-2.5 py-1.5 flex gap-2.5 cursor-pointer transition-colors items-center text-xs rounded-lg ${
+                    class={`text-xs px-2.5 py-1.5 rounded-lg flex gap-2.5 cursor-pointer transition-colors items-center ${
                       item.label === 'Dashboard'
                         ? 'bg-accent text-accent-foreground font-medium'
                         : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -90,18 +90,18 @@ export function Collapsible() {
           <Resizable.Panel class="p-4 bg-background/50 flex flex-col justify-between">
             <div class="space-y-3">
               <div class="pb-2 border-b border-border/40 flex items-center justify-between">
-                <span class="text-foreground font-semibold text-xs">Project Overview</span>
+                <span class="text-xs text-foreground font-semibold">Project Overview</span>
                 <span class="text-[10px] text-muted-foreground">Updated 2m ago</span>
               </div>
-              <div class="gap-2 grid grid-cols-2 text-xs">
-                <div class="p-3 border border-border/50 bg-muted/15 space-y-1 rounded-lg">
+              <div class="text-xs gap-2 grid grid-cols-2">
+                <div class="p-3 border border-border/50 rounded-lg bg-muted/15 space-y-1">
                   <div class="text-[11px] text-muted-foreground">Build Status</div>
                   <div class="text-emerald-600 font-medium flex gap-1.5 items-center dark:text-emerald-400">
                     <span class="rounded-full bg-emerald-500 size-1.5 animate-pulse" />
                     Operational
                   </div>
                 </div>
-                <div class="p-3 border border-border/50 bg-muted/15 space-y-1 rounded-lg">
+                <div class="p-3 border border-border/50 rounded-lg bg-muted/15 space-y-1">
                   <div class="text-[11px] text-muted-foreground">Hydration Score</div>
                   <div class="text-foreground font-medium">99.8%</div>
                 </div>

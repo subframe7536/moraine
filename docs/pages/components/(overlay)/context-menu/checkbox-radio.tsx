@@ -39,13 +39,13 @@ export function CheckboxRadio() {
       <ContextMenu>
         <ContextMenu.Trigger
           as="div"
-          class="text-muted-foreground border border-border border-dashed flex h-28 max-w-sm select-none items-center justify-center text-sm rounded-lg"
+          class="text-sm text-muted-foreground border border-border rounded-lg border-dashed flex h-28 max-w-sm select-none items-center justify-center"
         >
           Right click to change options
         </ContextMenu.Trigger>
         <ContextMenu.Content items={items()} />
       </ContextMenu>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-sm text-muted-foreground">
         Pinned: {String(pinned())}; priority: {priority()}
       </p>
     </div>

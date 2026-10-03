@@ -111,6 +111,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
         expect(css).not.toContain('--mo-leading')
         expect(css).not.toContain('font-size:calc(var(--font-size')
         expect(css).not.toContain('--un-leading')
+      } else {
+        expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
+        expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
       }
       expect(css).toContain('left:var(--s-marker-position)')
       expect(css).not.toContain('--st-')

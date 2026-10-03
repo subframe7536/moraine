@@ -34,7 +34,7 @@ export function StateDismissal() {
         >
           <Dialog.Body>
             <div class="py-2 space-y-3">
-              <p class="text-muted-foreground text-sm">
+              <p class="text-sm text-muted-foreground">
                 {dismissible()
                   ? 'Press Escape or click the backdrop to dismiss.'
                   : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}

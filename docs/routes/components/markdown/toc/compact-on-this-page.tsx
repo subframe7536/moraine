@@ -17,7 +17,7 @@ export function CompactOnThisPage(props: { entries: OnThisPageEntry[] }) {
         class="mt-6 border-y border-border/60 xl:hidden"
       >
         <Collapsible.Trigger
-          class={`text-muted-foreground px-3 py-2 flex w-full transition items-center justify-between rounded-md hover:(text-foreground bg-muted) ${DOCS_FOCUS_RING_CLASS}`}
+          class={`text-muted-foreground px-3 py-2 rounded-md flex w-full transition items-center justify-between hover:(text-foreground bg-muted) ${DOCS_FOCUS_RING_CLASS}`}
         >
           On This Page
           <Icon name="i-lucide:chevron-down" class={open() ? 'size-4 rotate-180' : 'size-4'} />
@@ -30,7 +30,7 @@ export function CompactOnThisPage(props: { entries: OnThisPageEntry[] }) {
                   href={`#${encodeURIComponent(entry.id)}`}
                   target="_self"
                   data-toc-id={entry.id}
-                  class={`text-muted-foreground px-2 py-2 flex min-h-11 items-center text-sm rounded-md hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
+                  class={`text-sm text-muted-foreground px-2 py-2 rounded-md flex min-h-11 items-center hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
                   style={{
                     'padding-inline-start': `${0.5 + Math.max(0, entry.level - 1) * 0.75}rem`,
                   }}

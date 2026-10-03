@@ -27,11 +27,11 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   InputNumberStyleVariant
 >('inputNumber', {
   base: {
-    root: `inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} ${DATA_DISABLED_CLASS} ${FOCUS_WITHIN_INVALID_CLASS}`,
+    root: `inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${FOCUS_WITHIN_INVALID_CLASS}`,
     input:
-      'placeholder:text-muted-foreground text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0 text-center data-auto-align:text-start',
-    increment: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center ${DISABLED_CLASS} hover:text-primary-hover active:text-primary-active`,
-    decrement: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center ${DISABLED_CLASS} hover:text-primary-hover active:text-primary-active`,
+      'text-foreground text-center outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none [appearance:textfield] placeholder:text-muted-foreground data-auto-align:text-start [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
+    increment: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`,
+    decrement: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`,
     controls: 'flex shrink-0 flex-col h-full',
   },
   defaultVariants: {
@@ -69,11 +69,11 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       ghost: {
         root: `${INPUT_VARIANT.ghost} group/input-number`,
         input:
-          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground group-hover/input-number:placeholder:text-accent-foreground group-focus-within/input-number:placeholder:text-accent-foreground',
+          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground group-focus-within/input-number:placeholder:text-accent-foreground group-hover/input-number:placeholder:text-accent-foreground',
         increment:
-          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground',
+          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground',
         decrement:
-          'group-hover/input-number:text-accent-foreground group-focus-within/input-number:text-accent-foreground',
+          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground',
       },
       none: { root: INPUT_VARIANT.none },
     },
@@ -83,8 +83,8 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
     },
     orientation: {
       horizontal: {
-        increment: 'self-stretch rounded-e-none',
-        decrement: 'self-stretch rounded-s-none',
+        increment: 'rounded-e-none self-stretch',
+        decrement: 'rounded-s-none self-stretch',
       },
       vertical: {
         increment: 'px-0 rounded-none flex-1 min-h-0 w-full',

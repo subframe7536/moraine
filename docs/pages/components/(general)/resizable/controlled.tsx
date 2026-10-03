@@ -23,17 +23,17 @@ export function Controlled() {
             75 / 25
           </Button>
         </div>
-        <div class="text-muted-foreground font-mono text-xs">
+        <div class="text-xs text-muted-foreground font-mono">
           Left: {Math.round(sizes()[0] ?? 0)}px ({percentages()[0]}) | Right:{' '}
           {Math.round(sizes()[1] ?? 0)}px ({percentages()[1]})
         </div>
       </div>
 
-      <div class="border border-border/60 bg-card/30 h-60 w-full shadow-xs overflow-hidden rounded-xl">
+      <div class="border border-border/60 rounded-xl bg-card/30 h-60 w-full shadow-xs overflow-hidden">
         <Resizable value={sizes()} onChange={setSizes}>
           <Resizable.Panel min={150} class="p-4 bg-muted/20 flex flex-col justify-between">
             <div class="space-y-2">
-              <span class="text-foreground font-semibold text-xs">Worker Logs</span>
+              <span class="text-xs text-foreground font-semibold">Worker Logs</span>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
                 Controlled through external Solid signal. Size updates trigger seamless state
                 synchronization.
@@ -46,7 +46,7 @@ export function Controlled() {
 
           <Resizable.Panel min={150} class="p-4 bg-background/50 flex flex-col justify-between">
             <div class="space-y-2">
-              <span class="text-foreground font-semibold text-xs">Telemetry Output</span>
+              <span class="text-xs text-foreground font-semibold">Telemetry Output</span>
               <p class="text-[11px] text-muted-foreground leading-relaxed">
                 Use controlled state when persisting split configuration to localStorage or URL
                 parameters.

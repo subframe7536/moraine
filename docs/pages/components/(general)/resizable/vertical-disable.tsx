@@ -12,7 +12,7 @@ export function VerticalDisable() {
 
   return (
     <div class="space-y-3">
-      <div class="flex items-center justify-between text-xs">
+      <div class="text-xs flex items-center justify-between">
         <div class="flex gap-2 items-center">
           <Button
             variant="outline"
@@ -29,7 +29,7 @@ export function VerticalDisable() {
         <span class="text-[11px] text-muted-foreground font-mono">orientation="vertical"</span>
       </div>
 
-      <div class="border border-border/60 bg-card/30 h-80 w-full shadow-xs overflow-hidden rounded-xl">
+      <div class="border border-border/60 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
         <Resizable
           orientation="vertical"
           disabled={disabled()}
@@ -40,13 +40,13 @@ export function VerticalDisable() {
           <Resizable.Panel min="25%" class="p-3 bg-muted/20 flex flex-col justify-between">
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-foreground font-semibold flex gap-1.5 items-center text-xs">
+                <span class="text-xs text-foreground font-semibold flex gap-1.5 items-center">
                   <Icon name="i-lucide:database" class="text-primary size-3.5" />
                   SQL Query Editor
                 </span>
                 <span class="text-[10px] text-muted-foreground font-mono">analytics_db.prod</span>
               </div>
-              <div class="text-foreground font-mono p-2.5 border border-border/50 bg-background/70 space-y-1 text-xs rounded-lg">
+              <div class="text-xs text-foreground font-mono p-2.5 border border-border/50 rounded-lg bg-background/70 space-y-1">
                 <div>
                   <span class="text-purple-500">SELECT</span> id, name, role, queries, latency
                 </div>
@@ -79,11 +79,11 @@ export function VerticalDisable() {
           {/* Bottom Panel: Data Table Results */}
           <Resizable.Panel min="25%" class="p-3 bg-background/50 flex flex-col justify-between">
             <div class="overflow-auto space-y-2">
-              <div class="flex items-center justify-between text-xs">
+              <div class="text-xs flex items-center justify-between">
                 <span class="text-foreground font-medium">Results</span>
                 <span class="text-[10px] text-muted-foreground font-mono">3 rows returned</span>
               </div>
-              <table class="text-left w-full text-xs">
+              <table class="text-xs text-left w-full">
                 <thead>
                   <tr class="text-[11px] text-muted-foreground font-mono border-b border-border/50">
                     <th class="py-1">ID</th>

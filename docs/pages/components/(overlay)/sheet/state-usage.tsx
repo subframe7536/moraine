@@ -13,7 +13,7 @@ export function StateUsage() {
           description="Controlled open state enables external workflow triggers."
         >
           <Sheet.Body>
-            <p class="text-muted-foreground py-2 text-xs">
+            <p class="text-xs text-muted-foreground py-2">
               Reactive state is managed by parent container.
             </p>
           </Sheet.Body>

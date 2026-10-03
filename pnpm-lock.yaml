@@ -171,8 +171,8 @@ catalogs:
       specifier: ^1.2.138
       version: 1.2.138
     '@subf/unocss':
-      specifier: ^0.3.1
-      version: 0.3.1
+      specifier: ^0.4.0
+      version: 0.4.0
     cn:
       specifier: ^0.4.0
       version: 0.4.0
@@ -191,10 +191,6 @@ catalogs:
     vite-plugin-solid:
       specifier: ^2.11.14
       version: 2.11.14
-  peers:
-    '@subf/unocss':
-      specifier: ^0.3.0
-      version: 0.3.1
 
 importers:
 
@@ -206,9 +202,6 @@ importers:
       '@formisch/solid':
         specifier: ^1.1.0
         version: 1.1.0(solid-js@1.9.15)(typescript@7.0.2)(valibot@1.5.0(typescript@7.0.2))
-      '@subf/unocss':
-        specifier: catalog:peers
-        version: 0.3.1(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))
       cn:
         specifier: 'catalog:'
         version: 0.4.0
@@ -226,8 +219,11 @@ importers:
         specifier: ^0.8.10
         version: 0.8.10(@solidjs/router@1.0.0(solid-js@1.9.15))(solid-js@1.9.15)
       '@subf/config':
-        specifier: ^0.4.0
-        version: 0.4.0(defu@6.1.7)(oxfmt@0.71.0)(oxlint@1.86.0(oxlint-tsgolint@7.0.2003))
+        specifier: ^0.5.0
+        version: 0.5.0(defu@6.1.7)(oxfmt@0.71.0)(oxlint@1.86.0(oxlint-tsgolint@7.0.2003))
+      '@subf/unocss':
+        specifier: 'catalog:'
+        version: 0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))
       '@tanstack/virtual-core':
         specifier: ^3.17.11
         version: 3.17.11
@@ -293,7 +289,7 @@ importers:
         version: 1.0.0(solid-js@1.9.15)
       '@subf/unocss':
         specifier: 'catalog:'
-        version: 0.3.1(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))
+        version: 0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))
       cn:
         specifier: 'catalog:'
         version: 0.4.0
@@ -1029,22 +1025,23 @@ packages:
       '@solidjs/router':
         optional: true
 
-  '@subf/config@0.4.0':
-    resolution: {integrity: sha512-Ql91bi7ydXvrC6WaEJR9v+c0WKEEhBSrKPZ6U4OAQsyDSp+WA5K2ZKo0GLARih7QK/NNdCOIpeLf8xPkRLI//A==}
+  '@subf/config@0.5.0':
+    resolution: {integrity: sha512-GBk01mfu7BmakMgTlAm2zAX4ilOFX3Br0QdYO6wAxDVjaY1uGhcVpHXxRcHhKh+gry89yPASqqrBB7zGdAtk7Q==}
     hasBin: true
     peerDependencies:
-      defu: 6.1.7
+      defu: ^6.1.7
       oxfmt: ^0
       oxlint: ^1
 
   '@subf/oxlint-plugin@0.3.0':
     resolution: {integrity: sha512-4pzxdeDxY1O03loTqK98bLzOW9ltK3Ex+jKFctNZtB9P7Mg/dSBN+nejSkiTNax24sEaJBrF6oUzXRv2Ra3JDg==}
 
-  '@subf/unocss@0.3.1':
-    resolution: {integrity: sha512-5eCUP2l8cpBvHgwvHoj3QhMwCfwzaUAuyLItY4SRIsluJJdxFknt1Ye8hzNBWe4X+JCGDMfhAlYOmu65BydT4g==}
+  '@subf/unocss@0.4.0':
+    resolution: {integrity: sha512-kpNxqa1pltr7tIf0dhjr16N0hSKHjwpjQ7lVTq4vwNF/DO7TIvF2/K67Wf+0Wvn8ieRQGpxc4O12owaY1+SyGw==}
     peerDependencies:
+      '@jridgewell/remapping': '*'
       magic-string: '*'
-      vite: ^8.2.2
+      vite: ^8.3.1
 
   '@tanstack/virtual-core@3.17.11':
     resolution: {integrity: sha512-+ILjvtHup6Y2hzQ6YzwMgX1Q+oQpxEGOXCEsCNaPoIP0VxMbizIBTmYTDtkerkIQS8/CbP1BRuyt8V/8BCsy1g==}
@@ -2816,7 +2813,7 @@ snapshots:
     optionalDependencies:
       '@solidjs/router': 1.0.0(solid-js@1.9.15)
 
-  '@subf/config@0.4.0(defu@6.1.7)(oxfmt@0.71.0)(oxlint@1.86.0(oxlint-tsgolint@7.0.2003))':
+  '@subf/config@0.5.0(defu@6.1.7)(oxfmt@0.71.0)(oxlint@1.86.0(oxlint-tsgolint@7.0.2003))':
     dependencies:
       '@subf/oxlint-plugin': 0.3.0
       defu: 6.1.7
@@ -2825,8 +2822,9 @@ snapshots:
 
   '@subf/oxlint-plugin@0.3.0': {}
 
-  '@subf/unocss@0.3.1(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))':
+  '@subf/unocss@0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.2)(vite@8.3.1(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:
+      '@jridgewell/remapping': 2.3.5
       '@unocss/config': 66.10.5
       '@unocss/core': 66.10.5
       '@unocss/preset-icons': 66.10.5

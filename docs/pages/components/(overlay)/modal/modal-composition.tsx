@@ -8,9 +8,9 @@ export function ModalComposition() {
         <Modal.Overlay />
         <Modal.Content ariaLabel="Custom Surface">
           {(context) => (
-            <div class="p-4 b-(1 border) bg-background space-y-4 rounded-xl">
-              <h3 class="font-semibold text-base">Custom Surface</h3>
-              <p class="text-muted-foreground text-xs">
+            <div class="p-4 b-1 b-border rounded-xl bg-background space-y-4">
+              <h3 class="text-base font-semibold">Custom Surface</h3>
+              <p class="text-xs text-muted-foreground">
                 Modal coordinates overlay, focus trap, and portal rendering.
               </p>
               <div class="flex justify-end">

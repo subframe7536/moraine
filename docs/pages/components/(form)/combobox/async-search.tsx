@@ -48,7 +48,7 @@ export function AsyncSearch() {
         openOnControlClick
         allowClear
       />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         {loading() ? 'Searching remote index...' : `${items().length} repositories found`}
       </p>
     </div>

@@ -259,13 +259,14 @@ describe('presetMoraine', () => {
   })
 
   test('Wind4 rounded utilities read the local --radius', async () => {
-    const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg'])
+    const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg', 'rounded-none'])
 
     expect(css).toContain('.rounded-md{border-radius:calc(var(--radius) * 0.8);}')
     expect(css).toContain('.rounded-xl{border-radius:calc(var(--radius) * 1.4);}')
     expect(css).toContain(
       '.rounded-t-lg{border-top-left-radius:var(--radius);border-top-right-radius:var(--radius);}',
     )
+    expect(css).toContain('.rounded-none{border-radius:0;}')
   })
 
   test('Wind4 font utilities read the local --font-size', async () => {
@@ -276,6 +277,64 @@ describe('presetMoraine', () => {
     expect(css).toContain('.text-base{font-size:var(--font-size, 1rem)')
     expect(css).toContain('line-height:var(--un-leading, calc(var(--font-size, 1rem) * 1.25))')
     expect(css).toContain('.text-5xl{font-size:calc(var(--font-size, 1rem) * 3)')
+  })
+
+  test('inlines resolved Wind4 typography and radius overrides', async () => {
+    const generator = await createGenerator({
+      presets: [presetWind4(), presetMoraine()],
+      theme: {
+        text: {
+          sm: {
+            fontSize: 'var(--app-font-size)',
+            lineHeight: 'var(--app-line-height)',
+            letterSpacing: 'var(--app-tracking)',
+          },
+          hero: { fontSize: 'calc(var(--app-font-size) * 2)', lineHeight: '1.1' },
+        },
+        radius: { md: 'var(--app-radius)', pill: 'calc(var(--app-radius) * 2)' },
+      },
+    })
+    const { css } = await generator.generate(
+      new Set([
+        'text-sm',
+        'text-size-sm',
+        'text-sm/7',
+        'text-hero',
+        'rounded-md',
+        'rounded-pill',
+        'rounded-ss-md',
+        'hover:rd-md',
+      ]),
+      { preflights: false },
+    )
+    expect(css).toContain(
+      '.text-sm{font-size:var(--app-font-size);line-height:var(--un-leading, var(--app-line-height));letter-spacing:var(--app-tracking);}',
+    )
+    expect(css).toContain('.text-size-sm{font-size:var(--app-font-size);')
+    expect(css).toContain('.text-sm\\/7{font-size:var(--app-font-size);line-height:1.75rem;')
+    expect(css).toContain(
+      '.text-hero{font-size:calc(var(--app-font-size) * 2);line-height:var(--un-leading, 1.1);}',
+    )
+    expect(css).toContain('.rounded-md{border-radius:var(--app-radius);}')
+    expect(css).toContain('.rounded-pill{border-radius:calc(var(--app-radius) * 2);}')
+    expect(css).toContain('.rounded-ss-md{border-start-start-radius:var(--app-radius);}')
+    expect(css).toContain('.hover\\:rd-md:hover{border-radius:var(--app-radius);}')
+  })
+
+  test('preserves native Wind4 arbitrary typography and radius utilities', async () => {
+    const tokens = new Set([
+      'text-[length:1.125rem]',
+      'text-[length:var(--app-size)]',
+      'text-[length:1.125rem]/[1.8]',
+      'rounded-[13px]',
+      'rounded-t-[var(--app-radius)]',
+      'rounded-full',
+    ])
+    const baseline = await createGenerator({ presets: [presetWind4()] })
+    const generator = await createGenerator({ presets: [presetWind4(), presetMoraine()] })
+    const expected = await baseline.generate(tokens, { preflights: false })
+    const actual = await generator.generate(tokens, { preflights: false })
+    expect(actual.css).toBe(expected.css)
   })
 
   test('registers data and aria presence variants', async () => {

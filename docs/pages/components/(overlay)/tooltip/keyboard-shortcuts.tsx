@@ -2,7 +2,7 @@ import { Button, Tooltip } from '@src'
 
 export function KeyboardShortcuts() {
   return (
-    <div class="p-2 b-(1 border) bg-card flex flex-wrap gap-2 items-center rounded-xl">
+    <div class="p-2 b-1 b-border rounded-xl bg-card flex flex-wrap gap-2 items-center">
       <Tooltip>
         <Tooltip.Trigger as={Button} variant="outline" size="sm" leading="i-lucide:save">
           Save

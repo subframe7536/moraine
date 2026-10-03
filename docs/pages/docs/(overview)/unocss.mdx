@@ -187,7 +187,7 @@ Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb,
 
 Use `presetMoraine({ wind3: true })` with `presetWind3()`. This enables Wind3's semantic token mappings and color alpha compatibility. Numeric spacing and size utilities keep Wind3's native values and explicit theme overrides; changing `--spacing` does not scale them. Use explicit variable utilities such as `p-(--app-padding)` for runtime spacing changes.
 
-Wind3 resolves `text-*`, `rounded-*`, and leading utilities through its native rules. Configure font sizes with UnoCSS's `theme.fontSize`; `--font-size` does not scale Wind3 typography. Moraine supplies its radius scale through `theme.borderRadius`, and explicit theme values take precedence. The custom `text-*` and `rounded-*` rules apply only in Wind4 mode, where text utilities retain Wind4's native `--un-leading` behavior.
+Wind3 resolves `text-*`, `rounded-*`, and leading utilities through its native rules. Configure font sizes with UnoCSS's `theme.fontSize`; `--font-size` does not scale Wind3 typography. Moraine supplies its radius scale through `theme.borderRadius`, and explicit theme values take precedence. Wind4 uses its native typography and radius rules. Moraine postprocesses the resolved `theme.text` and `theme.radius` values inline so local `--font-size` and `--radius` changes scale the utilities without changing their native class order. Explicit UnoCSS theme values take precedence, and text utilities retain Wind4's native `--un-leading` behavior.
 
 ### Hover and active colors
 

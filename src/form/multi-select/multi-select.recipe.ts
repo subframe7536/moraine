@@ -51,7 +51,7 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
       ghost: {
         ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
         tagOverflow:
-          'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
+          'group-focus-within/select-control:text-accent-foreground group-hover/select-control:text-accent-foreground',
       },
     },
     size: TAG_SIZES,

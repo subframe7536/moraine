@@ -7,7 +7,7 @@ export function NativeBehavior() {
   return (
     <div class="max-w-md w-full space-y-3">
       <Textarea value={bio()} onValueChange={setBio} rows={3} />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         Length: <span class="text-foreground font-mono">{bio().length}</span> characters
       </p>
     </div>

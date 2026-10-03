@@ -1,8 +1,22 @@
-import { subfLint } from '@subf/config/oxlint'
+import { subfLint, unocss } from '@subf/config/oxlint'
 
 export default subfLint({
   solid: true,
-  unocss: true,
+  overrides: [
+    {
+      ...unocss,
+      rules: {
+        ...unocss.rules,
+        'uno/order': [
+          'warn',
+          {
+            unoFunctions: ['cn', 'cva', 'defineRecipe'],
+            unoVariables: ['^cls', 'classNames?$', '_CLASS$'],
+          },
+        ],
+      },
+    },
+  ],
   options: {
     typeAware: true,
   },

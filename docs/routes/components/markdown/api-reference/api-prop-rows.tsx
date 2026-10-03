@@ -8,10 +8,10 @@ import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
 export type PropDoc = PresentationPropItem
 
 export const REFERENCE_ROOT_CLASS =
-  'mt-3 mb-6 border border-border/60 bg-card/20 overflow-hidden [content-visibility:auto] rounded-lg'
+  'mb-6 mt-3 border border-border/60 rounded-lg bg-card/20 [content-visibility:auto] overflow-hidden'
 
 export const PROP_GRID_CLASS =
-  'grid grid-cols-[minmax(0,1fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem]'
+  'grid grid-cols-[minmax(0,1fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem]'
 
 export function PropDetails(props: { prop: PropDoc }): JSX.Element {
   return (
@@ -20,8 +20,8 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
       aria-labelledby={`${props.prop.anchorId}-trigger`}
       class="px-3 py-3 border-t border-border/40 sm:px-4"
     >
-      <dl class="m-0 gap-x-4 gap-y-3 grid text-sm sm:grid-cols-[8rem_minmax(0,1fr)]">
-        <dt class="text-muted-foreground font-medium text-xs">Name</dt>
+      <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dt class="text-xs text-muted-foreground font-medium">Name</dt>
         <dd class="m-0 min-w-0">
           <a
             href={`#${props.prop.anchorId}`}
@@ -34,7 +34,7 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
         <Show when={props.prop.description}>
           {(description) => (
             <>
-              <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
+              <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
                 Description
               </dt>
               <dd
@@ -46,21 +46,21 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
           )}
         </Show>
 
-        <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
+        <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
           Type
         </dt>
         <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
           <Show
             when={props.prop.typeHtml}
             fallback={
-              <code class="text-foreground font-mono whitespace-pre-wrap break-words text-xs">
+              <code class="text-xs text-foreground font-mono whitespace-pre-wrap break-words">
                 {props.prop.type}
               </code>
             }
           >
             {(html) => (
               <div
-                class="font-mono text-xs [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
+                class="text-xs font-mono [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
                 // oxlint-disable-next-line subf/solid-no-innerhtml
                 innerHTML={html()}
               />
@@ -69,7 +69,7 @@ export function PropDetails(props: { prop: PropDoc }): JSX.Element {
         </dd>
 
         <Show when={props.prop.defaultValue !== undefined}>
-          <dt class="text-muted-foreground font-medium text-xs sm:pt-3 sm:border-t sm:border-border/30">
+          <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
             Default
           </dt>
           <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
@@ -92,7 +92,7 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
         aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.summaryType}${defaultText()}`}
         class={cn(
           PROP_GRID_CLASS,
-          'p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch text-sm hover:bg-muted/30',
+          'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
         )}
       >
         <span class="text-foreground font-medium font-mono px-3 py-2.5">
@@ -103,12 +103,12 @@ export function PropRowItem(props: { prop: PropDoc }): JSX.Element {
           </Show>
         </span>
         <code
-          class="text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate text-xs sm:block"
+          class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate sm:block"
           title={props.prop.type}
         >
           {props.prop.summaryType}
         </code>
-        <span class="text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate text-xs lg:block">
+        <span class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate lg:block">
           {props.prop.defaultValue ?? '—'}
         </span>
         <div class="text-muted-foreground flex h-full items-center justify-center">

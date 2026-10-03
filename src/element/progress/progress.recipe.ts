@@ -21,7 +21,7 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
       indicator:
         'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
       steps: 'grid items-end',
-      step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:(text-muted-foreground opacity-100) data-[state=other]:opacity-0 data-[state=last]:opacity-100',
+      step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=first]:(text-muted-foreground opacity-100) data-[state=active]:opacity-100 data-[state=last]:opacity-100 data-[state=other]:opacity-0',
     },
     defaultVariants: {
       orientation: 'horizontal',

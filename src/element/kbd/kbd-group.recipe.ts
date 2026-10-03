@@ -5,7 +5,7 @@ import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-
 export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<KbdGroupStyleSlot, KbdGroupStyleVariant>(
   'kbdGroup',
   {
-    base: { root: 'inline-flex gap-1 items-center text-muted-foreground', item: '' },
+    base: { root: 'text-muted-foreground inline-flex gap-1 items-center', item: '' },
     defaultVariants: { size: 'md', variant: 'default' },
     variants: {
       size: {

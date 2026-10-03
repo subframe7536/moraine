@@ -16,12 +16,12 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
     base: {
       root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:(border border-border rounded-full pointer-events-none content-[''] inset-0 absolute) dark:after:mix-blend-lighten",
       image:
-        'opacity-0 pointer-events-none data-[status=loaded]:(opacity-100 pointer-events-auto) rounded-full size-full transition-opacity inset-0 absolute object-cover',
+        'rounded-full opacity-0 size-full pointer-events-none transition-opacity inset-0 absolute object-cover data-[status=loaded]:(opacity-100 pointer-events-auto)',
       fallback:
-        'opacity-100 data-[status=loaded]:(opacity-0 pointer-events-none) text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
+        'text-muted-foreground font-medium rounded-full bg-muted opacity-100 flex uppercase transition-opacity items-center inset-0 justify-center absolute data-[status=loaded]:(opacity-0 pointer-events-none)',
       fallbackContent: 'shrink-0',
       badge:
-        '[&>[data-slot=icon]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
+        'text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky [&>[data-slot=icon]]:text-[0.75em]',
     },
     defaultVariants: {
       size: 'md',

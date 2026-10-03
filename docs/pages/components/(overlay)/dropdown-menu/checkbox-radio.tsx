@@ -39,7 +39,7 @@ export function CheckboxRadio() {
         </DropdownMenu.Trigger>
         <DropdownMenu.Content items={items()} />
       </DropdownMenu>
-      <p class="text-muted-foreground text-sm">
+      <p class="text-sm text-muted-foreground">
         {layout()} layout, archived: {String(showArchived())}
       </p>
     </div>

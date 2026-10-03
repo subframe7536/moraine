@@ -13,7 +13,7 @@ function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void;
       type="button"
       onClick={() => props.onClick()}
       class={cn(
-        'group px-4 py-2 text-left border border-border bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center text-lg rounded-lg hover:bg-muted/40',
+        'group text-lg px-4 py-2 text-left border border-border rounded-lg bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center hover:bg-muted/40',
         DOCS_FOCUS_RING_OFFSET_CLASS,
         props.class,
       )}
@@ -27,7 +27,7 @@ function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void;
       }
     >
       <span class="text-primary font-medium font-mono select-none">$</span>
-      <code class="text-foreground font-mono text-sm">npm i moraine</code>
+      <code class="text-sm text-foreground font-mono">npm i moraine</code>
       <span class="text-muted-foreground inline-flex transition-colors items-center group-hover:text-foreground">
         <Icon
           name={props.state === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
@@ -62,12 +62,12 @@ export function LandingPage() {
         </Badge>
         <h1
           id="landing-title"
-          class="leading-tight tracking-tight font-semibold max-w-5xl text-3xl lg:text-6xl sm:text-5xl"
+          class="text-3xl leading-tight tracking-tight font-semibold max-w-5xl lg:text-6xl sm:text-5xl"
         >
           <span class="text-foreground block">Styled SolidJS components.</span>
           <span class="text-primary block">Built to fit your design system.</span>
         </h1>
-        <p class="text-muted-foreground leading-relaxed mt-6 max-w-3xl text-base sm:text-lg">
+        <p class="text-base text-muted-foreground leading-relaxed mt-6 max-w-3xl sm:text-lg">
           Start with accessible components and built-in styles. Set a shared theme, choose component
           variants, or refine individual parts with UnoCSS or Tailwind CSS.
         </p>
@@ -90,10 +90,10 @@ export function LandingPage() {
       <footer>
         <div class="py-14 gap-12 grid sm:py-18 md:gap-0 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
           <div class="md:pe-8">
-            <h2 class="tracking-tight font-semibold text-2xl sm:text-3xl">
+            <h2 class="text-2xl tracking-tight font-semibold sm:text-3xl">
               Start building with Moraine
             </h2>
-            <p class="text-muted-foreground leading-relaxed mt-3 max-w-md text-sm sm:text-base">
+            <p class="text-sm text-muted-foreground leading-relaxed mt-3 max-w-md sm:text-base">
               Install the library, choose UnoCSS or Tailwind CSS, and shape the components to fit
               your interface.
             </p>
@@ -115,8 +115,8 @@ export function LandingPage() {
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
-                <span class="font-medium block text-sm">Components</span>
-                <span class="text-muted-foreground mt-1 block text-xs">
+                <span class="text-sm font-medium block">Components</span>
+                <span class="text-xs text-muted-foreground mt-1 block">
                   Form, navigation, overlay, and more.
                 </span>
               </span>
@@ -130,8 +130,8 @@ export function LandingPage() {
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
-                <span class="font-medium block text-sm">Customization</span>
-                <span class="text-muted-foreground mt-1 block text-xs">
+                <span class="text-sm font-medium block">Customization</span>
+                <span class="text-xs text-muted-foreground mt-1 block">
                   Theme, composition, and component slots.
                 </span>
               </span>
@@ -145,8 +145,8 @@ export function LandingPage() {
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
-                <span class="font-medium block text-sm">UnoCSS</span>
-                <span class="text-muted-foreground mt-1 block text-xs">
+                <span class="text-sm font-medium block">UnoCSS</span>
+                <span class="text-xs text-muted-foreground mt-1 block">
                   Configure the Moraine preset.
                 </span>
               </span>
@@ -160,8 +160,8 @@ export function LandingPage() {
               class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
-                <span class="font-medium block text-sm">Tailwind CSS</span>
-                <span class="text-muted-foreground mt-1 block text-xs">
+                <span class="text-sm font-medium block">Tailwind CSS</span>
+                <span class="text-xs text-muted-foreground mt-1 block">
                   Add the plugin and scan component styles.
                 </span>
               </span>
@@ -173,7 +173,7 @@ export function LandingPage() {
           </nav>
         </div>
 
-        <div class="py-5 flex flex-wrap gap-x-6 gap-y-3 items-center text-xs">
+        <div class="text-xs py-5 flex flex-wrap gap-x-6 gap-y-3 items-center">
           <a
             href="/"
             class={`font-semibold flex gap-2 items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`}

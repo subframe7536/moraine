@@ -22,11 +22,11 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
       content:
         'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-overlay fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
       overlay: MODAL_OVERLAY_CLASS,
-      header: 'p-4 grid grid-cols-[minmax(0,1fr)_auto] auto-rows-min gap-0.5 min-w-0',
+      header: 'p-4 gap-0.5 grid auto-rows-min grid-cols-[minmax(0,1fr)_auto] min-w-0',
       title: 'text-foreground font-medium col-start-1',
       description: 'text-sm text-muted-foreground col-start-1',
-      action: 'col-start-2 row-start-1 row-span-2 self-start justify-self-end',
-      contentClose: `absolute top-4 right-4 ${OVERLAY_CLOSE_BUTTON_CLASS}`,
+      action: 'row-span-2 col-start-2 row-start-1 self-start justify-self-end',
+      contentClose: `right-4 top-4 absolute ${OVERLAY_CLOSE_BUTTON_CLASS}`,
       body: 'flex-1 overflow-auto data-header:(px-4 pb-4 pt-0)',
       footer: 'mt-auto p-4 flex flex-col gap-2',
     },
@@ -50,7 +50,7 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
         },
         right: {
           content:
-            'border-l border-border h-full w-3/4 inset-y-0 right-0 sm:max-w-sm enter-translate-x-10 exit-translate-x-10',
+            'border-l border-border h-full w-3/4 inset-y-0 right-0 enter-translate-x-10 exit-translate-x-10 sm:max-w-sm',
         },
         top: {
           content:

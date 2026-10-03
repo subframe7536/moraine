@@ -38,14 +38,14 @@ export const resizableRecipe = /* @__PURE__ */ defineRecipe<
         handle: 'w-px cursor-ew-resize after:(w-1.5 inset-y-0 left-1/2 -translate-x-1/2)',
         handleControl: 'h-6 w-1',
         intersection:
-          'data-resizable-handle-start-target:top-0 data-resizable-handle-end-target:bottom-0 left-1/2 -translate-x-1/2',
+          'left-1/2 -translate-x-1/2 data-resizable-handle-end-target:bottom-0 data-resizable-handle-start-target:top-0',
       },
       vertical: {
         root: 'flex-col',
         handle: 'h-px w-full cursor-ns-resize after:(h-1.5 inset-x-0 top-1/2 -translate-y-1/2)',
         handleControl: 'h-1 w-6',
         intersection:
-          'data-resizable-handle-start-target:left-0 data-resizable-handle-end-target:right-0 top-1/2 -translate-y-1/2',
+          'top-1/2 -translate-y-1/2 data-resizable-handle-end-target:right-0 data-resizable-handle-start-target:left-0',
       },
     },
   },

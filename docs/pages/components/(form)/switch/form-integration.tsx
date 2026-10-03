@@ -26,7 +26,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Save Preferences
           </Button>
-          <p class="text-muted-foreground text-xs">
+          <p class="text-xs text-muted-foreground">
             Auto-renew: {submittedAutoRenew() ? 'Enabled' : 'Disabled'}
           </p>
         </div>

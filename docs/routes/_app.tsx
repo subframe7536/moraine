@@ -116,7 +116,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       <>
         <a
           href="#main-content"
-          class={`z-toast text-foreground px-4 py-2 bg-background transition-transform left-1/2 top-2 fixed rounded-md ${DOCS_FOCUS_RING_OFFSET_CLASS} -translate-x-1/2 -translate-y-full focus-visible:translate-y-0`}
+          class={`z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed ${DOCS_FOCUS_RING_OFFSET_CLASS} -translate-x-1/2 -translate-y-full focus-visible:translate-y-0`}
         >
           Skip to main content
         </a>

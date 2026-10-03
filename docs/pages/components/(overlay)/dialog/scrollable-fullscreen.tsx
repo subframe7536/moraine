@@ -17,7 +17,7 @@ export function ScrollableFullscreen() {
           <Dialog.Body>
             <div class="space-y-1">
               <For each={SCROLLABLE_LINES}>
-                {(line) => <p class="text-foreground text-sm">{line}</p>}
+                {(line) => <p class="text-sm text-foreground">{line}</p>}
               </For>
             </div>
           </Dialog.Body>
@@ -31,7 +31,7 @@ export function ScrollableFullscreen() {
           <Dialog.Body>
             <div class="space-y-1">
               <For each={SCROLLABLE_LINES}>
-                {(line) => <p class="text-foreground text-sm">{line}</p>}
+                {(line) => <p class="text-sm text-foreground">{line}</p>}
               </For>
             </div>
           </Dialog.Body>

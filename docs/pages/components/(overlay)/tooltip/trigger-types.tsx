@@ -7,7 +7,7 @@ export function TriggerTypes() {
         <Tooltip.Trigger as={Button}>Hover me</Tooltip.Trigger>
         <Tooltip.Content text="Button trigger" />
       </Tooltip>
-      <p class="text-foreground text-sm">
+      <p class="text-sm text-foreground">
         Hover over this{' '}
         <Tooltip>
           <Tooltip.Trigger as="span" class="font-medium underline cursor-help">

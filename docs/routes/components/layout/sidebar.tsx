@@ -84,7 +84,7 @@ export const Sidebar = (props: SidebarProps) => {
         href={page.path}
         aria-current={props.activePage() === page.path ? ('page' as const) : undefined}
         class={cn(
-          `px-2.5 py-1.5 text-left flex w-full transition-colors items-center text-sm rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+          `text-sm px-2.5 py-1.5 text-left rounded-lg flex w-full transition-colors items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
           frame.isMobile() ? 'min-h-11' : '',
           props.activePage() === page.path
             ? 'text-primary bg-primary/10 dark:bg-primary/15'
@@ -112,7 +112,7 @@ export const Sidebar = (props: SidebarProps) => {
           {(section) => (
             <>
               <section aria-label={section.section}>
-                <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 capitalize text-sm">
+                <h2 class="text-sm text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 capitalize">
                   {section.section}
                 </h2>
                 <ul class="flex flex-col gap-0.5">
@@ -121,7 +121,7 @@ export const Sidebar = (props: SidebarProps) => {
               </section>
               <Show when={surface.value === 'docs' && section.section === 'overview'}>
                 <section aria-label="Agents">
-                  <h2 class="text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5 text-sm">
+                  <h2 class="text-sm text-foreground tracking-tight font-semibold mb-1.5 mt-3 px-2 py-0.5">
                     Agents
                   </h2>
                   <a
@@ -129,7 +129,7 @@ export const Sidebar = (props: SidebarProps) => {
                     rel="alternate external"
                     type="text/markdown"
                     class={cn(
-                      `text-muted-foreground px-2.5 py-1.5 flex items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+                      `text-sm text-muted-foreground px-2.5 py-1.5 rounded-lg flex items-center hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
                       frame.isMobile() ? 'min-h-11' : '',
                     )}
                   >
@@ -142,7 +142,7 @@ export const Sidebar = (props: SidebarProps) => {
         </For>
       </div>
       <Show when={surface.sections.length === 0}>
-        <p class="text-muted-foreground px-2 py-3 text-xs">No results</p>
+        <p class="text-xs text-muted-foreground px-2 py-3">No results</p>
       </Show>
     </section>
   )
@@ -178,7 +178,7 @@ export const SidebarHeader = () => {
               href={surface.href}
               aria-current={selected() ? 'location' : undefined}
               class={cn(
-                `font-medium px-3 border flex gap-3 h-12 transition-colors items-center relative text-sm rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
+                `text-sm font-medium px-3 border rounded-lg flex gap-3 h-12 transition-colors items-center relative ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
                 selected()
                   ? 'text-foreground border-border bg-muted'
                   : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',
@@ -193,7 +193,7 @@ export const SidebarHeader = () => {
               <span
                 aria-hidden="true"
                 class={cn(
-                  'flex shrink-0 size-6 items-center justify-center rounded-md',
+                  'rounded-md flex shrink-0 size-6 items-center justify-center',
                   selected() ? 'bg-foreground/10' : 'bg-muted',
                 )}
               >

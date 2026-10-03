@@ -68,13 +68,13 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           track: 'rounded-full',
           range: 'rounded-full',
           marker: 'bg-background',
-          thumb: `size-(--s-thumb-size) outline-none border border-border rounded-full bg-background cursor-pointer transition-[box-shadow,transform] ${FOCUS_VISIBLE_BORDER_CLASS} hover:(ring-3 border border-ring ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding`,
+          thumb: `outline-none border border-border rounded-full bg-background size-(--s-thumb-size) cursor-pointer transition-[box-shadow,transform] ${FOCUS_VISIBLE_BORDER_CLASS} bg-clip-padding hover:(border border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
         },
         bold: {
           '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
           track: 'cursor-pointer',
           range:
-            "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-focus-within:after:opacity-100 group-hover:after:opacity-100 group-data-[dragging]:transition-none group-data-[dragging]:after:opacity-100 data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100 data-multiple:group-data-[dragging]:before:opacity-100",
+            "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-data-[dragging]:transition-none data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-data-[dragging]:after:opacity-100 group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-multiple:group-data-[dragging]:before:opacity-100 data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100",
           marker: 'bg-muted-foreground/30',
           thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
         },

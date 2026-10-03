@@ -5,10 +5,13 @@ publicHoistPattern:
   - '*oxlint*'
   - '@rolldown/pluginutils'
 
+minimumReleaseAgeExclude:
+  - '@subf/*'
+
 catalog:
   '@floating-ui/dom': '^1.8.0'
   '@iconify-json/lucide': '^1.2.138'
-  '@subf/unocss': '^0.3.1'
+  '@subf/unocss': '^0.4.0'
   'cn': '^0.4.0'
   'solid-js': '^1.9.15'
   'tailwindcss': '^4.3.3'
@@ -18,5 +21,5 @@ catalog:
 
 catalogs:
   peers:
-    '@subf/unocss': '^0.3.0'
+    '@subf/unocss': '^0.3.0 || ^0.4.0'
     'tailwindcss': '^4.0.0'

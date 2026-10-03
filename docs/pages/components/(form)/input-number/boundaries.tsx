@@ -16,7 +16,7 @@ export function Boundaries() {
         minValue={0}
         maxValue={10}
       />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         Numeric value: <span class="text-foreground font-mono">{value()}</span>
       </p>
     </div>

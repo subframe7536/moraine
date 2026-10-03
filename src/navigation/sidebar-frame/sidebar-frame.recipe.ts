@@ -18,11 +18,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'opacity-100 flex flex-col h-full min-size-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! w-(--mo-sidebar-width) shrink-0 max-w-[45%] data-mobile:(w-full max-w-none shrink)',
-    sidebarHeader: 'flex gap-2 p-2',
+      'min-size-0 opacity-100 flex shrink-0 flex-col h-full max-w-[45%] w-(--mo-sidebar-width) translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0!',
+    sidebarHeader: 'p-2 flex gap-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
-    sidebarFooter: 'flex gap-2 p-2',
-    main: 'relative flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
+    sidebarFooter: 'p-2 flex gap-2',
+    main: 'bg-background flex-1 h-full min-h-0 min-w-0 relative overflow-y-auto',
     '--mo-sidebar-width': 'var(--sidebar-width, clamp(14rem, 25%, 20rem))',
   },
   defaultVariants: {
@@ -46,11 +46,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
       },
       floating: {
         root: 'p-2 bg-background',
-        sidebar: 'bg-card border border-border/80 rounded-lg shadow-surface overflow-hidden',
+        sidebar: 'border border-border/80 rounded-lg bg-card shadow-surface overflow-hidden',
       },
       inset: {
-        root: 'bg-card p-2',
-        main: 'rounded-xl border border-border/80 shadow-surface',
+        root: 'p-2 bg-card',
+        main: 'border border-border/80 rounded-xl shadow-surface',
       },
     },
   },

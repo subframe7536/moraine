@@ -36,15 +36,15 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           <a
             href="/"
             aria-label="Moraine home"
-            class={`text-foreground flex shrink-0 gap-2 items-center rounded-sm ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
+            class={`text-foreground rounded-sm flex shrink-0 gap-2 items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
           >
             <img src="/favicon.svg" alt="" class="size-6" />
-            <span class="font-semibold text-base">Moraine</span>
+            <span class="text-base font-semibold">Moraine</span>
             <Show when={!frame.isMobile()}>
               <Badge
                 size="sm"
                 variant="outline"
-                class="text-muted-foreground font-mono px-1.5 py-0 text-xs"
+                class="text-xs text-muted-foreground font-mono px-1.5 py-0"
               >
                 v{packageMetadata.version}
               </Badge>
@@ -60,7 +60,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 aria-current={isDocs() ? 'true' : undefined}
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
-                  'px-3 h-9 text-sm',
+                  'text-sm px-3 h-9',
                   isDocs() ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >
@@ -74,7 +74,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 aria-current={isComponents() ? 'true' : undefined}
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
-                  'px-3 h-9 text-sm',
+                  'text-sm px-3 h-9',
                   isComponents() ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >

@@ -31,14 +31,14 @@ export function RangeSlider() {
           }
         }}
       />
-      <p class="text-muted-foreground w-50 text-xs">
+      <p class="text-xs text-muted-foreground w-50">
         Range: {rangeValue()[0]} - {rangeValue()[1]}
       </p>
-      <p class="text-muted-foreground w-50 text-xs">
+      <p class="text-xs text-muted-foreground w-50">
         Thumb crossing:{' '}
         {allowThumbCrossing() && minStepsBetweenThumbs() === 0 ? 'Enabled' : 'Constrained'}
       </p>
-      <p class="text-muted-foreground w-50 text-xs">Min steps between: {minStepsBetweenThumbs()}</p>
+      <p class="text-xs text-muted-foreground w-50">Min steps between: {minStepsBetweenThumbs()}</p>
     </div>
   )
 }

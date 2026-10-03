@@ -21,7 +21,7 @@ export function IconGallery() {
           return (
             <button
               type="button"
-              class={`group border border-border flex min-w-0 aspect-square transition-colors items-center justify-center relative rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS} hover:(border-primary/60 bg-primary/5)`}
+              class={`group border border-border rounded-lg flex min-w-0 aspect-square transition-colors items-center justify-center relative ${DOCS_FOCUS_RING_OFFSET_CLASS} hover:(border-primary/60 bg-primary/5)`}
               aria-label={`Copy ${name}`}
               title={name}
               onClick={() => void clipboard.copy(name)}
@@ -45,7 +45,7 @@ export function IconGallery() {
                       : 'text-muted-foreground',
                 ]}
               />
-              <code class="text-muted-foreground leading-4 px-1 opacity-0 truncate transition-opacity inset-x-0 bottom-1 absolute text-xs group-focus:opacity-100 group-hover:opacity-100">
+              <code class="text-xs text-muted-foreground leading-4 px-1 opacity-0 truncate transition-opacity inset-x-0 bottom-1 absolute group-focus:opacity-100 group-hover:opacity-100">
                 {name}
               </code>
               <span role="status" class="sr-only">

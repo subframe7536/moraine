@@ -21,7 +21,7 @@ export function OpenItems() {
   return (
     <div class="max-w-md w-full space-y-3">
       <Accordion collapsible items={FAQ_ITEMS} value={active()} onChange={setActive} />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         Open item: <span class="text-foreground font-mono">{active()[0] ?? 'none'}</span>
       </p>
     </div>

@@ -16,9 +16,9 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
 >('avatarGroup', {
   base: {
     root: 'inline-flex flex-row items-center',
-    item: 'rounded-full ring-background relative z-0 hover:z-10 focus-within:z-10 first:ms-0',
+    item: 'rounded-full ring-background relative z-0 first:ms-0 focus-within:z-10 hover:z-10',
     count:
-      'text-muted-foreground font-medium rounded-full bg-muted relative z-0 inline-flex shrink-0 ring-background items-center justify-center first:ms-0',
+      'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-background items-center justify-center relative z-0 first:ms-0',
     image: '',
     fallback: '',
     fallbackContent: '',

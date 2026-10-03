@@ -31,7 +31,7 @@ export function IndeterminateCustomIcons() {
   }
 
   return (
-    <div class="p-4 b-(1 border) max-w-xl space-y-4 rounded-xl">
+    <div class="p-4 b-1 b-border rounded-xl max-w-xl space-y-4">
       <Checkbox
         label="Production deployment checklist"
         description={`${checkedCount()} of ${tasks().length} tasks completed`}

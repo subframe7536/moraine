@@ -7,7 +7,7 @@ export function DismissalUsage() {
         Filter
       </Popover.Trigger>
       <Popover.Content ariaLabel="Filter settings">
-        <div class="p-3 w-48 space-y-2 text-xs">
+        <div class="text-xs p-3 w-48 space-y-2">
           <p class="text-foreground font-medium">Filter Settings</p>
           <p class="text-muted-foreground">Press Escape or click outside to dismiss.</p>
         </div>

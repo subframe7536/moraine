@@ -18,7 +18,7 @@ export default defineConfig<PresetWind4Theme>({
     presetMoraine(),
     // presetCompletion(),
   ],
-  transformers: [transformerVariantGroup()],
+  transformers: [transformerVariantGroup({ separators: [':'] })],
   content: {
     pipeline: {
       include: ['**/*.tsx', '**/*.recipe.ts', '**/*.class.ts', 'node_modules/**/*.*'],

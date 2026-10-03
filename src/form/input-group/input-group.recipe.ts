@@ -20,10 +20,10 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   InputGroupRecipeVariant
 >('inputGroup', {
   base: {
-    root: 'relative flex flex-wrap w-full items-center cursor-text transition-[colors,box-shadow]',
-    leading: 'flex shrink-0 items-center text-muted-foreground',
-    trailing: 'flex shrink-0 items-center text-muted-foreground',
-    frame: `absolute pointer-events-none transition-[colors,box-shadow] ${PEER_FOCUS_CLASS} ${PEER_INVALID_CLASS}`,
+    root: 'flex flex-wrap w-full cursor-text transition-[colors,box-shadow] items-center relative',
+    leading: 'text-muted-foreground flex shrink-0 items-center',
+    trailing: 'text-muted-foreground flex shrink-0 items-center',
+    frame: `pointer-events-none transition-[colors,box-shadow] absolute ${PEER_FOCUS_CLASS}  ${PEER_INVALID_CLASS}`,
   },
   defaultVariants: { size: 'md', variant: 'outline', orientation: 'horizontal', compact: false },
   variants: {
@@ -60,18 +60,18 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
     variant: {
       outline: {
         root: INPUT_VARIANT.outline,
-        frame: '-inset-px border border-transparent',
+        frame: 'border border-transparent -inset-px',
       },
       subtle: {
         root: INPUT_VARIANT.subtle,
-        frame: '-inset-px border border-transparent',
+        frame: 'border border-transparent -inset-px',
       },
       ghost: {
         root: `${INPUT_VARIANT.ghost} group/input-group`,
         leading:
-          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+          'group-focus-within/input-group:text-accent-foreground group-hover/input-group:text-accent-foreground',
         trailing:
-          'group-hover/input-group:text-accent-foreground group-focus-within/input-group:text-accent-foreground',
+          'group-focus-within/input-group:text-accent-foreground group-hover/input-group:text-accent-foreground',
         frame: 'inset-0',
       },
       none: {

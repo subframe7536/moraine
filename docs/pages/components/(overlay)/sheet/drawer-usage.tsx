@@ -9,7 +9,7 @@ export function DrawerUsage() {
         description="Update workspace variables and environment keys."
       >
         <Sheet.Body>
-          <div class="text-muted-foreground py-4 text-xs">
+          <div class="text-xs text-muted-foreground py-4">
             Changes take effect immediately on next deployment cycle.
           </div>
         </Sheet.Body>

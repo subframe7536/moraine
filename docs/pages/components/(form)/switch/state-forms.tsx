@@ -12,7 +12,7 @@ export function StateForms() {
         label="Airplane mode"
         description="Disable all wireless connections."
       />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         Status:{' '}
         <span class="text-foreground font-medium">{enabled() ? 'Enabled' : 'Disabled'}</span>
       </p>

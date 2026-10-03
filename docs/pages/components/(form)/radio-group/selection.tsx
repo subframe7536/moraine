@@ -17,7 +17,7 @@ export function Selection() {
   return (
     <div class="max-w-md w-full space-y-3">
       <RadioGroup items={PLAN_OPTIONS} value={plan()} onValueChange={setPlan} />
-      <p class="text-muted-foreground text-xs">
+      <p class="text-xs text-muted-foreground">
         Active plan: <span class="text-foreground font-medium">{plan()}</span>
       </p>
     </div>

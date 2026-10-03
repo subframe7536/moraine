@@ -35,7 +35,7 @@ export function StructureLifecycle() {
         </Dialog.Content>
       </Dialog>
 
-      <div class="text-muted-foreground flex gap-2 items-center text-xs">
+      <div class="text-xs text-muted-foreground flex gap-2 items-center">
         <span>Lifecycle status:</span>
         <Badge variant="outline">{status()}</Badge>
         <span>(Completed exits: {exits()})</span>

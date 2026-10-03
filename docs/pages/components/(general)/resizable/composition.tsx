@@ -41,19 +41,19 @@ export function Composition() {
   const activeMessage = () => MESSAGES.find((m) => m.id === activeMessageId())!
 
   return (
-    <div class="border border-border/60 bg-card/30 h-80 w-full shadow-xs overflow-hidden rounded-xl">
+    <div class="border border-border/60 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
       <Resizable defaultValue={['22%', '36%', '42%']}>
         {/* Column 1: Mailboxes */}
         <Resizable.Panel min="16%" max="30%" class="p-2 bg-muted/25 flex flex-col justify-between">
           <div class="space-y-1">
-            <div class="text-foreground font-semibold px-2 py-1 flex gap-1.5 items-center text-xs">
+            <div class="text-xs text-foreground font-semibold px-2 py-1 flex gap-1.5 items-center">
               <Icon name="i-lucide:mail" class="text-primary size-3.5" />
               Mailboxes
             </div>
             <For each={FOLDERS}>
               {(folder) => (
                 <div
-                  class={`px-2 py-1.5 flex cursor-pointer transition-colors items-center justify-between text-xs rounded-lg ${
+                  class={`text-xs px-2 py-1.5 rounded-lg flex cursor-pointer transition-colors items-center justify-between ${
                     folder.active
                       ? 'bg-accent text-accent-foreground font-medium'
                       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -86,7 +86,7 @@ export function Composition() {
             <input
               type="text"
               placeholder="Search messages…"
-              class="outline-none bg-transparent w-full text-xs placeholder:text-muted-foreground/60"
+              class="text-xs outline-none bg-transparent w-full placeholder:text-muted-foreground/60"
             />
           </div>
           <div class="flex-1 overflow-auto divide-border/40 divide-y">
@@ -94,7 +94,7 @@ export function Composition() {
               {(msg) => (
                 <div
                   onClick={() => setActiveMessageId(msg.id)}
-                  class={`p-3 cursor-pointer transition-colors space-y-1 text-xs ${
+                  class={`text-xs p-3 cursor-pointer transition-colors space-y-1 ${
                     activeMessageId() === msg.id
                       ? 'bg-muted/50'
                       : 'hover:bg-muted/20 text-muted-foreground'
@@ -123,8 +123,8 @@ export function Composition() {
           <div class="space-y-4">
             <div class="pb-3 border-b border-border/40 flex items-start justify-between">
               <div>
-                <div class="text-foreground font-semibold text-sm">{activeMessage().subject}</div>
-                <div class="text-muted-foreground mt-0.5 text-xs">
+                <div class="text-sm text-foreground font-semibold">{activeMessage().subject}</div>
+                <div class="text-xs text-muted-foreground mt-0.5">
                   From: <span class="text-foreground">{activeMessage().sender}</span>
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function Composition() {
               </div>
             </div>
 
-            <p class="text-muted-foreground leading-relaxed text-xs">
+            <p class="text-xs text-muted-foreground leading-relaxed">
               {activeMessage().snippet} All test suites and hydration verification checks passed
               with zero warnings across both UnoCSS and Tailwind preset configurations.
             </p>

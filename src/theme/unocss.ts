@@ -99,24 +99,6 @@ function toUnocssKeyframes(): Record<string, string> {
 
 const RE_ATTR = /^(data|aria)-([\w-]+):/
 
-const RADIUS_CORNERS: Record<string, string[]> = {
-  '': ['border-radius'],
-  t: ['border-top-left-radius', 'border-top-right-radius'],
-  b: ['border-bottom-left-radius', 'border-bottom-right-radius'],
-  l: ['border-top-left-radius', 'border-bottom-left-radius'],
-  r: ['border-top-right-radius', 'border-bottom-right-radius'],
-  s: ['border-start-start-radius', 'border-end-start-radius'],
-  e: ['border-start-end-radius', 'border-end-end-radius'],
-  tl: ['border-top-left-radius'],
-  tr: ['border-top-right-radius'],
-  bl: ['border-bottom-left-radius'],
-  br: ['border-bottom-right-radius'],
-  ss: ['border-start-start-radius'],
-  se: ['border-start-end-radius'],
-  es: ['border-end-start-radius'],
-  ee: ['border-end-end-radius'],
-}
-
 const DEFAULT_COLOR_STATES = { hover: 8, active: 12 } as const
 
 // Map the Tailwind shadow defaults used by shadcn/ui's neutral theme to Moraine roles.
@@ -566,29 +548,6 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       { autocomplete: ['(enter|exit)-rotate-<percent>'] },
     ],
   ]
-  if (!options.wind3) {
-    rules.unshift(
-      [
-        /^text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
-        ([, size]) => {
-          const [fontSize, lineHeight] = MORAINE_TEXT_SIZE[size as keyof typeof MORAINE_TEXT_SIZE]
-          return {
-            'font-size': fontSize,
-            'line-height': `var(--un-leading, ${lineHeight})`,
-          }
-        },
-      ],
-      [
-        // inline theme support
-        /^rounded-(?:(t|b|l|r|s|e|tl|tr|bl|br|ss|se|es|ee)-)?(xs|sm|md|lg|xl|2xl|3xl|4xl)$/,
-        ([, corner = '', size]) => {
-          const radius = MORAINE_RADIUS[size as keyof typeof MORAINE_RADIUS]
-          return Object.fromEntries(RADIUS_CORNERS[corner]!.map((property) => [property, radius]))
-        },
-      ],
-    )
-  }
-
   return {
     name: 'preset-theme-moraine',
     rules,
@@ -602,6 +561,12 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           }
         : {
             radius: MORAINE_RADIUS,
+            text: Object.fromEntries(
+              Object.entries(MORAINE_TEXT_SIZE).map(([size, [fontSize, lineHeight]]) => [
+                size,
+                { fontSize, lineHeight },
+              ]),
+            ),
             shadow: MORAINE_SHADOW,
             font: MORAINE_FONT,
             spacing: MORAINE_WIDTH,
@@ -615,6 +580,33 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       },
     },
     variants,
+    configResolved: options.wind3
+      ? undefined
+      : (config) => {
+          const theme = config.theme as PresetWind4Theme
+          const inlineVariables = new Map<string, string>()
+          for (const [size, value] of Object.entries(theme.radius ?? {})) {
+            inlineVariables.set(`--radius-${size}`, value)
+          }
+          for (const [size, values] of Object.entries(theme.text ?? {})) {
+            for (const [property, value] of Object.entries(values)) {
+              if (typeof value === 'string') {
+                inlineVariables.set(`--text-${size}-${property}`, value)
+              }
+            }
+          }
+          // Inline resolved tokens before other processors so local CSS variables stay live.
+          config.postprocess.unshift((utility) => {
+            for (const entry of utility.entries) {
+              if (typeof entry[1] === 'string') {
+                entry[1] = entry[1].replace(
+                  /var\((--(?:text|radius)-[\w-]+)\)/g,
+                  (reference, variable: string) => inlineVariables.get(variable) ?? reference,
+                )
+              }
+            }
+          })
+        },
     shortcuts: [
       [/^(.*)-\((--[\w-]+)\)$/, ([, name, variable]) => `${name}-[var(${variable})]`],
       ...Object.entries(MORAINE_Z_INDEX).map(

@@ -92,7 +92,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
       </p>
       <Show
         when={props.entries.length > 0}
-        fallback={<p class="text-muted-foreground mt-3 text-xs">No sections</p>}
+        fallback={<p class="text-xs text-muted-foreground mt-3">No sections</p>}
       >
         <div ref={setList} class="mt-2 py-1 flex flex-col relative">
           <Show when={blockStyle()}>
@@ -100,7 +100,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
               <div
                 aria-hidden="true"
                 data-loaded={loaded() ? '' : undefined}
-                class="pointer-events-none inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r rounded-lg motion-reduce:transition-none motion-reduce:animate-none motion-safe:data-loaded:transition-clip-path"
+                class="rounded-lg pointer-events-none inset-0 absolute animate-docs-page-fade-in from-primary/10 to-primary/5 bg-gradient-to-r motion-reduce:transition-none motion-reduce:animate-none motion-safe:data-loaded:transition-clip-path"
                 style={style()}
               />
             )}
@@ -113,7 +113,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class={`text-muted-foreground leading-7 px-3 py-1 transition-colors relative text-xs data-active:text-primary hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`}
+                class={`text-xs text-muted-foreground leading-7 px-3 py-1 transition-colors relative data-active:text-primary hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`}
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

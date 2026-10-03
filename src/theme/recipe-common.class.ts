@@ -85,7 +85,7 @@ export const FOCUS_INVALID_CLASS =
 export const FOCUS_WITHIN_INVALID_CLASS =
   'focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)'
 export const PEER_INVALID_CLASS =
-  'peer-aria-invalid:(border-destructive ring-3 ring-destructive/20) dark:peer-aria-invalid:(border-destructive/50 ring-destructive/40)'
+  'peer-aria-invalid:border-destructive peer-aria-invalid:ring-3 peer-aria-invalid:ring-destructive/20 dark:peer-aria-invalid:border-destructive/50 dark:peer-aria-invalid:ring-destructive/40'
 export const EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
   'data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20)'
 export const DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
@@ -96,7 +96,7 @@ export const DATA_DISABLED_CLASS = 'data-disabled:(opacity-64 pointer-events-non
 export const ARIA_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-none)'
 
 export const SELECT_TRIGGER_FOCUS_CLASS =
-  "focus-visible:after:(content-[''] pointer-events-none absolute inset-0 z-10 rounded-md border border-ring ring-3 ring-ring/50) focus-visible:data-invalid:after:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:after:(border-destructive/50 ring-destructive/40)"
+  "focus-visible:after:(border border-ring rounded-md pointer-events-none content-[''] ring-3 ring-ring/50 inset-0 absolute z-10) focus-visible:data-invalid:after:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:after:(border-destructive/50 ring-destructive/40)"
 
 export const OVERLAY_CLOSE_BUTTON_CLASS =
-  'inline-flex items-center justify-center size-8 rounded-md hover:(bg-accent-hover text-accent-foreground) active:(bg-accent-active text-accent-foreground) focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)'
+  'rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-50 pointer-events-none)'

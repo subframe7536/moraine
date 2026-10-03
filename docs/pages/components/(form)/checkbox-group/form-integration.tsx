@@ -36,7 +36,7 @@ export function FormIntegration() {
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
-          <p class="text-muted-foreground text-xs">
+          <p class="text-xs text-muted-foreground">
             Active roles: {submitted().length ? submitted().join(', ') : 'read'}
           </p>
         </div>
