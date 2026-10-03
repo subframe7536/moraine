@@ -40,4 +40,13 @@ export interface FieldStyleVariant {
   orientation?: 'vertical' | 'horizontal'
 }
 
-export type FieldStyleConfig = ComponentStyleConfig<FieldStyleSlot, FieldStyleVariant>
+export interface FieldRecipeVariant extends FieldStyleVariant {
+  /** Internal presentation selected when the field uses a visually hidden label. */
+  labelHidden?: boolean
+  /** Internal presence of visible label-row content. */
+  hasLabelText?: boolean
+  /** Internal presence of visible content above or beside the control. */
+  hasText?: boolean
+}
+
+export type FieldStyleConfig = ComponentStyleConfig<FieldStyleSlot, FieldRecipeVariant>

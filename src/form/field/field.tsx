@@ -30,6 +30,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     'id',
     'name',
     'label',
+    'hiddenLabel',
     'description',
     'help',
     'error',
@@ -45,14 +46,29 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     'class',
     'style',
   ])
-  const resolved = createStyles(fieldRecipe, local)
-
   const isRequired = () => Boolean(local.required)
-  const label = createMemo(() => local.label)
+  const visibleLabel = createMemo(() => local.label)
+  const labelHidden = () => !hasNonEmptyJsxContent(visibleLabel()) && Boolean(local.hiddenLabel)
+  const label = createMemo(() =>
+    hasNonEmptyJsxContent(visibleLabel()) ? visibleLabel() : local.hiddenLabel,
+  )
   const description = createMemo(() => local.description)
   const hint = createMemo(() => local.hint)
   const help = createMemo(() => local.help)
   const error = createMemo(() => local.error)
+
+  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
+  const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
+  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
+  const hasLabelText = () => (showLabel() && !labelHidden()) || showHint()
+  const hasText = () => hasLabelText() || showDescription()
+  const resolved = createStyles(fieldRecipe, local, {
+    inheritedVariants: () => ({
+      labelHidden: labelHidden(),
+      hasLabelText: hasLabelText(),
+      hasText: hasText(),
+    }),
+  })
 
   const ariaId = createId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
@@ -97,9 +113,6 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     return local.binding?.error
   })
 
-  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
-  const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
-  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
   const shouldShowError = createMemo(() => {
     const value = resolvedError()
     if (value === undefined || value === null || value === false || value === true) {
@@ -207,9 +220,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
         </div>
         <div
           data-slot="field-container"
-          {...fieldDataAttributes.container({
-            hasText: () => showLabel() || showDescription(),
-          })}
+          {...fieldDataAttributes.container({ hasText })}
           {...resolved.styles.container}
         >
           {fieldChildren()}

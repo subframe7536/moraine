@@ -94,6 +94,17 @@ Put a Moraine control inside `Field` so its label, description, and error IDs ar
 
 <Preview path="./field-usage" />
 
+### Visually hidden labels
+
+Use `hiddenLabel` when a compact control needs an accessible name without a visible label.
+It preserves the label association without reserving label spacing or an empty horizontal label column.
+A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain visible;
+help and error text keep their usual placement.
+
+<Preview path="./hidden-label" />
+
+For a switch with a trailing visible label, use `<Switch label="Auto refresh" />`.
+
 ## Examples
 
 ### Inherited state

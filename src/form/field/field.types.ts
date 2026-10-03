@@ -37,6 +37,8 @@ export namespace FieldT {
     name?: Name
     /** Label for the field. */
     label?: JSX.Element
+    /** Visually hidden label used when no non-empty visible label is provided. */
+    hiddenLabel?: string
     /** Description text shown below the label. */
     description?: JSX.Element
     /** Help text shown below the control when no error is present. */

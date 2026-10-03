@@ -2,6 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme/create-theme'
 import { Input } from '../input'
 
 import { Field } from './field'
@@ -49,6 +51,92 @@ function DynamicProbe(props: { replacement: boolean }) {
 }
 
 describe('Field', () => {
+  test.each([
+    { label: 'Visible', hiddenLabel: 'Hidden', name: 'Visible', hidden: false },
+    { label: '', hiddenLabel: 'Hidden', name: 'Hidden', hidden: true },
+    { label: undefined, hiddenLabel: 'Hidden', name: 'Hidden', hidden: true },
+    { label: 0, hiddenLabel: 'Hidden', name: '0', hidden: false },
+  ])('uses $name as the label with label=$label', ({ label, hiddenLabel, name, hidden }) => {
+    const screen = render(() => (
+      <Field label={label} hiddenLabel={hiddenLabel}>
+        <Input />
+      </Field>
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name })
+    const element = screen.container.querySelector<HTMLLabelElement>('[data-slot="field-label"]')!
+    expect(element.htmlFor).toBe(input.id)
+    expect(input.getAttribute('aria-labelledby')).toBe(element.id)
+    expect(element.classList.contains('sr-only')).toBe(hidden)
+    expect(screen.container.querySelector('[hiddenLabel]')).toBeNull()
+  })
+
+  test('updates visible and hidden labels without replacing the control or obeying theme defaults', () => {
+    const [label, setLabel] = createSignal<string>()
+    const [hiddenLabel, setHiddenLabel] = createSignal('Filter')
+    const theme = defineTheme({ field: { defaultVariants: { labelHidden: true } } })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <Field label={label()} hiddenLabel={hiddenLabel()}>
+          <Input />
+        </Field>
+      </MoraineProvider>
+    ))
+    const input = screen.getByRole('textbox', { name: 'Filter' })
+    const fieldLabel = () => screen.container.querySelector('[data-slot="field-label"]')!
+    const container = screen.container.querySelector('[data-slot="field-container"]')!
+    expect(container.hasAttribute('data-has-text')).toBe(false)
+    setHiddenLabel('Search')
+    expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
+    setLabel('Visible')
+    expect(screen.getByRole('textbox', { name: 'Visible' })).toBe(input)
+    expect(fieldLabel().classList.contains('sr-only')).toBe(false)
+    expect(container.hasAttribute('data-has-text')).toBe(true)
+    setLabel('')
+    expect(screen.getByRole('textbox', { name: 'Search' })).toBe(input)
+    expect(fieldLabel().classList.contains('sr-only')).toBe(true)
+    expect(container.hasAttribute('data-has-text')).toBe(false)
+    setHiddenLabel('')
+    expect(screen.container.querySelector('[data-slot="field-label"]')).toBeNull()
+    expect(input.hasAttribute('aria-labelledby')).toBe(false)
+    expect(screen.getByRole('textbox')).toBe(input)
+  })
+
+  test('keeps guidance, validation, and inherited disabled state with a hidden label', () => {
+    const [error, setError] = createSignal<string>()
+    const [disabled, setDisabled] = createSignal(true)
+    const screen = render(() => (
+      <Field
+        hiddenLabel="Filter"
+        hint="Optional"
+        description="Find commands"
+        help="Search by name"
+        error={error()}
+        disabled={disabled()}
+      >
+        <Input />
+      </Field>
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'Filter' })
+    const describedBy = () =>
+      input
+        .getAttribute('aria-describedby')!
+        .split(' ')
+        .map((id) => document.getElementById(id)!.textContent)
+    expect(input.disabled).toBe(true)
+    expect(
+      screen.container
+        .querySelector('[data-slot="field-container"]')
+        ?.hasAttribute('data-has-text'),
+    ).toBe(true)
+    expect(describedBy()).toEqual(['Optional', 'Find commands', 'Search by name'])
+    setError('No matching commands')
+    expect(screen.queryByText('Search by name')).toBeNull()
+    expect(describedBy()).toEqual(['Optional', 'Find commands', 'No matching commands'])
+    expect(input.getAttribute('aria-invalid')).toBe('true')
+    setDisabled(false)
+    expect(input.disabled).toBe(false)
+  })
+
   test('renders standalone presentation and accessibility state', () => {
     const screen = render(() => (
       <Field

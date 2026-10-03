@@ -11,3 +11,11 @@ export function renderFieldFixture(): string {
     </Field>
   ))
 }
+
+export function renderHiddenLabelFieldFixture(): string {
+  return renderToString(() => (
+    <Field hiddenLabel="Filter" orientation="horizontal" disabled error="No matching commands">
+      <Input />
+    </Field>
+  ))
+}

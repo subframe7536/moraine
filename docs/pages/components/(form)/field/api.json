@@ -74,6 +74,12 @@
           "description": "Help text shown below the control when no error is present."
         },
         {
+          "name": "hiddenLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Visually hidden label used when no non-empty visible label is provided."
+        },
+        {
           "name": "hint",
           "optional": true,
           "type": "JSX.Element",

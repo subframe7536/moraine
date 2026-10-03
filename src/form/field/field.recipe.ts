@@ -2,14 +2,14 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
+import type { FieldRecipeVariant, FieldStyleSlot } from './field.style-types'
 
 export const fieldDataAttributes = {
   label: createDataAttributes('required'),
   container: createDataAttributes('has-text'),
 } satisfies DataAttributeContract<keyof FieldStyleSlot>
 
-export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldStyleVariant>(
+export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldRecipeVariant>(
   'field',
   {
     base: {
@@ -27,8 +27,16 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldSty
     defaultVariants: {
       size: 'md',
       orientation: 'vertical',
+      labelHidden: false,
+      hasLabelText: false,
+      hasText: false,
     },
     variants: {
+      labelHidden: {
+        true: {
+          label: 'sr-only',
+        },
+      },
       size: {
         sm: {
           root: 'text-xs',
@@ -54,21 +62,33 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldSty
     },
     compoundVariants: [
       {
+        variants: { labelHidden: true, hasText: false },
+        wrapper: 'contents',
+      },
+      {
+        variants: { labelHidden: true, hasLabelText: false },
+        labelWrapper: 'contents',
+      },
+      {
+        variants: { orientation: 'horizontal', labelHidden: true, hasText: false },
+        container: 'col-span-4',
+      },
+      {
         variants: { orientation: 'horizontal' },
         label:
           "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
       },
       {
-        variants: { orientation: 'vertical', size: 'sm' },
-        container: 'data-has-text:mt-1.5',
+        variants: { orientation: 'vertical', size: 'sm', hasText: true },
+        container: 'mt-1.5',
       },
       {
-        variants: { orientation: 'vertical', size: 'md' },
-        container: 'data-has-text:mt-2',
+        variants: { orientation: 'vertical', size: 'md', hasText: true },
+        container: 'mt-2',
       },
       {
-        variants: { orientation: 'vertical', size: 'lg' },
-        container: 'data-has-text:mt-2.5',
+        variants: { orientation: 'vertical', size: 'lg', hasText: true },
+        container: 'mt-2.5',
       },
     ],
   },

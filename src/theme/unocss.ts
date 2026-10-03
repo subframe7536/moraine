@@ -128,7 +128,7 @@ const DEFAULT_THEME_COLORS = {
     popover: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
     primary: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(82, 82, 82)' },
+    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     destructive: { base: 'rgb(190, 0, 9)' },
     border: 'rgb(229, 229, 229)',

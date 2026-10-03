@@ -95,6 +95,9 @@ export type RecipeVariants = [
   Assert<'grouped' extends keyof InputT.Variant ? false : true>,
   Assert<'grouped' extends keyof TextareaT.Variant ? false : true>,
   Assert<'compact' extends keyof InputGroupT.Variant ? false : true>,
+  Assert<'labelHidden' extends keyof FieldT.Variant ? false : true>,
+  Assert<Extract<'hasText' | 'hasLabelText', keyof FieldT.Variant> extends never ? true : false>,
+  Assert<FieldT.Base['hiddenLabel'] extends string | undefined ? true : false>,
 ]
 
 export type ReadOnlyContracts = [
