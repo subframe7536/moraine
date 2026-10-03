@@ -64,6 +64,8 @@ export interface PresetMoraineOptions extends Omit<
   MorainePresetTheme,
   'colorScheme' | 'colors' | 'shadows'
 > {
+  /** Enable Wind3 token and utility compatibility. @default false */
+  wind3?: boolean
   /** Emit neutral light/dark colors and color schemes, default shadows, and HTML background/foreground styles. @default true */
   themeDefaults?: boolean
   /** Generate missing semantic hover and active colors. @default { hover: 8, active: 12 } */
@@ -466,12 +468,25 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
   const themeCSS = createThemeCSS(resolveThemes(options), options.colorStates)
   const variants: Preset['variants'] = [
     {
-      name: 'moraine-color-alpha',
+      name: 'moraine-attribute',
       multiPass: true,
-      match(matcher, { theme, generator }) {
-        if (!generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
+      match(matcher) {
+        const match = matcher.match(RE_ATTR)
+        if (!match) {
           return matcher
         }
+        return {
+          matcher: matcher.slice(match[0].length),
+          selector: (s) => `${s}[${match[1]}-${match[2]}]`,
+        }
+      },
+    },
+  ]
+  if (options.wind3) {
+    variants.unshift({
+      name: 'moraine-color-alpha',
+      multiPass: true,
+      match(matcher, { theme }) {
         const match = matcher.match(
           /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
         )
@@ -506,51 +521,61 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           },
         }
       },
-    },
-    {
-      name: 'moraine-attribute',
-      multiPass: true,
-      match(matcher) {
-        const match = matcher.match(RE_ATTR)
-        if (!match) {
-          return matcher
-        }
-        return {
-          matcher: matcher.slice(match[0].length),
-          selector: (s) => `${s}[${match[1]}-${match[2]}]`,
+    })
+  }
+
+  const rules: Preset['rules'] = [
+    [
+      /^(enter|exit)-opacity-(.+)$/,
+      ([, type, value]) => {
+        const resolved = resolvePercentageValue(value!)
+        if (resolved !== undefined) {
+          return { [`--mo-${type}-opacity`]: resolved }
         }
       },
-    },
+      { autocomplete: ['(enter|exit)-opacity-<percent>'] },
+    ],
+    [
+      /^(enter|exit)-scale-(.+)$/,
+      ([, type, value]) => {
+        const resolved = resolvePercentageValue(value!)
+        if (resolved !== undefined) {
+          return { [`--mo-${type}-scale`]: resolved }
+        }
+      },
+      { autocomplete: ['(enter|exit)-scale-<percent>'] },
+    ],
+    [
+      /^(enter|exit)-translate-([xy])-(.+)$/,
+      ([, type, axis, value], { theme }) => {
+        const resolved = resolveTranslateValue(value!, theme)
+        if (resolved !== undefined) {
+          return { [`--mo-${type}-translate-${axis}`]: resolved }
+        }
+      },
+      { autocomplete: ['(enter|exit)-translate-(x|y)-<num>'] },
+    ],
+    [
+      /^(enter|exit)-rotate-(.+)$/,
+      ([, type, value]) => {
+        const resolved = resolveRotateValue(value!)
+        if (resolved !== undefined) {
+          return { [`--mo-${type}-rotate`]: resolved }
+        }
+      },
+      { autocomplete: ['(enter|exit)-rotate-<percent>'] },
+    ],
   ]
-
-  return {
-    name: 'preset-theme-moraine',
-    rules: [
-      [
-        /^leading-(.+)$/,
-        ([, value], { theme, generator }) => {
-          if (!generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
-            return
-          }
-          const utilityTheme = theme as UtilityTheme
-          const lineHeight =
-            utilityTheme.lineHeight?.[value!] ??
-            utilityTheme.leading?.[value!] ??
-            (/^\d+(?:\.\d+)?$/.test(value!)
-              ? `calc(var(--spacing, 0.25rem) * ${value})`
-              : value!.startsWith('[') && value!.endsWith(']')
-                ? value!.slice(1, -1).replaceAll('_', ' ')
-                : undefined)
-          if (lineHeight !== undefined) {
-            return { '--un-leading': lineHeight, 'line-height': lineHeight }
-          }
-        },
-      ],
+  if (!options.wind3) {
+    rules.unshift(
       [
         /^text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
         ([, size]) => {
           const [fontSize, lineHeight] = MORAINE_TEXT_SIZE[size as keyof typeof MORAINE_TEXT_SIZE]
-          return { 'font-size': fontSize, 'line-height': `var(--un-leading, ${lineHeight})` }
+          return {
+            'font-size': fontSize,
+            'line-height': `var(--un-leading, ${lineHeight})`,
+          }
         },
       ],
       [
@@ -561,90 +586,26 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           return Object.fromEntries(RADIUS_CORNERS[corner]!.map((property) => [property, radius]))
         },
       ],
-      [
-        /^(enter|exit)-opacity-(.+)$/,
-        ([, type, value]) => {
-          const resolved = resolvePercentageValue(value!)
-          if (resolved !== undefined) {
-            return { [`--mo-${type}-opacity`]: resolved }
-          }
-        },
-        { autocomplete: ['(enter|exit)-opacity-<percent>'] },
-      ],
-      [
-        /^(enter|exit)-scale-(.+)$/,
-        ([, type, value]) => {
-          const resolved = resolvePercentageValue(value!)
-          if (resolved !== undefined) {
-            return { [`--mo-${type}-scale`]: resolved }
-          }
-        },
-        { autocomplete: ['(enter|exit)-scale-<percent>'] },
-      ],
-      [
-        /^(enter|exit)-translate-([xy])-(.+)$/,
-        ([, type, axis, value], { theme }) => {
-          const resolved = resolveTranslateValue(value!, theme)
-          if (resolved !== undefined) {
-            return { [`--mo-${type}-translate-${axis}`]: resolved }
-          }
-        },
-        { autocomplete: ['(enter|exit)-translate-(x|y)-<num>'] },
-      ],
-      [
-        /^(enter|exit)-rotate-(.+)$/,
-        ([, type, value]) => {
-          const resolved = resolveRotateValue(value!)
-          if (resolved !== undefined) {
-            return { [`--mo-${type}-rotate`]: resolved }
-          }
-        },
-        { autocomplete: ['(enter|exit)-rotate-<percent>'] },
-      ],
-    ],
-    extendTheme(theme, config) {
-      if (config.presets.some((preset) => preset.name === '@unocss/preset-wind3')) {
-        // Keep native utility handling and explicit theme entries, replacing
-        // Wind3's numeric quarter-rem fallback with the local spacing token.
-        const utilityTheme = theme as UtilityTheme
-        const spacing = utilityTheme.spacing ?? {}
-        for (const dimension of [
-          'spacing',
-          'width',
-          'height',
-          'minWidth',
-          'minHeight',
-          'maxWidth',
-          'maxHeight',
-          'inlineSize',
-          'blockSize',
-          'maxInlineSize',
-          'maxBlockSize',
-        ] as const) {
-          utilityTheme[dimension] = new Proxy(utilityTheme[dimension] ?? {}, {
-            get(target, key, receiver) {
-              const value = Reflect.get(target, key, receiver)
-              if (value !== undefined || typeof key !== 'string' || !/^\d+(?:\.\d+)?$/.test(key)) {
-                return value
-              }
-              return spacing[key] ?? `calc(var(--spacing, 0.25rem) * ${key})`
-            },
-          })
-        }
-      }
-    },
-    theme: {
-      // Wind4 theme keys
-      radius: MORAINE_RADIUS,
-      shadow: MORAINE_SHADOW,
-      font: MORAINE_FONT,
-      spacing: MORAINE_WIDTH,
+    )
+  }
 
-      // Wind3 theme keys
-      borderRadius: MORAINE_RADIUS,
-      boxShadow: MORAINE_SHADOW,
-      fontFamily: MORAINE_FONT,
-      width: MORAINE_WIDTH,
+  return {
+    name: 'preset-theme-moraine',
+    rules,
+    theme: {
+      ...(options.wind3
+        ? {
+            borderRadius: MORAINE_RADIUS,
+            boxShadow: MORAINE_SHADOW,
+            fontFamily: MORAINE_FONT,
+            width: MORAINE_WIDTH,
+          }
+        : {
+            radius: MORAINE_RADIUS,
+            shadow: MORAINE_SHADOW,
+            font: MORAINE_FONT,
+            spacing: MORAINE_WIDTH,
+          }),
       zIndex: MORAINE_Z_INDEX,
 
       colors: MORAINE_COLORS,
@@ -674,12 +635,6 @@ html {
   color: var(--foreground);
 }
 `
-            : '',
-      },
-      {
-        getCSS: ({ generator }) =>
-          generator.config.presets.some((preset) => preset.name === '@unocss/preset-wind3')
-            ? '@property --un-leading { syntax: "*"; inherits: false; }'
             : '',
       },
     ],

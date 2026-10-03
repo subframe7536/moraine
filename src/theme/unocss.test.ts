@@ -29,7 +29,7 @@ async function generate(
   wind: typeof presetWind3 | typeof presetWind4 = presetWind4,
 ): Promise<string> {
   const generator = await createGenerator({
-    presets: [wind(), presetMoraine()],
+    presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
   })
   const { css } = await generator.generate(new Set(tokens), { preflights })
   return css
@@ -258,11 +258,8 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/opacity:(0\.64|64%)/)
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('%s rounded utilities read the local --radius', async (_name, wind) => {
-    const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg'], false, wind)
+  test('Wind4 rounded utilities read the local --radius', async () => {
+    const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg'])
 
     expect(css).toContain('.rounded-md{border-radius:calc(var(--radius) * 0.8);}')
     expect(css).toContain('.rounded-xl{border-radius:calc(var(--radius) * 1.4);}')
@@ -271,11 +268,8 @@ describe('presetMoraine', () => {
     )
   })
 
-  test.each([
-    ['Wind3', presetWind3],
-    ['Wind4', presetWind4],
-  ])('%s font utilities read the local --font-size', async (_name, wind) => {
-    const css = await generate(['text-xs', 'text-sm', 'text-base', 'text-5xl'], false, wind)
+  test('Wind4 font utilities read the local --font-size', async () => {
+    const css = await generate(['text-xs', 'text-sm', 'text-base', 'text-5xl'])
 
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.75)')
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
@@ -408,7 +402,9 @@ describe('presetMoraine', () => {
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
   ])('emits neutral colors and default semantic shadows with %s', async (_name, wind) => {
-    const generator = await createGenerator({ presets: [wind(), presetMoraine()] })
+    const generator = await createGenerator({
+      presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
+    })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
     expect(css).toContain(':root {')
@@ -465,6 +461,7 @@ describe('presetMoraine', () => {
       presets: [
         wind(),
         presetMoraine({
+          wind3: wind === presetWind3,
           themeDefaults: false,
           override: { brand: { colors: { primary: '#369' } } },
         }),
@@ -497,6 +494,7 @@ describe('presetMoraine', () => {
         presets: [
           wind(),
           presetMoraine({
+            wind3: wind === presetWind3,
             themeDefaults,
             override: { light: { colors: { control: 'var(--palette-field)' } } },
           }),
@@ -597,7 +595,9 @@ describe('presetMoraine', () => {
         },
       },
     }
-    const generator = await createGenerator({ presets: [wind(), presetMoraine(options)] })
+    const generator = await createGenerator({
+      presets: [wind(), presetMoraine({ ...options, wind3: wind === presetWind3 })],
+    })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
     expect(css).toContain(':root {')
@@ -748,31 +748,84 @@ describe('Wind3 semantic color and layout compatibility', () => {
     expect(css).toContain('[data-highlighted][data-destructive]')
   })
 
-  test('keeps numeric spacing and leading local while preserving user spacing', async () => {
-    const generator = await createGenerator({
-      presets: [presetWind3(), presetMoraine()],
-      theme: { spacing: { 4: '2rem' } },
-    })
-    const { css } = await generator.generate(
-      new Set([
+  test.each([undefined, false, true])(
+    'preserves native spacing and sizes with wind3=%s',
+    async (wind3) => {
+      const theme = { spacing: { 4: '2rem' }, width: { 8: '3rem' } }
+      const candidates = new Set([
         'p-4',
         'px-2.5',
         'gap-1.5',
         'h-8',
+        'w-8',
+        'min-w-8',
+        'max-h-8',
+        'size-6',
         '-mt-3',
-        'text-sm',
-        'leading-tight',
-        'leading-5',
-        'leading-[1.7]',
-      ]),
-    )
-    expect(css).toContain('padding:2rem')
-    expect(css).toContain('calc(var(--spacing, 0.25rem) * 2.5)')
-    expect(css).toContain('calc(var(--spacing, 0.25rem) * 1.5)')
-    expect(css).toContain('height:calc(var(--spacing, 0.25rem) * 8)')
-    expect(css).toContain('--un-leading:1.25;line-height:1.25')
-    expect(css).toContain('--un-leading:calc(var(--spacing, 0.25rem) * 5)')
-    expect(css).toContain('--un-leading:1.7;line-height:1.7')
-    expect(css).toContain('line-height:var(--un-leading,')
+      ])
+      const baseline = await createGenerator({ presets: [presetWind3()], theme })
+      const generator = await createGenerator({
+        presets: [presetWind3(), presetMoraine({ wind3, spacing: '0.5rem' })],
+        theme,
+      })
+      const expected = await baseline.generate(candidates, { preflights: false })
+      const actual = await generator.generate(candidates, { preflights: false })
+      expect(actual.css).toBe(expected.css)
+    },
+  )
+
+  test.each([undefined, false])(
+    'does not enable Wind3 compatibility with wind3=%s',
+    async (wind3) => {
+      const generator = await createGenerator({
+        presets: [presetWind3(), presetMoraine({ wind3 })],
+      })
+      const { css } = await generator.generate(
+        new Set(['text-sm', 'leading-5', 'bg-primary/20', 'font-sans']),
+        { preflights: true },
+      )
+      expect(css).not.toContain('--mo-leading')
+      expect(css).not.toContain('@property --un-leading')
+      expect(css).not.toContain('color-mix(in srgb,var(--primary) 20%,transparent)')
+      const baseline = await createGenerator({ presets: [presetWind3()] })
+      const expected = await baseline.generate(new Set(['font-sans']), { preflights: false })
+      expect(css).toContain(expected.css.replace('/* layer: default */\n', ''))
+    },
+  )
+
+  test('preserves native typography and radius overrides with Wind3', async () => {
+    const theme = {
+      fontSize: { sm: ['1.125rem', '1.75rem'] as [string, string] },
+      borderRadius: { md: '7px', xl: '11px', lg: '9px' },
+      lineHeight: { wide: '1.8' },
+    }
+    const candidates = new Set([
+      'text-xs',
+      'text-sm',
+      'text-base',
+      'text-5xl',
+      'rounded-md',
+      'rounded-xl',
+      'rounded-t-lg',
+      'leading-tight',
+      'leading-5',
+      'leading-[1.7]',
+      'lh-6',
+      'line-height-7',
+      'font-leading-8',
+      'hover:leading-6',
+      'leading-wide',
+    ])
+    const baseline = await createGenerator({ presets: [presetWind3()], theme })
+    const generator = await createGenerator({
+      presets: [{ ...presetWind3(), name: 'host-wind' }, presetMoraine({ wind3: true })],
+      theme,
+    })
+    const expected = await baseline.generate(candidates, { preflights: false })
+    const { css } = await generator.generate(candidates, { preflights: false })
+    expect(css).toBe(expected.css)
+    expect(css).not.toContain('--font-size')
+    expect(css).not.toContain('--mo-leading')
+    expect(css).not.toContain('--un-leading')
   })
 })

@@ -13,7 +13,7 @@ Moraine decouples component layout and logic from design tokens using semantic C
 
 UnoCSS emits a palette based on the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css) as 8-bit RGB values and accepts named [`override` entries](/docs/unocss#theme-tokens). Dark `border` and `input` use opaque colors obtained by compositing shadcn/ui's white alpha values over the default dark background. Moraine adds its own `control` and translucent `backdrop` values. Set `themeDefaults: false` when CSS supplies your palette, including Moraine's `--control` extension to shadcn/ui. With Tailwind, define the variables in your stylesheet under `:root` and `.dark`. Both engines map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
-Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically scale utilities within that subtree:
+Set `--radius` on any container to scale the default radius tokens within that subtree. With Tailwind 4 or Wind4, `--spacing` and `--font-size` also scale spacing and typography:
 
 ```css title="src/theme.css"
 :root {
@@ -77,7 +77,7 @@ A shadcn/ui palette supplies the shared color roles and `--radius`. Moraine adds
 | `--shadow-surface`, `--shadow-overlay`, `--shadow-input`                                                    | Elevation by component role, used by `shadow-surface`, `shadow-overlay`, and `shadow-input`.             | UnoCSS: Tailwind `sm`, `md`, and `xs`, respectively. External themes must define them; `none` removes a role's shadow. |
 | `--<color>-hover`, `--<color>-active`                                                                       | Explicit interaction colors, such as `--primary-hover` and `--accent-active`.                            | Generated state color, then the documented [state cascade](#interactive-state-cascade).                                |
 | `--destructive-foreground`                                                                                  | Optional text and icon color for destructive surfaces.                                                   | `--background`.                                                                                                        |
-| `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale and its default line heights.                | `1rem`.                                                                                                                |
+| `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
 | `--sidebar-width`                                                                                           | Global desktop sidebar width; also used by `w-sidebar`.                                                  | `clamp(14rem, 25%, 20rem)`.                                                                                            |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
 | `--mo-anim-duration-enter`, `--mo-anim-duration-exit`, `--mo-anim-duration-loop`, `--mo-anim-duration-spin` | Duration per animation family when the global duration is unset.                                         | `250ms`, `150ms`, `2s`, and `1s`, respectively.                                                                        |
@@ -185,13 +185,13 @@ Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS eng
 
 ## Typography and Spacing
 
-| Token          | Description                   | Fallback        |
-| :------------- | :---------------------------- | :-------------- |
-| `--font-sans`  | Primary UI typeface           | None in Moraine |
-| `--font-mono`  | Code, numbers, and Kbd        | None in Moraine |
-| `--font-serif` | Editorial serif typeface      | None in Moraine |
-| `--font-size`  | Base for `text-xs`–`text-9xl` | `1rem`          |
-| `--spacing`    | Base spacing unit             | `0.25rem`       |
+| Token          | Description                                           | Fallback        |
+| :------------- | :---------------------------------------------------- | :-------------- |
+| `--font-sans`  | Primary UI typeface                                   | None in Moraine |
+| `--font-mono`  | Code, numbers, and Kbd                                | None in Moraine |
+| `--font-serif` | Editorial serif typeface                              | None in Moraine |
+| `--font-size`  | Base for `text-xs`–`text-9xl` in Tailwind 4 and Wind4 | `1rem`          |
+| `--spacing`    | Base spacing unit                                     | `0.25rem`       |
 
 `font-sans`, `font-mono`, and `font-serif` read the corresponding CSS variables. Moraine does not configure font families or emit their variables. Define them in your stylesheet:
 
@@ -203,7 +203,7 @@ Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS eng
 }
 ```
 
-Numeric spacing utilities use the local `--spacing` in Tailwind 4, Wind3, and Wind4. For example, `p-4` becomes `32px` under `--spacing: 0.5rem`. Explicit UnoCSS theme entries take precedence. A `leading-*` utility overrides the default line height of `text-*`; numeric leading uses the spacing unit, while named leading values are ratios of the local font size.
+Numeric spacing utilities use the local `--spacing` in Tailwind 4 and Wind4. For example, `p-4` becomes `32px` under `--spacing: 0.5rem`. Wind3 keeps its native numeric spacing and size values, including explicit theme overrides, even with `wind3: true`. Use variable utilities such as `p-(--app-padding)` for runtime spacing in Wind3. A `leading-*` utility overrides the default line height of `text-*`; Wind3 uses native typography and leading rules; configure its font sizes through UnoCSS's `theme.fontSize`.
 
 ## Semantic Z-Index Utilities
 

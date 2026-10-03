@@ -36,7 +36,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       const modulePath = join(consumer.packageDir, 'dist/unocss.mjs')
       const { presetMoraine } = await import(pathToFileURL(modulePath).href)
       const generator = await createGenerator({
-        presets: [wind(), presetMoraine()],
+        presets: [wind(), presetMoraine({ wind3: wind === presetWind3 })],
       })
       const tokens = new Set<string>()
 
@@ -107,6 +107,11 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
       expect(css).toContain('height:var(--s-offset)')
+      if (wind === presetWind3) {
+        expect(css).not.toContain('--mo-leading')
+        expect(css).not.toContain('font-size:calc(var(--font-size')
+        expect(css).not.toContain('--un-leading')
+      }
       expect(css).toContain('left:var(--s-marker-position)')
       expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
@@ -125,6 +130,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       presets: [
         wind(),
         presetMoraine({
+          wind3: wind === presetWind3,
           themeDefaults: false,
           override: {
             brand: {

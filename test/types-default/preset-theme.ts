@@ -16,6 +16,7 @@ const theme = {
 } satisfies MorainePresetTheme
 
 presetMoraine({
+  wind3: true,
   themeDefaults: false,
   override: {
     light: theme,
@@ -24,6 +25,12 @@ presetMoraine({
   },
   colorStates: false,
 } satisfies PresetMoraineOptions)
+
+presetMoraine({ wind3: false })
+// @ts-expect-error Wind3 compatibility is a top-level boolean option.
+presetMoraine({ wind3: 'auto' })
+// @ts-expect-error Wind3 compatibility cannot vary by theme.
+presetMoraine({ override: { light: { wind3: true } } })
 
 // @ts-expect-error Unknown semantic colors belong in CSS.
 presetMoraine({ override: { light: { colors: { brand: '#369' } } } })

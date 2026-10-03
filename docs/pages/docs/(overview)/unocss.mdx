@@ -18,9 +18,9 @@ pnpm add moraine
 pnpm add -D @subf/unocss
 ```
 
-Add `presetMoraine()` alongside your preferred Wind preset (`presetWind4` or `presetWind3`). Explicitly scan application files and Moraine's published classes:
+Add `presetMoraine()` alongside your preferred Wind preset (`presetWind4` or `presetWind3`). Wind4 is the default; set `wind3: true` for Wind3 compatibility. The preset does not detect the installed Wind preset automatically. Explicitly scan application files and Moraine's published classes:
 
-```ts title="unocss.config.ts (Wind4)" group-id="unocss"
+```ts title="unocss.config.ts (Wind4)" group-id="unocss" {2,5,10,13}
 import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
@@ -39,12 +39,12 @@ export default defineConfig({
 })
 ```
 
-```ts title="unocss.config.ts (Wind3)" group-id="unocss"
+```ts title="unocss.config.ts (Wind3)" group-id="unocss" {2,5,10,13}
 import { defineConfig, presetWind3 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
-  presets: [presetWind3(), presetMoraine()],
+  presets: [presetWind3(), presetMoraine({ wind3: true })],
   content: {
     filesystem: [
       './index.html',
@@ -109,7 +109,7 @@ Verify the button from the installation guide on a clean dev-server start, after
 If styles are missing:
 
 1. Confirm `virtual:uno.css` is imported in the application entry and UnoCSS runs before the Solid plugin.
-2. Confirm both the Wind preset and `presetMoraine()` are enabled.
+2. Confirm both the Wind preset and `presetMoraine()` are enabled. With Wind3, pass `wind3: true`.
 3. Check that the filesystem globs match the installed Moraine distribution and all application source directories, including lazy routes.
 4. Check that `pipeline.include` allows those file extensions and that custom exclusion filters do not reject the files.
 5. Inspect a missing class in browser DevTools. A missing CSS rule points to extraction or utility configuration; an existing rule with an unresolved `--primary` or another theme variable points to theme configuration. With `themeDefaults: false`, the application must provide its theme variables.
@@ -161,12 +161,13 @@ presetMoraine({
 
 | Option                        | Default                                                                          | Behavior                                                                                                                                          |
 | :---------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `wind3`                       | `false`                                                                          | Enables Wind3 theme mappings, and semantic color alpha compatibility. Native numeric spacing and sizes remain unchanged.                          |
 | `themeDefaults`               | `true`                                                                           | Emits neutral light/dark colors and color schemes, default shadows, and HTML background/text styles. Set `false` when your CSS defines the theme. |
 | `override`                    | omitted                                                                          | Overrides the built-in neutral light and dark colors or adds named themes.                                                                        |
 | `override.<name>.colorScheme` | `light` for the built-in light theme; `dark` for dark; omitted for custom themes | Accepts `light` or `dark` only. Emits `color-scheme` on the theme selector; explicit values still apply with `themeDefaults: false`.              |
 | `colorStates`                 | `{ hover: 8, active: 12 }`                                                       | Generates missing hover and active colors for configured base colors. Set `false` to disable.                                                     |
 | `radius`                      | `0.625rem`                                                                       | Base radius written to `--radius` at `:root`; override per theme when needed.                                                                     |
-| `fontSize`                    | `1rem`                                                                           | Base font size written to `--font-size` at `:root`.                                                                                               |
+| `fontSize`                    | `1rem`                                                                           | Base font size written to `--font-size` at `:root`; used by Wind4 typography rules.                                                               |
 | `spacing`                     | `0.25rem`                                                                        | Base spacing unit written to `--spacing` at `:root`.                                                                                              |
 | `sidebarWidth`                | omitted                                                                          | Writes an explicit global `--sidebar-width` at `:root`; overridable per theme. SidebarFrame supplies its own fallback when unset.                 |
 
@@ -180,7 +181,13 @@ The built-in light and dark themes emit `color-scheme: light` and `color-scheme:
 
 See [Moraine-specific Variables](/docs/design#moraine-specific-variables) for the additional form surface, backdrop, shadow, interaction, typography, sidebar, and animation variables. `colorScheme` writes the native CSS `color-scheme` property; it does not create a custom property.
 
-Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb, …)` in supported browsers. Wind3 keeps the unmodified semantic color as its fallback when `color-mix()` is unavailable.
+Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb, …)` in supported browsers. With `wind3: true`, Wind3 keeps the unmodified semantic color as its fallback when `color-mix()` is unavailable.
+
+### Wind3 compatibility
+
+Use `presetMoraine({ wind3: true })` with `presetWind3()`. This enables Wind3's semantic token mappings and color alpha compatibility. Numeric spacing and size utilities keep Wind3's native values and explicit theme overrides; changing `--spacing` does not scale them. Use explicit variable utilities such as `p-(--app-padding)` for runtime spacing changes.
+
+Wind3 resolves `text-*`, `rounded-*`, and leading utilities through its native rules. Configure font sizes with UnoCSS's `theme.fontSize`; `--font-size` does not scale Wind3 typography. Moraine supplies its radius scale through `theme.borderRadius`, and explicit theme values take precedence. The custom `text-*` and `rounded-*` rules apply only in Wind4 mode, where text utilities retain Wind4's native `--un-leading` behavior.
 
 ### Hover and active colors
 
