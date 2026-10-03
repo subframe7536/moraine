@@ -11,15 +11,27 @@ Moraine provides first-class support for UnoCSS through the `presetMoraine()` pr
 
 ## Installation and config
 
-Add `presetMoraine()` to your `unocss.config.ts` alongside your preferred Wind preset (`presetWind4` or `presetWind3`):
+In an existing Solid/Vite project, install Moraine and the UnoCSS integration:
 
-```ts title="unocss.config.ts (Wind4)" {2,5,8} group-id="unocss"
+```shell
+pnpm add moraine
+pnpm add -D @subf/unocss
+```
+
+Add `presetMoraine()` alongside your preferred Wind preset (`presetWind4` or `presetWind3`). Explicitly scan application files and Moraine's published classes:
+
+```ts title="unocss.config.ts (Wind4)" group-id="unocss"
 import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
   content: {
+    filesystem: [
+      './index.html',
+      './src/**/*.{js,ts,jsx,tsx}',
+      './node_modules/moraine/dist/**/*.{mjs,jsx}',
+    ],
     pipeline: {
       include: [/\.(?:mjs|js|ts|jsx|tsx|mdx?|html)(?:\?|$)/],
     },
@@ -27,13 +39,18 @@ export default defineConfig({
 })
 ```
 
-```ts title="unocss.config.ts (Wind3)" {2,5,8} group-id="unocss"
+```ts title="unocss.config.ts (Wind3)" group-id="unocss"
 import { defineConfig, presetWind3 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
   presets: [presetWind3(), presetMoraine()],
   content: {
+    filesystem: [
+      './index.html',
+      './src/**/*.{js,ts,jsx,tsx}',
+      './node_modules/moraine/dist/**/*.{mjs,jsx}',
+    ],
     pipeline: {
       include: [/\.(?:mjs|js|ts|jsx|tsx|mdx?|html)(?:\?|$)/],
     },
@@ -41,11 +58,67 @@ export default defineConfig({
 })
 ```
 
+### Solid and Vite integration
+
+Place `unocss.config.ts` and `vite.config.ts` in the application root. Register UnoCSS before Solid's plugin:
+
+```ts title="vite.config.ts"
+import UnoCSS from '@subf/unocss/vite'
+import { defineConfig } from 'vite'
+import solid from 'vite-plugin-solid'
+
+export default defineConfig({
+  plugins: [UnoCSS(), solid()],
+})
+```
+
+Import the generated CSS once in the application entry, so it is available on every route:
+
+```tsx title="src/main.tsx"
+import { render } from 'solid-js/web'
+
+import { App } from './App'
+import 'virtual:uno.css'
+
+render(() => <App />, document.getElementById('app')!)
+```
+
+The HTML entry must have a matching mount element and load `src/main.tsx`:
+
+```html title="index.html (body)"
+<div id="app"></div>
+<script type="module" src="/src/main.tsx"></script>
+```
+
+Use the `App` from the [installation example](/docs/installation#3-verify-the-installation) to check the button's appearance. No `MoraineProvider` is required for the preset's default theme. If you use TypeScript, include `vite/client` in your compiler types to recognize the virtual CSS import.
+
 ### Scanning component classes
 
-Moraine publishes component classes in `.mjs` and `.jsx` files. UnoCSS extracts classes from imported modules in the build pipeline, but its default filter omits `.mjs` and `.ts`. The examples include both alongside common app file types. Keep the extensions your app uses when changing `pipeline.include` because it replaces the default filter. See [UnoCSS's extraction guide](https://unocss.dev/guide/extracting) for details.
+The preset defines how utilities become CSS; it does not register files to scan. Moraine publishes component classes in `.mjs` and `.jsx` files. Scan the whole `moraine/dist` directory with the glob above; individual component, recipe, or chunk paths are not needed.
+
+Filesystem scanning reads these classes independently of which modules have been requested through Vite. Keep both the application and package globs, including lazy-loaded route files and `.ts` files containing class maps. The `pipeline.include` filter also applies to filesystem extraction in `@subf/unocss/vite`; UnoCSS's default filter omits `.mjs` and `.ts`. Keep the extensions your app uses when changing this filter because it replaces the default. See [UnoCSS's extraction guide](https://unocss.dev/guide/extracting).
+
+Filesystem globs are relative to Vite's root. The examples assume `src/` and `node_modules/moraine` live under that root. If you set a different Vite root, keep routes outside `src/`, or use a workspace with Moraine installed at the repository root, adjust the globs to match those locations. Add your Markdown or MDX directories when they contain application classes.
 
 Moraine expands variant groups in its published component classes. If your own app uses grouped utilities such as `hover:(bg-primary text-primary-foreground)`, add `transformerVariantGroup()` from `@subf/unocss` to your `transformers` array.
+
+### Verification and troubleshooting
+
+Verify the button from the installation guide on a clean dev-server start, after a restart with Vite's dependency cache retained, when directly opening a lazy-loaded route, and in a production preview. Check its background, padding, and border radius; a click handler working does not verify CSS generation.
+
+If styles are missing:
+
+1. Confirm `virtual:uno.css` is imported in the application entry and UnoCSS runs before the Solid plugin.
+2. Confirm both the Wind preset and `presetMoraine()` are enabled.
+3. Check that the filesystem globs match the installed Moraine distribution and all application source directories, including lazy routes.
+4. Check that `pipeline.include` allows those file extensions and that custom exclusion filters do not reject the files.
+5. Inspect a missing class in browser DevTools. A missing CSS rule points to extraction or utility configuration; an existing rule with an unresolved `--primary` or another theme variable points to theme configuration. With `themeDefaults: false`, the application must provide its theme variables.
+
+For a suspected dependency-cache issue, stop the server and run your Vite dev command with `--force` (for a `dev` script that runs Vite, `pnpm run dev --force`). Alternatively, remove Vite's configured `cacheDir`, which defaults to `node_modules/.vite`, before restarting. Disable browser caching temporarily while diagnosing cached dependency requests. See [Vite's dependency caching guide](https://vite.dev/guide/dep-pre-bundling#caching).
+
+After correcting the scan configuration, restart again with the cache retained. Clearing the cache is a diagnostic step, not a required part of normal startup. An improvement after `--force` alone does not establish a Moraine runtime bug. Restart after upgrading Moraine so its published files are scanned again.
+
+Keep the CSS import in the application entry when using lazy routes; do not rely on visiting another route to load styles. Filesystem scanning can discover static classes before the route is loaded, but neither it nor pipeline extraction can infer arbitrary runtime strings such as `bg-${color}`. Use complete static class maps or an explicit UnoCSS safelist for application-generated classes.
 
 ## Preset options
 

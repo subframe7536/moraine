@@ -6,7 +6,7 @@ export function InputWithIcons() {
   const [query, setQuery] = createSignal('SolidJS reactive components')
 
   return (
-    <div class="gap-4 grid max-w-2xl sm:grid-cols-2">
+    <div class="flex flex-col gap-4 max-w-sm w-full">
       <InputGroup>
         <InputGroup.Leading>
           <Icon name="i-lucide:lock" />

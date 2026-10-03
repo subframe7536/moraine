@@ -29,7 +29,14 @@ import { presetMoraine } from 'moraine/unocss'
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
   content: {
-    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+    filesystem: [
+      './index.html',
+      './src/**/*.{js,ts,jsx,tsx}',
+      './node_modules/moraine/dist/**/*.{mjs,jsx}',
+    ],
+    pipeline: {
+      include: [/\.(?:mjs|js|ts|jsx|tsx|mdx?|html)(?:\?|$)/],
+    },
   },
 })
 ```

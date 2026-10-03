@@ -53,6 +53,11 @@ import { presetMoraine } from 'moraine/unocss'
 export default defineConfig({
   presets: [presetWind4(), presetMoraine()],
   content: {
+    filesystem: [
+      './index.html',
+      './src/**/*.{js,ts,jsx,tsx}',
+      './node_modules/moraine/dist/**/*.{mjs,jsx}',
+    ],
     pipeline: {
       include: [/\.(?:mjs|js|ts|jsx|tsx|mdx?|html)(?:\?|$)/],
     },
@@ -64,7 +69,7 @@ See the [UnoCSS Setup Guide](/docs/unocss) for advanced configurations, variant 
 
 ### Option B: Tailwind CSS
 
-If you use Tailwind CSS v4, register the plugin from `moraine/tailwind`:
+If you use Tailwind CSS v4, configure its Vite integration and register the plugin from `moraine/tailwind`:
 
 ```css title="src/index.css"
 @import 'tailwindcss';
@@ -92,7 +97,14 @@ export function App() {
 }
 ```
 
-If the button renders with a solid primary background, rounded corners, and proper padding, your setup is complete.
+Check that the button has a solid primary background, rounded corners, and padding. Verify the same appearance in each scenario:
+
+1. Start the dev server with an empty Vite dependency cache and open the app without editing source files or refreshing to recover styles.
+2. Stop and restart the dev server with its dependency cache present.
+3. Directly open a lazy-loaded route that renders Moraine components, without first visiting the home page.
+4. Build the application and check the same routes through its production preview server.
+
+Use your application's dev, build, and preview commands. See [UnoCSS verification and troubleshooting](/docs/unocss#verification-and-troubleshooting) or [Tailwind troubleshooting](/docs/tailwind#troubleshooting) if any scenario is unstyled.
 
 ## Troubleshooting
 
@@ -100,8 +112,11 @@ If the button renders with a solid primary background, rounded corners, and prop
 
 If the button renders as a plain unstyled HTML button:
 
-- **UnoCSS**: Include `.mjs` and `.jsx` in `content.pipeline.include` so UnoCSS scans imported Moraine modules.
-- **Tailwind v4**: Verify that `@source` points correctly to the `moraine/dist` directory relative to your CSS file.
+- **CSS entry**: Verify that the application entry imports `virtual:uno.css` for UnoCSS or your Tailwind stylesheet.
+- **UnoCSS**: Configure both `content.filesystem` and `content.pipeline.include` as shown above. The filter also applies to filesystem extraction in the documented Vite integration.
+- **Tailwind v4**: Verify that `@source` points to `moraine/dist` relative to your CSS file. If the CSS rule exists but its color is missing, check the theme variables as well.
+
+Changing `MoraineProvider` or importing the optional `moraine/icon.css` does not replace class scanning. If styles appear only after clearing Vite's cache, follow the cache troubleshooting steps in the UnoCSS guide and verify a restart with the cache retained.
 
 ### JSX TypeScript Errors
 

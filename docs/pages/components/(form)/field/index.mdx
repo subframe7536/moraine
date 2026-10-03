@@ -10,6 +10,7 @@ search:
 ---
 
 import { Field, Input } from '@src'
+import { createSignal } from 'solid-js'
 
 `Field` is a standalone presentational component with no form validation or form integration.
 It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
@@ -32,6 +33,8 @@ export function Example() {
 
 ## Playground
 
+Enter an invalid email and leave the input to show the error and enable its slot indicator.
+
 <Playground
   controls={[
     {
@@ -47,19 +50,29 @@ export function Example() {
     { kind: 'switch', prop: 'invalid', label: 'Invalid', defaultValue: false },
   ]}
 >
-  {(props) => (
-    <Field
-      label="Email"
-      required
-      hint="Required"
-      description="Use your work email address."
-      help="We use this address for account notifications."
-      error={props.invalid ? 'Enter a valid email address.' : undefined}
-      orientation={props.orientation}
-    >
-      <Input type="email" placeholder="you@example.com" />
-    </Field>
-  )}
+  {(props) => {
+    const [invalid, setInvalid] = createSignal(false)
+
+    return (
+      <Field
+        label="Email"
+        required
+        hint="Required"
+        description="Use your work email address."
+        help="We use this address for account notifications."
+        error={props.invalid || invalid() ? 'Enter a valid email address.' : undefined}
+        orientation={props.orientation}
+      >
+        <Input
+          type="email"
+          placeholder="you@example.com"
+          onBlur={(event) => setInvalid(!event.currentTarget.validity.valid)}
+        />
+      </Field>
+    )
+
+}}
+
 </Playground>
 
 ## Anatomy

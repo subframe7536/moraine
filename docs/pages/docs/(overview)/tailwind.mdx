@@ -11,7 +11,24 @@ Moraine includes a dedicated Tailwind CSS plugin exported as `moraine/tailwind`.
 
 ## Tailwind CSS v4
 
-In modern projects using Tailwind CSS v4, register Moraine with the `@plugin` directive and scan its published distribution files with `@source`.
+In an existing Solid/Vite project, install Tailwind's Vite integration:
+
+```shell
+pnpm add moraine
+pnpm add -D tailwindcss @tailwindcss/vite
+```
+
+```ts title="vite.config.ts"
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+import solid from 'vite-plugin-solid'
+
+export default defineConfig({
+  plugins: [tailwindcss(), solid()],
+})
+```
+
+Register Moraine with the `@plugin` directive and scan its published distribution files with `@source`:
 
 ```css title="src/index.css"
 @import 'tailwindcss';
@@ -19,15 +36,23 @@ In modern projects using Tailwind CSS v4, register Moraine with the `@plugin` di
 @source '../node_modules/moraine/dist';
 ```
 
+Import `./index.css` in `src/main.tsx` and define the theme variables described below. Keep the import in the application entry so the stylesheet is loaded when directly opening any route. See [Tailwind's Vite integration guide](https://tailwindcss.com/docs/installation/using-vite) for the build-tool setup.
+
 ### The `@source` path directive
 
-Tailwind CSS v4 uses `@source` to scan precompiled third-party packages. Note the following requirements:
+Tailwind CSS v4 ignores `node_modules` during automatic source detection. The Moraine plugin registers utility rules and variants; it does not register component files as sources. Use `@source` even when the plugin is already configured. See [Tailwind's source detection guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources).
 
-1. **Path resolution**: `@source 'moraine'` is not supported by Tailwind; you must specify a relative path to the published `dist` folder (e.g. `'../node_modules/moraine/dist'` or `'./node_modules/moraine/dist'`, depending on your stylesheet's location).
+Scan the full published `moraine/dist` directory; individual component, recipe, or chunk paths are not needed. Note the following requirements:
+
+1. **Path resolution**: `@source` paths are filesystem paths relative to the stylesheet, not package imports. Use a path to the published `dist` folder (e.g. `'../node_modules/moraine/dist'` for `src/index.css`).
 2. **Monorepos and workspaces**: If `moraine` is hoisted to a root `node_modules` directory in a pnpm or npm workspace, adjust the relative path to point to the repository root:
    ```css
    @source '../../../node_modules/moraine/dist';
    ```
+
+Tailwind discovers static classes by scanning files, independently of whether a lazy route has been loaded. Ensure route directories are covered by automatic source detection or explicit `@source` entries. If you disable automatic detection with `source(none)`, also register your application sources. These paths are relative to the stylesheet; automatic detection uses the working directory unless a base path is configured.
+
+### Theme variables
 
 Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but must add Moraine's independent `--control` surface in both themes and define its semantic shadows:
 
@@ -90,3 +115,15 @@ Target component DOM states cleanly using utility prefixes:
 ## Design tokens and CSS variables
 
 The plugin maps utility classes such as `bg-primary`, `text-foreground`, and `rounded-lg` to CSS variables. Define your color palette and dimensions in your application stylesheet as described in the [Design guide](/docs/design#css-variables).
+
+## Troubleshooting
+
+Check the installation button on a clean dev-server start, after restarting with Vite's cache retained, on a directly opened lazy-loaded route, and in a production preview.
+
+- **No utility styles**: Confirm Tailwind's build integration runs and your application entry imports its stylesheet.
+- **Application classes work, but Moraine classes are missing**: Confirm `@plugin 'moraine/tailwind'` is loaded and `@source` points to the installed distribution. Registering a plugin alone does not scan a dependency.
+- **Rules exist, but colors, radius, or shadows are missing**: Check the referenced CSS variables and their scope. Unlike `presetMoraine()` with default options, the Tailwind plugin does not emit a complete default theme. `MoraineProvider` and the optional `moraine/icon.css` do not replace theme variables or scanning.
+- **Classes from a lazy route are missing**: Check source coverage and keep the stylesheet import in the application entry. Correctly registered sources do not require navigating through the home page first.
+- **Dynamically constructed classes are missing**: Use complete static class maps. Tailwind cannot infer classes such as `bg-${color}`; in v4, explicitly include additional classes with `@source inline()` on versions that support it. The legacy JavaScript `safelist` option is not supported in v4. See [Tailwind's safelisting guide](https://tailwindcss.com/docs/detecting-classes-in-source-files#safelisting-specific-utilities).
+
+If clearing Vite's dependency cache changes the symptom, recheck the imported stylesheet, registered sources, and theme configuration, then verify a restart with the cache retained. Cache clearing does not replace `@source` and is not a normal setup requirement.
