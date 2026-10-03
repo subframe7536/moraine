@@ -2,6 +2,7 @@ import { presetMoraine } from 'moraine/unocss'
 import type { MorainePresetTheme, PresetMoraineOptions } from 'moraine/unocss'
 
 const theme = {
+  colorScheme: 'light',
   colors: {
     background: '#fff',
     control: 'var(--palette-field)',
@@ -20,8 +21,8 @@ presetMoraine({
   themeDefaults: false,
   override: {
     light: theme,
-    dark: { selector: '.night', colors: { primary: '#eee' } },
-    brand: { colors: { primary: '#369' } },
+    dark: { selector: '.night', colorScheme: 'dark', colors: { primary: '#eee' } },
+    brand: { colorScheme: 'light', colors: { primary: '#369' } },
   },
   colorStates: false,
 } satisfies PresetMoraineOptions)
@@ -34,6 +35,10 @@ presetMoraine({ override: { light: { '--radius': '1rem' } } })
 presetMoraine({ colors: { primary: '#369' } })
 // @ts-expect-error Shadows are configured within named themes.
 presetMoraine({ shadows: { surface: '0 1px #000' } })
+// @ts-expect-error Color schemes are configured within named themes.
+presetMoraine({ colorScheme: 'light' })
+// @ts-expect-error Color schemes must be light or dark.
+presetMoraine({ override: { light: { colorScheme: 'light dark' } } })
 // @ts-expect-error Size-based shadows belong to the CSS engine's theme.
 presetMoraine({ override: { light: { shadows: { xs: '0 1px #000' } } } })
 // @ts-expect-error The selector-based themes option has been removed.

@@ -50,6 +50,8 @@ export type MoraineThemeColors = {
 }
 
 export interface MorainePresetTheme {
+  /** CSS color-scheme declaration for this theme's selector. */
+  colorScheme?: 'light' | 'dark'
   colors?: MoraineThemeColors
   fonts?: Partial<Record<keyof typeof MORAINE_FONT | (string & {}), string>>
   shadows?: Partial<Record<keyof typeof MORAINE_SHADOW, string>>
@@ -59,8 +61,11 @@ export interface MorainePresetTheme {
   sidebarWidth?: string
 }
 
-export interface PresetMoraineOptions extends Omit<MorainePresetTheme, 'colors' | 'shadows'> {
-  /** Emit neutral light/dark colors, default shadows, and HTML background/foreground styles. @default true */
+export interface PresetMoraineOptions extends Omit<
+  MorainePresetTheme,
+  'colorScheme' | 'colors' | 'shadows'
+> {
+  /** Emit neutral light/dark colors and color schemes, default shadows, and HTML background/foreground styles. @default true */
   themeDefaults?: boolean
   /** Generate missing semantic hover and active colors. @default { hover: 8, active: 12 } */
   colorStates?: false | Partial<Record<MoraineColorState, number>>
@@ -205,7 +210,9 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   }
   const builtIn = options.themeDefaults !== false
   const defaultLight = mergeTheme(
-    builtIn ? { colors: DEFAULT_THEME_COLORS.light, shadows: DEFAULT_THEME_SHADOWS } : {},
+    builtIn
+      ? { colorScheme: 'light', colors: DEFAULT_THEME_COLORS.light, shadows: DEFAULT_THEME_SHADOWS }
+      : {},
     shared,
   )
   const themes: ResolvedTheme[] = [
@@ -217,7 +224,7 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   if (builtIn || dark) {
     themes.push([
       darkSelector,
-      mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.dark } : {}, dark),
+      mergeTheme(builtIn ? { colorScheme: 'dark', colors: DEFAULT_THEME_COLORS.dark } : {}, dark),
     ])
   }
   for (const [name, theme] of Object.entries(options.override ?? {})) {
@@ -388,6 +395,9 @@ function createThemeCSS(
       emit('font-size', theme.fontSize)
       emit('spacing', theme.spacing)
       emit('sidebar-width', theme.sidebarWidth)
+      if (theme.colorScheme !== undefined) {
+        declarations.push(`  color-scheme: ${theme.colorScheme};`)
+      }
       const numericBlock = `${selector} {\n${numericDeclarations.join('\n')}\n}`
       return [
         declarations.length ? `${selector} {\n${declarations.join('\n')}\n}` : '',

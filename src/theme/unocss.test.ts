@@ -413,6 +413,8 @@ describe('presetMoraine', () => {
 
     expect(css).toContain(':root {')
     const root = css.match(/:root \{([^}]+)\}/)?.[1]
+    expect(root).toContain('color-scheme: light;')
+    expect(css).toMatch(/\.dark \{[^}]*color-scheme: dark;/)
     for (const [role, size] of [
       ['surface', 'sm'],
       ['overlay', 'md'],
@@ -477,6 +479,7 @@ describe('presetMoraine', () => {
     expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('--control:')
     expect(css).not.toContain('--backdrop:')
+    expect(css).not.toContain('color-scheme:')
     expect(css).not.toMatch(/--shadow-(?:surface|overlay|input):/)
     expect(css).not.toContain('html {\n  background-color: var(--background);')
     expect(css).not.toContain('--mo-auto-primary-hover: var(--primary);')
@@ -570,6 +573,7 @@ describe('presetMoraine', () => {
       colorStates: { hover: 6 },
       override: {
         light: {
+          colorScheme: 'dark',
           shadows: {
             surface: '0 2px 4px #123',
             overlay: '0 8px 16px #456',
@@ -582,10 +586,11 @@ describe('presetMoraine', () => {
           },
         },
         dark: {
+          colorScheme: 'light',
           colors: { primary: { foreground: '#111', hover: '#369' } },
           shadows: { surface: '0 2px #111' },
         },
-        brand: { colors: { primary: '#369' } },
+        brand: { colorScheme: 'light', colors: { primary: '#369' } },
         custom: {
           selector: '[data-theme="custom"]',
           colors: { primary: { foreground: '#fff', hover: 5 } },
@@ -596,6 +601,9 @@ describe('presetMoraine', () => {
     const { css } = await generator.generate(new Set(), { preflights: true })
 
     expect(css).toContain(':root {')
+    expect(css).toMatch(/:root \{[^}]*color-scheme: dark;/)
+    expect(css).toMatch(/\.dark \{[^}]*color-scheme: light;/)
+    expect(css).toMatch(/\[data-theme="brand"\] \{[^}]*color-scheme: light;/)
     expect(css).toContain('--primary: #246;')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(css).toContain(
@@ -628,6 +636,33 @@ describe('presetMoraine', () => {
       expect.objectContaining({ selector: ':root', color: 'primary', base: '#246' }),
     )
   })
+
+  test.each([true, false])(
+    'emits color-scheme-only overrides with explicit selectors when themeDefaults is %s',
+    async (themeDefaults) => {
+      const generator = await createGenerator({
+        presets: [
+          presetMoraine({
+            themeDefaults,
+            override: {
+              light: { selector: '.day', colorScheme: 'light' },
+              dark: { selector: '.night', colorScheme: 'dark' },
+              custom: { selector: '[data-mode="custom"]', colorScheme: 'dark' },
+            },
+          }),
+        ],
+      })
+      const { css } = await generator.generate(new Set(), { preflights: true })
+
+      expect(css).toMatch(/\.day \{[^}]*color-scheme: light;/)
+      expect(css).toMatch(/\.night \{[^}]*color-scheme: dark;/)
+      expect(css).toContain('[data-mode="custom"] {\n  color-scheme: dark;\n}')
+      expect(css.match(/:root \{[^}]*color-scheme: (\w+);/)?.[1]).toBe(
+        themeDefaults ? 'light' : undefined,
+      )
+      expect(css).not.toContain('.dark {')
+    },
+  )
 
   test('uses an explicit selector and keeps explicit states when generation is disabled', async () => {
     const active = vi.fn(() => '#135')
