@@ -122,7 +122,7 @@ Keep the CSS import in the application entry when using lazy routes; do not rely
 
 ## Preset options
 
-`presetMoraine()` provides Moraine's utility tokens, state variants, neutral light and dark colors as RGB/RGBA values, default shadows, and base values for radius, font size, and spacing. The default selectors are `:root` and `.dark`. Configure shared fonts and single-value tokens at the top level; put colors and shadows in named `override` entries.
+`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`; their colors stay the same across parent surfaces. The default selectors are `:root` and `.dark`. Configure shared fonts and single-value tokens at the top level; put colors, shadows, and `colorScheme` in named `override` entries.
 
 Semantic shadow defaults use the Tailwind values inherited by the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css): surface → `sm`, overlay → `md`, input → `xs`. The preset emits `--shadow-surface`, `--shadow-overlay`, and `--shadow-input` at `:root`; dark mode inherits these values unless `override.dark.shadows` supplies replacements. Native size utilities such as `shadow-xs` retain the CSS engine's own values and configuration. Set `themeDefaults: false` to omit default colors and semantic shadows while retaining explicit overrides.
 
@@ -153,20 +153,22 @@ presetMoraine({
     },
     brand: {
       selector: '[data-theme="brand"]',
+      colorScheme: 'light',
       colors: { primary: '#7c3aed' },
     },
   },
 })
 ```
 
-| Option          | Default                    | Behavior                                                                                                                                          |
-| :-------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `themeDefaults` | `true`                     | Emits neutral light/dark colors and color schemes, default shadows, and HTML background/text styles. Set `false` when your CSS defines the theme. |
-| `override`      | omitted                    | Overrides the built-in neutral light and dark colors or adds named themes.                                                                        |
-| `colorStates`   | `{ hover: 8, active: 12 }` | Generates missing hover and active colors for configured base colors. Set `false` to disable.                                                     |
-| `radius`        | `0.625rem`                 | Base radius written to `--radius` at `:root`; override per theme when needed.                                                                     |
-| `fontSize`      | `1rem`                     | Base font size written to `--font-size` at `:root`.                                                                                               |
-| `spacing`       | `0.25rem`                  | Base spacing unit written to `--spacing` at `:root`.                                                                                              |
+| Option                        | Default                                                                          | Behavior                                                                                                                                          |
+| :---------------------------- | :------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `themeDefaults`               | `true`                                                                           | Emits neutral light/dark colors and color schemes, default shadows, and HTML background/text styles. Set `false` when your CSS defines the theme. |
+| `override`                    | omitted                                                                          | Overrides the built-in neutral light and dark colors or adds named themes.                                                                        |
+| `override.<name>.colorScheme` | `light` for the built-in light theme; `dark` for dark; omitted for custom themes | Accepts `light` or `dark` only. Emits `color-scheme` on the theme selector; explicit values still apply with `themeDefaults: false`.              |
+| `colorStates`                 | `{ hover: 8, active: 12 }`                                                       | Generates missing hover and active colors for configured base colors. Set `false` to disable.                                                     |
+| `radius`                      | `0.625rem`                                                                       | Base radius written to `--radius` at `:root`; override per theme when needed.                                                                     |
+| `fontSize`                    | `1rem`                                                                           | Base font size written to `--font-size` at `:root`.                                                                                               |
+| `spacing`                     | `0.25rem`                                                                        | Base spacing unit written to `--spacing` at `:root`.                                                                                              |
 
 ### Theme tokens
 
@@ -174,7 +176,9 @@ For grouped colors such as `primary` and `muted`, strings are shorthand for `{ b
 
 `light` and `dark` default to `:root` and `.dark`. Another name defaults to `[data-theme="name"]`; set `selector` on any entry to use a complete CSS selector. The preset emits the default light colors first, then dark colors, then custom themes in configuration order. Light and dark overrides merge with their respective defaults. A partial custom theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
 
-The built-in light and dark themes emit `color-scheme: light` and `color-scheme: dark`, respectively, so native browser controls follow the theme. Set `colorScheme` to `light` or `dark` inside any `override` entry to replace the default or configure a custom theme. `themeDefaults: false` omits the default color schemes while retaining explicit overrides.
+The built-in light and dark themes emit `color-scheme: light` and `color-scheme: dark`, respectively, so native browser controls follow the theme. `colorScheme` has type `'light' | 'dark'` and is configured inside `override.<name>`, rather than at the top level. Its declaration follows the entry's `selector`, including custom selectors for light and dark. Custom themes inherit the CSS color scheme unless explicitly configured. `themeDefaults: false` omits the default color schemes while retaining explicit overrides.
+
+See [Moraine-specific Variables](/docs/design#moraine-specific-variables) for the additional form surface, backdrop, shadow, interaction, typography, sidebar, and animation variables. `colorScheme` writes the native CSS `color-scheme` property; it does not create a custom property.
 
 Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb, …)` in supported browsers. Wind3 keeps the unmodified semantic color as its fallback when `color-mix()` is unavailable.
 

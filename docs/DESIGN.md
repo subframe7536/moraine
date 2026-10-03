@@ -76,9 +76,11 @@ child inputs stay transparent. Ordinary field text uses global `foreground`, wit
 `muted-foreground` for placeholders. There is no control foreground or state-token family.
 
 The built-in light/dark control values are opaque RGB (255, 255, 255) / (23, 23, 23), while input
-remains RGB (229, 229, 229) / (47, 47, 47). Opaque fills make compositing predictable but remove
-parent-dependent tinting. shadcn/ui's input-derived alpha treatment is intentional and semantic;
-this is a Moraine theme extension and visual change. External palettes must define `--control` in
+uses opaque RGB (229, 229, 229) / (47, 47, 47). Dark border uses opaque RGB (35, 35, 35).
+The dark border and input values composite shadcn/ui's white alpha colors over the default dark
+background. Opaque fills and boundaries keep their colors independent of the parent surface;
+the backdrop retains its alpha. shadcn/ui's input-derived alpha treatment is intentional and
+semantic; this is a Moraine theme extension and visual change. External palettes must define `--control` in
 both themes. Primitive references and custom alpha remain valid; verify foreground, placeholder,
 focus, validation, and field identification against the rendered surface. Dark control and card
 share a value, so their boundary needs particular scrutiny; no blanket accessibility claim follows.

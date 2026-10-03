@@ -429,6 +429,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary: rgb(23, 23, 23);')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(root).toContain('--muted-foreground: rgb(115, 115, 115);')
+    expect(root).toContain('--destructive: rgb(231, 0, 11);')
     expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
     expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
     expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)

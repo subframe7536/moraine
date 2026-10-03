@@ -125,6 +125,7 @@ const DEFAULT_THEME_SHADOWS = {
   input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
 } satisfies MorainePresetTheme['shadows']
 
+// shadcn/ui's neutral palette in 8-bit sRGB, compositing dark borders over the page background.
 const DEFAULT_THEME_COLORS = {
   light: {
     background: { base: 'rgb(255, 255, 255)' },
@@ -135,7 +136,7 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    destructive: { base: 'rgb(190, 0, 9)' },
+    destructive: { base: 'rgb(231, 0, 11)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
