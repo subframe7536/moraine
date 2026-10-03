@@ -126,6 +126,7 @@ const DEFAULT_THEME_COLORS = {
     destructive: { base: 'rgb(190, 0, 9)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
+    control: 'rgb(255, 255, 255)',
     ring: 'rgb(161, 161, 161)',
   },
   dark: {
@@ -140,6 +141,7 @@ const DEFAULT_THEME_COLORS = {
     destructive: { base: 'rgb(255, 100, 103)' },
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
+    control: 'rgb(23, 23, 23)',
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>
@@ -457,7 +459,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           return matcher
         }
         const match = matcher.match(
-          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
+          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
         )
         if (!match) {
           return matcher

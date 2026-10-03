@@ -1,3 +1,5 @@
+import { FOCUS_VISIBLE_RING_CLASS } from '../../../../src/theme/recipe-common.class'
+
 export const DOCS_INLINE_CODE_CLASS = 'docs-inline-code'
 
 export const DOCS_BLOCK_CONTAINER_CLASS =
@@ -18,8 +20,7 @@ export const DOCS_CODE_CONTENT_CLASS =
 export const DOCS_CODE_FALLBACK_PRE_CLASS =
   'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 outline-none overflow-x-auto'
 
-export const DOCS_CODE_EXPAND_BUTTON_CLASS =
-  'text-xs border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 -translate-x-1/2'
+export const DOCS_CODE_EXPAND_BUTTON_CLASS = `text-xs border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm ${FOCUS_VISIBLE_RING_CLASS} -translate-x-1/2`
 
 export const DOCS_TABS_ROOT_CLASS = DOCS_BLOCK_CONTAINER_CLASS
 export const DOCS_TABS_LIST_CLASS =

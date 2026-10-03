@@ -2,6 +2,7 @@ import { For } from 'solid-js'
 
 import { Icon } from '../../../../src/index'
 import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/icons'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 export function IconGallery() {
@@ -20,7 +21,7 @@ export function IconGallery() {
           return (
             <button
               type="button"
-              class="group border border-border flex min-w-0 aspect-square transition-colors items-center justify-center relative rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background) hover:(border-primary/60 bg-primary/5)"
+              class={`group border border-border flex min-w-0 aspect-square transition-colors items-center justify-center relative rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS} hover:(border-primary/60 bg-primary/5)`}
               aria-label={`Copy ${name}`}
               title={name}
               onClick={() => void clipboard.copy(name)}

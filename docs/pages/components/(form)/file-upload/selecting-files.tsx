@@ -11,8 +11,8 @@ export function SelectingFiles() {
             <FileUpload
               size={size}
               multiple
-              label="Drag & drop files here"
-              description="Or click to browse documents and images."
+              label="Click anywhere or drop files"
+              description="Choose documents and images."
             />
           </div>
         )}

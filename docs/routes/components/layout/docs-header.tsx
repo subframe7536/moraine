@@ -4,6 +4,7 @@ import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, cn, useSidebarFrame } from '../../../../src'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
@@ -35,7 +36,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           <a
             href="/"
             aria-label="Moraine home"
-            class="text-foreground flex shrink-0 gap-2 items-center rounded-sm focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+            class={`text-foreground flex shrink-0 gap-2 items-center rounded-sm ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
           >
             <img src="/favicon.svg" alt="" class="size-6" />
             <span class="font-semibold text-base">Moraine</span>

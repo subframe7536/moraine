@@ -3,6 +3,7 @@ import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
 import { Icon, Badge, cn, useSidebarFrame } from '../../../../src'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 import type { DocsPageEntry } from '../../docs-route'
 
 export type SidebarPage = DocsPageEntry
@@ -83,7 +84,7 @@ export const Sidebar = (props: SidebarProps) => {
         href={page.path}
         aria-current={props.activePage() === page.path ? ('page' as const) : undefined}
         class={cn(
-          'px-2.5 py-1.5 text-left flex w-full transition-colors items-center text-sm rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+          `px-2.5 py-1.5 text-left flex w-full transition-colors items-center text-sm rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
           frame.isMobile() ? 'min-h-11' : '',
           props.activePage() === page.path
             ? 'text-primary bg-primary/10 dark:bg-primary/15'
@@ -128,7 +129,7 @@ export const Sidebar = (props: SidebarProps) => {
                     rel="alternate external"
                     type="text/markdown"
                     class={cn(
-                      'text-muted-foreground px-2.5 py-1.5 flex items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+                      `text-muted-foreground px-2.5 py-1.5 flex items-center text-sm rounded-lg hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
                       frame.isMobile() ? 'min-h-11' : '',
                     )}
                   >
@@ -177,7 +178,7 @@ export const SidebarHeader = () => {
               href={surface.href}
               aria-current={selected() ? 'location' : undefined}
               class={cn(
-                'font-medium px-3 border flex gap-3 h-12 transition-colors items-center relative text-sm rounded-lg focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)',
+                `font-medium px-3 border flex gap-3 h-12 transition-colors items-center relative text-sm rounded-lg ${DOCS_FOCUS_RING_OFFSET_CLASS}`,
                 selected()
                   ? 'text-foreground border-border bg-muted'
                   : 'text-muted-foreground border-transparent hover:(text-foreground bg-muted/60)',

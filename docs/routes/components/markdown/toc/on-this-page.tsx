@@ -2,6 +2,7 @@ import { useLocation } from '@solidjs/router'
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
+import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.class'
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
@@ -112,7 +113,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}
-                class="text-muted-foreground leading-7 px-3 py-1 transition-colors relative text-xs data-active:text-primary hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                class={`text-muted-foreground leading-7 px-3 py-1 transition-colors relative text-xs data-active:text-primary hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`}
               >
                 <span class="block truncate" style={getOnThisPageIndentStyle(entry.level)}>
                   <Show

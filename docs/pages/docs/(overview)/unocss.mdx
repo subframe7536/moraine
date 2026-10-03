@@ -61,6 +61,7 @@ presetMoraine({
       shadows: { sm: '0 1px 2px rgba(0, 0, 0, 0.05)' },
       colors: {
         primary: { base: '#2563eb', foreground: '#fff' },
+        control: '#fff',
       },
     },
     dark: {
@@ -87,7 +88,7 @@ presetMoraine({
 
 ### Theme tokens
 
-Color strings are shorthand for `{ base: value }`. Expand a color to override `foreground`, `hover`, or `active` without repeating `base`. Available color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports `base`, `2xs`, `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`. Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
+For grouped colors such as `primary` and `muted`, strings are shorthand for `{ base: value }`. Expand these colors to override `foreground`, `hover`, or `active` without repeating `base`. Single-value colors such as `control`, `input`, `border`, and `ring` accept CSS strings only. `control` overrides field fills independently of boundaries and parent surfaces. Available color names and fields match Moraine's semantic colors. Colors and shadows belong inside named `override` entries. `fonts` supports `sans`, `mono`, and `serif`; `shadows` supports `base`, `2xs`, `xs`, `sm`, `md`, `lg`, `xl`, and `2xl`. Single values use `radius`, `fontSize`, `spacing`, and `sidebarWidth`. Other custom properties belong in your CSS file.
 
 `light` and `dark` default to `:root` and `.dark`. Another name defaults to `[data-theme="name"]`; set `selector` on any entry to use a complete CSS selector. The preset emits the default light colors first, then dark colors, then custom themes in configuration order. Light and dark overrides merge with their respective defaults. A partial custom theme inherits missing variables through the CSS cascade, including variables used by portaled overlays when they are declared on an ancestor of the portal.
 
@@ -95,7 +96,7 @@ Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb,
 
 ### Hover and active colors
 
-When `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other colors use their own foreground with the global foreground as a fallback. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
+For grouped semantic colors, when `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other grouped colors use their own foreground with the global foreground as a fallback. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
 
 ```ts
 presetMoraine({
@@ -118,10 +119,21 @@ presetMoraine({
 
 The callback receives its selector, color name, state, configured base or CSS variable reference, foreground value or reference, and current adjustment. Percentages must be finite values from 0 to 100. `colorStates: false` stops automatic generation; explicit states still emit. Generated utilities retain their CSS fallbacks: active → hover → base.
 
-Without `color-mix(in oklch, …)`, Moraine's state expression falls back to the base color in the utility's scope unless you provide an explicit state color. This keeps nested CSS themes from inheriting a stale state color from their parent. Numeric state overrides need `color-mix()`; use a widely supported CSS color string when a distinct state must work in older browsers. Wind4 itself emits `color-mix(in srgb, …)` for color utilities, so browsers without any `color-mix()` support need Wind3. When you paste a complete shadcn/ui palette into your stylesheet, disable the built-in palette:
+Without `color-mix(in oklch, …)`, Moraine's state expression falls back to the base color in the utility's scope unless you provide an explicit state color. This keeps nested CSS themes from inheriting a stale state color from their parent. Numeric state overrides need `color-mix()`; use a widely supported CSS color string when a distinct state must work in older browsers. Wind4 itself emits `color-mix(in srgb, …)` for color utilities, so browsers without any `color-mix()` support need Wind3. When CSS supplies a shadcn/ui palette, extend it with Moraine's `--control` variable and disable the built-in palette:
 
 ```ts
 presetMoraine({ themeDefaults: false })
 ```
 
-Define your `:root` and `.dark` color variables in CSS as usual. The preset still emits the default `--radius`, `--font-size`, and `--spacing` values when `themeDefaults` is `false`; your CSS can override them. You can add `--primary-hover` and other state variables there when older browsers need a distinct state color. `baseStyles` has been removed; `themeDefaults` is its replacement and also controls the built-in colors.
+Define your `:root` and `.dark` color variables, including an explicit control surface:
+
+```css
+:root {
+  --control: rgb(255, 255, 255);
+}
+.dark {
+  --control: rgb(23, 23, 23);
+}
+```
+
+`themeDefaults: false` omits control values unless explicitly configured in `override`. A shadcn/ui palette alone is no longer sufficient; see the [form surface migration](/docs/design#form-surface-migration). `control` has no foreground or state family, uses the existing field foreground, and supports explicit utility opacity such as `bg-control/30`. The preset still emits the default `--radius`, `--font-size`, and `--spacing` values when `themeDefaults` is `false`; your CSS can override them. You can add `--primary-hover` and other state variables there when older browsers need a distinct state color. `baseStyles` has been removed; `themeDefaults` is its replacement and also controls the built-in colors.

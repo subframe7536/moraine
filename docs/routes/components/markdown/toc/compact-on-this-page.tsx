@@ -1,6 +1,7 @@
 import { For, Show, createSignal } from 'solid-js'
 
 import { Collapsible, Icon } from '../../../../../src'
+import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
 
@@ -15,7 +16,9 @@ export function CompactOnThisPage(props: { entries: OnThisPageEntry[] }) {
         transition
         class="mt-6 border-y border-border/60 xl:hidden"
       >
-        <Collapsible.Trigger class="text-muted-foreground px-3 py-2 flex w-full transition items-center justify-between rounded-md hover:(text-foreground bg-muted) focus-visible:(outline-none ring-2 ring-ring)">
+        <Collapsible.Trigger
+          class={`text-muted-foreground px-3 py-2 flex w-full transition items-center justify-between rounded-md hover:(text-foreground bg-muted) ${DOCS_FOCUS_RING_CLASS}`}
+        >
           On This Page
           <Icon name="i-lucide:chevron-down" class={open() ? 'size-4 rotate-180' : 'size-4'} />
         </Collapsible.Trigger>
@@ -27,7 +30,7 @@ export function CompactOnThisPage(props: { entries: OnThisPageEntry[] }) {
                   href={`#${encodeURIComponent(entry.id)}`}
                   target="_self"
                   data-toc-id={entry.id}
-                  class="text-muted-foreground px-2 py-2 flex min-h-11 items-center text-sm rounded-md hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring)"
+                  class={`text-muted-foreground px-2 py-2 flex min-h-11 items-center text-sm rounded-md hover:(text-foreground bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
                   style={{
                     'padding-inline-start': `${0.5 + Math.max(0, entry.level - 1) * 0.75}rem`,
                   }}

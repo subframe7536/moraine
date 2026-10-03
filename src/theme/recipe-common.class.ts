@@ -51,8 +51,8 @@ export const POPPER_CONTENT_SIDE_VARIANT = {
 } as const
 
 export const INPUT_VARIANT = {
-  outline: 'border border-input bg-transparent shadow-xs dark:bg-input/30',
-  subtle: 'border border-input bg-input/30 shadow-xs',
+  outline: 'border border-input bg-control shadow-xs',
+  subtle: 'border border-input bg-muted shadow-xs',
   ghost:
     'hover:(bg-accent-hover text-accent-foreground) focus-within:(bg-accent-hover text-accent-foreground)',
   none: 'focus-within:ring-0',

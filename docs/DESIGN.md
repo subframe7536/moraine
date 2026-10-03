@@ -69,6 +69,25 @@ palette is allowed.
 | Warning        | `--foreground` on `--background`                                                    | A caution paired with explicit text or an icon; there is no dedicated warning palette. |
 | Destructive    | `--destructive` / `--destructive-foreground`, with state variants                   | Failures, destructive actions, and irreversible consequences.                          |
 
+Form surfaces use `--control`, independently of `--input` boundaries and neutral tracks/separators.
+Outline fields, unchecked choices, and upload controls use `control`; subtle fields use `muted`.
+Both text-field variants retain the same boundary and shadow. Grouped containers own their surface;
+child inputs stay transparent. Ordinary field text uses global `foreground`, with
+`muted-foreground` for placeholders. There is no control foreground or state-token family.
+
+The built-in light/dark control values are opaque RGB (255, 255, 255) / (23, 23, 23), while input
+remains RGB (229, 229, 229) / (47, 47, 47). Opaque fills make compositing predictable but remove
+parent-dependent tinting. shadcn/ui's input-derived alpha treatment is intentional and semantic;
+this is a Moraine theme extension and visual change. External palettes must define `--control` in
+both themes. Primitive references and custom alpha remain valid; verify foreground, placeholder,
+focus, validation, and field identification against the rendered surface. Dark control and card
+share a value, so their boundary needs particular scrutiny; no blanket accessibility claim follows.
+
+FileUpload's entire visible dropzone is the action and focus target. Its default and readonly
+backgrounds use control; hover/active retain the existing background state colors, and dragging
+retains muted fill. Border, focus, validation, and state selectors retain their existing behavior.
+Previews and removal actions remain outside the picker hit area.
+
 ## Typography
 
 Use the existing `font-sans` stack for page titles, section titles, body copy, metadata, and compact

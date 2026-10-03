@@ -14,6 +14,7 @@ import {
   Tabs,
   cn,
 } from '../../../../src'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 
 const OPTIONS = [
   { label: 'SolidJS', value: 'solid' },
@@ -22,8 +23,7 @@ const OPTIONS = [
   { label: 'Tailwind CSS', value: 'tailwind' },
 ]
 
-const docsLink =
-  'text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
+const docsLink = `text-primary text-sm font-medium inline-flex gap-1 items-center hover:underline ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 
 function SamplerItem(props: {
   title: string

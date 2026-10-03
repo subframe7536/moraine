@@ -3,6 +3,7 @@ import { createStore } from 'solid-js/store'
 import { Portal } from 'solid-js/web'
 
 import { Badge, Button, Icon, Switch, createId } from '../../../../../src'
+import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
 import { ComponentDocContext } from '../component-doc.context'
 
 import { createDocsPlaygroundSlots } from './create-docs-playground-slots'
@@ -148,7 +149,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
                             size="md"
                             variant="outline"
                             class={[
-                              'font-mono cursor-pointer transition-colors focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-40 cursor-not-allowed pointer-events-none)',
+                              `font-mono cursor-pointer transition-colors ${DOCS_FOCUS_RING_CLASS} disabled:(opacity-40 cursor-not-allowed pointer-events-none)`,
                               slots.locked() === slot.name
                                 ? 'text-primary border-primary bg-primary/12'
                                 : 'enabled:hover:(border-primary/60 bg-primary/8)',

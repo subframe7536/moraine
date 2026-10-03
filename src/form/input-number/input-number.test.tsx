@@ -1443,8 +1443,8 @@ describe('InputNumber', () => {
   })
 
   test.each([
-    ['outline', ['border', 'border-input', 'bg-transparent', 'shadow-xs']],
-    ['subtle', ['border', 'border-input', 'bg-input/30', 'shadow-xs']],
+    ['outline', ['border', 'border-input', 'bg-control', 'shadow-xs']],
+    ['subtle', ['border', 'border-input', 'bg-muted', 'shadow-xs']],
     ['ghost', ['hover:bg-accent-hover', 'focus-within:bg-accent-hover']],
     ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {
@@ -1475,7 +1475,7 @@ describe('InputNumber', () => {
     const screen = render(() => <InputNumber />)
     const root = screen.container.querySelector('[data-slot="input-number"]')
 
-    expect(root?.className).toContain('bg-transparent')
+    expect(root?.className).toContain('bg-control')
     expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
       'outline' | 'subtle' | 'ghost' | 'none' | undefined
     >()

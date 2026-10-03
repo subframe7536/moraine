@@ -1,6 +1,7 @@
 import { For, Show } from 'solid-js'
 
 import { Badge } from '../../../../src'
+import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.class'
 import { getDocsPages } from '../../docs-route'
 
 const SECTIONS = ['general', 'form', 'navigation', 'overlay'] as const
@@ -26,7 +27,7 @@ export function ComponentsIndex() {
                   <li>
                     <a
                       href={page.path}
-                      class="px-2 py-2 flex gap-2 transition-colors items-center text-sm rounded-md hover:(text-primary bg-muted/60) focus-visible:(outline-none ring-2 ring-ring)"
+                      class={`px-2 py-2 flex gap-2 transition-colors items-center text-sm rounded-md hover:(text-primary bg-muted/60) ${DOCS_FOCUS_RING_CLASS}`}
                     >
                       <span>{page.label}</span>
                       <Show when={page.badge}>

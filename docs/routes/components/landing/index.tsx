@@ -1,13 +1,11 @@
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon, cn } from '../../../../src'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 import type { ClipboardCopyState } from '../../hooks/create-clipboard-copy'
 
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
-
-const linkFocus =
-  'focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)'
 
 function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void; class?: string }) {
   return (
@@ -16,7 +14,7 @@ function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void;
       onClick={() => props.onClick()}
       class={cn(
         'group px-4 py-2 text-left border border-border bg-card inline-flex gap-3 cursor-pointer select-none transition-colors items-center text-lg rounded-lg hover:bg-muted/40',
-        linkFocus,
+        DOCS_FOCUS_RING_OFFSET_CLASS,
         props.class,
       )}
       aria-label="Copy install command"
@@ -114,7 +112,7 @@ export function LandingPage() {
           <nav aria-label="Explore Moraine" class="md:ps-8">
             <a
               href="/components"
-              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+              class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
                 <span class="font-medium block text-sm">Components</span>
@@ -129,7 +127,7 @@ export function LandingPage() {
             </a>
             <a
               href="/docs/customization"
-              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+              class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
                 <span class="font-medium block text-sm">Customization</span>
@@ -144,7 +142,7 @@ export function LandingPage() {
             </a>
             <a
               href="/docs/unocss"
-              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+              class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
                 <span class="font-medium block text-sm">UnoCSS</span>
@@ -159,7 +157,7 @@ export function LandingPage() {
             </a>
             <a
               href="/docs/tailwind"
-              class={`group py-4 flex gap-4 items-center justify-between ${linkFocus}`}
+              class={`group py-4 flex gap-4 items-center justify-between ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
             >
               <span>
                 <span class="font-medium block text-sm">Tailwind CSS</span>
@@ -176,14 +174,17 @@ export function LandingPage() {
         </div>
 
         <div class="py-5 flex flex-wrap gap-x-6 gap-y-3 items-center text-xs">
-          <a href="/" class={`font-semibold flex gap-2 items-center ${linkFocus}`}>
+          <a
+            href="/"
+            class={`font-semibold flex gap-2 items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
+          >
             <img src="/favicon.svg" alt="" class="size-5" />
             Moraine
           </a>
           <span class="text-muted-foreground">v{packageMetadata.version} · MIT</span>
           <a
             href="https://github.com/subframe7536/moraine"
-            class={`text-muted-foreground ms-auto flex gap-1.5 items-center hover:text-foreground ${linkFocus}`}
+            class={`text-muted-foreground ms-auto flex gap-1.5 items-center hover:text-foreground ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
           >
             GitHub <Icon name="i-lucide:arrow-up-right" class="size-3.5" />
           </a>

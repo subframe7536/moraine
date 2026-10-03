@@ -103,7 +103,7 @@ describe('InputGroup', () => {
       const group = screen.getByRole('group')
       const control = screen.getByRole('textbox')
       const frame = group.querySelector<HTMLElement>('[data-slot="input-group-frame"]')!
-      expect(group.className).toContain('bg-input/30')
+      expect(group.className).toContain('bg-muted')
       expect(group.className).not.toContain(':has(>input:focus)')
       expect(control.className).toContain('peer')
       expect(control.className).toContain('border-0')

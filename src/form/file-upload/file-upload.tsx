@@ -311,7 +311,6 @@ export function FileUpload<Multiple extends boolean = false>(
   const description = createMemo(() => merged.description)
   const dropzone = createMemo(() => merged.dropzone)
   const preview = createMemo(() => merged.preview)
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const initialDefaultValue = untrack(() => {
     if (local.defaultValue !== undefined) {
@@ -328,13 +327,15 @@ export function FileUpload<Multiple extends boolean = false>(
       size: resolved.variants.size,
       disabled: merged.disabled,
       required: local.required,
-      readOnly: readOnly(),
+      readOnly: merged.readOnly,
     }),
     () => ({
       defaultId: generatedId(),
       initialValue: initialDefaultValue,
     }),
   )
+
+  const readOnly = field.readOnly
 
   const [formValue, setFormValue, resetFormValue] = useFormValue<FileUploadT.Value<Multiple>>({
     value: () => local.value,

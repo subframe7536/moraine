@@ -24,7 +24,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex relative',
     item: `flex items-start ${DATA_DISABLED_CLASS}`,
-    control: `outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) ${PEER_FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} dark:bg-input/30`,
+    control: `outline-none border border-input rounded-full bg-control inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) ${PEER_FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS}`,
     container: 'flex items-center',
     indicator: 'rounded-full bg-primary-foreground',
     wrapper: 'flex flex-col gap-0.5 w-full',

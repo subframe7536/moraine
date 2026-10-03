@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
+import { Field } from '../field'
 import { createForm } from '../form'
 
 import { FileUpload } from './file-upload'
@@ -111,17 +112,18 @@ describe('FileUpload', () => {
         event.preventDefault()
       }
     })
-    const screen = render(() => <FileUpload onKeyDown={onKeyDown} />)
-    const control = screen.getByRole('button', { name: 'File upload' })
+    const screen = render(() => <FileUpload label="Upload files" onKeyDown={onKeyDown} />)
+    const control = screen.getByRole('button', { name: 'Upload files' })
     const input = getFileInput(screen.container)
     const inputClick = vi.spyOn(input, 'click').mockImplementation(() => undefined)
 
     fireEvent.click(control)
+    fireEvent.click(screen.getByText('Upload files'))
     fireEvent.keyDown(control, { key: 'Enter' })
     fireEvent.keyDown(control, { key: ' ' })
     fireEvent.keyDown(control, { key: 'Escape' })
 
-    expect(inputClick).toHaveBeenCalledTimes(3)
+    expect(inputClick).toHaveBeenCalledTimes(4)
     expect(onKeyDown).toHaveBeenCalledTimes(3)
 
     inputClick.mockRestore()
@@ -783,6 +785,77 @@ describe('FileUpload', () => {
     expect(screen.getByText('Description')).not.toBeNull()
     expect(reads).toEqual({ description: 1, dropzone: 1, label: 1, preview: 1 })
   })
+
+  test.each([
+    { dropzone: true, override: undefined, locked: true },
+    { dropzone: false, override: undefined, locked: true },
+    { dropzone: true, override: false, locked: false },
+    { dropzone: false, override: false, locked: false },
+  ])(
+    'resolves reactive Field readonly and explicit overrides ($dropzone, $override)',
+    async ({ dropzone, override, locked }) => {
+      const [readOnly, setReadOnly] = createSignal(true)
+      const onValueChange = vi.fn()
+      const initial = createFile('initial.txt')
+      const screen = render(() => (
+        <Field readOnly={readOnly()}>
+          <FileUpload
+            multiple
+            dropzone={dropzone}
+            readOnly={override}
+            defaultValue={[initial]}
+            onValueChange={onValueChange}
+          />
+        </Field>
+      ))
+      const input = getFileInput(screen.container)
+      const control = screen.getByRole('button', { name: 'File upload' })
+      const inputClick = vi.spyOn(input, 'click').mockImplementation(() => undefined)
+      const root = screen.container.querySelector('[data-slot="file-upload"]')!
+      const removal = screen.getByRole('button', {
+        name: 'Remove initial.txt',
+      }) as HTMLButtonElement
+
+      expect(control.getAttribute('aria-readonly')).toBe(locked ? 'true' : null)
+      expect(root.hasAttribute('data-readonly')).toBe(locked)
+      expect(input.readOnly).toBe(locked)
+      expect(removal.disabled).toBe(locked)
+      fireEvent.click(control)
+      if (dropzone) {
+        fireEvent.keyDown(control, { key: 'Enter' })
+        fireEvent.keyDown(control, { key: ' ' })
+        await dropFiles(control, [createFile('dropped.txt')])
+      }
+      await setInputFiles(input, [createFile('picked.txt')])
+      expect(inputClick).toHaveBeenCalledTimes(locked ? 0 : dropzone ? 3 : 1)
+      if (locked) {
+        fireEvent.click(removal)
+        expect(onValueChange).not.toHaveBeenCalled()
+        expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]')).toHaveLength(1)
+      } else {
+        expect(onValueChange).toHaveBeenLastCalledWith(
+          expect.arrayContaining([initial, expect.objectContaining({ name: 'picked.txt' })]),
+        )
+      }
+
+      setReadOnly(false)
+      expect(control.hasAttribute('aria-readonly')).toBe(false)
+      expect(root.hasAttribute('data-readonly')).toBe(false)
+      expect(input.readOnly).toBe(false)
+      expect(removal.disabled).toBe(false)
+      inputClick.mockClear()
+      fireEvent.click(control)
+      expect(inputClick).toHaveBeenCalledTimes(1)
+      onValueChange.mockClear()
+      fireEvent.click(removal)
+      expect(inputClick).toHaveBeenCalledTimes(1)
+      expect(onValueChange).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('button', { name: 'Remove initial.txt' })).toBeNull()
+      setReadOnly(true)
+      expect(control.getAttribute('aria-readonly')).toBe(locked ? 'true' : null)
+      inputClick.mockRestore()
+    },
+  )
 
   test('readOnly keeps selected files and disables removal', async () => {
     const onValueChange = vi.fn()

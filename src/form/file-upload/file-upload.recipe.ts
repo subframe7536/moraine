@@ -21,7 +21,7 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
 >('fileUpload', {
   base: {
     root: 'relative flex min-w-0 flex-col data-disabled:(pointer-events-none opacity-64)',
-    control: `relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border-2 border-input bg-background text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-background-hover active:bg-background-active focus-visible:(border-ring ring-3 ring-ring/50) data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) ${DATA_INVALID_CLASS} dark:bg-input/30 dark:hover:bg-background-hover dark:active:bg-background-active ${DARK_DATA_INVALID_CLASS} aria-readonly:(cursor-default hover:bg-background active:bg-background) dark:aria-readonly:hover:bg-input/30`,
+    control: `relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border-2 border-input bg-control text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-background-hover active:bg-background-active ${FOCUS_VISIBLE_CLASS} data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) ${DATA_INVALID_CLASS} dark:hover:bg-background-hover dark:active:bg-background-active ${DARK_DATA_INVALID_CLASS} aria-readonly:(cursor-default hover:bg-control active:bg-control) dark:aria-readonly:hover:bg-control`,
     wrapper:
       'pointer-events-none grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 data-dropzone:(flex flex-col justify-center text-center)',
     icon: 'row-span-2 shrink-0 text-muted-foreground',

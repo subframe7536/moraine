@@ -11,7 +11,7 @@ Moraine decouples component layout and logic from design tokens using semantic C
 
 ## CSS Variables
 
-UnoCSS emits neutral light and dark colors by default and accepts named [`override` entries](/docs/unocss#theme-tokens). Set `themeDefaults: false` if you provide a complete shadcn/ui palette in CSS. With Tailwind, define the variables in your stylesheet under `:root` and `.dark`. Both engines map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
+UnoCSS emits neutral light and dark colors by default and accepts named [`override` entries](/docs/unocss#theme-tokens). Set `themeDefaults: false` when CSS supplies your palette, including Moraine's `--control` extension to shadcn/ui. With Tailwind, define the variables in your stylesheet under `:root` and `.dark`. Both engines map these variables to standard utility classes (`bg-primary`, `text-foreground`, `rounded-md`, etc.).
 
 Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically scale utilities within that subtree:
 
@@ -34,6 +34,7 @@ Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically sc
   --destructive: rgb(190, 0, 9);
   --border: rgb(229, 229, 229);
   --input: rgb(229, 229, 229);
+  --control: rgb(255, 255, 255);
   --ring: rgb(161, 161, 161);
   --radius: 0.625rem;
   --spacing: 0.25rem;
@@ -56,18 +57,20 @@ Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically sc
   --accent: rgb(38, 38, 38);
   --accent-foreground: rgb(250, 250, 250);
   --destructive: rgb(255, 100, 103);
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
+  --border: rgb(35, 35, 35);
+  --input: rgb(47, 47, 47);
+  --control: rgb(23, 23, 23);
   --ring: rgb(115, 115, 115);
 }
 ```
 
 ### Surface Colors and Contrast Pairing
 
-Surface colors use corresponding `-foreground` variables for text, icons, and indicators. Check contrast when replacing a palette:
+Grouped surface colors use corresponding `-foreground` variables for text, icons, and indicators. `control` is a single-value form surface: ordinary field text uses `foreground` and placeholders use `muted-foreground`. Check both when replacing a palette:
 
 | Role            | Surface token   | Foreground token                      | Primary use                                                 |
 | :-------------- | :-------------- | :------------------------------------ | :---------------------------------------------------------- |
+| **Control**     | `--control`     | `--foreground`                        | Default outline fields, unchecked choices, upload controls. |
 | **Page**        | `--background`  | `--foreground`                        | Default viewport canvas and readable body text.             |
 | **Primary**     | `--primary`     | `--primary-foreground`                | High-emphasis actions, active selections, focus rings.      |
 | **Secondary**   | `--secondary`   | `--secondary-foreground`              | Secondary action buttons, subtle badges.                    |
@@ -77,9 +80,19 @@ Surface colors use corresponding `-foreground` variables for text, icons, and in
 | **Accent**      | `--accent`      | `--accent-foreground`                 | Hover states, tab indicators, highlighted list items.       |
 | **Destructive** | `--destructive` | `--destructive-foreground` (optional) | Irreversible actions, error banners, validation errors.     |
 
+### Form surface migration
+
+`control` can be changed without changing `input` boundaries, neutral tracks/separators, `card`, or `background`. Outline fields use `bg-control`; subtle fields use `bg-muted`, retaining their input boundary and shadow. Grouped controls own the surface while their child inputs remain transparent. Ordinary subtle-field text still uses `foreground`.
+
+The built-in control values are opaque for consistent compositing over page and card surfaces. This is a Moraine visual choice. shadcn/ui intentionally uses `input` for borders and surface treatment, including alpha fills; those classes are already semantic. Moraine adds an independent role rather than correcting that contract.
+
+Tailwind users and UnoCSS users with `themeDefaults: false` must add `--control` to both external themes. A shadcn/ui palette alone no longer supplies all required variables. The literal values above are a migration starting point; a shared primitive such as `--control: var(--palette-neutral-900)` is also valid. Referencing `card` would couple their overrides.
+
+Custom CSS strings, variable references, alpha, and `color-mix()` remain supported, as does `bg-control/50`. Alpha fills depend on their parent surface. `control` has no dedicated foreground, hover, or active tokens. Check rendered contrast for custom palettes. In the default dark palette, control and card share a value and field identification relies on the boundary; this does not imply full accessibility compliance.
+
 ### Interactive State Cascade
 
-For each surface color, Moraine supports dedicated `--*-hover` and `--*-active` variables. Explicit values take priority. When omitted, supported browsers mix the current color toward its foreground in the scope where the utility is used:
+For the grouped colors `background`, `primary`, `secondary`, `card`, `popover`, `muted`, `accent`, and `destructive`, Moraine supports dedicated `--*-hover` and `--*-active` variables. Explicit values take priority. When omitted, supported browsers mix the current color toward its foreground in the scope where the utility is used:
 
 - `--<color>-hover` uses the generated hover color, then `--<color>`.
 - `--<color>-active` uses the generated active color, then hover and the base color.

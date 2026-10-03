@@ -15,6 +15,7 @@ import {
 
 import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
 import { createMediaQuery } from '../../src/utils'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.class'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
 import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'
@@ -115,7 +116,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
       <>
         <a
           href="#main-content"
-          class="z-toast text-foreground px-4 py-2 bg-background transition-transform left-1/2 top-2 fixed rounded-md focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+          class={`z-toast text-foreground px-4 py-2 bg-background transition-transform left-1/2 top-2 fixed rounded-md ${DOCS_FOCUS_RING_OFFSET_CLASS} -translate-x-1/2 -translate-y-full focus-visible:translate-y-0`}
         >
           Skip to main content
         </a>

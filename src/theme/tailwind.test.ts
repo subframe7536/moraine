@@ -236,21 +236,14 @@ describe('colors', () => {
     expect(css).not.toMatch(/--primary:\s/)
   })
 
-  test('border/ring/input tokens resolve', async () => {
-    const css = await compileCSS(['border-border', 'ring-ring', 'bg-input'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .border-border {
-        border-color: var(--border);
-      }
-      .bg-input {
-        background-color: var(--input);
-      }
-      .ring-ring {
-        --tw-ring-color: var(--ring);
-      }
-      "
-    `)
+  test('control, boundary, and focus tokens resolve independently without default colors', async () => {
+    const css = await compileCSS(['border-border', 'border-input', 'bg-control', 'ring-ring'], true)
+    expect(css).toContain('border-color: var(--border)')
+    expect(css).toContain('border-color: var(--input)')
+    expect(css).toContain('background-color: var(--control)')
+    expect(css).toContain('--tw-ring-color: var(--ring)')
+    expect(css).not.toMatch(/--control:\s/)
+    expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
   })
 })
 

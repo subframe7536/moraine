@@ -4,6 +4,7 @@ import type { MorainePresetTheme, PresetMoraineOptions } from 'moraine/unocss'
 const theme = {
   colors: {
     background: '#fff',
+    control: 'var(--palette-field)',
     primary: { foreground: '#fff', hover: 8, active: () => '#124' },
   },
   fonts: { sans: 'Inter' },

@@ -29,7 +29,20 @@ Tailwind CSS v4 uses `@source` to scan precompiled third-party packages. Note th
    @source '../../../node_modules/moraine/dist';
    ```
 
-Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme. Hover and active utilities prefer explicit variables such as `--primary-hover`; otherwise they mix the current scoped color in browsers that support `color-mix(in oklch, …)`. Older browsers use the base color unless you define a state variable.
+Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but must add Moraine's independent `--control` surface in both themes:
+
+```css
+:root {
+  --control: rgb(255, 255, 255);
+}
+.dark {
+  --control: rgb(23, 23, 23);
+}
+```
+
+`bg-control` supplies outline field, unchecked choice, and upload surfaces; `border-input` keeps the existing boundary role, including neutral tracks/separators elsewhere. `control` uses existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
+
+Hover and active utilities prefer explicit variables such as `--primary-hover`; otherwise they mix the current scoped color in browsers that support `color-mix(in oklch, …)`. Older browsers use the base color unless you define a state variable.
 
 ## Injected utilities and variants
 

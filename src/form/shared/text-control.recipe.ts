@@ -14,8 +14,8 @@ export const TEXT_CONTROL_GROUPED = {
 } as const
 
 export const TEXT_CONTROL_VARIANT = {
-  outline: { root: 'border border-input bg-transparent shadow-xs dark:bg-input/30' },
-  subtle: { root: 'border border-input bg-input/30 shadow-xs' },
+  outline: { root: 'border border-input bg-control shadow-xs' },
+  subtle: { root: 'border border-input bg-muted shadow-xs' },
   ghost: {
     root: 'hover:(bg-accent-hover text-accent-foreground placeholder:text-accent-foreground) focus-within:(bg-accent-hover text-accent-foreground placeholder:text-accent-foreground) [&[type=file]]:hover:text-accent-foreground [&[type=file]]:focus-within:text-accent-foreground',
   },

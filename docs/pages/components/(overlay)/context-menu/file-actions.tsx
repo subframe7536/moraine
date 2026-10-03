@@ -2,6 +2,8 @@ import { Button, ContextMenu, Icon } from '@src'
 import type { ContextMenuT } from '@src'
 import { createMemo, createSignal, Show } from 'solid-js'
 
+import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
+
 export function FileActions() {
   const [folder, setFolder] = createSignal('Projects')
   const [favorite, setFavorite] = createSignal(false)
@@ -81,7 +83,7 @@ export function FileActions() {
       >
         <ContextMenu>
           <ContextMenu.Trigger
-            class="p-4 outline-none border border-border bg-card flex gap-3 select-none items-center rounded-lg focus-visible:ring-2 focus-visible:ring-ring"
+            class={`p-4 outline-none border border-border bg-card flex gap-3 select-none items-center rounded-lg ${DOCS_FOCUS_RING_CLASS}`}
             aria-label="Actions for Project brief.pdf"
           >
             <Icon name="i-lucide:file-text" class="text-muted-foreground shrink-0 size-8" />

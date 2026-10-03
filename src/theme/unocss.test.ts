@@ -200,6 +200,8 @@ describe('presetMoraine', () => {
         'font-sans',
         'w-sidebar',
         'bg-primary',
+        'bg-control',
+        'bg-control/30',
         'z-floating',
         'opacity-64',
       ],
@@ -221,6 +223,11 @@ describe('presetMoraine', () => {
     expect(css).toContain('border-radius:var(--radius)')
     expect(css).toContain('.bg-primary')
     expect(css).toContain('var(--primary)')
+    expect(css).toContain('.bg-control')
+    expect(css).toMatch(
+      /background-color:\s*(?:var\(--control\)|color-mix\(in srgb, var\(--control\))/,
+    )
+    expect(css).toMatch(/color-mix\(in srgb,\s*var\(--control\) 30%,\s*transparent\)/)
     expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
     expect(css).toMatch(/opacity:(0\.64|64%)/)
@@ -391,6 +398,9 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary: rgb(229, 229, 229);')
     expect(css).toContain('--border: rgb(35, 35, 35);')
     expect(css).toContain('--input: rgb(47, 47, 47);')
+    expect(css).toMatch(/:root \{[^}]*--control: rgb\(255, 255, 255\);/)
+    expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
+    expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
     expect(css).not.toMatch(/--[\w-]+: oklch\(/)
     expect(css).not.toContain('@supports not (color: color-mix(')
     expect(css).not.toMatch(/--mo-auto-[\w-]+: (?:rgb\(|var\()/)
@@ -425,10 +435,40 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
     expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n}')
     expect(css).not.toContain('--background: rgb(')
+    expect(css).not.toContain('--control:')
     expect(css).not.toContain('html {\n  background-color: var(--background);')
     expect(css).not.toContain('--mo-auto-primary-hover: var(--primary);')
     expect(css).toContain('*, ::before, ::after {')
     expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('overrides control without coupling other surfaces with %s', async (_name, wind) => {
+    for (const themeDefaults of [true, false]) {
+      const generator = await createGenerator({
+        presets: [
+          wind(),
+          presetMoraine({
+            themeDefaults,
+            override: { light: { colors: { control: 'var(--palette-field)' } } },
+          }),
+        ],
+      })
+      const { css } = await generator.generate(new Set(['bg-control']), { preflights: true })
+      expect(css).toMatch(/:root \{[^}]*--control: var\(--palette-field\);/)
+      if (themeDefaults) {
+        expect(css).toMatch(/:root \{[^}]*--input: rgb\(229, 229, 229\);/)
+        expect(css).toMatch(/:root \{[^}]*--card: rgb\(255, 255, 255\);/)
+        expect(css).toMatch(/:root \{[^}]*--background: rgb\(255, 255, 255\);/)
+        expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
+      } else {
+        expect(css).not.toMatch(/--(?:input|card|background):/)
+        expect(css).not.toMatch(/\.dark \{[^}]*--control:/)
+      }
+      expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
+    }
   })
 
   test('uses configured proportions for locally scoped state colors', async () => {

@@ -46,7 +46,7 @@ export function Example() {
     return (
       <FileUpload
         label="Upload documents"
-        description="Drag & drop PDF, PNG, or JPG up to 10MB"
+        description="Click anywhere or drop PDF, PNG, or JPG up to 10MB"
         size={props.size}
         disabled={props.disabled}
         dropzone={props.dropzone}
@@ -95,13 +95,13 @@ export function Example() {
 
 ### Selecting files
 
-Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
+Click anywhere in the visible dropzone, including its padding, icon, and text, or drop files onto it. File previews and removal actions are outside the picker hit area. Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
 
 <Preview path="./selecting-files" />
 
 ### Rejections and form behavior
 
-`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list; `disabled` also removes interaction.
+`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list. It inherits an enclosing Field read-only state when omitted; an explicit `readOnly={false}` overrides that state. `disabled` also removes interaction.
 
 <Preview path="./form-behavior" />
 
