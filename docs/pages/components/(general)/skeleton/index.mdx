@@ -1,0 +1,103 @@
+---
+title: Skeleton
+description: Show a placeholder while content is loading.
+api:
+  path: src/element/skeleton/skeleton
+sidebar:
+  order: 15
+search:
+  tags: [skeleton, loading, placeholder, pulse, shimmer, animation, content]
+---
+
+import { Skeleton } from '@src'
+
+Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and shape to the content it will replace.
+
+## Basic usage
+
+```tsx
+import { Skeleton } from 'moraine'
+
+export function Example() {
+  return <Skeleton class="h-5 w-25 rounded-full" />
+}
+```
+
+<Preview path="./skeleton-demo" />
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Animation',
+      defaultValue: 'pulse',
+      options: [
+        { label: 'Pulse', value: 'pulse' },
+        { label: 'Shimmer', value: 'shimmer' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'shape',
+      label: 'Shape',
+      defaultValue: 'rounded-md',
+      options: [
+        { label: 'Rounded', value: 'rounded-md' },
+        { label: 'Circle', value: 'rounded-full' },
+        { label: 'Square', value: 'rounded-none' },
+      ],
+    },
+  ]}
+>
+  {(props) => <Skeleton variant={props.variant} class={`size-20 ${props.shape}`} />}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+  }}
+/>
+
+## Usage
+
+### Size and appearance
+
+Skeleton renders one `<div>` with a muted background, medium corners, and a pulse animation. Set its dimensions with `class` or an object `style`, and use utilities such as `rounded-full` to change its shape. Native div attributes and children are forwarded to the root.
+
+### Animation variants
+
+The default `variant="pulse"` fades the placeholder in and out. Use `variant="shimmer"` for a linear gradient sweep across the placeholder. Both animations respect the user's reduced-motion preference.
+
+Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-anim-duration-loop` or `--mo-anim-duration` in `style` to change its speed. Configure `skeleton.defaultVariants.variant` in your Theme to set the default animation across your application.
+
+<Preview path="./animation-variants" />
+
+## Examples
+
+### Avatar
+
+<Preview path="./skeleton-avatar" />
+
+### Card
+
+<Preview path="./skeleton-card" />
+
+### Text
+
+<Preview path="./skeleton-text" />
+
+### Form
+
+<Preview path="./skeleton-form" />
+
+### Table
+
+<Preview path="./skeleton-table" />

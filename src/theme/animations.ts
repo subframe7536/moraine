@@ -1,7 +1,11 @@
 type KeyframeStop = Record<string, string>
 type KeyframeFrames = Record<string, KeyframeStop>
 
-const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic']
+const LOOPING_PREFIXES = ['carousel', 'swing', 'elastic', 'shimmer']
+const HORIZONTAL_SLIDE_KEYFRAMES: KeyframeFrames = {
+  '0%': { transform: 'translateX(-100%)' },
+  '100%': { transform: 'translateX(100%)' },
+}
 export const MORAINE_ANIM_DUR_VAR_ENTER =
   'var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))'
 export const MORAINE_ANIM_DUR_VAR_EXIT =
@@ -77,10 +81,8 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
   spin: {
     to: { transform: 'rotate(360deg)' },
   },
-  carousel: {
-    '0%': { transform: 'translateX(-100%)' },
-    '100%': { transform: 'translateX(100%)' },
-  },
+  carousel: HORIZONTAL_SLIDE_KEYFRAMES,
+  shimmer: HORIZONTAL_SLIDE_KEYFRAMES,
   'carousel-rtl': {
     '0%': { transform: 'translateX(100%)' },
     '100%': { transform: 'translateX(-100%)' },
@@ -120,7 +122,7 @@ export function getMoraineAnimations(): {
   for (const name of Object.keys(MORAINE_KEYFRAMES)) {
     const type = getAnimType(name)
     durations[name] = ANIMATION_DURATIONS[type]
-    timingFns[name] = ANIMATION_TIMING_FUNCTIONS[type]
+    timingFns[name] = name === 'shimmer' ? MORAINE_EASE_LINEAR : ANIMATION_TIMING_FUNCTIONS[type]
     counts[name] = type === 'loop' || type === 'spin' ? 'infinite' : '1'
   }
   return { durations, timingFns, counts }

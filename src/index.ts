@@ -14,6 +14,7 @@ export {
   Progress,
   Resizable,
   Separator,
+  Skeleton,
 } from './element'
 export type {
   AccordionT,
@@ -46,6 +47,8 @@ export type {
   ResizableProps,
   SeparatorT,
   SeparatorProps,
+  SkeletonT,
+  SkeletonProps,
 } from './element'
 export {
   BaseSelect,

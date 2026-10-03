@@ -88,6 +88,10 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('animate-mo-exit')
       expect(css).toContain('@keyframes mo-enter')
       expect(css).toContain('@keyframes mo-exit')
+      expect(css).toContain('@keyframes shimmer')
+      expect(css).toMatch(
+        /animation:\s*shimmer var\(--mo-anim-duration,var\(--mo-anim-duration-loop,2s\)\) linear infinite/,
+      )
       expect(css).toContain('.z-floating')
       expect(css).toContain('z-index:50')
       expect(css).toMatch(/width:\s*var\(--mo-sidebar-width\)/)

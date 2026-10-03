@@ -101,6 +101,10 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).not.toMatch(/transition-property:\s*[^;]*\bcolors\b/)
     expect(css).toMatch(/\[aria-invalid=(?:"true"|true)\]/)
     expect(css).toContain('blur(4px)')
+    expect(css).toContain('@keyframes shimmer')
+    expect(css).toMatch(
+      /animation:\s*shimmer var\(--mo-anim-duration,var\(--mo-anim-duration-loop,2s\)\) linear infinite/,
+    )
   })
 
   test('loads the package plugin and compiles published component contracts', async () => {

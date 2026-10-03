@@ -1,0 +1,62 @@
+{
+  "key": "skeleton",
+  "name": "Skeleton",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "access": {
+        "kind": "export",
+        "name": "Skeleton"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Content rendered inside the placeholder."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'pulse' | 'shimmer'",
+          "description": "Loading animation displayed by the placeholder.",
+          "default": {
+            "kind": "literal",
+            "value": "pulse"
+          }
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": []
+}

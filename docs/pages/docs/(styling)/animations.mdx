@@ -21,6 +21,7 @@ The following animation utilities are registered by `presetMoraine()` and `morai
 | `animate-accordion-up`      | Collapse height from `var(--mo-collapsible-content-height)` to `0`. | 1         |
 | `animate-spin`              | Infinite 360-degree rotation for progress rings and spinners.       | Infinite  |
 | `animate-carousel`          | Continuous horizontal sliding translation (`-100%` to `100%`).      | Infinite  |
+| `animate-shimmer`           | Linear horizontal sweep for Skeleton's gradient overlay.            | Infinite  |
 | `animate-carousel-rtl`      | Reverse horizontal sliding translation (`100%` to `-100%`).         | Infinite  |
 | `animate-carousel-vertical` | Continuous vertical sliding translation (`100%` to `-100%`).        | Infinite  |
 | `animate-swing`             | Oscillating horizontal swing (`-60%` to `60%`).                     | Infinite  |
@@ -79,6 +80,8 @@ Moraine defines default durations and easing curves for each animation type:
   - `exit`: `cubic-bezier(0.7, 0, 0.84, 0)` (accelerating ease-in)
   - `loop`: `ease-in-out`
   - `spin`: `linear`
+
+`animate-shimmer` uses the loop duration with linear easing.
 
 ## Disclosure Height Token
 

@@ -12,6 +12,7 @@ import type { KbdStyleConfig } from '../element/kbd/kbd.style-types'
 import type { ProgressStyleConfig } from '../element/progress/progress.style-types'
 import type { ResizableStyleConfig } from '../element/resizable/resizable.style-types'
 import type { SeparatorStyleConfig } from '../element/separator/separator.style-types'
+import type { SkeletonStyleConfig } from '../element/skeleton/skeleton.style-types'
 import type { BaseSelectStyleConfig } from '../form/base-select/base-select.style-types'
 import type { CheckboxGroupStyleConfig } from '../form/checkbox-group/checkbox-group.style-types'
 import type { CheckboxStyleConfig } from '../form/checkbox/checkbox.style-types'
@@ -65,6 +66,7 @@ export interface MoraineStyleSchema {
   progress: ProgressStyleConfig
   resizable: ResizableStyleConfig
   separator: SeparatorStyleConfig
+  skeleton: SkeletonStyleConfig
   baseSelect: BaseSelectStyleConfig
   checkbox: CheckboxStyleConfig
   checkboxGroup: CheckboxGroupStyleConfig

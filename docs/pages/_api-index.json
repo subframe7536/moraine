@@ -191,6 +191,11 @@
       "category": "navigation"
     },
     {
+      "key": "skeleton",
+      "name": "Skeleton",
+      "category": "element"
+    },
+    {
       "key": "slider",
       "name": "Slider",
       "category": "form"
