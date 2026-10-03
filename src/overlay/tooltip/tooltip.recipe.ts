@@ -29,7 +29,7 @@ export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, Tool
       invert: {
         true: { content: 'text-background bg-foreground' },
         false: {
-          content: 'text-foreground border border-border bg-background shadow-sm',
+          content: 'text-foreground border border-border bg-background shadow-overlay',
         },
       },
     },

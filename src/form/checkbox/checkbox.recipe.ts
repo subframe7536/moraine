@@ -38,7 +38,7 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, Ch
   {
     base: {
       root: 'flex items-start relative',
-      control: `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS}`,
+      control: `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS}`,
       indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
       icon: 'shrink-0 size-full',
       wrapper: 'flex flex-col gap-0.5 w-full',

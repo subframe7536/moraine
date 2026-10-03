@@ -29,11 +29,14 @@ Tailwind CSS v4 uses `@source` to scan precompiled third-party packages. Note th
    @source '../../../node_modules/moraine/dist';
    ```
 
-Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but must add Moraine's independent `--control` surface in both themes:
+Theme variables and page background/text styles belong in your CSS. The plugin registers utilities and variants, but does not emit theme color values. You can reuse compatible variables from a shadcn/ui theme, but must add Moraine's independent `--control` surface in both themes and define its semantic shadows:
 
 ```css
 :root {
   --control: rgb(255, 255, 255);
+  --shadow-surface: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-overlay: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-input: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .dark {
   --control: rgb(23, 23, 23);
@@ -43,6 +46,8 @@ Theme variables and page background/text styles belong in your CSS. The plugin r
 `bg-control` supplies outline field, unchecked choice, and upload surfaces; `border-input` keeps the existing boundary role, including neutral tracks/separators elsewhere. `control` uses existing field text colors and has no dedicated foreground or state family. Alpha utilities such as `bg-control/30` remain supported. See the [form surface migration](/docs/design#form-surface-migration).
 
 Hover and active utilities prefer explicit variables such as `--primary-hover`; otherwise they mix the current scoped color in browsers that support `color-mix(in oklch, …)`. Older browsers use the base color unless you define a state variable.
+
+`bg-backdrop` reads `--backdrop` with a black-at-10% fallback. Component shadows use `shadow-surface`, `shadow-overlay`, and `shadow-input`, which read `--shadow-surface`, `--shadow-overlay`, and `--shadow-input`. Define these role tokens in `:root` and override them in `.dark`; use `none` to remove a role's shadow. Native size utilities such as `shadow-xs` use Tailwind's own theme and remain independently configurable. See [Backdrop and Semantic Shadows](/docs/design#backdrop-and-semantic-shadows).
 
 ## Injected utilities and variants
 

@@ -35,6 +35,7 @@ Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically sc
   --border: rgb(229, 229, 229);
   --input: rgb(229, 229, 229);
   --control: rgb(255, 255, 255);
+  --backdrop: rgb(0 0 0 / 0.1);
   --ring: rgb(161, 161, 161);
   --radius: 0.625rem;
   --spacing: 0.25rem;
@@ -60,6 +61,7 @@ Set `--radius`, `--spacing`, or `--font-size` on any container to dynamically sc
   --border: rgb(35, 35, 35);
   --input: rgb(47, 47, 47);
   --control: rgb(23, 23, 23);
+  --backdrop: rgb(0 0 0 / 0.1);
   --ring: rgb(115, 115, 115);
 }
 ```
@@ -114,18 +116,38 @@ Moraine computes a proportional radius scale from the base `--radius` variable:
 | `rounded-3xl` | `calc(var(--radius) * 2.2)` | `1.375rem` (`22px`)                        |
 | `rounded-4xl` | `calc(var(--radius) * 2.6)` | `1.625rem` (`26px`)                        |
 
-## Box Shadow Scale
+## Backdrop and Semantic Shadows
 
-| Utility      | Token          | Typical use                    |
-| :----------- | :------------- | :----------------------------- |
-| `shadow-2xs` | `--shadow-2xs` | Subtle borders and inset lines |
-| `shadow-xs`  | `--shadow-xs`  | Buttons, badges                |
-| `shadow-sm`  | `--shadow-sm`  | Cards, input fields            |
-| `shadow`     | `--shadow`     | Default raised surfaces        |
-| `shadow-md`  | `--shadow-md`  | Dropdowns, popovers            |
-| `shadow-lg`  | `--shadow-lg`  | Dialogs, modals                |
-| `shadow-xl`  | `--shadow-xl`  | Drawers, sheets                |
-| `shadow-2xl` | `--shadow-2xl` | Deep floating overlays         |
+Use these tokens to customize component elevation by role. `--backdrop` controls the overlay behind modals, dialogs, and sheets. Backdrop blur remains a separate class on the overlay slot.
+
+| Utility          | Token              | Default       | Component use                                                                                          |
+| :--------------- | :----------------- | :------------ | :----------------------------------------------------------------------------------------------------- |
+| `bg-backdrop`    | `--backdrop`       | Black at 10%  | Modal backdrops                                                                                        |
+| `shadow-surface` | `--shadow-surface` | Tailwind `sm` | Cards, floating sidebar surfaces, badges, indicators                                                   |
+| `shadow-overlay` | `--shadow-overlay` | Tailwind `md` | Menus, selection panels, popovers, dialogs, sheets, tooltips, command palettes                         |
+| `shadow-input`   | `--shadow-input`   | Tailwind `xs` | Outline and subtle fields, checkbox controls, switch tracks and thumbs, slider thumbs, upload controls |
+
+Set a shadow token to `none` to remove elevation for that role. UnoCSS emits default values for the three semantic shadows, matching Tailwind's `sm`, `md`, and `xs` values used by shadcn/ui's neutral theme. With Tailwind or `themeDefaults: false`, define the semantic shadows in your stylesheet or explicit overrides. Changing a role token leaves explicit size utilities such as `shadow-lg` unchanged.
+
+```css title="src/theme.css"
+:root {
+  --shadow-surface: 0 1px 3px rgb(0 0 0 / 0.05);
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.12);
+  --shadow-input: none;
+}
+
+.dark {
+  --backdrop: rgb(0 0 0 / 0.4);
+  --shadow-surface: none;
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.3);
+}
+```
+
+These variables can be scoped to a container. Portaled overlays need the variables on an ancestor of their portal container. UnoCSS accepts `colors.backdrop` and `shadows.surface`, `shadows.overlay`, and `shadows.input` in each named `override` entry; Tailwind reads the same CSS variables directly.
+
+## CSS Engine Shadows
+
+Size utilities such as `shadow-xs`, `shadow-md`, and `shadow-lg` use the CSS engine's native shadow scale. Moraine does not register or configure these sizes. Use UnoCSS's theme options or Tailwind's `@theme` to customize them separately from Moraine's semantic shadows.
 
 ## Typography and Spacing
 

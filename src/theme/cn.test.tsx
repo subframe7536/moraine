@@ -9,6 +9,17 @@ vi.mock('cn/config', async (importOriginal) => {
 })
 
 describe('createCn', () => {
+  test.each(['surface', 'overlay', 'input'])(
+    'merges %s shadows with standard shadows while retaining shadow colors',
+    (role) => {
+      expect(cn('shadow-md', `shadow-${role}`, 'shadow-red-500')).toBe(
+        `shadow-${role} shadow-red-500`,
+      )
+      expect(cn(`shadow-${role}`, 'shadow-none')).toBe('shadow-none')
+      expect(cn('shadow-surface', 'shadow-overlay', `shadow-${role}`)).toBe(`shadow-${role}`)
+    },
+  )
+
   test('extends new and existing groups in independent instances without mutating input', () => {
     const config = {
       extend: { classGroups: { density: ['density-roomy', 'density-compact'], z: ['z-app'] } },

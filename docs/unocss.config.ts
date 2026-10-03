@@ -46,26 +46,16 @@ export default defineConfig<PresetWind4Theme>({
       override: {
         light: {
           shadows: {
-            '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.03)',
-            xs: '0 1px 2px 0 hsl(0 0% 0% / 0.04)',
-            sm: '0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05)',
-            base: '0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05)',
-            md: '0 3px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05)',
-            lg: '0 6px 12px -2px hsl(0 0% 0% / 0.06), 0 3px 6px -3px hsl(0 0% 0% / 0.06)',
-            xl: '0 10px 20px -3px hsl(0 0% 0% / 0.07), 0 4px 8px -4px hsl(0 0% 0% / 0.07)',
-            '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.12)',
+            input: '0 1px 2px 0 hsl(0 0% 0% / 0.04)',
+            surface: '0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05)',
+            overlay: '0 3px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05)',
           },
         },
         dark: {
           shadows: {
-            '2xs': '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
-            xs: '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
-            sm: '0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
-            base: '0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
-            md: '0 3px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10)',
-            lg: '0 6px 12px -2px hsl(0 0% 0% / 0.12), 0 3px 6px -3px hsl(0 0% 0% / 0.12)',
-            xl: '0 10px 20px -3px hsl(0 0% 0% / 0.14), 0 4px 8px -4px hsl(0 0% 0% / 0.14)',
-            '2xl': '0 16px 32px -8px hsl(0 0% 0% / 0.20)',
+            input: '0 1px 2px 0 hsl(0 0% 0% / 0.08)',
+            surface: '0 1px 3px 0 hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10)',
+            overlay: '0 3px 6px -1px hsl(0 0% 0% / 0.10), 0 2px 4px -2px hsl(0 0% 0% / 0.10)',
           },
         },
       },

@@ -4,7 +4,7 @@ import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
 
 export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariant>('card', {
   base: {
-    root: 'bg-card text-card-foreground flex flex-col rounded-xl border border-border',
+    root: 'bg-card text-card-foreground flex flex-col rounded-xl border border-border shadow-surface',
     header:
       'grid grid-cols-[minmax(0,1fr)_auto] auto-rows-min items-start first:rounded-t-[inherit]',
     title: 'col-start-1 font-medium leading-snug',

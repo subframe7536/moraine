@@ -45,11 +45,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
       },
       floating: {
         root: 'p-2 bg-background',
-        sidebar: 'bg-card border border-border/80 rounded-lg shadow-sm overflow-hidden',
+        sidebar: 'bg-card border border-border/80 rounded-lg shadow-surface overflow-hidden',
       },
       inset: {
         root: 'bg-card p-2',
-        main: 'rounded-xl border border-border/80 shadow-sm',
+        main: 'rounded-xl border border-border/80 shadow-surface',
       },
     },
   },

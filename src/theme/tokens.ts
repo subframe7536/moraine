@@ -38,16 +38,11 @@ export const MORAINE_Z_INDEX = {
   floating: 50,
 } as const
 
-/** Box shadow scale mapped to `var(--shadow-*)` tokens. */
+/** Semantic box shadows shared by UnoCSS and Tailwind. */
 export const MORAINE_SHADOW = {
-  '2xs': 'var(--shadow-2xs)',
-  xs: 'var(--shadow-xs)',
-  sm: 'var(--shadow-sm)',
-  DEFAULT: 'var(--shadow)',
-  md: 'var(--shadow-md)',
-  lg: 'var(--shadow-lg)',
-  xl: 'var(--shadow-xl)',
-  '2xl': 'var(--shadow-2xl)',
+  surface: 'var(--shadow-surface)',
+  overlay: 'var(--shadow-overlay)',
+  input: 'var(--shadow-input)',
 } as const
 
 /** Font family tokens. */
@@ -118,6 +113,7 @@ export const MORAINE_COLORS = {
   border: 'var(--border)',
   input: 'var(--input)',
   control: 'var(--control)',
+  backdrop: 'var(--backdrop, rgb(0 0 0 / 0.1))',
   ring: 'var(--ring)',
 } as const
 

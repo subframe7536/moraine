@@ -31,9 +31,9 @@ export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, Switch
   {
     base: {
       root: 'flex flex-row items-start',
-      track: `${DATA_DISABLED_CLASS} p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-xs transition-[color,background-color,box-shadow] items-center ${FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
+      track: `${DATA_DISABLED_CLASS} p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-input transition-[color,background-color,box-shadow] items-center ${FOCUS_VISIBLE_CLASS} ${DATA_INVALID_CLASS} ${DARK_DATA_INVALID_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
       thumb:
-        'rounded-full bg-background flex pointer-events-none shadow-sm transition-transform items-center justify-center relative',
+        'rounded-full bg-background flex pointer-events-none shadow-input transition-transform items-center justify-center relative',
       icon: 'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',
       wrapper: 'flex flex-col gap-0.5',
       label:

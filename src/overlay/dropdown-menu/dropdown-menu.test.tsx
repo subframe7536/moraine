@@ -765,7 +765,7 @@ describe('DropdownMenu', () => {
 
     expect(rootContent?.className).toContain('mr-(--mo-popper-content-overflow-padding)')
     expect(rootContent?.className).toContain('border-border')
-    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('shadow-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-side')).toBe('left')

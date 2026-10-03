@@ -39,6 +39,7 @@
   - [x] add docs header composition & polymorphism badge link
   - [x] update playground, try to showcase more slots
   - [x] add `data-loaded` state on toc indicator to prevent clip-path transition on load from 0 to target
+- [x] add --backdrop, --shadow-surface, --shadow-overlay, --shadow-input
 - [ ] select panel align with trigger
 
 # V1

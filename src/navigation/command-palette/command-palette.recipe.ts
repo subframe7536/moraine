@@ -18,7 +18,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   CommandPaletteStyleVariant
 >('commandPalette', {
   base: {
-    root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-md overflow-hidden',
+    root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-overlay overflow-hidden',
     inputWrapper: 'px-2.5 gap-2 h-11 border-b border-border/60 flex items-center',
     input: `outline-none bg-transparent flex-1 placeholder:text-muted-foreground ${DISABLED_CLASS} text-sm h-10 w-full`,
     listbox: 'no-scrollbar max-h-72 scroll-py-1 p-1 outline-none overflow-x-hidden overflow-y-auto',

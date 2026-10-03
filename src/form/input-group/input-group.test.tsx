@@ -108,7 +108,7 @@ describe('InputGroup', () => {
       expect(control.className).toContain('peer')
       expect(control.className).toContain('border-0')
       expect(control.className).not.toContain('border-input')
-      expect(control.className).not.toContain('shadow-xs')
+      expect(control.className).not.toContain('shadow-input')
       expect(control.hasAttribute('data-input-group-control')).toBe(false)
       expect(frame.getAttribute('aria-hidden')).toBe('true')
       expect(frame.className).toContain('peer-focus:ring-3')

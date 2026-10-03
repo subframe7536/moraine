@@ -44,7 +44,7 @@ export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleV
     variant: {
       pill: {
         list: 'rounded-lg bg-muted',
-        indicator: 'border border-border bg-background shadow-xs',
+        indicator: 'border border-border bg-background shadow-surface',
       },
       link: {
         list: 'rounded-none bg-transparent',

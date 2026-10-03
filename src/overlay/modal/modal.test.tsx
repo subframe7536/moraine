@@ -770,7 +770,7 @@ describe('Modal primitives', () => {
     ))
 
     const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
-    expect(overlay?.className).toContain('bg-black/10')
+    expect(overlay?.className).toContain('bg-backdrop')
     expect(overlay?.className).not.toContain('duration-150')
     expect(overlay?.className).toContain('inset-0')
     expect(overlay?.className).toContain('fixed')

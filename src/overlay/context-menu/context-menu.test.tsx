@@ -1194,7 +1194,7 @@ describe('ContextMenu', () => {
 
     expect(rootContent?.className).toContain('mt-(--mo-popper-content-overflow-padding)')
     expect(rootContent?.className).toContain('border-border')
-    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('shadow-overlay')
     expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-motion')).toBeNull()

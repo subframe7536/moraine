@@ -52,7 +52,7 @@ export type MoraineThemeColors = {
 export interface MorainePresetTheme {
   colors?: MoraineThemeColors
   fonts?: Partial<Record<keyof typeof MORAINE_FONT | (string & {}), string>>
-  shadows?: Partial<Record<Exclude<keyof typeof MORAINE_SHADOW, 'DEFAULT'> | 'base', string>>
+  shadows?: Partial<Record<keyof typeof MORAINE_SHADOW, string>>
   radius?: string
   fontSize?: string
   spacing?: string
@@ -60,7 +60,7 @@ export interface MorainePresetTheme {
 }
 
 export interface PresetMoraineOptions extends Omit<MorainePresetTheme, 'colors' | 'shadows'> {
-  /** Emit neutral light/dark colors and HTML background/foreground styles. @default true */
+  /** Emit neutral light/dark colors, default shadows, and HTML background/foreground styles. @default true */
   themeDefaults?: boolean
   /** Generate missing semantic hover and active colors. @default { hover: 8, active: 12 } */
   colorStates?: false | Partial<Record<MoraineColorState, number>>
@@ -113,6 +113,13 @@ const RADIUS_CORNERS: Record<string, string[]> = {
 
 const DEFAULT_COLOR_STATES = { hover: 8, active: 12 } as const
 
+// Map the Tailwind shadow defaults used by shadcn/ui's neutral theme to Moraine roles.
+const DEFAULT_THEME_SHADOWS = {
+  surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+  overlay: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+} satisfies MorainePresetTheme['shadows']
+
 const DEFAULT_THEME_COLORS = {
   light: {
     background: { base: 'rgb(255, 255, 255)' },
@@ -127,6 +134,7 @@ const DEFAULT_THEME_COLORS = {
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
+    backdrop: 'rgb(0 0 0 / 0.1)',
     ring: 'rgb(161, 161, 161)',
   },
   dark: {
@@ -142,6 +150,7 @@ const DEFAULT_THEME_COLORS = {
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
+    backdrop: 'rgb(0 0 0 / 0.1)',
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>
@@ -195,7 +204,10 @@ function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
     sidebarWidth: options.sidebarWidth,
   }
   const builtIn = options.themeDefaults !== false
-  const defaultLight = mergeTheme(builtIn ? { colors: DEFAULT_THEME_COLORS.light } : {}, shared)
+  const defaultLight = mergeTheme(
+    builtIn ? { colors: DEFAULT_THEME_COLORS.light, shadows: DEFAULT_THEME_SHADOWS } : {},
+    shared,
+  )
   const themes: ResolvedTheme[] = [
     [':root', lightSelector === ':root' ? mergeTheme(defaultLight, light) : defaultLight],
   ]
@@ -370,10 +382,7 @@ function createThemeCSS(
         emit(`font-${font}`, theme.fonts?.[font])
       }
       for (const shadow of Object.keys(MORAINE_SHADOW) as Array<keyof typeof MORAINE_SHADOW>) {
-        emit(
-          shadow === 'DEFAULT' ? 'shadow' : `shadow-${shadow}`,
-          theme.shadows?.[shadow === 'DEFAULT' ? 'base' : shadow],
-        )
+        emit(`shadow-${shadow}`, theme.shadows?.[shadow])
       }
       emit('radius', theme.radius)
       emit('font-size', theme.fontSize)

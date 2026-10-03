@@ -18,7 +18,7 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
     variants: {
       variant: {
         solid: {
-          root: 'text-primary-foreground border-transparent bg-primary shadow-xs',
+          root: 'text-primary-foreground border-transparent bg-primary shadow-surface',
         },
         subtle: {
           root: 'text-accent-foreground border-transparent bg-accent',

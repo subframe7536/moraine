@@ -26,6 +26,10 @@ const CANDIDATES = [
   'bg-primary',
   'rounded-md',
   'shadow-md',
+  'shadow-surface',
+  'shadow-overlay',
+  'shadow-input',
+  'bg-backdrop',
   'font-sans',
   'text-5xl',
   'w-sidebar',
@@ -106,7 +110,11 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('opacity: 64%')
     expect(css).toContain('var(--primary)')
     expect(css).toContain('border-radius: calc(var(--radius) * 0.8)')
-    expect(css).toContain('var(--shadow-md)')
+    expect(css).toContain('.shadow-md')
+    expect(css).toContain('--tw-shadow: var(--shadow-surface)')
+    expect(css).toContain('--tw-shadow: var(--shadow-overlay)')
+    expect(css).toContain('--tw-shadow: var(--shadow-input)')
+    expect(css).toContain('background-color: var(--backdrop, rgb(0 0 0 / 0.1))')
     expect(css).toContain('font-family: var(--font-sans)')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 3)')
     expect(css).toContain('width: var(--sidebar-width,clamp(14rem,25%,20rem))')

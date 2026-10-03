@@ -1443,8 +1443,8 @@ describe('InputNumber', () => {
   })
 
   test.each([
-    ['outline', ['border', 'border-input', 'bg-control', 'shadow-xs']],
-    ['subtle', ['border', 'border-input', 'bg-muted', 'shadow-xs']],
+    ['outline', ['border', 'border-input', 'bg-control', 'shadow-input']],
+    ['subtle', ['border', 'border-input', 'bg-muted', 'shadow-input']],
     ['ghost', ['hover:bg-accent-hover', 'focus-within:bg-accent-hover']],
     ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {

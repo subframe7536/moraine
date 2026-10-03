@@ -8,7 +8,7 @@ const theme = {
     primary: { foreground: '#fff', hover: 8, active: () => '#124' },
   },
   fonts: { sans: 'Inter' },
-  shadows: { base: '0 1px #000', '2xs': '0 1px #111' },
+  shadows: { surface: '0 1px #000', overlay: '0 4px #111', input: 'none' },
   radius: '1rem',
   fontSize: '1rem',
   spacing: '0.25rem',
@@ -33,7 +33,9 @@ presetMoraine({ override: { light: { '--radius': '1rem' } } })
 // @ts-expect-error Colors are configured within named themes.
 presetMoraine({ colors: { primary: '#369' } })
 // @ts-expect-error Shadows are configured within named themes.
-presetMoraine({ shadows: { sm: '0 1px #000' } })
+presetMoraine({ shadows: { surface: '0 1px #000' } })
+// @ts-expect-error Size-based shadows belong to the CSS engine's theme.
+presetMoraine({ override: { light: { shadows: { xs: '0 1px #000' } } } })
 // @ts-expect-error The selector-based themes option has been removed.
 presetMoraine({ themes: { ':root': theme } })
 // @ts-expect-error The removed colorVariables option is not accepted.

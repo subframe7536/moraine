@@ -18,9 +18,9 @@ export const dialogDataAttributes = {
   body: createDataAttributes('footer', 'header', 'scroll'),
 } satisfies DataAttributeContract<keyof DialogStyleSlot>
 
-export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border shadow-md flex flex-col fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-lg max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden`
-export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border shadow-md flex flex-col relative mx-auto my-4 w-[calc(100vw-2rem)] max-w-lg`
-export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border shadow-md flex flex-col fixed inset-0 size-full max-w-none max-h-none rounded-none border-0 ring-0 overflow-hidden`
+export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border flex flex-col fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-lg max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden`
+export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border flex flex-col relative mx-auto my-4 w-[calc(100vw-2rem)] max-w-lg`
+export const DIALOG_CONTENT_FULLSCREEN_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border flex flex-col fixed inset-0 size-full max-w-none max-h-none rounded-none border-0 ring-0 overflow-hidden`
 export const DIALOG_HEADER_CLASS =
   'grid grid-cols-[minmax(0,1fr)_auto] auto-rows-min shrink-0 items-start gap-2 p-6'
 export const DIALOG_TITLE_CLASS = 'text-lg font-semibold leading-none text-foreground'

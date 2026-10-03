@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -15,6 +18,11 @@ import { cn } from './cn'
 import { presetMoraine } from './unocss'
 import type { PresetMoraineOptions } from './unocss'
 
+const TAILWIND_THEME_CSS = readFileSync(
+  resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
+  'utf8',
+)
+
 async function generate(
   tokens: string[],
   preflights = false,
@@ -28,6 +36,16 @@ async function generate(
 }
 
 describe('presetMoraine', () => {
+  test.each([
+    ['Wind3', presetWind3, () => createGenerator({ presets: [presetWind3()] })],
+    ['Wind4', presetWind4, () => createGenerator({ presets: [presetWind4()] })],
+  ])('preserves the native %s shadow scale', async (_name, wind, createBaseline) => {
+    const candidates = ['shadow-xs', 'shadow-sm', 'shadow-md', 'shadow-lg', 'shadow-2xl']
+    const generator = await createBaseline()
+    const { css } = await generator.generate(new Set(candidates), { preflights: false })
+    expect(await generate(candidates, false, wind)).toBe(css)
+  })
+
   test('compiles high-contrast accent colors for ghost controls and their text slots', async () => {
     const generator = await createGenerator({
       presets: [
@@ -197,6 +215,10 @@ describe('presetMoraine', () => {
       [
         'rounded-lg',
         'shadow-md',
+        'shadow-surface',
+        'shadow-overlay',
+        'shadow-input',
+        'bg-backdrop',
         'font-sans',
         'w-sidebar',
         'bg-primary',
@@ -212,7 +234,10 @@ describe('presetMoraine', () => {
     expect(css).toContain('.rounded-lg')
     expect(css).toContain('.shadow-md')
     expect(css).toContain('.font-sans')
-    expect(css).toContain('--un-shadow:var(--shadow-md)')
+    expect(css).toContain('--un-shadow:var(--shadow-surface)')
+    expect(css).toContain('--un-shadow:var(--shadow-overlay)')
+    expect(css).toContain('--un-shadow:var(--shadow-input)')
+    expect(css).toContain('var(--backdrop, rgb(0 0 0 / 0.1))')
     expect(css).toContain('font-family:var(--font-sans)')
     expect(css).toContain('.w-sidebar')
     expect(css).toContain(
@@ -382,11 +407,22 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('emits the neutral light and dark defaults with %s', async (_name, wind) => {
+  ])('emits neutral colors and default semantic shadows with %s', async (_name, wind) => {
     const generator = await createGenerator({ presets: [wind(), presetMoraine()] })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
     expect(css).toContain(':root {')
+    const root = css.match(/:root \{([^}]+)\}/)?.[1]
+    for (const [role, size] of [
+      ['surface', 'sm'],
+      ['overlay', 'md'],
+      ['input', 'xs'],
+    ]) {
+      const value = TAILWIND_THEME_CSS.match(new RegExp(`--shadow-${size}: ([^;]+);`))?.[1]
+      expect(value).toBeDefined()
+      expect(root).toContain(`--shadow-${role}: ${value};`)
+    }
+    expect(root).not.toMatch(/--shadow(?:-(?:2xs|xs|sm|md|lg|xl|2xl))?:/)
     expect(css).toContain('--background: rgb(255, 255, 255);')
     expect(css).toContain('--primary: rgb(23, 23, 23);')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
@@ -400,6 +436,8 @@ describe('presetMoraine', () => {
     expect(css).toContain('--input: rgb(47, 47, 47);')
     expect(css).toMatch(/:root \{[^}]*--control: rgb\(255, 255, 255\);/)
     expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
+    expect(css).toMatch(/:root \{[^}]*--backdrop: rgb\(0 0 0 \/ 0.1\);/)
+    expect(css).toMatch(/\.dark \{[^}]*--backdrop: rgb\(0 0 0 \/ 0.1\);/)
     expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
     expect(css).not.toMatch(/--[\w-]+: oklch\(/)
     expect(css).not.toContain('@supports not (color: color-mix(')
@@ -416,7 +454,7 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('lets CSS own theme colors with %s', async (_name, wind) => {
+  ])('lets CSS own theme colors and shadows with %s', async (_name, wind) => {
     const generator = await createGenerator({
       presets: [
         wind(),
@@ -436,6 +474,8 @@ describe('presetMoraine', () => {
     expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n}')
     expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('--control:')
+    expect(css).not.toContain('--backdrop:')
+    expect(css).not.toMatch(/--shadow-(?:surface|overlay|input):/)
     expect(css).not.toContain('html {\n  background-color: var(--background);')
     expect(css).not.toContain('--mo-auto-primary-hover: var(--primary);')
     expect(css).toContain('*, ::before, ::after {')
@@ -528,15 +568,20 @@ describe('presetMoraine', () => {
       colorStates: { hover: 6 },
       override: {
         light: {
-          shadows: { base: '0 1px 2px #111', '2xs': '0 1px #111' },
+          shadows: {
+            surface: '0 2px 4px #123',
+            overlay: '0 8px 16px #456',
+            input: 'none',
+          },
           colors: {
             primary: { base: '#246', active: activeResolver },
             secondary: { foreground: '#fff' },
+            backdrop: 'rgb(20 30 40 / 0.4)',
           },
         },
         dark: {
           colors: { primary: { foreground: '#111', hover: '#369' } },
-          shadows: { sm: '0 2px #111' },
+          shadows: { surface: '0 2px #111' },
         },
         brand: { colors: { primary: '#369' } },
         custom: {
@@ -561,10 +606,12 @@ describe('presetMoraine', () => {
     expect(css).toContain('--font-sans: Inter;')
     expect(css).toContain('--font-mono: monospace;')
     expect(css).toContain('--font-serif: Georgia;')
-    expect(css).toMatch(/:root \{[^}]*--shadow: 0 1px 2px #111;/)
-    expect(css).toMatch(/:root \{[^}]*--shadow-2xs: 0 1px #111;/)
-    expect(css).toMatch(/\.dark \{[^}]*--shadow-sm: 0 2px #111;/)
-    expect(css).not.toMatch(/\.dark \{[^}]*--shadow-2xs:/)
+    expect(css).toMatch(/:root \{[^}]*--shadow-surface: 0 2px 4px #123;/)
+    expect(css).toMatch(/:root \{[^}]*--shadow-overlay: 0 8px 16px #456;/)
+    expect(css).toMatch(/:root \{[^}]*--shadow-input: none;/)
+    expect(css).toMatch(/:root \{[^}]*--backdrop: rgb\(20 30 40 \/ 0.4\);/)
+    expect(css).not.toMatch(/--(?:surface|overlay|input)-shadow:/)
+    expect(css).toMatch(/\.dark \{[^}]*--shadow-surface: 0 2px #111;/)
     expect(css).toContain('--radius: 0.75rem;')
     expect(css).toContain('--font-size: 1.125rem;')
     expect(css).toContain('--spacing: 0.5rem;')

@@ -11,6 +11,7 @@ const MORAINE_CN_RULES: ConfigExtension = {
   extend: {
     classGroups: {
       z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
+      shadow: ['shadow-surface', 'shadow-overlay', 'shadow-input'],
       'enter-opacity': [{ 'enter-opacity': [validators.isAny] }],
       'exit-opacity': [{ 'exit-opacity': [validators.isAny] }],
       'enter-scale': [{ 'enter-scale': [validators.isAny] }],
