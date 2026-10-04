@@ -11,7 +11,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { KbdGroup } from '../../element/kbd'
+import { KbdGroup } from '../../element/kbd-group'
 import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'

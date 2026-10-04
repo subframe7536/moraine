@@ -2,8 +2,8 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { AvatarFace } from '../avatar/avatar'
 
-import { AvatarFace } from './avatar'
 import { avatarGroupRecipe } from './avatar-group.recipe'
 import type { AvatarGroupProps } from './avatar-group.types'
 

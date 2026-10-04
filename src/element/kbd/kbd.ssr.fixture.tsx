@@ -1,8 +1,9 @@
 import { renderToString } from 'solid-js/web'
 
+import { KbdGroup } from '../kbd-group/kbd-group'
+import type { KbdGroupT } from '../kbd-group/kbd-group.types'
+
 import { Kbd } from './kbd'
-import { KbdGroup } from './kbd-group'
-import type { KbdGroupT } from './kbd-group.types'
 
 function KbdSeparator(props: KbdGroupT.SeparatorRenderProps) {
   return (

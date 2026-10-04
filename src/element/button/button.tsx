@@ -9,10 +9,10 @@ import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
+import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
-import { useButtonGroupContext } from './button-group-context'
 import { buttonDataAttributes, buttonRecipe } from './button.recipe'
 import type { ButtonProps } from './button.types'
 

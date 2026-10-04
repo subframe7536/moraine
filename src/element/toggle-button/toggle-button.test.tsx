@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
-import { ButtonGroup } from '../button'
+import { ButtonGroup } from '../button-group'
 
 import { ToggleButton } from './toggle-button'
 import type { ToggleButtonT } from './toggle-button.types'

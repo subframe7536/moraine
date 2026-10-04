@@ -1,8 +1,8 @@
 import { defineRecipe } from '../../theme/recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
+import { avatarDataAttributes } from '../avatar/avatar.recipe'
 
 import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
-import { avatarDataAttributes } from './avatar.recipe'
 
 export const avatarGroupDataAttributes = {
   item: avatarDataAttributes.root,

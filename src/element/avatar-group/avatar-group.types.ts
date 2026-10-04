@@ -1,8 +1,8 @@
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { AvatarT } from '../avatar/avatar.types'
 
 import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
-import type { AvatarT } from './avatar.types'
 
 export namespace AvatarGroupT {
   export type Kind = 'single'

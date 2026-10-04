@@ -6,8 +6,8 @@ import { DropdownMenu } from '../../overlay/dropdown-menu'
 import { Popover } from '../../overlay/popover'
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
+import { Button } from '../button/button'
 
-import { Button } from './button'
 import { ButtonGroup } from './button-group'
 
 describe('ButtonGroup', () => {

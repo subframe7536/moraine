@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { KbdGroupT } from '../../element/kbd/kbd-group.types'
+import type { KbdGroupT } from '../../element/kbd-group/kbd-group.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, OverlayPlacement } from '../../theme/style-types'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'

@@ -13,7 +13,6 @@ export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<KbdGroupStyleSlot, Kb
         md: { root: 'text-xs' },
         lg: { root: 'text-sm' },
       },
-      variant: { default: {}, outline: {}, invert: {} },
     },
   },
 )

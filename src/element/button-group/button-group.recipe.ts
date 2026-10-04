@@ -20,19 +20,8 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     orientation: 'horizontal',
   },
   variants: {
-    size: {
-      sm: {},
-      md: {},
-      lg: {},
-    },
-    variant: {
-      default: {},
-      secondary: {},
-      outline: {},
-      ghost: {},
-      link: {},
-      destructive: {},
-    },
+    size: {},
+    variant: {},
     orientation: {
       horizontal: {
         root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none -me-px) [&>*:not(:first-child)]:rounded-s-none',

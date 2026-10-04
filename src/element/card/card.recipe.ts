@@ -22,7 +22,6 @@ export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleV
       subtle: {
         footer: 'border-t border-border bg-muted/50',
       },
-      none: { root: '' },
     },
     size: {
       sm: {

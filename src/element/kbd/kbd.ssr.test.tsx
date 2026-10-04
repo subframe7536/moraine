@@ -2,8 +2,8 @@ import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-util/ssr-test'
+import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
-import type { KbdGroupT } from './kbd-group.types'
 import { KbdHydrationFixture } from './kbd.ssr.fixture'
 
 test('hydrates semantic KbdGroup output and reacts to item changes', () => {

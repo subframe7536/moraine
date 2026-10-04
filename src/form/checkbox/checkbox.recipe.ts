@@ -54,12 +54,10 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, Ch
     variants: {
       variant: {
         card: { root: 'border border-border rounded-md cursor-pointer' },
-        list: {},
       },
       indicator: {
         start: { root: 'flex-row', wrapper: 'ms-2' },
         end: { root: 'flex-row-reverse', wrapper: 'me-2' },
-        hidden: { wrapper: '' },
       },
       size: {
         sm: {

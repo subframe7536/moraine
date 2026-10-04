@@ -65,12 +65,6 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
           step: 'text-base',
         },
       },
-      animation: {
-        carousel: {},
-        reverse: {},
-        swing: {},
-        elastic: {},
-      },
     },
     compoundVariants: [
       {

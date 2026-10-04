@@ -6,7 +6,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler } from '../../shared/utils'
 import { Button } from '../button'
-import { useButtonGroupContext } from '../button/button-group-context'
+import { useButtonGroupContext } from '../button-group/button-group-context'
 
 import { toggleButtonDataAttributes, toggleButtonRecipe } from './toggle-button.recipe'
 import type { ToggleButtonProps, ToggleButtonT } from './toggle-button.types'

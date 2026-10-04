@@ -49,7 +49,6 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
       },
       square: {
         true: { root: 'px-0 justify-center' },
-        false: {},
       },
     },
     compoundVariants: [

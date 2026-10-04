@@ -4,10 +4,10 @@ import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
+import { KbdGroup } from '../kbd-group/kbd-group'
+import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 
 import { Kbd } from './kbd'
-import { KbdGroup } from './kbd-group'
-import type { KbdGroupT } from './kbd-group.types'
 
 describe('Kbd', () => {
   test('renders component defaults when provider is absent', () => {

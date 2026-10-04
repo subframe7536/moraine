@@ -55,12 +55,15 @@ src/
 ├── element/                # Basic, non-form UI elements.
 │   ├── accordion/          # Accordion primitives.
 │   ├── avatar/             # Avatar and fallback display.
+│   ├── avatar-group/       # Overlapping avatar groups.
 │   ├── badge/              # Badge styles and component.
 │   ├── button/             # Button and button-like interactions.
+│   ├── button-group/       # Joined button groups.
 │   ├── card/               # Card layout primitives.
 │   ├── collapsible/        # Collapsible content primitives.
 │   ├── icon/               # Icon rendering helpers and component.
 │   ├── kbd/                # Keyboard shortcut display.
+│   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
 │   ├── list/               # List and list-item primitives.
 │   ├── progress/           # Progress indicators.
 │   ├── resizable/          # Resizable panels and interaction hooks.

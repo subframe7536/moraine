@@ -5,9 +5,9 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
+import { ButtonGroup } from '../button-group/button-group'
 
 import { Button } from './button'
-import { ButtonGroup } from './button-group'
 
 function createDeferred() {
   let resolve: (() => void) | undefined

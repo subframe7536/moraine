@@ -48,10 +48,6 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
     orientation: {
-      horizontal: {
-        leading: '',
-        trailing: '',
-      },
       vertical: {
         leading: 'w-full',
         trailing: 'w-full',

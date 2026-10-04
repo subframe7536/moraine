@@ -2,11 +2,11 @@ import type { JSX } from 'solid-js'
 import { For, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { Kbd } from '../kbd/kbd'
+import type { KbdT } from '../kbd/kbd.types'
 
-import { Kbd } from './kbd'
 import { kbdGroupRecipe } from './kbd-group.recipe'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
-import type { KbdT } from './kbd.types'
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string' ? { value: item } : item

@@ -23,9 +23,7 @@ export const inputRecipe = /* @__PURE__ */ defineRecipe<InputStyleSlot, InputRec
         md: { root: 'text-sm leading-5 px-2 py-1.5 rounded-md h-8' },
         lg: { root: 'text-base leading-6 px-2.5 py-2 rounded-lg h-9' },
       },
-      variant: { outline: {}, subtle: {}, ghost: {}, none: {} },
       grouped: TEXT_CONTROL_GROUPED,
-      groupedOrientation: { horizontal: {}, vertical: {} },
     },
     compoundVariants: [
       { variants: { grouped: false, variant: 'outline' }, ...TEXT_CONTROL_VARIANT.outline },

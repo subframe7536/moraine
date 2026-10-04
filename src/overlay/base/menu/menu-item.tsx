@@ -3,7 +3,7 @@ import type { Accessor, JSX, Setter } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { Icon } from '../../../element/icon'
-import { KbdGroup } from '../../../element/kbd'
+import { KbdGroup } from '../../../element/kbd-group'
 import type { SlotBinding } from '../../../provider/create-styles'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'

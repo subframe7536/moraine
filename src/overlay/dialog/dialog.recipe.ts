@@ -48,9 +48,7 @@ export const dialogRecipe = /* @__PURE__ */ defineRecipe<DialogStyleSlot, Dialog
     variants: {
       fullscreen: {
         true: { content: DIALOG_CONTENT_FULLSCREEN_CLASS },
-        false: {},
       },
-      scrollable: { true: {}, false: {} },
     },
     compoundVariants: [
       {

@@ -46,7 +46,6 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     descriptionPosition: {
-      bottom: {},
       trailing: {
         itemWrapper: 'flex-row gap-2 items-baseline',
         itemLabel: 'flex flex-1 gap-2',

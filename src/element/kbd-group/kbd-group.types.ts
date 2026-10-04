@@ -2,9 +2,9 @@ import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { KbdT } from '../kbd/kbd.types'
 
 import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
-import type { KbdT } from './kbd.types'
 
 export namespace KbdGroupT {
   export type Kind = 'single'

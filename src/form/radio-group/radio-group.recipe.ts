@@ -80,7 +80,6 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
     indicator: {
       start: { item: 'flex-row', wrapper: 'ms-2' },
       end: { item: 'flex-row-reverse', wrapper: 'me-2' },
-      hidden: { wrapper: '' },
     },
   },
   compoundVariants: [

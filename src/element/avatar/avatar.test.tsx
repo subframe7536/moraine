@@ -4,9 +4,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
+import { AvatarGroup } from '../avatar-group/avatar-group'
 
 import { Avatar } from './avatar'
-import { AvatarGroup } from './avatar-group'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 

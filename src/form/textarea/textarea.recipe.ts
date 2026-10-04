@@ -22,9 +22,7 @@ export const textareaRecipe = /* @__PURE__ */ defineRecipe<
       md: { root: 'text-sm leading-5 px-2 py-1.5 rounded-md min-h-16' },
       lg: { root: 'text-base leading-6 px-2.5 py-2 rounded-lg min-h-18' },
     },
-    variant: { outline: {}, subtle: {}, ghost: {}, none: {} },
     grouped: TEXT_CONTROL_GROUPED,
-    groupedOrientation: { horizontal: {}, vertical: {} },
   },
   compoundVariants: [
     { variants: { grouped: false, variant: 'outline' }, ...TEXT_CONTROL_VARIANT.outline },
