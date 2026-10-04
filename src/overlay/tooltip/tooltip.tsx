@@ -1,3 +1,4 @@
+import type { Coords } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
@@ -26,7 +27,8 @@ import type { TooltipProps, TooltipT } from './tooltip.types'
 
 // This wrapper needs library transition styling, but has no stable user/Theme override value.
 // Internal visual elements do not become family slots solely because they render DOM.
-const TOOLTIP_POSITIONER_CLASS = 'has-[[data-instant-motion]]:data-positioned:transition-transform'
+const TOOLTIP_POSITIONER_CLASS =
+  'motion-reduce:transition-none motion-safe:has-[[data-instant-motion]]:data-positioned:transition-transform'
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
@@ -34,7 +36,8 @@ interface TooltipTimers {
 }
 
 interface ActiveTooltip {
-  close: () => void
+  close: () => boolean
+  getPosition: () => Coords | undefined
   id: string
 }
 
@@ -85,14 +88,20 @@ function startSkipDelay(ownerDocument: Document, id: string, duration: number): 
   }
 }
 
-function setActiveTooltip(ownerDocument: Document, tooltip: ActiveTooltip): void {
+function setActiveTooltip(ownerDocument: Document, tooltip: ActiveTooltip): Coords | undefined {
   const scope = getTooltipScope(ownerDocument)
+  let initialPosition: Coords | undefined
   if (scope.activeTooltip?.id !== tooltip.id) {
-    scope.activeTooltip?.close()
+    const previous = scope.activeTooltip
+    const position = previous?.getPosition()
+    if (previous?.close()) {
+      initialPosition = position
+    }
   }
 
   scope.activeTooltip = tooltip
   clearSkipDelay(ownerDocument)
+  return initialPosition
 }
 
 function clearActiveTooltip(ownerDocument: Document, id: string): void {
@@ -111,6 +120,7 @@ const [TooltipProvider, useTooltipContext] = createContextProvider<{
   options: TooltipProps
   popper: ReturnType<typeof createPopper>
   instantMotion: Accessor<boolean>
+  initialPosition: Accessor<Coords | undefined>
   scheduleOpen: (fromFocus?: boolean) => void
   scheduleClose: () => void
   dismiss: () => void
@@ -153,6 +163,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const ownerDocument = () => popper.triggerElement()?.ownerDocument
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
+  const [initialPosition, setInitialPosition] = createSignal<Coords>()
   let ownerAlive = true
   let timerVersion = 0
   let activeDocument: Document | undefined
@@ -194,7 +205,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     merged.onOpenChange?.(nextOpen)
   }
 
-  function closeImmediately(): void {
+  function closeImmediately(): boolean {
     invalidateTimers()
     setShouldUseInstantMotion(true)
     if (open()) {
@@ -204,6 +215,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     if (open()) {
       setShouldUseInstantMotion(false)
     }
+    return !open()
   }
 
   function requestTooltipOpen(instantMotion: boolean): void {
@@ -328,10 +340,26 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
       if (isResolvedOpen && currentDocument) {
         if (!activeDocument) {
-          setActiveTooltip(currentDocument, {
+          const position = setActiveTooltip(currentDocument, {
             id,
             close: closeImmediately,
+            getPosition: () => {
+              const positioner = popper.contentElement()?.parentElement
+              if (!positioner?.isConnected) {
+                return undefined
+              }
+              const style = currentDocument.defaultView?.getComputedStyle(positioner)
+              if (style?.visibility !== 'visible' || style.display === 'none') {
+                return undefined
+              }
+              const rect = positioner.getBoundingClientRect()
+              return { x: rect.left, y: rect.top }
+            },
           })
+          setInitialPosition(position)
+          if (position) {
+            setShouldUseInstantMotion(true)
+          }
           activeDocument = currentDocument
         }
       }
@@ -342,6 +370,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     options: merged,
     popper,
     instantMotion: shouldUseInstantMotion,
+    initialPosition,
     scheduleOpen,
     scheduleClose,
     dismiss: () => {
@@ -440,6 +469,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       align={behavior.options.align}
       placement={behavior.options.placement ?? 'top'}
       forceMount={behavior.options.forceMount}
+      initialPosition={behavior.initialPosition()}
       overflowPadding={4}
       role="tooltip"
       restoreFocusOnClose={false}

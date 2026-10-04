@@ -1,3 +1,4 @@
+import { platform } from '@floating-ui/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
@@ -613,6 +614,26 @@ describe('Tooltip', () => {
   test('opens the next tooltip immediately and closes the previous tooltip', async () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
+    vi.spyOn(platform, 'getElementRects').mockImplementation(async ({ reference }) => ({
+      reference: {
+        x:
+          isHTMLElement(reference) && reference.textContent === 'First'
+            ? 100
+            : isHTMLElement(reference) && reference.textContent === 'Second'
+              ? 200
+              : 300,
+        y: 200,
+        width: 40,
+        height: 20,
+      },
+      floating: { x: 0, y: 0, width: 0, height: 0 },
+    }))
+    vi.spyOn(platform, 'getClippingRect').mockResolvedValue({
+      x: 0,
+      y: 0,
+      width: 1000,
+      height: 1000,
+    })
 
     const screen = render(() => (
       <div>
@@ -628,6 +649,10 @@ describe('Tooltip', () => {
           </Tooltip.Trigger>
           <Tooltip.Content text="Second tooltip" />
         </Tooltip>
+        <Tooltip>
+          <Tooltip.Trigger>Third</Tooltip.Trigger>
+          <Tooltip.Content text="Third tooltip" />
+        </Tooltip>
       </div>
     ))
 
@@ -639,10 +664,15 @@ describe('Tooltip', () => {
     await vi.advanceTimersByTimeAsync(600)
 
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('First tooltip')
+    const firstPositioner = document.body.querySelector<HTMLElement>(
+      '[data-slot=tooltip-positioner]',
+    )!
+    expect(firstPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
+    vi.spyOn(firstPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 200, 0, 0))
 
     fireEvent.pointerLeave(firstTrigger)
     fireEvent.pointerEnter(secondTrigger)
-    await Promise.resolve()
+    await vi.advanceTimersByTimeAsync(0)
 
     const activeTooltip = document.body.querySelector('[role=tooltip]')
 
@@ -654,9 +684,67 @@ describe('Tooltip', () => {
     )
     expect(activeTooltip?.className).toContain('data-expanded:animate-none')
     expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
-    expect(document.body.querySelector('[data-slot=tooltip-positioner]')?.className).toContain(
-      'transition-transform',
-    )
+    const secondPositioner = document.body.querySelector<HTMLElement>(
+      '[data-slot=tooltip-positioner]',
+    )!
+    expect(firstPositioner.isConnected).toBe(false)
+    expect(secondPositioner.style.transform).toBe('translate3d(120px, 200px, 0)')
+    await vi.advanceTimersByTimeAsync(16)
+    expect(secondPositioner.style.transform).toBe('translate3d(220px, 200px, 0)')
+
+    // A third tooltip starts at the current visual position, even during the preceding transition.
+    vi.spyOn(secondPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(160, 200, 0, 0))
+    fireEvent.pointerLeave(secondTrigger)
+    fireEvent.pointerEnter(screen.getByText('Third'))
+    await vi.advanceTimersByTimeAsync(0)
+    const thirdPositioner = document.body.querySelector<HTMLElement>(
+      '[data-slot=tooltip-positioner]',
+    )!
+    expect(document.body.querySelectorAll('[role=tooltip]')).toHaveLength(1)
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Third tooltip')
+    expect(thirdPositioner.style.transform).toBe('translate3d(160px, 200px, 0)')
+    await vi.advanceTimersByTimeAsync(16)
+    expect(thirdPositioner.style.transform).toBe('translate3d(320px, 200px, 0)')
+  })
+
+  test('positions directly when reopening within the skip-delay window after a normal close', async () => {
+    vi.useFakeTimers()
+    const screen = render(() => (
+      <>
+        <Tooltip closeDelay={0}>
+          <Tooltip.Trigger>First</Tooltip.Trigger>
+          <Tooltip.Content
+            text="First tooltip"
+            style={{ 'animation-name': 'none', 'animation-duration': '0s' }}
+          />
+        </Tooltip>
+        <Tooltip>
+          <Tooltip.Trigger>Second</Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
+        </Tooltip>
+      </>
+    ))
+    fireEvent.pointerEnter(screen.getByText('First'))
+    await vi.advanceTimersByTimeAsync(600)
+    const firstPositioner = document.body.querySelector<HTMLElement>(
+      '[data-slot=tooltip-positioner]',
+    )!
+    vi.spyOn(firstPositioner, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 200, 0, 0))
+    fireEvent.pointerLeave(screen.getByText('First'))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(document.body.querySelector('[role=tooltip]')).toBeNull()
+
+    fireEvent.pointerEnter(screen.getByText('Second'))
+    await vi.advanceTimersByTimeAsync(0)
+    const secondPositioner = document.body.querySelector<HTMLElement>(
+      '[data-slot=tooltip-positioner]',
+    )!
+    expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
+    expect(secondPositioner.style.transform).not.toBe('translate3d(120px, 200px, 0)')
+    const target = secondPositioner.style.transform
+    expect(target).not.toBe('')
+    await vi.advanceTimersByTimeAsync(16)
+    expect(secondPositioner.style.transform).toBe(target)
   })
 
   test('does not restart an always-open tooltip after switching from another tooltip', async () => {

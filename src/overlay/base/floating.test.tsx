@@ -270,6 +270,93 @@ describe('useFloatingPosition', () => {
     expect(ready.mock.calls).toEqual([[false], [true], [false]])
   })
 
+  test('starts at a viewport position and transitions to the latest target after readiness', async () => {
+    vi.useFakeTimers()
+    const frame = vi.fn(() => 1)
+    vi.stubGlobal('requestAnimationFrame', frame)
+    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    floatingMocks.computePosition.mockResolvedValue({
+      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
+      placement: 'bottom',
+      x: 100,
+      y: 200,
+    })
+    const initialPosition = { x: 50, y: 60 }
+    const [reference, setReference] = createSignal<HTMLElement>()
+    const screen = render(() => (
+      <FloatingFixture
+        open={() => true}
+        onPositionedChange={() => {}}
+        options={{
+          deferPositioned: true,
+          initialPosition: () => initialPosition,
+          getReferenceElement: reference,
+        }}
+      />
+    ))
+    const floating = screen.getByTestId('floating')
+    vi.spyOn(floating, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 20, 0, 0))
+    setReference(screen.getByRole('button'))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0)')
+    expect(floating.style.visibility).toBe('visible')
+
+    floatingMocks.computePosition.mockResolvedValue({
+      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
+      placement: 'bottom',
+      x: 120,
+      y: 220,
+    })
+    floatingMocks.updates[0]!()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(floating.style.transform).toBe('translate3d(40px, 40px, 0)')
+    await vi.advanceTimersByTimeAsync(16)
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+    expect(frame).toHaveBeenCalledOnce()
+
+    const replacement = document.createElement('button')
+    floating.parentElement!.append(replacement)
+    setReference(replacement)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+    await vi.advanceTimersByTimeAsync(16)
+    expect(floating.style.transform).toBe('translate3d(120px, 220px, 0)')
+  })
+
+  test.each(['close', 'unmount'])('cancels the initial movement on %s', async (action) => {
+    vi.useFakeTimers()
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn(() => 1),
+    )
+    vi.stubGlobal('cancelAnimationFrame', vi.fn())
+    floatingMocks.computePosition.mockResolvedValue({
+      middlewareData: { moraineTransformOrigin: { value: '50% -4px' } },
+      placement: 'bottom',
+      x: 100,
+      y: 200,
+    })
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <FloatingFixture
+        open={open}
+        onPositionedChange={() => {}}
+        options={{ deferPositioned: true, initialPosition: () => ({ x: 50, y: 60 }) }}
+      />
+    ))
+    const floating = screen.getByTestId('floating')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0)')
+    if (action === 'close') {
+      setOpen(false)
+    } else {
+      screen.unmount()
+    }
+    await vi.runAllTimersAsync()
+    expect(floating.style.transform).toBe('translate3d(50px, 60px, 0)')
+    expect(floating.style.visibility).toBe('hidden')
+  })
+
   test('starts after late mounting and cleans up element replacement and reference removal', async () => {
     const [floating, setFloating] = createSignal<HTMLElement>()
     const [reference, setReference] = createSignal<HTMLElement>()

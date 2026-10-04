@@ -292,6 +292,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     getReferenceElement: triggerElement,
     gutter: () => options.gutter,
     hideWhenDetached: () => options.hideWhenDetached,
+    initialPosition: () => props.initialPosition,
     onPlacementChange: setCurrentPlacement,
     onPositionedChange: setPositioned,
     open: contentPresence.present,

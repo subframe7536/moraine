@@ -8,7 +8,7 @@ import {
   shift,
   size,
 } from '@floating-ui/dom'
-import type { Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
+import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
@@ -26,6 +26,8 @@ export interface FloatingPositionOptions {
   getReferenceElement: () => ReferenceElement | undefined
   gutter: Accessor<number>
   hideWhenDetached?: Accessor<boolean>
+  /** Viewport coordinates to transition from on the first positioning commit. */
+  initialPosition?: Accessor<Coords | undefined>
   onPlacementChange: (placement: Placement) => void
   onPositionedChange: (positioned: boolean) => void
   open: Accessor<boolean>
@@ -40,6 +42,7 @@ export interface FloatingPositionOptions {
 /** Shared Floating UI pipeline for poppers, menus, and listboxes. */
 export function useFloatingPosition(options: FloatingPositionOptions): void {
   let positioned: boolean | undefined
+  let consumedInitialPosition: Coords | undefined
   const publishPositioned = (value: boolean): void => {
     if (positioned !== value) {
       positioned = value
@@ -62,6 +65,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         let cleanupAutoUpdate: (() => void) | undefined
         let updatePosition: () => Promise<void>
         let committed: (() => boolean) | undefined
+        let pendingTransform: string | undefined
         const ownerWindow = floating.ownerDocument.defaultView
         const ownedStyles = new Map<
           string,
@@ -106,6 +110,12 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
           cancelPositioned()
           if (committed?.()) {
             publishPositioned(true)
+            if (pendingTransform !== undefined && committed?.()) {
+              // Commit the starting position with transition styles before changing the transform.
+              floating.getBoundingClientRect()
+              floating.style.transform = pendingTransform
+              pendingTransform = undefined
+            }
           }
         }
 
@@ -303,16 +313,31 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   position.middlewareData.moraineTransformOrigin.value,
                 )
 
-                Object.assign(floating.style, {
-                  transform: `translate3d(${round(position.x)}px, ${round(position.y)}px, 0)`,
-                  visibility:
-                    hideWhenDetached && position.middlewareData.hide?.referenceHidden
-                      ? 'hidden'
-                      : 'visible',
-                })
+                const transform = `translate3d(${round(position.x)}px, ${round(position.y)}px, 0)`
+                const initialPosition = !committed ? options.initialPosition?.() : undefined
+                if (initialPosition && initialPosition !== consumedInitialPosition) {
+                  const scale = await platform.getScale(floating)
+                  if (!isCurrent()) {
+                    return
+                  }
+                  floating.style.transform = 'none'
+                  const rect = floating.getBoundingClientRect()
+                  floating.style.transform = `translate3d(${round((initialPosition.x - rect.left) / scale.x)}px, ${round((initialPosition.y - rect.top) / scale.y)}px, 0)`
+                  consumedInitialPosition = initialPosition
+                  pendingTransform = transform
+                } else if (pendingTransform !== undefined && !positioned) {
+                  pendingTransform = transform
+                } else {
+                  floating.style.transform = transform
+                  pendingTransform = undefined
+                }
+                floating.style.visibility =
+                  hideWhenDetached && position.middlewareData.hide?.referenceHidden
+                    ? 'hidden'
+                    : 'visible'
                 committed = isCurrent
                 if (!positioned) {
-                  if (!options.deferPositioned) {
+                  if (!options.deferPositioned && pendingTransform === undefined) {
                     publishPositioned(true)
                   } else if (positionedFrame === undefined && positionedTimeout === undefined) {
                     if (typeof ownerWindow?.requestAnimationFrame === 'function') {

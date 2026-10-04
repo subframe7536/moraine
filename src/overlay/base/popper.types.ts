@@ -1,3 +1,4 @@
+import type { Coords } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -207,6 +208,9 @@ export interface PopperContentOptions {
 export interface PopperContentProps extends PopperContentOptions {
   /** Content or render function inside the positioned content. */
   children: JSX.Element | ((props: PopperContentContext) => JSX.Element)
+
+  /** Viewport coordinates to transition from when content is first positioned. */
+  initialPosition?: Coords
 
   /** Class applied to the positioning wrapper. */
   positionerClass?: string
