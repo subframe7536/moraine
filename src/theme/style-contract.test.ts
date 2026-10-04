@@ -1,7 +1,7 @@
 import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, expectTypeOf, test } from 'vitest'
 
-import { applyDataAttributes, createDataAttributes } from './style-contract'
+import { createDataAttributes } from './style-contract'
 import type { DataAttributeContract } from './style-contract'
 
 describe('style contract helpers', () => {
@@ -73,18 +73,5 @@ describe('style contract helpers', () => {
       expect(Object.getOwnPropertyDescriptor(attributes, 'data-active')?.get).toBe(descriptor?.get)
       dispose()
     })
-  })
-
-  test('applies and removes normalized attributes without replacing the element', () => {
-    const element = document.createElement('div')
-    let active = true
-    const attributes = createDataAttributes('active')({ active: () => active })
-
-    applyDataAttributes(element, attributes)
-    expect(element.getAttribute('data-active')).toBe('')
-
-    active = false
-    applyDataAttributes(element, attributes)
-    expect(element.hasAttribute('data-active')).toBe(false)
   })
 })

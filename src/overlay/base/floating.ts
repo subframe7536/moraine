@@ -109,6 +109,8 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         const markPositioned = (): void => {
           cancelPositioned()
           if (committed?.()) {
+            // Commit coordinates before enabling position transitions.
+            floating.getBoundingClientRect()
             publishPositioned(true)
             if (pendingTransform !== undefined && committed?.()) {
               // Commit the starting position with transition styles before changing the transform.

@@ -34,6 +34,7 @@ import type { SwitchStyleConfig } from '../form/switch/switch.style-types'
 import type { TextareaStyleConfig } from '../form/textarea/textarea.style-types'
 import type { BreadcrumbStyleConfig } from '../navigation/breadcrumb/breadcrumb.style-types'
 import type { CommandPaletteStyleConfig } from '../navigation/command-palette/command-palette.style-types'
+import type { NavigationMenuStyleConfig } from '../navigation/navigation-menu/navigation-menu.style-types'
 import type { PaginationStyleConfig } from '../navigation/pagination/pagination.style-types'
 import type { SidebarFrameStyleConfig } from '../navigation/sidebar-frame/sidebar-frame.style-types'
 import type { StepperStyleConfig } from '../navigation/stepper/stepper.style-types'
@@ -95,6 +96,7 @@ export interface MoraineStyleSchema {
   sidebarFrame: SidebarFrameStyleConfig
   stepper: StepperStyleConfig
   tabs: TabsStyleConfig
+  navigationMenu: NavigationMenuStyleConfig
   contextMenu: ContextMenuStyleConfig
   dialog: DialogStyleConfig
   dropdownMenu: DropdownMenuStyleConfig

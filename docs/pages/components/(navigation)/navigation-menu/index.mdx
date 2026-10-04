@@ -1,0 +1,280 @@
+---
+title: Navigation Menu
+description: Navigate a website through links and animated shared panels.
+api:
+  path: src/navigation/navigation-menu/navigation-menu
+  parts: [List, Item, Trigger, Content, Link]
+sidebar:
+  order: 7
+search:
+  tags: [navigation, website, links, menu, mega menu, animated panels]
+---
+
+import { For } from 'solid-js'
+import { Icon, NavigationMenu } from '@src'
+
+Use NavigationMenu for website destinations, with direct links and expandable link panels. Use [DropdownMenu](/components/dropdown-menu) for a menu of actions.
+
+## Basic usage
+
+```tsx
+import { NavigationMenu } from 'moraine'
+
+export function Example() {
+  return (
+    <NavigationMenu aria-label="Main navigation">
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="products">
+          <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <NavigationMenu.Link href="/overview" closeOnClick>
+              Overview
+            </NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="/docs">Documentation</NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <div class="flex min-h-72 w-full items-center justify-center">
+      <NavigationMenu
+        aria-label="Playground navigation"
+        disabled={props.disabled}
+        orientation={props.orientation}
+        placement={props.orientation === 'vertical' ? 'right' : 'bottom'}
+        class="max-w-full"
+      >
+        <NavigationMenu.List class="flex-wrap justify-center">
+          <NavigationMenu.Item value="getting-started">
+            <NavigationMenu.Trigger>Getting started</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <ul class="m-0 p-0 list-none w-[min(24rem,calc(100vw-2rem))]">
+                <li>
+                  <NavigationMenu.Link href="/docs/getting-started" closeOnClick>
+                    <span class="font-medium">Introduction</span>
+                    <span class="text-muted-foreground leading-snug">
+                      Composable SolidJS components for your application.
+                    </span>
+                  </NavigationMenu.Link>
+                </li>
+                <li>
+                  <NavigationMenu.Link href="/docs/installation" closeOnClick>
+                    <span class="font-medium">Installation</span>
+                    <span class="text-muted-foreground leading-snug">
+                      Set up Moraine and your styling tools.
+                    </span>
+                  </NavigationMenu.Link>
+                </li>
+                <li>
+                  <NavigationMenu.Link href="/docs/theming" closeOnClick>
+                    <span class="font-medium">Theming</span>
+                    <span class="text-muted-foreground leading-snug">
+                      Customize colors, design tokens, and component recipes.
+                    </span>
+                  </NavigationMenu.Link>
+                </li>
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item value="components">
+            <NavigationMenu.Trigger>Components</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <ul class="m-0 p-0 list-none gap-2 grid w-[min(36rem,calc(100vw-2rem))] sm:grid-cols-2">
+                <For
+                  each={[
+                    {
+                      title: 'Modal',
+                      href: '/components/modal',
+                      description: 'Present a focused dialog with a title, content, and actions.',
+                    },
+                    {
+                      title: 'Popover',
+                      href: '/components/popover',
+                      description: 'Show additional content in a panel beside its trigger.',
+                    },
+                    {
+                      title: 'Progress',
+                      href: '/components/progress',
+                      description: 'Communicate how much of a task has been completed.',
+                    },
+                    {
+                      title: 'ScrollArea',
+                      href: '/components/scroll-area',
+                      description: 'Keep overflowing content accessible with custom scrollbars.',
+                    },
+                    {
+                      title: 'Tabs',
+                      href: '/components/tabs',
+                      description: 'Organize related content into selectable panels.',
+                    },
+                    {
+                      title: 'Tooltip',
+                      href: '/components/tooltip',
+                      description: 'Add a short explanation to a control on hover or focus.',
+                    },
+                  ]}
+                >
+                  {(component) => (
+                    <li>
+                      <NavigationMenu.Link href={component.href} closeOnClick>
+                        <span class="font-medium">{component.title}</span>
+                        <span class="text-muted-foreground leading-snug line-clamp-2">
+                          {component.description}
+                        </span>
+                      </NavigationMenu.Link>
+                    </li>
+                  )}
+                </For>
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item value="with-icon">
+            <NavigationMenu.Trigger>With Icon</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <ul class="m-0 p-0 list-none w-48">
+                <li>
+                  <NavigationMenu.Link
+                    href="/components/command-palette"
+                    class="flex-row gap-2 items-center"
+                    closeOnClick
+                  >
+                    <Icon name="i-lucide:circle-alert" class="text-muted-foreground size-4" />
+                    Backlog
+                  </NavigationMenu.Link>
+                </li>
+                <li>
+                  <NavigationMenu.Link
+                    href="/components/checkbox"
+                    class="flex-row gap-2 items-center"
+                    closeOnClick
+                  >
+                    <Icon name="i-lucide:circle-dashed" class="text-muted-foreground size-4" />
+                    To Do
+                  </NavigationMenu.Link>
+                </li>
+                <li>
+                  <NavigationMenu.Link
+                    href="/components/progress"
+                    class="flex-row gap-2 items-center"
+                    closeOnClick
+                  >
+                    <Icon name="i-lucide:circle-check" class="text-muted-foreground size-4" />
+                    Done
+                  </NavigationMenu.Link>
+                </li>
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link
+              href="/docs/getting-started"
+              class="font-medium px-3 h-9 justify-center"
+            >
+              Docs
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+      </NavigationMenu>
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'NavigationMenu.List',
+        slot: 'list',
+        children: [
+          {
+            part: 'NavigationMenu.Item',
+            slot: 'item',
+            children: [
+              {
+                part: 'NavigationMenu.Trigger',
+                slot: 'trigger',
+                children: [{ slot: 'triggerIcon' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'NavigationMenu.Content',
+            slot: 'content',
+            children: [{ part: 'NavigationMenu.Link', slot: 'link' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+## Usage
+
+### Basic
+
+Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and `NavigationMenu.Link` for its destinations.
+
+<Preview path="./basic" />
+
+### Controlled state and disabled items
+
+Use stable item values with `value` and `onValueChange`. Set the value to `null` to close. Disabled or removed items cannot keep a panel open. `defaultValue` opens an item after hydration.
+
+<Preview path="./controlled" />
+
+### Orientation
+
+Set `orientation="vertical"` for a vertical list. Use `placement="right"` to place its panels beside the triggers.
+
+<Preview path="./orientation" />
+
+### RTL
+
+Set `dir="rtl"` on the surrounding container for right-to-left navigation.
+
+<Preview path="./rtl" />
+
+### Custom links
+
+Use `linkRender` for a router's link component. Forward the supplied attributes, events, children, object style and ref to the anchor. `active` marks the current page with `aria-current="page"`. `closeOnClick` defaults to `false`; enable it when activation should also close the panel. A cancelled click does not request closing.
+
+<Preview path="./router-link" />
+
+### Keyboard interaction
+
+Arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger. ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
+
+Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
+
+The root renders a navigation landmark. Give it an accessible name when the page has several navigation landmarks. This version supports one level of panels.

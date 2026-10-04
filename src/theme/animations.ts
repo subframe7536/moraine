@@ -29,8 +29,8 @@ const ANIMATION_DURATIONS: Record<AnimationType, string> = {
 
 const ANIMATION_TIMING_FUNCTIONS: Record<AnimationType, string> = {
   default: MORAINE_EASE_OUT,
-  enter: MORAINE_EASE_OUT,
-  exit: MORAINE_EASE_IN,
+  enter: `var(--mo-anim-ease,var(--mo-anim-ease-enter,${MORAINE_EASE_OUT}))`,
+  exit: `var(--mo-anim-ease,var(--mo-anim-ease-exit,${MORAINE_EASE_IN}))`,
   loop: MORAINE_EASE_IN_OUT,
   spin: MORAINE_EASE_LINEAR,
 }
@@ -115,6 +115,7 @@ export function getMoraineAnimations(): {
   durations: Record<string, string>
   timingFns: Record<string, string>
   counts: Record<string, string>
+  properties: Record<string, { 'animation-fill-mode': string }>
 } {
   const durations: Record<string, string> = {}
   const timingFns: Record<string, string> = {}
@@ -125,5 +126,10 @@ export function getMoraineAnimations(): {
     timingFns[name] = name === 'shimmer' ? MORAINE_EASE_LINEAR : ANIMATION_TIMING_FUNCTIONS[type]
     counts[name] = type === 'loop' || type === 'spin' ? 'infinite' : '1'
   }
-  return { durations, timingFns, counts }
+  return {
+    durations,
+    timingFns,
+    counts,
+    properties: { 'mo-exit': { 'animation-fill-mode': 'forwards' } },
+  }
 }

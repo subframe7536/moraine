@@ -15,14 +15,22 @@ import {
 
 const animations = getMoraineAnimations()
 
-/** All animations as Tailwind shorthand strings (`name duration timing count`). */
+/** All animations as Tailwind shorthand strings. */
 function buildTailwindAnimations(): Record<string, string> {
-  const { durations, timingFns, counts } = animations
+  const { durations, timingFns, counts, properties } = animations
 
   return Object.fromEntries(
     Object.keys(MORAINE_KEYFRAMES).map((name) => [
       name,
-      `${name} ${durations[name]} ${timingFns[name]} ${counts[name]}`,
+      [
+        name,
+        durations[name],
+        timingFns[name],
+        counts[name],
+        properties[name]?.['animation-fill-mode'],
+      ]
+        .filter(Boolean)
+        .join(' '),
     ]),
   )
 }

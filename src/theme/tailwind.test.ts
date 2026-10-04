@@ -417,12 +417,12 @@ describe('animations', () => {
     expect(css).toContain('animation: none')
     expect(css).toContain('@keyframes accordion-down')
   })
-  test('animate-mo-enter uses CSS variable duration', async () => {
+  test('animate-mo-enter uses CSS variable duration and easing', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
+        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
       @keyframes mo-enter {
         from {
@@ -434,12 +434,12 @@ describe('animations', () => {
     `)
   })
 
-  test('animate-mo-exit uses CSS variable duration', async () => {
+  test('animate-mo-exit uses CSS variable duration and easing', async () => {
     const css = await compileCSS(['animate-mo-exit'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-exit {
-        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
+        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
       }
       @keyframes mo-exit {
         to {
@@ -456,7 +456,7 @@ describe('animations', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
+        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
       @keyframes mo-enter {
         from {
@@ -473,7 +473,7 @@ describe('animations', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-exit {
-        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
+        animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0))) 1 forwards;
       }
       @keyframes mo-exit {
         to {
@@ -878,7 +878,7 @@ describe('full compilation', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       @layer properties;
       .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
+        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
       .rounded-lg {
         border-radius: var(--radius);
@@ -1079,7 +1079,7 @@ describe('with @iconify/tailwind (docs config)', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
-        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
+        animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1))) 1;
       }
       .rounded-lg {
         border-radius: var(--radius);

@@ -151,6 +151,11 @@
       "category": "form"
     },
     {
+      "key": "navigation-menu",
+      "name": "NavigationMenu",
+      "category": "navigation"
+    },
+    {
       "key": "pagination",
       "name": "Pagination",
       "category": "navigation"

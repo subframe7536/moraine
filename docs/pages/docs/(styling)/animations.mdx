@@ -1,6 +1,6 @@
 ---
 title: Animations
-description: Built-in keyframe animations, duration CSS variables, and parametric transform utilities.
+description: Built-in keyframe animations, duration and easing CSS variables, and parametric transform utilities.
 sidebar:
   order: 5
 search:
@@ -70,11 +70,15 @@ Moraine defines default durations and easing curves for each animation type:
   --mo-anim-duration-exit: 150ms;
   --mo-anim-duration-loop: 2s;
   --mo-anim-duration-spin: 1s;
+
+  /* Shared easing override for mo-enter and mo-exit */
+  --mo-anim-ease: ease;
 }
 ```
 
 - **`--mo-anim-duration`** overrides every Moraine animation duration when defined.
 - If `--mo-anim-duration` is not set, each animation falls back to its type-specific duration (`enter`, `exit`, `loop`, or `spin`).
+- **`--mo-anim-ease`** overrides the easing of `animate-mo-enter` and `animate-mo-exit` in its scope. When unset, they read `--mo-anim-ease-enter` and `--mo-anim-ease-exit`, respectively, then fall back to the curves below. Set these variables on the animated element or a DOM ancestor; portaled content cannot inherit from a trigger's container outside the portal.
 - **Easing curves**:
   - `enter`: `cubic-bezier(0.16, 1, 0.3, 1)` (snappy ease-out)
   - `exit`: `cubic-bezier(0.7, 0, 0.84, 0)` (accelerating ease-in)

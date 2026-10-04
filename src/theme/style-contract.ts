@@ -78,17 +78,3 @@ export function createDataAttributes<const Names extends readonly string[]>(
     return result
   }) as DataAttributeResolver<Names>
 }
-
-export function applyDataAttributes(
-  element: Element,
-  attributes: Readonly<Record<string, string | number | undefined>>,
-): void {
-  for (const key of Object.keys(attributes)) {
-    const value = attributes[key]
-    if (value === undefined) {
-      element.removeAttribute(key)
-    } else {
-      element.setAttribute(key, String(value))
-    }
-  }
-}

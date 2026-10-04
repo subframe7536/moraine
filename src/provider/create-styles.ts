@@ -33,6 +33,8 @@ type StyleProps<S extends string, V> = VariantInput<V> &
 
 interface CreateStylesOptions<S extends string, V> {
   rootSlot?: S
+  /** Receives recipe CSS variables. Defaults to `root`, or `rootSlot` when no root slot exists. */
+  variablesSlot?: S
   inheritedVariants?: () => VariantInput<V> | undefined
   inheritedStyles?: () => InheritedStyles<S> | undefined
 }
@@ -106,7 +108,8 @@ export function createStyles<R extends RecipeDefinition>(
     equals: false,
   })
   const rootSlot = resolveRootSlot(recipe.slots, options.rootSlot)
-  const recipeStyleSlot = recipe.slots.includes('root') ? 'root' : rootSlot
+  const recipeStyleSlot =
+    options.variablesSlot ?? (recipe.slots.includes('root') ? 'root' : rootSlot)
   const cache = new Map<Slots, SlotBinding>()
   const styles = {} as SlotBindings<Slots>
 

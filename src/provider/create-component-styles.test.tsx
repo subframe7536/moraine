@@ -153,101 +153,114 @@ describe('createStyles', () => {
   })
 })
 
-test('inherits theme variables and removes stale values without replacing nodes', () => {
-  const parent = defineTheme({
-    button: {
-      defaultVariants: { size: 'sm' },
-      base: { '--shared': 'parent' },
-      variants: {
-        size: {
-          sm: { '--size': '8px' },
-          lg: { '--size': '16px', '--large': 'yes' },
+test.each([undefined, 'label'] as const)(
+  'inherits theme variables on %s and removes stale values without replacing nodes',
+  (variablesSlot) => {
+    const parent = defineTheme({
+      button: {
+        defaultVariants: { size: 'sm' },
+        base: { '--shared': 'parent' },
+        variants: {
+          size: {
+            sm: { '--size': '8px' },
+            lg: { '--size': '16px', '--large': 'yes' },
+          },
         },
       },
-    },
-  })
-  const child = defineTheme({
-    extends: parent,
-    button: {
-      defaultVariants: { size: 'lg' },
-      base: { '--shared': 'child' },
-    },
-  })
-  const [theme, setTheme] = createSignal<MoraineTheme | null>(child)
-  const [size, setSize] = createSignal<ButtonT.Variant['size']>()
-  const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
-  function Fixture() {
-    const styles = createStyles(
-      buttonRecipe,
-      {
-        get size() {
-          return size()
+    })
+    const child = defineTheme({
+      extends: parent,
+      button: {
+        defaultVariants: { size: 'lg' },
+        base: { '--shared': 'child' },
+      },
+    })
+    const [theme, setTheme] = createSignal<MoraineTheme | null>(child)
+    const [size, setSize] = createSignal<ButtonT.Variant['size']>()
+    const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
+    function Fixture() {
+      const styles = createStyles(
+        buttonRecipe,
+        {
+          get size() {
+            return size()
+          },
         },
-      },
-      {
-        inheritedVariants: () => ({ size: inherited() }),
-      },
-    )
-    return (
-      <button {...styles.styles.root}>
-        <span {...styles.styles.label}>Save</span>
-      </button>
-    )
-  }
-  const screen = render(() => (
-    <MoraineProvider theme={theme()}>
-      <Fixture />
-    </MoraineProvider>
-  ))
-  const button = screen.getByRole('button')
-  expect(button.style.getPropertyValue('--size')).toBe('16px')
-  expect(button.style.getPropertyValue('--shared')).toBe('child')
-  expect(button.firstElementChild?.getAttribute('style')).toBeNull()
-  setInherited('sm')
-  expect(button.style.getPropertyValue('--size')).toBe('8px')
-  expect(button.style.getPropertyValue('--large')).toBe('')
-  setSize('lg')
-  expect(button.style.getPropertyValue('--size')).toBe('16px')
-  setSize(undefined)
-  expect(button.style.getPropertyValue('--size')).toBe('8px')
-  setTheme(null)
-  expect(button.style.cssText).toBe('')
-  expect(screen.getByRole('button')).toBe(button)
-})
+        {
+          variablesSlot,
+          inheritedVariants: () => ({ size: inherited() }),
+        },
+      )
+      return (
+        <button {...styles.styles.root}>
+          <span {...styles.styles.label}>Save</span>
+        </button>
+      )
+    }
+    const screen = render(() => (
+      <MoraineProvider theme={theme()}>
+        <Fixture />
+      </MoraineProvider>
+    ))
+    const button = screen.getByRole('button')
+    const label = screen.getByText('Save')
+    const target = variablesSlot === 'label' ? label : button
+    const other = variablesSlot === 'label' ? button : label
+    expect(target.style.getPropertyValue('--size')).toBe('16px')
+    expect(target.style.getPropertyValue('--shared')).toBe('child')
+    expect(other.getAttribute('style')).toBeNull()
+    setInherited('sm')
+    expect(target.style.getPropertyValue('--size')).toBe('8px')
+    expect(target.style.getPropertyValue('--large')).toBe('')
+    setSize('lg')
+    expect(target.style.getPropertyValue('--size')).toBe('16px')
+    setSize(undefined)
+    expect(target.style.getPropertyValue('--size')).toBe('8px')
+    setTheme(null)
+    expect(target.style.cssText).toBe('')
+    expect(screen.getByRole('button')).toBe(button)
+    expect(screen.getByText('Save')).toBe(label)
+  },
+)
 
-test('layers theme variables before dynamic, group, slot, and root styles', () => {
-  const theme = defineTheme({
-    button: {
-      base: {
-        '--theme': 'theme',
-        '--dynamic': 'theme',
-        '--group': 'theme',
-        '--slot': 'theme',
-        '--root': 'theme',
+test.each(['root', 'label'] as const)(
+  'layers theme variables on %s before group, slot, and root styles',
+  (slot) => {
+    const theme = defineTheme({
+      button: {
+        base: {
+          '--theme': 'theme',
+          '--dynamic': 'theme',
+          '--group': 'theme',
+          '--slot': 'theme',
+          '--root': 'theme',
+        },
       },
-    },
-  })
-  function Fixture() {
-    const styles = createStyles(
-      buttonRecipe,
-      {
-        styles: { root: { '--slot': 'slot', '--root': 'slot' } },
-        style: { '--root': 'root' },
-      },
-      {
-        inheritedStyles: () => ({
-          styles: { root: { '--group': 'group', '--slot': 'group', '--root': 'group' } },
-        }),
-      },
-    )
-    return <button {...styles.styles.root}>Save</button>
-  }
-  const screen = render(() => (
-    <MoraineProvider theme={theme}>
-      <Fixture />
-    </MoraineProvider>
-  ))
-  for (const name of ['theme', 'group', 'slot', 'root']) {
-    expect(screen.getByRole('button').style.getPropertyValue(`--${name}`)).toBe(name)
-  }
-})
+    })
+    function Fixture() {
+      const styles = createStyles(
+        buttonRecipe,
+        {
+          styles: { [slot]: { '--slot': 'slot', '--root': 'slot' } },
+          style: { '--root': 'root' },
+        },
+        {
+          rootSlot: slot,
+          variablesSlot: slot,
+          inheritedStyles: () => ({
+            styles: { [slot]: { '--group': 'group', '--slot': 'group', '--root': 'group' } },
+          }),
+        },
+      )
+      return <button {...styles.styles[slot]}>Save</button>
+    }
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <Fixture />
+      </MoraineProvider>
+    ))
+    for (const name of ['theme', 'group', 'slot', 'root']) {
+      expect(screen.getByRole('button').style.getPropertyValue(`--${name}`)).toBe(name)
+    }
+  },
+)

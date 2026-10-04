@@ -1,4 +1,4 @@
-import type { Coords } from '@floating-ui/dom'
+import type { Coords, Placement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
@@ -206,6 +206,15 @@ export interface PopperContentOptions {
   slide?: boolean
 }
 export interface PopperContentProps extends PopperContentOptions {
+  /** Text direction inherited by portaled content. */
+  dir?: JSX.HTMLAttributes<HTMLDivElement>['dir']
+
+  /** Additional roots that belong to this overlay's interaction region. */
+  containsTarget?: (target: Node) => boolean
+
+  /** Overrides interaction tracking independently of transition presence. */
+  interactionEnabled?: boolean
+
   /** Content or render function inside the positioned content. */
   children: JSX.Element | ((props: PopperContentContext) => JSX.Element)
 
@@ -219,6 +228,12 @@ export interface PopperContentProps extends PopperContentOptions {
   positionerStyle?: JSX.CSSProperties
 }
 export interface PopperContentContext {
+  /** Whether the initial floating position has been committed. */
+  positioned: Accessor<boolean>
+
+  /** The shared floating wrapper. */
+  positionerElement: Accessor<HTMLDivElement | undefined>
+
   /** Closes the positioned content. */
   close: () => void
 
@@ -226,5 +241,5 @@ export interface PopperContentContext {
   contentProps: PopperContentAttributes
 
   /** Current placement after collision handling. */
-  currentPlacement: Accessor<string>
+  currentPlacement: Accessor<Placement>
 }

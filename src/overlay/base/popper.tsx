@@ -1,3 +1,4 @@
+import type { Placement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
@@ -22,7 +23,6 @@ import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
-import { applyDataAttributes } from '../../theme/style-contract'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
@@ -104,6 +104,16 @@ interface PopperContext {
   contentPresence: ReturnType<typeof createTransitionPresence>
 }
 
+type PopperTriggerState = Pick<
+  PopperContext,
+  'slotName' | 'contentId' | 'isOpen' | 'setOpen' | 'triggerElement' | 'setTriggerElement'
+> & {
+  options: Pick<PopperProps, 'disabled'>
+  contentPresence: Pick<PopperContext['contentPresence'], 'present'>
+}
+
+type PopperContentState = Omit<PopperContext, 'setTriggerElement'>
+
 /** Creates shared state for positioned overlay primitives in the current owner. */
 export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): PopperContext {
   const rootId = createId(() => props.id, 'popper')
@@ -141,7 +151,7 @@ export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): 
 }
 
 export function PopperTrigger<T extends ValidComponent = 'button'>(
-  props: PopperTriggerProps<T> & { context: PopperContext },
+  props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
   const cn = useCn()
   const [local, rest] = splitProps(props, [
@@ -215,7 +225,9 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   )
 }
 
-export function PopperContent(props: PopperContentProps & { context: PopperContext }): JSX.Element {
+export function PopperContent(
+  props: PopperContentProps & { context: PopperContentState },
+): JSX.Element {
   const cn = useCn()
   const context = untrack(() => props.context)
   const options = mergeProps(
@@ -244,15 +256,10 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     context
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerPositioned, setPositionerPositioned] = createSignal(false)
-  const [currentPlacement, setCurrentPlacement] = createSignal<string>('bottom')
-  const positionerDataAttrs = popperDataAttributes.positioner({ positioned: positionerPositioned })
-  function setPositioned(positioned: boolean): void {
-    setPositionerPositioned(positioned)
-    const element = positionerElement()
-    if (element) {
-      applyDataAttributes(element, positionerDataAttrs)
-    }
-  }
+  const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom')
+  const [portalMount, setPortalMount] = createSignal<HTMLElement>()
+  // Resolve after mounting, when the trigger may have been adopted into another document.
+  createEffect(on(triggerElement, (trigger) => setPortalMount(trigger?.ownerDocument.body)))
   const contentMounted = createMemo(
     () => contentPresence.present() || (options.forceMount && !context.options.disabled),
   )
@@ -294,7 +301,10 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     hideWhenDetached: () => options.hideWhenDetached,
     initialPosition: () => props.initialPosition,
     onPlacementChange: setCurrentPlacement,
-    onPositionedChange: setPositioned,
+    onPositionedChange: (positioned) => {
+      setPositionerPositioned(positioned)
+      positionerElement()?.toggleAttribute('data-positioned', positioned)
+    },
     open: contentPresence.present,
     overlap: () => options.overlap,
     overflowPadding: () => options.overflowPadding,
@@ -365,7 +375,8 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   )
 
   useOverlayInteraction({
-    enabled: contentPresence.present,
+    enabled: () => options.interactionEnabled ?? contentPresence.present(),
+    containsTarget: (target) => options.containsTarget?.(target) ?? false,
     contentElement,
     triggerElement,
     requireContent: true,
@@ -508,20 +519,22 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
             close: () => context.setOpen(false),
             contentProps,
             currentPlacement,
+            positioned: positionerPositioned,
+            positionerElement,
           }),
         )
         return (
-          <Portal mount={triggerElement()?.ownerDocument.body}>
+          <Portal mount={portalMount()}>
             <div
               ref={(element) => {
                 setPositionerElement(element)
-                applyDataAttributes(element, positionerDataAttrs)
                 onCleanup(() => {
                   if (positionerElement() === element) {
                     setPositionerElement(undefined)
                   }
                 })
               }}
+              dir={props.dir}
               data-slot={context.slotName('positioner')}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}

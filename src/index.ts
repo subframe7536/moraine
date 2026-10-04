@@ -119,6 +119,7 @@ export {
   Pagination,
   Stepper,
   Tabs,
+  NavigationMenu,
 } from './navigation'
 export type {
   BreadcrumbT,
@@ -133,6 +134,8 @@ export type {
   StepperT,
   TabsProps,
   TabsT,
+  NavigationMenuProps,
+  NavigationMenuT,
 } from './navigation'
 export { Modal, ContextMenu, Dialog, DropdownMenu, Popover, Sheet, Tooltip } from './overlay'
 export type {

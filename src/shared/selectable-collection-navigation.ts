@@ -8,11 +8,11 @@ type ActivationMode = 'automatic' | 'manual'
  * Options for the selectable collection navigation hook.
  *
  * @template TItem - Item type in the collection.
- * @template TValue - String or number used to identify an item.
+ * @template TValue - Stable, non-null value used to identify an item.
  */
 export interface CreateSelectableCollectionNavigationOptions<
   TItem,
-  TValue extends string | number,
+  TValue extends NonNullable<unknown>,
 > {
   /** Accessor returning the items in the collection. */
   items: Accessor<TItem[]>
@@ -57,7 +57,7 @@ export interface CreateSelectableCollectionNavigationOptions<
  * Enter/Space, and supports both automatic and manual activation modes.
  *
  * @template TItem - The item type in the collection.
- * @template TValue - The string or number used to identify an item.
+ * @template TValue - The stable, non-null value used to identify an item.
  *
  * @param options - Configuration for the navigation behavior.
  * @returns Navigation methods for the collection.
@@ -97,7 +97,7 @@ export interface CreateSelectableCollectionNavigationOptions<
  * - Automatic: Arrow keys immediately select and focus
  * - Manual: Arrow keys only focus, Enter/Space required to select
  */
-export function createSelectableCollectionNavigation<TItem, TValue extends string | number>(
+export function createSelectableCollectionNavigation<TItem, TValue extends NonNullable<unknown>>(
   options: CreateSelectableCollectionNavigationOptions<TItem, TValue>,
 ) {
   function getEnabledItems(): TItem[] {

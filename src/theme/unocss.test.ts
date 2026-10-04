@@ -351,8 +351,11 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--destructive)')
   })
 
-  test('registers shared enter and exit animations', async () => {
-    const css = await generate(['animate-mo-enter', 'animate-mo-exit'], true)
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('registers shared enter and exit animation defaults with %s', async (_name, wind) => {
+    const css = await generate(['animate-mo-enter', 'animate-mo-exit'], false, wind)
 
     expect(css).toContain('.animate-mo-enter')
     expect(css).toContain('.animate-mo-exit')
@@ -360,6 +363,14 @@ describe('presetMoraine', () => {
     expect(css).toContain('@keyframes mo-exit')
     expect(css).toContain('--mo-anim-duration-enter,250ms')
     expect(css).toContain('--mo-anim-duration-exit,150ms')
+    expect(css).toContain(
+      'var(--mo-anim-ease,var(--mo-anim-ease-enter,cubic-bezier(0.16, 1, 0.3, 1)))',
+    )
+    expect(css).toContain(
+      'var(--mo-anim-ease,var(--mo-anim-ease-exit,cubic-bezier(0.7, 0, 0.84, 0)))',
+    )
+    expect(css).toMatch(/\.animate-mo-exit\{[^}]*animation-fill-mode:forwards;/)
+    expect(css).not.toMatch(/\.animate-mo-enter\{[^}]*animation-fill-mode:forwards;/)
   })
 
   test('retains semantic z-index and icon shortcuts only', () => {

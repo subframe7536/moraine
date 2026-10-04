@@ -1,0 +1,497 @@
+{
+  "key": "navigation-menu",
+  "name": "NavigationMenu",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "navigation-menu",
+      "name": "NavigationMenu",
+      "access": {
+        "kind": "export",
+        "name": "NavigationMenu"
+      },
+      "defaultElement": "nav",
+      "props": [
+        {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment relative to the trigger.",
+          "default": {
+            "kind": "expression",
+            "text": "center"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Composed navigation parts."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "closeDelay",
+          "optional": true,
+          "type": "number",
+          "description": "Delay after the pointer leaves the menu, in milliseconds.",
+          "default": {
+            "kind": "literal",
+            "value": 50
+          }
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "string | null",
+          "description": "Initial open item value.",
+          "default": {
+            "kind": "literal",
+            "value": null
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disable navigation interactions.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "flip",
+          "optional": true,
+          "type": "boolean | string",
+          "description": "Whether to flip placement when the preferred side lacks space, or a space-delimited fallback placement list.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap between the trigger and panel, in pixels.",
+          "default": {
+            "kind": "literal",
+            "value": 8
+          }
+        },
+        {
+          "name": "onValueChange",
+          "optional": true,
+          "type": "(value: string | null) => void",
+          "description": "Called when an interaction requests a different open item."
+        },
+        {
+          "name": "openDelay",
+          "optional": true,
+          "type": "number",
+          "description": "Hover delay before the first panel opens, in milliseconds.",
+          "default": {
+            "kind": "literal",
+            "value": 50
+          }
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": "'horizontal' | 'vertical'",
+          "description": "Axis of the top-level navigation list.",
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Padding in pixels between positioned content and the viewport boundary.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Preferred content placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
+          "name": "shift",
+          "optional": true,
+          "type": "number",
+          "description": "Cross-axis offset in pixels from the resolved placement.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "slide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the content may slide along its main axis to remain visible.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string | null",
+          "description": "Open item value. null closes the menu."
+        }
+      ]
+    },
+    {
+      "id": "navigation-menu-list",
+      "name": "NavigationMenu.List",
+      "access": {
+        "kind": "attached",
+        "root": "NavigationMenu",
+        "member": "List"
+      },
+      "defaultElement": "ul",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Pick<Classes, 'list'>",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Pick<Styles, 'list'>",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "navigation-menu-item",
+      "name": "NavigationMenu.Item",
+      "access": {
+        "kind": "attached",
+        "root": "NavigationMenu",
+        "member": "Item"
+      },
+      "defaultElement": "li",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Pick<Classes, 'item'>",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disable this item's trigger or direct links.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Pick<Styles, 'item'>",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "description": "Unique item value. Generated when omitted; set explicitly for controlled usage."
+        }
+      ]
+    },
+    {
+      "id": "navigation-menu-trigger",
+      "name": "NavigationMenu.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "NavigationMenu",
+        "member": "Trigger"
+      },
+      "defaultElement": "button",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Pick<Classes, 'trigger' | 'triggerIcon'>",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Pick<Styles, 'trigger' | 'triggerIcon'>",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "navigation-menu-content",
+      "name": "NavigationMenu.Content",
+      "access": {
+        "kind": "attached",
+        "root": "NavigationMenu",
+        "member": "Content"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Lazily mounted panel content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Pick<Classes, 'content'>",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Pick<Styles, 'content'>",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "navigation-menu-link",
+      "name": "NavigationMenu.Link",
+      "access": {
+        "kind": "attached",
+        "root": "NavigationMenu",
+        "member": "Link"
+      },
+      "defaultElement": "a",
+      "props": [
+        {
+          "name": "active",
+          "optional": true,
+          "type": "boolean",
+          "description": "Mark this link as the current page.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Pick<Classes, 'link'>",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "closeOnClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Close the panel after an uncancelled link click.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disable navigation from this link.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "linkRender",
+          "optional": true,
+          "type": "Component<LinkRenderProps>",
+          "description": "Custom link component. Forward all supplied props to its anchor."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Pick<Styles, 'link'>",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "list",
+    "item",
+    "trigger",
+    "triggerIcon",
+    "content",
+    "link"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-orientation"
+      ]
+    },
+    {
+      "target": "list",
+      "attributes": [
+        "data-orientation"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "triggerIcon",
+      "attributes": [
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-orientation"
+      ]
+    },
+    {
+      "target": "link",
+      "attributes": [
+        "data-active",
+        "data-disabled"
+      ]
+    }
+  ]
+}
