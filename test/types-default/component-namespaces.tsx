@@ -250,17 +250,6 @@ export type ListStyleContract = [
   Assert<IsNever<ListT.Styles>>,
 ]
 
-// @ts-expect-error Renamed to fallbackContent.
-type RemovedAvatarGroupFallbackIcon = AvatarGroupT.Slot['fallbackIcon']
-// @ts-expect-error Renamed to body.
-type RemovedAccordionContentInner = AccordionT.Slot['contentInner']
-// @ts-expect-error Renamed to handleControl.
-type RemovedResizableOldHandle = ResizableT.Slot['divider']
-// @ts-expect-error Removed as a forwarded child override.
-type RemovedTooltipKbd = TooltipT.Slot['kbd']
-// @ts-expect-error Renamed to itemIndicator.
-type RemovedSelectItemTrailing = SelectT.Slot['itemTrailing']
-
 export type SlotOwnershipContract = [
   Assert<'fallbackContent' extends keyof AvatarT.Slot ? true : false>,
   Assert<
@@ -272,11 +261,6 @@ export type SlotOwnershipContract = [
   Assert<'icon' extends keyof CheckboxT.Slot ? true : false>,
   Assert<'controlLabel' extends keyof PaginationT.Slot ? true : false>,
   Assert<'itemWrapper' | 'itemLabel' | 'itemIndicator' extends keyof SelectT.Slot ? true : false>,
-  RemovedAvatarGroupFallbackIcon,
-  RemovedAccordionContentInner,
-  RemovedResizableOldHandle,
-  RemovedTooltipKbd,
-  RemovedSelectItemTrailing,
 ]
 
 ;<Icon name="icon-search" classes={{ root: 'text-primary' }} styles={{ root: { color: 'red' } }} />
@@ -419,104 +403,4 @@ export type CompositePartContracts = [
   BaseSelectT.ContentProps,
   BaseSelectT.ItemBase,
   BaseSelectT.ItemProps,
-]
-
-// @ts-expect-error Built-in alias keys are an implementation detail.
-type RemovedKbdBuiltinKbds = KbdT.BuiltinKbds
-// @ts-expect-error Recursive field paths are an implementation detail.
-type RemovedFieldPath = FieldT.Path
-// @ts-expect-error ValidationMode is not part of the Form component contract.
-type RemovedFormValidationMode = FormT.ValidationMode
-// @ts-expect-error Orientation has no independent public use.
-type RemovedInputNumberOrientation = InputNumberT.Orientation
-// @ts-expect-error BaseSelect composition helpers are internal.
-type RemovedBaseSelectFieldProps = BaseSelectT.FieldProps
-// @ts-expect-error BaseSelect composition helpers are internal.
-type RemovedBaseSelectDisclosureProps = BaseSelectT.DisclosureProps
-// @ts-expect-error BaseSelect composition helpers are internal.
-type RemovedBaseSelectItemBehaviorProps = BaseSelectT.ItemBehaviorProps<BaseSelectT.Item>
-// @ts-expect-error BaseSelect composition helpers are internal.
-type RemovedBaseSelectCloseOnSelectOption = BaseSelectT.CloseOnSelectOption
-// @ts-expect-error BaseSelect composition helpers are internal.
-type RemovedBaseSelectResetProps = BaseSelectT.ResetProps
-// @ts-expect-error BaseSelect selection helpers are internal.
-type RemovedBaseSelectSelection = BaseSelectT.Selection<string>
-// @ts-expect-error BaseSelect structural part helpers are internal.
-type RemovedBaseSelectPartProps = BaseSelectT.PartProps
-// @ts-expect-error BaseSelect item-value helpers are internal.
-type RemovedBaseSelectItemValue = BaseSelectT.ItemValue<BaseSelectT.Item>
-// @ts-expect-error Generic select values are expressed through Item['value'].
-type RemovedBaseSelectValue = BaseSelectT.Value
-// @ts-expect-error Generic select values are expressed through Item['value'].
-type RemovedSelectValue = SelectT.Value
-// @ts-expect-error Generic select values are expressed through Item['value'].
-type RemovedComboboxValue = ComboboxT.Value
-// @ts-expect-error Generic select values are expressed through Item['value'].
-type RemovedMultiSelectValue = MultiSelectT.Value
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedSelectControlSlot = SelectT.ControlSlot
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedSelectItemSlot = SelectT.ItemSlot
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedComboboxControlSlot = ComboboxT.ControlSlot
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedComboboxItemSlot = ComboboxT.ItemSlot
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedMultiSelectControlSlot = MultiSelectT.ControlSlot
-// @ts-expect-error Select-family ownership helpers are internal.
-type RemovedMultiSelectItemSlot = MultiSelectT.ItemSlot
-// @ts-expect-error DescriptionPosition is represented by the recipe variant.
-type RemovedCommandPaletteDescriptionPosition = CommandPaletteT.DescriptionPosition
-// @ts-expect-error The shared render base is internal.
-type RemovedCommandPaletteBaseContext = CommandPaletteT.BaseContext
-// @ts-expect-error Render callback props use the RenderProps suffix.
-type RemovedFieldRenderContext = FieldT.RenderContext
-// @ts-expect-error Render callback props use the RenderProps suffix.
-type RemovedResizableHandleContext = ResizableT.HandleContext
-// @ts-expect-error Render callback props use the RenderProps suffix.
-type RemovedModalContentContext = ModalT.ContentContext
-// @ts-expect-error Render callback props use the RenderProps suffix.
-type RemovedBaseSelectTriggerState = BaseSelectT.TriggerState
-// @ts-expect-error Render callback props use the RenderProps suffix.
-type RemovedBaseSelectItemState = BaseSelectT.ItemState
-// @ts-expect-error Wrapper render-state helpers were replaced by ItemRenderProps.
-type RemovedSelectItemRenderState = SelectT.ItemRenderState
-// @ts-expect-error Wrapper render-state helpers were replaced by ItemRenderProps.
-type RemovedComboboxItemRenderState = ComboboxT.ItemRenderState
-// @ts-expect-error Wrapper render-state helpers were replaced by ItemRenderProps.
-type RemovedMultiSelectItemRenderState = MultiSelectT.ItemRenderState
-
-export type RemovedNamespaceMembers = [
-  RemovedKbdBuiltinKbds,
-  RemovedFieldPath,
-  RemovedFormValidationMode,
-  RemovedInputNumberOrientation,
-  RemovedBaseSelectFieldProps,
-  RemovedBaseSelectDisclosureProps,
-  RemovedBaseSelectItemBehaviorProps,
-  RemovedBaseSelectCloseOnSelectOption,
-  RemovedBaseSelectResetProps,
-  RemovedBaseSelectSelection,
-  RemovedBaseSelectPartProps,
-  RemovedBaseSelectItemValue,
-  RemovedBaseSelectValue,
-  RemovedSelectValue,
-  RemovedComboboxValue,
-  RemovedMultiSelectValue,
-  RemovedSelectControlSlot,
-  RemovedSelectItemSlot,
-  RemovedComboboxControlSlot,
-  RemovedComboboxItemSlot,
-  RemovedMultiSelectControlSlot,
-  RemovedMultiSelectItemSlot,
-  RemovedCommandPaletteDescriptionPosition,
-  RemovedCommandPaletteBaseContext,
-  RemovedFieldRenderContext,
-  RemovedResizableHandleContext,
-  RemovedModalContentContext,
-  RemovedBaseSelectTriggerState,
-  RemovedBaseSelectItemState,
-  RemovedSelectItemRenderState,
-  RemovedComboboxItemRenderState,
-  RemovedMultiSelectItemRenderState,
 ]

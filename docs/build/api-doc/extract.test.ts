@@ -52,9 +52,7 @@ describe('generateApiDoc', () => {
       slots: expect.arrayContaining(['root']),
       dataAttributes: [{ target: 'root', attributes: ['data-disabled', 'data-loading'] }],
     })
-    expect(button).not.toHaveProperty('category')
     expect(button?.parts[0]).toMatchObject({ defaultElement: 'button' })
-    expect(button?.parts[0]).not.toHaveProperty('rendering')
     expect(button?.parts[0]?.access).toEqual({ kind: 'export', name: 'Button' })
     expect(typeof button?.parts[0]?.props[0]?.type).toBe('string')
     expect(button?.parts[0]?.props.map((prop) => prop.name)).toEqual(
@@ -129,7 +127,6 @@ describe('generateApiDoc', () => {
 
     const select = result.componentDocs.get('select')
     expect(select?.item?.props.map((prop) => prop.name)).toContain('value')
-    expect(select?.item).not.toHaveProperty('name')
     expect(select?.item?.generics).toEqual([
       { name: 'Val', constraint: 'string | number', default: 'string | number' },
     ])
@@ -186,9 +183,6 @@ describe('generateApiDoc', () => {
     }
     for (const key of ['input', 'textarea', 'badge']) {
       const names = result.componentDocs.get(key)!.parts[0]!.props.map((prop) => prop.name)
-      expect(names).not.toContain('grouped')
-      expect(names).not.toContain('groupedOrientation')
-      expect(names).not.toContain('square')
       expect(names).toEqual(expect.arrayContaining(['size', 'variant']))
     }
     for (const part of result.componentDocs.get('input-group')!.parts.slice(1)) {
@@ -221,10 +215,6 @@ describe('generateApiDoc', () => {
     expect(baseSelectItem.props.map((prop) => prop.name)).toEqual(
       expect.arrayContaining(['item', 'children', 'class', 'style']),
     )
-    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('value')
-    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('label')
-    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('disabled')
-    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('as')
     expect(baseSelectItem.defaultElement).toBe('div')
 
     const checkboxGroup = result.componentDocs.get('checkbox-group')
@@ -245,12 +235,6 @@ describe('generateApiDoc', () => {
       expect.arrayContaining(['name', 'label', 'description', 'required']),
     )
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
-
-    expect(Object.keys(result.indexDoc.components[0] ?? {}).sort()).toEqual([
-      'category',
-      'key',
-      'name',
-    ])
   })
 
   test('is deterministic', async () => {

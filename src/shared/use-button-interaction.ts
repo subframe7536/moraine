@@ -94,7 +94,7 @@ export function useButtonInteraction(
       spaceKeyDownArmed = false
     }
 
-    const { defaultPrevented } = callHandler<HTMLElement, KeyboardEvent>(event, props.onKeyDown)
+    const { defaultPrevented } = callHandler<KeyboardEvent>(event, props.onKeyDown)
     if (defaultPrevented || !isCurrentTarget || !handlesKeyboardActivation()) {
       return
     }
@@ -129,7 +129,7 @@ export function useButtonInteraction(
       return
     }
 
-    const { defaultPrevented } = callHandler<HTMLElement, KeyboardEvent>(event, props.onKeyUp)
+    const { defaultPrevented } = callHandler<KeyboardEvent>(event, props.onKeyUp)
     if (!shouldActivate || defaultPrevented) {
       return
     }
@@ -192,7 +192,7 @@ export function useButtonInteraction(
     },
     onBlur(event: FocusEvent): void {
       spaceKeyDownArmed = false
-      callHandler<HTMLElement, FocusEvent>(event, props.onBlur)
+      callHandler<FocusEvent>(event, props.onBlur)
     },
     onClick(event: MouseEvent): void {
       if (options.disabled()) {
@@ -200,7 +200,7 @@ export function useButtonInteraction(
         return
       }
 
-      const { defaultPrevented } = callHandler<HTMLElement, MouseEvent>(
+      const { defaultPrevented } = callHandler<MouseEvent>(
         event,
         options.onClickOverride ?? props.onClick,
       )
@@ -216,7 +216,7 @@ export function useButtonInteraction(
         return
       }
 
-      callHandler<HTMLElement, PointerEvent>(event, props.onPointerDown)
+      callHandler<PointerEvent>(event, props.onPointerDown)
     },
   })
 

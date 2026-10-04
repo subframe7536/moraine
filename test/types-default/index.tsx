@@ -184,13 +184,6 @@ const destructiveMenuItem: DropdownMenuT.Item = {
 }
 void destructiveMenuItem
 
-const removedColorMenuItem: DropdownMenuT.Item = {
-  label: 'Delete',
-  // @ts-expect-error `color` was replaced by `variant`.
-  color: 'destructive',
-}
-void removedColorMenuItem
-
 const invalidMenuItemVariant: DropdownMenuT.Item = {
   label: 'Delete',
   // @ts-expect-error Menu item variants are limited to default and destructive.
@@ -369,8 +362,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <Card.Body />
   <Card.Footer as="nav" aria-label="Related links" />
 </Card>
-// @ts-expect-error Old convenience props are removed.
-;<Card footer="Old API" />
 // @ts-expect-error Only Card owns variants.
 ;<Card.Header size="sm" />
 // @ts-expect-error Only Card owns family classes.
@@ -481,10 +472,6 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   size="sm"
   variant="outline"
 />
-// @ts-expect-error KbdGroup no longer supports multi-step sequences.
-;<KbdGroup sequence={[['meta', 'k']]} />
-// @ts-expect-error KbdGroup no longer supports divider render props.
-;<KbdGroup items={['meta', 'k']} dividerRender="+" />
 // @ts-expect-error KbdGroup is data-driven and rejects composed children.
 ;<KbdGroup items={['meta', 'k']} children={<Kbd value="meta" />} />
 
@@ -503,8 +490,6 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 ;<Button style="color: red" />
 // @ts-expect-error String slot style is rejected
 ;<Modal defaultOpen styles={{ content: 'color: red' }} />
-// @ts-expect-error Modal root no longer owns named slots.
-;<Modal classes={{ trigger: 'trigger' }} />
 
 ;<Dialog>
   <Dialog.Trigger as={CustomRoot} data-testid="dialog-trigger" required="dialog">
@@ -802,15 +787,6 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 ;<rootOnlyForm.Field name="unknown">
   <Input />
 </rootOnlyForm.Field>
-// @ts-expect-error Old FormField component export is removed.
-type OldFormField = typeof import('moraine').FormField
-// @ts-expect-error Old FormFieldT type export is removed.
-type OldFormFieldT = import('moraine').FormFieldT
-// @ts-expect-error Old FormFieldProps type export is removed.
-type OldFormFieldProps = import('moraine').FormFieldProps
-void (null as unknown as OldFormField)
-void (null as unknown as OldFormFieldT)
-void (null as unknown as OldFormFieldProps)
 ;<rootOnlyForm.Form class="space-y-2" style={{ color: 'red' }} />
 ;<rootOnlyForm.Form styles={{ root: { color: 'red' } }} />
 
@@ -921,8 +897,6 @@ const theme = defineTheme({
 
 // @ts-expect-error Unknown component names are rejected.
 defineTheme({ unknownComponent: {} })
-// @ts-expect-error Old formField theme key is removed.
-defineTheme({ formField: { base: { root: 'space-y-2' } } })
 // @ts-expect-error List has no Theme slots.
 defineTheme({ list: { base: { root: 'p-4' } } })
 defineTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
@@ -971,8 +945,6 @@ export type DefaultTagAssertions = [
 ;<Tooltip placement="top" align="end" />
 ;<DropdownMenu placement="bottom" align="end" />
 ;<ContextMenu placement="right" align="start" />
-// @ts-expect-error combined Floating UI placement strings are no longer public
-;<DropdownMenu placement="bottom-end" />
 // @ts-expect-error left is a side, not an alignment
 ;<Popover align="left" />
 

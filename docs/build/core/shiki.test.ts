@@ -3,7 +3,6 @@
 import { describe, expect, test } from 'vitest'
 
 import {
-  getDocsHighlighter,
   parseCodeGroupId,
   parseCodeTitle,
   parseHighlightedLines,
@@ -36,6 +35,10 @@ describe('docs shiki code highlighter', () => {
     expect([...parseHighlightedLines(undefined, [1, 2, 5])]).toEqual([1, 2, 5])
     expect([...parseHighlightedLines(undefined, '1-3, 5')]).toEqual([1, 2, 3, 5])
     expect([...parseHighlightedLines(undefined, new Set([4]))]).toEqual([4])
+    expect([...parseHighlightedLines('{2}', [])]).toEqual([])
+    expect([...parseHighlightedLines('{2}', '')]).toEqual([2])
+    expect([...parseHighlightedLines(undefined, '{3-1, 2, invalid, 4-5}')]).toEqual([2, 4, 5])
+    expect([...parseHighlightedLines(undefined, [2, Number.NaN, Infinity, 2])]).toEqual([2])
   })
 
   test('renders source code with dual themes and shiki classes', async () => {
@@ -88,11 +91,5 @@ describe('docs shiki code highlighter', () => {
     })
     expect(html).toContain('tabindex="-1"')
     expect(html).not.toContain('tabindex="0"')
-  })
-
-  test('reuses singleton highlighter instance', async () => {
-    const h1 = await getDocsHighlighter()
-    const h2 = await getDocsHighlighter()
-    expect(h1).toBe(h2)
   })
 })

@@ -1,12 +1,12 @@
 import type { Highlighter, ShikiTransformer } from 'shiki'
 import { createHighlighter } from 'shiki'
 
-export const DOCS_HIGHLIGHT_THEMES = {
+const DOCS_HIGHLIGHT_THEMES = {
   light: 'one-light',
   dark: 'one-dark-pro',
 } as const
 
-export const COMMON_LANGUAGES = [
+const COMMON_LANGUAGES = [
   'tsx',
   'typescript',
   'ts',
@@ -25,11 +25,9 @@ export const COMMON_LANGUAGES = [
   'diff',
 ] as const
 
-export type DocsHighlightLang = (typeof COMMON_LANGUAGES)[number] | (string & {})
-
 let highlighterPromise: Promise<Highlighter> | null = null
 
-export async function getDocsHighlighter(): Promise<Highlighter> {
+async function getDocsHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: [DOCS_HIGHLIGHT_THEMES.light, DOCS_HIGHLIGHT_THEMES.dark],
@@ -45,57 +43,32 @@ export function parseHighlightedLines(
 ): Set<number> {
   const result = new Set<number>()
 
-  if (explicit) {
-    if (explicit instanceof Set) {
-      return explicit
-    }
-    if (Array.isArray(explicit)) {
-      for (const line of explicit) {
-        if (typeof line === 'number' && Number.isFinite(line)) {
-          result.add(line)
-        }
+  const lines = explicit || meta?.match(/\{([0-9,\s-]+)\}/)?.[1]
+  if (lines instanceof Set) {
+    return lines
+  }
+  if (Array.isArray(lines)) {
+    for (const line of lines) {
+      if (Number.isFinite(line)) {
+        result.add(line)
       }
-      return result
     }
-    if (typeof explicit === 'string') {
-      for (const part of explicit.replace(/[{}]/g, '').split(',')) {
-        const trimmed = part.trim()
-        if (trimmed.includes('-')) {
-          const [start, end] = trimmed.split('-').map(Number)
-          if (start && end && start <= end) {
-            for (let i = start; i <= end; i++) {
-              result.add(i)
-            }
-          }
-        } else if (trimmed) {
-          const num = Number(trimmed)
-          if (Number.isFinite(num)) {
-            result.add(num)
-          }
-        }
-      }
-      return result
-    }
+    return result
   }
 
-  if (meta) {
-    const match = meta.match(/\{([0-9,\s-]+)\}/)
-    if (match?.[1]) {
-      for (const part of match[1].split(',')) {
-        const trimmed = part.trim()
-        if (trimmed.includes('-')) {
-          const [start, end] = trimmed.split('-').map(Number)
-          if (start && end && start <= end) {
-            for (let i = start; i <= end; i++) {
-              result.add(i)
-            }
-          }
-        } else if (trimmed) {
-          const num = Number(trimmed)
-          if (Number.isFinite(num)) {
-            result.add(num)
-          }
+  for (const part of (lines ?? '').replace(/[{}]/g, '').split(',')) {
+    const trimmed = part.trim()
+    if (trimmed.includes('-')) {
+      const [start, end] = trimmed.split('-').map(Number)
+      if (start && end && start <= end) {
+        for (let i = start; i <= end; i++) {
+          result.add(i)
         }
+      }
+    } else if (trimmed) {
+      const num = Number(trimmed)
+      if (Number.isFinite(num)) {
+        result.add(num)
       }
     }
   }
@@ -142,7 +115,6 @@ export interface DocsCodeRenderOptions {
   code: string
   language: string
   meta?: string
-  title?: string
   highlightedLines?: number[] | string | Set<number>
   lineNumbers?: boolean
 }

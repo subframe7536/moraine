@@ -1,13 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import {
-  getOwnerDocument,
-  getOwnerWindow,
-  isElement,
-  isHTMLButtonElement,
-  isHTMLElement,
-  isNode,
-} from './dom'
+import { isElement, isHTMLElement, isNode } from './dom'
 import { getContextMenuTriggerAccessibility, validateOverlayTrigger } from './trigger'
 
 describe('overlay DOM realm', () => {
@@ -23,9 +16,6 @@ describe('overlay DOM realm', () => {
       expect(isNode(button)).toBe(true)
       expect(isElement(button)).toBe(true)
       expect(isHTMLElement(button)).toBe(true)
-      expect(isHTMLButtonElement(button)).toBe(true)
-      expect(getOwnerDocument(button)).toBe(foreignDocument)
-      expect(getOwnerWindow(button)).toBe(iframe.contentWindow)
       expect(() => validateOverlayTrigger(button, 'Modal')).not.toThrow()
       expect(() => validateOverlayTrigger(div, 'ContextMenu')).not.toThrow()
       expect(getContextMenuTriggerAccessibility(button, true)).toEqual({

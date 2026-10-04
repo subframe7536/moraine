@@ -159,22 +159,6 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   ]}
   itemRender={({ item }) => item.department}
 />
-// @ts-expect-error Old collection terminology is removed.
-;<Select options={items} />
-// @ts-expect-error Old collection terminology is removed.
-;<MultiSelect options={items} />
-// @ts-expect-error Old renderer is removed.
-;<Select optionRender={() => null} />
-// @ts-expect-error Old filter is removed.
-;<Select filterOption={false} />
-// @ts-expect-error Old label renderer is removed.
-;<Select labelRender={() => null} />
-// @ts-expect-error Old renderer is removed.
-;<MultiSelect optionRender={() => null} />
-// @ts-expect-error Old filter is removed.
-;<MultiSelect filterOption={false} />
-// @ts-expect-error Old label renderer is removed.
-;<MultiSelect labelRender={() => null} />
 
 ;<Combobox<UserItem>
   items={[group]}

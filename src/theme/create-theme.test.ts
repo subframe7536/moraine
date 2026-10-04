@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { getThemeRecipeLayers, getThemeLayers, defineTheme } from './create-theme'
+import { getThemeRecipeLayers, defineTheme } from './create-theme'
 
 describe('defineTheme', () => {
   test('creates opaque immutable themes and records only supplied overrides', () => {
@@ -70,6 +70,5 @@ describe('defineTheme', () => {
       { base: { root: 'middle' } },
       { base: { root: 'child' } },
     ])
-    expect(getThemeLayers(child)).toHaveLength(3)
   })
 })

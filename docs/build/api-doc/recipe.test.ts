@@ -1,29 +1,12 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
+import { describe, expect, test } from 'vitest'
 
-import { afterEach, describe, expect, test } from 'vitest'
+import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { RecipeExtractor } from './recipe.ts'
 
-const roots: string[] = []
-
 async function fixture(files: Record<string, string>) {
-  const root = await mkdtemp(path.join(tmpdir(), 'moraine-recipe-'))
-  roots.push(root)
-  await Promise.all(
-    Object.entries(files).map(async ([name, source]) => {
-      const target = path.join(root, name)
-      await mkdir(path.dirname(target), { recursive: true })
-      await writeFile(target, source, 'utf8')
-    }),
-  )
-  return new RecipeExtractor(root)
+  return new RecipeExtractor(await createFileFixture(files))
 }
-
-afterEach(async () => {
-  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
-})
 
 describe('RecipeExtractor', () => {
   test('extracts composed slots, variants, and data attributes', async () => {

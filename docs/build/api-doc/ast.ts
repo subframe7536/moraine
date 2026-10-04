@@ -59,26 +59,6 @@ function isAstNode(value: unknown): value is AstNode {
   )
 }
 
-export function walkAst(root: unknown, visit: (node: AstNode) => void): void {
-  if (Array.isArray(root)) {
-    for (const value of root) {
-      walkAst(value, visit)
-    }
-    return
-  }
-
-  if (!isAstNode(root)) {
-    return
-  }
-
-  visit(root)
-  for (const [key, value] of Object.entries(root)) {
-    if (key !== 'comments' && key !== 'parent') {
-      walkAst(value, visit)
-    }
-  }
-}
-
 export function nodeText(source: ParsedSource, node: Pick<AstNode, 'start' | 'end'>): string {
   return source.text.slice(node.start, node.end)
 }

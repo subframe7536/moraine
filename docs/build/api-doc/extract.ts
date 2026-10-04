@@ -51,7 +51,6 @@ export async function generateApiDoc(
         partTypesModule,
         part.namespaceName,
         part.propsTypeName,
-        part.name,
         part.isRoot,
         recipe.variants,
       )

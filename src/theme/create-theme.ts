@@ -42,7 +42,7 @@ export function defineTheme(options: DefineThemeOptions = {}): MoraineTheme {
   ) as MoraineTheme
 }
 
-export function getThemeLayers(theme: MoraineTheme | undefined): readonly ThemeLayer[] {
+function getThemeLayers(theme: MoraineTheme | undefined): readonly ThemeLayer[] {
   return theme ? (theme as InternalTheme)[THEME_LAYERS] : []
 }
 

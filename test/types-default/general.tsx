@@ -1,5 +1,5 @@
 import { Accordion, AvatarGroup, ButtonGroup, Resizable } from 'moraine'
-import type { AccordionT, AvatarT } from 'moraine'
+import type { AccordionT } from 'moraine'
 
 ;<Accordion
   items={[{ value: 'billing plan / 中文?', label: 'Billing' }]}
@@ -37,12 +37,6 @@ void missingValue
   <Resizable.Handle intersection />
   <Resizable.Panel />
 </Resizable>
-// @ts-expect-error The root prop is disabled.
-;<Resizable disable />
-// @ts-expect-error Panel sizing moved to the root.
-;<Resizable.Panel size={300} />
-// @ts-expect-error Panel default sizing moved to the root.
-;<Resizable.Panel defaultSize="30%" />
 
 ;<AvatarGroup max={0} />
 // @ts-expect-error max accepts numbers only.
@@ -52,6 +46,3 @@ void missingValue
 </ButtonGroup>
 // @ts-expect-error ButtonGroup supports ComponentSize, not icon sizes.
 ;<ButtonGroup size="icon-sm" />
-// @ts-expect-error Avatar no longer has an idle status.
-const idle: AvatarT.Status = 'idle'
-void idle

@@ -8,7 +8,6 @@ import { FieldProvider } from '../field/field-context'
 import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
-import { mergeAriaTokens } from './merge-aria-tokens'
 import { useTextControlValue } from './use-text-control-value'
 
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
@@ -133,11 +132,6 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
     fireEvent.blur(control)
     expect(calls).toEqual(['field:focus', 'native:focus', 'field:blur', 'native:blur'])
   })
-})
-
-test('ARIA tokens retain caller order and omit empty values', () => {
-  expect(mergeAriaTokens(' a b a ', 'b c', undefined)).toBe('a b c')
-  expect(mergeAriaTokens('', '  ', undefined)).toBeUndefined()
 })
 
 test('Input forwards list association to the native input', () => {

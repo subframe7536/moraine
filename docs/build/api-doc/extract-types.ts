@@ -321,7 +321,6 @@ export class TypeExtractor {
     module: ParsedModule,
     namespaceName: string,
     propsTypeName: string,
-    partName: string,
     isRoot: boolean,
     recipeVariants: RecipeVariantApi[] = [],
   ): Promise<{
@@ -514,10 +513,10 @@ export class TypeExtractor {
 
     // 1. Resolve Base props
     if (baseNode) {
-      const baseProps = await this.#resolvePropertiesFromType(
+      const baseProps = await this.#resolvePropertiesFromTypeNode(
         module,
-        nsNode,
         baseNode,
+        nsNode,
         substitutions,
       )
       props.push(...baseProps)
@@ -525,10 +524,10 @@ export class TypeExtractor {
 
     // Public types define the variants; recipes only supply missing defaults.
     if (variantNode) {
-      const variants = await this.#resolvePropertiesFromType(
+      const variants = await this.#resolvePropertiesFromTypeNode(
         module,
-        nsNode,
         variantNode,
+        nsNode,
         substitutions,
       )
       for (const variant of variants) {
@@ -623,15 +622,6 @@ export class TypeExtractor {
       }
     }
     return false
-  }
-
-  async #resolvePropertiesFromType(
-    module: ParsedModule,
-    nsNode: ESTree.TSModuleDeclaration | undefined,
-    node: ESTree.TSType,
-    substitutions?: Map<string, string>,
-  ): Promise<PropApi[]> {
-    return this.#resolvePropertiesFromTypeNode(module, node, nsNode, substitutions)
   }
 
   static #mergeProperties(target: PropApi[], incoming: readonly PropApi[]): void {

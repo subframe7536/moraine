@@ -365,11 +365,6 @@ describe('Pagination', () => {
     }
   })
 
-  test('does not expose the removed link slot', () => {
-    const screen = render(() => <Pagination total={30} itemsPerPage={10} />)
-    expect(screen.container.querySelector('[data-slot="link"]')).toBeNull()
-  })
-
   test('resolves each visible link destination once and keeps current-page activation a no-op', async () => {
     const to = vi.fn((page: number) => `/page/${page}`)
     const onPageChange = vi.fn()

@@ -318,6 +318,24 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     )
   }
 
+  function useItemRegistration(
+    item: Accessor<TItem>,
+    element: Accessor<HTMLDivElement | undefined>,
+    itemId: Accessor<string>,
+  ): void {
+    onMount(() => {
+      onCleanup(
+        layer.registerItem({
+          disabled: () => Boolean(item().disabled),
+          element,
+          hasSubmenu: false,
+          id: itemId(),
+          textValue: () => getOverlayMenuTextValue(item()) ?? element()?.textContent,
+        }),
+      )
+    })
+  }
+
   function LeafItem(itemProps: { item: TItem }): JSX.Element {
     const itemId = createId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
@@ -325,17 +343,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       props.itemProps?.(getItemRenderProps(itemProps.item, false, false, false)),
     )
 
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(itemProps.item.disabled),
-          element,
-          hasSubmenu: false,
-          id: itemId(),
-          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
-        }),
-      )
-    })
+    useItemRegistration(() => itemProps.item, element, itemId)
 
     const activate = (): void => {
       if (itemProps.item.disabled) {
@@ -397,17 +405,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       props.itemProps?.(getItemRenderProps(itemProps.item, false, true, false)),
     )
 
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(itemProps.item.disabled),
-          element,
-          hasSubmenu: false,
-          id: itemId(),
-          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
-        }),
-      )
-    })
+    useItemRegistration(() => itemProps.item, element, itemId)
 
     const toggle = (): void => {
       if (itemProps.item.disabled) {
@@ -484,17 +482,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       props.itemProps?.(getItemRenderProps(itemProps.item, false, false, true)),
     )
 
-    onMount(() => {
-      onCleanup(
-        layer.registerItem({
-          disabled: () => Boolean(itemProps.item.disabled),
-          element,
-          hasSubmenu: false,
-          id: itemId(),
-          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
-        }),
-      )
-    })
+    useItemRegistration(() => itemProps.item, element, itemId)
 
     const select = (): void => {
       if (itemProps.item.disabled) {

@@ -1,38 +1,14 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
-import {
-  createApiReferenceModel,
-  getApiReferenceTocEntries,
-} from '../../../../build/api-doc/presentation'
-import type {
-  ApiReferencePresentationModel,
-  PresentationPartSection,
-} from '../../../../build/api-doc/presentation'
+import { createApiReferenceModel } from '../../../../build/api-doc/presentation'
+import type { PresentationPartSection } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
 
 import { AttributesSection } from './api-attributes-section'
 import { PropRows } from './api-prop-rows'
 import { HeadingWithAnchor } from './heading-with-anchor'
-
-export { HeadingWithAnchor } from './heading-with-anchor'
-export { PropDetails, PropRowItem, PropRows, type PropDoc } from './api-prop-rows'
-export { AttributeRow, AttributesSection, EmptyAttributes } from './api-attributes-section'
-
-export interface DocsApiReferenceModel {
-  reference: ApiReferencePresentationModel | null
-}
-
-export function createDocsApiReferenceModel(
-  apiDoc: ComponentApi | undefined,
-): DocsApiReferenceModel {
-  return { reference: createApiReferenceModel(apiDoc) }
-}
-
-export function getDocsApiReferenceTocEntries(apiDoc: ComponentApi | undefined) {
-  return getApiReferenceTocEntries(apiDoc)
-}
 
 function PartMetadata(props: { part: PresentationPartSection; description?: string }): JSX.Element {
   const description = () => props.part.description ?? props.description

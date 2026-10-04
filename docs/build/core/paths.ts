@@ -5,8 +5,6 @@ import type { DocsSurface } from '../../shared/docs-route.ts'
 
 import { toPosixPath } from './strings.ts'
 
-export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
-
 export interface DocsPageContext {
   absolutePath: string
   pagesRoot: string

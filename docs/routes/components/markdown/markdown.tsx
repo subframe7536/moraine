@@ -1,11 +1,12 @@
 import type { JSX } from 'solid-js'
 import { createMemo, onMount, untrack } from 'solid-js'
 
+import { getApiReferenceTocEntries } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
-import { DocsApiReference, getDocsApiReferenceTocEntries } from './api-reference'
+import { DocsApiReference } from './api-reference'
 import { ComponentDocContext } from './component-doc.context'
 import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
@@ -86,7 +87,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
 
   const onThisPageEntries = createMemo(() => [
     ...(input.onThisPageEntries ?? []),
-    ...getDocsApiReferenceTocEntries(input.apiDoc),
+    ...getApiReferenceTocEntries(input.apiDoc),
   ])
 
   return (

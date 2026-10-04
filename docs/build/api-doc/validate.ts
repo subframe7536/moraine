@@ -1,37 +1,11 @@
 import type { ComponentApi } from './types.ts'
 
-export interface ValidationIssue {
-  severity: 'error' | 'warning'
-  componentKey: string
-  partId?: string
-  message: string
-}
-
-export class ValidationError extends Error {
-  readonly issues: ValidationIssue[]
-
-  constructor(issues: ValidationIssue[]) {
-    super(
-      `API Documentation validation failed:\n${issues
-        .map(
-          (issue) =>
-            `[${issue.severity.toUpperCase()}] Component "${issue.componentKey}"${issue.partId ? ` (part "${issue.partId}")` : ''}: ${issue.message}`,
-        )
-        .join('\n')}`,
-    )
-    this.issues = issues
-  }
-}
-
-export function validateComponentApi(component: ComponentApi): ValidationIssue[] {
-  const issues: ValidationIssue[] = []
+function validateComponentApi(component: ComponentApi): string[] {
+  const issues: string[] = []
   const addError = (message: string, partId?: string) =>
-    issues.push({
-      severity: 'error',
-      componentKey: component.key,
-      ...(partId ? { partId } : {}),
-      message,
-    })
+    issues.push(
+      `[ERROR] Component "${component.key}"${partId ? ` (part "${partId}")` : ''}: ${message}`,
+    )
 
   if (component.kind !== 'single' && component.kind !== 'composite') {
     addError(`Invalid kind "${String(component.kind)}".`)
@@ -86,35 +60,25 @@ export function validateComponentApi(component: ComponentApi): ValidationIssue[]
     }
   }
 
-  const validateTargets = (targets: Array<{ target: string; values: string[] }>, label: string) => {
-    const names = new Set<string>()
-    for (const target of targets) {
-      if (names.has(target.target)) {
-        addError(`Duplicate ${label} target "${target.target}".`)
-      }
-      names.add(target.target)
-      if (!publicTargets.has(target.target)) {
-        addError(`${label} target "${target.target}" is not a public styling target.`)
-      }
-      if (new Set(target.values).size !== target.values.length) {
-        addError(`${label} target "${target.target}" contains duplicate names.`)
-      }
+  const targets = new Set<string>()
+  for (const { target, attributes } of component.dataAttributes) {
+    if (targets.has(target)) {
+      addError(`Duplicate data attribute target "${target}".`)
+    }
+    targets.add(target)
+    if (!publicTargets.has(target)) {
+      addError(`data attribute target "${target}" is not a public styling target.`)
+    }
+    if (new Set(attributes).size !== attributes.length) {
+      addError(`data attribute target "${target}" contains duplicate names.`)
     }
   }
-
-  validateTargets(
-    component.dataAttributes.map((target) => ({
-      target: target.target,
-      values: target.attributes,
-    })),
-    'data attribute',
-  )
   return issues
 }
 
 export function validateAllComponentApis(components: ComponentApi[]): void {
   const issues = components.flatMap(validateComponentApi)
-  if (issues.some((issue) => issue.severity === 'error')) {
-    throw new ValidationError(issues)
+  if (issues.length) {
+    throw new Error(`API Documentation validation failed:\n${issues.join('\n')}`)
   }
 }

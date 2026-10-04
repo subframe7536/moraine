@@ -27,13 +27,7 @@ describe('TypeExtractor', () => {
       ],
     ] as const) {
       const module = await extractor.loadModule(file)
-      const part = await extractor.extractPart(
-        module!,
-        namespace,
-        'Props',
-        namespace.slice(0, -1),
-        true,
-      )
+      const part = await extractor.extractPart(module!, namespace, 'Props', true)
       for (const [name, type] of Object.entries(expected)) {
         expect(part.props.find((prop) => prop.name === name)?.type).toBe(type)
       }
@@ -57,7 +51,7 @@ describe('TypeExtractor', () => {
       )
       const local = new TypeExtractor(directory)
       const module = await local.loadModule('demo.types.ts')
-      const part = await local.extractPart(module!, 'DemoT', 'Props', 'Demo', true)
+      const part = await local.extractPart(module!, 'DemoT', 'Props', true)
       expect(part.props.find((prop) => prop.name === 'ordinary')?.type).toBe('OrdinaryAlias')
       expect(part.props.find((prop) => prop.name === 'style')?.type).toBe("'x' | 'y'")
       expect(part.props.find((prop) => prop.name === 'object')?.type).toBe('StyleObject')
@@ -77,14 +71,7 @@ describe('TypeExtractor', () => {
     const recipe = await recipes.extract('src/element/button/button.recipe.ts', 'Button')
     expect(recipe.slots).toEqual(['root', 'leading', 'label', 'trailing'])
 
-    const part = await extractor.extractPart(
-      module!,
-      'ButtonT',
-      'Props',
-      'Button',
-      true,
-      recipe.variants,
-    )
+    const part = await extractor.extractPart(module!, 'ButtonT', 'Props', true, recipe.variants)
 
     expect(part.generics).toEqual([
       { name: 'T', constraint: 'ValidComponent', default: "'button'" },
@@ -118,13 +105,13 @@ describe('TypeExtractor', () => {
       )
       const local = new TypeExtractor(directory)
       const module = await local.loadModule('demo.types.ts')
-      const part = await local.extractPart(module!, 'DemoT', 'Props', 'Demo', true)
+      const part = await local.extractPart(module!, 'DemoT', 'Props', true)
 
       expect(part.defaultElement).toBe('button')
       expect(part.props.map((prop) => prop.name)).toContain('label')
       expect(part.props.map((prop) => prop.name)).not.toContain('as')
 
-      const explicit = await local.extractPart(module!, 'DemoT', 'ExplicitProps', 'Demo', false)
+      const explicit = await local.extractPart(module!, 'DemoT', 'ExplicitProps', false)
       expect(explicit.props.find((prop) => prop.name === 'as')?.default).toEqual({
         kind: 'literal',
         value: 'a',
@@ -148,7 +135,7 @@ describe('TypeExtractor', () => {
 
     for (const [file, namespace, propsType, name] of cases) {
       const module = await extractor.loadModule(file)
-      const part = await extractor.extractPart(module!, namespace, propsType, name, false)
+      const part = await extractor.extractPart(module!, namespace, propsType, false)
       const asProp = part.props.find((prop) => prop.name === 'as')
       expect(asProp?.type).toBe('T')
       expect(asProp?.default).toEqual({
@@ -158,13 +145,7 @@ describe('TypeExtractor', () => {
     }
 
     const module = await extractor.loadModule('src/form/base-select/base-select.types.ts')
-    const item = await extractor.extractPart(
-      module!,
-      'BaseSelectT',
-      'ItemProps',
-      'BaseSelect.Item',
-      false,
-    )
+    const item = await extractor.extractPart(module!, 'BaseSelectT', 'ItemProps', false)
     expect(item.props.map((prop) => prop.name)).not.toContain('as')
   })
 
@@ -175,29 +156,17 @@ describe('TypeExtractor', () => {
     const kind = await extractor.extractKind(module!, 'DialogT')
     expect(kind).toBe('composite')
 
-    const rootPart = await extractor.extractPart(module!, 'DialogT', 'Props', 'Dialog', true)
+    const rootPart = await extractor.extractPart(module!, 'DialogT', 'Props', true)
     expect(rootPart.props.map((p) => p.name)).toContain('open')
     expect(rootPart.props.map((p) => p.name)).toContain('defaultOpen')
     expect(rootPart.props.map((p) => p.name)).toContain('onOpenChange')
     expect(rootPart.props.map((p) => p.name)).toContain('close')
 
-    const triggerPart = await extractor.extractPart(
-      module!,
-      'DialogT',
-      'TriggerProps',
-      'Dialog.Trigger',
-      false,
-    )
+    const triggerPart = await extractor.extractPart(module!, 'DialogT', 'TriggerProps', false)
     expect(triggerPart.props.map((p) => p.name)).toContain('as')
     expect(triggerPart.props.map((p) => p.name)).toContain('disabled')
 
-    const contentPart = await extractor.extractPart(
-      module!,
-      'DialogT',
-      'ContentProps',
-      'Dialog.Content',
-      false,
-    )
+    const contentPart = await extractor.extractPart(module!, 'DialogT', 'ContentProps', false)
     expect(contentPart.props.map((p) => p.name)).toContain('title')
     expect(contentPart.props.map((p) => p.name)).toContain('description')
   })
@@ -213,14 +182,7 @@ describe('TypeExtractor', () => {
     )
 
     const recipe = await recipes.extract('src/form/select/select.recipe.ts', 'Select')
-    const part = await extractor.extractPart(
-      module!,
-      'SelectT',
-      'Props',
-      'Select',
-      true,
-      recipe.variants,
-    )
+    const part = await extractor.extractPart(module!, 'SelectT', 'Props', true, recipe.variants)
     expect(part.props.map((p) => p.name)).toContain('value')
     expect(part.props.map((p) => p.name)).toContain('onValueChange')
     expect(part.props.map((p) => p.name)).toContain('placeholder')
@@ -233,7 +195,7 @@ describe('TypeExtractor', () => {
     const module = await extractor.loadModule('src/form/form/form.types.ts')
     expect(module).toBeDefined()
 
-    const formPart = await extractor.extractPart(module!, 'FormT', 'Props', 'form.Form', true)
+    const formPart = await extractor.extractPart(module!, 'FormT', 'Props', true)
     expect(formPart.generics).toEqual([
       { name: 'TSchema', constraint: 'Schema', default: 'FormSchema' },
     ])
@@ -268,7 +230,7 @@ export namespace TestT {
       imports: new Map(),
     }
 
-    const part = await extractor.extractPart(parsed, 'TestT', 'Props', 'Test', true)
+    const part = await extractor.extractPart(parsed, 'TestT', 'Props', true)
     const reqUndef = part.props.find((p) => p.name === 'requiredUndefined')
     const optStr = part.props.find((p) => p.name === 'optionalString')
 
@@ -311,7 +273,7 @@ export namespace DefaultsT {
       imports: new Map(),
     }
 
-    const part = await extractor.extractPart(parsed, 'DefaultsT', 'Props', 'Defaults', true)
+    const part = await extractor.extractPart(parsed, 'DefaultsT', 'Props', true)
     const emptyStr = part.props.find((p) => p.name === 'emptyStr')
     const boolFalse = part.props.find((p) => p.name === 'boolFalse')
     const numZero = part.props.find((p) => p.name === 'numZero')
@@ -360,7 +322,7 @@ export namespace NeverT {
       imports: new Map(),
     }
 
-    const part = await extractor.extractPart(parsed, 'NeverT', 'Props', 'Never', true)
+    const part = await extractor.extractPart(parsed, 'NeverT', 'Props', true)
     const propNames = part.props.map((p) => p.name)
     expect(propNames).toContain('title')
     expect(propNames).toContain('class')
@@ -381,7 +343,6 @@ export namespace NeverT {
       checkboxGroupModule!,
       'CheckboxGroupT',
       'Props',
-      'CheckboxGroup',
       true,
     )
     const cbItem = await extractor.extractItem(checkboxGroupModule!, 'CheckboxGroupT')
@@ -416,7 +377,6 @@ export namespace NeverT {
       paginationModule!,
       'PaginationT',
       'Props',
-      'Pagination',
       true,
       paginationRecipe.variants,
     )

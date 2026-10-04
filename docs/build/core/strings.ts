@@ -14,11 +14,3 @@ export function toKebabCase(value: string): string {
     .replace(/^-+|-+$/g, '')
     .toLowerCase()
 }
-
-export function toTitleCaseFromKey(key: string): string {
-  return key
-    .split('-')
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}

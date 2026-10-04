@@ -110,15 +110,10 @@ export function createStyles<R extends RecipeDefinition>(
   const rootSlot = resolveRootSlot(recipe.slots, options.rootSlot)
   const recipeStyleSlot =
     options.variablesSlot ?? (recipe.slots.includes('root') ? 'root' : rootSlot)
-  const cache = new Map<Slots, SlotBinding>()
-  const styles = {} as SlotBindings<Slots>
+  const styles = {} as { [Slot in Slots]: SlotBinding }
 
-  const binding = (slot: Slots): SlotBinding => {
-    const cached = cache.get(slot)
-    if (cached) {
-      return cached
-    }
-    const created: SlotBinding = {
+  for (const slot of recipe.slots as readonly Slots[]) {
+    styles[slot] = {
       get class() {
         return cn(
           output().classes[slot],
@@ -136,15 +131,6 @@ export function createStyles<R extends RecipeDefinition>(
         }
       },
     }
-    cache.set(slot, created)
-    return created
-  }
-
-  for (const slot of recipe.slots as readonly Slots[]) {
-    Object.defineProperty(styles, slot, {
-      enumerable: true,
-      get: () => binding(slot),
-    })
   }
 
   return { styles, variants }

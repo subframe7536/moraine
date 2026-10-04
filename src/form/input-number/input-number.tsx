@@ -20,7 +20,7 @@ import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { mergeFieldAriaAttributes } from '../shared/field-aria'
 import { useFormReset } from '../shared/use-form-reset'
 
 import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
@@ -338,22 +338,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     untrack(() => formatLocaleNumber(initialResetValue, merged.locale)),
   )
   const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
-  const inputAriaAttrs = createMemo(() => {
-    const generated = field.ariaAttrs()
-    return {
-      'aria-label': local['aria-label'],
-      'aria-invalid':
-        local['aria-invalid'] !== undefined ? local['aria-invalid'] : generated['aria-invalid'],
-      'aria-required':
-        local['aria-required'] !== undefined ? local['aria-required'] : generated['aria-required'],
-      'aria-disabled':
-        local['aria-disabled'] !== undefined ? local['aria-disabled'] : generated['aria-disabled'],
-      'aria-readonly':
-        local['aria-readonly'] !== undefined ? local['aria-readonly'] : generated['aria-readonly'],
-      'aria-describedby': mergeAriaTokens(local['aria-describedby'], generated['aria-describedby']),
-      'aria-labelledby': mergeAriaTokens(local['aria-labelledby'], generated['aria-labelledby']),
-    }
-  })
+  const inputAriaAttrs = createMemo(() => ({
+    'aria-label': local['aria-label'],
+    ...mergeFieldAriaAttributes(local, field.ariaAttrs()),
+  }))
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(

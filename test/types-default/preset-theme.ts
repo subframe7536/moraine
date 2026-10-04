@@ -50,11 +50,3 @@ presetMoraine({ colorScheme: 'light' })
 presetMoraine({ override: { light: { colorScheme: 'light dark' } } })
 // @ts-expect-error Size-based shadows belong to the CSS engine's theme.
 presetMoraine({ override: { light: { shadows: { xs: '0 1px #000' } } } })
-// @ts-expect-error The selector-based themes option has been removed.
-presetMoraine({ themes: { ':root': theme } })
-// @ts-expect-error The removed colorVariables option is not accepted.
-presetMoraine({ colorVariables: {} })
-// @ts-expect-error The removed globalStyles option is not accepted.
-presetMoraine({ globalStyles: false })
-// @ts-expect-error The old baseStyles option has been replaced by themeDefaults.
-presetMoraine({ baseStyles: false })

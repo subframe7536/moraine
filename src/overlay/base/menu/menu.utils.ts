@@ -39,7 +39,7 @@ interface OverlayMenuGroup<TItem> {
 }
 
 export function resolveMenuGroups<
-  TItem extends { type?: string; children?: any[]; label?: JSX.Element },
+  TItem extends { type?: string; children?: TItem[]; label?: JSX.Element },
 >(items?: TItem[]): OverlayMenuGroup<TItem>[] {
   if (!items || items.length === 0) {
     return []

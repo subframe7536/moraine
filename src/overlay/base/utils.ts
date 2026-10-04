@@ -201,13 +201,6 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
 
 type FloatingSide = 'top' | 'right' | 'bottom' | 'left'
 
-const REVERSE_BASE_PLACEMENT: Record<FloatingSide, FloatingSide> = {
-  top: 'bottom',
-  right: 'left',
-  bottom: 'top',
-  left: 'right',
-}
-
 const scrollLocks = new WeakMap<
   HTMLElement,
   {
@@ -638,30 +631,12 @@ export interface TransformOriginOptions {
 export function getTransformOrigin(
   placement: Placement,
   direction: 'ltr' | 'rtl',
-  options?: TransformOriginOptions,
+  options: TransformOriginOptions,
 ): string {
   const [basePlacement, alignment] = placement.split('-') as [
     FloatingSide,
     'start' | 'end' | undefined,
   ]
-  const reversePlacement = REVERSE_BASE_PLACEMENT[basePlacement]
-
-  if (!options) {
-    if (!alignment) {
-      return `${reversePlacement} center`
-    }
-
-    if (basePlacement === 'left' || basePlacement === 'right') {
-      return `${reversePlacement} ${alignment === 'start' ? 'top' : 'bottom'}`
-    }
-
-    if (alignment === 'start') {
-      return `${reversePlacement} ${direction === 'rtl' ? 'right' : 'left'}`
-    }
-
-    return `${reversePlacement} ${direction === 'rtl' ? 'left' : 'right'}`
-  }
-
   const isVertical = basePlacement === 'top' || basePlacement === 'bottom'
   const crossAxisShift = isVertical ? (options.shift?.x ?? 0) : (options.shift?.y ?? 0)
   const mainAxisShift = isVertical ? (options.shift?.y ?? 0) : (options.shift?.x ?? 0)

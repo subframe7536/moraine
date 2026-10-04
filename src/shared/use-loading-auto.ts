@@ -3,11 +3,7 @@ import { createMemo, createSignal } from 'solid-js'
 
 import { callHandler } from './utils'
 
-type PromiseLikeWithThen = PromiseLike<unknown> & {
-  then: PromiseLike<unknown>['then']
-}
-
-function isPromiseLike(value: unknown): value is PromiseLikeWithThen {
+function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     (typeof value === 'object' || typeof value === 'function') &&
     value !== null &&
@@ -34,7 +30,7 @@ export function useLoadingAutoClick<T, E extends Event = MouseEvent>(
   )
 
   const onClick: JSX.EventHandler<T, E> = (event) => {
-    const { defaultPrevented, result: handlerResult } = callHandler<T, E>(event, options.onClick)
+    const { defaultPrevented, result: handlerResult } = callHandler<E>(event, options.onClick)
 
     if (!options.loadingAuto?.() || defaultPrevented || !isPromiseLike(handlerResult)) {
       return

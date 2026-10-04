@@ -15,7 +15,7 @@ import type { ModelModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useInputGroupContext } from '../input-group/input-group-context'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { mergeFieldAriaAttributes } from '../shared/field-aria'
 import { useFormReset } from '../shared/use-form-reset'
 import { useTextControlValue } from '../shared/use-text-control-value'
 
@@ -133,21 +133,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     autoresize: () => merged.autoResize,
   })
 
-  const ariaAttrs = createMemo(() => {
-    const generated = field.ariaAttrs()
-    return {
-      'aria-invalid':
-        rest['aria-invalid'] !== undefined ? rest['aria-invalid'] : generated['aria-invalid'],
-      'aria-required':
-        rest['aria-required'] !== undefined ? rest['aria-required'] : generated['aria-required'],
-      'aria-disabled':
-        rest['aria-disabled'] !== undefined ? rest['aria-disabled'] : generated['aria-disabled'],
-      'aria-readonly':
-        rest['aria-readonly'] !== undefined ? rest['aria-readonly'] : generated['aria-readonly'],
-      'aria-describedby': mergeAriaTokens(rest['aria-describedby'], generated['aria-describedby']),
-      'aria-labelledby': mergeAriaTokens(rest['aria-labelledby'], generated['aria-labelledby']),
-    }
-  })
+  const ariaAttrs = createMemo(() => mergeFieldAriaAttributes(rest, field.ariaAttrs()))
 
   const restoreControlledValue = textControl.restoreControlledValue
 

@@ -419,21 +419,7 @@ function createContextMenu(props: ContextMenuProps) {
     }
   }
 
-  const onPointerCancel = (event: PointerEvent): void => {
-    if (!isTouchOrPen(event.pointerType)) {
-      return
-    }
-
-    activeLongPressPointers.delete(event.pointerId)
-    if (initiatingPointerId === event.pointerId) {
-      clearLongPressTimeout()
-    }
-    if (activeLongPressPointers.size === 0) {
-      longPressGestureBlocked = false
-    }
-  }
-
-  const onPointerUp = (event: PointerEvent): void => {
+  const onPointerEnd = (event: PointerEvent): void => {
     if (!isTouchOrPen(event.pointerType)) {
       return
     }
@@ -517,12 +503,12 @@ function createContextMenu(props: ContextMenuProps) {
     },
     onPointerCancel: (event: PointerEvent) => {
       if (!event.defaultPrevented) {
-        onPointerCancel(event)
+        onPointerEnd(event)
       }
     },
     onPointerUp: (event: PointerEvent) => {
       // Pointer-up cleanup must run even when a consumer prevents the native event.
-      onPointerUp(event)
+      onPointerEnd(event)
     },
     onKeyDown: (event: KeyboardEvent) => {
       if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {

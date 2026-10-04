@@ -54,8 +54,8 @@ describe('parseFrontmatterData', () => {
     ).toThrow('api.parts[1] duplicates part "Trigger"')
   })
 
-  test('rejects removed and unknown frontmatter fields', () => {
-    for (const field of ['related: [input]', 'sidebar:\n  order: 10\n  icon: test']) {
+  test('rejects unknown top-level and nested frontmatter fields', () => {
+    for (const field of ['unknownField: test', 'sidebar:\n  order: 10\n  unknownField: test']) {
       const source = field.startsWith('sidebar:')
         ? VALID_FRONTMATTER.replace('sidebar:\n  order: 10', field)
         : `${VALID_FRONTMATTER}\n${field}\n`

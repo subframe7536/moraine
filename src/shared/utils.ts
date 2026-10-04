@@ -50,7 +50,7 @@ export interface HandlerCallResult<R = unknown> {
   result: R | undefined
 }
 
-export function callHandler<_T = any, E extends Event = Event, R = unknown>(
+export function callHandler<E extends Event = Event, R = unknown>(
   event: E,
   handler: unknown,
 ): HandlerCallResult<R> {

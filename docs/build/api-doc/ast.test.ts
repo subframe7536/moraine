@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { getJsDoc, parseTypeScript, walkAst } from './ast.ts'
+import { getJsDoc, parseTypeScript } from './ast.ts'
 
 describe('API documentation AST helpers', () => {
-  test('parses TypeScript declarations and traverses nested type nodes', async () => {
+  test('associates JSDoc descriptions and defaults with declarations and properties', async () => {
     const source = await parseTypeScript(
       'demo.d.ts',
       `
@@ -15,12 +15,12 @@ interface DemoProps {
 `,
       'ts',
     )
-    const nodeTypes: string[] = []
-    walkAst(source.program, (node) => nodeTypes.push(node.type))
-
-    expect(nodeTypes).toContain('TSInterfaceDeclaration')
-    expect(nodeTypes).toContain('TSUnionType')
     const declaration = source.program.body.find((node) => node.type === 'TSInterfaceDeclaration')
     expect(declaration && getJsDoc(source, declaration)).toEqual({ description: 'Demo props.' })
+    const property = declaration?.body.body[0]
+    expect(property && getJsDoc(source, property)).toEqual({
+      description: 'Visible label.',
+      defaultValue: '"Demo"',
+    })
   })
 })

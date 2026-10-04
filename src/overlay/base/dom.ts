@@ -17,18 +17,6 @@ export function isHTMLElement(value: unknown): value is HTMLElement {
   )
 }
 
-export function getOwnerDocument(node?: Node): Document | undefined {
-  return node?.nodeType === 9 ? (node as Document) : (node?.ownerDocument ?? undefined)
-}
-
-export function getOwnerWindow(node?: Node): Window | undefined {
-  return getOwnerDocument(node)?.defaultView ?? undefined
-}
-
-export function isHTMLButtonElement(value: unknown): value is HTMLButtonElement {
-  return isHTMLElement(value) && value.localName === 'button'
-}
-
 export { isNativeButtonElement }
 
 export function isPointerEvent(value: unknown): value is PointerEvent {

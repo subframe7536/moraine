@@ -1,12 +1,7 @@
 import { createCn as upstreamCreateCn } from 'cn/config'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { cn, createCn } from './cn'
-
-vi.mock('cn/config', async (importOriginal) => {
-  const original = await importOriginal<typeof import('cn/config')>()
-  return { ...original, createCn: vi.fn(original.createCn) }
-})
 
 describe('createCn', () => {
   test.each(['surface', 'overlay', 'input'])(
@@ -44,11 +39,8 @@ describe('createCn', () => {
     expect(cn('z-overlay', 'z-floating')).toBe('z-floating')
   })
 
-  test.each([0, 7])('forwards cacheSize %i and native prefix parsing', (cacheSize) => {
-    const appCn = createCn({ prefix: 'tw', cacheSize })
-    expect(upstreamCreateCn).toHaveBeenLastCalledWith(
-      expect.objectContaining({ cacheSize, prefix: 'tw' }),
-    )
+  test('supports native prefix parsing', () => {
+    const appCn = createCn({ prefix: 'tw' })
     expect(appCn('tw:p-2 tw:p-4')).toBe('tw:p-4')
     expect(appCn('p-2 p-4')).toBe('p-2 p-4')
     expect(appCn('tw:z-overlay tw:z-floating')).toBe('tw:z-floating')

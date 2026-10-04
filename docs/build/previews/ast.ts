@@ -2,7 +2,6 @@ import { parse } from 'vite'
 import type { ESTree, ParserOptions } from 'vite'
 
 export type ProgramNode = ESTree.Program
-export type StatementNode = ProgramNode['body'][number]
 export type ParsePreviewCode = (code: string) => Promise<ProgramNode>
 
 export const PREVIEW_PARSE_OPTIONS = {

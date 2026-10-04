@@ -1,14 +1,9 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
-
-import { afterEach, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { scanDocsPages } from '../routes.ts'
+import { createFileFixture } from '../test-util/file-fixture.ts'
 
 import { loadApiRegistry } from './registry.ts'
-
-const roots: string[] = []
 
 function page(pathValue: string, parts?: string) {
   return `---
@@ -33,30 +28,13 @@ function types(name: string, kind: 'single' | 'composite', declarations = '') {
 }`
 }
 
-async function fixture(files: Record<string, string>) {
-  const root = await mkdtemp(path.join(tmpdir(), 'moraine-registry-'))
-  roots.push(root)
-  await Promise.all(
-    Object.entries(files).map(async ([name, source]) => {
-      const target = path.join(root, name)
-      await mkdir(path.dirname(target), { recursive: true })
-      await writeFile(target, source, 'utf8')
-    }),
-  )
-  return root
-}
-
 function loadRegistry(root: string) {
   return loadApiRegistry(root, scanDocsPages(root))
 }
 
-afterEach(async () => {
-  await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
-})
-
 describe('loadApiRegistry', () => {
   test('loads single and composite registrations from frontmatter', async () => {
-    const root = await fixture({
+    const root = await createFileFixture({
       'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
       'src/element/demo/demo.types.ts': types('Demo', 'single'),
       'src/element/demo/demo.recipe.ts': `export const demoRecipe = defineRecipe('demo', { base: { root: '' } })`,
@@ -82,7 +60,7 @@ describe('loadApiRegistry', () => {
   })
 
   test('supports the explicit Form factory exception', async () => {
-    const root = await fixture({
+    const root = await createFileFixture({
       'docs/pages/components/(form)/form/index.mdx': page('src/form/form/form'),
       'src/form/form/form.types.ts': types('Form', 'single', 'export interface FieldProps {}'),
       'src/form/form/form.recipe.ts': `export const formRecipe = defineRecipe('form', { base: { root: '' } })`,
@@ -123,7 +101,7 @@ describe('loadApiRegistry', () => {
       error: 'Unknown part "Trigger"',
     },
   ])('rejects $name', async ({ files, error }) => {
-    const root = await fixture(files as unknown as Record<string, string>)
+    const root = await createFileFixture(files as unknown as Record<string, string>)
     await expect(loadRegistry(root)).rejects.toThrow(error)
   })
 
@@ -132,14 +110,14 @@ describe('loadApiRegistry', () => {
       'src/element/demo/demo.types.ts': types('Demo', 'single'),
       'src/element/demo/demo.recipe.ts': `export const demoRecipe = defineRecipe('demo', { base: { root: '' } })`,
     }
-    const duplicateKeys = await fixture({
+    const duplicateKeys = await createFileFixture({
       ...shared,
       'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
       'docs/pages/components/(form)/demo/index.mdx': page('src/element/demo/demo'),
     })
     await expect(loadRegistry(duplicateKeys)).rejects.toThrow('Duplicate API page key "demo"')
 
-    const duplicateComponent = await fixture({
+    const duplicateComponent = await createFileFixture({
       ...shared,
       'docs/pages/components/(general)/demo/index.mdx': page('src/element/demo/demo'),
       'docs/pages/components/(general)/other/index.mdx': page('src/element/demo/demo'),

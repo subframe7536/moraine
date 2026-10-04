@@ -91,12 +91,12 @@ export default defineConfig({
             },
             {
               name: 'moraine-elements',
-              test: /[\\/]src[\\/]elements[\\/]/,
+              test: /[\\/]src[\\/]element[\\/]/,
               includeDependenciesRecursively: false,
             },
             {
               name: 'moraine-forms',
-              test: /[\\/]src[\\/]forms[\\/]/,
+              test: /[\\/]src[\\/]form[\\/]/,
               includeDependenciesRecursively: false,
             },
             {
@@ -106,7 +106,7 @@ export default defineConfig({
             },
             {
               name: 'moraine-overlays',
-              test: /[\\/]src[\\/]overlays[\\/]/,
+              test: /[\\/]src[\\/]overlay[\\/]/,
               includeDependenciesRecursively: false,
             },
             {
