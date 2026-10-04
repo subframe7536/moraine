@@ -22,10 +22,12 @@ test('library anatomy uses component-prefixed slot names', () => {
     .filter((file) => /\.(ts|tsx)$/.test(file) && !file.endsWith('.test.tsx'))
     .map((file) => path.join(sourceRoot, file))
   const bareSlot =
-    /data-slot\s*=\s*["'](?:root|item|content|trigger|label|control|group|overlay|empty)["']/
+    /data-slot\s*=\s*["'](root|item|content|trigger|label|control|group|overlay|empty)["']/g
 
   for (const file of files) {
     const source = readFileSync(file, 'utf8')
-    expect(source, file).not.toMatch(bareSlot)
+    for (const match of source.matchAll(bareSlot)) {
+      expect(match[1], file).toBe(path.basename(path.dirname(file)))
+    }
   }
 })

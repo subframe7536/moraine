@@ -1,0 +1,128 @@
+---
+title: Empty
+description: Present an empty or unavailable application state with optional media and actions.
+api:
+  path: src/element/empty/empty
+  root: Root
+  parts: [Media, Title, Description, Actions]
+sidebar:
+  order: 18
+search:
+  tags: [empty, state, no-results, placeholder]
+---
+
+import { Button, Empty, Icon } from '@src'
+
+Empty is an application-level presentation primitive. It provides a consistent layout for an empty-state message, optional media, and actions. Your application decides when to show it; Empty does not inspect collections or search results.
+
+## Basic usage
+
+```tsx
+import { Empty } from 'moraine'
+
+export function Example() {
+  return (
+    <Empty>
+      <Empty.Title>No projects yet</Empty.Title>
+      <Empty.Description>Create a project to organize your work.</Empty.Description>
+    </Empty>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'No projects yet' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Create a project to organize your work.',
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <Empty size={props.size}>
+      <Empty.Media>
+        <Icon name="i-lucide-folder-open" class="size-8 text-muted-foreground" />
+      </Empty.Media>
+      <Empty.Title>{props.title}</Empty.Title>
+      <Empty.Description>{props.description}</Empty.Description>
+      <Empty.Actions>
+        <Button>Create project</Button>
+        <Button as="a" href="#basic-usage" variant="outline">
+          Learn more
+        </Button>
+      </Empty.Actions>
+    </Empty>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { part: 'Empty.Media', slot: 'media' },
+      { part: 'Empty.Title', slot: 'title' },
+      { part: 'Empty.Description', slot: 'description' },
+      { part: 'Empty.Actions', slot: 'actions' },
+    ],
+  }}
+/>
+
+## Usage
+
+Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX, including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
+
+`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+
+The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use `sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state. Vertical padding is more generous than horizontal insets. Title and description stay grouped, with more space around media and actions. Size does not resize the content placed inside `Media`.
+
+## Examples
+
+### Basic empty state
+
+<Preview path="./basic" />
+
+### Actions
+
+Use actions to offer the next useful step. Wire them to your application's handlers.
+
+<Preview path="./actions" />
+
+### No search results
+
+Your search logic decides when to render this message.
+
+<Preview path="./no-results" />
+
+### Rich media
+
+Compose avatars or your own illustration without changing Empty's layout API.
+
+<Preview path="./rich-media" />
+
+### Sizes
+
+<Preview path="./sizes" />
+
+### Custom container styling
+
+Empty has no default border, background, shadow, or fixed height. Apply container styling through `class` and `style`; use root `classes` and `styles` to customize individual parts throughout the family. A part's own `class` and `style` take precedence over those family overrides.
+
+<Preview path="./custom-container" />

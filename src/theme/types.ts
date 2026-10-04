@@ -6,6 +6,7 @@ import type { ButtonGroupStyleConfig } from '../element/button-group/button-grou
 import type { ButtonStyleConfig } from '../element/button/button.style-types'
 import type { CardStyleConfig } from '../element/card/card.style-types'
 import type { CollapsibleStyleConfig } from '../element/collapsible/collapsible.style-types'
+import type { EmptyStyleConfig } from '../element/empty/empty.style-types'
 import type { IconStyleConfig } from '../element/icon/icon.style-types'
 import type { KbdGroupStyleConfig } from '../element/kbd-group/kbd-group.style-types'
 import type { KbdStyleConfig } from '../element/kbd/kbd.style-types'
@@ -61,6 +62,7 @@ export interface MoraineStyleSchema {
   buttonGroup: ButtonGroupStyleConfig
   button: ButtonStyleConfig
   card: CardStyleConfig
+  empty: EmptyStyleConfig
   collapsible: CollapsibleStyleConfig
   icon: IconStyleConfig
   kbd: KbdStyleConfig

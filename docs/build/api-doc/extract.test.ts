@@ -12,8 +12,8 @@ describe('generateApiDoc', () => {
   test('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    expect(result.indexDoc.components).toHaveLength(47)
-    expect(result.componentDocs).toHaveLength(47)
+    expect(result.indexDoc.components).toHaveLength(48)
+    expect(result.componentDocs).toHaveLength(48)
     const button = result.componentDocs.get('button')
     expect(button).toMatchObject({
       name: 'Button',
@@ -33,6 +33,34 @@ describe('generateApiDoc', () => {
       kind: 'literal',
       value: 'default',
     })
+
+    const empty = result.componentDocs.get('empty')!
+    expect(empty.kind).toBe('composite')
+    expect(empty.slots).toEqual(['root', 'media', 'title', 'description', 'actions'])
+    expect(empty.parts.map((part) => part.name)).toEqual([
+      'Empty',
+      'Empty.Media',
+      'Empty.Title',
+      'Empty.Description',
+      'Empty.Actions',
+    ])
+    expect(empty.parts.map((part) => part.defaultElement)).toEqual([
+      'div',
+      'div',
+      'div',
+      'p',
+      'div',
+    ])
+    expect(empty.parts[0]!.props.find((prop) => prop.name === 'size')).toMatchObject({
+      type: "'sm' | 'md' | 'lg'",
+      default: { kind: 'literal', value: 'md' },
+    })
+    for (const part of empty.parts.slice(1)) {
+      expect(part.access).toMatchObject({ kind: 'attached', root: 'Empty' })
+      expect(part.props.map((prop) => prop.name)).not.toEqual(expect.arrayContaining(['size']))
+      expect(part.props.map((prop) => prop.name)).not.toEqual(expect.arrayContaining(['classes']))
+      expect(part.props.map((prop) => prop.name)).not.toEqual(expect.arrayContaining(['styles']))
+    }
 
     const list = result.componentDocs.get('list')
     expect(list?.parts[0]?.defaultElement).toBe('ul')

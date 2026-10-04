@@ -86,6 +86,11 @@
       "category": "overlay"
     },
     {
+      "key": "empty",
+      "name": "Empty",
+      "category": "element"
+    },
+    {
       "key": "field",
       "name": "Field",
       "category": "form"

@@ -1,0 +1,269 @@
+{
+  "key": "empty",
+  "name": "Empty",
+  "description": "Props for Empty.",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "empty",
+      "name": "Empty",
+      "access": {
+        "kind": "export",
+        "name": "Empty"
+      },
+      "description": "Props for Empty.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Empty-state parts and direct content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Density and typography of all Empty parts.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
+    },
+    {
+      "id": "empty-media",
+      "name": "Empty.Media",
+      "access": {
+        "kind": "attached",
+        "root": "Empty",
+        "member": "Media"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "empty-title",
+      "name": "Empty.Title",
+      "access": {
+        "kind": "attached",
+        "root": "Empty",
+        "member": "Title"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "empty-description",
+      "name": "Empty.Description",
+      "access": {
+        "kind": "attached",
+        "root": "Empty",
+        "member": "Description"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'p'"
+        }
+      ],
+      "defaultElement": "p",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "p"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "empty-actions",
+      "name": "Empty.Actions",
+      "access": {
+        "kind": "attached",
+        "root": "Empty",
+        "member": "Actions"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "media",
+    "title",
+    "description",
+    "actions"
+  ],
+  "dataAttributes": []
+}

@@ -16,6 +16,7 @@ import {
   ContextMenu,
   Dialog,
   DropdownMenu,
+  Empty,
   Field,
   FileUpload,
   Icon,
@@ -51,6 +52,8 @@ import type {
   ComboboxT,
   DialogT,
   DropdownMenuT,
+  EmptyT,
+  EmptyProps,
   FieldT,
   FormT,
   InputGroupT,
@@ -401,6 +404,68 @@ export type CardContracts = [
   Assert<'children' extends keyof CardT.BodyProps ? true : false>,
   Assert<'children' extends keyof CardT.FooterProps ? true : false>,
 ]
+
+;<Empty
+  as="section"
+  id="projects"
+  aria-label="Projects"
+  size="lg"
+  classes={{ media: 'p-2' }}
+  styles={{ actions: { color: 'red' } }}
+>
+  <Empty.Media />
+  <Empty.Title as="a" href="/projects">
+    Projects
+  </Empty.Title>
+  <Empty.Description />
+  <Empty.Actions />
+</Empty>
+// @ts-expect-error Empty.Title defaults to div, which has no href.
+;<Empty.Title href="/projects" />
+// @ts-expect-error Only Empty owns size.
+;<Empty.Media size="sm" />
+// @ts-expect-error Only Empty owns family classes.
+;<Empty.Title classes={{ title: 'p-2' }} />
+// @ts-expect-error Only Empty owns family styles.
+;<Empty.Description styles={{ description: { color: 'red' } }} />
+// @ts-expect-error Empty sizes are constrained.
+;<Empty size="huge" />
+// @ts-expect-error Empty slots are constrained.
+;<Empty classes={{ missing: 'p-2' }} />
+// @ts-expect-error Style must be an object.
+;<Empty.Actions style="color: red" />
+// @ts-expect-error Empty has no Root alias.
+;<Empty.Root />
+
+type EmptySlotKeys = 'root' | 'media' | 'title' | 'description' | 'actions'
+export type EmptyContracts = [
+  Assert<EmptyT.Kind extends 'composite' ? true : false>,
+  Assert<Exclude<keyof EmptyT.Slot, EmptySlotKeys> extends never ? true : false>,
+  Assert<Exclude<EmptySlotKeys, keyof EmptyT.Slot> extends never ? true : false>,
+  Assert<Exclude<keyof EmptyT.Variant, 'size'> extends never ? true : false>,
+  Assert<'size' extends keyof EmptyT.Variant ? true : false>,
+  Assert<'classes' | 'styles' | 'size' extends keyof EmptyProps ? true : false>,
+  Assert<
+    Extract<'size' | 'classes' | 'styles', keyof EmptyT.MediaProps> extends never ? true : false
+  >,
+  Assert<
+    Extract<'size' | 'classes' | 'styles', keyof EmptyT.TitleProps> extends never ? true : false
+  >,
+  Assert<
+    Extract<'size' | 'classes' | 'styles', keyof EmptyT.DescriptionProps> extends never
+      ? true
+      : false
+  >,
+  Assert<
+    Extract<'size' | 'classes' | 'styles', keyof EmptyT.ActionsProps> extends never ? true : false
+  >,
+]
+
+defineTheme({ empty: { defaultVariants: { size: 'sm' }, base: { root: 'p-4', media: 'gap-2' } } })
+// @ts-expect-error Empty theme slots are constrained.
+defineTheme({ empty: { base: { missing: 'p-2' } } })
+// @ts-expect-error Empty theme sizes are constrained.
+defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />
