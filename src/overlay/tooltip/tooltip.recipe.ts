@@ -5,6 +5,9 @@ import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
 import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
 
+export const TOOLTIP_POSITIONER_CLASS =
+  'motion-reduce:transition-none motion-safe:has-[[data-instant-motion]]:data-positioned:transition-transform'
+
 export const tooltipDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side', 'align'),

@@ -8,6 +8,7 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { callHandler, callRef, createId } from '../../shared/utils'
+import { PEER_CLASS } from '../../theme/recipe-common.class'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
@@ -292,7 +293,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         readonly={readOnly()}
         tabIndex={-1}
         aria-hidden="true"
-        class="peer"
+        class={PEER_CLASS}
         data-slot="switch-input"
         onChange={(event) => {
           event.stopPropagation()

@@ -8,6 +8,7 @@ import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
+import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
 
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
@@ -320,7 +321,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        class="sr-only"
+        class={VISUALLY_HIDDEN_CLASS}
       >
         Page {currentPage()} of {pageCount()}
       </div>

@@ -22,13 +22,12 @@ import { parseFloatingPlacement } from '../base/placement'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
-import { tooltipContentDataAttributes, tooltipRecipe } from './tooltip.recipe'
+import {
+  TOOLTIP_POSITIONER_CLASS,
+  tooltipContentDataAttributes,
+  tooltipRecipe,
+} from './tooltip.recipe'
 import type { TooltipProps, TooltipT } from './tooltip.types'
-
-// This wrapper needs library transition styling, but has no stable user/Theme override value.
-// Internal visual elements do not become family slots solely because they render DOM.
-const TOOLTIP_POSITIONER_CLASS =
-  'motion-reduce:transition-none motion-safe:has-[[data-instant-motion]]:data-positioned:transition-transform'
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>

@@ -4,6 +4,9 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
+
+export const BASE_SELECT_POSITIONER_CLASS = 'z-floating'
+
 const SELECT_CONTENT_CLASS =
   'text-popover-foreground p-0 outline-none border border-border rounded-md bg-popover flex flex-col max-w-(--mo-popper-content-available-width) min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) shadow-overlay origin-(--mo-popper-content-transform-origin) z-floating data-[side=bottom]:mt-(--mo-popper-content-overflow-padding) data-[side=top]:mb-(--mo-popper-content-overflow-padding) data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1 data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1'
 

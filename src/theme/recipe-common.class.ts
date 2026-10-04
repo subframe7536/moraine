@@ -12,6 +12,9 @@ export const TEXT_SIZE_VARIANT = {
   lg: 'text-base',
 } as const
 
+export const PEER_CLASS = 'peer'
+export const VISUALLY_HIDDEN_CLASS = 'sr-only'
+
 // Keep selector-specific groups literal so CSS engines can discover every utility.
 export const FOCUS_CLASS = 'focus:(border-ring ring-3 ring-ring/50)'
 export const FOCUS_VISIBLE_CLASS = 'focus-visible:(outline-none border-ring ring-3 ring-ring/50)'

@@ -7,6 +7,7 @@ import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
+import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 import { useFormReset } from '../shared/use-form-reset'
@@ -366,7 +367,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           readonly={readOnly()}
           tabIndex={-1}
           aria-hidden="true"
-          class="peer"
+          class={PEER_CLASS}
           data-slot="checkbox-input"
           onChange={(event) => {
             event.stopPropagation()
@@ -392,7 +393,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="checkbox-control"
           aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
           class={cn(resolved.styles.control.class, [
-            resolved.variants.indicator === 'hidden' && 'sr-only',
+            resolved.variants.indicator === 'hidden' && VISUALLY_HIDDEN_CLASS,
           ])}
           style={resolved.styles.control.style}
           onPointerDown={onPointerDown}

@@ -120,6 +120,8 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
 - Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts`. Use the returned stable `styles.<slot>.class` and `styles.<slot>.style` bindings directly; do not add memos solely for class or style resolution.
 - Put truly reusable static class values in a `*.class.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.
+- Keep component-private visual class constants in the component's `*.recipe.ts` file alongside its recipe, using `UPPER_SNAKE_CASE`. Do not add public slots solely to relocate internal styles.
+- Keep structural classes owned by shared infrastructure with that infrastructure. Component implementations should reference recipe bindings or class constants rather than declare visual class literals.
 - Use recipe variants for public component variants and cross-slot presentation changes. Express DOM state with utility selectors such as `data-expanded:` or `aria-disabled:` instead of adding a recipe variant solely for internal state.
 - Capture `useCn()` during component initialization only when combining classes outside `createStyles()`. Pass `Cn` explicitly to plain rendering helpers; use static `cn` or `createCn` for owner-independent utilities.
 - Parenthesized utility groups are supported in recipe and class files (for example, `hover:(bg-red-500 text-white)`). Use standard flat utility syntax elsewhere.

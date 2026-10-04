@@ -14,6 +14,8 @@ import {
 
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
 
+export const MULTI_SELECT_PLACEHOLDER_CLASS = 'text-muted-foreground/70 py-0.5 flex-1 min-w-12'
+
 export const multiSelectDataAttributes = {
   control: createDataAttributes(
     'closed',

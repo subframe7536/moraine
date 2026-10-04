@@ -13,7 +13,7 @@ import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
-import { buttonDataAttributes, buttonRecipe } from './button.recipe'
+import { BUTTON_LOADING_ICON_CLASS, buttonDataAttributes, buttonRecipe } from './button.recipe'
 import type { ButtonProps } from './button.types'
 
 /**
@@ -132,7 +132,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={leading()}
             slotName="button-leading"
             class={cn(
-              isLeadingLoading() ? 'opacity-80 cursor-wait animate-spin' : undefined,
+              isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
               resolved.styles.leading.class,
             )}
             style={resolved.styles.leading.style}
@@ -153,7 +153,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={trailing()}
             slotName="button-trailing"
             class={cn(
-              isTrailingLoading() ? 'opacity-80 cursor-wait animate-spin' : undefined,
+              isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
               resolved.styles.trailing.class,
             )}
             style={resolved.styles.trailing.style}

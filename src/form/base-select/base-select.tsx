@@ -40,7 +40,11 @@ import {
 } from '../shared/select/collection'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
+import {
+  BASE_SELECT_POSITIONER_CLASS,
+  baseSelectDataAttributes,
+  baseSelectRecipe,
+} from './base-select.recipe'
 import type {
   BaseSelectPartProps,
   BaseSelectProps,
@@ -710,7 +714,11 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   return (
     <Show when={presence.present()}>
       <Portal mount={(state.anchor() ?? state.focusOwner())?.ownerDocument.body}>
-        <div data-slot={state.slotName('positioner')} ref={setPositioner} class="z-floating">
+        <div
+          data-slot={state.slotName('positioner')}
+          ref={setPositioner}
+          class={BASE_SELECT_POSITIONER_CLASS}
+        >
           <div
             {...rest}
             data-slot={state.slotName('content')}

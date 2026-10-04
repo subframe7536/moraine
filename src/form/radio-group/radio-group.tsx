@@ -19,6 +19,7 @@ import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
+import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 import { useFormValue } from '../shared/use-form-value'
@@ -377,7 +378,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       .join(' ') || undefined
                   }
                   tabIndex={item.id === tabbableItemId() ? 0 : -1}
-                  class="peer"
+                  class={PEER_CLASS}
                   data-slot="radio-group-input"
                   onChange={(event) => {
                     event.stopPropagation()
@@ -397,7 +398,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
                 <div
                   data-slot="radio-group-control"
-                  class={cn(resolved.styles.control.class, indicator() === 'hidden' && 'sr-only')}
+                  class={cn(
+                    resolved.styles.control.class,
+                    indicator() === 'hidden' && VISUALLY_HIDDEN_CLASS,
+                  )}
                   style={resolved.styles.control.style}
                   {...radioGroupDataAttributes.control({
                     checked: selected,

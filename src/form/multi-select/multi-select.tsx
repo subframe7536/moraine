@@ -5,6 +5,7 @@ import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
+import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { createBaseSelectSearchInput } from '../base-select/base-select-search-input'
 import { useFieldContext } from '../field/field-context'
@@ -24,7 +25,11 @@ import { useComboboxSearch } from '../shared/select/search'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
 import { createTagsField } from '../shared/select/tags-field'
 
-import { multiSelectDataAttributes, multiSelectRecipe } from './multi-select.recipe'
+import {
+  MULTI_SELECT_PLACEHOLDER_CLASS,
+  multiSelectDataAttributes,
+  multiSelectRecipe,
+} from './multi-select.recipe'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 /** Collection-backed multiple selection with tags and optional search or creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
@@ -355,10 +360,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               when={editable()}
               fallback={
                 <Show when={tags.tags().length === 0 && local.placeholder}>
-                  <span
-                    data-slot="multi-select-placeholder"
-                    class="text-muted-foreground/70 py-0.5 flex-1 min-w-12"
-                  >
+                  <span data-slot="multi-select-placeholder" class={MULTI_SELECT_PLACEHOLDER_CLASS}>
                     {local.placeholder}
                   </span>
                 </Show>
@@ -414,7 +416,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
               >
-                <span class="sr-only">
+                <span class={VISUALLY_HIDDEN_CLASS}>
                   {tags.tags().length
                     ? tags
                         .tags()
