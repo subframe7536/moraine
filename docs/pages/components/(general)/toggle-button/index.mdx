@@ -1,0 +1,138 @@
+---
+title: ToggleButton
+description: Toggle a persistent state with independently configured off and on button variants.
+api:
+  path: src/element/toggle-button/toggle-button
+sidebar:
+  order: 1
+search:
+  tags: [button, toggle, pressed, selected, toolbar, formatting]
+---
+
+import { ToggleButton } from '@src'
+
+Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a native button and exposes its state through `aria-pressed`.
+
+## Basic usage
+
+```tsx
+import { ToggleButton } from 'moraine'
+
+export function Example() {
+  return (
+    <ToggleButton variant="ghost" activeVariant="secondary" leading="i-lucide:bold">
+      Bold
+    </ToggleButton>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Unpressed variant',
+      defaultValue: 'ghost',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'activeVariant',
+      label: 'Pressed variant',
+      defaultValue: 'secondary',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+        { label: 'Destructive', value: 'destructive' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Extra small', value: 'xs' },
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+        { label: 'Extra large', value: 'xl' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <ToggleButton
+      variant={props.variant}
+      activeVariant={props.activeVariant}
+      size={props.size}
+      disabled={props.disabled}
+      loading={props.loading}
+      leading="i-lucide:bold"
+    >
+      {(state) => <span class={state.pressed ? 'font-semibold' : undefined}>Bold</span>}
+    </ToggleButton>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'button' },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
+
+## Usage
+
+### Off and on variants
+
+`variant` controls the unpressed appearance; `activeVariant` controls the pressed appearance. Both accept all Button variants. The defaults are `ghost` and `secondary`. Changing a variant does not reset the toggle state. The `link` variant is a visual treatment: ToggleButton always renders a button with `type="button"`, so it does not navigate or submit a form.
+
+<Preview path="./variants" />
+
+### Controlled and uncontrolled state
+
+Use `defaultPressed` to initialize an uncontrolled button. Pass `pressed` and `onPressedChange` when application state owns the value. Controlled activation reports the requested next value and waits for the caller to update `pressed`.
+
+User `onClick` runs before the toggle. Calling `event.preventDefault()` cancels both the state change and `onPressedChange`.
+
+<Preview path="./controlled" />
+
+### Icons and accessible names
+
+Keep the accessible name stable while toggling. Use `aria-label` for icon-only buttons; `aria-pressed` communicates whether their action is enabled. Enter, Space, and clicks activate the native button. Disabled and loading buttons suppress activation.
+
+Children can be a render function receiving reactive `pressed` and `loading` values. This supports state-dependent visual content without replacing the button or remounting its children.
+
+<Preview path="./icons" />
+
+### Async actions
+
+`loadingAuto` follows a Promise returned by `onClick` and blocks repeated activation until it settles. The state changes immediately after an uncancelled click, including when the Promise later rejects; it is not automatically rolled back. Handle request errors in your async handler. To update only after success, use controlled `pressed` and update it after the request completes.
+
+### Theme and groups
+
+Configure `toggleButton.defaultVariants` to choose the default off and on appearances and size. Button's theme still supplies the underlying variant styles; `toggleButton.base`, `classes`, and `styles` add component-specific presentation. Instance styling follows the standard root and slot override rules.
+
+Inside ButtonGroup, ToggleButton inherits the group's size and unpressed variant unless explicitly supplied. Its pressed variant comes from its own configuration. ButtonGroup provides layout, not single or multiple selection behavior.
+
+The root uses `data-slot="toggle-button"` and exposes `data-selected` while pressed. The leading, label, and trailing elements retain the corresponding `button-*` data-slot names.
+
+<Preview path="./theme" />

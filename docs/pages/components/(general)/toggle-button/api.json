@@ -1,0 +1,161 @@
+{
+  "key": "toggle-button",
+  "name": "ToggleButton",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "toggle-button",
+      "name": "ToggleButton",
+      "access": {
+        "kind": "export",
+        "name": "ToggleButton"
+      },
+      "props": [
+        {
+          "name": "activeVariant",
+          "optional": true,
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual treatment while pressed.",
+          "default": {
+            "kind": "literal",
+            "value": "secondary"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element | ((props: { pressed: boolean; loading: boolean }) => JSX.Element)",
+          "description": "Content or render function receiving reactive toggle and loading states."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultPressed",
+          "optional": true,
+          "type": "boolean",
+          "description": "Initial uncontrolled toggle state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disabled state, including for non-button polymorphic roots."
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Leading visual content, usually an icon."
+        },
+        {
+          "name": "loading",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled loading state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "loadingAuto",
+          "optional": true,
+          "type": "boolean",
+          "description": "Auto toggles loading while async click handlers are pending.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "loadingIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Optional icon shown when `loading` is active.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-loading"
+          }
+        },
+        {
+          "name": "onPressedChange",
+          "optional": true,
+          "type": "(pressed: boolean) => void",
+          "description": "Called after an uncancelled activation requests a toggle."
+        },
+        {
+          "name": "pressed",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled toggle state."
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
+          "description": "Button size, including icon-only sizes.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Trailing visual content, usually an icon."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual treatment while unpressed.",
+          "default": {
+            "kind": "literal",
+            "value": "ghost"
+          }
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "leading",
+    "label",
+    "trailing"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-selected"
+      ]
+    }
+  ]
+}

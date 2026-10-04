@@ -206,6 +206,8 @@ describe('createApiReferenceModel', () => {
     expect(getDomSlotName('avatar-group', 'fallbackContent')).toBe('avatar-fallback-content')
     expect(getDomSlotName('checkbox-group', 'control')).toBe('checkbox-control')
     expect(getDomSlotName('pagination', 'controlLabel')).toBe('button-label')
+    expect(getDomSlotName('toggle-button', 'root')).toBe('toggle-button')
+    expect(getDomSlotName('toggle-button', 'label')).toBe('button-label')
     expect(getDomSlotName('select', 'itemLabel')).toBe('select-item-label')
   })
 

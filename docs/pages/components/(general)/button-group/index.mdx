@@ -5,7 +5,7 @@ api:
   path: src/element/button/button-group
   parts: [Separator]
 sidebar:
-  order: 1
+  order: 2
 search:
   tags: [button, actions, toolbar, group, split button, segment]
 ---
@@ -98,6 +98,12 @@ Use `ButtonGroup` to align related actions without changing their semantics. Add
 <Preview path="./group-composition" />
 
 ## Examples
+
+### Toggle buttons
+
+Compose ToggleButton children for independently enabled actions. They inherit the group's size and unpressed variant; `activeVariant` controls each button's pressed appearance. ButtonGroup supplies layout and does not coordinate selection or add toolbar keyboard navigation.
+
+<Preview path="./toggle-buttons" />
 
 ### Separator
 

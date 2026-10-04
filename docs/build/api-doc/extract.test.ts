@@ -12,8 +12,8 @@ describe('generateApiDoc', () => {
   test('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    expect(result.indexDoc.components).toHaveLength(46)
-    expect(result.componentDocs).toHaveLength(46)
+    expect(result.indexDoc.components).toHaveLength(47)
+    expect(result.componentDocs).toHaveLength(47)
     const button = result.componentDocs.get('button')
     expect(button).toMatchObject({
       name: 'Button',

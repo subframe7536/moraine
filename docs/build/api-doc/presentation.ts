@@ -140,6 +140,11 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
     description: 'checkbox-description',
   },
   pagination: { controlLabel: 'button-label' },
+  'toggle-button': {
+    leading: 'button-leading',
+    label: 'button-label',
+    trailing: 'button-trailing',
+  },
 }
 
 export function getDomSlotName(componentKey: string, slot: string): string {

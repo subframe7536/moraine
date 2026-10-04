@@ -226,6 +226,11 @@
       "category": "form"
     },
     {
+      "key": "toggle-button",
+      "name": "ToggleButton",
+      "category": "element"
+    },
+    {
       "key": "tooltip",
       "name": "Tooltip",
       "category": "overlay"
