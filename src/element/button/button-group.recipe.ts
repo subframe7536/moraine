@@ -18,8 +18,6 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     orientation: 'horizontal',
-    size: 'md',
-    variant: 'default',
   },
   variants: {
     size: {
