@@ -22,16 +22,6 @@ function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
 }
 
 describe('Checkbox', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <Checkbox variant="card" indicator="end" size="lg" label="Classes" />
-    ))
-    const root = screen.container.querySelector('[data-slot="checkbox"]')
-    const base = screen.container.querySelector('[data-slot="checkbox-control"]')
-    expect(root?.className).not.toBe('')
-    expect(base?.className).not.toBe('')
-  })
-
   test('exposes native inputRef', () => {
     let ref: HTMLInputElement | undefined
     render(() => <Checkbox inputRef={(el) => (ref = el)} label="Ref test" />)

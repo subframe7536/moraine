@@ -460,18 +460,6 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab').textContent).toBe('1')
   })
 
-  test('omits default visual styles without a provider and preserves activation', () => {
-    const screen = render(() => <Stepper items={ITEMS} clickable linear={false} />)
-    for (const element of screen.container.querySelectorAll('[data-slot]')) {
-      expect(element.className).not.toBe('')
-    }
-    expect(
-      screen.container.querySelector('[data-slot="stepper"]')?.getAttribute('style'),
-    ).toBeNull()
-    fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
-    expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
-  })
-
   test('renders icon indicators', () => {
     const screen = render(() => (
       <Stepper

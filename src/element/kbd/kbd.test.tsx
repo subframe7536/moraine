@@ -10,12 +10,6 @@ import type { KbdGroupT } from '../kbd-group/kbd-group.types'
 import { Kbd } from './kbd'
 
 describe('Kbd', () => {
-  test('renders component defaults when provider is absent', () => {
-    const view = render(() => <Kbd value="K" />)
-    const root = view.container.querySelector('[data-slot="kbd"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
     const root = view.container.querySelector('[data-slot="kbd"]')
@@ -147,20 +141,12 @@ describe('Kbd', () => {
 })
 
 describe('KbdGroup', () => {
-  test('renders the styled semantic kbd root when provider is absent', () => {
-    const view = render(() => <KbdGroup items={['Ctrl', 'K']} />)
-    const root = view.container.querySelector('[data-slot="kbd-group"]')
-
-    expect(root?.tagName).toBe('KBD')
-    expect(root?.className).not.toBe('')
-    expect(view.container.querySelector('[data-slot="chord"]')).toBeNull()
-  })
-
   test('renders default inline separators without separator semantics', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
     const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
     const root = view.container.querySelector('[data-slot="kbd-group"]')
 
+    expect(root?.tagName).toBe('KBD')
     expect([...items].map((item) => item.textContent)).toEqual(['Ctrl', '⇧', 'P'])
     expect(root?.textContent).toBe('Ctrl+⇧+P')
     expect(view.container.querySelector('[role="separator"]')).toBeNull()

@@ -1,5 +1,5 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
+import { fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, For, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
@@ -11,9 +11,6 @@ import { createForm } from '../form/index'
 
 import { MultiSelect } from './multi-select'
 import type { MultiSelectT } from './multi-select.types'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const ITEMS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -33,6 +30,32 @@ describe('MultiSelect', () => {
     expect(control.querySelectorAll('input[data-slot="multi-select-input"]')).toHaveLength(0)
     expect(control.querySelector('[data-slot="multi-select-tags-container"]')).toBeTruthy()
     expect(control.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain('Apple')
+  })
+
+  test('non-editable BaseSelect.Trigger owns focus and disclosure', () => {
+    const screen = render(() => (
+      <>
+        <button type="button">Outside</button>
+        <MultiSelect items={ITEMS} />
+      </>
+    ))
+    const outside = screen.getByRole('button', { name: 'Outside' })
+    const trigger = screen.getByRole('combobox')
+
+    outside.focus()
+    expect(document.activeElement).toBe(outside)
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
+    fireEvent.click(trigger)
+
+    expect(document.activeElement).toBe(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+    fireEvent.keyDown(document.activeElement!, { key: 'b' })
+    fireEvent.keyDown(document.activeElement!, { key: 'Enter' })
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Banana')
   })
 
   test('keeps typeahead navigation on the non-editable trigger', () => {

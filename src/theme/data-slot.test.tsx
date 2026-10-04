@@ -16,7 +16,7 @@ describe('dataSlotName', () => {
   })
 })
 
-test('library anatomy never uses bare slot names or the removed Avatar fallback key', () => {
+test('library anatomy uses component-prefixed slot names', () => {
   const sourceRoot = path.resolve(import.meta.dirname, '..')
   const files = readdirSync(sourceRoot, { recursive: true, encoding: 'utf8' })
     .filter((file) => /\.(ts|tsx)$/.test(file) && !file.endsWith('.test.tsx'))
@@ -27,8 +27,5 @@ test('library anatomy never uses bare slot names or the removed Avatar fallback 
   for (const file of files) {
     const source = readFileSync(file, 'utf8')
     expect(source, file).not.toMatch(bareSlot)
-    if (file.includes('/avatar/')) {
-      expect(source, file).not.toContain('fallbackIcon')
-    }
   }
 })

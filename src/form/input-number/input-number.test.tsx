@@ -1,10 +1,9 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
 import { createForm } from '../form'
@@ -12,16 +11,7 @@ import { createForm } from '../form'
 import { InputNumber } from './input-number'
 import type { InputNumberT } from './input-number.types'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
-
 describe('InputNumber', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <InputNumber />)
-    const root = screen.container.querySelector('[data-slot="input-number"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined

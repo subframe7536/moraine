@@ -7,16 +7,6 @@ import { MoraineProvider } from '../../provider'
 import { Badge } from './badge'
 
 describe('Badge', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <Badge variant="solid" size="lg">
-        Solid
-      </Badge>
-    ))
-    const badge = screen.container.querySelector('[data-slot="badge"]')
-    expect(badge?.className).not.toBe('')
-  })
-
   test('renders default badge semantics and label', () => {
     const screen = render(() => (
       <MoraineProvider>

@@ -7,7 +7,6 @@ import { Button } from '../../element/button'
 import { MoraineProvider } from '../../provider'
 import { callHandler } from '../../shared/utils'
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
 import { pushOverlayLayer } from '../base/overlay-stack'
 import { getFocusableElements } from '../base/utils'
@@ -344,19 +343,6 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('uses default modal presentation without a provider', () => {
-    render(() => (
-      <Modal defaultOpen>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content>Unstyled</Modal.Content>
-        </Modal.Portal>
-      </Modal>
-    ))
-    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).not.toBe('')
-    expect(document.querySelector('[data-slot="modal-content"]')?.className).not.toBe('')
-  })
-
   test('replaces modal Design without replacing the focused surface', () => {
     const [design, setDesign] = createSignal(
       defineTheme({
@@ -604,7 +590,7 @@ describe('Modal primitives', () => {
 
   test('supports non-native and Button trigger roots', async () => {
     let triggerElement: HTMLElement | undefined
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <>
         <Modal>
           <Modal.Trigger
@@ -758,7 +744,7 @@ describe('Modal primitives', () => {
   })
 
   test('applies the shared dialog overlay classes by default', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
           <Modal.Overlay />
@@ -780,7 +766,7 @@ describe('Modal primitives', () => {
   })
 
   test('applies the default popup transition classes to custom modal content', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
           <Modal.Content>
@@ -1004,7 +990,7 @@ describe('Modal primitives', () => {
   })
 
   test('can contain the content inside a scrolling overlay', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
           <Modal.Overlay scrollable>

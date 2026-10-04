@@ -23,14 +23,6 @@ const Schema = v.object({
 })
 
 describe('Form', () => {
-  test('renders component defaults when provider is absent', () => {
-    const { screen } = renderWithOwner(
-      () => createForm({ schema: Schema }),
-      (form) => <form.Form />,
-    )
-    const formElement = screen.container.querySelector('form')
-    expect(formElement?.className).not.toBe('')
-  })
   test('submits Formisch output through the high-level adapters', async () => {
     const onSubmit = vi.fn()
     const { screen } = renderWithOwner(

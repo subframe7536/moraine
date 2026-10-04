@@ -102,7 +102,21 @@ describe('siteMetaPlugin', () => {
         : hook?.handler.call(context, '<html></html>', undefined as never)
 
     expect(Array.isArray(result)).toBe(true)
-    expect(result).toEqual(buildSiteMetaTags(SITE_META))
+    expect(result).toEqual(
+      expect.arrayContaining([
+        { tag: 'title', children: 'Moraine Docs', injectTo: 'head' },
+        {
+          tag: 'link',
+          attrs: { rel: 'canonical', href: 'https://ui.subf.dev/' },
+          injectTo: 'head',
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image', content: 'https://ui.subf.dev/og-image.png' },
+          injectTo: 'head',
+        },
+      ]),
+    )
 
     const tags = result as ReturnType<typeof buildSiteMetaTags>
     expect(tags.filter((tag) => tag.tag === 'title')).toHaveLength(1)

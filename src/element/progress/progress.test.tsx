@@ -8,17 +8,6 @@ import { Progress } from './progress'
 import type { ProgressT } from './progress.types'
 
 describe('Progress', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => <Progress value={50} status />)
-    const root = screen.container.querySelector('[data-slot="progress"]')
-    const track = screen.container.querySelector('[data-slot="progress-track"]')
-    const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
-
-    expect(root?.className).not.toBe('')
-    expect(track?.className).not.toBe('')
-    expect(indicator?.className).not.toBe('')
-  })
-
   test('accepts static JSX for statusRender', () => {
     const screen = render(() => (
       <Progress value={40} statusRender={<span data-testid="status">Working</span>} />

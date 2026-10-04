@@ -1,17 +1,12 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
-import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
 import { isHTMLElement } from '../base/dom'
-import { setPopperTestPlacementAccessor } from '../base/popper'
 
 import { Tooltip } from './tooltip'
-
-let getMockPlacement: () => string = () => 'top'
-let setMockPlacement: (value: string) => void = () => undefined
 
 function mockInstantTooltipExit(): void {
   const readComputedStyle = window.getComputedStyle.bind(window)
@@ -152,15 +147,7 @@ describe('Tooltip', () => {
     fireEvent.click(trigger, { detail: 0 })
     expect(trigger.getAttribute('aria-expanded')).toBeNull()
   })
-  beforeEach(() => {
-    const [placement, setPlacement] = createSignal('top')
-    getMockPlacement = placement
-    setMockPlacement = setPlacement
-    setPopperTestPlacementAccessor(getMockPlacement)
-  })
-
   afterEach(() => {
-    setPopperTestPlacementAccessor(undefined)
     vi.restoreAllMocks()
     vi.useRealTimers()
   })
@@ -208,7 +195,7 @@ describe('Tooltip', () => {
   })
 
   test('applies top-level class and style to trigger', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Tooltip>
         <Tooltip.Trigger as="button" class="trigger-class" style={{ width: '200px' }} type="button">
           Trigger
@@ -226,7 +213,7 @@ describe('Tooltip', () => {
   })
 
   test('applies provider trigger classes and styles', () => {
-    renderWithTheme(() => (
+    render(() => (
       <MoraineProvider
         theme={defineTheme({
           tooltip: { base: { trigger: 'provider-trigger w-40' } },
@@ -281,7 +268,7 @@ describe('Tooltip', () => {
   })
 
   test('applies classes.content to content slot', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button" type="button">
           Trigger
@@ -353,22 +340,18 @@ describe('Tooltip', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('uses runtime placement to resolve side-aware animation classes', () => {
-    const [version, setVersion] = createSignal(0)
+  test('updates preferred side and alignment when placement props change without replacing content', () => {
+    const [placement, setPlacement] = createSignal<'top' | 'bottom'>('top')
+    const [align, setAlign] = createSignal<'center' | 'start'>('center')
 
-    // oxlint-disable-next-line subf/solid-reactivity
-    renderWithTheme(() => {
-      version()
-
-      return (
-        <Tooltip open>
-          <Tooltip.Trigger as="button" type="button">
-            Trigger
-          </Tooltip.Trigger>
-          <Tooltip.Content text="Tooltip content" />
-        </Tooltip>
-      )
-    })
+    render(() => (
+      <Tooltip open placement={placement()} align={align()}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
+      </Tooltip>
+    ))
 
     const initialContent = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
@@ -377,10 +360,11 @@ describe('Tooltip', () => {
     expect(initialContent?.getAttribute('data-side')).toBe('top')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setMockPlacement('bottom-start')
-    setVersion(1)
+    setPlacement('bottom')
+    setAlign('start')
 
     const updatedContent = document.body.querySelector('[data-slot="tooltip-content"]')
+    expect(updatedContent).toBe(initialContent)
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
@@ -630,7 +614,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <div>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
@@ -678,7 +662,7 @@ describe('Tooltip', () => {
   test('does not restart an always-open tooltip after switching from another tooltip', async () => {
     vi.useFakeTimers()
 
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <div>
         <Tooltip open>
           <Tooltip.Trigger as="button" type="button">
@@ -753,7 +737,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <div>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">

@@ -11,21 +11,6 @@ import { Button } from '../button/button'
 import { ButtonGroup } from './button-group'
 
 describe('ButtonGroup', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <ButtonGroup aria-label="History controls">
-        <Button>Back</Button>
-        <Button>Forward</Button>
-      </ButtonGroup>
-    ))
-
-    const group = screen.getByRole('group', { name: 'History controls' })
-    expect(group.className).not.toBe('')
-    const buttons = screen.getAllByRole('button')
-    expect(buttons[0]?.className).not.toBe('')
-    expect(buttons[1]?.className).not.toBe('')
-  })
-
   test('renders related buttons with group semantics and joined horizontal edges', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -48,13 +33,12 @@ describe('ButtonGroup', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
-  test('attaches the Separator namespace part', () => {
-    expect(ButtonGroup.Separator).toBeTypeOf('function')
-
+  test('renders a standalone vertical separator', () => {
     const screen = render(() => <ButtonGroup.Separator />)
     const separator = screen.getByRole('separator')
 
     expect(separator.getAttribute('data-slot')).toBe('button-group-separator')
+    expect(separator.getAttribute('aria-orientation')).toBe('vertical')
   })
 
   test('renders an explicit separator with generic separator semantics', () => {

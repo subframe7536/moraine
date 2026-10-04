@@ -1,4 +1,4 @@
-import { fireEvent, render as baseRender } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
@@ -14,9 +14,6 @@ import { Textarea } from '../textarea/textarea'
 
 import { InputGroup } from './input-group'
 import type { InputGroupT } from './input-group.types'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('InputGroup', () => {
   test('updates supporting parts when the group variant changes', () => {
@@ -47,24 +44,18 @@ describe('InputGroup', () => {
     }
   })
 
-  test.each([Input, Textarea])('allows %s to render outside an InputGroup', (Control) => {
-    const screen = baseRender(() => <Control />)
-
-    expect(screen.getByRole('textbox')).toBeTruthy()
-  })
-
   test('keeps Leading and Trailing scoped to InputGroup', () => {
-    expect(() => baseRender(() => <InputGroup.Leading>Prefix</InputGroup.Leading>)).toThrow(
+    expect(() => render(() => <InputGroup.Leading>Prefix</InputGroup.Leading>)).toThrow(
       'InputGroup.Leading must be used within InputGroup',
     )
-    expect(() => baseRender(() => <InputGroup.Trailing>Suffix</InputGroup.Trailing>)).toThrow(
+    expect(() => render(() => <InputGroup.Trailing>Suffix</InputGroup.Trailing>)).toThrow(
       'InputGroup.Trailing must be used within InputGroup',
     )
   })
 
-  test('renders without presentation when no theme is supplied', () => {
+  test('forwards the root ref without requiring a provider', () => {
     let group: HTMLDivElement | undefined
-    const screen = baseRender(() => (
+    const screen = render(() => (
       <InputGroup
         ref={(el) => {
           group = el
@@ -74,12 +65,8 @@ describe('InputGroup', () => {
         <Input />
       </InputGroup>
     ))
-    const frame = group?.querySelector<HTMLElement>('[data-slot="input-group-frame"]')
     expect(group).toBe(screen.getByRole('group'))
-    expect(group?.className).not.toBe('')
-    expect(screen.getByRole('textbox').className).not.toBe('')
-    expect(screen.getByText('Prefix').className).not.toBe('')
-    expect(frame?.className).not.toBe('')
+    expect(group?.contains(screen.getByRole('textbox'))).toBe(true)
   })
 
   test.each([Input, Textarea])(
@@ -223,7 +210,7 @@ describe('InputGroup', () => {
     const [theme, setTheme] = createSignal(
       defineTheme({ inputGroup: { defaultVariants: { compact: true } } }),
     )
-    const screen = baseRender(() => (
+    const screen = render(() => (
       <MoraineProvider theme={theme()}>
         <InputGroup>
           <InputGroup.Leading data-testid="inherited">https://</InputGroup.Leading>
@@ -434,7 +421,7 @@ describe('InputGroup', () => {
       defineTheme({ inputGroup: { defaultVariants: { size: 'sm' } } }),
     )
     const [leadingClass, setLeadingClass] = createSignal('first-leading')
-    const screen = baseRender(() => (
+    const screen = render(() => (
       <MoraineProvider theme={theme()}>
         <InputGroup
           classes={{ leading: leadingClass(), frame: 'theme-frame' }}
@@ -477,7 +464,7 @@ describe('InputGroup', () => {
     )
     const [orientation, setOrientation] =
       createSignal<InputGroupT.Variant['orientation']>('horizontal')
-    const screen = baseRender(() => (
+    const screen = render(() => (
       <MoraineProvider theme={theme()}>
         <InputGroup orientation={orientation()}>
           <InputGroup.Leading>Inherited</InputGroup.Leading>

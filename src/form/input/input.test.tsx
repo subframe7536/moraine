@@ -1,25 +1,15 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render as baseRender } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
 
 import { Input } from './input'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
-
 describe('Input', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <Input />)
-    const root = screen.container.querySelector('[data-slot="input"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('forwards ref to its only native element', () => {
     let control: HTMLInputElement | undefined
     const screen = render(() => <Input ref={(el) => (control = el)} placeholder="ref test" />)

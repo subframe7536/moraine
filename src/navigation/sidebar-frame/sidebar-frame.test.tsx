@@ -3,7 +3,6 @@ import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
 
 import { SidebarFrame } from './sidebar-frame'
 import { useSidebarFrame } from './sidebar-frame-context'
@@ -133,7 +132,7 @@ describe('SidebarFrame', () => {
   })
 
   test('renders compound regions in the desktop layout', () => {
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <SidebarFrame isMobile={false}>
         <FrameContent />
       </SidebarFrame>
@@ -324,7 +323,7 @@ describe('SidebarFrame', () => {
   })
 
   test('applies side and visual variants to the merged root', () => {
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <SidebarFrame isMobile={false} side="right" variant="inset">
         <FrameContent />
       </SidebarFrame>

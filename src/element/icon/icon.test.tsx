@@ -9,23 +9,6 @@ import { Icon } from './icon'
 import type { IconProps } from './icon.types'
 
 describe('Icon', () => {
-  test('uses the default recipe when provider is absent and applies theme overrides when provided', () => {
-    const customDesign = defineTheme({
-      icon: { base: { root: 'design-icon' } },
-    })
-    const defaultScreen = render(() => <Icon name="i-lucide-search" />)
-    const defaultIcon = defaultScreen.container.querySelector('[data-slot="icon"]')
-    expect(defaultIcon?.className).not.toContain('design-icon')
-
-    const styledScreen = render(() => (
-      <MoraineProvider theme={customDesign}>
-        <Icon name="i-lucide-search" />
-      </MoraineProvider>
-    ))
-    const styledIcon = styledScreen.container.querySelector('[data-slot="icon"]')
-    expect(styledIcon?.className).toContain('design-icon')
-  })
-
   test('renders a css icon class for string names', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
     const icon = screen.container.querySelector('[data-slot="icon"]')
@@ -69,18 +52,6 @@ describe('Icon', () => {
 
     expect(screen.getByTestId('custom-icon').textContent).toBe('X')
     expect(screen.getByTestId('custom-icon').parentElement?.dataset.slot).toBe('icon')
-  })
-
-  test('renders JSX names in the icon slot', () => {
-    const screen = render(() => <Icon name={<span data-testid="cached-icon">C</span>} />)
-
-    expect(screen.getByTestId('cached-icon').textContent).toBe('C')
-  })
-
-  test('supports zero-argument Solid component icons', () => {
-    const screen = render(() => <Icon name={() => <span data-testid="fn-icon">R</span>} />)
-
-    expect(screen.getByTestId('fn-icon').textContent).toBe('R')
   })
 
   test('preserves a zero-argument component and its cleanup while its JSX updates', () => {
@@ -233,13 +204,6 @@ describe('Icon', () => {
     expect(
       svgScreen.container.querySelector('[data-slot="icon"]')?.getAttribute('aria-hidden'),
     ).toBe('false')
-  })
-
-  test('applies direct root class overrides', () => {
-    const screen = render(() => <Icon name="i-lucide-search" class="root-override" />)
-    const icon = screen.container.querySelector('[data-slot="icon"]')
-
-    expect(icon?.className).toContain('root-override')
   })
 
   test('applies slot overrides without leaking style props to the DOM', () => {

@@ -1,5 +1,5 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, waitFor, within } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
@@ -10,9 +10,6 @@ import { Field } from '../field/field'
 import { createForm } from '../form/index'
 
 import { Combobox } from './combobox'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const ITEMS = [
   { label: 'Apple', value: 'apple' },

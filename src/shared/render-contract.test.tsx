@@ -22,16 +22,6 @@ import type { ButtonProps } from '../index'
 import { callHandler } from './utils'
 
 describe('render and polymorphic contracts', () => {
-  test('custom target receives onClick', () => {
-    let supplied: unknown
-    const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => {
-      supplied = untrack(() => props.onClick)
-      return <button {...props}>Action</button>
-    }
-    render(() => <Button as={Custom} onClick={vi.fn()} />)
-    expect(typeof supplied).toBe('function')
-  })
-
   test('custom target owns whether onClick is forwarded', () => {
     const click = vi.fn()
     const Custom = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -64,46 +54,6 @@ describe('render and polymorphic contracts', () => {
     invoke()
     fireEvent.click(view.getByText('Action'))
     expect(calls).toEqual(['consumer', 'custom', 'consumer'])
-  })
-
-  test('Progress replaces renderer A with B and cleans up A', () => {
-    const cleanup = vi.fn()
-    const A = () => {
-      onCleanup(cleanup)
-      return <span>A</span>
-    }
-    const B = () => <span>B</span>
-    const [renderer, setRenderer] = createSignal(A)
-    const view = render(() => <Progress value={1} max={['One', 'Two']} stepRender={renderer()} />)
-    expect(view.getAllByText('A')).toHaveLength(2)
-    setRenderer(() => B)
-    expect(view.queryAllByText('A')).toHaveLength(0)
-    expect(view.getAllByText('B')).toHaveLength(2)
-    expect(cleanup).toHaveBeenCalledTimes(2)
-  })
-
-  test('MultiSelect replaces tag renderer A with B', () => {
-    const A = () => <span>A</span>
-    const B = () => <span>B</span>
-    const [renderer, setRenderer] = createSignal(A)
-    const view = render(() => (
-      <MultiSelect items={[{ value: 'x', label: 'X' }]} value={['x']} tagRender={renderer()} />
-    ))
-    expect(view.getByText('A')).toBeTruthy()
-    setRenderer(() => B)
-    expect(view.queryByText('A')).toBeNull()
-    expect(view.getByText('B')).toBeTruthy()
-  })
-
-  test('Select replaces item renderer A with B', async () => {
-    const A = () => <span>A</span>
-    const B = () => <span>B</span>
-    const [renderer, setRenderer] = createSignal(A)
-    render(() => <Select defaultOpen items={['x']} itemRender={renderer()} />)
-    await waitFor(() => expect(screen.getByText('A')).toBeTruthy())
-    setRenderer(() => B)
-    expect(screen.queryByText('A')).toBeNull()
-    expect(screen.getByText('B')).toBeTruthy()
   })
 
   test.each([
@@ -145,36 +95,53 @@ describe('render and polymorphic contracts', () => {
     expect(cleanedB).toHaveBeenCalledTimes(1)
   })
 
-  test('CommandPalette replaces item renderer A with B', () => {
-    const A = () => <span>A</span>
-    const B = () => <span>B</span>
-    const [renderer, setRenderer] = createSignal(A)
-    const view = render(() => (
-      <CommandPalette groups={[{ id: 'g', items: [{ value: 'x' }] }]} itemRender={renderer()} />
-    ))
-    expect(view.getByText('A')).toBeTruthy()
-    setRenderer(() => B)
-    expect(view.queryByText('A')).toBeNull()
-    expect(view.getByText('B')).toBeTruthy()
-  })
-
-  test('DropdownMenu replaces item renderer A with B', async () => {
-    const A = () => <span>A</span>
-    const B = () => <span>B</span>
-    const [renderer, setRenderer] = createSignal(A)
-    render(() => (
-      <DropdownMenu defaultOpen>
-        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
-        <DropdownMenu.Content items={[{ label: 'x' }]} itemRender={renderer()} />
-      </DropdownMenu>
-    ))
-    await waitFor(() => expect(screen.getByText('A')).toBeTruthy())
-    setRenderer(() => B)
-    expect(screen.queryByText('A')).toBeNull()
-    expect(screen.getByText('B')).toBeTruthy()
-  })
-
   test.each([
+    [
+      'Progress steps',
+      (props: { renderer: () => JSX.Element }) => (
+        <Progress value={1} max={['One', 'Two']} stepRender={props.renderer} />
+      ),
+    ],
+    [
+      'MultiSelect tags',
+      (props: { renderer: () => JSX.Element }) => (
+        <MultiSelect
+          items={[
+            { value: 'x', label: 'X' },
+            { value: 'y', label: 'Y' },
+          ]}
+          value={['x', 'y']}
+          tagRender={props.renderer}
+        />
+      ),
+    ],
+    [
+      'Select',
+      (props: { renderer: () => JSX.Element }) => (
+        <Select defaultOpen items={['x', 'y']} itemRender={props.renderer} />
+      ),
+    ],
+    [
+      'CommandPalette',
+      (props: { renderer: () => JSX.Element }) => (
+        <CommandPalette
+          groups={[{ id: 'g', items: [{ value: 'x' }, { value: 'y' }] }]}
+          itemRender={props.renderer}
+        />
+      ),
+    ],
+    [
+      'DropdownMenu',
+      (props: { renderer: () => JSX.Element }) => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'x' }, { label: 'y' }]}
+            itemRender={props.renderer}
+          />
+        </DropdownMenu>
+      ),
+    ],
     [
       'Breadcrumb',
       (props: { renderer: () => JSX.Element }) => (

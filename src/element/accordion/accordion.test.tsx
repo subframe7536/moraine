@@ -27,16 +27,6 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
 ]
 
 describe('Accordion', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
-    const root = screen.container.firstElementChild
-    expect(root?.className).not.toBe('')
-    const trigger = screen.getByRole('button', { name: 'One' })
-    expect(trigger.className).not.toBe('')
-    const content = screen.getByRole('region', { name: 'One' })
-    expect(content.className).not.toBe('')
-  })
-
   test('renders default expanded item in single mode', () => {
     const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
 

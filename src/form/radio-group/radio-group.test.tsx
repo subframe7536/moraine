@@ -1,10 +1,9 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
 import { FieldProvider } from '../field/field-context'
@@ -13,16 +12,7 @@ import { createForm } from '../form'
 
 import { RadioGroup } from './radio-group'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
-
 describe('RadioGroup', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <RadioGroup items={['A', 'B']} />)
-    const root = screen.container.querySelector('[data-slot="radio-group"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('forwards root ref', () => {
     let rootEl: HTMLDivElement | undefined
     render(() => <RadioGroup ref={(el) => (rootEl = el)} items={['A', 'B']} />)

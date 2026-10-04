@@ -8,18 +8,8 @@ import { defineTheme } from '../../theme'
 import { Separator } from './separator'
 
 describe('Separator', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => <Separator />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('renders a single root element with default semantics and horizontal orientation', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Separator />
-      </MoraineProvider>
-    ))
+    const screen = render(() => <Separator />)
     const root = screen.container.querySelector('[data-slot="separator"]')
 
     expect(root?.tagName).toBe('DIV')
@@ -30,6 +20,7 @@ describe('Separator', () => {
     expect(root?.getAttribute('role')).toBe('separator')
     expect(root?.className).toContain('h-px')
     expect(root?.className).toContain('w-full')
+    expect(root?.className).toContain('bg-border')
   })
 
   test('updates orientation semantics and classes reactively', () => {
@@ -46,6 +37,7 @@ describe('Separator', () => {
 
     setOrientation('vertical')
 
+    expect(screen.getByRole('separator')).toBe(root)
     expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
     expect(root.className).toContain('w-px')
@@ -127,20 +119,5 @@ describe('Separator', () => {
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('p-4')
     expect(root.className).not.toContain('p-2')
-  })
-
-  test('keeps the root element stable when orientation changes', () => {
-    const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
-    const screen = render(() => (
-      <MoraineProvider>
-        <Separator orientation={orientation()} />
-      </MoraineProvider>
-    ))
-    const root = screen.getByRole('separator')
-
-    setOrientation('vertical')
-
-    expect(screen.getByRole('separator')).toBe(root)
-    expect(root.className).toContain('bg-border')
   })
 })

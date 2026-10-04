@@ -45,8 +45,6 @@ import {
 } from './utils'
 export type * from './popper.types'
 
-let popperTestPlacementAccessor: Accessor<string> | undefined
-
 /** Preserve floating behavior while forwarding the surface's native ref and events. */
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,
@@ -104,10 +102,6 @@ interface PopperContext {
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentPresence: ReturnType<typeof createTransitionPresence>
-}
-
-export function setPopperTestPlacementAccessor(accessor: Accessor<string> | undefined): void {
-  popperTestPlacementAccessor = accessor
 }
 
 /** Creates shared state for positioned overlay primitives in the current owner. */
@@ -250,10 +244,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     context
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [positionerPositioned, setPositionerPositioned] = createSignal(false)
-  const [internalCurrentPlacement, setInternalCurrentPlacement] = createSignal<string>('bottom')
-  const currentPlacement = createMemo(
-    () => popperTestPlacementAccessor?.() ?? internalCurrentPlacement(),
-  )
+  const [currentPlacement, setCurrentPlacement] = createSignal<string>('bottom')
   const positionerDataAttrs = popperDataAttributes.positioner({ positioned: positionerPositioned })
   function setPositioned(positioned: boolean): void {
     setPositionerPositioned(positioned)
@@ -277,7 +268,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
 
   createEffect(
     on([() => options.placement, () => options.align], ([placement, align]) => {
-      setInternalCurrentPlacement(resolveFloatingPlacement(placement, align))
+      setCurrentPlacement(resolveFloatingPlacement(placement, align))
     }),
   )
 
@@ -301,7 +292,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     getReferenceElement: triggerElement,
     gutter: () => options.gutter,
     hideWhenDetached: () => options.hideWhenDetached,
-    onPlacementChange: setInternalCurrentPlacement,
+    onPlacementChange: setCurrentPlacement,
     onPositionedChange: setPositioned,
     open: contentPresence.present,
     overlap: () => options.overlap,

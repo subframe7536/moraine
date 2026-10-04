@@ -1,5 +1,5 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
+import { fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
@@ -9,9 +9,6 @@ import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form/index'
 
 import { Select } from './select'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
@@ -202,7 +199,7 @@ describe('Select', () => {
   })
 
   test('keeps the loading spinner class on its icon without a theme', () => {
-    const screen = baseRender(() => <Select items={ITEMS} loading />)
+    const screen = render(() => <Select items={ITEMS} loading />)
     const icon = screen.container.querySelector<HTMLElement>('[data-loading]')!
     expect(icon.classList).toContain('data-loading:animate-spin')
   })

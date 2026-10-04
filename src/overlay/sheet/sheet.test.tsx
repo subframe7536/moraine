@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
 
 import { Sheet } from './sheet'
@@ -26,7 +25,7 @@ describe('Sheet', () => {
     ['top', 'top-0', '-enter-translate-y-10'],
     ['bottom', 'bottom-0', 'enter-translate-y-10'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
-    renderWithTheme(() => (
+    render(() => (
       <Sheet open side={side}>
         <Sheet.Trigger as="button" type="button">
           Trigger
@@ -116,7 +115,7 @@ describe('Sheet', () => {
   })
 
   test('applies inset without transition state', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Sheet open side="right" inset transition={false}>
         <Sheet.Trigger as="button" type="button">
           Trigger
@@ -449,7 +448,7 @@ describe('Sheet', () => {
     const [inset, setInset] = createSignal(false)
     const [transition, setTransition] = createSignal(true)
 
-    renderWithTheme(() => (
+    render(() => (
       <Sheet
         open
         side={side()}
@@ -576,7 +575,7 @@ describe('Sheet', () => {
   })
 
   test('keeps structured section padding symmetric around the corner close', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Sheet open>
         <Sheet.Content title="Title">
           <Sheet.Body>Body</Sheet.Body>
@@ -701,7 +700,7 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Sheet open>
         <Sheet.Content classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
           <Sheet.Body>Body</Sheet.Body>
@@ -722,7 +721,7 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    renderWithTheme(() => (
+    render(() => (
       <MoraineProvider
         theme={defineTheme({
           sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },

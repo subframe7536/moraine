@@ -384,15 +384,6 @@ describe('Tabs', () => {
     expect(indicator?.className).toContain('inset-x-1')
   })
 
-  test('renders default styles while retaining selection behavior without a provider', () => {
-    const screen = render(() => <Tabs items={ITEMS} />)
-    for (const element of screen.container.querySelectorAll('[data-slot]')) {
-      expect(element.className).not.toBe('')
-    }
-    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
-    expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
-  })
-
   test('replaces Design without remounting the selected tab or panel', () => {
     const [design, setDesign] = createSignal(defineTheme())
     const screen = render(() => (

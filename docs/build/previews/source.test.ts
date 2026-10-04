@@ -209,10 +209,9 @@ describe('transformPreviewModule', () => {
   ])('rejects %s', async (_name, source, count) => {
     await expect(
       transformPreviewModule(source, '/tmp/docs/pages/general/button/basic.tsx', parsePreviewCode),
-    ).rejects.toThrow(`expected exactly one component export in`)
-    await expect(
-      transformPreviewModule(source, '/tmp/docs/pages/general/button/basic.tsx', parsePreviewCode),
-    ).rejects.toThrow(`found ${count}`)
+    ).rejects.toThrow(
+      `expected exactly one component export in /tmp/docs/pages/general/button/basic.tsx, found ${count}`,
+    )
   })
 
   test('rejects component re-exports', async () => {

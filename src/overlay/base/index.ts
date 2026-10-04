@@ -43,13 +43,7 @@ export {
   containsOverlayContentAbove,
 } from './overlay-stack'
 export type { OverlayStackEntry } from './overlay-stack'
-export {
-  mergePopperElementProps,
-  setPopperTestPlacementAccessor,
-  createPopper,
-  PopperTrigger,
-  PopperContent,
-} from './popper'
+export { mergePopperElementProps, createPopper, PopperTrigger, PopperContent } from './popper'
 export type {
   PopperInteractOutsideEvent,
   PopperPointerDownOutsideEvent,

@@ -1,17 +1,13 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render as baseRender } from '@solidjs/testing-library'
+import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { createForm } from '../form'
 
 import { Textarea } from './textarea'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -19,14 +15,6 @@ afterEach(() => {
 })
 
 describe('Textarea', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <Textarea />)
-    const root = screen.container.querySelector('[data-slot="textarea"]')
-    const input = screen.container.querySelector('[data-slot="textarea"]')
-    expect(root?.className).not.toBe('')
-    expect(input?.className).not.toBe('')
-  })
-
   test('forwards ref to its only native element', () => {
     let control: HTMLTextAreaElement | undefined
     const screen = render(() => <Textarea ref={(el) => (control = el)} placeholder="ref test" />)

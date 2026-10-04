@@ -1,9 +1,8 @@
-import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createRoot, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
 import { FieldProvider } from '../field/field-context'
@@ -12,9 +11,6 @@ import { createForm } from '../form'
 
 import { createSlider } from './hook'
 import { Slider } from './slider'
-
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="slider-thumb"]')) as HTMLElement[]
@@ -70,12 +66,6 @@ function mockTrackRect(target: HTMLElement): void {
 }
 
 describe('Slider', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <Slider />)
-    const root = screen.container.querySelector('[data-slot="slider"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined

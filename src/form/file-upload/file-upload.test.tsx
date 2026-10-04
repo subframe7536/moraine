@@ -3,7 +3,6 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { Field } from '../field'
 import { createForm } from '../form'
@@ -70,20 +69,8 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => <FileUpload />)
-    const root = screen.container.querySelector('[data-slot="file-upload"]')
-    const control = screen.container.querySelector('[data-slot="file-upload-control"]')
-    expect(root?.className).not.toBe('')
-    expect(control?.className).not.toBe('')
-  })
-
-  test('renders official classes when provider is present', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <FileUpload dropzone />
-      </MoraineProvider>
-    ))
+  test('renders the default dropzone styling without a provider', () => {
+    const screen = render(() => <FileUpload dropzone />)
     const control = screen.container.querySelector('[data-slot="file-upload-control"]')
     expect(control?.className).toContain('border-dashed')
   })

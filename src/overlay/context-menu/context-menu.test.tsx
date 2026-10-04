@@ -4,7 +4,6 @@ import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
 import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
 
 import { ContextMenu } from './context-menu'
 
@@ -152,7 +151,7 @@ describe('ContextMenu', () => {
     const [placement, setPlacement] = createSignal<'right' | 'left'>('right')
     let initialContent: HTMLElement | null = null
 
-    renderWithTheme(() => (
+    render(() => (
       <ContextMenu placement={placement()} defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Open item' }]} />
@@ -563,7 +562,7 @@ describe('ContextMenu', () => {
   })
 
   test('supports defaultOpen without anchor coordinates', async () => {
-    renderWithTheme(() => (
+    render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Default open item' }]} />
@@ -591,7 +590,7 @@ describe('ContextMenu', () => {
   })
 
   test('uses a centered origin without a placement alignment', async () => {
-    renderWithTheme(() => (
+    render(() => (
       <ContextMenu placement="bottom" align="center" defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Centered item' }]} />
@@ -971,7 +970,7 @@ describe('ContextMenu', () => {
   })
 
   test('dismisses menu when right-clicking opened menu content', async () => {
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Pinned action' }]} />
@@ -1131,7 +1130,7 @@ describe('ContextMenu', () => {
       </div>
     ))
 
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <ContextMenu placement="bottom" align="start">
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
@@ -1215,7 +1214,7 @@ describe('ContextMenu', () => {
   })
 
   test('applies enter transition classes to an opened submenu', async () => {
-    renderWithTheme(() => (
+    render(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
@@ -1267,7 +1266,7 @@ describe('ContextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      renderWithTheme(() => (
+      render(() => (
         <ContextMenu defaultOpen>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
           <ContextMenu.Content
@@ -1691,7 +1690,7 @@ describe('ContextMenu', () => {
   })
 
   test('destructive item icon does not force muted color class', async () => {
-    const screen = renderWithTheme(() => (
+    const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content

@@ -210,7 +210,7 @@ test('resolves base, variant, and compound classes with an explicit merger', asy
     classes: { root: 'p-2 p-4 p-6' },
     style: {},
   })
-  expect(slots.resolve({ active: true }, cn)).toEqual(slots({ active: true }))
+  expect(slots.resolve({ active: true }, cn)).toEqual({ classes: { root: 'p-6' }, style: {} })
   expect(slots()).toEqual({ classes: { root: 'p-2' }, style: {} })
 })
 
@@ -271,7 +271,10 @@ test('supports variable-only recipes and scoped merging without changing style o
     classes: { root: undefined },
     style: { '--zero': 0, '--length': '20px' },
   })
-  expect(recipe.resolve(undefined, createCn({}))).toEqual(recipe())
+  expect(recipe.resolve(undefined, createCn({}))).toEqual({
+    classes: { root: undefined },
+    style: { '--zero': 0, '--length': '20px' },
+  })
 })
 
 const invalidVariable = testRecipe<RootSlot>('root', {

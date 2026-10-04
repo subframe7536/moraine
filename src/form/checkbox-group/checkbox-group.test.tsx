@@ -20,25 +20,6 @@ function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElem
 }
 
 describe('CheckboxGroup', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <CheckboxGroup
-        variant="table"
-        orientation="horizontal"
-        size="lg"
-        legend="Test"
-        items={['One']}
-      />
-    ))
-    const root = screen.container.querySelector('[data-slot="checkbox-group"]')
-    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
-    const item = screen.container.querySelector(
-      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
-    )
-    expect(root?.className).not.toBe('')
-    expect(fieldset?.className).not.toBe('')
-    expect(item?.className).not.toBe('')
-  })
   test('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
 

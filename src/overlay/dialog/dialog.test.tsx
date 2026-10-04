@@ -6,7 +6,6 @@ import { Button } from '../../element/button'
 import { CommandPalette } from '../../navigation/command-palette'
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
 import { defineTheme } from '../../theme'
 import { Sheet } from '../sheet/sheet'
 
@@ -101,7 +100,7 @@ describe('Dialog', () => {
   })
 
   test('renders default shell with title, description, body, footer and close button', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
           Trigger
@@ -183,7 +182,7 @@ describe('Dialog', () => {
   })
 
   test('renders an existing polymorphic component as the trigger root', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog>
         <Dialog.Trigger as={Button} variant="outline">
           Open dialog
@@ -662,7 +661,7 @@ describe('Dialog', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open>
         <Dialog.Content classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
           <Dialog.Body>Body</Dialog.Body>
@@ -683,7 +682,7 @@ describe('Dialog', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    renderWithTheme(() => (
+    render(() => (
       <MoraineProvider
         theme={defineTheme({
           dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
@@ -710,7 +709,7 @@ describe('Dialog', () => {
   })
 
   test('keeps long dialog content scrolling inside the body', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
           Trigger
@@ -745,7 +744,7 @@ describe('Dialog', () => {
 
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
     // Model the recipe's overflow utility in jsdom so scroll locking detects the overlay.
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open scrollable>
         <Dialog.Content title="Overlay scroll" styles={{ overlay: { 'overflow-y': 'auto' } }}>
           <Dialog.Body>Long body</Dialog.Body>
@@ -771,7 +770,7 @@ describe('Dialog', () => {
   })
 
   test('uses a full viewport flex panel for fullscreen dialogs', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open fullscreen>
         <Dialog.Content>
           <Dialog.Body>Fullscreen body</Dialog.Body>
@@ -794,7 +793,7 @@ describe('Dialog', () => {
     const [scrollable, setScrollable] = createSignal(false)
     const [fullscreen, setFullscreen] = createSignal(false)
     const [overlayVisible, setOverlayVisible] = createSignal(true)
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open scrollable={scrollable()} fullscreen={fullscreen()} overlay={overlayVisible()}>
         <Dialog.Content title="Layout">Content</Dialog.Content>
       </Dialog>
@@ -1095,7 +1094,7 @@ describe('Dialog', () => {
   })
 
   test('forwards custom classes and styles to dialog slots', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog
         open
         classes={{
@@ -1160,7 +1159,7 @@ describe('Dialog', () => {
   })
 
   test('adjusts body padding when header or footer is absent', () => {
-    const { unmount } = renderWithTheme(() => (
+    const { unmount } = render(() => (
       <Dialog open close={false}>
         <Dialog.Content title={false} description={false}>
           <Dialog.Body>No header body</Dialog.Body>
@@ -1173,7 +1172,7 @@ describe('Dialog', () => {
     expect(bodyNoHeader.className).toContain('pb-6')
     unmount()
 
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open>
         <Dialog.Content title="Title">
           <Dialog.Body>With header and footer</Dialog.Body>
@@ -1190,7 +1189,7 @@ describe('Dialog', () => {
   })
 
   test('keeps structured section padding symmetric around the corner close', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Dialog open>
         <Dialog.Content title="Title">
           <Dialog.Body>Body</Dialog.Body>

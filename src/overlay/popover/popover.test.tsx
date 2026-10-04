@@ -1,19 +1,14 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../element/button'
 import type { ButtonProps } from '../../element/button'
 import { callHandler } from '../../shared/utils'
 import { finishExitMotion } from '../../test-util/overlay-test'
-import { renderWithTheme } from '../../test-util/theme-render'
-import { setPopperTestPlacementAccessor } from '../base/popper'
 
 import { Popover } from './popover'
-
-let getMockPlacement: () => string = () => 'bottom'
-let setMockPlacement: (value: string) => void = () => undefined
 
 describe('Popover', () => {
   test('releases a custom trigger ref before replacement and after unmount', async () => {
@@ -176,15 +171,7 @@ describe('Popover', () => {
     await vi.advanceTimersByTimeAsync(100)
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
-  beforeEach(() => {
-    const [placement, setPlacement] = createSignal('bottom')
-    getMockPlacement = placement
-    setMockPlacement = setPlacement
-    setPopperTestPlacementAccessor(getMockPlacement)
-  })
-
   afterEach(() => {
-    setPopperTestPlacementAccessor(undefined)
     vi.useRealTimers()
   })
 
@@ -539,9 +526,7 @@ describe('Popover', () => {
     ['bottom-start', 'mt-(--mo-popper-content-overflow-padding)'],
     ['left-start', 'mr-(--mo-popper-content-overflow-padding)'],
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
-    setMockPlacement(placement)
-
-    renderWithTheme(() => (
+    render(() => (
       <Popover
         open
         placement={placement.split('-')[0] as 'top' | 'right' | 'bottom' | 'left'}
@@ -560,7 +545,7 @@ describe('Popover', () => {
   })
 
   test('supports classes for content slot', () => {
-    renderWithTheme(() => (
+    render(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
           Trigger
@@ -1101,22 +1086,18 @@ describe('Popover', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('uses runtime placement to resolve side-aware animation classes', () => {
-    const [version, setVersion] = createSignal(0)
+  test('updates preferred side and alignment when placement props change without replacing content', () => {
+    const [placement, setPlacement] = createSignal<'bottom' | 'right'>('bottom')
+    const [align, setAlign] = createSignal<'center' | 'end'>('center')
 
-    // oxlint-disable-next-line subf/solid-reactivity
-    renderWithTheme(() => {
-      version()
-
-      return (
-        <Popover open placement="bottom">
-          <Popover.Trigger as="button" type="button">
-            Trigger
-          </Popover.Trigger>
-          <Popover.Content>{'Popover content'}</Popover.Content>
-        </Popover>
-      )
-    })
+    render(() => (
+      <Popover open placement={placement()} align={align()}>
+        <Popover.Trigger as="button" type="button">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Popover content'}</Popover.Content>
+      </Popover>
+    ))
 
     const initialContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
@@ -1125,10 +1106,11 @@ describe('Popover', () => {
     expect(initialContent?.getAttribute('data-side')).toBe('bottom')
     expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setMockPlacement('right-end')
-    setVersion(1)
+    setPlacement('right')
+    setAlign('end')
 
     const updatedContent = document.body.querySelector('[data-slot="popover-content"]')
+    expect(updatedContent).toBe(initialContent)
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=right]:-enter-translate-x-1')

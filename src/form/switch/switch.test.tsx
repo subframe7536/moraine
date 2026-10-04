@@ -1,9 +1,8 @@
-import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { FieldProvider } from '../field/field-context'
 import type { FieldBinding } from '../field/field-context'
@@ -11,20 +10,11 @@ import { createForm } from '../form'
 
 import { Switch } from './switch'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
-
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
 
 describe('Switch', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = baseRender(() => <Switch label="Test" />)
-    const root = screen.container.querySelector('[data-slot="switch"]')
-    expect(root?.className).not.toBe('')
-  })
-
   test('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
     let inputEl: HTMLInputElement | undefined

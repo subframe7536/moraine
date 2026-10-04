@@ -192,21 +192,6 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
-    ))
-    const root = screen.container.querySelector('[data-slot="resizable"]')
-    const divider = screen.container.querySelector('[data-slot="resizable-handle"]')
-    const handle = screen.container.querySelector('[data-slot="resizable-handle-control"]')
-    const panel = screen.container.querySelector('[data-slot="resizable-panel"]')
-
-    expect(root?.className).not.toBe('')
-    expect(divider?.className).not.toBe('')
-    expect(handle?.className).not.toBe('')
-    expect(panel?.className).not.toBe('')
-  })
-
   test('composes the root ref with internal layout measurement', async () => {
     let root: HTMLDivElement | undefined
     const screen = render(() => (

@@ -162,17 +162,6 @@ describe('Button', () => {
     expect(screen.getByRole('link', { name: 'Native link' }).getAttribute('tabindex')).toBe('-1')
   })
 
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <Button variant="destructive" size="sm">
-        Delete
-      </Button>
-    ))
-
-    const button = screen.getByRole('button', { name: 'Delete' })
-    expect(button.className).not.toBe('')
-  })
-
   test('applies variant and size classes', () => {
     const screen = render(() => (
       <MoraineProvider>

@@ -89,22 +89,6 @@ afterEach(() => {
 })
 
 describe('Avatar', () => {
-  test('renders component defaults when provider is absent', () => {
-    const screen = render(() => (
-      <>
-        <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
-        <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
-      </>
-    ))
-
-    const avatarRoot = screen.container.querySelector('[data-slot="avatar"]')
-    expect(avatarRoot?.className).not.toBe('')
-    const badge = screen.container.querySelector('[data-slot="avatar-badge"]')
-    expect(badge?.className).not.toBe('')
-    const groupRoot = screen.container.querySelector('[data-slot="avatar-group"]')
-    expect(groupRoot?.className).not.toBe('')
-  })
-
   test('renders nothing when avatar group items is undefined or empty', () => {
     const screen = render(() => (
       <>
