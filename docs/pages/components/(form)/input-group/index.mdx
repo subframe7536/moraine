@@ -17,14 +17,16 @@ Use InputGroup when an editable control and its addons should share one visual b
 ## Basic usage
 
 ```tsx
-import { Input, InputGroup } from 'moraine'
+import { Field, Input, InputGroup } from 'moraine'
 
 export function Example() {
   return (
-    <InputGroup>
-      <InputGroup.Leading>@</InputGroup.Leading>
-      <Input placeholder="username" />
-    </InputGroup>
+    <Field label="Username">
+      <InputGroup>
+        <InputGroup.Leading>@</InputGroup.Leading>
+        <Input placeholder="username" />
+      </InputGroup>
+    </Field>
   )
 }
 ```
@@ -105,7 +107,9 @@ Place Leading parts before one Input or Textarea, then Trailing parts. The final
 
 ### Direction and orientation
 
-`Leading` renders at the logical start when horizontal and above the control when vertical. `Trailing` renders at the logical end when horizontal and below the control when vertical. Horizontal positions follow the document's writing direction. Configure the orientation default or styles through `inputGroup.defaults.orientation` and `inputGroup.variants.orientation` in your theme.
+In horizontal groups, Leading and Trailing follow the document's writing direction. In vertical
+groups, they sit above and below the control. Set `inputGroup.defaultVariants.orientation` in
+your Theme to change the shared default, or `inputGroup.variants.orientation` to override its styles.
 
 <Preview path="./alignment" />
 
@@ -114,6 +118,14 @@ Place Leading parts before one Input or Textarea, then Trailing parts. The final
 Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keeping the same layout role. In horizontal groups it uses smaller inline padding; in vertical groups it uses smaller padding on all sides. This is useful for compact buttons, keyboard shortcuts, inline prefixes or suffixes, and other addons that need less surrounding space.
 
 <Preview path="./compact" />
+
+### Styling and forms
+
+`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size` and `variant` to style the group. Disabled presentation remains on the native `Input` or `Textarea`, and the native control's `variant` applies when it is outside a group.
+
+Size precedence is the control's explicit size, group size, Field size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
+
+Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.
 
 ## Examples
 
@@ -170,11 +182,3 @@ Set `orientation="vertical"` to form a toolbar and status bar around the indepen
 Horizontal Leading and Trailing positions follow the inherited `dir`; vertical positions remain above and below the control.
 
 <Preview path="./rtl" />
-
-### Styling and forms
-
-`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size` and `variant` to style the group. Disabled presentation remains on the native `Input` or `Textarea`, and the native control's `variant` applies when it is outside a group.
-
-Size precedence is the control's explicit size, group size, Field size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
-
-Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.

@@ -16,17 +16,19 @@ Use MultiSelect for several selected collection items displayed as tags. Its val
 ## Basic usage
 
 ```tsx
-import { MultiSelect } from 'moraine'
+import { Field, MultiSelect } from 'moraine'
 
 export function Example() {
   return (
-    <MultiSelect
-      items={[
-        { label: 'Design', value: 'design' },
-        { label: 'Code', value: 'code' },
-      ]}
-      placeholder="Choose skills"
-    />
+    <Field label="Skills">
+      <MultiSelect
+        items={[
+          { label: 'Design', value: 'design' },
+          { label: 'Code', value: 'code' },
+        ]}
+        placeholder="Choose skills"
+      />
+    </Field>
   )
 }
 ```
@@ -167,7 +169,7 @@ MultiSelect renders its portaled popup collection internally. Tags have a separa
 The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
 
 `value` contains the selected item values as an array. An empty array means no selection; an empty
-string can be one of the item values. The array type is `TItem['value'][]`.
+string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
 Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
 users to type directly in the field to filter available options.
 
@@ -192,7 +194,7 @@ parsed through the same creation path.
 
 ### Virtualization
 
-Render 10,000+ items smoothly using TanStack Virtualizer.
+Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
 
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
 

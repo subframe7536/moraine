@@ -17,10 +17,14 @@ Use Slider when a numeric value or range is best chosen spatially. Pair it with 
 ## Basic usage
 
 ```tsx
-import { Slider } from 'moraine'
+import { Field, Slider } from 'moraine'
 
 export function Example() {
-  return <Slider defaultValue={50} />
+  return (
+    <Field label="Volume">
+      <Slider defaultValue={50} />
+    </Field>
+  )
 }
 ```
 
@@ -121,7 +125,9 @@ Set `step` to snap pointer drag and keyboard navigation to fixed increments. Ena
 
 ### Keyboard and forms
 
-The thumb supports keyboard stepping, including page-sized increments. Add a `name` for native form participation or use `Field` when the slider belongs to a Formisch store.
+Add `name` for native form submission, or place the slider inside `form.Field` from
+[createForm](/components/form) for schema binding. Use standalone [Field](/components/field) when
+you only need a label and messages.
 
 <Preview path="./keyboard-forms" />
 

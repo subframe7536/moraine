@@ -9,12 +9,12 @@ search:
 
 ## Prerequisites
 
-Before installing, ensure your environment meets the following requirements:
+Start with a SolidJS application and a build pipeline that compiles Solid JSX:
 
-- **SolidJS**: `>= 1.9.0`
-- **Build Tool**: Vite `>= 6.0` or [SolidStart](https://start.solidjs.com)
-- **TypeScript**: `>= 5.0` (recommended)
-- **Styling**: [UnoCSS](https://unocss.dev) or [Tailwind CSS v4](https://tailwindcss.com)
+- **SolidJS**: `^1.9.15`, matching Moraine's peer dependency.
+- **Build tool**: A Solid/Vite application or SolidStart.
+- **Styling**: The [UnoCSS integration](/docs/unocss) or [Tailwind CSS v4 integration](/docs/tailwind).
+- **TypeScript**: Recommended for component props and collection types.
 
 ## 1. Install the Package
 
@@ -38,11 +38,13 @@ yarn add moraine
 
 ## 2. Configure Atomic Class Styling
 
-Moraine components rely on utility classes (`bg-primary`, `rounded-lg`, `shadow-surface`, etc.) and semantic CSS variables. Configure your preferred styling tool:
+Moraine needs generated utility classes and semantic CSS variables. Choose one integration and
+complete its setup before checking a component:
 
 ### Option A: UnoCSS (Recommended)
 
-UnoCSS compiles Moraine's published utility classes and resolves its semantic tokens through the preset.
+Follow the [UnoCSS setup](/docs/unocss#installation-and-config) to install `@subf/unocss`, register
+its Vite plugin, and import `virtual:uno.css`. The component scanning configuration is:
 
 Import `moraine/unocss` and configure `unocss.config.ts`:
 
@@ -133,9 +135,6 @@ If TypeScript complains about JSX elements or missing types, ensure your `tsconf
 
 ## Next Steps
 
-Now that Moraine is installed and configured:
-
-- Learn about [Component Composition](/docs/composition) and public parts.
-- Understand how to render custom tags or components using [Polymorphism](/docs/polymorphism).
-- Customize theme colors, radiuses, and elevation in [Design Tokens](/docs/design).
-- Browse interactive specimens across the [Component Library](/components).
+Choose a [component](/components) and copy its Basic usage example. Read
+[Composition](/docs/composition) for attached parts and
+[Customization](/docs/customization) for local style overrides.

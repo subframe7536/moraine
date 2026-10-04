@@ -138,15 +138,14 @@ The group value is an array of item values. Pair `value` with `onValueChange` fo
 
 <Preview path="./selection-model" />
 
-### Forms and keyboard behavior
+### Forms
 
-The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `Field` for schema-bound fields.
+Give the group a `name` for native form submission, or place it inside `form.Field` from
+[createForm](/components/form) for schema binding. Standalone [Field](/components/field) supplies
+labels and messages without validation. Each checkbox keeps its own tab stop; the group does not
+use radio-style arrow navigation.
 
 <Preview path="./form-behavior" />
-
-### Keyboard interaction
-
-Each item keeps native checkbox keyboard behavior; the group does not implement radio-style roving focus.
 
 ## Examples
 

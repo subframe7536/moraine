@@ -13,9 +13,12 @@ sidebar:
 import { BaseSelect, Button } from '@src'
 import { For } from 'solid-js'
 
-BaseSelect owns array selection, disclosure, highlighted navigation, typeahead, listbox primitives,
-and form integration. Collection grouping, filtering, query state, tags, and item creation belong to
-the composing control.
+Use BaseSelect to build a custom selection control from a trigger and listbox parts. It manages
+selected values, open state, keyboard navigation, and native form values. Your application owns
+filtering, query text, grouping, and item creation.
+
+For a ready-made field, start with [Select](/components/select), [Combobox](/components/combobox),
+or [MultiSelect](/components/multi-select).
 
 ## Basic usage
 
@@ -167,16 +170,6 @@ The input helper registers `focusOwner`; it never becomes the floating anchor. T
 physical input, canonical source, filtering, and query cleanup. No BaseSelect.Trigger is required
 for this editable composition.
 
-## Examples
-
-### Multiple selection
-
-<Preview path="./multiple" />
-
-### Form integration
-
-<Preview path="./form" />
-
 ### Item fields
 
 `BaseSelect.Item` accepts collection item data via the `item` prop: `<BaseSelect.Item item={item} />`.
@@ -184,7 +177,7 @@ Ordinary component props are DOM/rendering props for the rendered `<div>`. Custo
 available through render state: `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`,
 and arbitrary item fields never leak into rendered DOM attributes.
 
-### Canonical vs navigation collections
+### Filtered collections
 
 By default, `<BaseSelect items={items}>` uses `items` as both the canonical data source and the
 active navigation collection.
@@ -198,12 +191,22 @@ a filtered `items` view:
 </BaseSelect>
 ```
 
-Here, `items` represents the current navigation view (visible in the popup listbox), while
-`getItemByValue` provides authoritative lookup for canonical item data (such as labels, disabled
-state, and form serialization) even when items are filtered out of the view.
+The filtered `items` array controls which options users can navigate. `getItemByValue` looks up
+selected items in the full collection, so labels, disabled state, and form values remain available
+when an item is filtered out.
 
 ### Styling
 
 BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
 and direct `class` or `style` on the part that renders the element. See [Customization](/docs/customization)
 and [Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
+
+## Examples
+
+### Multiple selection
+
+<Preview path="./multiple" />
+
+### Form integration
+
+<Preview path="./form" />

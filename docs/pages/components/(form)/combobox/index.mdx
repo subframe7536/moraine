@@ -16,17 +16,19 @@ Use Combobox when users should type to find one item in a collection. Use [Selec
 ## Basic usage
 
 ```tsx
-import { Combobox } from 'moraine'
+import { Field, Combobox } from 'moraine'
 
 export function Example() {
   return (
-    <Combobox
-      items={[
-        { label: 'Apple', value: 'apple' },
-        { label: 'Pear', value: 'pear' },
-      ]}
-      placeholder="Search fruit"
-    />
+    <Field label="Fruit">
+      <Combobox
+        items={[
+          { label: 'Apple', value: 'apple' },
+          { label: 'Pear', value: 'pear' },
+        ]}
+        placeholder="Search fruit"
+      />
+    </Field>
   )
 }
 ```
@@ -160,12 +162,11 @@ occurrence, including collisions between strings and objects.
 
 ### Value and query
 
-`value` is the selected item's value, or `null` when nothing is selected. Leave it undefined to use
-uncontrolled selection with `defaultValue`. An empty string remains a valid item value. The exact
-selection type is `ComboboxT.NormalizedItem<TItem>['value'] | null`, which `onChange` receives.
+Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
+uncontrolled choice. `null` means no selection; an empty string is a valid item value.
 
 While open, the input displays the query; while closed, it displays the selected item label.
-Arbitrary query text is never committed as a value. Use `value` / `onChange` for selection and
+Arbitrary query text is never committed as a value. Use `value` / `onValueChange` for selection and
 `searchValue` / `onSearch` for query text.
 
 <Preview path="./usage-query" />
@@ -189,7 +190,7 @@ if you want any click on the field to open the options list.
 
 ### Virtualization
 
-Virtualize large lists of 10,000+ items using TanStack Virtualizer.
+Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
 
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
 

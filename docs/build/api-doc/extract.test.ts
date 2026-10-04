@@ -1,9 +1,12 @@
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
+import * as Moraine from '../../../src/index.ts'
 import { scanDocsPages } from '../routes.ts'
 
+import { getIdentifierName, parseTypeScript } from './ast.ts'
 import { generateApiDoc } from './extract.ts'
 
 describe('generateApiDoc', () => {
@@ -12,8 +15,36 @@ describe('generateApiDoc', () => {
   test('generates the frontmatter registry from types and recipes', async () => {
     const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
-    expect(result.indexDoc.components).toHaveLength(48)
-    expect(result.componentDocs).toHaveLength(48)
+    const entryPath = path.join(projectRoot, 'src/index.ts')
+    const entry = await parseTypeScript(entryPath, readFileSync(entryPath, 'utf8'), 'ts')
+    const publicNames = entry.program.body.flatMap((node) => {
+      if (node.type !== 'ExportNamedDeclaration' || node.exportKind !== 'type') {
+        return []
+      }
+      return node.specifiers.flatMap((specifier) => {
+        const name = getIdentifierName(specifier.exported)
+        return name?.endsWith('T') ? [name.slice(0, -1)] : []
+      })
+    })
+    expect(result.indexDoc.components.map((component) => component.name).sort()).toEqual(
+      publicNames.sort(),
+    )
+    expect([...result.componentDocs.values()].map((component) => component.name).sort()).toEqual(
+      publicNames,
+    )
+    for (const component of result.componentDocs.values()) {
+      if (component.name === 'Form') {
+        continue
+      }
+      const exported = (Moraine as Record<string, unknown>)[component.name]
+      expect(typeof exported, `${component.name}: missing public export`).toBe('function')
+      const parts = Object.keys(exported as object)
+        .filter((name) => /^[A-Z]/.test(name))
+        .map((name) => `${component.name}.${name}`)
+      expect(component.parts.map((part) => part.name).sort()).toEqual(
+        [component.name, ...parts].sort(),
+      )
+    }
     const button = result.componentDocs.get('button')
     expect(button).toMatchObject({
       name: 'Button',

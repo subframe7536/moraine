@@ -85,7 +85,12 @@ export function Example() {
 
 ### Checked state and forms
 
-`Switch` has checkbox semantics and a hidden native input. Use `checked` with `onChange` for controlled state, or `defaultChecked` for an initial value. `trueValue` and `falseValue` map that state to domain values for form integration.
+The focusable button exposes `role="switch"`; a hidden checkbox handles native form submission.
+Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
+
+`trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
+forms. Native form submission uses the separate `value` prop only while checked; an unchecked
+switch contributes no entry.
 
 <Preview path="./state-forms" />
 

@@ -26,15 +26,9 @@ import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup
 import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
-Define a schema, instantiate the form with `createForm`, and render `<form.Form>` and `<form.Field>`:
-
-`createForm()` returns the underlying reactive Formisch store enhanced with `form.Form` and
-`form.Field`. You can use Formisch's public store methods and helpers, including programmatic
-field focus, with the bound controls.
-
-`<form.Form>` manages submission: it always prevents native navigation, validates against the
-schema, and calls `onSubmit` after successful validation. Native attributes such as `action` and
-`method` are forwarded to the form element, but they do not enable a browser navigation submit.
+Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
+with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
+when you only need labels and messages.
 
 ## Basic usage
 
@@ -332,13 +326,18 @@ Each `form.Field` uses the Field layout; the bound `form.Form` owns only its nat
 
 ### Basic form and submission
 
-Create the form with `createForm`, then render `<form.Form>` and `<form.Field>`. The submit handler receives the validated schema output.
+Define a schema and initial input, then render the bound components returned by `createForm`.
+`form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
+validated output. Native `action` and `method` attributes do not enable a browser navigation submit.
+
+The returned store also supports Formisch's public methods and helpers, including programmatic
+field focus.
 
 <Preview path="./basic-form" />
 
 ### Root styling
 
-`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Design. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Theme. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
 
 ### Bound field outside the form root
 

@@ -16,10 +16,14 @@ Use Textarea for multi-line native text entry. Use [InputGroup](/components/inpu
 ## Basic usage
 
 ```tsx
-import { Textarea } from 'moraine'
+import { Field, Textarea } from 'moraine'
 
 export function Example() {
-  return <Textarea placeholder="Write a message" />
+  return (
+    <Field label="Message">
+      <Textarea placeholder="Write a message" />
+    </Field>
+  )
 }
 ```
 

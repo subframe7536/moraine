@@ -4,19 +4,18 @@ export function DrawerUsage() {
   return (
     <Sheet>
       <Sheet.Trigger as={Button}>Open Settings Drawer</Sheet.Trigger>
-      <Sheet.Content
-        title="Edit Configuration"
-        description="Update workspace variables and environment keys."
-      >
+      <Sheet.Content title="Settings drawer" description="A drawer with body and footer regions.">
         <Sheet.Body>
           <div class="text-xs text-muted-foreground py-4">
-            Changes take effect immediately on next deployment cycle.
+            Place settings fields in this region and actions in the footer.
           </div>
         </Sheet.Body>
         <Sheet.Footer>
           <div class="flex gap-2 w-full justify-end">
-            <Button variant="ghost">Cancel</Button>
-            <Button>Save Settings</Button>
+            <Sheet.Close as={Button} variant="ghost">
+              Cancel
+            </Sheet.Close>
+            <Sheet.Close as={Button}>Done</Sheet.Close>
           </div>
         </Sheet.Footer>
       </Sheet.Content>

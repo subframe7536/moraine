@@ -17,10 +17,14 @@ Use InputNumber for a numeric field with step controls and constrained committed
 ## Basic usage
 
 ```tsx
-import { InputNumber } from 'moraine'
+import { Field, InputNumber } from 'moraine'
 
 export function Example() {
-  return <InputNumber minValue={0} maxValue={10} defaultValue={1} />
+  return (
+    <Field label="Quantity">
+      <InputNumber minValue={0} maxValue={10} defaultValue={1} />
+    </Field>
+  )
 }
 ```
 
@@ -96,7 +100,7 @@ export function Example() {
 
 ### Values and boundaries
 
-Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and `onChange` expose the locale-formatted string. The component preserves partial typed input until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
+Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and `onValueChange` expose the locale-formatted string. The component preserves partial typed input until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
 
 <Preview path="./boundaries" />
 

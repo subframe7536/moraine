@@ -1,6 +1,8 @@
 // @vitest-environment node
 
-import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import { expect, test } from 'vitest'
@@ -11,12 +13,51 @@ import { collectMarkdownFiles } from './core/paths.ts'
 import { resolvePreviewFile } from './markdown/previews.ts'
 
 const PAGES_ROOT = path.resolve(__dirname, '../pages/components')
+const PROJECT_ROOT = path.resolve(__dirname, '../..')
 
 function componentPages(): string[] {
   return collectMarkdownFiles(PAGES_ROOT).filter(
     (file) => file.endsWith('/index.mdx') && file !== path.join(PAGES_ROOT, 'index.mdx'),
   )
 }
+
+test('copyable Basic usage examples compile against the public component API', () => {
+  const directory = mkdtempSync(path.join(PROJECT_ROOT, 'docs/.content-check-'))
+  try {
+    for (const page of componentPages()) {
+      const source = readFileSync(page, 'utf8')
+      const basic = source.match(/^## Basic usage\n+```tsx\n([\s\S]*?)\n```/m)
+      expect(basic, `${page}: missing Basic usage example`).not.toBeNull()
+      writeFileSync(path.join(directory, `${path.basename(path.dirname(page))}.tsx`), basic![1]!)
+    }
+    const config = path.join(directory, 'tsconfig.json')
+    writeFileSync(
+      config,
+      JSON.stringify({
+        extends: path.join(PROJECT_ROOT, 'tsconfig.json'),
+        compilerOptions: {
+          paths: {
+            moraine: [path.join(PROJECT_ROOT, 'src/index.ts')],
+            'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
+          },
+        },
+        include: ['*.tsx'],
+        exclude: [],
+      }),
+    )
+    const require = createRequire(import.meta.url)
+    const compiler = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin/tsc')
+    // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
+    const result = spawnSync(process.execPath, [compiler, '-p', config, '--pretty', 'false'], {
+      encoding: 'utf8',
+      timeout: 20_000,
+      stdio: 'pipe',
+    })
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+}, 25_000)
 
 test('component pages follow the shared content and anatomy contract', async () => {
   const failures: string[] = []

@@ -7,9 +7,11 @@ search:
   tags: [ssr, hydration, solidstart, server, vite]
 ---
 
-Moraine is designed from the ground up for SolidJS server-side rendering (SSR), streaming HTML, and client hydration. All primitives and styled components are safe to run in SSR environments like SolidStart, Astro, and Vite SSR.
+Moraine supports SolidJS server rendering and hydration. Your application must still render the
+same initial state on the server and client, defer browser-only work, and create conditional JSX
+only when its branch renders.
 
-This guide outlines how Moraine handles the SSR lifecycle and how you can ensure hydration safety in your application.
+This guide covers IDs, portals, responsive state, and content ownership.
 
 ## Deterministic Hydration IDs
 
@@ -40,7 +42,8 @@ In Moraine:
 
 - Overlays default to closed states, rendering nothing or minimal placeholders during initial server rendering.
 - When an overlay opens, Moraine delays portal insertion until hydration completes in the browser, preventing server/client DOM mismatch.
-- When nesting Moraine primitives, avoid rendering browser-only DOM elements directly outside `onMount`.
+- Read browser APIs in `onMount` or event handlers. For browser-only content, keep the server and
+  initial client tree identical, then reveal that content after mounting.
 
 ```tsx
 import { Button, Dialog } from 'moraine'
@@ -57,6 +60,41 @@ export function UserDialog() {
   )
 }
 ```
+
+## Conditional JSX and item content
+
+Create JSX inside the branch that renders it. For collection items with optional panels, use a
+`content` getter so an inactive panel does not consume hydration IDs before it mounts:
+
+```tsx
+import { Tabs } from 'moraine'
+
+export function SettingsTabs() {
+  return (
+    <Tabs
+      items={[
+        {
+          value: 'account',
+          label: 'Account',
+          get content() {
+            return <p>Account settings</p>
+          },
+        },
+        {
+          value: 'notifications',
+          label: 'Notifications',
+          get content() {
+            return <p>Notification settings</p>
+          },
+        },
+      ]}
+    />
+  )
+}
+```
+
+The same rule applies to JSX panel data in [Accordion](/components/accordion) and
+[Stepper](/components/stepper). Keep server and client item order and initial selection equal.
 
 ## Responsive Queries in SSR
 

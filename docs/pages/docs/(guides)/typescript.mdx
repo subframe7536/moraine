@@ -7,7 +7,8 @@ search:
   tags: [types, typescript, namespaces, generics, props, MoraineTypeConfig, SolidJS]
 ---
 
-Moraine provides end-to-end type safety for SolidJS. All component props, slot overrides, collection items, and polymorphic targets are fully typed without requiring `any` or manual type assertions.
+Moraine exports types for component props, style slots, collection items, and polymorphic targets.
+Use the component's props type for wrappers and its namespace for supporting types.
 
 ## Props vs Namespaces
 
@@ -56,7 +57,8 @@ const countries: SelectT.Item[] = [
 
 | Member    | Description                                                                         |
 | :-------- | :---------------------------------------------------------------------------------- |
-| `Props`   | Complete component props interface (identical to `XxxProps`).                       |
+| `Kind`    | `'single'` or `'composite'`; composite components expose attached JSX parts.        |
+| `Props`   | Complete component props type (identical to `XxxProps`).                            |
 | `Base`    | Core business props without native HTML attributes.                                 |
 | `Slot<T>` | Object shape of optional styling slots; `keyof XxxT.Slot` gives the slot names.     |
 | `Variant` | Object shape of visual variant options; component props additionally accept `null`. |
@@ -64,6 +66,10 @@ const countries: SelectT.Item[] = [
 | `Styles`  | Slot shape containing `JSX.CSSProperties` objects; string styles are unsupported.   |
 | `Item`    | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).         |
 | `Value`   | Value domain type for form controls with value semantics.                           |
+
+Members are available where applicable. For example, collection components expose `Item`, while
+single-root components such as `Icon` do not accept instance slot maps. Attached parts use
+namespace types such as `DialogT.ContentProps`.
 
 ## Visual Variants (`XxxT.Variant`)
 

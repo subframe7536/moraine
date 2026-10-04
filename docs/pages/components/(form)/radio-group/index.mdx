@@ -16,16 +16,18 @@ Use RadioGroup for one choice from a small visible set. For a longer or space-co
 ## Basic usage
 
 ```tsx
-import { RadioGroup } from 'moraine'
+import { Field, RadioGroup } from 'moraine'
 
 export function Example() {
   return (
-    <RadioGroup
-      items={[
-        { value: 'public', label: 'Public' },
-        { value: 'private', label: 'Private' },
-      ]}
-    />
+    <Field label="Visibility">
+      <RadioGroup
+        items={[
+          { value: 'public', label: 'Public' },
+          { value: 'private', label: 'Private' },
+        ]}
+      />
+    </Field>
   )
 }
 ```
@@ -122,7 +124,9 @@ Use one string value for the selected item and pair `value` with `onValueChange`
 
 ### Forms
 
-Set a `name` when a native form needs the selected value, or place the group inside `Field` for Formisch binding and validation metadata.
+Set `name` for native form submission. For schema binding and validation, place the group inside
+`form.Field` from [createForm](/components/form). Standalone [Field](/components/field) supplies
+labels and messages without binding a form store.
 
 <Preview path="./form-usage" />
 

@@ -16,10 +16,14 @@ Use Input for native single-line text editing. Compose it with [Field](/componen
 ## Basic usage
 
 ```tsx
-import { Input } from 'moraine'
+import { Field, Input } from 'moraine'
 
 export function Example() {
-  return <Input placeholder="Your name" />
+  return (
+    <Field label="Your name">
+      <Input placeholder="Your name" />
+    </Field>
+  )
 }
 ```
 

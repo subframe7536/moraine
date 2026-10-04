@@ -12,7 +12,9 @@ import 'solid-toaster/style.css'
 import { Button, Icon } from '@src'
 import { toast, BaseToaster } from 'solid-toaster'
 
-Use the `solid-toaster` package to display notifications in a Moraine application.
+Use `solid-toaster` for temporary status messages. It is a separate package; Moraine does not
+export a Toast component. Mount its host once and use Moraine icons and theme variables to match
+your application.
 
 ## Basic usage
 
@@ -141,13 +143,9 @@ pnpm add solid-toaster
 npm i solid-toaster
 ```
 
-Then import styles and mount a `BaseToaster` host from `solid-toaster` at your application root. Supply Moraine's semantic icons through its `icons` prop:
-
-`BaseToaster` is the solid-toaster host; mount it once at your app root.
-
-### Setup
-
-Toast is provided by the `solid-toaster` integration, not a Moraine component export. Import its stylesheet and mount a `BaseToaster` host with Moraine icons before calling `toast` methods.
+Import `solid-toaster/style.css` and mount one `BaseToaster` at your application root before
+calling `toast` methods. Its `icons` and `style` props connect the host to Moraine's semantic
+icons and theme variables, as shown in Basic usage.
 
 <Preview path="./setup-usage" />
 
@@ -157,9 +155,9 @@ Use semantic toast calls for immediate feedback and `toast.promise` for a promis
 
 <Preview path="./calls-usage" />
 
-### Throttle
+### Duplicate messages
 
-Use `preventDuplicate` to reduce same content toasts.
+Set `preventDuplicate` on the host to avoid showing repeated toasts with the same content.
 
 <Preview path="./prevent-duplicate" />
 

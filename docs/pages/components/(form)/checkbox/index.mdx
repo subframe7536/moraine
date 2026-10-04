@@ -97,7 +97,13 @@ export function Example() {
 
 ### State and form values
 
-Use `checked` with `onChange` when the application owns the value; otherwise use `defaultChecked`. Set `indeterminate` from your own aggregate selection state—it changes the mixed presentation but is not a third submitted value. `trueValue` and `falseValue` let the same control map to a domain value while retaining native checkbox form behavior.
+Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
+Set `indeterminate` from aggregate selection state; it changes the mixed presentation without
+adding a third submitted value.
+
+`trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
+forms. Native form submission uses the separate `value` prop only while checked; an unchecked
+checkbox contributes no entry.
 
 <Preview path="./state-and-values" />
 
