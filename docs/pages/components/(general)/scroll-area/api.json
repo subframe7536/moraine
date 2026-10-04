@@ -1,0 +1,127 @@
+{
+  "key": "scroll-area",
+  "name": "ScrollArea",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "scroll-area",
+      "name": "ScrollArea",
+      "access": {
+        "kind": "export",
+        "name": "ScrollArea"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Content rendered directly inside the scroll container."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "hideScrollbar",
+          "optional": true,
+          "type": "boolean",
+          "description": "Hide the native scrollbar while retaining scrolling.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "offset",
+          "optional": true,
+          "type": "number",
+          "description": "Distance from an edge within which its shadow stays hidden.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "onVisibilityChange",
+          "optional": true,
+          "type": "(visibility: Exclude<Visibility, 'auto'>) => void",
+          "description": "Called when measured overflow edges change while shadow is enabled."
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": "'horizontal' | 'vertical'",
+          "description": "Scroll axis.",
+          "default": {
+            "kind": "literal",
+            "value": "vertical"
+          }
+        },
+        {
+          "name": "shadow",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether overflowing edges fade out.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "shadowSize",
+          "optional": true,
+          "type": "number",
+          "description": "Edge fade size in pixels.",
+          "default": {
+            "kind": "literal",
+            "value": 40
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "visibility",
+          "optional": true,
+          "type": "Visibility",
+          "description": "Visible shadow edges. Manual visibility still requires shadow.",
+          "default": {
+            "kind": "literal",
+            "value": "auto"
+          }
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-orientation",
+        "data-shadow-end",
+        "data-shadow-start"
+      ]
+    }
+  ]
+}

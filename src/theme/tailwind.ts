@@ -122,6 +122,8 @@ export const moraineTailwind = plugin(
           'resizable-handle-start-target',
           'selected',
           'scroll',
+          'shadow-end',
+          'shadow-start',
           'pressed',
           'submitting',
           'tags',

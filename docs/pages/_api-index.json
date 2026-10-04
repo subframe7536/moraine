@@ -171,6 +171,11 @@
       "category": "element"
     },
     {
+      "key": "scroll-area",
+      "name": "ScrollArea",
+      "category": "element"
+    },
+    {
       "key": "select",
       "name": "Select",
       "category": "form"

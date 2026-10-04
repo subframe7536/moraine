@@ -13,6 +13,7 @@ export {
   List,
   Progress,
   Resizable,
+  ScrollArea,
   Separator,
   Skeleton,
 } from './element'
@@ -45,6 +46,8 @@ export type {
   ProgressProps,
   ResizableT,
   ResizableProps,
+  ScrollAreaT,
+  ScrollAreaProps,
   SeparatorT,
   SeparatorProps,
   SkeletonT,

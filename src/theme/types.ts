@@ -11,6 +11,7 @@ import type { KbdGroupStyleConfig } from '../element/kbd/kbd-group.style-types'
 import type { KbdStyleConfig } from '../element/kbd/kbd.style-types'
 import type { ProgressStyleConfig } from '../element/progress/progress.style-types'
 import type { ResizableStyleConfig } from '../element/resizable/resizable.style-types'
+import type { ScrollAreaStyleConfig } from '../element/scroll-area/scroll-area.style-types'
 import type { SeparatorStyleConfig } from '../element/separator/separator.style-types'
 import type { SkeletonStyleConfig } from '../element/skeleton/skeleton.style-types'
 import type { BaseSelectStyleConfig } from '../form/base-select/base-select.style-types'
@@ -65,6 +66,7 @@ export interface MoraineStyleSchema {
   kbdGroup: KbdGroupStyleConfig
   progress: ProgressStyleConfig
   resizable: ResizableStyleConfig
+  scrollArea: ScrollAreaStyleConfig
   separator: SeparatorStyleConfig
   skeleton: SkeletonStyleConfig
   baseSelect: BaseSelectStyleConfig

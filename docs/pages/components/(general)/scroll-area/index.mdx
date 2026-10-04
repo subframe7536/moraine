@@ -1,0 +1,136 @@
+---
+title: ScrollArea
+description: Scroll native content with optional fades at overflowing edges.
+api:
+  path: src/element/scroll-area/scroll-area
+sidebar:
+  order: 16
+search:
+  tags: [scroll, overflow, shadow, fade, horizontal, vertical, scrollbar, rtl]
+---
+
+import { For } from 'solid-js'
+import { ScrollArea } from '@src'
+
+Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to fade the edges that have more content beyond the viewport.
+
+## Basic usage
+
+```tsx
+import { For } from 'solid-js'
+import { ScrollArea } from 'moraine'
+
+export function Example() {
+  return (
+    <ScrollArea class="h-48 w-full" shadow role="region" aria-label="Recent activity">
+      <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
+        {(entry) => <p class="py-2 text-sm">Activity entry {entry}</p>}
+      </For>
+    </ScrollArea>
+  )
+}
+```
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    { kind: 'switch', prop: 'shadow', label: 'Edge shadows', defaultValue: true },
+    { kind: 'switch', prop: 'hideScrollbar', label: 'Hide scrollbar', defaultValue: false },
+    {
+      kind: 'input',
+      prop: 'shadowSize',
+      label: 'Shadow size (px)',
+      defaultValue: 40,
+      inputType: 'number',
+    },
+    {
+      kind: 'input',
+      prop: 'offset',
+      label: 'Edge offset (px)',
+      defaultValue: 0,
+      inputType: 'number',
+    },
+  ]}
+>
+  {(props) => (
+    <ScrollArea
+      orientation={props.orientation}
+      shadow={props.shadow}
+      hideScrollbar={props.hideScrollbar}
+      shadowSize={props.shadowSize}
+      offset={props.offset}
+      class={
+        'flex h-48 w-full max-w-lg ' +
+        (props.orientation === 'horizontal' ? 'items-start gap-3 pb-2' : 'flex-col gap-1 pr-3')
+      }
+      role="region"
+      aria-label="Activity playground"
+    >
+      <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
+        {(entry) => (
+          <div class={'shrink-0 py-1.5 ' + (props.orientation === 'horizontal' ? 'w-40' : '')}>
+            <p class="text-sm font-medium">Activity entry {entry}</p>
+            <p class="text-xs text-muted-foreground">Project updates and decisions.</p>
+          </div>
+        )}
+      </For>
+    </ScrollArea>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy value={{ root: { slot: 'root', element: 'div' } }} />
+
+## Usage
+
+### Native scrolling and sizing
+
+Set a height or maximum height for vertical scrolling and a width for horizontal scrolling. The component has one `<div>` root and renders children directly inside it, so layout utilities such as `flex`, `gap-4`, and `space-y-3` apply to your content.
+
+The root is keyboard-focusable by default with `tabIndex={0}`. Supply `role="region"` and an accessible label when the content forms a named region. Use `tabIndex={-1}` when the container should be excluded from the tab order. Native scroll events and refs are forwarded to the root.
+
+### Optional shadows
+
+Shadows are disabled by default. Set `shadow` to enable CSS mask fades at overflowing edges. A container at the start shows a trailing fade; between the edges it shows both fades; at the end it shows a leading fade. Content that fits has no automatic fade.
+
+The mask fades content into the background behind the container. Scroll position, content changes, and size changes update the visible edges.
+
+<Preview path="./shadows" />
+
+### Horizontal scrolling and RTL
+
+Set `orientation="horizontal"` and make the content wider than the viewport. Use `hideScrollbar` to hide the native scrollbar while retaining wheel, touch, and keyboard scrolling. Horizontal edge detection also supports `dir="rtl"`; `left` and `right` refer to physical edges.
+
+<Preview path="./horizontal" />
+
+### Shadow size and visibility
+
+The default fade size is `40px`. Pass `shadowSize` to set its length in pixels. `offset` adds a margin near each edge within which that edge's automatic fade remains hidden.
+
+`visibility="auto"` follows measured overflow. Choose `top`, `bottom`, or `both` for vertical scrolling, and `left`, `right`, or `both` for horizontal scrolling to force visible edges. `none` suppresses every fade. Manual visibility still requires `shadow`.
+
+`onVisibilityChange` reports measured overflow changes while shadows are enabled, including when visibility is forced. It receives `top`, `bottom`, `left`, `right`, `both`, or `none`.
+
+<Preview path="./visibility" />
+
+### Theme and instance overrides
+
+Configure `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The recipe exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start` and `--scroll-area-shadow-end`. Single-edge masks use the corresponding stop list; the double-edge mask combines both. Keep size-dependent stops expressed with `var(--scroll-area-shadow-size)` so `shadowSize` continues to affect them.
+
+For the size variable, overrides apply in this order, from highest to lowest: root `style`, `styles.root`, an explicit `shadowSize`, then recipe and Theme defaults. Omitting `shadowSize` preserves the Theme's value. Recipe variables are written on the root, so an ancestor's same-named CSS variable does not replace the local default.
+
+Use `class`, `classes.root`, `style`, or `styles.root` for instance styling.
+
+<Preview path="./theme" />
