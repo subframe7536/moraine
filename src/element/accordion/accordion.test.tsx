@@ -934,4 +934,17 @@ describe('Accordion', () => {
     expect(trailing?.style.width).toBe('200px')
     expect(content?.style.width).toBe('200px')
   })
+
+  test('supports ariaLabel and value fallback when label is omitted', () => {
+    const screen = render(() => (
+      <Accordion
+        items={[
+          { value: 'settings', ariaLabel: 'Settings section', leading: 'icon-close' },
+          { value: 'profile', leading: 'icon-close' },
+        ]}
+      />
+    ))
+    expect(screen.getByRole('button', { name: 'Settings section' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'profile' })).toBeTruthy()
+  })
 })

@@ -344,6 +344,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   type="button"
                   aria-controls={contentId()}
                   aria-expanded={expanded()}
+                  aria-label={item.ariaLabel ?? (label() === undefined ? itemValue() : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
                   {...resolved.styles.trigger}

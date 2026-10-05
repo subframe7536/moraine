@@ -22,6 +22,12 @@ export namespace AccordionT {
     label?: JSX.Element
 
     /**
+     * Accessible label for the accordion trigger button.
+     * Useful when `label` is omitted, icon-only, or contains non-text content.
+     */
+    ariaLabel?: string
+
+    /**
      * Unique value for the accordion item.
      */
     value?: string
