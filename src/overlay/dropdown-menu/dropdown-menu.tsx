@@ -68,6 +68,10 @@ function createDropdownMenu(props: DropdownMenuProps) {
   )
 
   function commitOpen(open: boolean): void {
+    if (open === isOpen()) {
+      return
+    }
+
     if (open && props.disabled) {
       return
     }

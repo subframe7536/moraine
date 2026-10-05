@@ -2174,4 +2174,22 @@ describe('DropdownMenu', () => {
       screen.unmount()
     }
   })
+
+  test('guards commitOpen against redundant onOpenChange calls when already in target state', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <DropdownMenu onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Item' }]} />
+      </DropdownMenu>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Open' })
+    fireEvent.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+
+    fireEvent.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledTimes(2)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })
