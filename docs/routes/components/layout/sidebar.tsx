@@ -94,55 +94,6 @@ export const Sidebar = (props: SidebarProps) => {
     </SidebarFrame.Item>
   )
 
-  const renderOverviewMenu = (pages: SidebarPage[]) => {
-    const intro = () => pages.find((p) => p.path === '/docs/getting-started')
-    const installation = () => pages.find((p) => p.path === '/docs/installation')
-    const unocss = () => pages.find((p) => p.path === '/docs/unocss')
-    const tailwind = () => pages.find((p) => p.path === '/docs/tailwind')
-    const otherPages = () =>
-      pages.filter(
-        (p) =>
-          p.path !== '/docs/getting-started' &&
-          p.path !== '/docs/installation' &&
-          p.path !== '/docs/unocss' &&
-          p.path !== '/docs/tailwind',
-      )
-
-    return (
-      <>
-        <Show when={intro()}>{(page) => renderSidebarItem(page())}</Show>
-        <Show
-          when={installation()}
-          fallback={
-            <>
-              <Show when={unocss()}>{(page) => renderSidebarItem(page())}</Show>
-              <Show when={tailwind()}>{(page) => renderSidebarItem(page())}</Show>
-            </>
-          }
-        >
-          {(inst) => (
-            <SidebarFrame.Sub
-              label={
-                <span class={frame.isMobile() ? 'break-words min-w-0' : 'truncate'}>
-                  {inst().label}
-                </span>
-              }
-              href={inst().path}
-              isActive={props.activePage() === inst().path}
-              triggerClass={DOCS_FOCUS_RING_OFFSET_CLASS}
-              defaultOpen
-              transition
-            >
-              <Show when={unocss()}>{(page) => renderSidebarItem(page())}</Show>
-              <Show when={tailwind()}>{(page) => renderSidebarItem(page())}</Show>
-            </SidebarFrame.Sub>
-          )}
-        </Show>
-        <For each={otherPages()}>{renderSidebarItem}</For>
-      </>
-    )
-  }
-
   const renderSurface = (surface: ReturnType<typeof surfaces>[number]) => (
     <section aria-label={surface.label}>
       <div class="flex flex-col gap-5">
@@ -157,12 +108,7 @@ export const Sidebar = (props: SidebarProps) => {
                   {section.section}
                 </SidebarFrame.GroupLabel>
                 <SidebarFrame.Menu>
-                  <Show
-                    when={surface.value === 'docs' && section.section === 'overview'}
-                    fallback={<For each={section.pages}>{renderSidebarItem}</For>}
-                  >
-                    {renderOverviewMenu(section.pages)}
-                  </Show>
+                  <For each={section.pages}>{renderSidebarItem}</For>
                 </SidebarFrame.Menu>
               </SidebarFrame.Group>
               <Show when={surface.value === 'docs' && section.section === 'overview'}>

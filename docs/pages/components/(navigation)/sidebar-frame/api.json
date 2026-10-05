@@ -504,6 +504,16 @@
           "type": "boolean"
         },
         {
+          "name": "href",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "isActive",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
           "name": "label",
           "optional": false,
           "type": "JSX.Element"
@@ -538,6 +548,11 @@
           "name": "transition",
           "optional": true,
           "type": "boolean"
+        },
+        {
+          "name": "triggerClass",
+          "optional": true,
+          "type": "string"
         },
         {
           "name": "triggerRender",
