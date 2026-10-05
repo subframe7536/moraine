@@ -361,6 +361,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   get '--mo-collapsible-content-height'() {
                     return `${disclosure.contentHeight()}px`
                   },
+                  get animation() {
+                    return disclosure.initialOpen() ? 'none' : undefined
+                  },
+                  get height() {
+                    return disclosure.initialOpen() ? 'auto' : undefined
+                  },
                   ...resolved.styles.content.style,
                 }}
                 {...accordionDataAttributes.content({

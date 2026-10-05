@@ -28,7 +28,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
+  const tag: Accessor<ValidComponent> = () =>
+    local.as ?? ((rest as any).href !== undefined && (rest as any).href !== null ? 'a' : 'button')
   const disabled = () => Boolean(context.disabled() || local.disabled)
 
   const root = createPolymorphicRoot({

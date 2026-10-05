@@ -24,6 +24,7 @@ export interface ShouldMountOptions {
 
 export interface DisclosureState {
   open: Accessor<boolean>
+  initialOpen: Accessor<boolean>
   disabled: Accessor<boolean>
   transition: Accessor<boolean>
   unmountOnHide: Accessor<boolean>
@@ -86,6 +87,20 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const hidden = createMemo(() => closed() && !exiting())
   const inert = createMemo(() => (closed() ? true : undefined))
   const ariaHidden = createMemo(() => (closed() ? true : undefined))
+
+  const [hasToggled, setHasToggled] = createSignal(false)
+
+  createEffect(
+    on(
+      options.open,
+      () => {
+        setHasToggled(true)
+      },
+      { defer: true },
+    ),
+  )
+
+  const initialOpen = createMemo(() => options.open() && !hasToggled())
 
   function shouldMount(opts?: ShouldMountOptions): boolean {
     if (opts?.forceMount) {
@@ -245,6 +260,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
 
   return {
     open: options.open,
+    initialOpen,
     disabled,
     transition,
     unmountOnHide,

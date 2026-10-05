@@ -328,6 +328,32 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
+  test('initial open with transition suppresses entrance animation until toggled', async () => {
+    const screen = renderCollapsible({ defaultOpen: true, transition: true })
+    const trigger = screen.getByTestId('trigger-control')
+    const wrapper = screen.container.querySelector(
+      '[data-slot="collapsible-content-wrapper"]',
+    ) as HTMLElement
+
+    expect(wrapper.style.animation).toBe('none')
+    expect(wrapper.style.height).toBe('auto')
+
+    fireEvent.click(trigger)
+    await Promise.resolve()
+
+    expect(wrapper.style.animation).toBe('')
+    expect(wrapper.style.height).toBe('')
+
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
+
+    fireEvent.click(trigger)
+    await Promise.resolve()
+
+    expect(wrapper.style.animation).toBe('')
+    expect(wrapper.style.height).toBe('')
+  })
+
   test('applies direct root, trigger, and content styles independently', () => {
     const screen = render(() => (
       <Collapsible open class="root-override" style={{ width: '100px' }}>

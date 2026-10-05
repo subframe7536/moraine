@@ -59,6 +59,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       inert={context.disclosure.inert()}
       style={{
         '--mo-collapsible-content-height': `${context.contentHeight()}px`,
+        animation: context.disclosure.initialOpen() ? 'none' : undefined,
+        height: context.disclosure.initialOpen() ? 'auto' : undefined,
       }}
       class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
     >
