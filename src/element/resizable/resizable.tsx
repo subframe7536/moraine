@@ -187,15 +187,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'ref',
   ])
   const resolved = createStyles(resizableRecipe, localProps)
-  const local = mergeProps(
-    {
-      keyboardDelta: '10%' as const,
-      get orientation() {
-        return resolved.variants.orientation
-      },
-    },
-    localProps,
-  )
+  const local = mergeProps({ keyboardDelta: '10%' as const }, localProps)
 
   const panelIdPrefix = createId(() => local.id, 'resizable')
   const orientation = () => resolved.variants.orientation ?? 'horizontal'
@@ -210,19 +202,17 @@ export function Resizable(props: ResizableProps): JSX.Element {
       throw new Error('Resizable only accepts Resizable.Panel and Resizable.Handle children')
     }
 
-    const validated = values
-
-    validated.forEach((part, index) => {
+    values.forEach((part, index) => {
       if (
         part.kind === RESIZABLE_HANDLE_PART &&
-        (validated[index - 1]?.kind !== RESIZABLE_PANEL_PART ||
-          validated[index + 1]?.kind !== RESIZABLE_PANEL_PART)
+        (values[index - 1]?.kind !== RESIZABLE_PANEL_PART ||
+          values[index + 1]?.kind !== RESIZABLE_PANEL_PART)
       ) {
         throw new Error('Resizable.Handle must be placed between two Resizable.Panel children')
       }
     })
 
-    return validated
+    return values
   })
   const panelParts = createMemo(() =>
     parts().filter((part): part is PanelPart => part.kind === RESIZABLE_PANEL_PART),
@@ -262,7 +252,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
       onExpand: part.local.onExpand,
       class: cn(part.local.class),
       style: part.local.style,
-      content: part.content(),
     })),
   )
 
@@ -405,49 +394,35 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   let prevSizes: number[] = []
   let prevCollapsed: boolean[] = []
-
-  createEffect(
-    on([resolvedPanels, sizes], ([panels, currentSizes]) => {
-      for (let i = 0; i < panels.length; i++) {
-        const panel = panels[i]
-        const size = currentSizes[i] ?? 0
-        const collapsed = panel ? isPanelCollapsed(size, panel) : false
-        const sizeChanged = prevSizes[i] !== undefined && Math.abs(prevSizes[i]! - size) > EPSILON
-
-        if (
-          panel &&
-          sizeChanged &&
-          prevCollapsed[i] !== undefined &&
-          prevCollapsed[i] !== collapsed
-        ) {
-          if (collapsed) {
-            panel.onCollapse?.(size * rootSize())
-          } else {
-            panel.onExpand?.(size * rootSize())
-          }
-        }
-      }
-
-      prevSizes = [...currentSizes]
-      prevCollapsed = panels.map((p, i) => isPanelCollapsed(currentSizes[i] ?? 0, p))
-    }),
-  )
-
   const lastExpandedSizes: Array<number | undefined> = []
 
   createEffect(
     on([resolvedPanels, sizes], ([panels, currentSizes]) => {
-      for (let index = 0; index < panels.length; index += 1) {
-        const panel = panels[index]
-        const size = currentSizes[index] ?? 0
-        const collapsed = panel ? isPanelCollapsed(size, panel) : false
+      const nextCollapsed: boolean[] = []
 
-        if (!panel || collapsed || size <= panel.collapsibleMin + EPSILON) {
-          continue
+      panels.forEach((panel, index) => {
+        const size = currentSizes[index] ?? 0
+        const collapsed = isPanelCollapsed(size, panel)
+        nextCollapsed[index] = collapsed
+
+        const previousSize = prevSizes[index]
+        if (
+          previousSize !== undefined &&
+          Math.abs(previousSize - size) > EPSILON &&
+          prevCollapsed[index] !== undefined &&
+          prevCollapsed[index] !== collapsed
+        ) {
+          const handler = collapsed ? panel.onCollapse : panel.onExpand
+          handler?.(size * rootSize())
         }
 
-        lastExpandedSizes[index] = size
-      }
+        if (!collapsed && size > panel.collapsibleMin + EPSILON) {
+          lastExpandedSizes[index] = size
+        }
+      })
+
+      prevSizes = [...currentSizes]
+      prevCollapsed = nextCollapsed
     }),
   )
 
@@ -749,9 +724,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
         rootRef = element
         callRef(local.ref, element)
       }}
+      {...rest}
       id={local.id}
       data-slot="resizable"
-      {...rest}
       {...resizableDataAttributes.root({ resizableRoot: true })}
       {...resolved.styles.root}
     >
@@ -797,7 +772,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   }
                 }}
               >
-                {panelItem().content}
+                {panelPart()!.content()}
               </div>
 
               <Show when={handleParts().get(index)}>

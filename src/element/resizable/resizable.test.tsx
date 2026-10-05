@@ -11,6 +11,7 @@ import { Resizable } from './resizable'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
 type FixturePanel = ResizablePanelItem & {
+  content?: JSX.Element
   size?: ResizableSize
   defaultSize?: ResizableSize
   onResize?: (size: number) => void

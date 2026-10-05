@@ -65,11 +65,6 @@ export interface ResizablePanelItem {
    * Additional CSS styles for the panel.
    */
   style?: JSX.CSSProperties
-
-  /**
-   * Content to render inside the panel.
-   */
-  content?: JSX.Element
 }
 
 export const PRECISION = 6
