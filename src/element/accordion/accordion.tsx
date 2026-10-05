@@ -74,30 +74,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
       return []
     }
 
-    const triggers: HTMLButtonElement[] = []
-
-    for (const itemElement of rootElement.children) {
-      if (!(itemElement instanceof HTMLElement) || itemElement.dataset.slot !== 'accordion-item') {
-        continue
-      }
-
-      for (const header of itemElement.children) {
-        if (!(header instanceof HTMLElement) || header.dataset.slot !== 'accordion-header') {
-          continue
-        }
-
-        for (const trigger of header.children) {
-          if (
-            trigger instanceof HTMLButtonElement &&
-            trigger.dataset.slot === 'accordion-trigger'
-          ) {
-            triggers.push(trigger)
-          }
-        }
-      }
-    }
-
-    return triggers
+    return Array.from(
+      rootElement.querySelectorAll<HTMLButtonElement>(
+        ':scope > [data-slot="accordion-item"] > [data-slot="accordion-header"] > [data-slot="accordion-trigger"]',
+      ),
+    )
   }
 
   function getEnabledTriggers(): HTMLButtonElement[] {
@@ -311,35 +292,26 @@ export function Accordion(props: AccordionProps): JSX.Element {
           }
 
           function onTriggerKeyDown(event: KeyboardEvent): void {
-            if (
-              event.key !== 'Enter' &&
-              event.key !== ' ' &&
-              event.key !== 'ArrowDown' &&
-              event.key !== 'ArrowUp' &&
-              event.key !== 'Home' &&
-              event.key !== 'End'
-            ) {
-              return
+            switch (event.key) {
+              case 'Enter':
+                event.preventDefault()
+                if (!event.repeat && !disabled()) {
+                  toggleValue(itemValue())
+                }
+                return
+              case ' ':
+                event.preventDefault()
+                if (!event.repeat) {
+                  spaceKeyDown = true
+                }
+                return
+              case 'ArrowDown':
+              case 'ArrowUp':
+              case 'Home':
+              case 'End':
+                event.preventDefault()
+                focusTriggerByKey(event.currentTarget as HTMLButtonElement, event.key)
             }
-
-            if (event.key === 'Enter') {
-              event.preventDefault()
-              if (!event.repeat && !disabled()) {
-                toggleValue(itemValue())
-              }
-              return
-            }
-
-            if (event.key === ' ') {
-              event.preventDefault()
-              if (!event.repeat) {
-                spaceKeyDown = true
-              }
-              return
-            }
-
-            event.preventDefault()
-            focusTriggerByKey(event.currentTarget as HTMLButtonElement, event.key)
           }
 
           function onTriggerKeyUp(event: KeyboardEvent): void {
