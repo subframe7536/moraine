@@ -14,6 +14,7 @@ import { Combobox } from '../combobox'
 import { Input } from '../input'
 import { MultiSelect } from '../multi-select'
 import { RadioGroup } from '../radio-group'
+import { Select } from '../select'
 import { Slider } from '../slider'
 import { Switch } from '../switch'
 
@@ -327,13 +328,18 @@ describe('Form', () => {
     )
   })
 
-  test('registers Combobox and editable MultiSelect with Formisch for focus', () => {
+  test('registers Combobox, editable MultiSelect, and Select with Formisch for focus', () => {
     const schema = v.object({
       fruit: v.string(),
       tags: v.array(v.string()),
+      country: v.string(),
     })
     const { screen, value: form } = renderWithOwner(
-      () => createForm({ schema, initialInput: { fruit: '', tags: [] } }),
+      () =>
+        createForm({
+          schema,
+          initialInput: { fruit: '', tags: [], country: '' },
+        }),
       (form) => (
         <form.Form>
           <form.Field name="fruit">
@@ -348,20 +354,33 @@ describe('Form', () => {
               ]}
             />
           </form.Field>
+          <form.Field name="country">
+            <Select
+              items={[
+                { value: 'US', label: 'United States' },
+                { value: 'CA', label: 'Canada' },
+              ]}
+            />
+          </form.Field>
         </form.Form>
       ),
     )
 
     const comboboxInput = screen.container.querySelector('input[data-slot="combobox-input"]')
     const multiSelectInput = screen.container.querySelector('input[data-slot="multi-select-input"]')
+    const selectTrigger = screen.container.querySelector('button[data-slot="select-trigger"]')
     expect(comboboxInput).toBeTruthy()
     expect(multiSelectInput).toBeTruthy()
+    expect(selectTrigger).toBeTruthy()
 
     focus(form, { path: ['fruit'] })
     expect(document.activeElement).toBe(comboboxInput)
 
     focus(form, { path: ['tags'] })
     expect(document.activeElement).toBe(multiSelectInput)
+
+    focus(form, { path: ['country'] })
+    expect(document.activeElement).toBe(selectTrigger)
   })
 
   test('binds and submits a root array field', async () => {

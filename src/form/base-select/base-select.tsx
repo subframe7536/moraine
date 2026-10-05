@@ -563,10 +563,7 @@ function BaseSelectTrigger<
     ref: () => local.ref,
     registration: {
       element: state.focusOwner,
-      ref: (element) => {
-        state.setFocusOwner(element)
-        state.field.setControlRef(element)
-      },
+      ref: state.setFocusOwner,
     },
   })
   const eventProps = mergeProps(rest, {
