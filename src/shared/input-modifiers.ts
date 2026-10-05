@@ -14,27 +14,45 @@ export interface ModelModifiers {
  * - `empty: 'undefined'` → adds `undefined` to the union
  */
 export type ModifierValue<M extends ModelModifiers | undefined> =
-  | (M extends { number: true } ? number : string)
+  | (M extends { number: true }
+      ? number | (M extends { empty: 'null' } ? null : undefined)
+      : string)
   | (M extends { empty: 'null' } ? null : never)
   | (M extends { empty: 'undefined' } ? undefined : never)
 
 export function applyInputModifiers<T>(value: string, modelModifiers?: ModelModifiers): T {
   let nextValue: string | number | null | undefined = value
 
-  if (modelModifiers?.trim && typeof nextValue === 'string') {
+  if (modelModifiers?.trim) {
     nextValue = nextValue.trim()
   }
 
-  if (modelModifiers?.number && nextValue !== '') {
-    nextValue = Number(nextValue)
+  const trimmed = typeof nextValue === 'string' ? nextValue.trim() : ''
+  const isEmpty = trimmed === ''
+
+  if (modelModifiers?.number) {
+    if (isEmpty) {
+      if (modelModifiers.empty === 'null') {
+        return null as T
+      }
+      return undefined as T
+    }
+
+    const num = Number(trimmed)
+    if (Number.isNaN(num)) {
+      return undefined as T
+    }
+
+    return num as T
   }
 
-  if (modelModifiers?.empty === 'null' && nextValue === '') {
-    nextValue = null
-  }
-
-  if (modelModifiers?.empty === 'undefined' && nextValue === '') {
-    nextValue = undefined
+  if (isEmpty) {
+    if (modelModifiers?.empty === 'null') {
+      return null as T
+    }
+    if (modelModifiers?.empty === 'undefined') {
+      return undefined as T
+    }
   }
 
   return nextValue as T
