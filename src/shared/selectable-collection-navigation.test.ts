@@ -443,6 +443,26 @@ describe('createSelectableCollectionNavigation', () => {
 
       expect(onSelect).toHaveBeenCalledWith('c')
     })
+
+    test('ignores Enter and Space when current item is disabled', () => {
+      const [items] = createSignal<TestItem[]>([{ value: 'a' }, { value: 'b', disabled: true }])
+      const onSelect = vi.fn()
+
+      const { onNavigationKeyDown } = createSelectableCollectionNavigation({
+        items,
+        getValue: (item) => item.value,
+        isDisabled: (item) => item.disabled ?? false,
+        onSelect,
+      })
+
+      const enterEvent = createMockKeyboardEvent('Enter')
+      onNavigationKeyDown(enterEvent, 'b', 'horizontal')
+      expect(onSelect).not.toHaveBeenCalled()
+
+      const spaceEvent = createMockKeyboardEvent(' ')
+      onNavigationKeyDown(spaceEvent, 'b', 'horizontal')
+      expect(onSelect).not.toHaveBeenCalled()
+    })
   })
 
   describe('edge cases', () => {

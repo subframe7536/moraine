@@ -235,6 +235,11 @@ export function createSelectableCollectionNavigation<TItem, TValue extends NonNu
     }
 
     if ((normalizedKey === 'Enter' || normalizedKey === ' ') && currentValue !== undefined) {
+      const currentItem = options.items().find((item) => options.getValue(item) === currentValue)
+      if (currentItem && options.isDisabled?.(currentItem)) {
+        return
+      }
+
       event.preventDefault()
       options.onSelect(currentValue)
     }
