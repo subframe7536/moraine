@@ -226,10 +226,16 @@ export function createListVirtualizer<
       <div style={contentStyle()}>
         <For each={virtualItems}>
           {(virtualItem) => {
-            const row = createMemo(() => ({
-              index: virtualItem.index,
-              item: props.entries[virtualItem.index]!,
-            }))
+            const row = createMemo(
+              () => ({
+                index: virtualItem.index,
+                item: props.entries[virtualItem.index]!,
+              }),
+              undefined,
+              {
+                equals: (prev, next) => prev?.index === next.index && prev?.item === next.item,
+              },
+            )
 
             return (
               <Show keyed when={row()}>

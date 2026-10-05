@@ -504,4 +504,53 @@ describe('createListVirtualizer', () => {
     screen.unmount()
     scrollElement.remove()
   })
+
+  test('keeps row elements mounted when entries array identity changes with stable item references', async () => {
+    const scrollElement = document.createElement('div')
+    document.body.append(scrollElement)
+    const item1 = { id: '1', text: 'First' }
+    const item2 = { id: '2', text: 'Second' }
+    const [entries, setEntries] = createSignal([item1, item2])
+    const renderRow = vi.fn(
+      (item: { id: string; text: string }, _index: number, props?: RowProps) => (
+        <div {...props} data-item-id={item.id}>
+          {item.text}
+        </div>
+      ),
+    )
+
+    const screen = render(() => {
+      const virtualizer = createListVirtualizer<{ id: string; text: string }>({
+        estimateSize: () => 20,
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        get entries() {
+          return entries()
+        },
+        scrollElement,
+        render: renderRow,
+      })
+    })
+
+    await Promise.resolve()
+    expect(renderRow).toHaveBeenCalledTimes(2)
+    const firstDomNode = screen.container.querySelector('[data-item-id="1"]')
+    expect(firstDomNode).not.toBeNull()
+
+    // Replace entries with a new array referencing the same item objects
+    setEntries([item1, item2])
+    await Promise.resolve()
+
+    // renderRow should not be called again and DOM node should be the exact same instance
+    expect(renderRow).toHaveBeenCalledTimes(2)
+    const firstDomNodeAfter = screen.container.querySelector('[data-item-id="1"]')
+    expect(firstDomNodeAfter).toBe(firstDomNode)
+
+    screen.unmount()
+    scrollElement.remove()
+  })
 })
