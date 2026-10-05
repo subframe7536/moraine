@@ -95,6 +95,10 @@ function createContextMenu(props: ContextMenuProps) {
   let suppressedContextMenu: { pointerType: string; x: number; y: number } | undefined
 
   const commitOpen = (nextOpen: boolean): void => {
+    if (nextOpen === open()) {
+      return
+    }
+
     if (!nextOpen) {
       setAutoFocusStrategy('none')
     }
@@ -531,6 +535,8 @@ function createContextMenu(props: ContextMenuProps) {
     get presentation() {
       return { classes: props.classes, styles: props.styles }
     },
+    disabled: () => Boolean(merged.disabled),
+    isOpen: () => open(),
     triggerProps,
     triggerElement,
     menuProps: {
@@ -584,7 +590,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
 function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
   const context = useContextMenuContext()
 
   const resolved = createStyles(contextMenuRecipe, local, {
@@ -597,6 +603,8 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     ref: () => rest.ref,
     registration: { element: context.triggerElement, ref: context.triggerProps.ref },
   })
+  const disabled = () => Boolean(local.disabled ?? context.disabled())
+  const a11y = () => getContextMenuTriggerAccessibility(context.triggerElement(), disabled())
   const userEvents = rest as Record<string, unknown>
   const events: Record<string, (event: Event) => void> = {}
   for (const key of [
@@ -608,15 +616,37 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     'onPointerUp',
     'onPointerCancel',
   ] as const) {
+    // oxlint-disable-next-line subf/solid-reactivity -- Event handler reads reactive disabled state.
     events[key] = function onEvent(event) {
       callHandler(event, userEvents[key])
-      if (userEvents.disabled) {
+      if (disabled()) {
         event.preventDefault()
       }
       callHandler(event, context.triggerProps[key])
     }
   }
-  const triggerProps = mergeProps(context.triggerProps, rest, events)
+  const triggerDataAttrs = contextMenuDataAttributes.trigger({
+    closed: () => !context.isOpen(),
+    disabled,
+    expanded: context.isOpen,
+  })
+  const triggerProps = mergeProps(
+    context.triggerProps,
+    triggerDataAttrs,
+    {
+      get disabled() {
+        return a11y().disabled
+      },
+      get 'aria-disabled'() {
+        return a11y().ariaDisabled
+      },
+      get tabIndex() {
+        return a11y().tabIndex
+      },
+    },
+    rest,
+    events,
+  )
   const binding = root.bind(triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))

@@ -1870,4 +1870,19 @@ describe('ContextMenu', () => {
     expect(content?.style.getPropertyValue('--mo-exit-translate-x')).toBe('3rem')
     expect(content?.style.getPropertyValue('--mo-exit-translate-y')).toBe('4rem')
   })
+
+  test('exposes disabled a11y state and data attributes on trigger when trigger-level disabled is set', () => {
+    const screen = render(() => (
+      <ContextMenu>
+        <ContextMenu.Trigger disabled data-testid="trigger-disabled">
+          Trigger disabled
+        </ContextMenu.Trigger>
+        <ContextMenu.Content items={[{ label: 'Action' }]} />
+      </ContextMenu>
+    ))
+    const trigger = screen.getByTestId('trigger-disabled')
+    expect(trigger.getAttribute('aria-disabled')).toBe('true')
+    expect(trigger.getAttribute('tabindex')).toBe('-1')
+    expect(trigger.hasAttribute('data-disabled')).toBe(true)
+  })
 })
