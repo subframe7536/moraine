@@ -196,7 +196,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    field.setFormValue(nextValue)
+    if (merged.checked === undefined) {
+      field.setFormValue(nextValue)
+    }
     merged.onCheckedChange?.(nextValue)
     field.emit('change')
     field.emit('input')

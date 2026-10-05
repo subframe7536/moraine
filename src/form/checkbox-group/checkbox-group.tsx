@@ -5,6 +5,7 @@ import {
   createEffect,
   createMemo,
   mergeProps,
+  on,
   onCleanup,
   splitProps,
   untrack,
@@ -143,25 +144,25 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
   let fieldsetEl: HTMLFieldSetElement | undefined
 
-  createEffect(() => {
-    items().map((item) => (typeof item === 'string' ? false : item.disabled))
-    field.disabled()
-    let cancelled = false
+  createEffect(
+    on([items, field.disabled], () => {
+      let cancelled = false
 
-    queueMicrotask(() => {
-      if (cancelled) {
-        return
-      }
-      field.setControlRef(
-        fieldsetEl?.querySelector<HTMLElement>('[data-slot="checkbox-control"]:not(:disabled)') ??
-          undefined,
-      )
-    })
+      queueMicrotask(() => {
+        if (cancelled) {
+          return
+        }
+        field.setControlRef(
+          fieldsetEl?.querySelector<HTMLElement>('[data-slot="checkbox-control"]:not(:disabled)') ??
+            undefined,
+        )
+      })
 
-    onCleanup(() => {
-      cancelled = true
-    })
-  })
+      onCleanup(() => {
+        cancelled = true
+      })
+    }),
+  )
 
   const legendId = createMemo(() => `${groupId()}-legend`)
   const requiredOwnerIndex = createMemo(() =>
