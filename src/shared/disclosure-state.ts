@@ -51,6 +51,7 @@ export interface DisclosureState {
   contentElement: Accessor<HTMLElement | undefined>
   setContentElement: (element: HTMLElement | undefined) => void
   registerElement: (element: HTMLElement) => () => void
+  registerPresenceElement: (element: HTMLElement) => () => void
   registerContentElement: (element: HTMLElement) => () => void
   registerMeasureElement: (element: HTMLElement) => () => void
 
@@ -104,7 +105,6 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   let contentEl: HTMLElement | undefined
   let registeredContentElement: HTMLElement | undefined
   let customMeasureElement: HTMLElement | undefined
-  let hasCustomMeasure = false
   let resizeObserver: ResizeObserver | undefined
 
   let contentHasFocus = false
@@ -156,7 +156,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
 
   function updateMeasurementTarget(): void {
-    const target = hasCustomMeasure ? customMeasureElement : registeredContentElement
+    const target = customMeasureElement ?? registeredContentElement
     setContentElement(target)
   }
 
@@ -178,11 +178,10 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }),
   )
 
-  function registerContentElement(element: HTMLElement): () => void {
+  function registerPresenceElement(element: HTMLElement): () => void {
     removeContentFocusListeners?.()
     removeContentFocusListeners = undefined
     setContentElementSignal(element)
-    registeredContentElement = element
 
     contentHasFocus = element.contains(element.ownerDocument.activeElement)
     const onFocusIn = () => {
@@ -202,22 +201,30 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     removeContentFocusListeners = removeListeners
 
     const releasePresence = presence.registerElement(element)
+
+    return () => {
+      releasePresence()
+      removeListeners()
+      removeContentFocusListeners = undefined
+      setContentElementSignal(undefined)
+    }
+  }
+
+  function registerContentElement(element: HTMLElement): () => void {
+    const releasePresence = registerPresenceElement(element)
+    registeredContentElement = element
     updateMeasurementTarget()
 
     return () => {
       releasePresence()
       if (registeredContentElement === element) {
-        removeListeners()
-        removeContentFocusListeners = undefined
         registeredContentElement = undefined
-        setContentElementSignal(undefined)
         updateMeasurementTarget()
       }
     }
   }
 
   function registerMeasureElement(element: HTMLElement): () => void {
-    hasCustomMeasure = true
     customMeasureElement = element
     updateMeasurementTarget()
 
@@ -257,6 +264,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     registerElement(element: HTMLElement): () => void {
       return registerContentElement(element)
     },
+    registerPresenceElement,
     registerContentElement,
     registerMeasureElement,
     restoreTriggerFocus,

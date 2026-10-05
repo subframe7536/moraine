@@ -253,9 +253,10 @@ describe('createDisclosureState', () => {
       expect(state.contentHeight()).toBe(150)
 
       unregisterMeasure()
-      expect(state.contentHeight()).toBe(0)
+      expect(state.contentHeight()).toBe(100)
 
       unregisterContent()
+      expect(state.contentHeight()).toBe(0)
       contentEl.remove()
       innerEl.remove()
       dispose()

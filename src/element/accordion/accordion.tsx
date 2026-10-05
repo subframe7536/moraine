@@ -347,7 +347,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
               <div
                 ref={(element) => {
-                  onCleanup(disclosure.registerContentElement(element))
+                  onCleanup(disclosure.registerPresenceElement(element))
                 }}
                 id={contentId()}
                 role="region"
