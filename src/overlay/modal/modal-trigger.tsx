@@ -37,7 +37,13 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
       disabled,
       disabledForComponent: true,
       element: root.element,
-      onPress: () => context.updateOpen(true),
+      onPress: () => {
+        if (!context.isModal()) {
+          context.updateOpen(!context.open())
+        } else {
+          context.updateOpen(true)
+        }
+      },
       tag,
     },
     rest,

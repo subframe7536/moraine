@@ -2003,4 +2003,22 @@ describe('Modal primitives', () => {
       screen.unmount()
     }
   })
+
+  test('toggles open state on trigger activation when modal is false', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Modal modal={false} onOpenChange={onOpenChange}>
+        <Modal.Trigger>Toggle non-modal</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content ariaLabel="Non-modal content">Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Toggle non-modal' })
+    fireEvent.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+
+    fireEvent.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })
