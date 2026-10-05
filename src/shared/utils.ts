@@ -30,6 +30,7 @@ export function createId(
   deterministicId?: () => string | null | undefined,
   prefix = 'mo',
 ): Accessor<string> {
+  const fallbackId = `${prefix}-${createUniqueId()}`
   const resolvedId = createMemo(() => {
     const id = deterministicId?.()
 
@@ -39,7 +40,7 @@ export function createId(
     }
 
     // Fallback to auto-incrementing counter
-    return `${prefix}-${createUniqueId()}`
+    return fallbackId
   })
 
   return resolvedId

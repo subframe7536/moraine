@@ -1,4 +1,4 @@
-import { createRoot } from 'solid-js'
+import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { callRef, cn, createId } from './utils'
@@ -44,6 +44,22 @@ describe('createId', () => {
   test('uses moraine prefix by default', () => {
     const generatedId = resolveId()
     expect(generatedId.startsWith('mo-')).toBe(true)
+  })
+
+  test('keeps fallback id stable when deterministic id is cleared after being set', () => {
+    createRoot((dispose) => {
+      const [customId, setCustomId] = createSignal<string | undefined>(undefined)
+      const id = createId(customId, 'field')
+      const initialFallback = id()
+      expect(initialFallback.startsWith('field-')).toBe(true)
+
+      setCustomId('custom-name')
+      expect(id()).toBe('custom-name')
+
+      setCustomId(undefined)
+      expect(id()).toBe(initialFallback)
+      dispose()
+    })
   })
 })
 
