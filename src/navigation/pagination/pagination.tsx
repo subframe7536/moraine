@@ -162,7 +162,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return { as: 'button', type: 'button', disabled: true }
     }
 
-    const href = merged.to?.(target)
+    const isCurrent = target === currentPage()
+    const href = isCurrent ? undefined : merged.to?.(target)
     if (merged.itemAs) {
       return href ? { as: merged.itemAs, href } : { as: merged.itemAs }
     }

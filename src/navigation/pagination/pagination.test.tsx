@@ -379,11 +379,15 @@ describe('Pagination', () => {
       />
     ))
 
-    expect(to.mock.calls.map(([page]) => page)).toEqual([1, 1, 2, 3, 3])
+    expect(to.mock.calls.map(([page]) => page)).toEqual([1, 1, 3, 3])
 
-    fireEvent.click(screen.getByLabelText('Page 2 of 3, current page'))
+    const currentPage = screen.getByLabelText('Page 2 of 3, current page')
+    expect(currentPage.tagName).toBe('BUTTON')
+    expect(currentPage.hasAttribute('href')).toBe(false)
+
+    fireEvent.click(currentPage)
     expect(onPageChange).not.toHaveBeenCalled()
-    expect(to).toHaveBeenCalledTimes(5)
+    expect(to).toHaveBeenCalledTimes(4)
   })
 
   test('uses disabled buttons when boundary is reached or `to` is absent', () => {
