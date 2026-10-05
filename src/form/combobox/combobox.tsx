@@ -91,6 +91,25 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       local.onClear?.()
       focusInput()
     }
+    function onInputKeyDown(event: KeyboardEvent): void {
+      if (input.isComposing() || event.isComposing || state.locked()) {
+        return
+      }
+      if (local.allowClear && canClear()) {
+        if (event.key === 'Escape' && !state.open()) {
+          event.preventDefault()
+          clear()
+          return
+        }
+        if ((event.key === 'Delete' || event.key === 'Backspace') && !search.value()) {
+          event.preventDefault()
+          clear()
+          return
+        }
+      }
+      input.inputProps.onKeyDown(event)
+    }
+
     return (
       <>
         <BaseSelect.Control
@@ -141,13 +160,14 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
               input.inputProps.ref(element)
               callRef(local.inputRef, element)
             }}
+            onKeyDown={onInputKeyDown}
           />
           <Show when={local.allowClear && canClear()}>
             <button
               type="button"
               data-slot="combobox-clear"
               aria-label="Clear selection"
-              tabIndex={-1}
+              tabIndex={0}
               {...styles.styles.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {

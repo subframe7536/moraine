@@ -471,3 +471,19 @@ test('filters normalized string items and commits a keyboard selection', () => {
   fireEvent.keyDown(input, { key: 'Enter' })
   expect(onChange).toHaveBeenLastCalledWith('Banana')
 })
+
+test('combobox allowClear provides tabbable button and keyboard clear', () => {
+  const onClear = vi.fn()
+  const screen = render(() => (
+    <Combobox items={['Apple', 'Banana']} defaultValue="Apple" allowClear onClear={onClear} />
+  ))
+  const clear = screen.container.querySelector<HTMLElement>('[data-slot="combobox-clear"]')!
+  expect(clear).toBeTruthy()
+  expect(clear.tabIndex).toBe(0)
+  expect(clear.getAttribute('aria-label')).toBe('Clear selection')
+
+  const input = screen.getByRole('combobox')
+  // Escape when closed clears
+  fireEvent.keyDown(input, { key: 'Escape' })
+  expect(onClear).toHaveBeenCalledOnce()
+})
