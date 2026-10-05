@@ -385,7 +385,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.value()))}>
             <button
               type="button"
-              tabIndex={-1}
+              tabIndex={0}
               data-slot="multi-select-clear"
               aria-label="Clear selection"
               disabled={state.locked()}
