@@ -44,29 +44,20 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   const orientation = () => resolved.variants.orientation
 
-  const rawValue = createMemo(() => local.value ?? null)
-  const rawMax = createMemo(() => local.max ?? 100)
-  const getValueLabel = createMemo(() => local.getValueLabel)
   const steps = createMemo<string[]>(() => {
-    const max = rawMax()
+    const max = local.max
     return Array.isArray(max) ? max : []
   })
   const hasSteps = createMemo(() => steps().length > 0)
-  const realMax = createMemo(() => resolveMaxValue(rawMax()))
-  const isIndeterminate = createMemo(() => {
-    const value = rawValue()
-    return value === null || value === undefined || !Number.isFinite(value)
-  })
+  const resolvedMax = createMemo(() => resolveMaxValue(local.max))
+  const isIndeterminate = createMemo(
+    () => local.value === null || local.value === undefined || !Number.isFinite(local.value),
+  )
 
   const minValue = 0
-  const resolvedMax = createMemo(() => realMax())
-  const resolvedValue = createMemo(() => {
-    if (isIndeterminate()) {
-      return minValue
-    }
-
-    return clamp(rawValue() as number, minValue, resolvedMax())
-  })
+  const resolvedValue = createMemo(() =>
+    isIndeterminate() ? minValue : clamp(local.value as number, minValue, resolvedMax()),
+  )
 
   const percent = createMemo<number | undefined>(() => {
     if (isIndeterminate()) {
@@ -78,9 +69,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       return 0
     }
 
-    const ratio = (resolvedValue() - minValue) / range
-    const bounded = Math.min(Math.max(ratio, 0), 1)
-    return Math.round(bounded * 10000) / 100
+    return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
   })
 
   const progressState = {
@@ -96,7 +85,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       return undefined
     }
 
-    const valueLabel = getValueLabel()
+    const valueLabel = local.getValueLabel
     if (valueLabel) {
       return valueLabel({ value: resolvedValue(), min: minValue, max: resolvedMax() })
     }
@@ -105,7 +94,7 @@ export function Progress(props: ProgressProps): JSX.Element {
   })
 
   const statusStyle = createMemo<JSX.CSSProperties>(() => {
-    const currentPercent = Math.max(percent() ?? 0, 0)
+    const currentPercent = percent() ?? 0
     if (orientation() === 'vertical') {
       return { height: `${100 - currentPercent}%` }
     }
