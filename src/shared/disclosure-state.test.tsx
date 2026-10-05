@@ -212,4 +212,160 @@ describe('createDisclosureState', () => {
       })
     }).not.toThrow()
   })
+
+  test('calculates shouldMount based on open state, unmountOnHide, and overrides', () => {
+    createRoot((dispose) => {
+      const [open, setOpen] = createSignal(false)
+      const state = createDisclosureState({
+        open,
+        unmountOnHide: true,
+        transition: false,
+      })
+
+      expect(state.shouldMount()).toBe(false)
+      expect(state.shouldMount({ forceMount: true })).toBe(true)
+      expect(state.shouldMount({ unmountOnHide: false })).toBe(true)
+
+      setOpen(true)
+      expect(state.shouldMount()).toBe(true)
+
+      dispose()
+    })
+  })
+
+  test('measures content element and switches to custom measure element when registered', () => {
+    createRoot((dispose) => {
+      const [open] = createSignal(true)
+      const state = createDisclosureState({ open })
+
+      const contentEl = document.createElement('div')
+      setScrollHeight(contentEl, () => 100)
+      document.body.append(contentEl)
+
+      const unregisterContent = state.registerContentElement(contentEl)
+      expect(state.contentHeight()).toBe(100)
+
+      const innerEl = document.createElement('div')
+      setScrollHeight(innerEl, () => 150)
+      document.body.append(innerEl)
+
+      const unregisterMeasure = state.registerMeasureElement(innerEl)
+      expect(state.contentHeight()).toBe(150)
+
+      unregisterMeasure()
+      expect(state.contentHeight()).toBe(0)
+
+      unregisterContent()
+      contentEl.remove()
+      innerEl.remove()
+      dispose()
+    })
+  })
+
+  test('restores trigger focus when content closes while focused', async () => {
+    let setOpen!: (v: boolean) => void
+    let trigger!: HTMLButtonElement
+    let innerInput!: HTMLInputElement
+    let disposeRoot!: () => void
+
+    createRoot((dispose) => {
+      disposeRoot = dispose
+      const [open, setControlledOpen] = createSignal(true)
+      setOpen = setControlledOpen
+      const state = createDisclosureState({ open })
+
+      trigger = document.createElement('button')
+      const content = document.createElement('div')
+      innerInput = document.createElement('input')
+      content.append(innerInput)
+      document.body.append(trigger, content)
+
+      state.setTriggerElement(trigger)
+      state.registerContentElement(content)
+    })
+
+    innerInput.focus()
+    expect(document.activeElement).toBe(innerInput)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(trigger)
+
+    trigger.remove()
+    innerInput.remove()
+    disposeRoot()
+  })
+
+  test('does not restore trigger focus if focus was outside content upon close', async () => {
+    let setOpen!: (v: boolean) => void
+    let trigger!: HTMLButtonElement
+    let outside!: HTMLButtonElement
+    let disposeRoot!: () => void
+
+    createRoot((dispose) => {
+      disposeRoot = dispose
+      const [open, setControlledOpen] = createSignal(true)
+      setOpen = setControlledOpen
+      const state = createDisclosureState({ open })
+
+      trigger = document.createElement('button')
+      outside = document.createElement('button')
+      const content = document.createElement('div')
+      document.body.append(trigger, outside, content)
+
+      state.setTriggerElement(trigger)
+      state.registerContentElement(content)
+    })
+
+    outside.focus()
+    expect(document.activeElement).toBe(outside)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(outside)
+
+    trigger.remove()
+    outside.remove()
+    disposeRoot()
+  })
+
+  test('restores trigger focus in iframe ownerDocument upon close', async () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const doc = iframe.contentDocument!
+
+    let setOpen!: (v: boolean) => void
+    let trigger!: HTMLButtonElement
+    let input!: HTMLInputElement
+    let disposeRoot!: () => void
+
+    createRoot((dispose) => {
+      disposeRoot = dispose
+      const [open, setControlledOpen] = createSignal(true)
+      setOpen = setControlledOpen
+      const state = createDisclosureState({ open })
+
+      trigger = doc.createElement('button')
+      const content = doc.createElement('div')
+      input = doc.createElement('input')
+      content.append(input)
+      doc.body.append(trigger, content)
+
+      state.setTriggerElement(trigger)
+      state.registerContentElement(content)
+    })
+
+    input.focus()
+    expect(doc.activeElement).toBe(input)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(doc.activeElement).toBe(trigger)
+
+    disposeRoot()
+    iframe.remove()
+  })
 })

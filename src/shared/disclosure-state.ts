@@ -1,21 +1,114 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
 
+import { createTransitionPresence } from './transition-presence'
+import type { TransitionPresenceState } from './transition-presence'
+
 export interface CreateDisclosureStateOptions {
-  disabled?: Accessor<boolean>
+  /** Reactive open state accessor */
   open: Accessor<boolean>
+  /** Reactive disabled accessor */
+  disabled?: Accessor<boolean>
+  /** Whether transition animations are enabled (defaults to true) */
+  transition?: Accessor<boolean> | boolean
+  /** Whether content unmounts when closed (defaults to true) */
+  unmountOnHide?: Accessor<boolean | undefined> | boolean
+  /** Callback when exit transition completes */
+  onExitComplete?: () => void
 }
 
-export function createDisclosureState(options: CreateDisclosureStateOptions) {
+export interface ShouldMountOptions {
+  forceMount?: boolean
+  unmountOnHide?: boolean
+}
+
+export interface DisclosureState {
+  open: Accessor<boolean>
+  disabled: Accessor<boolean>
+  transition: Accessor<boolean>
+  unmountOnHide: Accessor<boolean>
+
+  contentHeight: Accessor<number>
+  dataAttrs: Accessor<{
+    'data-closed'?: string
+    'data-disabled'?: string
+    'data-expanded'?: string
+  }>
+
+  closed: Accessor<boolean>
+  exiting: Accessor<boolean>
+  hidden: Accessor<boolean>
+  inert: Accessor<true | undefined>
+  ariaHidden: Accessor<true | undefined>
+
+  shouldMount: (options?: ShouldMountOptions) => boolean
+
+  presence: TransitionPresenceState
+
+  triggerElement: Accessor<HTMLElement | undefined>
+  setTriggerElement: (element: HTMLElement | undefined) => void
+
+  contentElement: Accessor<HTMLElement | undefined>
+  setContentElement: (element: HTMLElement | undefined) => void
+  registerElement: (element: HTMLElement) => () => void
+  registerContentElement: (element: HTMLElement) => () => void
+  registerMeasureElement: (element: HTMLElement) => () => void
+
+  restoreTriggerFocus: () => void
+}
+
+export function createDisclosureState(options: CreateDisclosureStateOptions): DisclosureState {
   const disabled = createMemo(() => Boolean(options.disabled?.()))
+  const transition = createMemo(() =>
+    typeof options.transition === 'function' ? options.transition() : (options.transition ?? true),
+  )
+  const unmountOnHide = createMemo(() => {
+    if (typeof options.unmountOnHide === 'function') {
+      return options.unmountOnHide() ?? true
+    }
+    return options.unmountOnHide ?? true
+  })
+
+  const presence = createTransitionPresence({
+    open: options.open,
+    onExitComplete: options.onExitComplete,
+  })
+
   const dataAttrs = createMemo(() => ({
     'data-closed': options.open() ? undefined : '',
     'data-disabled': disabled() ? '' : undefined,
     'data-expanded': options.open() ? '' : undefined,
   }))
+
+  const closed = createMemo(() => !options.open())
+  const exiting = createMemo(() => closed() && transition() && presence.present())
+  const hidden = createMemo(() => closed() && !exiting())
+  const inert = createMemo(() => (closed() ? true : undefined))
+  const ariaHidden = createMemo(() => (closed() ? true : undefined))
+
+  function shouldMount(opts?: ShouldMountOptions): boolean {
+    if (opts?.forceMount) {
+      return true
+    }
+    const shouldUnmount = opts?.unmountOnHide ?? unmountOnHide()
+    if (!shouldUnmount) {
+      return true
+    }
+    return options.open() || (transition() && presence.present())
+  }
+
   const [contentHeight, setContentHeight] = createSignal(0)
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
+  const [contentElement, setContentElementSignal] = createSignal<HTMLElement | undefined>()
+
   let contentEl: HTMLElement | undefined
+  let registeredContentElement: HTMLElement | undefined
+  let customMeasureElement: HTMLElement | undefined
+  let hasCustomMeasure = false
   let resizeObserver: ResizeObserver | undefined
+
+  let contentHasFocus = false
+  let removeContentFocusListeners: (() => void) | undefined
 
   function measureContentHeight(element = contentEl): void {
     if (!element || element !== contentEl) {
@@ -62,24 +155,110 @@ export function createDisclosureState(options: CreateDisclosureStateOptions) {
     }
   }
 
+  function updateMeasurementTarget(): void {
+    const target = hasCustomMeasure ? customMeasureElement : registeredContentElement
+    setContentElement(target)
+  }
+
+  function restoreTriggerFocus(): void {
+    const content = contentElement()
+    const trigger = triggerElement()
+
+    if (contentHasFocus || content?.contains(content.ownerDocument.activeElement)) {
+      contentHasFocus = false
+      trigger?.focus()
+    }
+  }
+
+  createEffect(
+    on(options.open, (isOpen) => {
+      if (!isOpen) {
+        restoreTriggerFocus()
+      }
+    }),
+  )
+
+  function registerContentElement(element: HTMLElement): () => void {
+    removeContentFocusListeners?.()
+    removeContentFocusListeners = undefined
+    setContentElementSignal(element)
+    registeredContentElement = element
+
+    contentHasFocus = element.contains(element.ownerDocument.activeElement)
+    const onFocusIn = () => {
+      contentHasFocus = true
+    }
+    const onFocusOut = (event: FocusEvent) => {
+      if (options.open() && !element.contains(event.relatedTarget as Node | null)) {
+        contentHasFocus = false
+      }
+    }
+    element.addEventListener('focusin', onFocusIn)
+    element.addEventListener('focusout', onFocusOut)
+    const removeListeners = () => {
+      element.removeEventListener('focusin', onFocusIn)
+      element.removeEventListener('focusout', onFocusOut)
+    }
+    removeContentFocusListeners = removeListeners
+
+    const releasePresence = presence.registerElement(element)
+    updateMeasurementTarget()
+
+    return () => {
+      releasePresence()
+      if (registeredContentElement === element) {
+        removeListeners()
+        removeContentFocusListeners = undefined
+        registeredContentElement = undefined
+        setContentElementSignal(undefined)
+        updateMeasurementTarget()
+      }
+    }
+  }
+
+  function registerMeasureElement(element: HTMLElement): () => void {
+    hasCustomMeasure = true
+    customMeasureElement = element
+    updateMeasurementTarget()
+
+    return () => {
+      if (customMeasureElement === element) {
+        customMeasureElement = undefined
+        updateMeasurementTarget()
+      }
+    }
+  }
+
   onCleanup(() => {
     contentEl = undefined
     resizeObserver?.disconnect()
     resizeObserver = undefined
+    removeContentFocusListeners?.()
   })
 
   return {
+    open: options.open,
+    disabled,
+    transition,
+    unmountOnHide,
     contentHeight,
     dataAttrs,
-    disabled,
+    closed,
+    exiting,
+    hidden,
+    inert,
+    ariaHidden,
+    shouldMount,
+    presence,
+    triggerElement,
+    setTriggerElement,
+    contentElement,
     setContentElement,
     registerElement(element: HTMLElement): () => void {
-      setContentElement(element)
-      return () => {
-        if (contentEl === element) {
-          setContentElement(undefined)
-        }
-      }
+      return registerContentElement(element)
     },
+    registerContentElement,
+    registerMeasureElement,
+    restoreTriggerFocus,
   }
 }

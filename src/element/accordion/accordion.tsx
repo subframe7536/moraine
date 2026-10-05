@@ -4,19 +4,16 @@ import {
   Show,
   createEffect,
   createMemo,
-  createSignal,
   mergeProps,
   on,
   onCleanup,
   splitProps,
-  untrack,
 } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { createTransitionPresence } from '../../shared/transition-presence'
 import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
@@ -206,33 +203,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const leading = createMemo(() => item.leading)
           const label = createMemo(() => item.label)
           const expanded = createMemo(() => selectedValues().includes(itemValue()))
-          const [contentExpanded, setContentExpanded] = createSignal(untrack(expanded))
+          const disclosure = createDisclosureState({
+            open: expanded,
+            disabled,
+            unmountOnHide: () => merged.unmountOnHide,
+          })
           const itemState = {
-            closed: () => !expanded(),
+            closed: disclosure.closed,
             disabled,
             expanded,
           }
           const itemDataAttrs = accordionDataAttributes.item(itemState)
           const triggerDataAttrs = accordionDataAttributes.trigger(itemState)
-          const {
-            contentHeight,
-            dataAttrs: contentDataAttrs,
-            registerElement,
-          } = createDisclosureState({
-            open: contentExpanded,
-            disabled,
-          })
-          const [contentHidden, setContentHidden] = createSignal(!untrack(expanded))
-          const contentPresence = createTransitionPresence({
-            open: expanded,
-            onExitComplete: () => {
-              setContentHidden(true)
-            },
-          })
           const triggerId = createMemo(() => `${rootId()}-${itemIdSegment()}-trigger`)
           const contentId = createMemo(() => `${rootId()}-${itemIdSegment()}-content`)
-          let contentElement: HTMLDivElement | undefined
-          let triggerElement: HTMLButtonElement | undefined
           let spaceKeyDown = false
 
           function Content(): JSX.Element {
@@ -245,7 +229,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   <div
                     ref={(element) => {
                       // Measure natural content, independently of the shell's animated height.
-                      onCleanup(registerElement(element))
+                      onCleanup(disclosure.registerMeasureElement(element))
                     }}
                     data-slot="accordion-body"
                     {...resolved.styles.body}
@@ -256,33 +240,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
               </Show>
             )
           }
-
-          function openContentElement(isExpanded: boolean): void {
-            if (!contentElement || contentExpanded()) {
-              return
-            }
-
-            void contentElement.offsetHeight
-
-            if (isExpanded) {
-              setContentExpanded(true)
-            }
-          }
-
-          createEffect(
-            on(expanded, (isExpanded) => {
-              if (!isExpanded) {
-                if (contentElement?.contains(contentElement.ownerDocument.activeElement)) {
-                  triggerElement?.focus()
-                }
-                setContentExpanded(false)
-                return
-              }
-
-              setContentHidden(false)
-              openContentElement(isExpanded)
-            }),
-          )
 
           function onTriggerClick(event: MouseEvent): void {
             spaceKeyDown = false
@@ -338,7 +295,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
               <h3 data-slot="accordion-header" {...resolved.styles.header}>
                 <button
                   ref={(element) => {
-                    triggerElement = element
+                    disclosure.setTriggerElement(element)
                   }}
                   id={triggerId()}
                   type="button"
@@ -390,39 +347,28 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
               <div
                 ref={(element) => {
-                  contentElement = element
-                  const releasePresence = contentPresence.registerElement(element)
-                  onCleanup(() => {
-                    releasePresence()
-                    if (contentElement === element) {
-                      contentElement = undefined
-                    }
-                  })
-
-                  if (expanded() && !contentExpanded()) {
-                    openContentElement(expanded())
-                  }
+                  onCleanup(disclosure.registerContentElement(element))
                 }}
                 id={contentId()}
                 role="region"
                 aria-labelledby={triggerId()}
-                aria-hidden={!expanded() ? true : undefined}
-                hidden={contentHidden()}
-                inert={!expanded() ? true : undefined}
+                aria-hidden={disclosure.ariaHidden()}
+                hidden={disclosure.hidden()}
+                inert={disclosure.inert()}
                 data-slot="accordion-content"
                 class={resolved.styles.content.class}
                 style={{
                   get '--mo-collapsible-content-height'() {
-                    return `${contentHeight()}px`
+                    return `${disclosure.contentHeight()}px`
                   },
                   ...resolved.styles.content.style,
                 }}
                 {...accordionDataAttributes.content({
-                  closed: () => contentDataAttrs()['data-closed'],
-                  expanded: () => contentDataAttrs()['data-expanded'],
+                  closed: () => disclosure.dataAttrs()['data-closed'],
+                  expanded: () => disclosure.dataAttrs()['data-expanded'],
                 })}
               >
-                <Show when={!merged.unmountOnHide || expanded() || contentPresence.present()}>
+                <Show when={disclosure.shouldMount()}>
                   <Content />
                 </Show>
               </div>

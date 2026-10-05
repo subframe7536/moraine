@@ -1,6 +1,7 @@
 import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
+import type { DisclosureState } from '../../shared/disclosure-state'
 import type { createTransitionPresence } from '../../shared/transition-presence'
 
 import type { CollapsibleT } from './collapsible.types'
@@ -24,6 +25,7 @@ export interface CollapsibleContext {
   contentPresence: ReturnType<typeof createTransitionPresence>
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void
+  disclosure: DisclosureState
 }
 
 export const [CollapsibleProvider, useCollapsibleContext] =

@@ -34,40 +34,29 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     inheritedStyles: () => context.presentation,
   })
 
-  const shouldRenderContent = createMemo(
-    () =>
-      local.forceMount ||
-      !(local.unmountOnHide ?? context.unmountOnHide()) ||
-      context.open() ||
-      (context.transition() && context.contentPresence.present()),
+  const shouldRenderContent = createMemo(() =>
+    context.disclosure.shouldMount({
+      forceMount: local.forceMount,
+      unmountOnHide: local.unmountOnHide,
+    }),
   )
-  const closed = createMemo(() => !context.open())
-  const exiting = createMemo(
-    () => closed() && context.transition() && context.contentPresence.present(),
-  )
-  const hidden = createMemo(() => closed() && !exiting())
 
   return (
     <div
       ref={(element: HTMLElement) => {
-        const releaseDisclosure = context.registerContentElement(element)
-        const releasePresence = context.contentPresence.registerElement(element)
-        onCleanup(() => {
-          releasePresence()
-          releaseDisclosure()
-        })
+        onCleanup(context.registerContentElement(element))
       }}
       id={context.contentId()}
       aria-labelledby={context.triggerId()}
-      aria-hidden={closed() ? true : undefined}
+      aria-hidden={context.disclosure.ariaHidden()}
       data-slot="collapsible-content-wrapper"
       {...collapsibleWrapperDataAttributes({
         transition: context.transition,
         expanded: () => context.dataAttrs()['data-expanded'],
         closed: () => context.dataAttrs()['data-closed'],
       })}
-      hidden={hidden()}
-      inert={closed() ? true : undefined}
+      hidden={context.disclosure.hidden()}
+      inert={context.disclosure.inert()}
       style={{
         '--mo-collapsible-content-height': `${context.contentHeight()}px`,
       }}

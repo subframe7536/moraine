@@ -1,10 +1,9 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import { createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 
 import { CollapsibleContent } from './collapsible-content'
@@ -38,74 +37,15 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),
   })
-  const { contentHeight, dataAttrs, disabled, registerElement } = createDisclosureState({
+  const disclosure = createDisclosureState({
     open,
     disabled: () => Boolean(local.disabled),
+    transition: () => Boolean(local.transition),
+    unmountOnHide: () => local.unmountOnHide,
   })
-  const contentPresence = createTransitionPresence({ open })
-  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const [contentElement, setCurrentContentElement] = createSignal<HTMLElement | undefined>()
-  let registeredContentElement: HTMLElement | undefined
-  const transition = createMemo(() => Boolean(local.transition))
-  const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
-  let contentHasFocus = false
-  let removeContentFocusListeners: (() => void) | undefined
-
-  function restoreTriggerFocus(): void {
-    const content = contentElement()
-
-    if (contentHasFocus || content?.contains(content.ownerDocument.activeElement)) {
-      contentHasFocus = false
-      triggerElement()?.focus()
-    }
-  }
-
-  createEffect(
-    on(open, (isOpen) => {
-      if (!isOpen) {
-        restoreTriggerFocus()
-      }
-    }),
-  )
-
-  function registerContentElement(element: HTMLElement): () => void {
-    removeContentFocusListeners?.()
-    removeContentFocusListeners = undefined
-    setCurrentContentElement(element)
-    registeredContentElement = element
-
-    contentHasFocus = element.contains(element.ownerDocument.activeElement)
-    const onFocusIn = () => {
-      contentHasFocus = true
-    }
-    const onFocusOut = (event: FocusEvent) => {
-      if (open() && !element.contains(event.relatedTarget as Node | null)) {
-        contentHasFocus = false
-      }
-    }
-    element.addEventListener('focusin', onFocusIn)
-    element.addEventListener('focusout', onFocusOut)
-    const removeListeners = () => {
-      element.removeEventListener('focusin', onFocusIn)
-      element.removeEventListener('focusout', onFocusOut)
-    }
-    removeContentFocusListeners = removeListeners
-    const releaseDisclosure = registerElement(element)
-    return () => {
-      releaseDisclosure()
-      if (registeredContentElement === element) {
-        removeListeners()
-        removeContentFocusListeners = undefined
-        registeredContentElement = undefined
-        setCurrentContentElement(undefined)
-      }
-    }
-  }
-
-  onCleanup(() => removeContentFocusListeners?.())
 
   function setOpen(nextOpen: boolean): void {
-    if (disabled() || nextOpen === open()) {
+    if (disclosure.disabled() || nextOpen === open()) {
       return
     }
 
@@ -128,17 +68,18 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     },
     triggerId,
     contentId,
-    open,
+    open: disclosure.open,
     toggle: toggleContent,
-    disabled,
-    transition,
-    unmountOnHide,
-    dataAttrs,
-    contentHeight,
-    registerContentElement,
-    contentPresence,
-    triggerElement,
-    setTriggerElement,
+    disabled: disclosure.disabled,
+    transition: disclosure.transition,
+    unmountOnHide: disclosure.unmountOnHide,
+    dataAttrs: disclosure.dataAttrs,
+    contentHeight: disclosure.contentHeight,
+    registerContentElement: disclosure.registerContentElement,
+    contentPresence: disclosure.presence,
+    triggerElement: disclosure.triggerElement,
+    setTriggerElement: disclosure.setTriggerElement,
+    disclosure,
   }
 
   return (
@@ -147,8 +88,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         id={rootId()}
         data-slot="collapsible"
         {...collapsibleDataAttributes.root({
-          expanded: () => dataAttrs()['data-expanded'],
-          closed: () => dataAttrs()['data-closed'],
+          expanded: () => disclosure.dataAttrs()['data-expanded'],
+          closed: () => disclosure.dataAttrs()['data-closed'],
         })}
         {...rest}
         {...resolved.styles.root}
