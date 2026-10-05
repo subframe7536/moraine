@@ -163,7 +163,9 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
     setChecked(nextChecked)
 
-    field.setFormValue(nextValue)
+    if (merged.checked === undefined) {
+      field.setFormValue(nextValue)
+    }
     merged.onCheckedChange?.(nextValue)
     field.emit('change')
     field.emit('input')
