@@ -13,7 +13,17 @@ function FixtureContent() {
           <span>Header</span>
         </SidebarFrame.SidebarHeader>
         <SidebarFrame.SidebarBody>
-          <span>Navigation</span>
+          <SidebarFrame.Group>
+            <SidebarFrame.GroupLabel as="h2">Navigation</SidebarFrame.GroupLabel>
+            <SidebarFrame.Menu>
+              <SidebarFrame.Item leading="i-lucide:house" href="/home">
+                Home
+              </SidebarFrame.Item>
+              <SidebarFrame.Sub label="Submenu" leading="i-lucide:folder">
+                <SidebarFrame.Item href="/sub-item">Sub Item</SidebarFrame.Item>
+              </SidebarFrame.Sub>
+            </SidebarFrame.Menu>
+          </SidebarFrame.Group>
         </SidebarFrame.SidebarBody>
         <SidebarFrame.SidebarFooter>
           <span>Footer</span>

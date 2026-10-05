@@ -66,7 +66,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Unique value for the accordion item. */\n  value?: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. */\n  content?: JSX.Element;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
+          "typeDetails": "({\n  /** Header label for the accordion item. */\n  label?: JSX.Element;\n  /** Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content. */\n  ariaLabel?: string;\n  /** Unique value for the accordion item. */\n  value?: string;\n  /** Whether the accordion item is disabled. */\n  disabled?: boolean;\n  /** Leading icon name for the accordion item. */\n  leading?: IconT.Name;\n  /** Content to display when the accordion item is expanded. */\n  content?: JSX.Element;\n  /** Optional class applied to the item element. */\n  class?: SlotClassValue;\n})[]",
           "description": "Array of accordion items to render."
         },
         {
@@ -138,6 +138,12 @@
   ],
   "item": {
     "props": [
+      {
+        "name": "ariaLabel",
+        "optional": true,
+        "type": "string",
+        "description": "Accessible label for the accordion trigger button.\nUseful when `label` is omitted, icon-only, or contains non-text content."
+      },
       {
         "name": "class",
         "optional": true,

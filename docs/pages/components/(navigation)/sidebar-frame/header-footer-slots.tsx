@@ -91,29 +91,28 @@ export function HeaderFooterSlots() {
           </SidebarFrame.SidebarHeader>
 
           {/* Body slot: Projects list */}
-          <SidebarFrame.SidebarBody class="p-2 space-y-1">
-            <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 flex uppercase items-center justify-between">
-              <span>Active Projects</span>
-              <Badge size="sm" variant="outline">
-                {projects.length}
-              </Badge>
-            </div>
-            <For each={projects}>
-              {(proj) => (
-                <button
-                  type="button"
-                  onClick={() => setCurrentProject(proj.name)}
-                  class={`text-xs px-2.5 py-2 text-left rounded-md flex gap-2.5 w-full transition-colors items-center ${
-                    currentProject() === proj.name
-                      ? 'bg-accent text-accent-foreground font-semibold'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground font-medium'
-                  }`}
-                >
-                  <Icon name={proj.icon} class="shrink-0 size-3.5" />
-                  <span class="truncate">{proj.name}</span>
-                </button>
-              )}
-            </For>
+          <SidebarFrame.SidebarBody class="p-2">
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold flex uppercase items-center justify-between">
+                <span>Active Projects</span>
+                <Badge size="sm" variant="outline">
+                  {projects.length}
+                </Badge>
+              </SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <For each={projects}>
+                  {(proj) => (
+                    <SidebarFrame.Item
+                      leading={proj.icon}
+                      isActive={currentProject() === proj.name}
+                      onClick={() => setCurrentProject(proj.name)}
+                    >
+                      {proj.name}
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
           </SidebarFrame.SidebarBody>
 
           {/* Footer slot: User Profile Dropdown */}

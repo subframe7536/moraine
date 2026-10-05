@@ -1,5 +1,6 @@
 import type { Accessor, JSX, Ref } from 'solid-js'
 
+import type { IconT } from '../../element/icon'
 import type {
   BaseProps,
   TriggerBase as SharedTriggerBase,
@@ -85,6 +86,67 @@ export namespace SidebarFrameT {
     never,
     'button'
   >
+
+  export interface GroupBase extends SidebarFrameRegionBase {}
+  export type GroupProps = BaseProps<'div', GroupBase, never, never, never>
+
+  export interface GroupLabelBase<T extends ValidComponent = 'div'> extends SidebarFrameRegionBase {
+    as?: T
+  }
+  export type GroupLabelProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    GroupLabelBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
+
+  export interface MenuBase extends SidebarFrameRegionBase {}
+  export type MenuProps = BaseProps<'div', MenuBase, never, never, never>
+
+  export type ItemBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
+    ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
+    href?: string
+    isActive?: boolean
+    leading?: IconT.Name
+    trailing?: IconT.Name
+  }
+
+  export type ItemProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    ItemBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
+
+  export interface SubTriggerRenderProps {
+    open: Accessor<boolean>
+    disabled: boolean
+    label: JSX.Element
+    leading?: IconT.Name
+    trailing?: IconT.Name
+  }
+
+  export interface SubBase extends SidebarFrameRegionBase {
+    label: JSX.Element
+    href?: string
+    isActive?: boolean
+    triggerClass?: string
+    leading?: IconT.Name
+    trailing?: IconT.Name
+    triggerRender?: (props: SubTriggerRenderProps) => JSX.Element
+    open?: boolean
+    defaultOpen?: boolean
+    onOpenChange?: (open: boolean) => void
+    disabled?: boolean
+    transition?: boolean
+    unmountOnHide?: boolean
+  }
+
+  export type SubProps = BaseProps<'div', SubBase, never, never, never>
 }
 
 export type SidebarFrameProps = SidebarFrameT.Props

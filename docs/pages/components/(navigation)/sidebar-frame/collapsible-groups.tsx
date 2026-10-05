@@ -1,4 +1,4 @@
-import { Badge, Breadcrumb, Button, Collapsible, Icon, Separator, SidebarFrame } from '@src'
+import { Badge, Breadcrumb, Button, Icon, Separator, SidebarFrame } from '@src'
 import { For, createSignal } from 'solid-js'
 
 export function CollapsibleGroups() {
@@ -27,111 +27,60 @@ export function CollapsibleGroups() {
           </SidebarFrame.SidebarHeader>
 
           <SidebarFrame.SidebarBody class="p-2 space-y-3">
-            {/* Group 1: Getting Started */}
-            <div class="space-y-1">
-              <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
                 Overview
-              </div>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setActivePage('Getting Started')
-                }}
-                class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
-                  activePage() === 'Getting Started'
-                    ? 'bg-accent text-accent-foreground font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                }`}
-              >
-                <Icon name="i-lucide:compass" class="shrink-0 size-3.5" />
-                <span>Getting Started</span>
-              </a>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setActivePage('Quickstart')
-                }}
-                class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
-                  activePage() === 'Quickstart'
-                    ? 'bg-accent text-accent-foreground font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                }`}
-              >
-                <Icon name="i-lucide:rocket" class="shrink-0 size-3.5" />
-                <span>Quickstart</span>
-              </a>
-            </div>
+              </SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <SidebarFrame.Item
+                  leading="i-lucide:compass"
+                  isActive={activePage() === 'Getting Started'}
+                  onClick={() => setActivePage('Getting Started')}
+                >
+                  Getting Started
+                </SidebarFrame.Item>
+                <SidebarFrame.Item
+                  leading="i-lucide:rocket"
+                  isActive={activePage() === 'Quickstart'}
+                  onClick={() => setActivePage('Quickstart')}
+                >
+                  Quickstart
+                </SidebarFrame.Item>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
 
-            {/* Group 2: Collapsible Submenu - Architecture */}
-            <div class="space-y-1">
-              <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
                 Architecture
-              </div>
-
-              {/* Collapsible 1: Routing */}
-              <Collapsible defaultOpen transition>
-                <Collapsible.Trigger class="group text-xs text-muted-foreground font-medium px-2.5 py-1.5 rounded-md flex w-full transition-colors items-center justify-between hover:text-foreground hover:bg-muted/60">
-                  <div class="flex gap-2 items-center">
-                    <Icon name="i-lucide:route" class="shrink-0 size-3.5" />
-                    <span>Routing</span>
-                  </div>
-                  <Icon
-                    name="i-lucide:chevron-right"
-                    class="group-data-expanded:rotate-90 text-muted-foreground size-3 transition-transform duration-200"
-                  />
-                </Collapsible.Trigger>
-                <Collapsible.Content class="ml-3 py-0.5 pl-4 border-l border-border/60 space-y-0.5">
+              </SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <SidebarFrame.Sub label="Routing" leading="i-lucide:route" defaultOpen transition>
                   <For each={['Defining Routes', 'Pages and Layouts', 'Navigation & Links']}>
                     {(item) => (
-                      <button
-                        type="button"
+                      <SidebarFrame.Item
+                        isActive={activePage() === item}
                         onClick={() => setActivePage(item)}
-                        class={`text-xs px-2 py-1 text-left rounded w-full transition-colors ${
-                          activePage() === item
-                            ? 'text-accent-foreground font-semibold bg-accent/60'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                        }`}
                       >
                         {item}
-                      </button>
+                      </SidebarFrame.Item>
                     )}
                   </For>
-                </Collapsible.Content>
-              </Collapsible>
+                </SidebarFrame.Sub>
 
-              {/* Collapsible 2: Data Fetching */}
-              <Collapsible transition>
-                <Collapsible.Trigger class="group text-xs text-muted-foreground font-medium px-2.5 py-1.5 rounded-md flex w-full transition-colors items-center justify-between hover:text-foreground hover:bg-muted/60">
-                  <div class="flex gap-2 items-center">
-                    <Icon name="i-lucide:database" class="shrink-0 size-3.5" />
-                    <span>Data Fetching</span>
-                  </div>
-                  <Icon
-                    name="i-lucide:chevron-right"
-                    class="group-data-expanded:rotate-90 text-muted-foreground size-3 transition-transform duration-200"
-                  />
-                </Collapsible.Trigger>
-                <Collapsible.Content class="ml-3 py-0.5 pl-4 border-l border-border/60 space-y-0.5">
+                <SidebarFrame.Sub label="Data Fetching" leading="i-lucide:database" transition>
                   <For each={['Server Actions', 'Streaming & Suspense', 'Caching & Revalidation']}>
                     {(item) => (
-                      <button
-                        type="button"
+                      <SidebarFrame.Item
+                        isActive={activePage() === item}
                         onClick={() => setActivePage(item)}
-                        class={`text-xs px-2 py-1 text-left rounded w-full transition-colors ${
-                          activePage() === item
-                            ? 'text-accent-foreground font-semibold bg-accent/60'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-                        }`}
                       >
                         {item}
-                      </button>
+                      </SidebarFrame.Item>
                     )}
                   </For>
-                </Collapsible.Content>
-              </Collapsible>
-            </div>
+                </SidebarFrame.Sub>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="text-xs text-muted-foreground p-2.5 border-t border-border/60 flex items-center justify-between">

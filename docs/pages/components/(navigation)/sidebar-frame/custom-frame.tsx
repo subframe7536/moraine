@@ -51,25 +51,21 @@ export function FrameRender() {
       {/* Embedded SidebarFrame taking remaining height */}
       <SidebarFrame isMobile={false} class="flex-1 h-auto min-h-0">
         <SidebarFrame.Sidebar class="border-r border-border/60 bg-card/30 w-56">
-          <SidebarFrame.SidebarBody class="p-2 space-y-1">
-            <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
-              Infrastructure
-            </div>
-            <For each={cloudNav}>
-              {(item) => (
-                <a
-                  href="#"
-                  class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
-                    item.active
-                      ? 'bg-accent text-accent-foreground font-semibold'
-                      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                  }`}
-                >
-                  <Icon name={item.icon} class="shrink-0 size-3.5" />
-                  <span class="truncate">{item.label}</span>
-                </a>
-              )}
-            </For>
+          <SidebarFrame.SidebarBody class="p-2">
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
+                Infrastructure
+              </SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <For each={cloudNav}>
+                  {(item) => (
+                    <SidebarFrame.Item href="#" leading={item.icon} isActive={item.active}>
+                      {item.label}
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="text-[11px] text-muted-foreground p-2 border-t border-border/60 flex items-center justify-between">

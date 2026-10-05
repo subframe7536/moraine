@@ -16,7 +16,17 @@ function FixtureContent() {
           <span>Header</span>
         </SidebarFrame.SidebarHeader>
         <SidebarFrame.SidebarBody>
-          <span>Navigation</span>
+          <SidebarFrame.Group>
+            <SidebarFrame.GroupLabel as="h2">Navigation</SidebarFrame.GroupLabel>
+            <SidebarFrame.Menu>
+              <SidebarFrame.Item leading="i-lucide:house" href="/home">
+                Home
+              </SidebarFrame.Item>
+              <SidebarFrame.Sub label="Submenu" leading="i-lucide:folder">
+                <SidebarFrame.Item href="/sub-item">Sub Item</SidebarFrame.Item>
+              </SidebarFrame.Sub>
+            </SidebarFrame.Menu>
+          </SidebarFrame.Group>
         </SidebarFrame.SidebarBody>
         <SidebarFrame.SidebarFooter>
           <span>Footer</span>
@@ -66,4 +76,12 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
       'Sidebar navigation',
     ),
   )
+
+  const dialog = document.body.querySelector('[role="dialog"]')!
+  expect(dialog.querySelector('[data-slot="sidebar-frame-group"]')).not.toBeNull()
+  expect(dialog.querySelector('h2')?.textContent).toBe('Navigation')
+  expect(dialog.querySelector('[data-slot="sidebar-frame-menu"]')).not.toBeNull()
+  expect(dialog.querySelector('a[href="/home"]')?.textContent).toBe('Home')
+  expect(dialog.querySelector('[data-slot="sidebar-frame-item-leading"]')).not.toBeNull()
+  expect(dialog.querySelector('[data-slot="sidebar-frame-sub"]')).not.toBeNull()
 })

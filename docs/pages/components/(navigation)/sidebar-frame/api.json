@@ -290,6 +290,266 @@
           "description": "Style applied to the component root or trigger element."
         }
       ]
+    },
+    {
+      "id": "sidebar-frame-group",
+      "name": "SidebarFrame.Group",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Group"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sidebar-frame-group-label",
+      "name": "SidebarFrame.GroupLabel",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "GroupLabel"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sidebar-frame-menu",
+      "name": "SidebarFrame.Menu",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Menu"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sidebar-frame-item",
+      "name": "SidebarFrame.Item",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Item"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "href",
+          "optional": true,
+          "type": "string"
+        },
+        {
+          "name": "isActive",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": "IconT.Name"
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T]: HTMLElement>"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": "IconT.Name"
+        }
+      ]
+    },
+    {
+      "id": "sidebar-frame-sub",
+      "name": "SidebarFrame.Sub",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Sub"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": "IconT.Name"
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void"
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": "IconT.Name"
+        },
+        {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean"
+        },
+        {
+          "name": "triggerRender",
+          "optional": true,
+          "type": "(props: SubTriggerRenderProps) => JSX.Element"
+        },
+        {
+          "name": "unmountOnHide",
+          "optional": true,
+          "type": "boolean"
+        }
+      ]
     }
   ],
   "slots": [
@@ -298,7 +558,16 @@
     "sidebarHeader",
     "sidebarBody",
     "sidebarFooter",
-    "main"
+    "main",
+    "group",
+    "groupLabel",
+    "menu",
+    "item",
+    "itemLeading",
+    "itemLabel",
+    "itemTrailing",
+    "sub",
+    "subContent"
   ],
   "dataAttributes": [
     {
@@ -314,6 +583,14 @@
         "data-closed",
         "data-disabled",
         "data-open"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-active",
+        "data-disabled",
+        "data-mobile"
       ]
     }
   ]

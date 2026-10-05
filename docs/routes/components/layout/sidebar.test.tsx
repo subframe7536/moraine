@@ -129,3 +129,37 @@ test.each([
   setup(true, path)
   expect(screen.getByRole('link', { name: label }).getAttribute('aria-current')).toBe('location')
 })
+
+test('overview section renders unocss and tailwind css as sub items of installation', () => {
+  setPathname('/docs/getting-started')
+  const { container } = render(() => (
+    <SidebarFrame isMobile={false}>
+      <SidebarFrame.SidebarBody>
+        <Sidebar
+          pages={[
+            page('/docs/getting-started', 'Introduction', 'docs'),
+            page('/docs/installation', 'Installation', 'docs'),
+            page('/docs/unocss', 'UnoCSS', 'docs'),
+            page('/docs/tailwind', 'Tailwind CSS', 'docs'),
+          ]}
+          activePage={pathname}
+        />
+      </SidebarFrame.SidebarBody>
+    </SidebarFrame>
+  ))
+
+  const sub = container.querySelector('[data-slot="sidebar-frame-sub"]')
+  expect(sub).not.toBeNull()
+  const installationLink = screen.getByRole('link', { name: 'Installation' })
+  expect(installationLink.getAttribute('href')).toBe('/docs/installation')
+  const unocssLink = screen.getByRole('link', { name: 'UnoCSS' })
+  expect(unocssLink.getAttribute('href')).toBe('/docs/unocss')
+  const tailwindLink = screen.getByRole('link', { name: 'Tailwind CSS' })
+  expect(tailwindLink.getAttribute('href')).toBe('/docs/tailwind')
+
+  const subContent = container.querySelector('[data-slot="sidebar-frame-sub-content"]')
+  expect(subContent).not.toBeNull()
+  expect(subContent?.contains(unocssLink)).toBe(true)
+  expect(subContent?.contains(tailwindLink)).toBe(true)
+  expect(subContent?.contains(installationLink)).toBe(false)
+})

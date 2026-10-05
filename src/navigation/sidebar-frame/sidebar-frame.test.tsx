@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { Collapsible } from '../../element/collapsible'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { SidebarFrame } from './sidebar-frame'
@@ -552,5 +553,341 @@ describe('SidebarFrame.Trigger', () => {
 
     fireEvent.keyDown(trigger, { key: 'Enter' })
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
+})
+
+describe('SidebarFrame.Group and SidebarFrame.GroupLabel', () => {
+  test('renders default elements and attributes', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Group>
+          <SidebarFrame.GroupLabel>Group Title</SidebarFrame.GroupLabel>
+        </SidebarFrame.Group>
+      </SidebarFrame>
+    ))
+    const group = screen.container.querySelector('[data-slot="sidebar-frame-group"]')
+    expect(group).not.toBeNull()
+    const label = screen.container.querySelector('[data-slot="sidebar-frame-group-label"]')
+    expect(label).not.toBeNull()
+    expect(label?.tagName).toBe('DIV')
+    expect(label?.textContent).toBe('Group Title')
+  })
+
+  test('GroupLabel as="h2" renders h2', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Group>
+          <SidebarFrame.GroupLabel as="h2">Section Heading</SidebarFrame.GroupLabel>
+        </SidebarFrame.Group>
+      </SidebarFrame>
+    ))
+    const heading = screen.getByRole('heading', { level: 2, name: 'Section Heading' })
+    expect(heading.tagName).toBe('H2')
+    expect(heading.getAttribute('data-slot')).toBe('sidebar-frame-group-label')
+  })
+})
+
+describe('SidebarFrame.Menu', () => {
+  test('renders menu container without list role', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Menu>
+          <span>Content</span>
+        </SidebarFrame.Menu>
+      </SidebarFrame>
+    ))
+    const menu = screen.container.querySelector('[data-slot="sidebar-frame-menu"]')
+    expect(menu).not.toBeNull()
+    expect(menu?.tagName).toBe('DIV')
+    expect(menu?.getAttribute('role')).toBeNull()
+  })
+})
+
+describe('SidebarFrame.Item', () => {
+  test('Item with href renders an a', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item href="/docs">Overview</SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const link = screen.getByRole('link', { name: 'Overview' })
+    expect(link.tagName).toBe('A')
+    expect(link.getAttribute('href')).toBe('/docs')
+    expect(link.getAttribute('data-slot')).toBe('sidebar-frame-item')
+  })
+
+  test('Item with as overrides href', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item as="button" href="/docs">
+          Overview
+        </SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const button = screen.getByRole('button', { name: 'Overview' })
+    expect(button.tagName).toBe('BUTTON')
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
+  test('Item default renders button with type="button", fires onClick, respects disabled', () => {
+    const handleClick = vi.fn()
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item onClick={handleClick}>Action</SidebarFrame.Item>
+        <SidebarFrame.Item disabled onClick={handleClick}>
+          Disabled Action
+        </SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const button = screen.getByRole('button', { name: 'Action' })
+    expect(button.tagName).toBe('BUTTON')
+    expect(button.getAttribute('type')).toBe('button')
+
+    fireEvent.click(button)
+    expect(handleClick).toHaveBeenCalledTimes(1)
+
+    const disabledBtn = screen.getByRole('button', { name: 'Disabled Action' })
+    expect((disabledBtn as HTMLButtonElement).disabled).toBe(true)
+    expect(disabledBtn.getAttribute('data-disabled')).toBe('')
+
+    fireEvent.click(disabledBtn)
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+
+  test('Item disabled as a keeps tag a, removes href, sets aria-disabled="true", sets data-disabled, and prevents click', () => {
+    const handleClick = vi.fn()
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item href="/docs" disabled onClick={handleClick}>
+          Disabled Link
+        </SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const anchor = screen.getByText('Disabled Link').closest('a')!
+    expect(anchor).not.toBeNull()
+    expect(anchor.tagName).toBe('A')
+    expect(anchor.getAttribute('href')).toBeNull()
+    expect(anchor.getAttribute('aria-disabled')).toBe('true')
+    expect(anchor.getAttribute('data-disabled')).toBe('')
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+    const defaultPrevented = !anchor.dispatchEvent(event)
+    expect(defaultPrevented).toBe(true)
+    expect(handleClick).not.toHaveBeenCalled()
+  })
+
+  test('isActive sets data-active on both a and button', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item href="/docs" isActive>
+          Link
+        </SidebarFrame.Item>
+        <SidebarFrame.Item isActive>Button</SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const link = screen.getByRole('link', { name: 'Link' })
+    const button = screen.getByRole('button', { name: 'Button' })
+    expect(link.getAttribute('data-active')).toBe('')
+    expect(button.getAttribute('data-active')).toBe('')
+  })
+
+  test('isActive on a additionally sets aria-current="page"', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item href="/docs" isActive>
+          Link
+        </SidebarFrame.Item>
+        <SidebarFrame.Item isActive>Button</SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const link = screen.getByRole('link', { name: 'Link' })
+    const button = screen.getByRole('button', { name: 'Button' })
+    expect(link.getAttribute('aria-current')).toBe('page')
+    expect(button.getAttribute('aria-current')).toBeNull()
+    expect(button.getAttribute('aria-pressed')).toBeNull()
+  })
+
+  test('Item with leading and trailing renders icons with respective data slots', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item leading="i-lucide:house" trailing="i-lucide:chevron-right">
+          Home
+        </SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const leading = screen.container.querySelector('[data-slot="sidebar-frame-item-leading"]')
+    const trailing = screen.container.querySelector('[data-slot="sidebar-frame-item-trailing"]')
+    const label = screen.container.querySelector('[data-slot="sidebar-frame-item-label"]')
+    expect(leading).not.toBeNull()
+    expect(trailing).not.toBeNull()
+    expect(label).not.toBeNull()
+    expect(label?.textContent).toBe('Home')
+  })
+
+  test('Standalone Item with trailing icon renders without data-expanded and trailing icon does not rotate', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item trailing="i-lucide:chevron-right">Standalone</SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const button = screen.getByRole('button', { name: 'Standalone' })
+    expect(button.hasAttribute('data-expanded')).toBe(false)
+    const trailing = screen.container.querySelector('[data-slot="sidebar-frame-item-trailing"]')
+    expect(trailing?.className).toContain('group-data-[expanded]:rotate-90')
+  })
+
+  test('Mobile frame sets data-mobile on Item', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={true}>
+        <SidebarFrame.Item>Mobile Item</SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+    const button = screen.getByRole('button', { name: 'Mobile Item' })
+    expect(button.getAttribute('data-mobile')).toBe('')
+  })
+})
+
+describe('SidebarFrame.Sub', () => {
+  test('Sub with label renders a trigger and collapsible content container', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub label="Submenu">
+          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const sub = screen.container.querySelector('[data-slot="sidebar-frame-sub"]')
+    expect(sub).not.toBeNull()
+    const trigger = screen.getByRole('button', { name: 'Submenu' })
+    expect(trigger).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-sub-content"]')).toBeNull()
+
+    fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(
+        screen.container.querySelector('[data-slot="sidebar-frame-sub-content"]'),
+      ).not.toBeNull()
+    })
+  })
+
+  test('Sub defaults to closed and hides content until the trigger is clicked', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub label="Submenu">
+          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Submenu' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    })
+    expect(screen.getByRole('button', { name: 'Sub Item' })).not.toBeNull()
+  })
+
+  test('Sub with disabled marks the trigger disabled and prevents toggling', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub label="Submenu" disabled>
+          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Submenu' })
+    expect((trigger as HTMLButtonElement).disabled).toBe(true)
+    expect(trigger.getAttribute('data-disabled')).toBe('')
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('Sub with triggerRender renders the custom trigger and still toggles content', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub
+          label="Custom Architecture"
+          triggerRender={(ctx) => (
+            <SidebarFrame.Item as={Collapsible.Trigger} disabled={ctx.disabled}>
+              {ctx.label} ({ctx.open() ? 'open' : 'closed'})
+            </SidebarFrame.Item>
+          )}
+        >
+          <SidebarFrame.Item>Nested Item</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Custom Architecture (closed)' })
+    expect(trigger).not.toBeNull()
+
+    fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Custom Architecture (open)' })).not.toBeNull()
+    })
+  })
+
+  test('chevron rotation is driven by trigger expanded state', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub label="Submenu">
+          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Submenu' })
+    expect(trigger.className).toContain('group')
+    expect(trigger.hasAttribute('data-expanded')).toBe(false)
+
+    fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(trigger.getAttribute('data-expanded')).toBe('')
+    })
+    expect(trigger.className).toContain('group')
+    const trailing = trigger.querySelector('[data-slot="sidebar-frame-item-trailing"]')
+    expect(trailing?.className).toContain('group-data-[expanded]:rotate-90')
+  })
+
+  test('Sub with href renders an anchor trigger, supports isActive, and toggles expanded', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sub
+          label="Installation"
+          href="/docs/installation"
+          isActive
+          triggerClass="custom-trigger"
+        >
+          <SidebarFrame.Item href="/docs/unocss">UnoCSS</SidebarFrame.Item>
+        </SidebarFrame.Sub>
+      </SidebarFrame>
+    ))
+    const link = screen.getByRole('link', { name: 'Installation' })
+    expect(link.tagName).toBe('A')
+    expect(link.getAttribute('href')).toBe('/docs/installation')
+    expect(link.getAttribute('aria-current')).toBe('page')
+    expect(link.getAttribute('data-active')).toBe('')
+    expect(link.className).toContain('custom-trigger')
+    expect(link.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(link)
+    await waitFor(() => {
+      expect(link.getAttribute('aria-expanded')).toBe('true')
+    })
+    expect(screen.getByRole('link', { name: 'UnoCSS' })).not.toBeNull()
+  })
+})
+
+describe('SidebarFrame context validation', () => {
+  test.each([
+    ['Group', () => <SidebarFrame.Group />],
+    ['GroupLabel', () => <SidebarFrame.GroupLabel />],
+    ['Menu', () => <SidebarFrame.Menu />],
+    ['Item', () => <SidebarFrame.Item />],
+    ['Sub', () => <SidebarFrame.Sub label="Sub" />],
+  ])('%s throws when rendered outside SidebarFrame', (_name, component) => {
+    expect(() => render(component)).toThrow(
+      'useSidebarFrameContext must be used within <SidebarFrameProvider />',
+    )
   })
 })

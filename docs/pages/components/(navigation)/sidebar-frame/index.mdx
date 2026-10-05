@@ -3,7 +3,20 @@ title: SidebarFrame
 description: Build desktop sidebar navigation that moves into a mobile drawer.
 api:
   path: src/navigation/sidebar-frame/sidebar-frame
-  parts: [Sidebar, SidebarHeader, SidebarBody, SidebarFooter, Main, Trigger]
+  parts:
+    [
+      Sidebar,
+      SidebarHeader,
+      SidebarBody,
+      SidebarFooter,
+      Main,
+      Trigger,
+      Group,
+      GroupLabel,
+      Menu,
+      Item,
+      Sub,
+    ]
 sidebar:
   order: 6
 search:
@@ -23,7 +36,19 @@ import { SidebarFrame } from 'moraine'
 export function Example() {
   return (
     <SidebarFrame>
-      <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+      <SidebarFrame.Sidebar>
+        <SidebarFrame.SidebarBody>
+          <SidebarFrame.Group>
+            <SidebarFrame.GroupLabel>Navigation</SidebarFrame.GroupLabel>
+            <SidebarFrame.Menu>
+              <SidebarFrame.Item leading="i-lucide:home" isActive>
+                Home
+              </SidebarFrame.Item>
+              <SidebarFrame.Item leading="i-lucide:settings">Settings</SidebarFrame.Item>
+            </SidebarFrame.Menu>
+          </SidebarFrame.Group>
+        </SidebarFrame.SidebarBody>
+      </SidebarFrame.Sidebar>
       <SidebarFrame.Main>Content</SidebarFrame.Main>
     </SidebarFrame>
   )
@@ -72,20 +97,15 @@ export function Example() {
               Workspace
             </SidebarFrame.SidebarHeader>
             <SidebarFrame.SidebarBody class="p-2 space-y-1">
-              <For each={navItems}>
-                {(item) => (
-                  <div
-                    class={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${
-                      item.active
-                        ? 'bg-accent text-accent-foreground font-semibold'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                    }`}
-                  >
-                    <Icon name={item.icon} class="size-3.5" />
-                    <span>{item.label}</span>
-                  </div>
-                )}
-              </For>
+              <SidebarFrame.Menu>
+                <For each={navItems}>
+                  {(item) => (
+                    <SidebarFrame.Item leading={item.icon} isActive={item.active}>
+                      {item.label}
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+              </SidebarFrame.Menu>
             </SidebarFrame.SidebarBody>
             <SidebarFrame.SidebarFooter class="px-3 py-2 text-xs text-muted-foreground">
               Personal workspace
@@ -142,6 +162,38 @@ export function Example() {
           {
             part: 'SidebarFrame.SidebarBody',
             slot: 'sidebarBody',
+            children: [
+              {
+                part: 'SidebarFrame.Group',
+                slot: 'group',
+                children: [
+                  {
+                    part: 'SidebarFrame.GroupLabel',
+                    slot: 'groupLabel',
+                  },
+                  {
+                    part: 'SidebarFrame.Menu',
+                    slot: 'menu',
+                    children: [
+                      {
+                        part: 'SidebarFrame.Item',
+                        slot: 'item',
+                        children: [
+                          { slot: 'itemLeading' },
+                          { slot: 'itemLabel' },
+                          { slot: 'itemTrailing' },
+                        ],
+                      },
+                      {
+                        part: 'SidebarFrame.Sub',
+                        slot: 'sub',
+                        children: [{ slot: 'subContent' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
           {
             part: 'SidebarFrame.SidebarFooter',
@@ -160,13 +212,23 @@ export function Example() {
 
 Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regions inside an internal Sheet.
 
+## Navigation menu layer
+
+`SidebarFrame` provides structured menu primitives to build desktop and mobile navigation menus:
+
+- `SidebarFrame.Group`: Logical section container for navigation groups.
+- `SidebarFrame.GroupLabel`: Section title heading with polymorphic tag support (`as="h2"`, `'span'`, etc.).
+- `SidebarFrame.Menu`: Flat container for items without restrictive list element styling.
+- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, and `isActive` styling.
+- `SidebarFrame.Sub`: Collapsible sub-navigation built on `Collapsible`. Supports default chevron disclosure triggers or custom triggers via the `triggerRender` prop.
+
 ## Usage
 
 ### Responsive navigation ownership
 
 `SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
 
-Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, and `main`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
+Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, `main`, `group`, `groupLabel`, `menu`, `item`, `itemLeading`, `itemLabel`, `itemTrailing`, `sub`, and `subContent`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
 
 `SidebarFrame` declares `--mo-sidebar-width: var(--sidebar-width, clamp(14rem, 25%, 20rem))` on its root; the sidebar inherits it. Set the global `--sidebar-width` in CSS or with `presetMoraine({ sidebarWidth: '18rem' })`; the preset emits no sidebar width by default. Width classes on `SidebarFrame.Sidebar` take precedence.
 
@@ -178,7 +240,7 @@ Call `useSidebarFrame()` from a descendant component for advanced access to `isM
 
 ### Collapsible sub-navigation
 
-Compose Moraine's `Collapsible` primitive inside `SidebarFrame.SidebarBody` to provide multi-level sub-navigation menus with smooth chevron animations.
+Compose `SidebarFrame.Sub` inside `SidebarFrame.SidebarBody` to provide multi-level sub-navigation menus with smooth chevron animations and accessible disclosure semantics.
 
 <Preview path="./collapsible-groups" />
 

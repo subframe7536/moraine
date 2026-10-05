@@ -60,50 +60,36 @@ export function ResponsiveUsage() {
               </div>
             </div>
 
-            <div class="space-y-1">
-              <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
-                Platform
-              </div>
-              <For each={navPlatform}>
-                {(item) => (
-                  <a
-                    href={item.href}
-                    class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex transition-colors items-center justify-between ${
-                      item.active
-                        ? 'bg-accent text-accent-foreground font-semibold'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                    }`}
-                  >
-                    <div class="flex gap-2 min-w-0 items-center">
-                      <Icon name={item.icon} class="shrink-0 size-3.5" />
-                      <span class="truncate">{item.label}</span>
-                    </div>
-                    <Show when={item.badge}>
-                      <Badge size="sm" variant="subtle">
-                        {item.badge}
-                      </Badge>
-                    </Show>
-                  </a>
-                )}
-              </For>
-            </div>
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel>Platform</SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <For each={navPlatform}>
+                  {(item) => (
+                    <SidebarFrame.Item href={item.href} leading={item.icon} isActive={item.active}>
+                      <span class="flex-1 truncate">{item.label}</span>
+                      <Show when={item.badge}>
+                        <Badge size="sm" variant="subtle" class="ml-auto shrink-0">
+                          {item.badge}
+                        </Badge>
+                      </Show>
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
 
-            <div class="space-y-1">
-              <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
-                Configuration
-              </div>
-              <For each={navSettings}>
-                {(item) => (
-                  <a
-                    href={item.href}
-                    class="text-xs text-muted-foreground font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center hover:text-foreground hover:bg-muted/60"
-                  >
-                    <Icon name={item.icon} class="shrink-0 size-3.5" />
-                    <span class="truncate">{item.label}</span>
-                  </a>
-                )}
-              </For>
-            </div>
+            <SidebarFrame.Group>
+              <SidebarFrame.GroupLabel>Configuration</SidebarFrame.GroupLabel>
+              <SidebarFrame.Menu>
+                <For each={navSettings}>
+                  {(item) => (
+                    <SidebarFrame.Item href={item.href} leading={item.icon}>
+                      {item.label}
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+              </SidebarFrame.Menu>
+            </SidebarFrame.Group>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="p-2 border-t border-border/60 flex items-center justify-between">

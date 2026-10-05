@@ -17,6 +17,9 @@ import { createMediaQuery } from '../../shared/media-query'
 import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import { SidebarFrameItem } from './sidebar-frame-item'
+import { SidebarFrameGroup, SidebarFrameGroupLabel, SidebarFrameMenu } from './sidebar-frame-menu'
+import { SidebarFrameSub } from './sidebar-frame-sub'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
 import { SIDEBAR_FRAME_MOBILE_QUERY } from './sidebar-frame.constants'
 import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
@@ -216,3 +219,8 @@ SidebarFrame.SidebarBody = SidebarFrameSidebarBody
 SidebarFrame.SidebarFooter = SidebarFrameSidebarFooter
 SidebarFrame.Main = SidebarFrameMain
 SidebarFrame.Trigger = SidebarFrameTrigger
+SidebarFrame.Group = SidebarFrameGroup
+SidebarFrame.GroupLabel = SidebarFrameGroupLabel
+SidebarFrame.Menu = SidebarFrameMenu
+SidebarFrame.Item = SidebarFrameItem
+SidebarFrame.Sub = SidebarFrameSub
