@@ -674,6 +674,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
       return
     }
 
+    if (event.key === 'Enter' || event.key === ' ') {
+      const handlePart = handleParts().get(handleIndex)
+      const action = handlePart?.local.action ?? 'resize'
+      if (action === 'collapse') {
+        event.preventDefault()
+        toggleHandleCollapse(handleIndex)
+        return
+      }
+    }
+
     const keyboardDelta = resolveKeyboardDelta(local.keyboardDelta, rootSize())
     let deltaPercentage: number | null = null
 
@@ -936,7 +946,17 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         <button
                           type="button"
                           data-slot="resizable-handle-control"
-                          tabIndex={action() === 'collapse' ? undefined : -1}
+                          tabIndex={-1}
+                          aria-label={
+                            ((handlePart().rest as Record<string, unknown>)['aria-label'] as
+                              | string
+                              | undefined) ??
+                            (action() === 'collapse'
+                              ? resolveNearestCollapsibleState(index).collapsed
+                                ? 'Expand panel'
+                                : 'Collapse panel'
+                              : undefined)
+                          }
                           onPointerDown={onGripPointerDown}
                           onClick={onHandleClick}
                           {...resizableDataAttributes.handleControl({

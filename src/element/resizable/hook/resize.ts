@@ -103,7 +103,7 @@ function distributePercentage(input: {
     const panel = input.panels[i]
     const panelSize = input.sizes[i] ?? 0
 
-    if (!panel) {
+    if (!panel || panel.resizable === false) {
       continue
     }
 

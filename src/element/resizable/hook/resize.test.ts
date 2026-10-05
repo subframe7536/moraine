@@ -415,4 +415,30 @@ describe('resize', () => {
     expect(expanded[0]).toBeCloseTo(0.15, 6)
     expect(expanded[1]).toBeCloseTo(0.85, 6)
   })
+
+  test('locks non-resizable panel size during resize', () => {
+    const panels = resolvePanels(
+      [
+        { panelId: 'left', min: '10%', max: '80%', resizable: true },
+        { panelId: 'middle', min: '10%', max: '80%', resizable: false },
+        { panelId: 'right', min: '10%', max: '80%', resizable: true },
+      ],
+      ROOT_SIZE,
+      'resizable-test',
+    )
+
+    const initialSizes = [0.3, 0.4, 0.3]
+
+    // Drag handle 1 (between middle and right) pushing left
+    const nextSizes = resizeFromHandle({
+      handleIndex: 1,
+      deltaPercentage: -0.1,
+      altKey: false,
+      initialSizes,
+      panels,
+    })
+
+    // Middle panel must remain locked at 0.4
+    expect(nextSizes[1]).toBeCloseTo(0.4, 6)
+  })
 })

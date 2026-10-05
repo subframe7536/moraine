@@ -1824,6 +1824,29 @@ describe('Resizable', () => {
       ).toThrow('Resizable.Handle must be placed between two Resizable.Panel children')
     })
 
+    test('collapse handle provides accessible grip button and Enter key collapse', () => {
+      const onCollapse = vi.fn()
+      const screen = render(() => (
+        <Resizable>
+          <Resizable.Panel collapsible onCollapse={onCollapse}>
+            Left
+          </Resizable.Panel>
+          <Resizable.Handle action="collapse" />
+          <Resizable.Panel>Right</Resizable.Panel>
+        </Resizable>
+      ))
+      const handle = screen.container.querySelector<HTMLElement>('[data-slot="resizable-handle"]')!
+      const grip = screen.container.querySelector<HTMLElement>(
+        '[data-slot="resizable-handle-control"]',
+      )!
+      expect(handle.tabIndex).toBe(0)
+      expect(grip.tabIndex).toBe(-1)
+      expect(grip.getAttribute('aria-label')).toBe('Collapse panel')
+
+      fireEvent.keyDown(handle, { key: 'Enter' })
+      expect(onCollapse).toHaveBeenCalled()
+    })
+
     test('rejects unknown children', () => {
       expect(() =>
         render(() => (
