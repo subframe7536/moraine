@@ -124,6 +124,11 @@ function createSelectState<T extends BaseSelectT.Item>(
   const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
+  createEffect(
+    on(focusOwner, (element) => {
+      field.setControlRef(element)
+    }),
+  )
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`

@@ -10,7 +10,9 @@ import { renderWithOwner } from '../../test-util/owner-render'
 import { defineTheme } from '../../theme'
 import { Checkbox } from '../checkbox'
 import { CheckboxGroup } from '../checkbox-group'
+import { Combobox } from '../combobox'
 import { Input } from '../input'
+import { MultiSelect } from '../multi-select'
 import { RadioGroup } from '../radio-group'
 import { Slider } from '../slider'
 import { Switch } from '../switch'
@@ -323,6 +325,43 @@ describe('Form', () => {
     expect(screen.container.querySelector('input[type="checkbox"]')).not.toBe(
       document.activeElement,
     )
+  })
+
+  test('registers Combobox and editable MultiSelect with Formisch for focus', () => {
+    const schema = v.object({
+      fruit: v.string(),
+      tags: v.array(v.string()),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { fruit: '', tags: [] } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="fruit">
+            <Combobox items={['Apple', 'Banana']} />
+          </form.Field>
+          <form.Field name="tags">
+            <MultiSelect
+              search
+              items={[
+                { value: 'One', label: 'One' },
+                { value: 'Two', label: 'Two' },
+              ]}
+            />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    const comboboxInput = screen.container.querySelector('input[data-slot="combobox-input"]')
+    const multiSelectInput = screen.container.querySelector('input[data-slot="multi-select-input"]')
+    expect(comboboxInput).toBeTruthy()
+    expect(multiSelectInput).toBeTruthy()
+
+    focus(form, { path: ['fruit'] })
+    expect(document.activeElement).toBe(comboboxInput)
+
+    focus(form, { path: ['tags'] })
+    expect(document.activeElement).toBe(multiSelectInput)
   })
 
   test('binds and submits a root array field', async () => {
