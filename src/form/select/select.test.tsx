@@ -28,21 +28,30 @@ describe('Select', () => {
     expect(control.querySelector('input[data-slot="input"]')).toBeNull()
   })
 
-  test('clear stays inside the trigger without nesting an interactive control', () => {
+  test('clear renders an accessible button outside the trigger and supports keyboard clear', () => {
     const onClear = vi.fn()
     const screen = render(() => (
       <Select items={ITEMS} defaultValue="apple" allowClear onClear={onClear} />
     ))
     const trigger = screen.getByRole('combobox')
     const clear = screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!
-    expect(clear.tagName).toBe('SPAN')
-    expect(clear.getAttribute('aria-hidden')).toBe('true')
-    expect(trigger.contains(clear)).toBe(true)
-    expect(trigger.querySelector('button')).toBeNull()
+    expect(clear.tagName).toBe('BUTTON')
+    expect(clear.getAttribute('aria-label')).toBe('Clear selection')
+    expect(trigger.contains(clear)).toBe(false)
     fireEvent.click(clear)
     expect(onClear).toHaveBeenCalledOnce()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
+
+    // Test keyboard clearing via Backspace on trigger
+    const onClearKey = vi.fn()
+    const screenKey = render(() => (
+      <Select items={ITEMS} defaultValue="banana" allowClear onClear={onClearKey} />
+    ))
+    const triggerKey = screenKey.getByRole('combobox')
+    fireEvent.keyDown(triggerKey, { key: 'Backspace' })
+    expect(onClearKey).toHaveBeenCalledOnce()
+    expect(screenKey.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
   })
 
   test('selects values, closes, and restores trigger focus', async () => {

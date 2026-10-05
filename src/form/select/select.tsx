@@ -63,7 +63,19 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
           {...styles.styles.control}
           ref={(element) => callRef(local.ref, element)}
         >
-          <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>> {...styles.styles.trigger}>
+          <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
+            {...styles.styles.trigger}
+            onKeyDown={(event) => {
+              if (
+                local.allowClear &&
+                hasValue() &&
+                (event.key === 'Delete' || event.key === 'Backspace')
+              ) {
+                event.preventDefault()
+                clear()
+              }
+            }}
+          >
             <Show when={local.leadingIcon}>
               {(icon) => (
                 <Icon name={icon()} slotName="select-leading" {...styles.styles.leading} />
@@ -76,25 +88,6 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             >
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
             </span>
-            <Show when={!local.loading && local.allowClear && hasValue()}>
-              <span
-                data-slot="select-clear"
-                aria-hidden="true"
-                {...styles.styles.clear}
-                onPointerDown={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  state.focusOwner()?.focus()
-                }}
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  clear()
-                }}
-              >
-                <Icon name={local.closeIcon ?? 'icon-close'} />
-              </span>
-            </Show>
             <Icon
               slotName="select-trailing"
               name={
@@ -106,6 +99,28 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               {...styles.styles.trailing}
             />
           </BaseSelect.Trigger>
+          <Show when={!local.loading && local.allowClear && hasValue()}>
+            <button
+              type="button"
+              data-slot="select-clear"
+              aria-label="Clear selection"
+              tabIndex={0}
+              {...styles.styles.clear}
+              disabled={state.locked()}
+              onPointerDown={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                state.focusOwner()?.focus()
+              }}
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                clear()
+              }}
+            >
+              <Icon name={local.closeIcon ?? 'icon-close'} />
+            </button>
+          </Show>
         </BaseSelect.Control>
         <DefaultSelectContent {...local} view={source()} slot={(slot) => styles.styles[slot]} />
       </>
