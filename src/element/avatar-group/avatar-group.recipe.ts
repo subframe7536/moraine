@@ -16,9 +16,9 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
 >('avatarGroup', {
   base: {
     root: 'inline-flex flex-row items-center',
-    item: 'rounded-full ring-background relative z-0 first:ms-0 focus-within:z-10 hover:z-10',
+    item: 'rounded-full ring-2 ring-background relative z-0 -ms-2 first:ms-0 focus-within:z-10 hover:z-10',
     count:
-      'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-background items-center justify-center relative z-0 first:ms-0',
+      'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-2 ring-background items-center justify-center relative z-0 -ms-2 first:ms-0',
     image: '',
     fallback: '',
     fallbackContent: '',
@@ -27,9 +27,9 @@ export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
   defaultVariants: { size: 'md' },
   variants: {
     size: {
-      sm: { item: 'ring-2 -ms-2', count: 'text-xs size-6 ring-2 -ms-2' },
-      md: { item: 'ring-2 -ms-2', count: 'text-sm size-8 ring-2 -ms-2' },
-      lg: { item: 'ring-2 -ms-2', count: 'text-base size-10 ring-2 -ms-2' },
+      sm: { count: 'text-xs size-6' },
+      md: { count: 'text-sm size-8' },
+      lg: { count: 'text-base size-10' },
     },
   },
 })

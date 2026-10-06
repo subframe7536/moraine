@@ -14,7 +14,7 @@ import { createStyles } from '../../provider'
 import type { SlotClassValue } from '../../theme/style-types'
 import { Icon } from '../icon'
 
-import { avatarDataAttributes, avatarRecipe } from './avatar.recipe'
+import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
 import type { AvatarProps, AvatarT } from './avatar.types'
 
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
@@ -174,7 +174,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       <Show when={badge()}>
         {(badge) => (
           <span data-slot="avatar-badge" {...resolved.styles.badge}>
-            <Icon name={badge()} />
+            <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}
       </Show>

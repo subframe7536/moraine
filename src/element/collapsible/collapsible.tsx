@@ -68,17 +68,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     },
     triggerId,
     contentId,
-    open: disclosure.open,
     toggle: toggleContent,
-    disabled: disclosure.disabled,
-    transition: disclosure.transition,
-    unmountOnHide: disclosure.unmountOnHide,
-    dataAttrs: disclosure.dataAttrs,
-    contentHeight: disclosure.contentHeight,
-    registerContentElement: disclosure.registerContentElement,
-    contentPresence: disclosure.presence,
-    triggerElement: disclosure.triggerElement,
-    setTriggerElement: disclosure.setTriggerElement,
     disclosure,
   }
 

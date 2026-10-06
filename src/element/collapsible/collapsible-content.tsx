@@ -29,13 +29,14 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'forceMount',
   ])
   const context = useCollapsibleContext()
+  const disclosure = context.disclosure
   const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'content',
     inheritedStyles: () => context.presentation,
   })
 
   const shouldRenderContent = createMemo(() =>
-    context.disclosure.shouldMount({
+    disclosure.shouldMount({
       forceMount: local.forceMount,
       unmountOnHide: local.unmountOnHide,
     }),
@@ -44,23 +45,23 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   return (
     <div
       ref={(element: HTMLElement) => {
-        onCleanup(context.registerContentElement(element))
+        onCleanup(disclosure.registerContentElement(element))
       }}
       id={context.contentId()}
       aria-labelledby={context.triggerId()}
-      aria-hidden={context.disclosure.ariaHidden()}
+      aria-hidden={disclosure.ariaHidden()}
       data-slot="collapsible-content-wrapper"
       {...collapsibleWrapperDataAttributes({
-        transition: context.transition,
-        expanded: () => context.dataAttrs()['data-expanded'],
-        closed: () => context.dataAttrs()['data-closed'],
+        transition: disclosure.transition,
+        expanded: () => disclosure.dataAttrs()['data-expanded'],
+        closed: () => disclosure.dataAttrs()['data-closed'],
       })}
-      hidden={context.disclosure.hidden()}
-      inert={context.disclosure.inert()}
+      hidden={disclosure.hidden()}
+      inert={disclosure.inert()}
       style={{
-        '--mo-collapsible-content-height': `${context.contentHeight()}px`,
-        animation: context.disclosure.initialOpen() ? 'none' : undefined,
-        height: context.disclosure.initialOpen() ? 'auto' : undefined,
+        '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
+        animation: disclosure.initialOpen() ? 'none' : undefined,
+        height: disclosure.initialOpen() ? 'auto' : undefined,
       }}
       class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
     >
@@ -69,8 +70,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           data-slot="collapsible-content"
           {...rest}
           {...collapsibleDataAttributes.content({
-            expanded: () => context.dataAttrs()['data-expanded'],
-            closed: () => context.dataAttrs()['data-closed'],
+            expanded: () => disclosure.dataAttrs()['data-expanded'],
+            closed: () => disclosure.dataAttrs()['data-closed'],
           })}
           component={local.as ?? 'div'}
           {...resolved.styles.content}

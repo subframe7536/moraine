@@ -18,9 +18,9 @@ const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'i-lucide:chevron-right'
 export function useSidebarFrameSubmenu() {
   const collapsible = useCollapsibleContext()
   return {
-    open: collapsible.open,
+    open: collapsible.disclosure.open,
     toggle: collapsible.toggle,
-    disabled: collapsible.disabled,
+    disabled: collapsible.disclosure.disabled,
   }
 }
 

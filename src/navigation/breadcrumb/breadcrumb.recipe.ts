@@ -24,7 +24,7 @@ export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
     root: 'min-w-0 relative',
     list: 'text-muted-foreground flex gap-1.5 break-words items-center',
     item: 'inline-flex items-center',
-    link: `${BREADCRUMB_LINK_CLASS} ${BREADCRUMB_DISABLED_CLASS}`,
+    link: `${BREADCRUMB_LINK_CLASS}  ${BREADCRUMB_DISABLED_CLASS}`,
     page: BREADCRUMB_PAGE_CLASS,
     leading: '',
     label: '',

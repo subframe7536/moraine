@@ -88,11 +88,20 @@ export namespace SidebarFrameT {
     'aside'
   >
 
-  export type SidebarHeaderProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
+  export interface SidebarHeaderBase {
+    children?: JSX.Element
+  }
+  export type SidebarHeaderProps = BaseProps<'div', SidebarHeaderBase, never, never, never>
 
-  export type SidebarBodyProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
+  export interface SidebarBodyBase {
+    children?: JSX.Element
+  }
+  export type SidebarBodyProps = BaseProps<'div', SidebarBodyBase, never, never, never>
 
-  export type SidebarFooterProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
+  export interface SidebarFooterBase {
+    children?: JSX.Element
+  }
+  export type SidebarFooterProps = BaseProps<'div', SidebarFooterBase, never, never, never>
 
   export interface MainBase<T extends ValidComponent = 'div'> {
     children?: JSX.Element
@@ -121,7 +130,10 @@ export namespace SidebarFrameT {
     'button'
   >
 
-  export type MenuProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
+  export interface MenuBase {
+    children?: JSX.Element
+  }
+  export type MenuProps = BaseProps<'div', MenuBase, never, never, never>
 
   export interface LabelBase<T extends ValidComponent = 'div'> {
     children?: JSX.Element
@@ -189,13 +201,10 @@ export namespace SidebarFrameT {
     'button'
   >
 
-  export type SubmenuContentProps = BaseProps<
-    'div',
-    { children?: JSX.Element },
-    never,
-    never,
-    never
-  >
+  export interface SubmenuContentBase {
+    children?: JSX.Element
+  }
+  export type SubmenuContentProps = BaseProps<'div', SubmenuContentBase, never, never, never>
 }
 
 export type SidebarFrameProps = SidebarFrameT.Props

@@ -4,6 +4,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
 
+export const AVATAR_BADGE_ICON_CLASS = 'text-[0.75em]'
+
 export const avatarDataAttributes = {
   root: createDataAttributes('status'),
   image: createDataAttributes('status'),
@@ -21,7 +23,7 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
         'text-muted-foreground font-medium rounded-full bg-muted opacity-100 flex uppercase transition-opacity items-center inset-0 justify-center absolute data-[status=loaded]:(opacity-0 pointer-events-none)',
       fallbackContent: 'shrink-0',
       badge:
-        'text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky [&>[data-slot=icon]]:text-[0.75em]',
+        'text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
     },
     defaultVariants: {
       size: 'md',

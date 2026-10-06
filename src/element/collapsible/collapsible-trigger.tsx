@@ -24,18 +24,22 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     'ref' as any,
   ])
   const context = useCollapsibleContext()
+  const disclosure = context.disclosure
   const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
   const tag: Accessor<ValidComponent> = () =>
     local.as ?? ((rest as any).href !== undefined && (rest as any).href !== null ? 'a' : 'button')
-  const disabled = () => Boolean(context.disabled() || local.disabled)
+  const disabled = () => Boolean(disclosure.disabled() || local.disabled)
 
   const root = createPolymorphicRoot({
     tag,
     ref: () => local.ref,
-    registration: { element: context.triggerElement, ref: context.setTriggerElement },
+    registration: {
+      element: disclosure.triggerElement,
+      ref: disclosure.setTriggerElement,
+    },
   })
 
   const interactionProps = useButtonInteraction(
@@ -59,10 +63,10 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       component={tag()}
       {...resolved.styles.trigger}
       aria-controls={context.contentId()}
-      aria-expanded={context.open()}
+      aria-expanded={disclosure.open()}
       {...collapsibleDataAttributes.trigger({
-        expanded: () => context.dataAttrs()['data-expanded'],
-        closed: () => context.dataAttrs()['data-closed'],
+        expanded: () => disclosure.dataAttrs()['data-expanded'],
+        closed: () => disclosure.dataAttrs()['data-closed'],
         disabled,
       })}
     >

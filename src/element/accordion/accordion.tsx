@@ -215,8 +215,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
           }
           const itemDataAttrs = accordionDataAttributes.item(itemState)
           const triggerDataAttrs = accordionDataAttributes.trigger(itemState)
-          const triggerId = createMemo(() => `${rootId()}-${itemIdSegment()}-trigger`)
-          const contentId = createMemo(() => `${rootId()}-${itemIdSegment()}-content`)
+          const triggerId = () => `${rootId()}-${itemIdSegment()}-trigger`
+          const contentId = () => `${rootId()}-${itemIdSegment()}-content`
           let spaceKeyDown = false
 
           function Content(): JSX.Element {

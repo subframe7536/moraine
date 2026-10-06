@@ -2,7 +2,6 @@ import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { DisclosureState } from '../../shared/disclosure-state'
-import type { createTransitionPresence } from '../../shared/transition-presence'
 
 import type { CollapsibleT } from './collapsible.types'
 
@@ -10,21 +9,7 @@ export interface CollapsibleContext {
   presentation: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }
   triggerId: Accessor<string>
   contentId: Accessor<string>
-  open: Accessor<boolean>
   toggle: () => void
-  disabled: Accessor<boolean>
-  transition: Accessor<boolean>
-  unmountOnHide: Accessor<boolean>
-  dataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-disabled'?: string
-    'data-expanded'?: string
-  }>
-  contentHeight: Accessor<number>
-  registerContentElement: (element: HTMLElement) => () => void
-  contentPresence: ReturnType<typeof createTransitionPresence>
-  triggerElement: Accessor<HTMLElement | undefined>
-  setTriggerElement: (element: HTMLElement | undefined) => void
   disclosure: DisclosureState
 }
 

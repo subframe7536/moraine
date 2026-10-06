@@ -18,8 +18,8 @@ export const accordionDataAttributes = {
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {
   base: {
-    root: `flex flex-col w-full ${DATA_DISABLED_CLASS}`,
-    item: `[&:not(:last-child)]:(border-b border-border) ${DATA_DISABLED_CLASS}`,
+    root: `flex flex-col w-full divide-border divide-y ${DATA_DISABLED_CLASS}`,
+    item: DATA_DISABLED_CLASS,
     header: 'flex',
     trigger: `group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative ${FOCUS_VISIBLE_CLASS}  ${DISABLED_CLASS} cursor-pointer hover:underline`,
     leading: 'mr-1.5 shrink-0',
