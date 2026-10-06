@@ -60,36 +60,32 @@ export function ResponsiveUsage() {
               </div>
             </div>
 
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel>Platform</SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <For each={navPlatform}>
-                  {(item) => (
-                    <SidebarFrame.Item href={item.href} leading={item.icon} isActive={item.active}>
-                      <span class="flex-1 truncate">{item.label}</span>
-                      <Show when={item.badge}>
-                        <Badge size="sm" variant="subtle" class="ml-auto shrink-0">
-                          {item.badge}
-                        </Badge>
-                      </Show>
-                    </SidebarFrame.Item>
-                  )}
-                </For>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label>Platform</SidebarFrame.Label>
+              <For each={navPlatform}>
+                {(item) => (
+                  <SidebarFrame.Item href={item.href} leading={item.icon} isActive={item.active}>
+                    <span class="flex-1 truncate">{item.label}</span>
+                    <Show when={item.badge}>
+                      <Badge size="sm" variant="subtle" class="ml-auto shrink-0">
+                        {item.badge}
+                      </Badge>
+                    </Show>
+                  </SidebarFrame.Item>
+                )}
+              </For>
+            </SidebarFrame.Menu>
 
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel>Configuration</SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <For each={navSettings}>
-                  {(item) => (
-                    <SidebarFrame.Item href={item.href} leading={item.icon}>
-                      {item.label}
-                    </SidebarFrame.Item>
-                  )}
-                </For>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label>Configuration</SidebarFrame.Label>
+              <For each={navSettings}>
+                {(item) => (
+                  <SidebarFrame.Item href={item.href} leading={item.icon}>
+                    {item.label}
+                  </SidebarFrame.Item>
+                )}
+              </For>
+            </SidebarFrame.Menu>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="p-2 border-t border-border/60 flex items-center justify-between">

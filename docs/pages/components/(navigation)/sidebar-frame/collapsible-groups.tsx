@@ -27,34 +27,35 @@ export function CollapsibleGroups() {
           </SidebarFrame.SidebarHeader>
 
           <SidebarFrame.SidebarBody class="p-2 space-y-3">
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label class="text-[10px] tracking-wider font-semibold uppercase">
                 Overview
-              </SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <SidebarFrame.Item
-                  leading="i-lucide:compass"
-                  isActive={activePage() === 'Getting Started'}
-                  onClick={() => setActivePage('Getting Started')}
-                >
-                  Getting Started
-                </SidebarFrame.Item>
-                <SidebarFrame.Item
-                  leading="i-lucide:rocket"
-                  isActive={activePage() === 'Quickstart'}
-                  onClick={() => setActivePage('Quickstart')}
-                >
-                  Quickstart
-                </SidebarFrame.Item>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+              </SidebarFrame.Label>
+              <SidebarFrame.Item
+                leading="i-lucide:compass"
+                isActive={activePage() === 'Getting Started'}
+                onClick={() => setActivePage('Getting Started')}
+              >
+                Getting Started
+              </SidebarFrame.Item>
+              <SidebarFrame.Item
+                leading="i-lucide:rocket"
+                isActive={activePage() === 'Quickstart'}
+                onClick={() => setActivePage('Quickstart')}
+              >
+                Quickstart
+              </SidebarFrame.Item>
+            </SidebarFrame.Menu>
 
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label class="text-[10px] tracking-wider font-semibold uppercase">
                 Architecture
-              </SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <SidebarFrame.Sub label="Routing" leading="i-lucide:route" defaultOpen transition>
+              </SidebarFrame.Label>
+              <SidebarFrame.Submenu defaultOpen transition>
+                <SidebarFrame.SubmenuTrigger leading="i-lucide:route">
+                  Routing
+                </SidebarFrame.SubmenuTrigger>
+                <SidebarFrame.SubmenuContent>
                   <For each={['Defining Routes', 'Pages and Layouts', 'Navigation & Links']}>
                     {(item) => (
                       <SidebarFrame.Item
@@ -65,9 +66,14 @@ export function CollapsibleGroups() {
                       </SidebarFrame.Item>
                     )}
                   </For>
-                </SidebarFrame.Sub>
+                </SidebarFrame.SubmenuContent>
+              </SidebarFrame.Submenu>
 
-                <SidebarFrame.Sub label="Data Fetching" leading="i-lucide:database" transition>
+              <SidebarFrame.Submenu transition>
+                <SidebarFrame.SubmenuTrigger leading="i-lucide:database">
+                  Data Fetching
+                </SidebarFrame.SubmenuTrigger>
+                <SidebarFrame.SubmenuContent>
                   <For each={['Server Actions', 'Streaming & Suspense', 'Caching & Revalidation']}>
                     {(item) => (
                       <SidebarFrame.Item
@@ -78,9 +84,9 @@ export function CollapsibleGroups() {
                       </SidebarFrame.Item>
                     )}
                   </For>
-                </SidebarFrame.Sub>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+                </SidebarFrame.SubmenuContent>
+              </SidebarFrame.Submenu>
+            </SidebarFrame.Menu>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="text-xs text-muted-foreground p-2.5 border-t border-border/60 flex items-center justify-between">

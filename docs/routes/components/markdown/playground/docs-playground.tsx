@@ -2,7 +2,7 @@ import { For, Show, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { Portal } from 'solid-js/web'
 
-import { Badge, Button, Icon, Switch } from '../../../../../src'
+import { Badge, Button, Icon, Switch, cn } from '../../../../../src'
 import { createId } from '../../../../../src/utils'
 import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
 import { ComponentDocContext } from '../component-doc.context'
@@ -185,7 +185,12 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
                                 }}
                               >
                                 <Show when={index() === 0}>
-                                  <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute -top-6">
+                                  <span
+                                    class={cn(
+                                      'text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute',
+                                      box.top < 24 ? 'mt-1 top-full' : '-top-6',
+                                    )}
+                                  >
                                     {slots.activeSlot()}
                                   </span>
                                 </Show>

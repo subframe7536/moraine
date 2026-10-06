@@ -2,7 +2,6 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Collapsible } from '../../element/collapsible'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { SidebarFrame } from './sidebar-frame'
@@ -97,8 +96,8 @@ describe('SidebarFrame', () => {
       return <span data-testid="sidebar-child">Navigation</span>
     }
     const screen = render(() => (
-      <SidebarFrame isMobile={mobile()}>
-        <SidebarFrame.Sidebar id="unique-sidebar" ref={ref}>
+      <SidebarFrame isMobile={mobile()} sidebarId="unique-sidebar">
+        <SidebarFrame.Sidebar ref={ref}>
           <Child />
         </SidebarFrame.Sidebar>
         <SidebarFrame.Main>
@@ -113,7 +112,6 @@ describe('SidebarFrame', () => {
     }
     assertUnique()
     setMobile(true)
-    await waitFor(assertUnique)
     await waitFor(() =>
       expect(
         screen.container
@@ -255,11 +253,23 @@ describe('SidebarFrame', () => {
     await waitFor(() =>
       expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toBeNull(),
     )
-    expect(document.body.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(1)
+    expect(document.body.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(0)
     fireEvent.click(screen.getByText('Toggle'))
     await waitFor(() =>
       expect(document.body.querySelectorAll('[data-slot="sidebar-frame-sidebar"]')).toHaveLength(1),
     )
+  })
+
+  test('queries matchMedia with the configured breakpoint', async () => {
+    const matchMedia = createMatchMediaMock(false)
+    window.matchMedia = matchMedia
+    render(() => (
+      <SidebarFrame breakpoint={1024}>
+        <FrameContent />
+      </SidebarFrame>
+    ))
+
+    await waitFor(() => expect(matchMedia).toHaveBeenCalledWith('(max-width: 1024px)'))
   })
 
   test('ignores matchMedia updates when isMobile is controlled', async () => {
@@ -384,7 +394,7 @@ describe('SidebarFrame.Trigger', () => {
     expect(trigger.getAttribute('data-open')).toBe('')
     expect(trigger.hasAttribute('data-closed')).toBe(false)
     expect(trigger.hasAttribute('aria-haspopup')).toBe(false)
-    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    expect(trigger.getAttribute('aria-controls')).toBeTruthy()
   })
 
   test('reflects initial closed state when mobile', () => {
@@ -556,34 +566,34 @@ describe('SidebarFrame.Trigger', () => {
   })
 })
 
-describe('SidebarFrame.Group and SidebarFrame.GroupLabel', () => {
+describe('SidebarFrame.Label', () => {
   test('renders default elements and attributes', () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Group>
-          <SidebarFrame.GroupLabel>Group Title</SidebarFrame.GroupLabel>
-        </SidebarFrame.Group>
+        <SidebarFrame.Menu>
+          <SidebarFrame.Label>Section Title</SidebarFrame.Label>
+        </SidebarFrame.Menu>
       </SidebarFrame>
     ))
-    const group = screen.container.querySelector('[data-slot="sidebar-frame-group"]')
-    expect(group).not.toBeNull()
-    const label = screen.container.querySelector('[data-slot="sidebar-frame-group-label"]')
+    const menu = screen.container.querySelector('[data-slot="sidebar-frame-menu"]')
+    expect(menu).not.toBeNull()
+    const label = screen.container.querySelector('[data-slot="sidebar-frame-label"]')
     expect(label).not.toBeNull()
     expect(label?.tagName).toBe('DIV')
-    expect(label?.textContent).toBe('Group Title')
+    expect(label?.textContent).toBe('Section Title')
   })
 
-  test('GroupLabel as="h2" renders h2', () => {
+  test('Label as="h2" renders h2', () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Group>
-          <SidebarFrame.GroupLabel as="h2">Section Heading</SidebarFrame.GroupLabel>
-        </SidebarFrame.Group>
+        <SidebarFrame.Menu>
+          <SidebarFrame.Label as="h2">Section Heading</SidebarFrame.Label>
+        </SidebarFrame.Menu>
       </SidebarFrame>
     ))
     const heading = screen.getByRole('heading', { level: 2, name: 'Section Heading' })
     expect(heading.tagName).toBe('H2')
-    expect(heading.getAttribute('data-slot')).toBe('sidebar-frame-group-label')
+    expect(heading.getAttribute('data-slot')).toBe('sidebar-frame-label')
   })
 })
 
@@ -745,37 +755,107 @@ describe('SidebarFrame.Item', () => {
     const button = screen.getByRole('button', { name: 'Mobile Item' })
     expect(button.getAttribute('data-mobile')).toBe('')
   })
-})
 
-describe('SidebarFrame.Sub', () => {
-  test('Sub with label renders a trigger and collapsible content container', async () => {
+  test('Item with actions renders wrapper with trigger and actions container', () => {
+    const handleItemClick = vi.fn()
+    const handleActionClick = vi.fn()
+
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Sub label="Submenu">
-          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+        <SidebarFrame.Item
+          onClick={handleItemClick}
+          actions={
+            <button type="button" onClick={handleActionClick} aria-label="More options">
+              More
+            </button>
+          }
+        >
+          Project
+        </SidebarFrame.Item>
       </SidebarFrame>
     ))
-    const sub = screen.container.querySelector('[data-slot="sidebar-frame-sub"]')
+
+    const wrapper = screen.container.querySelector('[data-slot="sidebar-frame-item"]')
+    expect(wrapper).not.toBeNull()
+    expect(wrapper?.tagName).toBe('DIV')
+
+    const trigger = screen.container.querySelector('[data-slot="sidebar-frame-item-trigger"]')
+    expect(trigger).not.toBeNull()
+    expect(trigger?.tagName).toBe('BUTTON')
+    expect(trigger?.textContent).toBe('Project')
+
+    const actionsContainer = screen.container.querySelector(
+      '[data-slot="sidebar-frame-item-actions"]',
+    )
+    expect(actionsContainer).not.toBeNull()
+
+    const actionButton = screen.getByRole('button', { name: 'More options' })
+    expect(actionButton).not.toBeNull()
+
+    fireEvent.click(actionButton)
+    expect(handleActionClick).toHaveBeenCalledTimes(1)
+    expect(handleItemClick).not.toHaveBeenCalled()
+
+    fireEvent.click(trigger!)
+    expect(handleItemClick).toHaveBeenCalledTimes(1)
+  })
+
+  test('Item with actions and href renders anchor trigger as sibling of actions', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Item href="/project/1" actions={<button type="button">Options</button>}>
+          Project Link
+        </SidebarFrame.Item>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('link', { name: 'Project Link' })
+    expect(trigger.tagName).toBe('A')
+    expect(trigger.getAttribute('href')).toBe('/project/1')
+
+    const actionButton = screen.getByRole('button', { name: 'Options' })
+    expect(actionButton.tagName).toBe('BUTTON')
+
+    expect(trigger.contains(actionButton)).toBe(false)
+  })
+})
+
+describe('SidebarFrame.Submenu', () => {
+  test('Submenu with SubmenuTrigger renders a button trigger and collapsible content', async () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Submenu>
+          <SidebarFrame.SubmenuTrigger>Submenu</SidebarFrame.SubmenuTrigger>
+          <SidebarFrame.SubmenuContent>
+            <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+          </SidebarFrame.SubmenuContent>
+        </SidebarFrame.Submenu>
+      </SidebarFrame>
+    ))
+    const sub = screen.container.querySelector('[data-slot="sidebar-frame-submenu"]')
     expect(sub).not.toBeNull()
     const trigger = screen.getByRole('button', { name: 'Submenu' })
     expect(trigger).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="sidebar-frame-sub-content"]')).toBeNull()
+    expect(trigger.getAttribute('data-slot')).toBe('sidebar-frame-submenu-trigger')
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-submenu-content"]')).toBeNull()
 
     fireEvent.click(trigger)
     await waitFor(() => {
       expect(
-        screen.container.querySelector('[data-slot="sidebar-frame-sub-content"]'),
+        screen.container.querySelector('[data-slot="sidebar-frame-submenu-content"]'),
       ).not.toBeNull()
     })
   })
 
-  test('Sub defaults to closed and hides content until the trigger is clicked', async () => {
+  test('Submenu defaults to closed and hides content until the trigger is clicked', async () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Sub label="Submenu">
-          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+        <SidebarFrame.Submenu>
+          <SidebarFrame.SubmenuTrigger>Submenu</SidebarFrame.SubmenuTrigger>
+          <SidebarFrame.SubmenuContent>
+            <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+          </SidebarFrame.SubmenuContent>
+        </SidebarFrame.Submenu>
       </SidebarFrame>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
@@ -788,12 +868,15 @@ describe('SidebarFrame.Sub', () => {
     expect(screen.getByRole('button', { name: 'Sub Item' })).not.toBeNull()
   })
 
-  test('Sub with disabled marks the trigger disabled and prevents toggling', () => {
+  test('Submenu with disabled marks the trigger disabled and prevents toggling', () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Sub label="Submenu" disabled>
-          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+        <SidebarFrame.Submenu disabled>
+          <SidebarFrame.SubmenuTrigger>Submenu</SidebarFrame.SubmenuTrigger>
+          <SidebarFrame.SubmenuContent>
+            <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+          </SidebarFrame.SubmenuContent>
+        </SidebarFrame.Submenu>
       </SidebarFrame>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
@@ -804,36 +887,51 @@ describe('SidebarFrame.Sub', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('Sub with triggerRender renders the custom trigger and still toggles content', async () => {
+  test('link and disclosure stay separate when composed as Item + icon SubmenuTrigger', async () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Sub
-          label="Custom Architecture"
-          triggerRender={(ctx) => (
-            <SidebarFrame.Item as={Collapsible.Trigger} disabled={ctx.disabled}>
-              {ctx.label} ({ctx.open() ? 'open' : 'closed'})
+        <SidebarFrame.Submenu>
+          <div class="flex gap-1 items-center">
+            <SidebarFrame.Item href="/docs/installation" isActive class="flex-1">
+              Installation
             </SidebarFrame.Item>
-          )}
-        >
-          <SidebarFrame.Item>Nested Item</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+            <SidebarFrame.SubmenuTrigger aria-label="Toggle Installation submenu" />
+          </div>
+          <SidebarFrame.SubmenuContent>
+            <SidebarFrame.Item href="/docs/unocss">UnoCSS</SidebarFrame.Item>
+          </SidebarFrame.SubmenuContent>
+        </SidebarFrame.Submenu>
       </SidebarFrame>
     ))
-    const trigger = screen.getByRole('button', { name: 'Custom Architecture (closed)' })
-    expect(trigger).not.toBeNull()
+    const link = screen.getByRole('link', { name: 'Installation' })
+    expect(link.tagName).toBe('A')
+    expect(link.getAttribute('href')).toBe('/docs/installation')
+    expect(link.getAttribute('aria-current')).toBe('page')
+    expect(link.hasAttribute('aria-expanded')).toBe(false)
 
-    fireEvent.click(trigger)
+    const chevron = screen.getByRole('button', { name: 'Toggle Installation submenu' })
+    expect(chevron.getAttribute('aria-expanded')).toBe('false')
+    expect(chevron.getAttribute('data-slot')).toBe('sidebar-frame-submenu-trigger')
+
+    fireEvent.click(link)
+    expect(chevron.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.click(chevron)
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Custom Architecture (open)' })).not.toBeNull()
+      expect(chevron.getAttribute('aria-expanded')).toBe('true')
     })
+    expect(screen.getByRole('link', { name: 'UnoCSS' })).not.toBeNull()
   })
 
   test('chevron rotation is driven by trigger expanded state', async () => {
     const screen = render(() => (
       <SidebarFrame>
-        <SidebarFrame.Sub label="Submenu">
-          <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+        <SidebarFrame.Submenu>
+          <SidebarFrame.SubmenuTrigger>Submenu</SidebarFrame.SubmenuTrigger>
+          <SidebarFrame.SubmenuContent>
+            <SidebarFrame.Item>Sub Item</SidebarFrame.Item>
+          </SidebarFrame.SubmenuContent>
+        </SidebarFrame.Submenu>
       </SidebarFrame>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
@@ -848,43 +946,192 @@ describe('SidebarFrame.Sub', () => {
     const trailing = trigger.querySelector('[data-slot="sidebar-frame-item-trailing"]')
     expect(trailing?.className).toContain('group-data-[expanded]:rotate-90')
   })
+})
 
-  test('Sub with href renders an anchor trigger, supports isActive, and toggles expanded', async () => {
+describe('SidebarFrame open state', () => {
+  test('preserves desktop open state across mobile breakpoint changes', async () => {
+    const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
-      <SidebarFrame>
-        <SidebarFrame.Sub
-          label="Installation"
-          href="/docs/installation"
-          isActive
-          triggerClass="custom-trigger"
-        >
-          <SidebarFrame.Item href="/docs/unocss">UnoCSS</SidebarFrame.Item>
-        </SidebarFrame.Sub>
+      <SidebarFrame isMobile={mobile()}>
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
       </SidebarFrame>
     ))
-    const link = screen.getByRole('link', { name: 'Installation' })
-    expect(link.tagName).toBe('A')
-    expect(link.getAttribute('href')).toBe('/docs/installation')
-    expect(link.getAttribute('aria-current')).toBe('page')
-    expect(link.getAttribute('data-active')).toBe('')
-    expect(link.className).toContain('custom-trigger')
-    expect(link.getAttribute('aria-expanded')).toBe('false')
 
-    fireEvent.click(link)
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    expect(
+      screen.container
+        .querySelector('[data-slot="sidebar-frame-sidebar"]')
+        ?.getAttribute('data-closed'),
+    ).toBe('')
+
+    setMobile(true)
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-expanded')).toBe(
+        'false',
+      ),
+    )
+
+    setMobile(false)
+    await finishExitMotion()
     await waitFor(() => {
-      expect(link.getAttribute('aria-expanded')).toBe('true')
+      expect(
+        screen.container
+          .querySelector('[data-slot="sidebar-frame-sidebar"]')
+          ?.getAttribute('data-closed'),
+      ).toBe('')
+      expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-expanded')).toBe(
+        'false',
+      )
     })
-    expect(screen.getByRole('link', { name: 'UnoCSS' })).not.toBeNull()
+  })
+
+  test('supports controlled desktop open state', () => {
+    const [open, setOpen] = createSignal(true)
+    const onOpenChange = vi.fn((next: boolean) => setOpen(next))
+    const screen = render(() => (
+      <SidebarFrame isMobile={false} open={open()} onOpenChange={onOpenChange}>
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false)
+    expect(
+      screen.container
+        .querySelector('[data-slot="sidebar-frame-sidebar"]')
+        ?.getAttribute('data-closed'),
+    ).toBe('')
+  })
+
+  test('exposes root data attributes for side and variant', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false} side="right" variant="inset">
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+    const root = screen.container.querySelector('[data-slot="sidebar-frame"]')
+    expect(root?.getAttribute('data-side')).toBe('right')
+    expect(root?.getAttribute('data-variant')).toBe('inset')
+    expect(root?.hasAttribute('data-mobile')).toBe(false)
+  })
+})
+
+describe('SidebarFrame closeOnSelect', () => {
+  test('closes the mobile sheet after activating an item with href', async () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar>
+          <SidebarFrame.Item href="/docs">Docs</SidebarFrame.Item>
+        </SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+
+    fireEvent.click(document.body.querySelector('a[href="/docs"]')!)
+    await finishExitMotion()
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
+  })
+
+  test('does not close the mobile sheet for items without href', async () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar>
+          <SidebarFrame.Item>Action</SidebarFrame.Item>
+        </SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+
+    fireEvent.click(
+      document.body.querySelector('[data-slot="sidebar-frame-item"]') as HTMLButtonElement,
+    )
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
+  })
+
+  test('keeps the mobile sheet open when closeOnSelect is false', async () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar>
+          <SidebarFrame.Item href="/docs" closeOnSelect={false}>
+            Docs
+          </SidebarFrame.Item>
+        </SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).not.toBeNull())
+
+    fireEvent.click(document.body.querySelector('a[href="/docs"]')!)
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
+  })
+})
+
+describe('SidebarFrame landmarks', () => {
+  test('Sidebar defaults to aside and Main defaults to div', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>Content</SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')?.tagName).toBe(
+      'ASIDE',
+    )
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-main"]')?.tagName).toBe('DIV')
+  })
+
+  test('Trigger aria-controls matches the sidebar id', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false} sidebarId="app-sidebar">
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+    expect(screen.getByRole('button', { name: 'Toggle' }).getAttribute('aria-controls')).toBe(
+      'app-sidebar',
+    )
+    expect(screen.container.querySelector('#app-sidebar')).not.toBeNull()
   })
 })
 
 describe('SidebarFrame context validation', () => {
   test.each([
-    ['Group', () => <SidebarFrame.Group />],
-    ['GroupLabel', () => <SidebarFrame.GroupLabel />],
     ['Menu', () => <SidebarFrame.Menu />],
+    ['Label', () => <SidebarFrame.Label />],
     ['Item', () => <SidebarFrame.Item />],
-    ['Sub', () => <SidebarFrame.Sub label="Sub" />],
+    [
+      'Submenu',
+      () => (
+        <SidebarFrame.Submenu>
+          <SidebarFrame.SubmenuTrigger>Sub</SidebarFrame.SubmenuTrigger>
+        </SidebarFrame.Submenu>
+      ),
+    ],
   ])('%s throws when rendered outside SidebarFrame', (_name, component) => {
     expect(() => render(component)).toThrow(
       'useSidebarFrameContext must be used within <SidebarFrameProvider />',

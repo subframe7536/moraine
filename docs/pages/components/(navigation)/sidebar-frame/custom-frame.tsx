@@ -52,20 +52,18 @@ export function FrameRender() {
       <SidebarFrame isMobile={false} class="flex-1 h-auto min-h-0">
         <SidebarFrame.Sidebar class="border-r border-border/60 bg-card/30 w-56">
           <SidebarFrame.SidebarBody class="p-2">
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold uppercase">
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label class="text-[10px] tracking-wider font-semibold uppercase">
                 Infrastructure
-              </SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <For each={cloudNav}>
-                  {(item) => (
-                    <SidebarFrame.Item href="#" leading={item.icon} isActive={item.active}>
-                      {item.label}
-                    </SidebarFrame.Item>
-                  )}
-                </For>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+              </SidebarFrame.Label>
+              <For each={cloudNav}>
+                {(item) => (
+                  <SidebarFrame.Item href="#" leading={item.icon} isActive={item.active}>
+                    {item.label}
+                  </SidebarFrame.Item>
+                )}
+              </For>
+            </SidebarFrame.Menu>
           </SidebarFrame.SidebarBody>
 
           <SidebarFrame.SidebarFooter class="text-[11px] text-muted-foreground p-2 border-t border-border/60 flex items-center justify-between">

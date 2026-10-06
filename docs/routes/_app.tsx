@@ -2,16 +2,7 @@ import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import { createRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  Suspense,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onMount,
-  untrack,
-} from 'solid-js'
+import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
 import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
 import { createMediaQuery } from '../../src/utils'
@@ -93,24 +84,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   function DocsShell() {
     const frame = useSidebarFrame()
-    const [mobileSidebarReady, setMobileSidebarReady] = createSignal(false)
-
-    onMount(() => {
-      // SidebarFrame resolves its media query in a microtask. Mount the mobile Sheet only
-      // after its open state has caught up, so hydration cannot play a closing animation.
-      queueMicrotask(() => setMobileSidebarReady(true))
-    })
-
-    createEffect(
-      on(
-        () => location.pathname,
-        () => {
-          if (frame.isMobile()) {
-            frame.setOpen(false)
-          }
-        },
-      ),
-    )
 
     return (
       <>
@@ -131,9 +104,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         />
 
         <div class="flex flex-1 min-h-0 w-full overflow-hidden">
-          <Show
-            when={(!isLanding() || frame.isMobile()) && (!frame.isMobile() || mobileSidebarReady())}
-          >
+          <Show when={!isLanding() || frame.isMobile()}>
             <SidebarFrame.Sidebar data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
                 <SidebarFrame.SidebarHeader class="p-0 shrink-0">

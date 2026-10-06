@@ -116,6 +116,7 @@ export {
   CommandPalette,
   SidebarFrame,
   useSidebarFrame,
+  useSidebarFrameSubmenu,
   Pagination,
   Stepper,
   Tabs,

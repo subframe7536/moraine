@@ -92,27 +92,25 @@ export function HeaderFooterSlots() {
 
           {/* Body slot: Projects list */}
           <SidebarFrame.SidebarBody class="p-2">
-            <SidebarFrame.Group>
-              <SidebarFrame.GroupLabel class="text-[10px] tracking-wider font-semibold flex uppercase items-center justify-between">
+            <SidebarFrame.Menu>
+              <SidebarFrame.Label class="text-[10px] tracking-wider font-semibold flex uppercase items-center justify-between">
                 <span>Active Projects</span>
                 <Badge size="sm" variant="outline">
                   {projects.length}
                 </Badge>
-              </SidebarFrame.GroupLabel>
-              <SidebarFrame.Menu>
-                <For each={projects}>
-                  {(proj) => (
-                    <SidebarFrame.Item
-                      leading={proj.icon}
-                      isActive={currentProject() === proj.name}
-                      onClick={() => setCurrentProject(proj.name)}
-                    >
-                      {proj.name}
-                    </SidebarFrame.Item>
-                  )}
-                </For>
-              </SidebarFrame.Menu>
-            </SidebarFrame.Group>
+              </SidebarFrame.Label>
+              <For each={projects}>
+                {(proj) => (
+                  <SidebarFrame.Item
+                    leading={proj.icon}
+                    isActive={currentProject() === proj.name}
+                    onClick={() => setCurrentProject(proj.name)}
+                  >
+                    {proj.name}
+                  </SidebarFrame.Item>
+                )}
+              </For>
+            </SidebarFrame.Menu>
           </SidebarFrame.SidebarBody>
 
           {/* Footer slot: User Profile Dropdown */}

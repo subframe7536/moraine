@@ -19,6 +19,16 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   const tag = createMemo(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
   const disabled = () => Boolean(local.disabled)
+  const ariaControls = () => {
+    const explicit = (rest as { 'aria-controls'?: string })['aria-controls']
+    if (explicit !== undefined) {
+      return explicit
+    }
+    if (context.isMobile() && !context.isOpen()) {
+      return undefined
+    }
+    return context.sidebarId()
+  }
 
   const interactionProps = useButtonInteraction(
     {
@@ -40,6 +50,7 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
       component={tag()}
       class={local.class}
       style={local.style}
+      aria-controls={ariaControls()}
       aria-expanded={context.isOpen()}
       {...sidebarFrameDataAttributes.trigger({
         open: context.isOpen,

@@ -13,17 +13,20 @@ function FixtureContent() {
           <span>Header</span>
         </SidebarFrame.SidebarHeader>
         <SidebarFrame.SidebarBody>
-          <SidebarFrame.Group>
-            <SidebarFrame.GroupLabel as="h2">Navigation</SidebarFrame.GroupLabel>
-            <SidebarFrame.Menu>
-              <SidebarFrame.Item leading="i-lucide:house" href="/home">
-                Home
-              </SidebarFrame.Item>
-              <SidebarFrame.Sub label="Submenu" leading="i-lucide:folder">
+          <SidebarFrame.Menu>
+            <SidebarFrame.Label as="h2">Navigation</SidebarFrame.Label>
+            <SidebarFrame.Item leading="i-lucide:house" href="/home">
+              Home
+            </SidebarFrame.Item>
+            <SidebarFrame.Submenu>
+              <SidebarFrame.SubmenuTrigger leading="i-lucide:folder">
+                Submenu
+              </SidebarFrame.SubmenuTrigger>
+              <SidebarFrame.SubmenuContent>
                 <SidebarFrame.Item href="/sub-item">Sub Item</SidebarFrame.Item>
-              </SidebarFrame.Sub>
-            </SidebarFrame.Menu>
-          </SidebarFrame.Group>
+              </SidebarFrame.SubmenuContent>
+            </SidebarFrame.Submenu>
+          </SidebarFrame.Menu>
         </SidebarFrame.SidebarBody>
         <SidebarFrame.SidebarFooter>
           <span>Footer</span>
@@ -39,7 +42,7 @@ function FixtureContent() {
 
 export function renderSidebarFrameFixture(): string {
   return renderToString(() => (
-    <SidebarFrame>
+    <SidebarFrame sidebarId="sidebar-frame-fixture">
       <FixtureContent />
     </SidebarFrame>
   ))

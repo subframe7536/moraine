@@ -19,14 +19,11 @@ export interface SidebarFrameStyleSlot<T = unknown> {
   /** Main application content region. */
   main?: T
 
-  /** Section grouping container. */
-  group?: T
-
-  /** Section heading. */
-  groupLabel?: T
-
-  /** Menu list container. */
+  /** Navigation section / list container. */
   menu?: T
+
+  /** Section heading within a menu. */
+  label?: T
 
   /** Interactive nav item. */
   item?: T
@@ -40,11 +37,17 @@ export interface SidebarFrameStyleSlot<T = unknown> {
   /** Trailing icon for nav item. */
   itemTrailing?: T
 
-  /** Submenu container. */
-  sub?: T
+  /** Actions container for nav item. */
+  itemActions?: T
 
-  /** Submenu collapsible content. */
-  subContent?: T
+  /** Expandable sub-navigation container. */
+  submenu?: T
+
+  /** Trigger button for sub-navigation. */
+  submenuTrigger?: T
+
+  /** Collapsible content for sub-navigation. */
+  submenuContent?: T
 }
 
 export interface SidebarFrameStyleVariant {

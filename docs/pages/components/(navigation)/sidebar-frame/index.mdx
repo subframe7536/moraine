@@ -11,11 +11,12 @@ api:
       SidebarFooter,
       Main,
       Trigger,
-      Group,
-      GroupLabel,
       Menu,
+      Label,
       Item,
-      Sub,
+      Submenu,
+      SubmenuTrigger,
+      SubmenuContent,
     ]
 sidebar:
   order: 6
@@ -23,8 +24,17 @@ search:
   tags: [app shell, layout, navigation, mobile, sidebar, drawer, admin dashboard]
 ---
 
-import { For } from 'solid-js'
-import { Avatar, Badge, Breadcrumb, Button, Icon, Separator, SidebarFrame } from '@src'
+import { For, createSignal } from 'solid-js'
+import {
+  Avatar,
+  Badge,
+  Breadcrumb,
+  Button,
+  DropdownMenu,
+  Icon,
+  Separator,
+  SidebarFrame,
+} from '@src'
 
 `SidebarFrame` is both the state provider and desktop layout root. `SidebarFrame.Sidebar` renders inline on desktop and automatically moves its content into a mobile Sheet on smaller viewports.
 
@@ -38,15 +48,13 @@ export function Example() {
     <SidebarFrame>
       <SidebarFrame.Sidebar>
         <SidebarFrame.SidebarBody>
-          <SidebarFrame.Group>
-            <SidebarFrame.GroupLabel>Navigation</SidebarFrame.GroupLabel>
-            <SidebarFrame.Menu>
-              <SidebarFrame.Item leading="i-lucide:home" isActive>
-                Home
-              </SidebarFrame.Item>
-              <SidebarFrame.Item leading="i-lucide:settings">Settings</SidebarFrame.Item>
-            </SidebarFrame.Menu>
-          </SidebarFrame.Group>
+          <SidebarFrame.Menu>
+            <SidebarFrame.Label>Navigation</SidebarFrame.Label>
+            <SidebarFrame.Item leading="i-lucide:home" isActive>
+              Home
+            </SidebarFrame.Item>
+            <SidebarFrame.Item leading="i-lucide:settings">Settings</SidebarFrame.Item>
+          </SidebarFrame.Menu>
         </SidebarFrame.SidebarBody>
       </SidebarFrame.Sidebar>
       <SidebarFrame.Main>Content</SidebarFrame.Main>
@@ -83,66 +91,308 @@ export function Example() {
   ]}
 >
   {(props) => {
-    const navItems = [
-      { label: 'Dashboard', icon: 'i-lucide:layout-dashboard', active: true },
-      { label: 'Analytics', icon: 'i-lucide:bar-chart-3' },
-      { label: 'Projects', icon: 'i-lucide:folder-kanban' },
-      { label: 'Settings', icon: 'i-lucide:settings' },
+    const data = {
+      user: {
+        name: 'maple',
+        email: 'm@example.com',
+      },
+      teams: [
+        {
+          name: 'Acme Inc',
+          logo: 'i-lucide:gallery-vertical-end',
+          plan: 'Enterprise',
+        },
+        {
+          name: 'Acme Corp.',
+          logo: 'i-lucide:audio-waveform',
+          plan: 'Startup',
+        },
+        {
+          name: 'Evil Corp.',
+          logo: 'i-lucide:command',
+          plan: 'Free',
+        },
+      ],
+      navMain: [
+        {
+          title: 'Playground',
+          icon: 'i-lucide:square-terminal',
+          items: [
+            { title: 'History', url: '#' },
+            { title: 'Starred', url: '#' },
+            { title: 'Settings', url: '#' },
+          ],
+        },
+        {
+          title: 'Models',
+          icon: 'i-lucide:bot',
+          defaultOpen: true,
+          items: [
+            { title: 'Genesis', url: '#' },
+            { title: 'Explorer', url: '#' },
+            { title: 'Quantum', url: '#' },
+          ],
+        },
+        {
+          title: 'Documentation',
+          icon: 'i-lucide:book-open',
+          defaultOpen: true,
+          items: [
+            { title: 'Introduction', url: '#' },
+            { title: 'Get Started', url: '#' },
+            { title: 'Tutorials', url: '#' },
+            { title: 'Changelog', url: '#' },
+          ],
+        },
+        {
+          title: 'Settings',
+          icon: 'i-lucide:settings-2',
+          items: [
+            { title: 'General', url: '#' },
+            { title: 'Team', url: '#' },
+            { title: 'Billing', url: '#' },
+            { title: 'Limits', url: '#' },
+          ],
+        },
+      ],
+      projects: [
+        {
+          name: 'Design Engineering',
+          url: '#',
+          icon: 'i-lucide:frame',
+        },
+        {
+          name: 'Sales & Marketing',
+          url: '#',
+          icon: 'i-lucide:pie-chart',
+        },
+        {
+          name: 'Travel',
+          url: '#',
+          icon: 'i-lucide:map',
+        },
+      ],
+    }
+
+    const [activeTeam, setActiveTeam] = createSignal(data.teams[0])
+
+    const teamMenuItems = () => [
+      ...data.teams.map((team, index) => ({
+        label: team.name,
+        icon: team.logo,
+        kbds: [`⌘${index + 1}`],
+        onSelect: () => setActiveTeam(team),
+      })),
+      { type: 'separator' },
+      {
+        label: 'Add team',
+        icon: 'i-lucide:plus',
+        onSelect: () => {},
+      },
     ]
+
+    const userMenuItems = [
+      { label: 'Upgrade to Pro', icon: 'i-lucide:sparkles' },
+      { type: 'separator' },
+      { label: 'Account', icon: 'i-lucide:badge-check' },
+      { label: 'Billing', icon: 'i-lucide:credit-card' },
+      { label: 'Notifications', icon: 'i-lucide:bell' },
+      { type: 'separator' },
+      { label: 'Log out', icon: 'i-lucide:log-out', variant: 'destructive' },
+    ]
+
+    const projectMenuItems = [
+      { label: 'View Project', icon: 'i-lucide:folder' },
+      { label: 'Share Project', icon: 'i-lucide:forward' },
+      { type: 'separator' },
+      { label: 'Delete Project', icon: 'i-lucide:trash-2', variant: 'destructive' },
+    ]
+
     return (
-      <div class="border border-border/70 rounded-xl bg-muted/20 h-80 max-w-2xl w-full shadow-xs overflow-hidden">
-        <SidebarFrame variant={props.variant} side={props.side} isMobile={false}>
-          <SidebarFrame.Sidebar class="w-48">
-            <SidebarFrame.SidebarHeader class="px-3 py-2 text-xs font-semibold">
-              Workspace
+      <div class="border border-border/70 rounded-xl bg-card h-[520px] max-w-4xl w-full shadow-xs overflow-hidden">
+        <SidebarFrame
+          variant={props.variant}
+          side={props.side}
+          isMobile={false}
+        >
+          <SidebarFrame.Sidebar class="w-60">
+            <SidebarFrame.SidebarHeader>
+              <DropdownMenu placement="bottom" align="start">
+                <DropdownMenu.Trigger
+                  as="button"
+                  class="flex w-full items-center gap-2 rounded-lg p-0 text-left outline-none hover:bg-muted/60 transition-colors overflow-hidden group-data-[closed]/sidebar:cursor-pointer"
+                >
+                  <div class="size-8 rounded-lg bg-foreground text-background flex items-center justify-center shrink-0">
+                    <Icon name={activeTeam().logo} class="size-4" />
+                  </div>
+                  <div class="flex flex-col min-w-0 flex-1 text-left">
+                    <span class="text-sm font-semibold truncate leading-tight">
+                      {activeTeam().name}
+                    </span>
+                    <span class="text-xs text-muted-foreground truncate leading-tight">
+                      {activeTeam().plan}
+                    </span>
+                  </div>
+                  <Icon
+                    name="i-lucide:chevrons-up-down"
+                    class="size-4 ms-auto shrink-0 text-muted-foreground"
+                  />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content
+                  contentTop={
+                    <div class="px-2 py-1.5 text-xs text-muted-foreground font-medium">Teams</div>
+                  }
+                  items={teamMenuItems()}
+                />
+              </DropdownMenu>
             </SidebarFrame.SidebarHeader>
-            <SidebarFrame.SidebarBody class="p-2 space-y-1">
+
+            <SidebarFrame.SidebarBody class="p-2 space-y-4">
               <SidebarFrame.Menu>
-                <For each={navItems}>
+                <SidebarFrame.Label>Platform</SidebarFrame.Label>
+                <For each={data.navMain}>
                   {(item) => (
-                    <SidebarFrame.Item leading={item.icon} isActive={item.active}>
-                      {item.label}
-                    </SidebarFrame.Item>
+                    <SidebarFrame.Submenu defaultOpen={item.defaultOpen} transition>
+                      <SidebarFrame.SubmenuTrigger leading={item.icon}>
+                        {item.title}
+                      </SidebarFrame.SubmenuTrigger>
+                      <SidebarFrame.SubmenuContent>
+                        <For each={item.items}>
+                          {(subItem) => (
+                            <SidebarFrame.Item href={subItem.url}>
+                              {subItem.title}
+                            </SidebarFrame.Item>
+                          )}
+                        </For>
+                      </SidebarFrame.SubmenuContent>
+                    </SidebarFrame.Submenu>
                   )}
                 </For>
               </SidebarFrame.Menu>
+
+              <SidebarFrame.Menu>
+                <SidebarFrame.Label>Projects</SidebarFrame.Label>
+                <For each={data.projects}>
+                  {(project) => (
+                    <SidebarFrame.Item
+                      leading={project.icon}
+                      actions={
+                        <DropdownMenu placement="right" align="start">
+                          <DropdownMenu.Trigger
+                            as="button"
+                            class="text-muted-foreground p-0.5 rounded-md flex size-5 cursor-pointer items-center justify-center hover:(text-foreground bg-muted-hover) opacity-0 group-hover/item:opacity-100 group-focus-within/item:opacity-100 data-expanded:opacity-100"
+                            aria-label={`More options for ${project.name}`}
+                          >
+                            <Icon name="i-lucide:ellipsis" class="size-4" />
+                          </DropdownMenu.Trigger>
+                          <DropdownMenu.Content items={projectMenuItems} />
+                        </DropdownMenu>
+                      }
+                    >
+                      {project.name}
+                    </SidebarFrame.Item>
+                  )}
+                </For>
+                <SidebarFrame.Item
+                  leading="i-lucide:ellipsis"
+                  class="text-muted-foreground/70"
+                  tooltip="More"
+                >
+                  More
+                </SidebarFrame.Item>
+              </SidebarFrame.Menu>
             </SidebarFrame.SidebarBody>
-            <SidebarFrame.SidebarFooter class="px-3 py-2 text-xs text-muted-foreground">
-              Personal workspace
+
+            <SidebarFrame.SidebarFooter>
+              <DropdownMenu placement="top" align="start">
+                <DropdownMenu.Trigger
+                  as="button"
+                  class="flex w-full items-center gap-2 outline-none rounded-lg p-0 text-left hover:bg-muted/60 transition-colors overflow-hidden group-data-[closed]/sidebar:cursor-pointer"
+                >
+                  <Avatar
+                    src={data.user.avatar}
+                    alt={data.user.name}
+                    fallback="i-lucide:user"
+                    text="CN"
+                    size="md"
+                    class="shrink-0"
+                  />
+                  <div class="flex flex-col min-w-0 flex-1 text-left">
+                    <span class="text-sm font-semibold truncate leading-tight">
+                      {data.user.name}
+                    </span>
+                    <span class="text-xs text-muted-foreground truncate leading-tight">
+                      {data.user.email}
+                    </span>
+                  </div>
+                  <Icon
+                    name="i-lucide:chevrons-up-down"
+                    class="size-4 ms-auto shrink-0 text-muted-foreground"
+                  />
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content
+                  contentTop={
+                    <div class="flex items-center gap-2 p-2 border-b border-border/50">
+                      <Avatar
+                        src={data.user.avatar}
+                        alt={data.user.name}
+                        fallback="i-lucide:user"
+                        text="CN"
+                        size="md"
+                        class="shrink-0"
+                      />
+                      <div class="flex flex-col min-w-0 text-left">
+                        <span class="text-sm font-semibold truncate leading-tight">
+                          {data.user.name}
+                        </span>
+                        <span class="text-xs text-muted-foreground truncate leading-tight">
+                          {data.user.email}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                  items={userMenuItems}
+                />
+              </DropdownMenu>
             </SidebarFrame.SidebarFooter>
           </SidebarFrame.Sidebar>
-          <SidebarFrame.Main class="p-2.5 flex flex-col gap-3">
-            <div class="flex items-center gap-2 shrink-0">
+
+          <SidebarFrame.Main class="flex flex-col min-h-0 flex-1 overflow-y-auto">
+            <div
+              role="banner"
+              class="flex h-12 shrink-0 items-center gap-2 px-4 border-b border-border/50"
+            >
               <SidebarFrame.Trigger
                 as={Button}
                 variant="ghost"
                 size="icon-xs"
                 aria-label="Toggle sidebar"
               >
-                <Icon name="i-lucide:panel-left" class="size-3.5" />
+                <Icon name="i-lucide:panel-left" class="size-4" />
               </SidebarFrame.Trigger>
-              <span class="text-xs font-semibold text-foreground">Dashboard Analytics</span>
+              <Separator orientation="vertical" class="h-4" />
+              <Breadcrumb
+                items={[
+                  { label: 'Building Your Application', href: '#' },
+                  { label: 'Data Fetching' },
+                ]}
+              />
             </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div class="p-2.5 rounded-lg border border-border/60 bg-card/60">
-                <div class="text-[10px] text-muted-foreground">Total Revenue</div>
-                <div class="text-sm font-bold mt-0.5">$48,250</div>
+            <div class="flex flex-1 flex-col gap-4 p-4">
+              <div class="grid gap-4 grid-cols-3">
+                <div class="bg-muted/50 aspect-video rounded-xl" />
+                <div class="bg-muted/50 aspect-video rounded-xl" />
+                <div class="bg-muted/50 aspect-video rounded-xl" />
               </div>
-              <div class="p-2.5 rounded-lg border border-border/60 bg-card/60">
-                <div class="text-[10px] text-muted-foreground">Active Users</div>
-                <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  1,240
-                </div>
-              </div>
-            </div>
-            <div class="rounded-lg border border-dashed border-border/80 flex-1 flex items-center justify-center text-xs text-muted-foreground">
-              Main content area
+              <div class="bg-muted/50 min-h-48 flex-1 rounded-xl" />
             </div>
           </SidebarFrame.Main>
         </SidebarFrame>
       </div>
     )
-  }}
+
+}}
+
 </Playground>
 
 ## Anatomy
@@ -164,31 +414,29 @@ export function Example() {
             slot: 'sidebarBody',
             children: [
               {
-                part: 'SidebarFrame.Group',
-                slot: 'group',
+                part: 'SidebarFrame.Menu',
+                slot: 'menu',
                 children: [
                   {
-                    part: 'SidebarFrame.GroupLabel',
-                    slot: 'groupLabel',
+                    part: 'SidebarFrame.Label',
+                    slot: 'label',
                   },
                   {
-                    part: 'SidebarFrame.Menu',
-                    slot: 'menu',
+                    part: 'SidebarFrame.Item',
+                    slot: 'item',
                     children: [
-                      {
-                        part: 'SidebarFrame.Item',
-                        slot: 'item',
-                        children: [
-                          { slot: 'itemLeading' },
-                          { slot: 'itemLabel' },
-                          { slot: 'itemTrailing' },
-                        ],
-                      },
-                      {
-                        part: 'SidebarFrame.Sub',
-                        slot: 'sub',
-                        children: [{ slot: 'subContent' }],
-                      },
+                      { slot: 'itemLeading' },
+                      { slot: 'itemLabel' },
+                      { slot: 'itemTrailing' },
+                      { slot: 'itemActions' },
+                    ],
+                  },
+                  {
+                    part: 'SidebarFrame.Submenu',
+                    slot: 'submenu',
+                    children: [
+                      { part: 'SidebarFrame.SubmenuTrigger', slot: 'submenuTrigger' },
+                      { part: 'SidebarFrame.SubmenuContent', slot: 'submenuContent' },
                     ],
                   },
                 ],
@@ -216,11 +464,10 @@ Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regi
 
 `SidebarFrame` provides structured menu primitives to build desktop and mobile navigation menus:
 
-- `SidebarFrame.Group`: Logical section container for navigation groups.
-- `SidebarFrame.GroupLabel`: Section title heading with polymorphic tag support (`as="h2"`, `'span'`, etc.).
-- `SidebarFrame.Menu`: Flat container for items without restrictive list element styling.
-- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, and `isActive` styling.
-- `SidebarFrame.Sub`: Collapsible sub-navigation built on `Collapsible`. Supports default chevron disclosure triggers or custom triggers via the `triggerRender` prop.
+- `SidebarFrame.Menu`: Section container for a labeled group of navigation items.
+- `SidebarFrame.Label`: Section title with polymorphic tag support (`as="h2"`, `'span'`, etc.).
+- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, `actions`, and `isActive`. `leading` / `trailing` accept icon names or arbitrary JSX.
+- `SidebarFrame.Submenu` / `SubmenuTrigger` / `SubmenuContent`: Collapsible sub-navigation built on `Collapsible`. Keep links and disclosure controls on separate elements when a parent has both an `href` and children.
 
 ## Usage
 
@@ -228,11 +475,17 @@ Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regi
 
 `SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
 
-Root `classes` and `styles` set defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, `main`, `group`, `groupLabel`, `menu`, `item`, `itemLeading`, `itemLabel`, `itemTrailing`, `sub`, and `subContent`. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
+Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` / `onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop. Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives `(max-width: ${breakpoint}px)` via `matchMedia`.
 
-`SidebarFrame` declares `--mo-sidebar-width: var(--sidebar-width, clamp(14rem, 25%, 20rem))` on its root; the sidebar inherits it. Set the global `--sidebar-width` in CSS or with `presetMoraine({ sidebarWidth: '18rem' })`; the preset emits no sidebar width by default. Width classes on `SidebarFrame.Sidebar` take precedence.
+Root `classes` and `styles` set defaults for frame, sidebar, menu, label, item, and submenu slots. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
 
-Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+`SidebarFrame` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or with `presetMoraine`. Width classes on `SidebarFrame.Sidebar` take precedence.
+
+The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass `class="h-dvh"` (or `h-svh`) on the root.
+
+Call `useSidebarFrame()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+
+To persist desktop open state across reloads, control `open` from the app and store it in a cookie (not `localStorage`, which mismatches SSR hydration).
 
 <Preview path="./responsive-usage" />
 
@@ -240,7 +493,7 @@ Call `useSidebarFrame()` from a descendant component for advanced access to `isM
 
 ### Collapsible sub-navigation
 
-Compose `SidebarFrame.Sub` inside `SidebarFrame.SidebarBody` to provide multi-level sub-navigation menus with smooth chevron animations and accessible disclosure semantics.
+Compose `SidebarFrame.Submenu` inside `SidebarFrame.SidebarBody` for multi-level navigation. Use `SubmenuTrigger` for disclosure and a separate `Item` with `href` when the parent label is also a link.
 
 <Preview path="./collapsible-groups" />
 

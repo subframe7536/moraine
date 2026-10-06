@@ -5,208 +5,225 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
   on,
   splitProps,
-  untrack,
 } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
-import { callHandler } from '../../shared/utils'
+import type { ValidComponent } from '../../shared/types'
+import { callHandler, createId } from '../../shared/utils'
 
-import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import {
+  SidebarFrameProvider,
+  useSidebarFrameContext,
+  useSidebarFrameStyles,
+} from './sidebar-frame-context'
 import { SidebarFrameItem } from './sidebar-frame-item'
-import { SidebarFrameGroup, SidebarFrameGroupLabel, SidebarFrameMenu } from './sidebar-frame-menu'
-import { SidebarFrameSub } from './sidebar-frame-sub'
+import { SidebarFrameLabel } from './sidebar-frame-menu'
+import {
+  SidebarFrameMenu,
+  SidebarFrameSidebarBody,
+  SidebarFrameSidebarFooter,
+  SidebarFrameSidebarHeader,
+} from './sidebar-frame-region'
+import {
+  SidebarFrameSubmenu,
+  SidebarFrameSubmenuContent,
+  SidebarFrameSubmenuTrigger,
+} from './sidebar-frame-submenu'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
-import { SIDEBAR_FRAME_MOBILE_QUERY } from './sidebar-frame.constants'
 import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
-function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['ariaLabel', 'children', 'class', 'style'])
-  const content = resolveChildren(() => local.children)
-  const mobileAriaLabel = () =>
-    rest['aria-label'] ?? local.ariaLabel ?? rest.title ?? 'Sidebar navigation'
+const SIDEBAR_FRAME_DEFAULT_BREAKPOINT = 768
+const SIDEBAR_FRAME_DEFAULT_SCROLL_THRESHOLD = 60
 
-  const SidebarContent = (contentProps: { mobile: boolean }) => {
-    const resolved = createStyles(sidebarFrameRecipe, local, {
-      rootSlot: 'sidebar',
-      inheritedStyles: () => context.presentation,
-      inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-    })
+function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
+  props: SidebarFrameT.SidebarProps<T>,
+): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['as', 'ariaLabel', 'children', 'class', 'style'])
+  const content = resolveChildren(() => local.children)
+  const resolved = useSidebarFrameStyles('sidebar', local)
+
+  const mobileAriaLabel = () => {
+    const restRecord = rest as Record<string, unknown>
     return (
-      <div
-        data-slot="sidebar-frame-sidebar"
-        {...sidebarFrameDataAttributes.sidebar({
-          mobile: () => contentProps.mobile,
-          closed: () => !context.isOpen(),
-        })}
-        aria-hidden={!context.isOpen()}
-        inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
-        {...rest}
-        {...resolved.styles.sidebar}
-      >
-        {content()}
-      </div>
+      (restRecord['aria-label'] as string | undefined) ??
+      local.ariaLabel ??
+      (restRecord.title as string | undefined) ??
+      'Sidebar navigation'
     )
   }
 
+  const SidebarContent = (contentProps: { mobile: boolean }) => (
+    <Dynamic
+      component={(local.as ?? 'aside') as ValidComponent}
+      id={context.sidebarId()}
+      data-slot="sidebar-frame-sidebar"
+      {...sidebarFrameDataAttributes.sidebar({
+        closed: () => !context.isOpen(),
+        expanded: () => context.isOpen(),
+        mobile: () => contentProps.mobile,
+        side: () => context.side,
+        variant: () => context.variant,
+      })}
+      aria-hidden={!context.isOpen() ? true : undefined}
+      inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
+      {...(rest as object)}
+      {...resolved.styles.sidebar}
+    >
+      {content()}
+    </Dynamic>
+  )
+
   return (
-    <>
-      <Show when={context.isMobile()} fallback={<SidebarContent mobile={false} />}>
-        <Sheet
-          open={context.isOpen()}
-          onOpenChange={context.setOpen}
-          side={context.side}
-          close={false}
-          ariaLabel={mobileAriaLabel()}
-        >
-          <Sheet.Content>
-            <Sheet.Body>
-              <SidebarContent mobile />
-            </Sheet.Body>
-          </Sheet.Content>
-        </Sheet>
-      </Show>
-    </>
+    <Show when={context.isMobile()} fallback={<SidebarContent mobile={false} />}>
+      <Sheet
+        open={context.isOpen()}
+        onOpenChange={context.setOpen}
+        side={context.side}
+        close={false}
+        ariaLabel={mobileAriaLabel()}
+      >
+        <Sheet.Content>
+          <Sheet.Body>
+            <SidebarContent mobile />
+          </Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    </Show>
   )
 }
 
-function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX.Element {
+function SidebarFrameMain<T extends ValidComponent = 'div'>(
+  props: SidebarFrameT.MainProps<T>,
+): JSX.Element {
   const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarHeader',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
+  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'onScroll'])
+  const resolved = useSidebarFrameStyles('main', local)
 
   return (
-    <div data-slot="sidebar-frame-sidebar-header" {...rest} {...resolved.styles.sidebarHeader}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarBody',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div data-slot="sidebar-frame-sidebar-body" {...rest} {...resolved.styles.sidebarBody}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarFooter',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div data-slot="sidebar-frame-sidebar-footer" {...rest} {...resolved.styles.sidebarFooter}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'onScroll'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'main',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div
+    <Dynamic
+      component={(local.as ?? 'div') as ValidComponent}
       data-slot="sidebar-frame-main"
-      {...rest}
+      {...(rest as object)}
       {...resolved.styles.main}
-      onScroll={(event) => {
+      onScroll={(event: UIEvent & { currentTarget: HTMLElement }) => {
         const result = callHandler(event, local.onScroll)
         if (!result.defaultPrevented) {
-          context.setScrolled(event.currentTarget.scrollTop > context.scrollThreshold())
+          context.setScrolled(event.currentTarget.scrollTop > context.scrollThreshold)
         }
       }}
     >
       {local.children}
-    </div>
+    </Dynamic>
   )
 }
 
 /** Responsive sidebar layout with a mobile Sheet fallback. */
 export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'isMobile',
-    'scrollThreshold',
+    'breakpoint',
     'children',
-    'variant',
-    'side',
     'classes',
-    'styles',
     'class',
+    'defaultOpen',
+    'isMobile',
+    'onOpenChange',
+    'open',
+    'scrollThreshold',
+    'sidebarId',
+    'side',
+    'styles',
     'style',
+    'variant',
   ])
   const resolved = createStyles(sidebarFrameRecipe, local)
-  const merged = mergeProps(
-    {
-      get side() {
-        return resolved.variants.side
-      },
-      scrollThreshold: 60,
-    },
-    local,
-  )
 
-  const mediaMatches = createMediaQuery(SIDEBAR_FRAME_MOBILE_QUERY, false)
+  const sidebarId = createId(() => local.sidebarId, 'sidebar-frame-sidebar')
+  const mediaMatches = createMediaQuery(
+    () => `(max-width: ${local.breakpoint ?? SIDEBAR_FRAME_DEFAULT_BREAKPOINT}px)`,
+    false,
+  )
   const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
-  const [isOpen, setOpen] = createSignal(untrack(() => !isMobile()))
+
+  const [desktopOpen, setControlledDesktopOpen] = createControllableValue<boolean>({
+    value: () => local.open,
+    defaultValue: () => local.defaultOpen ?? true,
+  })
+  const [mobileOpen, setMobileOpen] = createSignal(false)
   const [scrolled, setScrolled] = createSignal(false)
 
   createEffect(
-    on(isMobile, (mobile) => {
-      setOpen(!mobile)
+    on(isMobile, (mobile, previous) => {
+      if (previous === true && mobile === false) {
+        setMobileOpen(false)
+      }
     }),
   )
+
+  const state = createMemo<SidebarFrameT.State>(() => (desktopOpen() ? 'expanded' : 'collapsed'))
+
+  const isOpen = createMemo(() => {
+    if (isMobile()) {
+      return mobileOpen()
+    }
+    return desktopOpen()
+  })
+
+  function setOpen(nextOpen: boolean): void {
+    const current = isMobile() ? mobileOpen() : desktopOpen()
+    if (nextOpen === current) {
+      return
+    }
+    if (isMobile()) {
+      setMobileOpen(nextOpen)
+      return
+    }
+    setControlledDesktopOpen(nextOpen)
+    local.onOpenChange?.(nextOpen)
+  }
 
   const context = {
     get presentation() {
       return { classes: local.classes, styles: local.styles }
     },
-    scrollThreshold: () => merged.scrollThreshold,
+    get scrollThreshold() {
+      return local.scrollThreshold ?? SIDEBAR_FRAME_DEFAULT_SCROLL_THRESHOLD
+    },
     isMobile,
+    state,
+    sidebarId,
     scrolled,
     setScrolled,
     isOpen,
     setOpen,
-    toggle: () => setOpen((open) => !open),
+    toggle: () => setOpen(!isOpen()),
     get variant() {
       return resolved.variants.variant
     },
     get side() {
-      return merged.side
+      return resolved.variants.side
     },
   }
 
   return (
     <SidebarFrameProvider value={context}>
-      <div data-slot="sidebar-frame" {...rest} {...resolved.styles.root}>
+      <div
+        data-slot="sidebar-frame"
+        {...sidebarFrameDataAttributes.root({
+          mobile: isMobile,
+          side: () => context.side,
+          variant: () => context.variant,
+        })}
+        {...rest}
+        {...resolved.styles.root}
+      >
         {local.children}
       </div>
     </SidebarFrameProvider>
@@ -219,8 +236,9 @@ SidebarFrame.SidebarBody = SidebarFrameSidebarBody
 SidebarFrame.SidebarFooter = SidebarFrameSidebarFooter
 SidebarFrame.Main = SidebarFrameMain
 SidebarFrame.Trigger = SidebarFrameTrigger
-SidebarFrame.Group = SidebarFrameGroup
-SidebarFrame.GroupLabel = SidebarFrameGroupLabel
 SidebarFrame.Menu = SidebarFrameMenu
+SidebarFrame.Label = SidebarFrameLabel
 SidebarFrame.Item = SidebarFrameItem
-SidebarFrame.Sub = SidebarFrameSub
+SidebarFrame.Submenu = SidebarFrameSubmenu
+SidebarFrame.SubmenuTrigger = SidebarFrameSubmenuTrigger
+SidebarFrame.SubmenuContent = SidebarFrameSubmenuContent

@@ -29,7 +29,7 @@ Run workspace commands from the repository root.
 
 ### Testing
 
-- `pnpm run test:library` - Build the library, check consumer type fixtures, and run library and consumer tests.
+- `pnpm run test:lib` - Build the library, check consumer type fixtures, and run library and consumer tests.
 - `pnpm run test:docs` - Run documentation build logic tests.
 - `pnpm run test` - Run both test suites.
 - `pnpm vitest run <test-file>` - Run a single test file after building if it reads `dist/`.

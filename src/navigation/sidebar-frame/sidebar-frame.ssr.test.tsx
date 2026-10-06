@@ -16,17 +16,20 @@ function FixtureContent() {
           <span>Header</span>
         </SidebarFrame.SidebarHeader>
         <SidebarFrame.SidebarBody>
-          <SidebarFrame.Group>
-            <SidebarFrame.GroupLabel as="h2">Navigation</SidebarFrame.GroupLabel>
-            <SidebarFrame.Menu>
-              <SidebarFrame.Item leading="i-lucide:house" href="/home">
-                Home
-              </SidebarFrame.Item>
-              <SidebarFrame.Sub label="Submenu" leading="i-lucide:folder">
+          <SidebarFrame.Menu>
+            <SidebarFrame.Label as="h2">Navigation</SidebarFrame.Label>
+            <SidebarFrame.Item leading="i-lucide:house" href="/home">
+              Home
+            </SidebarFrame.Item>
+            <SidebarFrame.Submenu>
+              <SidebarFrame.SubmenuTrigger leading="i-lucide:folder">
+                Submenu
+              </SidebarFrame.SubmenuTrigger>
+              <SidebarFrame.SubmenuContent>
                 <SidebarFrame.Item href="/sub-item">Sub Item</SidebarFrame.Item>
-              </SidebarFrame.Sub>
-            </SidebarFrame.Menu>
-          </SidebarFrame.Group>
+              </SidebarFrame.SubmenuContent>
+            </SidebarFrame.Submenu>
+          </SidebarFrame.Menu>
         </SidebarFrame.SidebarBody>
         <SidebarFrame.SidebarFooter>
           <span>Footer</span>
@@ -53,7 +56,7 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
     '/src/navigation/sidebar-frame/sidebar-frame.ssr.fixture.tsx',
     'renderSidebarFrameFixture',
     () => (
-      <SidebarFrame>
+      <SidebarFrame sidebarId="sidebar-frame-fixture">
         <FixtureContent />
       </SidebarFrame>
     ),
@@ -69,6 +72,9 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
   expect(
     container.querySelector('[data-slot="sidebar-frame-trigger"]')?.getAttribute('aria-expanded'),
   ).toBe('false')
+  expect(
+    container.querySelector('[data-slot="sidebar-frame-trigger"]')?.getAttribute('aria-controls'),
+  ).toBeNull()
 
   fireEvent.click(container.querySelector('[data-slot="sidebar-frame-trigger"]')!)
   await waitFor(() =>
@@ -78,10 +84,12 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
   )
 
   const dialog = document.body.querySelector('[role="dialog"]')!
-  expect(dialog.querySelector('[data-slot="sidebar-frame-group"]')).not.toBeNull()
-  expect(dialog.querySelector('h2')?.textContent).toBe('Navigation')
   expect(dialog.querySelector('[data-slot="sidebar-frame-menu"]')).not.toBeNull()
+  expect(dialog.querySelector('h2')?.textContent).toBe('Navigation')
   expect(dialog.querySelector('a[href="/home"]')?.textContent).toBe('Home')
   expect(dialog.querySelector('[data-slot="sidebar-frame-item-leading"]')).not.toBeNull()
-  expect(dialog.querySelector('[data-slot="sidebar-frame-sub"]')).not.toBeNull()
+  expect(dialog.querySelector('[data-slot="sidebar-frame-submenu"]')).not.toBeNull()
+  expect(
+    container.querySelector('[data-slot="sidebar-frame-trigger"]')?.getAttribute('aria-controls'),
+  ).toBe('sidebar-frame-fixture')
 })

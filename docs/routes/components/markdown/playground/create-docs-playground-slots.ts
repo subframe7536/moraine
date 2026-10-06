@@ -79,13 +79,95 @@ function sameBoxes(previous: HighlightBox[], next: HighlightBox[]): boolean {
     previous.every((box, index) => {
       const current = next[index]!
       return (
-        box.top === current.top &&
-        box.left === current.left &&
-        box.width === current.width &&
-        box.height === current.height
+        Math.abs(box.top - current.top) < 0.5 &&
+        Math.abs(box.left - current.left) < 0.5 &&
+        Math.abs(box.width - current.width) < 0.5 &&
+        Math.abs(box.height - current.height) < 0.5
       )
     })
   )
+}
+
+function isOverflowClipped(value?: string | null): boolean {
+  return value === 'hidden' || value === 'auto' || value === 'scroll' || value === 'clip'
+}
+
+function getVisibleHighlightBox(
+  element: HTMLElement,
+  view: Window,
+  doc: Document,
+): HighlightBox | undefined {
+  if (typeof element.checkVisibility === 'function' && !element.checkVisibility()) {
+    return undefined
+  }
+
+  const elementStyle = view.getComputedStyle(element)
+  if (elementStyle.display === 'none' || elementStyle.visibility === 'hidden') {
+    return undefined
+  }
+
+  const rect = element.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) {
+    return undefined
+  }
+
+  let top = rect.top
+  let bottom = rect.bottom
+  let left = rect.left
+  let right = rect.right
+
+  let parent = element.parentElement
+  while (parent && parent !== doc.body) {
+    const parentStyle = view.getComputedStyle(parent)
+    if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden') {
+      return undefined
+    }
+
+    const isClippedX =
+      isOverflowClipped(parentStyle.overflowX) || isOverflowClipped(parentStyle.overflow)
+    const isClippedY =
+      isOverflowClipped(parentStyle.overflowY) || isOverflowClipped(parentStyle.overflow)
+
+    if (isClippedX || isClippedY) {
+      const parentRect = parent.getBoundingClientRect()
+      if (parentRect.width > 0 || parentRect.height > 0) {
+        if (isClippedY) {
+          top = Math.max(top, parentRect.top)
+          bottom = Math.min(bottom, parentRect.bottom)
+        }
+        if (isClippedX) {
+          left = Math.max(left, parentRect.left)
+          right = Math.min(right, parentRect.right)
+        }
+        if (bottom <= top || right <= left) {
+          return undefined
+        }
+      }
+    }
+
+    parent = parent.parentElement
+  }
+
+  const viewportWidth = view.innerWidth || doc.documentElement.clientWidth
+  const viewportHeight = view.innerHeight || doc.documentElement.clientHeight
+
+  if (viewportWidth > 0 && viewportHeight > 0) {
+    top = Math.max(top, 0)
+    bottom = Math.min(bottom, viewportHeight)
+    left = Math.max(left, 0)
+    right = Math.min(right, viewportWidth)
+
+    if (bottom <= top || right <= left) {
+      return undefined
+    }
+  }
+
+  return {
+    top,
+    left,
+    width: right - left,
+    height: bottom - top,
+  }
 }
 
 export function createDocsPlaygroundSlots(props: {
@@ -102,6 +184,7 @@ export function createDocsPlaygroundSlots(props: {
   const [nodes, setNodes] = createSignal(new Map<string, HTMLElement[]>())
   const [listHovered, setListHovered] = createSignal<string>()
   const [previewHovered, setPreviewHovered] = createSignal<string>()
+  const [hoveredElement, setHoveredElement] = createSignal<HTMLElement>()
   const [autoHover, setAutoHoverState] = createSignal(false)
   const [locked, setLocked] = createSignal<string>()
   const [boxes, setBoxes] = createSignal<HighlightBox[]>([])
@@ -109,6 +192,7 @@ export function createDocsPlaygroundSlots(props: {
   const clearHighlight = () => {
     setListHovered(undefined)
     setPreviewHovered(undefined)
+    setHoveredElement(undefined)
     setLocked(undefined)
   }
 
@@ -124,6 +208,14 @@ export function createDocsPlaygroundSlots(props: {
       roots = getOwnedRoots(preview)
       const next = new Map<string, HTMLElement[]>()
       for (const root of roots) {
+        if (root.hasAttribute('data-slot')) {
+          const slot = slotByDomName.get(root.dataset.slot ?? '')
+          if (slot) {
+            const elements = next.get(slot) ?? []
+            elements.push(root)
+            next.set(slot, elements)
+          }
+        }
         for (const element of root.querySelectorAll<HTMLElement>('[data-slot]')) {
           const slot = slotByDomName.get(element.dataset.slot ?? '')
           if (!slot) {
@@ -140,6 +232,10 @@ export function createDocsPlaygroundSlots(props: {
       if (locked() && !next.has(locked()!)) {
         setLocked(undefined)
       }
+      if (hoveredElement() && !hoveredElement()!.isConnected) {
+        setHoveredElement(undefined)
+        setPreviewHovered(undefined)
+      }
     }
 
     const onPointerMove = (event: PointerEvent) => {
@@ -149,6 +245,7 @@ export function createDocsPlaygroundSlots(props: {
       const target = event.target
       if (!(target instanceof Element) || !roots.some((root) => root.contains(target))) {
         setPreviewHovered(undefined)
+        setHoveredElement(undefined)
         return
       }
       let element: Element | null = target
@@ -156,11 +253,13 @@ export function createDocsPlaygroundSlots(props: {
         const slot = slotByDomName.get(element.getAttribute('data-slot') ?? '')
         if (slot) {
           setPreviewHovered(slot)
+          setHoveredElement(element as HTMLElement)
           return
         }
         element = element.parentElement
       }
       setPreviewHovered(undefined)
+      setHoveredElement(undefined)
     }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -185,55 +284,71 @@ export function createDocsPlaygroundSlots(props: {
   })
 
   createEffect(
-    on([activeSlot, nodes], ([slot, currentNodes]) => {
-      const elements = slot ? (currentNodes.get(slot) ?? []) : []
-      const view = props.preview()?.ownerDocument.defaultView
-      if (!view || elements.length === 0) {
-        setBoxes([])
-        return
-      }
+    on(
+      [activeSlot, nodes, hoveredElement, autoHover, listHovered],
+      ([slot, currentNodes, currentHoveredElement, isAutoHover, currentListHovered]) => {
+        const isHoveringElement = Boolean(
+          isAutoHover && currentHoveredElement && !currentListHovered,
+        )
+        const elements: HTMLElement[] = slot
+          ? isHoveringElement && currentHoveredElement
+            ? [currentHoveredElement]
+            : (currentNodes.get(slot) ?? [])
+          : []
+        const view = props.preview()?.ownerDocument.defaultView
+        if (!view || elements.length === 0) {
+          setBoxes([])
+          return
+        }
 
-      let frame = 0
-      const update = () => {
-        frame = 0
-        const next = elements.flatMap((element) => {
-          const rect = element.getBoundingClientRect()
-          return rect.width > 0 && rect.height > 0
-            ? [{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }]
-            : []
+        let frame = 0
+        const update = () => {
+          frame = 0
+          const doc = props.preview()?.ownerDocument ?? document
+          const next = elements.flatMap((element) => {
+            const box = getVisibleHighlightBox(element, view, doc)
+            return box ? [box] : []
+          })
+          if (!sameBoxes(boxes(), next)) {
+            setBoxes(next)
+          }
+        }
+        const schedule = () => {
+          if (!frame) {
+            frame = view.requestAnimationFrame(update)
+          }
+        }
+        const resizeObserver =
+          typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
+        const preview = props.preview()
+        if (preview) {
+          resizeObserver?.observe(preview)
+        }
+        for (const element of elements) {
+          resizeObserver?.observe(element)
+        }
+        view.addEventListener('resize', schedule)
+        view.addEventListener('scroll', schedule, true)
+        schedule()
+        onCleanup(() => {
+          if (frame) {
+            view.cancelAnimationFrame(frame)
+          }
+          resizeObserver?.disconnect()
+          view.removeEventListener('resize', schedule)
+          view.removeEventListener('scroll', schedule, true)
         })
-        if (!sameBoxes(boxes(), next)) {
-          setBoxes(next)
-        }
-      }
-      const schedule = () => {
-        if (!frame) {
-          frame = view.requestAnimationFrame(update)
-        }
-      }
-      const resizeObserver =
-        typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule)
-      for (const element of elements) {
-        resizeObserver?.observe(element)
-      }
-      view.addEventListener('resize', schedule)
-      view.addEventListener('scroll', schedule, true)
-      schedule()
-      onCleanup(() => {
-        if (frame) {
-          view.cancelAnimationFrame(frame)
-        }
-        resizeObserver?.disconnect()
-        view.removeEventListener('resize', schedule)
-        view.removeEventListener('scroll', schedule, true)
-      })
-    }),
+      },
+    ),
   )
 
   function setAutoHover(value: boolean) {
     setAutoHoverState(value)
-    if (!value) {
+    if (value) {
+      setLocked(undefined)
+    } else {
       setPreviewHovered(undefined)
+      setHoveredElement(undefined)
     }
   }
 
@@ -242,6 +357,11 @@ export function createDocsPlaygroundSlots(props: {
       clearHighlight()
     } else {
       setLocked(name)
+      if (autoHover()) {
+        setAutoHoverState(false)
+        setPreviewHovered(undefined)
+        setHoveredElement(undefined)
+      }
     }
   }
 
@@ -255,5 +375,6 @@ export function createDocsPlaygroundSlots(props: {
     setListHovered,
     boxes,
     activeSlot,
+    hoveredElement,
   }
 }
