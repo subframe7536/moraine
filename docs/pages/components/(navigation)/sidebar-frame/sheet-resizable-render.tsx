@@ -142,7 +142,7 @@ function ResizableLayout() {
     <Show
       when={frame.isMobile()}
       fallback={
-        <Resizable class="flex-1 h-full" data-frame-resizable defaultValue={['32%', '68%']}>
+        <Resizable class="flex-1 h-full" defaultValue={['32%', '68%']}>
           <Resizable.Panel min={180} max={360} collapsible collapsibleMin={56}>
             <SidebarFrame.Sidebar class="border-0 bg-card/30 max-w-none! w-full!">
               <FileExplorerContent />
