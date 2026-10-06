@@ -3,13 +3,12 @@ import { children as resolveChildren, createMemo, mergeProps, Show, splitProps }
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 
-import { useSidebarFrameContext } from './sidebar-frame-context'
-import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
+import { useSidebarFrameContext, useSidebarFrameStyles } from './sidebar-frame-context'
+import { sidebarFrameDataAttributes } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 /** Interactive navigation item within a sidebar menu. */
@@ -30,11 +29,7 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
     'href',
   ])
 
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'item',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
+  const resolved = useSidebarFrameStyles('item', local)
 
   const resolvedTag = createMemo<ValidComponent>(() => {
     if (local.as) {

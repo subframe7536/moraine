@@ -20,7 +20,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'opacity-100 flex shrink-0 flex-col h-full max-w-[45%] min-h-0 min-w-0 w-(--mo-sidebar-width) translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0!',
+      'opacity-100 flex shrink-0 flex-col h-full max-w-[45%] min-h-0 min-w-0 w-(--mo-sidebar-width) transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none',
     sidebarHeader: 'p-2 flex gap-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'p-2 flex gap-2',
@@ -29,11 +29,10 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
     groupLabel:
       'text-xs text-muted-foreground tracking-tight font-semibold px-2.5 py-1.5 select-none',
     menu: 'flex flex-col gap-0.5 w-full',
-    item: `group text-sm text-muted-foreground font-medium px-2.5 py-1.5 text-left outline-none rounded-lg flex gap-2 w-full cursor-pointer select-none items-center data-active:(text-muted-foreground bg-muted-active) hover:(text-muted-foreground bg-muted-hover) data-mobile:min-h-11 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
+    item: `text-sm text-muted-foreground font-medium px-2.5 py-1.5 text-left outline-none rounded-lg flex gap-2 w-full cursor-pointer select-none items-center data-active:(text-muted-foreground bg-muted-active) hover:(text-muted-foreground bg-muted-hover) data-mobile:min-h-11 data-expanded:[&_[data-slot=sidebar-frame-item-trailing]]:rotate-90 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
     itemLeading: 'shrink-0 size-4',
     itemLabel: 'flex flex-1 gap-2 min-w-0 items-center',
-    itemTrailing:
-      'ml-auto shrink-0 size-4 transition-transform duration-200 group-data-[expanded]:rotate-90',
+    itemTrailing: 'ml-auto shrink-0 size-4 transition-transform duration-200',
     sub: 'flex flex-col w-full',
     subContent: 'ms-3.5 py-0.5 ps-1 border-l border-border flex flex-col gap-0.5',
     '--mo-sidebar-width': 'var(--sidebar-width, clamp(14rem, 25%, 20rem))',
@@ -56,6 +55,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
     variant: {
       default: {
         root: 'bg-card',
+        sidebar: 'border-border data-mobile:border-0',
       },
       floating: {
         root: 'p-2 bg-background',
@@ -70,11 +70,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   compoundVariants: [
     {
       variants: { variant: 'default', side: 'left' },
-      sidebar: 'border-r border-border data-mobile:border-0',
+      sidebar: 'border-r',
     },
     {
       variants: { variant: 'default', side: 'right' },
-      sidebar: 'border-l border-border data-mobile:border-0',
+      sidebar: 'border-l',
     },
   ],
 })

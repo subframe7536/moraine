@@ -10,10 +10,6 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
 
-interface SidebarFrameRegionBase {
-  children?: JSX.Element
-}
-
 export namespace SidebarFrameT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = SidebarFrameStyleSlot<T>
@@ -51,7 +47,13 @@ export namespace SidebarFrameT {
 
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 
-  export interface SidebarBase extends SidebarFrameRegionBase {
+  export interface RegionBase {
+    children?: JSX.Element
+  }
+
+  export type RegionProps = BaseProps<'div', RegionBase, never, never, never>
+
+  export interface SidebarBase extends RegionBase {
     /**
      * Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;
      * title is used when neither native aria-label nor this prop is provided.
@@ -62,17 +64,12 @@ export namespace SidebarFrameT {
 
   export type SidebarProps = BaseProps<'div', SidebarBase, never, never, never>
 
-  export interface SidebarHeaderBase extends SidebarFrameRegionBase {}
-  export type SidebarHeaderProps = BaseProps<'div', SidebarHeaderBase, never, never, never>
-
-  export interface SidebarBodyBase extends SidebarFrameRegionBase {}
-  export type SidebarBodyProps = BaseProps<'div', SidebarBodyBase, never, never, never>
-
-  export interface SidebarFooterBase extends SidebarFrameRegionBase {}
-  export type SidebarFooterProps = BaseProps<'div', SidebarFooterBase, never, never, never>
-
-  export interface MainBase extends SidebarFrameRegionBase {}
-  export type MainProps = BaseProps<'div', MainBase, never, never, never>
+  export type SidebarHeaderProps = RegionProps
+  export type SidebarBodyProps = RegionProps
+  export type SidebarFooterProps = RegionProps
+  export type MainProps = RegionProps
+  export type GroupProps = RegionProps
+  export type MenuProps = RegionProps
 
   export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
@@ -87,10 +84,7 @@ export namespace SidebarFrameT {
     'button'
   >
 
-  export interface GroupBase extends SidebarFrameRegionBase {}
-  export type GroupProps = BaseProps<'div', GroupBase, never, never, never>
-
-  export interface GroupLabelBase<T extends ValidComponent = 'div'> extends SidebarFrameRegionBase {
+  export interface GroupLabelBase<T extends ValidComponent = 'div'> extends RegionBase {
     as?: T
   }
   export type GroupLabelProps<T extends ValidComponent = 'div'> = BaseProps<
@@ -101,9 +95,6 @@ export namespace SidebarFrameT {
     never,
     'div'
   >
-
-  export interface MenuBase extends SidebarFrameRegionBase {}
-  export type MenuProps = BaseProps<'div', MenuBase, never, never, never>
 
   export type ItemBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T> & {
     ref?: Ref<T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement>
@@ -130,7 +121,7 @@ export namespace SidebarFrameT {
     trailing?: IconT.Name
   }
 
-  export interface SubBase extends SidebarFrameRegionBase {
+  export interface SubBase extends RegionBase {
     label: JSX.Element
     href?: string
     isActive?: boolean

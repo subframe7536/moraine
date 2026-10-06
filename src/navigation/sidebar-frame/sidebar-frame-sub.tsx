@@ -4,11 +4,9 @@ import { Show, splitProps } from 'solid-js'
 import { Collapsible } from '../../element/collapsible'
 import { useCollapsibleContext } from '../../element/collapsible/collapsible-context'
 import type { IconT } from '../../element/icon'
-import { createStyles } from '../../provider'
 
-import { useSidebarFrameContext } from './sidebar-frame-context'
+import { useSidebarFrameStyles } from './sidebar-frame-context'
 import { SidebarFrameItem } from './sidebar-frame-item'
-import { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 const DEFAULT_SUB_TRAILING: IconT.Name = 'i-lucide:chevron-right'
@@ -26,21 +24,6 @@ function SubTrigger(triggerProps: {
   const collapsible = useCollapsibleContext()
   const isDisabled = () => Boolean(triggerProps.disabled) || collapsible.disabled()
   const trailing = () => triggerProps.trailing ?? DEFAULT_SUB_TRAILING
-  const ctx: SidebarFrameT.SubTriggerRenderProps = {
-    open: collapsible.open,
-    get disabled() {
-      return isDisabled()
-    },
-    get label() {
-      return triggerProps.label
-    },
-    get leading() {
-      return triggerProps.leading
-    },
-    get trailing() {
-      return trailing()
-    },
-  }
 
   return (
     <Show
@@ -59,14 +42,25 @@ function SubTrigger(triggerProps: {
         </SidebarFrameItem>
       }
     >
-      {(render) => render()(ctx)}
+      {(render) =>
+        render()({
+          open: collapsible.open,
+          get disabled() {
+            return isDisabled()
+          },
+          label: triggerProps.label,
+          leading: triggerProps.leading,
+          get trailing() {
+            return trailing()
+          },
+        })
+      }
     </Show>
   )
 }
 
 /** Expandable submenu built on Collapsible for sidebar navigation. */
 export function SidebarFrameSub(props: SidebarFrameT.SubProps): JSX.Element {
-  const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, [
     'children',
     'class',
@@ -86,11 +80,7 @@ export function SidebarFrameSub(props: SidebarFrameT.SubProps): JSX.Element {
     'unmountOnHide',
   ])
 
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sub',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
+  const resolved = useSidebarFrameStyles('sub', local)
 
   return (
     <Collapsible

@@ -5,7 +5,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
   on,
   splitProps,
   untrack,
@@ -14,16 +13,28 @@ import {
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
 import { createMediaQuery } from '../../shared/media-query'
-import { callHandler } from '../../shared/utils'
 
-import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import {
+  SidebarFrameProvider,
+  useSidebarFrameContext,
+  useSidebarFrameStyles,
+} from './sidebar-frame-context'
 import { SidebarFrameItem } from './sidebar-frame-item'
-import { SidebarFrameGroup, SidebarFrameGroupLabel, SidebarFrameMenu } from './sidebar-frame-menu'
+import {
+  SidebarFrameGroup,
+  SidebarFrameGroupLabel,
+  SidebarFrameMain,
+  SidebarFrameMenu,
+  SidebarFrameSidebarBody,
+  SidebarFrameSidebarFooter,
+  SidebarFrameSidebarHeader,
+} from './sidebar-frame-region'
 import { SidebarFrameSub } from './sidebar-frame-sub'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
-import { SIDEBAR_FRAME_MOBILE_QUERY } from './sidebar-frame.constants'
 import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
+
+const SIDEBAR_FRAME_MOBILE_QUERY = '(max-width: 768px)'
 
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
   const context = useSidebarFrameContext()
@@ -33,11 +44,7 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
     rest['aria-label'] ?? local.ariaLabel ?? rest.title ?? 'Sidebar navigation'
 
   const SidebarContent = (contentProps: { mobile: boolean }) => {
-    const resolved = createStyles(sidebarFrameRecipe, local, {
-      rootSlot: 'sidebar',
-      inheritedStyles: () => context.presentation,
-      inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-    })
+    const resolved = useSidebarFrameStyles('sidebar', local)
     return (
       <div
         data-slot="sidebar-frame-sidebar"
@@ -56,97 +63,21 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
   }
 
   return (
-    <>
-      <Show when={context.isMobile()} fallback={<SidebarContent mobile={false} />}>
-        <Sheet
-          open={context.isOpen()}
-          onOpenChange={context.setOpen}
-          side={context.side}
-          close={false}
-          ariaLabel={mobileAriaLabel()}
-        >
-          <Sheet.Content>
-            <Sheet.Body>
-              <SidebarContent mobile />
-            </Sheet.Body>
-          </Sheet.Content>
-        </Sheet>
-      </Show>
-    </>
-  )
-}
-
-function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarHeader',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div data-slot="sidebar-frame-sidebar-header" {...rest} {...resolved.styles.sidebarHeader}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarBody',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div data-slot="sidebar-frame-sidebar-body" {...rest} {...resolved.styles.sidebarBody}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'sidebarFooter',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div data-slot="sidebar-frame-sidebar-footer" {...rest} {...resolved.styles.sidebarFooter}>
-      {local.children}
-    </div>
-  )
-}
-
-function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
-  const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'onScroll'])
-  const resolved = createStyles(sidebarFrameRecipe, local, {
-    rootSlot: 'main',
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({ side: context.side, variant: context.variant }),
-  })
-
-  return (
-    <div
-      data-slot="sidebar-frame-main"
-      {...rest}
-      {...resolved.styles.main}
-      onScroll={(event) => {
-        const result = callHandler(event, local.onScroll)
-        if (!result.defaultPrevented) {
-          context.setScrolled(event.currentTarget.scrollTop > context.scrollThreshold())
-        }
-      }}
-    >
-      {local.children}
-    </div>
+    <Show when={context.isMobile()} fallback={<SidebarContent mobile={false} />}>
+      <Sheet
+        open={context.isOpen()}
+        onOpenChange={context.setOpen}
+        side={context.side}
+        close={false}
+        ariaLabel={mobileAriaLabel()}
+      >
+        <Sheet.Content>
+          <Sheet.Body>
+            <SidebarContent mobile />
+          </Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    </Show>
   )
 }
 
@@ -164,15 +95,6 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(sidebarFrameRecipe, local)
-  const merged = mergeProps(
-    {
-      get side() {
-        return resolved.variants.side
-      },
-      scrollThreshold: 60,
-    },
-    local,
-  )
 
   const mediaMatches = createMediaQuery(SIDEBAR_FRAME_MOBILE_QUERY, false)
   const isMobile = createMemo(() => local.isMobile ?? mediaMatches())
@@ -185,11 +107,20 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     }),
   )
 
-  const context = {
-    get presentation() {
-      return { classes: local.classes, styles: local.styles }
+  const presentation = {
+    get classes() {
+      return local.classes
     },
-    scrollThreshold: () => merged.scrollThreshold,
+    get styles() {
+      return local.styles
+    },
+  }
+
+  const context = {
+    presentation,
+    get scrollThreshold() {
+      return local.scrollThreshold ?? 60
+    },
     isMobile,
     scrolled,
     setScrolled,
@@ -200,7 +131,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       return resolved.variants.variant
     },
     get side() {
-      return merged.side
+      return resolved.variants.side
     },
   }
 
