@@ -3,7 +3,6 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
-import type { IconT } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { callRef } from '../../shared/utils'
 
@@ -26,7 +25,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   ])
   const resolved = createStyles(breadcrumbRecipe, local)
 
-  const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
+  const separator = () => local.separator ?? 'icon-chevron-right'
 
   const items = createMemo(() => local.items ?? [])
   const currentIndex = createMemo(() => {
@@ -48,13 +47,16 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
-            const isDisabled = createMemo(() => Boolean(item.disabled))
+            const isDisabled = () => Boolean(item.disabled)
+            const isDisabledLink = () => !isCurrent() && isDisabled()
+            const isInteractive = () => !isCurrent() && !isDisabled()
+
             const leading = createMemo(() => item.icon)
             const label = createMemo(() => item.label)
-            const hasLabel = createMemo(() => {
+            const hasLabel = () => {
               const value = label()
               return value === 0 || Boolean(value)
-            })
+            }
 
             return (
               <>
@@ -64,20 +66,21 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     keyed
                     fallback={
                       <Dynamic
-                        component={isCurrent() || isDisabled() ? 'span' : 'a'}
+                        component={isInteractive() ? 'a' : 'span'}
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
                         {...resolved.styles[isCurrent() ? 'page' : 'link']}
-                        role={!isCurrent() && isDisabled() ? 'link' : undefined}
-                        aria-disabled={!isCurrent() && isDisabled() ? 'true' : undefined}
+                        role={isDisabledLink() ? 'link' : undefined}
+                        aria-disabled={isDisabledLink() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
-                        {...breadcrumbDataAttributes.page({
-                          current: isCurrent,
-                          disabled: () => !isCurrent() && isDisabled(),
-                        })}
-                        href={isCurrent() || isDisabled() ? undefined : (item.to ?? item.href)}
-                        target={isCurrent() || isDisabled() ? undefined : item.target}
-                        rel={isCurrent() || isDisabled() ? undefined : item.rel}
-                        onClick={isCurrent() || isDisabled() ? undefined : item.onClick}
+                        {...(isCurrent()
+                          ? breadcrumbDataAttributes.page({ current: true })
+                          : isDisabledLink()
+                            ? breadcrumbDataAttributes.link({ disabled: true })
+                            : undefined)}
+                        href={isInteractive() ? (item.to ?? item.href) : undefined}
+                        target={isInteractive() ? item.target : undefined}
+                        rel={isInteractive() ? item.rel : undefined}
+                        onClick={isInteractive() ? item.onClick : undefined}
                       >
                         <Show when={leading()}>
                           {(icon) => (

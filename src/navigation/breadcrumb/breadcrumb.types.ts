@@ -2,7 +2,7 @@ import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue, ComponentSize } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
 
@@ -96,12 +96,6 @@ export namespace BreadcrumbT {
      * @default 'icon-chevron-right'
      */
     separator?: IconT.Name
-
-    /**
-     * Size of the breadcrumb items and icons.
-     * @default 'md'
-     */
-    size?: ComponentSize
 
     /**
      * Renderer for each breadcrumb item.
