@@ -47,11 +47,6 @@ Run workspace commands from the repository root.
 The `src` directory is organized by component role and shared infrastructure:
 
 ```text
-src/
-├── index.ts                # Main public entry point; re-exports component categories and shared APIs.
-├── theme.ts                # Public theme entry point.
-├── utils.ts                # Public utility entry point.
-├── virtualizer.ts          # Public virtual-list entry point.
 ├── element/                # Basic, non-form UI elements.
 │   ├── accordion/          # Accordion primitives.
 │   ├── avatar/             # Avatar and fallback display.
@@ -61,6 +56,7 @@ src/
 │   ├── button-group/       # Joined button groups.
 │   ├── card/               # Card layout primitives.
 │   ├── collapsible/        # Collapsible content primitives.
+│   ├── empty/              # Empty-state presentation.
 │   ├── icon/               # Icon rendering helpers and component.
 │   ├── kbd/                # Keyboard shortcut display.
 │   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
@@ -68,7 +64,12 @@ src/
 │   ├── progress/           # Progress indicators.
 │   ├── resizable/          # Resizable panels and interaction hooks.
 │   └── separator/          # Visual separators.
+│   ├── scroll-area/        # Scroll container with edge fade indicators.
+│   ├── separator/          # Visual separators.
+│   ├── skeleton/           # Skeleton loading placeholder.
+│   └── toggle-button/      # Two-state toggle button.
 ├── form/                   # Form controls and form-state integration.
+│   ├── base-select/        # Low-level selection, disclosure, and listbox primitive.
 │   ├── checkbox/           # Checkbox control.
 │   ├── checkbox-group/     # Checkbox group control.
 │   ├── base-select/        # Low-level selection, disclosure, and listbox primitive.
@@ -89,6 +90,7 @@ src/
 ├── navigation/             # Navigation and page-organization components.
 │   ├── breadcrumb/         # Breadcrumb navigation.
 │   ├── command-palette/    # Command palette behavior and presentation.
+│   ├── navigation-menu/    # Navigation menu with triggers and content panels.
 │   ├── pagination/         # Pagination controls.
 │   ├── sidebar-frame/      # Responsive sidebar layout.
 │   ├── stepper/            # Step-based navigation.
@@ -104,7 +106,7 @@ src/
 │   └── tooltip/            # Tooltip.
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
-├── test-utils/             # SSR, owner, overlay, and global test utilities.
+├── test-util/              # SSR, owner, overlay, and global test utilities.
 ├── theme/                  # Theme configuration, contracts, and creation primitives.
 │   ├── recipe.ts           # Component recipes and variant resolution.
 │   ├── tokens.ts           # Shared design tokens.
@@ -155,6 +157,8 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Effect dependencies must be signals, existing memos, direct property accessors, boolean condition accessors, or named accessors that snapshot raw nested fields. Prefer boolean accessors when the effect only needs an enabled/open/closed condition; reuse existing boolean helpers when available. Keep raw value and element dependencies when value changes or node replacement must rerun the effect. Keep filtering, lookups, normalization, comparisons, and defaults inside the effect callback unless they directly express its boolean condition. Do not construct conditional tuples, state wrapper objects, or synthetic `undefined` values to skip an effect. Optional properties may naturally be `undefined`. Raw snapshots may copy structure and fields to track in-place updates, but must not contain business logic.
 
 - The dependencies passed to `on()` describe when an effect must rerun, not every reactive value it uses. Read non-triggering state inside the callback, which is already untracked.
+
+- Inner component should call using JSX style instead of directly function call
 
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
