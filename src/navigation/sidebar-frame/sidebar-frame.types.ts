@@ -64,6 +64,13 @@ export namespace SidebarFrameT {
 
   export type SidebarProps = BaseProps<'div', SidebarBase, never, never, never>
 
+  export type SidebarHeaderBase = RegionBase
+  export type SidebarBodyBase = RegionBase
+  export type SidebarFooterBase = RegionBase
+  export type MainBase = RegionBase
+  export type GroupBase = RegionBase
+  export type MenuBase = RegionBase
+
   export type SidebarHeaderProps = RegionProps
   export type SidebarBodyProps = RegionProps
   export type SidebarFooterProps = RegionProps
