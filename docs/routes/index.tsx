@@ -5,7 +5,7 @@ import { LandingPage } from './components/landing'
 const title = 'Moraine — customizable components for SolidJS'
 const description =
   'Accessible SolidJS components with composable recipes and flexible styling through UnoCSS and Tailwind CSS.'
-const canonical = 'https://ui.subf.dev/'
+const canonical = 'https://moraine.subf.dev/'
 
 export default createRoute({
   metadata: {

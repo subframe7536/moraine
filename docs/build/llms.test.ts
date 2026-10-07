@@ -47,10 +47,10 @@ describe('agent Markdown', () => {
     const index = result.find((item) => item.fileName === 'llms.txt')!.source
     expect(index).toContain('## Docs')
     expect(index).toContain('## Components')
-    expect(index).toContain('https://ui.subf.dev/docs/getting-started.md')
-    expect(index).toContain('https://ui.subf.dev/docs/virtualization.md')
+    expect(index).toContain('https://moraine.subf.dev/docs/getting-started.md')
+    expect(index).toContain('https://moraine.subf.dev/docs/virtualization.md')
     expect(index).not.toContain('create-list-virtualizer')
-    expect(index).toContain('https://ui.subf.dev/components/button.md')
+    expect(index).toContain('https://moraine.subf.dev/components/button.md')
   })
 
   test('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
@@ -82,7 +82,7 @@ describe('agent Markdown', () => {
     expect(directory).toContain('## General')
     expect(directory).toContain('## Overlay')
     expect(directory).toContain(
-      '[Button](https://ui.subf.dev/components/button.md): Render actions',
+      '[Button](https://moraine.subf.dev/components/button.md): Render actions',
     )
     const button = result.find((item) => item.fileName === 'components/button.md')!.source
     expect(button).toContain('## Basic usage')
@@ -94,12 +94,12 @@ describe('agent Markdown', () => {
     expect(button).toContain('## Usage')
     expect(button).toContain('## Props')
     const select = result.find((item) => item.fileName === 'components/select.md')!.source
-    expect(select).toContain('https://ui.subf.dev/components/combobox.md')
+    expect(select).toContain('https://moraine.subf.dev/components/combobox.md')
     const virtualization = result.find((item) => item.fileName === 'docs/virtualization.md')!.source
     expect(virtualization).toContain('ComboboxT.Row<ComboboxT.Item<string>>')
     expect(virtualization).toContain('virtualizer.scrollToIndex(entryIndex)')
     expect(virtualization).not.toContain('virtualizer.scrollToItem')
     const customization = result.find((item) => item.fileName === 'docs/customization.md')!.source
-    expect(customization).toContain('https://ui.subf.dev/docs/composition.md')
+    expect(customization).toContain('https://moraine.subf.dev/docs/composition.md')
   })
 })

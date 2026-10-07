@@ -6,7 +6,7 @@ const SITE_META = {
   siteName: 'Moraine',
   title: 'Moraine Docs',
   description: 'Composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
-  siteUrl: 'https://ui.subf.dev/',
+  siteUrl: 'https://moraine.subf.dev/',
   imagePath: '/og-image.png',
   imageAlt: 'Moraine Docs brand cover image',
   imageWidth: 1200,
@@ -27,7 +27,7 @@ describe('buildSiteMetaTags', () => {
       tag: 'link',
       attrs: {
         rel: 'canonical',
-        href: 'https://ui.subf.dev/',
+        href: 'https://moraine.subf.dev/',
       },
       injectTo: 'head',
     })
@@ -43,7 +43,7 @@ describe('buildSiteMetaTags', () => {
       tag: 'meta',
       attrs: {
         property: 'og:image',
-        content: 'https://ui.subf.dev/og-image.png',
+        content: 'https://moraine.subf.dev/og-image.png',
       },
       injectTo: 'head',
     })
@@ -51,7 +51,7 @@ describe('buildSiteMetaTags', () => {
       tag: 'meta',
       attrs: {
         name: 'twitter:image',
-        content: 'https://ui.subf.dev/og-image.png',
+        content: 'https://moraine.subf.dev/og-image.png',
       },
       injectTo: 'head',
     })
@@ -60,7 +60,7 @@ describe('buildSiteMetaTags', () => {
   test('resolves absolute URLs from root-relative image paths', () => {
     const tags = buildSiteMetaTags({
       ...SITE_META,
-      siteUrl: 'https://ui.subf.dev',
+      siteUrl: 'https://moraine.subf.dev',
       imagePath: '/assets/cover.png',
     })
 
@@ -68,7 +68,7 @@ describe('buildSiteMetaTags', () => {
       tag: 'link',
       attrs: {
         rel: 'canonical',
-        href: 'https://ui.subf.dev/',
+        href: 'https://moraine.subf.dev/',
       },
       injectTo: 'head',
     })
@@ -76,7 +76,7 @@ describe('buildSiteMetaTags', () => {
       tag: 'meta',
       attrs: {
         property: 'og:image',
-        content: 'https://ui.subf.dev/assets/cover.png',
+        content: 'https://moraine.subf.dev/assets/cover.png',
       },
       injectTo: 'head',
     })
@@ -107,12 +107,12 @@ describe('siteMetaPlugin', () => {
         { tag: 'title', children: 'Moraine Docs', injectTo: 'head' },
         {
           tag: 'link',
-          attrs: { rel: 'canonical', href: 'https://ui.subf.dev/' },
+          attrs: { rel: 'canonical', href: 'https://moraine.subf.dev/' },
           injectTo: 'head',
         },
         {
           tag: 'meta',
-          attrs: { property: 'og:image', content: 'https://ui.subf.dev/og-image.png' },
+          attrs: { property: 'og:image', content: 'https://moraine.subf.dev/og-image.png' },
           injectTo: 'head',
         },
       ]),

@@ -92,11 +92,11 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.metadata).toEqual({
       title: 'Button | Moraine',
       description: 'Button description.',
-      canonical: 'https://ui.subf.dev/components/button',
+      canonical: 'https://moraine.subf.dev/components/button',
       meta: [
         { property: 'og:title', content: 'Button | Moraine' },
         { property: 'og:description', content: 'Button description.' },
-        { property: 'og:url', content: 'https://ui.subf.dev/components/button' },
+        { property: 'og:url', content: 'https://moraine.subf.dev/components/button' },
         { name: 'twitter:title', content: 'Button | Moraine' },
         { name: 'twitter:description', content: 'Button description.' },
       ],
@@ -188,7 +188,7 @@ describe('createDocsMdxOptions', () => {
     })
     expect(extension?.routeConfig?.metadata).toMatchObject({
       title: 'Getting Started | Moraine',
-      canonical: 'https://ui.subf.dev/docs/getting-started',
+      canonical: 'https://moraine.subf.dev/docs/getting-started',
     })
   })
 })

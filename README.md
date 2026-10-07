@@ -7,7 +7,7 @@ Inspired by Nuxt UI and shadcn, Moraine is a comprehensive SolidJS component lib
 
 ## Documentation
 
-Full guide and examples: https://ui.subf.dev
+Full guide and examples: https://moraine.subf.dev
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ function App() {
 }
 ```
 
-4. See the [component guides](https://ui.subf.dev/components) for usage and [Customization](https://ui.subf.dev/docs/customization) for style overrides. Components use built-in styles by default. Add `MoraineProvider` for Theme or class-merging overrides; [Theming](https://ui.subf.dev/docs/theming) explains inheritance and composition.
+4. See the [component guides](https://moraine.subf.dev/components) for usage and [Customization](https://moraine.subf.dev/docs/customization) for style overrides. Components use built-in styles by default. Add `MoraineProvider` for Theme or class-merging overrides; [Theming](https://moraine.subf.dev/docs/theming) explains inheritance and composition.
 
 ## Package entry points
 
