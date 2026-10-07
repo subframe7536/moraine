@@ -12,7 +12,23 @@ export interface PaginationStepContext {
   page?: number
 }
 
-/** Accessible names shared by Select, Combobox, and MultiSelect. */
+export interface SliderThumbContext {
+  index: number
+  total: number
+}
+
+/** Accessible names for Select. */
+export interface SelectMessages {
+  /** Accessible name for the clear button. */
+  clear: string
+  /**
+   * Fallback placeholder shown when nothing is selected.
+   * An empty string leaves the placeholder unset.
+   */
+  placeholder: string
+}
+
+/** Accessible names shared by Combobox and MultiSelect. */
 export interface CollectionMessages {
   /** Accessible name for the clear button. */
   clear: string
@@ -24,23 +40,33 @@ export interface CollectionMessages {
   empty: string
   /**
    * Fallback placeholder.
-   * Select shows it when nothing is selected. MultiSelect uses it for the non-editable
-   * trigger name. An empty string leaves the placeholder unset.
+   * MultiSelect uses it for the non-editable trigger name. An empty string leaves the placeholder unset.
    */
   placeholder: string
+}
+
+export interface MultiSelectMessages extends CollectionMessages {
+  /** Accessible label announced for the overflow tag indicator. */
+  overflow: (ctx: { count: number }) => string
+  /** Prompt displayed in the empty list state when item creation is enabled. */
+  create: (ctx: { value: string }) => string
 }
 
 export interface MoraineMessages {
   dialog: { close: string }
   sheet: { close: string }
+  breadcrumb: { label: string }
   commandPalette: {
     placeholder: string
     close: string
     empty: string
   }
-  select: CollectionMessages
+  select: SelectMessages
   combobox: CollectionMessages
-  multiSelect: CollectionMessages
+  multiSelect: MultiSelectMessages
+  slider: {
+    thumb: (ctx: SliderThumbContext) => string
+  }
   pagination: {
     label: string
     /** Visually hidden live status, for example `Page 1 of 3`. */

@@ -6,7 +6,13 @@ function mergeGroup<T extends object>(base: T, patch: Partial<T> | undefined): T
   if (!patch) {
     return base
   }
-  return Object.freeze({ ...base, ...patch })
+  const result = { ...base }
+  for (const key of Object.keys(patch) as (keyof T)[]) {
+    if (patch[key] !== undefined) {
+      result[key] = patch[key]!
+    }
+  }
+  return Object.freeze(result)
 }
 
 /** Deep-merges a partial pack over a resolved message object. Repeated pairs are cached. */
@@ -31,10 +37,12 @@ export function mergeMessages(
   const merged = {
     dialog: mergeGroup(base.dialog, input.dialog),
     sheet: mergeGroup(base.sheet, input.sheet),
+    breadcrumb: mergeGroup(base.breadcrumb, input.breadcrumb),
     commandPalette: mergeGroup(base.commandPalette, input.commandPalette),
     select: mergeGroup(base.select, input.select),
     combobox: mergeGroup(base.combobox, input.combobox),
     multiSelect: mergeGroup(base.multiSelect, input.multiSelect),
+    slider: mergeGroup(base.slider, input.slider),
     pagination: mergeGroup(base.pagination, input.pagination),
     inputNumber: mergeGroup(base.inputNumber, input.inputNumber),
     fileUpload: mergeGroup(base.fileUpload, input.fileUpload),

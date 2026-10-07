@@ -7,17 +7,17 @@ search:
   tags: [i18n, locale, rtl, direction, messages, translation, MoraineProvider]
 ---
 
-Moraine components ship English accessible names and placeholders. `MoraineProvider` replaces that copy, sets the locale used by `InputNumber`, and sets the direction used by menus, sliders, and portaled overlays. Wrap the tree once at the root, or nest a provider to override part of the tree.
+Moraine components ship English accessible names, placeholders, and the `en` locale. That fallback is active with no `MoraineProvider` in the tree. Add a provider to replace the copy, switch the locale used by `InputNumber`, or set the direction used by menus, sliders, and portaled overlays. Nest a provider to override part of the tree.
 
 ## Provider props
 
-| Prop       | Omitted                           | Set                                                                   |
-| :--------- | :-------------------------------- | :-------------------------------------------------------------------- |
-| `locale`   | Inherits the parent locale.       | Replaces it with a BCP 47 tag such as `de-DE`.                        |
-| `dir`      | Inherits the parent direction.    | Replaces it with `ltr` or `rtl`.                                      |
-| `messages` | Inherits the parent message pack. | Deep-merges a partial pack over the parent. The base pack is English. |
+| Prop       | Omitted                           | Set                                                                             |
+| :--------- | :-------------------------------- | :------------------------------------------------------------------------------ |
+| `locale`   | Inherits the parent locale.       | Replaces it with a BCP 47 tag such as `de-DE`.                                  |
+| `dir`      | Inherits the parent direction.    | Replaces it with `ltr` or `rtl`, or `null` to clear back to document detection. |
+| `messages` | Inherits the parent message pack. | Deep-merges a partial pack over the parent. The base pack is English.           |
 
-At the root, an omitted `locale` or `dir` stays unset. Number formatting then uses the runtime default, and direction comes from the document. An omitted `messages` prop uses the built-in English pack.
+With no provider, `locale` is `en`, `dir` is unset, and messages are the English pack. An omitted `locale` or `messages` prop inherits those defaults. An omitted `dir` stays unset, so direction still comes from the document.
 
 ```tsx title="src/App.tsx"
 import { MoraineProvider } from 'moraine'
@@ -50,7 +50,7 @@ A component prop always wins over the pack. `placeholder`, `aria-label`, `ariaLa
 
 ## Message packs
 
-`MoraineMessages` is the full English shape. `MoraineMessagesInput` is the deep-partial type you pass to the provider. Groups are `dialog`, `sheet`, `commandPalette`, `select`, `combobox`, `multiSelect`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, and `kbd`.
+`MoraineMessages` is the full English shape. `MoraineMessagesInput` is the deep-partial type you pass to the provider. Groups are `dialog`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, and `kbd`.
 
 Text that includes a number or a name is a function, so the translation controls word order:
 
@@ -77,8 +77,8 @@ const pagination = {
 
 ## Direction
 
-Portaled popover, dialog, and sheet content receive `dir` from the provider when the component does not set `dir` itself. The attribute is omitted when neither is set, so server markup stays unchanged until you opt in.
+Portaled popover, dialog, and sheet content receive `dir` from the provider when the component does not set `dir` itself. A component's own `dir` attribute always takes precedence over the provider. The attribute is omitted when neither is set, so server markup stays unchanged until you opt in.
 
-Shared overlay direction uses the provider value when it is set, and otherwise reads the element and document the way it did before. A slider's own `dir` attribute still wins over the provider. When the slider does not set `dir`, the provider wins over an ancestor or the document.
+Shared overlay direction uses the provider value when it is set, and otherwise reads the element and document the way it did before. A component's own `dir` attribute still wins over the provider. When the component does not set `dir`, the provider wins over an ancestor or the document.
 
-`InputNumber` reads `locale` from its prop, then from the provider, then from the runtime.
+`InputNumber` reads `locale` from its prop, then from the provider. Both fall back to `en` when the tree has no `MoraineProvider`.

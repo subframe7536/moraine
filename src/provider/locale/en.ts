@@ -16,12 +16,16 @@ const collection = pack({
 export const enMessages: MoraineMessages = /* @__PURE__ */ pack({
   dialog: pack({ close: 'Close' }),
   sheet: pack({ close: 'Close' }),
+  breadcrumb: pack({ label: 'breadcrumb' }),
   commandPalette: pack({
     placeholder: 'Search...',
     close: 'Close',
     empty: 'No results.',
   }),
-  select: collection,
+  select: pack({
+    clear: 'Clear selection',
+    placeholder: '',
+  }),
   combobox: collection,
   multiSelect: pack({
     clear: 'Clear selection',
@@ -29,6 +33,11 @@ export const enMessages: MoraineMessages = /* @__PURE__ */ pack({
     toggle: 'Toggle options',
     empty: 'No items',
     placeholder: 'Select options',
+    overflow: ({ count }) => `${count} additional selections`,
+    create: ({ value }) => `Press Enter to create “${value}”`,
+  }),
+  slider: pack({
+    thumb: ({ index, total }) => (total <= 1 ? 'Thumb' : `Thumb ${index + 1} of ${total}`),
   }),
   pagination: pack({
     label: 'Pagination',

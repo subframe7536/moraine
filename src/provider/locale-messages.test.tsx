@@ -12,6 +12,8 @@ import { createForm } from '../form/form'
 import { InputNumber } from '../form/input-number/input-number'
 import { MultiSelect } from '../form/multi-select/multi-select'
 import { Select } from '../form/select/select'
+import { Slider } from '../form/slider/slider'
+import { Breadcrumb } from '../navigation/breadcrumb/breadcrumb'
 import { CommandPalette } from '../navigation/command-palette/command-palette'
 import { Pagination } from '../navigation/pagination/pagination'
 import { SidebarFrame } from '../navigation/sidebar-frame/sidebar-frame'
@@ -228,5 +230,61 @@ describe('localized component text', () => {
 
     expect(screen.getByLabelText('Commande').textContent).toBe('⌘')
     expect(screen.getByLabelText('Primary').textContent).toBe('⌘')
+  })
+
+  test('uses multi-select overflow and create messages', async () => {
+    const screen = render(() => (
+      <MoraineProvider
+        messages={{
+          multiSelect: {
+            overflow: ({ count }) => `+${count} autres`,
+            create: ({ value }) => `Créer «${value}»`,
+          },
+        }}
+      >
+        <MultiSelect items={FRUIT} defaultValue={['apple']} maxTagCount={0} />
+        <MultiSelect
+          items={[]}
+          createItem={(input) => ({ value: input, label: input })}
+          defaultOpen
+        />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByLabelText('+1 autres')).toBeTruthy()
+    const input = screen.getAllByRole('combobox')[1] as HTMLInputElement
+    fireEvent.input(input, { target: { value: 'banana' } })
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Créer «banana»')
+    })
+  })
+
+  test('uses slider thumb message', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        messages={{
+          slider: {
+            thumb: ({ index, total }) => `Curseur ${index + 1}/${total}`,
+          },
+        }}
+      >
+        <Slider defaultValue={[20, 80]} />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByRole('slider', { name: 'Curseur 1/2' })).toBeTruthy()
+    expect(screen.getByRole('slider', { name: 'Curseur 2/2' })).toBeTruthy()
+  })
+
+  test('uses breadcrumb message and lets aria-label win', () => {
+    const screen = render(() => (
+      <MoraineProvider messages={{ breadcrumb: { label: 'Fil d’Ariane' } }}>
+        <Breadcrumb items={[{ label: 'Home' }]} />
+        <Breadcrumb items={[{ label: 'Home' }]} aria-label="Navigation" />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByRole('navigation', { name: 'Fil d’Ariane' })).toBeTruthy()
+    expect(screen.getByRole('navigation', { name: 'Navigation' })).toBeTruthy()
   })
 })

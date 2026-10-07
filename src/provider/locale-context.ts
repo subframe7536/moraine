@@ -7,12 +7,13 @@ import { mergeMessages } from './locale/merge-messages'
 import type { MoraineMessages, MoraineMessagesInput } from './locale/messages.types'
 
 export interface ResolvedLocale {
-  locale?: string
+  locale: string
   dir?: 'ltr' | 'rtl'
   messages: MoraineMessages
 }
 
 export const DEFAULT_LOCALE: ResolvedLocale = {
+  locale: 'en',
   messages: enMessages,
 }
 
@@ -23,8 +24,8 @@ export const [MoraineLocaleProvider, useLocaleAccessor] = createContextProvider<
 >('MoraineLocale', defaultLocale)
 
 export interface MoraineLocale {
-  /** BCP 47 locale inherited from the nearest provider. Undefined uses the runtime default. */
-  locale: Accessor<string | undefined>
+  /** BCP 47 locale from the nearest provider. Guaranteed fallback is `en`. */
+  locale: Accessor<string>
   /** Direction inherited from the nearest provider. Undefined leaves detection to the document. */
   dir: Accessor<'ltr' | 'rtl' | undefined>
 }
@@ -46,12 +47,20 @@ export function useMessages(): Accessor<MoraineMessages> {
 
 export function resolveLocale(
   parent: ResolvedLocale,
-  next: { locale?: string; dir?: 'ltr' | 'rtl'; messages?: MoraineMessagesInput },
+  next: { locale?: string; dir?: 'ltr' | 'rtl' | null; messages?: MoraineMessagesInput },
 ): ResolvedLocale {
-  return {
-    locale: next.locale === undefined ? parent.locale : next.locale,
-    dir: next.dir === undefined ? parent.dir : next.dir,
-    messages:
-      next.messages === undefined ? parent.messages : mergeMessages(parent.messages, next.messages),
+  if (next.locale === undefined && next.dir === undefined && next.messages === undefined) {
+    return parent
   }
+
+  const locale = next.locale === undefined ? parent.locale : next.locale
+  const dir = next.dir === null ? undefined : next.dir === undefined ? parent.dir : next.dir
+  const messages =
+    next.messages === undefined ? parent.messages : mergeMessages(parent.messages, next.messages)
+
+  if (locale === parent.locale && dir === parent.dir && messages === parent.messages) {
+    return parent
+  }
+
+  return { locale, dir, messages }
 }

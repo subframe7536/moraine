@@ -18,10 +18,10 @@ export interface MoraineProviderProps {
   theme?: MoraineTheme | null
   /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
-  /** Undefined inherits the parent locale; a BCP 47 tag replaces it. */
+  /** Undefined inherits the parent locale. The built-in fallback is `en`. */
   locale?: string
-  /** Undefined inherits the parent direction; `'ltr'` or `'rtl'` replaces it. */
-  dir?: 'ltr' | 'rtl'
+  /** Undefined inherits the parent direction; null clears it back to document detection; 'ltr' or 'rtl' replaces it. */
+  dir?: 'ltr' | 'rtl' | null
   /** Undefined inherits parent messages; a partial pack deep-merges over them. */
   messages?: MoraineMessagesInput
   /** Components that receive the theme, class merging, and locale rules. */

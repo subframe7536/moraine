@@ -161,6 +161,9 @@ export type {
   MoraineLocale,
   MoraineMessages,
   MoraineMessagesInput,
+  SelectMessages,
+  CollectionMessages,
+  MultiSelectMessages,
 } from './provider'
 export { cn, createCn } from './theme/cn'
 export type { Cn, CnConfig } from './theme/cn'

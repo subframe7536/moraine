@@ -321,6 +321,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
 
   return (
     <PopperContent
+      dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={behavior.options.mode === 'click'}
       align={behavior.options.align}

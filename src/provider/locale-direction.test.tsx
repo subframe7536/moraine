@@ -114,4 +114,32 @@ describe('Moraine direction', () => {
       'rtl',
     )
   })
+
+  test('lets a dir attribute on portaled content win over the provider', () => {
+    render(() => (
+      <MoraineProvider dir="rtl">
+        <Popover open>
+          <Popover.Trigger as="button" type="button">
+            Open
+          </Popover.Trigger>
+          <Popover.Content dir="ltr">Panel</Popover.Content>
+        </Popover>
+        <Dialog open>
+          <Dialog.Content dir="ltr">Dialog</Dialog.Content>
+        </Dialog>
+        <Sheet open>
+          <Sheet.Content dir="ltr">Sheet</Sheet.Content>
+        </Sheet>
+      </MoraineProvider>
+    ))
+
+    const content = document.body.querySelector('[data-slot="popover-content"]')
+    expect(content?.parentElement?.getAttribute('dir')).toBe('ltr')
+    expect(document.body.querySelector('[data-slot="dialog-content"]')?.getAttribute('dir')).toBe(
+      'ltr',
+    )
+    expect(document.body.querySelector('[data-slot="sheet-content"]')?.getAttribute('dir')).toBe(
+      'ltr',
+    )
+  })
 })

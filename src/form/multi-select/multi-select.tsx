@@ -341,7 +341,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 fallback={
                   <span
                     data-slot="multi-select-tag-overflow"
-                    aria-label={`${tags.overflow()} additional selections`}
+                    aria-label={messages().multiSelect.overflow({ count: tags.overflow() })}
                     {...styles.styles.tagOverflow}
                   >
                     +{tags.overflow()}
@@ -504,7 +504,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   when={local.createItem && search.value()}
                   fallback={messages().multiSelect.empty}
                 >
-                  {(value) => `Press Enter to create “${value()}”`}
+                  {(value) => messages().multiSelect.create({ value: value() })}
                 </Show>
               }
             >

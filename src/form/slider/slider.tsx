@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -43,6 +44,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
   ])
   const themeField = useFieldContext()
+  const messages = useMessages()
   const resolved = createStyles(sliderRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -218,11 +220,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
             aria-orientation={merged.orientation ?? undefined}
-            aria-label={
-              slider.currentValues().length <= 1
-                ? 'Thumb'
-                : `Thumb ${thumbIndex + 1} of ${slider.currentValues().length}`
-            }
+            aria-label={messages().slider.thumb({
+              index: thumbIndex,
+              total: slider.currentValues().length,
+            })}
             {...field.ariaAttrs()}
             onPointerDown={(event) => {
               slider.onThumbPointerDown(thumbIndex, event)

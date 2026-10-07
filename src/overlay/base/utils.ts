@@ -606,6 +606,11 @@ export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
 }
 
 export function resolveDirection(element?: Element, explicit?: 'ltr' | 'rtl'): 'ltr' | 'rtl' {
+  const ownDirection = element?.getAttribute?.('dir')
+  if (ownDirection === 'ltr' || ownDirection === 'rtl') {
+    return ownDirection
+  }
+
   if (explicit === 'ltr' || explicit === 'rtl') {
     return explicit
   }

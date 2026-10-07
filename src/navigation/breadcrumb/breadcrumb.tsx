@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import { callRef } from '../../shared/utils'
 
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
@@ -24,6 +25,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(breadcrumbRecipe, local)
+  const messages = useMessages()
 
   const separator = () => local.separator ?? 'icon-chevron-right'
 
@@ -39,7 +41,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     <nav
       ref={(el) => callRef(local.ref, el)}
       data-slot="breadcrumb"
-      aria-label={rest['aria-label'] ?? 'breadcrumb'}
+      aria-label={rest['aria-label'] ?? messages().breadcrumb.label}
       {...resolved.styles.root}
       {...rest}
     >

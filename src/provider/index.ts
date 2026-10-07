@@ -4,4 +4,10 @@ export { createStyles } from './create-styles'
 export { useCn } from './cn-context'
 export { useLocale } from './locale-context'
 export type { MoraineLocale } from './locale-context'
-export type { MoraineMessages, MoraineMessagesInput } from './locale/messages.types'
+export type {
+  MoraineMessages,
+  MoraineMessagesInput,
+  SelectMessages,
+  CollectionMessages,
+  MultiSelectMessages,
+} from './locale/messages.types'

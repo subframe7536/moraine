@@ -31,19 +31,21 @@ function LocaleProbe() {
 }
 
 describe('Moraine locale', () => {
-  test('uses English messages and leaves locale and direction unset without a provider', () => {
+  test('uses English messages and locale without a provider', () => {
     const screen = render(() => (
       <>
         <LocaleProbe />
         <Pagination total={10} />
+        <InputNumber aria-label="Quantity" defaultValue={12.5} />
       </>
     ))
 
     const probe = screen.container.querySelector('i')!
-    expect(probe.dataset.locale).toBe('')
+    expect(probe.dataset.locale).toBe('en')
     expect(probe.dataset.dir).toBe('')
     expect(probe.dataset.close).toBe(enMessages.dialog.close)
     expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeTruthy()
+    expect(controlValue(screen.getByRole('spinbutton', { name: 'Quantity' }))).toBe('12.5')
   })
 
   test('inherits locale, direction, and messages, and lets a child replace them', () => {
@@ -116,5 +118,35 @@ describe('Moraine locale', () => {
     expect(button.getAttribute('aria-label')).toBe('Close')
     setClose('Fermer')
     expect(button.getAttribute('aria-label')).toBe('Fermer')
+  })
+
+  test('clears inherited direction back to document detection when dir is null', () => {
+    const screen = render(() => (
+      <MoraineProvider dir="rtl">
+        <LocaleProbe />
+        <MoraineProvider dir={null}>
+          <LocaleProbe />
+        </MoraineProvider>
+      </MoraineProvider>
+    ))
+
+    const [outer, cleared] = screen.container.querySelectorAll('i')
+    expect(outer?.dataset.dir).toBe('rtl')
+    expect(cleared?.dataset.dir).toBe('')
+  })
+
+  test('ignores undefined message patch values to preserve base strings', () => {
+    render(() => (
+      <MoraineProvider messages={{ dialog: { close: undefined } }}>
+        <Dialog open>
+          <Dialog.Content>Hi</Dialog.Content>
+        </Dialog>
+      </MoraineProvider>
+    ))
+
+    const button = document.body.querySelector(
+      '[data-slot="dialog-content-close"]',
+    ) as HTMLButtonElement
+    expect(button.getAttribute('aria-label')).toBe('Close')
   })
 })
