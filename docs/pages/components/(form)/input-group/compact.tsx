@@ -8,7 +8,7 @@ export function Compact() {
       <InputGroup.Leading>https://</InputGroup.Leading>
       <Input aria-label="Website" placeholder="example.com" value={txt()} onValueChange={setTxt} />
       <InputGroup.Trailing compact>
-        <Button size="icon-xs" variant="ghost" onClick={() => setTxt('')}>
+        <Button size="icon-sm" variant="ghost" onClick={() => setTxt('')}>
           <Icon name="i-lucide:x" />
         </Button>
       </InputGroup.Trailing>

@@ -269,8 +269,10 @@ describe('presetMoraine', () => {
   })
 
   test('Wind4 font utilities read the local --font-size', async () => {
-    const css = await generate(['text-xs', 'text-sm', 'text-base', 'text-5xl'])
+    const css = await generate(['text-tiny', 'text-xs', 'text-sm', 'text-base', 'text-5xl'])
 
+    expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.625)')
+    expect(css).toContain('line-height:var(--un-leading, calc(var(--font-size, 1rem) * 0.875))')
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.75)')
     expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
     expect(css).toContain('.text-base{font-size:var(--font-size, 1rem)')

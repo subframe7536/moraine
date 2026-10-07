@@ -203,8 +203,8 @@ describe('Pagination', () => {
     const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
     const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
-    expect(prev?.className).toContain('size-8')
-    expect(next?.className).toContain('size-8')
+    expect(prev?.className).toContain('size-7')
+    expect(next?.className).toContain('size-7')
     expect(prev?.hasAttribute('data-size')).toBe(false)
     expect(next?.hasAttribute('data-size')).toBe(false)
     expect(prev?.hasAttribute('data-text')).toBe(false)

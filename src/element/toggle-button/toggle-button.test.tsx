@@ -237,7 +237,7 @@ describe('ToggleButton', () => {
     setSize('icon-sm')
     setCustomClass('updated-class')
     expect(button.className).toContain('bg-destructive')
-    expect(button.className).toContain('size-7')
+    expect(button.className).toContain('size-6')
     expect(button.className).toContain('updated-class')
     const grouped = screen.getByRole('button', { name: 'Grouped' })
     expect(grouped.className).toContain('bg-destructive')

@@ -251,8 +251,10 @@ describe('colors', () => {
 
 describe('font size', () => {
   test('text utilities scale from the local --font-size', async () => {
-    const css = await compileCSS(['text-sm', 'text-base', 'text-5xl'])
+    const css = await compileCSS(['text-tiny', 'text-sm', 'text-base', 'text-5xl'])
 
+    expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.625)')
+    expect(css).toContain('line-height: var(--tw-leading, calc(var(--font-size, 1rem) * 0.875))')
     expect(css).toContain('font-size: calc(var(--font-size, 1rem) * 0.875)')
     expect(css).toContain('line-height: var(--tw-leading, calc(var(--font-size, 1rem) * 1.25))')
     expect(css).toContain('font-size: var(--font-size, 1rem)')

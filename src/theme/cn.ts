@@ -9,6 +9,9 @@ export type Cn = (...classes: ClassValue[]) => string | undefined
 
 const MORAINE_CN_RULES: ConfigExtension = {
   extend: {
+    theme: {
+      text: ['tiny'],
+    },
     classGroups: {
       z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
       shadow: ['shadow-surface', 'shadow-overlay', 'shadow-input'],

@@ -12,6 +12,7 @@ export const MORAINE_RADIUS = {
 
 /** Type scale relative to a locally scoped `--font-size` base. */
 export const MORAINE_TEXT_SIZE = {
+  tiny: ['calc(var(--font-size, 1rem) * 0.625)', 'calc(var(--font-size, 1rem) * 0.875)'],
   xs: ['calc(var(--font-size, 1rem) * 0.75)', 'var(--font-size, 1rem)'],
   sm: ['calc(var(--font-size, 1rem) * 0.875)', 'calc(var(--font-size, 1rem) * 1.25)'],
   base: ['var(--font-size, 1rem)', 'calc(var(--font-size, 1rem) * 1.5)'],

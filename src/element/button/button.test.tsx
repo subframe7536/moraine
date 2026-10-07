@@ -228,10 +228,10 @@ describe('Button', () => {
   )
 
   test.each([
-    ['xs', 'text-xs', 'h-6'],
-    ['xl', 'text-lg', 'h-11'],
-    ['icon-xs', 'text-xs', 'size-6'],
-    ['icon-xl', 'text-lg', 'size-11'],
+    ['xs', 'text-tiny', 'h-6'],
+    ['xl', 'text-lg', 'h-10'],
+    ['icon-xs', 'text-tiny', 'size-5'],
+    ['icon-xl', 'text-lg', 'size-9'],
   ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
       <MoraineProvider>
@@ -243,6 +243,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: `${size} button` })
 
+    expect(button.className).toContain('text-primary-foreground')
     expect(button.className).toContain(textClass)
     expect(button.className).toContain(dimensionClass)
   })

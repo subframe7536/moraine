@@ -55,4 +55,9 @@ describe('createCn', () => {
     )
     expect(cn(...classes)).toBe('text-sm')
   })
+
+  test('treats text-tiny as font size without conflicting with text colors', () => {
+    expect(cn('text-primary-foreground', 'text-tiny')).toBe('text-primary-foreground text-tiny')
+    expect(cn('text-sm', 'text-tiny')).toBe('text-tiny')
+  })
 })

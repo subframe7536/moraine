@@ -6,11 +6,11 @@ export function TextareaEditor() {
       <InputGroup.Leading>
         <Icon name="i-lucide:file-code-2" />
         <span class="font-medium font-mono">script.js</span>
-        <Button type="button" variant="ghost" size="icon-xs" class="ms-auto">
+        <Button type="button" variant="ghost" size="icon-sm" class="ms-auto">
           <Icon name="i-lucide:refresh-cw" />
           <span class="sr-only">Refresh</span>
         </Button>
-        <Button type="button" variant="ghost" size="icon-xs">
+        <Button type="button" variant="ghost" size="icon-sm">
           <Icon name="i-lucide:copy" />
           <span class="sr-only">Copy</span>
         </Button>

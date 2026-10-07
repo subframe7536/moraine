@@ -557,6 +557,9 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
             borderRadius: MORAINE_RADIUS,
             boxShadow: MORAINE_SHADOW,
             fontFamily: MORAINE_FONT,
+            fontSize: {
+              tiny: ['0.625rem', '0.875rem'],
+            },
             width: MORAINE_WIDTH,
           }
         : {

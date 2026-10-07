@@ -20,7 +20,7 @@ export function Actions() {
         <InputGroup.Trailing compact>
           <Button
             type="button"
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
             aria-label="Copy URL"
             onClick={copyUrl}
@@ -35,7 +35,7 @@ export function Actions() {
         <InputGroup.Trailing compact>
           <Button
             type="button"
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
             aria-label="Toggle favorite"
             aria-pressed={favorite()}

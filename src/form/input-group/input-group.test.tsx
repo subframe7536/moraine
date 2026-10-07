@@ -596,7 +596,7 @@ describe('InputGroup', () => {
         <Input aria-label="File name" placeholder="Enter file name" />
         <InputGroup.Trailing compact>
           <DropdownMenu placement="bottom" align="end">
-            <DropdownMenu.Trigger as={Button} type="button" variant="ghost" size="icon-xs">
+            <DropdownMenu.Trigger as={Button} type="button" variant="ghost" size="icon-sm">
               Actions
             </DropdownMenu.Trigger>
             <DropdownMenu.Content

@@ -14,7 +14,7 @@ export function ComposedControls() {
         <InputGroup.Trailing compact>
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon-sm"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword() ? 'Hide token' : 'Show token'}
           >
