@@ -74,7 +74,7 @@ export namespace SidebarFrameT {
     /**
      * Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;
      * title is used when neither native aria-label nor this prop is provided.
-     * @default 'Sidebar navigation'
+     * Localized via MoraineProvider messages when omitted. English default is `Sidebar navigation`.
      */
     ariaLabel?: string
   }

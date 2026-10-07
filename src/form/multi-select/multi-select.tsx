@@ -3,6 +3,7 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
+import { useMessages } from '../../provider/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
@@ -42,6 +43,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
+  const messages = useMessages()
   const styles = createStyles(multiSelectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -387,7 +389,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={0}
               data-slot="multi-select-clear"
-              aria-label="Clear selection"
+              aria-label={messages().multiSelect.clear}
               disabled={state.locked()}
               {...styles.styles.clear}
               onPointerDown={tags.isolatePointer}
@@ -422,7 +424,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                         .tags()
                         .map((tag) => tag.title)
                         .join(', ')
-                    : (local.placeholder ?? 'Select options')}
+                    : (local.placeholder ?? messages().multiSelect.placeholder)}
                 </span>
                 <Icon
                   name={
@@ -446,7 +448,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={-1}
               data-slot="multi-select-trigger"
-              aria-label={local.loading ? 'Loading' : 'Toggle options'}
+              aria-label={
+                local.loading ? messages().multiSelect.loading : messages().multiSelect.toggle
+              }
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
@@ -496,7 +500,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <Show
               when={local.emptyRender !== undefined}
               fallback={
-                <Show when={local.createItem && search.value()} fallback="No items">
+                <Show
+                  when={local.createItem && search.value()}
+                  fallback={messages().multiSelect.empty}
+                >
                   {(value) => `Press Enter to create “${value()}”`}
                 </Show>
               }

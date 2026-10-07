@@ -605,7 +605,11 @@ export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
   return getActiveElement(target.ownerDocument) === target
 }
 
-export function resolveDirection(element?: Element): 'ltr' | 'rtl' {
+export function resolveDirection(element?: Element, explicit?: 'ltr' | 'rtl'): 'ltr' | 'rtl' {
+  if (explicit === 'ltr' || explicit === 'rtl') {
+    return explicit
+  }
+
   const ownerDocument = element?.ownerDocument
   if (element) {
     const direction = ownerDocument?.defaultView?.getComputedStyle(element).direction

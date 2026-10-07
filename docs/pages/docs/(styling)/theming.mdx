@@ -83,6 +83,8 @@ export function App(props) {
 | `defineTheme(...)`     | Applies specified theme overrides on top of built-in component recipes.       |
 | `theme={null}`         | Clears inherited theme overrides, resetting the subtree to Moraine defaults.  |
 
+`locale`, `dir`, and `messages` follow the same nesting rules. See [Localization](/docs/localization).
+
 ## Dynamic Theme Switching
 
 Because Moraine is built natively for SolidJS fine-grained reactivity, changing the `theme` prop updates classes instantly **without unmounting DOM nodes**:

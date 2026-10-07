@@ -15,9 +15,14 @@ import {
 import { Icon } from '../../element/icon'
 import { List } from '../../element/list'
 import type { ListT } from '../../element/list'
-import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/utils'
+import {
+  createCompositionState,
+  isComposingKeyEvent,
+  resolveDirection,
+} from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { useLocale, useMessages } from '../../provider/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
@@ -117,6 +122,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
+  const messages = useMessages()
+  const direction = useLocale().dir
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
@@ -155,7 +162,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   const merged = mergeProps(
     {
-      placeholder: 'Search...',
+      get placeholder() {
+        return messages().commandPalette.placeholder
+      },
       autofocus: true,
       showClose: false,
       closeOnSelect: true,
@@ -349,6 +358,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     isDisabled: (item) => item.disabled,
     loop: () => true,
     activationMode: () => 'manual',
+    getDirection: () => resolveDirection(listboxElement, direction()),
     focusValue: (value) => {
       setActiveKey(value)
     },
@@ -670,7 +680,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             onClick={() => {
               merged.onClose?.()
             }}
-            aria-label="Close"
+            aria-label={messages().commandPalette.close}
           >
             <Icon name={merged.closeIcon} />
           </button>
@@ -685,7 +695,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? visibleGroups() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                <Show
+                  when={merged.emptyRender !== undefined}
+                  fallback={messages().commandPalette.empty}
+                >
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
@@ -723,7 +736,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? virtualEntries() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                <Show
+                  when={merged.emptyRender !== undefined}
+                  fallback={messages().commandPalette.empty}
+                >
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>

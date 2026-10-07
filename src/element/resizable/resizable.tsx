@@ -15,6 +15,7 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { useMessages } from '../../provider/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
@@ -168,6 +169,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
   const cn = useCn()
+  const messages = useMessages()
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',
@@ -953,8 +955,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
                               | undefined) ??
                             (action() === 'collapse'
                               ? resolveNearestCollapsibleState(index).collapsed
-                                ? 'Expand panel'
-                                : 'Collapse panel'
+                                ? messages().resizable.expand
+                                : messages().resizable.collapse
                               : undefined)
                           }
                           onPointerDown={onGripPointerDown}

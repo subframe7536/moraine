@@ -12,6 +12,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
 import type { ValidComponent } from '../../shared/types'
@@ -49,6 +50,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   const [local, rest] = splitProps(props, ['as', 'ariaLabel', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
   const resolved = useSidebarFrameStyles('sidebar', local)
+  const messages = useMessages()
 
   const mobileAriaLabel = () => {
     const restRecord = rest as Record<string, unknown>
@@ -56,7 +58,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
       (restRecord['aria-label'] as string | undefined) ??
       local.ariaLabel ??
       (restRecord.title as string | undefined) ??
-      'Sidebar navigation'
+      messages().sidebarFrame.label
     )
   }
 

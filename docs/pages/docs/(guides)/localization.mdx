@@ -1,0 +1,84 @@
+---
+title: Localization
+description: Locale, direction, and translatable component text through MoraineProvider.
+sidebar:
+  order: 7
+search:
+  tags: [i18n, locale, rtl, direction, messages, translation, MoraineProvider]
+---
+
+Moraine components ship English accessible names and placeholders. `MoraineProvider` replaces that copy, sets the locale used by `InputNumber`, and sets the direction used by menus, sliders, and portaled overlays. Wrap the tree once at the root, or nest a provider to override part of the tree.
+
+## Provider props
+
+| Prop       | Omitted                           | Set                                                                   |
+| :--------- | :-------------------------------- | :-------------------------------------------------------------------- |
+| `locale`   | Inherits the parent locale.       | Replaces it with a BCP 47 tag such as `de-DE`.                        |
+| `dir`      | Inherits the parent direction.    | Replaces it with `ltr` or `rtl`.                                      |
+| `messages` | Inherits the parent message pack. | Deep-merges a partial pack over the parent. The base pack is English. |
+
+At the root, an omitted `locale` or `dir` stays unset. Number formatting then uses the runtime default, and direction comes from the document. An omitted `messages` prop uses the built-in English pack.
+
+```tsx title="src/App.tsx"
+import { MoraineProvider } from 'moraine'
+import type { MoraineMessagesInput } from 'moraine'
+
+const zhCN = {
+  dialog: { close: '关闭' },
+  pagination: {
+    label: '分页',
+    status: ({ page, total }) => `第 ${page} 页，共 ${total} 页`,
+    page: ({ page, total }) => `第 ${page} 页，共 ${total} 页`,
+    currentPage: ({ page, total }) => `第 ${page} 页，共 ${total} 页，当前页`,
+    prev: ({ page }) => (page === undefined ? '上一页' : `上一页，第 ${page} 页`),
+    next: ({ page }) => (page === undefined ? '下一页' : `下一页，第 ${page} 页`),
+  },
+} satisfies MoraineMessagesInput
+
+export function App(props) {
+  return (
+    <MoraineProvider locale="zh-CN" dir="ltr" messages={zhCN}>
+      {props.children}
+    </MoraineProvider>
+  )
+}
+```
+
+Changing `messages`, `locale`, or `dir` updates the rendered text and behavior without remounting the components. `useLocale()` returns stable `locale()` and `dir()` accessors for application code that needs the same values.
+
+A component prop always wins over the pack. `placeholder`, `aria-label`, `ariaLabel`, and `label` keep the caller's text, and the pack fills only what the caller left unset.
+
+## Message packs
+
+`MoraineMessages` is the full English shape. `MoraineMessagesInput` is the deep-partial type you pass to the provider. Groups are `dialog`, `sheet`, `commandPalette`, `select`, `combobox`, `multiSelect`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, and `kbd`.
+
+Text that includes a number or a name is a function, so the translation controls word order:
+
+```ts
+const pagination = {
+  prev: ({ page }) => (page === undefined ? '上一页' : `上一页，第 ${page} 页`),
+}
+```
+
+`page` is omitted when the control is already on that edge. Plural rules stay in the pack, for example with `Intl.PluralRules`:
+
+```ts
+const rules = new Intl.PluralRules('en')
+
+const pagination = {
+  page: ({ page, total }) =>
+    rules.select(total) === 'one'
+      ? `Go to page ${page} of ${total} page`
+      : `Go to page ${page} of ${total} pages`,
+}
+```
+
+`kbd` is a record of accessible names for the built-in key aliases. The keycap symbol stays the same; only the announced name changes.
+
+## Direction
+
+Portaled popover, dialog, and sheet content receive `dir` from the provider when the component does not set `dir` itself. The attribute is omitted when neither is set, so server markup stays unchanged until you opt in.
+
+Shared overlay direction uses the provider value when it is set, and otherwise reads the element and document the way it did before. A slider's own `dir` attribute still wins over the provider. When the slider does not set `dir`, the provider wins over an ancestor or the document.
+
+`InputNumber` reads `locale` from its prop, then from the provider, then from the runtime.

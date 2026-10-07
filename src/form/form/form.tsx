@@ -5,6 +5,7 @@ import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { FieldInternal } from '../field/field'
@@ -34,6 +35,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'children',
   ])
   const resolved = createStyles(formRecipe, local)
+  const messages = useMessages()
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -75,7 +77,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
             'message' in error &&
             typeof error.message === 'string'
               ? error.message
-              : 'An unknown error has occurred.',
+              : messages().form.unknownError,
           ]
         }
       } finally {

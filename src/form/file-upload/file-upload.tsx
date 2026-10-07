@@ -14,6 +14,7 @@ import {
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -258,6 +259,7 @@ function constrainSingleFile(accepted: File[]): {
 export function FileUpload<Multiple extends boolean = false>(
   props: FileUploadProps<Multiple>,
 ): JSX.Element {
+  const messages = useMessages()
   const [local, rest] = splitProps(props, [
     'id',
     'name',
@@ -391,7 +393,7 @@ export function FileUpload<Multiple extends boolean = false>(
       if (label()) {
         attrs['aria-labelledby'] = labelId()
       } else {
-        attrs['aria-label'] = 'File upload'
+        attrs['aria-label'] = messages().fileUpload.label
       }
     }
     if (invalid()) {
@@ -510,7 +512,7 @@ export function FileUpload<Multiple extends boolean = false>(
     return (
       <button
         type="button"
-        aria-label={`Remove ${props.file.name}`}
+        aria-label={messages().fileUpload.remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
         {...resolved.styles.fileRemove}
         disabled={field.disabled() || readOnly()}
@@ -684,7 +686,9 @@ export function FileUpload<Multiple extends boolean = false>(
       {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
+      aria-label={
+        field.ariaAttrs()['aria-labelledby'] || label() ? undefined : messages().fileUpload.label
+      }
       aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({

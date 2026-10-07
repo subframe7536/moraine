@@ -15,6 +15,7 @@ import {
 import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
+import { useLocale } from '../../provider/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -229,6 +230,7 @@ export function PopperContent(
   props: PopperContentProps & { context: PopperContentState },
 ): JSX.Element {
   const cn = useCn()
+  const direction = useLocale().dir
   const context = untrack(() => props.context)
   const options = mergeProps(
     {
@@ -534,7 +536,7 @@ export function PopperContent(
                   }
                 })
               }}
-              dir={props.dir}
+              dir={props.dir ?? direction()}
               data-slot={context.slotName('positioner')}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}

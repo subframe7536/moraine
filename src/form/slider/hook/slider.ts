@@ -9,6 +9,7 @@ import {
   onMount,
 } from 'solid-js'
 
+import { useLocale } from '../../../provider/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { Orientation } from '../../../theme/style-types'
 import type { SliderT } from '../slider.types'
@@ -82,6 +83,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   rawProps: CreateSliderProps<TValue>,
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
+  const providerDirection = useLocale().dir
   const merged = mergeProps(
     {
       min: 0,
@@ -143,6 +145,16 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function resolveDirection(track = trackElement()): 'ltr' | 'rtl' {
     const ownerDocument = track?.ownerDocument
+    const ownDirection = track?.closest<HTMLElement>('[data-slot="slider"]')?.getAttribute('dir')
+    if (ownDirection === 'ltr' || ownDirection === 'rtl') {
+      return ownDirection
+    }
+
+    const explicit = providerDirection()
+    if (explicit === 'ltr' || explicit === 'rtl') {
+      return explicit
+    }
+
     const localDirection = track?.closest<HTMLElement>('[dir]')?.getAttribute('dir')
     if (localDirection === 'ltr' || localDirection === 'rtl') {
       return localDirection
@@ -166,6 +178,12 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   onMount(() => {
     setDirection(resolveDirection())
   })
+
+  createEffect(
+    on([providerDirection, trackElement], () => {
+      setDirection(resolveDirection())
+    }),
+  )
 
   const getSliderEdges = createMemo(() =>
     resolveSliderEdges(merged.orientation, merged.inverted, direction() === 'rtl'),

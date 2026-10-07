@@ -9,6 +9,7 @@ import { defineTheme } from '../theme/create-theme'
 import {
   CnHydrationFixture,
   fixtureCnConfig,
+  LocaleHydrationFixture,
   ThemeHydrationFixture,
   fixtureTheme,
 } from './moraine-provider.ssr.fixture'
@@ -129,6 +130,35 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
     expect(input.value).toBe('Local edit')
     expect(document.activeElement).toBe(input)
     expect([input.selectionStart, input.selectionEnd]).toEqual([1, 4])
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+  }
+})
+
+test('hydrates localized pagination and dialog labels', () => {
+  const container = document.createElement('div')
+  container.innerHTML = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderLocaleFixture',
+  )
+  document.body.append(container)
+  const nav = container.querySelector('nav')!
+  const current = container.querySelector('[aria-current="page"]')!
+  expect(nav.getAttribute('aria-label')).toBe('Pages')
+  expect(current.getAttribute('aria-label')).toBe('Seite 1 von 3')
+  expect(container.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
+  const restore = installHydrationState()
+  const dispose = hydrate(() => <LocaleHydrationFixture />, container)
+  try {
+    expect(container.querySelector('nav')).toBe(nav)
+    expect(container.querySelector('[aria-current="page"]')).toBe(current)
+    expect(nav.getAttribute('aria-label')).toBe('Pages')
+    expect(current.getAttribute('aria-label')).toBe('Seite 1 von 3')
+    expect(
+      document.body.querySelector('[data-slot="dialog-content-close"]')?.getAttribute('aria-label'),
+    ).toBe('Fermer')
   } finally {
     dispose()
     container.remove()

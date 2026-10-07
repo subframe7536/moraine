@@ -3,6 +3,7 @@ import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { useLocale, useMessages } from '../../provider/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
@@ -56,6 +57,8 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
     'style',
   ])
   const config = useDialogConfig()
+  const messages = useMessages()
+  const direction = useLocale().dir
   const family = useModalContext()
   const merged = mergeProps(
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
@@ -83,6 +86,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
       <ModalPortal>
         <ModalSurface
           {...rest}
+          dir={rest.dir ?? direction()}
           composite
           overlayScroll={overlayScroll()}
           overlay={merged.overlay}
@@ -117,7 +121,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                 <Show when={merged.close}>
                   <Modal.Close
                     data-slot="dialog-content-close"
-                    aria-label="Close"
+                    aria-label={messages().dialog.close}
                     {...resolved.styles.contentClose}
                   >
                     <Icon name={closeIcon()} />

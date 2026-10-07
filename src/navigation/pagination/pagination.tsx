@@ -5,6 +5,7 @@ import { Button } from '../../element/button'
 import type { ButtonProps } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
@@ -101,10 +102,10 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(paginationRecipe, local)
+  const messages = useMessages()
 
   const merged = mergeProps(
     {
-      'aria-label': 'Pagination',
       role: 'navigation' as const,
       itemsPerPage: 10,
       total: 0,
@@ -184,37 +185,29 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
     const total = pageCount()
-    if (isCurrent) {
-      return `Page ${page} of ${total}, current page`
-    }
-    return `Go to page ${page} of ${total}`
+    const pagination = messages().pagination
+    return isCurrent ? pagination.currentPage({ page, total }) : pagination.page({ page, total })
   }
 
   const getPrevLabel = (): string => {
     const current = currentPage()
-    if (current <= 1) {
-      return 'Go to previous page'
-    }
-    return `Go to previous page, page ${current - 1}`
+    return messages().pagination.prev({ page: current <= 1 ? undefined : current - 1 })
   }
 
   const getNextLabel = (): string => {
     const current = currentPage()
     const total = pageCount()
-    if (current >= total) {
-      return 'Go to next page'
-    }
-    return `Go to next page, page ${current + 1}`
+    return messages().pagination.next({ page: current >= total ? undefined : current + 1 })
   }
 
   return (
     <nav
       ref={(el) => callRef(local.ref, el)}
       data-slot="pagination"
-      aria-label={merged['aria-label']}
       role={merged.role}
       {...resolved.styles.root}
       {...rest}
+      aria-label={rest['aria-label'] ?? messages().pagination.label}
     >
       <ul data-slot="pagination-list" {...resolved.styles.list}>
         <Show when={merged.showControls}>
@@ -324,7 +317,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         aria-atomic="true"
         class={VISUALLY_HIDDEN_CLASS}
       >
-        Page {currentPage()} of {pageCount()}
+        {messages().pagination.status({ page: currentPage(), total: pageCount() })}
       </div>
     </nav>
   )

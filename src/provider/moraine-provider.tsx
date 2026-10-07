@@ -8,6 +8,8 @@ import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnProvider, useCnAccessor } from './cn-context'
+import { MoraineLocaleProvider, resolveLocale, useLocaleAccessor } from './locale-context'
+import type { MoraineMessagesInput } from './locale/messages.types'
 import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
 import type { ThemeResolver } from './theme-context'
 
@@ -16,7 +18,13 @@ export interface MoraineProviderProps {
   theme?: MoraineTheme | null
   /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
-  /** Components that receive the theme and class merging rules. */
+  /** Undefined inherits the parent locale; a BCP 47 tag replaces it. */
+  locale?: string
+  /** Undefined inherits the parent direction; `'ltr'` or `'rtl'` replaces it. */
+  dir?: 'ltr' | 'rtl'
+  /** Undefined inherits parent messages; a partial pack deep-merges over them. */
+  messages?: MoraineMessagesInput
+  /** Components that receive the theme, class merging, and locale rules. */
   children?: JSX.Element
 }
 
@@ -68,9 +76,20 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
     return config === undefined ? parentCn() : createCn(config)
   })
 
+  const parentLocale = useLocaleAccessor()
+  const currentLocale = createMemo(() =>
+    resolveLocale(parentLocale(), {
+      locale: props.locale,
+      dir: props.dir,
+      messages: props.messages,
+    }),
+  )
+
   return (
     <MoraineThemeProvider value={currentResolver}>
-      <MoraineCnProvider value={currentCn}>{props.children}</MoraineCnProvider>
+      <MoraineCnProvider value={currentCn}>
+        <MoraineLocaleProvider value={currentLocale}>{props.children}</MoraineLocaleProvider>
+      </MoraineCnProvider>
     </MoraineThemeProvider>
   )
 }

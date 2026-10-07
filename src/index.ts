@@ -155,8 +155,13 @@ export type {
   TooltipProps,
   TooltipT,
 } from './overlay'
-export { MoraineProvider, useCn } from './provider'
-export type { MoraineProviderProps } from './provider'
+export { MoraineProvider, useCn, useLocale } from './provider'
+export type {
+  MoraineProviderProps,
+  MoraineLocale,
+  MoraineMessages,
+  MoraineMessagesInput,
+} from './provider'
 export { cn, createCn } from './theme/cn'
 export type { Cn, CnConfig } from './theme/cn'
 export type { MoraineTypeConfig, Tags, ValidComponent } from './shared/types'

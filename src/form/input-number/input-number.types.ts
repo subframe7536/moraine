@@ -72,7 +72,7 @@ export namespace InputNumberT {
 
     /**
      * Locale for number formatting and parsing.
-     * Uses browser default if not specified.
+     * Localized via MoraineProvider when omitted. Uses the runtime default when neither is set.
      */
     locale?: string
 

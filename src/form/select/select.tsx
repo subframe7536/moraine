@@ -3,6 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
+import { useMessages } from '../../provider/locale-context'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { useFieldContext } from '../field/field-context'
@@ -32,6 +33,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
+  const messages = useMessages()
   const styles = createStyles(selectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -86,7 +88,10 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
               {...styles.styles.value}
             >
-              {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
+              {selectedItem()?.label ??
+                (hasValue()
+                  ? String(state.value()[0])
+                  : (local.placeholder ?? messages().select.placeholder))}
             </span>
             <Icon
               slotName="select-trailing"
@@ -103,7 +108,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             <button
               type="button"
               data-slot="select-clear"
-              aria-label="Clear selection"
+              aria-label={messages().select.clear}
               tabIndex={0}
               {...styles.styles.clear}
               disabled={state.locked()}
