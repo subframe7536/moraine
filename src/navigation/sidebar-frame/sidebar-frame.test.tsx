@@ -743,7 +743,8 @@ describe('SidebarFrame.Item', () => {
     const button = screen.getByRole('button', { name: 'Standalone' })
     expect(button.hasAttribute('data-expanded')).toBe(false)
     const trailing = screen.container.querySelector('[data-slot="sidebar-frame-item-trailing"]')
-    expect(trailing?.className).toContain('group-data-[expanded]:rotate-90')
+    expect(trailing?.hasAttribute('data-expanded')).toBe(false)
+    expect(trailing?.className).toContain('data-expanded:rotate-90')
   })
 
   test('Mobile frame sets data-mobile on Item', () => {
@@ -935,16 +936,16 @@ describe('SidebarFrame.Submenu', () => {
       </SidebarFrame>
     ))
     const trigger = screen.getByRole('button', { name: 'Submenu' })
-    expect(trigger.className).toContain('group')
+    const trailing = () => trigger.querySelector('[data-slot="sidebar-frame-item-trailing"]')
     expect(trigger.hasAttribute('data-expanded')).toBe(false)
+    expect(trailing()?.hasAttribute('data-expanded')).toBe(false)
+    expect(trailing()?.className).toContain('data-expanded:rotate-90')
 
     fireEvent.click(trigger)
     await waitFor(() => {
       expect(trigger.getAttribute('data-expanded')).toBe('')
     })
-    expect(trigger.className).toContain('group')
-    const trailing = trigger.querySelector('[data-slot="sidebar-frame-item-trailing"]')
-    expect(trailing?.className).toContain('group-data-[expanded]:rotate-90')
+    expect(trailing()?.getAttribute('data-expanded')).toBe('')
   })
 })
 

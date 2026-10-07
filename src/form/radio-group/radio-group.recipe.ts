@@ -3,6 +3,8 @@ import {
   DARK_DATA_INVALID_CLASS,
   DATA_DISABLED_CLASS,
   DATA_INVALID_CLASS,
+  JOINED_COLUMN_CLASS,
+  JOINED_ROW_CLASS,
   PEER_FOCUS_VISIBLE_CLASS,
 } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
@@ -109,11 +111,11 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
     },
     {
       variants: { variant: 'table', orientation: 'horizontal' },
-      item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
+      item: JOINED_ROW_CLASS,
     },
     {
       variants: { variant: 'table', orientation: 'vertical' },
-      item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
+      item: JOINED_COLUMN_CLASS,
     },
   ],
 })

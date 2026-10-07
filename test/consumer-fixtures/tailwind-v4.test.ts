@@ -42,7 +42,8 @@ const CANDIDATES = [
   'size-(--s-thumb-size)',
   'size-(--st-size)',
   'start-[calc(50%+var(--st-sep-x))]',
-  '[&:not([data-inverted])]:after:left-(--s-marker-position)',
+  'data-inverted:after:left-auto',
+  'after:left-(--s-marker-position)',
 ]
 
 describe('isolated built-dist Tailwind v4 consumer', () => {

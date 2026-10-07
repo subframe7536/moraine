@@ -12,6 +12,7 @@ export const sidebarFrameDataAttributes = {
   sidebar: createDataAttributes('closed', 'expanded', 'mobile', 'side', 'variant'),
   trigger: createDataAttributes('closed', 'disabled', 'open'),
   item: createDataAttributes('active', 'disabled', 'mobile', 'with-actions'),
+  itemTrailing: createDataAttributes('expanded'),
 } satisfies DataAttributeContract<SidebarFrameDataSlot>
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
@@ -28,14 +29,14 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
     main: 'bg-background flex-1 h-full min-h-0 min-w-0 relative overflow-y-auto',
     menu: 'flex flex-col gap-1 w-full',
     label: 'text-xs text-muted-foreground tracking-tight font-semibold px-2.5 py-1.5 select-none',
-    item: `group text-sm text-muted-foreground font-medium px-2.5 py-1.5 text-left outline-none rounded-lg flex gap-2 w-full cursor-pointer select-none items-center data-with-actions:pe-8 data-active:bg-muted-active hover:bg-muted-hover data-mobile:min-h-11 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
+    item: `text-sm text-muted-foreground font-medium px-2.5 py-1.5 text-left outline-none rounded-lg flex gap-2 w-full cursor-pointer select-none items-center data-with-actions:pe-8 data-active:bg-muted-active hover:bg-muted-hover data-mobile:min-h-11 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
     itemLeading: 'shrink-0 size-4',
     itemLabel: 'flex flex-1 gap-2 min-w-0 items-center',
     itemTrailing:
-      'shrink-0 size-4 transition-transform group-data-[expanded]:rotate-90 rtl:group-data-[expanded]:-rotate-90',
+      'shrink-0 size-4 transition-transform data-expanded:rotate-90 rtl:data-expanded:-rotate-90',
     itemActions: 'flex gap-0.5 items-center end-1.5 absolute z-1',
     submenu: 'flex flex-col w-full',
-    submenuTrigger: `group text-muted-foreground p-1 outline-none rounded-md flex shrink-0 size-7 cursor-pointer select-none items-center justify-center hover:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
+    submenuTrigger: `text-muted-foreground p-1 outline-none rounded-md flex shrink-0 size-7 cursor-pointer select-none items-center justify-center hover:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
     submenuContent: 'ms-4.5 py-0.5 ps-1 border-s border-border flex flex-col gap-0.5',
     '--mo-sidebar-width': 'var(--sidebar-width, clamp(14rem, 25%, 20rem))',
   },

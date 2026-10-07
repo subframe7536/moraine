@@ -1,8 +1,12 @@
 import {
+  groupAccentClass,
+  HIGHLIGHTED_MUTED_TEXT_CLASS,
   INPUT_VARIANT,
   TEXT_SIZE_VARIANT,
   SELECT_TRIGGER_FOCUS_CLASS,
 } from '../../../theme/recipe-common.class'
+import { createDataAttributes } from '../../../theme/style-contract'
+import type { DataAttributeContract } from '../../../theme/style-contract'
 
 import {
   FIELD_CONTROL_CLASS,
@@ -15,6 +19,11 @@ import {
   TAG_FIELD_CONTROL_CLASS,
   TAG_FIELD_INPUT_CLASS,
 } from './select-field.class'
+import type { SelectItemStyleSlot } from './style-types'
+
+export const selectItemDataAttributes = {
+  itemDescription: createDataAttributes('highlighted'),
+} satisfies DataAttributeContract<keyof SelectItemStyleSlot>
 
 export const SELECT_FAMILY_SLOTS = {
   control: FIELD_CONTROL_CLASS,
@@ -29,8 +38,7 @@ export const SELECT_FAMILY_SLOTS = {
   itemLeading: 'shrink-0',
   itemWrapper: 'flex-1 min-w-0 truncate',
   itemLabel: '',
-  itemDescription:
-    'text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground block',
+  itemDescription: `text-xs ${HIGHLIGHTED_MUTED_TEXT_CLASS} block`,
   itemIndicator: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
 } as const
 
@@ -39,14 +47,10 @@ export const FIELD_VARIANTS = {
   subtle: { control: INPUT_VARIANT.subtle },
   ghost: {
     control: `${INPUT_VARIANT.ghost} group/select-control`,
-    leading:
-      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
-    clear:
-      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
-    trigger:
-      'group-hover/select-control:text-accent-foreground group-focus-within/select-control:text-accent-foreground',
-    input:
-      'group-hover/select-control:placeholder:text-accent-foreground group-focus-within/select-control:placeholder:text-accent-foreground',
+    leading: groupAccentClass('select-control'),
+    clear: groupAccentClass('select-control'),
+    trigger: groupAccentClass('select-control'),
+    input: groupAccentClass('select-control', 'placeholder:text-accent-foreground'),
   },
   none: { control: INPUT_VARIANT.none },
 } as const

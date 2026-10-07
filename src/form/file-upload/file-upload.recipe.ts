@@ -30,7 +30,7 @@ export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
     files: 'flex flex-col min-w-0',
     file: 'text-foreground border border-border rounded-lg bg-background flex min-w-0 items-center relative',
     filePreview:
-      'text-muted-foreground border border-border rounded-md bg-muted flex shrink-0 items-center justify-center relative overflow-hidden [&>img]:(size-full object-cover)',
+      'text-muted-foreground border border-border rounded-md bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
     fileMeta: 'flex flex-1 flex-col gap-0.5 min-w-0',
     fileName: 'text-foreground font-medium truncate',
     fileSize: 'text-xs text-muted-foreground truncate',

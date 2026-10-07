@@ -11,6 +11,7 @@ import { BaseSelect, useSelectContext } from '../../base-select/base-select'
 import type { BaseSelectT } from '../../base-select/base-select.types'
 
 import { sameValue } from './collection'
+import { selectItemDataAttributes } from './select-field.recipe'
 import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
@@ -122,6 +123,9 @@ function DefaultSelectContentBody<T extends SelectItem>(
                     {(description) => (
                       <span
                         data-slot={state.slotName('itemDescription')}
+                        {...selectItemDataAttributes.itemDescription({
+                          highlighted: () => itemState.highlighted,
+                        })}
                         {...props.slot('itemDescription')}
                       >
                         {description()}

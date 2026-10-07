@@ -340,6 +340,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       name={trailing()}
                       slotName="accordion-trailing"
                       {...resolved.styles.trailing}
+                      {...accordionDataAttributes.trailing({ expanded })}
                     />
                   </Show>
                 </button>

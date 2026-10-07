@@ -8,6 +8,7 @@ import {
   FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
   SELECT_FAMILY_SLOTS,
+  selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
@@ -24,6 +25,7 @@ export const comboboxDataAttributes = {
   ),
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
+  ...selectItemDataAttributes,
   trigger: createDataAttributes('loading'),
 } satisfies DataAttributeContract<keyof ComboboxStyleSlot>
 

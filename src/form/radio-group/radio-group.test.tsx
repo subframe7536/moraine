@@ -527,7 +527,8 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('p-4')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
-    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-ms-px')
+    expect(firstItem?.className).toContain('-ms-px')
+    expect(firstItem?.className).toContain('first-of-type:ms-0')
     expect(firstInput?.className).toContain('peer')
     expect(firstContainer?.className).toContain('h-6')
     expect(firstBase?.className).toContain('peer-focus-visible:ring-ring/50')
@@ -552,7 +553,8 @@ describe('RadioGroup', () => {
     expect(group.className).toContain('flex-col')
     expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-b-lg')
-    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-mt-px')
+    expect(firstItem?.className).toContain('-mt-px')
+    expect(firstItem?.className).toContain('first-of-type:mt-0')
   })
 
   test.each(['card', 'table'] as const)(

@@ -418,10 +418,19 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     }
   }
 
-  function ItemDescription(itemProps: { item: NormalizedItem<TItem> }): JSX.Element {
+  function ItemDescription(itemProps: {
+    highlighted: boolean
+    item: NormalizedItem<TItem>
+  }): JSX.Element {
     return (
       <Show when={itemProps.item.item.description}>
-        <span data-slot="command-palette-item-description" {...resolved.styles.itemDescription}>
+        <span
+          data-slot="command-palette-item-description"
+          {...resolved.styles.itemDescription}
+          {...commandPaletteDataAttributes.itemDescription({
+            highlighted: () => itemProps.highlighted,
+          })}
+        >
           {itemProps.item.item.description}
         </span>
       </Show>
@@ -439,7 +448,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         fallback={
           <>
             <Show when={itemProps.item.item.leadingRender !== undefined}>
-              <span data-slot="command-palette-item-leading" {...resolved.styles.itemLeading}>
+              <span
+                data-slot="command-palette-item-leading"
+                {...resolved.styles.itemLeading}
+                {...commandPaletteDataAttributes.itemLeading({
+                  highlighted: () => itemProps.context.highlighted,
+                })}
+              >
                 {renderWithProps(itemProps.item.item.leadingRender, itemProps.context)}
               </span>
             </Show>
@@ -448,16 +463,28 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               <span data-slot="command-palette-item-label" {...resolved.styles.itemLabel}>
                 <span>{itemProps.item.item.label ?? itemProps.item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
-                  <ItemDescription item={itemProps.item} />
+                  <ItemDescription
+                    highlighted={itemProps.context.highlighted}
+                    item={itemProps.item}
+                  />
                 </Show>
               </span>
               <Show when={descriptionPosition() === 'bottom'}>
-                <ItemDescription item={itemProps.item} />
+                <ItemDescription
+                  highlighted={itemProps.context.highlighted}
+                  item={itemProps.item}
+                />
               </Show>
             </span>
 
             <Show when={itemProps.item.item.trailingRender !== undefined}>
-              <span data-slot="command-palette-item-trailing" {...resolved.styles.itemTrailing}>
+              <span
+                data-slot="command-palette-item-trailing"
+                {...resolved.styles.itemTrailing}
+                {...commandPaletteDataAttributes.itemTrailing({
+                  highlighted: () => itemProps.context.highlighted,
+                })}
+              >
                 {renderWithProps(itemProps.item.item.trailingRender, itemProps.context)}
               </span>
             </Show>

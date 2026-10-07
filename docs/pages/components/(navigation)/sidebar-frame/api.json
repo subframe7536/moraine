@@ -718,6 +718,7 @@
       "target": "sidebar",
       "attributes": [
         "data-closed",
+        "data-expanded",
         "data-mobile",
         "data-side",
         "data-variant"
@@ -736,7 +737,14 @@
       "attributes": [
         "data-active",
         "data-disabled",
-        "data-mobile"
+        "data-mobile",
+        "data-with-actions"
+      ]
+    },
+    {
+      "target": "itemTrailing",
+      "attributes": [
+        "data-expanded"
       ]
     }
   ]

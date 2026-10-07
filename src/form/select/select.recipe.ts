@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { groupAccentClass } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
@@ -8,12 +9,14 @@ import {
   SELECT_LOADING_ICON_CLASS,
   SELECT_FAMILY_SLOTS,
   SELECT_TRIGGER_FIELD_VARIANTS,
+  selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
 import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 
 export const selectDataAttributes = {
   ...baseSelectDataAttributes,
+  ...selectItemDataAttributes,
   trailing: createDataAttributes('loading'),
   value: createDataAttributes('placeholder'),
 } satisfies DataAttributeContract<keyof SelectStyleSlot>
@@ -33,8 +36,7 @@ export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, Select
         ...SELECT_TRIGGER_FIELD_VARIANTS,
         ghost: {
           ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
-          value:
-            'group-hover/select-control:data-placeholder:text-accent-foreground group-focus-within/select-control:data-placeholder:text-accent-foreground',
+          value: groupAccentClass('select-control', 'data-placeholder:text-accent-foreground'),
         },
       },
       size: FIELD_SIZES,

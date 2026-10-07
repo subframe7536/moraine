@@ -59,7 +59,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
-          "description": "Size of the breadcrumb items and icons.",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -161,10 +161,15 @@
   ],
   "dataAttributes": [
     {
+      "target": "link",
+      "attributes": [
+        "data-disabled"
+      ]
+    },
+    {
       "target": "page",
       "attributes": [
-        "data-current",
-        "data-disabled"
+        "data-current"
       ]
     }
   ]

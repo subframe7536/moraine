@@ -49,5 +49,17 @@ export const ARIA_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-non
 export const SELECT_TRIGGER_FOCUS_CLASS =
   "focus-visible:after:(border border-ring rounded-md pointer-events-none content-[''] ring-3 ring-ring/50 inset-0 absolute z-10) focus-visible:data-invalid:after:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:after:(border-destructive/50 ring-destructive/40)"
 
+export const HIGHLIGHTED_MUTED_TEXT_CLASS =
+  'text-muted-foreground data-highlighted:text-accent-foreground'
+
+export const JOINED_ROW_CLASS =
+  '-ms-px first-of-type:ms-0 first-of-type:rounded-s-lg last-of-type:rounded-e-lg'
+export const JOINED_COLUMN_CLASS =
+  '-mt-px first-of-type:mt-0 first-of-type:rounded-t-lg last-of-type:rounded-b-lg'
+
+export function groupAccentClass(group: string, utility = 'text-accent-foreground'): string {
+  return `group-hover/${group}:${utility} group-focus-within/${group}:${utility}`
+}
+
 export const OVERLAY_CLOSE_BUTTON_CLASS =
   'rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-50 pointer-events-none)'

@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { groupAccentClass } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'
@@ -10,6 +11,7 @@ import {
   TAG_FIELD_INPUT_CLASS,
   TAG_SIZES,
   TAG_SLOTS,
+  selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
@@ -29,6 +31,7 @@ export const multiSelectDataAttributes = {
   ),
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
+  ...selectItemDataAttributes,
   input: createDataAttributes('duplicate'),
   trigger: createDataAttributes('closed', 'disabled', 'expanded', 'invalid', 'loading'),
 } satisfies DataAttributeContract<keyof MultiSelectStyleSlot>
@@ -52,8 +55,7 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
       ...SELECT_TRIGGER_FIELD_VARIANTS,
       ghost: {
         ...SELECT_TRIGGER_FIELD_VARIANTS.ghost,
-        tagOverflow:
-          'group-focus-within/select-control:text-accent-foreground group-hover/select-control:text-accent-foreground',
+        tagOverflow: groupAccentClass('select-control'),
       },
     },
     size: TAG_SIZES,

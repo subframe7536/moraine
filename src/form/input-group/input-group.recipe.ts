@@ -1,5 +1,6 @@
 import { defineRecipe } from '../../theme/recipe'
 import {
+  groupAccentClass,
   PEER_FOCUS_CLASS,
   PEER_INVALID_CLASS,
   INPUT_VARIANT,
@@ -14,6 +15,10 @@ export const inputGroupDataAttributes = {
   leading: createDataAttributes('compact', 'orientation'),
   trailing: createDataAttributes('compact', 'orientation'),
 } satisfies DataAttributeContract<keyof InputGroupStyleSlot>
+
+function addon(className: string) {
+  return { leading: className, trailing: className }
+}
 
 export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   InputGroupStyleSlot,
@@ -64,10 +69,7 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
       },
       ghost: {
         root: `${INPUT_VARIANT.ghost} group/input-group`,
-        leading:
-          'group-focus-within/input-group:text-accent-foreground group-hover/input-group:text-accent-foreground',
-        trailing:
-          'group-focus-within/input-group:text-accent-foreground group-hover/input-group:text-accent-foreground',
+        ...addon(groupAccentClass('input-group')),
         frame: 'inset-0',
       },
       none: {
@@ -78,33 +80,27 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   compoundVariants: [
     {
       variants: { orientation: 'horizontal', size: 'sm' },
-      leading: 'px-1.5 data-compact:px-0.5',
-      trailing: 'px-1.5 data-compact:px-0.5',
+      ...addon('px-1.5 data-compact:px-0.5'),
     },
     {
       variants: { orientation: 'horizontal', size: 'md' },
-      leading: 'px-2 data-compact:px-1',
-      trailing: 'px-2 data-compact:px-1',
+      ...addon('px-2 data-compact:px-1'),
     },
     {
       variants: { orientation: 'horizontal', size: 'lg' },
-      leading: 'px-2.5 data-compact:px-1.5',
-      trailing: 'px-2.5 data-compact:px-1.5',
+      ...addon('px-2.5 data-compact:px-1.5'),
     },
     {
       variants: { orientation: 'vertical', size: 'sm' },
-      leading: 'p-1.5 data-compact:p-0.5',
-      trailing: 'p-1.5 data-compact:p-0.5',
+      ...addon('p-1.5 data-compact:p-0.5'),
     },
     {
       variants: { orientation: 'vertical', size: 'md' },
-      leading: 'p-2 data-compact:p-1',
-      trailing: 'p-2 data-compact:p-1',
+      ...addon('p-2 data-compact:p-1'),
     },
     {
       variants: { orientation: 'vertical', size: 'lg' },
-      leading: 'p-2.5 data-compact:p-1.5',
-      trailing: 'p-2.5 data-compact:p-1.5',
+      ...addon('p-2.5 data-compact:p-1.5'),
     },
   ],
 })

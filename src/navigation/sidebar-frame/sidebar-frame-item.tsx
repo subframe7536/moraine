@@ -2,6 +2,8 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, mergeProps, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { Collapsible } from '../../element/collapsible'
+import { useOptionalCollapsibleContext } from '../../element/collapsible/collapsible-context'
 import { Icon } from '../../element/icon'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -44,6 +46,7 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.ItemProps<T>,
 ): JSX.Element {
   const context = useSidebarFrameContext()
+  const collapsible = useOptionalCollapsibleContext()
   const [local, rest] = splitProps(props as SidebarFrameT.ItemProps<T> & { ref?: unknown }, [
     'actions',
     'as',
@@ -174,6 +177,9 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
             slotName="sidebar-frame-item-trailing"
             {...resolved.styles.itemTrailing}
             aria-hidden={true}
+            {...sidebarFrameDataAttributes.itemTrailing({
+              expanded: () => local.as === Collapsible.Trigger && collapsible?.disclosure.open(),
+            })}
           />
         )}
       </Show>

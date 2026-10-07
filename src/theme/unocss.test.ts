@@ -139,7 +139,7 @@ describe('presetMoraine', () => {
       commandPaletteRecipe.config.base.itemTrailing,
       SELECT_FAMILY_SLOTS.itemDescription,
     ]) {
-      expect(cn(detail)?.split(' ')).toContain('group-data-[highlighted]:text-accent-foreground')
+      expect(cn(detail)?.split(' ')).toContain('data-highlighted:text-accent-foreground')
     }
     const classes = [
       commandPaletteRecipe.config.base.item,
@@ -156,7 +156,6 @@ describe('presetMoraine', () => {
     expect(css).toContain('[data-highlighted]')
     expect(css).toContain('var(--accent-hover')
     expect(css).toContain('--accent-foreground')
-    expect(css).toContain('.group')
     expect(css).toContain('[data-destructive]')
     expect(css).toContain('--destructive')
   })

@@ -10,6 +10,7 @@ import { callHandler } from '../../shared/utils'
 
 import { useSidebarFrameStyles } from './sidebar-frame-context'
 import { SidebarFrameItem } from './sidebar-frame-item'
+import { sidebarFrameDataAttributes } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 const DEFAULT_SUBMENU_TRAILING: IconT.Name = 'i-lucide:chevron-right'
@@ -50,6 +51,7 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
   ])
 
   const resolved = useSidebarFrameStyles('submenuTrigger', local)
+  const disclosure = useCollapsibleContext().disclosure
 
   const trailingIcon = () => local.trailing ?? DEFAULT_SUBMENU_TRAILING
   const children = resolveChildren(() => local.children)
@@ -76,7 +78,14 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
           {...resolved.styles.submenuTrigger}
           onClick={onClick}
         >
-          <Icon name={trailingIcon()} {...resolved.styles.itemTrailing} aria-hidden={true} />
+          <Icon
+            name={trailingIcon()}
+            {...resolved.styles.itemTrailing}
+            aria-hidden={true}
+            {...sidebarFrameDataAttributes.itemTrailing({
+              expanded: () => disclosure.open(),
+            })}
+          />
         </Collapsible.Trigger>
       }
     >

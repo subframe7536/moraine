@@ -6,6 +6,7 @@ import {
   DISABLED_CLASS,
   FOCUS_WITHIN_CLASS,
   FOCUS_WITHIN_INVALID_CLASS,
+  groupAccentClass,
   INPUT_VARIANT,
 } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
@@ -14,6 +15,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
 
 const controlDataAttributes = createDataAttributes('active', 'disabled')
+const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
+const INPUT_NUMBER_ACCENT_CLASS = `${groupAccentClass('input-number')}  ${groupAccentClass('input-number', 'placeholder:text-accent-foreground')}`
 
 export const inputNumberDataAttributes = {
   root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
@@ -30,8 +33,8 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
     root: `inline-flex w-full cursor-text transition-[color,background-color,border-color,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${FOCUS_WITHIN_INVALID_CLASS}`,
     input:
       'text-foreground text-center outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none [appearance:textfield] placeholder:text-muted-foreground data-auto-align:text-start [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
-    increment: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`,
-    decrement: `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`,
+    increment: CONTROL_BUTTON_CLASS,
+    decrement: CONTROL_BUTTON_CLASS,
     controls: 'flex shrink-0 flex-col h-full',
   },
   defaultVariants: {
@@ -68,12 +71,9 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       subtle: { root: INPUT_VARIANT.subtle },
       ghost: {
         root: `${INPUT_VARIANT.ghost} group/input-number`,
-        input:
-          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground group-focus-within/input-number:placeholder:text-accent-foreground group-hover/input-number:placeholder:text-accent-foreground',
-        increment:
-          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground',
-        decrement:
-          'group-focus-within/input-number:text-accent-foreground group-hover/input-number:text-accent-foreground',
+        input: INPUT_NUMBER_ACCENT_CLASS,
+        increment: groupAccentClass('input-number'),
+        decrement: groupAccentClass('input-number'),
       },
       none: { root: INPUT_VARIANT.none },
     },

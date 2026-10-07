@@ -344,6 +344,24 @@
       ]
     },
     {
+      "target": "itemLeading",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
+      "target": "itemDescription",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
+      "target": "itemTrailing",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
       "target": "inputLeading",
       "attributes": [
         "data-loading"

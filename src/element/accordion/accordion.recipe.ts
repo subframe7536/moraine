@@ -13,6 +13,7 @@ export const accordionDataAttributes = {
   root: createDataAttributes('disabled'),
   item: createDataAttributes('closed', 'disabled', 'expanded'),
   trigger: createDataAttributes('closed', 'disabled', 'expanded'),
+  trailing: createDataAttributes('expanded'),
   content: createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof AccordionStyleSlot>
 
@@ -21,11 +22,11 @@ export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>(
     root: `flex flex-col w-full divide-border divide-y ${DATA_DISABLED_CLASS}`,
     item: DATA_DISABLED_CLASS,
     header: 'flex',
-    trigger: `group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative ${FOCUS_VISIBLE_CLASS}  ${DISABLED_CLASS} cursor-pointer hover:underline`,
+    trigger: `text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative ${FOCUS_VISIBLE_CLASS}  ${DISABLED_CLASS} cursor-pointer hover:underline`,
     leading: 'mr-1.5 shrink-0',
     label: 'text-start break-words',
     trailing:
-      'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none transition-transform group-aria-expanded:rotate-180',
+      'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none transition-transform data-expanded:rotate-180',
     content:
       'text-sm h-(--mo-collapsible-content-height) overflow-hidden data-closed:(h-0 animate-accordion-up) data-expanded:animate-accordion-down motion-reduce:animate-none',
     body: 'pb-4 pt-0',

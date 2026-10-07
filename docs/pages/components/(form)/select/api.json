@@ -391,6 +391,12 @@
       ]
     },
     {
+      "target": "itemDescription",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
       "target": "trailing",
       "attributes": [
         "data-loading"

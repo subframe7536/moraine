@@ -105,14 +105,14 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
       {
         variants: { orientation: 'horizontal', variant: 'bold' },
         range:
-          'after:h-(--s-len) after:w-(--s-offset) after:top-1/2 after:-translate-y-1/2 [&:not([data-inverted])]:after:left-(--s-marker-position) data-inverted:after:right-(--s-marker-position) data-multiple:before:h-(--s-len) data-multiple:before:w-(--s-offset) data-multiple:before:top-1/2 data-multiple:before:-translate-y-1/2 [&:not([data-inverted])]:data-multiple:before:left-(--s-offset) data-inverted:data-multiple:before:right-(--s-offset)',
+          'after:h-(--s-len) after:w-(--s-offset) after:top-1/2 after:-translate-y-1/2 after:left-(--s-marker-position) data-inverted:after:left-auto data-inverted:after:right-(--s-marker-position) data-multiple:before:h-(--s-len) data-multiple:before:w-(--s-offset) data-multiple:before:top-1/2 data-multiple:before:-translate-y-1/2 data-multiple:before:left-(--s-offset) data-inverted:data-multiple:before:left-auto data-inverted:data-multiple:before:right-(--s-offset)',
         marker: 'h-1/3',
         thumb: 'h-full top-0 w-(--s-size)',
       },
       {
         variants: { orientation: 'vertical', variant: 'bold' },
         range:
-          'after:w-(--s-len) after:h-(--s-offset) after:left-1/2 after:-translate-x-1/2 [&:not([data-inverted])]:after:bottom-(--s-marker-position) data-inverted:after:top-(--s-marker-position) data-multiple:before:w-(--s-len) data-multiple:before:h-(--s-offset) data-multiple:before:left-1/2 data-multiple:before:-translate-x-1/2 [&:not([data-inverted])]:data-multiple:before:bottom-(--s-offset) data-inverted:data-multiple:before:top-(--s-offset)',
+          'after:w-(--s-len) after:h-(--s-offset) after:left-1/2 after:-translate-x-1/2 after:bottom-(--s-marker-position) data-inverted:after:bottom-auto data-inverted:after:top-(--s-marker-position) data-multiple:before:w-(--s-len) data-multiple:before:h-(--s-offset) data-multiple:before:left-1/2 data-multiple:before:-translate-x-1/2 data-multiple:before:bottom-(--s-offset) data-inverted:data-multiple:before:bottom-auto data-inverted:data-multiple:before:top-(--s-offset)',
         marker: 'w-1/3',
         thumb: 'w-full left-0 h-(--s-size)',
       },

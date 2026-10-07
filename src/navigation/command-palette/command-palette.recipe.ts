@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { DISABLED_CLASS } from '../../theme/recipe-common.class'
+import { DISABLED_CLASS, HIGHLIGHTED_MUTED_TEXT_CLASS } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -10,6 +10,9 @@ import type {
 
 export const commandPaletteDataAttributes = {
   item: createDataAttributes('disabled', 'highlighted'),
+  itemLeading: createDataAttributes('highlighted'),
+  itemDescription: createDataAttributes('highlighted'),
+  itemTrailing: createDataAttributes('highlighted'),
   inputLeading: createDataAttributes('loading'),
 } satisfies DataAttributeContract<keyof CommandPaletteStyleSlot>
 
@@ -27,14 +30,11 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     group: 'text-foreground mt-1 overflow-hidden first:mt-0',
     groupLabel: 'text-xs text-muted-foreground leading-4 font-medium px-2 py-1 block',
     item: 'group text-sm text-foreground px-2 py-1 outline-none rounded-sm flex gap-2 min-h-8 w-full cursor-default select-none items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
-    itemLeading:
-      'text-muted-foreground shrink-0 group-data-[highlighted]:text-accent-foreground [&_svg]:size-4',
+    itemLeading: `${HIGHLIGHTED_MUTED_TEXT_CLASS} shrink-0 [&_svg]:size-4`,
     itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
     itemLabel: 'min-w-0 truncate items-baseline',
-    itemDescription:
-      'text-xs text-muted-foreground truncate group-data-[highlighted]:text-accent-foreground',
-    itemTrailing:
-      'text-xs text-muted-foreground tracking-widest ml-auto flex shrink-0 gap-2 items-center group-data-[highlighted]:text-accent-foreground [&_[data-slot=kbd-group]]:text-inherit',
+    itemDescription: `text-xs ${HIGHLIGHTED_MUTED_TEXT_CLASS} truncate`,
+    itemTrailing: `text-xs ${HIGHLIGHTED_MUTED_TEXT_CLASS} tracking-widest ml-auto flex shrink-0 gap-2 items-center [&_[data-slot=kbd-group]]:text-inherit`,
     inputLeading:
       'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
     close:

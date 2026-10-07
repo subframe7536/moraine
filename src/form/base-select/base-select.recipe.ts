@@ -1,6 +1,7 @@
 import {
   POPPER_CONTENT_MAX_HEIGHT_CLASS,
   POPPER_CONTENT_MAX_WIDTH_CLASS,
+  POPPER_SIDE_Y_CLASS,
 } from '../../overlay/base/popper.class'
 import { defineRecipe } from '../../theme/recipe'
 import { DATA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-common.class'
@@ -11,7 +12,7 @@ import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.
 
 export const BASE_SELECT_POSITIONER_CLASS = 'z-floating'
 
-const SELECT_CONTENT_CLASS = `text-popover-foreground p-0 outline-none border border-border rounded-md bg-popover flex flex-col ${POPPER_CONTENT_MAX_WIDTH_CLASS} min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) shadow-overlay origin-(--mo-popper-content-transform-origin) z-floating data-[side=bottom]:mt-(--mo-popper-content-overflow-padding) data-[side=top]:mb-(--mo-popper-content-overflow-padding) data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1 data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1`
+const SELECT_CONTENT_CLASS = `text-popover-foreground p-0 outline-none border border-border rounded-md bg-popover flex flex-col ${POPPER_CONTENT_MAX_WIDTH_CLASS} min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) shadow-overlay origin-(--mo-popper-content-transform-origin) z-floating ${POPPER_SIDE_Y_CLASS} data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none`
 
 export const baseSelectDataAttributes = {
   control: createDataAttributes(
@@ -36,8 +37,8 @@ export const baseSelectRecipe = /* @__PURE__ */ defineRecipe<
     trigger: '',
     content: SELECT_CONTENT_CLASS,
     listbox: `m-0 p-1 outline-none ${POPPER_CONTENT_MAX_HEIGHT_CLASS} overflow-y-auto empty:p-0`,
-    item: `group px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover ${DATA_DISABLED_CLASS}`,
-    group: '[&:not(:first-child)]:mt-1.5',
+    item: `px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:text-accent-foreground data-highlighted:bg-accent-hover ${DATA_DISABLED_CLASS}`,
+    group: 'mt-1.5 first:mt-0',
     groupLabel: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
     separator: 'my-1 bg-border h-px',
     empty: 'text-sm text-muted-foreground p-2 text-center',

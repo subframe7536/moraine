@@ -515,6 +515,12 @@
       ]
     },
     {
+      "target": "itemDescription",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
       "target": "input",
       "attributes": [
         "data-duplicate"

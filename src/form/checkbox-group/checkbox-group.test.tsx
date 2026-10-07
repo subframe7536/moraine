@@ -409,7 +409,8 @@ describe('CheckboxGroup', () => {
     expect(item?.className).toContain('p-4')
     expect(item?.className).toContain('first-of-type:rounded-s-lg')
     expect(item?.className).toContain('last-of-type:rounded-e-lg')
-    expect(item?.className).toContain('[&:not(:first-of-type)]:-ms-px')
+    expect(item?.className).toContain('-ms-px')
+    expect(item?.className).toContain('first-of-type:ms-0')
   })
 
   test('applies vertical table layout classes', () => {
@@ -427,7 +428,8 @@ describe('CheckboxGroup', () => {
     expect(fieldset?.className).toContain('flex-col')
     expect(item?.className).toContain('first-of-type:rounded-t-lg')
     expect(item?.className).toContain('last-of-type:rounded-b-lg')
-    expect(item?.className).toContain('[&:not(:first-of-type)]:-mt-px')
+    expect(item?.className).toContain('-mt-px')
+    expect(item?.className).toContain('first-of-type:mt-0')
   })
 
   test('renders checkbox items as direct fieldset children', () => {

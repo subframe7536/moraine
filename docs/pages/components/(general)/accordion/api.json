@@ -221,6 +221,12 @@
       ]
     },
     {
+      "target": "trailing",
+      "attributes": [
+        "data-expanded"
+      ]
+    },
+    {
       "target": "content",
       "attributes": [
         "data-closed",

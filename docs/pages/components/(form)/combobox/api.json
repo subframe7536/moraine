@@ -465,6 +465,12 @@
       ]
     },
     {
+      "target": "itemDescription",
+      "attributes": [
+        "data-highlighted"
+      ]
+    },
+    {
       "target": "trigger",
       "attributes": [
         "data-loading"

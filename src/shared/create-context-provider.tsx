@@ -1,11 +1,7 @@
-import type { Context } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
 
 /** Creates a required context hook, or an optional one when a fallback is supplied. */
-export function createContextProvider<CtxValue>(
-  name: string,
-  defaultValue?: CtxValue,
-): [Context<CtxValue>['Provider'], () => CtxValue] {
+export function createContextProvider<CtxValue>(name: string, defaultValue?: CtxValue) {
   const context = createContext<CtxValue>()
 
   function useContextHook(): CtxValue {
@@ -22,5 +18,5 @@ export function createContextProvider<CtxValue>(
     return ctx
   }
 
-  return [context.Provider, useContextHook]
+  return [context.Provider, useContextHook, context] as const
 }

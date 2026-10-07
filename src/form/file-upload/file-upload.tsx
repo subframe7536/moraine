@@ -786,7 +786,7 @@ export function FileUpload<Multiple extends boolean = false>(
                       />
                     }
                   >
-                    {(url) => <img src={url()} alt={file.name} />}
+                    {(url) => <img class="size-full object-cover" src={url()} alt={file.name} />}
                   </Show>
                 </span>
 

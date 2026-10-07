@@ -2,7 +2,11 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { TEXT_CONTROL_CLASS } from '../shared/text-control.class'
-import { TEXT_CONTROL_GROUPED, TEXT_CONTROL_VARIANT } from '../shared/text-control.recipe'
+import {
+  GROUPED_EDGE_CLASS,
+  TEXT_CONTROL_GROUPED,
+  TEXT_CONTROL_VARIANT,
+} from '../shared/text-control.recipe'
 
 import type { TextareaRecipeVariant, TextareaStyleSlot } from './textarea.style-types'
 
@@ -31,27 +35,27 @@ export const textareaRecipe = /* @__PURE__ */ defineRecipe<
     { variants: { grouped: false, variant: 'none' }, ...TEXT_CONTROL_VARIANT.none },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'sm' },
-      root: 'ps-0 pe-0 first:ps-1.5 [&:nth-last-child(2)]:pe-1.5',
+      root: GROUPED_EDGE_CLASS.horizontal.sm,
     },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'md' },
-      root: 'ps-0 pe-0 first:ps-2 [&:nth-last-child(2)]:pe-2',
+      root: GROUPED_EDGE_CLASS.horizontal.md,
     },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'lg' },
-      root: 'ps-0 pe-0 first:ps-2.5 [&:nth-last-child(2)]:pe-2.5',
+      root: GROUPED_EDGE_CLASS.horizontal.lg,
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'sm' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-1 [&:nth-last-child(2)]:pb-1',
+      root: `flex-none w-full ${GROUPED_EDGE_CLASS.vertical.sm}`,
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'md' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-1.5 [&:nth-last-child(2)]:pb-1.5',
+      root: `flex-none w-full ${GROUPED_EDGE_CLASS.vertical.md}`,
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'lg' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-2 [&:nth-last-child(2)]:pb-2',
+      root: `flex-none w-full ${GROUPED_EDGE_CLASS.vertical.lg}`,
     },
   ],
 })
