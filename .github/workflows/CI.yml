@@ -66,13 +66,13 @@ jobs:
           BEFORE: ${{ github.event.before }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && git rev-parse --verify "origin/$BASE_REF^{commit}" >/dev/null 2>&1; then
-            pnpm run test:library --changed "origin/$BASE_REF"
+            pnpm run test:lib --changed "origin/$BASE_REF"
             pnpm run test:docs --changed "origin/$BASE_REF"
           elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "$BEFORE^{commit}" >/dev/null 2>&1; then
-            pnpm run test:library --changed "$BEFORE"
+            pnpm run test:lib --changed "$BEFORE"
             pnpm run test:docs --changed "$BEFORE"
           else
-            pnpm run test:library
+            pnpm run test:lib
             pnpm run test:docs
           fi
 

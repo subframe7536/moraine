@@ -4,5 +4,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
   },
-  "unocss.include": ["src/**/*.class.ts"]
+  "unocss.include": ["src/**/*.class.ts", "src/**/*.recipe.ts"]
 }
