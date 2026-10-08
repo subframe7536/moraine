@@ -153,6 +153,17 @@ describe('localized component text', () => {
     expect(screen.getByRole('button', { name: 'Documents' })).toBeTruthy()
   })
 
+  test('uses file upload messages unless aria-label names the control', () => {
+    const screen = render(() => (
+      <MoraineProvider messages={{ fileUpload: { label: 'Televerser' } }}>
+        <FileUpload aria-label="Workspace files" />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Workspace files' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Televerser' })).toBeNull()
+  })
+
   test('uses resizable grip messages and lets aria-label win', () => {
     const screen = render(() => (
       <MoraineProvider messages={{ resizable: { collapse: 'Reduire', expand: 'Etendre' } }}>
@@ -229,6 +240,16 @@ describe('localized component text', () => {
 
     expect(screen.getByLabelText('Commande').textContent).toBe('⌘')
     expect(screen.getByLabelText('Primary').textContent).toBe('⌘')
+  })
+
+  test('lets a native kbd aria-label win over messages', () => {
+    const screen = render(() => (
+      <MoraineProvider messages={{ kbd: { meta: 'Commande' } }}>
+        <Kbd value="meta" aria-label="Super key" />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByLabelText('Super key').textContent).toBe('⌘')
   })
 
   test('uses multi-select overflow and create messages', async () => {

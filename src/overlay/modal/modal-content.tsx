@@ -57,6 +57,9 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'ariaLabel',
     'ariaLabelledBy',
     'ariaDescribedBy',
+    'aria-label',
+    'aria-labelledby',
+    'aria-describedby',
     'class',
     'style',
     'onKeyDown',
@@ -112,9 +115,9 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       id={context.contentId()}
       role="dialog"
       aria-modal={context.isModal() ? 'true' : undefined}
-      aria-label={rest['aria-label'] ?? local.ariaLabel}
-      aria-labelledby={rest['aria-labelledby'] ?? local.ariaLabelledBy}
-      aria-describedby={rest['aria-describedby'] ?? local.ariaDescribedBy}
+      aria-label={local['aria-label'] ?? local.ariaLabel}
+      aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
+      aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
       data-slot={context.slotName('content')}
       class={cn(local.class)}

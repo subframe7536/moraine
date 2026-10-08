@@ -48,7 +48,14 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   props: SidebarFrameT.SidebarProps<T>,
 ): JSX.Element {
   const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['as', 'ariaLabel', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'ariaLabel',
+    'aria-label',
+    'children',
+    'class',
+    'style',
+  ])
   const content = resolveChildren(() => local.children)
   const resolved = useSidebarFrameStyles('sidebar', local)
   const messages = useMessages('sidebarFrame', defaultSidebarFrameMessages)
@@ -56,7 +63,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   const mobileAriaLabel = () => {
     const restRecord = rest as Record<string, unknown>
     return (
-      (restRecord['aria-label'] as string | undefined) ??
+      local['aria-label'] ??
       local.ariaLabel ??
       (restRecord.title as string | undefined) ??
       messages().label
@@ -77,6 +84,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
       })}
       aria-hidden={!context.isOpen() ? true : undefined}
       inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
+      aria-label={local['aria-label']}
       {...(rest as object)}
       {...resolved.styles.sidebar}
     >

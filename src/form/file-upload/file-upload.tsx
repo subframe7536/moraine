@@ -293,6 +293,7 @@ export function FileUpload<Multiple extends boolean = false>(
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(fileUploadRecipe, local, {
@@ -394,7 +395,7 @@ export function FileUpload<Multiple extends boolean = false>(
       if (label()) {
         attrs['aria-labelledby'] = labelId()
       } else {
-        attrs['aria-label'] = messages().label
+        attrs['aria-label'] ??= local['aria-label'] ?? messages().label
       }
     }
     if (invalid()) {
@@ -687,7 +688,11 @@ export function FileUpload<Multiple extends boolean = false>(
       {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : messages().label}
+      aria-label={
+        field.ariaAttrs()['aria-labelledby'] || label()
+          ? undefined
+          : (local['aria-label'] ?? messages().label)
+      }
       aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({
