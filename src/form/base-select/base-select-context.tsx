@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 import {
-  For,
+  Index,
   batch,
   createEffect,
   createMemo,
@@ -321,6 +321,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
   })
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
+  const secondarySerializedValues = createMemo(() => serialized().slice(1))
 
   useFormReset(
     () => formInput?.form,
@@ -431,17 +432,17 @@ export function createSelectState<T extends BaseSelectT.Item>(
             focusOwner()?.focus()
           }}
         />
-        <For each={serialized().slice(1)}>
+        <Index each={secondarySerializedValues()}>
           {(value) => (
             <HiddenInput
               type="hidden"
               visuallyHidden={false}
               name={field.name()}
-              value={value}
+              value={value()}
               disabled={field.disabled()}
             />
           )}
-        </For>
+        </Index>
       </>
     ),
   }

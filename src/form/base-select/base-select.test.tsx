@@ -959,6 +959,30 @@ test('only adds hidden inputs for additional multi-select values', () => {
   expect(new FormData(form).getAll('choice')).toEqual(['apple', 'orange', 'pear'])
 })
 
+test('serializes duplicate values without key collision in hidden inputs', () => {
+  const screen = render(() => (
+    <form>
+      <BaseSelect
+        name="choice"
+        multiple
+        defaultValue={['a', 'b', 'c']}
+        serializeValue={() => 'same'}
+        items={[
+          { value: 'a', label: 'Item A' },
+          { value: 'b', label: 'Item B' },
+          { value: 'c', label: 'Item C' },
+        ]}
+      >
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect>
+    </form>
+  ))
+
+  const form = screen.container.querySelector('form')!
+  expect(form.querySelectorAll('input[type="hidden"]')).toHaveLength(2)
+  expect(new FormData(form).getAll('choice')).toEqual(['same', 'same', 'same'])
+})
+
 test('supports an empty-string value with required validation and form submission', () => {
   const screen = render(() => (
     <form>
