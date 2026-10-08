@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider'
+import { useMoraineContext } from '../moraine-context'
 
 import { FALLBACK_LOCALE } from './default-locale'
 import { mergeMessagesInput } from './merge-messages'
@@ -12,20 +12,6 @@ export interface ResolvedLocale {
   messages?: MoraineMessagesInput
 }
 
-const DEFAULT_RESOLVED_LOCALE: ResolvedLocale = /* @__PURE__ */ Object.freeze({
-  locale: FALLBACK_LOCALE,
-})
-
-function getDefaultResolvedLocale(): ResolvedLocale {
-  return DEFAULT_RESOLVED_LOCALE
-}
-
-export const [MoraineLocaleProvider, useLocaleAccessor, MoraineLocaleContext] =
-  /* @__PURE__ */ createContextProvider<Accessor<ResolvedLocale>>(
-    'MoraineLocale',
-    getDefaultResolvedLocale,
-  )
-
 export interface MoraineLocale {
   /** BCP 47 locale from the nearest provider. Guaranteed fallback is `en-US`. */
   locale: Accessor<string>
@@ -35,10 +21,10 @@ export interface MoraineLocale {
 
 /** Stable accessors for the nearest provider locale and direction. */
 export function useLocale(): MoraineLocale {
-  const current = useLocaleAccessor()
+  const context = useMoraineContext()
   return {
-    locale: () => current().locale,
-    dir: () => current().dir,
+    locale: () => context.locale.locale,
+    dir: () => context.locale.dir,
   }
 }
 
@@ -73,9 +59,9 @@ export function useMessages<K extends keyof MoraineMessages>(
   key: K,
   defaults: MoraineMessages[K],
 ): Accessor<MoraineMessages[K]> {
-  const current = useLocaleAccessor()
+  const context = useMoraineContext()
   return () => {
-    const custom = current().messages?.[key]
+    const custom = context.locale.messages?.[key]
     return mergeGroup(defaults, custom)
   }
 }

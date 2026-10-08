@@ -23,7 +23,7 @@ import { defaultDialogMessages } from '../../overlay/dialog/dialog.messages'
 import { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
 import { MoraineProvider } from '../moraine-provider'
 
-import { useLocale, useLocaleAccessor, useMessages } from './locale-context'
+import { useLocale, useMessages } from './locale-context'
 import type { MoraineMessagesInput, MoraineMessages } from './messages.types'
 
 const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
@@ -88,12 +88,6 @@ describe('Moraine locale', () => {
     } finally {
       language.mockRestore()
     }
-  })
-
-  test('returns stable default resolved locale without a provider', () => {
-    const first = useLocaleAccessor()()
-    const second = useLocaleAccessor()()
-    expect(first).toBe(second)
   })
 
   test('detectLocale={false} stays en-US', () => {

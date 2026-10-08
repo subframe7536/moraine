@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, useContext } from 'solid-js'
+import { createMemo } from 'solid-js'
 
 import type { CnConfig } from '../theme/cn'
 import { createCn } from '../theme/cn'
@@ -7,16 +7,11 @@ import { getThemeRecipeLayers } from '../theme/create-theme'
 import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
-import { MoraineCnProvider, useCnAccessor } from './cn-context'
 import { createDetectedLocale } from './locale/default-locale'
-import {
-  MoraineLocaleContext,
-  MoraineLocaleProvider,
-  resolveLocale,
-  useLocaleAccessor,
-} from './locale/locale-context'
+import { resolveLocale } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
-import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
+import { MoraineContextProvider, useMoraineParent } from './moraine-context'
+import { defaultRecipeResolver } from './theme-context'
 import type { ThemeResolver } from './theme-context'
 
 export interface MoraineProviderProps {
@@ -44,7 +39,7 @@ export interface MoraineProviderProps {
 
 /** Provides theme overrides and class merging rules to descendant components. */
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
-  const parentResolver = useThemeResolver()
+  const { parent, provided } = useMoraineParent()
   const cache = new WeakMap<MoraineTheme, WeakMap<RecipeDefinition, ResolvedRecipe>>()
 
   const resolverFor = (theme: MoraineTheme): ThemeResolver => ({
@@ -73,10 +68,10 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
     },
   })
 
-  const currentResolver = createMemo<ThemeResolver>(() => {
+  const resolver = createMemo<ThemeResolver>(() => {
     const theme = props.theme
     if (theme === undefined) {
-      return parentResolver()
+      return parent.resolver
     }
     if (theme === null) {
       return defaultRecipeResolver
@@ -84,32 +79,42 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
     return resolverFor(theme)
   })
 
-  const parentCn = useCnAccessor()
-  const currentCn = createMemo(() => {
+  const cn = createMemo(() => {
     const config = props.cnConfig
-    return config === undefined ? parentCn() : createCn(config)
+    return config === undefined ? parent.cn : createCn(config)
   })
 
-  const parentLocale = useLocaleAccessor()
-  const parentLocaleContext = useContext(MoraineLocaleContext)
   const shouldDetectLocale = (): boolean =>
-    props.locale === undefined && (props.detectLocale ?? parentLocaleContext === undefined)
+    props.locale === undefined && (props.detectLocale ?? !provided)
+
   const detectedLocale = createDetectedLocale(shouldDetectLocale)
-  const currentLocale = createMemo(() =>
-    resolveLocale(parentLocale(), {
+
+  const locale = createMemo(() => {
+    const should = shouldDetectLocale()
+    return resolveLocale(parent.locale, {
       locale: props.locale,
       dir: props.dir,
       messages: props.messages,
-      detectLocale: shouldDetectLocale(),
-      detectedLocale: shouldDetectLocale() ? detectedLocale() : undefined,
-    }),
-  )
+      detectLocale: should,
+      detectedLocale: should ? detectedLocale() : undefined,
+    })
+  })
 
   return (
-    <MoraineThemeProvider value={currentResolver}>
-      <MoraineCnProvider value={currentCn}>
-        <MoraineLocaleProvider value={currentLocale}>{props.children}</MoraineLocaleProvider>
-      </MoraineCnProvider>
-    </MoraineThemeProvider>
+    <MoraineContextProvider
+      value={{
+        get resolver() {
+          return resolver()
+        },
+        get cn() {
+          return cn()
+        },
+        get locale() {
+          return locale()
+        },
+      }}
+    >
+      {props.children}
+    </MoraineContextProvider>
   )
 }

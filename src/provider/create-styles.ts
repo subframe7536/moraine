@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
+import type { Cn } from '../theme/cn'
 import type {
   RecipeDefinition,
   RecipeSlots,
@@ -10,8 +11,7 @@ import type {
 import { getRecipeDefaultVariants, resolveRecipe } from '../theme/recipe'
 import type { SlotClassValue } from '../theme/style-types'
 
-import { useCn } from './cn-context'
-import { useThemeResolver } from './theme-context'
+import { useMoraineContext } from './moraine-context'
 
 const EMPTY = /* @__PURE__ */ Object.freeze({})
 
@@ -77,9 +77,9 @@ export function createStyles<R extends RecipeDefinition>(
   type Slots = Extract<keyof RecipeSlots<R>, string>
   type Variants = RecipeVariant<R>
   const options = (args[0] ?? {}) as RequiredRootSlotOptions<Slots, Variants>
-  const cn = useCn()
-  const resolver = useThemeResolver()
-  const resolvedRecipe = createMemo(() => resolver().resolve(recipe))
+  const context = useMoraineContext()
+  const cn: Cn = (...classes) => context.cn(...classes)
+  const resolvedRecipe = createMemo(() => context.resolver.resolve(recipe))
   const defaultVariants = createMemo(() => getRecipeDefaultVariants(resolvedRecipe()) ?? EMPTY)
   const inheritedVariants = createMemo(() => options.inheritedVariants?.() ?? EMPTY)
   const variantKeys = new Set<string>([
