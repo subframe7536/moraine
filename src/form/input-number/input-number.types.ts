@@ -72,7 +72,7 @@ export namespace InputNumberT {
 
     /**
      * Locale for number formatting and parsing as a BCP 47 tag such as `en-US`.
-     * Falls back to the provider locale, then the browser language (`en-US` during SSR).
+     * Falls back to the provider locale, then `en-US`.
      */
     locale?: string
 

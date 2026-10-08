@@ -1,4 +1,4 @@
-import { render } from '@solidjs/testing-library'
+import { render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -32,33 +32,108 @@ function LocaleProbe() {
 }
 
 describe('Moraine locale', () => {
-  test('uses English messages and locale without a provider', () => {
-    const screen = render(() => (
-      <>
-        <LocaleProbe />
-        <Pagination total={10} />
-        <InputNumber aria-label="Quantity" defaultValue={12.5} />
-      </>
-    ))
-
-    const probe = screen.container.querySelector('i')!
-    expect(probe.dataset.locale).toBe(navigator.language)
-    expect(probe.dataset.dir).toBe('')
-    expect(probe.dataset.close).toBe(enMessages.dialog.close)
-    expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeTruthy()
-    expect(controlValue(screen.getByRole('spinbutton', { name: 'Quantity' }))).toBe(
-      new Intl.NumberFormat(navigator.language, {
-        useGrouping: false,
-        maximumFractionDigits: 20,
-      }).format(12.5),
-    )
-  })
-
-  test('uses the browser locale without a provider', () => {
+  test('uses English messages and en-US locale without a provider', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
-      const screen = render(() => <LocaleProbe />)
-      expect(screen.container.querySelector('i')!.dataset.locale).toBe('fr-FR')
+      const screen = render(() => (
+        <>
+          <LocaleProbe />
+          <Pagination total={10} />
+          <InputNumber aria-label="Quantity" defaultValue={12.5} />
+        </>
+      ))
+
+      const probe = screen.container.querySelector('i')!
+      expect(probe.dataset.locale).toBe('en-US')
+      expect(language).not.toHaveBeenCalled()
+      expect(probe.dataset.dir).toBe('')
+      expect(probe.dataset.close).toBe(enMessages.dialog.close)
+      expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeTruthy()
+      expect(controlValue(screen.getByRole('spinbutton', { name: 'Quantity' }))).toBe('12.5')
+    } finally {
+      language.mockRestore()
+    }
+  })
+
+  test('provider without detectLocale stays en-US', () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => (
+        <MoraineProvider>
+          <LocaleProbe />
+        </MoraineProvider>
+      ))
+      expect(screen.container.querySelector('i')!.dataset.locale).toBe('en-US')
+      expect(language).not.toHaveBeenCalled()
+    } finally {
+      language.mockRestore()
+    }
+  })
+
+  test('detectLocale follows the browser after mount and a microtask', async () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => (
+        <MoraineProvider detectLocale>
+          <LocaleProbe />
+        </MoraineProvider>
+      ))
+
+      const probe = screen.container.querySelector('i')!
+      expect(probe.dataset.locale).toBe('en-US')
+      await waitFor(() => {
+        expect(probe.dataset.locale).toBe('fr-FR')
+      })
+
+      language.mockReturnValue('de-DE')
+      window.dispatchEvent(new Event('languagechange'))
+      await waitFor(() => {
+        expect(probe.dataset.locale).toBe('de-DE')
+      })
+    } finally {
+      language.mockRestore()
+    }
+  })
+
+  test('explicit locale wins over detectLocale', async () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => (
+        <MoraineProvider locale="zh-CN" detectLocale>
+          <LocaleProbe />
+        </MoraineProvider>
+      ))
+
+      const probe = screen.container.querySelector('i')!
+      expect(probe.dataset.locale).toBe('zh-CN')
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(probe.dataset.locale).toBe('zh-CN')
+      expect(language).not.toHaveBeenCalled()
+    } finally {
+      language.mockRestore()
+    }
+  })
+
+  test('nested provider omitting locale inherits the parent detected tag', async () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => (
+        <MoraineProvider detectLocale>
+          <LocaleProbe />
+          <MoraineProvider>
+            <LocaleProbe />
+          </MoraineProvider>
+        </MoraineProvider>
+      ))
+
+      const [parent, child] = screen.container.querySelectorAll('i')
+      expect(parent?.dataset.locale).toBe('en-US')
+      expect(child?.dataset.locale).toBe('en-US')
+      await waitFor(() => {
+        expect(parent?.dataset.locale).toBe('fr-FR')
+        expect(child?.dataset.locale).toBe('fr-FR')
+      })
     } finally {
       language.mockRestore()
     }

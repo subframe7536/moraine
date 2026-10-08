@@ -88,3 +88,15 @@ function DefaultLocaleProbe() {
 export function renderDefaultLocaleFixture() {
   return renderToString(() => <DefaultLocaleProbe />)
 }
+
+export function DetectLocaleHydrationFixture() {
+  return (
+    <MoraineProvider detectLocale>
+      <DefaultLocaleProbe />
+    </MoraineProvider>
+  )
+}
+
+export function renderDetectLocaleFixture() {
+  return renderToString(() => <DetectLocaleHydrationFixture />)
+}

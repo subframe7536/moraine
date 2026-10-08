@@ -8,6 +8,7 @@ import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnProvider, useCnAccessor } from './cn-context'
+import { createDetectedLocale } from './locale/default-locale'
 import { MoraineLocaleProvider, resolveLocale, useLocaleAccessor } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
@@ -18,8 +19,14 @@ export interface MoraineProviderProps {
   theme?: MoraineTheme | null
   /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
-  /** Undefined inherits the parent locale. Shared application locale as a BCP 47 tag such as `en-US` or `zh-CN`. Without a provider, uses the browser language; SSR fallback is `en-US`. */
+  /** Undefined inherits the parent locale. Shared application locale as a BCP 47 tag such as `en-US` or `zh-CN`. Without a provider, locale is `en-US`. */
   locale?: string
+  /**
+   * After hydration, follow `navigator.language` and `languagechange`.
+   * SSR and the first client render stay `en-US`. Ignored when `locale` is set.
+   * Prefer passing an explicit `locale` from a cookie or `Accept-Language` in production.
+   */
+  detectLocale?: boolean
   /** Undefined inherits the parent direction; null clears it back to document / `<html dir>` detection; 'ltr' or 'rtl' replaces it. Controls Moraine component direction-sensitive behavior; does not set a dir attribute on arbitrary descendants. Set `dir` on `<html>` for layout. */
   dir?: 'ltr' | 'rtl' | null
   /** Undefined inherits parent messages; a partial pack deep-merges over them. */
@@ -77,11 +84,16 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   })
 
   const parentLocale = useLocaleAccessor()
+  const detectedLocale = createDetectedLocale(
+    () => props.detectLocale === true && props.locale === undefined,
+  )
   const currentLocale = createMemo(() =>
     resolveLocale(parentLocale(), {
       locale: props.locale,
       dir: props.dir,
       messages: props.messages,
+      detectLocale: props.detectLocale === true,
+      detectedLocale: props.detectLocale === true ? detectedLocale() : undefined,
     }),
   )
 

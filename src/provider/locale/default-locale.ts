@@ -1,12 +1,8 @@
-import { createSignal } from 'solid-js'
-import { isServer } from 'solid-js/web'
+import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
+import type { Accessor } from 'solid-js'
 
-/** SSR and invalid-tag fallback. Matches Kobalte's server locale. */
+/** Default locale when nothing else is set. SSR and the first client render use this tag. */
 export const FALLBACK_LOCALE = 'en-US'
-
-const [localeEpoch, setLocaleEpoch] = createSignal(0)
-
-let languageChangeBound = false
 
 function readBrowserLocale(): string {
   const language =
@@ -22,22 +18,40 @@ function readBrowserLocale(): string {
   return locale
 }
 
-function bindLanguageChange(): void {
-  if (languageChangeBound || isServer || typeof window === 'undefined') {
-    return
-  }
-  languageChangeBound = true
-  window.addEventListener('languagechange', () => {
-    setLocaleEpoch((epoch) => epoch + 1)
-  })
-}
+/**
+ * Starts at `en-US` through SSR and hydration. After `onMount` + `queueMicrotask`,
+ * follows `navigator.language` and `languagechange` while `enabled` is true.
+ */
+export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<string> {
+  const [detected, setDetected] = createSignal(FALLBACK_LOCALE)
+  const [ready, setReady] = createSignal(false)
 
-/** Browser language on the client; `en-US` during SSR. */
-export function getDefaultLocaleTag(): string {
-  if (isServer) {
-    return FALLBACK_LOCALE
-  }
-  bindLanguageChange()
-  localeEpoch()
-  return readBrowserLocale()
+  onMount(() => {
+    queueMicrotask(() => {
+      setReady(true)
+    })
+  })
+
+  createEffect(
+    on([enabled, ready], ([isEnabled, isReady]) => {
+      if (!isEnabled) {
+        setDetected(FALLBACK_LOCALE)
+        return
+      }
+      if (!isReady || typeof window === 'undefined') {
+        return
+      }
+
+      const apply = (): void => {
+        setDetected(readBrowserLocale())
+      }
+      apply()
+      window.addEventListener('languagechange', apply)
+      onCleanup(() => {
+        window.removeEventListener('languagechange', apply)
+      })
+    }),
+  )
+
+  return detected
 }

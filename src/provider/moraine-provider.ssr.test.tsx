@@ -1,6 +1,7 @@
+import { waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../test-util/ssr-test'
 import type { CnConfig } from '../theme/cn'
@@ -8,6 +9,7 @@ import { defineTheme } from '../theme/create-theme'
 
 import {
   CnHydrationFixture,
+  DetectLocaleHydrationFixture,
   fixtureCnConfig,
   LocaleHydrationFixture,
   ThemeHydrationFixture,
@@ -137,12 +139,41 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
   }
 })
 
-test('ssr default locale is en-US before the browser language is available', () => {
+test('ssr default locale without a provider is en-US', () => {
   const html = renderSsrFixture(
     '/src/provider/moraine-provider.ssr.fixture.tsx',
     'renderDefaultLocaleFixture',
   )
   expect(html).toContain('data-locale="en-US"')
+})
+
+test('detectLocale stays en-US through SSR and first hydration, then follows the browser', async () => {
+  const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+  const html = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderDetectLocaleFixture',
+  )
+  expect(html).toContain('data-locale="en-US"')
+
+  const container = document.createElement('div')
+  container.innerHTML = html
+  document.body.append(container)
+  const probe = container.querySelector('i')!
+  expect(probe.getAttribute('data-locale')).toBe('en-US')
+  const restore = installHydrationState()
+  const dispose = hydrate(() => <DetectLocaleHydrationFixture />, container)
+  try {
+    expect(container.querySelector('i')).toBe(probe)
+    expect(probe.getAttribute('data-locale')).toBe('en-US')
+    await waitFor(() => {
+      expect(probe.getAttribute('data-locale')).toBe('fr-FR')
+    })
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+    language.mockRestore()
+  }
 })
 
 test('hydrates localized pagination and dialog labels', () => {
