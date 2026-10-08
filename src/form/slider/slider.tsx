@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
+import { createMemo, For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -122,6 +122,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     }
   })
 
+  const thumbCount = createMemo(() => slider.currentValues().length)
+  const isMultiple = createMemo(() => thumbCount() > 1)
+  const thumbIndexes = createMemo(() => Array.from({ length: thumbCount() }, (_, index) => index))
+
   return (
     <div
       {...rest}
@@ -137,7 +141,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         readonly: () => merged.readOnly,
         required: field.required,
         inverted: () => merged.inverted,
-        multiple: () => slider.currentValues().length > 1,
+        multiple: isMultiple,
       })}
       {...field.ariaAttrs()}
       {...resolved.styles.root}
@@ -157,7 +161,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         <div
           data-slot="slider-range"
           {...sliderDataAttributes.range({
-            multiple: () => slider.currentValues().length > 1,
+            multiple: isMultiple,
             inverted: () => merged.inverted,
           })}
           style={{
@@ -186,7 +190,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         </Show>
       </div>
 
-      <For each={Array.from({ length: slider.currentValues().length }, (_, index) => index)}>
+      <For each={thumbIndexes()}>
         {(thumbIndex) => (
           <div
             ref={(element) => {
