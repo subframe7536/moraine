@@ -137,11 +137,7 @@
           "name": "ariaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.",
-          "default": {
-            "kind": "literal",
-            "value": "Sidebar navigation"
-          }
+          "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.\nLocalized via MoraineProvider messages when omitted. English default is `Sidebar navigation`."
         },
         {
           "name": "as",

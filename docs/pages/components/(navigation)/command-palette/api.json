@@ -198,11 +198,7 @@
           "name": "placeholder",
           "optional": true,
           "type": "string",
-          "description": "Placeholder text for the search input.",
-          "default": {
-            "kind": "literal",
-            "value": "Search..."
-          }
+          "description": "Placeholder text for the search input.\nLocalized via MoraineProvider messages. English default is `Search...`."
         },
         {
           "name": "ref",

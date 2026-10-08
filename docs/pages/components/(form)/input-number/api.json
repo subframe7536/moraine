@@ -162,7 +162,7 @@
           "name": "locale",
           "optional": true,
           "type": "string",
-          "description": "Locale for number formatting and parsing.\nUses browser default if not specified."
+          "description": "Locale for number formatting and parsing.\nFalls back to the provider locale, then `en`, including when no provider is mounted."
         },
         {
           "name": "maxValue",
