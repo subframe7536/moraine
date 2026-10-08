@@ -116,7 +116,7 @@ export namespace CommandPaletteT {
     groups?: Group<TItem>[]
     /**
      * Placeholder text for the search input.
-     * @default 'Search...'
+     * Localized via MoraineProvider messages. English default is `Search...`.
      */
     placeholder?: string
     /** Controlled search term. */

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import path from 'node:path'
 
+import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
 import * as Moraine from '../../../src/index.ts'

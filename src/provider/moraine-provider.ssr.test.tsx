@@ -1,6 +1,7 @@
+import { waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../test-util/ssr-test'
 import type { CnConfig } from '../theme/cn'
@@ -8,7 +9,9 @@ import { defineTheme } from '../theme/create-theme'
 
 import {
   CnHydrationFixture,
+  DetectLocaleHydrationFixture,
   fixtureCnConfig,
+  LocaleHydrationFixture,
   ThemeHydrationFixture,
   fixtureTheme,
 } from './moraine-provider.ssr.fixture'
@@ -129,6 +132,72 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
     expect(input.value).toBe('Local edit')
     expect(document.activeElement).toBe(input)
     expect([input.selectionStart, input.selectionEnd]).toEqual([1, 4])
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+  }
+})
+
+test('ssr default locale without a provider is en-US', () => {
+  const html = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderDefaultLocaleFixture',
+  )
+  expect(html).toContain('data-locale="en-US"')
+})
+
+test('detectLocale stays en-US through SSR and first hydration, then follows the browser', async () => {
+  const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+  const html = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderDetectLocaleFixture',
+  )
+  expect(html).toContain('data-locale="en-US"')
+
+  const container = document.createElement('div')
+  container.innerHTML = html
+  document.body.append(container)
+  const probe = container.querySelector('i')!
+  expect(probe.getAttribute('data-locale')).toBe('en-US')
+  const restore = installHydrationState()
+  const dispose = hydrate(() => <DetectLocaleHydrationFixture />, container)
+  try {
+    expect(container.querySelector('i')).toBe(probe)
+    expect(probe.getAttribute('data-locale')).toBe('en-US')
+    await waitFor(() => {
+      expect(probe.getAttribute('data-locale')).toBe('fr-FR')
+    })
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+    language.mockRestore()
+  }
+})
+
+test('hydrates localized pagination and dialog labels', () => {
+  const container = document.createElement('div')
+  container.innerHTML = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderLocaleFixture',
+  )
+  document.body.append(container)
+  const nav = container.querySelector('nav')!
+  const current = container.querySelector('[aria-current="page"]')!
+  expect(nav.getAttribute('aria-label')).toBe('Pages')
+  expect(current.getAttribute('aria-label')).toBe('Seite 1 von 3')
+  expect(container.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
+  const restore = installHydrationState()
+  const dispose = hydrate(() => <LocaleHydrationFixture />, container)
+  try {
+    expect(container.querySelector('nav')).toBe(nav)
+    expect(container.querySelector('[aria-current="page"]')).toBe(current)
+    expect(nav.getAttribute('aria-label')).toBe('Pages')
+    expect(current.getAttribute('aria-label')).toBe('Seite 1 von 3')
+    expect(
+      document.body.querySelector('[data-slot="dialog-content-close"]')?.getAttribute('aria-label'),
+    ).toBe('Fermer')
   } finally {
     dispose()
     container.remove()

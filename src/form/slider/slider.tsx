@@ -2,12 +2,14 @@ import type { JSX } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import { createSlider } from './hook'
+import { defaultSliderMessages } from './slider.messages'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
 
@@ -41,8 +43,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const themeField = useFieldContext()
+  const messages = useMessages('slider', defaultSliderMessages)
   const resolved = createStyles(sliderRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -124,6 +128,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
+      aria-label={local['aria-label']}
       data-slot="slider"
       {...sliderDataAttributes.root({
         dragging: slider.dragging,
@@ -218,11 +223,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
             aria-orientation={merged.orientation ?? undefined}
-            aria-label={
-              slider.currentValues().length <= 1
-                ? 'Thumb'
-                : `Thumb ${thumbIndex + 1} of ${slider.currentValues().length}`
-            }
+            aria-label={messages().thumb({
+              index: thumbIndex,
+              total: slider.currentValues().length,
+            })}
             {...field.ariaAttrs()}
             onPointerDown={(event) => {
               slider.onThumbPointerDown(thumbIndex, event)

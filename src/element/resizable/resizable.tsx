@@ -15,6 +15,7 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
@@ -37,6 +38,7 @@ import {
   useResizableHandle,
 } from './hook'
 import type { ResizablePanelItem, ResizableSize } from './hook'
+import { defaultResizableMessages } from './resizable.messages'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
@@ -90,6 +92,7 @@ type HandleLocalProps = Pick<
   | 'onKeyDown'
   | 'onPointerDown'
   | 'onClick'
+  | 'aria-label'
 >
 
 interface HandlePart {
@@ -154,6 +157,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
     'onKeyDown',
     'onPointerDown',
     'onClick',
+    'aria-label',
   ])
   const content = createMemo(() => local.children)
 
@@ -168,6 +172,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
   const cn = useCn()
+  const messages = useMessages('resizable', defaultResizableMessages)
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',
@@ -948,13 +953,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           data-slot="resizable-handle-control"
                           tabIndex={-1}
                           aria-label={
-                            ((handlePart().rest as Record<string, unknown>)['aria-label'] as
-                              | string
-                              | undefined) ??
+                            handlePart().local['aria-label'] ??
                             (action() === 'collapse'
                               ? resolveNearestCollapsibleState(index).collapsed
-                                ? 'Expand panel'
-                                : 'Collapse panel'
+                                ? messages().expand
+                                : messages().collapse
                               : undefined)
                           }
                           onPointerDown={onGripPointerDown}

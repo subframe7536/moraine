@@ -296,6 +296,9 @@ importers:
       moraine:
         specifier: workspace:*
         version: link:..
+      pathe:
+        specifier: '*'
+        version: 2.0.3
       satteri:
         specifier: ^0.10.5
         version: 0.10.5

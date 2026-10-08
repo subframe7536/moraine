@@ -1,7 +1,7 @@
-import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
+import path from 'pathe'
 import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'

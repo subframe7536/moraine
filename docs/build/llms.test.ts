@@ -1,7 +1,6 @@
 // @vitest-environment node
 
-import path from 'node:path'
-
+import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 import YAML from 'yaml'
 

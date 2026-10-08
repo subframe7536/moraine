@@ -19,6 +19,7 @@ import {
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
@@ -178,6 +179,7 @@ function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
 
 function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.Element {
   const context = useNavigationMenuContext()
+  const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
   item.setTriggerOptions(props)
   onCleanup(() => item.setTriggerOptions(undefined))
@@ -218,7 +220,7 @@ function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.Element
         const openKey =
           context.orientation() === 'horizontal'
             ? 'ArrowDown'
-            : resolveDirection(event.currentTarget) === 'rtl'
+            : resolveDirection(event.currentTarget, direction()) === 'rtl'
               ? 'ArrowLeft'
               : 'ArrowRight'
         if (event.key === openKey) {
@@ -288,6 +290,7 @@ function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.Element
 
 function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.Element {
   const context = useNavigationMenuContext()
+  const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
   const resolved = createStyles(navigationMenuRecipe, local, {
@@ -313,7 +316,7 @@ function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.Element
     items: links,
     getValue: (element) => element,
     activationMode: () => 'manual',
-    getDirection: () => resolveDirection(item.content()),
+    getDirection: () => resolveDirection(item.content(), direction()),
     focusValue: (element) => {
       focusWithoutScrolling(element)
       const content = item.content()

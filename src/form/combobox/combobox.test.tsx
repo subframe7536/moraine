@@ -472,6 +472,17 @@ test('filters normalized string items and commits a keyboard selection', () => {
   expect(onChange).toHaveBeenLastCalledWith('Banana')
 })
 
+test('filters items with Intl.Collator from the provider locale', () => {
+  const screen = render(() => (
+    <MoraineProvider locale="en-US">
+      <Combobox items={['Apple', 'Banana']} defaultOpen />
+    </MoraineProvider>
+  ))
+  fireEvent.input(screen.getByRole('combobox'), { target: { value: 'AP' } })
+  expect(within(document.body).getByRole('option', { name: 'Apple', hidden: true })).toBeTruthy()
+  expect(within(document.body).queryByRole('option', { name: 'Banana', hidden: true })).toBeNull()
+})
+
 test('combobox allowClear provides tabbable button and keyboard clear', () => {
   const onClear = vi.fn()
   const screen = render(() => (

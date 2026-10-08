@@ -17,12 +17,20 @@ import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
 import { getActiveElement } from '../../overlay/base/dom'
 import { createStyles } from '../../provider'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import {
+  formatLocaleNumber,
+  isPartialNumber,
+  parseLocaleNumber,
+  toNumber,
+} from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { mergeFieldAriaAttributes } from '../shared/field-aria'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { defaultInputNumberMessages } from './input-number.messages'
 import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
 type ControlKind = 'increment' | 'decrement'
@@ -40,121 +48,6 @@ interface PressRepeatState {
   lastTriggeredAt: number
   lastPointerType: string | undefined
   targetEl: HTMLButtonElement | null
-}
-
-/**
- * Detects the decimal separator for the current locale.
- */
-function getDecimalSeparator(locale?: string): string {
-  const formatter = new Intl.NumberFormat(locale || undefined)
-  const parts = formatter.formatToParts(1.1)
-  const decimalPart = parts.find((part) => part.type === 'decimal')
-  return decimalPart?.value ?? '.'
-}
-
-/**
- * Detects the thousands separator for the current locale.
- */
-function getThousandsSeparator(locale?: string): string {
-  const formatter = new Intl.NumberFormat(locale || undefined)
-  const parts = formatter.formatToParts(1000)
-  const groupPart = parts.find((part) => part.type === 'group')
-  return groupPart?.value ?? ','
-}
-
-/**
- * Checks if a string represents a partial but valid in-progress number input.
- * Examples: "-", ".", "-.", "1.", "1.2", "-0.", locale-specific separators
- */
-function isPartialNumber(value: string, locale?: string): boolean {
-  const normalized = normalizeLocalizedNumerals(value)
-  if (normalized === '' || normalized === '-' || normalized === '+') {
-    return true
-  }
-
-  const decimalSep = getDecimalSeparator(locale)
-  const normalizedDecimalSep = normalizeLocalizedNumerals(decimalSep)
-
-  // Just a decimal separator
-  if (
-    normalized === normalizedDecimalSep ||
-    normalized === `-${normalizedDecimalSep}` ||
-    normalized === `+${normalizedDecimalSep}`
-  ) {
-    return true
-  }
-
-  // Ends with decimal separator (e.g., "1.", "1.2.")
-  if (normalized.endsWith(normalizedDecimalSep)) {
-    return true
-  }
-
-  return false
-}
-
-/** Normalizes the common non-ASCII digits and separators emitted by supported locales. */
-function normalizeLocalizedNumerals(value: string): string {
-  return value
-    .replace(/[\u0660-\u0669]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x0660))
-    .replace(/[\u06F0-\u06F9]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x06f0))
-    .replace(/[\uFF10-\uFF19]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0xff10))
-    .replaceAll('\u066B', '.')
-    .replaceAll('\uFF0E', '.')
-    .replaceAll('\uFF0C', ',')
-    .replaceAll('\u066C', '')
-    .replaceAll('\u2212', '-')
-    .replaceAll('\uFF0D', '-')
-    .replaceAll('\uFF0B', '+')
-    .replaceAll('\u061C', '')
-    .replaceAll('\u200E', '')
-    .replaceAll('\u200F', '')
-}
-
-/**
- * Parses a locale-aware number string to a number.
- * Returns undefined if the string is not a valid complete number.
- */
-function parseLocaleNumber(value: string, locale?: string): number | undefined {
-  if (value === '' || value.trim() === '') {
-    return undefined
-  }
-
-  const decimalSep = getDecimalSeparator(locale)
-  const thousandsSep = getThousandsSeparator(locale)
-
-  // Normalize: remove thousands separators and replace decimal separator with '.'
-  let normalized = normalizeLocalizedNumerals(value)
-  if (thousandsSep) {
-    normalized = normalized.replaceAll(thousandsSep, '')
-  }
-  if (decimalSep !== '.') {
-    normalized = normalized.replace(decimalSep, '.')
-  }
-
-  const parsed = Number(normalized)
-  return Number.isFinite(parsed) ? parsed : undefined
-}
-
-/**
- * Formats a number using locale-specific formatting.
- */
-function formatLocaleNumber(value: number, locale?: string): string {
-  return new Intl.NumberFormat(locale || undefined, {
-    useGrouping: false,
-    maximumFractionDigits: 20,
-  }).format(value)
-}
-
-function toNumber(value: string | number | undefined, fallback: number, locale?: string): number {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : fallback
-  }
-
-  if (typeof value === 'string' && value.trim() !== '') {
-    return parseLocaleNumber(value, locale) ?? fallback
-  }
-
-  return fallback
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -245,6 +138,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'style',
   ])
   const themeField = useFieldContext()
+  const messages = useMessages('inputNumber', defaultInputNumberMessages)
+  const providerLocale = useLocale().locale
+  const locale = () => local.locale ?? providerLocale()
   const resolved = createStyles(inputNumberRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -258,14 +154,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     local,
   )
 
-  const initialDefaultValue = untrack(() => toNumber(merged.defaultValue, 0, merged.locale))
+  const initialDefaultValue = untrack(() => toNumber(merged.defaultValue, 0, locale()))
   const initialValue = untrack(() => {
     if (merged.rawValue !== undefined) {
       return toNumber(merged.rawValue, 0)
     }
 
     if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, merged.locale)
+      return toNumber(merged.value, 0, locale())
     }
 
     return initialDefaultValue
@@ -296,7 +192,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
 
     if (merged.value !== undefined) {
-      return toNumber(merged.value, 0, merged.locale)
+      return toNumber(merged.value, 0, locale())
     }
 
     return undefined
@@ -310,7 +206,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       }
 
       if (field.value() !== undefined) {
-        return toNumber(field.value() as string | number | undefined, 0, merged.locale)
+        return toNumber(field.value() as string | number | undefined, 0, locale())
       }
 
       return undefined
@@ -330,12 +226,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   )
 
   const currentValue = createMemo(() => clamp(resolvedValue(), minValue(), maxValue()))
-  const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
+  const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), locale()))
   const initialResetValue = untrack(currentValue)
 
   // Editable text is intentionally separate from the committed number so partial input survives.
   const [inputText, setInputText] = createSignal(
-    untrack(() => formatLocaleNumber(initialResetValue, merged.locale)),
+    untrack(() => formatLocaleNumber(initialResetValue, locale())),
   )
   const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
   const inputAriaAttrs = createMemo(() => ({
@@ -346,14 +242,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
-      [explicitControlledValue, minValue, maxValue, field.value, () => merged.locale],
-      ([value, min, max, formValue, locale]) => {
+      [explicitControlledValue, minValue, maxValue, field.value, locale],
+      ([value, min, max, formValue, localeTag]) => {
         if (value === undefined) {
           return
         }
         const boundedValue = clamp(value, min, max)
         if (
-          !Object.is(toNumber(formValue as string | number | undefined, 0, locale), boundedValue)
+          !Object.is(toNumber(formValue as string | number | undefined, 0, localeTag), boundedValue)
         ) {
           field.setFormValue(boundedValue)
         }
@@ -363,15 +259,15 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   // Sync external numeric or locale changes without clobbering accepted manual text.
   createEffect(
-    on([currentValue, () => merged.locale], ([value, locale]) => {
+    on([currentValue, locale], ([value, localeTag]) => {
       if (hasDirtyInput()) {
-        const parsed = parseLocaleNumber(inputText(), locale)
+        const parsed = parseLocaleNumber(inputText(), localeTag)
         if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
           return
         }
       }
       setHasDirtyInput(false)
-      setInputText(formatLocaleNumber(value, locale))
+      setInputText(formatLocaleNumber(value, localeTag))
     }),
   )
 
@@ -426,7 +322,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }
 
     merged.onRawValueChange?.(boundedValue)
-    merged.onValueChange?.(formatLocaleNumber(boundedValue, merged.locale))
+    merged.onValueChange?.(formatLocaleNumber(boundedValue, locale()))
 
     if (controlledValue !== undefined) {
       const latestControlledValue = explicitControlledValue()
@@ -444,7 +340,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   function getStepBase(): number {
     if (hasDirtyInput()) {
-      const parsed = parseLocaleNumber(inputText(), merged.locale)
+      const parsed = parseLocaleNumber(inputText(), locale())
       if (parsed !== undefined) {
         return parsed
       }
@@ -817,7 +713,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       'data-slot': `input-number-${kind}`,
       type: 'button',
       tabIndex: -1,
-      'aria-label': isIncrement ? 'Increment' : 'Decrement',
+      get 'aria-label'() {
+        return isIncrement ? messages().increment : messages().decrement
+      },
       get 'aria-controls'() {
         return field.id()
       },
@@ -845,7 +743,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     // On blur, try to parse and commit any partial input
     const rawInput = inputText()
-    const parsed = parseLocaleNumber(rawInput, merged.locale)
+    const parsed = parseLocaleNumber(rawInput, locale())
 
     if (parsed !== undefined) {
       commitValue(parsed)
@@ -920,7 +818,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       }
       field.setFormValue(nextValue)
       setHasDirtyInput(false)
-      const nextInputText = formatLocaleNumber(nextValue, merged.locale)
+      const nextInputText = formatLocaleNumber(nextValue, locale())
       setInputText(nextInputText)
       if (inputEl) {
         inputEl.value = nextInputText
@@ -930,7 +828,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   onMount(() => {
     if (inputEl) {
-      inputEl.defaultValue = formatLocaleNumber(initialResetValue, merged.locale)
+      inputEl.defaultValue = formatLocaleNumber(initialResetValue, locale())
 
       // Solid delegates these events on the global document by default.
       if (inputEl.ownerDocument !== document) {
@@ -1003,8 +901,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           setHasDirtyInput(true)
 
           // Only commit if it's a complete valid number
-          const parsed = parseLocaleNumber(rawInput, merged.locale)
-          if (parsed !== undefined && !isPartialNumber(rawInput, merged.locale)) {
+          const parsed = parseLocaleNumber(rawInput, locale())
+          if (parsed !== undefined && !isPartialNumber(rawInput, locale())) {
             commitValue(parsed)
           }
         }}
@@ -1019,15 +917,15 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           setHasDirtyInput(true)
 
           // On change (typically blur), try to parse and commit
-          const parsed = parseLocaleNumber(rawInput, merged.locale)
+          const parsed = parseLocaleNumber(rawInput, locale())
           if (parsed !== undefined) {
             commitValue(parsed)
-          } else if (rawInput.trim() === '' || isPartialNumber(rawInput, merged.locale)) {
+          } else if (rawInput.trim() === '' || isPartialNumber(rawInput, locale())) {
             // Empty or partial input - keep current value but update display
             // This will be handled by onBlur
           } else {
             // Invalid input - revert to current value
-            setInputText(formatLocaleNumber(currentValue(), merged.locale))
+            setInputText(formatLocaleNumber(currentValue(), locale()))
           }
         }}
         onKeyDown={(event) => {
@@ -1086,7 +984,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           }
 
           if (event.key === 'Enter') {
-            const parsed = parseLocaleNumber(inputText(), merged.locale)
+            const parsed = parseLocaleNumber(inputText(), locale())
             if (parsed !== undefined) {
               commitValue(parsed)
             }

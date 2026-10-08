@@ -5,12 +5,14 @@ import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form-reset-scheduler'
 
 import { useFormischFieldBinding } from './form-field-binding'
+import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
 import { createInvalidFocusManager } from './invalid-focus-manager'
@@ -34,6 +36,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'children',
   ])
   const resolved = createStyles(formRecipe, local)
+  const messages = useMessages('form', defaultFormMessages)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -75,7 +78,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
             'message' in error &&
             typeof error.message === 'string'
               ? error.message
-              : 'An unknown error has occurred.',
+              : messages().unknownError,
           ]
         }
       } finally {

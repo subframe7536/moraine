@@ -3,6 +3,8 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
+import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
@@ -25,6 +27,7 @@ import { useComboboxSearch } from '../shared/select/search'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
 import { createTagsField } from '../shared/select/tags-field'
 
+import { defaultMultiSelectMessages } from './multi-select.messages'
 import {
   MULTI_SELECT_PLACEHOLDER_CLASS,
   multiSelectDataAttributes,
@@ -42,6 +45,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
+  const messages = useMessages('multiSelect', defaultMultiSelectMessages)
+  const locale = useLocale().locale
   const styles = createStyles(multiSelectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -64,15 +69,18 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
 
     function resolveInputItem(input: string): T | undefined {
-      const normalized = input.trim().toLowerCase()
+      const normalized = input.trim()
       if (!normalized) {
         return undefined
       }
-      return source().items.find(
-        (candidate) =>
-          labelString(candidate, baseSelectProps.itemToLabelString).toLowerCase() === normalized ||
-          String(candidate.value).toLowerCase() === normalized,
-      )
+      const collator = createSearchCollator(locale())
+      return source().items.find((candidate) => {
+        const label = labelString(candidate, baseSelectProps.itemToLabelString)
+        return (
+          collatorEquals(collator, label, normalized) ||
+          collatorEquals(collator, String(candidate.value), normalized)
+        )
+      })
     }
 
     function commitInput(input: string): boolean {
@@ -339,7 +347,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 fallback={
                   <span
                     data-slot="multi-select-tag-overflow"
-                    aria-label={`${tags.overflow()} additional selections`}
+                    aria-label={messages().overflow({ count: tags.overflow() })}
                     {...styles.styles.tagOverflow}
                   >
                     +{tags.overflow()}
@@ -387,7 +395,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={0}
               data-slot="multi-select-clear"
-              aria-label="Clear selection"
+              aria-label={messages().clear}
               disabled={state.locked()}
               {...styles.styles.clear}
               onPointerDown={tags.isolatePointer}
@@ -422,7 +430,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                         .tags()
                         .map((tag) => tag.title)
                         .join(', ')
-                    : (local.placeholder ?? 'Select options')}
+                    : (local.placeholder ?? messages().placeholder)}
                 </span>
                 <Icon
                   name={
@@ -446,7 +454,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={-1}
               data-slot="multi-select-trigger"
-              aria-label={local.loading ? 'Loading' : 'Toggle options'}
+              aria-label={local.loading ? messages().loading : messages().toggle}
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
@@ -496,8 +504,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <Show
               when={local.emptyRender !== undefined}
               fallback={
-                <Show when={local.createItem && search.value()} fallback="No items">
-                  {(value) => `Press Enter to create “${value()}”`}
+                <Show when={local.createItem && search.value()} fallback={messages().empty}>
+                  {(value) => messages().create({ value: value() })}
                 </Show>
               }
             >

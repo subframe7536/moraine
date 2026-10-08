@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import path from 'node:path'
 
+import path from 'pathe'
 import type { ESTree } from 'vite'
 
 import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast.ts'
@@ -24,10 +24,8 @@ interface TypeBinding {
 }
 
 function isStyleTypeModule(filePath: string): boolean {
-  return (
-    filePath.replaceAll('\\', '/').endsWith('.style-types.ts') ||
-    filePath.replaceAll('\\', '/').endsWith('/theme/style-types.ts')
-  )
+  const normalized = path.normalize(filePath)
+  return normalized.endsWith('.style-types.ts') || normalized.endsWith('/theme/style-types.ts')
 }
 
 function isFiniteStyleAlias(node: ESTree.TSType): boolean {

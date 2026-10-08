@@ -14,12 +14,14 @@ import {
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 import { useFormValue } from '../shared/use-form-value'
 
+import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
@@ -258,6 +260,7 @@ function constrainSingleFile(accepted: File[]): {
 export function FileUpload<Multiple extends boolean = false>(
   props: FileUploadProps<Multiple>,
 ): JSX.Element {
+  const messages = useMessages('fileUpload', defaultFileUploadMessages)
   const [local, rest] = splitProps(props, [
     'id',
     'name',
@@ -290,6 +293,7 @@ export function FileUpload<Multiple extends boolean = false>(
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(fileUploadRecipe, local, {
@@ -391,7 +395,7 @@ export function FileUpload<Multiple extends boolean = false>(
       if (label()) {
         attrs['aria-labelledby'] = labelId()
       } else {
-        attrs['aria-label'] = 'File upload'
+        attrs['aria-label'] ??= local['aria-label'] ?? messages().label
       }
     }
     if (invalid()) {
@@ -510,7 +514,7 @@ export function FileUpload<Multiple extends boolean = false>(
     return (
       <button
         type="button"
-        aria-label={`Remove ${props.file.name}`}
+        aria-label={messages().remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
         {...resolved.styles.fileRemove}
         disabled={field.disabled() || readOnly()}
@@ -684,7 +688,11 @@ export function FileUpload<Multiple extends boolean = false>(
       {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
+      aria-label={
+        field.ariaAttrs()['aria-labelledby'] || label()
+          ? undefined
+          : (local['aria-label'] ?? messages().label)
+      }
       aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({

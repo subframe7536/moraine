@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { rename, unlink, writeFile } from 'node:fs/promises'
-import path from 'node:path'
+
+import path from 'pathe'
 
 import { collectFiles } from '../core/paths.ts'
 import type { DocsPageSource } from '../routes.ts'

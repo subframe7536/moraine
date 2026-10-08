@@ -4,28 +4,28 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
 
 export const KBD_KEY_ALIASES = {
-  alt: { text: 'Alt', label: 'Alt' },
-  arrowdown: { text: '↓', label: 'Arrow Down' },
-  arrowleft: { text: '←', label: 'Arrow Left' },
-  arrowright: { text: '→', label: 'Arrow Right' },
-  arrowup: { text: '↑', label: 'Arrow Up' },
-  backspace: { text: '⌫', label: 'Backspace' },
-  capslock: { text: '⇪', label: 'Caps Lock' },
-  command: { text: '⌘', label: 'Command' },
-  control: { text: '⌃', label: 'Control' },
-  ctrl: { text: 'Ctrl', label: 'Control' },
-  delete: { text: '⌦', label: 'Delete' },
-  end: { text: '↘', label: 'End' },
-  enter: { text: '↵', label: 'Enter' },
-  escape: { text: 'Esc', label: 'Escape' },
-  home: { text: '↖', label: 'Home' },
-  meta: { text: '⌘', label: 'Meta' },
-  option: { text: '⌥', label: 'Option' },
-  pagedown: { text: '⇟', label: 'Page Down' },
-  pageup: { text: '⇞', label: 'Page Up' },
-  shift: { text: '⇧', label: 'Shift' },
-  tab: { text: '⇥', label: 'Tab' },
-  win: { text: '⊞', label: 'Windows' },
+  alt: { text: 'Alt' },
+  arrowdown: { text: '↓' },
+  arrowleft: { text: '←' },
+  arrowright: { text: '→' },
+  arrowup: { text: '↑' },
+  backspace: { text: '⌫' },
+  capslock: { text: '⇪' },
+  command: { text: '⌘' },
+  control: { text: '⌃' },
+  ctrl: { text: 'Ctrl' },
+  delete: { text: '⌦' },
+  end: { text: '↘' },
+  enter: { text: '↵' },
+  escape: { text: 'Esc' },
+  home: { text: '↖' },
+  meta: { text: '⌘' },
+  option: { text: '⌥' },
+  pagedown: { text: '⇟' },
+  pageup: { text: '⇞' },
+  shift: { text: '⇧' },
+  tab: { text: '⇥' },
+  win: { text: '⊞' },
 } as const
 
 type BuiltinKbd = keyof typeof KBD_KEY_ALIASES
@@ -39,6 +39,7 @@ export namespace KbdT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type Key = BuiltinKbd | (string & {})
+  export type MessageKey = BuiltinKbd
 
   /** Base props for the Kbd component. */
   export interface Base {

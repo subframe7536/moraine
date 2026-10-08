@@ -71,8 +71,8 @@ export namespace InputNumberT {
     largeStep?: number
 
     /**
-     * Locale for number formatting and parsing.
-     * Uses browser default if not specified.
+     * Locale for number formatting and parsing as a BCP 47 tag such as `en-US`.
+     * Falls back to the provider locale, then `en-US`.
      */
     locale?: string
 

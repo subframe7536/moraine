@@ -9,8 +9,10 @@ import {
   onMount,
 } from 'solid-js'
 
+import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { Orientation } from '../../../theme/style-types'
+import { defaultSliderMessages } from '../slider.messages'
 import type { SliderT } from '../slider.types'
 import {
   clamp,
@@ -82,6 +84,8 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   rawProps: CreateSliderProps<TValue>,
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
+  const providerDirection = useLocale().dir
+  const messages = useMessages('slider', defaultSliderMessages)
   const merged = mergeProps(
     {
       min: 0,
@@ -143,6 +147,16 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function resolveDirection(track = trackElement()): 'ltr' | 'rtl' {
     const ownerDocument = track?.ownerDocument
+    const ownDirection = track?.closest<HTMLElement>('[data-slot="slider"]')?.getAttribute('dir')
+    if (ownDirection === 'ltr' || ownDirection === 'rtl') {
+      return ownDirection
+    }
+
+    const explicit = providerDirection()
+    if (explicit === 'ltr' || explicit === 'rtl') {
+      return explicit
+    }
+
     const localDirection = track?.closest<HTMLElement>('[dir]')?.getAttribute('dir')
     if (localDirection === 'ltr' || localDirection === 'rtl') {
       return localDirection
@@ -166,6 +180,12 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   onMount(() => {
     setDirection(resolveDirection())
   })
+
+  createEffect(
+    on([providerDirection, trackElement], () => {
+      setDirection(resolveDirection())
+    }),
+  )
 
   const getSliderEdges = createMemo(() =>
     resolveSliderEdges(merged.orientation, merged.inverted, direction() === 'rtl'),
@@ -672,15 +692,11 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function getThumbValueText(index: number): string {
     const values = currentValues()
-    const value = values[index] ?? merged.min
-    if (values.length === 2) {
-      return `${value} ${index === 0 ? 'start' : 'end'} range`
-    }
-    if (values.length > 2) {
-      return `${value} thumb ${index + 1} of ${values.length}`
-    }
-
-    return String(value)
+    return messages().valueText({
+      value: values[index] ?? merged.min,
+      index,
+      total: values.length,
+    })
   }
 
   return {

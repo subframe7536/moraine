@@ -3,8 +3,8 @@
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import path from 'node:path'
 
+import path from 'pathe'
 import { expect, test } from 'vitest'
 
 import { validateAnatomy } from './anatomy.ts'
@@ -24,12 +24,16 @@ function componentPages(): string[] {
 test('copyable Basic usage examples compile against the public component API', () => {
   const directory = mkdtempSync(path.join(PROJECT_ROOT, 'docs/.content-check-'))
   try {
+    const examples: string[] = []
     for (const page of componentPages()) {
       const source = readFileSync(page, 'utf8')
       const basic = source.match(/^## Basic usage\n+```tsx\n([\s\S]*?)\n```/m)
       expect(basic, `${page}: missing Basic usage example`).not.toBeNull()
-      writeFileSync(path.join(directory, `${path.basename(path.dirname(page))}.tsx`), basic![1]!)
+      const fileName = `${path.basename(path.dirname(page))}.tsx`
+      writeFileSync(path.join(directory, fileName), basic![1]!)
+      examples.push(fileName)
     }
+    expect(examples.length).toBeGreaterThan(0)
     const config = path.join(directory, 'tsconfig.json')
     writeFileSync(
       config,
@@ -41,7 +45,8 @@ test('copyable Basic usage examples compile against the public component API', (
             'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
           },
         },
-        include: ['*.tsx'],
+        files: examples,
+        include: [],
         exclude: [],
       }),
     )

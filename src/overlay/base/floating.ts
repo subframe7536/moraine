@@ -12,6 +12,8 @@ import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-
 import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
+import { useLocale } from '../../provider/locale/locale-context'
+
 import { getTransformOrigin, resolveDirection } from './utils'
 
 const PLACEMENT_PATTERN = /^(?:top|bottom|left|right)(?:-(?:start|end))?$/
@@ -41,6 +43,7 @@ export interface FloatingPositionOptions {
 
 /** Shared Floating UI pipeline for poppers, menus, and listboxes. */
 export function useFloatingPosition(options: FloatingPositionOptions): void {
+  const providerDirection = useLocale().dir
   let positioned: boolean | undefined
   let consumedInitialPosition: Coords | undefined
   const publishPositioned = (value: boolean): void => {
@@ -52,7 +55,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
 
   createEffect(
     on(
-      [options.open, options.floatingElement, options.getReferenceElement],
+      [options.open, options.floatingElement, options.getReferenceElement, providerDirection],
       ([open, floating, reference]) => {
         publishPositioned(false)
         if (!open || !floating || !reference) {
@@ -193,7 +196,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                     restoreStyle(property)
                   }
                 }
-                const direction = resolveDirection(floating)
+                const textDirection = resolveDirection(floating, providerDirection())
                 const dpr = floating.ownerDocument.defaultView?.devicePixelRatio || 1
                 const round = (value: number): number => Math.round(value * dpr) / dpr
                 const referenceContext =
@@ -280,7 +283,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   fn(state) {
                     return {
                       data: {
-                        value: getTransformOrigin(state.placement, direction, {
+                        value: getTransformOrigin(state.placement, textDirection, {
                           gutter,
                           overlap,
                           reference: state.rects.reference,
@@ -298,7 +301,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   placement,
                   platform: {
                     ...platform,
-                    isRTL: () => direction === 'rtl',
+                    isRTL: () => textDirection === 'rtl',
                   },
                   strategy: 'absolute',
                 })

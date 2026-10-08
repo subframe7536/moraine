@@ -5,6 +5,7 @@ import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { parseFloatingPlacement } from '../../overlay/base/placement'
 import { PopperContent } from '../../overlay/base/popper'
 import { resolveDirection } from '../../overlay/base/utils'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createEventListener } from '../../shared/event-listener'
 
 import { isMousePointer, useNavigationMenuContext } from './navigation-menu-context'
@@ -17,6 +18,7 @@ import {
 /** One persistent surface owns positioning and size transitions for every item. */
 export function NavigationMenuPanel(): JSX.Element {
   const context = useNavigationMenuContext()
+  const direction = useLocale().dir
   const [size, setSize] = createSignal<JSX.CSSProperties>({})
 
   createEffect(
@@ -100,7 +102,7 @@ export function NavigationMenuPanel(): JSX.Element {
         triggerElement: context.reference,
         contentPresence: context.presence,
       }}
-      dir={resolveDirection(context.reference())}
+      dir={resolveDirection(context.reference(), direction())}
       placement={context.options.placement}
       align={context.options.align}
       gutter={context.options.gutter}

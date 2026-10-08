@@ -1,8 +1,8 @@
 // @vitest-environment node
 
 import { writeFile } from 'node:fs/promises'
-import path from 'node:path'
 
+import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
 import { createFileFixture } from '../test-util/file-fixture.ts'

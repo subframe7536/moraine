@@ -17,6 +17,7 @@ import { Portal } from 'solid-js/web'
 
 import { List } from '../../../element/list'
 import { useCn } from '../../../provider/cn-context'
+import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createEventListener, attachEventListener } from '../../../shared/event-listener'
 import { createTransitionPresence } from '../../../shared/transition-presence'
@@ -360,6 +361,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   function SubmenuItem(itemProps: { item: TItem }): JSX.Element {
+    const direction = useLocale().dir
     const submenuId = createId(undefined, `${props.id}-sub`)
     const submenuContentId = createMemo(() => `${submenuId()}-content`)
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
@@ -507,7 +509,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           return
         }
 
-        const openKey = resolveDirection(triggerElement()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
+        const openKey =
+          resolveDirection(triggerElement(), direction()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
 
         if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
@@ -652,7 +655,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
-              placement={resolveDirection(triggerElement()) === 'rtl' ? 'left' : 'right'}
+              placement={
+                resolveDirection(triggerElement(), direction()) === 'rtl' ? 'left' : 'right'
+              }
               align="start"
               gutter={-2}
               shift={-4}

@@ -2,7 +2,9 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 
+import { defaultKbdMessages } from './kbd.messages'
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps } from './kbd.types'
@@ -20,21 +22,32 @@ export function Kbd(props: KbdProps): JSX.Element {
     'style',
     'classes',
     'styles',
+    'aria-label',
   ])
   const resolved = createStyles(kbdRecipe, local)
+  const messages = useMessages('kbd', defaultKbdMessages)
 
-  const alias = createMemo(() =>
-    local.symbol === false
-      ? undefined
-      : KBD_KEY_ALIASES[local.value.toLowerCase() as keyof typeof KBD_KEY_ALIASES],
-  )
-  const text = createMemo(() => alias()?.text ?? local.value)
+  const aliasKey = createMemo(() => {
+    if (local.symbol === false) {
+      return undefined
+    }
+    const key = local.value.toLowerCase() as keyof typeof KBD_KEY_ALIASES
+    return key in KBD_KEY_ALIASES ? key : undefined
+  })
+  const text = createMemo(() => {
+    const key = aliasKey()
+    return key ? KBD_KEY_ALIASES[key].text : local.value
+  })
+  const label = () => {
+    const key = aliasKey()
+    return local['aria-label'] ?? local.label ?? (key ? messages()[key] : undefined)
+  }
 
   return (
     <Show when={text()}>
       <kbd
         data-slot={local.slotName ?? 'kbd'}
-        aria-label={local.label ?? alias()?.label}
+        aria-label={label()}
         {...rest}
         {...resolved.styles.root}
       >

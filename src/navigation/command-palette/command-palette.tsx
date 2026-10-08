@@ -15,14 +15,21 @@ import {
 import { Icon } from '../../element/icon'
 import { List } from '../../element/list'
 import type { ListT } from '../../element/list'
-import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/utils'
+import {
+  createCompositionState,
+  isComposingKeyEvent,
+  resolveDirection,
+} from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
+import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
 
@@ -52,13 +59,12 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
   getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
 ): string {
   if (getItemSearchText) {
-    return getItemSearchText(item, group).toLowerCase()
+    return getItemSearchText(item, group)
   }
 
   return [item.label, item.value, item.description, item.keywords?.join(' ')]
     .filter(Boolean)
     .join(' ')
-    .toLowerCase()
 }
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
@@ -117,6 +123,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
+  const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
+  const locale = useLocale()
+  const direction = locale.dir
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
@@ -155,7 +164,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   const merged = mergeProps(
     {
-      placeholder: 'Search...',
+      get placeholder() {
+        return messages().placeholder
+      },
       autofocus: true,
       showClose: false,
       closeOnSelect: true,
@@ -239,7 +250,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
-    const term = currentSearchTerm().trim().toLowerCase()
+    const term = currentSearchTerm().trim()
     if (merged.filterItems) {
       return createNormalizedGroups<TItem>(
         merged.filterItems({
@@ -255,10 +266,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       return normalizedGroups()
     }
 
+    const collator = createSearchCollator(locale.locale())
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {
-          items: group.items.filter((item) => item.alwaysShow || item.searchText.includes(term)),
+          items: group.items.filter(
+            (item) => item.alwaysShow || collatorIncludes(collator, item.searchText, term),
+          ),
         }),
       )
       .filter((group) => group.items.length > 0)
@@ -349,6 +363,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     isDisabled: (item) => item.disabled,
     loop: () => true,
     activationMode: () => 'manual',
+    getDirection: () => resolveDirection(listboxElement, direction()),
     focusValue: (value) => {
       setActiveKey(value)
     },
@@ -670,7 +685,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             onClick={() => {
               merged.onClose?.()
             }}
-            aria-label="Close"
+            aria-label={messages().close}
           >
             <Icon name={merged.closeIcon} />
           </button>
@@ -685,7 +700,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? visibleGroups() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
@@ -723,7 +738,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? virtualEntries() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show when={merged.emptyRender !== undefined} fallback="No results.">
+                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>

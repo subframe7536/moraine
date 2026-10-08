@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo } from 'solid-js'
+import { createMemo, useContext } from 'solid-js'
 
 import type { CnConfig } from '../theme/cn'
 import { createCn } from '../theme/cn'
@@ -8,15 +8,37 @@ import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnProvider, useCnAccessor } from './cn-context'
+import { createDetectedLocale } from './locale/default-locale'
+import {
+  MoraineLocaleContext,
+  MoraineLocaleProvider,
+  resolveLocale,
+  useLocaleAccessor,
+} from './locale/locale-context'
+import type { MoraineMessagesInput } from './locale/messages.types'
 import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
 import type { ThemeResolver } from './theme-context'
 
 export interface MoraineProviderProps {
-  /** Undefined inherits the parent Theme; a Theme replaces it; null clears inherited overrides. */
+  /** `undefined` inherits the parent Theme; a Theme replaces it; null clears inherited overrides. */
   theme?: MoraineTheme | null
-  /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
+  /** `undefined` inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
-  /** Components that receive the theme and class merging rules. */
+  /** `undefined` inherits the parent locale. Shared application locale as a BCP 47 tag such as `en-US` or `zh-CN`. Without a provider, locale is `en-US`. */
+  locale?: string
+  /**
+   * After hydration, follow `navigator.language` and `languagechange`.
+   * Defaults to true on the root provider. Nested providers inherit the parent tag unless this is set.
+   * SSR and the first client render stay `en-US`. Ignored when `locale` is set.
+   * Prefer passing an explicit `locale` from a cookie or `Accept-Language` in production.
+   * @default true
+   */
+  detectLocale?: boolean
+  /** `undefined` inherits the parent direction; `null` clears it back to document / `<html dir>` detection; 'ltr' or 'rtl' replaces it. Controls Moraine component direction-sensitive behavior; does not set a dir attribute on arbitrary descendants. Set `dir` on `<html>` for layout. */
+  dir?: 'ltr' | 'rtl' | null
+  /** `undefined` inherits parent messages; a partial pack deep-merges over them. */
+  messages?: MoraineMessagesInput
+  /** Components that receive the theme, class merging, and locale rules. */
   children?: JSX.Element
 }
 
@@ -68,9 +90,26 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
     return config === undefined ? parentCn() : createCn(config)
   })
 
+  const parentLocale = useLocaleAccessor()
+  const parentLocaleContext = useContext(MoraineLocaleContext)
+  const shouldDetectLocale = (): boolean =>
+    props.locale === undefined && (props.detectLocale ?? parentLocaleContext === undefined)
+  const detectedLocale = createDetectedLocale(shouldDetectLocale)
+  const currentLocale = createMemo(() =>
+    resolveLocale(parentLocale(), {
+      locale: props.locale,
+      dir: props.dir,
+      messages: props.messages,
+      detectLocale: shouldDetectLocale(),
+      detectedLocale: shouldDetectLocale() ? detectedLocale() : undefined,
+    }),
+  )
+
   return (
     <MoraineThemeProvider value={currentResolver}>
-      <MoraineCnProvider value={currentCn}>{props.children}</MoraineCnProvider>
+      <MoraineCnProvider value={currentCn}>
+        <MoraineLocaleProvider value={currentLocale}>{props.children}</MoraineLocaleProvider>
+      </MoraineCnProvider>
     </MoraineThemeProvider>
   )
 }

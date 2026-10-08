@@ -162,7 +162,7 @@
           "name": "locale",
           "optional": true,
           "type": "string",
-          "description": "Locale for number formatting and parsing.\nUses browser default if not specified."
+          "description": "Locale for number formatting and parsing as a BCP 47 tag such as `en-US`.\nFalls back to the provider locale, then `en-US`."
         },
         {
           "name": "maxValue",

@@ -2,8 +2,8 @@
 
 import { access, mkdir, mkdtemp, readFile, realpath, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import path from 'node:path'
 
+import path from 'pathe'
 import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'

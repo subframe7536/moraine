@@ -3,10 +3,14 @@ import { renderToString } from 'solid-js/web'
 import { Button } from '../element/button/button'
 import { Input } from '../form/input/input'
 import { Textarea } from '../form/textarea/textarea'
+import { Pagination } from '../navigation/pagination/pagination'
+import { Dialog } from '../overlay/dialog/dialog'
 import type { CnConfig } from '../theme/cn'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
+import { useLocale } from './locale/locale-context'
+import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineProvider } from './moraine-provider'
 
 export const fixtureTheme = defineTheme({
@@ -48,4 +52,51 @@ export function renderCnFixture() {
 
 export function renderDefaultCnFixture() {
   return renderToString(() => <CnHydrationFixture />)
+}
+
+export const localeMessages = {
+  dialog: { close: 'Fermer' },
+  pagination: {
+    label: 'Pages',
+    currentPage: ({ page, total }) => `Seite ${page} von ${total}`,
+  },
+} satisfies MoraineMessagesInput
+
+export function LocaleHydrationFixture() {
+  return (
+    <MoraineProvider messages={localeMessages}>
+      <Pagination total={30} page={1} />
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Open
+        </Dialog.Trigger>
+        <Dialog.Content title="Title">Body</Dialog.Content>
+      </Dialog>
+    </MoraineProvider>
+  )
+}
+
+export function renderLocaleFixture() {
+  return renderToString(() => <LocaleHydrationFixture />)
+}
+
+function DefaultLocaleProbe() {
+  const locale = useLocale()
+  return <i data-locale={locale.locale()} data-dir={locale.dir() ?? ''} />
+}
+
+export function renderDefaultLocaleFixture() {
+  return renderToString(() => <DefaultLocaleProbe />)
+}
+
+export function DetectLocaleHydrationFixture() {
+  return (
+    <MoraineProvider>
+      <DefaultLocaleProbe />
+    </MoraineProvider>
+  )
+}
+
+export function renderDetectLocaleFixture() {
+  return renderToString(() => <DetectLocaleHydrationFixture />)
 }

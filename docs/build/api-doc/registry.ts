@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
-import path from 'node:path'
 
+import path from 'pathe'
 import type { ESTree } from 'vite'
 
-import { toKebabCase, toPosixPath } from '../core/strings.ts'
+import { toKebabCase } from '../core/strings.ts'
 import type { FrontmatterApiPart } from '../markdown/types.ts'
 import type { DocsPageSource } from '../routes.ts'
 
@@ -232,7 +232,7 @@ export async function loadApiRegistry(
           key === 'form'
             ? { kind: 'factory-member', factory: 'createForm', member: part.name }
             : { kind: 'attached', root: header.componentName, member: part.name },
-        typesPath: toPosixPath(partTypesPath),
+        typesPath: path.normalize(partTypesPath),
         namespaceName: partHeader.namespaceName,
         propsTypeName,
         isRoot: false,
@@ -243,8 +243,8 @@ export async function loadApiRegistry(
       key,
       name: header.componentName,
       category: categoryFromPath(basePath),
-      typesPath: toPosixPath(typesPath),
-      ...(recipePath ? { recipePath: toPosixPath(recipePath) } : {}),
+      typesPath: path.normalize(typesPath),
+      ...(recipePath ? { recipePath: path.normalize(recipePath) } : {}),
       namespaceName: header.namespaceName,
       parts,
     })
