@@ -20,9 +20,8 @@ function getDefaultResolvedLocale(): ResolvedLocale {
   }
 }
 
-export const [MoraineLocaleProvider, useLocaleAccessor] = createContextProvider<
-  Accessor<ResolvedLocale>
->('MoraineLocale', getDefaultResolvedLocale)
+export const [MoraineLocaleProvider, useLocaleAccessor, MoraineLocaleContext] =
+  createContextProvider<Accessor<ResolvedLocale>>('MoraineLocale', getDefaultResolvedLocale)
 
 export interface MoraineLocale {
   /** BCP 47 locale from the nearest provider. Guaranteed fallback is `en-US`. */

@@ -91,7 +91,7 @@ export function renderDefaultLocaleFixture() {
 
 export function DetectLocaleHydrationFixture() {
   return (
-    <MoraineProvider detectLocale>
+    <MoraineProvider>
       <DefaultLocaleProbe />
     </MoraineProvider>
   )

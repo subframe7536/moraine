@@ -55,11 +55,11 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('provider without detectLocale stays en-US', () => {
+  test('detectLocale={false} stays en-US', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
-        <MoraineProvider>
+        <MoraineProvider detectLocale={false}>
           <LocaleProbe />
         </MoraineProvider>
       ))
@@ -70,11 +70,11 @@ describe('Moraine locale', () => {
     }
   })
 
-  test('detectLocale follows the browser after mount and a microtask', async () => {
+  test('root provider detects the browser after mount and a microtask', async () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
-        <MoraineProvider detectLocale>
+        <MoraineProvider>
           <LocaleProbe />
         </MoraineProvider>
       ))
@@ -99,7 +99,7 @@ describe('Moraine locale', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
-        <MoraineProvider locale="zh-CN" detectLocale>
+        <MoraineProvider locale="zh-CN">
           <LocaleProbe />
         </MoraineProvider>
       ))
@@ -119,7 +119,7 @@ describe('Moraine locale', () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {
       const screen = render(() => (
-        <MoraineProvider detectLocale>
+        <MoraineProvider>
           <LocaleProbe />
           <MoraineProvider>
             <LocaleProbe />
