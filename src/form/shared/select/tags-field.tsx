@@ -13,6 +13,7 @@ export interface TagsFieldEntry<TValue> {
   label: JSX.Element
   title: string
   removable: boolean
+  item?: unknown
 }
 
 type TagSlot = 'tag' | 'tagLabel' | 'tagRemove'
@@ -36,10 +37,44 @@ export interface TagsFieldOptions<TValue> {
 /** Shared tag presentation, removal, focus, and tokenization behavior. */
 export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
   const messages = useMessages('tagsField', defaultTagsFieldMessages)
-  const tags = createMemo(() => options.values().map(options.resolve))
-  const visible = createMemo(() => {
+  const tagCache = new Map<TValue, TagsFieldEntry<TValue>>()
+  const tags = createMemo<Array<TagsFieldEntry<TValue>>>(() => {
+    const values = options.values()
+    const activeValues = new Set(values)
+    for (const key of tagCache.keys()) {
+      if (!activeValues.has(key)) {
+        tagCache.delete(key)
+      }
+    }
+    return values.map((val) => {
+      const resolved = options.resolve(val)
+      const cached = tagCache.get(val)
+      if (
+        cached &&
+        cached.value === resolved.value &&
+        cached.label === resolved.label &&
+        cached.title === resolved.title &&
+        cached.removable === resolved.removable &&
+        cached.item === resolved.item
+      ) {
+        return cached
+      }
+      tagCache.set(val, resolved)
+      return resolved
+    })
+  })
+  const visible = createMemo((previous: Array<TagsFieldEntry<TValue>> | undefined) => {
+    const allTags = tags()
     const max = options.maxVisible?.()
-    return max === undefined ? tags() : tags().slice(0, Math.max(0, max))
+    const next = max === undefined ? allTags : allTags.slice(0, Math.max(0, max))
+    if (
+      previous &&
+      previous.length === next.length &&
+      previous.every((item, index) => item === next[index])
+    ) {
+      return previous
+    }
+    return next
   })
   const separators = createMemo(() =>
     [...new Set(options.tokenSeparators() ?? [','])]

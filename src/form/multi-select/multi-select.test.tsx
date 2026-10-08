@@ -704,4 +704,25 @@ describe('MultiSelect', () => {
       screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
     ).toBe('Locked')
   })
+
+  test('keeps existing tag DOM nodes stable when adding a new value', () => {
+    const [value, setValue] = createSignal(['apple'])
+    const screen = render(() => (
+      <MultiSelect
+        value={value()}
+        items={[
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+        ]}
+      />
+    ))
+
+    const firstTag = screen.container.querySelector('[data-slot="multi-select-tag"]')
+    expect(firstTag).not.toBeNull()
+
+    setValue(['apple', 'banana'])
+    const tags = screen.container.querySelectorAll('[data-slot="multi-select-tag"]')
+    expect(tags).toHaveLength(2)
+    expect(tags[0]).toBe(firstTag)
+  })
 })
