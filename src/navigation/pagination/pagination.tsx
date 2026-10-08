@@ -101,6 +101,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const resolved = createStyles(paginationRecipe, local)
   const messages = useMessages('pagination', defaultPaginationMessages)
@@ -208,7 +209,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...resolved.styles.root}
       {...rest}
-      aria-label={rest['aria-label'] ?? messages().label}
+      aria-label={local['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...resolved.styles.list}>
         <Show when={merged.showControls}>

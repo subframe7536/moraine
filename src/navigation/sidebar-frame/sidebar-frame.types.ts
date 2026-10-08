@@ -77,6 +77,7 @@ export namespace SidebarFrameT {
      * Localized via MoraineProvider messages when omitted. English default is `Sidebar navigation`.
      */
     ariaLabel?: string
+    'aria-label'?: string
   }
 
   export type SidebarProps<T extends ValidComponent = 'aside'> = BaseProps<

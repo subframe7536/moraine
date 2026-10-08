@@ -73,7 +73,15 @@ function getLocaleNumberSymbols(locale: string | undefined): LocaleNumberSymbols
 }
 
 function isSign(char: string, symbols: LocaleNumberSymbols): boolean {
-  return char === symbols.minus || char === symbols.plus || char === '-' || char === '+'
+  return (
+    char === symbols.minus ||
+    char === symbols.plus ||
+    char === '-' ||
+    char === '+' ||
+    char === '\u2212' ||
+    char === '\uFF0D' ||
+    char === '\uFF0B'
+  )
 }
 
 /** True when the string is an in-progress number, such as `-`, `,`, or `12,`. */
@@ -88,9 +96,16 @@ export function isPartialNumber(value: string, locale?: string): boolean {
     return true
   }
 
-  const signedDecimal = [symbols.minus, '-', symbols.plus, '+', ''].some(
-    (sign) => trimmed === `${sign}${symbols.decimal}`,
-  )
+  const signedDecimal = [
+    symbols.minus,
+    '-',
+    '\u2212',
+    '\uFF0D',
+    symbols.plus,
+    '+',
+    '\uFF0B',
+    '',
+  ].some((sign) => trimmed === `${sign}${symbols.decimal}`)
   if (signedDecimal) {
     return true
   }
@@ -144,7 +159,7 @@ export function parseLocaleNumber(value: string, locale?: string): number | unde
     }
 
     if (!seenDigit && sign === '' && isSign(char, symbols)) {
-      sign = char === symbols.plus || char === '+' ? '' : '-'
+      sign = char === symbols.plus || char === '+' || char === '\uFF0B' ? '' : '-'
       continue
     }
 

@@ -92,6 +92,7 @@ type HandleLocalProps = Pick<
   | 'onKeyDown'
   | 'onPointerDown'
   | 'onClick'
+  | 'aria-label'
 >
 
 interface HandlePart {
@@ -156,6 +157,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
     'onKeyDown',
     'onPointerDown',
     'onClick',
+    'aria-label',
   ])
   const content = createMemo(() => local.children)
 
@@ -951,9 +953,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           data-slot="resizable-handle-control"
                           tabIndex={-1}
                           aria-label={
-                            ((handlePart().rest as Record<string, unknown>)['aria-label'] as
-                              | string
-                              | undefined) ??
+                            handlePart().local['aria-label'] ??
                             (action() === 'collapse'
                               ? resolveNearestCollapsibleState(index).collapsed
                                 ? messages().expand

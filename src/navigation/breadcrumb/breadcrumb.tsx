@@ -24,6 +24,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const resolved = createStyles(breadcrumbRecipe, local)
   const messages = useMessages('breadcrumb', defaultBreadcrumbMessages)
@@ -44,7 +45,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...resolved.styles.root}
       {...rest}
-      aria-label={rest['aria-label'] ?? messages().label}
+      aria-label={local['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...resolved.styles.list}>
         <For each={items()}>

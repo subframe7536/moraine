@@ -59,6 +59,12 @@ describe('Kbd', () => {
     expect(screen.getByLabelText('Primary modifier').textContent).toBe('⌘')
   })
 
+  test('lets a native aria-label win over the alias label', () => {
+    render(() => <Kbd value="meta" aria-label="Super key" />)
+
+    expect(screen.getByLabelText('Super key').textContent).toBe('⌘')
+  })
+
   test('renders the raw key when symbol aliases are disabled', () => {
     const view = render(() => <Kbd value="meta" symbol={false} />)
     const root = view.container.querySelector('[data-slot="kbd"]')

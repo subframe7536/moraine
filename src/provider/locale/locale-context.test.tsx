@@ -156,6 +156,27 @@ describe('Moraine locale', () => {
     }
   })
 
+  test('nested detectLocale={false} inherits the parent tag', () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => (
+        <MoraineProvider locale="zh-CN">
+          <LocaleProbe />
+          <MoraineProvider detectLocale={false}>
+            <LocaleProbe />
+          </MoraineProvider>
+        </MoraineProvider>
+      ))
+
+      const [parent, child] = screen.container.querySelectorAll('i')
+      expect(parent?.dataset.locale).toBe('zh-CN')
+      expect(child?.dataset.locale).toBe('zh-CN')
+      expect(language).not.toHaveBeenCalled()
+    } finally {
+      language.mockRestore()
+    }
+  })
+
   test('nested provider omitting locale inherits the parent detected tag', async () => {
     const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
     try {

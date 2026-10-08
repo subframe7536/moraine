@@ -43,6 +43,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages)
@@ -127,6 +128,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
+      aria-label={local['aria-label']}
       data-slot="slider"
       {...sliderDataAttributes.root({
         dragging: slider.dragging,

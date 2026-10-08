@@ -22,6 +22,7 @@ export function Kbd(props: KbdProps): JSX.Element {
     'style',
     'classes',
     'styles',
+    'aria-label',
   ])
   const resolved = createStyles(kbdRecipe, local)
   const messages = useMessages('kbd', defaultKbdMessages)
@@ -39,7 +40,7 @@ export function Kbd(props: KbdProps): JSX.Element {
   })
   const label = () => {
     const key = aliasKey()
-    return local.label ?? (key ? messages()[key] : undefined)
+    return local['aria-label'] ?? local.label ?? (key ? messages()[key] : undefined)
   }
 
   return (

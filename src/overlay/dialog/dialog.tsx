@@ -56,6 +56,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'aria-label',
   ])
   const config = useDialogConfig()
   const messages = useMessages('dialog', defaultDialogMessages)
@@ -94,9 +95,9 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
           {...resolved.styles.content}
-          ariaLabel={merged.ariaLabel}
+          ariaLabel={local['aria-label'] ?? merged.ariaLabel}
           ariaLabelledBy={
-            (rest['aria-label'] ?? merged.ariaLabel) === undefined
+            (local['aria-label'] ?? merged.ariaLabel) === undefined
               ? registration.titleIds().join(' ') || undefined
               : undefined
           }
