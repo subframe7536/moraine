@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, splitProps } from 'solid-js'
+import { createMemo, For, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { Kbd } from '../kbd/kbd'
@@ -7,6 +7,11 @@ import type { KbdT } from '../kbd/kbd.types'
 
 import { kbdGroupRecipe } from './kbd-group.recipe'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
+
+interface NormalizedKbdItem {
+  item: KbdGroupT.Item
+  key: string
+}
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string' ? { value: item } : item
@@ -26,20 +31,44 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
   ])
   const resolved = createStyles(kbdGroupRecipe, local)
 
+  const normalizedItems = createMemo<NormalizedKbdItem[]>((previous = []) => {
+    const rawItems = local.items ?? []
+    const occurrences = new Map<KbdGroupT.Item, number>()
+    const prevMap = new Map<string, NormalizedKbdItem>()
+    for (const p of previous) {
+      prevMap.set(p.key, p)
+    }
+
+    return rawItems.map((rawItem) => {
+      const occurrence = occurrences.get(rawItem) ?? 0
+      occurrences.set(rawItem, occurrence + 1)
+      const rawKey =
+        typeof rawItem === 'string'
+          ? rawItem
+          : (rawItem.value ?? rawItem.label ?? JSON.stringify(rawItem))
+      const key = `${rawKey}-${occurrence}`
+      const existing = prevMap.get(key)
+      if (existing && existing.item === rawItem) {
+        return existing
+      }
+      return { item: rawItem, key }
+    })
+  })
+
   return (
-    <Show when={local.items.length > 0}>
+    <Show when={normalizedItems().length > 0}>
       <kbd data-slot="kbd-group" {...rest} {...resolved.styles.root}>
-        <For each={local.items}>
-          {(item, index) => (
+        <For each={normalizedItems()}>
+          {(entry, index) => (
             <>
               <Kbd
-                {...toItemProps(item)}
+                {...toItemProps(entry.item)}
                 size={resolved.variants.size}
                 variant={resolved.variants.variant}
                 {...resolved.styles.item}
                 slotName="kbd-group-item"
               />
-              <Show when={index() < local.items.length - 1}>
+              <Show when={index() < normalizedItems().length - 1}>
                 <Show
                   when={typeof local.separator === 'function' && local.separator}
                   fallback={(local.separator as string | number) ?? '+'}

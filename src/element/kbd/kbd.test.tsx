@@ -307,4 +307,12 @@ describe('KbdGroup', () => {
     setItems(['Shift', 'P'])
     expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+P')
   })
+
+  test('renders duplicate key items without key collision', () => {
+    const view = render(() => <KbdGroup items={['Shift', 'Shift']} />)
+    const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
+
+    expect(items.length).toBe(2)
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+⇧')
+  })
 })
