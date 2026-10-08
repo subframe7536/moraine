@@ -19,7 +19,7 @@ import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-sele
 export const MULTI_SELECT_PLACEHOLDER_CLASS = 'text-muted-foreground/70 py-0.5 flex-1 min-w-12'
 
 export const multiSelectDataAttributes = {
-  control: createDataAttributes(
+  control: /* @__PURE__ */ createDataAttributes(
     'closed',
     'disabled',
     'editable',
@@ -32,8 +32,14 @@ export const multiSelectDataAttributes = {
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
   ...selectItemDataAttributes,
-  input: createDataAttributes('duplicate'),
-  trigger: createDataAttributes('closed', 'disabled', 'expanded', 'invalid', 'loading'),
+  input: /* @__PURE__ */ createDataAttributes('duplicate'),
+  trigger: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'disabled',
+    'expanded',
+    'invalid',
+    'loading',
+  ),
 } satisfies DataAttributeContract<keyof MultiSelectStyleSlot>
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<

@@ -8,7 +8,8 @@ import { useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 
 import { InputGroupProvider } from './input-group-context'
-import { InputGroupLeading, InputGroupTrailing } from './input-group-parts'
+import { InputGroupLeading } from './input-group-leading'
+import { InputGroupTrailing } from './input-group-trailing'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupProps } from './input-group.types'
 /** Shared frame for one independently exported Input or Textarea and supporting content. */

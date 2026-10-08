@@ -11,7 +11,13 @@ import {
 import type { TextareaRecipeVariant, TextareaStyleSlot } from './textarea.style-types'
 
 export const textareaDataAttributes = {
-  root: createDataAttributes('autoresize', 'disabled', 'invalid', 'readonly', 'required'),
+  root: /* @__PURE__ */ createDataAttributes(
+    'autoresize',
+    'disabled',
+    'invalid',
+    'readonly',
+    'required',
+  ),
 } satisfies DataAttributeContract<keyof TextareaStyleSlot>
 
 export const textareaRecipe = /* @__PURE__ */ defineRecipe<

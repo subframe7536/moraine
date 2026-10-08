@@ -4,7 +4,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 type PopperDataSlot = 'trigger' | 'content' | 'positioner'
 
 export const popperDataAttributes = {
-  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
-  content: createDataAttributes('closed', 'expanded'),
-  positioner: createDataAttributes('positioned'),
+  trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
+  positioner: /* @__PURE__ */ createDataAttributes('positioned'),
 } satisfies DataAttributeContract<PopperDataSlot>

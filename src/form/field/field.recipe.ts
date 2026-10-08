@@ -5,8 +5,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { FieldRecipeVariant, FieldStyleSlot } from './field.style-types'
 
 export const fieldDataAttributes = {
-  label: createDataAttributes('required'),
-  container: createDataAttributes('has-text'),
+  label: /* @__PURE__ */ createDataAttributes('required'),
+  container: /* @__PURE__ */ createDataAttributes('has-text'),
 } satisfies DataAttributeContract<keyof FieldStyleSlot>
 
 export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldRecipeVariant>(

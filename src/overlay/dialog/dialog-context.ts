@@ -33,4 +33,4 @@ export interface DialogContentContext extends ReturnType<typeof createDialogCont
 }
 
 export const [DialogContentProvider, useDialogContent] =
-  createContextProvider<DialogContentContext>('DialogContent')
+  /* @__PURE__ */ createContextProvider<DialogContentContext>('DialogContent')

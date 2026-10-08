@@ -38,6 +38,8 @@ import {
   useResizableHandle,
 } from './hook'
 import type { ResizablePanelItem, ResizableSize } from './hook'
+import { ResizableHandle, RESIZABLE_HANDLE_PART } from './resizable-handle'
+import { ResizablePanel, RESIZABLE_PANEL_PART } from './resizable-panel'
 import { defaultResizableMessages } from './resizable.messages'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
@@ -50,9 +52,6 @@ interface DragState {
   started: boolean
   lastSizes: number[]
 }
-
-const RESIZABLE_PANEL_PART = Symbol('Resizable.Panel')
-const RESIZABLE_HANDLE_PART = Symbol('Resizable.Handle')
 
 type PanelLocalProps = Pick<
   ResizableT.PanelProps,
@@ -113,60 +112,6 @@ function isResizablePart(value: unknown): value is ResizablePart {
   }
 
   return value.kind === RESIZABLE_PANEL_PART || value.kind === RESIZABLE_HANDLE_PART
-}
-
-function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'id',
-    'min',
-    'max',
-    'resizable',
-    'collapsible',
-    'collapsibleMin',
-    'onCollapse',
-    'onExpand',
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onTransitionEnd',
-    'onTransitionCancel',
-  ])
-  const content = resolveChildren(() => local.children)
-
-  return {
-    kind: RESIZABLE_PANEL_PART,
-    local,
-    rest,
-    content,
-  } as unknown as JSX.Element
-}
-
-function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'action',
-    'intersection',
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onMouseEnter',
-    'onMouseLeave',
-    'onFocus',
-    'onBlur',
-    'onKeyDown',
-    'onPointerDown',
-    'onClick',
-    'aria-label',
-  ])
-  const content = createMemo(() => local.children)
-
-  return {
-    kind: RESIZABLE_HANDLE_PART,
-    local,
-    rest,
-    content,
-  } as unknown as JSX.Element
 }
 
 /** Resizable panel layout with draggable dividers and keyboard support. */

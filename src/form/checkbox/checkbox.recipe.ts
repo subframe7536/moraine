@@ -11,7 +11,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
 
 export const checkboxDataAttributes = {
-  root: createDataAttributes(
+  root: /* @__PURE__ */ createDataAttributes(
     'checked',
     'disabled',
     'indeterminate',
@@ -20,7 +20,7 @@ export const checkboxDataAttributes = {
     'required',
     'unchecked',
   ),
-  control: createDataAttributes(
+  control: /* @__PURE__ */ createDataAttributes(
     'checked',
     'disabled',
     'indeterminate',
@@ -29,8 +29,8 @@ export const checkboxDataAttributes = {
     'required',
     'unchecked',
   ),
-  indicator: createDataAttributes('checked', 'disabled', 'indeterminate'),
-  label: createDataAttributes('required'),
+  indicator: /* @__PURE__ */ createDataAttributes('checked', 'disabled', 'indeterminate'),
+  label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, CheckboxStyleVariant>(

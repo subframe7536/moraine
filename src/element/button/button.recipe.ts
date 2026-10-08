@@ -12,7 +12,7 @@ import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
 export const BUTTON_LOADING_ICON_CLASS = 'opacity-80 cursor-wait animate-spin'
 
 export const buttonDataAttributes = {
-  root: createDataAttributes('disabled', 'loading'),
+  root: /* @__PURE__ */ createDataAttributes('disabled', 'loading'),
 } satisfies DataAttributeContract<keyof ButtonStyleSlot>
 
 export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariant>(

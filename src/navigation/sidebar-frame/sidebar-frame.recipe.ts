@@ -8,11 +8,11 @@ import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-
 type SidebarFrameDataSlot = keyof SidebarFrameStyleSlot | 'trigger'
 
 export const sidebarFrameDataAttributes = {
-  root: createDataAttributes('mobile', 'side', 'variant'),
-  sidebar: createDataAttributes('closed', 'expanded', 'mobile', 'side', 'variant'),
-  trigger: createDataAttributes('closed', 'disabled', 'open'),
-  item: createDataAttributes('active', 'disabled', 'mobile', 'with-actions'),
-  itemTrailing: createDataAttributes('expanded'),
+  root: /* @__PURE__ */ createDataAttributes('mobile', 'side', 'variant'),
+  sidebar: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'mobile', 'side', 'variant'),
+  trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'open'),
+  item: /* @__PURE__ */ createDataAttributes('active', 'disabled', 'mobile', 'with-actions'),
+  itemTrailing: /* @__PURE__ */ createDataAttributes('expanded'),
 } satisfies DataAttributeContract<SidebarFrameDataSlot>
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<

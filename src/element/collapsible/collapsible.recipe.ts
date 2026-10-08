@@ -5,12 +5,12 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { CollapsibleStyleSlot } from './collapsible.style-types'
 
 export const collapsibleDataAttributes = {
-  root: createDataAttributes('closed', 'expanded'),
-  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
-  content: createDataAttributes('closed', 'expanded'),
+  root: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
+  trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof CollapsibleStyleSlot>
 
-export const collapsibleWrapperDataAttributes = createDataAttributes(
+export const collapsibleWrapperDataAttributes = /* @__PURE__ */ createDataAttributes(
   'closed',
   'expanded',
   'transition',

@@ -10,4 +10,5 @@ interface EmptyContext {
   }
 }
 
-export const [EmptyProvider, useEmptyContext] = createContextProvider<EmptyContext>('Empty')
+export const [EmptyProvider, useEmptyContext] =
+  /* @__PURE__ */ createContextProvider<EmptyContext>('Empty')

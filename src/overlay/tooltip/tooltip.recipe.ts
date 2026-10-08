@@ -11,10 +11,20 @@ export const TOOLTIP_POSITIONER_CLASS =
 
 export const tooltipDataAttributes = {
   trigger: overlayTriggerDataAttributes,
-  content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side', 'align'),
+  content: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'expanded',
+    'instant-motion',
+    'side',
+    'align',
+  ),
 } satisfies DataAttributeContract<keyof TooltipStyleSlot>
 
-export const tooltipContentDataAttributes = createDataAttributes('instant-motion', 'side', 'align')
+export const tooltipContentDataAttributes = /* @__PURE__ */ createDataAttributes(
+  'instant-motion',
+  'side',
+  'align',
+)
 
 export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, TooltipStyleVariant>(
   'tooltip',

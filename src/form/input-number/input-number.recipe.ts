@@ -14,13 +14,19 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
 
-const controlDataAttributes = createDataAttributes('active', 'disabled')
+const controlDataAttributes = /* @__PURE__ */ createDataAttributes('active', 'disabled')
 const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
 const INPUT_NUMBER_ACCENT_CLASS = `${groupAccentClass('input-number')}  ${groupAccentClass('input-number', 'placeholder:text-accent-foreground')}`
 
 export const inputNumberDataAttributes = {
-  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
-  input: createDataAttributes('auto-align', 'disabled', 'invalid', 'readonly', 'required'),
+  root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  input: /* @__PURE__ */ createDataAttributes(
+    'auto-align',
+    'disabled',
+    'invalid',
+    'readonly',
+    'required',
+  ),
   increment: controlDataAttributes,
   decrement: controlDataAttributes,
 } satisfies DataAttributeContract<keyof InputNumberStyleSlot>

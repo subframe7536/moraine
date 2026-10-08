@@ -48,4 +48,4 @@ export function createCn(config: ConfigExtension = {}): Cn {
 }
 
 /** Fixed default rules, independent of all Providers. */
-export const cn: Cn = createCn()
+export const cn: Cn = /* @__PURE__ */ createCn()

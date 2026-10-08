@@ -17,4 +17,4 @@ export interface SheetContentContext extends ReturnType<typeof createContentAnat
 }
 
 export const [SheetContentProvider, useSheetContent] =
-  createContextProvider<SheetContentContext>('SheetContent')
+  /* @__PURE__ */ createContextProvider<SheetContentContext>('SheetContent')

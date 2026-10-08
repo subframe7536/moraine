@@ -6,9 +6,9 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
 
 export const tabsDataAttributes = {
-  root: createDataAttributes('disabled'),
-  trigger: createDataAttributes('disabled', 'highlighted', 'selected'),
-  content: createDataAttributes('selected'),
+  root: /* @__PURE__ */ createDataAttributes('disabled'),
+  trigger: /* @__PURE__ */ createDataAttributes('disabled', 'highlighted', 'selected'),
+  content: /* @__PURE__ */ createDataAttributes('selected'),
 } satisfies DataAttributeContract<keyof TabsStyleSlot>
 
 export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariant>('tabs', {

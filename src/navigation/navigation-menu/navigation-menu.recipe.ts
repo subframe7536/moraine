@@ -17,16 +17,19 @@ export const NAVIGATION_MENU_POSITIONER_CLASS = `${POPPER_CONTENT_MAX_SIZE_CLASS
 export const NAVIGATION_MENU_PANEL_CLASS = `text-popover-foreground border border-border rounded-md bg-popover ${POPPER_CONTENT_MAX_SIZE_CLASS} shadow-overlay origin-(--mo-popper-content-transform-origin) transition-[width,height] relative overflow-hidden motion-reduce:transition-none data-closed:(animate-mo-exit exit-opacity-0 exit-scale-90) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-90)`
 export const NAVIGATION_MENU_FOCUS_GUARD_CLASS = VISUALLY_HIDDEN_CLASS
 
-export const navigationMenuPanelDataAttributes = createDataAttributes('side', 'align')
+export const navigationMenuPanelDataAttributes = /* @__PURE__ */ createDataAttributes(
+  'side',
+  'align',
+)
 
 export const navigationMenuDataAttributes = {
-  root: createDataAttributes('disabled', 'orientation'),
-  list: createDataAttributes('orientation'),
-  item: createDataAttributes('disabled', 'expanded'),
-  trigger: createDataAttributes('disabled', 'expanded'),
-  triggerIcon: createDataAttributes('expanded'),
-  content: createDataAttributes('expanded', 'closed', 'orientation'),
-  link: createDataAttributes('active', 'disabled'),
+  root: /* @__PURE__ */ createDataAttributes('disabled', 'orientation'),
+  list: /* @__PURE__ */ createDataAttributes('orientation'),
+  item: /* @__PURE__ */ createDataAttributes('disabled', 'expanded'),
+  trigger: /* @__PURE__ */ createDataAttributes('disabled', 'expanded'),
+  triggerIcon: /* @__PURE__ */ createDataAttributes('expanded'),
+  content: /* @__PURE__ */ createDataAttributes('expanded', 'closed', 'orientation'),
+  link: /* @__PURE__ */ createDataAttributes('active', 'disabled'),
 } satisfies DataAttributeContract<keyof NavigationMenuStyleSlot>
 
 export const navigationMenuRecipe = /* @__PURE__ */ defineRecipe<

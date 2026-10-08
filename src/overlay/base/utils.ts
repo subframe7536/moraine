@@ -28,7 +28,7 @@ const FOCUSABLE_SELECTOR_PARTS = [
   '[tabindex]',
 ] as const
 
-export const FOCUSABLE_SELECTOR = FOCUSABLE_SELECTOR_PARTS.join(',')
+export const FOCUSABLE_SELECTOR = /* @__PURE__ */ FOCUSABLE_SELECTOR_PARTS.join(',')
 
 export interface CompositionState {
   dispose: () => void

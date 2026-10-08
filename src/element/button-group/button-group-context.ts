@@ -14,4 +14,4 @@ export interface ButtonGroupContextValue {
 }
 
 export const [ButtonGroupProvider, useButtonGroupContext] =
-  createContextProvider<ButtonGroupContextValue | null>('ButtonGroup', null)
+  /* @__PURE__ */ createContextProvider<ButtonGroupContextValue | null>('ButtonGroup', null)

@@ -11,9 +11,9 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 
 export const inputGroupDataAttributes = {
-  root: createDataAttributes('input-group', 'orientation'),
-  leading: createDataAttributes('compact', 'orientation'),
-  trailing: createDataAttributes('compact', 'orientation'),
+  root: /* @__PURE__ */ createDataAttributes('input-group', 'orientation'),
+  leading: /* @__PURE__ */ createDataAttributes('compact', 'orientation'),
+  trailing: /* @__PURE__ */ createDataAttributes('compact', 'orientation'),
 } satisfies DataAttributeContract<keyof InputGroupStyleSlot>
 
 function addon(className: string) {

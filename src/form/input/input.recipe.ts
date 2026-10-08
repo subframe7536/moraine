@@ -11,7 +11,7 @@ import {
 import type { InputRecipeVariant, InputStyleSlot } from './input.style-types'
 
 export const inputDataAttributes = {
-  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
 } satisfies DataAttributeContract<keyof InputStyleSlot>
 
 export const inputRecipe = /* @__PURE__ */ defineRecipe<InputStyleSlot, InputRecipeVariant>(

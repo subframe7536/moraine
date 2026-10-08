@@ -6,8 +6,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
 
 export const breadcrumbDataAttributes = {
-  link: createDataAttributes('disabled'),
-  page: createDataAttributes('current'),
+  link: /* @__PURE__ */ createDataAttributes('disabled'),
+  page: /* @__PURE__ */ createDataAttributes('current'),
 } satisfies DataAttributeContract<keyof BreadcrumbStyleSlot>
 
 export const BREADCRUMB_ITEM_BASE_CLASS = 'inline-flex gap-1.5 items-center'

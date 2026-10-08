@@ -9,11 +9,11 @@ import type {
 } from './command-palette.style-types'
 
 export const commandPaletteDataAttributes = {
-  item: createDataAttributes('disabled', 'highlighted'),
-  itemLeading: createDataAttributes('highlighted'),
-  itemDescription: createDataAttributes('highlighted'),
-  itemTrailing: createDataAttributes('highlighted'),
-  inputLeading: createDataAttributes('loading'),
+  item: /* @__PURE__ */ createDataAttributes('disabled', 'highlighted'),
+  itemLeading: /* @__PURE__ */ createDataAttributes('highlighted'),
+  itemDescription: /* @__PURE__ */ createDataAttributes('highlighted'),
+  itemTrailing: /* @__PURE__ */ createDataAttributes('highlighted'),
+  inputLeading: /* @__PURE__ */ createDataAttributes('loading'),
 } satisfies DataAttributeContract<keyof CommandPaletteStyleSlot>
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<

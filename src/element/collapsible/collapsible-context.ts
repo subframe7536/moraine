@@ -15,7 +15,7 @@ export interface CollapsibleContext {
 }
 
 const [CollapsibleProvider, useCollapsibleContext, collapsibleContext] =
-  createContextProvider<CollapsibleContext>('Collapsible')
+  /* @__PURE__ */ createContextProvider<CollapsibleContext>('Collapsible')
 
 export { CollapsibleProvider, useCollapsibleContext }
 

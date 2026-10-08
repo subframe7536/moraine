@@ -9,10 +9,10 @@ export interface ThemeResolver {
   ) => RecipeDefinition<S, V> | ResolvedRecipe<S, V>
 }
 
-export const defaultRecipeResolver: ThemeResolver = Object.freeze({
+export const defaultRecipeResolver: ThemeResolver = /* @__PURE__ */ Object.freeze({
   resolve: <S extends object, V>(recipe: RecipeDefinition<S, V>) => recipe,
 })
 
-export const [MoraineThemeProvider, useThemeResolver] = createContextProvider<
+export const [MoraineThemeProvider, useThemeResolver] = /* @__PURE__ */ createContextProvider<
   Accessor<ThemeResolver>
 >('MoraineTheme', () => defaultRecipeResolver)

@@ -44,7 +44,10 @@ export interface NavigationMenuItemContextValue {
 }
 
 export const [NavigationMenuItemProvider, useOptionalNavigationMenuItemContext] =
-  createContextProvider<NavigationMenuItemContextValue | null>('NavigationMenuItem', null)
+  /* @__PURE__ */ createContextProvider<NavigationMenuItemContextValue | null>(
+    'NavigationMenuItem',
+    null,
+  )
 
 export function useNavigationMenuItemContext(): NavigationMenuItemContextValue {
   const item = useOptionalNavigationMenuItemContext()
@@ -390,7 +393,9 @@ export function createNavigationMenuState(
 }
 
 export const [NavigationMenuProvider, useNavigationMenuContext] =
-  createContextProvider<ReturnType<typeof createNavigationMenuState>>('NavigationMenu')
+  /* @__PURE__ */ createContextProvider<ReturnType<typeof createNavigationMenuState>>(
+    'NavigationMenu',
+  )
 
 export function isMousePointer(event: PointerEvent): boolean {
   return !event.pointerType || event.pointerType === 'mouse'

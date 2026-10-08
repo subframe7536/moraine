@@ -5,8 +5,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ModalStyleSlot } from './modal.style-types'
 
 export const modalDataAttributes = {
-  overlay: createDataAttributes('closed', 'expanded', 'overlay-scroll'),
-  content: createDataAttributes('closed', 'expanded'),
+  overlay: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'overlay-scroll'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof ModalStyleSlot>
 
 /** Default backdrop classes for modal overlays. */

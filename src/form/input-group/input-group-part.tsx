@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/index'
+import { createStyles } from '../../provider'
 
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types'
 
-function renderInputGroupPart(
+export function renderInputGroupPart(
   part: 'leading' | 'trailing',
   props: InputGroupT.LeadingProps | InputGroupT.TrailingProps,
 ): JSX.Element {
@@ -39,12 +39,4 @@ function renderInputGroupPart(
       {local.children}
     </div>
   )
-}
-
-export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element {
-  return renderInputGroupPart('leading', props)
-}
-
-export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Element {
-  return renderInputGroupPart('trailing', props)
 }

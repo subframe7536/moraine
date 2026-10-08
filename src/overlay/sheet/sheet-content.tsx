@@ -1,0 +1,115 @@
+import type { JSX } from 'solid-js'
+import { Show, mergeProps, splitProps, untrack } from 'solid-js'
+
+import { Icon } from '../../element/icon'
+import { createStyles } from '../../provider'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { hasJsxContent } from '../../shared/jsx-content'
+import { createContentAnatomy } from '../base/content-anatomy'
+import { createShorthandContent } from '../base/shorthand-content'
+import { Modal } from '../modal/modal'
+import { ModalSurface } from '../modal/modal-content'
+import { useModalContext } from '../modal/modal-context'
+import { ModalPortal } from '../modal/modal-portal'
+
+import { SheetContentProvider, useSheetConfig } from './sheet-context'
+import { SheetDescription } from './sheet-description'
+import { SheetShorthandHeader } from './sheet-header'
+import { SheetTitle } from './sheet-title'
+import { defaultSheetMessages } from './sheet.messages'
+import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
+import type { SheetT } from './sheet.types'
+
+export function SheetContent(props: SheetT.ContentProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'title',
+    'description',
+    'children',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+  ])
+  const config = useSheetConfig()
+  const messages = useMessages('sheet', defaultSheetMessages)
+  const direction = useLocale().dir
+  const family = useModalContext()
+  const merged = mergeProps(
+    { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
+    config,
+  )
+  const resolved = createStyles(sheetRecipe, local, {
+    rootSlot: 'content',
+    inheritedVariants: () => ({ side: config.side, inset: config.inset }),
+    inheritedStyles: () => family.presentation,
+  })
+  const registration = createContentAnatomy()
+
+  return (
+    <SheetContentProvider
+      value={{
+        ...registration,
+        get variants() {
+          return resolved.variants
+        },
+      }}
+    >
+      <ModalPortal>
+        <ModalSurface
+          {...rest}
+          dir={rest.dir ?? direction()}
+          composite
+          {...sheetDataAttributes.content({
+            closed: undefined,
+            expanded: undefined,
+            transition: () => merged.transition,
+          })}
+          overlay={merged.overlay}
+          overlayClass={resolved.styles.overlay.class}
+          overlayStyle={resolved.styles.overlay.style}
+          {...resolved.styles.content}
+          ariaLabel={local['aria-label'] ?? merged.ariaLabel}
+          ariaLabelledBy={
+            (local['aria-label'] ?? merged.ariaLabel) === undefined
+              ? registration.titleIds().join(' ') || undefined
+              : undefined
+          }
+          ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+        >
+          {() => {
+            const contentShorthand = createShorthandContent(local)
+            const explicitChildren = createLazyMemo(() => untrack(() => local.children))
+            const closeIcon = createLazyMemo(() => merged.closeIcon)
+            const content = explicitChildren()
+            return (
+              <>
+                <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
+                  <SheetShorthandHeader>
+                    <Show when={hasJsxContent(contentShorthand.title())}>
+                      <SheetTitle>{contentShorthand.title()}</SheetTitle>
+                    </Show>
+                    <Show when={hasJsxContent(contentShorthand.description())}>
+                      <SheetDescription>{contentShorthand.description()}</SheetDescription>
+                    </Show>
+                  </SheetShorthandHeader>
+                </Show>
+                <Show when={merged.close}>
+                  <Modal.Close
+                    data-slot="sheet-content-close"
+                    aria-label={messages().close}
+                    {...resolved.styles.contentClose}
+                  >
+                    <Icon name={closeIcon()} />
+                  </Modal.Close>
+                </Show>
+                {content}
+              </>
+            )
+          }}
+        </ModalSurface>
+      </ModalPortal>
+    </SheetContentProvider>
+  )
+}

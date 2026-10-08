@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { SeparatorStyleSlot, SeparatorStyleVariant } from './separator.style-types'
 
 export const separatorDataAttributes = {
-  root: createDataAttributes('orientation'),
+  root: /* @__PURE__ */ createDataAttributes('orientation'),
 } satisfies DataAttributeContract<keyof SeparatorStyleSlot>
 
 export const separatorRecipe = /* @__PURE__ */ defineRecipe<

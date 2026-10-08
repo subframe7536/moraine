@@ -22,7 +22,7 @@ import {
 import type { SelectItemStyleSlot } from './style-types'
 
 export const selectItemDataAttributes = {
-  itemDescription: createDataAttributes('highlighted'),
+  itemDescription: /* @__PURE__ */ createDataAttributes('highlighted'),
 } satisfies DataAttributeContract<keyof SelectItemStyleSlot>
 
 export const SELECT_FAMILY_SLOTS = {

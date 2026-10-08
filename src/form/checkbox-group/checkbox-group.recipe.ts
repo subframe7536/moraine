@@ -10,7 +10,7 @@ import type {
 } from './checkbox-group.style-types'
 
 export const checkboxGroupDataAttributes = {
-  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
   item: checkboxDataAttributes.root,
   control: checkboxDataAttributes.control,
   indicator: checkboxDataAttributes.indicator,

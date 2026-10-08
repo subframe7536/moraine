@@ -6,11 +6,11 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export const resizableDataAttributes = {
-  root: createDataAttributes('resizable-root'),
-  panel: createDataAttributes('collapsed', 'expanded', 'resizing', 'transitioning'),
-  handle: createDataAttributes('active', 'cross', 'dragging'),
-  handleControl: createDataAttributes('collapse'),
-  intersection: createDataAttributes(
+  root: /* @__PURE__ */ createDataAttributes('resizable-root'),
+  panel: /* @__PURE__ */ createDataAttributes('collapsed', 'expanded', 'resizing', 'transitioning'),
+  handle: /* @__PURE__ */ createDataAttributes('active', 'cross', 'dragging'),
+  handleControl: /* @__PURE__ */ createDataAttributes('collapse'),
+  intersection: /* @__PURE__ */ createDataAttributes(
     'resizable-handle-end-target',
     'resizable-handle-start-target',
   ),

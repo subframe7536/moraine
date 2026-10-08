@@ -15,7 +15,7 @@ export const dialogDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   overlay: modalDataAttributes.overlay,
   content: modalDataAttributes.content,
-  body: createDataAttributes('footer', 'header', 'scroll'),
+  body: /* @__PURE__ */ createDataAttributes('footer', 'header', 'scroll'),
 } satisfies DataAttributeContract<keyof DialogStyleSlot>
 
 export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border flex flex-col max-h-[calc(100dvh-2rem)] max-w-lg w-[calc(100vw-2rem)] left-1/2 top-1/2 fixed overflow-hidden sm:max-h-[calc(100dvh-4rem)] -translate-x-1/2 -translate-y-1/2`

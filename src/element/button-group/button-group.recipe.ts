@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ButtonGroupStyleSlot, ButtonGroupRecipeVariant } from './button-group.style-types'
 
 export const buttonGroupDataAttributes = {
-  separator: createDataAttributes('orientation'),
+  separator: /* @__PURE__ */ createDataAttributes('orientation'),
 } satisfies DataAttributeContract<keyof ButtonGroupStyleSlot>
 
 export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<

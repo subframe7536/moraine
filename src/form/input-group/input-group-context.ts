@@ -10,4 +10,4 @@ interface InputGroupContextValue {
 }
 
 export const [InputGroupProvider, useInputGroupContext] =
-  createContextProvider<InputGroupContextValue | null>('InputGroup', null)
+  /* @__PURE__ */ createContextProvider<InputGroupContextValue | null>('InputGroup', null)

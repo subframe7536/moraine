@@ -2,11 +2,11 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { Separator } from '../separator'
 
-import { ButtonGroupProvider, useButtonGroupContext } from './button-group-context'
+import { ButtonGroupProvider } from './button-group-context'
+import { ButtonGroupSeparator } from './button-group-separator'
 import { buttonGroupRecipe } from './button-group.recipe'
-import type { ButtonGroupProps, ButtonGroupT } from './button-group.types'
+import type { ButtonGroupProps } from './button-group.types'
 
 /** Joins related buttons and provides shared size and visual variant defaults. */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
@@ -49,29 +49,6 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         {local.children}
       </div>
     </ButtonGroupProvider>
-  )
-}
-
-/** Explicit semantic divider for adjacent ButtonGroup parts. */
-function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['orientation', 'class', 'style'])
-  const group = useButtonGroupContext()
-  const resolved = createStyles(buttonGroupRecipe, local, {
-    rootSlot: 'separator',
-    inheritedVariants: () => ({
-      orientation:
-        group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
-    }),
-    inheritedStyles: () => group?.presentation,
-  })
-
-  return (
-    <Separator
-      {...rest}
-      data-slot="button-group-separator"
-      orientation={resolved.variants.orientation}
-      {...resolved.styles.separator}
-    />
   )
 }
 

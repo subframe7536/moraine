@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { FormStyleSlot } from './form.style-types'
 
 export const formDataAttributes = {
-  root: createDataAttributes('submitting'),
+  root: /* @__PURE__ */ createDataAttributes('submitting'),
 } satisfies DataAttributeContract<keyof FormStyleSlot>
 
 export const formRecipe = /* @__PURE__ */ defineRecipe<FormStyleSlot>('form', {

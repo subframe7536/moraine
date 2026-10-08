@@ -11,4 +11,5 @@ interface CardContext {
   }
 }
 
-export const [CardProvider, useCardContext] = createContextProvider<CardContext>('Card')
+export const [CardProvider, useCardContext] =
+  /* @__PURE__ */ createContextProvider<CardContext>('Card')

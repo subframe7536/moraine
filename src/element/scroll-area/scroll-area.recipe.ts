@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ScrollAreaStyleSlot, ScrollAreaStyleVariant } from './scroll-area.style-types'
 
 export const scrollAreaDataAttributes = {
-  root: createDataAttributes('orientation', 'shadow-start', 'shadow-end'),
+  root: /* @__PURE__ */ createDataAttributes('orientation', 'shadow-start', 'shadow-end'),
 } satisfies DataAttributeContract<keyof ScrollAreaStyleSlot>
 
 export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<

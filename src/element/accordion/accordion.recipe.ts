@@ -10,11 +10,11 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { AccordionStyleSlot } from './accordion.style-types'
 
 export const accordionDataAttributes = {
-  root: createDataAttributes('disabled'),
-  item: createDataAttributes('closed', 'disabled', 'expanded'),
-  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
-  trailing: createDataAttributes('expanded'),
-  content: createDataAttributes('closed', 'expanded'),
+  root: /* @__PURE__ */ createDataAttributes('disabled'),
+  item: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),
+  trigger: /* @__PURE__ */ createDataAttributes('closed', 'disabled', 'expanded'),
+  trailing: /* @__PURE__ */ createDataAttributes('expanded'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof AccordionStyleSlot>
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {

@@ -12,10 +12,10 @@ import type { PopoverStyleSlot } from './popover.style-types'
 
 export const popoverDataAttributes = {
   trigger: overlayTriggerDataAttributes,
-  content: createDataAttributes('closed', 'expanded', 'side', 'align'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'side', 'align'),
 } satisfies DataAttributeContract<keyof PopoverStyleSlot>
 
-export const popoverContentDataAttributes = createDataAttributes('side', 'align')
+export const popoverContentDataAttributes = /* @__PURE__ */ createDataAttributes('side', 'align')
 
 export const popoverRecipe = /* @__PURE__ */ defineRecipe<PopoverStyleSlot>('popover', {
   base: {

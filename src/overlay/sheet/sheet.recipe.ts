@@ -10,8 +10,8 @@ import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
 export const sheetDataAttributes = {
   trigger: overlayTriggerDataAttributes,
   overlay: modalDataAttributes.overlay,
-  content: createDataAttributes('closed', 'expanded', 'transition'),
-  body: createDataAttributes('header'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transition'),
+  body: /* @__PURE__ */ createDataAttributes('header'),
 } satisfies DataAttributeContract<keyof SheetStyleSlot>
 
 export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariant>(

@@ -14,7 +14,7 @@ import {
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
 
 export const comboboxDataAttributes = {
-  control: createDataAttributes(
+  control: /* @__PURE__ */ createDataAttributes(
     'closed',
     'disabled',
     'editable',
@@ -26,7 +26,7 @@ export const comboboxDataAttributes = {
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
   ...selectItemDataAttributes,
-  trigger: createDataAttributes('loading'),
+  trigger: /* @__PURE__ */ createDataAttributes('loading'),
 } satisfies DataAttributeContract<keyof ComboboxStyleSlot>
 
 export const comboboxRecipe = /* @__PURE__ */ defineRecipe<ComboboxStyleSlot, ComboboxStyleVariant>(

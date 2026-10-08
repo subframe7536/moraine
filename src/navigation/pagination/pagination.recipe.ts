@@ -5,10 +5,10 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
 
 export const paginationDataAttributes = {
-  prev: createDataAttributes('disabled', 'loading', 'text'),
-  item: createDataAttributes('current', 'disabled', 'loading'),
-  next: createDataAttributes('disabled', 'loading', 'text'),
-  ellipsis: createDataAttributes('ellipsis'),
+  prev: /* @__PURE__ */ createDataAttributes('disabled', 'loading', 'text'),
+  item: /* @__PURE__ */ createDataAttributes('current', 'disabled', 'loading'),
+  next: /* @__PURE__ */ createDataAttributes('disabled', 'loading', 'text'),
+  ellipsis: /* @__PURE__ */ createDataAttributes('ellipsis'),
 } satisfies DataAttributeContract<keyof PaginationStyleSlot>
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<

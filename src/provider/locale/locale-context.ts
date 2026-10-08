@@ -12,7 +12,7 @@ export interface ResolvedLocale {
   messages?: MoraineMessagesInput
 }
 
-const DEFAULT_RESOLVED_LOCALE: ResolvedLocale = Object.freeze({
+const DEFAULT_RESOLVED_LOCALE: ResolvedLocale = /* @__PURE__ */ Object.freeze({
   locale: FALLBACK_LOCALE,
 })
 
@@ -21,7 +21,10 @@ function getDefaultResolvedLocale(): ResolvedLocale {
 }
 
 export const [MoraineLocaleProvider, useLocaleAccessor, MoraineLocaleContext] =
-  createContextProvider<Accessor<ResolvedLocale>>('MoraineLocale', getDefaultResolvedLocale)
+  /* @__PURE__ */ createContextProvider<Accessor<ResolvedLocale>>(
+    'MoraineLocale',
+    getDefaultResolvedLocale,
+  )
 
 export interface MoraineLocale {
   /** BCP 47 locale from the nearest provider. Guaranteed fallback is `en-US`. */

@@ -1,4 +1,11 @@
-const BUTTON_INPUT_TYPES = new Set(['button', 'color', 'file', 'image', 'reset', 'submit'])
+const BUTTON_INPUT_TYPES = /* @__PURE__ */ new Set([
+  'button',
+  'color',
+  'file',
+  'image',
+  'reset',
+  'submit',
+])
 
 /** Detects native button behavior without depending on the current JavaScript realm. */
 export function isNativeButtonElement(element: HTMLElement | undefined, type?: string): boolean {

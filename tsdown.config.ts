@@ -18,9 +18,7 @@ export default defineConfig([
       theme: './src/theme.ts',
     },
     plugins: [variantGroupPlugin(), solid()],
-    root: 'src',
     unbundle: true,
-    exports: false,
     clean: true,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
@@ -32,12 +30,9 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
-      utils: './src/utils.ts',
       virtualizer: './src/virtualizer.ts',
     },
-    root: 'src',
     unbundle: true,
-    exports: false,
     clean: false,
     platform: 'neutral',
     plugins: [

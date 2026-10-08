@@ -74,10 +74,8 @@ export interface UseFormFieldReturn {
   emit: (type: FieldBindingEvent, event?: Event) => void
 }
 
-export const [FieldProvider, useFieldContext] = createContextProvider<FieldContextOptions | null>(
-  'Field',
-  null,
-)
+export const [FieldProvider, useFieldContext] =
+  /* @__PURE__ */ createContextProvider<FieldContextOptions | null>('Field', null)
 
 const EMPTY_RUNTIME_STATE: FieldRuntimeState = {
   touched: false,

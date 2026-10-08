@@ -17,8 +17,8 @@ import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 export const selectDataAttributes = {
   ...baseSelectDataAttributes,
   ...selectItemDataAttributes,
-  trailing: createDataAttributes('loading'),
-  value: createDataAttributes('placeholder'),
+  trailing: /* @__PURE__ */ createDataAttributes('loading'),
+  value: /* @__PURE__ */ createDataAttributes('placeholder'),
 } satisfies DataAttributeContract<keyof SelectStyleSlot>
 
 export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, SelectStyleVariant>(

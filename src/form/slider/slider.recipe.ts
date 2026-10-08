@@ -6,7 +6,7 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
 
 export const sliderDataAttributes = {
-  root: createDataAttributes(
+  root: /* @__PURE__ */ createDataAttributes(
     'disabled',
     'dragging',
     'invalid',
@@ -15,8 +15,8 @@ export const sliderDataAttributes = {
     'readonly',
     'required',
   ),
-  range: createDataAttributes('inverted', 'multiple'),
-  thumb: createDataAttributes(
+  range: /* @__PURE__ */ createDataAttributes('inverted', 'multiple'),
+  thumb: /* @__PURE__ */ createDataAttributes(
     'disabled',
     'dragging',
     'invalid',

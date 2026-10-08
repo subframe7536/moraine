@@ -7,9 +7,9 @@ import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
 export const AVATAR_BADGE_ICON_CLASS = 'text-[0.75em]'
 
 export const avatarDataAttributes = {
-  root: createDataAttributes('status'),
-  image: createDataAttributes('status'),
-  fallback: createDataAttributes('status'),
+  root: /* @__PURE__ */ createDataAttributes('status'),
+  image: /* @__PURE__ */ createDataAttributes('status'),
+  fallback: /* @__PURE__ */ createDataAttributes('status'),
 } satisfies DataAttributeContract<keyof AvatarStyleSlot>
 
 export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, AvatarStyleVariant>(

@@ -13,7 +13,7 @@ import type { SlotClassValue } from '../theme/style-types'
 import { useCn } from './cn-context'
 import { useThemeResolver } from './theme-context'
 
-const EMPTY = Object.freeze({})
+const EMPTY = /* @__PURE__ */ Object.freeze({})
 
 export interface InheritedStyles<S extends string> {
   classes?: Partial<Record<S, SlotClassValue>>

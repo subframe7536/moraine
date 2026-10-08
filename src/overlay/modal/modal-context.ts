@@ -36,4 +36,5 @@ export interface ModalContext {
   portalMount: Accessor<Node | undefined>
 }
 
-export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
+export const [ModalProvider, useModalContext] =
+  /* @__PURE__ */ createContextProvider<ModalContext>('Modal')

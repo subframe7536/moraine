@@ -18,7 +18,7 @@ export interface SidebarFrameContext extends SidebarFrameT.Context {
 }
 
 export const [SidebarFrameProvider, useSidebarFrameContext] =
-  createContextProvider<SidebarFrameContext>('SidebarFrame')
+  /* @__PURE__ */ createContextProvider<SidebarFrameContext>('SidebarFrame')
 
 export function useSidebarFrame(): SidebarFrameT.Context {
   return useSidebarFrameContext()
