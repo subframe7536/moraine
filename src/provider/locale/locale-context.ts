@@ -2,6 +2,7 @@ import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 
+import { getDefaultLocaleTag } from './default-locale'
 import { enMessages } from './en'
 import { mergeMessages } from './merge-messages'
 import type { MoraineMessages, MoraineMessagesInput } from './messages.types'
@@ -12,19 +13,21 @@ export interface ResolvedLocale {
   messages: MoraineMessages
 }
 
-const DEFAULT_LOCALE: ResolvedLocale = {
-  locale: 'en',
-  messages: enMessages,
+function getDefaultResolvedLocale(): ResolvedLocale {
+  return {
+    locale: getDefaultLocaleTag(),
+    messages: enMessages,
+  }
 }
 
 export const [MoraineLocaleProvider, useLocaleAccessor] = createContextProvider<
   Accessor<ResolvedLocale>
->('MoraineLocale', () => DEFAULT_LOCALE)
+>('MoraineLocale', getDefaultResolvedLocale)
 
 export interface MoraineLocale {
-  /** BCP 47 locale from the nearest provider. Guaranteed fallback is `en`. */
+  /** BCP 47 locale from the nearest provider, otherwise the browser language. SSR fallback is `en-US`. */
   locale: Accessor<string>
-  /** Direction inherited from the nearest provider. Undefined leaves detection to the document. */
+  /** Direction from the nearest provider. Undefined follows `<html dir>` / the document. */
   dir: Accessor<'ltr' | 'rtl' | undefined>
 }
 

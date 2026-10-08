@@ -3,7 +3,8 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { useMessages } from '../../provider/locale/locale-context'
+import { collatorEquals, createSearchCollator } from '../../provider/locale/collator'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
@@ -44,6 +45,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   )
   const field = useFieldContext()
   const messages = useMessages()
+  const locale = useLocale().locale
   const styles = createStyles(multiSelectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -66,15 +68,18 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
 
     function resolveInputItem(input: string): T | undefined {
-      const normalized = input.trim().toLowerCase()
+      const normalized = input.trim()
       if (!normalized) {
         return undefined
       }
-      return source().items.find(
-        (candidate) =>
-          labelString(candidate, baseSelectProps.itemToLabelString).toLowerCase() === normalized ||
-          String(candidate.value).toLowerCase() === normalized,
-      )
+      const collator = createSearchCollator(locale())
+      return source().items.find((candidate) => {
+        const label = labelString(candidate, baseSelectProps.itemToLabelString)
+        return (
+          collatorEquals(collator, label, normalized) ||
+          collatorEquals(collator, String(candidate.value), normalized)
+        )
+      })
     }
 
     function commitInput(input: string): boolean {

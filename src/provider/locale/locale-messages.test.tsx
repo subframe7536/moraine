@@ -258,12 +258,13 @@ describe('localized component text', () => {
     })
   })
 
-  test('uses slider thumb message', () => {
+  test('uses slider thumb and valueText messages', () => {
     const screen = render(() => (
       <MoraineProvider
         messages={{
           slider: {
             thumb: ({ index, total }) => `Curseur ${index + 1}/${total}`,
+            valueText: ({ value, index, total }) => `${value} plage ${index + 1}/${total}`,
           },
         }}
       >
@@ -273,6 +274,9 @@ describe('localized component text', () => {
 
     expect(screen.getByRole('slider', { name: 'Curseur 1/2' })).toBeTruthy()
     expect(screen.getByRole('slider', { name: 'Curseur 2/2' })).toBeTruthy()
+    const thumbs = screen.container.querySelectorAll('[data-slot="slider-thumb"]')
+    expect(thumbs[0]?.getAttribute('aria-valuetext')).toBe('20 plage 1/2')
+    expect(thumbs[1]?.getAttribute('aria-valuetext')).toBe('80 plage 2/2')
   })
 
   test('uses breadcrumb message and lets aria-label win', () => {

@@ -18,6 +18,12 @@ import { Icon } from '../../element/icon'
 import { getActiveElement } from '../../overlay/base/dom'
 import { createStyles } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
+import {
+  formatLocaleNumber,
+  isPartialNumber,
+  parseLocaleNumber,
+  toNumber,
+} from '../../provider/locale/number'
 import { createControllableValue } from '../../shared/controllable-value'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -41,121 +47,6 @@ interface PressRepeatState {
   lastTriggeredAt: number
   lastPointerType: string | undefined
   targetEl: HTMLButtonElement | null
-}
-
-/**
- * Detects the decimal separator for the current locale.
- */
-function getDecimalSeparator(locale?: string): string {
-  const formatter = new Intl.NumberFormat(locale || undefined)
-  const parts = formatter.formatToParts(1.1)
-  const decimalPart = parts.find((part) => part.type === 'decimal')
-  return decimalPart?.value ?? '.'
-}
-
-/**
- * Detects the thousands separator for the current locale.
- */
-function getThousandsSeparator(locale?: string): string {
-  const formatter = new Intl.NumberFormat(locale || undefined)
-  const parts = formatter.formatToParts(1000)
-  const groupPart = parts.find((part) => part.type === 'group')
-  return groupPart?.value ?? ','
-}
-
-/**
- * Checks if a string represents a partial but valid in-progress number input.
- * Examples: "-", ".", "-.", "1.", "1.2", "-0.", locale-specific separators
- */
-function isPartialNumber(value: string, locale?: string): boolean {
-  const normalized = normalizeLocalizedNumerals(value)
-  if (normalized === '' || normalized === '-' || normalized === '+') {
-    return true
-  }
-
-  const decimalSep = getDecimalSeparator(locale)
-  const normalizedDecimalSep = normalizeLocalizedNumerals(decimalSep)
-
-  // Just a decimal separator
-  if (
-    normalized === normalizedDecimalSep ||
-    normalized === `-${normalizedDecimalSep}` ||
-    normalized === `+${normalizedDecimalSep}`
-  ) {
-    return true
-  }
-
-  // Ends with decimal separator (e.g., "1.", "1.2.")
-  if (normalized.endsWith(normalizedDecimalSep)) {
-    return true
-  }
-
-  return false
-}
-
-/** Normalizes the common non-ASCII digits and separators emitted by supported locales. */
-function normalizeLocalizedNumerals(value: string): string {
-  return value
-    .replace(/[\u0660-\u0669]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x0660))
-    .replace(/[\u06F0-\u06F9]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x06f0))
-    .replace(/[\uFF10-\uFF19]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0xff10))
-    .replaceAll('\u066B', '.')
-    .replaceAll('\uFF0E', '.')
-    .replaceAll('\uFF0C', ',')
-    .replaceAll('\u066C', '')
-    .replaceAll('\u2212', '-')
-    .replaceAll('\uFF0D', '-')
-    .replaceAll('\uFF0B', '+')
-    .replaceAll('\u061C', '')
-    .replaceAll('\u200E', '')
-    .replaceAll('\u200F', '')
-}
-
-/**
- * Parses a locale-aware number string to a number.
- * Returns undefined if the string is not a valid complete number.
- */
-function parseLocaleNumber(value: string, locale?: string): number | undefined {
-  if (value === '' || value.trim() === '') {
-    return undefined
-  }
-
-  const decimalSep = getDecimalSeparator(locale)
-  const thousandsSep = getThousandsSeparator(locale)
-
-  // Normalize: remove thousands separators and replace decimal separator with '.'
-  let normalized = normalizeLocalizedNumerals(value)
-  if (thousandsSep) {
-    normalized = normalized.replaceAll(thousandsSep, '')
-  }
-  if (decimalSep !== '.') {
-    normalized = normalized.replace(decimalSep, '.')
-  }
-
-  const parsed = Number(normalized)
-  return Number.isFinite(parsed) ? parsed : undefined
-}
-
-/**
- * Formats a number using locale-specific formatting.
- */
-function formatLocaleNumber(value: number, locale?: string): string {
-  return new Intl.NumberFormat(locale || undefined, {
-    useGrouping: false,
-    maximumFractionDigits: 20,
-  }).format(value)
-}
-
-function toNumber(value: string | number | undefined, fallback: number, locale?: string): number {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : fallback
-  }
-
-  if (typeof value === 'string' && value.trim() !== '') {
-    return parseLocaleNumber(value, locale) ?? fallback
-  }
-
-  return fallback
 }
 
 function clamp(value: number, min: number, max: number): number {

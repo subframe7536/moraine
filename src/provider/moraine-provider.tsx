@@ -18,9 +18,9 @@ export interface MoraineProviderProps {
   theme?: MoraineTheme | null
   /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
-  /** Undefined inherits the parent locale. Shared application locale context; currently InputNumber uses it for number parsing and formatting. The built-in fallback is `en`. */
+  /** Undefined inherits the parent locale. Shared application locale as a BCP 47 tag such as `en-US` or `zh-CN`. Without a provider, uses the browser language; SSR fallback is `en-US`. */
   locale?: string
-  /** Undefined inherits the parent direction; null clears it back to document detection; 'ltr' or 'rtl' replaces it. Controls Moraine component direction-sensitive behavior; does not set a dir attribute on arbitrary descendants. */
+  /** Undefined inherits the parent direction; null clears it back to document / `<html dir>` detection; 'ltr' or 'rtl' replaces it. Controls Moraine component direction-sensitive behavior; does not set a dir attribute on arbitrary descendants. Set `dir` on `<html>` for layout. */
   dir?: 'ltr' | 'rtl' | null
   /** Undefined inherits parent messages; a partial pack deep-merges over them. */
   messages?: MoraineMessagesInput

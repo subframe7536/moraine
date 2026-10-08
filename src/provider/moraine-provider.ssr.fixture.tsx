@@ -9,6 +9,7 @@ import type { CnConfig } from '../theme/cn'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 
+import { useLocale } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineProvider } from './moraine-provider'
 
@@ -77,4 +78,13 @@ export function LocaleHydrationFixture() {
 
 export function renderLocaleFixture() {
   return renderToString(() => <LocaleHydrationFixture />)
+}
+
+function DefaultLocaleProbe() {
+  const locale = useLocale()
+  return <i data-locale={locale.locale()} data-dir={locale.dir() ?? ''} />
+}
+
+export function renderDefaultLocaleFixture() {
+  return renderToString(() => <DefaultLocaleProbe />)
 }

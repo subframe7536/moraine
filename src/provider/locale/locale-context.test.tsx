@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { InputNumber } from '../../form/input-number/input-number'
 import { Pagination } from '../../navigation/pagination/pagination'
@@ -42,11 +42,26 @@ describe('Moraine locale', () => {
     ))
 
     const probe = screen.container.querySelector('i')!
-    expect(probe.dataset.locale).toBe('en')
+    expect(probe.dataset.locale).toBe(navigator.language)
     expect(probe.dataset.dir).toBe('')
     expect(probe.dataset.close).toBe(enMessages.dialog.close)
     expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeTruthy()
-    expect(controlValue(screen.getByRole('spinbutton', { name: 'Quantity' }))).toBe('12.5')
+    expect(controlValue(screen.getByRole('spinbutton', { name: 'Quantity' }))).toBe(
+      new Intl.NumberFormat(navigator.language, {
+        useGrouping: false,
+        maximumFractionDigits: 20,
+      }).format(12.5),
+    )
+  })
+
+  test('uses the browser locale without a provider', () => {
+    const language = vi.spyOn(navigator, 'language', 'get').mockReturnValue('fr-FR')
+    try {
+      const screen = render(() => <LocaleProbe />)
+      expect(screen.container.querySelector('i')!.dataset.locale).toBe('fr-FR')
+    } finally {
+      language.mockRestore()
+    }
   })
 
   test('inherits locale, direction, and messages, and lets a child replace them', () => {

@@ -9,6 +9,26 @@ import { Sheet } from '../../overlay/sheet/sheet'
 import { MoraineProvider } from '../moraine-provider'
 
 describe('Moraine direction', () => {
+  test('flips slider arrow keys from html dir without a provider', () => {
+    const previousDirection = document.documentElement.getAttribute('dir')
+    document.documentElement.setAttribute('dir', 'rtl')
+    const onValueChange = vi.fn()
+    try {
+      const screen = render(() => <Slider defaultValue={45} onValueChange={onValueChange} />)
+      const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+
+      expect(onValueChange).toHaveBeenLastCalledWith(44)
+    } finally {
+      if (previousDirection === null) {
+        document.documentElement.removeAttribute('dir')
+      } else {
+        document.documentElement.setAttribute('dir', previousDirection)
+      }
+    }
+  })
+
   test('flips slider arrow keys from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')

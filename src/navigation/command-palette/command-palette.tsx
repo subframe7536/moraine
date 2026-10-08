@@ -22,6 +22,7 @@ import {
 } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -57,13 +58,12 @@ function buildItemSearchText<TItem extends CommandPaletteT.Item>(
   getItemSearchText: ((item: TItem, group: CommandPaletteT.Group<TItem>) => string) | undefined,
 ): string {
   if (getItemSearchText) {
-    return getItemSearchText(item, group).toLowerCase()
+    return getItemSearchText(item, group)
   }
 
   return [item.label, item.value, item.description, item.keywords?.join(' ')]
     .filter(Boolean)
     .join(' ')
-    .toLowerCase()
 }
 
 function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
@@ -123,7 +123,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 ): JSX.Element {
   const cn = useCn()
   const messages = useMessages()
-  const direction = useLocale().dir
+  const locale = useLocale()
+  const direction = locale.dir
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
@@ -248,7 +249,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     createNormalizedGroups<TItem>(groups(), merged.getItemSearchText, warnDuplicateValue),
   )
   const visibleGroups = createMemo(() => {
-    const term = currentSearchTerm().trim().toLowerCase()
+    const term = currentSearchTerm().trim()
     if (merged.filterItems) {
       return createNormalizedGroups<TItem>(
         merged.filterItems({
@@ -264,10 +265,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       return normalizedGroups()
     }
 
+    const collator = createSearchCollator(locale.locale())
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {
-          items: group.items.filter((item) => item.alwaysShow || item.searchText.includes(term)),
+          items: group.items.filter(
+            (item) => item.alwaysShow || collatorIncludes(collator, item.searchText, term),
+          ),
         }),
       )
       .filter((group) => group.items.length > 0)

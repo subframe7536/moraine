@@ -9,7 +9,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import { useLocale } from '../../../provider/locale/locale-context'
+import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { Orientation } from '../../../theme/style-types'
 import type { SliderT } from '../slider.types'
@@ -84,6 +84,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
   const providerDirection = useLocale().dir
+  const messages = useMessages()
   const merged = mergeProps(
     {
       min: 0,
@@ -690,15 +691,11 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function getThumbValueText(index: number): string {
     const values = currentValues()
-    const value = values[index] ?? merged.min
-    if (values.length === 2) {
-      return `${value} ${index === 0 ? 'start' : 'end'} range`
-    }
-    if (values.length > 2) {
-      return `${value} thumb ${index + 1} of ${values.length}`
-    }
-
-    return String(value)
+    return messages().slider.valueText({
+      value: values[index] ?? merged.min,
+      index,
+      total: values.length,
+    })
   }
 
   return {

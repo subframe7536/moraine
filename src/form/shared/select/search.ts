@@ -1,6 +1,13 @@
 import { createMemo } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
+import {
+  collatorEndsWith,
+  collatorIncludes,
+  collatorStartsWith,
+  createSearchCollator,
+} from '../../../provider/locale/collator'
+import { useLocale } from '../../../provider/locale/locale-context'
 import type { BaseSelectT } from '../../base-select/base-select.types'
 
 import { filterView, labelString } from './collection'
@@ -13,6 +20,7 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
   source: Accessor<SelectView<T>>,
   resolve: Accessor<((item: T) => string) | undefined>,
 ) {
+  const locale = useLocale().locale
   const search = useSearchQuery({
     get value() {
       return props.searchValue
@@ -32,19 +40,19 @@ export function useComboboxSearch<T extends BaseSelectT.Item>(
     if (!enabled() || props.filterItem === false || !query) {
       return source()
     }
-    const input = query.toLowerCase()
+    const collator = createSearchCollator(locale())
     return filterView(source(), (item) => {
       if (typeof props.filterItem === 'function') {
         return props.filterItem(query, item)
       }
-      const text = labelString(item, resolve()).toLowerCase()
+      const text = labelString(item, resolve())
       if (props.filterItem === 'startsWith') {
-        return text.startsWith(input)
+        return collatorStartsWith(collator, text, query)
       }
       if (props.filterItem === 'endsWith') {
-        return text.endsWith(input)
+        return collatorEndsWith(collator, text, query)
       }
-      return text.includes(input)
+      return collatorIncludes(collator, text, query)
     })
   })
   return { ...search, view }

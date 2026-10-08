@@ -137,6 +137,14 @@ test('isolates SSR requests and hydrates scoped merging with live config replace
   }
 })
 
+test('ssr default locale is en-US before the browser language is available', () => {
+  const html = renderSsrFixture(
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
+    'renderDefaultLocaleFixture',
+  )
+  expect(html).toContain('data-locale="en-US"')
+})
+
 test('hydrates localized pagination and dialog labels', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(

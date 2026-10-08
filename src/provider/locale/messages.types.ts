@@ -17,6 +17,12 @@ export interface SliderThumbContext {
   total: number
 }
 
+export interface SliderValueTextContext {
+  value: number
+  index: number
+  total: number
+}
+
 /** Accessible names for Select. */
 export interface SelectMessages {
   /** Accessible name for the clear button. */
@@ -66,6 +72,7 @@ export interface MoraineMessages {
   multiSelect: MultiSelectMessages
   slider: {
     thumb: (ctx: SliderThumbContext) => string
+    valueText: (ctx: SliderValueTextContext) => string
   }
   pagination: {
     label: string

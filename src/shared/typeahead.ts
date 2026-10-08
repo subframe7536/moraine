@@ -1,5 +1,8 @@
 import { onCleanup } from 'solid-js'
 
+import { collatorStartsWith, createSearchCollator } from '../provider/locale/collator'
+import { useLocale } from '../provider/locale/locale-context'
+
 export interface CreateTypeaheadOptions<T> {
   getItems: () => readonly T[]
   getStartIndex: () => number
@@ -14,12 +17,14 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
   handleKeyDown: (event: KeyboardEvent) => boolean
   reset: () => void
 } {
+  const locale = useLocale().locale
   let search = ''
   let matchIndex = -1
   let startIndex = 0
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const timeout = options.timeout ?? 500
-  const normalize = (value: string): string => value.normalize('NFKC').toLocaleLowerCase()
+  const collator = () => createSearchCollator(locale())
+  const normalize = (value: string): string => value.normalize('NFKC')
 
   function reset(): void {
     search = ''
@@ -39,7 +44,7 @@ export function createTypeahead<T>(options: CreateTypeaheadOptions<T>): {
       }
 
       const text = options.getText(item)
-      if (text && normalize(text).startsWith(value)) {
+      if (text && collatorStartsWith(collator(), text, value)) {
         return index
       }
     }
