@@ -31,17 +31,18 @@ test('copyable Basic usage examples compile against the public component API', (
       writeFileSync(path.join(directory, `${path.basename(path.dirname(page))}.tsx`), basic![1]!)
     }
     const config = path.join(directory, 'tsconfig.json')
+    const toPosix = (filePath: string) => filePath.split(path.sep).join('/')
     writeFileSync(
       config,
       JSON.stringify({
-        extends: path.join(PROJECT_ROOT, 'tsconfig.json'),
+        extends: toPosix(path.join(PROJECT_ROOT, 'tsconfig.json')),
         compilerOptions: {
           paths: {
-            moraine: [path.join(PROJECT_ROOT, 'src/index.ts')],
-            'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
+            moraine: [toPosix(path.join(PROJECT_ROOT, 'src/index.ts'))],
+            'moraine/*': [toPosix(path.join(PROJECT_ROOT, 'src/*'))],
           },
         },
-        include: ['*.tsx'],
+        include: ['**/*.tsx'],
         exclude: [],
       }),
     )
