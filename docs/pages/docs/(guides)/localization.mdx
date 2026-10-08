@@ -20,7 +20,7 @@ Moraine components ship English accessible names, placeholders, and locale-sensi
 
 Set `lang` and `dir` on `<html>` for document language and CSS/layout. Pass the same `dir` to `MoraineProvider` when portaled overlays should copy it onto their content. A component's own `dir` attribute always wins over the provider, and the provider wins over `<html dir>`.
 
-`locale` is shared application locale context. `InputNumber` uses it for `Intl.NumberFormat` parsing and formatting. Collection search, typeahead, and the command palette use `Intl.Collator`. `InputNumber` reads `locale` from its own prop, then falls back to the provider, then `en-US`.
+`locale` is shared application locale context. `InputNumber` uses it for `Intl.NumberFormat` parsing and formatting. Collection search, typeahead, and the command palette use `Intl.Collator`. `InputNumber` reads `locale` from its own prop, then falls back to the provider, then `en-US`. Invalid locale tags fall back to `en-US` for both `Intl.NumberFormat` and `Intl.Collator`.
 
 Set `detectLocale` when the tree should follow the browser after hydration. Nested providers that omit `locale` inherit the parent's already resolved tag and do not detect again. In production, prefer passing an explicit `locale` from a cookie or `Accept-Language` so formatted values do not flash from `en-US` to the browser language.
 

@@ -23,6 +23,12 @@ describe('search collator', () => {
     expect(collatorIncludes(turkish, 'Işık', 'ış')).toBe(true)
     expect(collatorStartsWith(turkish, 'Işık', 'ış')).toBe(true)
   })
+
+  test('falls back to en-US for an invalid locale', () => {
+    const collator = createSearchCollator('!!!')
+    expect(collator.resolvedOptions().locale.startsWith('en')).toBe(true)
+    expect(collatorIncludes(collator, 'Apple', 'ap')).toBe(true)
+  })
 })
 
 describe('search collator in a reactive root', () => {

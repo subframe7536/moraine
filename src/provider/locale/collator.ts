@@ -1,19 +1,30 @@
+import { FALLBACK_LOCALE } from './default-locale'
+
 const cache = new Map<string, Intl.Collator>()
+
+function createCollator(locale: string, options: Intl.CollatorOptions): Intl.Collator {
+  try {
+    return new Intl.Collator(locale, options)
+  } catch {
+    return new Intl.Collator(FALLBACK_LOCALE, options)
+  }
+}
 
 /** Locale-aware matcher for search, typeahead, and equality. */
 export function createSearchCollator(locale: string): Intl.Collator {
-  const cached = cache.get(locale)
+  const key = locale || FALLBACK_LOCALE
+  const cached = cache.get(key)
   if (cached) {
     return cached
   }
 
   let collator: Intl.Collator
   try {
-    collator = new Intl.Collator(locale, { usage: 'search', sensitivity: 'base' })
+    collator = createCollator(key, { usage: 'search', sensitivity: 'base' })
   } catch {
-    collator = new Intl.Collator(locale, { sensitivity: 'base' })
+    collator = createCollator(key, { sensitivity: 'base' })
   }
-  cache.set(locale, collator)
+  cache.set(key, collator)
   return collator
 }
 
