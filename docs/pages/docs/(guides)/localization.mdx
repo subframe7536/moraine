@@ -7,22 +7,22 @@ search:
   tags: [i18n, locale, rtl, direction, messages, translation, MoraineProvider]
 ---
 
-Moraine components ship English accessible names, placeholders, and locale-sensitive parsing. Without a `MoraineProvider`, `locale` is `en-US`. A root provider follows the browser after hydration (`detectLocale` defaults to `true`); SSR and the first client render stay `en-US`. Add a provider to replace the copy, pin a BCP 47 locale such as `zh-CN`, pass `detectLocale={false}` to keep `en-US`, or override direction. Nest a provider to override part of the tree.
+Moraine components ship English accessible names, placeholders, and locale-sensitive parsing. Without a `MoraineProvider`, `locale` is `en-US`. A root provider follows the browser after hydration (`detectLocale` defaults to `true`); SSR and the first client render stay `en-US`. Add a provider to replace the copy, pin a BCP 47 locale such as `zh-CN`, pass `detectLocale={false}` to disable detection, or override direction. Nest a provider to override part of the tree.
 
 ## Provider props
 
-| Prop           | Omitted                                                               | Set                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `locale`       | Inherits the parent locale, or `en-US` without a provider.            | Replaces it with a BCP 47 tag such as `de-DE` or `zh-CN`. Always wins over `detectLocale`.                                                                            |
-| `detectLocale` | `true` on the root provider; nested providers inherit the parent tag. | After hydration, follow `navigator.language` and `languagechange`. SSR and the first client render stay `en-US`. `false` keeps `en-US`. Ignored when `locale` is set. |
-| `dir`          | Inherits the parent direction, or `<html dir>` / the document.        | Replaces it with `ltr` or `rtl`, or `null` to clear back to document detection.                                                                                       |
-| `messages`     | Inherits the parent message pack.                                     | Deep-merges a partial pack over the parent. The base pack is English.                                                                                                 |
+| Prop           | Omitted                                                               | Set                                                                                                                                                                                                                                           |
+| :------------- | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `locale`       | Inherits the parent locale, or `en-US` without a provider.            | Replaces it with a BCP 47 tag such as `de-DE` or `zh-CN`. Always wins over `detectLocale`.                                                                                                                                                    |
+| `detectLocale` | `true` on the root provider; nested providers inherit the parent tag. | After hydration, follow `navigator.language` and `languagechange`. SSR and the first client render stay `en-US`. `false` disables detection: the root stays `en-US`, a nested provider inherits the parent tag. Ignored when `locale` is set. |
+| `dir`          | Inherits the parent direction, or `<html dir>` / the document.        | Replaces it with `ltr` or `rtl`, or `null` to clear back to document detection.                                                                                                                                                               |
+| `messages`     | Inherits the parent message pack.                                     | Deep-merges a partial pack over the parent. The base pack is English.                                                                                                                                                                         |
 
 Set `lang` and `dir` on `<html>` for document language and CSS/layout. Pass the same `dir` to `MoraineProvider` when portaled overlays should copy it onto their content. A component's own `dir` attribute always wins over the provider, and the provider wins over `<html dir>`.
 
 `locale` is shared application locale context. `InputNumber` uses it for `Intl.NumberFormat` parsing and formatting. Collection search, typeahead, and the command palette use `Intl.Collator`. `InputNumber` reads `locale` from its own prop, then falls back to the provider, then `en-US`. Invalid locale tags fall back to `en-US` for both `Intl.NumberFormat` and `Intl.Collator`.
 
-A root `MoraineProvider` follows the browser after hydration. Nested providers that omit `locale` inherit the parent's already resolved tag and do not detect again. Pass `detectLocale={false}` to keep `en-US`, or pass an explicit `locale` from a cookie or `Accept-Language` in production so formatted values do not flash from `en-US` to the browser language.
+A root `MoraineProvider` follows the browser after hydration. Nested providers that omit `locale` inherit the parent's already resolved tag and do not detect again. Pass `detectLocale={false}` to disable detection (root stays `en-US`; nested providers inherit the parent), or pass an explicit `locale` from a cookie or `Accept-Language` in production so formatted values do not flash from `en-US` to the browser language.
 
 ```tsx title="src/App.tsx"
 import { MoraineProvider } from 'moraine'
