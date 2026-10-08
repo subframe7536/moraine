@@ -73,7 +73,7 @@ export function useMessages<K extends keyof MoraineMessages>(
   const current = useLocaleAccessor()
   return () => {
     const custom = current().messages?.[key]
-    return mergeGroup(defaults, custom as Partial<MoraineMessages[K]> | undefined)
+    return mergeGroup(defaults, custom)
   }
 }
 

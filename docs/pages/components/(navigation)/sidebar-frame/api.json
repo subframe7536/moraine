@@ -134,6 +134,11 @@
       "defaultElement": "aside",
       "props": [
         {
+          "name": "aria-label",
+          "optional": true,
+          "type": "string"
+        },
+        {
           "name": "ariaLabel",
           "optional": true,
           "type": "string",

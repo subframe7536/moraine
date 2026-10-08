@@ -1,6 +1,4 @@
-import type { MoraineMessages } from '../../provider/locale/messages.types'
-
-export const defaultKbdMessages: MoraineMessages['kbd'] = /* @__PURE__ */ Object.freeze({
+export const defaultKbdMessages = /* @__PURE__ */ Object.freeze({
   alt: 'Alt',
   arrowdown: 'Arrow Down',
   arrowleft: 'Arrow Left',

@@ -16,7 +16,7 @@ Moraine components ship English accessible names, placeholders, and locale-sensi
 | `locale`       | Inherits the parent locale, or `en-US` without a provider.            | Replaces it with a BCP 47 tag such as `de-DE` or `zh-CN`. Always wins over `detectLocale`.                                                                                                                                                    |
 | `detectLocale` | `true` on the root provider; nested providers inherit the parent tag. | After hydration, follow `navigator.language` and `languagechange`. SSR and the first client render stay `en-US`. `false` disables detection: the root stays `en-US`, a nested provider inherits the parent tag. Ignored when `locale` is set. |
 | `dir`          | Inherits the parent direction, or `<html dir>` / the document.        | Replaces it with `ltr` or `rtl`, or `null` to clear back to document detection.                                                                                                                                                               |
-| `messages`     | Inherits the parent message pack.                                     | Deep-merges a partial pack over the parent. The base pack is English.                                                                                                                                                                         |
+| `messages`     | Inherits parent messages.                                             | Deep-merges partial message overrides over the parent. Default copy is English.                                                                                                                                                               |
 
 Set `lang` and `dir` on `<html>` for document language and CSS/layout. Pass the same `dir` to `MoraineProvider` when portaled overlays should copy it onto their content. A component's own `dir` attribute always wins over the provider, and the provider wins over `<html dir>`.
 
@@ -26,7 +26,7 @@ A root `MoraineProvider` follows the browser after hydration. Nested providers t
 
 ```tsx title="src/App.tsx"
 import { MoraineProvider } from 'moraine'
-import type { MoraineMessagesInput } from 'moraine'
+import type { MoraineProviderProps } from 'moraine'
 
 const zhCN = {
   dialog: { close: '关闭' },
@@ -38,7 +38,7 @@ const zhCN = {
     prev: ({ page }) => (page === undefined ? '上一页' : `上一页，第 ${page} 页`),
     next: ({ page }) => (page === undefined ? '下一页' : `下一页，第 ${page} 页`),
   },
-} satisfies MoraineMessagesInput
+} satisfies MoraineProviderProps['messages']
 
 export function App(props) {
   return (
@@ -51,13 +51,13 @@ export function App(props) {
 
 Changing `messages`, `locale`, or `dir` updates the rendered text and behavior without remounting the components. `useLocale()` returns stable `locale()` and `dir()` accessors for application code that needs the same values.
 
-A component prop always wins over the pack. `placeholder`, `aria-label`, `ariaLabel`, and `label` keep the caller's text, and the pack fills only what the caller left unset.
+A component prop always wins over default messages. `placeholder`, `aria-label`, `ariaLabel`, and `label` keep the caller's text, and messages fill only what the caller left unset.
 
-## Message packs
+## Messages
 
-`MoraineMessages` is the full English shape. `MoraineMessagesInput` is the deep-partial type you pass to the provider. Groups are `dialog`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, and `kbd`.
+Component defaults provide built-in English copy colocated with each component without bundling monolithic message packs. Pass partial overrides to `MoraineProvider` through the `messages` prop (typed as `MoraineProviderProps['messages']`). Available groups are `dialog`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, and `kbd`.
 
-Text that includes a number or a name is a function, so the translation controls word order:
+Dynamic messages that include a number or a name are functions so translations control word order:
 
 ```ts
 const pagination = {
@@ -65,7 +65,7 @@ const pagination = {
 }
 ```
 
-`page` is omitted when the control is already on that edge. Plural rules stay in the pack, for example with `Intl.PluralRules`:
+`page` is omitted when the control is already on that edge. For plural rules, use `Intl.PluralRules`:
 
 ```ts
 const rules = new Intl.PluralRules('en-US')
