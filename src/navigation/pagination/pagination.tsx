@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../../element/button'
 import type { ButtonProps } from '../../element/button'
@@ -24,7 +24,11 @@ interface InteractiveProps {
 }
 
 const MAX_SIBLING_COUNT = 100
-const ELLIPSIS = -1
+const START_ELLIPSIS = { kind: 'ellipsis' } as const
+const END_ELLIPSIS = { kind: 'ellipsis' } as const
+
+type EllipsisEntry = typeof START_ELLIPSIS | typeof END_ELLIPSIS
+type PaginationEntry = number | EllipsisEntry
 
 function clampPage(page: number, count: number): number {
   return Math.min(Math.max(page, 1), Math.max(count, 1))
@@ -45,7 +49,11 @@ function createRange(start: number, end: number): number[] {
   return Array.from({ length: end - start + 1 }, (_, index) => start + index)
 }
 
-function getPaginationItems(page: number, count: number, siblingCount: number): number[] {
+function getPaginationItems(
+  page: number,
+  count: number,
+  siblingCount: number,
+): Array<number | EllipsisEntry> {
   if (siblingCount * 2 + 5 >= count) {
     return createRange(1, count)
   }
@@ -56,12 +64,12 @@ function getPaginationItems(page: number, count: number, siblingCount: number): 
   const showRight = right < count - 1
 
   if (!showLeft && showRight) {
-    return [...createRange(1, 3 + siblingCount * 2), ELLIPSIS, count]
+    return [...createRange(1, 3 + siblingCount * 2), END_ELLIPSIS, count]
   }
   if (showLeft && !showRight) {
-    return [1, ELLIPSIS, ...createRange(count - (2 + siblingCount * 2), count)]
+    return [1, START_ELLIPSIS, ...createRange(count - (2 + siblingCount * 2), count)]
   }
-  return [1, ELLIPSIS, ...createRange(left, right), ELLIPSIS, count]
+  return [1, START_ELLIPSIS, ...createRange(left, right), END_ELLIPSIS, count]
 }
 
 function getSize(size: string | null | undefined, text?: string): ButtonProps['size'] {
@@ -131,34 +139,29 @@ export function Pagination(props: PaginationProps): JSX.Element {
     defaultValue: () => normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
   })
 
-  const pageCount = () => {
+  const pageCount = createMemo(() => {
     const safeItemsPerPage = normalizeInteger(merged.itemsPerPage, 10, 1, Number.MAX_SAFE_INTEGER)
     const safeTotal = normalizeInteger(merged.total, 0, 0, Number.MAX_SAFE_INTEGER)
     return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
-  }
+  })
 
-  const currentPage = () => clampPage(page(), pageCount())
+  const currentPage = createMemo(() => clampPage(page(), pageCount()))
 
-  const paginationItems = () =>
-    getPaginationItems(
+  const items = createMemo((previous: PaginationEntry[] | undefined) => {
+    const next = getPaginationItems(
       currentPage(),
       pageCount(),
       normalizeInteger(merged.siblingCount, 2, 0, MAX_SIBLING_COUNT),
     )
-
-  const selectPage = (targetPage: number, event?: MouseEvent): void => {
-    if (event?.defaultPrevented || merged.disabled) {
-      return
+    if (
+      previous &&
+      previous.length === next.length &&
+      previous.every((item, index) => item === next[index])
+    ) {
+      return previous
     }
-
-    const next = clampPage(targetPage, pageCount())
-    if (next === currentPage()) {
-      return
-    }
-
-    setPage(next)
-    merged.onPageChange?.(next)
-  }
+    return next
+  })
 
   const getItemProps = (target: number): InteractiveProps => {
     if (merged.disabled) {
@@ -183,6 +186,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return href ? { as: merged.controlAs, href, rel } : { as: merged.controlAs }
     }
     return href ? { as: 'a', href, rel } : { as: 'button', type: 'button' }
+  }
+
+  const selectPage = (targetPage: number, event?: MouseEvent): void => {
+    if (event?.defaultPrevented || merged.disabled) {
+      return
+    }
+
+    const next = clampPage(targetPage, pageCount())
+    if (next === currentPage()) {
+      return
+    }
+
+    setPage(next)
+    merged.onPageChange?.(next)
   }
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
@@ -238,51 +255,53 @@ export function Pagination(props: PaginationProps): JSX.Element {
           </li>
         </Show>
 
-        <For each={paginationItems()}>
-          {(item) => {
-            const isActive = () => item === currentPage()
-            return (
-              <li
-                data-slot="pagination-list-item"
-                aria-hidden={item === ELLIPSIS ? true : undefined}
-                {...paginationDataAttributes.ellipsis({
-                  ellipsis: () => item === ELLIPSIS,
-                })}
-                {...resolved.styles.listItem}
+        <For each={items()}>
+          {(item) => (
+            <li
+              data-slot="pagination-list-item"
+              aria-hidden={typeof item === 'number' ? undefined : true}
+              {...paginationDataAttributes.ellipsis({
+                ellipsis: () => typeof item !== 'number',
+              })}
+              {...resolved.styles.listItem}
+            >
+              <Show
+                when={typeof item === 'number' ? item : undefined}
+                fallback={
+                  <Icon
+                    slotName="pagination-ellipsis"
+                    name={merged.ellipsisIcon}
+                    {...resolved.styles.ellipsis}
+                  />
+                }
               >
-                <Show
-                  when={item !== ELLIPSIS}
-                  fallback={
-                    <Icon
-                      slotName="pagination-ellipsis"
-                      name={merged.ellipsisIcon}
-                      {...resolved.styles.ellipsis}
-                    />
-                  }
-                >
-                  <Button
-                    slotName="pagination-item"
-                    variant={
-                      isActive() ? resolved.variants.activeVariant : resolved.variants.variant
-                    }
-                    size={getSize(resolved.variants.size)}
-                    aria-current={isActive() ? 'page' : undefined}
-                    aria-label={getPageLabel(item, isActive())}
-                    {...paginationDataAttributes.item({
-                      current: isActive,
-                      disabled: undefined,
-                      loading: undefined,
-                    })}
-                    {...resolved.styles.item}
-                    onClick={(event) => selectPage(item, event)}
-                    {...getItemProps(item)}
-                  >
-                    {item}
-                  </Button>
-                </Show>
-              </li>
-            )
-          }}
+                {(pageNumber) => {
+                  const isActive = () => pageNumber() === currentPage()
+                  return (
+                    <Button
+                      slotName="pagination-item"
+                      variant={
+                        isActive() ? resolved.variants.activeVariant : resolved.variants.variant
+                      }
+                      size={getSize(resolved.variants.size)}
+                      aria-current={isActive() ? 'page' : undefined}
+                      aria-label={getPageLabel(pageNumber(), isActive())}
+                      {...paginationDataAttributes.item({
+                        current: isActive,
+                        disabled: undefined,
+                        loading: undefined,
+                      })}
+                      {...resolved.styles.item}
+                      onClick={(event) => selectPage(pageNumber(), event)}
+                      {...getItemProps(pageNumber())}
+                    >
+                      {pageNumber()}
+                    </Button>
+                  )
+                }}
+              </Show>
+            </li>
+          )}
         </For>
 
         <Show when={merged.showControls}>

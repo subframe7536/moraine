@@ -417,6 +417,26 @@ describe('Pagination', () => {
     expect(pageControl?.tagName).toBe('BUTTON')
   })
 
+  test('keeps focus on a page that stays visible when the current page changes', () => {
+    const [page, setPage] = createSignal(5)
+    const screen = render(() => (
+      <Pagination
+        page={page()}
+        total={100}
+        itemsPerPage={10}
+        siblingCount={1}
+        showControls={false}
+      />
+    ))
+    const first = screen.getByLabelText('Go to page 1 of 10') as HTMLElement
+
+    first.focus()
+    expect(document.activeElement).toBe(first)
+    setPage(6)
+    expect(screen.getByLabelText('Go to page 1 of 10')).toBe(first)
+    expect(document.activeElement).toBe(first)
+  })
+
   test('releases focus when a reactive boundary link becomes a disabled button', () => {
     const [page, setPage] = createSignal(2)
     const screen = render(() => (

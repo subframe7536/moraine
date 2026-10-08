@@ -1,7 +1,7 @@
 ## Todo
 
 - [x] new prop/variant in button: `activeEffect?: 'none' | 'move-down' | 'zoom-in' | ((el) => string)`, default to `'move-down'`, `'move-down'` and `'zoom-in'` are popup-sensitive. toggle-button should be `'none'`
-- [ ] optimize pagination reactivity reference from `@solid-primitives/pagination`
+- [x] optimize pagination reactivity reference from `@solid-primitives/pagination`
 - [ ] refactor moraine provider context data structure in pure object instead of accessor if possible
 - [ ] docs: string literal in props table row should be `string`, show details in collapsible content
 
