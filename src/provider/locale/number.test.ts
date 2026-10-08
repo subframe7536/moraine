@@ -27,6 +27,13 @@ describe('locale number', () => {
     expect(isPartialNumber('12..', 'en-US')).toBe(false)
   })
 
+  test('parses unicode minus signs', () => {
+    expect(parseLocaleNumber('\u221212.5', 'en-US')).toBe(-12.5)
+    expect(parseLocaleNumber('\uFF0D12.5', 'en-US')).toBe(-12.5)
+    expect(isPartialNumber('\u2212', 'en-US')).toBe(true)
+    expect(isPartialNumber('\u2212.', 'en-US')).toBe(true)
+  })
+
   test('falls back for empty and invalid strings', () => {
     expect(parseLocaleNumber('', 'en-US')).toBeUndefined()
     expect(parseLocaleNumber('abc', 'en-US')).toBeUndefined()
