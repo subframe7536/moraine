@@ -508,4 +508,12 @@ describe('Progress', () => {
     expect(steps?.style.width).toBe('200px')
     expect(step?.style.width).toBe('200px')
   })
+
+  test('renders steps with duplicate labels without key collision', () => {
+    const screen = render(() => <Progress value={1} max={['Step', 'Step', 'Step']} />)
+    const steps = screen.container.querySelectorAll('[data-slot="progress-step"]')
+
+    expect(steps.length).toBe(3)
+    expect(Array.from(steps).map((s) => s.textContent)).toEqual(['Step', 'Step', 'Step'])
+  })
 })

@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import { Index, Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -188,21 +188,21 @@ export function Progress(props: ProgressProps): JSX.Element {
 
       <Show when={hasSteps()}>
         <div data-slot="progress-steps" {...resolved.styles.steps}>
-          <For each={steps()}>
+          <Index each={steps()}>
             {(step, index) => (
               <div
                 data-slot="progress-step"
-                {...progressDataAttributes.step({ state: () => stepState(index()) })}
+                {...progressDataAttributes.step({ state: () => stepState(index) })}
                 {...resolved.styles.step}
               >
-                <Show when={local.stepRender} fallback={step} keyed>
+                <Show when={local.stepRender} fallback={step()} keyed>
                   {(StepRender) => (
-                    <StepRender step={step} index={index()} state={stepState(index())} />
+                    <StepRender step={step()} index={index} state={stepState(index)} />
                   )}
                 </Show>
               </div>
             )}
-          </For>
+          </Index>
         </div>
       </Show>
     </div>
