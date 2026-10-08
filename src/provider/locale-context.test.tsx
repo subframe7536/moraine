@@ -8,6 +8,7 @@ import { Dialog } from '../overlay/dialog/dialog'
 
 import { useLocale, useMessages } from './locale-context'
 import { enMessages } from './locale/en'
+import type { MoraineMessagesInput } from './locale/messages.types'
 import { MoraineProvider } from './moraine-provider'
 
 function controlValue(element: HTMLElement): string {
@@ -148,5 +149,71 @@ describe('Moraine locale', () => {
       '[data-slot="dialog-content-close"]',
     ) as HTMLButtonElement
     expect(button.getAttribute('aria-label')).toBe('Close')
+  })
+
+  test('nested providers merge and inherit locale state', () => {
+    function NestedProbe() {
+      const locale = useLocale()
+      const messages = useMessages()
+      return (
+        <i
+          data-locale={locale.locale() ?? ''}
+          data-dir={locale.dir() ?? ''}
+          data-close={messages().dialog.close}
+          data-pagination={messages().pagination.label}
+        />
+      )
+    }
+
+    const screen = render(() => (
+      <MoraineProvider
+        locale="en-US"
+        dir="ltr"
+        messages={{
+          dialog: { close: 'Close' },
+          pagination: { label: 'Pages' },
+        }}
+      >
+        <MoraineProvider
+          locale="zh-CN"
+          messages={{
+            dialog: { close: '关闭' },
+          }}
+        >
+          <NestedProbe />
+          <MoraineProvider dir={null}>
+            <NestedProbe />
+          </MoraineProvider>
+        </MoraineProvider>
+      </MoraineProvider>
+    ))
+
+    const [nested, clearedDir] = screen.container.querySelectorAll('i')
+    expect(nested?.dataset).toMatchObject({
+      locale: 'zh-CN',
+      dir: 'ltr',
+      close: '关闭',
+      pagination: 'Pages',
+    })
+    expect(clearedDir?.dataset).toMatchObject({
+      locale: 'zh-CN',
+      dir: '',
+      close: '关闭',
+      pagination: 'Pages',
+    })
+  })
+
+  test('MoraineMessagesInput enforces kbd key constraints', () => {
+    const valid: MoraineMessagesInput = {
+      kbd: {
+        alt: 'Option',
+        arrowdown: 'Down',
+      },
+    }
+    expect(valid.kbd?.alt).toBe('Option')
+
+    // @ts-expect-error totallyInvalidKey must not be allowed by MoraineMessagesInput
+    const _invalid: MoraineMessagesInput = { kbd: { totallyInvalidKey: 'xxx' } }
+    expect(_invalid).toBeDefined()
   })
 })

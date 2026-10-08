@@ -39,6 +39,7 @@ export namespace KbdT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type Key = BuiltinKbd | (string & {})
+  export type MessageKey = BuiltinKbd
 
   /** Base props for the Kbd component. */
   export interface Base {

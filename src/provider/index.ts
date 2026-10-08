@@ -7,6 +7,7 @@ export type { MoraineLocale } from './locale-context'
 export type {
   MoraineMessages,
   MoraineMessagesInput,
+  KbdMessageKey,
   SelectMessages,
   CollectionMessages,
   MultiSelectMessages,

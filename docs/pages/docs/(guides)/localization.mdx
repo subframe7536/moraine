@@ -19,6 +19,8 @@ Moraine components ship English accessible names, placeholders, and the `en` loc
 
 With no provider, `locale` is `en`, `dir` is unset, and messages are the English pack. An omitted `locale` or `messages` prop inherits those defaults. An omitted `dir` stays unset, so direction still comes from the document.
 
+`locale` is exposed as shared application locale context. Components may use it for locale-sensitive behavior; currently `InputNumber` uses it for number parsing and formatting. `InputNumber` reads `locale` from its own prop, then falls back to the provider.
+
 ```tsx title="src/App.tsx"
 import { MoraineProvider } from 'moraine'
 import type { MoraineMessagesInput } from 'moraine'
@@ -77,8 +79,8 @@ const pagination = {
 
 ## Direction
 
+`dir` controls Moraine component direction-sensitive behavior, such as horizontal keyboard navigation, slider interaction direction, and portaled overlay positioning. It does not set a `dir` attribute on arbitrary descendants. Set `dir` on your application root when you need the browser's full RTL layout behavior.
+
 Portaled popover, dialog, and sheet content receive `dir` from the provider when the component does not set `dir` itself. A component's own `dir` attribute always takes precedence over the provider. The attribute is omitted when neither is set, so server markup stays unchanged until you opt in.
 
 Shared overlay direction uses the provider value when it is set, and otherwise reads the element and document the way it did before. A component's own `dir` attribute still wins over the provider. When the component does not set `dir`, the provider wins over an ancestor or the document.
-
-`InputNumber` reads `locale` from its prop, then from the provider. Both fall back to `en` when the tree has no `MoraineProvider`.

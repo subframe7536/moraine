@@ -15,7 +15,10 @@ function mergeGroup<T extends object>(base: T, patch: Partial<T> | undefined): T
   return Object.freeze(result)
 }
 
-/** Deep-merges a partial pack over a resolved message object. Repeated pairs are cached. */
+/**
+ * Deep-merges a partial pack over a resolved message object.
+ * Caches merged results by base and input object identity (identity cache).
+ */
 export function mergeMessages(
   base: MoraineMessages,
   input: MoraineMessagesInput | undefined,

@@ -161,6 +161,7 @@ export type {
   MoraineLocale,
   MoraineMessages,
   MoraineMessagesInput,
+  KbdMessageKey,
   SelectMessages,
   CollectionMessages,
   MultiSelectMessages,

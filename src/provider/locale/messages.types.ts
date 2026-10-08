@@ -96,8 +96,21 @@ export interface MoraineMessages {
   kbd: Record<KbdMessageKey, string>
 }
 
-export type MoraineMessagesInput = {
-  [Group in keyof MoraineMessages]?: {
-    [Key in keyof MoraineMessages[Group]]?: MoraineMessages[Group][Key]
-  }
+export interface MoraineMessagesInput {
+  dialog?: Partial<MoraineMessages['dialog']>
+  sheet?: Partial<MoraineMessages['sheet']>
+  breadcrumb?: Partial<MoraineMessages['breadcrumb']>
+  commandPalette?: Partial<MoraineMessages['commandPalette']>
+  select?: Partial<SelectMessages>
+  combobox?: Partial<CollectionMessages>
+  multiSelect?: Partial<MultiSelectMessages>
+  slider?: Partial<MoraineMessages['slider']>
+  pagination?: Partial<MoraineMessages['pagination']>
+  inputNumber?: Partial<MoraineMessages['inputNumber']>
+  fileUpload?: Partial<MoraineMessages['fileUpload']>
+  tagsField?: Partial<MoraineMessages['tagsField']>
+  resizable?: Partial<MoraineMessages['resizable']>
+  sidebarFrame?: Partial<MoraineMessages['sidebarFrame']>
+  form?: Partial<MoraineMessages['form']>
+  kbd?: Partial<Record<KbdMessageKey, string>>
 }
