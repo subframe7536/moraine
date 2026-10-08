@@ -1,7 +1,7 @@
 import { existsSync, realpathSync, statSync } from 'node:fs'
-import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import path from 'pathe'
 import { defineMdastPlugin } from 'satteri'
 import type { MdastNode } from 'satteri'
 
@@ -36,7 +36,7 @@ export function resolvePreviewFile(id: string, previewPath: string): string {
     )
   }
 
-  const extension = path.posix.extname(previewPath)
+  const extension = path.extname(previewPath)
   if (extension && extension !== '.tsx') {
     throw new Error(
       `[docs-mdx] <Preview /> path must reference a TSX file in ${id}: ${previewPath}`,

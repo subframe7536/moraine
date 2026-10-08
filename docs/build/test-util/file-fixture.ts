@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import path from 'node:path'
 
+import path from 'pathe'
 import { onTestFinished } from 'vitest'
 
 export async function createFileFixture(files: Record<string, string>): Promise<string> {

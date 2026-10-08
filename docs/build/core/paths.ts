@@ -1,9 +1,8 @@
 import { existsSync, readdirSync } from 'node:fs'
-import path from 'node:path'
+
+import path from 'pathe'
 
 import type { DocsSurface } from '../../shared/docs-route.ts'
-
-import { toPosixPath } from './strings.ts'
 
 export interface DocsPageContext {
   absolutePath: string
@@ -31,7 +30,8 @@ function derivePageKey(relativePath: string): string {
 }
 
 function deriveRoute(relativePath: string) {
-  const segments = toPosixPath(relativePath)
+  const segments = path
+    .normalize(relativePath)
     .replace(/\.mdx$/, '')
     .split('/')
   const firstSegment = segments.shift()
@@ -62,7 +62,7 @@ function deriveRoute(relativePath: string) {
 }
 
 export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
-  const normalized = toPosixPath(path.normalize(absolutePath))
+  const normalized = path.normalize(absolutePath)
   const marker = '/docs/pages/'
   const markerIndex = normalized.lastIndexOf(marker)
   if (markerIndex < 0) {
@@ -113,6 +113,6 @@ export function collectMarkdownFiles(dir: string): string[] {
 }
 
 export function toImportPath(fromFile: string, toFile: string): string {
-  const relative = toPosixPath(path.relative(path.dirname(fromFile), toFile))
+  const relative = path.relative(path.dirname(fromFile), toFile)
   return relative.startsWith('.') ? relative : `./${relative}`
 }

@@ -2,8 +2,8 @@
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import path from 'node:path'
 
+import path from 'pathe'
 import { describe, expect, test, vi } from 'vitest'
 
 import { resolveDocsPageContext } from './core/paths.ts'

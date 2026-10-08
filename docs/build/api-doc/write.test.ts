@@ -1,6 +1,6 @@
 import { access, readFile, stat } from 'node:fs/promises'
-import path from 'node:path'
 
+import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
 import { resolveDocsPageContext } from '../core/paths.ts'

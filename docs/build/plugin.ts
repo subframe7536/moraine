@@ -1,6 +1,5 @@
-import path from 'node:path'
-
 import { exactRegex } from '@rolldown/pluginutils'
+import path from 'pathe'
 import type { Plugin } from 'vite'
 
 import { generateApiDoc } from './api-doc/extract.ts'

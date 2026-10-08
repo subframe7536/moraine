@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
-import path from 'node:path'
 
+import path from 'pathe'
 import type { ESTree } from 'vite'
 
 import { getIdentifierName, parseTypeScript } from './ast.ts'

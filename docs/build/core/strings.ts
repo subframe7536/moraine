@@ -1,7 +1,3 @@
-export function toPosixPath(value: string): string {
-  return value.replaceAll('\\', '/')
-}
-
 export function toSingleQuoted(value: string): string {
   return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
 }

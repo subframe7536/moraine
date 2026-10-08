@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
-import path from 'node:path'
 
+import path from 'pathe'
 import {
   createMdxMdastHandle,
   defineMdastPlugin,

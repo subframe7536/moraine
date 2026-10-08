@@ -1,5 +1,4 @@
-import path from 'node:path'
-
+import path from 'pathe'
 import type { MdxOptions } from 'solid-file-router/plugin'
 
 import { validateAnatomy } from '../anatomy.ts'

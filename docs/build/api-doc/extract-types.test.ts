@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import path from 'node:path'
 
+import path from 'pathe'
 import { describe, expect, test } from 'vitest'
 
 import { TypeExtractor } from './extract-types.ts'

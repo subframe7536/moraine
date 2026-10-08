@@ -15,6 +15,7 @@
     "@subf/unocss": "catalog:",
     "cn": "catalog:",
     "moraine": "workspace:*",
+    "pathe": "*",
     "satteri": "^0.10.5",
     "shiki": "^4.4.3",
     "solid-file-router": "^0.7.3",
