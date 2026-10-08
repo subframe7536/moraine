@@ -4,7 +4,7 @@ import { createMemo } from 'solid-js'
 import { Icon } from '../../../element/icon/index'
 import type { IconT } from '../../../element/icon/index'
 import type { SlotBinding } from '../../../provider/create-styles'
-import { useMessages } from '../../../provider/locale-context'
+import { useMessages } from '../../../provider/locale/locale-context'
 
 export interface TagsFieldEntry<TValue> {
   value: TValue

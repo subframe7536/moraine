@@ -22,7 +22,7 @@ import {
 } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { useLocale, useMessages } from '../../provider/locale-context'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'

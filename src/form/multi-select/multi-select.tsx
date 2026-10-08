@@ -3,7 +3,7 @@ import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'

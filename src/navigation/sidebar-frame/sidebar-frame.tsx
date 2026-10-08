@@ -12,7 +12,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Sheet } from '../../overlay/sheet'
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
 import type { ValidComponent } from '../../shared/types'

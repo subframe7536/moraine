@@ -12,7 +12,7 @@ import type { Coords, Middleware, Placement, ReferenceElement } from '@floating-
 import type { Accessor } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
-import { useLocale } from '../../provider/locale-context'
+import { useLocale } from '../../provider/locale/locale-context'
 
 import { getTransformOrigin, resolveDirection } from './utils'
 

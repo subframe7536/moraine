@@ -3,7 +3,7 @@ import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { createStyles } from '../../provider/index'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
 import { useFieldContext } from '../field/field-context'

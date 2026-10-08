@@ -3,7 +3,7 @@ import { Show, mergeProps, onCleanup, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { useLocale, useMessages } from '../../provider/locale-context'
+import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'

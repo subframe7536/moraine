@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'

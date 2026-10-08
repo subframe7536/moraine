@@ -5,7 +5,7 @@ import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { parseFloatingPlacement } from '../../overlay/base/placement'
 import { PopperContent } from '../../overlay/base/popper'
 import { resolveDirection } from '../../overlay/base/utils'
-import { useLocale } from '../../provider/locale-context'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createEventListener } from '../../shared/event-listener'
 
 import { isMousePointer, useNavigationMenuContext } from './navigation-menu-context'

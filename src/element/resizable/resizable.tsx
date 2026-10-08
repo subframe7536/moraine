@@ -15,7 +15,7 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef, createId } from '../../shared/utils'
 

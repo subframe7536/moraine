@@ -9,7 +9,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import { useLocale } from '../../../provider/locale-context'
+import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { Orientation } from '../../../theme/style-types'
 import type { SliderT } from '../slider.types'

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'

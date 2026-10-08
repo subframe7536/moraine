@@ -2,14 +2,14 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { InputNumber } from '../form/input-number/input-number'
-import { Pagination } from '../navigation/pagination/pagination'
-import { Dialog } from '../overlay/dialog/dialog'
+import { InputNumber } from '../../form/input-number/input-number'
+import { Pagination } from '../../navigation/pagination/pagination'
+import { Dialog } from '../../overlay/dialog/dialog'
+import { MoraineProvider } from '../moraine-provider'
 
+import { enMessages } from './en'
 import { useLocale, useMessages } from './locale-context'
-import { enMessages } from './locale/en'
-import type { MoraineMessagesInput } from './locale/messages.types'
-import { MoraineProvider } from './moraine-provider'
+import type { MoraineMessagesInput } from './messages.types'
 
 function controlValue(element: HTMLElement): string {
   if (!(element instanceof HTMLInputElement)) {

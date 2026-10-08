@@ -19,7 +19,7 @@ import {
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
-import { useLocale } from '../../provider/locale-context'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'

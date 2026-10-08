@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
 
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'

@@ -17,7 +17,7 @@ import { Portal } from 'solid-js/web'
 
 import { List } from '../../../element/list'
 import { useCn } from '../../../provider/cn-context'
-import { useLocale } from '../../../provider/locale-context'
+import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createEventListener, attachEventListener } from '../../../shared/event-listener'
 import { createTransitionPresence } from '../../../shared/transition-presence'

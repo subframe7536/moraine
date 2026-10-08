@@ -5,7 +5,7 @@ import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { FieldInternal } from '../field/field'

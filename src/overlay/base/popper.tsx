@@ -15,7 +15,7 @@ import {
 import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
-import { useLocale } from '../../provider/locale-context'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { renderWithProps } from '../../shared/render-with-props'

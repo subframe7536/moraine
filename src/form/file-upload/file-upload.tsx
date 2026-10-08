@@ -14,7 +14,7 @@ import {
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { useMessages } from '../../provider/locale-context'
+import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'

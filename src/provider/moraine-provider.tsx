@@ -8,7 +8,7 @@ import type { RecipeDefinition, ResolvedRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnProvider, useCnAccessor } from './cn-context'
-import { MoraineLocaleProvider, resolveLocale, useLocaleAccessor } from './locale-context'
+import { MoraineLocaleProvider, resolveLocale, useLocaleAccessor } from './locale/locale-context'
 import type { MoraineMessagesInput } from './locale/messages.types'
 import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
 import type { ThemeResolver } from './theme-context'
