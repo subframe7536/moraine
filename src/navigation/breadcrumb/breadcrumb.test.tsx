@@ -43,6 +43,21 @@ describe('Breadcrumb', () => {
     expect(explicitRoot.getAttribute('aria-label')).toBe('Custom label')
   })
 
+  test('falls back to default aria-label when aria-label is undefined', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        aria-label={undefined}
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Page', href: '/page' },
+        ]}
+      />
+    ))
+    const root = screen.getByRole('navigation')
+
+    expect(root.getAttribute('aria-label')).toBe('breadcrumb')
+  })
+
   test('renders the shadcn breadcrumb structure', () => {
     const screen = render(() => (
       <Breadcrumb

@@ -22,6 +22,9 @@ describe('locale number', () => {
     expect(isPartialNumber('12,', 'de-DE')).toBe(true)
     expect(isPartialNumber('-', 'en-US')).toBe(true)
     expect(isPartialNumber('12.5', 'en-US')).toBe(false)
+    expect(isPartialNumber('abc.', 'en-US')).toBe(false)
+    expect(isPartialNumber('12.3.', 'en-US')).toBe(false)
+    expect(isPartialNumber('12..', 'en-US')).toBe(false)
   })
 
   test('falls back for empty and invalid strings', () => {

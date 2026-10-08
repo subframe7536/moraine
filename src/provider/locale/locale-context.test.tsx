@@ -8,7 +8,7 @@ import { Dialog } from '../../overlay/dialog/dialog'
 import { MoraineProvider } from '../moraine-provider'
 
 import { enMessages } from './en'
-import { useLocale, useMessages } from './locale-context'
+import { useLocale, useLocaleAccessor, useMessages } from './locale-context'
 import type { MoraineMessagesInput } from './messages.types'
 
 function controlValue(element: HTMLElement): string {
@@ -53,6 +53,12 @@ describe('Moraine locale', () => {
     } finally {
       language.mockRestore()
     }
+  })
+
+  test('returns stable default resolved locale without a provider', () => {
+    const first = useLocaleAccessor()()
+    const second = useLocaleAccessor()()
+    expect(first).toBe(second)
   })
 
   test('detectLocale={false} stays en-US', () => {

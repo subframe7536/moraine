@@ -95,7 +95,15 @@ export function isPartialNumber(value: string, locale?: string): boolean {
     return true
   }
 
-  return trimmed.endsWith(symbols.decimal)
+  if (trimmed.endsWith(symbols.decimal)) {
+    const prefix = trimmed.slice(0, -symbols.decimal.length)
+    if (prefix.includes(symbols.decimal)) {
+      return false
+    }
+    return parseLocaleNumber(prefix, locale) !== undefined
+  }
+
+  return false
 }
 
 /** Parses a locale-formatted number using `Intl.NumberFormat` symbols and digits. */

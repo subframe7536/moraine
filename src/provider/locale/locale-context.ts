@@ -13,11 +13,13 @@ export interface ResolvedLocale {
   messages: MoraineMessages
 }
 
+const DEFAULT_RESOLVED_LOCALE: ResolvedLocale = Object.freeze({
+  locale: FALLBACK_LOCALE,
+  messages: enMessages,
+})
+
 function getDefaultResolvedLocale(): ResolvedLocale {
-  return {
-    locale: FALLBACK_LOCALE,
-    messages: enMessages,
-  }
+  return DEFAULT_RESOLVED_LOCALE
 }
 
 export const [MoraineLocaleProvider, useLocaleAccessor, MoraineLocaleContext] =
