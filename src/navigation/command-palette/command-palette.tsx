@@ -116,20 +116,6 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
   }))
 }
 
-function CommandPaletteSearchInput(props: JSX.InputHTMLAttributes<HTMLInputElement>): JSX.Element {
-  const [local, rest] = splitProps(props, ['aria-label', 'aria-labelledby'])
-  return (
-    <input
-      {...rest}
-      aria-labelledby={local['aria-labelledby']}
-      aria-label={
-        local['aria-label'] ??
-        (local['aria-labelledby'] === undefined ? rest.placeholder : undefined)
-      }
-    />
-  )
-}
-
 /**
  * CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.
  */
@@ -647,7 +633,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           {...resolved.styles.inputLeading}
         />
 
-        <CommandPaletteSearchInput
+        <input
           {...merged.inputProps}
           ref={(el) => {
             setInputElement(el)
@@ -657,6 +643,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           data-slot="command-palette-input"
           {...resolved.styles.input}
           role="combobox"
+          aria-label={
+            merged.inputProps?.['aria-label'] ??
+            (merged.inputProps?.['aria-labelledby'] === undefined ? merged.placeholder : undefined)
+          }
           aria-controls={listboxId()}
           aria-expanded="true"
           aria-haspopup="listbox"
