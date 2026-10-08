@@ -4,6 +4,7 @@ import { Show, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 
+import { defaultKbdMessages } from './kbd.messages'
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps } from './kbd.types'
@@ -23,7 +24,7 @@ export function Kbd(props: KbdProps): JSX.Element {
     'styles',
   ])
   const resolved = createStyles(kbdRecipe, local)
-  const messages = useMessages()
+  const messages = useMessages('kbd', defaultKbdMessages)
 
   const aliasKey = createMemo(() => {
     if (local.symbol === false) {
@@ -38,7 +39,7 @@ export function Kbd(props: KbdProps): JSX.Element {
   })
   const label = () => {
     const key = aliasKey()
-    return local.label ?? (key ? messages().kbd[key] : undefined)
+    return local.label ?? (key ? messages()[key] : undefined)
   }
 
   return (

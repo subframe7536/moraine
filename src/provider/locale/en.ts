@@ -1,101 +1,38 @@
+import { defaultKbdMessages } from '../../element/kbd/kbd.messages'
+import { defaultResizableMessages } from '../../element/resizable/resizable.messages'
+import { defaultComboboxMessages } from '../../form/combobox/combobox.messages'
+import { defaultFileUploadMessages } from '../../form/file-upload/file-upload.messages'
+import { defaultFormMessages } from '../../form/form/form.messages'
+import { defaultInputNumberMessages } from '../../form/input-number/input-number.messages'
+import { defaultMultiSelectMessages } from '../../form/multi-select/multi-select.messages'
+import { defaultSelectMessages } from '../../form/select/select.messages'
+import { defaultTagsFieldMessages } from '../../form/shared/select/tags-field.messages'
+import { defaultSliderMessages } from '../../form/slider/slider.messages'
+import { defaultBreadcrumbMessages } from '../../navigation/breadcrumb/breadcrumb.messages'
+import { defaultCommandPaletteMessages } from '../../navigation/command-palette/command-palette.messages'
+import { defaultPaginationMessages } from '../../navigation/pagination/pagination.messages'
+import { defaultSidebarFrameMessages } from '../../navigation/sidebar-frame/sidebar-frame.messages'
+import { defaultDialogMessages } from '../../overlay/dialog/dialog.messages'
+import { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
+
 import type { MoraineMessages } from './messages.types'
 
-function pack<T extends object>(value: T): T {
-  return Object.freeze(value)
-}
-
-const collection = pack({
-  clear: 'Clear selection',
-  loading: 'Loading',
-  toggle: 'Toggle options',
-  empty: 'No items',
-  placeholder: '',
-})
-
-/** Built-in English copy. Component output matches these strings when no locale pack is set. */
-export const enMessages: MoraineMessages = /* @__PURE__ */ pack({
-  dialog: pack({ close: 'Close' }),
-  sheet: pack({ close: 'Close' }),
-  breadcrumb: pack({ label: 'breadcrumb' }),
-  commandPalette: pack({
-    placeholder: 'Search...',
-    close: 'Close',
-    empty: 'No results.',
-  }),
-  select: pack({
-    clear: 'Clear selection',
-    placeholder: '',
-  }),
-  combobox: collection,
-  multiSelect: pack({
-    clear: 'Clear selection',
-    loading: 'Loading',
-    toggle: 'Toggle options',
-    empty: 'No items',
-    placeholder: 'Select options',
-    overflow: ({ count }) => `${count} additional selections`,
-    create: ({ value }) => `Press Enter to create “${value}”`,
-  }),
-  slider: pack({
-    thumb: ({ index, total }) => (total <= 1 ? 'Thumb' : `Thumb ${index + 1} of ${total}`),
-    valueText: ({ value, index, total }) => {
-      if (total === 2) {
-        return `${value} ${index === 0 ? 'start' : 'end'} range`
-      }
-      if (total > 2) {
-        return `${value} thumb ${index + 1} of ${total}`
-      }
-      return String(value)
-    },
-  }),
-  pagination: pack({
-    label: 'Pagination',
-    status: ({ page, total }) => `Page ${page} of ${total}`,
-    page: ({ page, total }) => `Go to page ${page} of ${total}`,
-    currentPage: ({ page, total }) => `Page ${page} of ${total}, current page`,
-    prev: ({ page }) =>
-      page === undefined ? 'Go to previous page' : `Go to previous page, page ${page}`,
-    next: ({ page }) => (page === undefined ? 'Go to next page' : `Go to next page, page ${page}`),
-  }),
-  inputNumber: pack({
-    increment: 'Increment',
-    decrement: 'Decrement',
-  }),
-  fileUpload: pack({
-    label: 'File upload',
-    remove: ({ name }) => `Remove ${name}`,
-  }),
-  tagsField: pack({
-    remove: ({ title }) => `Remove ${title}`,
-  }),
-  resizable: pack({
-    expand: 'Expand panel',
-    collapse: 'Collapse panel',
-  }),
-  sidebarFrame: pack({ label: 'Sidebar navigation' }),
-  form: pack({ unknownError: 'An unknown error has occurred.' }),
-  kbd: pack({
-    alt: 'Alt',
-    arrowdown: 'Arrow Down',
-    arrowleft: 'Arrow Left',
-    arrowright: 'Arrow Right',
-    arrowup: 'Arrow Up',
-    backspace: 'Backspace',
-    capslock: 'Caps Lock',
-    command: 'Command',
-    control: 'Control',
-    ctrl: 'Control',
-    delete: 'Delete',
-    end: 'End',
-    enter: 'Enter',
-    escape: 'Escape',
-    home: 'Home',
-    meta: 'Meta',
-    option: 'Option',
-    pagedown: 'Page Down',
-    pageup: 'Page Up',
-    shift: 'Shift',
-    tab: 'Tab',
-    win: 'Windows',
-  }),
+/** Built-in English copy. Aggregated from component defaults for whole-pack consumers and tests. */
+export const enMessages: MoraineMessages = /* @__PURE__ */ Object.freeze({
+  dialog: defaultDialogMessages,
+  sheet: defaultSheetMessages,
+  breadcrumb: defaultBreadcrumbMessages,
+  commandPalette: defaultCommandPaletteMessages,
+  select: defaultSelectMessages,
+  combobox: defaultComboboxMessages,
+  multiSelect: defaultMultiSelectMessages,
+  slider: defaultSliderMessages,
+  pagination: defaultPaginationMessages,
+  inputNumber: defaultInputNumberMessages,
+  fileUpload: defaultFileUploadMessages,
+  tagsField: defaultTagsFieldMessages,
+  resizable: defaultResizableMessages,
+  sidebarFrame: defaultSidebarFrameMessages,
+  form: defaultFormMessages,
+  kbd: defaultKbdMessages,
 })

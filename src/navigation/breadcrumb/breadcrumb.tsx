@@ -7,6 +7,7 @@ import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
 
+import { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
 import type { BreadcrumbProps } from './breadcrumb.types'
 
@@ -25,7 +26,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(breadcrumbRecipe, local)
-  const messages = useMessages()
+  const messages = useMessages('breadcrumb', defaultBreadcrumbMessages)
 
   const separator = () => local.separator ?? 'icon-chevron-right'
 
@@ -43,7 +44,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...resolved.styles.root}
       {...rest}
-      aria-label={rest['aria-label'] ?? messages().breadcrumb.label}
+      aria-label={rest['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...resolved.styles.list}>
         <For each={items()}>

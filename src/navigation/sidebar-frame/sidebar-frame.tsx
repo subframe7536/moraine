@@ -37,6 +37,7 @@ import {
   SidebarFrameSubmenuTrigger,
 } from './sidebar-frame-submenu'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
+import { defaultSidebarFrameMessages } from './sidebar-frame.messages'
 import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
@@ -50,7 +51,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   const [local, rest] = splitProps(props, ['as', 'ariaLabel', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
   const resolved = useSidebarFrameStyles('sidebar', local)
-  const messages = useMessages()
+  const messages = useMessages('sidebarFrame', defaultSidebarFrameMessages)
 
   const mobileAriaLabel = () => {
     const restRecord = rest as Record<string, unknown>
@@ -58,7 +59,7 @@ function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
       (restRecord['aria-label'] as string | undefined) ??
       local.ariaLabel ??
       (restRecord.title as string | undefined) ??
-      messages().sidebarFrame.label
+      messages().label
     )
   }
 

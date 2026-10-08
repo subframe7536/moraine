@@ -25,6 +25,7 @@ import {
 import { useComboboxSearch } from '../shared/select/search'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
 
+import { defaultComboboxMessages } from './combobox.messages'
 import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
 import type { ComboboxProps, ComboboxT } from './combobox.types'
 /** Single collection selection with an editable query input. */
@@ -37,7 +38,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages()
+  const messages = useMessages('combobox', defaultComboboxMessages)
   const styles = createStyles(comboboxRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -157,7 +158,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             {...state.field.ariaAttrs()}
             data-slot="combobox-input"
             {...styles.styles.input}
-            placeholder={(local.placeholder ?? messages().combobox.placeholder) || undefined}
+            placeholder={(local.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
               callRef(local.inputRef, element)
@@ -168,7 +169,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             <button
               type="button"
               data-slot="combobox-clear"
-              aria-label={messages().combobox.clear}
+              aria-label={messages().clear}
               tabIndex={0}
               {...styles.styles.clear}
               disabled={state.locked()}
@@ -189,7 +190,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             type="button"
             tabIndex={-1}
             data-slot="combobox-trigger"
-            aria-label={local.loading ? messages().combobox.loading : messages().combobox.toggle}
+            aria-label={local.loading ? messages().loading : messages().toggle}
             aria-controls={state.listboxId()}
             aria-expanded={state.open() ? 'true' : 'false'}
             aria-busy={local.loading ? 'true' : undefined}
@@ -223,7 +224,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           onExitComplete={() => search.setValue('')}
           slot={(slot) => styles.styles[slot]}
           emptyRender={() => (
-            <Show when={local.emptyRender !== undefined} fallback={messages().combobox.empty}>
+            <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
               {renderWithProps(local.emptyRender, {
                 get inputValue() {
                   return search.value()

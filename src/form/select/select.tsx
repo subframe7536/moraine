@@ -20,6 +20,7 @@ import {
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props'
 
+import { defaultSelectMessages } from './select.messages'
 import { selectDataAttributes, selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types'
 
@@ -33,7 +34,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages()
+  const messages = useMessages('select', defaultSelectMessages)
   const styles = createStyles(selectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
@@ -91,7 +92,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               {selectedItem()?.label ??
                 (hasValue()
                   ? String(state.value()[0])
-                  : (local.placeholder ?? messages().select.placeholder))}
+                  : (local.placeholder ?? messages().placeholder))}
             </span>
             <Icon
               slotName="select-trailing"
@@ -108,7 +109,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             <button
               type="button"
               data-slot="select-clear"
-              aria-label={messages().select.clear}
+              aria-label={messages().clear}
               tabIndex={0}
               {...styles.styles.clear}
               disabled={state.locked()}

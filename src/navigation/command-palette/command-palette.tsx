@@ -29,6 +29,7 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 
+import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
 
@@ -122,7 +123,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
-  const messages = useMessages()
+  const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
   const locale = useLocale()
   const direction = locale.dir
   const [local, rest] = splitProps(props, [
@@ -164,7 +165,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const merged = mergeProps(
     {
       get placeholder() {
-        return messages().commandPalette.placeholder
+        return messages().placeholder
       },
       autofocus: true,
       showClose: false,
@@ -684,7 +685,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             onClick={() => {
               merged.onClose?.()
             }}
-            aria-label={messages().commandPalette.close}
+            aria-label={messages().close}
           >
             <Icon name={merged.closeIcon} />
           </button>
@@ -699,10 +700,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? visibleGroups() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show
-                  when={merged.emptyRender !== undefined}
-                  fallback={messages().commandPalette.empty}
-                >
+                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
@@ -740,10 +738,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             items={hasItems() ? virtualEntries() : []}
             fallback={
               <div data-slot="command-palette-empty" {...resolved.styles.empty}>
-                <Show
-                  when={merged.emptyRender !== undefined}
-                  fallback={messages().commandPalette.empty}
-                >
+                <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>

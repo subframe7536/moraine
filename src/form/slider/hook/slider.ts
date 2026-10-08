@@ -12,6 +12,7 @@ import {
 import { useLocale, useMessages } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import type { Orientation } from '../../../theme/style-types'
+import { defaultSliderMessages } from '../slider.messages'
 import type { SliderT } from '../slider.types'
 import {
   clamp,
@@ -84,7 +85,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
   const providerDirection = useLocale().dir
-  const messages = useMessages()
+  const messages = useMessages('slider', defaultSliderMessages)
   const merged = mergeProps(
     {
       min: 0,
@@ -691,7 +692,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function getThumbValueText(index: number): string {
     const values = currentValues()
-    return messages().slider.valueText({
+    return messages().valueText({
       value: values[index] ?? merged.min,
       index,
       total: values.length,

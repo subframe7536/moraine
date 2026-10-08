@@ -9,6 +9,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import { createSlider } from './hook'
+import { defaultSliderMessages } from './slider.messages'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
 
@@ -44,7 +45,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
   ])
   const themeField = useFieldContext()
-  const messages = useMessages()
+  const messages = useMessages('slider', defaultSliderMessages)
   const resolved = createStyles(sliderRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -220,7 +221,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
             aria-valuetext={slider.getThumbValueText(thumbIndex)}
             aria-orientation={merged.orientation ?? undefined}
-            aria-label={messages().slider.thumb({
+            aria-label={messages().thumb({
               index: thumbIndex,
               total: slider.currentValues().length,
             })}

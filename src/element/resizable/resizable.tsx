@@ -38,6 +38,7 @@ import {
   useResizableHandle,
 } from './hook'
 import type { ResizablePanelItem, ResizableSize } from './hook'
+import { defaultResizableMessages } from './resizable.messages'
 import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
@@ -169,7 +170,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
   const cn = useCn()
-  const messages = useMessages()
+  const messages = useMessages('resizable', defaultResizableMessages)
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',
@@ -955,8 +956,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
                               | undefined) ??
                             (action() === 'collapse'
                               ? resolveNearestCollapsibleState(index).collapsed
-                                ? messages().resizable.expand
-                                : messages().resizable.collapse
+                                ? messages().expand
+                                : messages().collapse
                               : undefined)
                           }
                           onPointerDown={onGripPointerDown}

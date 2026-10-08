@@ -16,6 +16,7 @@ import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
 
 import { SheetContentProvider, useSheetConfig, useSheetContent } from './sheet-context'
+import { defaultSheetMessages } from './sheet.messages'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
@@ -50,7 +51,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     'style',
   ])
   const config = useSheetConfig()
-  const messages = useMessages()
+  const messages = useMessages('sheet', defaultSheetMessages)
   const direction = useLocale().dir
   const family = useModalContext()
   const merged = mergeProps(
@@ -115,7 +116,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                 <Show when={merged.close}>
                   <Modal.Close
                     data-slot="sheet-content-close"
-                    aria-label={messages().sheet.close}
+                    aria-label={messages().close}
                     {...resolved.styles.contentClose}
                   >
                     <Icon name={closeIcon()} />

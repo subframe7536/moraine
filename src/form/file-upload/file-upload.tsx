@@ -21,6 +21,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 import { useFormValue } from '../shared/use-form-value'
 
+import { defaultFileUploadMessages } from './file-upload.messages'
 import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
@@ -259,7 +260,7 @@ function constrainSingleFile(accepted: File[]): {
 export function FileUpload<Multiple extends boolean = false>(
   props: FileUploadProps<Multiple>,
 ): JSX.Element {
-  const messages = useMessages()
+  const messages = useMessages('fileUpload', defaultFileUploadMessages)
   const [local, rest] = splitProps(props, [
     'id',
     'name',
@@ -393,7 +394,7 @@ export function FileUpload<Multiple extends boolean = false>(
       if (label()) {
         attrs['aria-labelledby'] = labelId()
       } else {
-        attrs['aria-label'] = messages().fileUpload.label
+        attrs['aria-label'] = messages().label
       }
     }
     if (invalid()) {
@@ -512,7 +513,7 @@ export function FileUpload<Multiple extends boolean = false>(
     return (
       <button
         type="button"
-        aria-label={messages().fileUpload.remove({ name: props.file.name })}
+        aria-label={messages().remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
         {...resolved.styles.fileRemove}
         disabled={field.disabled() || readOnly()}
@@ -686,9 +687,7 @@ export function FileUpload<Multiple extends boolean = false>(
       {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={
-        field.ariaAttrs()['aria-labelledby'] || label() ? undefined : messages().fileUpload.label
-      }
+      aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : messages().label}
       aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({

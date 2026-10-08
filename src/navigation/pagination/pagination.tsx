@@ -11,6 +11,7 @@ import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.class'
 
+import { defaultPaginationMessages } from './pagination.messages'
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
 
@@ -102,7 +103,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(paginationRecipe, local)
-  const messages = useMessages()
+  const messages = useMessages('pagination', defaultPaginationMessages)
 
   const merged = mergeProps(
     {
@@ -185,19 +186,19 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
     const total = pageCount()
-    const pagination = messages().pagination
+    const pagination = messages()
     return isCurrent ? pagination.currentPage({ page, total }) : pagination.page({ page, total })
   }
 
   const getPrevLabel = (): string => {
     const current = currentPage()
-    return messages().pagination.prev({ page: current <= 1 ? undefined : current - 1 })
+    return messages().prev({ page: current <= 1 ? undefined : current - 1 })
   }
 
   const getNextLabel = (): string => {
     const current = currentPage()
     const total = pageCount()
-    return messages().pagination.next({ page: current >= total ? undefined : current + 1 })
+    return messages().next({ page: current >= total ? undefined : current + 1 })
   }
 
   return (
@@ -207,7 +208,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...resolved.styles.root}
       {...rest}
-      aria-label={rest['aria-label'] ?? messages().pagination.label}
+      aria-label={rest['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...resolved.styles.list}>
         <Show when={merged.showControls}>
@@ -317,7 +318,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         aria-atomic="true"
         class={VISUALLY_HIDDEN_CLASS}
       >
-        {messages().pagination.status({ page: currentPage(), total: pageCount() })}
+        {messages().status({ page: currentPage(), total: pageCount() })}
       </div>
     </nav>
   )

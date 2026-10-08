@@ -1,62 +1,51 @@
-import type { MoraineMessages, MoraineMessagesInput } from './messages.types'
+import type { MoraineMessagesInput } from './messages.types'
 
-const cache = new WeakMap<MoraineMessages, WeakMap<object, MoraineMessages>>()
-
-function mergeGroup<T extends object>(base: T, patch: Partial<T> | undefined): T {
-  if (!patch) {
-    return base
-  }
-  const result = { ...base }
-  for (const key of Object.keys(patch) as (keyof T)[]) {
-    if (patch[key] !== undefined) {
-      result[key] = patch[key]!
-    }
-  }
-  return Object.freeze(result)
-}
+const inputCache = new WeakMap<object, WeakMap<object, MoraineMessagesInput>>()
 
 /**
- * Deep-merges a partial pack over a resolved message object.
- * Caches merged results by base and input object identity (identity cache).
+ * Deep-merges two partial message packs across nested MoraineProviders.
+ * Caches merged results by parent and patch object identity.
  */
-export function mergeMessages(
-  base: MoraineMessages,
-  input: MoraineMessagesInput | undefined,
-): MoraineMessages {
-  if (input === undefined) {
-    return base
+export function mergeMessagesInput(
+  parent: MoraineMessagesInput | undefined,
+  patch: MoraineMessagesInput | undefined,
+): MoraineMessagesInput | undefined {
+  if (!parent) {
+    return patch
+  }
+  if (!patch) {
+    return parent
   }
 
-  let byInput = cache.get(base)
-  if (!byInput) {
-    byInput = new WeakMap()
-    cache.set(base, byInput)
+  let byParent = inputCache.get(parent)
+  if (!byParent) {
+    byParent = new WeakMap()
+    inputCache.set(parent, byParent)
   }
-  const cached = byInput.get(input)
+  const cached = byParent.get(patch)
   if (cached) {
     return cached
   }
 
-  const merged = {
-    dialog: mergeGroup(base.dialog, input.dialog),
-    sheet: mergeGroup(base.sheet, input.sheet),
-    breadcrumb: mergeGroup(base.breadcrumb, input.breadcrumb),
-    commandPalette: mergeGroup(base.commandPalette, input.commandPalette),
-    select: mergeGroup(base.select, input.select),
-    combobox: mergeGroup(base.combobox, input.combobox),
-    multiSelect: mergeGroup(base.multiSelect, input.multiSelect),
-    slider: mergeGroup(base.slider, input.slider),
-    pagination: mergeGroup(base.pagination, input.pagination),
-    inputNumber: mergeGroup(base.inputNumber, input.inputNumber),
-    fileUpload: mergeGroup(base.fileUpload, input.fileUpload),
-    tagsField: mergeGroup(base.tagsField, input.tagsField),
-    resizable: mergeGroup(base.resizable, input.resizable),
-    sidebarFrame: mergeGroup(base.sidebarFrame, input.sidebarFrame),
-    form: mergeGroup(base.form, input.form),
-    kbd: mergeGroup(base.kbd, input.kbd),
-  } satisfies MoraineMessages
+  const result: MoraineMessagesInput = { ...parent }
+  for (const key of Object.keys(patch) as (keyof MoraineMessagesInput)[]) {
+    const parentGroup = parent[key]
+    const patchGroup = patch[key]
+    if (parentGroup && patchGroup) {
+      const merged: Record<string, unknown> = { ...parentGroup }
+      for (const groupKey of Object.keys(patchGroup)) {
+        const val = (patchGroup as Record<string, unknown>)[groupKey]
+        if (val !== undefined) {
+          merged[groupKey] = val
+        }
+      }
+      result[key] = Object.freeze(merged) as never
+    } else if (patchGroup) {
+      result[key] = patchGroup as never
+    }
+  }
 
-  const frozen = Object.freeze(merged)
-  byInput.set(input, frozen)
+  const frozen = Object.freeze(result)
+  byParent.set(patch, frozen)
   return frozen
 }

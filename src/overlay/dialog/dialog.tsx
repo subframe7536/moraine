@@ -21,6 +21,7 @@ import {
   useDialogConfig,
   useDialogContent,
 } from './dialog-context'
+import { defaultDialogMessages } from './dialog.messages'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogProps, DialogT } from './dialog.types'
 
@@ -57,7 +58,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
     'style',
   ])
   const config = useDialogConfig()
-  const messages = useMessages()
+  const messages = useMessages('dialog', defaultDialogMessages)
   const direction = useLocale().dir
   const family = useModalContext()
   const merged = mergeProps(
@@ -121,7 +122,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                 <Show when={merged.close}>
                   <Modal.Close
                     data-slot="dialog-content-close"
-                    aria-label={messages().dialog.close}
+                    aria-label={messages().close}
                     {...resolved.styles.contentClose}
                   >
                     <Icon name={closeIcon()} />

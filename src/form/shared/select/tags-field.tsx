@@ -6,6 +6,8 @@ import type { IconT } from '../../../element/icon/index'
 import type { SlotBinding } from '../../../provider/create-styles'
 import { useMessages } from '../../../provider/locale/locale-context'
 
+import { defaultTagsFieldMessages } from './tags-field.messages'
+
 export interface TagsFieldEntry<TValue> {
   value: TValue
   label: JSX.Element
@@ -33,7 +35,7 @@ export interface TagsFieldOptions<TValue> {
 
 /** Shared tag presentation, removal, focus, and tokenization behavior. */
 export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
-  const messages = useMessages()
+  const messages = useMessages('tagsField', defaultTagsFieldMessages)
   const tags = createMemo(() => options.values().map(options.resolve))
   const visible = createMemo(() => {
     const max = options.maxVisible?.()
@@ -188,7 +190,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
         <button
           type="button"
           data-slot={options.slotName('tagRemove')}
-          aria-label={messages().tagsField.remove({ title: tagProps.tag.title })}
+          aria-label={messages().remove({ title: tagProps.tag.title })}
           tabIndex={-1}
           disabled={!tagProps.tag.removable}
           {...options.slot('tagRemove')}

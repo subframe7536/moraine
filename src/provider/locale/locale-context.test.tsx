@@ -4,7 +4,10 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { InputNumber } from '../../form/input-number/input-number'
 import { Pagination } from '../../navigation/pagination/pagination'
+import { defaultPaginationMessages } from '../../navigation/pagination/pagination.messages'
 import { Dialog } from '../../overlay/dialog/dialog'
+import { defaultDialogMessages } from '../../overlay/dialog/dialog.messages'
+import { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
 import { MoraineProvider } from '../moraine-provider'
 
 import { enMessages } from './en'
@@ -20,13 +23,14 @@ function controlValue(element: HTMLElement): string {
 
 function LocaleProbe() {
   const locale = useLocale()
-  const messages = useMessages()
+  const dialog = useMessages('dialog', defaultDialogMessages)
+  const sheet = useMessages('sheet', defaultSheetMessages)
   return (
     <i
       data-locale={locale.locale() ?? ''}
       data-dir={locale.dir() ?? ''}
-      data-close={messages().dialog.close}
-      data-sheet={messages().sheet.close}
+      data-close={dialog().close}
+      data-sheet={sheet().close}
     />
   )
 }
@@ -250,13 +254,14 @@ describe('Moraine locale', () => {
   test('nested providers merge and inherit locale state', () => {
     function NestedProbe() {
       const locale = useLocale()
-      const messages = useMessages()
+      const dialog = useMessages('dialog', defaultDialogMessages)
+      const pagination = useMessages('pagination', defaultPaginationMessages)
       return (
         <i
           data-locale={locale.locale() ?? ''}
           data-dir={locale.dir() ?? ''}
-          data-close={messages().dialog.close}
-          data-pagination={messages().pagination.label}
+          data-close={dialog().close}
+          data-pagination={pagination().label}
         />
       )
     }

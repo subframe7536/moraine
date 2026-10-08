@@ -27,6 +27,7 @@ import { useComboboxSearch } from '../shared/select/search'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
 import { createTagsField } from '../shared/select/tags-field'
 
+import { defaultMultiSelectMessages } from './multi-select.messages'
 import {
   MULTI_SELECT_PLACEHOLDER_CLASS,
   multiSelectDataAttributes,
@@ -44,7 +45,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages()
+  const messages = useMessages('multiSelect', defaultMultiSelectMessages)
   const locale = useLocale().locale
   const styles = createStyles(multiSelectRecipe, props, {
     rootSlot: 'control',
@@ -346,7 +347,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 fallback={
                   <span
                     data-slot="multi-select-tag-overflow"
-                    aria-label={messages().multiSelect.overflow({ count: tags.overflow() })}
+                    aria-label={messages().overflow({ count: tags.overflow() })}
                     {...styles.styles.tagOverflow}
                   >
                     +{tags.overflow()}
@@ -394,7 +395,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={0}
               data-slot="multi-select-clear"
-              aria-label={messages().multiSelect.clear}
+              aria-label={messages().clear}
               disabled={state.locked()}
               {...styles.styles.clear}
               onPointerDown={tags.isolatePointer}
@@ -429,7 +430,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                         .tags()
                         .map((tag) => tag.title)
                         .join(', ')
-                    : (local.placeholder ?? messages().multiSelect.placeholder)}
+                    : (local.placeholder ?? messages().placeholder)}
                 </span>
                 <Icon
                   name={
@@ -453,9 +454,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               type="button"
               tabIndex={-1}
               data-slot="multi-select-trigger"
-              aria-label={
-                local.loading ? messages().multiSelect.loading : messages().multiSelect.toggle
-              }
+              aria-label={local.loading ? messages().loading : messages().toggle}
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
@@ -505,11 +504,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <Show
               when={local.emptyRender !== undefined}
               fallback={
-                <Show
-                  when={local.createItem && search.value()}
-                  fallback={messages().multiSelect.empty}
-                >
-                  {(value) => messages().multiSelect.create({ value: value() })}
+                <Show when={local.createItem && search.value()} fallback={messages().empty}>
+                  {(value) => messages().create({ value: value() })}
                 </Show>
               }
             >

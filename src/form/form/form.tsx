@@ -12,6 +12,7 @@ import { FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form-reset-scheduler'
 
 import { useFormischFieldBinding } from './form-field-binding'
+import { defaultFormMessages } from './form.messages'
 import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
 import { createInvalidFocusManager } from './invalid-focus-manager'
@@ -35,7 +36,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'children',
   ])
   const resolved = createStyles(formRecipe, local)
-  const messages = useMessages()
+  const messages = useMessages('form', defaultFormMessages)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -77,7 +78,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
             'message' in error &&
             typeof error.message === 'string'
               ? error.message
-              : messages().form.unknownError,
+              : messages().unknownError,
           ]
         }
       } finally {

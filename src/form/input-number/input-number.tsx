@@ -30,6 +30,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { mergeFieldAriaAttributes } from '../shared/field-aria'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { defaultInputNumberMessages } from './input-number.messages'
 import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
 type ControlKind = 'increment' | 'decrement'
@@ -137,7 +138,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'style',
   ])
   const themeField = useFieldContext()
-  const messages = useMessages()
+  const messages = useMessages('inputNumber', defaultInputNumberMessages)
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
   const resolved = createStyles(inputNumberRecipe, local, {
@@ -713,7 +714,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       type: 'button',
       tabIndex: -1,
       get 'aria-label'() {
-        return isIncrement ? messages().inputNumber.increment : messages().inputNumber.decrement
+        return isIncrement ? messages().increment : messages().decrement
       },
       get 'aria-controls'() {
         return field.id()
