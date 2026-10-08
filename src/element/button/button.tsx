@@ -26,6 +26,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'as',
     'variant',
     'size',
+    'activeEffect',
     'classes',
     'styles',
     'class',
@@ -102,6 +103,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const binding = root.bind(interactionProps)
   const child = resolveChildren(() => local.children)
+  const customActiveEffectClass = () => {
+    const effect = local.activeEffect
+    if (typeof effect !== 'function') {
+      return
+    }
+    const el = root.element()
+    return el ? effect(el) : undefined
+  }
   const resolvedChildren = createMemo(() =>
     renderWithProps(child(), {
       get loading() {
@@ -124,7 +133,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       })}
       {...binding}
       component={tag()}
-      {...resolved.styles.root}
+      style={{ ...resolved.styles.root.style }}
+      class={cn(resolved.styles.root.class, customActiveEffectClass())}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (

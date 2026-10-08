@@ -72,6 +72,7 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element {
       {...toggleButtonDataAttributes.root({ selected: pressed })}
       variant={pressed() ? resolved.variants.activeVariant : resolved.variants.variant}
       size={resolved.variants.size}
+      activeEffect="none"
       classes={{
         get root() {
           return resolved.styles.root.class

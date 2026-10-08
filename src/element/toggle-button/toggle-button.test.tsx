@@ -48,6 +48,8 @@ describe('ToggleButton', () => {
     expect(button.getAttribute('aria-pressed')).toBe('false')
     expect(button.hasAttribute('data-selected')).toBe(false)
     expect(button.className).not.toContain('bg-secondary')
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true'])
     expect(button.getAttribute('aria-pressed')).toBe('true')

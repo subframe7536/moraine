@@ -10,6 +10,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
 
 export const BUTTON_LOADING_ICON_CLASS = 'opacity-80 cursor-wait animate-spin'
+export const BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:translate-y-px'
+export const BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:scale-98'
 
 export const buttonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'loading'),
@@ -19,7 +21,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
   'button',
   {
     base: {
-      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-destructive ring-3 ring-destructive/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS} [&:active:not([aria-haspopup])]:translate-y-px`,
+      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-destructive ring-3 ring-destructive/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`,
       leading: '',
       label: 'min-w-0 truncate',
       trailing: '',
@@ -27,8 +29,14 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
     defaultVariants: {
       size: 'md',
       variant: 'default',
+      activeEffect: 'move-down',
     },
     variants: {
+      activeEffect: {
+        none: { root: '' },
+        'move-down': { root: BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS },
+        'zoom-in': { root: BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS },
+      },
       variant: {
         default: {
           root: 'text-primary-foreground border-transparent bg-primary active:bg-primary-active hover:bg-primary-hover',

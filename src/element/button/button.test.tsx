@@ -186,6 +186,62 @@ describe('Button', () => {
     expect(button.className).toContain('hover:bg-primary-hover')
     expect(button.className).toContain('active:bg-primary-active')
     expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-98')
+  })
+
+  test.each([
+    [
+      'none',
+      [] as const,
+      [
+        '[&:active:not([aria-haspopup])]:translate-y-px',
+        '[&:active:not([aria-haspopup])]:scale-98',
+      ] as const,
+    ],
+    [
+      'move-down',
+      ['[&:active:not([aria-haspopup])]:translate-y-px'] as const,
+      ['[&:active:not([aria-haspopup])]:scale-98'] as const,
+    ],
+    [
+      'zoom-in',
+      ['[&:active:not([aria-haspopup])]:scale-98'] as const,
+      ['[&:active:not([aria-haspopup])]:translate-y-px'] as const,
+    ],
+  ] as const)('applies the %s active effect', (activeEffect, present, absent) => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Button activeEffect={activeEffect}>Press</Button>
+      </MoraineProvider>
+    ))
+    const button = screen.getByRole('button', { name: 'Press' })
+
+    for (const className of present) {
+      expect(button.className).toContain(className)
+    }
+    for (const className of absent) {
+      expect(button.className).not.toContain(className)
+    }
+  })
+
+  test('applies a custom active effect class from the rendered element', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Button
+          aria-haspopup="menu"
+          activeEffect={(element) =>
+            element.hasAttribute('aria-haspopup') ? 'custom-popup-active' : 'custom-press-active'
+          }
+        >
+          Custom
+        </Button>
+      </MoraineProvider>
+    ))
+    const button = screen.getByRole('button', { name: 'Custom' })
+
+    expect(button.className).toContain('custom-popup-active')
+    expect(button.className).not.toContain('custom-press-active')
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
   })
 
   test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const)(

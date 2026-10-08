@@ -21,7 +21,7 @@ const acceptButton = (element: HTMLButtonElement) => element.focus()
 
 // In simpleRootAttributes mode:
 // Component props (variant, size, etc.) and ref are typed:
-;<Button variant="ghost" size="sm" ref={acceptButton} />
+;<Button variant="ghost" size="sm" activeEffect="none" ref={acceptButton} />
 ;<Badge ref={acceptSpan} />
 
 // Root attributes accept any property via Record<string, unknown>:

@@ -56,6 +56,17 @@ export function Example() {
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'activeEffect',
+      label: 'Active effect',
+      defaultValue: 'move-down',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Move down', value: 'move-down' },
+        { label: 'Zoom in', value: 'zoom-in' },
+      ],
+    },
   ]}
 >
   {(props) => {
@@ -65,6 +76,7 @@ export function Example() {
         size={props.size}
         disabled={props.disabled}
         loading={props.loading}
+        activeEffect={props.activeEffect}
         leading="i-lucide:rocket"
         trailing="icon-arrow-right"
       >
@@ -87,6 +99,10 @@ export function Example() {
 />
 
 ## Usage
+
+### Press motion
+
+`activeEffect` controls the press motion. The default `move-down` shifts the button down by one pixel. `zoom-in` scales it down slightly. Both skip the motion when the button has `aria-haspopup`, so overlay triggers stay still. Use `none` to disable the motion, or pass a function that returns a class string from the rendered element.
 
 ### Loading
 

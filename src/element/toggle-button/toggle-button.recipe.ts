@@ -13,5 +13,9 @@ export const toggleButtonRecipe = /* @__PURE__ */ defineRecipe<
   ToggleButtonStyleVariant
 >('toggleButton', {
   base: { root: '', leading: '', label: '', trailing: '' },
-  defaultVariants: { variant: 'ghost', activeVariant: 'secondary', size: 'md' },
+  defaultVariants: {
+    variant: 'ghost',
+    activeVariant: 'secondary',
+    size: 'md',
+  },
 })

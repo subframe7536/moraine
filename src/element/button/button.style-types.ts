@@ -35,6 +35,13 @@ export interface ButtonStyleVariant {
     | 'icon-md'
     | 'icon-lg'
     | 'icon-xl'
+  /**
+   * Press motion while the button is active.
+   * `'move-down'` and `'zoom-in'` skip the motion when the root has `aria-haspopup`.
+   * Pass a function to return a class string from the rendered element.
+   * @default 'move-down'
+   */
+  activeEffect?: 'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)
 }
 
 export type ButtonStyleConfig = ComponentStyleConfig<ButtonStyleSlot, ButtonStyleVariant>

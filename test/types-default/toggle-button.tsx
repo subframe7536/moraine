@@ -6,6 +6,7 @@ const variants: ToggleButtonT.Variant = {
   variant: 'outline',
   activeVariant: 'default',
   size: 'icon-sm',
+  activeEffect: 'none',
 }
 ;<ToggleButton {...variants} pressed onPressedChange={(pressed: boolean) => void pressed}>
   {(state) => (
@@ -14,7 +15,13 @@ const variants: ToggleButtonT.Variant = {
     </span>
   )}
 </ToggleButton>
-defineTheme({ toggleButton: { defaultVariants: { variant: 'ghost', activeVariant: 'secondary' } } })
+defineTheme({
+  toggleButton: {
+    defaultVariants: { variant: 'ghost', activeVariant: 'secondary', activeEffect: 'none' },
+  },
+})
+// @ts-expect-error Only named press effects and class factories are supported.
+;<ToggleButton activeEffect="bounce" />
 // @ts-expect-error ToggleButton always renders a native button.
 ;<ToggleButton as="a" />
 // @ts-expect-error ToggleButton cannot submit forms.
