@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import { children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider/create-styles'
@@ -35,9 +35,8 @@ export function BaseSelectTrigger<
     inheritedStyles: () => state.stylePresentation,
     inheritedVariants: () => ({ size: state.styleSize }),
   })
-  const resolvedChildren = resolveChildren(() =>
-    renderWithProps(local.children, state.presentation),
-  )
+  const child = resolveChildren(() => local.children)
+  const resolvedChildren = createMemo(() => renderWithProps(child(), state.presentation))
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,

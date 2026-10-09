@@ -304,4 +304,30 @@ describe('Field', () => {
     lightControl.remove()
     frame.remove()
   })
+
+  test('updates conditional children and render props', () => {
+    const [visible, setVisible] = createSignal(true)
+    const [error, setError] = createSignal<string | undefined>('Missing')
+    const screen = render(() => (
+      <>
+        <Field label="Conditional">
+          <Show when={visible()}>
+            <span>Visible</span>
+          </Show>
+        </Field>
+        <Field label="Rendered" error={error()}>
+          {(state) => <span data-testid="rendered-error">{state.error}</span>}
+        </Field>
+      </>
+    ))
+
+    expect(screen.getByText('Visible')).toBeTruthy()
+    expect(screen.getByTestId('rendered-error').textContent).toBe('Missing')
+
+    setVisible(false)
+    setError('Updated')
+
+    expect(screen.queryByText('Visible')).toBeNull()
+    expect(screen.getByTestId('rendered-error').textContent).toBe('Updated')
+  })
 })

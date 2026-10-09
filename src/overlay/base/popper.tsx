@@ -516,8 +516,9 @@ export function PopperContent(
   return (
     <Show when={contentMounted()}>
       {(_present) => {
-        const content = resolveChildren(() =>
-          renderWithProps(props.children, {
+        const child = resolveChildren(() => props.children as JSX.Element)
+        const content = createMemo(() =>
+          renderWithProps(child(), {
             close: () => context.setOpen(false),
             contentProps,
             currentPlacement,

@@ -301,6 +301,47 @@ describe('Modal primitives', () => {
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Lazy content')
   })
 
+  test('updates conditional content after opening', () => {
+    const [visible, setVisible] = createSignal(true)
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content>
+            <Show when={visible()}>
+              <span>Visible content</span>
+            </Show>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    expect(document.body.textContent).toContain('Visible content')
+    setVisible(false)
+    expect(document.body.textContent).not.toContain('Visible content')
+  })
+
+  test('closes from a content render prop', () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Modal defaultOpen onOpenChange={onOpenChange}>
+        <Modal.Portal>
+          <Modal.Content>
+            {(state) => (
+              <button type="button" onClick={() => state.close()}>
+                Dismiss
+              </button>
+            )}
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const dismiss = document.body.querySelector('button')!
+    expect(dismiss.textContent).toBe('Dismiss')
+    fireEvent.click(dismiss)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
   test('releases closed content and creates a fresh instance when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0

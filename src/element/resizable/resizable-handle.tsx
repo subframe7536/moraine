@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, splitProps } from 'solid-js'
+import { children as resolveChildren, splitProps } from 'solid-js'
 
 import type { ResizableT } from './resizable.types'
 
@@ -22,7 +22,7 @@ export function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
     'onClick',
     'aria-label',
   ])
-  const content = createMemo(() => local.children)
+  const content = resolveChildren(() => local.children as JSX.Element)
 
   return {
     kind: RESIZABLE_HANDLE_PART,

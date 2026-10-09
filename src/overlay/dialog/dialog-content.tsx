@@ -80,7 +80,7 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
           }
           ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
         >
-          {() => {
+          {(_props) => {
             const contentShorthand = createShorthandContent(local)
             const explicitChildren = createLazyMemo(() => untrack(() => local.children))
             const closeIcon = createLazyMemo(() => merged.closeIcon)
