@@ -54,6 +54,34 @@ import { Accordion } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'item',
+        children: [
+          {
+            slot: 'header',
+            children: [
+              {
+                slot: 'trigger',
+                children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+              },
+            ],
+          },
+          {
+            slot: 'content',
+            children: [{ slot: 'body' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Accordion for several related disclosures that share one open-item policy. For a single independent
@@ -101,34 +129,6 @@ fields must preserve local state.
 | <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
 | <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
 | <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'item',
-        children: [
-          {
-            slot: 'header',
-            children: [
-              {
-                slot: 'trigger',
-                children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-              },
-            ],
-          },
-          {
-            slot: 'content',
-            children: [{ slot: 'body' }],
-          },
-        ],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

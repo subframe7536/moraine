@@ -45,6 +45,15 @@ import { Badge } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
+
 ## Usage
 
 Use Badge for compact status or metadata beside content. It is presentational by default. An action
@@ -80,15 +89,6 @@ For a clickable badge, set `as` to a semantic element and pass that element's re
   Needs review
 </Badge>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-  }}
-/>
 
 ## Examples
 

@@ -98,6 +98,55 @@ import { Combobox } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        slot: 'control',
+        children: [{ slot: 'leading' }, { slot: 'input' }, { slot: 'clear' }, { slot: 'trigger' }],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            slot: 'content',
+            children: [
+              {
+                slot: 'listbox',
+                children: [
+                  {
+                    slot: 'group',
+                    children: [{ slot: 'groupLabel' }],
+                  },
+                  {
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      {
+                        slot: 'itemWrapper',
+                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                      },
+                      { slot: 'itemIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'empty' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Combobox renders the portaled popup collection internally; its content and item names are style slots, rather than attached child parts.
+
 ## Usage
 
 Use Combobox when users should type to find one item in a collection. Use [Select](/components/select)
@@ -195,55 +244,6 @@ keyboard navigation.
   scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
 />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        slot: 'control',
-        children: [{ slot: 'leading' }, { slot: 'input' }, { slot: 'clear' }, { slot: 'trigger' }],
-      },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            slot: 'content',
-            children: [
-              {
-                slot: 'listbox',
-                children: [
-                  {
-                    slot: 'group',
-                    children: [{ slot: 'groupLabel' }],
-                  },
-                  {
-                    slot: 'item',
-                    children: [
-                      { slot: 'itemLeading' },
-                      {
-                        slot: 'itemWrapper',
-                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                      },
-                      { slot: 'itemIndicator' },
-                    ],
-                  },
-                ],
-              },
-              { slot: 'empty' },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Combobox renders the portaled popup collection internally; its content and item names are style slots, rather than attached child parts.
 
 ## Examples
 

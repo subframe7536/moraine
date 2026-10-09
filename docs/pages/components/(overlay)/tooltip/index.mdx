@@ -54,6 +54,39 @@ import { Button, Tooltip } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Tooltip.Trigger',
+        slot: 'trigger',
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'Tooltip.Content',
+            slot: 'content',
+            children: [
+              {
+                slot: 'kbds',
+                children: [{ internal: 'item' }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled inside an internal positioning wrapper. String content uses the text slot; JSX content renders directly inside Content.
+
 ## Usage
 
 Use Tooltip for supplemental information on hover or focus. Use [Popover](/components/popover) when
@@ -105,39 +138,6 @@ or `invert`. When omitted, keycaps follow the content's `invert` setting.
 Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to
 the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the
 tooltip content.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Tooltip.Trigger',
-        slot: 'trigger',
-      },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            part: 'Tooltip.Content',
-            slot: 'content',
-            children: [
-              {
-                slot: 'kbds',
-                children: [{ internal: 'item' }],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled inside an internal positioning wrapper. String content uses the text slot; JSX content renders directly inside Content.
 
 ## Examples
 

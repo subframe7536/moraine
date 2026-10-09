@@ -80,6 +80,59 @@ import { ContextMenu } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'ContextMenu.Trigger',
+        slot: 'trigger',
+      },
+      { slot: 'overlay' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'ContextMenu.Content',
+            slot: 'content',
+            children: [
+              {
+                slot: 'group',
+                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
+              },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  {
+                    slot: 'itemTrailing',
+                    children: [
+                      { slot: 'itemKbds' },
+                      { slot: 'itemIndicator' },
+                      { slot: 'itemSubIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled; grouped items use the same item subtree as ungrouped items.
+
 ## Usage
 
 Use ContextMenu for actions tied to a specific surface or item at the pointer location. Use
@@ -159,59 +212,6 @@ and update it through item callbacks.
 | <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                 |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                           |
 | <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'ContextMenu.Trigger',
-        slot: 'trigger',
-      },
-      { slot: 'overlay' },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            part: 'ContextMenu.Content',
-            slot: 'content',
-            children: [
-              {
-                slot: 'group',
-                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
-              },
-              {
-                slot: 'item',
-                children: [
-                  { slot: 'itemLeading' },
-                  {
-                    slot: 'itemWrapper',
-                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                  },
-                  {
-                    slot: 'itemTrailing',
-                    children: [
-                      { slot: 'itemKbds' },
-                      { slot: 'itemIndicator' },
-                      { slot: 'itemSubIndicator' },
-                    ],
-                  },
-                ],
-              },
-              { slot: 'separator' },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Examples
 

@@ -43,6 +43,30 @@ import { Switch } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { internal: 'input' },
+      {
+        slot: 'track',
+        children: [
+          {
+            slot: 'thumb',
+            children: [{ slot: 'icon' }],
+          },
+        ],
+      },
+      {
+        slot: 'wrapper',
+        children: [{ slot: 'label' }, { slot: 'description' }],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Switch for an on/off setting whose state is immediately meaningful. For an independent form
@@ -89,30 +113,6 @@ pending.
   label="Auto-deploy changes"
 />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      { internal: 'input' },
-      {
-        slot: 'track',
-        children: [
-          {
-            slot: 'thumb',
-            children: [{ slot: 'icon' }],
-          },
-        ],
-      },
-      {
-        slot: 'wrapper',
-        children: [{ slot: 'label' }, { slot: 'description' }],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

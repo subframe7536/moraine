@@ -47,6 +47,20 @@ import { KbdGroup } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'kbd',
+    },
+    children: [{ slot: 'item' }],
+  }}
+/>
+
+Separator content is inline and is not a theme slot.
+
 ## Usage
 
 Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the
@@ -80,20 +94,6 @@ is unrelated to the standalone layout [Separator](/components/separator).
 <KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
 <KbdGroup items={['Ctrl', 'K']} separator={() => <span class="text-muted-foreground">then</span>} />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'kbd',
-    },
-    children: [{ slot: 'item' }],
-  }}
-/>
-
-Separator content is inline and is not a theme slot.
 
 ## Examples
 

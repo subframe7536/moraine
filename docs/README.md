@@ -40,7 +40,7 @@ All pages have validated frontmatter with `title`, `description`, `sidebar.order
 A component page uses this order:
 
 ```text
-PageHeader → Playground → Usage → Anatomy? → Examples → generated API Reference (Attributes, Props)
+PageHeader → Playground → Anatomy? → Usage → Examples → generated API Reference (Attributes, Props)
 ```
 
 Playground has no heading. Playground controls show only visually meaningful primitive states.

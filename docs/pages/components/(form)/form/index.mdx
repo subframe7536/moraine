@@ -266,6 +266,20 @@ help, and error slots, use the [Field playground](/components/field).
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'form',
+    },
+    children: [{ part: 'form.Field' }],
+  }}
+/>
+
+Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
+
 ## Usage
 
 Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
@@ -383,20 +397,6 @@ Handle `onReset` on `form.Form` when the page needs to react to that restore.
   </Button>
 </form.Form>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'form',
-    },
-    children: [{ part: 'form.Field' }],
-  }}
-/>
-
-Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
 
 ## Examples
 

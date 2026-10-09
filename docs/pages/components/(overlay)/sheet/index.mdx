@@ -66,6 +66,55 @@ import { Button, Field, Input, Sheet } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Sheet.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Sheet.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Sheet.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Sheet.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Sheet.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Sheet.Description',
+                slot: 'description',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Sheet.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Sheet.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
+
 ## Usage
 
 Use Sheet for a focused drawer from a viewport edge, such as mobile navigation or an inspector. Use
@@ -193,55 +242,6 @@ attempts.
 | <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.     |
 | <kbd>Tab</kbd>         | Moves focus forward; modal sheets contain focus.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward; modal sheets contain focus. |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Sheet.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Sheet.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Sheet.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Sheet.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Sheet.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Sheet.Description',
-                slot: 'description',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Sheet.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Sheet.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
 
 ## Examples
 

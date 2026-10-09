@@ -83,6 +83,73 @@ import { For, Show } from 'solid-js'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'BaseSelect.Control',
+        slot: 'control',
+        children: [
+          {
+            part: 'BaseSelect.Trigger',
+            slot: 'trigger',
+          },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'BaseSelect.Content',
+            slot: 'content',
+            children: [
+              {
+                part: 'BaseSelect.Listbox',
+                slot: 'listbox',
+                children: [
+                  {
+                    part: 'BaseSelect.Group',
+                    slot: 'group',
+                    children: [
+                      {
+                        part: 'BaseSelect.GroupLabel',
+                        slot: 'groupLabel',
+                      },
+                      {
+                        part: 'BaseSelect.Item',
+                        slot: 'item',
+                      },
+                    ],
+                  },
+                  {
+                    part: 'BaseSelect.Item',
+                    slot: 'item',
+                  },
+                  {
+                    part: 'BaseSelect.Separator',
+                    slot: 'separator',
+                  },
+                ],
+              },
+              {
+                part: 'BaseSelect.Empty',
+                slot: 'empty',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Control is an optional layout container and floating anchor; without it, Content uses the registered focus owner as its anchor.
+
 ## Usage
 
 Use BaseSelect to build a custom selection control from a trigger and listbox parts. It manages
@@ -152,73 +219,6 @@ when an item is filtered out.
 BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
 and direct `class` or `style` on the part that renders the element. See [Customization](/docs/customization)
 and [Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'BaseSelect.Control',
-        slot: 'control',
-        children: [
-          {
-            part: 'BaseSelect.Trigger',
-            slot: 'trigger',
-          },
-        ],
-      },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            part: 'BaseSelect.Content',
-            slot: 'content',
-            children: [
-              {
-                part: 'BaseSelect.Listbox',
-                slot: 'listbox',
-                children: [
-                  {
-                    part: 'BaseSelect.Group',
-                    slot: 'group',
-                    children: [
-                      {
-                        part: 'BaseSelect.GroupLabel',
-                        slot: 'groupLabel',
-                      },
-                      {
-                        part: 'BaseSelect.Item',
-                        slot: 'item',
-                      },
-                    ],
-                  },
-                  {
-                    part: 'BaseSelect.Item',
-                    slot: 'item',
-                  },
-                  {
-                    part: 'BaseSelect.Separator',
-                    slot: 'separator',
-                  },
-                ],
-              },
-              {
-                part: 'BaseSelect.Empty',
-                slot: 'empty',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Control is an optional layout container and floating anchor; without it, Content uses the registered focus owner as its anchor.
 
 ## Examples
 

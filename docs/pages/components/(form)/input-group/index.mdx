@@ -62,6 +62,27 @@ import { Icon, Input, InputGroup } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'InputGroup.Leading',
+        slot: 'leading',
+      },
+      {
+        part: 'InputGroup.Trailing',
+        slot: 'trailing',
+      },
+      { internal: 'frame' },
+    ],
+  }}
+/>
+
+Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
+
 ## Usage
 
 Use InputGroup when an editable control and its addons should share one visual boundary. The inner
@@ -131,27 +152,6 @@ each part's `class` and `style` override it.
 Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on
 the control. InputGroup does not register a form field. Clicking non-interactive group space
 focuses the native control; buttons and links retain their own focus behavior.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'InputGroup.Leading',
-        slot: 'leading',
-      },
-      {
-        part: 'InputGroup.Trailing',
-        slot: 'trailing',
-      },
-      { internal: 'frame' },
-    ],
-  }}
-/>
-
-Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
 
 ## Examples
 

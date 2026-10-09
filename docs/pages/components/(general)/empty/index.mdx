@@ -53,6 +53,20 @@ import { Button, Empty, Icon } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { part: 'Empty.Media', slot: 'media' },
+      { part: 'Empty.Title', slot: 'title' },
+      { part: 'Empty.Description', slot: 'description' },
+      { part: 'Empty.Actions', slot: 'actions' },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Empty when a collection or search result is genuinely empty and the next action should be
@@ -104,20 +118,6 @@ more space around media and actions. Size does not resize the content placed ins
   <Empty.Title>No rows</Empty.Title>
 </Empty>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      { part: 'Empty.Media', slot: 'media' },
-      { part: 'Empty.Title', slot: 'title' },
-      { part: 'Empty.Description', slot: 'description' },
-      { part: 'Empty.Actions', slot: 'actions' },
-    ],
-  }}
-/>
 
 ## Examples
 

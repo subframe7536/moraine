@@ -92,6 +92,46 @@ import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'inputWrapper',
+        children: [{ slot: 'inputLeading' }, { slot: 'input' }, { slot: 'close' }],
+      },
+      {
+        slot: 'listbox',
+        children: [
+          {
+            slot: 'group',
+            children: [
+              { slot: 'groupLabel' },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  { slot: 'itemTrailing' },
+                ],
+              },
+            ],
+          },
+          { slot: 'empty' },
+        ],
+      },
+      { slot: 'footer' },
+    ],
+  }}
+/>
+
+Group labels and items may be flattened into sibling rows when virtualized. Trailing descriptions render inside itemLabel.
+
 ## Usage
 
 Use CommandPalette for searchable commands or navigation targets on an inline surface. The
@@ -152,46 +192,6 @@ the branch stays open.
 | <kbd>Enter</kbd>                 | Activates the current command.                                         |
 | <kbd>Escape</kbd>                | Clears the current query or requests close according to current state. |
 | <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available command.                          |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'inputWrapper',
-        children: [{ slot: 'inputLeading' }, { slot: 'input' }, { slot: 'close' }],
-      },
-      {
-        slot: 'listbox',
-        children: [
-          {
-            slot: 'group',
-            children: [
-              { slot: 'groupLabel' },
-              {
-                slot: 'item',
-                children: [
-                  { slot: 'itemLeading' },
-                  {
-                    slot: 'itemWrapper',
-                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                  },
-                  { slot: 'itemTrailing' },
-                ],
-              },
-            ],
-          },
-          { slot: 'empty' },
-        ],
-      },
-      { slot: 'footer' },
-    ],
-  }}
-/>
-
-Group labels and items may be flattened into sibling rows when virtualized. Trailing descriptions render inside itemLabel.
 
 ## Examples
 

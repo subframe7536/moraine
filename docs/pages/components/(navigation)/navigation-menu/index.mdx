@@ -173,6 +173,38 @@ import { Icon, NavigationMenu } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'NavigationMenu.List',
+        slot: 'list',
+        children: [
+          {
+            part: 'NavigationMenu.Item',
+            slot: 'item',
+            children: [
+              {
+                part: 'NavigationMenu.Trigger',
+                slot: 'trigger',
+                children: [{ slot: 'triggerIcon' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        part: 'NavigationMenu.Content',
+        slot: 'content',
+        children: [{ part: 'NavigationMenu.Link', slot: 'link' }],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use NavigationMenu for website destinations, with direct links and expandable link panels. Use
@@ -285,38 +317,6 @@ object style, and ref to the anchor.
 Arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger. ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
 
 Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'NavigationMenu.List',
-        slot: 'list',
-        children: [
-          {
-            part: 'NavigationMenu.Item',
-            slot: 'item',
-            children: [
-              {
-                part: 'NavigationMenu.Trigger',
-                slot: 'trigger',
-                children: [{ slot: 'triggerIcon' }],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        part: 'NavigationMenu.Content',
-        slot: 'content',
-        children: [{ part: 'NavigationMenu.Link', slot: 'link' }],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

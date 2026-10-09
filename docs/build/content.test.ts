@@ -1,8 +1,9 @@
 // @vitest-environment node
 
-import { spawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFile } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { promisify } from 'node:util'
 
 import path from 'pathe'
 import { expect, test } from 'vitest'
@@ -12,8 +13,11 @@ import { loadComponentApiDoc } from './api-doc/load.ts'
 import { collectMarkdownFiles } from './core/paths.ts'
 import { resolvePreviewFile } from './markdown/previews.ts'
 
+const execFileAsync = promisify(execFile)
+
 const PAGES_ROOT = path.resolve(__dirname, '../pages/components')
 const PROJECT_ROOT = path.resolve(__dirname, '../..')
+const CACHE_DIR = path.resolve(__dirname, '../node_modules/.cache/moraine/usage-check')
 const ALLOWED_HEADINGS = new Set(['Usage', 'Anatomy', 'Examples'])
 
 function componentPages(): string[] {
@@ -46,48 +50,109 @@ function usageExample(source: string): string | undefined {
   return beforeSubsection.match(/```tsx\n([\s\S]*?)\n```/)?.[1]
 }
 
-test('copyable Usage examples compile against the public component API', () => {
-  const directory = mkdtempSync(path.join(PROJECT_ROOT, 'docs/.content-check-'))
-  try {
-    const examples: string[] = []
-    for (const page of componentPages()) {
-      const source = readFileSync(page, 'utf8')
-      const basic = usageExample(source)
-      expect(basic, `${page}: missing Usage example`).toBeTruthy()
-      const fileName = `${path.basename(path.dirname(page))}.tsx`
-      writeFileSync(path.join(directory, fileName), basic!)
-      examples.push(fileName)
-    }
-    expect(examples.length).toBeGreaterThan(0)
-    const config = path.join(directory, 'tsconfig.json')
-    writeFileSync(
-      config,
-      JSON.stringify({
-        extends: path.join(PROJECT_ROOT, 'tsconfig.json'),
-        compilerOptions: {
-          paths: {
-            moraine: [path.join(PROJECT_ROOT, 'src/index.ts')],
-            'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
-          },
-        },
-        files: examples,
-        include: [],
-        exclude: [],
-      }),
-    )
-    const require = createRequire(import.meta.url)
-    const compiler = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin/tsc')
-    // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
-    const result = spawnSync(process.execPath, [compiler, '-p', config, '--pretty', 'false'], {
-      encoding: 'utf8',
-      timeout: 20_000,
-      stdio: 'pipe',
-    })
-    expect(result.status, result.stdout + result.stderr).toBe(0)
-  } finally {
-    rmSync(directory, { recursive: true, force: true })
+interface UsageSnippet {
+  fileName: string
+  page: string
+  code: string
+  startLine: number
+}
+
+function extractUsageSnippet(page: string, source: string): UsageSnippet | undefined {
+  const code = usageExample(source)
+  if (!code) {
+    return undefined
   }
-}, 25_000)
+  const usage = usageSection(source)!
+  const usageIndex = source.indexOf(usage)
+  const fenceOffset = source.slice(usageIndex).indexOf('```tsx\n')
+  const startLine = source.slice(0, usageIndex + fenceOffset + '```tsx\n'.length).split('\n').length
+
+  return {
+    fileName: `${path.basename(path.dirname(page))}.tsx`,
+    page,
+    code,
+    startLine,
+  }
+}
+
+test('copyable Usage examples compile against the public component API', async () => {
+  mkdirSync(CACHE_DIR, { recursive: true })
+
+  const snippets = new Map<string, UsageSnippet>()
+  const validFiles = new Set<string>(['tsconfig.json', '.tsbuildinfo'])
+
+  for (const page of componentPages()) {
+    const source = readFileSync(page, 'utf8')
+    const snippet = extractUsageSnippet(page, source)
+    expect(snippet, `${page}: missing Usage example`).toBeTruthy()
+
+    const targetFile = path.join(CACHE_DIR, snippet!.fileName)
+    if (!existsSync(targetFile) || readFileSync(targetFile, 'utf8') !== snippet!.code) {
+      writeFileSync(targetFile, snippet!.code)
+    }
+
+    snippets.set(snippet!.fileName, snippet!)
+    validFiles.add(snippet!.fileName)
+  }
+
+  expect(snippets.size).toBeGreaterThan(0)
+
+  for (const file of readdirSync(CACHE_DIR)) {
+    if (!validFiles.has(file)) {
+      rmSync(path.join(CACHE_DIR, file), { force: true })
+    }
+  }
+
+  const configPath = path.join(CACHE_DIR, 'tsconfig.json')
+  const configContent = JSON.stringify({
+    extends: path.join(PROJECT_ROOT, 'tsconfig.json'),
+    compilerOptions: {
+      incremental: true,
+      tsBuildInfoFile: path.join(CACHE_DIR, '.tsbuildinfo'),
+      assumeChangesOnlyAffectDirectDependencies: true,
+      paths: {
+        moraine: [path.join(PROJECT_ROOT, 'src/index.ts')],
+        'moraine/*': [path.join(PROJECT_ROOT, 'src/*')],
+      },
+    },
+    files: Array.from(snippets.keys()),
+    include: [],
+    exclude: [],
+  })
+
+  if (!existsSync(configPath) || readFileSync(configPath, 'utf8') !== configContent) {
+    writeFileSync(configPath, configContent)
+  }
+
+  const require = createRequire(import.meta.url)
+  const compiler = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin/tsc')
+
+  try {
+    // Fence code is displayed to readers, so the MDX build alone cannot typecheck it.
+    await execFileAsync(process.execPath, [compiler, '-p', configPath, '--pretty', 'false'], {
+      encoding: 'utf8',
+      timeout: 25_000,
+    })
+  } catch (error: unknown) {
+    const execError = error as { stdout?: string; stderr?: string; message?: string }
+    const rawOutput =
+      (execError.stdout ?? '') + (execError.stderr ?? '') || execError.message || String(error)
+
+    const remapped = rawOutput.replace(
+      /(?:[\\/][^()]+[\\/])?([a-zA-Z0-9_-]+\.tsx)\((\d+),(\d+)\):/g,
+      (match, fileName, line, col) => {
+        const snippet = snippets.get(fileName)
+        if (!snippet) {
+          return match
+        }
+        const mdxLine = snippet.startLine + Number.parseInt(line, 10) - 1
+        return `${path.relative(PROJECT_ROOT, snippet.page)}:${mdxLine}:${col}:`
+      },
+    )
+
+    expect.fail(`Usage examples failed compilation:\n${remapped}`)
+  }
+}, 30_000)
 
 test('component pages follow the shared content and anatomy contract', async () => {
   const failures: string[] = []
@@ -104,7 +169,7 @@ test('component pages follow the shared content and anatomy contract', async () 
     if (!labels.includes('Examples')) {
       failures.push(`${name}: missing Examples`)
     }
-    const ordered = ['Usage', 'Anatomy', 'Examples'].filter((section) => labels.includes(section))
+    const ordered = ['Anatomy', 'Usage', 'Examples'].filter((section) => labels.includes(section))
     if (
       ordered.some((section, index) => {
         const previous = ordered[index - 1]
@@ -121,11 +186,13 @@ test('component pages follow the shared content and anatomy contract', async () 
       }
     }
     const playgroundIndex = source.indexOf('<Playground')
+    const anatomyIndex = source.search(/^## Anatomy$/m)
     const usageIndex = source.search(/^## Usage$/m)
+    const firstSectionIndex = anatomyIndex >= 0 ? anatomyIndex : usageIndex
     if (playgroundIndex < 0) {
       failures.push(`${name}: missing Playground`)
-    } else if (usageIndex >= 0 && playgroundIndex > usageIndex) {
-      failures.push(`${name}: Playground follows Usage`)
+    } else if (firstSectionIndex >= 0 && playgroundIndex > firstSectionIndex) {
+      failures.push(`${name}: Playground follows ${anatomyIndex >= 0 ? 'Anatomy' : 'Usage'}`)
     }
     const usage = usageSection(source)
     if (usage?.includes('<Preview')) {

@@ -54,6 +54,32 @@ Enter an invalid email and leave the input to show the error and enable its slot
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'wrapper',
+        children: [
+          {
+            slot: 'labelWrapper',
+            children: [{ slot: 'label' }, { slot: 'hint' }],
+          },
+          { slot: 'description' },
+        ],
+      },
+      {
+        slot: 'container',
+        children: [{ slot: 'help' }, { slot: 'error' }],
+      },
+    ],
+  }}
+/>
+
+Help and error are mutually exclusive; the error replaces help when the field is invalid.
+
 ## Usage
 
 Use Field to label a standalone control and attach description, help, and error text. It registers
@@ -105,32 +131,6 @@ is the default stacked layout.
   <Input />
 </Field>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'wrapper',
-        children: [
-          {
-            slot: 'labelWrapper',
-            children: [{ slot: 'label' }, { slot: 'hint' }],
-          },
-          { slot: 'description' },
-        ],
-      },
-      {
-        slot: 'container',
-        children: [{ slot: 'help' }, { slot: 'error' }],
-      },
-    ],
-  }}
-/>
-
-Help and error are mutually exclusive; the error replaces help when the field is invalid.
 
 ## Examples
 

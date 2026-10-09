@@ -76,6 +76,59 @@ import { Button, DropdownMenu } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'DropdownMenu.Trigger',
+        slot: 'trigger',
+      },
+      { slot: 'overlay' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'DropdownMenu.Content',
+            slot: 'content',
+            children: [
+              {
+                slot: 'group',
+                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
+              },
+              {
+                slot: 'item',
+                children: [
+                  { slot: 'itemLeading' },
+                  {
+                    slot: 'itemWrapper',
+                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                  },
+                  {
+                    slot: 'itemTrailing',
+                    children: [
+                      { slot: 'itemKbds' },
+                      { slot: 'itemIndicator' },
+                      { slot: 'itemSubIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled; grouped items use the same item subtree as ungrouped items.
+
 ## Usage
 
 Use DropdownMenu for a compact set of actions from a visible trigger. Use [Select](/components/select)
@@ -158,59 +211,6 @@ activated.
 | <kbd>ArrowLeft</kbd>                                       | Returns from a submenu to its parent menu.            |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>                        | Activates the current menu item.                      |
 | <kbd>Escape</kbd>                                          | Closes the current menu layer.                        |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'DropdownMenu.Trigger',
-        slot: 'trigger',
-      },
-      { slot: 'overlay' },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            part: 'DropdownMenu.Content',
-            slot: 'content',
-            children: [
-              {
-                slot: 'group',
-                children: [{ slot: 'groupLabel' }, { slot: 'item' }],
-              },
-              {
-                slot: 'item',
-                children: [
-                  { slot: 'itemLeading' },
-                  {
-                    slot: 'itemWrapper',
-                    children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                  },
-                  {
-                    slot: 'itemTrailing',
-                    children: [
-                      { slot: 'itemKbds' },
-                      { slot: 'itemIndicator' },
-                      { slot: 'itemSubIndicator' },
-                    ],
-                  },
-                ],
-              },
-              { slot: 'separator' },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Examples
 

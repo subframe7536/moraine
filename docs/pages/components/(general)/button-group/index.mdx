@@ -53,6 +53,23 @@ import { Button, ButtonGroup } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'ButtonGroup.Separator',
+        slot: 'separator',
+      },
+      { internal: 'children' },
+    ],
+  }}
+/>
+
+The group owns its separators; the caller supplies the child Buttons and their content.
+
 ## Usage
 
 Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own
@@ -100,23 +117,6 @@ group axis: vertical in a horizontal group and horizontal in a vertical group. A
   <Button>Paste</Button>
 </ButtonGroup>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'ButtonGroup.Separator',
-        slot: 'separator',
-      },
-      { internal: 'children' },
-    ],
-  }}
-/>
-
-The group owns its separators; the caller supplies the child Buttons and their content.
 
 ## Examples
 

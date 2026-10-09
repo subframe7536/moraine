@@ -28,9 +28,9 @@ three or four columns on desktop and one or two on mobile. Use small badge label
 No preview grid, card wall, or repeated description accompanies each link. Route descriptions
 continue to support search, SEO, and agent Markdown.
 
-Component pages lead with PageHeader, then Playground for simple visual changes. Usage is text and
-fenced code only: it teaches when to use the component and how to compose it. Optional annotated
-Anatomy follows Usage. Examples follow Anatomy with real application tasks and copyable Preview source.
+Component pages lead with PageHeader, then Playground for simple visual changes. Optional annotated
+Anatomy follows Playground. Usage is text and fenced code only: it teaches when to use the component
+and how to compose it. Examples follow Usage with real application tasks and copyable Preview source.
 Generated API tables are grouped under API Reference as Attributes, then Props. Keep a single source
 for web and agent output.
 Render Anatomy as a copyable text code block using the same tree as agent Markdown.

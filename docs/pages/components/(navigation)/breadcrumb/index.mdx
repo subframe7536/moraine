@@ -49,6 +49,34 @@ import { Breadcrumb } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'nav',
+    },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'link',
+                children: [{ slot: 'leading' }, { slot: 'label' }],
+              },
+            ],
+          },
+          { slot: 'separator' },
+        ],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Breadcrumb to show a resource’s place in a navigation hierarchy. Keep ancestor destinations as
@@ -92,34 +120,6 @@ Use `href` or `to` for navigable ancestors. The last item is the current page by
 
 `separator` accepts an icon name or a render function. `wrap` lets a long trail break onto extra
 lines in a narrow column.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'nav',
-    },
-    children: [
-      {
-        slot: 'list',
-        children: [
-          {
-            slot: 'item',
-            children: [
-              {
-                slot: 'link',
-                children: [{ slot: 'leading' }, { slot: 'label' }],
-              },
-            ],
-          },
-          { slot: 'separator' },
-        ],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

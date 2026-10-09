@@ -62,6 +62,35 @@ import { RadioGroup } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'item',
+        children: [
+          {
+            slot: 'container',
+            children: [
+              { internal: 'input' },
+              {
+                slot: 'control',
+                children: [{ slot: 'indicator' }],
+              },
+            ],
+          },
+          {
+            slot: 'wrapper',
+            children: [{ slot: 'label' }, { slot: 'description' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use RadioGroup for one choice from a small visible set. For a longer or space-constrained
@@ -122,35 +151,6 @@ labels and messages without binding a form store.
 | <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous enabled radio item. |
 | <kbd>Space</kbd>                             | Selects the focused radio item.                               |
 | <kbd>Tab</kbd>                               | Enters or leaves the group according to normal focus order.   |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'item',
-        children: [
-          {
-            slot: 'container',
-            children: [
-              { internal: 'input' },
-              {
-                slot: 'control',
-                children: [{ slot: 'indicator' }],
-              },
-            ],
-          },
-          {
-            slot: 'wrapper',
-            children: [{ slot: 'label' }, { slot: 'description' }],
-          },
-        ],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

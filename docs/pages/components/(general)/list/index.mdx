@@ -23,6 +23,17 @@ import { List } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'ul',
+    },
+  }}
+/>
+
 ## Usage
 
 Use List when the caller owns each row's markup and needs a stable collection surface. Pass `items`
@@ -77,17 +88,6 @@ const virtualizer = createListVirtualizer({
 
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
 keyboard navigation.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'ul',
-    },
-  }}
-/>
 
 ## Examples
 

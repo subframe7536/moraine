@@ -366,6 +366,71 @@ import {
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'SidebarFrame.Sidebar',
+        slot: 'sidebar',
+        children: [
+          {
+            part: 'SidebarFrame.SidebarHeader',
+            slot: 'sidebarHeader',
+          },
+          {
+            part: 'SidebarFrame.SidebarBody',
+            slot: 'sidebarBody',
+            children: [
+              {
+                part: 'SidebarFrame.Menu',
+                slot: 'menu',
+                children: [
+                  {
+                    part: 'SidebarFrame.Label',
+                    slot: 'label',
+                  },
+                  {
+                    part: 'SidebarFrame.Item',
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      { slot: 'itemLabel' },
+                      { slot: 'itemTrailing' },
+                      { slot: 'itemActions' },
+                    ],
+                  },
+                  {
+                    part: 'SidebarFrame.Submenu',
+                    slot: 'submenu',
+                    children: [
+                      { part: 'SidebarFrame.SubmenuTrigger', slot: 'submenuTrigger' },
+                      { part: 'SidebarFrame.SubmenuContent', slot: 'submenuContent' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            part: 'SidebarFrame.SidebarFooter',
+            slot: 'sidebarFooter',
+          },
+        ],
+      },
+      {
+        part: 'SidebarFrame.Main',
+        slot: 'main',
+      },
+      { part: 'SidebarFrame.Trigger' },
+    ],
+  }}
+/>
+
+Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regions inside an internal Sheet.
+
 ## Usage
 
 Use SidebarFrame for application-shell navigation that stays inline on desktop and moves into a
@@ -470,71 +535,6 @@ Build labeled navigation with these parts:
 
 Use [DropdownMenu](/components/dropdown-menu) inside header, footer, or item `actions` for workspace
 switchers and row actions. Those menus are actions, not the sidebar's navigation tree.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'SidebarFrame.Sidebar',
-        slot: 'sidebar',
-        children: [
-          {
-            part: 'SidebarFrame.SidebarHeader',
-            slot: 'sidebarHeader',
-          },
-          {
-            part: 'SidebarFrame.SidebarBody',
-            slot: 'sidebarBody',
-            children: [
-              {
-                part: 'SidebarFrame.Menu',
-                slot: 'menu',
-                children: [
-                  {
-                    part: 'SidebarFrame.Label',
-                    slot: 'label',
-                  },
-                  {
-                    part: 'SidebarFrame.Item',
-                    slot: 'item',
-                    children: [
-                      { slot: 'itemLeading' },
-                      { slot: 'itemLabel' },
-                      { slot: 'itemTrailing' },
-                      { slot: 'itemActions' },
-                    ],
-                  },
-                  {
-                    part: 'SidebarFrame.Submenu',
-                    slot: 'submenu',
-                    children: [
-                      { part: 'SidebarFrame.SubmenuTrigger', slot: 'submenuTrigger' },
-                      { part: 'SidebarFrame.SubmenuContent', slot: 'submenuContent' },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            part: 'SidebarFrame.SidebarFooter',
-            slot: 'sidebarFooter',
-          },
-        ],
-      },
-      {
-        part: 'SidebarFrame.Main',
-        slot: 'main',
-      },
-      { part: 'SidebarFrame.Trigger' },
-    ],
-  }}
-/>
-
-Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regions inside an internal Sheet.
 
 ## Examples
 

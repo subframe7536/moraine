@@ -38,6 +38,25 @@ import { Progress } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'status' },
+      {
+        slot: 'track',
+        children: [{ slot: 'indicator' }],
+      },
+      {
+        slot: 'steps',
+        children: [{ slot: 'step' }],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Progress for measurable task completion or for work whose end is not yet known. Choose a
@@ -74,25 +93,6 @@ replaces that label. Animation settings affect presentation, not progress owners
 <Progress value={82} status aria-label="Downloading installation bundle" />
 <Progress value={40} statusRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      { slot: 'status' },
-      {
-        slot: 'track',
-        children: [{ slot: 'indicator' }],
-      },
-      {
-        slot: 'steps',
-        children: [{ slot: 'step' }],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

@@ -51,6 +51,55 @@ import { Button, Dialog } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Dialog.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Dialog.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Dialog.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Dialog.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Dialog.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Dialog.Description',
+                slot: 'description',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Dialog.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Dialog.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
+
 ## Usage
 
 Use Dialog for a labeled modal task with title, description, body, and footer. Use
@@ -191,55 +240,6 @@ runs after the overlay and content finish their exit animations.
 | <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                      |
 | <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Dialog.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Dialog.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Dialog.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Dialog.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Dialog.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Dialog.Description',
-                slot: 'description',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Dialog.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Dialog.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
 
 ## Examples
 

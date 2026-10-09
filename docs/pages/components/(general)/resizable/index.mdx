@@ -58,6 +58,29 @@ import { Resizable } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+      {
+        part: 'Resizable.Handle',
+        slot: 'handle',
+        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
+      },
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such
@@ -151,29 +174,6 @@ ARIA boundary values.
 | <kbd>End</kbd>                               | Snaps the adjacent panel to its maximum permitted size.            |
 | <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel when `action="collapse"`.    |
 | <kbd>Alt</kbd> + drag                        | Distributes delta symmetrically across adjacent panels.            |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'Resizable.Panel',
-        slot: 'panel',
-      },
-      {
-        part: 'Resizable.Handle',
-        slot: 'handle',
-        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
-      },
-      {
-        part: 'Resizable.Panel',
-        slot: 'panel',
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

@@ -68,6 +68,35 @@ import { Button, Field, Input, Popover } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Popover.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Popover.Close' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'Popover.Content',
+            slot: 'content',
+            children: [{ slot: 'body' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled inside an internal positioning wrapper.
+
 ## Usage
 
 Use Popover for anchored interactive content that does not need a labeled modal surface. Use
@@ -134,35 +163,6 @@ Without a Close, the popover stays non-modal so users retain a dismissal route.
 Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
 dismissal when the popover is dismissible; focusable controls inside non-modal content participate
 in normal document focus order. Modal content contains focus.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Popover.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Popover.Close' },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            part: 'Popover.Content',
-            slot: 'content',
-            children: [{ slot: 'body' }],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled inside an internal positioning wrapper.
 
 ## Examples
 

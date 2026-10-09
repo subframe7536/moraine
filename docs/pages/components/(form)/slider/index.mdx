@@ -76,6 +76,21 @@ import { createSignal } from 'solid-js'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'track',
+        children: [{ slot: 'range' }, { slot: 'marker' }],
+      },
+      { slot: 'thumb' },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric
@@ -137,21 +152,6 @@ movement is approximately 10% of the range and is snapped to `step` when one is 
 | <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                      |
 | <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value. |
 | <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value. |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'track',
-        children: [{ slot: 'range' }, { slot: 'marker' }],
-      },
-      { slot: 'thumb' },
-    ],
-  }}
-/>
 
 ## Examples
 

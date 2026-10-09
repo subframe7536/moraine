@@ -69,6 +69,42 @@ import { Badge, Button, Card } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Card.Header',
+        slot: 'header',
+        children: [
+          {
+            part: 'Card.Title',
+            slot: 'title',
+          },
+          {
+            part: 'Card.Description',
+            slot: 'description',
+          },
+          {
+            part: 'Card.Action',
+            slot: 'action',
+          },
+        ],
+      },
+      {
+        part: 'Card.Body',
+        slot: 'body',
+      },
+      {
+        part: 'Card.Footer',
+        slot: 'footer',
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Card to group related content and actions on a neutral surface. Its parts are structural and add
@@ -126,42 +162,6 @@ spaces the sections. Direct children can still span the card's full width. Place
   </Card.Footer>
 </Card>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'Card.Header',
-        slot: 'header',
-        children: [
-          {
-            part: 'Card.Title',
-            slot: 'title',
-          },
-          {
-            part: 'Card.Description',
-            slot: 'description',
-          },
-          {
-            part: 'Card.Action',
-            slot: 'action',
-          },
-        ],
-      },
-      {
-        part: 'Card.Body',
-        slot: 'body',
-      },
-      {
-        part: 'Card.Footer',
-        slot: 'footer',
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

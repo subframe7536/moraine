@@ -73,6 +73,15 @@ import { ToggleButton } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'button' },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
+
 ## Usage
 
 Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a
@@ -168,15 +177,6 @@ label, and trailing elements retain the corresponding `button-*` data-slot names
   <ToggleButton leading="i-lucide:italic" aria-label="Italic formatting" />
 </ButtonGroup>
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root', element: 'button' },
-    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-  }}
-/>
 
 ## Examples
 

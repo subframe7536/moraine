@@ -40,6 +40,25 @@ import { Avatar } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'span',
+    },
+    children: [
+      { slot: 'image' },
+      {
+        slot: 'fallback',
+        children: [{ slot: 'fallbackContent' }],
+      },
+      { slot: 'badge' },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for
@@ -80,25 +99,6 @@ owned by the page.
 ```tsx
 <Avatar alt="Alex" text="A" badge="i-lucide:check" badgePosition="bottom-right" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'span',
-    },
-    children: [
-      { slot: 'image' },
-      {
-        slot: 'fallback',
-        children: [{ slot: 'fallbackContent' }],
-      },
-      { slot: 'badge' },
-    ],
-  }}
-/>
 
 ## Examples
 

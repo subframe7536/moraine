@@ -49,6 +49,43 @@ import { Stepper } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'header',
+        children: [
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'trigger',
+                children: [
+                  {
+                    slot: 'indicator',
+                    children: [{ slot: 'icon' }],
+                  },
+                  {
+                    slot: 'wrapper',
+                    children: [{ slot: 'title' }, { slot: 'description' }],
+                  },
+                ],
+              },
+              { slot: 'separator' },
+            ],
+          },
+        ],
+      },
+      { slot: 'content' },
+    ],
+  }}
+/>
+
+The indicator, title, and description share one trigger; separators appear only between items.
+
 ## Usage
 
 Use Stepper to show progress through a fixed sequence of steps. Decide whether users may jump ahead
@@ -106,43 +143,6 @@ remain data you supply.
 | <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Moves toward the next enabled step where applicable.     |
 | <kbd>ArrowLeft</kbd> / <kbd>ArrowUp</kbd>    | Moves toward the previous enabled step where applicable. |
 | <kbd>Enter</kbd> / <kbd>Space</kbd>          | Activates the focused step in manual activation mode.    |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'header',
-        children: [
-          {
-            slot: 'item',
-            children: [
-              {
-                slot: 'trigger',
-                children: [
-                  {
-                    slot: 'indicator',
-                    children: [{ slot: 'icon' }],
-                  },
-                  {
-                    slot: 'wrapper',
-                    children: [{ slot: 'title' }, { slot: 'description' }],
-                  },
-                ],
-              },
-              { slot: 'separator' },
-            ],
-          },
-        ],
-      },
-      { slot: 'content' },
-    ],
-  }}
-/>
-
-The indicator, title, and description share one trigger; separators appear only between items.
 
 ## Examples
 

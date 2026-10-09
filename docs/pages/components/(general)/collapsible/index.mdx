@@ -55,6 +55,29 @@ import { Button, Card, Collapsible, Icon } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Collapsible.Trigger',
+        slot: 'trigger',
+      },
+      {
+        internal: 'contentWrapper',
+        children: [
+          {
+            part: 'Collapsible.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use
@@ -124,29 +147,6 @@ Content element. There are no visual variants.
 
 The trigger uses button semantics by default. A polymorphic trigger follows the keyboard semantics of
 its supplied element or component.
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'Collapsible.Trigger',
-        slot: 'trigger',
-      },
-      {
-        internal: 'contentWrapper',
-        children: [
-          {
-            part: 'Collapsible.Content',
-            slot: 'content',
-          },
-        ],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

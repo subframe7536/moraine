@@ -40,6 +40,17 @@ import { Skeleton } from '@src'
   {(props) => <Skeleton variant={props.variant} class={`size-20 ${props.shape}`} />}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+  }}
+/>
+
 ## Usage
 
 Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and
@@ -85,17 +96,6 @@ your Theme to set the default animation across your application.
 <Skeleton variant="shimmer" class="h-4 w-full" />
 <Skeleton variant="shimmer" class="h-4 w-full" style={{ '--mo-anim-duration-loop': '1s' }} />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div',
-    },
-  }}
-/>
 
 ## Examples
 

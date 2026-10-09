@@ -55,6 +55,29 @@ import { Tabs } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          { slot: 'indicator' },
+          {
+            slot: 'trigger',
+            children: [{ slot: 'leading' }, { slot: 'label' }],
+          },
+        ],
+      },
+      { slot: 'content' },
+    ],
+  }}
+/>
+
+String labels use the label slot; JSX labels render directly inside the trigger.
+
 ## Usage
 
 Use Tabs to switch between peer panels while staying in the same page context. Use navigation links
@@ -116,29 +139,6 @@ Arrow keys follow the configured orientation. `activationMode="automatic"` selec
 | <kbd>Home</kbd> / <kbd>End</kbd>    | Moves focus to the first or last enabled tab.        |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.            |
 | <kbd>Tab</kbd>                      | Leaves the tab list according to normal focus order. |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'list',
-        children: [
-          { slot: 'indicator' },
-          {
-            slot: 'trigger',
-            children: [{ slot: 'leading' }, { slot: 'label' }],
-          },
-        ],
-      },
-      { slot: 'content' },
-    ],
-  }}
-/>
-
-String labels use the label slot; JSX labels render directly inside the trigger.
 
 ## Examples
 

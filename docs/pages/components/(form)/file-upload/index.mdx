@@ -41,6 +41,42 @@ import { FileUpload } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'control',
+        children: [
+          {
+            slot: 'wrapper',
+            children: [{ slot: 'icon' }, { slot: 'label' }, { slot: 'description' }],
+          },
+        ],
+      },
+      { internal: 'input' },
+      {
+        slot: 'files',
+        children: [
+          {
+            slot: 'file',
+            children: [
+              { slot: 'filePreview' },
+              {
+                slot: 'fileMeta',
+                children: [{ slot: 'fileName' }, { slot: 'fileSize' }],
+              },
+              { slot: 'fileRemove' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use FileUpload to collect local files before the application sends them. Selection and validation
@@ -92,42 +128,6 @@ explicit `readOnly={false}` overrides that state. `disabled` also removes intera
 | ----------------------------------- | ---------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
 | <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'control',
-        children: [
-          {
-            slot: 'wrapper',
-            children: [{ slot: 'icon' }, { slot: 'label' }, { slot: 'description' }],
-          },
-        ],
-      },
-      { internal: 'input' },
-      {
-        slot: 'files',
-        children: [
-          {
-            slot: 'file',
-            children: [
-              { slot: 'filePreview' },
-              {
-                slot: 'fileMeta',
-                children: [{ slot: 'fileName' }, { slot: 'fileSize' }],
-              },
-              { slot: 'fileRemove' },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

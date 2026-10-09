@@ -63,6 +63,51 @@ import { CheckboxGroup } from '@src'
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+    children: [
+      {
+        slot: 'fieldset',
+        children: [
+          { slot: 'legend' },
+          {
+            slot: 'item',
+            children: [
+              {
+                slot: 'container',
+                children: [
+                  { internal: 'input' },
+                  {
+                    slot: 'control',
+                    children: [
+                      {
+                        slot: 'indicator',
+                        children: [{ slot: 'icon' }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                slot: 'wrapper',
+                children: [{ slot: 'label' }, { slot: 'description' }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+The nested `<fieldset>` owns group semantics and the optional `<legend>` association.
+
 ## Usage
 
 Use CheckboxGroup for several choices submitted as one array. Use individual
@@ -119,51 +164,6 @@ use radio-style arrow navigation.
 <CheckboxGroup indicator="end" items={items} />
 <CheckboxGroup indicator="hidden" items={items} />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div',
-    },
-    children: [
-      {
-        slot: 'fieldset',
-        children: [
-          { slot: 'legend' },
-          {
-            slot: 'item',
-            children: [
-              {
-                slot: 'container',
-                children: [
-                  { internal: 'input' },
-                  {
-                    slot: 'control',
-                    children: [
-                      {
-                        slot: 'indicator',
-                        children: [{ slot: 'icon' }],
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                slot: 'wrapper',
-                children: [{ slot: 'label' }, { slot: 'description' }],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-The nested `<fieldset>` owns group semantics and the optional `<legend>` association.
 
 ## Examples
 

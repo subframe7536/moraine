@@ -94,6 +94,70 @@ import { MultiSelect } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        slot: 'control',
+        children: [
+          { slot: 'leading' },
+          {
+            slot: 'tagsContainer',
+            children: [
+              {
+                slot: 'tag',
+                children: [{ slot: 'tagLabel' }, { slot: 'tagRemove' }],
+              },
+              { slot: 'tagOverflow' },
+              { slot: 'input' },
+            ],
+          },
+          { slot: 'clear' },
+          { slot: 'trigger' },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            slot: 'content',
+            children: [
+              {
+                slot: 'listbox',
+                children: [
+                  {
+                    slot: 'group',
+                    children: [{ slot: 'groupLabel' }],
+                  },
+                  {
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      {
+                        slot: 'itemWrapper',
+                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                      },
+                      { slot: 'itemIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'empty' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+MultiSelect renders its portaled popup collection internally. Tags have a separate rendering path through `tagRender`.
+
 ## Usage
 
 Use MultiSelect for several selected collection items displayed as tags. Its values resolve through
@@ -171,70 +235,6 @@ keyboard navigation.
   scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
 />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        slot: 'control',
-        children: [
-          { slot: 'leading' },
-          {
-            slot: 'tagsContainer',
-            children: [
-              {
-                slot: 'tag',
-                children: [{ slot: 'tagLabel' }, { slot: 'tagRemove' }],
-              },
-              { slot: 'tagOverflow' },
-              { slot: 'input' },
-            ],
-          },
-          { slot: 'clear' },
-          { slot: 'trigger' },
-        ],
-      },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            slot: 'content',
-            children: [
-              {
-                slot: 'listbox',
-                children: [
-                  {
-                    slot: 'group',
-                    children: [{ slot: 'groupLabel' }],
-                  },
-                  {
-                    slot: 'item',
-                    children: [
-                      { slot: 'itemLeading' },
-                      {
-                        slot: 'itemWrapper',
-                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                      },
-                      { slot: 'itemIndicator' },
-                    ],
-                  },
-                ],
-              },
-              { slot: 'empty' },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-MultiSelect renders its portaled popup collection internally. Tags have a separate rendering path through `tagRender`.
 
 ## Examples
 

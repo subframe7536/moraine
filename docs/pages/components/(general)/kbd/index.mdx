@@ -62,6 +62,17 @@ import { Kbd } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'kbd',
+    },
+  }}
+/>
+
 ## Usage
 
 Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/components/kbd-group).
@@ -96,17 +107,6 @@ components with multiple rendered slots.
 ```tsx
 <Kbd value="K" class="text-blue-600" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'kbd',
-    },
-  }}
-/>
 
 ## Examples
 

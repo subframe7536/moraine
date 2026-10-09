@@ -85,6 +85,65 @@ import { Select } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        slot: 'control',
+        children: [
+          {
+            slot: 'trigger',
+            children: [
+              { slot: 'leading' },
+              { slot: 'value' },
+              { slot: 'clear' },
+              { slot: 'trailing' },
+            ],
+          },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            slot: 'content',
+            children: [
+              {
+                slot: 'listbox',
+                children: [
+                  {
+                    slot: 'group',
+                    children: [{ slot: 'groupLabel' }],
+                  },
+                  { slot: 'separator' },
+                  {
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      {
+                        slot: 'itemWrapper',
+                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                      },
+                      { slot: 'itemIndicator' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Select renders the portaled popup collection internally; its slots are styling targets. Use [BaseSelect](/components/base-select) to compose the listbox yourself.
+
 ## Usage
 
 Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
@@ -155,65 +214,6 @@ editable input.
 | Home / End          | Move to the first or last option while open   |
 | Printable key       | Typeahead to the matching item label          |
 | Escape              | Close the dropdown without changing the value |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        slot: 'control',
-        children: [
-          {
-            slot: 'trigger',
-            children: [
-              { slot: 'leading' },
-              { slot: 'value' },
-              { slot: 'clear' },
-              { slot: 'trailing' },
-            ],
-          },
-        ],
-      },
-      {
-        internal: 'positioner',
-        children: [
-          {
-            slot: 'content',
-            children: [
-              {
-                slot: 'listbox',
-                children: [
-                  {
-                    slot: 'group',
-                    children: [{ slot: 'groupLabel' }],
-                  },
-                  { slot: 'separator' },
-                  {
-                    slot: 'item',
-                    children: [
-                      { slot: 'itemLeading' },
-                      {
-                        slot: 'itemWrapper',
-                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
-                      },
-                      { slot: 'itemIndicator' },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Select renders the portaled popup collection internally; its slots are styling targets. Use [BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ## Examples
 

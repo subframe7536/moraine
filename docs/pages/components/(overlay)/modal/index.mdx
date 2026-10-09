@@ -54,6 +54,34 @@ import { Button, Modal } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      { part: 'Modal.Trigger' },
+      {
+        part: 'Modal.Portal',
+        children: [
+          {
+            part: 'Modal.Overlay',
+            slot: 'overlay',
+          },
+          {
+            part: 'Modal.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Portal owns the mounted Overlay and Content subtree and preserves it through exit motion.
+
 ## Usage
 
 Use Modal when you compose trigger, backdrop, and content yourself. Use [Dialog](/components/dialog)
@@ -148,34 +176,6 @@ and content exit animations to finish. An empty `class` does not disable built-i
 | <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.      |
 | <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope. |
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      { part: 'Modal.Trigger' },
-      {
-        part: 'Modal.Portal',
-        children: [
-          {
-            part: 'Modal.Overlay',
-            slot: 'overlay',
-          },
-          {
-            part: 'Modal.Content',
-            slot: 'content',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Portal owns the mounted Overlay and Content subtree and preserves it through exit motion.
 
 ## Examples
 

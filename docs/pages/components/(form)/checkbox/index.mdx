@@ -50,6 +50,35 @@ import { Checkbox } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'container',
+        children: [
+          { internal: 'input' },
+          {
+            slot: 'control',
+            children: [
+              {
+                slot: 'indicator',
+                children: [{ slot: 'icon' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        slot: 'wrapper',
+        children: [{ slot: 'label' }, { slot: 'description' }],
+      },
+    ],
+  }}
+/>
+
 ## Usage
 
 Use Checkbox for an independent boolean or mapped choice that can be selected alongside other
@@ -92,35 +121,6 @@ focusability while preventing changes.
 <Checkbox disabled defaultChecked label="Disabled" />
 <Checkbox readOnly defaultChecked label="Read-only" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        slot: 'container',
-        children: [
-          { internal: 'input' },
-          {
-            slot: 'control',
-            children: [
-              {
-                slot: 'indicator',
-                children: [{ slot: 'icon' }],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        slot: 'wrapper',
-        children: [{ slot: 'label' }, { slot: 'description' }],
-      },
-    ],
-  }}
-/>
 
 ## Examples
 

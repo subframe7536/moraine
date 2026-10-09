@@ -24,6 +24,17 @@ import { Icon } from '@src'
   )}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+  }}
+/>
+
 ## Usage
 
 Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it
@@ -66,17 +77,6 @@ because there are no child slots to target. `slotName` only changes the emitted 
 ```tsx
 <Icon name="i-lucide:info" size={28} class="text-blue-500" slotName="custom-icon" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div',
-    },
-  }}
-/>
 
 ## Examples
 

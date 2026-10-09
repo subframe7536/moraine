@@ -72,6 +72,18 @@ import { Button } from '@src'
   }}
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'button',
+    },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
+
 ## Usage
 
 Use Button for commands and explicit navigation. Render a native button for an action on this page.
@@ -134,18 +146,6 @@ Icon-only buttons support dedicated square sizes from `icon-xs` to `icon-xl`.
 ```tsx
 <Button size="icon-md" aria-label="Search" leading="i-lucide:search" />
 ```
-
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'button',
-    },
-    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-  }}
-/>
 
 ## Examples
 
