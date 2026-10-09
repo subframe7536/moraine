@@ -149,9 +149,8 @@ source panel; regular `Preview` blocks provide source for usage subsections and 
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
 
-Playground has no heading; the panel uses `id="playground"` for deep links. Frame the panel with a
-muted ribbon, 8 px on narrow screens and 12 px from `sm`, between an outer `rounded-2xl` radius and
-an inner `rounded-xl` radius. Use semantic borders and
+Playground has no heading. Frame the panel with a muted ribbon, 8 px on narrow screens and 12 px
+from `sm`, between an outer `rounded-2xl` radius and an inner `rounded-xl` radius. Use semantic borders and
 background colors, without additional elevation. Both outlines use the same opaque `input` color
 to stay consistent across surfaces. The preview leads, with Props and Slots stacked in
 the right pane from `md` and below the preview on narrow screens. Separate Slots from Props with a
