@@ -66,7 +66,6 @@ export function renderPartsFixture(): string {
           <Sheet.Header>
             <Sheet.Title id="server-sheet-title">Real title</Sheet.Title>
             <Sheet.Description>Details</Sheet.Description>
-            <Sheet.Action>Help</Sheet.Action>
           </Sheet.Header>
           <Sheet.Body>Body</Sheet.Body>
           <Sheet.Footer>Actions</Sheet.Footer>

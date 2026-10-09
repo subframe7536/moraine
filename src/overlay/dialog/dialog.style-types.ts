@@ -19,9 +19,6 @@ export interface DialogStyleSlot<T = unknown> {
   /** Supporting text associated with the dialog title. */
   description?: T
 
-  /** Actions positioned beside the title. */
-  action?: T
-
   /** Automatic close affordance owned by Dialog.Content. */
   contentClose?: T
 

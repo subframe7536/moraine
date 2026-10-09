@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 
 import { ModalInternal } from '../modal/modal'
 
-import { DialogAction } from './dialog-action'
 import { DialogBody } from './dialog-body'
 import { DialogClose } from './dialog-close'
 import { DialogContent } from './dialog-content'
@@ -23,7 +22,6 @@ Dialog.Content = DialogContent
 Dialog.Header = DialogHeader
 Dialog.Title = DialogTitle
 Dialog.Description = DialogDescription
-Dialog.Action = DialogAction
 Dialog.Body = DialogBody
 Dialog.Footer = DialogFooter
 Dialog.Close = DialogClose

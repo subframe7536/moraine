@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useSheetContent } from './sheet-context'
@@ -23,15 +23,14 @@ export function SheetBody<T extends ValidComponent = 'div'>(
   })
   const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="div"
-      slot="sheet-body"
-      attributes={rest}
-      additionalAttributes={bodyAttrs}
-      binding={resolved.styles.body}
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="sheet-body"
+      {...rest}
+      {...bodyAttrs}
+      {...resolved.styles.body}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }

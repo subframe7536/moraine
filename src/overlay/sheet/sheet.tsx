@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 
 import { ModalInternal } from '../modal/modal'
 
-import { SheetAction } from './sheet-action'
 import { SheetBody } from './sheet-body'
 import { SheetClose } from './sheet-close'
 import { SheetContent } from './sheet-content'
@@ -23,7 +22,6 @@ Sheet.Content = SheetContent
 Sheet.Header = SheetHeader
 Sheet.Title = SheetTitle
 Sheet.Description = SheetDescription
-Sheet.Action = SheetAction
 Sheet.Body = SheetBody
 Sheet.Footer = SheetFooter
 Sheet.Close = SheetClose

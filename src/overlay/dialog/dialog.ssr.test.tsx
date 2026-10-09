@@ -57,7 +57,6 @@ describe('Dialog SSR Hydration', () => {
               <Dialog.Header>
                 <Dialog.Title id="server-dialog-title">Real title</Dialog.Title>
                 <Dialog.Description>Details</Dialog.Description>
-                <Dialog.Action>Help</Dialog.Action>
               </Dialog.Header>
               <Dialog.Body>Body</Dialog.Body>
               <Dialog.Footer>Actions</Dialog.Footer>

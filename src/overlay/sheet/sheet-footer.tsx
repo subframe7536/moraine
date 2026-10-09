@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useSheetContent } from './sheet-context'
@@ -22,14 +22,13 @@ export function SheetFooter<T extends ValidComponent = 'div'>(
     inheritedStyles: () => family.presentation,
   })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="div"
-      slot="sheet-footer"
-      attributes={rest}
-      binding={resolved.styles.footer}
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="sheet-footer"
+      {...rest}
+      {...resolved.styles.footer}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }

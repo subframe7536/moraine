@@ -105,7 +105,6 @@ describe('generateApiDoc', () => {
       'Dialog.Header',
       'Dialog.Title',
       'Dialog.Description',
-      'Dialog.Action',
       'Dialog.Body',
       'Dialog.Footer',
       'Dialog.Close',

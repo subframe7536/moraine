@@ -417,51 +417,6 @@
       ]
     },
     {
-      "id": "dialog-action",
-      "name": "Dialog.Action",
-      "access": {
-        "kind": "attached",
-        "root": "Dialog",
-        "member": "Action"
-      },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'div'"
-        }
-      ],
-      "defaultElement": "div",
-      "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "div"
-          }
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": "SlotClassValue",
-          "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": "SlotStyleValue",
-          "description": "Style applied to the component root or trigger element."
-        }
-      ]
-    },
-    {
       "id": "dialog-body",
       "name": "Dialog.Body",
       "access": {
@@ -612,7 +567,6 @@
     "header",
     "title",
     "description",
-    "action",
     "contentClose",
     "body",
     "footer"
