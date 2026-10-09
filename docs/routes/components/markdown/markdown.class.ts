@@ -3,13 +3,13 @@ import { FOCUS_VISIBLE_RING_CLASS } from '../../../../src/theme/recipe-common.cl
 export const DOCS_INLINE_CODE_CLASS = 'docs-inline-code'
 
 export const DOCS_BLOCK_CONTAINER_CLASS =
-  'group my-4 border border-border/70 rounded-xl bg-card/40 shadow-xs relative overflow-hidden'
+  'group my-4 border border-border rounded-xl bg-card/40 shadow-xs relative overflow-hidden'
 
 export const DOCS_PREVIEW_CANVAS_CLASS =
   'p-6 bg-background/45 flex min-h-[160px] items-center justify-center relative sm:p-8'
 
 export const DOCS_CODE_SOURCE_CLASS =
-  'group my-0 border-t border-border/70 bg-card/30 relative overflow-hidden'
+  'group my-0 border-t border-border bg-card/30 relative overflow-hidden'
 
 export const DOCS_BLOCK_HEADER_CLASS =
   'px-3 py-1.5 border-b border-border/60 bg-muted/40 flex h-10 items-center justify-between'

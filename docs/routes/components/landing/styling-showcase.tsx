@@ -112,7 +112,7 @@ export function StylingShowcase() {
                     toolbarButtonClass,
                     presetIndex() === idx()
                       ? 'text-foreground bg-accent'
-                      : 'text-muted-foreground border-border/70 hover:bg-muted/50',
+                      : 'text-muted-foreground border-border hover:bg-muted/50',
                   )}
                   style={{
                     'border-color': presetIndex() === idx() ? p.primary : undefined,
@@ -137,7 +137,7 @@ export function StylingShowcase() {
               toolbarButtonClass,
               customSlotOverrides()
                 ? 'text-foreground font-semibold border-primary bg-primary/10'
-                : 'text-muted-foreground border-border/70 hover:bg-muted/50',
+                : 'text-muted-foreground border-border hover:bg-muted/50',
             )}
           >
             Customize button label {customSlotOverrides() ? 'on' : 'off'}
@@ -151,7 +151,7 @@ export function StylingShowcase() {
             </div>
 
             <form
-              class="mx-auto max-w-lg w-full"
+              class="max-w-lg w-full"
               onSubmit={(event) => {
                 event.preventDefault()
                 setSavedDisplayName(displayName())
@@ -206,7 +206,7 @@ export function StylingShowcase() {
             </form>
           </div>
 
-          <div class="py-6 min-w-0 divide-border/70 divide-y lg:ps-8">
+          <div class="py-6 min-w-0 lg:ps-8">
             <div class="pb-5">
               <h3 class="text-sm font-semibold">Theme</h3>
               <p class="text-xs text-muted-foreground mt-1">

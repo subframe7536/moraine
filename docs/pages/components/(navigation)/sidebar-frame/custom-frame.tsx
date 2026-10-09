@@ -18,9 +18,9 @@ export function FrameRender() {
   ]
 
   return (
-    <div class="border border-border/70 rounded-xl bg-background flex flex-col h-[400px] w-full shadow-xs overflow-hidden">
+    <div class="border border-border rounded-xl bg-background flex flex-col h-[400px] w-full shadow-xs overflow-hidden">
       {/* Global Topbar outside the SidebarFrame */}
-      <header class="px-4 border-b border-border/70 bg-card/70 flex shrink-0 h-11 items-center justify-between">
+      <header class="px-4 border-b border-border bg-card/70 flex shrink-0 h-11 items-center justify-between">
         <div class="flex gap-3 items-center">
           <div class="text-xs font-bold flex gap-2 items-center">
             <div class="text-white rounded-md bg-blue-600 flex size-6 items-center justify-center">

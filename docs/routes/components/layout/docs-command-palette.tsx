@@ -125,7 +125,7 @@ export function DocsSearchTrigger(
         DOCS_HEADER_CONTROL_CLASS,
         variant() === 'mobile'
           ? 'size-11'
-          : 'ms-1 me-2 h-9 w-52 justify-start border-border/70 bg-muted/40 hover:bg-muted/70',
+          : 'ms-1 me-2 h-9 w-52 justify-start border-border bg-muted/40 hover:bg-muted/70',
       ]}
       classes={{ label: 'flex-1 min-w-0' }}
     >

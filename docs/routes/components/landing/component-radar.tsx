@@ -33,9 +33,7 @@ function SamplerItem(props: {
   children: JSX.Element
 }) {
   return (
-    <article
-      class={cn('p-6 border-b border-e border-border/70 flex flex-col min-w-0', props.class)}
-    >
+    <article class={cn('p-6 border-b border-e border-border flex flex-col min-w-0', props.class)}>
       <div>
         <h3 class="text-base font-semibold">{props.title}</h3>
         <p class="text-sm text-muted-foreground mt-1">{props.description}</p>
@@ -77,7 +75,7 @@ export function ComponentRadar() {
         </Button>
       </div>
 
-      <div class="border-s border-t border-border/70 grid lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
+      <div class="border-s border-t border-border grid lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-4 md:grid-cols-2">
         <SamplerItem
           title="Tabs"
           description="Switch between related views."
@@ -98,7 +96,7 @@ export function ComponentRadar() {
                       <p class="text-sm text-muted-foreground mt-1">
                         Choose how this workspace looks and feels.
                       </p>
-                      <dl class="text-sm mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2">
+                      <dl class="text-sm mt-4 pt-3 gap-4 grid grid-cols-2">
                         <div>
                           <dt class="text-muted-foreground">Appearance</dt>
                           <dd class="font-medium mt-1">System theme</dd>
@@ -120,7 +118,7 @@ export function ComponentRadar() {
                       <p class="text-sm text-muted-foreground mt-1">
                         Manage who can view and join this workspace.
                       </p>
-                      <dl class="text-sm mt-4 pt-3 border-t border-border gap-4 grid grid-cols-2">
+                      <dl class="text-sm mt-4 pt-3 gap-4 grid grid-cols-2">
                         <div>
                           <dt class="text-muted-foreground">Visibility</dt>
                           <dd class="font-medium mt-1">Private</dd>

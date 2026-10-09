@@ -11,7 +11,7 @@ export function SideAndVariantUsage() {
   const tags = ['Architecture', 'RFC', 'High Priority', 'v4.2']
 
   return (
-    <div class="border border-border/70 rounded-xl bg-muted/20 h-96 w-full shadow-xs overflow-hidden">
+    <div class="border border-border rounded-xl bg-muted/20 h-96 w-full shadow-xs overflow-hidden">
       <SidebarFrame isMobile={false} side="right" variant="inset">
         <SidebarFrame.Sidebar class="bg-card/60 w-64">
           <SidebarFrame.SidebarHeader class="px-3 border-b border-border/60 flex h-11 items-center justify-between">
@@ -118,7 +118,7 @@ export function SideAndVariantUsage() {
               </p>
             </div>
 
-            <div class="p-3 border border-border/70 rounded-lg bg-card space-y-2">
+            <div class="p-3 border border-border rounded-lg bg-card space-y-2">
               <div class="text-xs font-semibold flex gap-1.5 items-center">
                 <Icon name="i-lucide:list-checks" class="text-primary size-4" />
                 <span>Verification Requirements</span>

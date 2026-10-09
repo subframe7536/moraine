@@ -28,7 +28,7 @@ export function ResponsiveUsage() {
   ]
 
   return (
-    <div class="border border-border/70 rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
+    <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
       <SidebarFrame>
         <SidebarFrame.Sidebar class="border-r border-border/60 bg-card/40">
           <SidebarFrame.SidebarHeader class="px-3 border-b border-border/60 flex h-11 items-center justify-between">

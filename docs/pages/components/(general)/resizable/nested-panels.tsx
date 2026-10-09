@@ -10,7 +10,7 @@ const FILES = [
 
 export function NestedPanels() {
   return (
-    <div class="border border-border/70 rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
+    <div class="border border-border rounded-xl bg-card/30 h-80 w-full shadow-xs overflow-hidden">
       <Resizable defaultValue={['28%', '72%']}>
         {/* Sidebar explorer */}
         <Resizable.Panel min="20%" max="40%" class="bg-muted/25 flex flex-col justify-between">

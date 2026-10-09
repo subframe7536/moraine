@@ -61,7 +61,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
                   'text-sm px-3 h-9',
-                  isDocs() ? 'text-foreground' : 'text-muted-foreground',
+                  isDocs() ? 'text-foreground underline' : 'text-muted-foreground',
                 )}
               >
                 Docs
@@ -75,7 +75,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
                   'text-sm px-3 h-9',
-                  isComponents() ? 'text-foreground' : 'text-muted-foreground',
+                  isComponents() ? 'text-foreground underline' : 'text-muted-foreground',
                 )}
               >
                 Components
