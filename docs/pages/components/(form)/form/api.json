@@ -92,7 +92,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element | ((props: RenderProps) => JSX.Element)",
-          "description": "Content or render function receiving the field state."
+          "description": "Content or render function receiving the field state.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
         },
         {
           "name": "class",

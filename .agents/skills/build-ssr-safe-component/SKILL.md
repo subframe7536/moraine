@@ -71,12 +71,12 @@ children outside that replaceable root when their nodes and owned state must sur
 Verify identity, reactive updates, and cleanup before removing a resolver. A stable native container
 can consume children directly when it neither inspects nor reuses them.
 
-For Moraine `ComponentOrElement` children, use two-stage resolution:
+Children that may be either JSX or a render function use two stages, in this order:
 
 ```tsx
-const body = resolveChildren(() => local.children as JSX.Element)
+const child = resolveChildren(() => local.children)
 const resolvedChildren = createMemo(() =>
-  renderComponentOrElement(body() as ButtonT.Base['children'], {
+  renderWithProps(child(), {
     get loading() {
       return isLoading()
     },
@@ -84,11 +84,37 @@ const resolvedChildren = createMemo(() =>
 )
 ```
 
-The first stage resolves zero-argument Solid accessors returned by JSX control flow. The second stage
-mounts a remaining state render prop through `renderComponentOrElement` and preserves its
-`createComponent` boundary. This order matters because the same child can be a client-side signal
-accessor but an SSR value on the server. Passing the unresolved accessor directly to
-`renderComponentOrElement` adds a client-only component boundary and shifts hydration keys.
+`resolveChildren` invokes zero-argument functions. In Solid 1.9.15 that includes control-flow
+results: client `Show` returns a memo accessor, while server `Show` returns the branch value.
+`renderWithProps` (`src/shared/render-with-props.ts`) treats every function as a component. Passing
+`local.children` to it before resolution mounts that client accessor with `createComponent` and
+leaves the server value unmounted. The hydrated tree then misses a key, and later signal updates
+do not reach the child. Do not hide these two calls in another helper; the reactivity lint only
+treats `children` and `createMemo` as tracked scopes.
+
+A render function must accept a parameter, even an unused one, so its `length` stays above zero.
+`resolveChildren` then leaves it in place and `renderWithProps` mounts it once through
+`createComponent`. Props passed to that mount must be getters when the child needs later updates.
+A zero-argument function is only an accessor: `resolveChildren` calls it and also unwraps
+zero-argument functions in its return value. Do not create memos or nested control flow there.
+`Dialog` and `Sheet` pass a one-parameter setup function into `Modal` content for that reason.
+State the parameter requirement on each public children prop. The SSR guide records the same contract.
+
+Use each resolution for one job:
+
+| Resolution | Use for | Do not use for |
+| --- | --- | --- |
+| `resolveChildren`, then `renderWithProps` | `children` typed as JSX or `(props) => JSX.Element` | Named `*Render` props |
+| `renderWithProps` | A value that is already resolved, or a `*Render` component prop | An unresolved `children` accessor |
+| `resolveChildren` | Plain JSX children that are inspected, normalized, reused, or retained across a changing root | Render functions that still need props |
+| `createLazyMemo` | JSX props and item fields that must stay unread until the present branch reads them | Values that are rendered immediately |
+
+`Button`, `Field`, `BaseSelect.Trigger`, `Modal` content, and `Popper` content use the two stages.
+`BaseSelect.Item` resolves children, substitutes its item label for `undefined`, then calls
+`renderWithProps`. `ToggleButton` resolves children and, when the value is still a function,
+returns a new render function that adds `pressed` before `Button` mounts it. `Resizable.Handle`
+stores `resolveChildren` on the part, and the root calls `renderWithProps` when it renders the grip.
+`Progress` and collection `*Render` props call `renderWithProps` on the component value directly.
 
 Do not use only `createMemo(() => local.children)`. Do not call the state render prop directly.
 Do not special-case child resolution by size, variant, or visual child type.
@@ -309,7 +335,7 @@ Use the local Kobalte checkout as evidence for the single-resolution pattern:
 - `kobalte/packages/core/src/time-field/time-field-segment.tsx`
 - Commit `0326af2d` (`fix render prop ssr`), which changed repeated `props.children` reads to one `const body = props.children` read.
 
-Port the behavior, not Kobalte's API shape. Keep Moraine's `ComponentOrElement` and renderer semantics.
+Port the behavior, not Kobalte's API shape. Resolve children before `renderWithProps`.
 
 ## Acceptance Checklist
 
@@ -317,7 +343,7 @@ For the gates applicable to the change, verify:
 
 - Every JSX-capable prop has one documented semantic category.
 - Repeatedly consumed JSX-producing values are resolved in the correct mounting scope; scalar props are not subject to a single-read rule.
-- `ComponentOrElement` children resolve Solid accessors before component/render-prop mounting.
+- JSX-or-render-function children call `resolveChildren` before `renderWithProps`. Named `*Render` props use `renderWithProps` only after the value is the component, not an unresolved children accessor.
 - No original prop is reread after resolution.
 - Server and client create the same nodes and component boundaries in the same order.
 - Server render objects survive child normalization, and Portal markers do not become controls.

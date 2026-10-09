@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createRoot, createSignal } from 'solid-js'
+import { Show, createRoot, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -9,6 +9,7 @@ import { Input } from '../input'
 import { Field } from './field'
 import type { FieldBinding } from './field-context'
 import { FieldProvider, useFormField } from './field-context'
+import type { FieldT } from './field.types'
 
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
@@ -303,6 +304,93 @@ describe('Field', () => {
     screen.unmount()
     lightControl.remove()
     frame.remove()
+  })
+
+  test('updates conditional children and render props', () => {
+    const [visible, setVisible] = createSignal(true)
+    const [error, setError] = createSignal<string | undefined>('Missing')
+    const screen = render(() => (
+      <>
+        <Field label="Conditional">
+          <Show when={visible()}>
+            <span>Visible</span>
+          </Show>
+        </Field>
+        <Field label="Rendered" error={error()}>
+          {(state) => <span data-testid="rendered-error">{state.error}</span>}
+        </Field>
+      </>
+    ))
+
+    expect(screen.getByText('Visible')).toBeTruthy()
+    expect(screen.getByTestId('rendered-error').textContent).toBe('Missing')
+
+    setVisible(false)
+    setError('Updated')
+
+    expect(screen.queryByText('Visible')).toBeNull()
+    expect(screen.getByTestId('rendered-error').textContent).toBe('Updated')
+  })
+
+  test('calls a zero-argument children callback as an accessor', () => {
+    const [label, setLabel] = createSignal('first')
+    const calls: number[] = []
+    let cleanups = 0
+    const screen = render(() => (
+      <Field label="Value">
+        {function child() {
+          calls.push(arguments.length)
+          const text = label()
+          onCleanup(() => {
+            cleanups += 1
+          })
+          return <span data-testid="accessor-child">{text}</span>
+        }}
+      </Field>
+    ))
+
+    expect(screen.getByTestId('accessor-child').textContent).toBe('first')
+    expect(calls).toEqual([0])
+    expect(cleanups).toBe(0)
+
+    setLabel('second')
+
+    expect(screen.getByTestId('accessor-child').textContent).toBe('second')
+    expect(calls).toEqual([0, 0])
+    expect(cleanups).toBe(1)
+
+    screen.unmount()
+    expect(cleanups).toBe(2)
+  })
+
+  test('mounts a one-parameter children render function once', () => {
+    const [error, setError] = createSignal<string | undefined>('Missing')
+    const calls: number[] = []
+    let cleanups = 0
+    const screen = render(() => (
+      <Field label="Value" error={error()}>
+        {function child(state: FieldT.RenderProps) {
+          calls.push(arguments.length)
+          onCleanup(() => {
+            cleanups += 1
+          })
+          return <span data-testid="render-child">{state.error}</span>
+        }}
+      </Field>
+    ))
+
+    expect(screen.getByTestId('render-child').textContent).toBe('Missing')
+    expect(calls).toEqual([1])
+    expect(cleanups).toBe(0)
+
+    setError('Updated')
+
+    expect(screen.getByTestId('render-child').textContent).toBe('Updated')
+    expect(calls).toEqual([1])
+    expect(cleanups).toBe(0)
+
+    screen.unmount()
+    expect(cleanups).toBe(1)
   })
 })
 

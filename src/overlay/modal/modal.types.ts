@@ -101,7 +101,11 @@ export namespace ModalT {
   export type OverlayProps = BaseProps<'div', OverlayBase, Variant, never, never>
 
   export interface ContentBase {
-    /** Content or render function inside the modal content surface. */
+    /**
+     * Content or render function inside the modal content surface.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
     children: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
 
     /** Accessible name used when no visible label is available. */

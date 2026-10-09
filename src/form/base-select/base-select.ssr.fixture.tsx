@@ -25,6 +25,16 @@ export function renderBaseSelectFixture(): string {
   ))
 }
 
+export function renderBaseSelectShowTriggerFixture(): string {
+  return renderToString(() => (
+    <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
+      <BaseSelect.Trigger>
+        <Show when={true}>One</Show>
+      </BaseSelect.Trigger>
+    </BaseSelect>
+  ))
+}
+
 export function renderBaseSelectItemFixture(): string {
   function Label() {
     return <span>One</span>

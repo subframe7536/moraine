@@ -199,7 +199,11 @@ export namespace BaseSelectT {
     as?: T
     /** Whether this trigger is disabled. */
     disabled?: boolean
-    /** Label or reactive presentation function. */
+    /**
+     * Label or reactive presentation function.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
     children?: JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)
   }
 
@@ -238,7 +242,11 @@ export namespace BaseSelectT {
     item: TItem
     /** Item always renders a div; polymorphism belongs to Trigger. */
     as?: never
-    /** Visual content or reactive row presentation. */
+    /**
+     * Visual content or reactive row presentation.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
     children?: JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)
   }
   export type ItemProps<TItem extends Item = Item> = BaseProps<

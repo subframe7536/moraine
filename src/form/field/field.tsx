@@ -179,8 +179,9 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
   }
 
   function RenderFieldInternal(): JSX.Element {
-    const fieldChildren = resolveChildren(() =>
-      renderWithProps(local.children, {
+    const fieldChild = resolveChildren(() => local.children)
+    const fieldChildren = createMemo(() =>
+      renderWithProps(fieldChild(), {
         get error() {
           return resolvedError()
         },

@@ -20,7 +20,11 @@ export namespace ToggleButtonT {
     defaultPressed?: boolean
     /** Called after an uncancelled activation requests a toggle. */
     onPressedChange?: (pressed: boolean) => void
-    /** Content or render function receiving reactive toggle and loading states. */
+    /**
+     * Content or render function receiving reactive toggle and loading states.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
     children?: JSX.Element | ((props: { pressed: boolean; loading: boolean }) => JSX.Element)
   }
 

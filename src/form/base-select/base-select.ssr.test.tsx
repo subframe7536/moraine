@@ -41,6 +41,25 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   expect(document.querySelector('[role="option"]')?.getAttribute('aria-selected')).toBe('true')
 })
 
+test('hydrates a conditional Trigger child without replacing it', () => {
+  const [visible, setVisible] = createSignal(true)
+  const { container } = hydrateFixture(
+    '/src/form/base-select/base-select.ssr.fixture.tsx',
+    'renderBaseSelectShowTriggerFixture',
+    () => (
+      <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
+        <BaseSelect.Trigger>
+          <Show when={visible()}>One</Show>
+        </BaseSelect.Trigger>
+      </BaseSelect>
+    ),
+  )
+  const trigger = container.querySelector('button')!
+  expect(trigger.textContent).toBe('One')
+  setVisible(false)
+  expect(trigger.textContent).toBe('')
+})
+
 test('hydrates Item item prop and preserves its JSX label on updates', () => {
   const [disabled, setDisabled] = createSignal(false)
   let labelMounts = 0

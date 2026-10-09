@@ -3,6 +3,7 @@ import {
   Show,
   children as resolveChildren,
   createEffect,
+  createMemo,
   on,
   onCleanup,
   splitProps,
@@ -69,8 +70,9 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   createEffect(on(overlayScroll, context.setOverlayScroll))
   onCleanup(() => context.setOverlayScroll(false))
   const presence = context.presence
-  const body = resolveChildren(() =>
-    renderWithProps(local.children, {
+  const child = resolveChildren(() => local.children as JSX.Element)
+  const body = createMemo(() =>
+    renderWithProps(child(), {
       close: () => context.updateOpen(false),
     }),
   )

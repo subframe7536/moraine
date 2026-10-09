@@ -215,7 +215,11 @@ export interface PopperContentProps extends PopperContentOptions {
   /** Overrides interaction tracking independently of transition presence. */
   interactionEnabled?: boolean
 
-  /** Content or render function inside the positioned content. */
+  /**
+   * Content or render function inside the positioned content.
+   * A render function must declare its parameter, even when unused. A zero-argument
+   * function is called as an accessor and is not mounted as a component.
+   */
   children: JSX.Element | ((props: PopperContentContext) => JSX.Element)
 
   /** Viewport coordinates to transition from when content is first positioned. */
