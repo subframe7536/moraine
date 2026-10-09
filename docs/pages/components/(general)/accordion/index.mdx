@@ -11,22 +11,6 @@ search:
 
 import { Accordion } from '@src'
 
-Use Accordion for several related disclosures that share one open-item policy. For a single independent disclosure, use [Collapsible](/components/collapsible).
-
-## Basic usage
-
-```tsx
-import { Accordion } from 'moraine'
-
-export function Example() {
-  return (
-    <Accordion items={[{ value: 'shipping', label: 'Shipping', content: 'Ships in two days.' }]} />
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -70,6 +54,42 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use Accordion for several related disclosures that share one open-item policy. For a single independent disclosure, use [Collapsible](/components/collapsible).
+
+```tsx
+import { Accordion } from 'moraine'
+
+export function Example() {
+  return (
+    <Accordion items={[{ value: 'shipping', label: 'Shipping', content: 'Ships in two days.' }]} />
+  )
+}
+```
+
+### Open items
+
+Use an array of values for `value`, `defaultValue`, and `onChange` in both modes. Single mode opens at most one item; set `multiple` to allow several. In controlled usage, pair `value` with `onChange`. `collapsible` determines whether the currently open item may be closed.
+
+<Preview path="./open-items" />
+
+### Content lifetime
+
+The content shell stays mounted so each trigger's `aria-controls` always points to a real element. `unmountOnHide` controls only the user content inside that shell. Choose based on whether hidden controls need to preserve local state.
+
+<Preview path="./content-lifetime" />
+
+### Keyboard interaction
+
+| Key                                 | Description                                  |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
+| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
+| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
+
 ## Anatomy
 
 <Anatomy
@@ -97,30 +117,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Open items
-
-Use an array of values for `value`, `defaultValue`, and `onChange` in both modes. Single mode opens at most one item; set `multiple` to allow several. In controlled usage, pair `value` with `onChange`. `collapsible` determines whether the currently open item may be closed.
-
-<Preview path="./open-items" />
-
-### Content lifetime
-
-The content shell stays mounted so each trigger's `aria-controls` always points to a real element. `unmountOnHide` controls only the user content inside that shell. Choose based on whether hidden controls need to preserve local state.
-
-<Preview path="./content-lifetime" />
-
-### Keyboard interaction
-
-| Key                                 | Description                                  |
-| ----------------------------------- | -------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
-| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
-| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
-| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
-| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
 
 ## Examples
 

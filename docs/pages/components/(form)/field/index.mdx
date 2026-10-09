@@ -12,27 +12,6 @@ search:
 import { Field, Input } from '@src'
 import { createSignal } from 'solid-js'
 
-`Field` is a standalone presentational component with no form validation or form integration.
-It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
-
-For form integration, use `form.Field` returned by `createForm()`.
-
-## Basic usage
-
-```tsx
-import { Field, Input } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Email">
-      <Input name="email" type="email" />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 Enter an invalid email and leave the input to show the error and enable its slot indicator.
 
 <Playground
@@ -75,6 +54,40 @@ Enter an invalid email and leave the input to show the error and enable its slot
 
 </Playground>
 
+## Usage
+
+`Field` is a standalone presentational component with no form validation or form integration.
+It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
+
+For form integration, use `form.Field` returned by `createForm()`.
+
+```tsx
+import { Field, Input } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Email">
+      <Input name="email" type="email" />
+    </Field>
+  )
+}
+```
+
+Put a Moraine control inside `Field` so its label, description, and error IDs are registered with the actual focusable element. Standalone `Field` does not validate or submit values; use `form.Field` from `createForm()` when a schema owns the field. For local validation, pass the current message to `error`.
+
+<Preview path="./field-usage" />
+
+### Visually hidden labels
+
+Use `hiddenLabel` when a compact control needs an accessible name without a visible label.
+It preserves the label association without reserving label spacing or an empty horizontal label column.
+A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain visible;
+help and error text keep their usual placement.
+
+<Preview path="./hidden-label" />
+
+For a switch with a trailing visible label, use `<Switch label="Auto refresh" />`.
+
 ## Anatomy
 
 <Anatomy
@@ -100,23 +113,6 @@ Enter an invalid email and leave the input to show the error and enable its slot
 />
 
 Help and error are mutually exclusive; the error replaces help when the field is invalid.
-
-## Usage
-
-Put a Moraine control inside `Field` so its label, description, and error IDs are registered with the actual focusable element. Standalone `Field` does not validate or submit values; use `form.Field` from `createForm()` when a schema owns the field. For local validation, pass the current message to `error`.
-
-<Preview path="./field-usage" />
-
-### Visually hidden labels
-
-Use `hiddenLabel` when a compact control needs an accessible name without a visible label.
-It preserves the label association without reserving label spacing or an empty horizontal label column.
-A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain visible;
-help and error text keep their usual placement.
-
-<Preview path="./hidden-label" />
-
-For a switch with a trailing visible label, use `<Switch label="Auto refresh" />`.
 
 ## Examples
 

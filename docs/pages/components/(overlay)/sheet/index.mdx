@@ -12,30 +12,6 @@ search:
 
 import { Button, Field, Input, Sheet } from '@src'
 
-Use Sheet for a focused drawer from a viewport edge, such as mobile navigation or an inspector. It shares modal dismissal and focus behavior with its overlay family.
-
-## Basic usage
-
-```tsx
-import { Button, Sheet } from 'moraine'
-
-export function Example() {
-  return (
-    <Sheet>
-      <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
-      <Sheet.Content title="Details">
-        <Sheet.Body>Sheet content</Sheet.Body>
-        <Sheet.Footer>
-          <Sheet.Close as={Button}>Done</Sheet.Close>
-        </Sheet.Footer>
-      </Sheet.Content>
-    </Sheet>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -90,60 +66,27 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Sheet.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Sheet.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Sheet.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Sheet.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Sheet.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Sheet.Description',
-                slot: 'description',
-              },
-              {
-                part: 'Sheet.Action',
-                slot: 'action',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Sheet.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Sheet.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
-
 ## Usage
+
+Use Sheet for a focused drawer from a viewport edge, such as mobile navigation or an inspector. It shares modal dismissal and focus behavior with its overlay family.
+
+```tsx
+import { Button, Sheet } from 'moraine'
+
+export function Example() {
+  return (
+    <Sheet>
+      <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+      <Sheet.Content title="Details">
+        <Sheet.Body>Sheet content</Sheet.Body>
+        <Sheet.Footer>
+          <Sheet.Close as={Button}>Done</Sheet.Close>
+        </Sheet.Footer>
+      </Sheet.Content>
+    </Sheet>
+  )
+}
+```
 
 ### Content composition
 
@@ -219,6 +162,59 @@ Use controlled open state when a layout owns visibility. Disable normal dismissa
 | <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.     |
 | <kbd>Tab</kbd>         | Moves focus forward; modal sheets contain focus.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward; modal sheets contain focus. |
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Sheet.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Sheet.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Sheet.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Sheet.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Sheet.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Sheet.Description',
+                slot: 'description',
+              },
+              {
+                part: 'Sheet.Action',
+                slot: 'action',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Sheet.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Sheet.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
 
 ## Examples
 

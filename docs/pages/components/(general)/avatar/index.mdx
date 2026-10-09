@@ -11,20 +11,6 @@ search:
 
 import { Avatar } from '@src'
 
-Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for identity images; the fallback remains visible until the image loads.
-
-## Basic usage
-
-```tsx
-import { Avatar } from 'moraine'
-
-export function Example() {
-  return <Avatar src="/avatar.png" alt="Alex" fallback="A" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
@@ -54,6 +40,32 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for identity images; the fallback remains visible until the image loads.
+
+```tsx
+import { Avatar } from 'moraine'
+
+export function Example() {
+  return <Avatar src="/avatar.png" alt="Alex" fallback="A" />
+}
+```
+
+### Image fallbacks
+
+Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
+
+`Avatar` renders the real `<img src>` during server rendering and uses native image load and error events to switch between image and fallback. Status is `loading`, `loaded`, or `error`.
+
+<Preview path="./fallback-usage" />
+
+### Loading status
+
+Use image loading and error callbacks when surrounding UI needs to respond to a changed source status.
+
+<Preview path="./loading-usage" />
+
 ## Anatomy
 
 <Anatomy
@@ -72,22 +84,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Image fallbacks
-
-Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
-
-`Avatar` renders the real `<img src>` during server rendering and uses native image load and error events to switch between image and fallback. Status is `loading`, `loaded`, or `error`.
-
-<Preview path="./fallback-usage" />
-
-### Loading status
-
-Use image loading and error callbacks when surrounding UI needs to respond to a changed source status.
-
-<Preview path="./loading-usage" />
 
 ## Examples
 

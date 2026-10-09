@@ -12,34 +12,6 @@ search:
 
 import { Resizable } from '@src'
 
-Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such as IDEs, email clients, and split dashboards. For single expandable disclosures or collapsible drawers, see [Collapsible](/components/collapsible) or [Sheet](/components/sheet).
-
-The root manages the normalized size vector across all panels, while `Resizable.Panel` declares minimum, maximum, and collapsible constraints. Place `Resizable.Handle` between panels to enable pointer dragging, keyboard resizing, and collapse toggles.
-
-## Basic usage
-
-```tsx
-import { Resizable } from 'moraine'
-
-export function Example() {
-  return (
-    <div class="h-64 w-full border border-border/60 rounded-xl overflow-hidden bg-card/30">
-      <Resizable defaultValue={['30%', '70%']}>
-        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
-          Sidebar
-        </Resizable.Panel>
-        <Resizable.Handle />
-        <Resizable.Panel min="30%" class="p-4 bg-background/50">
-          Content
-        </Resizable.Panel>
-      </Resizable>
-    </div>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -86,30 +58,31 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'Resizable.Panel',
-        slot: 'panel',
-      },
-      {
-        part: 'Resizable.Handle',
-        slot: 'handle',
-        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
-      },
-      {
-        part: 'Resizable.Panel',
-        slot: 'panel',
-      },
-    ],
-  }}
-/>
-
 ## Usage
+
+Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such as IDEs, email clients, and split dashboards. For single expandable disclosures or collapsible drawers, see [Collapsible](/components/collapsible) or [Sheet](/components/sheet).
+
+The root manages the normalized size vector across all panels, while `Resizable.Panel` declares minimum, maximum, and collapsible constraints. Place `Resizable.Handle` between panels to enable pointer dragging, keyboard resizing, and collapse toggles.
+
+```tsx
+import { Resizable } from 'moraine'
+
+export function Example() {
+  return (
+    <div class="h-64 w-full border border-border/60 rounded-xl overflow-hidden bg-card/30">
+      <Resizable defaultValue={['30%', '70%']}>
+        <Resizable.Panel min="20%" class="p-4 bg-muted/20">
+          Sidebar
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel min="30%" class="p-4 bg-background/50">
+          Content
+        </Resizable.Panel>
+      </Resizable>
+    </div>
+  )
+}
+```
 
 ### Panel constraints
 
@@ -142,6 +115,29 @@ Handles render semantic separator elements with `tabIndex={0}`, `role="separator
 | <kbd>End</kbd>                               | Snaps the adjacent panel to its maximum permitted size.            |
 | <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel when `action="collapse"`.    |
 | <kbd>Alt</kbd> + drag                        | Distributes delta symmetrically across adjacent panels.            |
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+      {
+        part: 'Resizable.Handle',
+        slot: 'handle',
+        children: [{ slot: 'intersection' }, { slot: 'handleControl' }, { slot: 'intersection' }],
+      },
+      {
+        part: 'Resizable.Panel',
+        slot: 'panel',
+      },
+    ],
+  }}
+/>
 
 ## Examples
 

@@ -28,9 +28,10 @@ three or four columns on desktop and one or two on mobile. Use small badge label
 No preview grid, card wall, or repeated description accompanies each link. Route descriptions
 continue to support search, SEO, and agent Markdown.
 
-Component pages lead with a short choice-oriented introduction, then Basic usage as copyable public
-TSX, Playground for simple visual changes, optional annotated Anatomy, behavior-focused Usage, optional
-real-task Examples, and generated API tables. Keep a single source for web and agent output.
+Component pages lead with PageHeader, then Playground for simple visual changes. Usage starts with a
+short choice-oriented introduction and copyable public TSX, then explains behavior. Optional annotated
+Anatomy follows Usage. Optional real-task Examples follow Anatomy. Generated API tables are grouped
+under API Reference as Attributes, then Props. Keep a single source for web and agent output.
 Render Anatomy as a copyable text code block using the same tree as agent Markdown.
 Do not re-list props, create a separate Import/Features/Related section, repeat native browser
 keyboard behavior, or add examples only to show every variant and size. Simple components stay simple;
@@ -148,9 +149,9 @@ source panel; regular `Preview` blocks provide source for usage subsections and 
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
 
-Playground headings retain section anchors but omit the standard heading rule, with a 12 px gap
-before the panel. Frame the panel with a muted ribbon, 8 px on narrow screens and 12 px from `sm`,
-between an outer `rounded-2xl` radius and an inner `rounded-xl` radius. Use semantic borders and
+Playground has no heading; the panel uses `id="playground"` for deep links. Frame the panel with a
+muted ribbon, 8 px on narrow screens and 12 px from `sm`, between an outer `rounded-2xl` radius and
+an inner `rounded-xl` radius. Use semantic borders and
 background colors, without additional elevation. Both outlines use the same opaque `input` color
 to stay consistent across surfaces. The preview leads, with Props and Slots stacked in
 the right pane from `md` and below the preview on narrow screens. Separate Slots from Props with a

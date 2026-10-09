@@ -40,10 +40,10 @@ All pages have validated frontmatter with `title`, `description`, `sidebar.order
 A component page uses this order:
 
 ```text
-intro → Basic usage → Playground → Anatomy? → Usage → Examples? → generated Attributes / Props
+PageHeader → Playground → Usage → Anatomy? → Examples? → generated API Reference (Attributes, Props)
 ```
 
-`Basic usage` starts with one fenced TSX example using the public package, complete enough to copy. Playground controls show only visually meaningful primitive states. `Usage` explains behavior, value models, and constraints beyond the API table; optional `Examples` contain real application patterns. Keep simple pages short. Explain managed keyboard or accessibility behavior beside the relevant usage section, without repeating native browser behavior.
+Playground has no heading. Playground controls show only visually meaningful primitive states. `Usage` starts with a short choice-oriented introduction and one fenced TSX example using the public package, complete enough to copy, then explains behavior, value models, and constraints beyond the API table. Optional `Examples` contain real application patterns. Keep simple pages short. Explain managed keyboard or accessibility behavior beside the relevant usage section, without repeating native browser behavior.
 
 Anatomy is optional. When included, use one `## Anatomy` heading and one `<Anatomy value={...} />` with a static configuration, rendered as a fenced `text` tree. Every node identifies a public `component` or attached `part`, a style `slot`, or an `internal` detail. Root nodes say `slot=root` or `no DOM`. The build validates names against `api.json`; see `docs/build/anatomy.ts` and `docs/build/content.test.ts`. A style slot does not imply a matching attached JSX part.
 

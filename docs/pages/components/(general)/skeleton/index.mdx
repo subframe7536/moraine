@@ -12,28 +12,6 @@ search:
 
 import { Skeleton } from '@src'
 
-Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and shape to the content it will replace.
-
-## Basic usage
-
-```tsx
-import { Skeleton } from 'moraine'
-
-export function Example() {
-  return (
-    <div class="flex gap-4 max-w-sm w-full items-center">
-      <Skeleton class="rounded-full shrink-0 size-12" />
-      <div class="flex-1 min-w-0 space-y-2">
-        <Skeleton class="h-4 max-w-[250px] w-full" />
-        <Skeleton class="h-4 max-w-[200px] w-full" />
-      </div>
-    </div>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -62,18 +40,25 @@ export function Example() {
   {(props) => <Skeleton variant={props.variant} class={`size-20 ${props.shape}`} />}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and shape to the content it will replace.
+
+```tsx
+import { Skeleton } from 'moraine'
+
+export function Example() {
+  return (
+    <div class="flex gap-4 max-w-sm w-full items-center">
+      <Skeleton class="rounded-full shrink-0 size-12" />
+      <div class="flex-1 min-w-0 space-y-2">
+        <Skeleton class="h-4 max-w-[250px] w-full" />
+        <Skeleton class="h-4 max-w-[200px] w-full" />
+      </div>
+    </div>
+  )
+}
+```
 
 ### Size and appearance
 
@@ -86,6 +71,17 @@ The default `variant="pulse"` fades the placeholder in and out. Use `variant="sh
 Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-anim-duration-loop` or `--mo-anim-duration` in `style` to change its speed. Configure `skeleton.defaultVariants.variant` in your Theme to set the default animation across your application.
 
 <Preview path="./animation-variants" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+  }}
+/>
 
 ## Examples
 

@@ -36,35 +36,6 @@ import {
   SidebarFrame,
 } from '@src'
 
-`SidebarFrame` is both the state provider and desktop layout root. `SidebarFrame.Sidebar` renders inline on desktop and automatically moves its content into a mobile Sheet on smaller viewports.
-
-## Basic usage
-
-```tsx
-import { SidebarFrame } from 'moraine'
-
-export function Example() {
-  return (
-    <SidebarFrame>
-      <SidebarFrame.Sidebar>
-        <SidebarFrame.SidebarBody>
-          <SidebarFrame.Menu>
-            <SidebarFrame.Label>Navigation</SidebarFrame.Label>
-            <SidebarFrame.Item leading="i-lucide:home" isActive>
-              Home
-            </SidebarFrame.Item>
-            <SidebarFrame.Item leading="i-lucide:settings">Settings</SidebarFrame.Item>
-          </SidebarFrame.Menu>
-        </SidebarFrame.SidebarBody>
-      </SidebarFrame.Sidebar>
-      <SidebarFrame.Main>Content</SidebarFrame.Main>
-    </SidebarFrame>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -395,6 +366,60 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+`SidebarFrame` is both the state provider and desktop layout root. `SidebarFrame.Sidebar` renders inline on desktop and automatically moves its content into a mobile Sheet on smaller viewports.
+
+```tsx
+import { SidebarFrame } from 'moraine'
+
+export function Example() {
+  return (
+    <SidebarFrame>
+      <SidebarFrame.Sidebar>
+        <SidebarFrame.SidebarBody>
+          <SidebarFrame.Menu>
+            <SidebarFrame.Label>Navigation</SidebarFrame.Label>
+            <SidebarFrame.Item leading="i-lucide:home" isActive>
+              Home
+            </SidebarFrame.Item>
+            <SidebarFrame.Item leading="i-lucide:settings">Settings</SidebarFrame.Item>
+          </SidebarFrame.Menu>
+        </SidebarFrame.SidebarBody>
+      </SidebarFrame.Sidebar>
+      <SidebarFrame.Main>Content</SidebarFrame.Main>
+    </SidebarFrame>
+  )
+}
+```
+
+### Responsive navigation ownership
+
+`SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
+
+Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` / `onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop. Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives `(max-width: ${breakpoint}px)` via `matchMedia`.
+
+Root `classes` and `styles` set defaults for frame, sidebar, menu, label, item, and submenu slots. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
+
+`SidebarFrame` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or with `presetMoraine`. Width classes on `SidebarFrame.Sidebar` take precedence.
+
+The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass `class="h-dvh"` (or `h-svh`) on the root.
+
+Call `useSidebarFrame()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+
+To persist desktop open state across reloads, control `open` from the app and store it in a cookie (not `localStorage`, which mismatches SSR hydration).
+
+<Preview path="./responsive-usage" />
+
+### Navigation menu layer
+
+`SidebarFrame` provides structured menu primitives to build desktop and mobile navigation menus:
+
+- `SidebarFrame.Menu`: Section container for a labeled group of navigation items.
+- `SidebarFrame.Label`: Section title with polymorphic tag support (`as="h2"`, `'span'`, etc.).
+- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, `actions`, and `isActive`. `leading` / `trailing` accept icon names or arbitrary JSX.
+- `SidebarFrame.Submenu` / `SubmenuTrigger` / `SubmenuContent`: Collapsible sub-navigation built on `Collapsible`. Keep links and disclosure controls on separate elements when a parent has both an `href` and children.
+
 ## Anatomy
 
 <Anatomy
@@ -459,35 +484,6 @@ export function Example() {
 />
 
 Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regions inside an internal Sheet.
-
-## Navigation menu layer
-
-`SidebarFrame` provides structured menu primitives to build desktop and mobile navigation menus:
-
-- `SidebarFrame.Menu`: Section container for a labeled group of navigation items.
-- `SidebarFrame.Label`: Section title with polymorphic tag support (`as="h2"`, `'span'`, etc.).
-- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, `actions`, and `isActive`. `leading` / `trailing` accept icon names or arbitrary JSX.
-- `SidebarFrame.Submenu` / `SubmenuTrigger` / `SubmenuContent`: Collapsible sub-navigation built on `Collapsible`. Keep links and disclosure controls on separate elements when a parent has both an `href` and children.
-
-## Usage
-
-### Responsive navigation ownership
-
-`SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
-
-Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` / `onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop. Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives `(max-width: ${breakpoint}px)` via `matchMedia`.
-
-Root `classes` and `styles` set defaults for frame, sidebar, menu, label, item, and submenu slots. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
-
-`SidebarFrame` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or with `presetMoraine`. Width classes on `SidebarFrame.Sidebar` take precedence.
-
-The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass `class="h-dvh"` (or `h-svh`) on the root.
-
-Call `useSidebarFrame()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
-
-To persist desktop open state across reloads, control `open` from the app and store it in a cookie (not `localStorage`, which mismatches SSR hydration).
-
-<Preview path="./responsive-usage" />
 
 ## Examples
 

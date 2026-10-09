@@ -11,20 +11,6 @@ search:
 
 import { Kbd } from '@src'
 
-Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/components/kbd-group); showing a shortcut does not register a keyboard handler.
-
-## Basic usage
-
-```tsx
-import { Kbd } from 'moraine'
-
-export function Example() {
-  return <Kbd value="K" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -76,18 +62,17 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'kbd',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/components/kbd-group); showing a shortcut does not register a keyboard handler.
+
+```tsx
+import { Kbd } from 'moraine'
+
+export function Example() {
+  return <Kbd value="K" />
+}
+```
 
 ### Root styling
 
@@ -100,6 +85,17 @@ export function Example() {
 Use `Kbd` for a single key or keycap in instructional text. It conveys displayed keyboard notation; application-level shortcut registration and platform-specific behavior remain outside the component.
 
 <Preview path="./kbd-usage" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'kbd',
+    },
+  }}
+/>
 
 ## Examples
 

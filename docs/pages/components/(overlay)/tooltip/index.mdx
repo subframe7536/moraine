@@ -12,25 +12,6 @@ search:
 
 import { Button, Tooltip } from '@src'
 
-Use Tooltip for supplemental information on hover or focus. The trigger must still have its own accessible name when the control needs one.
-
-## Basic usage
-
-```tsx
-import { Button, Tooltip } from 'moraine'
-
-export function Example() {
-  return (
-    <Tooltip>
-      <Tooltip.Trigger as={Button}>Save</Tooltip.Trigger>
-      <Tooltip.Content>Save changes</Tooltip.Content>
-    </Tooltip>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Tooltip text', defaultValue: 'Create new document' },
@@ -73,6 +54,39 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Tooltip for supplemental information on hover or focus. The trigger must still have its own accessible name when the control needs one.
+
+```tsx
+import { Button, Tooltip } from 'moraine'
+
+export function Example() {
+  return (
+    <Tooltip>
+      <Tooltip.Trigger as={Button}>Save</Tooltip.Trigger>
+      <Tooltip.Content>Save changes</Tooltip.Content>
+    </Tooltip>
+  )
+}
+```
+
+### Supplemental information
+
+Use tooltips for non-interactive hints that supplement an already labeled trigger. Do not use tooltip text as the sole accessible name of an icon-only control.
+
+<Preview path="./hints-usage" />
+
+### Triggering and shortcuts
+
+Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`, or `invert`. When omitted, keycaps follow the content's `invert` setting.
+
+<Preview path="./shortcuts-usage" />
+
+### Keyboard interaction
+
+Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the tooltip content.
+
 ## Anatomy
 
 <Anatomy
@@ -105,24 +119,6 @@ export function Example() {
 />
 
 Content is portaled inside an internal positioning wrapper. String content uses the text slot; JSX content renders directly inside Content.
-
-## Usage
-
-### Supplemental information
-
-Use tooltips for non-interactive hints that supplement an already labeled trigger. Do not use tooltip text as the sole accessible name of an icon-only control.
-
-<Preview path="./hints-usage" />
-
-### Triggering and shortcuts
-
-Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`, or `invert`. When omitted, keycaps follow the content's `invert` setting.
-
-<Preview path="./shortcuts-usage" />
-
-### Keyboard interaction
-
-Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the tooltip content.
 
 ## Examples
 

@@ -11,20 +11,6 @@ search:
 
 import { Badge } from '@src'
 
-Use Badge for compact status or metadata beside content. It is presentational by default; an action needs a semantic interactive root and an accessible name.
-
-## Basic usage
-
-```tsx
-import { Badge } from 'moraine'
-
-export function Example() {
-  return <Badge>Active</Badge>
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -59,6 +45,24 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Badge for compact status or metadata beside content. It is presentational by default; an action needs a semantic interactive root and an accessible name.
+
+```tsx
+import { Badge } from 'moraine'
+
+export function Example() {
+  return <Badge>Active</Badge>
+}
+```
+
+### Presentational status
+
+Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. For an interactive badge, choose a semantic root with `as` and provide its required attributes, such as `type="button"`. Badge does not replace an accessible status announcement where one is required.
+
+<Preview path="./badge-usage" />
+
 ## Anatomy
 
 <Anatomy
@@ -67,14 +71,6 @@ export function Example() {
     children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
   }}
 />
-
-## Usage
-
-### Presentational status
-
-Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. For an interactive badge, choose a semantic root with `as` and provide its required attributes, such as `type="button"`. Badge does not replace an accessible status announcement where one is required.
-
-<Preview path="./badge-usage" />
 
 ## Examples
 

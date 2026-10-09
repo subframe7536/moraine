@@ -13,27 +13,6 @@ search:
 
 import { Icon, Input, InputGroup } from '@src'
 
-Use InputGroup when an editable control and its addons should share one visual boundary. The inner input or textarea still owns text entry and its accessible name.
-
-## Basic usage
-
-```tsx
-import { Field, Input, InputGroup } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Username">
-      <InputGroup>
-        <InputGroup.Leading>@</InputGroup.Leading>
-        <Input placeholder="username" />
-      </InputGroup>
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -83,28 +62,24 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'InputGroup.Leading',
-        slot: 'leading',
-      },
-      {
-        part: 'InputGroup.Trailing',
-        slot: 'trailing',
-      },
-      { internal: 'frame' },
-    ],
-  }}
-/>
-
-Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
-
 ## Usage
+
+Use InputGroup when an editable control and its addons should share one visual boundary. The inner input or textarea still owns text entry and its accessible name.
+
+```tsx
+import { Field, Input, InputGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Username">
+      <InputGroup>
+        <InputGroup.Leading>@</InputGroup.Leading>
+        <Input placeholder="username" />
+      </InputGroup>
+    </Field>
+  )
+}
+```
 
 ### Direction and orientation
 
@@ -127,6 +102,27 @@ Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keep
 Size precedence is the control's explicit size, group size, Field size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
 
 Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'InputGroup.Leading',
+        slot: 'leading',
+      },
+      {
+        part: 'InputGroup.Trailing',
+        slot: 'trailing',
+      },
+      { internal: 'frame' },
+    ],
+  }}
+/>
+
+Place Leading parts before one Input or Textarea, then Trailing parts. The final internal frame paints the shared boundary.
 
 ## Examples
 

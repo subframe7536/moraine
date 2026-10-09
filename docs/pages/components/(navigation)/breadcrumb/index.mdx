@@ -11,20 +11,6 @@ search:
 
 import { Breadcrumb } from '@src'
 
-Use Breadcrumb to show a resource’s place in a navigation hierarchy. The current page is represented as a non-link item.
-
-## Basic usage
-
-```tsx
-import { Breadcrumb } from 'moraine'
-
-export function Example() {
-  return <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
@@ -63,6 +49,24 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use Breadcrumb to show a resource’s place in a navigation hierarchy. The current page is represented as a non-link item.
+
+```tsx
+import { Breadcrumb } from 'moraine'
+
+export function Example() {
+  return <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />
+}
+```
+
+### Items and current page
+
+Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. The current page is a non-link `span` with `aria-current="page"`. Explicitly disabled ancestors remain non-interactive and expose `aria-disabled="true"`.
+
+<Preview path="./items-page" />
+
 ## Anatomy
 
 <Anatomy
@@ -90,14 +94,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Items and current page
-
-Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. The current page is a non-link `span` with `aria-current="page"`. Explicitly disabled ancestors remain non-interactive and expose `aria-disabled="true"`.
-
-<Preview path="./items-page" />
 
 ## Examples
 

@@ -14,36 +14,6 @@ search:
 import { For } from 'solid-js'
 import { Icon, NavigationMenu } from '@src'
 
-Use NavigationMenu for website destinations, with direct links and expandable link panels. Use [DropdownMenu](/components/dropdown-menu) for a menu of actions.
-
-## Basic usage
-
-```tsx
-import { NavigationMenu } from 'moraine'
-
-export function Example() {
-  return (
-    <NavigationMenu aria-label="Main navigation">
-      <NavigationMenu.List>
-        <NavigationMenu.Item value="products">
-          <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
-          <NavigationMenu.Content>
-            <NavigationMenu.Link href="/overview" closeOnClick>
-              Overview
-            </NavigationMenu.Link>
-          </NavigationMenu.Content>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link href="/docs">Documentation</NavigationMenu.Link>
-        </NavigationMenu.Item>
-      </NavigationMenu.List>
-    </NavigationMenu>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -203,39 +173,33 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'NavigationMenu.List',
-        slot: 'list',
-        children: [
-          {
-            part: 'NavigationMenu.Item',
-            slot: 'item',
-            children: [
-              {
-                part: 'NavigationMenu.Trigger',
-                slot: 'trigger',
-                children: [{ slot: 'triggerIcon' }],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        part: 'NavigationMenu.Content',
-        slot: 'content',
-        children: [{ part: 'NavigationMenu.Link', slot: 'link' }],
-      },
-    ],
-  }}
-/>
-
 ## Usage
+
+Use NavigationMenu for website destinations, with direct links and expandable link panels. Use [DropdownMenu](/components/dropdown-menu) for a menu of actions.
+
+```tsx
+import { NavigationMenu } from 'moraine'
+
+export function Example() {
+  return (
+    <NavigationMenu aria-label="Main navigation">
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="products">
+          <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <NavigationMenu.Link href="/overview" closeOnClick>
+              Overview
+            </NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="/docs">Documentation</NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu>
+  )
+}
+```
 
 ### Basic
 
@@ -274,3 +238,35 @@ Arrow keys along the list axis move focus without opening a panel. Home and End 
 Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
 
 The root renders a navigation landmark. Give it an accessible name when the page has several navigation landmarks. This version supports one level of panels.
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'NavigationMenu.List',
+        slot: 'list',
+        children: [
+          {
+            part: 'NavigationMenu.Item',
+            slot: 'item',
+            children: [
+              {
+                part: 'NavigationMenu.Trigger',
+                slot: 'trigger',
+                children: [{ slot: 'triggerIcon' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        part: 'NavigationMenu.Content',
+        slot: 'content',
+        children: [{ part: 'NavigationMenu.Link', slot: 'link' }],
+      },
+    ],
+  }}
+/>

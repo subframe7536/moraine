@@ -12,25 +12,6 @@ search:
 
 import { Button, Card, Collapsible, Icon } from '@src'
 
-Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use [Accordion](/components/accordion) when several disclosures share selection rules.
-
-## Basic usage
-
-```tsx
-import { Collapsible } from 'moraine'
-
-export function Example() {
-  return (
-    <Collapsible>
-      <Collapsible.Trigger>Details</Collapsible.Trigger>
-      <Collapsible.Content>More information</Collapsible.Content>
-    </Collapsible>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -74,30 +55,22 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [
-      {
-        part: 'Collapsible.Trigger',
-        slot: 'trigger',
-      },
-      {
-        internal: 'contentWrapper',
-        children: [
-          {
-            part: 'Collapsible.Content',
-            slot: 'content',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
 ## Usage
+
+Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use [Accordion](/components/accordion) when several disclosures share selection rules.
+
+```tsx
+import { Collapsible } from 'moraine'
+
+export function Example() {
+  return (
+    <Collapsible>
+      <Collapsible.Trigger>Details</Collapsible.Trigger>
+      <Collapsible.Content>More information</Collapsible.Content>
+    </Collapsible>
+  )
+}
+```
 
 ### Styling
 
@@ -122,6 +95,29 @@ The content shell stays mounted so the trigger's `aria-controls` points to a rea
 ### Keyboard interaction
 
 The trigger uses button semantics by default. A polymorphic trigger follows the keyboard semantics of its supplied element or component.
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Collapsible.Trigger',
+        slot: 'trigger',
+      },
+      {
+        internal: 'contentWrapper',
+        children: [
+          {
+            part: 'Collapsible.Content',
+            slot: 'content',
+          },
+        ],
+      },
+    ],
+  }}
+/>
 
 ## Examples
 

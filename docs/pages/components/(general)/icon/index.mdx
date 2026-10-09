@@ -11,20 +11,6 @@ search:
 
 import { Icon } from '@src'
 
-Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it an accessible name; otherwise it is hidden from assistive technology.
-
-## Basic usage
-
-```tsx
-import { Icon } from 'moraine'
-
-export function Example() {
-  return <Icon name="i-lucide:check" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'size', label: 'Size (px)', defaultValue: 28, inputType: 'number' },
@@ -38,18 +24,17 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it an accessible name; otherwise it is hidden from assistive technology.
+
+```tsx
+import { Icon } from 'moraine'
+
+export function Example() {
+  return <Icon name="i-lucide:check" />
+}
+```
 
 ### Icon sources
 
@@ -72,6 +57,17 @@ Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not suppo
 `Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props because there are no child slots to target. `slotName` only changes the emitted `data-slot` value.
 
 <Preview path="./slots" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div',
+    },
+  }}
+/>
 
 ## Examples
 

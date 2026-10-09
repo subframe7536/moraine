@@ -26,48 +26,6 @@ import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup
 import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
-Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
-with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
-when you only need labels and messages.
-
-## Basic usage
-
-```tsx
-import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
-import * as v from 'valibot'
-
-const schema = v.object({
-  email: v.pipe(v.string(), v.email('Enter a valid email address')),
-  enabled: v.boolean(),
-})
-
-export function NotificationForm() {
-  const form = createForm({
-    schema,
-    initialInput: { email: '', enabled: false },
-  })
-
-  return (
-    <form.Form onSubmit={(output) => console.log(output)}>
-      <form.Field name="email" label="Email Address">
-        <InputGroup>
-          <InputGroup.Leading>
-            <Icon name="i-lucide:mail" />
-          </InputGroup.Leading>
-          <Input />
-        </InputGroup>
-      </form.Field>
-      <form.Field name="enabled" label="Enable Notifications">
-        <Switch />
-      </form.Field>
-      <Button type="submit">Save Changes</Button>
-    </form.Form>
-  )
-}
-```
-
-## Playground
-
 The slot controls below apply only to the `form.Form` root. To explore label, description,
 help, and error slots, use the [Field playground](/components/field#playground).
 
@@ -308,21 +266,45 @@ help, and error slots, use the [Field playground](/components/field#playground).
 
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'form',
-    },
-    children: [{ part: 'form.Field' }],
-  }}
-/>
-
-Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
-
 ## Usage
+
+Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
+with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
+when you only need labels and messages.
+
+```tsx
+import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
+import * as v from 'valibot'
+
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Enter a valid email address')),
+  enabled: v.boolean(),
+})
+
+export function NotificationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+
+  return (
+    <form.Form onSubmit={(output) => console.log(output)}>
+      <form.Field name="email" label="Email Address">
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="i-lucide:mail" />
+          </InputGroup.Leading>
+          <Input />
+        </InputGroup>
+      </form.Field>
+      <form.Field name="enabled" label="Enable Notifications">
+        <Switch />
+      </form.Field>
+      <Button type="submit">Save Changes</Button>
+    </form.Form>
+  )
+}
+```
 
 ### Basic form and submission
 
@@ -380,6 +362,20 @@ Target nested object and array fields by supplying path tuples (for example, `['
 Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
 
 <Preview path="./reset" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'form',
+    },
+    children: [{ part: 'form.Field' }],
+  }}
+/>
+
+Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
 
 ## Examples
 

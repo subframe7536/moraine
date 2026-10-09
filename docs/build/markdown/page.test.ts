@@ -86,7 +86,8 @@ describe('createDocsMdxOptions', () => {
       markdownPath: '/components/button.md',
       sections: [
         { id: 'button', label: 'Button', level: 1 },
-        { id: 'api-reference', label: 'Props', level: 1 },
+        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-props', label: 'Props', level: 2 },
       ],
     })
     expect(extension?.routeConfig?.metadata).toEqual({
@@ -129,7 +130,8 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.info).toMatchObject({
       sections: [
         { id: 'usage', label: 'Usage', level: 1 },
-        { id: 'api-reference', label: 'Props', level: 1 },
+        { id: 'api-reference', label: 'API Reference', level: 1 },
+        { id: 'api-props', label: 'Props', level: 2 },
       ],
     })
   })

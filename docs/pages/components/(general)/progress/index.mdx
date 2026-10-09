@@ -11,20 +11,6 @@ search:
 
 import { Progress } from '@src'
 
-Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
-
-## Basic usage
-
-```tsx
-import { Progress } from 'moraine'
-
-export function Example() {
-  return <Progress value={40} max={100} aria-label="Upload progress" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
@@ -52,6 +38,30 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
+
+```tsx
+import { Progress } from 'moraine'
+
+export function Example() {
+  return <Progress value={40} max={100} aria-label="Upload progress" />
+}
+```
+
+### Progress models
+
+Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+
+<Preview path="./models" />
+
+### Semantics and animation
+
+The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+
+<Preview path="./semantics" />
+
 ## Anatomy
 
 <Anatomy
@@ -70,17 +80,3 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Progress models
-
-Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
-
-<Preview path="./models" />
-
-### Semantics and animation
-
-The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
-
-<Preview path="./semantics" />

@@ -11,24 +11,6 @@ search:
 
 import { Textarea } from '@src'
 
-Use Textarea for multi-line native text entry. Use [InputGroup](/components/input-group) to put controls around it without changing which element receives typing and focus.
-
-## Basic usage
-
-```tsx
-import { Field, Textarea } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Message">
-      <Textarea placeholder="Write a message" />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -77,18 +59,21 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'textarea',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Textarea for multi-line native text entry. Use [InputGroup](/components/input-group) to put controls around it without changing which element receives typing and focus.
+
+```tsx
+import { Field, Textarea } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Message">
+      <Textarea placeholder="Write a message" />
+    </Field>
+  )
+}
+```
 
 ### Native text behavior
 
@@ -101,6 +86,17 @@ export function Example() {
 Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions. Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
 
 <Preview path="./composition" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'textarea',
+    },
+  }}
+/>
 
 ## Examples
 

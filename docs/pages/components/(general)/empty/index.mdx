@@ -14,25 +14,6 @@ search:
 
 import { Button, Empty, Icon } from '@src'
 
-Empty is an application-level presentation primitive. It provides a consistent layout for an empty-state message, optional media, and actions. Your application decides when to show it; Empty does not inspect collections or search results.
-
-## Basic usage
-
-```tsx
-import { Empty } from 'moraine'
-
-export function Example() {
-  return (
-    <Empty>
-      <Empty.Title>No projects yet</Empty.Title>
-      <Empty.Description>Create a project to organize your work.</Empty.Description>
-    </Empty>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'No projects yet' },
@@ -64,13 +45,36 @@ export function Example() {
       <Empty.Description>{props.description}</Empty.Description>
       <Empty.Actions>
         <Button>Create project</Button>
-        <Button as="a" href="#basic-usage" variant="outline">
+        <Button as="a" href="#usage" variant="outline">
           Learn more
         </Button>
       </Empty.Actions>
     </Empty>
   )}
 </Playground>
+
+## Usage
+
+Empty is an application-level presentation primitive. It provides a consistent layout for an empty-state message, optional media, and actions. Your application decides when to show it; Empty does not inspect collections or search results.
+
+```tsx
+import { Empty } from 'moraine'
+
+export function Example() {
+  return (
+    <Empty>
+      <Empty.Title>No projects yet</Empty.Title>
+      <Empty.Description>Create a project to organize your work.</Empty.Description>
+    </Empty>
+  )
+}
+```
+
+Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX, including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
+
+`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+
+The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use `sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state. Vertical padding is more generous than horizontal insets. Title and description stay grouped, with more space around media and actions. Size does not resize the content placed inside `Media`.
 
 ## Anatomy
 
@@ -85,14 +89,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX, including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
-
-`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the surrounding page needs one. Empty adds no role or ARIA relationships automatically.
-
-The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use `sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state. Vertical padding is more generous than horizontal insets. Title and description stay grouped, with more space around media and actions. Size does not resize the content placed inside `Media`.
 
 ## Examples
 

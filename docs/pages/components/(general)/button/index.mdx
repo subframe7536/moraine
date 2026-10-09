@@ -11,20 +11,6 @@ search:
 
 import { Button } from '@src'
 
-Use Button for actions and explicit navigation. Choose the underlying element with `as` according to the action: a button for commands and an anchor for destinations.
-
-## Basic usage
-
-```tsx
-import { Button } from 'moraine'
-
-export function Example() {
-  return <Button>Save</Button>
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -86,19 +72,17 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'button',
-    },
-    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-  }}
-/>
-
 ## Usage
+
+Use Button for actions and explicit navigation. Choose the underlying element with `as` according to the action: a button for commands and an anchor for destinations.
+
+```tsx
+import { Button } from 'moraine'
+
+export function Example() {
+  return <Button>Save</Button>
+}
+```
 
 ### Press motion
 
@@ -121,6 +105,18 @@ Leading and trailing content can be icons or custom elements. Icon-only buttons 
 Icon-only buttons support dedicated square sizes from `icon-xs` to `icon-xl`.
 
 <Preview path="./icon-sizes" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'button',
+    },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>
 
 ## Examples
 

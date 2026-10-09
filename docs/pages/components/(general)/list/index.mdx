@@ -11,20 +11,6 @@ search:
 
 import { List } from '@src'
 
-Use List when the caller owns each row’s markup and needs a stable collection surface. Pass `items` and an `itemRender` component; List does not take row content through `children`. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
-
-## Basic usage
-
-```tsx
-import { List } from 'moraine'
-
-export function Example() {
-  return <List items={['Alpha', 'Beta']} itemRender={(item) => <li>{item.item}</li>} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[{ kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false }]}
 >
@@ -37,18 +23,17 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'ul',
-    },
-  }}
-/>
-
 ## Usage
+
+Use List when the caller owns each row’s markup and needs a stable collection surface. Pass `items` and an `itemRender` component; List does not take row content through `children`. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
+
+```tsx
+import { List } from 'moraine'
+
+export function Example() {
+  return <List items={['Alpha', 'Beta']} itemRender={(item) => <li>{item.item}</li>} />
+}
+```
 
 ### Row ownership and virtualization
 
@@ -59,6 +44,17 @@ export function Example() {
 Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
 
 <Preview path="./virtualization" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'ul',
+    },
+  }}
+/>
 
 ## Examples
 

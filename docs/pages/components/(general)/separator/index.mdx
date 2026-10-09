@@ -11,20 +11,6 @@ search:
 
 import { Separator } from '@src'
 
-Use Separator to divide related regions with a visible line. Choose its orientation to match the layout boundary.
-
-## Basic usage
-
-```tsx
-import { Separator } from 'moraine'
-
-export function Example() {
-  return <Separator />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -48,18 +34,17 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'div role="separator"',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Separator to divide related regions with a visible line. Choose its orientation to match the layout boundary.
+
+```tsx
+import { Separator } from 'moraine'
+
+export function Example() {
+  return <Separator />
+}
+```
 
 ### Root styling
 
@@ -72,3 +57,14 @@ export function Example() {
 Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orientation`. Choose horizontal or vertical orientation to match the surrounding layout.
 
 <Preview path="./separator-usage" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'div role="separator"',
+    },
+  }}
+/>

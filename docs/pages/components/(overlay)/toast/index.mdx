@@ -12,47 +12,6 @@ import 'solid-toaster/style.css'
 import { Button, Icon } from '@src'
 import { toast, BaseToaster } from 'solid-toaster'
 
-Use `solid-toaster` for temporary status messages. It is a separate package; Moraine does not
-export a Toast component. Mount its host once and use Moraine icons and theme variables to match
-your application.
-
-## Basic usage
-
-```tsx
-import 'solid-toaster/style.css'
-
-import { Button, Icon } from 'moraine'
-import { BaseToaster, toast } from 'solid-toaster'
-
-export default function App() {
-  return (
-    <>
-      <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
-      <BaseToaster
-        visibleToasts={4}
-        preventDuplicate
-        style={{
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--border-radius': 'var(--radius)',
-        }}
-        icons={{
-          success: () => <Icon name="icon-success" />,
-          error: () => <Icon name="icon-error" />,
-          warning: () => <Icon name="icon-warning" />,
-          info: () => <Icon name="icon-info" />,
-          loading: () => <Icon name="icon-loading" class="animate-spin" />,
-          close: () => <Icon name="icon-close" />,
-        }}
-      />
-    </>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -127,6 +86,43 @@ export default function App() {
 
 ## Usage
 
+Use `solid-toaster` for temporary status messages. It is a separate package; Moraine does not
+export a Toast component. Mount its host once and use Moraine icons and theme variables to match
+your application.
+
+```tsx
+import 'solid-toaster/style.css'
+
+import { Button, Icon } from 'moraine'
+import { BaseToaster, toast } from 'solid-toaster'
+
+export default function App() {
+  return (
+    <>
+      <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
+      <BaseToaster
+        visibleToasts={4}
+        preventDuplicate
+        style={{
+          '--normal-bg': 'var(--popover)',
+          '--normal-text': 'var(--popover-foreground)',
+          '--normal-border': 'var(--border)',
+          '--border-radius': 'var(--radius)',
+        }}
+        icons={{
+          success: () => <Icon name="icon-success" />,
+          error: () => <Icon name="icon-error" />,
+          warning: () => <Icon name="icon-warning" />,
+          info: () => <Icon name="icon-info" />,
+          loading: () => <Icon name="icon-loading" class="animate-spin" />,
+          close: () => <Icon name="icon-close" />,
+        }}
+      />
+    </>
+  )
+}
+```
+
 ### Install and mount the host
 
 Install `solid-toaster`:
@@ -145,7 +141,7 @@ npm i solid-toaster
 
 Import `solid-toaster/style.css` and mount one `BaseToaster` at your application root before
 calling `toast` methods. Its `icons` and `style` props connect the host to Moraine's semantic
-icons and theme variables, as shown in Basic usage.
+icons and theme variables, as shown in the example above.
 
 <Preview path="./setup-usage" />
 

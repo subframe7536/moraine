@@ -11,20 +11,6 @@ search:
 
 import { FileUpload } from '@src'
 
-Use FileUpload to collect local files before the application sends them. Selection and validation happen in the component; upload transport belongs to the caller.
-
-## Basic usage
-
-```tsx
-import { FileUpload } from 'moraine'
-
-export function Example() {
-  return <FileUpload label="Upload files" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -54,6 +40,37 @@ export function Example() {
     )
   }}
 </Playground>
+
+## Usage
+
+Use FileUpload to collect local files before the application sends them. Selection and validation happen in the component; upload transport belongs to the caller.
+
+```tsx
+import { FileUpload } from 'moraine'
+
+export function Example() {
+  return <FileUpload label="Upload files" />
+}
+```
+
+### Selecting files
+
+Click anywhere in the visible dropzone, including its padding, icon, and text, or drop files onto it. File previews and removal actions are outside the picker hit area. Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
+
+<Preview path="./selecting-files" />
+
+### Rejections and form behavior
+
+`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list. It inherits an enclosing Field read-only state when omitted; an explicit `readOnly={false}` overrides that state. `disabled` also removes interaction.
+
+<Preview path="./form-behavior" />
+
+### Keyboard interaction
+
+| Key                                 | Description                                                                              |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
+| <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
 
 ## Anatomy
 
@@ -90,27 +107,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Selecting files
-
-Click anywhere in the visible dropzone, including its padding, icon, and text, or drop files onto it. File previews and removal actions are outside the picker hit area. Use the dropzone for pointer and drag-and-drop selection, or set `dropzone={false}` for a compact picker trigger. Use `multiple` when the value can contain more than one `File`; `onValueChange` receives either a single file, an array, or `null`.
-
-<Preview path="./selecting-files" />
-
-### Rejections and form behavior
-
-`accept`, `minSize`, `maxSize`, and `maxFiles` validate an attempted selection before it is added. Handle `onFileReject` to present rejected files and their reason codes in your application. `readOnly` prevents changes while preserving the selected list. It inherits an enclosing Field read-only state when omitted; an explicit `readOnly={false}` overrides that state. `disabled` also removes interaction.
-
-<Preview path="./form-behavior" />
-
-### Keyboard interaction
-
-| Key                                 | Description                                                                              |
-| ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Opens the native operating system file picker dialog when the upload control is focused. |
-| <kbd>Tab</kbd>                      | Navigates between the upload dropzone control and individual file removal buttons.       |
 
 ## Examples
 

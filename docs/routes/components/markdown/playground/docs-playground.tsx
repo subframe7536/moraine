@@ -52,7 +52,11 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
   }
 
   return (
-    <section class="mb-4 mt-2 p-2 b-1 b-input rounded-5 bg-muted" aria-label="Playground">
+    <section
+      id="playground"
+      class="mb-4 mt-2 p-2 b-1 b-input rounded-5 bg-muted"
+      aria-label="Playground"
+    >
       <div class="b-1 b-input rounded-3 bg-background overflow-hidden">
         <div class="flex flex-col md:flex-row md:items-stretch">
           <div

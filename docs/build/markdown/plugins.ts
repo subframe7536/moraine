@@ -90,14 +90,7 @@ export function createDocsHastPlugin() {
           ctx.setProperty(
             node,
             'class',
-            appendClass(
-              node,
-              `${MARKDOWN_ANCHOR_HEADING_CLASS} ${
-                level === 2 && headingText === 'Playground'
-                  ? 'docs-playground-heading'
-                  : `docs-h${level}`
-              }`,
-            ),
+            appendClass(node, `${MARKDOWN_ANCHOR_HEADING_CLASS} docs-h${level}`),
           )
 
           if (level >= 2 && level <= 5 && headingText) {

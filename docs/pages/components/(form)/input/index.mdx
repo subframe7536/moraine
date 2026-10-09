@@ -11,24 +11,6 @@ search:
 
 import { Input } from '@src'
 
-Use Input for native single-line text editing. Compose it with [Field](/components/field) for a label and validation message, or [InputGroup](/components/input-group) for adjacent controls.
-
-## Basic usage
-
-```tsx
-import { Field, Input } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Your name">
-      <Input placeholder="Your name" />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -74,18 +56,21 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      slot: 'root',
-      element: 'input',
-    },
-  }}
-/>
-
 ## Usage
+
+Use Input for native single-line text editing. Compose it with [Field](/components/field) for a label and validation message, or [InputGroup](/components/input-group) for adjacent controls.
+
+```tsx
+import { Field, Input } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Your name">
+      <Input placeholder="Your name" />
+    </Field>
+  )
+}
+```
 
 ### Native input behavior
 
@@ -98,6 +83,17 @@ export function Example() {
 Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit. Password visibility, clearing, copying, and loading remain application behavior: compose buttons and icons into these parts and provide their labels and handlers.
 
 <Preview path="./composed-controls" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'input',
+    },
+  }}
+/>
 
 ## Examples
 

@@ -12,24 +12,6 @@ search:
 import { InputNumber } from '@src'
 import { createSignal } from 'solid-js'
 
-Use InputNumber for a numeric field with step controls and constrained committed values. Choose a plain [Input](/components/input) when free-form numeric text is required.
-
-## Basic usage
-
-```tsx
-import { Field, InputNumber } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Quantity">
-      <InputNumber minValue={0} maxValue={10} defaultValue={1} />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -87,16 +69,21 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root' },
-    children: [{ slot: 'decrement' }, { slot: 'input' }, { slot: 'increment' }],
-  }}
-/>
-
 ## Usage
+
+Use InputNumber for a numeric field with step controls and constrained committed values. Choose a plain [Input](/components/input) when free-form numeric text is required.
+
+```tsx
+import { Field, InputNumber } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Quantity">
+      <InputNumber minValue={0} maxValue={10} defaultValue={1} />
+    </Field>
+  )
+}
+```
 
 ### Values and boundaries
 
@@ -123,6 +110,15 @@ In vertical layout, the input precedes an optional controls wrapper containing i
 | <kbd>Home</kbd>      | Sets the value to `minValue` when a minimum is defined. |
 | <kbd>End</kbd>       | Sets the value to `maxValue` when a maximum is defined. |
 | <kbd>Enter</kbd>     | Commits the current text input as a numeric value.      |
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [{ slot: 'decrement' }, { slot: 'input' }, { slot: 'increment' }],
+  }}
+/>
 
 ## Examples
 

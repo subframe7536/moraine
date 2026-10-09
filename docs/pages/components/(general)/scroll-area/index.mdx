@@ -13,27 +13,6 @@ search:
 import { For } from 'solid-js'
 import { ScrollArea } from '@src'
 
-Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to fade the edges that have more content beyond the viewport.
-
-## Basic usage
-
-```tsx
-import { For } from 'solid-js'
-import { ScrollArea } from 'moraine'
-
-export function Example() {
-  return (
-    <ScrollArea class="h-48 w-full" shadow role="region" aria-label="Recent activity">
-      <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
-        {(entry) => <p class="py-2 text-sm">Activity entry {entry}</p>}
-      </For>
-    </ScrollArea>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -90,11 +69,24 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy value={{ root: { slot: 'root', element: 'div' } }} />
-
 ## Usage
+
+Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to fade the edges that have more content beyond the viewport.
+
+```tsx
+import { For } from 'solid-js'
+import { ScrollArea } from 'moraine'
+
+export function Example() {
+  return (
+    <ScrollArea class="h-48 w-full" shadow role="region" aria-label="Recent activity">
+      <For each={Array.from({ length: 12 }, (_, index) => index + 1)}>
+        {(entry) => <p class="py-2 text-sm">Activity entry {entry}</p>}
+      </For>
+    </ScrollArea>
+  )
+}
+```
 
 ### Native scrolling and sizing
 
@@ -135,3 +127,7 @@ For the size variable, overrides apply in this order, from highest to lowest: ro
 Use `class`, `classes.root`, `style`, or `styles.root` for instance styling.
 
 <Preview path="./theme" />
+
+## Anatomy
+
+<Anatomy value={{ root: { slot: 'root', element: 'div' } }} />

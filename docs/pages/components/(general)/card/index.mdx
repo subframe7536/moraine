@@ -13,27 +13,6 @@ search:
 
 import { Badge, Button, Card } from '@src'
 
-Card groups related content and actions on a neutral surface. Its parts are structural and add no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a heading with `as` when the page needs one.
-
-## Basic usage
-
-```tsx
-import { Card } from 'moraine'
-
-export function Example() {
-  return (
-    <Card>
-      <Card.Header>
-        <Card.Title>Project</Card.Title>
-      </Card.Header>
-      <Card.Body>Project details</Card.Body>
-    </Card>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Team Subscription' },
@@ -90,6 +69,31 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Card groups related content and actions on a neutral surface. Its parts are structural and add no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a heading with `as` when the page needs one.
+
+```tsx
+import { Card } from 'moraine'
+
+export function Example() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Project</Card.Title>
+      </Card.Header>
+      <Card.Body>Project details</Card.Body>
+    </Card>
+  )
+}
+```
+
+### Variants and sizes
+
+Every variant has an outer border, and the header keeps the same appearance as the body. `outline` adds a top border to the footer. `subtle` adds the footer divider and a muted footer background. `none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the density of the header, body, footer, title, and description together.
+
+Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root spaces the sections. Direct children can still span the card's full width.
+
 ## Anatomy
 
 <Anatomy
@@ -125,14 +129,6 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Variants and sizes
-
-Every variant has an outer border, and the header keeps the same appearance as the body. `outline` adds a top border to the footer. `subtle` adds the footer divider and a muted footer background. `none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the density of the header, body, footer, title, and description together.
-
-Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root spaces the sections. Direct children can still span the card's full width.
 
 ## Examples
 

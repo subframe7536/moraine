@@ -12,30 +12,6 @@ search:
 
 import { Button, Dialog } from '@src'
 
-Use Dialog when an action or form needs focused attention with a labeled modal surface. The trigger and content share disclosure state through the root.
-
-## Basic usage
-
-```tsx
-import { Button, Dialog } from 'moraine'
-
-export function Example() {
-  return (
-    <Dialog>
-      <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
-      <Dialog.Content title="Settings">
-        <Dialog.Body>Preferences</Dialog.Body>
-        <Dialog.Footer>
-          <Dialog.Close as={Button}>Done</Dialog.Close>
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Preview dialog' },
@@ -75,60 +51,27 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Dialog.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Dialog.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Dialog.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Dialog.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Dialog.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Dialog.Description',
-                slot: 'description',
-              },
-              {
-                part: 'Dialog.Action',
-                slot: 'action',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Dialog.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Dialog.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
-
 ## Usage
+
+Use Dialog when an action or form needs focused attention with a labeled modal surface. The trigger and content share disclosure state through the root.
+
+```tsx
+import { Button, Dialog } from 'moraine'
+
+export function Example() {
+  return (
+    <Dialog>
+      <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+      <Dialog.Content title="Settings">
+        <Dialog.Body>Preferences</Dialog.Body>
+        <Dialog.Footer>
+          <Dialog.Close as={Button}>Done</Dialog.Close>
+        </Dialog.Footer>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+```
 
 ### Content composition
 
@@ -209,6 +152,59 @@ runs after the overlay and content finish their exit animations.
 | <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                      |
 | <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Dialog.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Dialog.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Dialog.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Dialog.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Dialog.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Dialog.Description',
+                slot: 'description',
+              },
+              {
+                part: 'Dialog.Action',
+                slot: 'action',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Dialog.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Dialog.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
 
 ## Examples
 

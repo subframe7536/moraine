@@ -11,30 +11,6 @@ search:
 
 import { MultiSelect } from '@src'
 
-Use MultiSelect for several selected collection items displayed as tags. Its values resolve through collection items; use [Select](/components/select) for one choice or [Combobox](/components/combobox) for editable single selection.
-
-## Basic usage
-
-```tsx
-import { Field, MultiSelect } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Skills">
-      <MultiSelect
-        items={[
-          { label: 'Design', value: 'design' },
-          { label: 'Code', value: 'code' },
-        ]}
-        placeholder="Choose skills"
-      />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -97,6 +73,64 @@ export function Example() {
     />
   )}
 </Playground>
+
+## Usage
+
+Use MultiSelect for several selected collection items displayed as tags. Its values resolve through collection items; use [Select](/components/select) for one choice or [Combobox](/components/combobox) for editable single selection.
+
+```tsx
+import { Field, MultiSelect } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Skills">
+      <MultiSelect
+        items={[
+          { label: 'Design', value: 'design' },
+          { label: 'Code', value: 'code' },
+        ]}
+        placeholder="Choose skills"
+      />
+    </Field>
+  )
+}
+```
+
+### Values and tag lifecycle
+
+The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
+
+`value` contains the selected item values as an array. An empty array means no selection; an empty
+string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
+users to type directly in the field to filter available options.
+
+<Preview path="./usage-tags" />
+
+### Item creation and delimiters
+
+Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
+separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
+parsed through the same creation path.
+
+<Preview path="./usage-creation" />
+
+### Keyboard interaction
+
+| Key                 | Behavior                                                                   |
+| ------------------- | -------------------------------------------------------------------------- |
+| Backspace           | When input is empty, deletes the immediately preceding tag                 |
+| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
+| Enter               | Commit the highlighted item (or create an item when input text is present) |
+| Escape              | Close the dropdown or clear active query text                              |
+
+### Virtualization
+
+Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
+
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
+
+<Preview path="./virtualization" />
 
 ## Anatomy
 
@@ -161,44 +195,6 @@ export function Example() {
 />
 
 MultiSelect renders its portaled popup collection internally. Tags have a separate rendering path through `tagRender`.
-
-## Usage
-
-### Values and tag lifecycle
-
-The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
-
-`value` contains the selected item values as an array. An empty array means no selection; an empty
-string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
-Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
-users to type directly in the field to filter available options.
-
-<Preview path="./usage-tags" />
-
-### Item creation and delimiters
-
-Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
-separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
-parsed through the same creation path.
-
-<Preview path="./usage-creation" />
-
-### Keyboard interaction
-
-| Key                 | Behavior                                                                   |
-| ------------------- | -------------------------------------------------------------------------- |
-| Backspace           | When input is empty, deletes the immediately preceding tag                 |
-| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
-| Enter               | Commit the highlighted item (or create an item when input text is present) |
-| Escape              | Close the dropdown or clear active query text                              |
-
-### Virtualization
-
-Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
-
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
-
-<Preview path="./virtualization" />
 
 ## Examples
 

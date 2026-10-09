@@ -12,24 +12,6 @@ search:
 
 import { ToggleButton } from '@src'
 
-Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a native button and exposes its state through `aria-pressed`.
-
-## Basic usage
-
-```tsx
-import { ToggleButton } from 'moraine'
-
-export function Example() {
-  return (
-    <ToggleButton variant="ghost" activeVariant="secondary" leading="i-lucide:bold">
-      Bold
-    </ToggleButton>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -91,16 +73,21 @@ export function Example() {
   )}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: { slot: 'root', element: 'button' },
-    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
-  }}
-/>
-
 ## Usage
+
+Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a native button and exposes its state through `aria-pressed`.
+
+```tsx
+import { ToggleButton } from 'moraine'
+
+export function Example() {
+  return (
+    <ToggleButton variant="ghost" activeVariant="secondary" leading="i-lucide:bold">
+      Bold
+    </ToggleButton>
+  )
+}
+```
 
 ### Off and on variants
 
@@ -137,3 +124,12 @@ Inside ButtonGroup, ToggleButton inherits the group's size and unpressed variant
 The root uses `data-slot="toggle-button"` and exposes `data-selected` while pressed. The leading, label, and trailing elements retain the corresponding `button-*` data-slot names.
 
 <Preview path="./theme" />
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'button' },
+    children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
+  }}
+/>

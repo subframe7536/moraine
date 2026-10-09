@@ -12,25 +12,6 @@ search:
 
 import { Button, ButtonGroup } from '@src'
 
-Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own interactive control; the group supplies layout and shared presentation.
-
-## Basic usage
-
-```tsx
-import { Button, ButtonGroup } from 'moraine'
-
-export function Example() {
-  return (
-    <ButtonGroup>
-      <Button>Copy</Button>
-      <Button variant="outline">Share</Button>
-    </ButtonGroup>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -72,6 +53,29 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own interactive control; the group supplies layout and shared presentation.
+
+```tsx
+import { Button, ButtonGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <ButtonGroup>
+      <Button>Copy</Button>
+      <Button variant="outline">Share</Button>
+    </ButtonGroup>
+  )
+}
+```
+
+### Composition
+
+Use `ButtonGroup` to align related actions without changing their semantics. Add `ButtonGroup.Separator` where a divider helps; it accepts direct `class` and `style`. Root `classes` and `styles` set defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an action needs an overlay.
+
+<Preview path="./group-composition" />
+
 ## Anatomy
 
 <Anatomy
@@ -88,14 +92,6 @@ export function Example() {
 />
 
 The group owns its separators; the caller supplies the child Buttons and their content.
-
-## Usage
-
-### Composition
-
-Use `ButtonGroup` to align related actions without changing their semantics. Add `ButtonGroup.Separator` where a divider helps; it accepts direct `class` and `style`. Root `classes` and `styles` set defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an action needs an overlay.
-
-<Preview path="./group-composition" />
 
 ## Examples
 

@@ -12,25 +12,6 @@ search:
 
 import { Button, Field, Input, Popover } from '@src'
 
-Use Popover for anchored interactive content that does not need the structure of a full dialog. Use [Tooltip](/components/tooltip) for brief, non-interactive hints.
-
-## Basic usage
-
-```tsx
-import { Button, Popover } from 'moraine'
-
-export function Example() {
-  return (
-    <Popover>
-      <Popover.Trigger as={Button}>Details</Popover.Trigger>
-      <Popover.Content>More information</Popover.Content>
-    </Popover>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -87,6 +68,47 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Popover for anchored interactive content that does not need the structure of a full dialog. Use [Tooltip](/components/tooltip) for brief, non-interactive hints.
+
+```tsx
+import { Button, Popover } from 'moraine'
+
+export function Example() {
+  return (
+    <Popover>
+      <Popover.Trigger as={Button}>Details</Popover.Trigger>
+      <Popover.Content>More information</Popover.Content>
+    </Popover>
+  )
+}
+```
+
+### Trigger modes and state
+
+Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
+
+<Preview path="./trigger-modes" />
+
+### Dismissal and accessibility
+
+Escape and outside interaction close a dismissible popover. Give `Popover.Content` an accessible
+name with `ariaLabel` when it has no visible label.
+
+`modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
+the content, outside content is hidden from assistive technology, and body scroll is locked.
+Without a Close, the popover stays non-modal so users retain a dismissal route.
+
+`modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
+`preventScroll` can lock body scroll independently of `modal`.
+
+<Preview path="./dismissal-usage" />
+
+### Keyboard interaction
+
+Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests dismissal when the popover is dismissible; focusable controls inside non-modal content participate in normal document focus order. Modal content contains focus.
+
 ## Anatomy
 
 <Anatomy
@@ -115,32 +137,6 @@ export function Example() {
 />
 
 Content is portaled inside an internal positioning wrapper.
-
-## Usage
-
-### Trigger modes and state
-
-Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
-
-<Preview path="./trigger-modes" />
-
-### Dismissal and accessibility
-
-Escape and outside interaction close a dismissible popover. Give `Popover.Content` an accessible
-name with `ariaLabel` when it has no visible label.
-
-`modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
-the content, outside content is hidden from assistive technology, and body scroll is locked.
-Without a Close, the popover stays non-modal so users retain a dismissal route.
-
-`modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
-`preventScroll` can lock body scroll independently of `modal`.
-
-<Preview path="./dismissal-usage" />
-
-### Keyboard interaction
-
-Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests dismissal when the popover is dismissible; focusable controls inside non-modal content participate in normal document focus order. Modal content contains focus.
 
 ## Examples
 

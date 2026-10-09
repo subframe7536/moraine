@@ -11,20 +11,6 @@ search:
 
 import { AvatarGroup } from '@src'
 
-Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at `max`; keep the full membership available elsewhere when users need it.
-
-## Basic usage
-
-```tsx
-import { AvatarGroup } from 'moraine'
-
-export function Example() {
-  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', fallback: 'A' }]} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'max', label: 'Visible avatars', defaultValue: 3, inputType: 'number' },
@@ -76,6 +62,24 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at `max`; keep the full membership available elsewhere when users need it.
+
+```tsx
+import { AvatarGroup } from 'moraine'
+
+export function Example() {
+  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', fallback: 'A' }]} />
+}
+```
+
+### Grouping avatars
+
+AvatarGroup renders no root for an empty `items` array. Avatar items retain input order in the DOM. `max` is a number: omit it to show every avatar, set it to `0` to show only `+N`, or use a positive number to show its floored count. The overflow count follows the visible items.
+
+<Preview path="./grouping-usage" />
+
 ## Anatomy
 
 <Anatomy
@@ -97,11 +101,3 @@ export function Example() {
     ],
   }}
 />
-
-## Usage
-
-### Grouping avatars
-
-AvatarGroup renders no root for an empty `items` array. Avatar items retain input order in the DOM. `max` is a number: omit it to show every avatar, set it to `0` to show only `+N`, or use a positive number to show its floored count. The overflow count follows the visible items.
-
-<Preview path="./grouping-usage" />

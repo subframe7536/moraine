@@ -11,20 +11,6 @@ search:
 
 import { KbdGroup } from '@src'
 
-Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the application owns the shortcut listener.
-
-## Basic usage
-
-```tsx
-import { KbdGroup } from 'moraine'
-
-export function Example() {
-  return <KbdGroup items={['Ctrl', 'K']} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -61,6 +47,29 @@ export function Example() {
   }}
 </Playground>
 
+## Usage
+
+Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the application owns the shortcut listener.
+
+```tsx
+import { KbdGroup } from 'moraine'
+
+export function Example() {
+  return <KbdGroup items={['Ctrl', 'K']} />
+}
+```
+
+The `separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It is unrelated to the standalone layout [Separator](/components/separator).
+
+<Preview path="./custom-separator" />
+
+### Key labels
+
+Use known key aliases for symbol notation, or supply item labels when the displayed shortcut needs
+platform-specific wording. Shortcut registration remains application-owned.
+
+<Preview path="./kbd-group-usage" />
+
 ## Anatomy
 
 <Anatomy
@@ -74,16 +83,3 @@ export function Example() {
 />
 
 Separator content is inline and is not a theme slot.
-
-## Usage
-
-The `separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It is unrelated to the standalone layout [Separator](/components/separator).
-
-<Preview path="./custom-separator" />
-
-### Key labels
-
-Use known key aliases for symbol notation, or supply item labels when the displayed shortcut needs
-platform-specific wording. Shortcut registration remains application-owned.
-
-<Preview path="./kbd-group-usage" />
