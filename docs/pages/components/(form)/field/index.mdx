@@ -56,13 +56,13 @@ Enter an invalid email and leave the input to show the error and enable its slot
 
 ## Usage
 
-`Field` is a standalone presentational wrapper. It renders the label, hint, description, help, and
-error, registers the nested control, inherits size and disabled state, and wires ARIA
-relationships. It does not validate or submit values.
+Use Field to label a standalone control and attach description, help, and error text. It registers
+the nested control, inherits size and disabled state, and wires ARIA relationships. It does not
+validate or submit values.
 
-For schema binding, use `form.Field` returned by [createForm](/components/form). Put a Moraine
-control inside `Field` so its label, description, and error IDs attach to the actual focusable
-element. For local validation, pass the current message to `error`.
+For schema binding, use `form.Field` from [createForm](/components/form). Put a Moraine control
+inside Field so its label, description, and error IDs attach to the actual focusable element. For
+local validation, pass the current message to `error`.
 
 ```tsx
 import { Field, Input } from 'moraine'

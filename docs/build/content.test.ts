@@ -101,6 +101,9 @@ test('component pages follow the shared content and anatomy contract', async () 
     if (!labels.includes('Usage')) {
       failures.push(`${name}: missing Usage`)
     }
+    if (!labels.includes('Examples')) {
+      failures.push(`${name}: missing Examples`)
+    }
     const ordered = ['Usage', 'Anatomy', 'Examples'].filter((section) => labels.includes(section))
     if (
       ordered.some((section, index) => {
@@ -125,6 +128,9 @@ test('component pages follow the shared content and anatomy contract', async () 
       failures.push(`${name}: Playground follows Usage`)
     }
     const usage = usageSection(source)
+    if (usage?.includes('<Preview')) {
+      failures.push(`${name}: Usage contains Preview`)
+    }
     const usageLead = usage?.split(/```tsx/)[0]?.trim() ?? ''
     if (!usageLead) {
       failures.push(`${name}: missing introduction`)
@@ -136,6 +142,10 @@ test('component pages follow the shared content and anatomy contract', async () 
     const usageLeadFences = usage?.split(/^### /m)[0] ?? ''
     if ([...usageLeadFences.matchAll(/^```tsx$/gm)].length !== 1) {
       failures.push(`${name}: Usage lead must have exactly one TSX fence`)
+    }
+    const examples = sectionByName(source, 'Examples')
+    if (examples && ![...examples.matchAll(/<Preview\s+path="([^"]+)"\s*\/>/g)].length) {
+      failures.push(`${name}: Examples needs at least one Preview`)
     }
     try {
       await validateAnatomy(source, page, loadComponentApiDoc(page) ?? undefined)

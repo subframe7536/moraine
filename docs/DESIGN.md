@@ -28,10 +28,11 @@ three or four columns on desktop and one or two on mobile. Use small badge label
 No preview grid, card wall, or repeated description accompanies each link. Route descriptions
 continue to support search, SEO, and agent Markdown.
 
-Component pages lead with PageHeader, then Playground for simple visual changes. Usage starts with a
-short choice-oriented introduction and copyable public TSX, then explains behavior. Optional annotated
-Anatomy follows Usage. Optional real-task Examples follow Anatomy. Generated API tables are grouped
-under API Reference as Attributes, then Props. Keep a single source for web and agent output.
+Component pages lead with PageHeader, then Playground for simple visual changes. Usage is text and
+fenced code only: it teaches when to use the component and how to compose it. Optional annotated
+Anatomy follows Usage. Examples follow Anatomy with real application tasks and copyable Preview source.
+Generated API tables are grouped under API Reference as Attributes, then Props. Keep a single source
+for web and agent output.
 Render Anatomy as a copyable text code block using the same tree as agent Markdown.
 Do not re-list props, create a separate Import/Features/Related section, repeat native browser
 keyboard behavior, or add examples only to show every variant and size. Simple components stay simple;
@@ -145,7 +146,7 @@ hit areas using `docs-compact-control` where their component API permits it.
 ## Usage and examples
 
 Every interactive Playground has a clear preview and compact controls. Playgrounds do not include a
-source panel; regular `Preview` blocks provide source for usage subsections and standalone examples.
+source panel. Usage uses fenced TSX. Examples use `Preview` blocks whose TSX is the copyable source.
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
 
@@ -159,11 +160,11 @@ columns. Group switches below value controls; use two columns when their labels 
 labels occupy a full row. On desktop, stack both groups in one column. Keep switch labels on one
 line and preserve the visual order in keyboard navigation. Slot badges wrap within the control pane.
 
-Use dedicated previews in `Usage` for core API guides and in `Examples` for useful application tasks,
-complex compositions, state transitions, or layout constraints. A Preview is the copyable TSX source;
-keep its data and helpers in the same file. Prefer replacing a redundant prop demonstration with a
-realistic task over adding examples to reach a count. Do not add fake application chrome or duplicate
-Playground controls in standalone examples.
+Keep `Usage` free of Preview widgets. Use fenced TSX there to teach API choices. Put live Previews
+only in `Examples`, each as a useful application task, complex composition, state transition, or
+layout constraint. A Preview is the copyable TSX source; keep its data and helpers in the same file.
+Prefer replacing a redundant prop demonstration with a realistic task over adding examples to reach
+a count. Do not add fake application chrome or duplicate Playground controls in standalone examples.
 
 ## Landing composition
 

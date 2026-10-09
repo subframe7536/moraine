@@ -55,9 +55,9 @@ import { Button, Empty, Icon } from '@src'
 
 ## Usage
 
-Empty is an application-level presentation primitive. It provides a consistent layout for an
-empty-state message, optional media, and actions. Your application decides when to show it; Empty
-does not inspect collections or search results.
+Use Empty when a collection or search result is genuinely empty and the next action should be
+visible. It does not inspect data; the page decides when to render it. Use
+[Skeleton](/components/skeleton) while content is still loading.
 
 ```tsx
 import { Empty } from 'moraine'

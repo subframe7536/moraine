@@ -74,7 +74,9 @@ import { Button } from '@src'
 
 ## Usage
 
-Use Button for actions and explicit navigation. Choose the underlying element with `as` according to the action: a button for commands and an anchor for destinations.
+Use Button for commands and explicit navigation. Render a native button for an action on this page.
+Use `as="a"` with `href` for a destination. Use [ToggleButton](/components/toggle-button) when the
+control stays pressed.
 
 ```tsx
 import { Button } from 'moraine'
@@ -86,25 +88,52 @@ export function Example() {
 
 ### Press motion
 
-`activeEffect` controls the press motion. The default `move-down` shifts the button down by one pixel. `zoom-in` scales it down slightly. Both skip the motion when the button has `aria-haspopup`, so overlay triggers stay still. Use `none` to disable the motion, or pass a function that returns a class string from the rendered element.
+`activeEffect` controls the press motion. The default `move-down` shifts the button down by one pixel.
+`zoom-in` scales it down slightly. Both skip the motion when the button has `aria-haspopup`, so overlay
+triggers stay still. Use `none` to disable the motion, or pass a function that returns a class string
+from the rendered element.
+
+```tsx
+<Button activeEffect="zoom-in">Compress</Button>
+<Button activeEffect="none">Static</Button>
+```
 
 ### Loading
 
-Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. Loading suppresses additional activation without applying native `disabled`, so a focused button keeps its keyboard position. Explicit `disabled` still uses native disabled semantics where available.
+Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: a promise
+returned by `onClick` drives the visual loading state. Loading suppresses additional activation
+without applying native `disabled`, so a focused button keeps its keyboard position. Explicit
+`disabled` still uses native disabled semantics where available.
 
-<Preview path="./loading-usage" />
+```tsx
+<Button loading={saving()}>Save</Button>
+<Button loadingAuto onClick={() => submit()}>
+  Save
+</Button>
+```
 
 ### Icons and polymorphism
 
-Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. Polymorphic roots without native link semantics receive button role and keyboard activation; anchors with `href` keep native link behavior. When a custom component forwards its root ref, Moraine resolves native button semantics from the rendered DOM element.
+Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or
+another accessible name. Polymorphic roots without native link semantics receive button role and
+keyboard activation; anchors with `href` keep native link behavior. When a custom component forwards
+its root ref, Moraine resolves native button semantics from the rendered DOM element.
 
-<Preview path="./icons-polymorphism" />
+```tsx
+<Button leading="i-lucide:plus">Create</Button>
+<Button as="a" href="/docs" trailing="i-lucide:arrow-right">
+  Docs
+</Button>
+<Button size="icon-sm" aria-label="Settings" leading="i-lucide:settings" />
+```
 
 ### Icon sizes
 
 Icon-only buttons support dedicated square sizes from `icon-xs` to `icon-xl`.
 
-<Preview path="./icon-sizes" />
+```tsx
+<Button size="icon-md" aria-label="Search" leading="i-lucide:search" />
+```
 
 ## Anatomy
 
@@ -120,6 +149,22 @@ Icon-only buttons support dedicated square sizes from `icon-xs` to `icon-xl`.
 
 ## Examples
 
-### Icon action with a hint
+### Bookmark a checklist item
+
+Keep an icon-only control labeled. Pair it with a tooltip when the action is otherwise unnamed.
 
 <Preview path="./icon-buttons" />
+
+### Pending save
+
+Drive loading from local state when the request is owned by the page. Use `loadingAuto` when the
+click handler returns a promise.
+
+<Preview path="./loading-usage" />
+
+### Create, navigate, and settings
+
+Mix a labeled command, a documentation link, and an icon-only settings control. Icon-only buttons
+must keep an accessible name.
+
+<Preview path="./icons-polymorphism" />
