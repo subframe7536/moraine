@@ -3,7 +3,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, cn, useSidebarFrame } from '../../../../src'
+import { Badge, ToggleButton, cn, useSidebarFrame } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
@@ -52,34 +52,36 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
           </a>
           <Show when={!frame.isMobile()}>
             <div class="ms-5 flex gap-1 items-center">
-              <Button
+              <ToggleButton
                 as="a"
                 variant="ghost"
+                activeVariant="ghost"
                 size="sm"
                 href="/docs/getting-started"
+                pressed={isDocs()}
                 aria-current={isDocs() ? 'true' : undefined}
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
-                  'text-sm px-3 h-9',
-                  isDocs() ? 'text-foreground underline' : 'text-muted-foreground',
+                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
                 )}
               >
                 Docs
-              </Button>
-              <Button
+              </ToggleButton>
+              <ToggleButton
                 as="a"
                 variant="ghost"
+                activeVariant="ghost"
                 size="sm"
                 href="/components"
+                pressed={isComponents()}
                 aria-current={isComponents() ? 'true' : undefined}
                 class={cn(
                   DOCS_HEADER_CONTROL_CLASS,
-                  'text-sm px-3 h-9',
-                  isComponents() ? 'text-foreground underline' : 'text-muted-foreground',
+                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
                 )}
               >
                 Components
-              </Button>
+              </ToggleButton>
             </div>
           </Show>
         </div>

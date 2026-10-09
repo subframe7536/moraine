@@ -10,6 +10,14 @@
         "kind": "export",
         "name": "ToggleButton"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
       "props": [
         {
           "name": "activeVariant",
@@ -19,6 +27,16 @@
           "default": {
             "kind": "literal",
             "value": "secondary"
+          }
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
           }
         },
         {
@@ -154,7 +172,7 @@
     {
       "target": "root",
       "attributes": [
-        "data-selected"
+        "data-pressed"
       ]
     }
   ]

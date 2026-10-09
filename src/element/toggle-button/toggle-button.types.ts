@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types'
+import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { ButtonT } from '../button'
 
@@ -13,7 +13,10 @@ export namespace ToggleButtonT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Base = Omit<ButtonT.Base, 'as' | 'slotName' | 'children'> & {
+  export type Base<T extends ValidComponent = 'button'> = Omit<
+    ButtonT.Base<T>,
+    'slotName' | 'children'
+  > & {
     /** Controlled toggle state. */
     pressed?: boolean
     /** Initial uncontrolled toggle state. @default false */
@@ -26,12 +29,18 @@ export namespace ToggleButtonT {
      * function is called as an accessor and is not mounted as a component.
      */
     children?: JSX.Element | ((props: { pressed: boolean; loading: boolean }) => JSX.Element)
+    /** Pressed semantics are owned by the component. */
+    'aria-pressed'?: never
   }
 
-  export type Props = Omit<
-    BaseProps<'button', Base, Variant, Classes, Styles>,
-    'as' | 'type' | 'slotName' | 'aria-pressed'
+  export type Props<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    Base<T>,
+    Variant,
+    Classes,
+    Styles,
+    'button'
   >
 }
 
-export type ToggleButtonProps = ToggleButtonT.Props
+export type ToggleButtonProps<T extends ValidComponent = 'button'> = ToggleButtonT.Props<T>

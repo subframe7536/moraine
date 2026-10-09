@@ -21,10 +21,9 @@ defineTheme({
 })
 // @ts-expect-error ToggleButton does not support activeEffect and always uses 'none' internally.
 ;<ToggleButton activeEffect="none" />
-// @ts-expect-error ToggleButton always renders a native button.
-;<ToggleButton as="a" />
-// @ts-expect-error ToggleButton cannot submit forms.
-;<ToggleButton type="submit" />
+;<ToggleButton as="a" href="/docs" />
+// @ts-expect-error ToggleButton<'a'> exposes anchor props and rejects button-only props.
+;<ToggleButton as="a" formAction="/submit" />
 // @ts-expect-error Pressed semantics are owned by the component.
 const unsupportedAria: ToggleButtonT.Props = { 'aria-pressed': 'mixed' }
 void unsupportedAria

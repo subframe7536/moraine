@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -46,14 +47,14 @@ describe('ToggleButton', () => {
     expect(button.type).toBe('button')
     expect(ref).toHaveBeenCalledWith(button)
     expect(button.getAttribute('aria-pressed')).toBe('false')
-    expect(button.hasAttribute('data-selected')).toBe(false)
+    expect(button.hasAttribute('data-pressed')).toBe(false)
     expect(button.className).not.toContain('bg-secondary')
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true'])
     expect(button.getAttribute('aria-pressed')).toBe('true')
-    expect(button.hasAttribute('data-selected')).toBe(true)
+    expect(button.hasAttribute('data-pressed')).toBe(true)
     expect(button.className).toContain('bg-secondary')
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true', 'click', 'false'])
@@ -287,5 +288,80 @@ describe('ToggleButton', () => {
     const button = screen.getByRole('button', { name: 'Static motion' })
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
+  })
+
+  test('supports non-native element roots with role=button and keyboard activation', async () => {
+    let divRef: HTMLDivElement | undefined
+    const onDivToggle = vi.fn()
+
+    const screen = render(() => (
+      <ToggleButton
+        as="div"
+        ref={(el: HTMLDivElement) => (divRef = el)}
+        onPressedChange={onDivToggle}
+      >
+        Div toggle
+      </ToggleButton>
+    ))
+
+    const divBtn = screen.getByRole('button', { name: 'Div toggle' })
+    expect(divBtn.tagName).toBe('DIV')
+    expect(divRef).toBe(divBtn)
+    expect(divBtn.getAttribute('role')).toBe('button')
+    expect(divBtn.getAttribute('tabindex')).toBe('0')
+    expect(divBtn.getAttribute('aria-pressed')).toBe('false')
+    expect(divBtn.hasAttribute('type')).toBe(false)
+
+    fireEvent.click(divBtn)
+    expect(onDivToggle).toHaveBeenCalledWith(true)
+    expect(divBtn.getAttribute('aria-pressed')).toBe('true')
+
+    // Keyboard activation (Enter) reuses Button's useButtonInteraction
+    fireEvent.keyDown(divBtn, { key: 'Enter' })
+    expect(onDivToggle).toHaveBeenCalledWith(false)
+    expect(divBtn.getAttribute('aria-pressed')).toBe('false')
+  })
+
+  test('supports anchor roots and forwards href without type attribute', () => {
+    let anchorRef: HTMLAnchorElement | undefined
+    const onAnchorToggle = vi.fn()
+
+    render(() => (
+      <ToggleButton
+        as="a"
+        href="#test"
+        ref={(el: HTMLAnchorElement) => (anchorRef = el)}
+        onPressedChange={onAnchorToggle}
+      >
+        Anchor toggle
+      </ToggleButton>
+    ))
+
+    const anchorBtn = anchorRef!
+    expect(anchorBtn.tagName).toBe('A')
+    expect(anchorBtn.getAttribute('href')).toBe('#test')
+    expect(anchorBtn.hasAttribute('type')).toBe(false)
+    expect(anchorBtn.getAttribute('aria-pressed')).toBe('false')
+
+    fireEvent.click(anchorBtn)
+    expect(onAnchorToggle).toHaveBeenCalledWith(true)
+    expect(anchorBtn.getAttribute('aria-pressed')).toBe('true')
+  })
+
+  test('supports custom component roots and forwards attributes', () => {
+    const CustomRoot = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
+
+    const screen = render(() => (
+      <ToggleButton as={CustomRoot} data-custom="yes">
+        Custom root
+      </ToggleButton>
+    ))
+
+    const customRoot = screen.getByRole('button', { name: 'Custom root' })
+    expect(customRoot.tagName).toBe('SPAN')
+    expect(customRoot.getAttribute('data-custom')).toBe('yes')
+    expect(customRoot.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(customRoot)
+    expect(customRoot.getAttribute('aria-pressed')).toBe('true')
   })
 })

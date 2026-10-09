@@ -4,6 +4,7 @@ import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
+import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
 import { Button } from '../button'
 import { useButtonGroupContext } from '../button-group/button-group-context'
@@ -11,32 +12,41 @@ import { useButtonGroupContext } from '../button-group/button-group-context'
 import { toggleButtonDataAttributes, toggleButtonRecipe } from './toggle-button.recipe'
 import type { ToggleButtonProps, ToggleButtonT } from './toggle-button.types'
 
-/** Native toggle button with independently configurable off and on variants. */
-export function ToggleButton(props: ToggleButtonProps): JSX.Element {
+/** Toggle button with independently configurable off and on variants. */
+export function ToggleButton<T extends ValidComponent = 'button'>(
+  props: ToggleButtonProps<T>,
+): JSX.Element {
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(props, [
-    'pressed',
-    'defaultPressed',
-    'onPressedChange',
-    'variant',
-    'activeVariant',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'onClick',
-    'children',
-  ])
+  const [local, rest] = splitProps(
+    props as ToggleButtonProps<T> & {
+      ref?: unknown
+      onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+    },
+    [
+      'as',
+      'pressed',
+      'defaultPressed',
+      'onPressedChange',
+      'variant',
+      'activeVariant',
+      'size',
+      'classes',
+      'styles',
+      'class',
+      'style',
+      'onClick',
+      'children',
+    ],
+  )
   const resolved = createStyles(toggleButtonRecipe, local, {
     inheritedVariants: () => group ?? undefined,
   })
-  const [pressed, setPressed] = createControllableValue({
+  const [pressed, setPressed] = createControllableValue<boolean>({
     value: () => local.pressed,
     defaultValue: () => local.defaultPressed ?? false,
     onChange: (next) => local.onPressedChange?.(next),
   })
-  const child = resolveChildren(() => local.children as JSX.Element)
+  const child = resolveChildren(() => local.children)
   const buttonChildren = createMemo(() => {
     const value = child() as ToggleButtonT.Base['children']
     if (typeof value !== 'function') {
@@ -53,7 +63,7 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element {
       })
   })
 
-  function handleClick(event: MouseEvent & { currentTarget: HTMLButtonElement }): unknown {
+  function handleClick(event: MouseEvent & { currentTarget: HTMLElement }): unknown {
     const { defaultPrevented, result } = callHandler(event, local.onClick)
     if (!defaultPrevented) {
       setPressed(!pressed())
@@ -64,11 +74,10 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element {
   return (
     <Button
       {...rest}
-      as="button"
-      type="button"
+      as={local.as}
       slotName="toggle-button"
       aria-pressed={pressed()}
-      {...toggleButtonDataAttributes.root({ selected: pressed })}
+      {...toggleButtonDataAttributes.root({ pressed })}
       variant={pressed() ? resolved.variants.activeVariant : resolved.variants.variant}
       size={resolved.variants.size}
       activeEffect="none"
