@@ -368,7 +368,13 @@ import {
 
 ## Usage
 
-`SidebarFrame` is both the state provider and desktop layout root. `SidebarFrame.Sidebar` renders inline on desktop and automatically moves its content into a mobile Sheet on smaller viewports.
+Use SidebarFrame for application-shell navigation that stays inline on desktop and moves into a
+mobile drawer. Use [Sheet](/components/sheet) for a standalone drawer that is not a persistent
+layout region. Use [NavigationMenu](/components/navigation-menu) for a website header of links and
+panels.
+
+`SidebarFrame` is both the state provider and desktop layout root. `SidebarFrame.Sidebar` renders
+inline on desktop and moves the same content into a mobile Sheet on smaller viewports.
 
 ```tsx
 import { SidebarFrame } from 'moraine'
@@ -395,30 +401,75 @@ export function Example() {
 
 ### Responsive navigation ownership
 
-`SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
+Keep one navigation tree inside `SidebarFrame.Sidebar`. Put the application header outside the
+frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a
+child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather
+than maintaining a second open state.
 
-Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` / `onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop. Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives `(max-width: ${breakpoint}px)` via `matchMedia`.
+```tsx
+<SidebarFrame.Trigger as={Button} variant="ghost" size="icon-sm" aria-label="Toggle sidebar">
+  Open
+</SidebarFrame.Trigger>
+```
 
-Root `classes` and `styles` set defaults for frame, sidebar, menu, label, item, and submenu slots. On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for nested Provider behavior.
+Desktop and mobile open state are independent. Root accepts controlled `open` / `defaultOpen` /
+`onOpenChange` for desktop. Mobile sheet state stays internal and resets when returning to desktop.
+Items with `href` close the mobile sheet on activate; set `closeOnSelect={false}` on an item to
+keep it open. When `isMobile` is omitted, `breakpoint` (default `768`) drives
+`(max-width: ${breakpoint}px)` via `matchMedia`. Pass `isMobile` to force either layout.
 
-`SidebarFrame` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or with `presetMoraine`. Width classes on `SidebarFrame.Sidebar` take precedence.
+Root `classes` and `styles` set defaults for frame, sidebar, menu, label, item, and submenu slots.
+On mobile, the sidebar renders inside a Sheet. Style the SidebarFrame regions through their own
+slots; SidebarFrame overrides do not style the internal Sheet. See [Theming](/docs/theming) for
+nested Provider behavior.
 
-The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass `class="h-dvh"` (or `h-svh`) on the root.
+`SidebarFrame` declares `--mo-sidebar-width` on its root. Set global `--sidebar-width` in CSS or
+with `presetMoraine`. Width classes on `SidebarFrame.Sidebar` take precedence.
 
-Call `useSidebarFrame()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+The root uses `h-full` so it can sit inside a bounded container. For a viewport shell, pass
+`class="h-dvh"` (or `h-svh`) on the root.
 
-To persist desktop open state across reloads, control `open` from the app and store it in a cookie (not `localStorage`, which mismatches SSR hydration).
+Call `useSidebarFrame()` from a descendant for `isMobile`, `isOpen`, `state`, `scrolled`,
+`setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop
+resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
-<Preview path="./responsive-usage" />
+```tsx
+const frame = useSidebarFrame()
 
-### Navigation menu layer
+<Show when={frame.isMobile()} fallback={<Resizable>...</Resizable>}>
+  <SidebarFrame.Sidebar>...</SidebarFrame.Sidebar>
+  <SidebarFrame.Main>...</SidebarFrame.Main>
+</Show>
+```
 
-`SidebarFrame` provides structured menu primitives to build desktop and mobile navigation menus:
+To persist desktop open state across reloads, control `open` from the app and store it in a cookie
+(not `localStorage`, which mismatches SSR hydration).
 
-- `SidebarFrame.Menu`: Section container for a labeled group of navigation items.
-- `SidebarFrame.Label`: Section title with polymorphic tag support (`as="h2"`, `'span'`, etc.).
-- `SidebarFrame.Item`: Polymorphic navigation trigger (`<button>`, `<a>`, or custom link component) with built-in `leading`, `trailing`, `actions`, and `isActive`. `leading` / `trailing` accept icon names or arbitrary JSX.
-- `SidebarFrame.Submenu` / `SubmenuTrigger` / `SubmenuContent`: Collapsible sub-navigation built on `Collapsible`. Keep links and disclosure controls on separate elements when a parent has both an `href` and children.
+### Navigation menu
+
+Build labeled navigation with these parts:
+
+- `SidebarFrame.Menu`: section container for a group of items
+- `SidebarFrame.Label`: section title; set `as="h2"` or another tag when the page needs a heading
+- `SidebarFrame.Item`: polymorphic trigger (`button`, `a`, or a custom link) with `leading`,
+  `trailing`, `actions`, and `isActive`. `leading` and `trailing` accept icon names or JSX
+- `SidebarFrame.Submenu` / `SubmenuTrigger` / `SubmenuContent`: collapsible sub-navigation on
+  `Collapsible`. Keep a parent `href` and disclosure on separate elements
+
+```tsx
+<SidebarFrame.Menu>
+  <SidebarFrame.Label>Architecture</SidebarFrame.Label>
+  <SidebarFrame.Submenu defaultOpen>
+    <SidebarFrame.SubmenuTrigger leading="i-lucide:route">Routing</SidebarFrame.SubmenuTrigger>
+    <SidebarFrame.SubmenuContent>
+      <SidebarFrame.Item href="/layouts">Pages and Layouts</SidebarFrame.Item>
+    </SidebarFrame.SubmenuContent>
+  </SidebarFrame.Submenu>
+</SidebarFrame.Menu>
+```
+
+Use [DropdownMenu](/components/dropdown-menu) inside header, footer, or item `actions` for workspace
+switchers and row actions. Those menus are actions, not the sidebar's navigation tree.
 
 ## Anatomy
 
@@ -487,38 +538,48 @@ Trigger can appear anywhere inside the root. On mobile, Sidebar renders its regi
 
 ## Examples
 
-### Collapsible sub-navigation
+### Cloud console shell
 
-Compose `SidebarFrame.Submenu` inside `SidebarFrame.SidebarBody` for multi-level navigation. Use `SubmenuTrigger` for disclosure and a separate `Item` with `href` when the parent label is also a link.
+Keep one navigation tree for desktop and mobile. Place the trigger in the main header so compact
+viewports can open the drawer.
+
+<Preview path="./responsive-usage" />
+
+### Docs tree with collapsible sections
+
+Compose `Submenu` inside `SidebarBody` for multi-level docs. Use `SubmenuTrigger` for disclosure
+and a separate `Item` when the parent label is also a link.
 
 <Preview path="./collapsible-groups" />
 
-### Side and Variant
+### Inspector beside a document
 
-Using `side="right"` and `variant="inset"` to build an inspector and properties panel alongside a main document or canvas workspace.
+Use `side="right"` and `variant="inset"` for a properties panel next to a canvas or RFC.
 
 <Preview path="./side-and-variant" />
 
-### Header and footer slots
+### Team switcher and account menu
 
-Compose compound header and footer slots with `DropdownMenu` to provide an interactive team/workspace switcher and account profile menu.
+Put a workspace `DropdownMenu` in the header slot and an account menu in the footer.
 
 <Preview path="./header-footer-slots" />
 
-### Custom Frame
+### Global topbar above the frame
 
-Embed `SidebarFrame` beneath an application-level global topbar containing brand identification, project pickers, and global alerts.
+Keep brand, project picker, and alerts outside `SidebarFrame`. Let the frame fill the remaining
+height.
 
 <Preview path="./custom-frame" />
 
-### Mobile Sheet and desktop Resizable
+### Resize the explorer on desktop
 
-Combine `SidebarFrame` with the `Resizable` primitive to provide interactive panel sizing on desktop while automatically falling back to an accessible mobile Sheet on compact viewports.
+Branch on `useSidebarFrame().isMobile()`. Compose `Resizable` on desktop; the same sidebar content
+moves into the mobile Sheet.
 
 <Preview path="./sheet-resizable-render" />
 
-### Forced mobile mode
+### Force the mobile drawer
 
-Force `isMobile` mode to demonstrate touch-first layouts, quick action cards, and slide-over navigation drawers on compact screens.
+Set `isMobile` to demonstrate a touch-first layout with a slide-over navigation drawer.
 
 <Preview path="./forced-mobile" />

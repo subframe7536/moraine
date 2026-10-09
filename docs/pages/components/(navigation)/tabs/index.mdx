@@ -57,7 +57,10 @@ import { Tabs } from '@src'
 
 ## Usage
 
-Use Tabs to switch between peer panels while staying in the same page context. Use navigation links when each destination needs its own URL and document state.
+Use Tabs to switch between peer panels while staying in the same page context. Use navigation links
+when each destination needs its own URL and document state. Use [Stepper](/components/stepper) for a
+fixed sequence. Use [NavigationMenu](/components/navigation-menu) for website destinations with
+expandable panels.
 
 ```tsx
 import { Tabs } from 'moraine'
@@ -69,17 +72,39 @@ export function Example() {
 
 ### Selected value
 
-Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection. Disabled items are skipped during selection and keyboard navigation.
+Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection.
+Disabled items are skipped during selection and keyboard navigation.
 
-For JSX panel content, use an item `content` getter so inactive panels are not constructed before they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted component can consume hydration keys that have no matching HTML.
+For JSX panel content, use an item `content` getter so inactive panels are not constructed before
+they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted
+component can consume hydration keys that have no matching HTML.
 
-<Preview path="./selection-usage" />
+```tsx
+<Tabs
+  value={tab()}
+  onChange={setTab}
+  items={[
+    {
+      value: 'overview',
+      label: 'Overview',
+      get content() {
+        return <OverviewPanel />
+      },
+    },
+  ]}
+/>
+```
 
 ### Activation and keyboard navigation
 
-`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode, arrows move focus and Enter or Space selects. `loop` controls whether navigation wraps at the first and last enabled items.
+`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode,
+arrows move focus and Enter or Space selects. `loop` controls whether navigation wraps at the first
+and last enabled items.
 
-<Preview path="./activation-usage" />
+```tsx
+<Tabs items={TABS} activationMode="automatic" defaultValue="overview" />
+<Tabs items={TABS} activationMode="manual" defaultValue="overview" />
+```
 
 ### Keyboard interaction
 
@@ -117,6 +142,21 @@ String labels use the label slot; JSX labels render directly inside the trigger.
 
 ## Examples
 
-### Activation mode
+### Account settings owned by page state
+
+Keep Account, Security, and Billing on one page. Store the selected tab in local state.
+
+<Preview path="./selection-usage" />
+
+### Automatic versus manual activation
+
+Compare focus-selects with Enter-or-Space-selects on the same Overview, Analytics, and Logs panels.
+
+<Preview path="./activation-usage" />
+
+### Settings with two activation modes
+
+Place automatic and manual settings side by side. Arrow to a tab in each list and notice when the
+panel changes.
 
 <Preview path="./activation-mode" />

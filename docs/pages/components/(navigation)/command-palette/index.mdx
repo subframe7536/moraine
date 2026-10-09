@@ -94,7 +94,10 @@ import { CommandPalette, Icon, Kbd, KbdGroup } from '@src'
 
 ## Usage
 
-Use CommandPalette for searchable commands or navigation targets. The application decides when to open it and registers any global shortcut.
+Use CommandPalette for searchable commands or navigation targets on an inline surface. The
+application decides when to open it and registers any global shortcut. Wrap it in a
+[Dialog](/components/dialog) or [Modal](/components/modal) when the palette should occupy a focused
+overlay. Use [NavigationMenu](/components/navigation-menu) for persistent site destinations.
 
 ```tsx
 import { CommandPalette } from 'moraine'
@@ -110,15 +113,35 @@ export function Example() {
 
 ### Groups, filtering, and selection
 
-Pass groups and items from application state. The palette filters the supplied collection and invokes item selection callbacks; fetching commands, routing, and global keyboard shortcuts are application-owned.
+Pass groups and items from application state. The palette filters the supplied collection and
+invokes `onSelect` or an item's own `onSelect`. Fetching commands, routing, and global shortcuts
+remain application-owned. Set `disableFilter` when the collection is already filtered.
 
-<Preview path="./groups-filtering" />
+```tsx
+<CommandPalette
+  placeholder="Find a workspace section..."
+  groups={COMMAND_GROUPS}
+  onSelect={(item) => setSection(item.value)}
+/>
+```
 
-### Custom states and navigation
+### Custom item layout and states
 
-Use the custom item renderer for a changed item layout, and provide loading or empty content when those states need explanation. Sub-navigation should represent a short, deliberate branch of commands rather than a complete application shell.
+Use `itemRender` when a row needs extra fields such as owner or status. Provide `emptyRender` when
+an empty query or miss needs explanation. Set `loading` while results are still arriving.
 
-<Preview path="./custom-states" />
+```tsx
+<CommandPalette
+  groups={groups}
+  itemRender={(ctx) => <span>{ctx.item.label}</span>}
+  emptyRender={() => <p>No commands found.</p>}
+  loading={isLoading()}
+/>
+```
+
+Sub-navigation is a short, deliberate branch of commands. Swap the `groups` prop from application
+state rather than treating the palette as an application shell. Set `closeOnSelect={false}` while
+the branch stays open.
 
 ### Keyboard interaction
 
@@ -172,18 +195,39 @@ Group labels and items may be flattened into sibling rows when virtualized. Trai
 
 ## Examples
 
-### Custom item rendering
+### Jump to a workspace section
+
+Filter grouped destinations and store the selected section in page state.
+
+<Preview path="./groups-filtering" />
+
+### Scan projects by owner and status
+
+Render each command row with extra fields. Keep matching against the item model.
 
 <Preview path="./custom-item-render" />
 
-### Custom empty state
+### Explain a failed search
+
+Replace the default empty copy when the query matches nothing.
 
 <Preview path="./custom-empty-state" />
 
-### Loading
+### Empty palette copy
+
+Show an empty collection with an explicit no-results message.
+
+<Preview path="./custom-states" />
+
+### Wait for command results
+
+Keep the palette visible while `loading` is true.
 
 <Preview path="./loading" />
 
-### Sub-navigation
+### Drill into Create or Share
+
+Swap `groups` to open a short command branch. Keep selection from closing the palette until the
+user finishes or goes back.
 
 <Preview path="./sub-navigation" />
