@@ -11,20 +11,6 @@ search:
 
 import { Progress } from '@src'
 
-Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
-
-## Basic usage
-
-```tsx
-import { Progress } from 'moraine'
-
-export function Example() {
-  return <Progress value={40} max={100} aria-label="Upload progress" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
@@ -52,6 +38,43 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Progress for measurable task completion or for work whose end is not yet known. Choose a
+determinate value only when it represents real progress. For a loading placeholder of content
+structure, use [Skeleton](/components/skeleton).
+
+```tsx
+import { Progress } from 'moraine'
+
+export function Example() {
+  return <Progress value={40} max={100} aria-label="Upload progress" />
+}
+```
+
+### Progress models
+
+Provide a numeric `value` for determinate progress. Omit `value` or pass `null` for indeterminate
+progress. Pass a string array as `max` for a discrete sequence; `value` is then the active step
+index. `getValueLabel` supplies `aria-valuetext`.
+
+```tsx
+<Progress value={65} aria-label="Uploading design.fig" />
+<Progress aria-label="Scanning for malware" />
+<Progress value={1} max={['Waiting', 'Cloning', 'Done']} aria-label="Clone repository" />
+```
+
+### Semantics and status
+
+The component exposes progressbar metadata. Supply `aria-label` or a relationship when visual
+context alone does not identify the operation. `status` shows the percentage label. `statusRender`
+replaces that label. Animation settings affect presentation, not progress ownership.
+
+```tsx
+<Progress value={82} status aria-label="Downloading installation bundle" />
+<Progress value={40} statusRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -71,16 +94,23 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Progress models
+### Upload a file or wait on a scan
 
-Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+Use a determinate value for known bytes. Omit `value` while a scanner has no trustworthy percentage.
 
 <Preview path="./models" />
 
-### Semantics and animation
+### Announce a bundle download
 
-The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+Set `status` when the percentage should appear on the bar, and keep `aria-label` as the operation
+name.
 
 <Preview path="./semantics" />
+
+### Walk a clone through named steps
+
+Pass a string array as `max`. `value` is then the active step index, not a percentage.
+
+<Preview path="./clone-steps" />

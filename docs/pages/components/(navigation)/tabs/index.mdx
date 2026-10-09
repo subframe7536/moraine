@@ -11,20 +11,6 @@ search:
 
 import { Tabs } from '@src'
 
-Use Tabs to switch between peer panels while staying in the same page context. Use navigation links when each destination needs its own URL and document state.
-
-## Basic usage
-
-```tsx
-import { Tabs } from 'moraine'
-
-export function Example() {
-  return <Tabs items={[{ value: 'account', label: 'Account', content: 'Profile settings' }]} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -69,6 +55,68 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use Tabs to switch between peer panels while staying in the same page context. Use navigation links
+when each destination needs its own URL and document state. Use [Stepper](/components/stepper) for a
+fixed sequence. Use [NavigationMenu](/components/navigation-menu) for website destinations with
+expandable panels.
+
+```tsx
+import { Tabs } from 'moraine'
+
+export function Example() {
+  return <Tabs items={[{ value: 'account', label: 'Account', content: 'Profile settings' }]} />
+}
+```
+
+### Selected value
+
+Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection.
+Disabled items are skipped during selection and keyboard navigation.
+
+For JSX panel content, use an item `content` getter so inactive panels are not constructed before
+they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted
+component can consume hydration keys that have no matching HTML.
+
+```tsx
+<Tabs
+  value={tab()}
+  onChange={setTab}
+  items={[
+    {
+      value: 'overview',
+      label: 'Overview',
+      get content() {
+        return <OverviewPanel />
+      },
+    },
+  ]}
+/>
+```
+
+### Activation and keyboard navigation
+
+`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode,
+arrows move focus and Enter or Space selects. `loop` controls whether navigation wraps at the first
+and last enabled items.
+
+```tsx
+<Tabs items={TABS} activationMode="automatic" defaultValue="overview" />
+<Tabs items={TABS} activationMode="manual" defaultValue="overview" />
+```
+
+### Keyboard interaction
+
+Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
+
+| Key                                 | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| <kbd>Arrow keys</kbd>               | Moves focus among enabled tabs by orientation.       |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Moves focus to the first or last enabled tab.        |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.            |
+| <kbd>Tab</kbd>                      | Leaves the tab list according to normal focus order. |
+
 ## Anatomy
 
 <Anatomy
@@ -92,35 +140,24 @@ export function Example() {
 
 String labels use the label slot; JSX labels render directly inside the trigger.
 
-## Usage
+## Examples
 
-### Selected value
+### Account settings owned by page state
 
-Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection. Disabled items are skipped during selection and keyboard navigation.
-
-For JSX panel content, use an item `content` getter so inactive panels are not constructed before they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted component can consume hydration keys that have no matching HTML.
+Keep Account, Security, and Billing on one page. Store the selected tab in local state.
 
 <Preview path="./selection-usage" />
 
-### Activation and keyboard navigation
+### Browse dashboard tabs as focus moves
 
-`activationMode="automatic"` selects the tab while arrow navigation moves focus. In manual mode, arrows move focus and Enter or Space selects. `loop` controls whether navigation wraps at the first and last enabled items.
+`activationMode="automatic"` selects Overview, Analytics, or Logs while arrow keys move focus. Use
+this for lightweight inspection panels.
 
 <Preview path="./activation-usage" />
 
-### Keyboard interaction
+### Confirm a settings tab with Enter
 
-Arrow keys follow the configured orientation. `activationMode="automatic"` selects while moving focus; manual activation waits for Enter or Space.
-
-| Key                                 | Description                                          |
-| ----------------------------------- | ---------------------------------------------------- |
-| <kbd>Arrow keys</kbd>               | Moves focus among enabled tabs by orientation.       |
-| <kbd>Home</kbd> / <kbd>End</kbd>    | Moves focus to the first or last enabled tab.        |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused tab in manual mode.            |
-| <kbd>Tab</kbd>                      | Leaves the tab list according to normal focus order. |
-
-## Examples
-
-### Activation mode
+`activationMode="manual"` keeps the current panel until Enter or Space. Use it when switching tabs
+should be an explicit commit, as in a settings wizard.
 
 <Preview path="./activation-mode" />

@@ -10,7 +10,7 @@ export function Actions() {
       <Empty.Description>Start a conversation with your team.</Empty.Description>
       <Empty.Actions>
         <Button>New message</Button>
-        <Button as="a" href="#basic-usage" variant="outline">
+        <Button as="a" href="#usage" variant="outline">
           Learn more
         </Button>
       </Empty.Actions>

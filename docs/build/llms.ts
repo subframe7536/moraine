@@ -79,8 +79,6 @@ const SECTION_TITLES = new Map<string, string>([
   ['overlay', 'Overlay'],
 ])
 
-const PLAYGROUND_SECTION_PATTERN = /^## Playground\r?\n[\s\S]*?(?=^## |$(?![\s\S]))/gm
-
 function normalizeSiteUrl(siteUrl: string): string {
   return siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`
 }
@@ -113,10 +111,6 @@ function routeByPath(routes: DocsRouteEntry[]): Map<string, DocsRouteEntry> {
 
 function escapeTableCell(value: string): string {
   return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, '<br>')
-}
-
-function removePlaygroundSections(source: string): string {
-  return source.replace(PLAYGROUND_SECTION_PATTERN, '')
 }
 
 function renderTable(rows: readonly (readonly string[])[], headers: readonly string[]): string {
@@ -153,11 +147,11 @@ function renderApiReference(apiDoc: ComponentApi): string {
     return ''
   }
 
-  const output: string[] = []
+  const output: string[] = ['## API Reference', '']
   if (model.attributes) {
-    output.push('## Attributes', '', renderAttributes(model.attributes), '')
+    output.push('### Attributes', '', renderAttributes(model.attributes), '')
   }
-  output.push('## Props', '')
+  output.push('### Props', '')
 
   if (model.parts.length === 1) {
     const rootPart = model.parts[0]
@@ -172,7 +166,7 @@ function renderApiReference(apiDoc: ComponentApi): string {
     }
   } else {
     for (const part of model.parts) {
-      output.push(`### ${part.heading}`, '')
+      output.push(`#### ${part.heading}`, '')
       if (part.description) {
         output.push(part.description, '')
       }
@@ -308,7 +302,7 @@ function renderComponentNode(
   if (node.name === 'CodeTabs') {
     return renderCodeTabsNode(node, context)
   }
-  if (node.name === 'ToastHosts') {
+  if (node.name === 'ToastHosts' || node.name === 'Playground') {
     return ''
   }
   throw new Error(`[docs-llms] unsupported JSX component <${node.name}> in ${context.sourcePath}`)
@@ -416,14 +410,22 @@ async function convertPageMarkdown(
   source: string,
   context: PageConversionContext,
 ): Promise<string> {
-  const markdownSource = removePlaygroundSections(source)
+  const markdownSource = source
   const components = await collectMdxComponents(markdownSource, context.sourcePath)
+  const playgroundRanges = components.filter((node) => node.name === 'Playground')
+  const visibleComponents = components.filter(
+    (node) =>
+      !playgroundRanges.some(
+        (playground) =>
+          node !== playground && node.start >= playground.start && node.end <= playground.end,
+      ),
+  )
   const pageContext: PageConversionContext = {
     ...context,
     markdownSource,
   }
   const replacements = await Promise.all(
-    components.map(async (node) => ({
+    visibleComponents.map(async (node) => ({
       start: node.start,
       end: node.end,
       value: await renderComponentNode(node, pageContext),

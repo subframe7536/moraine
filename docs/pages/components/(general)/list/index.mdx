@@ -11,20 +11,6 @@ search:
 
 import { List } from '@src'
 
-Use List when the caller owns each row’s markup and needs a stable collection surface. Pass `items` and an `itemRender` component; List does not take row content through `children`. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
-
-## Basic usage
-
-```tsx
-import { List } from 'moraine'
-
-export function Example() {
-  return <List items={['Alpha', 'Beta']} itemRender={(item) => <li>{item.item}</li>} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[{ kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false }]}
 >
@@ -37,6 +23,61 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use List when the caller owns each row's markup and needs a stable collection surface. Pass `items`
+and an `itemRender` component; List does not take row content through `children`. Add a virtual
+renderer for large collections only when ordinary rendering becomes costly.
+
+```tsx
+import { List } from 'moraine'
+
+export function Example() {
+  return <List items={['Alpha', 'Beta']} itemRender={(item) => <li>{item.item}</li>} />
+}
+```
+
+### Row ownership
+
+`itemRender` receives the item, its index, and row props. Apply those props to the final row element
+when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default
+root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different
+root with `as` for another structure. TypeScript infers the item and root element types from `items`
+and `as`. `fallback` renders when the collection is empty.
+
+```tsx
+<List
+  items={rows()}
+  fallback={<li>No items</li>}
+  itemRender={(item) => <li>{item.item.label}</li>}
+/>
+```
+
+### Virtualization
+
+`createListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs
+`@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or
+measured row sizes.
+
+```tsx
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+const virtualizer = createListVirtualizer({
+  estimateSize: () => 36,
+  getItemKey: (item) => item.id,
+})
+
+<List
+  as="div"
+  items={items}
+  virtualRender={virtualizer.virtualRender}
+  itemRender={(context) => <div {...context.props}>{context.item.label}</div>}
+/>
+```
+
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
+keyboard navigation.
+
 ## Anatomy
 
 <Anatomy
@@ -48,20 +89,24 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Row ownership and virtualization
+### Clear an inbox to an empty fallback
 
-`itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure. TypeScript infers the item and root element types from `items` and `as`.
+`fallback` renders when `items` is empty. List does not invent empty copy; pass the row markup you
+want shown.
 
-`createListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs `@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or measured row sizes.
+<Preview path="./empty-inbox" />
 
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
+### Scroll a large search result set
+
+Use `createListVirtualizer` when tens of thousands of rows would otherwise mount at once. Spread
+`context.props` onto the measured row element.
 
 <Preview path="./virtualization" />
 
-## Examples
+### Render result rows with extra detail lines
 
-### Dynamic heights
+Estimate a larger size when row height varies, and let the virtualizer measure after mount.
 
 <Preview path="./dynamic-height" />

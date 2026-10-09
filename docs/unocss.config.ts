@@ -10,8 +10,6 @@ const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
   'docs-h2':
     'text-xl sm:text-2xl text-foreground font-semibold tracking-tight mb-3 sm:mb-4 mt-8 sm:mt-10 pb-2 border-b border-border/60',
-  'docs-playground-heading':
-    'text-xl sm:text-2xl text-foreground font-semibold tracking-tight mb-3 mt-8 sm:mt-10',
   'docs-h3': 'text-lg sm:text-xl text-foreground font-semibold tracking-tight mb-2 mt-5 sm:mt-6',
   'docs-h4': 'sm:text-base text-foreground font-semibold mb-1.5 mt-4',
   'docs-h5': 'text-foreground font-semibold mb-1 mt-3',

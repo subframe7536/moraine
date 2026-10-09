@@ -11,20 +11,6 @@ search:
 
 import { Checkbox } from '@src'
 
-Use Checkbox for an independent boolean or mapped choice that can be selected alongside other choices. Use [Switch](/components/switch) when the control represents an immediate on/off setting.
-
-## Basic usage
-
-```tsx
-import { Checkbox } from 'moraine'
-
-export function Example() {
-  return <Checkbox label="Accept terms" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Accept terms and conditions' },
@@ -64,6 +50,49 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Checkbox for an independent boolean or mapped choice that can be selected alongside other
+choices. Use [Switch](/components/switch) when the control represents an immediate on/off setting.
+Use [CheckboxGroup](/components/checkbox-group) when several choices submit as one array.
+
+```tsx
+import { Checkbox } from 'moraine'
+
+export function Example() {
+  return <Checkbox label="Accept terms" />
+}
+```
+
+### State and form values
+
+Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
+Set `indeterminate` from aggregate selection state; it changes the mixed presentation without
+adding a third submitted value.
+
+`trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
+forms. Native form submission uses the separate `value` prop only while checked; an unchecked
+checkbox contributes no entry.
+
+```tsx
+<Checkbox
+  checked={checked()}
+  onCheckedChange={setChecked}
+  label="Subscribe to product updates"
+/>
+<Checkbox trueValue="opted-in" falseValue="opted-out" label="Anonymous telemetry" />
+```
+
+### Read-only and disabled
+
+`disabled` removes the control from normal interaction. `readOnly` preserves the value and
+focusability while preventing changes.
+
+```tsx
+<Checkbox disabled defaultChecked label="Disabled" />
+<Checkbox readOnly defaultChecked label="Read-only" />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -93,36 +122,38 @@ export function Example() {
   }}
 />
 
-## Usage
-
-### State and form values
-
-Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for an initial value.
-Set `indeterminate` from aggregate selection state; it changes the mixed presentation without
-adding a third submitted value.
-
-`trueValue` and `falseValue` map checked state to domain values for callbacks and schema-bound
-forms. Native form submission uses the separate `value` prop only while checked; an unchecked
-checkbox contributes no entry.
-
-<Preview path="./state-and-values" />
-
-### Read-only and disabled
-
-`disabled` removes the control from normal interaction. `readOnly` preserves the value and focusability while preventing changes.
-
-<Preview path="./disabled-readonly" />
-
 ## Examples
 
-### Indeterminate and custom indicator
+### Complete a deployment checklist
+
+Drive a parent checkbox from child task state. Use `indeterminate` when some but not all tasks are
+done. Custom `checkedIcon` and `indeterminateIcon` replace the default marks.
 
 <Preview path="./indeterminate-custom-icons" />
 
-### Custom true and false values
+### Store telemetry as domain values
+
+Map checked and unchecked to application strings with `trueValue` and `falseValue`. Callbacks and
+schema fields then receive those strings instead of booleans.
 
 <Preview path="./custom-true-false-values" />
 
-### Form integration
+### Require terms on submit
+
+Bind the checkbox to `form.Field` and reject `false` in the schema so submit cannot proceed until
+the terms are accepted.
 
 <Preview path="./form-integration" />
+
+### Subscribe to product updates
+
+Own `checked` in the page when nearby copy must reflect the same boolean.
+
+<Preview path="./state-and-values" />
+
+### Lock a policy versus show a read-only copy
+
+`disabled` removes the control from interaction and native submit. `readOnly` stays focusable and
+submits, but rejects changes.
+
+<Preview path="./disabled-readonly" />

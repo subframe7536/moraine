@@ -11,29 +11,6 @@ search:
 
 import { RadioGroup } from '@src'
 
-Use RadioGroup for one choice from a small visible set. For a longer or space-constrained collection, use [Select](/components/select).
-
-## Basic usage
-
-```tsx
-import { Field, RadioGroup } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Visibility">
-      <RadioGroup
-        items={[
-          { value: 'public', label: 'Public' },
-          { value: 'private', label: 'Private' },
-        ]}
-      />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -85,6 +62,67 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use RadioGroup for one choice from a small visible set. For a longer or space-constrained
+collection, use [Select](/components/select). Use [CheckboxGroup](/components/checkbox-group) when
+several options may be selected together.
+
+```tsx
+import { Field, RadioGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Visibility">
+      <RadioGroup
+        items={[
+          { value: 'public', label: 'Public' },
+          { value: 'private', label: 'Private' },
+        ]}
+      />
+    </Field>
+  )
+}
+```
+
+### Single selection
+
+Use one string value for the selected item and pair `value` with `onValueChange` for controlled
+state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior
+rather than the independent focus order of checkboxes.
+
+```tsx
+<RadioGroup items={planOptions} value={plan()} onValueChange={setPlan} />
+```
+
+### Forms
+
+Set `name` for native form submission. For schema binding and validation, place the group inside
+`form.Field` from [createForm](/components/form). Standalone [Field](/components/field) supplies
+labels and messages without binding a form store.
+
+```tsx
+<RadioGroup name="environment" items={envOptions} defaultValue="staging" />
+```
+
+### Indicator
+
+`indicator` places the radio mark at `start` or `end`, or hides it with `hidden`.
+
+```tsx
+<RadioGroup indicator="end" items={items} />
+<RadioGroup indicator="hidden" items={items} />
+```
+
+### Keyboard interaction
+
+| Key                                          | Description                                                   |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowRight</kbd> | Moves focus and selection to the next enabled radio item.     |
+| <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous enabled radio item. |
+| <kbd>Space</kbd>                             | Selects the focused radio item.                               |
+| <kbd>Tab</kbd>                               | Enters or leaves the group according to normal focus order.   |
+
 ## Anatomy
 
 <Anatomy
@@ -114,41 +152,31 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Single selection
+### Choose a billing plan
 
-Use one string value for the selected item and pair `value` with `onValueChange` for controlled state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior rather than the independent focus order of checkboxes.
+Keep one string value for the selected plan. Pair `value` with `onValueChange` when the page owns
+the choice.
 
 <Preview path="./selection" />
 
-### Forms
+### Pick a plan with a locked starter tier
 
-Set `name` for native form submission. For schema binding and validation, place the group inside
-`form.Field` from [createForm](/components/form). Standalone [Field](/components/field) supplies
-labels and messages without binding a form store.
-
-<Preview path="./form-usage" />
-
-### Keyboard interaction
-
-| Key                                          | Description                                                   |
-| -------------------------------------------- | ------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowRight</kbd> | Moves focus and selection to the next enabled radio item.     |
-| <kbd>ArrowUp</kbd> / <kbd>ArrowLeft</kbd>    | Moves focus and selection to the previous enabled radio item. |
-| <kbd>Space</kbd>                             | Selects the focused radio item.                               |
-| <kbd>Tab</kbd>                               | Enters or leaves the group according to normal focus order.   |
-
-## Examples
-
-### Controlled value and disabled items
+Disable a legacy option so it stays visible but cannot be selected. Horizontal `table` layout works
+for a short plan comparison.
 
 <Preview path="./controlled-disabled" />
 
-### Indicator position
+### Bind a deployment environment
 
-<Preview path="./indicator-positions" />
-
-### Form integration
+Place the group in `form.Field` so schema validation owns the required environment value.
 
 <Preview path="./form-integration" />
+
+### Compare plans with the mark at the end
+
+`indicator="end"` puts the radio on the trailing edge of a card option. Use `hidden` when the card
+itself is the selected affordance.
+
+<Preview path="./indicator-positions" />

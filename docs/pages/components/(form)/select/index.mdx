@@ -11,30 +11,6 @@ search:
 
 import { Select } from '@src'
 
-Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when users need to type a query, or [BaseSelect](/components/base-select) when you need to compose the listbox yourself.
-
-## Basic usage
-
-```tsx
-import { Field, Select } from 'moraine'
-
-export function Example() {
-  return (
-    <Field label="Size">
-      <Select
-        items={[
-          { label: 'Small', value: 'sm' },
-          { label: 'Large', value: 'lg' },
-        ]}
-        placeholder="Choose a size"
-      />
-    </Field>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -101,12 +77,84 @@ export function Example() {
       placeholder="Select a framework..."
       variant={props.variant}
       size={props.size}
+      open={props.open}
       allowClear={props.allowClear}
       disabled={props.disabled}
       class="max-w-72 min-w-40 w-60%"
     />
   )}
 </Playground>
+
+## Usage
+
+Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
+users need to type a query, [MultiSelect](/components/multi-select) for several collection values, or
+[BaseSelect](/components/base-select) when you need to compose the listbox yourself.
+
+```tsx
+import { Field, Select } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Size">
+      <Select
+        items={[
+          { label: 'Small', value: 'sm' },
+          { label: 'Large', value: 'lg' },
+        ]}
+        placeholder="Choose a size"
+      />
+    </Field>
+  )
+}
+```
+
+### String items
+
+Pass strings when the label and value are identical. Strings and objects can be mixed at the
+root or inside a group. Whitespace is preserved, and an empty string is a valid value.
+
+```tsx
+<Select items={['Apple', 'Banana']} defaultValue="Apple" />
+<Select
+  items={[
+    'Apple',
+    { value: 'pear', label: 'Pear', description: 'Fresh fruit' },
+    { type: 'group', label: 'More fruit', items: ['Banana'] },
+  ]}
+/>
+```
+
+String items are converted to the same item shape used by callbacks: `'Apple'` becomes
+`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
+`SelectT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
+occurrence, including collisions between strings and objects.
+
+### Value and collection
+
+The value slot shows the selected label or `String(value)` for an unresolved value. Clear is a
+pointer-only action inside the trigger that clears selection without toggling the popup.
+
+Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
+uncontrolled choice. `null` means no selection; an empty string is a valid item value. Use unique
+item values so each selection identifies one option.
+
+```tsx
+<Select items={countries} value={selected()} onValueChange={setSelected} allowClear />
+```
+
+Printable keys perform rapid typeahead navigation across available options without opening an
+editable input.
+
+### Keyboard interaction
+
+| Key                 | Behavior                                      |
+| ------------------- | --------------------------------------------- |
+| Enter / Space       | Open the popup or commit the active option    |
+| ArrowDown / ArrowUp | Open or move through selectable options       |
+| Home / End          | Move to the first or last option while open   |
+| Printable key       | Typeahead to the matching item label          |
+| Escape              | Close the dropdown without changing the value |
 
 ## Anatomy
 
@@ -167,68 +215,51 @@ export function Example() {
 
 Select renders the portaled popup collection internally; its slots are styling targets. Use [BaseSelect](/components/base-select) to compose the listbox yourself.
 
-## Usage
-
-### String items
-
-Pass strings when the label and value are identical. Strings and objects can be mixed at the
-root or inside a group. Whitespace is preserved, and an empty string is a valid value.
-
-<Preview path="./string-items" />
-
-String items are converted to the same item shape used by callbacks: `'Apple'` becomes
-`{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
-`SelectT.NormalizedItem<TItem>` names the callback item type. Duplicate values use the first
-occurrence, including collisions between strings and objects.
-
-### Value and collection
-
-The value slot shows the selected label or `String(value)` for an unresolved value. Clear is a pointer-only action inside the trigger that clears selection without toggling the popup.
-
-Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
-uncontrolled choice. `null` means no selection; an empty string is a valid item value. Use unique
-item values so each selection identifies one option.
-
-Printable keys perform rapid typeahead navigation across available options without opening an editable input.
-
-<Preview path="./usage-value" />
-
-### Keyboard interaction
-
-| Key                 | Behavior                                      |
-| ------------------- | --------------------------------------------- |
-| Enter / Space       | Open the popup or commit the active option    |
-| ArrowDown / ArrowUp | Open or move through selectable options       |
-| Home / End          | Move to the first or last option while open   |
-| Printable key       | Typeahead to the matching item label          |
-| Escape              | Close the dropdown without changing the value |
-
 ## Examples
 
-### Rich items
+### Choose a subscription plan
 
-Each item supports an `icon` and secondary `description` without requiring custom item templates.
+Put an `icon` and `description` on each item when the choice needs more than a label. No custom
+item template is required.
 
 <Preview path="./rich-items" />
 
-### Team roles
+### Assign a member role
+
+Pick one permission role from a short collection. Keep the selected value as the role id.
 
 <Preview path="./user-assignee" />
 
-### Grouped options
+### Choose a workspace timezone
 
-Organize options into labeled categories using `type: 'group'`. Insert `{ type: 'separator' }` between groups or items to show a divider. Labels and separators are excluded from selection and keyboard navigation.
+Organize options with `type: 'group'`. Insert `{ type: 'separator' }` between groups or items.
+Labels and separators are excluded from selection and keyboard navigation.
 
 <Preview path="./grouped-items" />
 
-### Incremental collections
+### Load more options on scroll
 
-Use `onScrollBottom` and `scrollBottomThreshold` to load additional pages of options as the user scrolls.
+Use `onScrollBottom` and `scrollBottomThreshold` to append pages as the listbox approaches the
+bottom. Drive `loading` from the in-flight request.
 
 <Preview path="./infinite-scroll" />
 
-### Form integration
+### Bind an empty select to a form
 
-For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the schema.
+For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the
+schema.
 
 <Preview path="./form-integration" />
+
+### Own the selected country code
+
+Pair `value` with `onValueChange`. Clearing writes `null`. Nearby copy can read the same signal.
+
+<Preview path="./usage-value" />
+
+### Accept string labels or mixed items
+
+Pass a string array when the label is the value. Mix strings, item objects, and `type: 'group'`
+entries in one `items` list.
+
+<Preview path="./string-items" />

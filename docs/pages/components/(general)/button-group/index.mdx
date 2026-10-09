@@ -12,25 +12,6 @@ search:
 
 import { Button, ButtonGroup } from '@src'
 
-Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own interactive control; the group supplies layout and shared presentation.
-
-## Basic usage
-
-```tsx
-import { Button, ButtonGroup } from 'moraine'
-
-export function Example() {
-  return (
-    <ButtonGroup>
-      <Button>Copy</Button>
-      <Button variant="outline">Share</Button>
-    </ButtonGroup>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -72,6 +53,54 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own
+interactive control; the group supplies layout and shared presentation. Use
+[ToggleButton](/components/toggle-button) inside the group for independently pressed actions. ButtonGroup
+does not coordinate selection or add toolbar keyboard navigation.
+
+```tsx
+import { Button, ButtonGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <ButtonGroup>
+      <Button>Copy</Button>
+      <Button variant="outline">Share</Button>
+    </ButtonGroup>
+  )
+}
+```
+
+### Composition
+
+Root `variant`, `size`, and `orientation` set defaults for children. Root `classes` and `styles` set
+defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an
+action needs an overlay.
+
+```tsx
+<ButtonGroup variant="outline" size="sm" aria-label="Document actions">
+  <Button>Copy link</Button>
+  <Button>Duplicate</Button>
+  <Button>Archive</Button>
+</ButtonGroup>
+```
+
+### Separator
+
+Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation follows the
+group axis: vertical in a horizontal group and horizontal in a vertical group. An explicit
+`orientation` overrides this default. The separator accepts direct `class` and `style`.
+
+```tsx
+<ButtonGroup aria-label="Clipboard actions">
+  <Button>Copy</Button>
+  <ButtonGroup.Separator />
+  <Button>Paste</Button>
+</ButtonGroup>
+```
+
 ## Anatomy
 
 <Anatomy
@@ -89,36 +118,41 @@ export function Example() {
 
 The group owns its separators; the caller supplies the child Buttons and their content.
 
-## Usage
+## Examples
 
-### Composition
+### Group document actions
 
-Use `ButtonGroup` to align related actions without changing their semantics. Add `ButtonGroup.Separator` where a divider helps; it accepts direct `class` and `style`. Root `classes` and `styles` set defaults for the `root` and `separator` slots. Compose a menu or popover trigger as a child when an action needs an overlay.
+Join copy, duplicate, and archive so they read as one set of file commands.
 
 <Preview path="./group-composition" />
 
-## Examples
+### Format selected text
 
-### Toggle buttons
-
-Compose ToggleButton children for independently enabled actions. They inherit the group's size and unpressed variant; `activeVariant` controls each button's pressed appearance. ButtonGroup supplies layout and does not coordinate selection or add toolbar keyboard navigation.
+Compose ToggleButton children for independently enabled actions. They inherit the group's size and
+unpressed variant; `activeVariant` controls each button's pressed appearance.
 
 <Preview path="./toggle-buttons" />
 
-### Separator
+### Split clipboard actions
 
-Insert `ButtonGroup.Separator` only where an explicit boundary is useful. Its orientation follows the group axis: vertical in a horizontal group and horizontal in a vertical group. An explicit `orientation` overrides this default.
+Use a separator to distinguish copy from paste without changing either button's semantics.
 
 <Preview path="./separator" />
 
-### Dropdown menu composition
+### Export a report with format options
+
+Keep the primary export command on a Button and attach extra formats through a dropdown trigger.
 
 <Preview path="./button-dropdown" />
 
-### Popover composition
+### Save a document with extra options
+
+Attach a popover trigger when the extra action is a short panel rather than a menu of commands.
 
 <Preview path="./button-popover" />
 
-### Vertical layout
+### Zoom a canvas from a vertical toolbar
+
+Set `orientation="vertical"` for stacked icon controls such as zoom.
 
 <Preview path="./vertical" />

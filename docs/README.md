@@ -40,10 +40,14 @@ All pages have validated frontmatter with `title`, `description`, `sidebar.order
 A component page uses this order:
 
 ```text
-intro → Basic usage → Playground → Anatomy? → Usage → Examples? → generated Attributes / Props
+PageHeader → Playground → Usage → Anatomy? → Examples → generated API Reference (Attributes, Props)
 ```
 
-`Basic usage` starts with one fenced TSX example using the public package, complete enough to copy. Playground controls show only visually meaningful primitive states. `Usage` explains behavior, value models, and constraints beyond the API table; optional `Examples` contain real application patterns. Keep simple pages short. Explain managed keyboard or accessibility behavior beside the relevant usage section, without repeating native browser behavior.
+Playground has no heading. Playground controls show only visually meaningful primitive states.
+
+`Usage` is text and fenced code only: no `<Preview />`. It teaches when to use the component, when not to, and how to compose the public API. Start with a short choice-oriented introduction and one complete TSX example that imports `moraine`. Follow with subsections that explain state, composition, and constraints the API table cannot convey; put a small code fence next to a behavior when a snippet teaches it faster than prose. Keep keyboard or accessibility rules that Moraine adds beside the relevant subsection. Do not repeat native browser behavior.
+
+`Examples` is required. Each example is a real application task with a short agent-facing guide and a self-contained `<Preview />` whose TSX is the copyable source. Prefer tasks, compositions, and state transitions over catalogs of variants and sizes.
 
 Anatomy is optional. When included, use one `## Anatomy` heading and one `<Anatomy value={...} />` with a static configuration, rendered as a fenced `text` tree. Every node identifies a public `component` or attached `part`, a style `slot`, or an `internal` detail. Root nodes say `slot=root` or `no DOM`. The build validates names against `api.json`; see `docs/build/anatomy.ts` and `docs/build/content.test.ts`. A style slot does not imply a matching attached JSX part.
 

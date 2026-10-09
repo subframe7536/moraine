@@ -11,20 +11,6 @@ search:
 
 import { Badge } from '@src'
 
-Use Badge for compact status or metadata beside content. It is presentational by default; an action needs a semantic interactive root and an accessible name.
-
-## Basic usage
-
-```tsx
-import { Badge } from 'moraine'
-
-export function Example() {
-  return <Badge>Active</Badge>
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -59,6 +45,42 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Badge for compact status or metadata beside content. It is presentational by default. An action
+needs a semantic interactive root and an accessible name.
+
+```tsx
+import { Badge } from 'moraine'
+
+export function Example() {
+  return <Badge>Active</Badge>
+}
+```
+
+### Presentational status
+
+Place Badge beside a separately labeled control or heading. It does not replace an accessible status
+announcement where one is required. Variants (`solid`, `subtle`, `surface`, `outline`) and sizes
+(`sm`, `md`, `lg`) change appearance only.
+
+```tsx
+<Badge variant="subtle">In progress</Badge>
+<Badge variant="outline" size="sm">
+  v2.4.0
+</Badge>
+```
+
+### Interactive root
+
+For a clickable badge, set `as` to a semantic element and pass that element's required attributes.
+
+```tsx
+<Badge as="button" type="button" onClick={onFilter}>
+  Needs review
+</Badge>
+```
+
 ## Anatomy
 
 <Anatomy
@@ -68,16 +90,23 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Presentational status
+### Label task status in a queue
 
-Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. For an interactive badge, choose a semantic root with `as` and provide its required attributes, such as `type="button"`. Badge does not replace an accessible status announcement where one is required.
+Keep the task title as the accessible name. Badge only restates workflow state.
 
 <Preview path="./badge-usage" />
 
-## Examples
+### Annotate a deployment and commit metadata
 
-### Status and metadata
+Use leading or trailing icons when the label names a pipeline stage or a git fact.
 
 <Preview path="./status-and-metadata" />
+
+### Filter an issue list
+
+Render Badge as a button when the chip is a command. Keep `type="button"` and an `onClick` handler;
+the visible label is the accessible name.
+
+<Preview path="./filter-issues" />

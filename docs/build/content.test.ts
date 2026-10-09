@@ -14,6 +14,7 @@ import { resolvePreviewFile } from './markdown/previews.ts'
 
 const PAGES_ROOT = path.resolve(__dirname, '../pages/components')
 const PROJECT_ROOT = path.resolve(__dirname, '../..')
+const ALLOWED_HEADINGS = new Set(['Usage', 'Anatomy', 'Examples'])
 
 function componentPages(): string[] {
   return collectMarkdownFiles(PAGES_ROOT).filter(
@@ -21,16 +22,40 @@ function componentPages(): string[] {
   )
 }
 
-test('copyable Basic usage examples compile against the public component API', () => {
+function sectionByName(source: string, name: string): string | undefined {
+  const matches = [...source.matchAll(/^## (.+)$/gm)]
+  const index = matches.findIndex((match) => match[1] === name)
+  if (index < 0) {
+    return undefined
+  }
+  const start = matches[index]!.index + matches[index]![0].length
+  const end = matches[index + 1]?.index ?? source.length
+  return source.slice(start, end)
+}
+
+function usageSection(source: string): string | undefined {
+  return sectionByName(source, 'Usage')
+}
+
+function usageExample(source: string): string | undefined {
+  const usage = usageSection(source)
+  if (!usage) {
+    return undefined
+  }
+  const beforeSubsection = usage.split(/^### /m)[0] ?? usage
+  return beforeSubsection.match(/```tsx\n([\s\S]*?)\n```/)?.[1]
+}
+
+test('copyable Usage examples compile against the public component API', () => {
   const directory = mkdtempSync(path.join(PROJECT_ROOT, 'docs/.content-check-'))
   try {
     const examples: string[] = []
     for (const page of componentPages()) {
       const source = readFileSync(page, 'utf8')
-      const basic = source.match(/^## Basic usage\n+```tsx\n([\s\S]*?)\n```/m)
-      expect(basic, `${page}: missing Basic usage example`).not.toBeNull()
+      const basic = usageExample(source)
+      expect(basic, `${page}: missing Usage example`).toBeTruthy()
       const fileName = `${path.basename(path.dirname(page))}.tsx`
-      writeFileSync(path.join(directory, fileName), basic![1]!)
+      writeFileSync(path.join(directory, fileName), basic!)
       examples.push(fileName)
     }
     expect(examples.length).toBeGreaterThan(0)
@@ -70,57 +95,57 @@ test('component pages follow the shared content and anatomy contract', async () 
     const source = readFileSync(page, 'utf8')
     const name = path.relative(PAGES_ROOT, page)
     const sections = [...source.matchAll(/^## (.+)$/gm)]
-    const labels = sections.map((match) => match[1])
-    const intro = source
-      .slice(source.indexOf('\n---', 3) + 4, sections[0]?.index)
-      .replace(/^import .*$/gm, '')
-      .trim()
-    if (!intro || intro.startsWith('##')) {
-      failures.push(`${name}: missing introduction`)
+    const labels = sections
+      .map((match) => match[1])
+      .filter((label): label is string => Boolean(label))
+    if (!labels.includes('Usage')) {
+      failures.push(`${name}: missing Usage`)
     }
-    const required = ['Basic usage', 'Playground', 'Usage']
-    for (const section of required) {
-      if (!labels.includes(section)) {
-        failures.push(`${name}: missing ${section}`)
-      }
+    if (!labels.includes('Examples')) {
+      failures.push(`${name}: missing Examples`)
     }
-    const ordered = ['Basic usage', 'Playground', 'Anatomy', 'Usage'].filter((section) =>
-      labels.includes(section),
-    )
+    const ordered = ['Usage', 'Anatomy', 'Examples'].filter((section) => labels.includes(section))
     if (
-      ordered.some(
-        (section, index) =>
-          index > 0 && labels.indexOf(section) < labels.indexOf(ordered[index - 1]),
-      )
+      ordered.some((section, index) => {
+        const previous = ordered[index - 1]
+        return (
+          index > 0 && previous !== undefined && labels.indexOf(section) < labels.indexOf(previous)
+        )
+      })
     ) {
       failures.push(`${name}: incorrect section order`)
     }
-    if (labels.includes('Examples') && labels.indexOf('Examples') < labels.indexOf('Usage')) {
-      failures.push(`${name}: Examples precedes Usage`)
-    }
-    for (const section of ['Import', 'Features', 'Related', 'Related components']) {
-      if (labels.includes(section)) {
+    for (const section of labels) {
+      if (!ALLOWED_HEADINGS.has(section)) {
         failures.push(`${name}: forbidden ${section}`)
       }
     }
-    const basic = source.match(/^## Basic usage\n+```tsx\n([\s\S]*?)\n```/m)
-    if (
-      !basic ||
-      !/from ['"]moraine(?:\/[\w-]+)?['"]/.test(basic[1]!) ||
-      basic[1]!.includes('@src')
-    ) {
-      failures.push(`${name}: Basic usage needs one public TSX example`)
+    const playgroundIndex = source.indexOf('<Playground')
+    const usageIndex = source.search(/^## Usage$/m)
+    if (playgroundIndex < 0) {
+      failures.push(`${name}: missing Playground`)
+    } else if (usageIndex >= 0 && playgroundIndex > usageIndex) {
+      failures.push(`${name}: Playground follows Usage`)
     }
-    const playground = sections.find((section) => section[1] === 'Playground')
-    const basicSection = source.slice(
-      sections.find((section) => section[1] === 'Basic usage')?.index ?? 0,
-      playground?.index,
-    )
-    if ([...basicSection.matchAll(/^```tsx$/gm)].length !== 1) {
-      failures.push(`${name}: Basic usage must have exactly one TSX fence`)
+    const usage = usageSection(source)
+    if (usage?.includes('<Preview')) {
+      failures.push(`${name}: Usage contains Preview`)
     }
-    if (basic && playground && source.indexOf(basic[0]) > playground.index) {
-      failures.push(`${name}: Basic usage follows Playground`)
+    const usageLead = usage?.split(/```tsx/)[0]?.trim() ?? ''
+    if (!usageLead) {
+      failures.push(`${name}: missing introduction`)
+    }
+    const basic = usageExample(source)
+    if (!basic || !/from ['"]moraine(?:\/[\w-]+)?['"]/.test(basic) || basic.includes('@src')) {
+      failures.push(`${name}: Usage needs one public TSX example`)
+    }
+    const usageLeadFences = usage?.split(/^### /m)[0] ?? ''
+    if ([...usageLeadFences.matchAll(/^```tsx$/gm)].length !== 1) {
+      failures.push(`${name}: Usage lead must have exactly one TSX fence`)
+    }
+    const examples = sectionByName(source, 'Examples')
+    if (examples && ![...examples.matchAll(/<Preview\s+path="([^"]+)"\s*\/>/g)].length) {
+      failures.push(`${name}: Examples needs at least one Preview`)
     }
     try {
       await validateAnatomy(source, page, loadComponentApiDoc(page) ?? undefined)
