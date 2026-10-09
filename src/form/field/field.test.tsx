@@ -7,9 +7,9 @@ import { defineTheme } from '../../theme/create-theme'
 import { Input } from '../input'
 
 import { Field } from './field'
-import type { FieldT } from './field.types'
 import type { FieldBinding } from './field-context'
 import { FieldProvider, useFormField } from './field-context'
+import type { FieldT } from './field.types'
 
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
