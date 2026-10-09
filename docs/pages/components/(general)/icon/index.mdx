@@ -80,9 +80,17 @@ because there are no child slots to target. `slotName` only changes the emitted 
 
 ## Examples
 
+### Mark deploy status with class names
+
+Use Moraine aliases such as `icon-success`, or any class your UnoCSS or Tailwind setup generates
+(`i-lucide:git-branch`). Adjacent text is the accessible name when the icon is decoration.
+
+<Preview path="./sources" />
+
 ### Render a custom SVG glyph
 
-Pass a JSX element or a Solid component when the mark is not an icon-class name.
+Pass a JSX element or a Solid component when the mark is not an icon-class name. Name the icon when
+it is the only indicator.
 
 <Preview path="./icon-as-jsx" />
 
