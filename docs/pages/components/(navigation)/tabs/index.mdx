@@ -148,15 +148,16 @@ Keep Account, Security, and Billing on one page. Store the selected tab in local
 
 <Preview path="./selection-usage" />
 
-### Automatic versus manual activation
+### Browse dashboard tabs as focus moves
 
-Compare focus-selects with Enter-or-Space-selects on the same Overview, Analytics, and Logs panels.
+`activationMode="automatic"` selects Overview, Analytics, or Logs while arrow keys move focus. Use
+this for lightweight inspection panels.
 
 <Preview path="./activation-usage" />
 
-### Settings with two activation modes
+### Confirm a settings tab with Enter
 
-Place automatic and manual settings side by side. Arrow to a tab in each list and notice when the
-panel changes.
+`activationMode="manual"` keeps the current panel until Enter or Space. Use it when switching tabs
+should be an explicit commit, as in a settings wizard.
 
 <Preview path="./activation-mode" />

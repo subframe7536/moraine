@@ -112,13 +112,7 @@ Without `search`, printable keys trigger collection typeahead. Enabling `search=
 type in the field to filter options.
 
 ```tsx
-<MultiSelect
-  search
-  items={frameworks}
-  value={selected()}
-  onValueChange={setSelected}
-  allowClear
-/>
+<MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} allowClear />
 ```
 
 ### Item creation and delimiters

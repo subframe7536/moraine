@@ -277,3 +277,24 @@ Use `form.Field` from `createForm` when the selected value needs schema validati
 display.
 
 <Preview path="./form-integration" />
+
+### Keep the query separate from the committed value
+
+`value` is the selected item. `searchValue` is the text in the field. Reset both when the page
+clears the picker.
+
+<Preview path="./usage-query" />
+
+### Open the list from the whole field
+
+Default typing and the chevron toggle the popup. Set `openOnControlClick` when a click anywhere in
+the field should open the list, as in an assignee picker.
+
+<Preview path="./explicit-trigger" />
+
+### Accept string labels or mixed items
+
+Pass a string array when the label is the value. Mix strings, item objects, and `type: 'group'`
+entries in one `items` list.
+
+<Preview path="./string-items" />

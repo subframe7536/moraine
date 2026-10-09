@@ -156,3 +156,10 @@ when the answer is more than a paragraph.
 Set `unmountOnHide={false}` so inputs inside a panel keep their values across toggles.
 
 <Preview path="./content-lifetime" />
+
+### Drive the open FAQ from page state
+
+Pair `value` with `onChange`. The array always holds item values, even in single mode. Surrounding
+copy can read the same signal to name the active topic.
+
+<Preview path="./open-items" />

@@ -1,5 +1,4 @@
 import { CheckboxGroup } from '@src'
-import { For } from 'solid-js'
 
 const NOTIFICATIONS = [
   {
@@ -15,26 +14,16 @@ const NOTIFICATIONS = [
   },
 ]
 
-const INDICATORS = ['start', 'end', 'hidden'] as const
-
 export function Indicator() {
   return (
-    <div class="gap-4 grid md:grid-cols-2 xl:grid-cols-3">
-      <For each={INDICATORS}>
-        {(indicator) => (
-          <div class="p-4 b-1 b-border rounded-xl space-y-2">
-            <p class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
-              Indicator: {indicator}
-            </p>
-            <CheckboxGroup
-              legend="Activity alerts"
-              items={NOTIFICATIONS}
-              indicator={indicator}
-              defaultValue={['mentions', 'review']}
-            />
-          </div>
-        )}
-      </For>
+    <div class="max-w-md w-full">
+      <CheckboxGroup
+        legend="Activity alerts"
+        variant="card"
+        indicator="end"
+        items={NOTIFICATIONS}
+        defaultValue={['mentions', 'review']}
+      />
     </div>
   )
 }
