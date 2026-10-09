@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
   createApiReferenceModel,
   formatExpandedPropType,
+  formatSummaryPropType,
   formatDefaultValue,
   getApiReferenceTocEntries,
   getDomSlotName,
@@ -124,6 +125,65 @@ describe('createApiReferenceModel', () => {
       summaryType: 'function',
       type: '((value: string) => void) | undefined',
     })
+  })
+
+  test('simplifies string literals to string in summary types while preserving details', () => {
+    expect(
+      formatSummaryPropType({
+        name: 'variant',
+        optional: true,
+        type: "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+      }),
+    ).toBe('string')
+    expect(
+      formatSummaryPropType({
+        name: 'size',
+        optional: true,
+        type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
+      }),
+    ).toBe('string')
+    expect(
+      formatSummaryPropType({
+        name: 'mode',
+        optional: false,
+        type: "'single'",
+      }),
+    ).toBe('string')
+    expect(
+      formatSummaryPropType({
+        name: 'side',
+        optional: true,
+        type: "'top' | 'right' | 'bottom' | 'left' | null",
+      }),
+    ).toBe('string | null')
+    expect(
+      formatSummaryPropType({
+        name: 'mixed',
+        optional: true,
+        type: "boolean | 'indeterminate'",
+      }),
+    ).toBe("boolean | 'indeterminate'")
+    expect(
+      formatSummaryPropType({
+        name: 'repeatPointerTypes',
+        optional: true,
+        type: "'all' | PointerType",
+      }),
+    ).toBe("'all' | PointerType")
+    expect(
+      formatSummaryPropType({
+        name: 'class',
+        optional: true,
+        type: 'string',
+      }),
+    ).toBe('string')
+    expect(
+      formatSummaryPropType({
+        name: 'value',
+        optional: true,
+        type: 'string | number',
+      }),
+    ).toBe('string | number')
   })
 
   test('derives concise composite headings while retaining full names', () => {

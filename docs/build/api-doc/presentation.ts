@@ -71,12 +71,11 @@ export function normalizeApiType(type: string): string {
   return type.replaceAll('cls_variant0.', '').replaceAll('_$', '')
 }
 
-export function formatExpandedPropType(prop: PropApi): string {
-  const type = normalizeApiType(prop.typeDetails ?? prop.type)
-  if (!prop.optional) {
-    return type
-  }
-
+export function splitTopLevelUnionSegments(type: string): {
+  segments: string[]
+  hasTopLevelArrow: boolean
+  hasTopLevelConditional: boolean
+} {
   let depth = 0
   let quote: string | undefined
   let segmentStart = 0
@@ -114,11 +113,60 @@ export function formatExpandedPropType(prop: PropApi): string {
   }
 
   segments.push(type.slice(segmentStart).trim())
+  return { segments, hasTopLevelArrow, hasTopLevelConditional }
+}
+
+export function formatExpandedPropType(prop: PropApi): string {
+  const type = normalizeApiType(prop.typeDetails ?? prop.type)
+  if (!prop.optional) {
+    return type
+  }
+
+  const { segments, hasTopLevelArrow, hasTopLevelConditional } = splitTopLevelUnionSegments(type)
   if (!hasTopLevelArrow && segments.includes('undefined')) {
     return type
   }
 
   return `${hasTopLevelArrow || hasTopLevelConditional ? `(${type})` : type} | undefined`
+}
+
+function isStringLiteral(segment: string): boolean {
+  return (
+    (segment.startsWith("'") && segment.endsWith("'") && segment.length >= 2) ||
+    (segment.startsWith('"') && segment.endsWith('"') && segment.length >= 2) ||
+    (segment.startsWith('`') && segment.endsWith('`') && segment.length >= 2)
+  )
+}
+
+export function formatSummaryPropType(prop: PropApi): string {
+  if (prop.typeDetails) {
+    return 'Item[]'
+  }
+
+  if (
+    (prop.type.includes('=>') && !prop.type.trimStart().startsWith('{')) ||
+    /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
+  ) {
+    return 'function'
+  }
+
+  const normalized = normalizeApiType(prop.type)
+  const { segments } = splitTopLevelUnionSegments(normalized)
+
+  const hasStringLiteral = segments.some(isStringLiteral)
+  const isAllStringLiteralsOrNullish =
+    hasStringLiteral &&
+    segments.every(
+      (segment) => isStringLiteral(segment) || segment === 'null' || segment === 'undefined',
+    )
+
+  if (isAllStringLiteralsOrNullish) {
+    const simplified = segments.map((segment) => (isStringLiteral(segment) ? 'string' : segment))
+    const unique = [...new Set(simplified)]
+    return unique.join(' | ')
+  }
+
+  return normalized
 }
 
 const COMMON_BASE_PROPS = new Set(['as', 'children', 'class', 'style', 'classes', 'styles'])
@@ -162,12 +210,7 @@ function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropIt
     name: prop.name,
     optional: prop.optional,
     type: formatExpandedPropType(prop),
-    summaryType: prop.typeDetails
-      ? 'Item[]'
-      : (prop.type.includes('=>') && !prop.type.trimStart().startsWith('{')) ||
-          /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
-        ? 'function'
-        : normalizeApiType(prop.type),
+    summaryType: formatSummaryPropType(prop),
     typeHtml: prop.typeHtml,
     anchorId: `${anchorPrefix}-${prop.name}`,
     isCommonProp: COMMON_BASE_PROPS.has(prop.name),

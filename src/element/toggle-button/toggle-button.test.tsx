@@ -272,4 +272,20 @@ describe('ToggleButton', () => {
     expect(screen.getByText('Updated')).toBe(content)
     expect(reads).toBe(1)
   })
+
+  test('always keeps activeEffect none internally regardless of button theme defaults', () => {
+    const theme = defineTheme({
+      button: {
+        defaultVariants: { activeEffect: 'move-down' },
+      },
+    })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <ToggleButton>Static motion</ToggleButton>
+      </MoraineProvider>
+    ))
+    const button = screen.getByRole('button', { name: 'Static motion' })
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
+    expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
+  })
 })
