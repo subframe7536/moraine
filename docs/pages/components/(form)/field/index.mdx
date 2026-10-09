@@ -64,6 +64,10 @@ For schema binding, use `form.Field` from [createForm](/components/form). Put a 
 inside Field so its label, description, and error IDs attach to the actual focusable element. For
 local validation, pass the current message to `error`.
 
+A children render function must declare its parameter, even when it does not read `state`. A
+zero-argument function still type-checks, but Field calls it as an accessor instead of mounting it
+as a component. Use `(state) => ...` when the callback depends on an owner or lifecycle.
+
 ```tsx
 import { Field, Input } from 'moraine'
 

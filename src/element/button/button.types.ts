@@ -64,6 +64,8 @@ export namespace ButtonT {
 
     /**
      * Content or render function receiving the loading state.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
      */
     children?:
       | JSX.Element

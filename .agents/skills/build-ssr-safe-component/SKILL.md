@@ -98,6 +98,7 @@ A render function must accept a parameter, even an unused one, so its `length` s
 A zero-argument function is only an accessor: `resolveChildren` calls it and also unwraps
 zero-argument functions in its return value. Do not create memos or nested control flow there.
 `Dialog` and `Sheet` pass a one-parameter setup function into `Modal` content for that reason.
+State the parameter requirement on each public children prop. The SSR guide records the same contract.
 
 Use each resolution for one job:
 

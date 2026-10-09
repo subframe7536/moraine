@@ -96,6 +96,18 @@ export function SettingsTabs() {
 The same rule applies to JSX panel data in [Accordion](/components/accordion) and
 [Stepper](/components/stepper). Keep server and client item order and initial selection equal.
 
+## Render-function children
+
+Some props accept either JSX or a function `(props) => JSX.Element`, including children of
+[Field](/components/field), [Button](/components/button), [ToggleButton](/components/toggle-button),
+[BaseSelect](/components/base-select) trigger and item, [Modal](/components/modal) content, and
+[Resizable](/components/resizable) handle.
+
+Declare the function parameter even when the callback does not use it. TypeScript still accepts a
+zero-argument function for that prop type. Moraine calls a zero-argument function as an accessor
+and does not mount it with a component boundary. Use a parameter when the callback depends on a
+Solid owner, lifecycle, or owned reactive computation.
+
 ## Responsive Queries in SSR
 
 Browser APIs like `window.matchMedia` do not exist on the server. If a component conditionally renders layout based on screen width, it must provide a deterministic server default.
