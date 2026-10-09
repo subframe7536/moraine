@@ -197,6 +197,32 @@ describe('Combobox', () => {
     expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(3)
   })
 
+  test('keeps a controlled query until the parent applies onSearch', () => {
+    const [query, setQuery] = createSignal('ap')
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <Combobox items={ITEMS} searchValue={query()} onSearch={onSearch} defaultOpen />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const options = () => within(document.body).getAllByRole('option', { hidden: true })
+
+    expect(input.value).toBe('ap')
+    expect(options().map((option) => option.textContent)).toEqual(['Apple'])
+
+    fireEvent.input(input, { target: { value: 'ap' } })
+    expect(onSearch).not.toHaveBeenCalled()
+    expect(untrack(query)).toBe('ap')
+
+    fireEvent.input(input, { target: { value: 'ba' } })
+    expect(onSearch).toHaveBeenCalledExactlyOnceWith('ba')
+    expect(untrack(query)).toBe('ap')
+    expect(options().map((option) => option.textContent)).toEqual(['Apple'])
+
+    setQuery('ba')
+    expect(input.value).toBe('ba')
+    expect(options().map((option) => option.textContent)).toEqual(['Banana'])
+  })
+
   test('does not publish partial IME composition', () => {
     const onSearch = vi.fn()
     const screen = render(() => <Combobox items={ITEMS} onSearch={onSearch} />)
