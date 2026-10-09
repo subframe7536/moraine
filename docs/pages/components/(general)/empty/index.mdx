@@ -55,7 +55,9 @@ import { Button, Empty, Icon } from '@src'
 
 ## Usage
 
-Empty is an application-level presentation primitive. It provides a consistent layout for an empty-state message, optional media, and actions. Your application decides when to show it; Empty does not inspect collections or search results.
+Empty is an application-level presentation primitive. It provides a consistent layout for an
+empty-state message, optional media, and actions. Your application decides when to show it; Empty
+does not inspect collections or search results.
 
 ```tsx
 import { Empty } from 'moraine'
@@ -70,11 +72,38 @@ export function Example() {
 }
 ```
 
-Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX, including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
+### Parts
 
-`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX,
+including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
 
-The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use `sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state. Vertical padding is more generous than horizontal insets. Title and description stay grouped, with more space around media and actions. Size does not resize the content placed inside `Media`.
+`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the
+surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+
+```tsx
+<Empty>
+  <Empty.Media>
+    <Icon name="i-lucide:inbox" />
+  </Empty.Media>
+  <Empty.Title as="h2">Inbox is empty</Empty.Title>
+  <Empty.Actions>
+    <Button>New message</Button>
+  </Empty.Actions>
+</Empty>
+```
+
+### Sizes
+
+The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use
+`sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state.
+Vertical padding is more generous than horizontal insets. Title and description stay grouped, with
+more space around media and actions. Size does not resize the content placed inside `Media`.
+
+```tsx
+<Empty size="sm">
+  <Empty.Title>No rows</Empty.Title>
+</Empty>
+```
 
 ## Anatomy
 
@@ -92,34 +121,34 @@ The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action g
 
 ## Examples
 
-### Basic empty state
+### Prompt a first project
+
+Show Empty when the collection is genuinely empty, not while it is still loading.
 
 <Preview path="./basic" />
 
-### Actions
+### Start a conversation from an empty inbox
 
-Use actions to offer the next useful step. Wire them to your application's handlers.
+Put the next useful command in `Empty.Actions`. Wire those buttons to application handlers.
 
 <Preview path="./actions" />
 
-### No search results
+### Recover from an empty search
 
-Your search logic decides when to render this message.
+Your search logic decides when to render this message. Offer a way to clear the query.
 
 <Preview path="./no-results" />
 
-### Rich media
+### Invite the first team members
 
-Compose avatars or your own illustration without changing Empty's layout API.
+Compose avatars or an illustration in `Media` without changing Empty's layout API.
 
 <Preview path="./rich-media" />
 
-### Sizes
+### Frame a missing reports section
 
-<Preview path="./sizes" />
-
-### Custom container styling
-
-Empty has no default border, background, shadow, or fixed height. Apply container styling through `class` and `style`; use root `classes` and `styles` to customize individual parts throughout the family. A part's own `class` and `style` take precedence over those family overrides.
+Empty has no default border, background, shadow, or fixed height. Apply container styling through
+`class` and `style`. A part's own `class` and `style` take precedence over root `classes` and
+`styles`.
 
 <Preview path="./custom-container" />

@@ -64,21 +64,28 @@ import { AvatarGroup } from '@src'
 
 ## Usage
 
-Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at `max`; keep the full membership available elsewhere when users need it.
+Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at
+`max`. Keep the full membership available elsewhere when users need every name. For a single person,
+use [Avatar](/components/avatar).
 
 ```tsx
 import { AvatarGroup } from 'moraine'
 
 export function Example() {
-  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', fallback: 'A' }]} />
+  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', text: 'A' }]} />
 }
 ```
 
-### Grouping avatars
+### Overflow count
 
-AvatarGroup renders no root for an empty `items` array. Avatar items retain input order in the DOM. `max` is a number: omit it to show every avatar, set it to `0` to show only `+N`, or use a positive number to show its floored count. The overflow count follows the visible items.
+AvatarGroup renders no root for an empty `items` array. Items keep input order in the DOM. Omit `max`
+to show every avatar. Set `max` to `0` to show only `+N`. A positive `max` uses its floored count.
+The overflow count follows the visible items.
 
-<Preview path="./grouping-usage" />
+```tsx
+<AvatarGroup max={3} items={reviewers} />
+<AvatarGroup max={0} items={reviewers} />
+```
 
 ## Anatomy
 
@@ -101,3 +108,12 @@ AvatarGroup renders no root for an empty `items` array. Avatar items retain inpu
     ],
   }}
 />
+
+## Examples
+
+### Show pull request reviewers
+
+Cap the stack with `max` so a long reviewer list stays in one row. The overflow count is the rest of
+the membership.
+
+<Preview path="./grouping-usage" />

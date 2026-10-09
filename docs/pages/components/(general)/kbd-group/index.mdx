@@ -49,7 +49,8 @@ import { KbdGroup } from '@src'
 
 ## Usage
 
-Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the application owns the shortcut listener.
+Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the
+application owns the shortcut listener. For a single keycap, use [Kbd](/components/kbd).
 
 ```tsx
 import { KbdGroup } from 'moraine'
@@ -59,16 +60,26 @@ export function Example() {
 }
 ```
 
-The `separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It is unrelated to the standalone layout [Separator](/components/separator).
-
-<Preview path="./custom-separator" />
-
 ### Key labels
 
-Use known key aliases for symbol notation, or supply item labels when the displayed shortcut needs
-platform-specific wording. Shortcut registration remains application-owned.
+Items may be alias strings or objects with `value` and `label`. Use known aliases for symbol
+notation, or supply item labels when the displayed shortcut needs platform-specific wording.
 
-<Preview path="./kbd-group-usage" />
+```tsx
+<KbdGroup items={['meta', 's']} />
+<KbdGroup items={[{ value: 'Ctrl', label: 'Control' }, 'K']} />
+```
+
+### Separator
+
+`separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom
+JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It
+is unrelated to the standalone layout [Separator](/components/separator).
+
+```tsx
+<KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
+<KbdGroup items={['Ctrl', 'K']} separator={() => <span class="text-muted-foreground">then</span>} />
+```
 
 ## Anatomy
 
@@ -83,3 +94,17 @@ platform-specific wording. Shortcut registration remains application-owned.
 />
 
 Separator content is inline and is not a theme slot.
+
+## Examples
+
+### Label save and format shortcuts
+
+Place the group beside the command it describes. Alias keys resolve to platform symbols by default.
+
+<Preview path="./kbd-group-usage" />
+
+### Show a chord with a custom divider
+
+Pass a separator renderer when the notation should not use `+`.
+
+<Preview path="./custom-separator" />

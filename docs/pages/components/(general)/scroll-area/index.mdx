@@ -71,7 +71,8 @@ import { ScrollArea } from '@src'
 
 ## Usage
 
-Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to fade the edges that have more content beyond the viewport.
+Use ScrollArea to constrain overflowing content while keeping native scrolling. Enable `shadow` to
+fade the edges that have more content beyond the viewport.
 
 ```tsx
 import { For } from 'solid-js'
@@ -90,44 +91,110 @@ export function Example() {
 
 ### Native scrolling and sizing
 
-Set a height or maximum height for vertical scrolling and a width for horizontal scrolling. The component has one `<div>` root and renders children directly inside it, so layout utilities such as `flex`, `gap-4`, and `space-y-3` apply to your content.
+Set a height or maximum height for vertical scrolling and a width for horizontal scrolling. The
+component has one `<div>` root and renders children directly inside it, so layout utilities such as
+`flex`, `gap-4`, and `space-y-3` apply to your content.
 
-The root is keyboard-focusable by default with `tabIndex={0}`. Supply `role="region"` and an accessible label when the content forms a named region. Use `tabIndex={-1}` when the container should be excluded from the tab order. Native scroll events and refs are forwarded to the root.
+The root is keyboard-focusable by default with `tabIndex={0}`. Supply `role="region"` and an
+accessible label when the content forms a named region. Use `tabIndex={-1}` when the container
+should be excluded from the tab order. Native scroll events and refs are forwarded to the root.
 
 ### Optional shadows
 
-Shadows are disabled by default. Set `shadow` to enable CSS mask fades at overflowing edges. A container at the start shows a trailing fade; between the edges it shows both fades; at the end it shows a leading fade. Content that fits has no automatic fade.
+Shadows are disabled by default. Set `shadow` to enable CSS mask fades at overflowing edges. A
+container at the start shows a trailing fade; between the edges it shows both fades; at the end it
+shows a leading fade. Content that fits has no automatic fade.
 
-The mask fades content into the background behind the container. Scroll position, content changes, and size changes update the visible edges.
+The mask fades content into the background behind the container. Scroll position, content changes,
+and size changes update the visible edges.
 
-<Preview path="./shadows" />
+```tsx
+<ScrollArea shadow class="h-48" role="region" aria-label="Activity">
+  {entries}
+</ScrollArea>
+```
 
 ### Horizontal scrolling and RTL
 
-Set `orientation="horizontal"` and make the content wider than the viewport. Use `hideScrollbar` to hide the native scrollbar while retaining wheel, touch, and keyboard scrolling. Horizontal edge detection also supports `dir="rtl"`; `left` and `right` refer to physical edges.
+Set `orientation="horizontal"` and make the content wider than the viewport. Use `hideScrollbar` to
+hide the native scrollbar while retaining wheel, touch, and keyboard scrolling. Horizontal edge
+detection also supports `dir="rtl"`; `left` and `right` refer to physical edges.
 
-<Preview path="./horizontal" />
+```tsx
+<ScrollArea orientation="horizontal" shadow hideScrollbar dir="rtl" class="flex gap-3 max-w-lg">
+  {milestones}
+</ScrollArea>
+```
 
 ### Shadow size and visibility
 
-The default fade size is `40px`. Pass `shadowSize` to set its length in pixels. `offset` adds a margin near each edge within which that edge's automatic fade remains hidden.
+The default fade size is `40px`. Pass `shadowSize` to set its length in pixels. `offset` adds a
+margin near each edge within which that edge's automatic fade remains hidden.
 
-`visibility="auto"` follows measured overflow. Choose `top`, `bottom`, or `both` for vertical scrolling, and `left`, `right`, or `both` for horizontal scrolling to force visible edges. `none` suppresses every fade. Manual visibility still requires `shadow`.
+`visibility="auto"` follows measured overflow. Choose `top`, `bottom`, or `both` for vertical
+scrolling, and `left`, `right`, or `both` for horizontal scrolling to force visible edges. `none`
+suppresses every fade. Manual visibility still requires `shadow`.
 
-`onVisibilityChange` reports measured overflow changes while shadows are enabled, including when visibility is forced. It receives `top`, `bottom`, `left`, `right`, `both`, or `none`.
+`onVisibilityChange` reports measured overflow changes while shadows are enabled, including when
+visibility is forced. It receives `top`, `bottom`, `left`, `right`, `both`, or `none`.
 
-<Preview path="./visibility" />
+```tsx
+<ScrollArea
+  shadow
+  shadowSize={24}
+  offset={8}
+  visibility="auto"
+  onVisibilityChange={setOverflow}
+  class="h-48"
+  role="region"
+  aria-label="Notifications"
+>
+  {items}
+</ScrollArea>
+```
 
 ### Theme and instance overrides
 
-Configure `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The recipe exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start` and `--scroll-area-shadow-end`. Single-edge masks use the corresponding stop list; the double-edge mask combines both. Keep size-dependent stops expressed with `var(--scroll-area-shadow-size)` so `shadowSize` continues to affect them.
+Configure `scrollArea.defaultVariants` to enable shadows or hide scrollbars across a provider. The
+recipe exposes `--scroll-area-shadow-size` and the gradient stop lists `--scroll-area-shadow-start`
+and `--scroll-area-shadow-end`. Single-edge masks use the corresponding stop list; the double-edge
+mask combines both. Keep size-dependent stops expressed with `var(--scroll-area-shadow-size)` so
+`shadowSize` continues to affect them.
 
-For the size variable, overrides apply in this order, from highest to lowest: root `style`, `styles.root`, an explicit `shadowSize`, then recipe and Theme defaults. Omitting `shadowSize` preserves the Theme's value. Recipe variables are written on the root, so an ancestor's same-named CSS variable does not replace the local default.
+For the size variable, overrides apply in this order, from highest to lowest: root `style`,
+`styles.root`, an explicit `shadowSize`, then recipe and Theme defaults. Omitting `shadowSize`
+preserves the Theme's value. Recipe variables are written on the root, so an ancestor's same-named
+CSS variable does not replace the local default.
 
 Use `class`, `classes.root`, `style`, or `styles.root` for instance styling.
 
-<Preview path="./theme" />
+```tsx
+<ScrollArea shadow shadowSize={12} class="h-48" role="region" aria-label="Updates">
+  {updates}
+</ScrollArea>
+```
 
 ## Anatomy
 
 <Anatomy value={{ root: { slot: 'root', element: 'div' } }} />
+
+## Examples
+
+### Fade overflowing activity
+
+Enable `shadow` on a vertical activity feed so clipped updates are visible at the edge.
+
+<Preview path="./shadows" />
+
+### Scroll project milestones
+
+Set `orientation="horizontal"` for a timeline. `hideScrollbar` keeps native scrolling without a
+visible bar. `dir="rtl"` still reports physical left and right edges.
+
+<Preview path="./horizontal" />
+
+### Detect whether a notification list can scroll
+
+Read `onVisibilityChange` when surrounding UI must know which edges overflow.
+
+<Preview path="./visibility" />

@@ -36,7 +36,9 @@ import { Separator } from '@src'
 
 ## Usage
 
-Use Separator to divide related regions with a visible line. Choose its orientation to match the layout boundary.
+Use Separator to divide related regions with a visible line. Choose its orientation to match the
+layout boundary. For a divider inside [ButtonGroup](/components/button-group), use
+`ButtonGroup.Separator` so orientation follows the group.
 
 ```tsx
 import { Separator } from 'moraine'
@@ -46,17 +48,25 @@ export function Example() {
 }
 ```
 
-### Root styling
-
-`Separator` has one `<div>` root. Use direct `class` and `style` props for a local override, or configure `separator.base.root` in your Theme for application defaults. It does not accept instance `classes` or `styles` maps.
-
-<Preview path="./root-styling" />
-
 ### Semantic orientation
 
-Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orientation`. Choose horizontal or vertical orientation to match the surrounding layout.
+Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orientation`. The default
+orientation is horizontal. Use `vertical` between items in a row.
 
-<Preview path="./separator-usage" />
+```tsx
+<Separator />
+<Separator orientation="vertical" />
+```
+
+### Root styling
+
+`Separator` has one `<div>` root. Use direct `class` and `style` for a local override, or configure
+`separator.base.root` in your Theme for application defaults. It does not accept instance `classes`
+or `styles` maps.
+
+```tsx
+<Separator class="bg-blue-500" style={{ height: '3px' }} />
+```
 
 ## Anatomy
 
@@ -68,3 +78,11 @@ Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orie
     },
   }}
 />
+
+## Examples
+
+### Divide a product heading from related links
+
+Use a horizontal rule under a title, then vertical rules between inline destinations.
+
+<Preview path="./separator-usage" />

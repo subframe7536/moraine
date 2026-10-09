@@ -42,7 +42,8 @@ import { Skeleton } from '@src'
 
 ## Usage
 
-Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and shape to the content it will replace.
+Use Skeleton to reserve space for content while it loads. Match the placeholder's dimensions and
+shape to the content it will replace. For measurable task completion, use [Progress](/components/progress).
 
 ```tsx
 import { Skeleton } from 'moraine'
@@ -62,15 +63,28 @@ export function Example() {
 
 ### Size and appearance
 
-Skeleton renders one `<div>` with a muted background, medium corners, and a pulse animation. Set its dimensions with `class` or an object `style`, and use utilities such as `rounded-full` to change its shape. Native div attributes and children are forwarded to the root.
+Skeleton renders one `<div>` with a muted background, medium corners, and a pulse animation. Set its
+dimensions with `class` or an object `style`, and use utilities such as `rounded-full` to change its
+shape. Native div attributes and children are forwarded to the root.
+
+```tsx
+<Skeleton class="rounded-full size-10" />
+<Skeleton class="h-4 w-2/3" />
+```
 
 ### Animation variants
 
-The default `variant="pulse"` fades the placeholder in and out. Use `variant="shimmer"` for a linear gradient sweep across the placeholder. Both animations respect the user's reduced-motion preference.
+The default `variant="pulse"` fades the placeholder in and out. Use `variant="shimmer"` for a linear
+gradient sweep across the placeholder. Both animations respect the user's reduced-motion preference.
 
-Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-anim-duration-loop` or `--mo-anim-duration` in `style` to change its speed. Configure `skeleton.defaultVariants.variant` in your Theme to set the default animation across your application.
+Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-anim-duration-loop` or
+`--mo-anim-duration` in `style` to change its speed. Configure `skeleton.defaultVariants.variant` in
+your Theme to set the default animation across your application.
 
-<Preview path="./animation-variants" />
+```tsx
+<Skeleton variant="shimmer" class="h-4 w-full" />
+<Skeleton variant="shimmer" class="h-4 w-full" style={{ '--mo-anim-duration-loop': '1s' }} />
+```
 
 ## Anatomy
 
@@ -85,22 +99,32 @@ Shimmer uses Moraine's loop duration, which defaults to two seconds. Set `--mo-a
 
 ## Examples
 
-### Avatar
+### Reserve a profile row
+
+Match a circular avatar and two text lines so the loaded row does not shift.
 
 <Preview path="./skeleton-avatar" />
 
-### Card
+### Placeholder a media card
+
+Keep Card anatomy and replace title, description, and media with Skeleton.
 
 <Preview path="./skeleton-card" />
 
-### Text
+### Hold space for a paragraph
+
+Stack full-width bars and shorten the last line to mimic wrapping text.
 
 <Preview path="./skeleton-text" />
 
-### Form
+### Placeholder a settings form
+
+Reserve label and control heights so the form layout is stable while values load.
 
 <Preview path="./skeleton-form" />
 
-### Table
+### Placeholder a data table
+
+Repeat a row of bars for each pending record.
 
 <Preview path="./skeleton-table" />

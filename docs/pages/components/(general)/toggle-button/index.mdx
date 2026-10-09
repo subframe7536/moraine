@@ -75,7 +75,10 @@ import { ToggleButton } from '@src'
 
 ## Usage
 
-Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a native button and exposes its state through `aria-pressed`.
+Use ToggleButton for persistent on/off actions such as bold formatting or bookmarking. It renders a
+native button and exposes its state through `aria-pressed`. Use [Button](/components/button) for a
+one-shot command. Join several toggles with [ButtonGroup](/components/button-group) for layout only;
+the group does not coordinate selection.
 
 ```tsx
 import { ToggleButton } from 'moraine'
@@ -91,39 +94,80 @@ export function Example() {
 
 ### Off and on variants
 
-`variant` controls the unpressed appearance; `activeVariant` controls the pressed appearance. Both accept all Button variants. The defaults are `ghost` and `secondary`. Changing a variant does not reset the toggle state. The `link` variant is a visual treatment: ToggleButton always renders a button with `type="button"`, so it does not navigate or submit a form.
+`variant` controls the unpressed appearance; `activeVariant` controls the pressed appearance. Both
+accept all Button variants. The defaults are `ghost` and `secondary`. Changing a variant does not
+reset the toggle state. The `link` variant is a visual treatment: ToggleButton always renders a
+button with `type="button"`, so it does not navigate or submit a form.
 
-<Preview path="./variants" />
+```tsx
+<ToggleButton variant="outline" activeVariant="default">
+  Pin
+</ToggleButton>
+```
 
 ### Controlled and uncontrolled state
 
-Use `defaultPressed` to initialize an uncontrolled button. Pass `pressed` and `onPressedChange` when application state owns the value. Controlled activation reports the requested next value and waits for the caller to update `pressed`.
+Use `defaultPressed` to initialize an uncontrolled button. Pass `pressed` and `onPressedChange` when
+application state owns the value. Controlled activation reports the requested next value and waits
+for the caller to update `pressed`.
 
-User `onClick` runs before the toggle. Calling `event.preventDefault()` cancels both the state change and `onPressedChange`.
+User `onClick` runs before the toggle. Calling `event.preventDefault()` cancels both the state change
+and `onPressedChange`.
 
-<Preview path="./controlled" />
+```tsx
+<ToggleButton pressed={pinned()} onPressedChange={setPinned} leading="i-lucide:pin">
+  Pin conversation
+</ToggleButton>
+```
 
 ### Icons and accessible names
 
-Keep the accessible name stable while toggling. Use `aria-label` for icon-only buttons; `aria-pressed` communicates whether their action is enabled. Enter, Space, and clicks activate the native button. Disabled and loading buttons suppress activation.
+Keep the accessible name stable while toggling. Use `aria-label` for icon-only buttons;
+`aria-pressed` communicates whether their action is enabled. Disabled and loading buttons suppress
+activation.
 
-Children can be a render function receiving reactive `pressed` and `loading` values. This supports state-dependent visual content without replacing the button or remounting its children.
+Children can be a render function receiving reactive `pressed` and `loading` values. This supports
+state-dependent visual content without replacing the button or remounting its children.
 
-<Preview path="./icons" />
+```tsx
+<ToggleButton size="icon-md" leading="i-lucide:bold" aria-label="Bold" />
+<ToggleButton size="icon-md" aria-label="Bookmark">
+  {(state) => <Icon name="i-lucide:bookmark" class={state.pressed ? 'fill-current' : undefined} />}
+</ToggleButton>
+```
 
 ### Async actions
 
-`loadingAuto` follows a Promise returned by `onClick` and blocks repeated activation until it settles. The state changes immediately after an uncancelled click, including when the Promise later rejects; it is not automatically rolled back. Handle request errors in your async handler. To update only after success, use controlled `pressed` and update it after the request completes.
+`loadingAuto` follows a Promise returned by `onClick` and blocks repeated activation until it
+settles. The state changes immediately after an uncancelled click, including when the Promise later
+rejects; it is not automatically rolled back. Handle request errors in your async handler. To update
+only after success, use controlled `pressed` and update it after the request completes.
+
+```tsx
+<ToggleButton loadingAuto onClick={() => bookmark()} leading="i-lucide:bookmark">
+  Bookmark
+</ToggleButton>
+```
 
 ### Theme and groups
 
-Configure `toggleButton.defaultVariants` to choose the default off and on appearances and size. Button's theme still supplies the underlying variant styles; `toggleButton.base`, `classes`, and `styles` add component-specific presentation. Instance styling follows the standard root and slot override rules.
+Configure `toggleButton.defaultVariants` to choose the default off and on appearances and size.
+Button's theme still supplies the underlying variant styles; `toggleButton.base`, `classes`, and
+`styles` add component-specific presentation. Instance styling follows the standard root and slot
+override rules.
 
-Inside ButtonGroup, ToggleButton inherits the group's size and unpressed variant unless explicitly supplied. Its pressed variant comes from its own configuration. ButtonGroup provides layout, not single or multiple selection behavior.
+Inside ButtonGroup, ToggleButton inherits the group's size and unpressed variant unless explicitly
+supplied. Its pressed variant comes from its own configuration.
 
-The root uses `data-slot="toggle-button"` and exposes `data-selected` while pressed. The leading, label, and trailing elements retain the corresponding `button-*` data-slot names.
+The root uses `data-slot="toggle-button"` and exposes `data-selected` while pressed. The leading,
+label, and trailing elements retain the corresponding `button-*` data-slot names.
 
-<Preview path="./theme" />
+```tsx
+<ButtonGroup size="sm" variant="ghost" aria-label="Text formatting">
+  <ToggleButton leading="i-lucide:bold" aria-label="Bold formatting" />
+  <ToggleButton leading="i-lucide:italic" aria-label="Italic formatting" />
+</ButtonGroup>
+```
 
 ## Anatomy
 
@@ -133,3 +177,25 @@ The root uses `data-slot="toggle-button"` and exposes `data-selected` while pres
     children: [{ slot: 'leading' }, { slot: 'label' }, { slot: 'trailing' }],
   }}
 />
+
+## Examples
+
+### Pin a conversation
+
+Own `pressed` when another control on the page must reset the same flag.
+
+<Preview path="./controlled" />
+
+### Toggle formatting and a bookmark
+
+Keep `aria-label` stable on icon-only toggles. Use a child render function when the glyph itself
+should change with `pressed`.
+
+<Preview path="./icons" />
+
+### Turn on notifications in a toolbar
+
+Theme defaults can set size and variants for a page region. ButtonGroup only joins the formatting
+toggles visually.
+
+<Preview path="./theme" />

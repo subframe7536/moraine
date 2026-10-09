@@ -26,7 +26,8 @@ import { Icon } from '@src'
 
 ## Usage
 
-Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it an accessible name; otherwise it is hidden from assistive technology.
+Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it
+an accessible name; otherwise it is hidden from assistive technology.
 
 ```tsx
 import { Icon } from 'moraine'
@@ -38,25 +39,33 @@ export function Example() {
 
 ### Icon sources
 
-Pass a supported icon name, JSX element, or component source. Use an icon as decoration only when adjacent text already names the meaning; otherwise provide an accessible label on the meaningful control or icon.
+Pass a supported icon name, JSX element, or component source. Use `<Icon name="icon-search" />` or
+`<Icon name="icon-success" />` for Moraine's semantic aliases. Editor completion suggests the
+built-in names, while `<Icon name="i-lucide-search" />` and `<Icon name="app-logo" />` remain valid.
+`Icon` applies string names as classes; your UnoCSS or Tailwind setup must generate the corresponding
+CSS for custom names.
 
-Use `<Icon name="icon-search" />` or `<Icon name="icon-success" />` for Moraine's semantic aliases. Editor completion suggests the built-in names, while `<Icon name="i-lucide-search" />` and `<Icon name="app-logo" />` remain valid. `Icon` applies string names as classes; your UnoCSS or Tailwind setup must generate the corresponding CSS for custom names.
-
-Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is rendered:
+Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the
+top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is
+rendered.
 
 ```tsx
+<Icon name="icon-search" />
 <Show when={visible()}>
   <Icon name={<StatusGlyph />} />
 </Show>
 ```
 
-<Preview path="./sources" />
-
 ### Root styling
 
-`Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props because there are no child slots to target. `slotName` only changes the emitted `data-slot` value.
+`Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure
+`icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props
+because there are no child slots to target. `slotName` only changes the emitted `data-slot` value.
+`size` is a pixel number or CSS length; omit it to inherit font size.
 
-<Preview path="./slots" />
+```tsx
+<Icon name="i-lucide:info" size={28} class="text-blue-500" slotName="custom-icon" />
+```
 
 ## Anatomy
 
@@ -71,10 +80,15 @@ Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not suppo
 
 ## Examples
 
-### JSX icon
+### Render a custom SVG glyph
+
+Pass a JSX element or a Solid component when the mark is not an icon-class name.
 
 <Preview path="./icon-as-jsx" />
 
-### Accessibility
+### Name a warning and hide a decorative check
+
+Keep adjacent text as the name when the icon is decoration. Set `aria-label` when the icon is the
+only indicator.
 
 <Preview path="./accessibility" />

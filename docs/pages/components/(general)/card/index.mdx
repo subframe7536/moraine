@@ -71,7 +71,9 @@ import { Badge, Button, Card } from '@src'
 
 ## Usage
 
-Card groups related content and actions on a neutral surface. Its parts are structural and add no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a heading with `as` when the page needs one.
+Card groups related content and actions on a neutral surface. Its parts are structural and add no
+interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a heading
+with `as` when the page needs one.
 
 ```tsx
 import { Card } from 'moraine'
@@ -90,9 +92,40 @@ export function Example() {
 
 ### Variants and sizes
 
-Every variant has an outer border, and the header keeps the same appearance as the body. `outline` adds a top border to the footer. `subtle` adds the footer divider and a muted footer background. `none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the density of the header, body, footer, title, and description together.
+Every variant has an outer border, and the header keeps the same appearance as the body. `outline`
+adds a top border to the footer. `subtle` adds the footer divider and a muted footer background.
+`none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the
+density of the header, body, footer, title, and description together.
 
-Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root spaces the sections. Direct children can still span the card's full width.
+```tsx
+<Card variant="subtle" size="sm">
+  <Card.Header>
+    <Card.Title as="h2">Seats</Card.Title>
+    <Card.Description>8 of 10 used</Card.Description>
+  </Card.Header>
+</Card>
+```
+
+### Parts
+
+Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root
+spaces the sections. Direct children can still span the card's full width. Place actions in
+`Card.Action` or `Card.Footer`.
+
+```tsx
+<Card>
+  <Card.Header>
+    <Card.Title as="h2">Invoice</Card.Title>
+    <Card.Action>
+      <Button size="sm">Download</Button>
+    </Card.Action>
+  </Card.Header>
+  <Card.Body>Due 12 May</Card.Body>
+  <Card.Footer>
+    <Button>Pay</Button>
+  </Card.Footer>
+</Card>
+```
 
 ## Anatomy
 
@@ -132,26 +165,35 @@ Compose the parts you need inside `Card`. Header and body provide horizontal ins
 
 ## Examples
 
-### Structured content
+### Deploy a project from a summary card
+
+Pair a heading, description, and footer actions when the card is the decision surface.
 
 <Preview path="./card-structure" />
 
-### Semantic heading
+### Publish a release announcement
 
-Card does not choose a heading level. Use `as="h2"` or another appropriate level for the surrounding page.
+Card does not choose a heading level. Use `as="h2"` or another appropriate level, and `as="article"`
+when the card is a standalone story.
 
 <Preview path="./card-semantics" />
 
-### Full-bleed media
+### Open a gallery item
 
-Place media directly inside `Card` to span its width. Apply clipping on the root only if the composition needs it.
+Place media directly inside `Card` to span its width. Clip overflow on the root only if the image
+must follow the card radius.
 
 <Preview path="./with-image" />
 
-### Header action
+### Save meeting notes
+
+Put a header action next to the title when the command belongs to the whole record, not the footer.
 
 <Preview path="./header-action" />
 
-### Custom header
+### Warn about storage usage
+
+Replace Title and Description with custom header markup when the headline is a metric rather than a
+label.
 
 <Preview path="./custom-header" />

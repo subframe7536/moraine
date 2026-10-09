@@ -60,9 +60,13 @@ import { Resizable } from '@src'
 
 ## Usage
 
-Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such as IDEs, email clients, and split dashboards. For single expandable disclosures or collapsible drawers, see [Collapsible](/components/collapsible) or [Sheet](/components/sheet).
+Use Resizable to divide space into draggable, keyboard-accessible panels for multi-pane layouts such
+as IDEs, email clients, and split dashboards. For single expandable disclosures or collapsible
+drawers, see [Collapsible](/components/collapsible) or [Sheet](/components/sheet).
 
-The root manages the normalized size vector across all panels, while `Resizable.Panel` declares minimum, maximum, and collapsible constraints. Place `Resizable.Handle` between panels to enable pointer dragging, keyboard resizing, and collapse toggles.
+The root manages the normalized size vector across all panels, while `Resizable.Panel` declares
+minimum, maximum, and collapsible constraints. Place `Resizable.Handle` between panels to enable
+pointer dragging, keyboard resizing, and collapse toggles.
 
 ```tsx
 import { Resizable } from 'moraine'
@@ -86,25 +90,57 @@ export function Example() {
 
 ### Panel constraints
 
-Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. Values can be pixel numbers (e.g. `240`) or percentage strings relative to the root (e.g. `'25%'`). Handles push and pull adjacent panels; boundaries prevent resizing past minimum or maximum thresholds. Panels with `resizable={false}` remain locked at their current size.
+Give the root `defaultValue` for initial sizes and set `min` or `max` on each panel. Values can be
+pixel numbers (for example `240`) or percentage strings relative to the root (for example `'25%'`).
+Handles push and pull adjacent panels; boundaries prevent resizing past minimum or maximum
+thresholds. Panels with `resizable={false}` remain locked at their current size.
 
-<Preview path="./constraints" />
+```tsx
+<Resizable defaultValue={['32%', '68%']}>
+  <Resizable.Panel min="25%" max="45%">
+    Inspector
+  </Resizable.Panel>
+  <Resizable.Handle />
+  <Resizable.Panel min="35%">Viewport</Resizable.Panel>
+</Resizable>
+```
 
 ### Collapsible panels
 
-Set `collapsible` on a panel to let it collapse down to `collapsibleMin` (defaulting to `0`). Set `action="collapse"` on the adjacent `Resizable.Handle` to make clicking the grip or pressing <kbd>Enter</kbd> toggle the panel. Handle children can be a render function receiving live state (`collapsed`, `dragging`, `active`) to adapt its icon. `onCollapse` and `onExpand` emit the panel's pixel size when toggled.
+Set `collapsible` on a panel to let it collapse down to `collapsibleMin` (defaulting to `0`). Set
+`action="collapse"` on the adjacent `Resizable.Handle` to make clicking the grip or pressing
 
-<Preview path="./collapsible" />
+<kbd>Enter</kbd> toggle the panel. Handle children can be a render function receiving live state
+(`collapsed`, `dragging`, `active`) to adapt its icon. `onCollapse` and `onExpand` emit the panel's
+pixel size when toggled.
+
+```tsx
+<Resizable.Panel collapsible collapsibleMin={56} onCollapse={onCollapse} onExpand={onExpand}>
+  Sidebar
+</Resizable.Panel>
+<Resizable.Handle action="collapse">
+  {(state) => <Icon name={state.collapsed ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'} />}
+</Resizable.Handle>
+```
 
 ### Controlled state and persistence
 
-Use `value` with `onChange` when the surrounding application coordinates layout presets, resets, or persists splits to storage. `onChange` receives exact pixel sizes. Numbers outside the panel count or exceeding bounds are automatically normalized to fit available space.
+Use `value` with `onChange` when the surrounding application coordinates layout presets, resets, or
+persists splits to storage. `onChange` receives exact pixel sizes. Numbers outside the panel count or
+exceeding bounds are automatically normalized to fit available space.
 
-<Preview path="./controlled" />
+```tsx
+<Resizable value={sizes()} onChange={setSizes}>
+  <Resizable.Panel min={150}>Logs</Resizable.Panel>
+  <Resizable.Handle />
+  <Resizable.Panel min={150}>Output</Resizable.Panel>
+</Resizable>
+```
 
 ### Keyboard interaction
 
-Handles render semantic separator elements with `tabIndex={0}`, `role="separator"`, and standard ARIA boundary values.
+Handles render semantic separator elements with `tabIndex={0}`, `role="separator"`, and standard
+ARIA boundary values.
 
 | Key                                          | Description                                                        |
 | -------------------------------------------- | ------------------------------------------------------------------ |
@@ -141,20 +177,43 @@ Handles render semantic separator elements with `tabIndex={0}`, `role="separator
 
 ## Examples
 
+### Constrain an inspector beside a token file
+
+Set `min` and `max` so the inspector cannot consume the editor.
+
+<Preview path="./constraints" />
+
+### Collapse a project sidebar to an icon rail
+
+Use `collapsibleMin` for a remaining rail width, and `action="collapse"` on the handle so click and
+
+<kbd>Enter</kbd> toggle it.
+
+<Preview path="./collapsible" />
+
+### Switch between saved split presets
+
+Own `value` when the page stores pixel sizes or offers layout presets.
+
+<Preview path="./controlled" />
+
 ### Nested IDE workspace
 
-Combine horizontal and vertical Resizable roots to build developer tooling layouts with an explorer sidebar, code editor, and console output. Setting `intersection` on adjoining handles enables 2D diagonal dragging at the intersection junction.
+Combine horizontal and vertical Resizable roots for an explorer, editor, and console. Setting
+`intersection` on adjoining handles enables 2D diagonal dragging at the junction.
 
 <Preview path="./nested-panels" />
 
 ### Multi-column email client
 
-Compose a three-column productivity layout with a folder directory, searchable thread list, and detail reading pane. Min-width constraints safeguard list readability and action layouts.
+Compose a folder list, thread list, and reading pane. Min-width constraints keep each column
+readable.
 
 <Preview path="./composition" />
 
 ### Vertical query workbench
 
-Use `orientation="vertical"` to split horizontal bands such as database query editors and data result tables. The disabled state locks dividers to protect layout integrity during query execution.
+Use `orientation="vertical"` for a query editor over a result table. `disabled` locks dividers
+during execution.
 
 <Preview path="./vertical-disable" />

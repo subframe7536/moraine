@@ -40,7 +40,9 @@ import { Progress } from '@src'
 
 ## Usage
 
-Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
+Use Progress for measurable task completion or for work whose end is not yet known. Choose a
+determinate value only when it represents real progress. For a loading placeholder of content
+structure, use [Skeleton](/components/skeleton).
 
 ```tsx
 import { Progress } from 'moraine'
@@ -52,15 +54,26 @@ export function Example() {
 
 ### Progress models
 
-Provide a value for determinate progress and omit it for indeterminate progress. Step mode represents a discrete sequence rather than continuous completion; choose the model that matches the work being described.
+Provide a numeric `value` for determinate progress. Omit `value` or pass `null` for indeterminate
+progress. Pass a string array as `max` for a discrete sequence; `value` is then the active step
+index. `getValueLabel` supplies `aria-valuetext`.
 
-<Preview path="./models" />
+```tsx
+<Progress value={65} aria-label="Uploading design.fig" />
+<Progress aria-label="Scanning for malware" />
+<Progress value={1} max={['Waiting', 'Cloning', 'Done']} aria-label="Clone repository" />
+```
 
-### Semantics and animation
+### Semantics and status
 
-The component exposes progressbar metadata. Supply a meaningful label or relationship when visual context alone does not identify the operation. Animation settings affect presentation, not progress ownership.
+The component exposes progressbar metadata. Supply `aria-label` or a relationship when visual
+context alone does not identify the operation. `status` shows the percentage label. `statusRender`
+replaces that label. Animation settings affect presentation, not progress ownership.
 
-<Preview path="./semantics" />
+```tsx
+<Progress value={82} status aria-label="Downloading installation bundle" />
+<Progress value={40} statusRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
+```
 
 ## Anatomy
 
@@ -80,3 +93,18 @@ The component exposes progressbar metadata. Supply a meaningful label or relatio
     ],
   }}
 />
+
+## Examples
+
+### Upload a file or wait on a scan
+
+Use a determinate value for known bytes. Omit `value` while a scanner has no trustworthy percentage.
+
+<Preview path="./models" />
+
+### Announce a bundle download
+
+Set `status` when the percentage should appear on the bar, and keep `aria-label` as the operation
+name.
+
+<Preview path="./semantics" />
