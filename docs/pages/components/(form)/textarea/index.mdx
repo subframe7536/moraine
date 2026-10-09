@@ -61,7 +61,9 @@ import { Textarea } from '@src'
 
 ## Usage
 
-Use Textarea for multi-line native text entry. Use [InputGroup](/components/input-group) to put controls around it without changing which element receives typing and focus.
+Use Textarea for multi-line native text entry. Use [Input](/components/input) for a single line.
+Use [InputGroup](/components/input-group) to put controls around it without changing which element
+receives typing and focus.
 
 ```tsx
 import { Field, Textarea } from 'moraine'
@@ -77,15 +79,28 @@ export function Example() {
 
 ### Native text behavior
 
-`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values. Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
+`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values.
+Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
 
-<Preview path="./native-behavior" />
+```tsx
+<Textarea value={bio()} onValueChange={setBio} rows={3} />
+```
 
 ### Size and composition
 
-Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions. Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+Enable autoresize and constrain it with `rows` and `maxRows`. Use
+`InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions.
+Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
 
-<Preview path="./composition" />
+```tsx
+<InputGroup orientation="vertical">
+  <Textarea placeholder="Write a comment..." autoResize rows={2} maxRows={6} />
+  <InputGroup.Trailing>
+    <span>Markdown supported</span>
+    <Button size="xs">Comment</Button>
+  </InputGroup.Trailing>
+</InputGroup>
+```
 
 ## Anatomy
 
@@ -100,18 +115,28 @@ Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup or
 
 ## Examples
 
-### Autoresize
+### Draft a release announcement
+
+Turn on `autoResize` and cap growth with `maxRows`. Keep the draft string in local state.
 
 <Preview path="./autoresize" />
 
-### Header and footer
+### Chat, message, and code panes
+
+Use a vertical InputGroup for a header, footer, or both around the textarea. The textarea still
+owns the value.
 
 <Preview path="./header-footer" />
 
-### Character count
+### Count remaining characters
+
+Keep the count in application state. InputGroup Trailing is a place to render it, not a built-in
+counter.
 
 <Preview path="./character-count" />
 
-### Form integration
+### Bind a description field
+
+Place Textarea in `form.Field` so schema validation owns the error.
 
 <Preview path="./form-integration" />

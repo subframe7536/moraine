@@ -71,7 +71,9 @@ import { createSignal } from 'solid-js'
 
 ## Usage
 
-Use InputNumber for a numeric field with step controls and constrained committed values. Choose a plain [Input](/components/input) when free-form numeric text is required.
+Use InputNumber for a numeric field with step controls and constrained committed values. Choose a
+plain [Input](/components/input) when free-form numeric text is required. Use
+[Slider](/components/slider) when the value is chosen spatially.
 
 ```tsx
 import { Field, InputNumber } from 'moraine'
@@ -87,17 +89,34 @@ export function Example() {
 
 ### Values and boundaries
 
-Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and `onValueChange` expose the locale-formatted string. The component preserves partial typed input until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical floating-point display noise.
+Use `rawValue` with `onRawValueChange` when numeric state is application-owned; `value` and
+`onValueChange` expose the locale-formatted string. The component preserves partial typed input
+until commit, then applies `minValue` and `maxValue`. Decimal steps are calculated to avoid typical
+floating-point display noise.
 
-<Preview path="./boundaries" />
+```tsx
+<InputNumber
+  value={value()}
+  onRawValueChange={(next) => {
+    if (Number.isFinite(next)) setValue(next)
+  }}
+  minValue={0}
+  maxValue={10}
+/>
+```
 
 ### Stepping and repeat
 
-In vertical layout, the input precedes an optional controls wrapper containing increment and decrement buttons. The input remains the spinbutton keyboard target.
+In vertical layout, the input precedes an optional controls wrapper containing increment and
+decrement buttons. The input remains the spinbutton keyboard target.
 
-`step` controls increment and decrement buttons, while `largeStep` controls PageUp and PageDown. Hold-to-repeat is enabled by default and can be tuned with the repeat timing props.
+`step` controls increment and decrement buttons, while `largeStep` controls PageUp and PageDown.
+Hold-to-repeat is enabled by default and can be tuned with the repeat timing props.
 
-<Preview path="./stepping" />
+```tsx
+<InputNumber defaultValue={100} step={5} largeStep={25} />
+<InputNumber defaultValue={0.5} step={0.1} minValue={0} maxValue={1} />
+```
 
 ### Keyboard interaction
 
@@ -122,18 +141,28 @@ In vertical layout, the input precedes an optional controls wrapper containing i
 
 ## Examples
 
-### Controlled value
+### Set a cart quantity
+
+Keep the count in local state with `onRawValueChange`. Clamp with `minValue` and `maxValue`.
 
 <Preview path="./controlled" />
 
-### Keyboard stepping
+### Edit a retry delay
+
+Use `step` for arrow keys and `largeStep` for PageUp and PageDown. Home and End jump to the
+configured bounds.
 
 <Preview path="./keyboard-stepping" />
 
-### Press and hold
+### Hold to change a count
+
+Hold-to-repeat is on by default. Tune or disable it with the repeat timing props when a single
+click should step once.
 
 <Preview path="./long-press" />
 
-### Form integration
+### Bind a numeric field
+
+Place InputNumber in `form.Field` so the schema owns the committed number.
 
 <Preview path="./form-integration" />

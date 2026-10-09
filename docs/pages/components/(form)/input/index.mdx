@@ -58,7 +58,10 @@ import { Input } from '@src'
 
 ## Usage
 
-Use Input for native single-line text editing. Compose it with [Field](/components/field) for a label and validation message, or [InputGroup](/components/input-group) for adjacent controls.
+Use Input for native single-line text editing. Compose it with [Field](/components/field) for a
+label and validation message, or [InputGroup](/components/input-group) for adjacent addons. Use
+[Textarea](/components/textarea) for multi-line text and [InputNumber](/components/input-number)
+for a constrained numeric stepper.
 
 ```tsx
 import { Field, Input } from 'moraine'
@@ -74,15 +77,36 @@ export function Example() {
 
 ### Native input behavior
 
-`Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and `defaultValue` for an initial uncontrolled value. `readOnly` keeps the field focusable without allowing edits; `disabled` removes it from interaction.
+`Input` forwards native input attributes. Use `value` with `onValueChange` for controlled text and
+`defaultValue` for an initial uncontrolled value. `readOnly` keeps the field focusable without
+allowing edits; `disabled` removes it from interaction.
 
-<Preview path="./controlled-input" />
+```tsx
+<Input value={query()} onValueChange={setQuery} placeholder="Search projects..." />
+```
 
 ### Composed controls
 
-Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit. Password visibility, clearing, copying, and loading remain application behavior: compose buttons and icons into these parts and provide their labels and handlers.
+Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit.
+Password visibility, clearing, copying, and loading remain application behavior: compose buttons
+and icons into these parts and provide their labels and handlers.
 
-<Preview path="./composed-controls" />
+```tsx
+<InputGroup>
+  <InputGroup.Leading>
+    <Icon name="i-lucide:key-round" />
+  </InputGroup.Leading>
+  <Input type={showPassword() ? 'text' : 'password'} placeholder="Enter secret token" />
+  <InputGroup.Trailing compact>
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      onClick={() => setShowPassword((prev) => !prev)}
+      aria-label={showPassword() ? 'Hide token' : 'Show token'}
+    />
+  </InputGroup.Trailing>
+</InputGroup>
+```
 
 ## Anatomy
 
@@ -97,10 +121,22 @@ Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an
 
 ## Examples
 
-### Leading and trailing content
+### Filter a project list
+
+Keep the query in local state with `value` and `onValueChange`. Filter the list from that string.
+
+<Preview path="./controlled-input" />
+
+### Password, search, URL, and price fields
+
+Compose `InputGroup` addons around Input. Visibility toggles, clear buttons, and unit suffixes stay
+application-owned.
 
 <Preview path="./input-with-icons" />
 
-### Form integration
+### Validate a work email
+
+Bind Input to `form.Field` so schema validation owns the error. Keep `name` off the input when the
+field wrapper supplies it.
 
 <Preview path="./form-integration" />

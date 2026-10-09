@@ -56,10 +56,13 @@ Enter an invalid email and leave the input to show the error and enable its slot
 
 ## Usage
 
-`Field` is a standalone presentational component with no form validation or form integration.
-It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
+`Field` is a standalone presentational wrapper. It renders the label, hint, description, help, and
+error, registers the nested control, inherits size and disabled state, and wires ARIA
+relationships. It does not validate or submit values.
 
-For form integration, use `form.Field` returned by `createForm()`.
+For schema binding, use `form.Field` returned by [createForm](/components/form). Put a Moraine
+control inside `Field` so its label, description, and error IDs attach to the actual focusable
+element. For local validation, pass the current message to `error`.
 
 ```tsx
 import { Field, Input } from 'moraine'
@@ -73,20 +76,31 @@ export function Example() {
 }
 ```
 
-Put a Moraine control inside `Field` so its label, description, and error IDs are registered with the actual focusable element. Standalone `Field` does not validate or submit values; use `form.Field` from `createForm()` when a schema owns the field. For local validation, pass the current message to `error`.
-
-<Preview path="./field-usage" />
-
 ### Visually hidden labels
 
-Use `hiddenLabel` when a compact control needs an accessible name without a visible label.
-It preserves the label association without reserving label spacing or an empty horizontal label column.
-A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain visible;
-help and error text keep their usual placement.
+Use `hiddenLabel` when a compact control needs an accessible name without a visible label. It
+preserves the label association without reserving label spacing or an empty horizontal label
+column. A non-empty `label` takes precedence over `hiddenLabel`. Hint and description text remain
+visible; help and error text keep their usual placement.
 
-<Preview path="./hidden-label" />
+```tsx
+<Field hiddenLabel="Filter commands" help="Search by command name or shortcut.">
+  <Input placeholder="Filter commands…" />
+</Field>
+```
 
 For a switch with a trailing visible label, use `<Switch label="Auto refresh" />`.
+
+### Orientation
+
+`orientation="horizontal"` lays the label beside the control. Use it for settings rows. Vertical
+is the default stacked layout.
+
+```tsx
+<Field orientation="horizontal" label="Display name" description="Shown to other users.">
+  <Input />
+</Field>
+```
 
 ## Anatomy
 
@@ -116,14 +130,30 @@ Help and error are mutually exclusive; the error replaces help when the field is
 
 ## Examples
 
-### Inherited state
+### Hide the label on a command filter
+
+Pass `hiddenLabel` so the input stays named without a visible label column. Help and error still
+render in their usual place.
+
+<Preview path="./hidden-label" />
+
+### Inherit size and required onto a switch
+
+Size and required on `Field` flow into the nested control. Keep a visible `label` on the switch
+when the field label is the setting name.
 
 <Preview path="./inherited-state" />
 
-### Manual validation
+### Surface a local validation message
+
+Pass the current message to `error`. Standalone `Field` does not run a schema; the page owns the
+string.
 
 <Preview path="./manual-validation" />
 
-### Horizontal layout
+### Align a settings row
+
+Set `orientation="horizontal"` when the label should sit beside the control, as in a settings
+panel.
 
 <Preview path="./horizontal-layout" />

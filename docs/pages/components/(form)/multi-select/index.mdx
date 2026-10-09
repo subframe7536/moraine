@@ -76,7 +76,10 @@ import { MultiSelect } from '@src'
 
 ## Usage
 
-Use MultiSelect for several selected collection items displayed as tags. Its values resolve through collection items; use [Select](/components/select) for one choice or [Combobox](/components/combobox) for editable single selection.
+Use MultiSelect for several selected collection items displayed as tags. Its values resolve through
+collection items. Use [Select](/components/select) for one non-editable choice, [Combobox](/components/combobox)
+for editable single selection, or [BaseSelect](/components/base-select) to compose the listbox
+yourself.
 
 ```tsx
 import { Field, MultiSelect } from 'moraine'
@@ -98,22 +101,39 @@ export function Example() {
 
 ### Values and tag lifecycle
 
-The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
+The control slot wraps the interactive tags container and floating anchor. When non-editable,
+clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking
+the control focuses the input without opening the panel so users can type immediately. Use
+`openOnControlClick` to override that default.
 
 `value` contains the selected item values as an array. An empty array means no selection; an empty
 string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
-Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
-users to type directly in the field to filter available options.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` lets users
+type in the field to filter options.
 
-<Preview path="./usage-tags" />
+```tsx
+<MultiSelect
+  search
+  items={frameworks}
+  value={selected()}
+  onValueChange={setSelected}
+  allowClear
+/>
+```
 
 ### Item creation and delimiters
 
 Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
-separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
-parsed through the same creation path.
+separator is encountered. Separator characters and pasted strings go through the same creation path.
 
-<Preview path="./usage-creation" />
+```tsx
+<MultiSelect
+  value={tags()}
+  onValueChange={setTags}
+  createItem={(input) => ({ label: input.trim(), value: input.trim().toLowerCase() })}
+  tokenSeparators={[',', ' ']}
+/>
+```
 
 ### Keyboard interaction
 
@@ -127,10 +147,16 @@ parsed through the same creation path.
 ### Virtualization
 
 Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
+keyboard navigation.
 
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
-
-<Preview path="./virtualization" />
+```tsx
+<MultiSelect
+  items={items}
+  virtualRender={virtualizer.virtualRender}
+  scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+/>
+```
 
 ## Anatomy
 
@@ -198,50 +224,61 @@ MultiSelect renders its portaled popup collection internally. Tags have a separa
 
 ## Examples
 
-### Custom tag rendering
+### Color issue labels
 
-Use `tagRender` to customize chip presentation with colors, status dots, badges, or custom remove buttons.
+Use `tagRender` to paint chips from item data such as a color class. Selected values still come
+from the collection.
 
 <Preview path="./custom-tags" />
 
-### Project assignees
+### Assign project members
+
+Search teammates and keep each selection as a chip. Include email or role on `description`.
 
 <Preview path="./user-chips" />
 
-### Selection and display limits
+### Cap selection and visible tags
 
-`maxCount` is a behavioral constraint preventing additional selections. `maxTagCount` is purely
-visual: surplus selections stay committed and are summarized in a `+N` badge. Use `tagOverflow`
-to render the hidden tags in a Tooltip or another custom presentation.
+`maxCount` blocks additional selections. `maxTagCount` is visual: surplus selections stay committed
+and collapse into a `+N` badge. Use `tagOverflow` to render hidden tags in a tooltip.
 
 <Preview path="./max-count-max-tag-count" />
 
-### Creatable collection items
+### Create a missing topic
 
-Allow users to select from existing options or dynamically generate new tags via an empty state button.
+Pass `createItem` and an `emptyRender` action so unmatched text can become a collection item.
 
 <Preview path="./create-new-tags" />
 
-### Free-form tags
+### Enter free-form tags
 
-Without predefined items, combine `createItem` and `tokenSeparators` for a lightweight tag input.
+With no predefined items, combine `createItem` and `tokenSeparators` for a tag input. Comma, space,
+and paste all create tokens.
 
 <Preview path="./free-form-tags" />
 
-### Grouped options
+### Grant grouped permissions
 
-Organize large collections into categorized option groups.
+Organize a large permission set with `type: 'group'`. Group labels are not selectable.
 
 <Preview path="./grouped-items" />
 
-### Clearable, disabled, and locked states
+### Lock required modules
 
-Pre-locked items cannot be deselected, while individual options can be disabled in the listbox.
+Disable an option to keep it in the list without allowing toggle. `disabled` and `readOnly` on the
+root freeze the whole control.
 
 <Preview path="./clear-and-disabled" />
 
-### Form integration
+### Search a large collection
 
-Validate multi-selection schemas (e.g. requiring a minimum number of tags) with `createForm`.
+Pass `createListVirtualizer` when opening or scrolling the full list is slow.
+
+<Preview path="./virtualization" />
+
+### Require a minimum number of tags
+
+Validate the selected array with `createForm`. Empty selections should fail a `minLength` schema
+rule.
 
 <Preview path="./form-integration" />

@@ -78,7 +78,9 @@ import { createSignal } from 'solid-js'
 
 ## Usage
 
-Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric field when users need precise text entry.
+Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric
+field when users need precise text entry. Use [InputNumber](/components/input-number) when the value
+is typed and stepped rather than dragged.
 
 ```tsx
 import { Field, Slider } from 'moraine'
@@ -94,27 +96,38 @@ export function Example() {
 
 ### Single values and ranges
 
-Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with `onValueChange` for controlled state; `onValueChange` also reports immediate updates during drag when the slider owns its value.
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with
+`onValueChange` for controlled state; `onValueChange` also reports immediate updates during drag
+when the slider owns its value.
 
-<Preview path="./values" />
+```tsx
+<Slider value={volume()} onValueChange={setVolume} />
+<Slider value={range()} onValueChange={setRange} />
+```
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to render visual tick marks at each step interval across the track rail.
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to
+render visual tick marks at each step interval across the track rail.
 
-<Preview path="./step-marker" />
+```tsx
+<Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
+```
 
-### Keyboard and forms
+### Forms
 
 Add `name` for native form submission, or place the slider inside `form.Field` from
 [createForm](/components/form) for schema binding. Use standalone [Field](/components/field) when
 you only need a label and messages.
 
-<Preview path="./keyboard-forms" />
+```tsx
+<Slider name="brightness" defaultValue={75} step={5} min={0} max={100} />
+```
 
 ### Keyboard interaction
 
-When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized movement is approximately 10% of the range and is snapped to `step` when one is defined.
+When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized
+movement is approximately 10% of the range and is snapped to `step` when one is defined.
 
 | Key                                         | Description                                             |
 | ------------------------------------------- | ------------------------------------------------------- |
@@ -142,18 +155,29 @@ When `step` is omitted, keyboard stepping defaults to 1% of the configured range
 
 ## Examples
 
-### Controlled value
+### Control output volume
+
+Keep a single number in local state and update it from `onValueChange`. Mute can write `0` back
+into the same signal.
 
 <Preview path="./controlled-single" />
 
-### Range
+### Set a numeric range
+
+Pass an ordered pair for two thumbs. `minStepsBetweenThumbs` and `allowThumbCrossing` constrain
+whether the thumbs may overlap.
 
 <Preview path="./range-slider" />
 
-### Form integration
+### Bind brightness to a form
+
+Place the slider in `form.Field` so the schema owns the committed number.
 
 <Preview path="./form-integration" />
 
-### Blur slider
+### Overlay a blur amount
+
+Put a label and live value inside the slider when the track itself is the readout. Keep
+`aria-label` on the slider.
 
 <Preview path="./blur-slider" />

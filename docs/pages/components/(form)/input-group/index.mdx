@@ -64,7 +64,9 @@ import { Icon, Input, InputGroup } from '@src'
 
 ## Usage
 
-Use InputGroup when an editable control and its addons should share one visual boundary. The inner input or textarea still owns text entry and its accessible name.
+Use InputGroup when an editable control and its addons should share one visual boundary. The inner
+[Input](/components/input) or [Textarea](/components/textarea) still owns text entry and its
+accessible name.
 
 ```tsx
 import { Field, Input, InputGroup } from 'moraine'
@@ -87,21 +89,48 @@ In horizontal groups, Leading and Trailing follow the document's writing directi
 groups, they sit above and below the control. Set `inputGroup.defaultVariants.orientation` in
 your Theme to change the shared default, or `inputGroup.variants.orientation` to override its styles.
 
-<Preview path="./alignment" />
+```tsx
+<InputGroup>
+  <InputGroup.Leading>https://</InputGroup.Leading>
+  <Input aria-label="Website" placeholder="example.com" />
+  <InputGroup.Trailing>.com</InputGroup.Trailing>
+</InputGroup>
+<InputGroup orientation="vertical">
+  <InputGroup.Leading>Project website</InputGroup.Leading>
+  <Input aria-label="Website details" />
+  <InputGroup.Trailing>Use your public domain.</InputGroup.Trailing>
+</InputGroup>
+```
 
 ### Compact
 
-Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keeping the same layout role. In horizontal groups it uses smaller inline padding; in vertical groups it uses smaller padding on all sides. This is useful for compact buttons, keyboard shortcuts, inline prefixes or suffixes, and other addons that need less surrounding space.
+Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keeping the same layout
+role. In horizontal groups it uses smaller inline padding; in vertical groups it uses smaller
+padding on all sides. Use it for compact buttons, keyboard shortcuts, and inline prefixes.
 
-<Preview path="./compact" />
+```tsx
+<InputGroup>
+  <InputGroup.Leading>https://</InputGroup.Leading>
+  <Input aria-label="Website" placeholder="example.com" />
+  <InputGroup.Trailing compact>
+    <Button size="icon-sm" variant="ghost" aria-label="Clear" />
+  </InputGroup.Trailing>
+</InputGroup>
+```
 
 ### Styling and forms
 
-`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size` and `variant` to style the group. Disabled presentation remains on the native `Input` or `Textarea`, and the native control's `variant` applies when it is outside a group.
+`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size`
+and `variant` to style the group. Disabled presentation remains on the native `Input` or
+`Textarea`, and the native control's `variant` applies when it is outside a group.
 
-Size precedence is the control's explicit size, group size, Field size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
+Size precedence is the control's explicit size, group size, Field size, then theme defaults.
+`classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation;
+each part's `class` and `style` override it.
 
-Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.
+Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on
+the control. InputGroup does not register a form field. Clicking non-interactive group space
+focuses the native control; buttons and links retain their own focus behavior.
 
 ## Anatomy
 
@@ -126,56 +155,59 @@ Place Leading parts before one Input or Textarea, then Trailing parts. The final
 
 ## Examples
 
-### Icon
+### Search, email, and card fields
 
-Place one or more icons in either horizontal part.
+Place icons in Leading or Trailing. The inner input keeps the accessible name.
 
 <Preview path="./icons" />
 
-### Text
+### Price, URL, and username addons
 
-Supporting content accepts plain text and JSX without a dedicated text component.
+Supporting content accepts plain text and JSX. No dedicated text part is required.
 
 <Preview path="./text" />
 
-### Button
+### Copy a profile URL
 
-Use the existing `Button` component for copy, toggle, and submit actions. Add `compact` to the containing part when the button should use denser surrounding padding; keep each button's state and disabled behavior explicit.
+Use Button for copy, toggle, and submit. Add `compact` on the part when the button needs denser
+padding. Keep each button's state and disabled behavior explicit.
 
 <Preview path="./actions" />
 
-### Kbd
+### Hint a command shortcut
 
-Use `Kbd` to show a shortcut without changing the input's keyboard behavior. Add `compact` to the containing part when the shortcut should use denser surrounding padding.
+Show a shortcut with `Kbd` or `KbdGroup`. It does not change the input's keyboard behavior.
 
 <Preview path="./kbd" />
 
-### Dropdown
+### File actions and scoped search
 
-`DropdownMenu.Trigger` can render as a button inside either horizontal part.
+Render `DropdownMenu.Trigger` as a button inside Leading or Trailing.
 
 <Preview path="./dropdown" />
 
-### Spinner
+### Show an in-progress lookup
 
-Render a loading icon explicitly wherever progress needs to appear.
+Render a loading icon wherever progress needs to appear. InputGroup does not infer a loading state.
 
 <Preview path="./spinner" />
 
-### Textarea
+### Edit source with a toolbar
 
-Set `orientation="vertical"` to form a toolbar and status bar around the independent `Textarea`.
+Set `orientation="vertical"` for a header and status bar around an independent Textarea.
 
 <Preview path="./textarea-editor" />
 
-#### Auto-resize
+### Compose a comment
 
-`Textarea` keeps its own value, ref, native attributes, and autoresize behavior. The same group can provide header and footer regions.
+Textarea keeps its own value, ref, native attributes, and autoresize. The same group can provide
+header and footer regions.
 
 <Preview path="./composer" />
 
-### RTL
+### Search in RTL
 
-Horizontal Leading and Trailing positions follow the inherited `dir`; vertical positions remain above and below the control.
+Horizontal Leading and Trailing follow the inherited `dir`. Vertical positions stay above and
+below the control.
 
 <Preview path="./rtl" />

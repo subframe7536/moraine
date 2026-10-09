@@ -76,7 +76,9 @@ import { Combobox } from '@src'
 
 ## Usage
 
-Use Combobox when users should type to find one item in a collection. Use [Select](/components/select) for a non-editable choice and [MultiSelect](/components/multi-select) for multiple collection values.
+Use Combobox when users should type to find one item in a collection. Use [Select](/components/select)
+for a non-editable choice, [MultiSelect](/components/multi-select) for multiple collection values, or
+[BaseSelect](/components/base-select) to compose the listbox yourself.
 
 ```tsx
 import { Field, Combobox } from 'moraine'
@@ -101,7 +103,16 @@ export function Example() {
 Pass strings when the label and value are identical. Strings and objects can be mixed at the
 root or inside a group. Whitespace is preserved, and an empty string is a valid value.
 
-<Preview path="./string-items" />
+```tsx
+<Combobox items={['Apple', 'Banana']} defaultValue="Apple" />
+<Combobox
+  items={[
+    'Apple',
+    { value: 'pear', label: 'Pear' },
+    { type: 'group', label: 'More fruit', items: ['Banana'] },
+  ]}
+/>
+```
 
 String items are converted to the same item shape used by callbacks: `'Apple'` becomes
 `{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
@@ -117,15 +128,26 @@ While open, the input displays the query; while closed, it displays the selected
 Arbitrary query text is never committed as a value. Use `value` / `onValueChange` for selection and
 `searchValue` / `onSearch` for query text.
 
-<Preview path="./usage-query" />
+```tsx
+<Combobox
+  items={frameworks}
+  value={selected()}
+  onValueChange={setSelected}
+  searchValue={query()}
+  onSearch={setQuery}
+/>
+```
 
 ### Pointer opening
 
-By default, clicking inside the input focuses the field without opening the popup immediately. The trailing
-chevron button toggles the dropdown, while typing or pressing ArrowDown opens it. Set `openOnControlClick={true}`
-if you want any click on the field to open the options list.
+By default, clicking inside the input focuses the field without opening the popup immediately. The
+trailing chevron button toggles the dropdown, while typing or pressing ArrowDown opens it. Set
+`openOnControlClick={true}` if you want any click on the field to open the options list.
 
-<Preview path="./explicit-trigger" />
+```tsx
+<Combobox items={items} placeholder="Click the chevron to open" />
+<Combobox items={items} openOnControlClick placeholder="Click the field to open" />
+```
 
 ### Keyboard interaction
 
@@ -139,10 +161,16 @@ if you want any click on the field to open the options list.
 ### Virtualization
 
 Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
+keyboard navigation.
 
-Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and keyboard navigation.
-
-<Preview path="./virtualization" />
+```tsx
+<Combobox
+  items={items}
+  virtualRender={virtualizer.virtualRender}
+  scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+/>
+```
 
 ## Anatomy
 
@@ -195,42 +223,57 @@ Combobox renders the portaled popup collection internally; its content and item 
 
 ## Examples
 
-### Basic autocomplete
+### Search a framework
+
+Filter a local collection as the user types. `allowClear` removes the committed value without
+keeping leftover query text as a selection.
 
 <Preview path="./basic" />
 
-### Custom and rich items
+### Pick an issue status
 
-Display status indicators, icons, and descriptions using `icon` and `description`.
+Put `icon` and `description` on each item when the option needs a status mark and secondary line.
 
 <Preview path="./custom-items" />
 
-### User search
+### Assign a teammate
 
-Search teammates by name or email.
+Search people by name or email. Set `openOnControlClick` when clicking the field should open the
+list immediately.
 
 <Preview path="./user-picker" />
 
-### Filter strategies
+### Match by contains or prefix
 
-Configure how query text matches items using `filterItem="contains"` (default) or `filterItem="startsWith"`.
+Set `filterItem="contains"` (default) or `filterItem="startsWith"` when the query should match
+anywhere in the label or only at the start.
 
 <Preview path="./filter-strategies" />
 
-### Debounced remote search
+### Search remote repositories
 
-Simulate async fetching by combining `searchValue`, `onSearch`, and `loading`.
+Drive `searchValue`, `onSearch`, and `loading` from a debounced request. Set `filterItem={false}`
+when the server already returns the matched items.
 
 <Preview path="./async-search" />
 
-### Groups and custom empty state
+### Browse grouped technologies
 
-Organize options into categories and customize the empty state when no matches exist.
+Organize options into `type: 'group'` entries. Customize the empty state when the query has no
+matches.
 
 <Preview path="./groups" />
 
-### Form integration
+### Search a large collection
 
-Use `form.Field` from `createForm` when the selected value needs schema validation and error display.
+Pass `createListVirtualizer` when the list is large enough that rendering every row on open is
+slow.
+
+<Preview path="./virtualization" />
+
+### Bind a searchable field to a form
+
+Use `form.Field` from `createForm` when the selected value needs schema validation and error
+display.
 
 <Preview path="./form-integration" />

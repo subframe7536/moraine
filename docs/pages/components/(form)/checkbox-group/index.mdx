@@ -65,7 +65,9 @@ import { CheckboxGroup } from '@src'
 
 ## Usage
 
-Use CheckboxGroup for several choices submitted as one array. Use individual [Checkbox](/components/checkbox) controls when the fields are independent.
+Use CheckboxGroup for several choices submitted as one array. Use individual
+[Checkbox](/components/checkbox) controls when the fields are independent. Use
+[RadioGroup](/components/radio-group) when only one option may be selected.
 
 ```tsx
 import { CheckboxGroup } from 'moraine'
@@ -85,9 +87,18 @@ export function Example() {
 
 ### Selection model
 
-The group value is an array of item values. Pair `value` with `onValueChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
+The group value is an array of item values. Pair `value` with `onValueChange` for controlled
+selection, or use a default value when the group owns its initial state. A disabled group disables
+all items; an item can also be disabled independently.
 
-<Preview path="./selection-model" />
+```tsx
+<CheckboxGroup
+  legend="Notification preferences"
+  items={options}
+  value={selected()}
+  onValueChange={setSelected}
+/>
+```
 
 ### Forms
 
@@ -96,7 +107,18 @@ Give the group a `name` for native form submission, or place it inside `form.Fie
 labels and messages without validation. Each checkbox keeps its own tab stop; the group does not
 use radio-style arrow navigation.
 
-<Preview path="./form-behavior" />
+```tsx
+<CheckboxGroup name="permissions" items={roleOptions} defaultValue={['read']} />
+```
+
+### Indicator
+
+`indicator` places the check mark at `start` or `end`, or hides it with `hidden`.
+
+```tsx
+<CheckboxGroup indicator="end" items={items} />
+<CheckboxGroup indicator="hidden" items={items} />
+```
 
 ## Anatomy
 
@@ -145,14 +167,22 @@ The nested `<fieldset>` owns group semantics and the optional `<legend>` associa
 
 ## Examples
 
-### Controlled value and disabled items
+### Choose notification channels
+
+Keep the group value as an array of channel ids. Pair `value` with `onValueChange` when the page
+owns the selection.
+
+<Preview path="./selection-model" />
+
+### Assign locked team roles
+
+Disable an item that must stay selected. Controlled `value` still includes that item; the user
+cannot remove it.
 
 <Preview path="./controlled-disabled-items" />
 
-### Custom indicator
+### Require at least one permission
 
-<Preview path="./indicator" />
-
-### Form integration
+Bind the array to `form.Field` and reject an empty selection with a `minLength` schema rule.
 
 <Preview path="./form-integration" />

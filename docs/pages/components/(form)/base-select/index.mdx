@@ -88,17 +88,9 @@ own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigge
 select-like focus owner and activator. If Control is omitted, Content falls back to the registered
 focus owner for positioning.
 
-### Standard composition
-
-<Preview path="./composition" />
-
-### Custom searchable composition
-
-<Preview path="./searchable" />
-
-The input helper registers `focusOwner`; it never becomes the floating anchor. The caller owns the
-physical input, canonical source, filtering, and query cleanup. No BaseSelect.Trigger is required
-for this editable composition.
+For an editable composition, register `focusOwner` on the physical input. The input helper never
+becomes the floating anchor. The caller owns the input, canonical source, filtering, and query
+cleanup. No `BaseSelect.Trigger` is required in that pattern.
 
 ### Item fields
 
@@ -200,10 +192,30 @@ Control is an optional layout container and floating anchor; without it, Content
 
 ## Examples
 
-### Multiple selection
+### Pick a grouped framework
+
+Compose groups, labels, and item render state when Select's built-in collection is not enough.
+Keep selection labels on the trigger from the full collection.
+
+<Preview path="./composition" />
+
+### Search a custom listbox
+
+Own the query input and filtered `items`. Pass `getItemByValue` so a selected option still
+resolves after it leaves the filtered view.
+
+<Preview path="./searchable" />
+
+### Select multiple frameworks
+
+Set `multiple` and read `state.value` as an array. The trigger should summarize the current
+selection rather than a single label.
 
 <Preview path="./multiple" />
 
-### Form integration
+### Submit a native form value
+
+Give the root a `name`. The control writes the selected value into the enclosing form without
+`createForm`.
 
 <Preview path="./form" />

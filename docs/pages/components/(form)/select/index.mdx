@@ -86,7 +86,9 @@ import { Select } from '@src'
 
 ## Usage
 
-Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when users need to type a query, or [BaseSelect](/components/base-select) when you need to compose the listbox yourself.
+Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
+users need to type a query, [MultiSelect](/components/multi-select) for several collection values, or
+[BaseSelect](/components/base-select) when you need to compose the listbox yourself.
 
 ```tsx
 import { Field, Select } from 'moraine'
@@ -111,7 +113,16 @@ export function Example() {
 Pass strings when the label and value are identical. Strings and objects can be mixed at the
 root or inside a group. Whitespace is preserved, and an empty string is a valid value.
 
-<Preview path="./string-items" />
+```tsx
+<Select items={['Apple', 'Banana']} defaultValue="Apple" />
+<Select
+  items={[
+    'Apple',
+    { value: 'pear', label: 'Pear', description: 'Fresh fruit' },
+    { type: 'group', label: 'More fruit', items: ['Banana'] },
+  ]}
+/>
+```
 
 String items are converted to the same item shape used by callbacks: `'Apple'` becomes
 `{ value: 'Apple', label: 'Apple' }`. Object items retain their identity and custom fields.
@@ -120,15 +131,24 @@ occurrence, including collisions between strings and objects.
 
 ### Value and collection
 
-The value slot shows the selected label or `String(value)` for an unresolved value. Clear is a pointer-only action inside the trigger that clears selection without toggling the popup.
+The value slot shows the selected label or `String(value)` for an unresolved value. Clear is a
+pointer-only action inside the trigger that clears selection without toggling the popup.
 
 Pair `value` with `onValueChange` for controlled selection, or use `defaultValue` for an initial
 uncontrolled choice. `null` means no selection; an empty string is a valid item value. Use unique
 item values so each selection identifies one option.
 
-Printable keys perform rapid typeahead navigation across available options without opening an editable input.
+```tsx
+<Select
+  items={countries}
+  value={selected()}
+  onValueChange={setSelected}
+  allowClear
+/>
+```
 
-<Preview path="./usage-value" />
+Printable keys perform rapid typeahead navigation across available options without opening an
+editable input.
 
 ### Keyboard interaction
 
@@ -201,30 +221,36 @@ Select renders the portaled popup collection internally; its slots are styling t
 
 ## Examples
 
-### Rich items
+### Choose a subscription plan
 
-Each item supports an `icon` and secondary `description` without requiring custom item templates.
+Put an `icon` and `description` on each item when the choice needs more than a label. No custom
+item template is required.
 
 <Preview path="./rich-items" />
 
-### Team roles
+### Assign a member role
+
+Pick one permission role from a short collection. Keep the selected value as the role id.
 
 <Preview path="./user-assignee" />
 
-### Grouped options
+### Choose a workspace timezone
 
-Organize options into labeled categories using `type: 'group'`. Insert `{ type: 'separator' }` between groups or items to show a divider. Labels and separators are excluded from selection and keyboard navigation.
+Organize options with `type: 'group'`. Insert `{ type: 'separator' }` between groups or items.
+Labels and separators are excluded from selection and keyboard navigation.
 
 <Preview path="./grouped-items" />
 
-### Incremental collections
+### Load more options on scroll
 
-Use `onScrollBottom` and `scrollBottomThreshold` to load additional pages of options as the user scrolls.
+Use `onScrollBottom` and `scrollBottomThreshold` to append pages as the listbox approaches the
+bottom. Drive `loading` from the in-flight request.
 
 <Preview path="./infinite-scroll" />
 
-### Form integration
+### Bind an empty select to a form
 
-For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the schema.
+For an empty `form.Field`-bound Select, initialize the field with `null` and accept `null` in the
+schema.
 
 <Preview path="./form-integration" />

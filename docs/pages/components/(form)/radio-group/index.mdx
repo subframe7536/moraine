@@ -64,7 +64,9 @@ import { RadioGroup } from '@src'
 
 ## Usage
 
-Use RadioGroup for one choice from a small visible set. For a longer or space-constrained collection, use [Select](/components/select).
+Use RadioGroup for one choice from a small visible set. For a longer or space-constrained
+collection, use [Select](/components/select). Use [CheckboxGroup](/components/checkbox-group) when
+several options may be selected together.
 
 ```tsx
 import { Field, RadioGroup } from 'moraine'
@@ -85,9 +87,13 @@ export function Example() {
 
 ### Single selection
 
-Use one string value for the selected item and pair `value` with `onValueChange` for controlled state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior rather than the independent focus order of checkboxes.
+Use one string value for the selected item and pair `value` with `onValueChange` for controlled
+state. Disabled items remain visible but cannot be selected. The group uses radio keyboard behavior
+rather than the independent focus order of checkboxes.
 
-<Preview path="./selection" />
+```tsx
+<RadioGroup items={planOptions} value={plan()} onValueChange={setPlan} />
+```
 
 ### Forms
 
@@ -95,7 +101,18 @@ Set `name` for native form submission. For schema binding and validation, place 
 `form.Field` from [createForm](/components/form). Standalone [Field](/components/field) supplies
 labels and messages without binding a form store.
 
-<Preview path="./form-usage" />
+```tsx
+<RadioGroup name="environment" items={envOptions} defaultValue="staging" />
+```
+
+### Indicator
+
+`indicator` places the radio mark at `start` or `end`, or hides it with `hidden`.
+
+```tsx
+<RadioGroup indicator="end" items={items} />
+<RadioGroup indicator="hidden" items={items} />
+```
 
 ### Keyboard interaction
 
@@ -137,14 +154,22 @@ labels and messages without binding a form store.
 
 ## Examples
 
-### Controlled value and disabled items
+### Choose a billing plan
+
+Keep one string value for the selected plan. Pair `value` with `onValueChange` when the page owns
+the choice.
+
+<Preview path="./selection" />
+
+### Pick a plan with a locked starter tier
+
+Disable a legacy option so it stays visible but cannot be selected. Horizontal `table` layout works
+for a short plan comparison.
 
 <Preview path="./controlled-disabled" />
 
-### Indicator position
+### Bind a deployment environment
 
-<Preview path="./indicator-positions" />
-
-### Form integration
+Place the group in `form.Field` so schema validation owns the required environment value.
 
 <Preview path="./form-integration" />

@@ -306,24 +306,32 @@ export function NotificationForm() {
 }
 ```
 
-### Basic form and submission
+### Submission
 
-Define a schema and initial input, then render the bound components returned by `createForm`.
 `form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
-validated output. Native `action` and `method` attributes do not enable a browser navigation submit.
+validated output. Native `action` and `method` attributes do not enable a browser navigation
+submit. The returned store also supports Formisch's public methods and helpers, including
+programmatic field focus.
 
-The returned store also supports Formisch's public methods and helpers, including programmatic
-field focus.
+`form.Form` does not automatically disable child controls during submission. Read
+`form.isSubmitting` to derive button loading or disabled state while an async submit is in flight.
 
-<Preview path="./basic-form" />
+```tsx
+<Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>
+  Save draft
+</Button>
+```
 
 ### Root styling
 
-`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Theme. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an
+individual form, or configure `form.base.root` in your Theme. Slot maps remain available on
+`form.Field`, but the bound Form component does not accept `classes` or `styles`.
 
 ### Bound field outside the form root
 
-`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering `form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
+`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering
+`form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
 
 ```tsx
 const form = createForm({ schema })
@@ -335,33 +343,46 @@ const form = createForm({ schema })
 
 ### Field labels and messages
 
-Configure `label`, `hint`, `description`, `help`, and `required` indicators on `<form.Field>`. Supported Moraine controls automatically link with helper descriptions and error messages via deterministic ARIA attributes.
+Configure `label`, `hint`, `description`, `help`, and `required` on `<form.Field>`. Supported
+Moraine controls link helper descriptions and error messages through ARIA attributes.
 
-<Preview path="./labels-messages" />
-
-### Horizontal layout
-
-Set `orientation="horizontal"` to switch from the default stacked layout to a side-by-side grid arrangement, common in settings panels and administrative consoles.
-
-<Preview path="./horizontal-layout" />
+```tsx
+<form.Field
+  name="repoName"
+  label="Repository name"
+  description="Must be URL-friendly and unique within your organization."
+  required
+>
+  <Input placeholder="moraine-app" />
+</form.Field>
+```
 
 ### Nested and array paths
 
-Target nested object and array fields by supplying path tuples (for example, `['profile', 'email']`) to the `name` prop. Path types are fully validated and autocompleted based on your schema.
+Target nested object and array fields with path tuples such as `['profile', 'email']`. Path types
+are validated and autocompleted from the schema.
 
-<Preview path="./nested-path" />
+```tsx
+<form.Field name={['profile', 'email']} label="Profile Email">
+  <Input type="email" />
+</form.Field>
+```
 
-### Submission and loading state
+### Reset
 
-`form.Form` does not automatically disable child controls during submission. Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
+A `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+Handle `onReset` on `form.Form` when the page needs to react to that restore.
 
-<Preview path="./async-submit" />
-
-### Reset and state restoration
-
-Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
-
-<Preview path="./reset" />
+```tsx
+<form.Form onReset={() => setResetCount((count) => count + 1)}>
+  <form.Field name="name" label="Name">
+    <Input />
+  </form.Field>
+  <Button type="reset" variant="outline">
+    Reset
+  </Button>
+</form.Form>
+```
 
 ## Anatomy
 
@@ -379,26 +400,67 @@ Each `form.Field` uses the Field layout; the bound `form.Form` owns only its nat
 
 ## Examples
 
-### Schema validation
+### Save a username
 
-Formisch validates fields according to schema rules and updates errors in real-time or upon submission, linking error messages directly to the associated controls.
+Define a schema and `initialInput`, then render the bound `form.Form` and `form.Field`. Submit
+receives the validated output.
+
+<Preview path="./basic-form" />
+
+### Configure field copy
+
+Set `label`, `hint`, `description`, `help`, and `required` on `form.Field`. Pass `error` only when
+the page or server supplies a message outside the schema.
+
+<Preview path="./labels-messages" />
+
+### Lay out a settings panel
+
+Set `orientation="horizontal"` so the label sits beside the control.
+
+<Preview path="./horizontal-layout" />
+
+### Edit nested profile fields
+
+Pass a path tuple such as `['profile', 'email']` when the schema nests objects.
+
+<Preview path="./nested-path" />
+
+### Save a draft with loading
+
+Read `form.isSubmitting` for the submit button. The form does not disable nested controls on its
+own.
+
+<Preview path="./async-submit" />
+
+### Restore the initial snapshot
+
+A `type="reset"` button restores `initialInput` and clears validation metadata.
+
+<Preview path="./reset" />
+
+### Validate name and email
+
+Schema messages surface on the bound field after submit or configured input validation.
 
 <Preview path="./validation" />
 
-### Manual and server errors
+### Show a server error on a token
 
-Pass application or server-returned error strings directly to `<form.Field error={...}>` to force an error state or display external validation messages.
+Pass an application or server string to `form.Field error={...}` to force an error outside the
+schema.
 
 <Preview path="./manual-error" />
 
-### Render context
+### Change the control from field error
 
-Provide a render function as child to `<form.Field>` to access the current effective `{ error }` while the child control continues to inherit the bound field state.
+Give `form.Field` a child render function to read `{ error }` while the control still inherits the
+bound field state.
 
 <Preview path="./render-context" />
 
-### Mixed form controls
+### Create a project with mixed controls
 
-Compose multiple Moraine controls—such as `Input`, `Textarea`, `Select`, and `Checkbox`—within a single schema-validated form.
+Compose `Input`, `Textarea`, `Select`, and `Checkbox` in one schema-validated form.
 
 <Preview path="./mixed-fields" />
