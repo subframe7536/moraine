@@ -63,23 +63,16 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
     local,
   )
-  const modelModifiers = createMemo(() => merged.modelModifiers)
-
+  const modelModifiers = () => merged.modelModifiers
   const generatedId = createId(() => merged.id, 'input')
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: merged.readOnly,
-    }),
-    () => ({
-      defaultId: generatedId(),
-      initialValue: merged.defaultValue ?? '',
-    }),
-  )
+  const field = useFormField(merged, {
+    get defaultId() {
+      return generatedId()
+    },
+    get initialValue() {
+      return merged.defaultValue ?? ''
+    },
+  })
 
   let inputEl: HTMLInputElement | undefined
 

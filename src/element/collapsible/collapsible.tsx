@@ -36,6 +36,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),
+    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
   })
   const disclosure = createDisclosureState({
     open,
@@ -45,12 +46,9 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   })
 
   function setOpen(nextOpen: boolean): void {
-    if (disclosure.disabled() || nextOpen === open()) {
-      return
+    if (!disclosure.disabled()) {
+      setControlledOpen(nextOpen)
     }
-
-    setControlledOpen(nextOpen)
-    local.onOpenChange?.(nextOpen)
   }
 
   function toggleContent(): void {

@@ -1,6 +1,6 @@
 import type { Accessor } from 'solid-js'
 import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createControllableValue } from './controllable-value'
 import type { CreateControllableValueOptions } from './controllable-value'
@@ -140,6 +140,33 @@ describe('createControllableValue', () => {
       setControlledValue(undefined)
       expect(untrack(observedValue)).toBe(false)
       expect(evaluations).toBe(3)
+      dispose()
+    })
+  })
+
+  it('reports changes for controlled and uncontrolled values', () => {
+    createRoot((dispose) => {
+      const [controlledValue, setControlledValue] = createSignal<string>()
+      const onChange = vi.fn()
+      const [value, setValue] = createControllableValue({
+        value: controlledValue,
+        defaultValue: () => 'initial',
+        onChange,
+      })
+
+      setValue('next')
+      expect(value()).toBe('next')
+      expect(onChange).toHaveBeenCalledExactlyOnceWith('next')
+
+      setValue('next')
+      expect(onChange).toHaveBeenCalledOnce()
+
+      setControlledValue('controlled')
+      setValue('proposed')
+      expect(value()).toBe('controlled')
+      expect(onChange).toHaveBeenLastCalledWith('proposed')
+      expect(onChange).toHaveBeenCalledTimes(2)
+
       dispose()
     })
   })

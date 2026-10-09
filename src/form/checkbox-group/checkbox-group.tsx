@@ -119,19 +119,31 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   )
   const groupId = createId(() => merged.id, 'checkbox-group')
   const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: resolved.variants.size,
-      disabled: merged.disabled,
-      required: local.required,
-    }),
-    () => ({
+    {
+      get id() {
+        return merged.id
+      },
+      get name() {
+        return merged.name
+      },
+      get size() {
+        return resolved.variants.size
+      },
+      get disabled() {
+        return merged.disabled
+      },
+      get required() {
+        return local.required
+      },
+    },
+    {
       bind: false,
       focus: true,
-      defaultId: groupId(),
+      get defaultId() {
+        return groupId()
+      },
       initialValue: initialDefaultValue,
-    }),
+    },
   )
 
   const [selectedValues, setSelectedValues, resetSelectedValues] = useFormValue<string[]>({
