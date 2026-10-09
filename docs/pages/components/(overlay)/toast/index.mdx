@@ -86,9 +86,10 @@ import { toast, BaseToaster } from 'solid-toaster'
 
 ## Usage
 
-Use `solid-toaster` for temporary status messages. It is a separate package; Moraine does not
-export a Toast component. Mount its host once and use Moraine icons and theme variables to match
-your application.
+Use `solid-toaster` for temporary status that does not block the page. Moraine does not export a
+Toast component. Use [Dialog](/components/dialog) when the user must confirm or complete a task.
+Use [Tooltip](/components/tooltip) for a hint attached to a control. Mount the toaster host once
+and use Moraine icons and theme variables to match your application.
 
 ```tsx
 import 'solid-toaster/style.css'
@@ -143,26 +144,62 @@ Import `solid-toaster/style.css` and mount one `BaseToaster` at your application
 calling `toast` methods. Its `icons` and `style` props connect the host to Moraine's semantic
 icons and theme variables, as shown in the example above.
 
-<Preview path="./setup-usage" />
-
 ### Calls and lifecycles
 
-Use semantic toast calls for immediate feedback and `toast.promise` for a promise whose pending, success, and error states need distinct messages. Duration and scoped instances are supplied to the toaster integration.
+Use semantic toast calls for immediate feedback and `toast.promise` for a promise whose pending,
+success, and error states need distinct messages. Duration and scoped instances are supplied to the
+toaster integration.
 
-<Preview path="./calls-usage" />
+```tsx
+toast.success('Changes saved successfully!')
+toast.error('Failed to update repository settings.')
+toast.promise(request, {
+  loading: 'Sync in progress...',
+  success: 'Sync finished',
+  error: (error) => `Sync failed: ${String(error)}`,
+})
+```
 
 ### Duplicate messages
 
 Set `preventDuplicate` on the host to avoid showing repeated toasts with the same content.
 
-<Preview path="./prevent-duplicate" />
+```tsx
+;<BaseToaster preventDuplicate />
+toast.success('Changes saved!', { toasterId: 'pd' })
+```
 
 ## Examples
 
-### Basic toasts
+### Mount a themed toaster
+
+Mount a default host and a second `custom` host at bottom-left. Theme both with Moraine icons and
+CSS variables, then trigger a success toast.
+
+<Preview path="./setup-usage" />
+
+### Report a save, a settings failure, and low storage
+
+Call `toast.success`, `toast.error`, and `toast.warning` for distinct outcomes.
+
+<Preview path="./calls-usage" />
+
+### Preview toast tones including a loading sequence
+
+Show default, success, warning, and error toasts, then replace a loading toast with success after
+upload.
 
 <Preview path="./basic-toasts" />
 
-### Promise and scoped instances
+### Prevent duplicate save toasts
+
+`preventDuplicate` on a scoped host keeps repeated "Changes saved!" calls from stacking.
+
+<Preview path="./prevent-duplicate" />
+
+### Sync with a promise and a second toaster
+
+`toast.promise` reports pending, success, and error. Send info to the `custom` toaster, or dismiss
+all toasts.
 
 <Preview path="./promise-scoped-instances" />

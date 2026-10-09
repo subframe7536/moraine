@@ -78,7 +78,10 @@ import { Button, DropdownMenu } from '@src'
 
 ## Usage
 
-Use DropdownMenu for a compact set of actions opened from a visible trigger. Use [Select](/components/select) for choosing a form value.
+Use DropdownMenu for a compact set of actions from a visible trigger. Use [Select](/components/select)
+for choosing a form value. Use [ContextMenu](/components/context-menu) for actions at a pointer
+location. Use [Popover](/components/popover) when the content is not a list of commands. Use
+[Dialog](/components/dialog) when the user must complete a labeled modal task.
 
 ```tsx
 import { Button, DropdownMenu } from 'moraine'
@@ -95,15 +98,55 @@ export function Example() {
 
 ### Trigger and items
 
-Use `DropdownMenu.Trigger` to compose the click, keyboard, and ARIA behavior with your native attributes. Describe each action in the item model; groups and separators organize that model without adding application state.
+Use `DropdownMenu.Trigger` to compose the click, keyboard, and ARIA behavior with your native
+attributes. Describe each action in the item model; groups and separators organize that model
+without adding application state.
 
-<Preview path="./trigger-items" />
+```tsx
+<DropdownMenu>
+  <DropdownMenu.Trigger as={Button} trailing="i-lucide:chevron-down">
+    Account options
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content
+    items={[
+      { label: 'Edit profile', icon: 'i-lucide:user' },
+      { label: 'Billing details', icon: 'i-lucide:credit-card' },
+    ]}
+  />
+</DropdownMenu>
+```
 
 ### Stateful and nested items
 
-Checkbox and radio-like menu items receive their checked or selected state from your application through their callbacks. Nested children create submenus. Disabled items remain visible but cannot be activated.
+Checkbox and radio items receive their checked or selected state from your application through
+their callbacks. Nested children create submenus. Disabled items remain visible but cannot be
+activated.
 
-<Preview path="./stateful-items" />
+```tsx
+<DropdownMenu.Content
+  items={[
+    {
+      type: 'checkbox',
+      label: 'Show bookmarks bar',
+      checked: showBookmarks(),
+      onCheckedChange: setShowBookmarks,
+    },
+    {
+      label: 'Theme',
+      children: [
+        {
+          type: 'radio',
+          group: 'theme',
+          label: 'System',
+          value: 'system',
+          checked: theme() === 'system',
+          onValueChange: setTheme,
+        },
+      ],
+    },
+  ]}
+/>
+```
 
 ### Keyboard interaction
 
@@ -171,20 +214,39 @@ Content is portaled; grouped items use the same item subtree as ungrouped items.
 
 ## Examples
 
-### Workspace view settings
+### Open account actions
 
-Toggle visible fields, include archived projects, and choose a sort order. The preview updates from application-owned state; saving a shared view is disabled for viewers.
+Compose a visible trigger with profile, billing, and shortcut items.
+
+<Preview path="./trigger-items" />
+
+### Toggle bookmarks and choose a theme
+
+Keep checkbox and radio values in application state. Nested children open a theme submenu.
+
+<Preview path="./stateful-items" />
+
+### Customize a workspace project view
+
+Toggle visible fields, include archived projects, and choose a sort order. The list updates from
+application-owned state; saving a shared view stays disabled for viewers.
 
 <Preview path="./workspace-view" />
 
-### Checkbox and radio items
+### Switch layout and show archived
+
+Checkbox and radio items update a live status line next to the trigger.
 
 <Preview path="./checkbox-radio" />
 
-### Submenus
+### Move a file into a folder
+
+Nested children open a folder submenu. Download stays on the root menu.
 
 <Preview path="./submenus" />
 
-### Shortcuts and disabled items
+### Share with a disabled export
+
+`kbds` displays shortcut notation. A disabled Export item stays visible but cannot be activated.
 
 <Preview path="./shortcuts-disabled" />

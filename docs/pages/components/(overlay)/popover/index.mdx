@@ -70,7 +70,11 @@ import { Button, Field, Input, Popover } from '@src'
 
 ## Usage
 
-Use Popover for anchored interactive content that does not need the structure of a full dialog. Use [Tooltip](/components/tooltip) for brief, non-interactive hints.
+Use Popover for anchored interactive content that does not need a labeled modal surface. Use
+[Tooltip](/components/tooltip) for a brief, non-interactive hint. Use
+[DropdownMenu](/components/dropdown-menu) for a compact action list from a visible trigger. Use
+[Dialog](/components/dialog) or [Sheet](/components/sheet) when the task should take over the
+page. Use [Modal](/components/modal) to compose backdrop and content yourself.
 
 ```tsx
 import { Button, Popover } from 'moraine'
@@ -87,9 +91,20 @@ export function Example() {
 
 ### Trigger modes and state
 
-Render the trigger with the supplied props. Click mode is the default; hover mode also responds to focus and blur and can use open and close delays. Use controlled `open` state only when the application needs to coordinate visibility.
+Render the trigger with the supplied props. Click mode is the default; hover mode also responds to
+focus and blur and can use open and close delays. Use controlled `open` state only when the
+application needs to coordinate visibility.
 
-<Preview path="./trigger-modes" />
+```tsx
+<Popover>
+  <Popover.Trigger as={Button}>Filter</Popover.Trigger>
+  <Popover.Content>Click stays open while you choose filters.</Popover.Content>
+</Popover>
+<Popover mode="hover" openDelay={150} closeDelay={100}>
+  <Popover.Trigger as={Button}>Profile</Popover.Trigger>
+  <Popover.Content>Hover or focus to preview.</Popover.Content>
+</Popover>
+```
 
 ### Dismissal and accessibility
 
@@ -103,11 +118,22 @@ Without a Close, the popover stays non-modal so users retain a dismissal route.
 `modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
 `preventScroll` can lock body scroll independently of `modal`.
 
-<Preview path="./dismissal-usage" />
+```tsx
+<Popover>
+  <Popover.Trigger as={Button}>Filter</Popover.Trigger>
+  <Popover.Content ariaLabel="Filter settings">Press Escape or click outside.</Popover.Content>
+</Popover>
+<Popover dismissible={false} onClosePrevent={onBlocked}>
+  <Popover.Trigger as={Button}>Keep open</Popover.Trigger>
+  <Popover.Content>Outside click and Escape are blocked.</Popover.Content>
+</Popover>
+```
 
 ### Keyboard interaction
 
-Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests dismissal when the popover is dismissible; focusable controls inside non-modal content participate in normal document focus order. Modal content contains focus.
+Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
+dismissal when the popover is dismissible; focusable controls inside non-modal content participate
+in normal document focus order. Modal content contains focus.
 
 ## Anatomy
 
@@ -140,10 +166,27 @@ Content is portaled inside an internal positioning wrapper.
 
 ## Examples
 
-### Hover mode
+### Filter deployments or preview a profile
+
+Click keeps a filter panel open during selection. Hover mode opens an author preview after a delay.
+
+<Preview path="./trigger-modes" />
+
+### Label filter settings for dismissal
+
+Give content an accessible name when it has no visible title. Escape or an outside click closes a
+dismissible popover.
+
+<Preview path="./dismissal-usage" />
+
+### Preview an author card on hover
+
+Hover or focus the trigger to follow an author. Open and close delays keep the card from flashing.
 
 <Preview path="./hover-mode" />
 
-### Dismiss control
+### Keep a popover open until an explicit close
+
+`dismissible={false}` blocks Escape and outside clicks. `onClosePrevent` counts blocked attempts.
 
 <Preview path="./dismiss-control" />

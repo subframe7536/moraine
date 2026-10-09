@@ -56,7 +56,11 @@ import { Button, Modal } from '@src'
 
 ## Usage
 
-Use Modal when you need to compose backdrop, trigger, and content directly. Use [Dialog](/components/dialog) for a structured title, description, body, and footer.
+Use Modal when you compose trigger, backdrop, and content yourself. Use [Dialog](/components/dialog)
+for a structured title, description, body, and footer. Use [Sheet](/components/sheet) for a drawer
+from a viewport edge. Use [Popover](/components/popover) for anchored interactive content.
+[Dialog](/components/dialog) and [Sheet](/components/sheet) wrap this primitive; their Content
+parts include a Portal internally.
 
 ```tsx
 import { Button, Modal } from 'moraine'
@@ -68,7 +72,8 @@ export function Example() {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content ariaLabel="Details">
-          Modal content<Modal.Close as={Button}>Close</Modal.Close>
+          Modal content
+          <Modal.Close as={Button}>Close</Modal.Close>
         </Modal.Content>
       </Modal.Portal>
     </Modal>
@@ -83,16 +88,30 @@ when open and keeps them present through exit animations. Without it, both parts
 and your application controls their mounting. One root owns one active Content; use a nested
 Modal root for a second surface.
 
-<Preview path="./modal-composition" />
+```tsx
+<Modal>
+  <Modal.Trigger as={Button}>Open</Modal.Trigger>
+  <Modal.Portal>
+    <Modal.Overlay />
+    <Modal.Content ariaLabel="Custom surface">
+      {(context) => (
+        <div>
+          Custom surface
+          <Button onClick={context.close}>Close</Button>
+        </div>
+      )}
+    </Modal.Content>
+  </Modal.Portal>
+</Modal>
+```
 
-Use [Dialog](/components/dialog) or [Sheet](/components/sheet) for structured title, description,
-body, and footer regions. Their Content parts include a Portal internally.
+`Modal.Content` children may be JSX or a function that receives close helpers. Provide an accessible
+name with `ariaLabel` or `ariaLabelledBy` on `Modal.Content`.
 
 ### Focus and outside interaction
 
 `modal` defaults to `true`: focus stays inside the surface, outside content is hidden from assistive
-technology, and native outside pointer actions are prevented. Provide an accessible name with
-`ariaLabel` or `ariaLabelledBy` on `Modal.Content`.
+technology, and native outside pointer actions are prevented.
 
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
 closure according to `dismissible`. Scroll locking is independent: `preventScroll` defaults to
@@ -108,9 +127,19 @@ Set root `portalMount` for a chosen container, including controlled surfaces wit
 
 ### State and exit lifecycle
 
-Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay and content exit animations to finish. An empty `class` does not disable built-in styles.
+Use `open` with `onOpenChange` for controlled visibility. `onExitComplete` waits for the overlay
+and content exit animations to finish. An empty `class` does not disable built-in styles.
 
-<Preview path="./modal-lifecycle" />
+```tsx
+<Modal open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>
+  <Modal.Portal>
+    <Modal.Overlay />
+    <Modal.Content ariaLabel="Lifecycle">
+      {(context) => <Button onClick={context.close}>Dismiss</Button>}
+    </Modal.Content>
+  </Modal.Portal>
+</Modal>
+```
 
 ### Keyboard interaction
 
@@ -150,18 +179,41 @@ Portal owns the mounted Overlay and Content subtree and preserves it through exi
 
 ## Examples
 
-### Controlled state
+### Compose a custom surface
+
+Mount overlay and content in one Portal. Content children can receive `close` from the render
+callback.
+
+<Preview path="./modal-composition" />
+
+### Open from parent state
+
+A page button owns `open` through `onOpenChange`. Closing from inside still reports back to the
+parent.
 
 <Preview path="./controlled" />
 
-### Without backdrop
+### Omit the backdrop
+
+Leave `Modal.Overlay` out when the host surface already provides context.
 
 <Preview path="./no-overlay" />
 
-### Draggable title
+### Drag a window by its title bar
+
+Compose a custom header that moves the surface. Reset the offset when the modal closes.
 
 <Preview path="./draggable" />
 
-### Exit lifecycle
+### Track exit motion from a managed modal
+
+Own visibility and wait until overlay and content finish their exit animations before treating
+the modal as gone.
+
+<Preview path="./modal-lifecycle" />
+
+### Count completed exits
+
+Open from a page button and increment a counter after exit motion completes.
 
 <Preview path="./exit-lifecycle" />

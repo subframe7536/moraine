@@ -56,7 +56,10 @@ import { Button, Tooltip } from '@src'
 
 ## Usage
 
-Use Tooltip for supplemental information on hover or focus. The trigger must still have its own accessible name when the control needs one.
+Use Tooltip for supplemental information on hover or focus. Use [Popover](/components/popover) when
+the content is interactive. Use [Dialog](/components/dialog) or [Sheet](/components/sheet) for a
+task that should take over the page. Do not use tooltip text as the sole accessible name of a
+control; the trigger must still have its own name when it needs one.
 
 ```tsx
 import { Button, Tooltip } from 'moraine'
@@ -73,19 +76,35 @@ export function Example() {
 
 ### Supplemental information
 
-Use tooltips for non-interactive hints that supplement an already labeled trigger. Do not use tooltip text as the sole accessible name of an icon-only control.
+Use tooltips for non-interactive hints that supplement an already labeled trigger.
 
-<Preview path="./hints-usage" />
+```tsx
+<Tooltip>
+  <Tooltip.Trigger as={Button}>Deploy History</Tooltip.Trigger>
+  <Tooltip.Content text="View project deployment history and logs" />
+</Tooltip>
+```
 
 ### Triggering and shortcuts
 
-Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`, or `invert`. When omitted, keycaps follow the content's `invert` setting.
+Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint;
+it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`,
+or `invert`. When omitted, keycaps follow the content's `invert` setting.
 
-<Preview path="./shortcuts-usage" />
+```tsx
+<Tooltip>
+  <Tooltip.Trigger as={Button} leading="i-lucide:save">
+    Save
+  </Tooltip.Trigger>
+  <Tooltip.Content text="Save changes" kbds={['command', 's']} kbdVariant="outline" />
+</Tooltip>
+```
 
 ### Keyboard interaction
 
-Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the tooltip content.
+Focusing a focusable trigger can display the tooltip. Escape dismisses an open tooltip according to
+the shared tooltip overlay behavior; focus remains on the trigger rather than moving into the
+tooltip content.
 
 ## Anatomy
 
@@ -122,6 +141,21 @@ Content is portaled inside an internal positioning wrapper. String content uses 
 
 ## Examples
 
-### Keyboard shortcuts
+### Explain a labeled command
+
+Hover or focus Deploy History for a longer description. The button already has a visible name.
+
+<Preview path="./hints-usage" />
+
+### Show a save shortcut
+
+`kbds` is display-only. Pair it with a labeled Save control.
+
+<Preview path="./shortcuts-usage" />
+
+### Label editor toolbar shortcuts
+
+Keep icon-only controls named with `aria-label`. Each tooltip repeats the command and shows its
+shortcut.
 
 <Preview path="./keyboard-shortcuts" />
