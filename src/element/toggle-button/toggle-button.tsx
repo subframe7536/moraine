@@ -34,6 +34,7 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element {
   const [pressed, setPressed] = createControllableValue({
     value: () => local.pressed,
     defaultValue: () => local.defaultPressed ?? false,
+    onChange: (next) => local.onPressedChange?.(next),
   })
   const child = resolveChildren(() => local.children as JSX.Element)
   const buttonChildren = createMemo(() => {
@@ -55,9 +56,7 @@ export function ToggleButton(props: ToggleButtonProps): JSX.Element {
   function handleClick(event: MouseEvent & { currentTarget: HTMLButtonElement }): unknown {
     const { defaultPrevented, result } = callHandler(event, local.onClick)
     if (!defaultPrevented) {
-      const next = !pressed()
-      setPressed(next)
-      local.onPressedChange?.(next)
+      setPressed(!pressed())
     }
     return result
   }

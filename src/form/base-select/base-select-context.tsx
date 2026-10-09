@@ -47,13 +47,14 @@ export function createSelectState<T extends BaseSelectT.Item>(
     normalizeSelection(values, props.multiple === true)
   const id = createId(() => props.id, 'select')
   const initial = untrack(() => normalize(props.defaultValue ?? []))
-  const field = useFormField(
-    () => props,
-    () => ({
-      defaultId: id(),
-      initialValue: selectionToFormValue(initial, props.multiple === true),
-    }),
-  )
+  const field = useFormField(props, {
+    get defaultId() {
+      return id()
+    },
+    get initialValue() {
+      return selectionToFormValue(initial, props.multiple === true)
+    },
+  })
   const items = () => props.items ?? []
   const itemByValue = createMemo(() => {
     const byValue = new Map<T['value'], T>()
@@ -98,6 +99,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
   const [open, setOpenValue] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
+    onChange: (next) => props.onOpenChange?.(next),
   })
   const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
@@ -126,14 +128,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
   let formInput: HTMLInputElement | undefined
 
   function setOpen(next: boolean) {
-    if (next && field.disabled()) {
-      return
+    if (!next || !field.disabled()) {
+      setOpenValue(next)
     }
-    if (next === open()) {
-      return
-    }
-    setOpenValue(next)
-    props.onOpenChange?.(next)
   }
   function change(next: Value) {
     if (locked()) {

@@ -79,30 +79,23 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   )
 
   const items = createMemo(() => merged.items ?? [])
-  const orientation = createMemo(() => merged.orientation)
-  const variant = createMemo(() => resolved.variants.variant)
-  const indicator = createMemo(() => resolved.variants.indicator)
 
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const groupId = createId(() => merged.id, 'radio-group')
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: readOnly(),
-    }),
-    () => ({
-      bind: false,
-      focus: true,
-      defaultId: groupId(),
-      initialValue: initialDefaultValue,
-    }),
-  )
+  const fieldProps = mergeProps(merged, {
+    get readOnly() {
+      return Boolean(merged.readOnly)
+    },
+  })
+  const field = useFormField(fieldProps, {
+    bind: false,
+    focus: true,
+    get defaultId() {
+      return groupId()
+    },
+    initialValue: initialDefaultValue,
+  })
 
   const [selectedValue, setSelectedValue, resetSelectedValue] = useFormValue<string>({
     value: () => merged.value,
@@ -116,7 +109,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const dataAttrs = radioGroupDataAttributes.root({
     invalid: field.invalid,
     disabled: field.disabled,
-    readonly: readOnly,
+    readonly: field.readOnly,
     required: field.required,
   })
 
@@ -174,8 +167,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       field.setControlRef(itemId ? inputRefs.get(itemId) : undefined)
     }),
   )
-  const groupAriaAttrs = createMemo(() => field.ariaAttrs())
-
   function isSelected(item: NormalizedRadioGroupItem): boolean {
     return item.id === selectedItemId()
   }
@@ -190,7 +181,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   }
 
   function onChange(nextValue: string): void {
-    if (field.disabled() || readOnly() || nextValue === selectedValue()) {
+    if (field.disabled() || field.readOnly() || nextValue === selectedValue()) {
       syncInputCheckedState()
       return
     }
@@ -218,7 +209,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   function onItemKeyDown(event: KeyboardEvent, item: NormalizedRadioGroupItem): void {
     if (
       field.disabled() ||
-      readOnly() ||
+      field.readOnly() ||
       item.disabled ||
       event.altKey ||
       event.ctrlKey ||
@@ -240,7 +231,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
-    onNavigationKeyDown(event, item.id, orientation())
+    onNavigationKeyDown(event, item.id, merged.orientation)
   }
 
   function onItemKeyUp(event: KeyboardEvent, item: NormalizedRadioGroupItem): void {
@@ -252,7 +243,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     pressedSpaceItemId = undefined
     if (
       field.disabled() ||
-      readOnly() ||
+      field.readOnly() ||
       item.disabled ||
       event.altKey ||
       event.ctrlKey ||
@@ -318,10 +309,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       }}
       id={groupId()}
       role="radiogroup"
-      aria-orientation={orientation()}
+      aria-orientation={merged.orientation}
       data-slot="radio-group"
       {...dataAttrs}
-      {...groupAriaAttrs()}
+      {...field.ariaAttrs()}
       {...rest}
       {...resolved.styles.root}
       onFocusIn={onGroupFocusIn}
@@ -346,7 +337,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
           return (
             <Dynamic
-              component={variant() === 'list' ? 'div' : 'label'}
+              component={resolved.variants.variant === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="radio-group-item"
               {...radioGroupDataAttributes.item({
@@ -367,13 +358,13 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   checked={selected()}
                   required={field.required()}
                   disabled={disabled()}
-                  readonly={readOnly()}
+                  readonly={field.readOnly()}
                   aria-required={field.required() || undefined}
                   aria-disabled={disabled() || undefined}
-                  aria-readonly={readOnly() || undefined}
+                  aria-readonly={field.readOnly() || undefined}
                   aria-labelledby={item.label ? item.labelId : undefined}
                   aria-describedby={
-                    [item.descriptionId, groupAriaAttrs()['aria-describedby']]
+                    [item.descriptionId, field.ariaAttrs()['aria-describedby']]
                       .filter(Boolean)
                       .join(' ') || undefined
                   }
@@ -400,14 +391,14 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   data-slot="radio-group-control"
                   class={cn(
                     resolved.styles.control.class,
-                    indicator() === 'hidden' && VISUALLY_HIDDEN_CLASS,
+                    resolved.variants.indicator === 'hidden' && VISUALLY_HIDDEN_CLASS,
                   )}
                   style={resolved.styles.control.style}
                   {...radioGroupDataAttributes.control({
                     checked: selected,
                     invalid: field.invalid,
                     disabled,
-                    readonly: readOnly,
+                    readonly: field.readOnly,
                     required: field.required,
                   })}
                 >
@@ -425,7 +416,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 <div data-slot="radio-group-wrapper" {...resolved.styles.wrapper}>
                   <Show when={item.label}>
                     <Show
-                      when={variant() === 'list'}
+                      when={resolved.variants.variant === 'list'}
                       fallback={
                         <p
                           id={item.labelId}

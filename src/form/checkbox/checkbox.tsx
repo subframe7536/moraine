@@ -70,30 +70,28 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = createId(() => merged.id, 'checkbox')
-
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: readOnly(),
-    }),
-    () => ({
-      bind: merged.fieldBind,
-      defaultId: generatedId(),
-      initialValue:
-        merged.fieldBind === false
-          ? undefined
-          : (normalizeFieldValue(
-              merged.checked !== undefined ? merged.checked : merged.defaultChecked,
-            ) ?? merged.falseValue),
-    }),
-  )
+  const fieldProps = mergeProps(merged, {
+    get readOnly() {
+      return Boolean(merged.readOnly)
+    },
+  })
+  const field = useFormField(fieldProps, {
+    get bind() {
+      return merged.fieldBind
+    },
+    get defaultId() {
+      return generatedId()
+    },
+    get initialValue() {
+      return merged.fieldBind === false
+        ? undefined
+        : (normalizeFieldValue(
+            merged.checked !== undefined ? merged.checked : merged.defaultChecked,
+          ) ?? merged.falseValue)
+    },
+  })
 
   const defaultCheckedState = createMemo<boolean | 'indeterminate'>(() => {
     if (merged.defaultChecked === undefined) {
@@ -257,7 +255,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   )
 
   function toggle(): void {
-    if (field.disabled() || readOnly()) {
+    if (field.disabled() || field.readOnly()) {
       return
     }
 
@@ -346,7 +344,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         unchecked: () => !resolvedChecked() && !indeterminate(),
         indeterminate,
         disabled: field.disabled,
-        readonly: readOnly,
+        readonly: field.readOnly,
         required: field.required,
         invalid: field.invalid,
       })}
@@ -366,7 +364,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           checked={resolvedChecked()}
           required={field.required()}
           disabled={field.disabled()}
-          readonly={readOnly()}
+          readonly={field.readOnly()}
           tabIndex={-1}
           aria-hidden="true"
           class={PEER_CLASS}
@@ -374,7 +372,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onChange={(event) => {
             event.stopPropagation()
 
-            if (field.disabled() || readOnly()) {
+            if (field.disabled() || field.readOnly()) {
               event.currentTarget.checked = resolvedChecked()
               event.currentTarget.indeterminate = indeterminate()
               return
@@ -410,7 +408,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             unchecked: () => !resolvedChecked() && !indeterminate(),
             disabled: field.disabled,
             indeterminate,
-            readonly: readOnly,
+            readonly: field.readOnly,
             required: field.required,
             invalid: field.invalid,
           })}

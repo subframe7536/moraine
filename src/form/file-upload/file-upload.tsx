@@ -325,18 +325,32 @@ export function FileUpload<Multiple extends boolean = false>(
 
   const generatedId = createId(() => merged.id, 'file-upload')
   const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: resolved.variants.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: merged.readOnly,
-    }),
-    () => ({
-      defaultId: generatedId(),
+    {
+      get id() {
+        return merged.id
+      },
+      get name() {
+        return merged.name
+      },
+      get size() {
+        return resolved.variants.size
+      },
+      get disabled() {
+        return merged.disabled
+      },
+      get required() {
+        return local.required
+      },
+      get readOnly() {
+        return merged.readOnly
+      },
+    },
+    {
+      get defaultId() {
+        return generatedId()
+      },
       initialValue: initialDefaultValue,
-    }),
+    },
   )
 
   const readOnly = field.readOnly

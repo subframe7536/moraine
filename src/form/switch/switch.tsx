@@ -73,26 +73,28 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
   const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = createId(() => merged.id, 'switch')
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled || merged.loading,
-      required: local.required,
-      readOnly: readOnly(),
-    }),
-    () => ({
-      defaultId: generatedId(),
-      initialValue:
+  const fieldProps = mergeProps(merged, {
+    get disabled() {
+      return merged.disabled || merged.loading
+    },
+    get readOnly() {
+      return Boolean(merged.readOnly)
+    },
+  })
+  const field = useFormField(fieldProps, {
+    get defaultId() {
+      return generatedId()
+    },
+    get initialValue() {
+      return (
         normalizeFieldValue(
           merged.checked !== undefined ? merged.checked : merged.defaultChecked,
-        ) ?? merged.falseValue,
-    }),
-  )
+        ) ?? merged.falseValue
+      )
+    },
+  })
 
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => `${field.id()}-description`)
@@ -196,7 +198,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
 
   function toggle(): void {
-    if (field.disabled() || readOnly()) {
+    if (field.disabled() || field.readOnly()) {
       return
     }
 
@@ -272,7 +274,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         checked,
         unchecked: () => !checked(),
         disabled: field.disabled,
-        readonly: readOnly,
+        readonly: field.readOnly,
         required: field.required,
         invalid: field.invalid,
         loading: () => merged.loading,
@@ -292,7 +294,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         checked={checked()}
         required={field.required()}
         disabled={field.disabled()}
-        readonly={readOnly()}
+        readonly={field.readOnly()}
         tabIndex={-1}
         aria-hidden="true"
         class={PEER_CLASS}
@@ -300,7 +302,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         onChange={(event) => {
           event.stopPropagation()
 
-          if (field.disabled() || readOnly()) {
+          if (field.disabled() || field.readOnly()) {
             event.currentTarget.checked = checked()
             return
           }
@@ -327,7 +329,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           checked,
           unchecked: () => !checked(),
           disabled: field.disabled,
-          readonly: readOnly,
+          readonly: field.readOnly,
           invalid: field.invalid,
         })}
       >

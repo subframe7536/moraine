@@ -79,6 +79,7 @@ export function createNavigationMenuState(
   const [value, setValue] = createControllableValue<string | null>({
     value: () => options.value,
     defaultValue: () => options.defaultValue ?? null,
+    onChange: (next) => options.onValueChange?.(next),
   })
   const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([])
   const [rootElement, setRootElement] = createSignal<HTMLElement>()
@@ -131,11 +132,7 @@ export function createNavigationMenuState(
   function changeValue(next: string | null): void {
     cancelTimers()
     setFocusRequest(undefined)
-    if (next === value()) {
-      return
-    }
     setValue(next)
-    options.onValueChange?.(next)
   }
 
   function close(restoreFocus = false): void {

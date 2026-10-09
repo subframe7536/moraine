@@ -63,6 +63,7 @@ export function createContextMenu(props: ContextMenuProps) {
   const [open, setOpen] = createControllableValue<boolean>({
     value: () => merged.open,
     defaultValue: () => Boolean(merged.defaultOpen),
+    onChange: (nextOpen) => merged.onOpenChange?.(nextOpen),
   })
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
@@ -95,7 +96,6 @@ export function createContextMenu(props: ContextMenuProps) {
     }
 
     setOpen(nextOpen)
-    merged.onOpenChange?.(nextOpen)
   }
 
   const openFromPoint = (

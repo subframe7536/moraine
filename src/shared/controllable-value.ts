@@ -4,6 +4,7 @@ import { createMemo, createSignal, untrack } from 'solid-js'
 export interface CreateControllableValueOptions<T extends {} | null> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
+  onChange?: (value: T) => void
 }
 
 type ControllableValueUpdate<T> = T | ((previous: T) => T)
@@ -25,11 +26,15 @@ export function createControllableValue<T extends {} | null>(
       const nextValue =
         typeof update === 'function' ? (update as (previous: T) => T)(currentValue) : update
 
-      if (Object.is(nextValue, currentValue) || controlled !== undefined) {
+      if (Object.is(nextValue, currentValue)) {
         return
       }
 
-      setUncontrolledValue(() => nextValue)
+      if (controlled === undefined) {
+        setUncontrolledValue(() => nextValue)
+      }
+
+      options.onChange?.(nextValue)
     })
   }
 
