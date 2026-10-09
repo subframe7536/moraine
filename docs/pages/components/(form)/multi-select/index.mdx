@@ -36,6 +36,8 @@ import { MultiSelect } from '@src'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'switch', prop: 'open', label: 'Open', defaultValue: true },
+    { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
     { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
     {
       kind: 'switch',
@@ -48,24 +50,43 @@ import { MultiSelect } from '@src'
 >
   {(props) => (
     <MultiSelect
-      items={[
-        {
-          label: 'Design',
-          description: 'Interface and visual design',
-          value: 'design',
-          icon: 'i-lucide:palette',
-        },
-        { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
-        { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
-        { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
-        { label: 'Research', value: 'research', icon: 'i-lucide:search' },
-      ]}
+      items={
+        props.empty
+          ? []
+          : [
+              {
+                type: 'group',
+                label: 'Product',
+                items: [
+                  {
+                    label: 'Design',
+                    description: 'Interface and visual design',
+                    value: 'design',
+                    icon: 'i-lucide:palette',
+                  },
+                  { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+                  { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+                ],
+              },
+              { type: 'separator' },
+              {
+                type: 'group',
+                label: 'Go-to-market',
+                items: [
+                  { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+                  { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+                ],
+              },
+            ]
+      }
       defaultValue={['design', 'dev']}
       leadingIcon="i-lucide:tags"
       allowClear
+      maxTagCount={1}
       placeholder="Select topics..."
       variant={props.variant}
       size={props.size}
+      open={props.open}
       search={props.search}
       openOnControlClick={props.openOnControlClick}
       disabled={props.disabled}
