@@ -12,30 +12,6 @@ search:
 
 import { Button, Dialog } from '@src'
 
-Use Dialog when an action or form needs focused attention with a labeled modal surface. The trigger and content share disclosure state through the root.
-
-## Basic usage
-
-```tsx
-import { Button, Dialog } from 'moraine'
-
-export function Example() {
-  return (
-    <Dialog>
-      <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
-      <Dialog.Content title="Settings">
-        <Dialog.Body>Preferences</Dialog.Body>
-        <Dialog.Footer>
-          <Dialog.Close as={Button}>Done</Dialog.Close>
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Preview dialog' },
@@ -75,56 +51,35 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Dialog.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Dialog.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Dialog.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Dialog.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Dialog.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Dialog.Description',
-                slot: 'description',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Dialog.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Dialog.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
-
 ## Usage
+
+Use Dialog for a labeled modal task with title, description, body, and footer. Use
+[Modal](/components/modal) when you compose backdrop and content yourself. Use
+[Sheet](/components/sheet) for a drawer from a viewport edge. Use [Popover](/components/popover)
+for anchored interactive content that should not take over the page. Use
+[Tooltip](/components/tooltip) for a brief non-interactive hint. Use
+[DropdownMenu](/components/dropdown-menu) or [ContextMenu](/components/context-menu) for an action
+list.
+
+The trigger and content share disclosure state through the root.
+
+```tsx
+import { Button, Dialog } from 'moraine'
+
+export function Example() {
+  return (
+    <Dialog>
+      <Dialog.Trigger as={Button}>Open</Dialog.Trigger>
+      <Dialog.Content title="Settings">
+        <Dialog.Body>Preferences</Dialog.Body>
+        <Dialog.Footer>
+          <Dialog.Close as={Button}>Done</Dialog.Close>
+        </Dialog.Footer>
+      </Dialog.Content>
+    </Dialog>
+  )
+}
+```
 
 ### Content composition
 
@@ -180,22 +135,54 @@ surfaces without a Trigger.
 
 ### Nested overlays
 
-Nested roots keep dismissal and focus restoration local to the active layer. Escape closes the topmost dialog or popover, then returns focus to its trigger inside the parent dialog.
+Nested roots keep dismissal and focus restoration local to the active layer. Escape closes the
+topmost dialog or popover, then returns focus to its trigger inside the parent dialog.
 
-<Preview path="./nested-overlays" />
+```tsx
+<Dialog>
+  <Dialog.Content title="Workspace settings">
+    <Popover>
+      <Popover.Trigger as={Button}>Help</Popover.Trigger>
+      <Popover.Content ariaLabel="Settings help">Workspace-only changes.</Popover.Content>
+    </Popover>
+    <Dialog>
+      <Dialog.Trigger as={Button}>Confirm</Dialog.Trigger>
+      <Dialog.Content title="Confirm changes">...</Dialog.Content>
+    </Dialog>
+  </Dialog.Content>
+</Dialog>
+```
 
 ### State and dismissal
 
-Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility. `dismissible={false}` blocks outside and Escape dismissal and calls `onClosePrevent`; provide a clear explicit close path in that case.
+Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility.
+`dismissible={false}` blocks outside and Escape dismissal and calls `onClosePrevent`. Provide a
+clear explicit close path in that case.
 
-<Preview path="./state-dismissal" />
+```tsx
+<Dialog open={open()} onOpenChange={setOpen} dismissible={false} onClosePrevent={onBlocked}>
+  <Dialog.Content title="Unsaved changes">
+    <Dialog.Footer>
+      <Button onClick={() => setOpen(false)}>Discard</Button>
+      <Button onClick={() => setOpen(false)}>Save</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog>
+```
 
 ### Structure and lifecycle
 
 Use root `scrollable` for long content or `fullscreen` for a full-viewport task. `onExitComplete`
 runs after the overlay and content finish their exit animations.
 
-<Preview path="./structure-lifecycle" />
+```tsx
+<Dialog scrollable>
+  <Dialog.Content title="Release notes">...</Dialog.Content>
+</Dialog>
+<Dialog fullscreen onExitComplete={() => setStatus('Exit animation completed')}>
+  <Dialog.Content title="Release notes">...</Dialog.Content>
+</Dialog>
+```
 
 ### Keyboard interaction
 
@@ -205,18 +192,93 @@ runs after the overlay and content finish their exit animations.
 | <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Dialog.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Dialog.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Dialog.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Dialog.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Dialog.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Dialog.Description',
+                slot: 'description',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Dialog.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Dialog.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
+
 ## Examples
 
-### Destructive confirmation
+### Delete a saved filter
 
-Keep the item visible until the user confirms the action. Cancel and backdrop dismissal leave it intact.
+Keep the filter visible until the user confirms. Cancel and backdrop dismissal leave it intact.
 
 <Preview path="./delete-confirmation" />
 
-### Scrollable and fullscreen content
+### Confirm workspace changes from settings
+
+Nest a confirmation dialog and a help popover inside a parent dialog. Escape closes the topmost
+layer and restores focus to its trigger.
+
+<Preview path="./nested-overlays" />
+
+### Save unsaved configuration
+
+Own visibility from the page. Toggle `dismissible` to block Escape and outside clicks;
+`onClosePrevent` counts blocked attempts until Save or Discard.
+
+<Preview path="./state-dismissal" />
+
+### Read long release notes
+
+Use `scrollable` so long content scrolls with the overlay, or `fullscreen` for a full-viewport
+task.
 
 <Preview path="./scrollable-fullscreen" />
 
-### Controlled lifecycle
+### Provision a cluster and wait for exit
+
+Open a provisioning dialog from its trigger. `onExitComplete` updates status after overlay and
+content finish their exit animations.
+
+<Preview path="./structure-lifecycle" />
+
+### Open a dialog from page state
+
+A page button owns `open`. The completed-exit count updates after exit motion finishes.
 
 <Preview path="./controlled-lifecycle" />

@@ -11,20 +11,6 @@ search:
 
 import { Breadcrumb } from '@src'
 
-Use Breadcrumb to show a resource’s place in a navigation hierarchy. The current page is represented as a non-link item.
-
-## Basic usage
-
-```tsx
-import { Breadcrumb } from 'moraine'
-
-export function Example() {
-  return <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
@@ -63,6 +49,50 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use Breadcrumb to show a resource’s place in a navigation hierarchy. Keep ancestor destinations as
+links. Represent the current page as a non-link item. Do not use Breadcrumb for in-page section
+switching; use [Tabs](/components/tabs) for peer panels.
+
+```tsx
+import { Breadcrumb } from 'moraine'
+
+export function Example() {
+  return <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Settings' }]} />
+}
+```
+
+### Items and current page
+
+Use `href` or `to` for navigable ancestors. The last item is the current page by default; set
+`active` to mark another item instead. The current page renders as a `span` with
+`aria-current="page"`. Disabled ancestors stay non-interactive and expose `aria-disabled="true"`.
+
+```tsx
+<Breadcrumb
+  items={[
+    { label: 'Home', href: '/' },
+    { label: 'Components', href: '/button' },
+    { label: 'Breadcrumb' },
+  ]}
+/>
+```
+
+```tsx
+<Breadcrumb
+  items={[
+    { label: 'Home', href: '/', icon: 'i-lucide:home' },
+    { label: 'Private workspace', href: '/workspace', disabled: true },
+    { label: 'Activity', active: true },
+    { label: 'Archived' },
+  ]}
+/>
+```
+
+`separator` accepts an icon name or a render function. `wrap` lets a long trail break onto extra
+lines in a narrow column.
+
 ## Anatomy
 
 <Anatomy
@@ -91,20 +121,22 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Items and current page
+### Trail to the current page
 
-Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. The current page is a non-link `span` with `aria-current="page"`. Explicitly disabled ancestors remain non-interactive and expose `aria-disabled="true"`.
+Link ancestors and leave the last item as the current page.
 
 <Preview path="./items-page" />
 
-## Examples
+### Locked ancestor with a custom separator
 
-### Custom separator and disabled item
+Keep a disabled private workspace in the trail. Replace the chevron with a slash.
 
 <Preview path="./custom-separator-disabled" />
 
-### Wrapping
+### Long trail in a narrow column
+
+Turn wrapping on so the trail can break. Turn it off to keep every item on one line.
 
 <Preview path="./wrapping" />

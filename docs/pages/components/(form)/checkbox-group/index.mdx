@@ -11,28 +11,6 @@ search:
 
 import { CheckboxGroup } from '@src'
 
-Use CheckboxGroup for several choices submitted as one array. Use individual [Checkbox](/components/checkbox) controls when the fields are independent.
-
-## Basic usage
-
-```tsx
-import { CheckboxGroup } from 'moraine'
-
-export function Example() {
-  return (
-    <CheckboxGroup
-      aria-label="Preferences"
-      items={[
-        { value: 'email', label: 'Email' },
-        { value: 'sms', label: 'SMS' },
-      ]}
-    />
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -85,6 +63,63 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use CheckboxGroup for several choices submitted as one array. Use individual
+[Checkbox](/components/checkbox) controls when the fields are independent. Use
+[RadioGroup](/components/radio-group) when only one option may be selected.
+
+```tsx
+import { CheckboxGroup } from 'moraine'
+
+export function Example() {
+  return (
+    <CheckboxGroup
+      aria-label="Preferences"
+      items={[
+        { value: 'email', label: 'Email' },
+        { value: 'sms', label: 'SMS' },
+      ]}
+    />
+  )
+}
+```
+
+### Selection model
+
+The group value is an array of item values. Pair `value` with `onValueChange` for controlled
+selection, or use a default value when the group owns its initial state. A disabled group disables
+all items; an item can also be disabled independently.
+
+```tsx
+<CheckboxGroup
+  legend="Notification preferences"
+  items={options}
+  value={selected()}
+  onValueChange={setSelected}
+/>
+```
+
+### Forms
+
+Give the group a `name` for native form submission, or place it inside `form.Field` from
+[createForm](/components/form) for schema binding. Standalone [Field](/components/field) supplies
+labels and messages without validation. Each checkbox keeps its own tab stop; the group does not
+use radio-style arrow navigation.
+
+```tsx
+<CheckboxGroup name="permissions" items={roleOptions} defaultValue={['read']} />
+```
+
+### Indicator
+
+`indicator` places the check mark at `start` or `end`, or hides it with `hidden`.
+
+```tsx
+<CheckboxGroup indicator="end" items={items} />
+<CheckboxGroup indicator="hidden" items={items} />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -130,33 +165,31 @@ export function Example() {
 
 The nested `<fieldset>` owns group semantics and the optional `<legend>` association.
 
-## Usage
+## Examples
 
-### Selection model
+### Choose notification channels
 
-The group value is an array of item values. Pair `value` with `onValueChange` for controlled selection, or use a default value when the group owns its initial state. A disabled group disables all items; an item can also be disabled independently.
+Keep the group value as an array of channel ids. Pair `value` with `onValueChange` when the page
+owns the selection.
 
 <Preview path="./selection-model" />
 
-### Forms
+### Assign locked team roles
 
-Give the group a `name` for native form submission, or place it inside `form.Field` from
-[createForm](/components/form) for schema binding. Standalone [Field](/components/field) supplies
-labels and messages without validation. Each checkbox keeps its own tab stop; the group does not
-use radio-style arrow navigation.
-
-<Preview path="./form-behavior" />
-
-## Examples
-
-### Controlled value and disabled items
+Disable an item that must stay selected. Controlled `value` still includes that item; the user
+cannot remove it.
 
 <Preview path="./controlled-disabled-items" />
 
-### Custom indicator
+### Require at least one permission
 
-<Preview path="./indicator" />
-
-### Form integration
+Bind the array to `form.Field` and reject an empty selection with a `minLength` schema rule.
 
 <Preview path="./form-integration" />
+
+### Put the check at the end of alert cards
+
+`indicator="end"` places the mark after the label on `variant="card"`. Use this when the card
+reads as a row with the control on the trailing edge.
+
+<Preview path="./indicator" />

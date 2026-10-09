@@ -12,30 +12,6 @@ search:
 
 import { Button, Field, Input, Sheet } from '@src'
 
-Use Sheet for a focused drawer from a viewport edge, such as mobile navigation or an inspector. It shares modal dismissal and focus behavior with its overlay family.
-
-## Basic usage
-
-```tsx
-import { Button, Sheet } from 'moraine'
-
-export function Example() {
-  return (
-    <Sheet>
-      <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
-      <Sheet.Content title="Details">
-        <Sheet.Body>Sheet content</Sheet.Body>
-        <Sheet.Footer>
-          <Sheet.Close as={Button}>Done</Sheet.Close>
-        </Sheet.Footer>
-      </Sheet.Content>
-    </Sheet>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -90,56 +66,32 @@ export function Example() {
   }}
 </Playground>
 
-## Anatomy
-
-<Anatomy
-  value={{
-    root: {
-      noDom: true,
-    },
-    children: [
-      {
-        part: 'Sheet.Trigger',
-        slot: 'trigger',
-      },
-      { part: 'Sheet.Close' },
-      { slot: 'overlay' },
-      {
-        part: 'Sheet.Content',
-        slot: 'content',
-        children: [
-          {
-            part: 'Sheet.Header',
-            slot: 'header',
-            children: [
-              {
-                part: 'Sheet.Title',
-                slot: 'title',
-              },
-              {
-                part: 'Sheet.Description',
-                slot: 'description',
-              },
-            ],
-          },
-          { slot: 'contentClose' },
-          {
-            part: 'Sheet.Body',
-            slot: 'body',
-          },
-          {
-            part: 'Sheet.Footer',
-            slot: 'footer',
-          },
-        ],
-      },
-    ],
-  }}
-/>
-
-Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
-
 ## Usage
+
+Use Sheet for a focused drawer from a viewport edge, such as mobile navigation or an inspector. Use
+[Dialog](/components/dialog) for a centered labeled task. Use [Modal](/components/modal) to compose
+backdrop and content yourself. Use [Popover](/components/popover) for anchored content that should
+not take over the page. Use [DropdownMenu](/components/dropdown-menu) for a compact action list.
+
+It shares modal dismissal and focus behavior with Dialog.
+
+```tsx
+import { Button, Sheet } from 'moraine'
+
+export function Example() {
+  return (
+    <Sheet>
+      <Sheet.Trigger as={Button}>Open</Sheet.Trigger>
+      <Sheet.Content title="Details">
+        <Sheet.Body>Sheet content</Sheet.Body>
+        <Sheet.Footer>
+          <Sheet.Close as={Button}>Done</Sheet.Close>
+        </Sheet.Footer>
+      </Sheet.Content>
+    </Sheet>
+  )
+}
+```
 
 ### Content composition
 
@@ -199,13 +151,40 @@ surfaces without a Trigger.
 Choose the viewport edge with root `side`, and use `inset` when the drawer needs space around it.
 Compose body and footer regions to keep the task content separate from its actions.
 
-<Preview path="./drawer-usage" />
+```tsx
+<Sheet side="right">
+  <Sheet.Trigger as={Button}>Open settings</Sheet.Trigger>
+  <Sheet.Content title="Settings" description="Fields in the body, actions in the footer.">
+    <Sheet.Body>...</Sheet.Body>
+    <Sheet.Footer>
+      <Sheet.Close as={Button}>Done</Sheet.Close>
+    </Sheet.Footer>
+  </Sheet.Content>
+</Sheet>
+```
 
 ### State and dismissal
 
-Use controlled open state when a layout owns visibility. Disable normal dismissal only when the sheet has a clear explicit close action; `onClosePrevent` receives blocked outside or Escape attempts.
+Use controlled open state when a layout owns visibility. Disable normal dismissal only when the
+sheet has a clear explicit close action; `onClosePrevent` receives blocked outside or Escape
+attempts.
 
-<Preview path="./state-usage" />
+```tsx
+<Sheet open={open()} onOpenChange={setOpen}>
+  <Sheet.Content title="Controlled sheet">
+    <Sheet.Footer>
+      <Button onClick={() => setOpen(false)}>Done</Button>
+    </Sheet.Footer>
+  </Sheet.Content>
+</Sheet>
+<Sheet dismissible={false} onClosePrevent={onBlocked}>
+  <Sheet.Content title="Persistent sheet">
+    <Sheet.Footer>
+      <Button onClick={() => setOpen(false)}>Close</Button>
+    </Sheet.Footer>
+  </Sheet.Content>
+</Sheet>
+```
 
 ### Keyboard interaction
 
@@ -215,12 +194,78 @@ Use controlled open state when a layout owns visibility. Disable normal dismissa
 | <kbd>Tab</kbd>         | Moves focus forward; modal sheets contain focus.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward; modal sheets contain focus. |
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Sheet.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Sheet.Close' },
+      { slot: 'overlay' },
+      {
+        part: 'Sheet.Content',
+        slot: 'content',
+        children: [
+          {
+            part: 'Sheet.Header',
+            slot: 'header',
+            children: [
+              {
+                part: 'Sheet.Title',
+                slot: 'title',
+              },
+              {
+                part: 'Sheet.Description',
+                slot: 'description',
+              },
+            ],
+          },
+          { slot: 'contentClose' },
+          {
+            part: 'Sheet.Body',
+            slot: 'body',
+          },
+          {
+            part: 'Sheet.Footer',
+            slot: 'footer',
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled. Overlay and Content are siblings by default; scrollable overlay mode nests Content inside Overlay.
+
 ## Examples
 
-### Dismiss control
+### Edit settings in a drawer
+
+Place fields in the body and Cancel/Done in the footer. The default side is `right`.
+
+<Preview path="./drawer-usage" />
+
+### Open a sheet from layout state
+
+A page button owns `open`. Closing from the footer reports back through `onOpenChange`.
+
+<Preview path="./state-usage" />
+
+### Keep a sheet open until an explicit close
+
+`dismissible={false}` blocks overlay click and Escape. `onClosePrevent` counts blocked attempts
+until the footer close action.
 
 <Preview path="./dismiss-control" />
 
-### Sides
+### Open navigation, a cart, or share from different edges
+
+Left holds navigation, right a cart with checkout, and bottom share actions.
 
 <Preview path="./sides" />

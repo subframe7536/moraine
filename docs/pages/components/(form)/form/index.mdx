@@ -26,50 +26,8 @@ import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup
 import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
-Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
-with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
-when you only need labels and messages.
-
-## Basic usage
-
-```tsx
-import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
-import * as v from 'valibot'
-
-const schema = v.object({
-  email: v.pipe(v.string(), v.email('Enter a valid email address')),
-  enabled: v.boolean(),
-})
-
-export function NotificationForm() {
-  const form = createForm({
-    schema,
-    initialInput: { email: '', enabled: false },
-  })
-
-  return (
-    <form.Form onSubmit={(output) => console.log(output)}>
-      <form.Field name="email" label="Email Address">
-        <InputGroup>
-          <InputGroup.Leading>
-            <Icon name="i-lucide:mail" />
-          </InputGroup.Leading>
-          <Input />
-        </InputGroup>
-      </form.Field>
-      <form.Field name="enabled" label="Enable Notifications">
-        <Switch />
-      </form.Field>
-      <Button type="submit">Save Changes</Button>
-    </form.Form>
-  )
-}
-```
-
-## Playground
-
 The slot controls below apply only to the `form.Form` root. To explore label, description,
-help, and error slots, use the [Field playground](/components/field#playground).
+help, and error slots, use the [Field playground](/components/field).
 
 <Playground
   controls={[
@@ -308,6 +266,124 @@ help, and error slots, use the [Field playground](/components/field#playground).
 
 </Playground>
 
+## Usage
+
+Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
+with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
+when you only need labels and messages.
+
+```tsx
+import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
+import * as v from 'valibot'
+
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Enter a valid email address')),
+  enabled: v.boolean(),
+})
+
+export function NotificationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+
+  return (
+    <form.Form onSubmit={(output) => console.log(output)}>
+      <form.Field name="email" label="Email Address">
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="i-lucide:mail" />
+          </InputGroup.Leading>
+          <Input />
+        </InputGroup>
+      </form.Field>
+      <form.Field name="enabled" label="Enable Notifications">
+        <Switch />
+      </form.Field>
+      <Button type="submit">Save Changes</Button>
+    </form.Form>
+  )
+}
+```
+
+### Submission
+
+`form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
+validated output. Native `action` and `method` attributes do not enable a browser navigation
+submit. The returned store also supports Formisch's public methods and helpers, including
+programmatic field focus.
+
+`form.Form` does not automatically disable child controls during submission. Read
+`form.isSubmitting` to derive button loading or disabled state while an async submit is in flight.
+
+```tsx
+<Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>
+  Save draft
+</Button>
+```
+
+### Root styling
+
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an
+individual form, or configure `form.base.root` in your Theme. Slot maps remain available on
+`form.Field`, but the bound Form component does not accept `classes` or `styles`.
+
+### Bound field outside the form root
+
+`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering
+`form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
+
+```tsx
+const form = createForm({ schema })
+
+<form.Field name="email" label="Email">
+  <Input />
+</form.Field>
+```
+
+### Field labels and messages
+
+Configure `label`, `hint`, `description`, `help`, and `required` on `<form.Field>`. Supported
+Moraine controls link helper descriptions and error messages through ARIA attributes.
+
+```tsx
+<form.Field
+  name="repoName"
+  label="Repository name"
+  description="Must be URL-friendly and unique within your organization."
+  required
+>
+  <Input placeholder="moraine-app" />
+</form.Field>
+```
+
+### Nested and array paths
+
+Target nested object and array fields with path tuples such as `['profile', 'email']`. Path types
+are validated and autocompleted from the schema.
+
+```tsx
+<form.Field name={['profile', 'email']} label="Profile Email">
+  <Input type="email" />
+</form.Field>
+```
+
+### Reset
+
+A `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+Handle `onReset` on `form.Form` when the page needs to react to that restore.
+
+```tsx
+<form.Form onReset={() => setResetCount((count) => count + 1)}>
+  <form.Field name="name" label="Name">
+    <Input />
+  </form.Field>
+  <Button type="reset" variant="outline">
+    Reset
+  </Button>
+</form.Form>
+```
+
 ## Anatomy
 
 <Anatomy
@@ -322,87 +398,69 @@ help, and error slots, use the [Field playground](/components/field#playground).
 
 Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
 
-## Usage
+## Examples
 
-### Basic form and submission
+### Save a username
 
-Define a schema and initial input, then render the bound components returned by `createForm`.
-`form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
-validated output. Native `action` and `method` attributes do not enable a browser navigation submit.
-
-The returned store also supports Formisch's public methods and helpers, including programmatic
-field focus.
+Define a schema and `initialInput`, then render the bound `form.Form` and `form.Field`. Submit
+receives the validated output.
 
 <Preview path="./basic-form" />
 
-### Root styling
+### Configure field copy
 
-`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Theme. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
-
-### Bound field outside the form root
-
-`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering `form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
-
-```tsx
-const form = createForm({ schema })
-
-<form.Field name="email" label="Email">
-  <Input />
-</form.Field>
-```
-
-### Field labels and messages
-
-Configure `label`, `hint`, `description`, `help`, and `required` indicators on `<form.Field>`. Supported Moraine controls automatically link with helper descriptions and error messages via deterministic ARIA attributes.
+Set `label`, `hint`, `description`, `help`, and `required` on `form.Field`. Pass `error` only when
+the page or server supplies a message outside the schema.
 
 <Preview path="./labels-messages" />
 
-### Horizontal layout
+### Lay out a settings panel
 
-Set `orientation="horizontal"` to switch from the default stacked layout to a side-by-side grid arrangement, common in settings panels and administrative consoles.
+Set `orientation="horizontal"` so the label sits beside the control.
 
 <Preview path="./horizontal-layout" />
 
-### Nested and array paths
+### Edit nested profile fields
 
-Target nested object and array fields by supplying path tuples (for example, `['profile', 'email']`) to the `name` prop. Path types are fully validated and autocompleted based on your schema.
+Pass a path tuple such as `['profile', 'email']` when the schema nests objects.
 
 <Preview path="./nested-path" />
 
-### Submission and loading state
+### Save a draft with loading
 
-`form.Form` does not automatically disable child controls during submission. Read `form.isSubmitting` to derive button loading spinners or disabled states while async form submissions are in flight.
+Read `form.isSubmitting` for the submit button. The form does not disable nested controls on its
+own.
 
 <Preview path="./async-submit" />
 
-### Reset and state restoration
+### Restore the initial snapshot
 
-Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+A `type="reset"` button restores `initialInput` and clears validation metadata.
 
 <Preview path="./reset" />
 
-## Examples
+### Validate name and email
 
-### Schema validation
-
-Formisch validates fields according to schema rules and updates errors in real-time or upon submission, linking error messages directly to the associated controls.
+Schema messages surface on the bound field after submit or configured input validation.
 
 <Preview path="./validation" />
 
-### Manual and server errors
+### Show a server error on a token
 
-Pass application or server-returned error strings directly to `<form.Field error={...}>` to force an error state or display external validation messages.
+Pass an application or server string to `form.Field error={...}` to force an error outside the
+schema.
 
 <Preview path="./manual-error" />
 
-### Render context
+### Change the control from field error
 
-Provide a render function as child to `<form.Field>` to access the current effective `{ error }` while the child control continues to inherit the bound field state.
+Give `form.Field` a child render function to read `{ error }` while the control still inherits the
+bound field state.
 
 <Preview path="./render-context" />
 
-### Mixed form controls
+### Create a project with mixed controls
 
-Compose multiple Moraine controls—such as `Input`, `Textarea`, `Select`, and `Checkbox`—within a single schema-validated form.
+Compose `Input`, `Textarea`, `Select`, and `Checkbox` in one schema-validated form.
 
 <Preview path="./mixed-fields" />

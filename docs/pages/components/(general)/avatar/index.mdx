@@ -11,20 +11,6 @@ search:
 
 import { Avatar } from '@src'
 
-Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for identity images; the fallback remains visible until the image loads.
-
-## Basic usage
-
-```tsx
-import { Avatar } from 'moraine'
-
-export function Example() {
-  return <Avatar src="/avatar.png" alt="Alex" fallback="A" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'text', label: 'Fallback text', defaultValue: 'SC' },
@@ -54,6 +40,47 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for
+identity images. Stack several people with [AvatarGroup](/components/avatar-group).
+
+```tsx
+import { Avatar } from 'moraine'
+
+export function Example() {
+  return <Avatar src="/avatar.png" alt="Alex" text="A" />
+}
+```
+
+### Image fallbacks
+
+`text` shows initials when the image is missing or fails. `fallback` is an icon name for a generic
+placeholder. Status is `loading`, `loaded`, or `error`. Avatar renders the real `<img src>` during
+server rendering and uses native load and error events to switch between image and fallback.
+
+```tsx
+<Avatar src="/alex.png" alt="Alex Rivera" text="AR" />
+<Avatar alt="Guest" fallback="i-lucide:user" />
+```
+
+### Loading status
+
+Use `onStatusChange` when surrounding UI must react to a source change. Pair it with a status label
+owned by the page.
+
+```tsx
+<Avatar src={src()} alt="Alex" onStatusChange={setStatus} />
+```
+
+### Badge
+
+`badge` accepts an icon name. `badgePosition` places it in a corner; the default is `bottom-right`.
+
+```tsx
+<Avatar alt="Alex" text="A" badge="i-lucide:check" badgePosition="bottom-right" />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -73,32 +100,28 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Image fallbacks
+### Recover a teammate when the photo is missing
 
-Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
-
-`Avatar` renders the real `<img src>` during server rendering and uses native image load and error events to switch between image and fallback. Status is `loading`, `loaded`, or `error`.
+Keep `alt` and initials so the row still identifies the person if `src` fails.
 
 <Preview path="./fallback-usage" />
 
-### Loading status
+### Track profile image load status
 
-Use image loading and error callbacks when surrounding UI needs to respond to a changed source status.
+Drive nearby copy from `onStatusChange` when the page needs to know whether the photo loaded.
 
 <Preview path="./loading-usage" />
 
-## Examples
+### Fall back after a broken photo URL
 
-### Fallback modes
-
-<Preview path="./fallback-modes" />
-
-### Loading status
+Handle `error` with an icon fallback when the stored URL 404s.
 
 <Preview path="./status-change" />
 
-### Badge and group composition
+### Mark verified and on-call teammates
+
+Use `badge` for a status glyph. Place it where it will not cover the face.
 
 <Preview path="./badge-positions" />

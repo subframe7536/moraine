@@ -11,22 +11,6 @@ search:
 
 import { Accordion } from '@src'
 
-Use Accordion for several related disclosures that share one open-item policy. For a single independent disclosure, use [Collapsible](/components/collapsible).
-
-## Basic usage
-
-```tsx
-import { Accordion } from 'moraine'
-
-export function Example() {
-  return (
-    <Accordion items={[{ value: 'shipping', label: 'Shipping', content: 'Ships in two days.' }]} />
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -70,6 +54,54 @@ export function Example() {
 
 </Playground>
 
+## Usage
+
+Use Accordion for several related disclosures that share one open-item policy. For a single independent
+disclosure, use [Collapsible](/components/collapsible).
+
+```tsx
+import { Accordion } from 'moraine'
+
+export function Example() {
+  return (
+    <Accordion items={[{ value: 'shipping', label: 'Shipping', content: 'Ships in two days.' }]} />
+  )
+}
+```
+
+### Open items
+
+`value`, `defaultValue`, and `onChange` always use an array of item values. Single mode opens at most
+one item. Set `multiple` to allow several. Pair `value` with `onChange` when the page owns the open
+set. `collapsible` controls whether the currently open item may close.
+
+```tsx
+const [open, setOpen] = createSignal<string[]>(['shipping'])
+
+<Accordion items={items} value={open()} onChange={setOpen} collapsible />
+<Accordion multiple defaultValue={['general', 'security']} items={items} />
+```
+
+### Content lifetime
+
+The content shell stays mounted so each trigger's `aria-controls` always points to a real element.
+`unmountOnHide` controls only the user content inside that shell. Keep content mounted when hidden
+fields must preserve local state.
+
+```tsx
+<Accordion unmountOnHide={false} defaultValue={['notes']} items={items} />
+```
+
+### Keyboard interaction
+
+| Key                                 | Description                                  |
+| ----------------------------------- | -------------------------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
+| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
+| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
+| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
+| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
+
 ## Anatomy
 
 <Anatomy
@@ -98,40 +130,36 @@ export function Example() {
   }}
 />
 
-## Usage
-
-### Open items
-
-Use an array of values for `value`, `defaultValue`, and `onChange` in both modes. Single mode opens at most one item; set `multiple` to allow several. In controlled usage, pair `value` with `onChange`. `collapsible` determines whether the currently open item may be closed.
-
-<Preview path="./open-items" />
-
-### Content lifetime
-
-The content shell stays mounted so each trigger's `aria-controls` always points to a real element. `unmountOnHide` controls only the user content inside that shell. Choose based on whether hidden controls need to preserve local state.
-
-<Preview path="./content-lifetime" />
-
-### Keyboard interaction
-
-| Key                                 | Description                                  |
-| ----------------------------------- | -------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Toggles the focused trigger when enabled.    |
-| <kbd>ArrowDown</kbd>                | Moves focus to the next enabled trigger.     |
-| <kbd>ArrowUp</kbd>                  | Moves focus to the previous enabled trigger. |
-| <kbd>Home</kbd>                     | Moves focus to the first enabled trigger.    |
-| <kbd>End</kbd>                      | Moves focus to the last enabled trigger.     |
-
 ## Examples
 
-### Single item
+### Answer a workspace FAQ
+
+Keep one section open at a time. Read `value` when surrounding copy needs to name the active topic.
 
 <Preview path="./single" />
 
-### Multiple items
+### Configure several workspace sections
+
+Set `multiple` when operators need billing, security, and general settings open together.
 
 <Preview path="./multiple" />
 
-### Disabled and custom content
+### Complete a setup checklist with a locked step
+
+Use item `disabled` for sections the current plan cannot open. Put lists or callouts in `content`
+when the answer is more than a paragraph.
 
 <Preview path="./disabled-custom-content" />
+
+### Keep draft notes while a section closes
+
+Set `unmountOnHide={false}` so inputs inside a panel keep their values across toggles.
+
+<Preview path="./content-lifetime" />
+
+### Drive the open FAQ from page state
+
+Pair `value` with `onChange`. The array always holds item values, even in single mode. Surrounding
+copy can read the same signal to name the active topic.
+
+<Preview path="./open-items" />

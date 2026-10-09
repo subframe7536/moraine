@@ -7,10 +7,10 @@ const SETTINGS_TABS: TabsT.Item[] = [
     value: 'general',
     icon: 'i-lucide:sliders',
     content: (
-      <div class="p-3 b-1 b-border rounded-xl bg-card/40 space-y-2">
-        <h4 class="text-sm font-semibold">General Preferences</h4>
+      <div class="p-3 space-y-1">
+        <h4 class="text-sm font-semibold">Workspace defaults</h4>
         <p class="text-xs text-muted-foreground">
-          Automatic activation triggers immediately on arrow navigation.
+          Name, timezone, and default branch. Arrow keys move focus; Enter or Space opens the panel.
         </p>
       </div>
     ),
@@ -20,10 +20,11 @@ const SETTINGS_TABS: TabsT.Item[] = [
     value: 'deployments',
     icon: 'i-lucide:rocket',
     content: (
-      <div class="p-3 b-1 b-border rounded-xl bg-card/40 space-y-2">
-        <h4 class="text-sm font-semibold">Deployment Settings</h4>
+      <div class="p-3 space-y-1">
+        <h4 class="text-sm font-semibold">Deployment gates</h4>
         <p class="text-xs text-muted-foreground">
-          Manual activation requires pressing Enter or Space to commit selection.
+          Require reviews before production. Manual activation keeps the previous panel visible
+          until you confirm.
         </p>
       </div>
     ),
@@ -33,8 +34,8 @@ const SETTINGS_TABS: TabsT.Item[] = [
     value: 'notifications',
     icon: 'i-lucide:bell',
     content: (
-      <div class="p-3 b-1 b-border rounded-xl bg-card/40 space-y-2">
-        <h4 class="text-sm font-semibold">Alert Rules</h4>
+      <div class="p-3 space-y-1">
+        <h4 class="text-sm font-semibold">Alert rules</h4>
         <p class="text-xs text-muted-foreground">Configure webhook dispatch channels.</p>
       </div>
     ),
@@ -43,19 +44,8 @@ const SETTINGS_TABS: TabsT.Item[] = [
 
 export function ActivationMode() {
   return (
-    <div class="gap-6 grid max-w-2xl sm:grid-cols-2">
-      <div class="space-y-2">
-        <span class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
-          Automatic Activation
-        </span>
-        <Tabs items={SETTINGS_TABS} activationMode="automatic" defaultValue="general" />
-      </div>
-      <div class="space-y-2">
-        <span class="text-xs text-muted-foreground tracking-wider font-semibold uppercase">
-          Manual Activation (Enter / Space)
-        </span>
-        <Tabs items={SETTINGS_TABS} activationMode="manual" defaultValue="general" />
-      </div>
+    <div class="max-w-md w-full">
+      <Tabs items={SETTINGS_TABS} activationMode="manual" defaultValue="general" />
     </div>
   )
 }

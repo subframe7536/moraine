@@ -34,10 +34,13 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
     <Show when={model()}>
       {(reference) => (
         <>
+          <HeadingWithAnchor id="api-reference" level={2}>
+            API Reference
+          </HeadingWithAnchor>
           <Show when={reference().attributes}>
             {(attributes) => <AttributesSection attributes={attributes()} />}
           </Show>
-          <HeadingWithAnchor id="api-reference" level={2}>
+          <HeadingWithAnchor id="api-props" level={3}>
             Props
           </HeadingWithAnchor>
 
@@ -59,7 +62,7 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
             <For each={reference().parts}>
               {(part) => (
                 <section>
-                  <HeadingWithAnchor id={part.id} level={3}>
+                  <HeadingWithAnchor id={part.id} level={4}>
                     {part.shortHeading}
                   </HeadingWithAnchor>
                   <PartMetadata part={part} />

@@ -12,7 +12,78 @@ sidebar:
 ---
 
 import { BaseSelect, Button } from '@src'
-import { For } from 'solid-js'
+import { For, Show } from 'solid-js'
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
+    { kind: 'switch', prop: 'multiple', label: 'Multiple', defaultValue: false },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const GROUPS = [
+      {
+        label: 'Client frameworks',
+        items: [
+          { value: 'solid', label: 'Solid' },
+          { value: 'react', label: 'React' },
+        ],
+      },
+      {
+        label: 'Compiler-based frameworks',
+        items: [
+          { value: 'svelte', label: 'Svelte' },
+          { value: 'astro', label: 'Astro' },
+        ],
+      },
+    ]
+    const ITEMS = GROUPS.flatMap((group) => group.items)
+    return (
+      <BaseSelect
+        items={props.empty ? [] : ITEMS}
+        multiple={props.multiple}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+        open={props.open}
+        defaultValue={['solid']}
+      >
+        <BaseSelect.Control>
+          <BaseSelect.Trigger as={Button} variant="outline" class="min-w-52 justify-between">
+            {(state) =>
+              state.value.length ? `${state.value.length} selected` : 'Select a framework…'
+            }
+          </BaseSelect.Trigger>
+        </BaseSelect.Control>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox>
+            <Show when={!props.empty}>
+              <For each={GROUPS}>
+                {(group, index) => (
+                  <>
+                    <Show when={index() > 0}>
+                      <BaseSelect.Separator />
+                    </Show>
+                    <BaseSelect.Group>
+                      <BaseSelect.GroupLabel>{group.label}</BaseSelect.GroupLabel>
+                      <For each={group.items}>
+                        {(item) => <BaseSelect.Item item={item}>{item.label}</BaseSelect.Item>}
+                      </For>
+                    </BaseSelect.Group>
+                  </>
+                )}
+              </For>
+            </Show>
+          </BaseSelect.Listbox>
+          <BaseSelect.Empty>No frameworks found.</BaseSelect.Empty>
+        </BaseSelect.Content>
+      </BaseSelect>
+    )
+  }}
+</Playground>
+
+## Usage
 
 Use BaseSelect to build a custom selection control from a trigger and listbox parts. It manages
 selected values, open state, keyboard navigation, and native form values. Your application owns
@@ -20,8 +91,6 @@ filtering, query text, grouping, and item creation.
 
 For a ready-made field, start with [Select](/components/select), [Combobox](/components/combobox),
 or [MultiSelect](/components/multi-select).
-
-## Basic usage
 
 ```tsx
 import { BaseSelect } from 'moraine'
@@ -42,46 +111,47 @@ export function Example() {
 }
 ```
 
-## Playground
+### Control and focus ownership
 
-<Playground
-  controls={[
-    { kind: 'switch', prop: 'multiple', label: 'Multiple', defaultValue: false },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const ITEMS = [
-      { value: 'solid', label: 'Solid' },
-      { value: 'react', label: 'React' },
-      { value: 'vue', label: 'Vue' },
-    ]
-    return (
-      <BaseSelect
-        items={ITEMS}
-        multiple={props.multiple}
-        disabled={props.disabled}
-        readOnly={props.readOnly}
-      >
-        <BaseSelect.Control>
-          <BaseSelect.Trigger as={Button} variant="outline" class="min-w-52 justify-between">
-            {(state) =>
-              state.value.length ? `${state.value.length} selected` : 'Select a framework…'
-            }
-          </BaseSelect.Trigger>
-        </BaseSelect.Control>
-        <BaseSelect.Content>
-          <BaseSelect.Listbox>
-            <For each={ITEMS}>
-              {(item) => <BaseSelect.Item item={item}>{item.label}</BaseSelect.Item>}
-            </For>
-          </BaseSelect.Listbox>
-        </BaseSelect.Content>
-      </BaseSelect>
-    )
-  }}
-</Playground>
+Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
+own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
+select-like focus owner and activator. If Control is omitted, Content falls back to the registered
+focus owner for positioning.
+
+For an editable composition, register `focusOwner` on the physical input. The input helper never
+becomes the floating anchor. The caller owns the input, canonical source, filtering, and query
+cleanup. No `BaseSelect.Trigger` is required in that pattern.
+
+### Item fields
+
+`BaseSelect.Item` accepts collection item data via the `item` prop: `<BaseSelect.Item item={item} />`.
+Ordinary component props are DOM/rendering props for the rendered `<div>`. Custom item fields are
+available through render state: `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`,
+and arbitrary item fields never leak into rendered DOM attributes.
+
+### Filtered collections
+
+By default, `<BaseSelect items={items}>` uses `items` as both the canonical data source and the
+active navigation collection.
+
+For custom filtered compositions (such as searchable controls), provide `getItemByValue` alongside
+a filtered `items` view:
+
+```tsx
+<BaseSelect items={filteredItems()} getItemByValue={(value) => allItemsByValue.get(value)}>
+  {/* ... */}
+</BaseSelect>
+```
+
+The filtered `items` array controls which options users can navigate. `getItemByValue` looks up
+selected items in the full collection, so labels, disabled state, and form values remain available
+when an item is filtered out.
+
+### Styling
+
+BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
+and direct `class` or `style` on the part that renders the element. See [Customization](/docs/customization)
+and [Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
 
 ## Anatomy
 
@@ -150,64 +220,32 @@ export function Example() {
 
 Control is an optional layout container and floating anchor; without it, Content uses the registered focus owner as its anchor.
 
-## Usage
+## Examples
 
-### Control and focus ownership
+### Pick a grouped framework
 
-Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
-own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
-select-like focus owner and activator. If Control is omitted, Content falls back to the registered
-focus owner for positioning.
-
-### Standard composition
+Compose groups, labels, and item render state when Select's built-in collection is not enough.
+Keep selection labels on the trigger from the full collection.
 
 <Preview path="./composition" />
 
-### Custom searchable composition
+### Search a custom listbox
+
+Own the query input and filtered `items`. Pass `getItemByValue` so a selected option still
+resolves after it leaves the filtered view.
 
 <Preview path="./searchable" />
 
-The input helper registers `focusOwner`; it never becomes the floating anchor. The caller owns the
-physical input, canonical source, filtering, and query cleanup. No BaseSelect.Trigger is required
-for this editable composition.
+### Select multiple frameworks
 
-### Item fields
-
-`BaseSelect.Item` accepts collection item data via the `item` prop: `<BaseSelect.Item item={item} />`.
-Ordinary component props are DOM/rendering props for the rendered `<div>`. Custom item fields are
-available through render state: `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`,
-and arbitrary item fields never leak into rendered DOM attributes.
-
-### Filtered collections
-
-By default, `<BaseSelect items={items}>` uses `items` as both the canonical data source and the
-active navigation collection.
-
-For custom filtered compositions (such as searchable controls), provide `getItemByValue` alongside
-a filtered `items` view:
-
-```tsx
-<BaseSelect items={filteredItems()} getItemByValue={(value) => allItemsByValue.get(value)}>
-  {/* ... */}
-</BaseSelect>
-```
-
-The filtered `items` array controls which options users can navigate. `getItemByValue` looks up
-selected items in the full collection, so labels, disabled state, and form values remain available
-when an item is filtered out.
-
-### Styling
-
-BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
-and direct `class` or `style` on the part that renders the element. See [Customization](/docs/customization)
-and [Theming](/docs/theming) for nested Provider, Portal, and class-merging behavior.
-
-## Examples
-
-### Multiple selection
+Set `multiple` and read `state.value` as an array. The trigger should summarize the current
+selection rather than a single label.
 
 <Preview path="./multiple" />
 
-### Form integration
+### Submit a native form value
+
+Give the root a `name`. The control writes the selected value into the enclosing form without
+`createForm`.
 
 <Preview path="./form" />

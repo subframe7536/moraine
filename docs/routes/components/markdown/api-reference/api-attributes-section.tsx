@@ -60,7 +60,7 @@ export function AttributesSection(props: {
 
   return (
     <section class="border-t border-border/40">
-      <HeadingWithAnchor id={props.attributes.id} level={2}>
+      <HeadingWithAnchor id={props.attributes.id} level={3}>
         {props.attributes.heading}
       </HeadingWithAnchor>
       <div class="mt-3 flex justify-start">

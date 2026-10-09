@@ -11,20 +11,6 @@ search:
 
 import { AvatarGroup } from '@src'
 
-Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at `max`; keep the full membership available elsewhere when users need it.
-
-## Basic usage
-
-```tsx
-import { AvatarGroup } from 'moraine'
-
-export function Example() {
-  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', fallback: 'A' }]} />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'input', prop: 'max', label: 'Visible avatars', defaultValue: 3, inputType: 'number' },
@@ -76,6 +62,31 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at
+`max`. Keep the full membership available elsewhere when users need every name. For a single person,
+use [Avatar](/components/avatar).
+
+```tsx
+import { AvatarGroup } from 'moraine'
+
+export function Example() {
+  return <AvatarGroup items={[{ src: '/alex.png', alt: 'Alex', text: 'A' }]} />
+}
+```
+
+### Overflow count
+
+AvatarGroup renders no root for an empty `items` array. Items keep input order in the DOM. Omit `max`
+to show every avatar. Set `max` to `0` to show only `+N`. A positive `max` uses its floored count.
+The overflow count follows the visible items.
+
+```tsx
+<AvatarGroup max={3} items={reviewers} />
+<AvatarGroup max={0} items={reviewers} />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -98,10 +109,18 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Grouping avatars
+### Show pull request reviewers
 
-AvatarGroup renders no root for an empty `items` array. Avatar items retain input order in the DOM. `max` is a number: omit it to show every avatar, set it to `0` to show only `+N`, or use a positive number to show its floored count. The overflow count follows the visible items.
+Cap the stack with `max` so a long reviewer list stays in one row. The overflow count is the rest of
+the membership.
 
 <Preview path="./grouping-usage" />
+
+### Collapse reviewers to a count
+
+A positive `max` shows that many faces plus `+N`. Set `max={0}` to render only the remainder count
+when the row has no room for faces.
+
+<Preview path="./overflow-count" />

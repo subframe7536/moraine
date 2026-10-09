@@ -71,6 +71,7 @@ describe('agent Markdown', () => {
       ).toBe(true)
       expect(source, fileName).not.toContain("from '@src'")
       expect(source, fileName).not.toContain('## Playground')
+      expect(source, fileName).not.toContain('<Playground')
       expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b|<Anatomy\b/)
     }
   })
@@ -84,14 +85,14 @@ describe('agent Markdown', () => {
       '[Button](https://moraine.subf.dev/components/button.md): Render actions',
     )
     const button = result.find((item) => item.fileName === 'components/button.md')!.source
-    expect(button).toContain('## Basic usage')
+    expect(button).toContain('## Usage')
     expect(button).toContain("import { Button } from 'moraine'")
     expect(button).toContain('## Anatomy')
     expect(button).toContain('Button [component; slot=root; <button>]')
     expect(button).toContain('├── leading [slot]')
     expect(button).not.toContain('value={{')
-    expect(button).toContain('## Usage')
-    expect(button).toContain('## Props')
+    expect(button).toContain('## API Reference')
+    expect(button).toContain('### Props')
     const select = result.find((item) => item.fileName === 'components/select.md')!.source
     expect(select).toContain('https://moraine.subf.dev/components/combobox.md')
     const virtualization = result.find((item) => item.fileName === 'docs/virtualization.md')!.source

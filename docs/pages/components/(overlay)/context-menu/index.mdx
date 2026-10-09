@@ -12,25 +12,6 @@ search:
 
 import { ContextMenu } from '@src'
 
-Use ContextMenu for actions tied to a specific surface or item at the pointer location. Keep essential actions discoverable through another visible path.
-
-## Basic usage
-
-```tsx
-import { ContextMenu } from 'moraine'
-
-export function Example() {
-  return (
-    <ContextMenu>
-      <ContextMenu.Trigger>Right-click here</ContextMenu.Trigger>
-      <ContextMenu.Content items={[{ label: 'Copy' }]} />
-    </ContextMenu>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -99,6 +80,86 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use ContextMenu for actions tied to a specific surface or item at the pointer location. Use
+[DropdownMenu](/components/dropdown-menu) when the same actions open from a visible trigger. Use
+[Popover](/components/popover) when the content is not a list of commands. Use
+[Dialog](/components/dialog) when the user must confirm a labeled modal task. Keep essential
+actions discoverable through another visible path.
+
+```tsx
+import { ContextMenu } from 'moraine'
+
+export function Example() {
+  return (
+    <ContextMenu>
+      <ContextMenu.Trigger>Right-click here</ContextMenu.Trigger>
+      <ContextMenu.Content items={[{ label: 'Copy' }]} />
+    </ContextMenu>
+  )
+}
+```
+
+### Triggering the menu
+
+Wrap the target with `ContextMenu.Trigger`. The menu opens from a context-menu gesture, keyboard
+context-menu keys, or a supported touch/pen long press.
+
+```tsx
+<ContextMenu>
+  <ContextMenu.Trigger as="div" class="flex h-32 items-center justify-center">
+    Right-click or long-press inside this area
+  </ContextMenu.Trigger>
+  <ContextMenu.Content
+    items={[
+      { label: 'Back', icon: 'i-lucide:arrow-left' },
+      { label: 'Forward', icon: 'i-lucide:arrow-right', disabled: true },
+      { label: 'Reload', icon: 'i-lucide:rotate-cw' },
+    ]}
+  />
+</ContextMenu>
+```
+
+### Item models
+
+Groups, separators, checkbox items, radio items, disabled items, and nested children are all
+represented in the public item model. Keep state for checkbox and radio values in the application
+and update it through item callbacks.
+
+```tsx
+<ContextMenu.Content
+  items={[
+    {
+      type: 'checkbox',
+      label: 'Pin item',
+      checked: pinned(),
+      onCheckedChange: setPinned,
+    },
+    { type: 'separator' },
+    {
+      type: 'radio',
+      label: 'High priority',
+      group: 'priority',
+      value: 'high',
+      checked: priority() === 'high',
+      onValueChange: setPriority,
+    },
+  ]}
+/>
+```
+
+### Keyboard interaction
+
+| Key                                             | Description                                                |
+| ----------------------------------------------- | ---------------------------------------------------------- |
+| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens from a focused trigger when the trigger supports it. |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>       | Moves the active item through available menu entries.      |
+| <kbd>ArrowRight</kbd>                           | Opens an available submenu from its parent item.           |
+| <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                 |
+| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                           |
+| <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
+
 ## Anatomy
 
 <Anatomy
@@ -152,47 +213,42 @@ export function Example() {
 
 Content is portaled; grouped items use the same item subtree as ungrouped items.
 
-## Usage
+## Examples
 
-### Triggering the menu
+### Open page actions on a selected surface
 
-Wrap the target with `ContextMenu.Trigger`. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
+Right-click or long-press the dashed region. Forward stays disabled in this example.
 
 <Preview path="./trigger-usage" />
 
-### Item models
+### Copy, rename, or delete a file
 
-Groups, separators, checkbox items, radio items, disabled items, and nested children are all represented in the public item model. Keep state for checkbox and radio values in the application and update it through item callbacks.
+Describe grouped actions in the item model, including a destructive delete.
 
 <Preview path="./items-usage" />
 
-### Keyboard interaction
+### Manage a project file
 
-| Key                                             | Description                                                |
-| ----------------------------------------------- | ---------------------------------------------------------- |
-| <kbd>Shift + F10</kbd> / <kbd>ContextMenu</kbd> | Opens from a focused trigger when the trigger supports it. |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>       | Moves the active item through available menu entries.      |
-| <kbd>ArrowRight</kbd>                           | Opens an available submenu from its parent item.           |
-| <kbd>ArrowLeft</kbd>                            | Returns from a submenu to its parent menu.                 |
-| <kbd>Enter</kbd> / <kbd>Space</kbd>             | Activates the current menu item.                           |
-| <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
-
-## Examples
-
-### File actions
-
-Move a file between folders, add it to favorites, or move it to the trash and undo. These actions update local example state; permission-dependent actions remain disabled.
+Move a file between folders, add it to favorites, or move it to the trash and undo. These actions
+update local example state; permission-dependent actions remain disabled.
 
 <Preview path="./file-actions" />
 
-### Checkbox and radio items
+### Pin an item and set priority
+
+Checkbox and radio values live in application state. The status line reflects the current pin and
+priority.
 
 <Preview path="./checkbox-radio" />
 
-### Submenus
+### Sort from a nested menu
+
+Nested children open a sort submenu. Refresh stays on the root menu.
 
 <Preview path="./submenus" />
 
-### Touch long press
+### Copy a note on long press
+
+Touch and hold for about 700 ms, or right-click, to copy or delete the note.
 
 <Preview path="./long-press" />

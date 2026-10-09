@@ -1,13 +1,13 @@
 import { Select } from '@src'
 import type { SelectT } from '@src'
 
-const MIXED_ITEMS: SelectT.Entry[] = [
-  'Apple',
-  { value: 'pear', label: 'Pear', description: 'Fresh fruit' },
+const MIXED_REGIONS: SelectT.Entry[] = [
+  'us-east-1',
+  { value: 'eu-west-1', label: 'eu-west-1', description: 'Ireland' },
   {
     type: 'group',
-    label: 'More fruit',
-    items: ['Banana', { value: 'cherry', label: 'Cherry', disabled: true }],
+    label: 'Asia Pacific',
+    items: ['ap-northeast-1', { value: 'ap-south-1', label: 'ap-south-1', disabled: true }],
   },
 ]
 
@@ -15,15 +15,15 @@ export function StringItems() {
   return (
     <div class="flex flex-col gap-3 max-w-xs w-full">
       <Select
-        aria-label="String fruit"
-        items={['Apple', 'Banana']}
-        defaultValue="Apple"
+        aria-label="Deploy region"
+        items={['us-east-1', 'eu-west-1', 'ap-northeast-1']}
+        defaultValue="us-east-1"
         allowClear
       />
       <Select
-        aria-label="Mixed fruit"
-        items={MIXED_ITEMS}
-        placeholder="Choose a fruit..."
+        aria-label="Deploy region with groups"
+        items={MIXED_REGIONS}
+        placeholder="Choose a region..."
         allowClear
       />
     </div>

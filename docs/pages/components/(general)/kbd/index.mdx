@@ -11,20 +11,6 @@ search:
 
 import { Kbd } from '@src'
 
-Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/components/kbd-group); showing a shortcut does not register a keyboard handler.
-
-## Basic usage
-
-```tsx
-import { Kbd } from 'moraine'
-
-export function Example() {
-  return <Kbd value="K" />
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     {
@@ -76,6 +62,41 @@ export function Example() {
   }}
 </Playground>
 
+## Usage
+
+Use Kbd to display one key in a shortcut hint. Combine keys with [KbdGroup](/components/kbd-group).
+Showing a shortcut does not register a keyboard handler.
+
+```tsx
+import { Kbd } from 'moraine'
+
+export function Example() {
+  return <Kbd value="K" />
+}
+```
+
+### Key aliases
+
+Known aliases such as `meta`, `command`, `ctrl`, `shift`, `alt`, and `escape` resolve to symbols
+when `symbol` is true (the default). Pass `symbol={false}` to keep the textual label. Use `label` when
+assistive technology needs a name different from the visible keycap.
+
+```tsx
+<Kbd value="meta" />
+<Kbd value="escape" symbol={false} />
+<Kbd value="K" label="Search" />
+```
+
+### Root styling
+
+`Kbd` renders one `<kbd>` root, so use direct `class` and `style` for an individual keycap. Configure
+`kbd.base.root` in your Theme to share keycap presentation; `classes` and `styles` are reserved for
+components with multiple rendered slots.
+
+```tsx
+<Kbd value="K" class="text-blue-600" />
+```
+
 ## Anatomy
 
 <Anatomy
@@ -87,22 +108,16 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Root styling
+### Hint search and cancel shortcuts
 
-`Kbd` renders one `<kbd>` root, so use direct `class` and `style` props for an individual keycap. Configure `kbd.base.root` in your Theme to share keycap presentation; `classes` and `styles` are reserved for components with multiple rendered slots.
-
-<Preview path="./root-styling" />
-
-### Keyboard notation
-
-Use `Kbd` for a single key or keycap in instructional text. It conveys displayed keyboard notation; application-level shortcut registration and platform-specific behavior remain outside the component.
+Place keycaps in instructional copy. Registration of those shortcuts stays in application code.
 
 <Preview path="./kbd-usage" />
 
-## Examples
+### Show how to close a dialog
 
-### Shortcut composition
+Use a single `Kbd` when the hint is one key rather than a chord.
 
 <Preview path="./shortcut-composition" />

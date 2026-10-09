@@ -12,25 +12,6 @@ search:
 
 import { Button, Card, Collapsible, Icon } from '@src'
 
-Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use [Accordion](/components/accordion) when several disclosures share selection rules.
-
-## Basic usage
-
-```tsx
-import { Collapsible } from 'moraine'
-
-export function Example() {
-  return (
-    <Collapsible>
-      <Collapsible.Trigger>Details</Collapsible.Trigger>
-      <Collapsible.Content>More information</Collapsible.Content>
-    </Collapsible>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -74,6 +55,76 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use
+[Accordion](/components/accordion) when several disclosures share selection rules.
+
+```tsx
+import { Collapsible } from 'moraine'
+
+export function Example() {
+  return (
+    <Collapsible>
+      <Collapsible.Trigger>Details</Collapsible.Trigger>
+      <Collapsible.Content>More information</Collapsible.Content>
+    </Collapsible>
+  )
+}
+```
+
+### State ownership
+
+Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the component owns its
+initial state. The trigger and content primitives may be composed into a custom layout. `disabled`
+blocks the trigger. `transition` keeps content mounted until the height animation finishes.
+
+```tsx
+<Collapsible open={open()} onOpenChange={setOpen}>
+  <Collapsible.Trigger>Advanced settings</Collapsible.Trigger>
+  <Collapsible.Content>Telemetry endpoints</Collapsible.Content>
+</Collapsible>
+```
+
+### Content lifetime
+
+The content shell stays mounted so the trigger's `aria-controls` points to a real element even while
+closed. `unmountOnHide` controls the user content inside it. Keep user content mounted when it holds
+state that should survive closing.
+
+```tsx
+<Collapsible unmountOnHide={false} defaultOpen>
+  <Collapsible.Trigger>Filters</Collapsible.Trigger>
+  <Collapsible.Content>
+    <Input defaultValue="tag:moraine" />
+  </Collapsible.Content>
+</Collapsible>
+```
+
+### Styling
+
+Configure `root`, `trigger`, and `content` through `collapsible.base` in your Theme. The Content
+element exposes `data-expanded` and `data-closed` for state styling. Collapsible also renders an
+internal wrapper with `data-expanded`, `data-closed`, and `data-transition` for measurement, height
+animation, presence, and accessibility; you cannot configure that wrapper through Theme, `classes`,
+`styles`, or Content props.
+
+Root `classes` and `styles` set defaults for this Collapsible. Use direct `class` and `style` on the
+root, Trigger, or Content to style those elements. Content's `ref` and `as` apply to the inner
+Content element. There are no visual variants.
+
+```tsx
+<Collapsible classes={{ trigger: 'font-medium', content: 'text-sm text-muted-foreground' }}>
+  <Collapsible.Trigger>Details</Collapsible.Trigger>
+  <Collapsible.Content>More information</Collapsible.Content>
+</Collapsible>
+```
+
+### Keyboard interaction
+
+The trigger uses button semantics by default. A polymorphic trigger follows the keyboard semantics of
+its supplied element or component.
+
 ## Anatomy
 
 <Anatomy
@@ -97,42 +148,35 @@ export function Example() {
   }}
 />
 
-## Usage
-
-### Styling
-
-Configure `root`, `trigger`, and `content` through `collapsible.base` in your Theme. The Content element exposes `data-expanded` and `data-closed` for state styling. Collapsible also renders an internal wrapper with `data-expanded`, `data-closed`, and `data-transition` for measurement, height animation, presence, and accessibility; you cannot configure that wrapper through Theme, `classes`, `styles`, or Content props.
-
-Root `classes` and `styles` set defaults for this Collapsible. Use direct `class` and `style` on the root, Trigger, or Content to style those elements. Content's `ref` and `as` apply to the inner Content element. `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` type the slot overrides. There are no visual variants. See [Styling](/docs/customization#the-4-layer-override-hierarchy) for override precedence.
-
-<Preview path="./design-styling" />
-
-### State ownership
-
-Use `open` with `onOpenChange` for controlled state, or `defaultOpen` when the component owns its initial state. The trigger and content primitives may be composed into a custom layout.
-
-<Preview path="./state-ownership" />
-
-### Content lifetime
-
-The content shell stays mounted so the trigger's `aria-controls` points to a real element even while closed. `unmountOnHide` controls the user content inside it. Keep user content mounted when it holds state that should survive closing.
-
-<Preview path="./content-lifetime" />
-
-### Keyboard interaction
-
-The trigger uses button semantics by default. A polymorphic trigger follows the keyboard semantics of its supplied element or component.
-
 ## Examples
 
-### Uncontrolled state
+### Answer a password FAQ
+
+Leave the disclosure uncontrolled when the page does not need to read open state.
 
 <Preview path="./uncontrolled" />
 
-### Controlled state
+### Inspect a locked invoice
+
+Own `open` when an external control or a lock switch must drive the same panel.
 
 <Preview path="./controlled" />
 
-### Composable primitives
+### Reveal extra starred repositories
+
+Place the trigger beside a heading when only some rows should expand. The visible row can sit
+outside `Collapsible.Content`.
 
 <Preview path="./composable" />
+
+### Toggle advanced settings from outside the panel
+
+Pass `open` and `onOpenChange` so a second control can show or hide the same region.
+
+<Preview path="./state-ownership" />
+
+### Keep filter text while the panel is closed
+
+Set `unmountOnHide={false}` so fields inside Content keep their values.
+
+<Preview path="./content-lifetime" />

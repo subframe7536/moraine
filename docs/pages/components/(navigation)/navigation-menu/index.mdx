@@ -14,36 +14,6 @@ search:
 import { For } from 'solid-js'
 import { Icon, NavigationMenu } from '@src'
 
-Use NavigationMenu for website destinations, with direct links and expandable link panels. Use [DropdownMenu](/components/dropdown-menu) for a menu of actions.
-
-## Basic usage
-
-```tsx
-import { NavigationMenu } from 'moraine'
-
-export function Example() {
-  return (
-    <NavigationMenu aria-label="Main navigation">
-      <NavigationMenu.List>
-        <NavigationMenu.Item value="products">
-          <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
-          <NavigationMenu.Content>
-            <NavigationMenu.Link href="/overview" closeOnClick>
-              Overview
-            </NavigationMenu.Link>
-          </NavigationMenu.Content>
-        </NavigationMenu.Item>
-        <NavigationMenu.Item>
-          <NavigationMenu.Link href="/docs">Documentation</NavigationMenu.Link>
-        </NavigationMenu.Item>
-      </NavigationMenu.List>
-    </NavigationMenu>
-  )
-}
-```
-
-## Playground
-
 <Playground
   controls={[
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -203,6 +173,119 @@ export function Example() {
   )}
 </Playground>
 
+## Usage
+
+Use NavigationMenu for website destinations, with direct links and expandable link panels. Use
+[DropdownMenu](/components/dropdown-menu) for a menu of actions. Use [Tabs](/components/tabs) for
+peer panels that stay on the same page.
+
+```tsx
+import { NavigationMenu } from 'moraine'
+
+export function Example() {
+  return (
+    <NavigationMenu aria-label="Main navigation">
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="products">
+          <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <NavigationMenu.Link href="/overview" closeOnClick>
+              Overview
+            </NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="/docs">Documentation</NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu>
+  )
+}
+```
+
+### Panels and direct links
+
+Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and
+`NavigationMenu.Link` for its destinations. `active` marks the current page with
+`aria-current="page"`. `closeOnClick` defaults to `false`; enable it when activation should also
+close the panel. A cancelled click does not request closing.
+
+```tsx
+<NavigationMenu.Item value="products">
+  <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+  <NavigationMenu.Content>
+    <NavigationMenu.Link href="/overview" closeOnClick>
+      Overview
+    </NavigationMenu.Link>
+  </NavigationMenu.Content>
+</NavigationMenu.Item>
+<NavigationMenu.Item>
+  <NavigationMenu.Link href="/docs" active>
+    Documentation
+  </NavigationMenu.Link>
+</NavigationMenu.Item>
+```
+
+The root renders a navigation landmark. Give it an accessible name when the page has several
+navigation landmarks. This version supports one level of panels.
+
+### Controlled state
+
+Use stable item values with `value` and `onValueChange`. Set the value to `null` to close. Disabled
+or removed items cannot keep a panel open. `defaultValue` opens an item after hydration.
+
+```tsx
+<NavigationMenu value={value()} onValueChange={setValue} disabled={disabled()}>
+  <NavigationMenu.List>
+    <NavigationMenu.Item value="account">
+      <NavigationMenu.Trigger>Account</NavigationMenu.Trigger>
+      <NavigationMenu.Content>...</NavigationMenu.Content>
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+</NavigationMenu>
+```
+
+### Orientation
+
+Set `orientation="vertical"` for a vertical list. Use `placement="right"` to place its panels beside
+the triggers.
+
+```tsx
+<NavigationMenu aria-label="Docs navigation" orientation="vertical" placement="right">
+  <NavigationMenu.List>...</NavigationMenu.List>
+</NavigationMenu>
+```
+
+### RTL
+
+Set `dir="rtl"` on the surrounding container for right-to-left navigation. Arrow keys follow that
+direction when opening a vertical menu.
+
+```tsx
+<div dir="rtl">
+  <NavigationMenu aria-label="Main navigation">
+    <NavigationMenu.List>...</NavigationMenu.List>
+  </NavigationMenu>
+</div>
+```
+
+### Custom links
+
+Use `linkRender` for a router's link component. Forward the supplied attributes, events, children,
+object style, and ref to the anchor.
+
+```tsx
+<NavigationMenu.Link linkRender={RouterLink} href="/components/button">
+  Button
+</NavigationMenu.Link>
+```
+
+### Keyboard interaction
+
+Arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger. ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
+
+Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
+
 ## Anatomy
 
 <Anatomy
@@ -235,42 +318,37 @@ export function Example() {
   }}
 />
 
-## Usage
+## Examples
 
-### Basic
+### Product and docs header
 
-Combine expandable panels with direct links. Use `NavigationMenu.Content` for each panel and `NavigationMenu.Link` for its destinations.
+Mix a two-column product panel, a shorter guides panel, and a direct Documentation link. Mark the
+current page with `active`.
 
 <Preview path="./basic" />
 
-### Controlled state and disabled items
+### Open the account panel from page state
 
-Use stable item values with `value` and `onValueChange`. Set the value to `null` to close. Disabled or removed items cannot keep a panel open. `defaultValue` opens an item after hydration.
+Drive the open item with `value` and `onValueChange`. Close with `null`. A disabled Billing item
+cannot stay open.
 
 <Preview path="./controlled" />
 
-### Orientation
+### Vertical docs navigation
 
-Set `orientation="vertical"` for a vertical list. Use `placement="right"` to place its panels beside the triggers.
+Stack triggers in a vertical list and place panels to the right.
 
 <Preview path="./orientation" />
 
-### RTL
+### Route documentation links
 
-Set `dir="rtl"` on the surrounding container for right-to-left navigation.
-
-<Preview path="./rtl" />
-
-### Custom links
-
-Use `linkRender` for a router's link component. Forward the supplied attributes, events, children, object style and ref to the anchor. `active` marks the current page with `aria-current="page"`. `closeOnClick` defaults to `false`; enable it when activation should also close the panel. A cancelled click does not request closing.
+Forward NavigationMenu link props through Solid Router's `A`. Keep `href` on `NavigationMenu.Link`.
 
 <Preview path="./router-link" />
 
-### Keyboard interaction
+### Inherit RTL for a product header
 
-Arrow keys along the list axis move focus without opening a panel. Home and End focus the first and last enabled navigation controls. Enter and Space activate a trigger. ArrowDown opens a horizontal menu and enters its content; ArrowRight does the same for a vertical LTR menu, and ArrowLeft for RTL.
+Wrap the menu in `dir="rtl"`. Triggers, panels, and links follow the writing direction without extra
+props.
 
-Tab and Shift+Tab preserve the order between the trigger, its portaled content and the following navigation control. Arrow keys and Home/End move between panel links, while inputs retain their editing keys. Escape closes the panel and returns focus to its trigger. Outside click and focus close the panel without taking focus away from the destination.
-
-The root renders a navigation landmark. Give it an accessible name when the page has several navigation landmarks. This version supports one level of panels.
+<Preview path="./rtl" />
