@@ -40,7 +40,6 @@ import { defineTheme } from 'moraine/theme'
 ;<Dialog.Header shorthand />
 ;<Dialog.Title as="h3" id="title" />
 ;<Dialog.Description />
-;<Dialog.Action />
 ;<Dialog.Body as="section" style={{ color: 'red' }} />
 ;<Dialog.Footer />
 // @ts-expect-error A part has a direct class, not a slot map.
@@ -87,7 +86,6 @@ import { defineTheme } from 'moraine/theme'
 ;<Sheet.Header shorthand />
 ;<Sheet.Title as="h3" id="title" />
 ;<Sheet.Description />
-;<Sheet.Action />
 ;<Sheet.Body as="section" />
 ;<Sheet.Footer />
 // @ts-expect-error A part has a direct class, not a slot map.

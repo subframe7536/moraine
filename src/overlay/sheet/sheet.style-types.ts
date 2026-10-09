@@ -19,9 +19,6 @@ export interface SheetStyleSlot<T = unknown> {
   /** Supporting text associated with the sheet title. */
   description?: T
 
-  /** Actions positioned beside the title. */
-  action?: T
-
   /** Automatic close affordance owned by Sheet.Content. */
   contentClose?: T
 

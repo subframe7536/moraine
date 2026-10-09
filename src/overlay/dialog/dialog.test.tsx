@@ -440,7 +440,7 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-footer"]')?.textContent).toBe('Footer')
   })
 
-  test('composes explicit header, reactive ARIA IDs, action, and body presence', () => {
+  test('composes explicit header, reactive ARIA IDs, and body presence', () => {
     const [showHeader, setShowHeader] = createSignal(true)
     const [showTitle, setShowTitle] = createSignal(true)
     const [showDescription, setShowDescription] = createSignal(true)
@@ -449,8 +449,8 @@ describe('Dialog', () => {
     render(() => (
       <Dialog
         open
-        classes={{ action: 'family-action', body: 'family-body' }}
-        styles={{ action: { color: 'red' } }}
+        classes={{ header: 'family-header', body: 'family-body' }}
+        styles={{ header: { color: 'red' } }}
 
         close={false}
       >
@@ -463,7 +463,6 @@ describe('Dialog', () => {
               <Show when={showDescription()}>
                 <Dialog.Description id="custom-description">Actual description</Dialog.Description>
               </Show>
-              <Dialog.Action data-testid="action">Help</Dialog.Action>
             </Dialog.Header>
           </Show>
           <Dialog.Body class="local-body">Body</Dialog.Body>
@@ -486,9 +485,9 @@ describe('Dialog', () => {
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)
     expect(body.hasAttribute('data-footer')).toBe(true)
-    const action = document.body.querySelector<HTMLElement>('[data-slot="dialog-action"]')!
-    expect(action.className).toContain('family-action')
-    expect(action.style.color).toBe('red')
+    const header = document.body.querySelector<HTMLElement>('[data-slot="dialog-header"]')!
+    expect(header.className).toContain('family-header')
+    expect(header.style.color).toBe('red')
     expect(body.className).toContain('family-body')
     expect(body.className).toContain('local-body')
     setTitleId('renamed-title')

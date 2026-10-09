@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useRegisteredContentId } from '../base/content-anatomy'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useSheetContent } from './sheet-context'
@@ -24,15 +24,14 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
     inheritedStyles: () => family.presentation,
   })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="h2"
-      slot="sheet-title"
-      attributes={rest}
-      binding={resolved.styles.title}
+    <Dynamic
+      component={local.as ?? 'h2'}
+      data-slot="sheet-title"
+      {...rest}
       id={id()}
+      {...resolved.styles.title}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }

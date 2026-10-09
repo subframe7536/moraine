@@ -380,7 +380,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-footer"]')?.textContent).toBe('Footer')
   })
 
-  test('composes explicit header, reactive ARIA IDs, action, and body presence', () => {
+  test('composes explicit header, reactive ARIA IDs, and body presence', () => {
     const [showHeader, setShowHeader] = createSignal(true)
     const [showTitle, setShowTitle] = createSignal(true)
     const [showDescription, setShowDescription] = createSignal(true)
@@ -389,8 +389,8 @@ describe('Sheet', () => {
     render(() => (
       <Sheet
         open
-        classes={{ action: 'family-action', body: 'family-body' }}
-        styles={{ action: { color: 'red' } }}
+        classes={{ header: 'family-header', body: 'family-body' }}
+        styles={{ header: { color: 'red' } }}
 
         close={false}
       >
@@ -403,7 +403,6 @@ describe('Sheet', () => {
               <Show when={showDescription()}>
                 <Sheet.Description id="custom-description">Actual description</Sheet.Description>
               </Show>
-              <Sheet.Action data-testid="action">Help</Sheet.Action>
             </Sheet.Header>
           </Show>
           <Sheet.Body class="local-body">Body</Sheet.Body>
@@ -425,9 +424,9 @@ describe('Sheet', () => {
     expect(content.getAttribute('aria-labelledby')).toBe('custom-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-description')
     expect(body.hasAttribute('data-header')).toBe(true)
-    const action = document.body.querySelector<HTMLElement>('[data-slot="sheet-action"]')!
-    expect(action.className).toContain('family-action')
-    expect(action.style.color).toBe('red')
+    const header = document.body.querySelector<HTMLElement>('[data-slot="sheet-header"]')!
+    expect(header.className).toContain('family-header')
+    expect(header.style.color).toBe('red')
     expect(body.className).toContain('family-body')
     expect(body.className).toContain('local-body')
     setTitleId('renamed-title')

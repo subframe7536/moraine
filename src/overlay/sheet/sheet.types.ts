@@ -122,18 +122,6 @@ export namespace SheetT {
     never,
     'p'
   >
-  export interface ActionBase<T extends ValidComponent = 'div'> {
-    as?: T
-    children?: JSX.Element
-  }
-  export type ActionProps<T extends ValidComponent = 'div'> = BaseProps<
-    T,
-    ActionBase<T>,
-    never,
-    never,
-    never,
-    'div'
-  >
   export interface BodyBase<T extends ValidComponent = 'div'> {
     as?: T
     children?: JSX.Element

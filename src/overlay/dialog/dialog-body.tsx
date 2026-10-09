@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useDialogContent } from './dialog-context'
@@ -27,15 +27,14 @@ export function DialogBody<T extends ValidComponent = 'div'>(
     scroll: () => !content.overlayScroll(),
   })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="div"
-      slot="dialog-body"
-      attributes={rest}
-      additionalAttributes={bodyAttrs}
-      binding={resolved.styles.body}
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-body"
+      {...rest}
+      {...bodyAttrs}
+      {...resolved.styles.body}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }

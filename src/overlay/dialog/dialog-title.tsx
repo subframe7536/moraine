@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useRegisteredContentId } from '../base/content-anatomy'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useDialogContent } from './dialog-context'
@@ -24,15 +24,14 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
     inheritedStyles: () => family.presentation,
   })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="h2"
-      slot="dialog-title"
-      attributes={rest}
-      binding={resolved.styles.title}
+    <Dynamic
+      component={local.as ?? 'h2'}
+      data-slot="dialog-title"
+      {...rest}
       id={id()}
+      {...resolved.styles.title}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }

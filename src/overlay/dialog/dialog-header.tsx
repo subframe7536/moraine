@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { onCleanup, splitProps, untrack } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { ModalAnatomyPart } from '../base/modal-anatomy'
 import { useModalContext } from '../modal/modal-context'
 
 import { useDialogContent } from './dialog-context'
@@ -24,15 +24,14 @@ function DialogHeaderRoot<T extends ValidComponent>(
     inheritedStyles: () => family.presentation,
   })
   return (
-    <ModalAnatomyPart
-      as={local.as}
-      defaultAs="div"
-      slot="dialog-header"
-      attributes={rest}
-      binding={resolved.styles.header}
+    <Dynamic
+      component={local.as ?? 'div'}
+      data-slot="dialog-header"
+      {...rest}
+      {...resolved.styles.header}
     >
       {local.children}
-    </ModalAnatomyPart>
+    </Dynamic>
   )
 }
 
