@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { Show, createSignal, onCleanup } from 'solid-js'
+import { Show, createRoot, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -20,10 +20,10 @@ function HookProbe(props: { binding?: FieldBinding }) {
 }
 
 function Probe() {
-  const field = useFormField(undefined, () => ({
+  const field = useFormField(undefined, {
     defaultId: 'probe-control',
     initialValue: 'seed',
-  }))
+  })
   return (
     <button
       ref={field.setControlRef}
@@ -40,7 +40,7 @@ function Probe() {
 }
 
 function DynamicProbe(props: { replacement: boolean }) {
-  const field = useFormField(undefined, () => ({ defaultId: 'dynamic-control' }))
+  const field = useFormField(undefined, { defaultId: 'dynamic-control' })
   return (
     <Show
       when={props.replacement}
@@ -391,5 +391,45 @@ describe('Field', () => {
 
     screen.unmount()
     expect(cleanups).toBe(1)
+  })
+})
+
+describe('useFormField', () => {
+  test('tracks each control prop on its own', () => {
+    const [id, setId] = createSignal('first')
+    const [disabled, setDisabled] = createSignal(false)
+    let idReads = 0
+    let disabledReads = 0
+
+    createRoot((dispose) => {
+      const field = useFormField(
+        {
+          get id() {
+            idReads += 1
+            return id()
+          },
+          get disabled() {
+            disabledReads += 1
+            return disabled()
+          },
+        },
+        { defaultId: 'fallback' },
+      )
+
+      expect(field.id()).toBe('first')
+      expect(field.disabled()).toBe(false)
+      const idReadsAfterCreate = idReads
+      const disabledReadsAfterCreate = disabledReads
+
+      setId('second')
+      expect(field.id()).toBe('second')
+      expect(disabledReads).toBe(disabledReadsAfterCreate)
+
+      setDisabled(true)
+      expect(field.disabled()).toBe(true)
+      expect(idReads).toBe(idReadsAfterCreate + 1)
+
+      dispose()
+    })
   })
 })

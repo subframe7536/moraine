@@ -66,19 +66,16 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   )
 
   const generatedId = createId(() => merged.id, 'slider')
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: Boolean(merged.readOnly),
-    }),
-    () => ({
-      defaultId: generatedId(),
-    }),
-  )
+  const fieldProps = mergeProps(merged, {
+    get readOnly() {
+      return Boolean(merged.readOnly)
+    },
+  })
+  const field = useFormField(fieldProps, {
+    get defaultId() {
+      return generatedId()
+    },
+  })
   const inputEls: HTMLInputElement[] = []
 
   const slider = createSlider<TValue>(merged, {

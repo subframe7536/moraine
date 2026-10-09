@@ -122,6 +122,7 @@ export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): 
   const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
   const isOpen = createMemo(() => open() && !props.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
@@ -129,12 +130,9 @@ export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): 
   const contentPresence = createTransitionPresence({ open: isOpen })
 
   function setOpen(nextOpen: boolean): void {
-    if (props.disabled || nextOpen === isOpen()) {
-      return
+    if (!props.disabled) {
+      setControlledOpen(nextOpen)
     }
-
-    setControlledOpen(nextOpen)
-    props.onOpenChange?.(nextOpen)
   }
 
   return {

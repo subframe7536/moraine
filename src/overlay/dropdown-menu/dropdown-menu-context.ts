@@ -14,6 +14,7 @@ export function createDropdownMenu(props: DropdownMenuProps) {
   const [isOpen, setOpenState] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
+    onChange: (open) => props.onOpenChange?.(open),
   })
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
@@ -48,23 +49,15 @@ export function createDropdownMenu(props: DropdownMenuProps) {
   )
 
   function commitOpen(open: boolean): void {
-    if (open === isOpen()) {
+    if (open === isOpen() || (open && props.disabled)) {
       return
-    }
-
-    if (open && props.disabled) {
-      return
-    }
-
-    if (props.open === undefined) {
-      setOpenState(open)
     }
 
     if (!open) {
       setAutoFocusStrategy('none')
     }
 
-    props.onOpenChange?.(open)
+    setOpenState(open)
   }
 
   function openWithStrategy(strategy: OverlayMenuFocusStrategy): void {

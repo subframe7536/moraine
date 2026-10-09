@@ -13,15 +13,12 @@ export function useSearchQuery(options: SearchQueryOptions = {}) {
   const [value, setValue] = createControllableValue<string>({
     value: () => options.value,
     defaultValue: () => options.defaultValue ?? '',
+    onChange: (next) => options.onValueChange?.(next),
   })
 
   function updateValue(nextValue: string): string {
     const next = options.maxLength === undefined ? nextValue : nextValue.slice(0, options.maxLength)
-    if (next === value()) {
-      return next
-    }
     setValue(next)
-    options.onValueChange?.(next)
     return next
   }
 

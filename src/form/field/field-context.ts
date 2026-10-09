@@ -86,15 +86,13 @@ const EMPTY_RUNTIME_STATE: FieldRuntimeState = {
 }
 
 export function useFormField(
-  props: Accessor<UseFormFieldProps> | undefined,
-  opts: Accessor<UseFormFieldOptions>,
+  props: UseFormFieldProps | undefined,
+  options: UseFormFieldOptions,
 ): UseFormFieldReturn {
   const fieldContext = useFieldContext()
-  const options = createMemo(() => opts())
-  const fieldProps = createMemo(() => props?.() ?? {})
-  const bind = createMemo(() => options().bind ?? true)
-  const focus = createMemo(() => options().focus ?? bind())
-  const localId = createMemo(() => fieldProps().id ?? options().defaultId)
+  const bind = createMemo(() => options.bind ?? true)
+  const focus = createMemo(() => options.focus ?? bind())
+  const localId = createMemo(() => props?.id ?? options.defaultId)
   const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
   if (fieldContext?.registerControl) {
@@ -107,8 +105,8 @@ export function useFormField(
     () => fieldContext?.binding?.path?.slice() ?? fieldContext?.path?.slice(),
   )
   const name = createMemo(() => {
-    if (fieldProps().name !== undefined) {
-      return fieldProps().name
+    if (props?.name !== undefined) {
+      return props.name
     }
     if (fieldContext?.binding?.name !== undefined) {
       return fieldContext.binding.name
@@ -116,12 +114,10 @@ export function useFormField(
     return typeof fieldContext?.name === 'string' ? fieldContext.name : undefined
   })
   const value = createMemo(() => fieldContext?.binding?.value)
-  const size = createMemo(() =>
-    fieldProps().size !== undefined ? fieldProps().size : fieldContext?.size,
-  )
-  const disabled = createMemo(() => fieldProps().disabled ?? fieldContext?.disabled ?? false)
-  const required = createMemo(() => fieldProps().required ?? Boolean(fieldContext?.required))
-  const readOnly = createMemo(() => fieldProps().readOnly ?? fieldContext?.readOnly ?? false)
+  const size = createMemo(() => (props?.size !== undefined ? props.size : fieldContext?.size))
+  const disabled = createMemo(() => props?.disabled ?? fieldContext?.disabled ?? false)
+  const required = createMemo(() => props?.required ?? Boolean(fieldContext?.required))
+  const readOnly = createMemo(() => props?.readOnly ?? fieldContext?.readOnly ?? false)
   const invalid = createMemo(() => {
     const error = fieldContext?.error
     return error !== undefined && error !== null && error !== false && error !== ''
@@ -142,7 +138,7 @@ export function useFormField(
 
   onMount(() => {
     const binding = fieldContext?.binding
-    const initialValue = options().initialValue
+    const initialValue = options.initialValue
     if (binding && binding.value === undefined && initialValue !== undefined) {
       binding.setValue(initialValue)
     }
@@ -153,7 +149,7 @@ export function useFormField(
   )
 
   const ariaAttrs = createMemo<JSX.AriaAttributes>(() => {
-    const fromField = fieldContext?.ariaAttrs?.() ?? options().defaultAriaAttrs ?? {}
+    const fromField = fieldContext?.ariaAttrs?.() ?? options.defaultAriaAttrs ?? {}
     const attrs: JSX.AriaAttributes = {}
 
     if (invalid()) {

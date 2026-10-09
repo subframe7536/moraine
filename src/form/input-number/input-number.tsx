@@ -168,20 +168,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   })
 
   const generatedId = createId(() => merged.id, 'input-number')
-  const field = useFormField(
-    () => ({
-      id: merged.id,
-      name: merged.name,
-      size: local.size,
-      disabled: merged.disabled,
-      required: local.required,
-      readOnly: merged.readOnly,
-    }),
-    () => ({
-      defaultId: generatedId(),
-      initialValue,
-    }),
-  )
+  const field = useFormField(merged, {
+    get defaultId() {
+      return generatedId()
+    },
+    initialValue,
+  })
   const readOnly = field.readOnly
 
   let inputEl: HTMLInputElement | undefined
@@ -271,14 +263,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }),
   )
 
-  const resolvedOrientation = createMemo(() => resolved.variants.orientation)
-
   const incrementIcon = createMemo<IconT.Name>(() => {
     if (merged.incrementIcon) {
       return merged.incrementIcon
     }
 
-    return resolvedOrientation() === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
+    return resolved.variants.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
   })
 
   const decrementIcon = createMemo<IconT.Name>(() => {
@@ -286,10 +276,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return merged.decrementIcon
     }
 
-    return resolvedOrientation() === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
+    return resolved.variants.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
   })
 
-  const isVertical = createMemo(() => resolvedOrientation() === 'vertical')
+  const isVertical = createMemo(() => resolved.variants.orientation === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
   const fieldDataState = {

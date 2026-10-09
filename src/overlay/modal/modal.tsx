@@ -36,9 +36,10 @@ export function ModalInternal<K extends ModalKind>(
   const configuration = { kind: props.kind, props } as ModalConfiguration
   const rootId = createId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
-  const [open, setOpen] = createControllableValue<boolean>({
+  const [open, updateOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
@@ -63,15 +64,6 @@ export function ModalInternal<K extends ModalKind>(
       (isHTMLElement(activeElement) && activeElement !== ownerDocument.body
         ? activeElement
         : undefined)
-  }
-
-  const updateOpen = (nextOpen: boolean): void => {
-    if (nextOpen === open()) {
-      return
-    }
-
-    setOpen(nextOpen)
-    props.onOpenChange?.(nextOpen)
   }
 
   const requestDismiss = (event: Event, preventDefault: boolean): void => {

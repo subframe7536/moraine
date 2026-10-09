@@ -55,6 +55,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const [desktopOpen, setControlledDesktopOpen] = createControllableValue<boolean>({
     value: () => local.open,
     defaultValue: () => local.defaultOpen ?? true,
+    onChange: (nextOpen) => local.onOpenChange?.(nextOpen),
   })
   const [mobileOpen, setMobileOpen] = createSignal(false)
   const [scrolled, setScrolled] = createSignal(false)
@@ -86,7 +87,6 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       return
     }
     setControlledDesktopOpen(nextOpen)
-    local.onOpenChange?.(nextOpen)
   }
 
   const context = {
