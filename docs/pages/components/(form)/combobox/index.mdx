@@ -37,6 +37,8 @@ import { Combobox } from '@src'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'switch', prop: 'open', label: 'Open', defaultValue: true },
+    { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
     { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
     {
       kind: 'switch',
@@ -49,23 +51,46 @@ import { Combobox } from '@src'
 >
   {(props) => (
     <Combobox
-      items={[
-        {
-          label: 'SolidJS',
-          description: 'Fine-grained reactivity',
-          icon: 'i-lucide:atom',
-          value: 'solid',
-        },
-        { label: 'Vue.js', description: 'Progressive framework', value: 'vue' },
-        { label: 'React', value: 'react' },
-        { label: 'Svelte', value: 'svelte' },
-        { label: 'Astro', value: 'astro' },
-      ]}
+      items={
+        props.empty
+          ? []
+          : [
+              {
+                type: 'group',
+                label: 'Client frameworks',
+                items: [
+                  {
+                    label: 'SolidJS',
+                    description: 'Fine-grained reactivity',
+                    value: 'solid',
+                    icon: 'i-lucide:atom',
+                  },
+                  {
+                    label: 'Vue.js',
+                    description: 'Progressive framework',
+                    value: 'vue',
+                    icon: 'i-lucide:sparkles',
+                  },
+                  { label: 'React', value: 'react', icon: 'i-lucide:box' },
+                ],
+              },
+              { type: 'separator' },
+              {
+                type: 'group',
+                label: 'Compiler-based frameworks',
+                items: [
+                  { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
+                  { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
+                ],
+              },
+            ]
+      }
       defaultValue="solid"
       leadingIcon="i-lucide:code"
       placeholder="Search frameworks..."
       variant={props.variant}
       size={props.size}
+      open={props.open}
       openOnControlClick={props.openOnControlClick}
       allowClear={props.allowClear}
       disabled={props.disabled}
