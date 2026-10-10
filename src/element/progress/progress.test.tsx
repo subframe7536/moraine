@@ -16,7 +16,7 @@ describe('Progress', () => {
     expect(screen.getByTestId('status').textContent).toBe('Working')
   })
 
-  test('uses css variable classes for base thickness', () => {
+  test('uses recipe css variables for base thickness', () => {
     const horizontal = render(() => (
       <MoraineProvider>
         <Progress value={20} size="sm" />
@@ -35,10 +35,22 @@ describe('Progress', () => {
     const horizontalBase = horizontal.container.querySelector('[data-slot="progress-track"]')
     const verticalBase = vertical.container.querySelector('[data-slot="progress-track"]')
 
-    expect(horizontalRoot.className).toContain('[--p-size:0.25rem]')
+    expect(horizontalRoot.style.getPropertyValue('--p-size')).toBe('0.25rem')
+    expect(horizontalRoot.className).not.toContain('[--p-size:')
     expect(horizontalBase?.className).toContain('h-(--p-size)')
-    expect(verticalRoot.className).toContain('[--p-size:0.75rem]')
+    expect(verticalRoot.style.getPropertyValue('--p-size')).toBe('0.75rem')
     expect(verticalBase?.className).toContain('w-(--p-size)')
+  })
+
+  test('accepts a style override for thickness', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Progress value={20} size="sm" style={{ '--p-size': '10px' }} />
+      </MoraineProvider>
+    ))
+    const root = screen.container.querySelector('[data-slot="progress"]') as HTMLElement
+
+    expect(root.style.getPropertyValue('--p-size')).toBe('10px')
   })
 
   test('renders determinate progress with default aria values', () => {

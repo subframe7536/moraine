@@ -223,6 +223,47 @@ test.each([undefined, 'label'] as const)(
   },
 )
 
+test('applies instance variables after recipe keys and before inherited and caller styles', () => {
+  const theme = defineTheme({
+    button: {
+      base: { '--size': '4px', '--shared': 'recipe' },
+    },
+  })
+  const [size, setSize] = createSignal('8px')
+  function Fixture() {
+    const styles = createStyles(
+      buttonRecipe,
+      {
+        styles: { root: { '--shared': 'slot' } },
+        style: { '--root': 'root' },
+      },
+      {
+        inheritedStyles: () => ({ styles: { root: { '--shared': 'group', '--group': 'group' } } }),
+        variables: () => ({
+          '--size': size(),
+          '--shared': 'instance',
+          '--empty': undefined,
+        }),
+      },
+    )
+    return <button {...styles.styles.root}>Save</button>
+  }
+  const screen = render(() => (
+    <MoraineProvider theme={theme}>
+      <Fixture />
+    </MoraineProvider>
+  ))
+  const button = screen.getByRole('button')
+  expect(button.style.getPropertyValue('--size')).toBe('8px')
+  expect(button.style.getPropertyValue('--shared')).toBe('slot')
+  expect(button.style.getPropertyValue('--group')).toBe('group')
+  expect(button.style.getPropertyValue('--root')).toBe('root')
+  expect(button.style.getPropertyValue('--empty')).toBe('')
+  setSize('16px')
+  expect(button.style.getPropertyValue('--size')).toBe('16px')
+  expect(screen.getByRole('button')).toBe(button)
+})
+
 test.each(['root', 'label'] as const)(
   'layers theme variables on %s before group, slot, and root styles',
   (slot) => {

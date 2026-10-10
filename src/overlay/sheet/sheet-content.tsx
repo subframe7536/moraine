@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createSignal,
+  mergeProps,
+  on,
+  onCleanup,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
@@ -41,10 +50,12 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
     config,
   )
+  const [keyboardInset, setKeyboardInset] = createSignal(0)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'content',
     inheritedVariants: () => ({ side: config.side, inset: config.inset }),
     inheritedStyles: () => family.presentation,
+    variables: () => ({ '--sheet-keyboard-inset': `${keyboardInset()}px` }),
   })
   const registration = createContentAnatomy()
 
@@ -67,7 +78,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
           0,
           Math.round(view.innerHeight - keyboardViewport.height - keyboardViewport.offsetTop),
         )
-        surface.style.setProperty('--sheet-keyboard-inset', `${inset}px`)
+        setKeyboardInset(inset)
         if (inset <= 0) {
           return
         }
@@ -86,7 +97,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
         keyboardViewport.removeEventListener('resize', update)
         keyboardViewport.removeEventListener('scroll', update)
         view.removeEventListener('resize', update)
-        surface.style.removeProperty('--sheet-keyboard-inset')
+        setKeyboardInset(0)
       })
     }),
   )

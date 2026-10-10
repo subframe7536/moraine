@@ -19,6 +19,7 @@ export const accordionDataAttributes = {
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {
   base: {
+    '--mo-collapsible-content-height': '0px',
     root: `flex flex-col w-full divide-border divide-y ${DATA_DISABLED_CLASS}`,
     item: DATA_DISABLED_CLASS,
     header: 'flex',
