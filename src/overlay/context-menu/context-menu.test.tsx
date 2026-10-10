@@ -18,6 +18,7 @@ describe('ContextMenu', () => {
     ))
     const trigger = screen.getByText('Target')
     expect(trigger.hasAttribute('role')).toBe(false)
+    expect(trigger.className).toContain('[-webkit-touch-callout:none]')
     for (const key of ['Enter', ' ']) {
       fireEvent.keyDown(trigger, { key })
       fireEvent.keyUp(trigger, { key })
