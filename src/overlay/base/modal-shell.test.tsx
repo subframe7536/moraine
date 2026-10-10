@@ -224,15 +224,26 @@ describe.each([
       'body',
       'footer',
     ]
-    expect(
-      document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)?.className,
-    ).not.toBe('')
+    const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)
+    expect(content?.className).not.toBe('')
     expect(
       document.body.querySelector<HTMLElement>(`[data-slot="${owner}-overlay"]`)?.className,
     ).not.toBe('')
+    if (owner === 'sheet') {
+      expect(content?.style.getPropertyValue('--sheet-keyboard-inset')).toBe('0px')
+    }
     const selector = slots.map((slot) => `[data-slot="${owner}-${slot}"]`).join(',')
     for (const element of document.body.querySelectorAll<HTMLElement>(selector)) {
-      expect(element.getAttribute('style')).toBeNull()
+      const style = element.getAttribute('style')
+      if (style === null) {
+        continue
+      }
+      for (const declaration of style.split(';')) {
+        const trimmed = declaration.trim()
+        if (trimmed !== '') {
+          expect(trimmed.startsWith('--')).toBe(true)
+        }
+      }
     }
   })
 
