@@ -146,7 +146,7 @@ describe('Progress', () => {
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
 
     expect(progress.hasAttribute('aria-valuenow')).toBe(false)
-    expect(progress.hasAttribute('aria-valuetext')).toBe(false)
+    expect(progress.getAttribute('aria-valuetext')).toBe('indeterminate progress')
     expect(progress.getAttribute('aria-valuemin')).toBe('0')
     expect(progress.getAttribute('aria-valuemax')).toBe('100')
     expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
@@ -161,7 +161,7 @@ describe('Progress', () => {
 
       expect(progress.hasAttribute('data-indeterminate')).toBe(true)
       expect(progress.hasAttribute('aria-valuenow')).toBe(false)
-      expect(progress.hasAttribute('aria-valuetext')).toBe(false)
+      expect(progress.getAttribute('aria-valuetext')).toBe('indeterminate progress')
       expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
       expect(
         (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style

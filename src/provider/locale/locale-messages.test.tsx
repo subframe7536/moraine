@@ -4,6 +4,7 @@ import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
 import { Kbd } from '../../element/kbd/kbd'
+import { Progress } from '../../element/progress/progress'
 import { Resizable } from '../../element/resizable/resizable'
 import { Combobox } from '../../form/combobox/combobox'
 import { Field } from '../../form/field/field'
@@ -240,6 +241,18 @@ describe('localized component text', () => {
 
     expect(screen.getByLabelText('Commande').textContent).toBe('⌘')
     expect(screen.getByLabelText('Primary').textContent).toBe('⌘')
+  })
+
+  test('uses progress indeterminate message', () => {
+    const screen = render(() => (
+      <MoraineProvider messages={{ progress: { indeterminate: 'progression indéterminée' } }}>
+        <Progress aria-label="Scan" />
+      </MoraineProvider>
+    ))
+
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+      'progression indéterminée',
+    )
   })
 
   test('lets a native kbd aria-label win over messages', () => {

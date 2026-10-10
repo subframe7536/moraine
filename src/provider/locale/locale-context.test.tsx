@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { defaultKbdMessages } from '../../element/kbd/kbd.messages'
+import { defaultProgressMessages } from '../../element/progress/progress.messages'
 import { defaultResizableMessages } from '../../element/resizable/resizable.messages'
 import { defaultComboboxMessages } from '../../form/combobox/combobox.messages'
 import { defaultFileUploadMessages } from '../../form/file-upload/file-upload.messages'
@@ -43,6 +44,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   sidebarFrame: defaultSidebarFrameMessages,
   form: defaultFormMessages,
   kbd: defaultKbdMessages,
+  progress: defaultProgressMessages,
 })
 
 function controlValue(element: HTMLElement): string {

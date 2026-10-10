@@ -1,4 +1,5 @@
 import type { defaultKbdMessages } from '../../element/kbd/kbd.messages'
+import type { defaultProgressMessages } from '../../element/progress/progress.messages'
 import type { defaultResizableMessages } from '../../element/resizable/resizable.messages'
 import type { defaultComboboxMessages } from '../../form/combobox/combobox.messages'
 import type { defaultFileUploadMessages } from '../../form/file-upload/file-upload.messages'
@@ -36,6 +37,7 @@ export interface MoraineMessages {
   sidebarFrame: ComponentMessages<typeof defaultSidebarFrameMessages>
   form: ComponentMessages<typeof defaultFormMessages>
   kbd: ComponentMessages<typeof defaultKbdMessages>
+  progress: ComponentMessages<typeof defaultProgressMessages>
 }
 
 export type MoraineMessagesInput = {
