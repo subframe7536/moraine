@@ -11,6 +11,7 @@
 - [ ] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`; implement a more solid-native `ModalInternal`
 - [ ] add `useAlertDialog()`, add `.confirm()` / `.info()` / `.warning()` / `.error()` / `.success()` (antdesign-like api)
 - [ ] inline `solid-toaster` and optimize
+- [ ] simplify InputNumber internal state
 
 # V1
 
