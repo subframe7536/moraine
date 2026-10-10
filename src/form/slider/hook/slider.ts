@@ -135,6 +135,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   let activeThumbIndex: number | undefined
   let lastUsedThumbIndex: number | undefined
   let lastPointerPosition = 0
+  let grabOffset = 0
   let suppressNextBlurCommit = false
 
   function setActiveThumbIndex(index: number | undefined): void {
@@ -330,7 +331,22 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const value = linearScale(input, output)
     const offset = orientation === 'vertical' ? rect.top : rect.left
 
-    return clamp(value(pointerPosition - offset), merged.min, merged.max)
+    return clamp(value(pointerPosition - grabOffset - offset), merged.min, merged.max)
+  }
+
+  function getThumbGrabOffset(
+    thumb: HTMLElement,
+    pointerPosition: number,
+    vertical: boolean,
+  ): number {
+    const rect = thumb.getBoundingClientRect()
+    const size = vertical ? rect.height : rect.width
+    if (size <= 0) {
+      return 0
+    }
+
+    const midpoint = vertical ? rect.top + rect.height / 2 : rect.left + rect.width / 2
+    return pointerPosition - midpoint
   }
 
   function startInteraction(index: number, event: PointerEvent): boolean {
@@ -375,6 +391,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     activePointerTarget = undefined
     setActiveThumbIndex(undefined)
     lastPointerPosition = 0
+    grabOffset = 0
     setDragging(false)
     commitPendingValues()
   }
@@ -497,6 +514,8 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       return
     }
 
+    grabOffset = 0
+
     const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     const pointerValue = getValueFromPointer(pointerPosition)
     const nextActiveThumbIndex = getClosestThumbIndex(interactionValues(), pointerValue)
@@ -530,6 +549,8 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       return
     }
     const target = event.currentTarget as HTMLDivElement
+    const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
+    grabOffset = getThumbGrabOffset(target, pointerPosition, merged.orientation === 'vertical')
     if (merged.variant === 'bold') {
       target.blur()
       return
