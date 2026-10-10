@@ -293,6 +293,30 @@ describe('NavigationMenu', () => {
     },
   )
 
+  test('flips horizontal list arrows from the provider without a dir attribute', () => {
+    const previousDirection = document.documentElement.getAttribute('dir')
+    document.documentElement.removeAttribute('dir')
+    try {
+      render(() => (
+        <MoraineProvider dir="rtl">
+          <TestMenu />
+        </MoraineProvider>
+      ))
+      const products = page.getByRole('button', { name: 'Products' })
+      const guides = page.getByRole('button', { name: 'Guides' })
+      products.focus()
+      fireEvent.keyDown(products, { key: 'ArrowLeft' })
+      expect(document.activeElement).toBe(guides)
+      expect(products.closest('[dir]')).toBeNull()
+    } finally {
+      if (previousDirection === null) {
+        document.documentElement.removeAttribute('dir')
+      } else {
+        document.documentElement.setAttribute('dir', previousDirection)
+      }
+    }
+  })
+
   test('preserves logical Tab order across the portal and leaves input editing keys alone', async () => {
     const _screen = render(() => <TestMenu />)
     const products = page.getByRole('button', { name: 'Products' })

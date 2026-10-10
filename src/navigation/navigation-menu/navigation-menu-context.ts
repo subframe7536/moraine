@@ -19,8 +19,10 @@ import type { PopperContentContext } from '../../overlay/base/popper.types'
 import {
   focusWithoutScrolling,
   getFocusableElements,
+  resolveDirection,
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createEventListenerMap } from '../../shared/event-listener'
@@ -61,6 +63,7 @@ export function createNavigationMenuState(
   props: NavigationMenuProps,
   orientation: Accessor<Orientation>,
 ) {
+  const direction = useLocale().dir
   const options = mergeProps(
     {
       openDelay: 50,
@@ -203,6 +206,7 @@ export function createNavigationMenuState(
     getValue: (element) => element,
     loop: () => false,
     activationMode: () => 'manual',
+    getDirection: () => resolveDirection(rootElement(), direction()),
     focusValue: focusWithoutScrolling,
     onSelect: () => {},
   })
