@@ -2,8 +2,10 @@ import type { JSX } from 'solid-js'
 import { Index, Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 
+import { defaultProgressMessages } from './progress.messages'
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
 
@@ -41,6 +43,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     'style',
   ])
   const resolved = createStyles(progressRecipe, local)
+  const messages = useMessages('progress', defaultProgressMessages)
 
   const orientation = () => resolved.variants.orientation
 
@@ -82,7 +85,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
-      return 'indeterminate progress'
+      return messages().indeterminate
     }
 
     const valueLabel = local.getValueLabel
