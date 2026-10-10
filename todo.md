@@ -10,7 +10,7 @@
   - [x] add rule to AGENTS.md
 - [x] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`; implement a more solid-native `ModalInternal`
 - [x] simplify InputNumber internal state
-- [ ] add `useAlertDialog()`, add `.confirm()` / `.info()` / `.warning()` / `.error()` / `.success()` (antdesign-like api)
+- [x] add `useAlertDialog()`, add `.confirm()` / `.info()` / `.warning()` / `.error()` / `.success()` (antdesign-like api)
 
 # V1
 

@@ -128,6 +128,7 @@ const utilityNames = [
   'createSelectableCollectionNavigation',
   'createSlider',
   'createTransitionPresence',
+  'useAlertDialog',
 ]
 if (Object.keys(utils).sort().join(',') !== utilityNames.join(',')) {
   throw new Error('Unexpected moraine/utils runtime exports')

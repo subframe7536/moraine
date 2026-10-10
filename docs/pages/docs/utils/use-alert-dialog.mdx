@@ -1,0 +1,72 @@
+---
+title: useAlertDialog
+description: Open imperative confirm, info, warning, error, and success dialogs from moraine/utils.
+search:
+  tags: [useAlertDialog, alert, confirm, dialog, modal]
+---
+
+`useAlertDialog` opens an alert dialog from an event handler and resolves when the user responds. It renders through `Dialog` with `role="alertdialog"`. Mount the returned holder in the same component that calls the hook.
+
+## Import
+
+```tsx
+import { useAlertDialog } from 'moraine/utils'
+```
+
+## Signature
+
+```ts
+function useAlertDialog(): [AlertDialogApi, () => JSX.Element]
+
+interface AlertDialogApi {
+  confirm: (options: AlertDialogOptions) => AlertDialogInstance
+  info: (options: AlertDialogOptions) => AlertDialogInstance
+  warning: (options: AlertDialogOptions) => AlertDialogInstance
+  error: (options: AlertDialogOptions) => AlertDialogInstance
+  success: (options: AlertDialogOptions) => AlertDialogInstance
+  destroyAll: () => void
+}
+
+interface AlertDialogInstance extends Promise<boolean> {
+  close: () => void
+  destroy: () => void
+  update: (options: Partial<AlertDialogOptions>) => void
+}
+```
+
+`confirm` includes a cancel action. The other methods show the OK action only, unless `cancel` is set. The returned promise resolves `true` for OK and `false` for cancel, Escape, the corner close button, or a programmatic `close` / `destroy`.
+
+An outside pointer press does not dismiss the dialog unless `maskClosable` is set. Escape dismisses it unless `closeOnEscape` is `false`. The corner close button stays hidden unless `closable` is set.
+
+`onOk` and `onCancel` run before the dialog closes. A rejected promise leaves it open and shows loading on the action button while the promise is pending. `close`, `destroy`, and `destroyAll` resolve `false` without calling those handlers. `destroy` removes the dialog immediately. `close` plays the exit transition.
+
+## Usage Example
+
+```tsx title="src/DeleteProject.tsx"
+import { useAlertDialog } from 'moraine/utils'
+
+export function DeleteProject() {
+  const [alert, AlertDialogHolder] = useAlertDialog()
+
+  const confirmDelete = async () => {
+    await alert.confirm({
+      title: 'Delete this project?',
+      content: 'This action cannot be undone.',
+      danger: true,
+      okText: 'Delete',
+      onOk: () => deleteProject(),
+    })
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => void confirmDelete()}>
+        Delete
+      </button>
+      <AlertDialogHolder />
+    </>
+  )
+}
+```
+
+OK and Cancel labels use the `dialog` message group (`ok`, `cancel`). `ariaLabel` names the dialog when `title` is omitted.

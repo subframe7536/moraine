@@ -49,6 +49,7 @@
     },
     "./utils": {
       "types": "./dist/utils.d.mts",
+      "solid": "./dist/utils.jsx",
       "default": "./dist/utils.mjs"
     },
     "./virtualizer": {

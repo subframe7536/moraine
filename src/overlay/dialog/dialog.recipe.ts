@@ -28,6 +28,16 @@ export const DIALOG_CONTENT_CLOSE_CLASS = 'right-4 top-4 absolute'
 export const DIALOG_BODY_CLASS = 'text-sm text-foreground px-6 flex-1 min-h-0'
 export const DIALOG_FOOTER_CLASS =
   'p-6 pt-2 flex shrink-0 flex-col-reverse gap-2 sm:(flex-row items-center justify-end)'
+export const ALERT_DIALOG_HEADER_CLASS = 'flex gap-3 items-start'
+export const ALERT_DIALOG_COPY_CLASS = 'flex-1 gap-2 grid min-w-0'
+export const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
+export const ALERT_DIALOG_ICON_TONE_CLASS = {
+  confirm: 'text-destructive',
+  warning: 'text-destructive',
+  error: 'text-destructive',
+  info: 'text-primary',
+  success: 'text-primary',
+} as const
 
 export const dialogRecipe = /* @__PURE__ */ defineRecipe<DialogStyleSlot, DialogStyleVariant>(
   'dialog',
