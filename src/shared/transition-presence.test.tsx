@@ -21,7 +21,7 @@ function renderPresence(): PresenceFixture {
     return (
       <Show when={presence.present()}>
         <div
-          {...presence.dataAttrs()}
+          {...presence.dataAttrs}
           ref={(element) => {
             fixture = { element, presence, setOpen }
             presence.setElement(element)
@@ -119,7 +119,8 @@ describe('createTransitionPresence', () => {
       const presence = createTransitionPresence({ open })
 
       expect(presence.present()).toBe(false)
-      expect(presence.dataAttrs()).toEqual({ 'data-closed': '' })
+      expect(presence.dataAttrs['data-closed']).toBe('')
+      expect(presence.dataAttrs['data-expanded']).toBeUndefined()
 
       return { dispose, presence, setOpen }
     })
@@ -128,7 +129,8 @@ describe('createTransitionPresence', () => {
     await Promise.resolve()
 
     expect(lifecycle.presence.present()).toBe(true)
-    expect(lifecycle.presence.dataAttrs()).toEqual({ 'data-expanded': '' })
+    expect(lifecycle.presence.dataAttrs['data-closed']).toBeUndefined()
+    expect(lifecycle.presence.dataAttrs['data-expanded']).toBe('')
 
     lifecycle.dispose()
   })

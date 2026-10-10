@@ -993,10 +993,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...{
-          'aria-label': local['aria-label'],
-          ...mergeFieldAriaAttributes(local, field.ariaAttrs()),
-        }}
+        {...mergeFieldAriaAttributes(local, field.ariaAttrs())}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

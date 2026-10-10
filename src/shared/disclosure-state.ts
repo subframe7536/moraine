@@ -31,11 +31,11 @@ export interface DisclosureState {
   unmountOnHide: Accessor<boolean>
 
   contentHeight: Accessor<number>
-  dataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-disabled'?: string
-    'data-expanded'?: string
-  }>
+  dataAttrs: {
+    readonly 'data-closed'?: string
+    readonly 'data-disabled'?: string
+    readonly 'data-expanded'?: string
+  }
 
   closed: Accessor<boolean>
   exiting: Accessor<boolean>
@@ -77,13 +77,18 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     onExitComplete: options.onExitComplete,
   })
 
-  const dataAttrs = createMemo(() => ({
-    'data-closed': options.open() ? undefined : '',
-    'data-disabled': disabled() ? '' : undefined,
-    'data-expanded': options.open() ? '' : undefined,
-  }))
-
   const closed = createMemo(() => !options.open())
+  const dataAttrs = {
+    get 'data-closed'() {
+      return closed() ? '' : undefined
+    },
+    get 'data-disabled'() {
+      return disabled() ? '' : undefined
+    },
+    get 'data-expanded'() {
+      return options.open() ? '' : undefined
+    },
+  }
   const exiting = createMemo(() => closed() && transition() && presence.present())
   const hidden = createMemo(() => closed() && !exiting())
   const inert = createMemo(() => (closed() ? true : undefined))

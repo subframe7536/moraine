@@ -255,6 +255,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const itemValue = createMemo(() => item.value ?? itemIdSegment())
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
+          const leading = createMemo(() => item.leading)
           const label = createMemo(() => item.label)
           const expanded = createMemo(() => selectedValues().includes(itemValue()))
           const disclosure = createDisclosureState({
@@ -267,8 +268,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
             disabled,
             expanded,
           }
-          const itemDataAttrs = accordionDataAttributes.item(itemState)
-          const triggerDataAttrs = accordionDataAttributes.trigger(itemState)
+
           const triggerId = () => `${rootId()}-${itemIdSegment()}-trigger`
           const contentId = () => `${rootId()}-${itemIdSegment()}-content`
           let spaceKeyDown = false
@@ -344,7 +344,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
               data-slot="accordion-item"
               class={cn(resolved.styles.item.class, item.class)}
               style={resolved.styles.item.style}
-              {...itemDataAttrs}
+              {...accordionDataAttributes.item(itemState)}
             >
               <h3 data-slot="accordion-header" {...resolved.styles.header}>
                 <button
@@ -369,9 +369,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     lastFocusedIndex = getTriggers().indexOf(event.currentTarget)
                     lastFocusedTrigger = event.currentTarget
                   }}
-                  {...triggerDataAttrs}
+                  {...accordionDataAttributes.trigger(itemState)}
                 >
-                  <Show when={item.leading}>
+                  <Show when={leading()}>
                     {(value) => (
                       <Icon
                         name={value()}

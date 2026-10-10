@@ -163,7 +163,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
     return checked() === 'indeterminate'
   })
-  const activeIcon = () => (indeterminate() ? merged.indeterminateIcon : merged.checkedIcon)
+  const activeIcon = createMemo(() =>
+    indeterminate() ? merged.indeterminateIcon : merged.checkedIcon,
+  )
 
   createEffect(
     on(
