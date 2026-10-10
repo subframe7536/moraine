@@ -1,9 +1,9 @@
 ## Todo
 
-- [x] new prop/variant in button: `activeEffect?: 'none' | 'move-down' | 'zoom-in' | ((el) => string)`, default to `'move-down'`, `'move-down'` and `'zoom-in'` are popup-sensitive. toggle-button should be `'none'`
-- [x] optimize pagination reactivity reference from `@solid-primitives/pagination`
-- [x] refactor moraine provider context data structure in pure object instead of accessor if possible
-- [x] docs: string literal in props table row should be `string`, show details in collapsible content
+- [ ] unify `{...rest}` attribute overload rule across all components
+- [ ] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`
+- [ ] add `useAlertDialog()`, add `confirm()` / `.info()` / `.warning()` / `.error()` / `.success()` (antdesign-like api)
+- [ ] inline `solid-toaster` and optimize
 
 # V1
 
