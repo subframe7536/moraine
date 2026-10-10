@@ -39,6 +39,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const orientation = () => resolved.variants.orientation
   const shadow = () => resolved.variants.shadow === true
   const [overflow, setOverflow] = createSignal<Exclude<ScrollAreaT.Visibility, 'auto'>>('none')
+  const [canScroll, setCanScroll] = createSignal(true)
   let root: HTMLDivElement | undefined
 
   const visible = () => {
@@ -55,9 +56,13 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
 
   createEffect(
     on([shadow, orientation, () => local.offset], ([enabled, axis, offset]) => {
-      if (!enabled || !root) {
+      if (!root) {
         setOverflow('none')
         return
+      }
+
+      if (!enabled) {
+        setOverflow('none')
       }
 
       const element = root
@@ -70,9 +75,18 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         if (disposed) {
           return
         }
+        const clientSize = horizontal ? element.clientWidth : element.clientHeight
         const extent = horizontal
           ? element.scrollWidth - element.clientWidth
           : element.scrollHeight - element.clientHeight
+        // Unmeasured boxes stay in the tab order until layout sizes are known.
+        const overflowing = clientSize === 0 || extent > 0
+        if (overflowing !== canScroll()) {
+          setCanScroll(overflowing)
+        }
+        if (!enabled) {
+          return
+        }
         let position = horizontal ? element.scrollLeft : element.scrollTop
         // RTL scrollLeft is negative from the right edge in modern browsers.
         if (horizontal && view.getComputedStyle(element).direction === 'rtl') {
@@ -131,7 +145,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   return (
     <div
       data-slot="scroll-area"
-      tabIndex={0}
+      tabIndex={canScroll() ? 0 : -1}
       {...rest}
       ref={(element) => {
         root = element

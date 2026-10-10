@@ -99,9 +99,10 @@ Set a height or maximum height for vertical scrolling and a width for horizontal
 component has one `<div>` root and renders children directly inside it, so layout utilities such as
 `flex`, `gap-4`, and `space-y-3` apply to your content.
 
-The root is keyboard-focusable by default with `tabIndex={0}`. Supply `role="region"` and an
-accessible label when the content forms a named region. Use `tabIndex={-1}` when the container
-should be excluded from the tab order. Native scroll events and refs are forwarded to the root.
+The root is keyboard-focusable when its content overflows (`tabIndex={0}`) and leaves the tab
+order when it fits. Supply `role="region"` and an accessible label when the content forms a named
+region. Use `tabIndex={-1}` when the container should stay out of the tab order. Native scroll
+events and refs are forwarded to the root.
 
 ### Optional shadows
 
