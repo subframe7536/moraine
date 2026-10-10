@@ -2,8 +2,10 @@ import type { JSX } from 'solid-js'
 import { DEV, For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
+import { resolveDirection } from '../../overlay/base/utils'
 import { useCn } from '../../provider/cn-context'
 import { createStyles } from '../../provider/index'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
@@ -47,6 +49,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     'aria-labelledby',
   ])
   const resolved = createStyles(stepperRecipe, local)
+  const direction = useLocale().dir
   const merged = mergeProps(
     {
       get orientation() {
@@ -67,6 +70,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   })
   const triggerRefs = new Map<string, HTMLButtonElement>()
   const warnedDuplicateValues = new Set<StepperT.Value>()
+  let headerRef: HTMLDivElement | undefined
 
   const normalizedItems = createMemo<NormalizedStepperItem[]>(() => {
     const occurrences = new Map<StepperT.Value, number>()
@@ -128,6 +132,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     isDisabled: isItemDisabled,
     loop: () => merged.loop,
     activationMode: () => merged.activationMode ?? 'automatic',
+    getDirection: () => resolveDirection(headerRef, direction()),
     focusValue: (key) => triggerRefs.get(key)?.focus(),
     onSelect: (key) => {
       const entry = normalizedItems().find((item) => item.instanceKey === key)
@@ -194,6 +199,9 @@ export function Stepper(props: StepperProps): JSX.Element {
   return (
     <div id={id()} data-slot="stepper" {...resolved.styles.root} {...rest}>
       <div
+        ref={(element) => {
+          headerRef = element
+        }}
         role="tablist"
         aria-label={local['aria-label']}
         aria-labelledby={local['aria-labelledby']}

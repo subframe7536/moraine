@@ -325,6 +325,37 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
+  test('flips horizontal arrows from the provider without a dir attribute', () => {
+    const previousDirection = document.documentElement.getAttribute('dir')
+    document.documentElement.removeAttribute('dir')
+    const onChange = vi.fn()
+    try {
+      const screen = render(() => (
+        <MoraineProvider dir="rtl">
+          <Stepper
+            items={ITEMS}
+            defaultValue="shipping"
+            linear={false}
+            clickable
+            onChange={onChange}
+          />
+        </MoraineProvider>
+      ))
+
+      const shipping = screen.getByRole('tab', { name: 'Shipping' })
+      shipping.focus()
+      fireEvent.keyDown(shipping, { key: 'ArrowLeft' })
+      expect(onChange).toHaveBeenCalledWith('checkout')
+      expect(shipping.closest('[dir]')).toBeNull()
+    } finally {
+      if (previousDirection === null) {
+        document.documentElement.removeAttribute('dir')
+      } else {
+        document.documentElement.setAttribute('dir', previousDirection)
+      }
+    }
+  })
+
   test('supports Home and End keyboard navigation when clickable', () => {
     const onChange = vi.fn()
     const screen = render(() => (
