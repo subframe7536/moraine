@@ -29,6 +29,26 @@ describe('InputNumber', () => {
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
     expect(inputEl?.placeholder).toBe('ref test')
   })
+  test('uses a text keyboard on iOS when negative values are allowed', () => {
+    const userAgent = vi
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')
+    try {
+      const negative = render(() => <InputNumber />)
+      expect(negative.getByRole('spinbutton').getAttribute('inputmode')).toBe('text')
+      const nonNegative = render(() => <InputNumber minValue={0} />)
+      expect(nonNegative.getByRole('spinbutton').getAttribute('inputmode')).toBe('decimal')
+    } finally {
+      userAgent.mockRestore()
+    }
+  })
+  test('keeps a decimal keyboard off iOS', () => {
+    expect(
+      render(() => <InputNumber />)
+        .getByRole('spinbutton')
+        .getAttribute('inputmode'),
+    ).toBe('decimal')
+  })
   test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
     const onIncrementClick = vi.fn()
     const screen = render(() => (
