@@ -75,7 +75,8 @@ export function Example() {
 
 Provide a numeric `value` for determinate progress. Omit `value` or pass `null` for indeterminate
 progress. Pass a string array as `max` for a discrete sequence; `value` is then the active step
-index. `getValueLabel` supplies `aria-valuetext`.
+index. `getValueLabel` supplies `aria-valuetext` for determinate values. Indeterminate progress
+uses `aria-valuetext="indeterminate progress"`.
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />

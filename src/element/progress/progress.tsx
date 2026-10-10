@@ -82,7 +82,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
-      return undefined
+      return 'indeterminate progress'
     }
 
     const valueLabel = local.getValueLabel
