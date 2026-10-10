@@ -49,6 +49,22 @@ describe('ScrollArea', () => {
     expectEdges(root, false, false)
   })
 
+  test('leaves the tab order when content fits and restores it when content overflows', async () => {
+    const screen = render(() => (
+      <ScrollArea role="region" aria-label="Activity">
+        Content
+      </ScrollArea>
+    ))
+    const root = screen.getByRole('region', { name: 'Activity' })
+    setDimensions(root, { clientHeight: 100, scrollHeight: 100 })
+    fireEvent(window, new Event('resize'))
+    await waitFor(() => expect(root.tabIndex).toBe(-1))
+
+    setDimensions(root, { scrollHeight: 300 })
+    fireEvent(window, new Event('resize'))
+    await waitFor(() => expect(root.tabIndex).toBe(0))
+  })
+
   test('tracks vertical boundaries, suppresses duplicate notifications, and clears fitting content', async () => {
     const onVisibilityChange = vi.fn()
     const screen = render(() => <ScrollArea shadow onVisibilityChange={onVisibilityChange} />)
