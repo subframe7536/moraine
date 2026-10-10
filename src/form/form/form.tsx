@@ -91,6 +91,8 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
 
   return (
     <form
+      data-slot="form"
+      {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
       {...formProps}
       ref={(element) => {
         local.of[INTERNAL].element = element
@@ -106,8 +108,6 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       onSubmit={onSubmit}
       onReset={onReset}
       {...resolved.styles.root}
-      data-slot="form"
-      {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
     >
       {local.children}
     </form>

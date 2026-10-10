@@ -38,13 +38,13 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   )
   return (
     <div
-      {...rest}
-      id={state.listboxId()}
       role="listbox"
-      tabIndex={-1}
       data-slot={state.slotName('listbox')}
       aria-readonly={state.field.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
+      {...rest}
+      id={state.listboxId()}
+      tabIndex={-1}
       ref={(element) => {
         setListbox(element)
         callRef(local.ref, element)

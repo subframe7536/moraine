@@ -21,13 +21,13 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
 
   return (
     <div
-      {...rest}
       data-slot={context.slotName('overlay')}
       {...modalDataAttributes.overlay({
         overlayScroll: () => local.scrollable,
         expanded: () => presence.dataAttrs()['data-expanded'],
         closed: () => presence.dataAttrs()['data-closed'],
       })}
+      {...rest}
       ref={(element) => {
         const unregister = presence.registerElement(element)
         callRef(local.ref, element)

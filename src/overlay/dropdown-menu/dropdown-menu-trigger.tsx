@@ -90,17 +90,16 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     },
     events,
   )
-  const triggerProps = mergeProps(context.triggerProps, interaction)
+  const triggerProps = mergeProps(
+    { 'data-slot': 'dropdown-menu-trigger' },
+    context.triggerProps,
+    interaction,
+  )
   const binding = root.bind(triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
-    <Dynamic
-      component={tag()}
-      {...binding}
-      data-slot="dropdown-menu-trigger"
-      {...resolved.styles.trigger}
-    >
+    <Dynamic component={tag()} {...binding} {...resolved.styles.trigger}>
       {children()}
     </Dynamic>
   )

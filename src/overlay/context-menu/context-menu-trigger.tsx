@@ -62,6 +62,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     expanded: context.isOpen,
   })
   const triggerProps = mergeProps(
+    { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
     triggerDataAttrs,
     {
@@ -86,7 +87,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       component={tag()}
       type={undefined}
       {...binding}
-      data-slot="context-menu-trigger"
       {...resolved.styles.trigger}
       class={cn(resolved.styles.trigger.class, CONTEXT_MENU_TRIGGER_CLASS)}
     >

@@ -149,9 +149,9 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         })
         return (
           <div
-            {...mergePopperElementProps(contentProps, rest)}
             data-slot="popover-content"
             {...contentDataAttrs}
+            {...mergePopperElementProps(contentProps, rest)}
             aria-label={local.ariaLabel ?? rest['aria-label']}
             {...resolved.styles.content}
           >

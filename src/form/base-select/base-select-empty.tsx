@@ -16,7 +16,7 @@ export function BaseSelectEmpty(props: BaseSelectPartProps): JSX.Element {
   })
   return (
     <Show when={state.items().length === 0}>
-      <div {...props} data-slot={state.slotName('empty')} {...resolved.styles.empty}>
+      <div data-slot={state.slotName('empty')} {...props} {...resolved.styles.empty}>
         {props.children}
       </div>
     </Show>

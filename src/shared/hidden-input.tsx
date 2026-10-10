@@ -23,6 +23,7 @@ export function HiddenInput(props: HiddenInputProps): JSX.Element {
 
   return (
     <input
+      {...rest}
       style={
         local.visuallyHidden === false
           ? local.style
@@ -31,7 +32,6 @@ export function HiddenInput(props: HiddenInputProps): JSX.Element {
               ...local.style,
             }
       }
-      {...rest}
     />
   )
 }

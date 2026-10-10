@@ -802,18 +802,18 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         as="div"
         items={listEntries()}
         itemRender={ListEntry}
-        id={props.id}
         data-slot={slotName('content')}
         role="menu"
-        aria-labelledby={props.ariaLabelledBy}
-        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
-        {...props.contentProps}
         {...overlayMenuDataAttributes.content({
           expanded: () => presenceDataAttrs()['data-expanded'],
           closed: () => presenceDataAttrs()['data-closed'],
           side,
           align,
         })}
+        {...props.contentProps}
+        id={props.id}
+        aria-labelledby={props.ariaLabelledBy}
+        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)

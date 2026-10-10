@@ -276,8 +276,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
   return (
     <div
-      {...rest}
-      id={`${groupId()}-root`}
       data-slot="checkbox-group"
       {...checkboxGroupDataAttributes.root({
         disabled: field.disabled,
@@ -285,6 +283,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         required: field.required,
         invalid: field.invalid,
       })}
+      {...rest}
+      id={`${groupId()}-root`}
       {...resolved.styles.root}
     >
       <fieldset

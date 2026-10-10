@@ -221,11 +221,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
   return (
     <nav
-      ref={(el) => callRef(local.ref, el)}
       data-slot="pagination"
       role={merged.role}
-      {...resolved.styles.root}
       {...rest}
+      ref={(el) => callRef(local.ref, el)}
+      {...resolved.styles.root}
       aria-label={local['aria-label'] ?? messages().label}
     >
       <ul data-slot="pagination-list" {...resolved.styles.list}>

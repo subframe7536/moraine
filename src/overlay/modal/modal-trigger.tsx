@@ -58,10 +58,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       data-slot={context.slotName('trigger')}
-      {...binding}
-      component={tag()}
-      style={local.style}
-      class={local.class}
       aria-haspopup="dialog"
       aria-controls={context.contentElement() ? context.contentId() : undefined}
       aria-expanded={context.open() ? 'true' : 'false'}
@@ -70,6 +66,10 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
         closed: () => !context.open(),
         disabled,
       })}
+      {...binding}
+      component={tag()}
+      style={local.style}
+      class={local.class}
     >
       {children()}
     </Dynamic>

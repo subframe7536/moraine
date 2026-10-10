@@ -1,7 +1,7 @@
 ## Todo
 
-- [ ] unify `{...rest}` attribute overload rule across all components
-  - [ ] add rule to AGENTS.md
+- [x] unify `{...rest}` attribute overload rule across all components
+  - [x] add rule to AGENTS.md
 - [ ] unify component-specific css variable definition in both component source and recipe
   - [ ] add rule to AGENTS.md
 - [ ] perfer to use `createEventListener` and `createEventListenerMap` in all components

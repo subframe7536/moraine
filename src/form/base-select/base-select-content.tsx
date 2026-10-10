@@ -100,13 +100,13 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
           class={BASE_SELECT_POSITIONER_CLASS}
         >
           <div
-            {...rest}
             data-slot={state.slotName('content')}
             {...baseSelectDataAttributes.content({
               expanded: () => presence.dataAttrs()['data-expanded'],
               closed: () => presence.dataAttrs()['data-closed'],
               side,
             })}
+            {...rest}
             ref={(element) => {
               setContent(element)
               presence.setElement(element)

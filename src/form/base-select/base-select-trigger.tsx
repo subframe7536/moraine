@@ -92,10 +92,6 @@ export function BaseSelectTrigger<
   const rootBinding = root.bind(binding)
   return (
     <Dynamic
-      {...rootBinding}
-      component={tag()}
-      {...state.field.ariaAttrs()}
-      id={state.field.id()}
       role="combobox"
       data-slot={state.slotName('trigger')}
       {...baseSelectDataAttributes.trigger({
@@ -105,6 +101,10 @@ export function BaseSelectTrigger<
         disabled: () => Boolean(state.field.disabled() || local.disabled),
       })}
       aria-haspopup="listbox"
+      {...rootBinding}
+      component={tag()}
+      {...state.field.ariaAttrs()}
+      id={state.field.id()}
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
       aria-activedescendant={

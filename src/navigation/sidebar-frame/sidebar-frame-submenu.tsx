@@ -23,7 +23,7 @@ export function SidebarFrameSubmenu(props: SidebarFrameT.SubmenuProps): JSX.Elem
   const resolved = useSidebarFrameStyles('submenu', local)
 
   return (
-    <Collapsible data-slot="sidebar-frame-submenu" {...resolved.styles.submenu} {...rest}>
+    <Collapsible data-slot="sidebar-frame-submenu" {...rest} {...resolved.styles.submenu}>
       {local.children}
     </Collapsible>
   )

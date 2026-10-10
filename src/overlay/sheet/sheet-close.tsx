@@ -8,5 +8,5 @@ import type { SheetT } from './sheet.types'
 export function SheetClose<T extends ValidComponent = 'button'>(
   props: SheetT.CloseProps<T>,
 ): JSX.Element {
-  return <Modal.Close {...props} data-slot="sheet-close" />
+  return <Modal.Close data-slot="sheet-close" {...props} />
 }

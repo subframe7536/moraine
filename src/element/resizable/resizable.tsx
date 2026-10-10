@@ -680,14 +680,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   return (
     <div
+      data-slot="resizable"
+      {...resizableDataAttributes.root({ resizableRoot: true })}
+      {...rest}
       ref={(element) => {
         rootRef = element
         callRef(local.ref, element)
       }}
-      {...rest}
       id={local.id}
-      data-slot="resizable"
-      {...resizableDataAttributes.root({ resizableRoot: true })}
       {...resolved.styles.root}
     >
       <Index each={resolvedPanels()}>

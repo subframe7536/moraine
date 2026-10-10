@@ -151,9 +151,9 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
     <Dynamic
       component={resolvedTag()}
       data-slot={triggerProps.withActions ? 'sidebar-frame-item-trigger' : 'sidebar-frame-item'}
+      {...itemData(Boolean(triggerProps.withActions))}
       {...binding}
       {...resolved.styles.item}
-      {...itemData(Boolean(triggerProps.withActions))}
     >
       <Show when={local.leading}>
         {(iconName) => (

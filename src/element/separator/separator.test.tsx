@@ -44,7 +44,7 @@ describe('Separator', () => {
     expect(root.className).toContain('h-full')
   })
 
-  test('forwards native attributes while retaining separator semantics', () => {
+  test('forwards native attributes and lets callers override generated metadata', () => {
     const screen = render(() => (
       <Separator
         id="section-break"
@@ -61,9 +61,9 @@ describe('Separator', () => {
     expect(root?.id).toBe('section-break')
     expect(root?.title).toBe('Section break')
     expect(root?.getAttribute('aria-hidden')).toBe('false')
-    expect(root?.getAttribute('role')).toBe('separator')
-    expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(root?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(root?.getAttribute('role')).toBe('presentation')
+    expect(root?.getAttribute('aria-orientation')).toBe('vertical')
+    expect(root?.getAttribute('data-orientation')).toBe('custom')
   })
 
   test('remains passive and non-tabbable while forwarding caller pointer events', () => {

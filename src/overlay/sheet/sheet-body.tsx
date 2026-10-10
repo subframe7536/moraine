@@ -26,8 +26,8 @@ export function SheetBody<T extends ValidComponent = 'div'>(
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-body"
-      {...rest}
       {...bodyAttrs}
+      {...rest}
       {...resolved.styles.body}
     >
       {local.children}
