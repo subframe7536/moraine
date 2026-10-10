@@ -121,6 +121,12 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
 - Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
 - Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts`. Use the returned stable `styles.<slot>.class` and `styles.<slot>.style` bindings directly; do not add memos solely for class or style resolution.
+- **Component CSS variables:** Define component-specific custom properties as recipe style keys, never as `[--name:value]` class utilities:
+  1. Declare defaults on `base` / `variants` / `compoundVariants` as `'--name': value`.
+  2. Consume them in slot or colocated classes with `prop-(--name)`.
+  3. `createStyles()` applies those keys to `variablesSlot` (default `root`, or `rootSlot` when the recipe has no root). Runtime values on that host use the same names through `createStyles` `style` / `styles` or the slot style binding.
+  4. Put measured values that rest/styles must not replace after the style binding. `element.style.setProperty` is only for imperative geometry on a node that is not updated through that binding (Floating UI).
+     Theme engine variables (`--mo-enter-*`, `--mo-exit-*`, `--mo-anim-*`, `--mo-auto-*`) stay in `src/theme`. Do not add a public recipe slot solely to hold a private wrapper variable.
 - Put truly reusable static class values in a `*.class.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.
 - Keep component-private visual class constants in the component's `*.recipe.ts` file alongside its recipe, using `UPPER_SNAKE_CASE`. Do not add public slots solely to relocate internal styles.
 - Keep structural classes owned by shared infrastructure with that infrastructure. Component implementations should reference recipe bindings or class constants rather than declare visual class literals.

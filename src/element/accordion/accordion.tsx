@@ -41,7 +41,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
-  const resolved = createStyles(accordionRecipe, local)
+  const resolved = createStyles(accordionRecipe, local, { variablesSlot: 'content' })
 
   const merged = mergeProps(
     {
@@ -359,6 +359,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 data-slot="accordion-content"
                 class={resolved.styles.content.class}
                 style={{
+                  ...resolved.styles.content.style,
                   get '--mo-collapsible-content-height'() {
                     return `${disclosure.contentHeight()}px`
                   },
@@ -368,7 +369,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   get height() {
                     return disclosure.initialOpen() ? 'auto' : undefined
                   },
-                  ...resolved.styles.content.style,
                 }}
                 {...accordionDataAttributes.content({
                   closed: () => disclosure.dataAttrs()['data-closed'],

@@ -47,19 +47,19 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
       },
       size: {
         sm: {
-          root: '[--p-size:0.25rem]',
+          '--p-size': '0.25rem',
           status: 'text-xs',
           steps: 'text-xs',
           step: 'text-xs',
         },
         md: {
-          root: '[--p-size:0.5rem]',
+          '--p-size': '0.5rem',
           status: 'text-sm',
           steps: 'text-sm',
           step: 'text-sm',
         },
         lg: {
-          root: '[--p-size:0.75rem]',
+          '--p-size': '0.75rem',
           status: 'text-base',
           steps: 'text-base',
           step: 'text-base',

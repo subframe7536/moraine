@@ -892,6 +892,7 @@ describe('Sheet', () => {
       input.focus()
       listeners.get('resize')?.(new Event('resize'))
 
+      expect(content.className).not.toContain('[--sheet-keyboard-inset')
       expect(content.style.getPropertyValue('--sheet-keyboard-inset')).toBe('400px')
       expect(scrollIntoView).toHaveBeenCalled()
     } finally {

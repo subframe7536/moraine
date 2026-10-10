@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createSignal,
+  mergeProps,
+  on,
+  onCleanup,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
@@ -47,6 +56,15 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     inheritedStyles: () => family.presentation,
   })
   const registration = createContentAnatomy()
+  const [keyboardInset, setKeyboardInset] = createSignal(0)
+  const contentProps = mergeProps(resolved.styles.content, {
+    get style() {
+      return {
+        ...resolved.styles.content.style,
+        '--sheet-keyboard-inset': `${keyboardInset()}px`,
+      }
+    },
+  })
 
   createEffect(
     on([family.open, family.contentElement], ([isOpen, content]) => {
@@ -67,7 +85,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
           0,
           Math.round(view.innerHeight - keyboardViewport.height - keyboardViewport.offsetTop),
         )
-        surface.style.setProperty('--sheet-keyboard-inset', `${inset}px`)
+        setKeyboardInset(inset)
         if (inset <= 0) {
           return
         }
@@ -86,7 +104,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
         keyboardViewport.removeEventListener('resize', update)
         keyboardViewport.removeEventListener('scroll', update)
         view.removeEventListener('resize', update)
-        surface.style.removeProperty('--sheet-keyboard-inset')
+        setKeyboardInset(0)
       })
     }),
   )
@@ -113,7 +131,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
           overlay={merged.overlay}
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
-          {...resolved.styles.content}
+          {...contentProps}
           ariaLabel={local['aria-label'] ?? merged.ariaLabel}
           ariaLabelledBy={
             (local['aria-label'] ?? merged.ariaLabel) === undefined
