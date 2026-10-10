@@ -3,19 +3,25 @@ import { children as resolveChildren, mergeProps, onMount, splitProps } from 'so
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
 import { getContextMenuTriggerAccessibility, validateOverlayTrigger } from '../base/trigger'
 
 import { useContextMenuContext } from './context-menu-context'
-import { contextMenuDataAttributes, contextMenuRecipe } from './context-menu.recipe'
+import {
+  CONTEXT_MENU_TRIGGER_CLASS,
+  contextMenuDataAttributes,
+  contextMenuRecipe,
+} from './context-menu.recipe'
 import type { ContextMenuT } from './context-menu.types'
 
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
+  const cn = useCn()
   const context = useContextMenuContext()
 
   const resolved = createStyles(contextMenuRecipe, local, {
@@ -82,6 +88,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       {...binding}
       data-slot="context-menu-trigger"
       {...resolved.styles.trigger}
+      class={cn(resolved.styles.trigger.class, CONTEXT_MENU_TRIGGER_CLASS)}
     >
       {children()}
     </Dynamic>
