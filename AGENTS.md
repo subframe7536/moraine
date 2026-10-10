@@ -218,3 +218,9 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - Use `Combobox` for editable single collection selection.
 - Use `MultiSelect` for collection-backed values and creatable free-form tags.
+
+## Cursor Cloud specific instructions
+
+- Node `24.20.0` (`.node-version`) and pnpm `12.6.0` (`packageManager`) live in `/usr/local/bin`. The image may put another Node earlier on `PATH`. Export `PATH="/usr/local/bin:$PATH"` before repository commands.
+- The docs app is the product surface. `pnpm run dev` starts Vite, but nested `pnpm` does not forward `--host` / `--port`. The environment start script runs `pnpm --filter @moraine/docs exec vite serve --host 0.0.0.0 --port 5173` and skips startup when `http://127.0.0.1:5173/` already responds.
+- From the repository root, `pnpm run qa` lints, formats, and typechecks. `pnpm run test` covers docs and library tests. `pnpm run docs:build` builds the static docs site.
