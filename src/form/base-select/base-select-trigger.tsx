@@ -46,7 +46,7 @@ export function BaseSelectTrigger<
       ref: state.setFocusOwner,
     },
   })
-  const eventProps = mergeProps(rest, {
+  const eventProps = mergeProps({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
       callHandler(event, local.onPointerDown)
       if (
@@ -92,7 +92,6 @@ export function BaseSelectTrigger<
   const rootBinding = root.bind(binding)
   return (
     <Dynamic
-      role="combobox"
       data-slot={state.slotName('trigger')}
       {...baseSelectDataAttributes.trigger({
         invalid: state.field.invalid,
