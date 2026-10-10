@@ -35,19 +35,20 @@
       "solid": "./dist/index.jsx",
       "default": "./dist/index.mjs"
     },
-    "./package.json": "./package.json",
-    "./icon.css": "./dist/icon.css",
-    "./unocss": {
-      "types": "./dist/unocss.d.mts",
-      "default": "./dist/unocss.mjs"
-    },
     "./tailwind": {
       "types": "./dist/tailwind.d.mts",
       "default": "./dist/tailwind.mjs"
     },
+    "./theme": {
+      "types": "./dist/theme.d.mts",
+      "default": "./dist/theme.mjs"
+    },
+    "./unocss": {
+      "types": "./dist/unocss.d.mts",
+      "default": "./dist/unocss.mjs"
+    },
     "./utils": {
       "types": "./dist/utils.d.mts",
-      "solid": "./dist/utils.jsx",
       "default": "./dist/utils.mjs"
     },
     "./virtualizer": {
@@ -55,10 +56,8 @@
       "solid": "./dist/virtualizer.jsx",
       "default": "./dist/virtualizer.mjs"
     },
-    "./theme": {
-      "types": "./dist/theme.d.mts",
-      "default": "./dist/theme.mjs"
-    }
+    "./package.json": "./package.json",
+    "./icon.css": "./dist/icon.css"
   },
   "publishConfig": {
     "access": "public",
