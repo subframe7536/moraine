@@ -45,6 +45,7 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
+      component={tag()}
       data-slot="sidebar-frame-trigger"
       aria-expanded={context.isOpen()}
       {...sidebarFrameDataAttributes.trigger({
@@ -53,7 +54,6 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
         disabled,
       })}
       {...binding}
-      component={tag()}
       class={local.class}
       style={local.style}
       aria-controls={ariaControls()}

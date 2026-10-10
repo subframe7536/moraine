@@ -189,7 +189,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     )
 
     return (
-      <Dynamic data-slot="field" {...rest} component={local.as ?? 'div'} {...resolved.styles.root}>
+      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...resolved.styles.root}>
         <div data-slot="field-wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
             <div data-slot="field-label-wrapper" {...resolved.styles.labelWrapper}>

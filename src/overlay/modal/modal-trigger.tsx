@@ -57,6 +57,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
+      component={tag()}
       data-slot={context.slotName('trigger')}
       aria-haspopup="dialog"
       aria-controls={context.contentElement() ? context.contentId() : undefined}
@@ -67,7 +68,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
         disabled,
       })}
       {...binding}
-      component={tag()}
       style={local.style}
       class={local.class}
     >

@@ -170,6 +170,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   3. Merged presentation (`{...resolved.styles.<slot>}` or `class`/`style` from `createStyles` / `useCn`). Always split `class`, `style`, `classes`, and `styles` out of rest.
   4. Owned wiring rest must not replace: composed `ref`, form `id` / `name` / `value` / `checked` / `disabled` / `required` / `readOnly`, value-derived ARIA (`aria-valuenow`, `aria-checked`, `aria-pressed` when bound to the control value), and event handlers composed with `callHandler`.
      Split `??` fallback props such as i18n `aria-label` out of rest and assign `local['aria-label'] ?? messages().label` after rest. Do not reconstruct `data-slot` from rest after spreading it; put the default before rest. `mergeProps(defaults, rest, composedHandlers)` is the same rule.
+- **`<Dynamic>`:** `component` must be the first attribute. Apply the `{...rest}` attribute overload order after it.
 - **Imports:** Organize imports: external lib -> internal shared -> component files.
 - **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) for relative and `@src` imports in `docs/build/**` and files matching `**/*.config.ts`. Omit extensions from other imports under `src/**` and `docs/**`. Never use emitted `.js` or `.jsx` extensions in source import paths.
 

@@ -43,9 +43,9 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
+      component={tag()}
       data-slot="popover-close"
       {...binding}
-      component={tag()}
       class={cn(local.class)}
       style={local.style}
     >

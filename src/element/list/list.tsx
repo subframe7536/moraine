@@ -29,10 +29,10 @@ export function List<
 
   return (
     <Dynamic
+      component={local.as ?? 'ul'}
       role="list"
       data-slot="list"
       {...rest}
-      component={local.as ?? 'ul'}
       ref={(element: HTMLElement) => {
         setScrollElement(() => element)
         callRef(local.ref, element)

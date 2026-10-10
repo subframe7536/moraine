@@ -41,9 +41,9 @@ export function ModalClose<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
+      component={tag()}
       data-slot={context.slotName('close')}
       {...binding}
-      component={tag()}
       class={cn(local.class)}
       style={local.style}
     >

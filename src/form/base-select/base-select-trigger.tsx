@@ -92,6 +92,7 @@ export function BaseSelectTrigger<
   const rootBinding = root.bind(binding)
   return (
     <Dynamic
+      component={tag()}
       data-slot={state.slotName('trigger')}
       {...baseSelectDataAttributes.trigger({
         invalid: state.field.invalid,
@@ -101,7 +102,6 @@ export function BaseSelectTrigger<
       })}
       aria-haspopup="listbox"
       {...rootBinding}
-      component={tag()}
       {...state.field.ariaAttrs()}
       id={state.field.id()}
       aria-controls={state.listboxId()}
