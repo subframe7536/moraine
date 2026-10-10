@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import { createEventListener } from '../../shared/event-listener'
 import { callRef } from '../../shared/utils'
 
 import { scrollAreaDataAttributes, scrollAreaRecipe } from './scroll-area.recipe'
@@ -122,18 +123,15 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         attributeFilter: ['class', 'style', 'hidden', 'dir'],
       })
       observeSizes()
-      element.addEventListener('scroll', measure, { passive: true })
-      element.addEventListener('load', measure, true)
-      view.addEventListener('resize', measure)
+      createEventListener(element, 'scroll', measure, { passive: true })
+      createEventListener(element, 'load', measure, true)
+      createEventListener(view, 'resize', measure)
       // Measure after hydration completes so caller callbacks cannot alter its initial tree.
       queueMicrotask(measure)
       onCleanup(() => {
         disposed = true
         resizeObserver?.disconnect()
         mutationObserver.disconnect()
-        element.removeEventListener('scroll', measure)
-        element.removeEventListener('load', measure, true)
-        view.removeEventListener('resize', measure)
       })
     }),
   )

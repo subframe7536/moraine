@@ -19,7 +19,7 @@ import { List } from '../../../element/list'
 import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
-import { createEventListener, attachEventListener } from '../../../shared/event-listener'
+import { createEventListener } from '../../../shared/event-listener'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
@@ -818,9 +818,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           layer.setContentElement(element)
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
-          const releaseKeyDown = attachEventListener(element, 'keydown', onContentKeyDown)
+          createEventListener(element, 'keydown', onContentKeyDown)
           onCleanup(() => {
-            releaseKeyDown()
             const ref = props.contentProps?.ref
             if (typeof ref === 'function') {
               ;(ref as (element: HTMLDivElement | undefined) => void)(undefined)

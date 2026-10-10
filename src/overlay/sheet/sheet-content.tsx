@@ -14,6 +14,7 @@ import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { createContentAnatomy } from '../base/content-anatomy'
 import { getActiveElement } from '../base/dom'
@@ -90,13 +91,12 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
       }
 
       update()
-      keyboardViewport.addEventListener('resize', update)
-      keyboardViewport.addEventListener('scroll', update)
-      view.addEventListener('resize', update)
+      createEventListenerMap(keyboardViewport, {
+        resize: update,
+        scroll: update,
+      })
+      createEventListener(view, 'resize', update)
       onCleanup(() => {
-        keyboardViewport.removeEventListener('resize', update)
-        keyboardViewport.removeEventListener('scroll', update)
-        view.removeEventListener('resize', update)
         setKeyboardInset(0)
       })
     }),

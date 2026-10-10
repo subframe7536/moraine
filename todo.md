@@ -4,8 +4,8 @@
   - [x] add rule to AGENTS.md
 - [x] unify component-specific css variable definition in both component source and recipe
   - [x] add rule to AGENTS.md
-- [ ] perfer to use `createEventListener` and `createEventListenerMap` in all components
-  - [ ] add rule to AGENTS.md
+- [x] perfer to use `createEventListener` and `createEventListenerMap` in all components
+  - [x] add rule to AGENTS.md
 - [ ] cleanup unneccessory createMemo and accessors: single usage memo, nest object accessors, etc.
   - [ ] add rule to AGENTS.md
 - [ ] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`

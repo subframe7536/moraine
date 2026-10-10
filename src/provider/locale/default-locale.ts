@@ -1,5 +1,7 @@
-import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
+import { createEffect, createSignal, on, onMount } from 'solid-js'
 import type { Accessor } from 'solid-js'
+
+import { createEventListener } from '../../shared/event-listener'
 
 /** Default locale when nothing else is set. SSR and the first client render use this tag. */
 export const FALLBACK_LOCALE = 'en-US'
@@ -46,10 +48,7 @@ export function createDetectedLocale(enabled: Accessor<boolean>): Accessor<strin
         setDetected(readBrowserLocale())
       }
       apply()
-      window.addEventListener('languagechange', apply)
-      onCleanup(() => {
-        window.removeEventListener('languagechange', apply)
-      })
+      createEventListener(window, 'languagechange', apply)
     }),
   )
 

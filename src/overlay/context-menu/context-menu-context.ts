@@ -10,7 +10,7 @@ import {
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { attachEventListener } from '../../shared/event-listener'
+import { createEventListenerMap } from '../../shared/event-listener'
 import { createId } from '../../shared/utils'
 import { containsComposed, isElement, isNode, isPointerEvent } from '../base/dom'
 import type { OverlayMenuFocusStrategy } from '../base/menu'
@@ -238,61 +238,52 @@ export function createContextMenu(props: ContextMenuProps) {
       if (!currentDocument) {
         return
       }
-      const releasePointerDown = attachEventListener(
+      createEventListenerMap(
         currentDocument,
-        'pointerdown',
-        (event) => {
-          const guard = pointerEventGuard
-          if (
-            guard &&
-            event.pointerId === guard.pointerId &&
-            event.pointerType === guard.pointerType
-          ) {
+        {
+          pointerdown: (event) => {
+            const guard = pointerEventGuard
+            if (
+              guard &&
+              event.pointerId === guard.pointerId &&
+              event.pointerType === guard.pointerType
+            ) {
+              event.preventDefault()
+            }
+          },
+          contextmenu: (event) => {
+            if (consumeSuppressedContextMenu(event)) {
+              return
+            }
+
+            if (merged.disabled) {
+              return
+            }
+
+            const targetInsideTrigger =
+              isNode(event.target) &&
+              Boolean(triggerElement() && containsComposed(triggerElement()!, event.target))
+            const pointerInsideTrigger = isPointerInsideTrigger(event)
+
+            // Let the trigger handler compose user callbacks for events targeted inside the trigger.
+            if (targetInsideTrigger || !pointerInsideTrigger) {
+              return
+            }
+
             event.preventDefault()
-          }
+            event.stopPropagation()
+
+            if (open()) {
+              commitOpen(false)
+              return
+            }
+
+            openFromPoint(event.clientX, event.clientY)
+          },
         },
         true,
       )
-
-      const onDocumentContextMenuCapture = (event: MouseEvent): void => {
-        if (consumeSuppressedContextMenu(event)) {
-          return
-        }
-
-        if (merged.disabled) {
-          return
-        }
-
-        const targetInsideTrigger =
-          isNode(event.target) &&
-          Boolean(triggerElement() && containsComposed(triggerElement()!, event.target))
-        const pointerInsideTrigger = isPointerInsideTrigger(event)
-
-        // Let the trigger handler compose user callbacks for events targeted inside the trigger.
-        if (targetInsideTrigger || !pointerInsideTrigger) {
-          return
-        }
-
-        event.preventDefault()
-        event.stopPropagation()
-
-        if (open()) {
-          commitOpen(false)
-          return
-        }
-
-        openFromPoint(event.clientX, event.clientY)
-      }
-
-      const releaseContextMenu = attachEventListener(
-        currentDocument,
-        'contextmenu',
-        onDocumentContextMenuCapture,
-        true,
-      )
       onCleanup(() => {
-        releasePointerDown()
-        releaseContextMenu()
         clearLongPressTimeout()
         pointerEventGuardWindow?.clearTimeout(pointerEventGuardTimeoutId)
         suppressionWindow?.clearTimeout(suppressionTimeoutId)

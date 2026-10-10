@@ -169,6 +169,11 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
 - **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.
+- **DOM listeners:** Prefer `createEventListener` / `createEventListenerMap` from `src/shared/event-listener.ts` over raw `addEventListener`.
+  1. Call them inside the Solid owner that should own the lifetime (`createEffect`, `onMount`, component setup, or a ref callback). They are not reactive: re-run them from `createEffect(on(target, ...))` when the target or options change.
+  2. Use `createEventListenerMap` when attaching multiple events to the same target with the same options.
+  3. Use `attachEventListener` / `attachEventListenerMap` only when the caller must hold or return the cleanup function (imperative register APIs, drag sessions, helpers that return `() => void`).
+  4. Do not use either helper for JSX host events (`onClick`, `onInput`) or in tests that simulate or spy on the DOM. Do not call `addEventListener` / `removeEventListener` in library production code except inside `src/shared/event-listener.ts` and feature detects such as `typeof media.addEventListener === 'function'`.
 - **Refs:** Use `ref={el => ...}` callback form or assignments, avoiding React-style ref objects where possible.
 - **`{...rest}` attribute overload:** Solid JSX uses later-wins. On every public host, apply attributes in this order:
   1. Default attributes the component generates (`data-slot`, default `role`, generated `data-*` / `aria-*`).
