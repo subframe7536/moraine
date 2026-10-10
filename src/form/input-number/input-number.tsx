@@ -33,6 +33,18 @@ import { useFormReset } from '../shared/use-form-reset'
 import { defaultInputNumberMessages } from './input-number.messages'
 import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
+
+/** iPhone/iPad, including iPadOS that reports as MacIntel. */
+function isIOSUserAgent(): boolean {
+  const userAgent = globalThis.navigator?.userAgent ?? ''
+  if (/iPad|iPhone|iPod/i.test(userAgent)) {
+    return true
+  }
+  return (
+    globalThis.navigator?.platform === 'MacIntel' && (globalThis.navigator.maxTouchPoints ?? 0) > 1
+  )
+}
+
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
@@ -858,7 +870,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
       <input
         type="text"
-        inputMode="decimal"
+        // iOS decimal/numeric keyboards omit the minus key.
+        inputMode={isIOSUserAgent() && minValue() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
         id={field.id()}
         ref={(e) => {
