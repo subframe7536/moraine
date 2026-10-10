@@ -474,6 +474,38 @@ describe('Tabs', () => {
     expect(one.getAttribute('aria-selected')).toBe('true')
   })
 
+  test('flips horizontal arrows from the provider without a dir attribute', () => {
+    const previousDirection = document.documentElement.getAttribute('dir')
+    document.documentElement.removeAttribute('dir')
+    try {
+      const screen = render(() => (
+        <MoraineProvider dir="rtl">
+          <Tabs
+            items={[
+              { label: 'One', value: 'one', content: 'Panel one' },
+              { label: 'Two', value: 'two', content: 'Panel two' },
+              { label: 'Three', value: 'three', content: 'Panel three' },
+            ]}
+            defaultValue="two"
+          />
+        </MoraineProvider>
+      ))
+
+      const two = screen.getByRole('tab', { name: 'Two' })
+      const three = screen.getByRole('tab', { name: 'Three' })
+      two.focus()
+      fireEvent.keyDown(two, { key: 'ArrowLeft' })
+      expect(three.getAttribute('aria-selected')).toBe('true')
+      expect(two.closest('[dir]')).toBeNull()
+    } finally {
+      if (previousDirection === null) {
+        document.documentElement.removeAttribute('dir')
+      } else {
+        document.documentElement.setAttribute('dir', previousDirection)
+      }
+    }
+  })
+
   test('skips disabled tabs during keyboard navigation', async () => {
     const screen = render(() => (
       <Tabs

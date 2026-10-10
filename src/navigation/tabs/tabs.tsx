@@ -13,7 +13,9 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../element/icon'
+import { resolveDirection } from '../../overlay/base/utils'
 import { createStyles } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
@@ -59,6 +61,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     'aria-labelledby',
   ])
   const resolved = createStyles(tabsRecipe, local)
+  const direction = useLocale().dir
   const merged = mergeProps(
     {
       get orientation() {
@@ -145,6 +148,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     isDisabled: (item) => Boolean(merged.disabled || item.disabled),
     loop: () => merged.loop ?? true,
     activationMode: () => merged.activationMode ?? 'automatic',
+    getDirection: () => resolveDirection(listRef, direction()),
     focusValue: (key) => {
       setHighlightedKey(key)
       triggerRefs.get(key)?.focus()
