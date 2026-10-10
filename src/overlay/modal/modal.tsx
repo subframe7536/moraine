@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
-import { attachEventListener } from '../../shared/event-listener'
+import { createEventListenerMap } from '../../shared/event-listener'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
@@ -125,16 +125,14 @@ export function ModalInternal<K extends ModalKind>(
       if (!trigger) {
         return
       }
-      onCleanup(
-        attachEventListener(trigger, 'pointerdown', (event) => {
+      createEventListenerMap(trigger, {
+        pointerdown: (event) => {
           pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
-        }),
-      )
-      onCleanup(
-        attachEventListener(trigger, 'keydown', () => {
+        },
+        keydown: () => {
           pendingOpenInteraction = null
-        }),
-      )
+        },
+      })
     }),
   )
 

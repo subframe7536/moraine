@@ -7,7 +7,7 @@ import { KbdGroup } from '../../../element/kbd-group'
 import type { SlotBinding } from '../../../provider/create-styles'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
-import { attachEventListener } from '../../../shared/event-listener'
+import { attachEventListenerMap } from '../../../shared/event-listener'
 import type { ElementProps } from '../../../shared/types'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
@@ -142,7 +142,7 @@ export function attachSelectableItemHandlers(
   element: HTMLDivElement,
   handlers: ReturnType<typeof createSelectableItemHandlers>,
 ): () => void {
-  const names = {
+  return attachEventListenerMap(element, {
     click: handlers.onClick,
     focus: handlers.onFocus,
     keydown: handlers.onKeyDown,
@@ -150,15 +150,7 @@ export function attachSelectableItemHandlers(
     pointerenter: handlers.onPointerEnter,
     pointermove: handlers.onPointerMove,
     pointerleave: handlers.onPointerLeave,
-  } as const
-  const releases = Object.entries(names).map(([name, handler]) =>
-    attachEventListener(
-      element,
-      name as keyof HTMLElementEventMap,
-      handler as (event: Event) => void,
-    ),
-  )
-  return () => releases.forEach((release) => release())
+  } as Record<string, ((event: Event) => void) | undefined>)
 }
 
 interface MenuItemRenderers<TItem> {

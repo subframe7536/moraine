@@ -1,6 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
 
+import { attachEventListenerMap } from './event-listener'
 import { createTransitionPresence } from './transition-presence'
 import type { TransitionPresenceState } from './transition-presence'
 
@@ -207,12 +208,10 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
         contentHasFocus = false
       }
     }
-    element.addEventListener('focusin', onFocusIn)
-    element.addEventListener('focusout', onFocusOut)
-    const removeListeners = () => {
-      element.removeEventListener('focusin', onFocusIn)
-      element.removeEventListener('focusout', onFocusOut)
-    }
+    const removeListeners = attachEventListenerMap(element, {
+      focusin: onFocusIn,
+      focusout: onFocusOut,
+    })
     removeContentFocusListeners = removeListeners
 
     const releasePresence = presence.registerElement(element)
