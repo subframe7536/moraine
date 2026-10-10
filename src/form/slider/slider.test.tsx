@@ -65,6 +65,29 @@ function mockTrackRect(target: HTMLElement): void {
   })
 }
 
+function mockThumbRect(
+  target: HTMLElement,
+  rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'>,
+): void {
+  Object.defineProperty(target, 'getBoundingClientRect', {
+    configurable: true,
+    value: () =>
+      ({
+        left: rect.left,
+        top: rect.top,
+        right: rect.left + rect.width,
+        bottom: rect.top + rect.height,
+        width: rect.width,
+        height: rect.height,
+        x: rect.left,
+        y: rect.top,
+        toJSON() {
+          return this
+        },
+      }) as DOMRect,
+  })
+}
+
 describe('Slider', () => {
   test('forwards root ref and inner inputRef', () => {
     let rootEl: HTMLDivElement | undefined
@@ -394,6 +417,37 @@ describe('Slider', () => {
 
     expect(thumb.style.left).toBe('25%')
     expect(onChange).toHaveBeenLastCalledWith(25)
+  })
+
+  test('keeps the grab offset when dragging from the thumb edge', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <Slider defaultValue={50} onValueChange={onValueChange} />)
+    const thumb = getThumbs(screen.container)[0] as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+
+    mockPointerCapture(thumb)
+    mockTrackRect(track)
+    mockThumbRect(thumb, { left: 40, top: 0, width: 20, height: 10 })
+
+    fireEvent.pointerDown(thumb, {
+      button: 0,
+      pointerId: 1,
+      clientX: 45,
+      clientY: 5,
+    })
+    fireEvent.pointerMove(thumb, {
+      pointerId: 1,
+      clientX: 45,
+      clientY: 5,
+    })
+    expect(onValueChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerMove(thumb, {
+      pointerId: 1,
+      clientX: 70,
+      clientY: 5,
+    })
+    expect(onValueChange).toHaveBeenLastCalledWith(75)
   })
 
   test('range uncontrolled emits number[] for input and commit phases', async () => {
