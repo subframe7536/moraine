@@ -33,6 +33,10 @@ import { defaultCommandPaletteMessages } from './command-palette.messages'
 import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
 
+function isAndroidUserAgent(): boolean {
+  return /android/i.test(globalThis.navigator?.userAgent ?? '')
+}
+
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string
@@ -191,14 +195,24 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
   const composition = createCompositionState()
+  const [compositionQuery, setCompositionQuery] = createSignal<string>()
   const warnedDuplicateValues = new Set<string>()
 
-  function handleCompositionStart(): void {
+  function handleCompositionStart(value: string): void {
+    if (isAndroidUserAgent()) {
+      return
+    }
     composition.onCompositionStart()
+    setCompositionQuery(value)
   }
 
-  function handleCompositionEnd(): void {
+  function handleCompositionEnd(value: string): void {
     composition.onCompositionEnd()
+    if (compositionQuery() === undefined) {
+      return
+    }
+    setCompositionQuery(undefined)
+    applySearchValue(value)
   }
 
   onCleanup(() => {
@@ -402,6 +416,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         event.preventDefault()
         activateItem(highlighted.item)
       }
+      return
+    }
+
+    if (event.key === 'Home' || event.key === 'End') {
       return
     }
 
@@ -654,20 +672,25 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           aria-activedescendant={activeDescendantId()}
           placeholder={merged.placeholder}
           maxLength={merged.searchMaxLength}
-          value={currentSearchTerm()}
+          value={compositionQuery() ?? currentSearchTerm()}
           onInput={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput)
-            if (!defaultPrevented) {
-              applySearchValue(event.currentTarget.value)
+            if (defaultPrevented) {
+              return
             }
+            if (!isAndroidUserAgent() && compositionQuery() !== undefined) {
+              setCompositionQuery(event.currentTarget.value)
+              return
+            }
+            applySearchValue(event.currentTarget.value)
           }}
           onCompositionStart={(event) => {
             callHandler(event, merged.inputProps?.onCompositionStart)
-            handleCompositionStart()
+            handleCompositionStart(event.currentTarget.value)
           }}
           onCompositionEnd={(event) => {
             callHandler(event, merged.inputProps?.onCompositionEnd)
-            handleCompositionEnd()
+            handleCompositionEnd(event.currentTarget.value)
           }}
           onKeyDown={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown)

@@ -488,6 +488,36 @@ describe('CommandPalette', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  test('does not filter on partial IME composition', () => {
+    const onSearchTermChange = vi.fn()
+    const screen = render(() => (
+      <CommandPalette groups={GROUPS} onSearchTermChange={onSearchTermChange} />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: 'zzzz' } })
+    expect(onSearchTermChange).not.toHaveBeenCalled()
+    expect(body().getByRole('option', { name: /New File/ })).not.toBeNull()
+    fireEvent.compositionEnd(input)
+    expect(onSearchTermChange).toHaveBeenCalledWith('zzzz')
+    expect(body().queryByRole('option', { name: /New File/ })).toBeNull()
+  })
+
+  test('keeps Home and End on the search caret', () => {
+    const screen = render(() => <CommandPalette groups={GROUPS} />)
+    const input = screen.getByRole('combobox')
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    const highlighted = () =>
+      body()
+        .getAllByRole('option')
+        .find((option) => option.hasAttribute('data-highlighted'))?.textContent
+    const current = highlighted()
+    const home = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Home' })
+    input.dispatchEvent(home)
+    expect(home.defaultPrevented).toBe(false)
+    expect(highlighted()).toBe(current)
+  })
+
   test('supports overriding built-in icons', async () => {
     render(() => (
       <CommandPalette
