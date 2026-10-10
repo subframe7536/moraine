@@ -30,6 +30,8 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { mergeFieldAriaAttributes } from '../shared/field-aria'
 import { useFormReset } from '../shared/use-form-reset'
 
+import type { ControlKind } from './input-number-press'
+import { createInputNumberPress } from './input-number-press'
 import { defaultInputNumberMessages } from './input-number.messages'
 import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
@@ -45,21 +47,8 @@ function isIOSUserAgent(): boolean {
   )
 }
 
-type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
-}
-
-interface PressRepeatState {
-  activePointerId: number | null
-  delayTimer: ReturnType<typeof setTimeout> | undefined
-  repeatTimer: ReturnType<typeof setInterval> | undefined
-  repeatStarted: boolean
-  suppressNextClick: boolean
-  syntheticClicksPending: number
-  lastTriggeredAt: number
-  lastPointerType: string | undefined
-  targetEl: HTMLButtonElement | null
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -162,7 +151,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       holdRepeat: true,
       repeatPointerTypes: 'all' as const,
     },
-
     local,
   )
 
@@ -218,26 +206,21 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     defaultValue: () => initialDefaultValue,
   })
 
-  const minValue = createMemo(() => merged.minValue ?? Number.MIN_SAFE_INTEGER)
-  const maxValue = createMemo(() => merged.maxValue ?? Number.MAX_SAFE_INTEGER)
-  const stepValue = createMemo(() =>
-    typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1,
-  )
-  const largeStepValue = createMemo(() =>
+  const minValue = () => merged.minValue ?? Number.MIN_SAFE_INTEGER
+  const maxValue = () => merged.maxValue ?? Number.MAX_SAFE_INTEGER
+  const stepValue = () => (typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1)
+  const largeStepValue = () =>
     typeof merged.largeStep === 'number'
       ? merged.largeStep
-      : Number(merged.largeStep) || stepValue() * 10,
-  )
+      : Number(merged.largeStep) || stepValue() * 10
 
   const currentValue = createMemo(() => clamp(resolvedValue(), minValue(), maxValue()))
   const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), locale()))
   const initialResetValue = untrack(currentValue)
 
-  // Editable text is intentionally separate from the committed number so partial input survives.
-  const [inputText, setInputText] = createSignal(
-    untrack(() => formatLocaleNumber(initialResetValue, locale())),
-  )
-  const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
+  // Draft text exists only while actively typing uncommitted or partial input.
+  const [draftText, setDraftText] = createSignal<string>()
+
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
@@ -259,14 +242,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   // Sync external numeric or locale changes without clobbering accepted manual text.
   createEffect(
     on([currentValue, locale], ([value, localeTag]) => {
-      if (hasDirtyInput()) {
-        const parsed = parseLocaleNumber(inputText(), localeTag)
+      const draft = draftText()
+      if (draft !== undefined) {
+        const parsed = parseLocaleNumber(draft, localeTag)
         if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
           return
         }
+        setDraftText(undefined)
       }
-      setHasDirtyInput(false)
-      setInputText(formatLocaleNumber(value, localeTag))
     }),
   )
 
@@ -336,8 +319,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   function getStepBase(): number {
-    if (hasDirtyInput()) {
-      const parsed = parseLocaleNumber(inputText(), locale())
+    const draft = draftText()
+    if (draft !== undefined) {
+      const parsed = parseLocaleNumber(draft, locale())
       if (parsed !== undefined) {
         return parsed
       }
@@ -347,19 +331,18 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   function stepBy(amount: number): boolean {
-    const wasDirty = hasDirtyInput()
+    const wasDirty = draftText() !== undefined
     const nextValue = addDecimal(getStepBase(), amount)
     const boundedValue = clamp(nextValue, minValue(), maxValue())
     const changed = commitValue(nextValue)
 
     if (changed && Object.is(currentValue(), boundedValue)) {
-      setHasDirtyInput(false)
-      setInputText(formattedValue())
+      setDraftText(undefined)
       return true
     }
 
     if (!wasDirty) {
-      setInputText(formattedValue())
+      setDraftText(undefined)
     }
 
     return false
@@ -371,113 +354,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   function decrementValue(amount = stepValue()): boolean {
     return stepBy(-amount)
-  }
-
-  const selectionState = {
-    count: 0,
-    ownerDocument: undefined as Document | undefined,
-    userSelect: '',
-    webkitUserSelect: '',
-  }
-
-  const pressStates: Record<ControlKind, PressRepeatState> = {
-    increment: {
-      activePointerId: null,
-      delayTimer: undefined,
-      repeatTimer: undefined,
-      repeatStarted: false,
-      suppressNextClick: false,
-      syntheticClicksPending: 0,
-      lastTriggeredAt: 0,
-      lastPointerType: undefined,
-      targetEl: null,
-    },
-    decrement: {
-      activePointerId: null,
-      delayTimer: undefined,
-      repeatTimer: undefined,
-      repeatStarted: false,
-      suppressNextClick: false,
-      syntheticClicksPending: 0,
-      lastTriggeredAt: 0,
-      lastPointerType: undefined,
-      targetEl: null,
-    },
-  }
-  const [pressedControls, setPressedControls] = createSignal<Record<ControlKind, boolean>>({
-    increment: false,
-    decrement: false,
-  })
-
-  function setControlPressed(kind: ControlKind, pressed: boolean): void {
-    setPressedControls((current) => {
-      if (current[kind] === pressed) {
-        return current
-      }
-
-      return { ...current, [kind]: pressed }
-    })
-  }
-
-  function lockSelection(): void {
-    const ownerDocument = inputEl?.ownerDocument
-    if (!ownerDocument) {
-      return
-    }
-
-    if (selectionState.count === 0) {
-      selectionState.ownerDocument = ownerDocument
-      selectionState.userSelect = ownerDocument.body.style.getPropertyValue('user-select')
-      selectionState.webkitUserSelect =
-        ownerDocument.body.style.getPropertyValue('-webkit-user-select')
-      ownerDocument.body.style.setProperty('user-select', 'none')
-      ownerDocument.body.style.setProperty('-webkit-user-select', 'none')
-    }
-
-    selectionState.count += 1
-  }
-
-  function unlockSelection(): void {
-    if (selectionState.count === 0) {
-      return
-    }
-
-    selectionState.count -= 1
-
-    if (selectionState.count === 0) {
-      const ownerDocument = selectionState.ownerDocument
-      if (ownerDocument) {
-        ownerDocument.body.style.setProperty('user-select', selectionState.userSelect)
-        ownerDocument.body.style.setProperty('-webkit-user-select', selectionState.webkitUserSelect)
-      }
-      selectionState.ownerDocument = undefined
-    }
-  }
-
-  function clearRepeatTimers(state: PressRepeatState): void {
-    if (state.delayTimer) {
-      clearTimeout(state.delayTimer)
-      state.delayTimer = undefined
-    }
-
-    if (state.repeatTimer) {
-      clearInterval(state.repeatTimer)
-      state.repeatTimer = undefined
-    }
-  }
-
-  function finishPress(kind: ControlKind, state: PressRepeatState, suppressClick: boolean): void {
-    state.activePointerId = null
-    state.targetEl = null
-    state.suppressNextClick = suppressClick
-    state.repeatStarted = false
-    clearRepeatTimers(state)
-    setControlPressed(kind, false)
-    unlockSelection()
-  }
-
-  function isAllowedPointerType(pointerType: string): boolean {
-    return merged.repeatPointerTypes === 'all' || merged.repeatPointerTypes === pointerType
   }
 
   function isControlInteractive(kind: ControlKind): boolean {
@@ -492,217 +368,31 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     )
   }
 
-  createEffect(
-    on(
-      [() => isControlInteractive('increment'), () => isControlInteractive('decrement')],
-      ([increment, decrement]) => {
-        for (const kind of ['increment', 'decrement'] as const) {
-          const state = pressStates[kind]
-          if (state.activePointerId !== null && !(kind === 'increment' ? increment : decrement)) {
-            finishPress(kind, state, false)
-          }
-        }
-      },
-    ),
-  )
-
-  function getControlUserOnClick(kind: ControlKind) {
-    return kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick
-  }
-
-  function triggerControlClick(kind: ControlKind, state: PressRepeatState): void {
-    if (!isControlInteractive(kind)) {
-      finishPress(kind, state, false)
-      return
-    }
-
-    const throttleMs = Math.max(0, merged.repeatThrottleMs ?? 0)
-    const now = Date.now()
-
-    if (throttleMs > 0 && now - state.lastTriggeredAt < throttleMs) {
-      return
-    }
-
-    state.lastTriggeredAt = now
-    state.repeatStarted = true
-    state.suppressNextClick = true
-    state.syntheticClicksPending += 1
-    state.targetEl?.click()
-  }
-
-  function onControlPointerDown(kind: ControlKind, event: PointerEvent): void {
-    if (
-      !merged.holdRepeat ||
-      !isControlInteractive(kind) ||
-      event.button !== 0 ||
-      !isAllowedPointerType(event.pointerType)
-    ) {
-      return
-    }
-
-    const state = pressStates[kind]
-
-    if (state.activePointerId !== null) {
-      return
-    }
-
-    state.activePointerId = event.pointerId
-    state.targetEl = event.currentTarget as HTMLButtonElement
-    state.lastPointerType = event.pointerType
-    state.repeatStarted = false
-    state.lastTriggeredAt = 0
-    setControlPressed(kind, true)
-
-    if (event.pointerType !== 'mouse' && event.cancelable) {
-      event.preventDefault()
-    }
-
-    lockSelection()
-
-    const delayMs = Math.max(0, merged.repeatDelayMs ?? 500)
-    const intervalMs = Math.max(16, merged.repeatIntervalMs ?? 80)
-
-    state.delayTimer = setTimeout(() => {
-      if (state.activePointerId === null) {
-        return
-      }
-
-      triggerControlClick(kind, state)
-
-      if (state.activePointerId === null) {
-        return
-      }
-
-      state.repeatTimer = setInterval(() => {
-        if (state.activePointerId === null) {
-          return
-        }
-
-        triggerControlClick(kind, state)
-      }, intervalMs)
-    }, delayMs)
-  }
-
-  function onControlPointerUp(kind: ControlKind, event: PointerEvent): void {
-    const state = pressStates[kind]
-
-    if (state.activePointerId !== event.pointerId) {
-      return
-    }
-
-    // Mouse pointerup is followed by a native click, so only synthesize for touch/pen.
-    const shouldSynthesizeClick = !state.repeatStarted && state.lastPointerType !== 'mouse'
-
-    if (shouldSynthesizeClick) {
-      state.syntheticClicksPending += 1
-      state.targetEl?.click()
-    }
-
-    finishPress(kind, state, state.repeatStarted || shouldSynthesizeClick)
-  }
-
-  function onControlPointerCancel(kind: ControlKind, event: PointerEvent): void {
-    const state = pressStates[kind]
-
-    if (state.activePointerId !== event.pointerId) {
-      return
-    }
-
-    finishPress(kind, state, false)
-  }
-
-  function onControlPointerLeave(kind: ControlKind): void {
-    const state = pressStates[kind]
-
-    if (state.activePointerId === null) {
-      return
-    }
-
-    finishPress(kind, state, false)
-  }
-
-  const onControlContextMenu: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = (event) => {
-    const isTouchPointer = Object.values(pressStates).some(
-      (state) =>
-        state.targetEl === event.currentTarget &&
-        (state.lastPointerType === 'touch' || state.lastPointerType === 'pen'),
-    )
-
-    if (isTouchPointer && event.cancelable) {
-      event.preventDefault()
-    }
-  }
-
-  function onControlClick(
-    kind: ControlKind,
-    event: Parameters<JSX.EventHandler<HTMLButtonElement, MouseEvent>>[0],
-  ): void {
-    const state = pressStates[kind]
-
-    if (!isControlInteractive(kind)) {
-      if (state.activePointerId !== null) {
-        finishPress(kind, state, false)
-      }
-      return
-    }
-
-    if (state.syntheticClicksPending > 0) {
-      state.syntheticClicksPending -= 1
-      callHandler(event, getControlUserOnClick(kind))
-      if (!event.defaultPrevented && isControlInteractive(kind)) {
-        if (kind === 'increment') {
-          incrementValue()
-        } else {
-          decrementValue()
-        }
-
-        inputEl?.focus()
-      }
-      if (!isControlInteractive(kind) && state.activePointerId !== null) {
-        finishPress(kind, state, true)
-      }
-      return
-    }
-
-    if (state.suppressNextClick) {
-      state.suppressNextClick = false
-      if (event.cancelable) {
-        event.preventDefault()
-      }
-      event.stopPropagation()
-      return
-    }
-
-    callHandler(event, getControlUserOnClick(kind))
-
-    if (!event.defaultPrevented && isControlInteractive(kind)) {
+  const press = createInputNumberPress({
+    isInteractive: isControlInteractive,
+    onStep: (kind) => {
       if (kind === 'increment') {
         incrementValue()
       } else {
         decrementValue()
       }
-
-      inputEl?.focus()
-    }
-    if (!isControlInteractive(kind) && state.activePointerId !== null) {
-      finishPress(kind, state, false)
-    }
-  }
-
-  onCleanup(() => {
-    clearRepeatTimers(pressStates.increment)
-    clearRepeatTimers(pressStates.decrement)
-    while (selectionState.count > 0) {
-      unlockSelection()
-    }
-    setPressedControls({ increment: false, decrement: false })
+    },
+    getUserOnClick: (kind) =>
+      kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick,
+    focusInput: () => inputEl?.focus(),
+    getDocument: () => inputEl?.ownerDocument,
+    holdRepeat: () => merged.holdRepeat,
+    repeatDelayMs: () => merged.repeatDelayMs,
+    repeatIntervalMs: () => merged.repeatIntervalMs,
+    repeatThrottleMs: () => merged.repeatThrottleMs,
+    repeatPointerTypes: () => merged.repeatPointerTypes,
   })
 
   function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
     const dataAttrs = inputNumberDataAttributes[kind]({
-      active: () => pressedControls()[kind],
+      active: () => press.isActive(kind),
       disabled: isControlDisabled,
     })
 
@@ -720,14 +410,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         return isControlDisabled()
       },
       ...resolved.styles[kind],
-      onClick: (event: Parameters<JSX.EventHandler<HTMLButtonElement, MouseEvent>>[0]) =>
-        onControlClick(kind, event),
-      onPointerDown: (event: PointerEvent) => onControlPointerDown(kind, event),
-      onPointerUp: (event: PointerEvent) => onControlPointerUp(kind, event),
-      onPointerCancel: (event: PointerEvent) => onControlPointerCancel(kind, event),
-      onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
-      onPointerLeave: () => onControlPointerLeave(kind),
-      onContextMenu: onControlContextMenu,
+      ...press.handlers(kind),
     })
     return controlProps as InputNumberControlProps
   }
@@ -738,16 +421,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return
     }
 
-    // On blur, try to parse and commit any partial input
-    const rawInput = inputText()
-    const parsed = parseLocaleNumber(rawInput, locale())
-
-    if (parsed !== undefined) {
-      commitValue(parsed)
+    const draft = draftText()
+    if (draft !== undefined) {
+      const parsed = parseLocaleNumber(draft, locale())
+      if (parsed !== undefined) {
+        commitValue(parsed)
+      }
+      setDraftText(undefined)
     }
-
-    setHasDirtyInput(false)
-    setInputText(formattedValue())
 
     field.emit('blur', event)
   }
@@ -814,11 +495,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         setResolvedValue(nextValue)
       }
       field.setFormValue(nextValue)
-      setHasDirtyInput(false)
-      const nextInputText = formatLocaleNumber(nextValue, locale())
-      setInputText(nextInputText)
+      setDraftText(undefined)
       if (inputEl) {
-        inputEl.value = nextInputText
+        inputEl.value = formatLocaleNumber(nextValue, locale())
       }
     },
   )
@@ -876,7 +555,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         }}
         name={field.name()}
         form={merged.form}
-        value={inputText()}
+        value={draftText() ?? formattedValue()}
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
@@ -890,13 +569,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         {...resolved.styles.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
-            event.currentTarget.value = inputText()
+            event.currentTarget.value = draftText() ?? formattedValue()
             return
           }
 
           const rawInput = event.currentTarget.value
-          setInputText(rawInput)
-          setHasDirtyInput(true)
+          setDraftText(rawInput)
 
           // Only commit if it's a complete valid number
           const parsed = parseLocaleNumber(rawInput, locale())
@@ -906,24 +584,22 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         }}
         onChange={(event) => {
           if (field.disabled() || readOnly()) {
-            event.currentTarget.value = inputText()
+            event.currentTarget.value = draftText() ?? formattedValue()
             return
           }
 
           const rawInput = event.currentTarget.value
-          setInputText(rawInput)
-          setHasDirtyInput(true)
+          setDraftText(rawInput)
 
           // On change (typically blur), try to parse and commit
           const parsed = parseLocaleNumber(rawInput, locale())
           if (parsed !== undefined) {
             commitValue(parsed)
           } else if (rawInput.trim() === '' || isPartialNumber(rawInput, locale())) {
-            // Empty or partial input - keep current value but update display
-            // This will be handled by onBlur
+            // Empty or partial input - wait for blur
           } else {
             // Invalid input - revert to current value
-            setInputText(formatLocaleNumber(currentValue(), locale()))
+            setDraftText(undefined)
           }
         }}
         onKeyDown={(event) => {
@@ -965,8 +641,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             }
             event.preventDefault()
             commitValue(minValue())
-            setHasDirtyInput(false)
-            setInputText(formattedValue())
+            setDraftText(undefined)
             return
           }
 
@@ -976,18 +651,19 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             }
             event.preventDefault()
             commitValue(maxValue())
-            setHasDirtyInput(false)
-            setInputText(formattedValue())
+            setDraftText(undefined)
             return
           }
 
           if (event.key === 'Enter') {
-            const parsed = parseLocaleNumber(inputText(), locale())
-            if (parsed !== undefined) {
-              commitValue(parsed)
+            const draft = draftText()
+            if (draft !== undefined) {
+              const parsed = parseLocaleNumber(draft, locale())
+              if (parsed !== undefined) {
+                commitValue(parsed)
+              }
+              setDraftText(undefined)
             }
-            setHasDirtyInput(false)
-            setInputText(formattedValue())
           }
         }}
         onBlur={onBlur}
