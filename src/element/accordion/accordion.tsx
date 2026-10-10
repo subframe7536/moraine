@@ -66,8 +66,8 @@ function AccordionItemPanel(props: {
         },
       }}
       {...accordionDataAttributes.content({
-        closed: () => props.disclosure.dataAttrs()['data-closed'],
-        expanded: () => props.disclosure.dataAttrs()['data-expanded'],
+        closed: props.disclosure.closed,
+        expanded: props.disclosure.open,
       })}
     >
       {props.children}
@@ -255,7 +255,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const itemValue = createMemo(() => item.value ?? itemIdSegment())
 
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
-          const leading = createMemo(() => item.leading)
           const label = createMemo(() => item.label)
           const expanded = createMemo(() => selectedValues().includes(itemValue()))
           const disclosure = createDisclosureState({
@@ -372,7 +371,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   }}
                   {...triggerDataAttrs}
                 >
-                  <Show when={leading()}>
+                  <Show when={item.leading}>
                     {(value) => (
                       <Icon
                         name={value()}

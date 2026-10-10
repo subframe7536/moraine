@@ -173,7 +173,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  const switchAriaAttrs = createMemo(() => {
+  const switchAriaAttrs = () => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], showDescription() ? descriptionId() : undefined]
       .filter(Boolean)
@@ -187,7 +187,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
 
     return attrs
-  })
+  }
 
   createEffect(
     on(checked, (isChecked) => {

@@ -164,6 +164,14 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - The dependencies passed to `on()` describe when an effect must rerun, not every reactive value it uses. Read non-triggering state inside the callback, which is already untracked.
 
+- **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
+  1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.
+  2. A cheap primitive with one consumer in the same owner is a plain accessor (`const closed = () => !open()`), not `createMemo`.
+  3. Keep `createMemo` for a JSX prop read more than once, such as a condition and its render. Cache each JSX prop in `createMemo` before a condition chooses among them, so every prop is read once and hydration order stays stable. A single render site reads the prop directly.
+  4. Do not read one field out of an object accessor through another accessor (`() => bag()['data-expanded']`) when a primitive accessor already exists (`open`, `closed`). Keep object bags such as `dataAttrs()` and `ariaAttrs()` when callers spread them.
+  5. Read an object accessor once when several of its fields are used. Do not keep `createMemo` for an object that is only spread at one site: inline a short expression there, and use a plain accessor for a longer one-site derivation.
+  6. `createStyles` callbacks (`inheritedVariants`, `variables`, `inheritedStyles`) stay as accessors that return their contract object.
+
 - Inner component should call using JSX style instead of directly function call
 
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).

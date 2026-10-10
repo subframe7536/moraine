@@ -102,8 +102,8 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
           <div
             data-slot={state.slotName('content')}
             {...baseSelectDataAttributes.content({
-              expanded: () => presence.dataAttrs()['data-expanded'],
-              closed: () => presence.dataAttrs()['data-closed'],
+              expanded: state.open,
+              closed: () => !state.open(),
               side,
             })}
             {...rest}

@@ -238,11 +238,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     untrack(() => formatLocaleNumber(initialResetValue, locale())),
   )
   const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
-  const inputAriaAttrs = createMemo(() => ({
-    'aria-label': local['aria-label'],
-    ...mergeFieldAriaAttributes(local, field.ariaAttrs()),
-  }))
-
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
@@ -998,7 +993,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...inputAriaAttrs()}
+        {...{
+          'aria-label': local['aria-label'],
+          ...mergeFieldAriaAttributes(local, field.ariaAttrs()),
+        }}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

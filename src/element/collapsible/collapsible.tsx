@@ -80,8 +80,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         id={rootId()}
         data-slot="collapsible"
         {...collapsibleDataAttributes.root({
-          expanded: () => disclosure.dataAttrs()['data-expanded'],
-          closed: () => disclosure.dataAttrs()['data-closed'],
+          expanded: disclosure.open,
+          closed: disclosure.closed,
         })}
         {...rest}
         {...resolved.styles.root}

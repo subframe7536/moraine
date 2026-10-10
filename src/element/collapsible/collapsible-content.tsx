@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
+import { children as resolveChildren, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -35,12 +35,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     inheritedStyles: () => context.presentation,
   })
 
-  const shouldRenderContent = createMemo(() =>
+  const shouldRenderContent = () =>
     disclosure.shouldMount({
       forceMount: local.forceMount,
       unmountOnHide: local.unmountOnHide,
-    }),
-  )
+    })
 
   return (
     <div
@@ -53,8 +52,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       data-slot="collapsible-content-wrapper"
       {...collapsibleWrapperDataAttributes({
         transition: disclosure.transition,
-        expanded: () => disclosure.dataAttrs()['data-expanded'],
-        closed: () => disclosure.dataAttrs()['data-closed'],
+        expanded: disclosure.open,
+        closed: disclosure.closed,
       })}
       hidden={disclosure.hidden()}
       inert={disclosure.inert()}
@@ -69,8 +68,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           component={local.as ?? 'div'}
           data-slot="collapsible-content"
           {...collapsibleDataAttributes.content({
-            expanded: () => disclosure.dataAttrs()['data-expanded'],
-            closed: () => disclosure.dataAttrs()['data-closed'],
+            expanded: disclosure.open,
+            closed: disclosure.closed,
           })}
           {...rest}
           {...resolved.styles.content}
