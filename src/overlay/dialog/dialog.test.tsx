@@ -1046,6 +1046,95 @@ describe('Dialog', () => {
     })
   })
 
+  test('blocks outside pointer dismissal without blocking Escape', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Dialog
+          defaultOpen
+          disablePointerDismissal
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content>
+            <Dialog.Body>Body</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+      </>
+    ))
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    })
+  })
+
+  test('blocks Escape without blocking outside pointer dismissal', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Dialog
+          defaultOpen
+          closeOnEscape={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content>
+            <Dialog.Body>Body</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+      </>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onOpenChange).not.toHaveBeenCalled()
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    })
+  })
+
   test('allows close when dismissible=true', async () => {
     const onClosePrevent = vi.fn()
     const onOpenChange = vi.fn()

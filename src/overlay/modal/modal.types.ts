@@ -38,10 +38,24 @@ export namespace ModalT {
     onExitComplete?: () => void
 
     /**
-     * Whether outside interaction and Escape should dismiss the shell.
+     * Whether outside pointer interaction and Escape should dismiss the shell.
      * @default true
      */
     dismissible?: boolean
+
+    /**
+     * Blocks outside pointer dismissal and reports it through `onClosePrevent`.
+     * Escape stays under `dismissible` and `closeOnEscape`.
+     * @default false
+     */
+    disablePointerDismissal?: boolean
+
+    /**
+     * Whether Escape dismisses the shell.
+     * `false` blocks Escape and reports it through `onClosePrevent`.
+     * When omitted, Escape follows `dismissible`.
+     */
+    closeOnEscape?: boolean
 
     /** Called when a dismissal attempt is blocked. */
     onClosePrevent?: () => void
@@ -55,7 +69,8 @@ export namespace ModalT {
     /**
      * Whether the surface contains focus, restores focus on close, hides outside content from
      * assistive technology, and prevents the native default action of outside pointer events.
-     * Outside pointer and Escape dismissal remain controlled by `dismissible`.
+     * Outside pointer dismissal follows `dismissible` unless `disablePointerDismissal` is set.
+     * Escape follows `dismissible` unless `closeOnEscape` is false.
      * @default true
      */
     modal?: boolean
