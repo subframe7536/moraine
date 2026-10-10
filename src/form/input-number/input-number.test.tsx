@@ -1,6 +1,6 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
@@ -1418,6 +1418,27 @@ describe('InputNumber', () => {
 
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
+  })
+
+  test('does not evaluate hidden increment and decrement icons', () => {
+    const reads = { decrementIcon: 0, incrementIcon: 0 }
+
+    render(() =>
+      createComponent(InputNumber, {
+        decrement: false,
+        increment: false,
+        get decrementIcon() {
+          reads.decrementIcon += 1
+          return <span>Decrement</span>
+        },
+        get incrementIcon() {
+          reads.incrementIcon += 1
+          return <span>Increment</span>
+        },
+      }),
+    )
+
+    expect(reads).toEqual({ decrementIcon: 0, incrementIcon: 0 })
   })
 
   test('updates orientation and conditional controls while preserving the native input', () => {

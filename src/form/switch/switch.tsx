@@ -68,9 +68,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
-  const loadingIcon = createMemo(() => merged.loadingIcon)
-  const checkedIcon = createMemo(() => merged.checkedIcon)
-  const uncheckedIcon = createMemo(() => merged.uncheckedIcon)
   const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
 
@@ -173,7 +170,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  const switchAriaAttrs = createMemo(() => {
+  const switchAriaAttrs = () => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], showDescription() ? descriptionId() : undefined]
       .filter(Boolean)
@@ -187,7 +184,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
 
     return attrs
-  })
+  }
 
   createEffect(
     on(checked, (isChecked) => {
@@ -247,10 +244,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
-      return loadingIcon()
+      return merged.loadingIcon
     }
 
-    return checked() ? checkedIcon() : uncheckedIcon()
+    return checked() ? merged.checkedIcon : merged.uncheckedIcon
   })
 
   const onRootClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {

@@ -83,8 +83,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       data-slot={local.overlay ? context.slotName('overlay') : undefined}
       {...modalDataAttributes.overlay({
         overlayScroll,
-        expanded: () => presence.dataAttrs()['data-expanded'],
-        closed: () => presence.dataAttrs()['data-closed'],
+        expanded: context.open,
+        closed: () => !context.open(),
       })}
       ref={(element) => {
         onCleanup(presence.registerElement(element))
@@ -100,8 +100,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     <div
       data-slot={context.slotName('content')}
       {...modalDataAttributes.content({
-        expanded: () => presence.dataAttrs()['data-expanded'],
-        closed: () => presence.dataAttrs()['data-closed'],
+        expanded: context.open,
+        closed: () => !context.open(),
       })}
       {...rest}
       ref={(element) => {

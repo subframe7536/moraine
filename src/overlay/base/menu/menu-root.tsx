@@ -26,7 +26,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 ): JSX.Element {
   const cn = useCn()
   const rootId = createId(() => props.id, 'overlaymenu')
-  const contentId = createMemo(() => `${rootId()}-content`)
+  const contentId = () => `${rootId()}-content`
   const contentPresence = createTransitionPresence({
     open: () => props.open,
   })
@@ -218,7 +218,6 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           shift={props.shift}
           overflowPadding={props.overflowPadding}
           present={contentPresence.present}
-          presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
             branches.add(element)
 

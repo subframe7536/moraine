@@ -62,8 +62,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       aria-controls={context.contentId()}
       aria-expanded={disclosure.open()}
       {...collapsibleDataAttributes.trigger({
-        expanded: () => disclosure.dataAttrs()['data-expanded'],
-        closed: () => disclosure.dataAttrs()['data-closed'],
+        expanded: disclosure.open,
+        closed: disclosure.closed,
         disabled,
       })}
       {...binding}

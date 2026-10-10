@@ -163,9 +163,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
     return checked() === 'indeterminate'
   })
-  const activeIcon = createMemo(() =>
-    indeterminate() ? merged.indeterminateIcon : merged.checkedIcon,
-  )
 
   createEffect(
     on(
@@ -204,7 +201,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
-  const checkboxAriaAttrs = createMemo(() => {
+  const checkboxAriaAttrs = () => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
 
@@ -216,7 +213,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
 
     return attrs
-  })
+  }
 
   createEffect(
     on([resolvedChecked, indeterminate], ([checked, isIndeterminate]) => {
@@ -423,7 +420,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 indeterminate,
               })}
             >
-              <Icon name={activeIcon()} slotName="checkbox-icon" {...resolved.styles.icon} />
+              <Icon
+                name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+                slotName="checkbox-icon"
+                {...resolved.styles.icon}
+              />
             </span>
           </Show>
         </button>

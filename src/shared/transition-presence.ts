@@ -9,10 +9,10 @@ export interface CreateTransitionPresenceOptions {
 }
 
 export interface TransitionPresenceState {
-  dataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-expanded'?: string
-  }>
+  dataAttrs: {
+    readonly 'data-closed'?: string
+    readonly 'data-expanded'?: string
+  }
   present: Accessor<boolean>
   registerElement: (element: HTMLElement) => () => void
   setElement: (element: HTMLElement | undefined) => void
@@ -106,8 +106,14 @@ export function createTransitionPresence(
   options: CreateTransitionPresenceOptions,
 ): TransitionPresenceState {
   const [present, setPresent] = createSignal(options.open())
-  const dataAttrs: TransitionPresenceState['dataAttrs'] = () =>
-    options.open() ? { 'data-expanded': '' } : { 'data-closed': '' }
+  const dataAttrs = {
+    get 'data-closed'() {
+      return options.open() ? undefined : ''
+    },
+    get 'data-expanded'() {
+      return options.open() ? '' : undefined
+    },
+  }
   const [registrations, setRegistrations] = createSignal<Map<number, HTMLElement>>(new Map())
   const animationNames = new Map<HTMLElement, Array<string>>()
   const trackedElements = new Map<HTMLElement, TrackedElement>()

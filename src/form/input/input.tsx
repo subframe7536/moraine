@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
+import { mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider/index'
 import type { ModelModifiers } from '../../shared/input-modifiers'
@@ -95,8 +95,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     readonly: field.readOnly,
   })
 
-  const ariaAttrs = createMemo(() => mergeFieldAriaAttributes(rest, field.ariaAttrs()))
-
   const restoreControlledValue = textControl.restoreControlledValue
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
@@ -184,7 +182,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       disabled={field.disabled()}
       readonly={field.readOnly()}
       autocomplete={merged.autocomplete}
-      {...ariaAttrs()}
+      {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
       ref={(element) => {
         inputEl = element

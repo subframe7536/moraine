@@ -25,10 +25,10 @@ interface CreateTransitionPresenceOptions {
 
 interface TransitionPresenceState {
   present: Accessor<boolean>
-  dataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-expanded'?: string
-  }>
+  dataAttrs: {
+    readonly 'data-closed'?: string
+    readonly 'data-expanded'?: string
+  }
   setElement: (element: HTMLElement | undefined) => void
   registerElement: (element: HTMLElement) => () => void
 }
@@ -52,7 +52,7 @@ export function AnimatedDialog() {
       <Show when={presence.present()}>
         <div
           ref={presence.setElement}
-          {...presence.dataAttrs()}
+          {...presence.dataAttrs}
           class="data-expanded:animate-mo-enter data-closed:animate-mo-exit p-6 bg-card border rounded-xl"
         >
           Animated dialog with exit animation support!

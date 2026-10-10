@@ -66,8 +66,8 @@ function AccordionItemPanel(props: {
         },
       }}
       {...accordionDataAttributes.content({
-        closed: () => props.disclosure.dataAttrs()['data-closed'],
-        expanded: () => props.disclosure.dataAttrs()['data-expanded'],
+        closed: props.disclosure.closed,
+        expanded: props.disclosure.open,
       })}
     >
       {props.children}
@@ -268,8 +268,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
             disabled,
             expanded,
           }
-          const itemDataAttrs = accordionDataAttributes.item(itemState)
-          const triggerDataAttrs = accordionDataAttributes.trigger(itemState)
+
           const triggerId = () => `${rootId()}-${itemIdSegment()}-trigger`
           const contentId = () => `${rootId()}-${itemIdSegment()}-content`
           let spaceKeyDown = false
@@ -345,7 +344,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
               data-slot="accordion-item"
               class={cn(resolved.styles.item.class, item.class)}
               style={resolved.styles.item.style}
-              {...itemDataAttrs}
+              {...accordionDataAttributes.item(itemState)}
             >
               <h3 data-slot="accordion-header" {...resolved.styles.header}>
                 <button
@@ -370,7 +369,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     lastFocusedIndex = getTriggers().indexOf(event.currentTarget)
                     lastFocusedTrigger = event.currentTarget
                   }}
-                  {...triggerDataAttrs}
+                  {...accordionDataAttributes.trigger(itemState)}
                 >
                   <Show when={leading()}>
                     {(value) => (

@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-  splitProps,
-  untrack,
-} from 'solid-js'
+import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
 
 import { createStyles } from '../../provider/index'
 import type { ModelModifiers } from '../../shared/input-modifiers'
@@ -125,8 +116,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     readonly: field.readOnly,
     autoresize: () => merged.autoResize,
   })
-
-  const ariaAttrs = createMemo(() => mergeFieldAriaAttributes(rest, field.ariaAttrs()))
 
   const restoreControlledValue = textControl.restoreControlledValue
 
@@ -297,7 +286,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       required={field.required()}
       disabled={field.disabled()}
       readonly={field.readOnly()}
-      {...ariaAttrs()}
+      {...mergeFieldAriaAttributes(rest, field.ariaAttrs())}
       {...textControl.valueProps()}
       ref={(element) => {
         textareaEl = element

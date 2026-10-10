@@ -24,8 +24,8 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
       data-slot={context.slotName('overlay')}
       {...modalDataAttributes.overlay({
         overlayScroll: () => local.scrollable,
-        expanded: () => presence.dataAttrs()['data-expanded'],
-        closed: () => presence.dataAttrs()['data-closed'],
+        expanded: context.open,
+        closed: () => !context.open(),
       })}
       {...rest}
       ref={(element) => {

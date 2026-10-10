@@ -605,6 +605,26 @@ describe('Checkbox', () => {
     expect(reads).toEqual({ checkedIcon: 0, description: 1, indeterminateIcon: 1, label: 1 })
   })
 
+  test('does not evaluate indicator icons while unchecked', () => {
+    const reads = { checkedIcon: 0, indeterminateIcon: 0 }
+
+    render(() =>
+      createComponent(Checkbox, {
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get indeterminateIcon() {
+          reads.indeterminateIcon += 1
+          return <span>Mixed</span>
+        },
+        label: 'Unchecked',
+      }),
+    )
+
+    expect(reads).toEqual({ checkedIcon: 0, indeterminateIcon: 0 })
+  })
+
   test('does not toggle when clicking list root container', async () => {
     const screen = render(() => <Checkbox label="List root click" />)
 

@@ -26,14 +26,14 @@ export function Icon(props: IconProps): JSX.Element {
   const resolved = createStyles(iconRecipe, local)
 
   const name = createMemo(() => local.name)
-  const accessibilityProps = createMemo(() => {
+  const accessibilityProps = () => {
     const labelled = Boolean(rest['aria-label'] || rest['aria-labelledby'])
 
     return {
       'aria-hidden': local['aria-hidden'] ?? (labelled ? undefined : true),
       role: local.role ?? (labelled ? 'img' : undefined),
     }
-  })
+  }
 
   const componentProps = createMemo<{ children?: JSX.Element; component: ValidComponent }>(() => {
     const value = name()

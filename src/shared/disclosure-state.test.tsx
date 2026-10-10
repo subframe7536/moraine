@@ -44,28 +44,22 @@ afterEach(() => {
 })
 
 describe('createDisclosureState', () => {
-  test('exposes reactive open and disabled data attributes', () => {
+  test('exposes reactive data attribute getters', () => {
     createRoot((dispose) => {
       const [open, setOpen] = createSignal(false)
       const [disabled, setDisabled] = createSignal(false)
       const state = createDisclosureState({ open, disabled })
 
-      expect(state.disabled()).toBe(false)
-      expect(state.dataAttrs()).toEqual({
-        'data-closed': '',
-        'data-disabled': undefined,
-        'data-expanded': undefined,
-      })
+      expect(state.dataAttrs['data-closed']).toBe('')
+      expect(state.dataAttrs['data-disabled']).toBeUndefined()
+      expect(state.dataAttrs['data-expanded']).toBeUndefined()
 
       setOpen(true)
       setDisabled(true)
 
-      expect(state.disabled()).toBe(true)
-      expect(state.dataAttrs()).toEqual({
-        'data-closed': undefined,
-        'data-disabled': '',
-        'data-expanded': '',
-      })
+      expect(state.dataAttrs['data-closed']).toBeUndefined()
+      expect(state.dataAttrs['data-disabled']).toBe('')
+      expect(state.dataAttrs['data-expanded']).toBe('')
       dispose()
     })
   })

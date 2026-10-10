@@ -1,11 +1,11 @@
 ---
 title: createDisclosureState
-description: Track open-state metadata, dynamic content height measurements, and data attributes for collapsible panels.
+description: Track open state, content height, and data-attribute getters for collapsible panels.
 search:
   tags: [createDisclosureState, disclosure, collapsible, accordion, height, animation]
 ---
 
-`createDisclosureState` manages state, content height measurements, and DOM data attributes for expandable/collapsible components like `Collapsible` and `Accordion`.
+`createDisclosureState` manages open state, content height measurements, and data-attribute getters for expandable/collapsible components like `Collapsible` and `Accordion`.
 
 ## Import
 
@@ -18,11 +18,11 @@ import { createDisclosureState } from 'moraine/utils'
 ```ts
 function createDisclosureState(options: CreateDisclosureStateOptions): {
   readonly contentHeight: Accessor<number>
-  readonly dataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-disabled'?: string
-    'data-expanded'?: string
-  }>
+  readonly dataAttrs: {
+    readonly 'data-closed'?: string
+    readonly 'data-disabled'?: string
+    readonly 'data-expanded'?: string
+  }
   readonly disabled: Accessor<boolean>
   readonly setContentElement: (element: HTMLElement | undefined) => void
   readonly registerElement: (element: HTMLElement) => () => void
@@ -49,7 +49,7 @@ export function MyCollapsible() {
       <button onClick={() => setOpen(!open())}>Toggle Panel</button>
 
       <div
-        {...disclosure.dataAttrs()}
+        {...disclosure.dataAttrs}
         ref={disclosure.setContentElement}
         style={{
           '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
@@ -66,4 +66,4 @@ export function MyCollapsible() {
 ## Features
 
 - **Height Tracking**: Automatically attaches a `ResizeObserver` to the content element to measure `scrollHeight` accurately even when children change dynamically.
-- **Data Attributes**: Supplies `data-expanded`, `data-closed`, and `data-disabled` to drive CSS animations and transitions cleanly.
+- **Data attributes**: Supplies `data-expanded`, `data-closed`, and `data-disabled` as getters so each attribute tracks independently when spread.

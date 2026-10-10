@@ -517,6 +517,22 @@ describe('Button', () => {
     expect(button.querySelector('[data-slot="button-label"]')?.textContent).toBe('0')
   })
 
+  test('does not evaluate loadingIcon while idle', () => {
+    let reads = 0
+
+    render(() =>
+      createComponent(Button, {
+        get loadingIcon() {
+          reads += 1
+          return <span>Loading</span>
+        },
+        children: 'Save',
+      }),
+    )
+
+    expect(reads).toBe(0)
+  })
+
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -532,6 +548,22 @@ describe('Button', () => {
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
     expect(leading?.className).toContain('animate-spin')
+  })
+
+  test('does not evaluate loadingIcon while idle', () => {
+    let reads = 0
+
+    render(() =>
+      createComponent(Button, {
+        get loadingIcon() {
+          reads += 1
+          return <span>Loading</span>
+        },
+        children: 'Save',
+      }),
+    )
+
+    expect(reads).toBe(0)
   })
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {

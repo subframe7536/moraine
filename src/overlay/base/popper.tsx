@@ -260,9 +260,8 @@ export function PopperContent(
   const [portalMount, setPortalMount] = createSignal<HTMLElement>()
   // Resolve after mounting, when the trigger may have been adopted into another document.
   createEffect(on(triggerElement, (trigger) => setPortalMount(trigger?.ownerDocument.body)))
-  const contentMounted = createMemo(
-    () => contentPresence.present() || (options.forceMount && !context.options.disabled),
-  )
+  const contentMounted = () =>
+    contentPresence.present() || (options.forceMount && !context.options.disabled)
   let restoreFocusAfterClose = true
 
   createEffect(
@@ -477,8 +476,8 @@ export function PopperContent(
   }
 
   const contentDataAttrs = popperDataAttributes.content({
-    closed: () => context.contentPresence.dataAttrs()['data-closed'],
-    expanded: () => context.contentPresence.dataAttrs()['data-expanded'],
+    closed: () => !context.isOpen(),
+    expanded: context.isOpen,
   })
   const contentProps = {
     get 'aria-describedby'() {

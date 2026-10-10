@@ -238,11 +238,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     untrack(() => formatLocaleNumber(initialResetValue, locale())),
   )
   const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
-  const inputAriaAttrs = createMemo(() => ({
-    'aria-label': local['aria-label'],
-    ...mergeFieldAriaAttributes(local, field.ariaAttrs()),
-  }))
-
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
@@ -275,21 +270,21 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }),
   )
 
-  const incrementIcon = createMemo<IconT.Name>(() => {
+  const incrementIcon = (): IconT.Name => {
     if (merged.incrementIcon) {
       return merged.incrementIcon
     }
 
     return resolved.variants.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
-  })
+  }
 
-  const decrementIcon = createMemo<IconT.Name>(() => {
+  const decrementIcon = (): IconT.Name => {
     if (merged.decrementIcon) {
       return merged.decrementIcon
     }
 
     return resolved.variants.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
-  })
+  }
 
   const isVertical = createMemo(() => resolved.variants.orientation === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
@@ -998,7 +993,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...inputAriaAttrs()}
+        {...mergeFieldAriaAttributes(local, field.ariaAttrs())}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

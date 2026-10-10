@@ -94,10 +94,6 @@ export interface OverlayMenuLayerProps<
   open: boolean
   parentLayer?: OverlayMenuLayerState
   present: Accessor<boolean>
-  presenceDataAttrs: Accessor<{
-    'data-closed'?: string
-    'data-expanded'?: string
-  }>
   refState?: (state: OverlayMenuLayerState | undefined) => void
   registerBranch: (element: HTMLElement) => () => void
   setPresenceElement: (element: HTMLElement | undefined) => void
@@ -664,7 +660,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               overflowPadding={props.overflowPadding}
               parentLayer={layer}
               present={contentPresence.present}
-              presenceDataAttrs={contentPresence.dataAttrs}
               registerBranch={registerLayerBranch}
               setPresenceElement={contentPresence.setElement}
               autoFocusStrategy={autoFocusStrategy()}
@@ -682,15 +677,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }
 
   const side = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).side)
-  const align = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).align)
-  const presenceDataAttrs = createMemo(() => {
-    const dataAttrs = props.presenceDataAttrs()
-
-    return dataAttrs['data-expanded'] !== undefined && !isPositioned() ? {} : dataAttrs
-  })
-  const closeParentKey = createMemo(() =>
-    props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined,
-  )
+  const align = () => parseFloatingPlacement(layer.currentPlacement()).align
+  const closeParentKey = () =>
+    props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined
 
   const handledKeyDown = new WeakSet<Event>()
   const onContentKeyDown = (event: KeyboardEvent): void => {
@@ -777,11 +766,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
-  const contentSlot = () => ({
-    class: cn(resolveSlot('content').class, props.contentProps?.class),
-    style: { ...props.contentProps?.style, ...resolveSlot('content').style },
-  })
-
   return (
     <div
       ref={(element) => {
@@ -805,8 +789,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         data-slot={slotName('content')}
         role="menu"
         {...overlayMenuDataAttributes.content({
-          expanded: () => presenceDataAttrs()['data-expanded'],
-          closed: () => presenceDataAttrs()['data-closed'],
+          expanded: () => props.open && isPositioned(),
+          closed: () => !props.open,
           side,
           align,
         })}
@@ -826,8 +810,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             }
           })
         }}
-        class={contentSlot().class}
-        style={contentSlot().style}
+        class={cn(resolveSlot('content').class, props.contentProps?.class)}
+        style={{ ...props.contentProps?.style, ...resolveSlot('content').style }}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
           if (!defaultPrevented) {
