@@ -857,4 +857,49 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
   })
+
+  test('sets a visualViewport keyboard inset and scrolls the focused field', async () => {
+    const listeners = new Map<string, EventListener>()
+    const visualViewport = {
+      height: 400,
+      offsetTop: 0,
+      addEventListener: (type: string, listener: EventListener) => {
+        listeners.set(type, listener)
+      },
+      removeEventListener: (type: string) => {
+        listeners.delete(type)
+      },
+    }
+    const previousInnerHeight = window.innerHeight
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 800 })
+    vi.stubGlobal('visualViewport', visualViewport)
+
+    try {
+      render(() => (
+        <Sheet open side="bottom">
+          <Sheet.Content>
+            <Sheet.Body>
+              <input aria-label="Email" />
+            </Sheet.Body>
+          </Sheet.Content>
+        </Sheet>
+      ))
+
+      const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement
+      const input = document.body.querySelector('input') as HTMLInputElement
+      const scrollIntoView = vi.fn()
+      input.scrollIntoView = scrollIntoView
+      input.focus()
+      listeners.get('resize')?.(new Event('resize'))
+
+      expect(content.style.getPropertyValue('--sheet-keyboard-inset')).toBe('400px')
+      expect(scrollIntoView).toHaveBeenCalled()
+    } finally {
+      vi.unstubAllGlobals()
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: previousInnerHeight,
+      })
+    }
+  })
 })

@@ -20,7 +20,7 @@ export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetSty
     base: {
       trigger: '',
       content:
-        'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-overlay fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
+        'text-sm text-popover-foreground pb-(--sheet-keyboard-inset) outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-overlay [--sheet-keyboard-inset:0px] fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
       overlay: MODAL_OVERLAY_CLASS,
       header: 'p-4 gap-0.5 grid auto-rows-min min-w-0',
       title: 'text-foreground font-medium',

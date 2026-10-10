@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, mergeProps, splitProps, untrack } from 'solid-js'
+import { Show, createEffect, mergeProps, on, onCleanup, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
@@ -7,6 +7,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { createContentAnatomy } from '../base/content-anatomy'
+import { getActiveElement } from '../base/dom'
 import { createShorthandContent } from '../base/shorthand-content'
 import { Modal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
@@ -46,6 +47,49 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     inheritedStyles: () => family.presentation,
   })
   const registration = createContentAnatomy()
+
+  createEffect(
+    on([family.open, family.contentElement], ([isOpen, content]) => {
+      if (!isOpen || !content) {
+        return
+      }
+
+      const ownerWindow = content.ownerDocument.defaultView
+      if (!ownerWindow?.visualViewport) {
+        return
+      }
+
+      const surface = content
+      const view = ownerWindow
+      const keyboardViewport = ownerWindow.visualViewport
+      function update(): void {
+        const inset = Math.max(
+          0,
+          Math.round(view.innerHeight - keyboardViewport.height - keyboardViewport.offsetTop),
+        )
+        surface.style.setProperty('--sheet-keyboard-inset', `${inset}px`)
+        if (inset <= 0) {
+          return
+        }
+
+        const active = getActiveElement(surface.ownerDocument)
+        if (active instanceof view.HTMLElement && surface.contains(active)) {
+          active.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+        }
+      }
+
+      update()
+      keyboardViewport.addEventListener('resize', update)
+      keyboardViewport.addEventListener('scroll', update)
+      view.addEventListener('resize', update)
+      onCleanup(() => {
+        keyboardViewport.removeEventListener('resize', update)
+        keyboardViewport.removeEventListener('scroll', update)
+        view.removeEventListener('resize', update)
+        surface.style.removeProperty('--sheet-keyboard-inset')
+      })
+    }),
+  )
 
   return (
     <SheetContentProvider
