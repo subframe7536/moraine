@@ -58,19 +58,19 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
   })
   return (
     <div
-      {...rest}
-      ref={(element) => callRef(local.ref, element)}
-      id={state.itemId(item().value)}
       role="option"
-      tabIndex={-1}
       data-slot={state.slotName('item')}
-      aria-selected={selected() ? 'true' : 'false'}
-      aria-disabled={disabled() || undefined}
       {...baseSelectDataAttributes.item({
         selected,
         highlighted,
         disabled,
       })}
+      {...rest}
+      ref={(element) => callRef(local.ref, element)}
+      id={state.itemId(item().value)}
+      tabIndex={-1}
+      aria-selected={selected() ? 'true' : 'false'}
+      aria-disabled={disabled() || undefined}
       {...resolved.styles.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)

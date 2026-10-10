@@ -73,11 +73,11 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
 
   return (
     <Button
+      slotName="toggle-button"
+      {...toggleButtonDataAttributes.root({ pressed })}
       {...rest}
       as={local.as}
-      slotName="toggle-button"
       aria-pressed={pressed()}
-      {...toggleButtonDataAttributes.root({ pressed })}
       variant={pressed() ? resolved.variants.activeVariant : resolved.variants.variant}
       size={resolved.variants.size}
       activeEffect="none"

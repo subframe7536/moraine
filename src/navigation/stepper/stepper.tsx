@@ -197,7 +197,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <div id={id()} data-slot="stepper" {...resolved.styles.root} {...rest}>
+    <div data-slot="stepper" {...rest} id={id()} {...resolved.styles.root}>
       <div
         ref={(element) => {
           headerRef = element

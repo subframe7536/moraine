@@ -15,10 +15,10 @@ export function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
   })
   return (
     <div
-      {...props}
       role="presentation"
       aria-hidden="true"
       data-slot={state.slotName('separator')}
+      {...props}
       {...resolved.styles.separator}
     />
   )

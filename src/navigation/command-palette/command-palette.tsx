@@ -637,10 +637,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   return (
     <div
-      ref={(el) => callRef(local.ref, el)}
       data-slot="command-palette"
-      {...resolved.styles.root}
       {...rest}
+      ref={(el) => callRef(local.ref, el)}
+      {...resolved.styles.root}
     >
       <div data-slot="command-palette-input-wrapper" {...resolved.styles.inputWrapper}>
         <Icon

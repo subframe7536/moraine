@@ -184,14 +184,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   return (
     <div
+      data-slot="accordion"
+      {...accordionDataAttributes.root({ disabled: () => merged.disabled })}
       {...rest}
       ref={(element) => {
         rootElement = element
         callRef(local.ref, element)
       }}
       id={rootId()}
-      data-slot="accordion"
-      {...accordionDataAttributes.root({ disabled: () => merged.disabled })}
       {...resolved.styles.root}
     >
       <For each={items()}>

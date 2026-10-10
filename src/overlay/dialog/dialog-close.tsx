@@ -8,5 +8,5 @@ import type { DialogT } from './dialog.types'
 export function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
-  return <Modal.Close {...props} data-slot="dialog-close" />
+  return <Modal.Close data-slot="dialog-close" {...props} />
 }

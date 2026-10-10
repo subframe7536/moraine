@@ -699,15 +699,7 @@ export function FileUpload<Multiple extends boolean = false>(
 
   return (
     <div
-      {...rest}
       role="group"
-      aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
-      aria-label={
-        field.ariaAttrs()['aria-labelledby'] || label()
-          ? undefined
-          : (local['aria-label'] ?? messages().label)
-      }
-      aria-disabled={field.disabled() ? true : undefined}
       data-slot="file-upload"
       {...fileUploadDataAttributes.root({
         disabled: field.disabled,
@@ -715,6 +707,14 @@ export function FileUpload<Multiple extends boolean = false>(
         required: field.required,
         invalid,
       })}
+      {...rest}
+      aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
+      aria-label={
+        field.ariaAttrs()['aria-labelledby'] || label()
+          ? undefined
+          : (local['aria-label'] ?? messages().label)
+      }
+      aria-disabled={field.disabled() ? true : undefined}
       id={`${field.id()}-root`}
       {...resolved.styles.root}
     >

@@ -23,9 +23,9 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
 
   return (
     <Separator
-      {...rest}
       data-slot="button-group-separator"
       orientation={resolved.variants.orientation}
+      {...rest}
       {...resolved.styles.separator}
     />
   )

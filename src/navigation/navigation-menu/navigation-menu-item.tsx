@@ -49,12 +49,12 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
   return (
     <NavigationMenuItemProvider value={item}>
       <li
-        {...rest}
         data-slot="navigation-menu-item"
         {...navigationMenuDataAttributes.item({
           disabled: item.disabled,
           expanded: () => context.open() && context.activeItem() === item,
         })}
+        {...rest}
         {...resolved.styles.item}
       >
         {local.children}

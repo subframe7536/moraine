@@ -98,11 +98,12 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
 
   const Content = (): JSX.Element => (
     <div
-      {...rest}
+      data-slot={context.slotName('content')}
       {...modalDataAttributes.content({
         expanded: () => presence.dataAttrs()['data-expanded'],
         closed: () => presence.dataAttrs()['data-closed'],
       })}
+      {...rest}
       ref={(element) => {
         const unregister = presence.registerElement(element)
         context.setContentElement(element)
@@ -122,7 +123,6 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
       aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
-      data-slot={context.slotName('content')}
       class={cn(local.class)}
       style={local.style}
       onKeyDown={(event) => {

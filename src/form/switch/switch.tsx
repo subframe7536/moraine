@@ -267,8 +267,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   return (
     <div
-      ref={(element) => callRef(local.ref, element)}
-      {...rest}
       data-slot="switch"
       {...switchDataAttributes.root({
         checked,
@@ -279,6 +277,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         invalid: field.invalid,
         loading: () => merged.loading,
       })}
+      {...rest}
+      ref={(element) => callRef(local.ref, element)}
       {...resolved.styles.root}
       onClick={onRootClick}
     >

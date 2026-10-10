@@ -303,17 +303,17 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
   return (
     <div
+      role="radiogroup"
+      aria-orientation={merged.orientation}
+      data-slot="radio-group"
+      {...dataAttrs}
+      {...rest}
       ref={(element) => {
         groupEl = element
         callRef(local.ref, element)
       }}
       id={groupId()}
-      role="radiogroup"
-      aria-orientation={merged.orientation}
-      data-slot="radio-group"
-      {...dataAttrs}
       {...field.ariaAttrs()}
-      {...rest}
       {...resolved.styles.root}
       onFocusIn={onGroupFocusIn}
       onFocusOut={onGroupFocusOut}

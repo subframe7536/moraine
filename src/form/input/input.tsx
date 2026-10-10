@@ -174,6 +174,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
   return (
     <input
+      data-slot="input"
+      {...dataAttrs}
       {...rest}
       id={field.id()}
       type={merged.type}
@@ -182,8 +184,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       disabled={field.disabled()}
       readonly={field.readOnly()}
       autocomplete={merged.autocomplete}
-      data-slot="input"
-      {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}
       ref={(element) => {

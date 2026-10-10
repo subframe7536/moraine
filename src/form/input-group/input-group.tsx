@@ -69,12 +69,12 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     >
       <div
         role="group"
-        {...rest}
         data-slot="input-group"
         {...inputGroupDataAttributes.root({
           inputGroup: true,
           orientation: () => resolved.variants.orientation,
         })}
+        {...rest}
         {...resolved.styles.root}
         onPointerDown={onPointerDown}
       >

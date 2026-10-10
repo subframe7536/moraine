@@ -57,11 +57,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
-      id={context.triggerId()}
-      data-slot="collapsible-trigger"
-      {...binding}
       component={tag()}
-      {...resolved.styles.trigger}
+      data-slot="collapsible-trigger"
       aria-controls={context.contentId()}
       aria-expanded={disclosure.open()}
       {...collapsibleDataAttributes.trigger({
@@ -69,6 +66,9 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
         closed: () => disclosure.dataAttrs()['data-closed'],
         disabled,
       })}
+      {...binding}
+      id={context.triggerId()}
+      {...resolved.styles.trigger}
     >
       {children()}
     </Dynamic>

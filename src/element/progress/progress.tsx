@@ -145,14 +145,14 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   return (
     <div
-      {...rest}
       role="progressbar"
+      data-slot="progress"
+      {...rootDataAttrs}
+      {...rest}
       aria-valuemin={minValue}
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
-      data-slot="progress"
-      {...rootDataAttrs}
       {...resolved.styles.root}
     >
       <Show when={!isIndeterminate()}>

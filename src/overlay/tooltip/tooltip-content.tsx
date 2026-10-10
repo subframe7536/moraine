@@ -71,9 +71,9 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         })
         return (
           <div
-            {...mergePopperElementProps(contentProps, rest)}
             data-slot="tooltip-content"
             {...contentDataAttrs}
+            {...mergePopperElementProps(contentProps, rest)}
             {...resolved.styles.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>

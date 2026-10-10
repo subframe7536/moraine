@@ -337,8 +337,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
   return (
     <div
-      {...rest}
-      data-slot={(rest as { 'data-slot'?: string })['data-slot'] ?? 'checkbox'}
+      data-slot="checkbox"
       {...checkboxDataAttributes.root({
         checked: resolvedChecked,
         unchecked: () => !resolvedChecked() && !indeterminate(),
@@ -348,6 +347,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         required: field.required,
         invalid: field.invalid,
       })}
+      {...rest}
       {...resolved.styles.root}
       onClick={onRootClick}
     >

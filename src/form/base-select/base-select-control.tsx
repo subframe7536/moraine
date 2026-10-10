@@ -18,7 +18,6 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
   })
   return (
     <div
-      {...rest}
       data-slot={state.slotName('control')}
       {...baseSelectDataAttributes.control({
         disabled: state.field.disabled,
@@ -28,6 +27,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
         expanded: state.open,
         closed: () => !state.open(),
       })}
+      {...rest}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)

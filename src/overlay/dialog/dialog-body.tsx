@@ -30,8 +30,8 @@ export function DialogBody<T extends ValidComponent = 'div'>(
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="dialog-body"
-      {...rest}
       {...bodyAttrs}
+      {...rest}
       {...resolved.styles.body}
     >
       {local.children}

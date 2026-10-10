@@ -15,10 +15,10 @@ export function Separator(props: SeparatorProps): JSX.Element {
   return (
     <div
       data-slot="separator"
-      {...rest}
       role="separator"
       aria-orientation={orientation()}
       {...separatorDataAttributes.root({ orientation })}
+      {...rest}
       {...resolved.styles.root}
     />
   )

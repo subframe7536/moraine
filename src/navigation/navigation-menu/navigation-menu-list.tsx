@@ -17,9 +17,9 @@ export function NavigationMenuList(props: NavigationMenuT.ListProps): JSX.Elemen
   })
   return (
     <ul
-      {...rest}
       data-slot="navigation-menu-list"
       {...navigationMenuDataAttributes.list({ orientation: context.orientation })}
+      {...rest}
       {...resolved.styles.list}
     >
       {local.children}

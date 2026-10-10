@@ -46,7 +46,7 @@ export function BaseSelectTrigger<
       ref: state.setFocusOwner,
     },
   })
-  const eventProps = mergeProps(rest, {
+  const eventProps = mergeProps({ role: 'combobox' as const }, rest, {
     onPointerDown(event: PointerEvent) {
       callHandler(event, local.onPointerDown)
       if (
@@ -92,11 +92,7 @@ export function BaseSelectTrigger<
   const rootBinding = root.bind(binding)
   return (
     <Dynamic
-      {...rootBinding}
       component={tag()}
-      {...state.field.ariaAttrs()}
-      id={state.field.id()}
-      role="combobox"
       data-slot={state.slotName('trigger')}
       {...baseSelectDataAttributes.trigger({
         invalid: state.field.invalid,
@@ -105,6 +101,9 @@ export function BaseSelectTrigger<
         disabled: () => Boolean(state.field.disabled() || local.disabled),
       })}
       aria-haspopup="listbox"
+      {...rootBinding}
+      {...state.field.ariaAttrs()}
+      id={state.field.id()}
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
       aria-activedescendant={

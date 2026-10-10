@@ -218,7 +218,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   const children = resolveChildren(() => local.children)
   const rootBinding = root.bind(binding)
   return (
-    <Dynamic {...rootBinding} component={tag()} class={cn(local.class)} style={local.style}>
+    <Dynamic component={tag()} {...rootBinding} class={cn(local.class)} style={local.style}>
       {children()}
     </Dynamic>
   )

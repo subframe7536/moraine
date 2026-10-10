@@ -19,10 +19,10 @@ export function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   return (
     <GroupProvider value={{ labelId, setLabelId }}>
       <div
-        {...props}
         role="group"
-        aria-labelledby={labelId() ?? props['aria-labelledby']}
         data-slot={state.slotName('group')}
+        {...props}
+        aria-labelledby={labelId() ?? props['aria-labelledby']}
         {...resolved.styles.group}
       >
         {props.children}

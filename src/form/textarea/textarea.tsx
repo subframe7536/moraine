@@ -288,6 +288,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
   return (
     <textarea
+      data-slot="textarea"
+      {...dataAttrs}
       {...rest}
       id={field.id()}
       name={field.name()}
@@ -295,8 +297,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       required={field.required()}
       disabled={field.disabled()}
       readonly={field.readOnly()}
-      data-slot="textarea"
-      {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}
       ref={(element) => {

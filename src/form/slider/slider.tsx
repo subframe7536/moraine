@@ -125,11 +125,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   return (
     <div
-      {...rest}
-      ref={(element) => callRef(local.ref, element)}
-      id={`${field.id()}-root`}
       role="group"
-      aria-label={local['aria-label']}
       data-slot="slider"
       {...sliderDataAttributes.root({
         dragging: slider.dragging,
@@ -140,6 +136,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         inverted: () => merged.inverted,
         multiple: isMultiple,
       })}
+      {...rest}
+      ref={(element) => callRef(local.ref, element)}
+      id={`${field.id()}-root`}
+      aria-label={local['aria-label']}
       {...field.ariaAttrs()}
       {...resolved.styles.root}
     >

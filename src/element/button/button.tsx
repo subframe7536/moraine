@@ -125,6 +125,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   return (
     <Dynamic
+      component={tag()}
       data-slot={local.slotName || 'button'}
       aria-busy={isLoading() ? true : undefined}
       {...buttonDataAttributes.root({
@@ -132,7 +133,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         disabled: () => local.disabled,
       })}
       {...binding}
-      component={tag()}
       style={{ ...resolved.styles.root.style }}
       class={cn(resolved.styles.root.class, customActiveEffectClass())}
     >

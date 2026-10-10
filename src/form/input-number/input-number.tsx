@@ -854,13 +854,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   return (
     <div
-      ref={(element) => callRef(local.ref, element)}
-      id={`${field.id()}-root`}
       role="group"
       data-slot="input-number"
-      {...resolved.styles.root}
       {...rootDataAttrs}
       {...rest}
+      ref={(element) => callRef(local.ref, element)}
+      id={`${field.id()}-root`}
+      {...resolved.styles.root}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>

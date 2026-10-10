@@ -26,9 +26,9 @@ export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   )
   return (
     <div
+      data-slot={state.slotName('groupLabel')}
       {...props}
       id={id()}
-      data-slot={state.slotName('groupLabel')}
       {...resolved.styles.groupLabel}
     >
       {props.children}

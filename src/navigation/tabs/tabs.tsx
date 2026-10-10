@@ -284,10 +284,10 @@ export function Tabs(props: TabsProps): JSX.Element {
 
   return (
     <div
-      {...rest}
-      id={rootId()}
       data-slot="tabs"
       {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
+      {...rest}
+      id={rootId()}
       {...resolved.styles.root}
     >
       <div

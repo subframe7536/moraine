@@ -146,12 +146,12 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     <div
       data-slot="scroll-area"
       tabIndex={canScroll() ? 0 : -1}
+      {...scrollAreaDataAttributes.root({ orientation, shadowStart, shadowEnd })}
       {...rest}
       ref={(element) => {
         root = element
         callRef(local.ref, element)
       }}
-      {...scrollAreaDataAttributes.root({ orientation, shadowStart, shadowEnd })}
       {...resolved.styles.root}
     >
       {local.children}

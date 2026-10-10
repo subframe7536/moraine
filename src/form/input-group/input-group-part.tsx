@@ -28,12 +28,12 @@ export function renderInputGroupPart(
   })
   return (
     <div
-      {...rest}
       data-slot={`input-group-${part}`}
       {...inputGroupDataAttributes[part]({
         orientation: () => group.orientation,
         compact: () => resolved.variants.compact,
       })}
+      {...rest}
       {...resolved.styles[part]}
     >
       {local.children}

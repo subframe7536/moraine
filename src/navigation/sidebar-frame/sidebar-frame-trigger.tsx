@@ -45,18 +45,18 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
-      data-slot="sidebar-frame-trigger"
-      {...binding}
       component={tag()}
-      class={local.class}
-      style={local.style}
-      aria-controls={ariaControls()}
+      data-slot="sidebar-frame-trigger"
       aria-expanded={context.isOpen()}
       {...sidebarFrameDataAttributes.trigger({
         open: context.isOpen,
         closed: () => !context.isOpen(),
         disabled,
       })}
+      {...binding}
+      class={local.class}
+      style={local.style}
+      aria-controls={ariaControls()}
     >
       {children()}
     </Dynamic>

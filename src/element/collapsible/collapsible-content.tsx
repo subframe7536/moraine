@@ -67,13 +67,13 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     >
       <Show when={shouldRenderContent()}>
         <Dynamic
+          component={local.as ?? 'div'}
           data-slot="collapsible-content"
-          {...rest}
           {...collapsibleDataAttributes.content({
             expanded: () => disclosure.dataAttrs()['data-expanded'],
             closed: () => disclosure.dataAttrs()['data-closed'],
           })}
-          component={local.as ?? 'div'}
+          {...rest}
           {...resolved.styles.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
         >

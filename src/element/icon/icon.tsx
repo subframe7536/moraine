@@ -54,15 +54,17 @@ export function Icon(props: IconProps): JSX.Element {
 
   return (
     <Dynamic
+      component={componentProps().component}
       data-slot={local.slotName ?? 'icon'}
       {...rest}
       {...accessibilityProps()}
-      {...componentProps()}
       style={{
         'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
         ...resolved.styles.root.style,
       }}
       class={cn(typeof name() === 'string' && name(), resolved.styles.root.class)}
-    />
+    >
+      {componentProps().children}
+    </Dynamic>
   )
 }

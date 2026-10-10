@@ -102,14 +102,14 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     >
       <ModalPortal>
         <ModalSurface
-          {...rest}
-          dir={rest.dir ?? direction()}
-          composite
           {...sheetDataAttributes.content({
             closed: undefined,
             expanded: undefined,
             transition: () => merged.transition,
           })}
+          {...rest}
+          dir={rest.dir ?? direction()}
+          composite
           overlay={merged.overlay}
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
