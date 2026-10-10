@@ -1126,14 +1126,9 @@ test('resolves canonical item disabled state and passes canonical item to isItem
 function dispatchKey(
   target: EventTarget,
   key: string,
-  init: { which?: number; keyCode?: number; isComposing?: boolean } = {},
+  init: { which?: number; keyCode?: number } = {},
 ): KeyboardEvent {
-  const event = new KeyboardEvent('keydown', {
-    bubbles: true,
-    cancelable: true,
-    key,
-    ...('isComposing' in init ? { isComposing: init.isComposing } : {}),
-  })
+  const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key })
   if (init.which !== undefined) {
     Object.defineProperty(event, 'which', { value: init.which })
   }
