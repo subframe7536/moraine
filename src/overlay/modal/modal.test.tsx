@@ -747,6 +747,50 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('focuses the dialog surface when opened by touch', async () => {
+    const screen = render(() => (
+      <Modal>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content>
+            <input aria-label="Search" data-testid="search" />
+            <button type="button">Other</button>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Open' })
+    fireEvent.pointerDown(trigger, { pointerType: 'touch' })
+    fireEvent.click(trigger)
+
+    await waitFor(() =>
+      expect(document.activeElement).toBe(document.body.querySelector('[role="dialog"]')),
+    )
+    expect(document.activeElement).not.toBe(document.body.querySelector('[data-testid="search"]'))
+    screen.unmount()
+  })
+
+  test('lets content override role', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content role="alertdialog" ariaLabel="Confirm delete">
+            Confirm this action
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    await waitFor(() =>
+      expect(document.body.querySelector('[role="alertdialog"]')?.getAttribute('aria-label')).toBe(
+        'Confirm delete',
+      ),
+    )
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
+    screen.unmount()
+  })
+
   test('does not acquire modal resources when an open root has no surfaces', async () => {
     document.body.style.overflow = 'auto'
     const onOpenChange = vi.fn()
