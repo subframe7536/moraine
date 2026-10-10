@@ -926,8 +926,7 @@ test('reuses the validation control as the single-select form input', () => {
   const form = screen.container.querySelector('form')!
   const inputs = form.querySelectorAll('input')
   expect(inputs).toHaveLength(1)
-  expect(inputs[0]?.type).toBe('checkbox')
-  expect(inputs[0]?.checked).toBe(true)
+  expect(inputs[0]?.type).toBe('text')
   expect(inputs[0]?.name).toBe('choice')
   expect(inputs[0]?.value).toBe('apple')
   expect(form.checkValidity()).toBe(true)
@@ -999,8 +998,7 @@ test('supports an empty-string value with required validation and form submissio
 
   const form = screen.container.querySelector('form')!
   const input = form.querySelector<HTMLInputElement>('input')!
-  expect(input.type).toBe('checkbox')
-  expect(input.checked).toBe(true)
+  expect(input.type).toBe('text')
   expect(input.value).toBe('')
   expect(form.checkValidity()).toBe(true)
   expect(new FormData(form).getAll('choice')).toEqual([''])
@@ -1123,4 +1121,93 @@ test('resolves canonical item disabled state and passes canonical item to isItem
   expect(onChange).not.toHaveBeenCalled()
   fireEvent.click(options[1]!)
   expect(onChange).not.toHaveBeenCalled()
+})
+
+function dispatchKey(
+  target: EventTarget,
+  key: string,
+  init: { which?: number; keyCode?: number } = {},
+): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key })
+  if (init.which !== undefined) {
+    Object.defineProperty(event, 'which', { value: init.which })
+  }
+  if (init.keyCode !== undefined) {
+    Object.defineProperty(event, 'keyCode', { value: init.keyCode })
+  }
+  target.dispatchEvent(event)
+  return event
+}
+
+test('ignores IME keyCode 229 navigation and selection', () => {
+  const onChange = vi.fn()
+  render(() => (
+    <BaseSelect items={items} defaultOpen onValueChange={onChange}>
+      <Parts />
+    </BaseSelect>
+  ))
+  const trigger = document.body.querySelector('[role="combobox"]')!
+  const first = within(document.body).getAllByRole('option')[0]
+  fireEvent.keyDown(trigger, { key: 'Home' })
+  expect(first?.getAttribute('data-highlighted')).toBe('')
+
+  dispatchKey(trigger, 'ArrowDown', { which: 229, keyCode: 229 })
+  expect(first?.getAttribute('data-highlighted')).toBe('')
+  const enter = dispatchKey(trigger, 'Enter', { which: 229, keyCode: 229 })
+  expect(enter.defaultPrevented).toBe(false)
+  expect(onChange).not.toHaveBeenCalled()
+})
+
+test('matches a hidden form input change to the corresponding item', () => {
+  const onChange = vi.fn()
+  const screen = render(() => (
+    <form>
+      <BaseSelect items={items} name="choice" onValueChange={onChange}>
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect>
+    </form>
+  ))
+  const input = screen.container.querySelector<HTMLInputElement>('input[aria-hidden="true"]')!
+  fireEvent.change(input, { target: { value: 'beta' } })
+  expect(onChange).toHaveBeenCalledWith([2])
+  expect(input.value).toBe('2')
+  fireEvent.change(input, { target: { value: 'unknown' } })
+  expect(onChange).toHaveBeenCalledTimes(1)
+  expect(input.value).toBe('2')
+})
+
+test('does not highlight from a stationary pointer move', () => {
+  const screen = render(() => (
+    <BaseSelect items={items} defaultOpen>
+      <Parts />
+    </BaseSelect>
+  ))
+  const trigger = screen.getByRole('combobox')
+  const options = within(document.body).getAllByRole('option')
+  fireEvent.keyDown(trigger, { key: 'End' })
+  expect(options[1]?.getAttribute('data-highlighted')).toBe('')
+
+  const stationary = new PointerEvent('pointermove', { bubbles: true, pointerType: 'mouse' })
+  Object.defineProperty(stationary, 'movementX', { value: 0 })
+  Object.defineProperty(stationary, 'movementY', { value: 0 })
+  options[0]!.dispatchEvent(stationary)
+  expect(options[1]?.getAttribute('data-highlighted')).toBe('')
+
+  const moving = new PointerEvent('pointermove', { bubbles: true, pointerType: 'mouse' })
+  Object.defineProperty(moving, 'movementX', { value: 1 })
+  Object.defineProperty(moving, 'movementY', { value: 0 })
+  options[0]!.dispatchEvent(moving)
+  expect(options[0]?.getAttribute('data-highlighted')).toBe('')
+})
+
+test('prevents mousedown default on options so the focus owner is not blurred', () => {
+  render(() => (
+    <BaseSelect items={items} defaultOpen>
+      <Parts />
+    </BaseSelect>
+  ))
+  const option = within(document.body).getAllByRole('option')[0]!
+  const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+  option.dispatchEvent(event)
+  expect(event.defaultPrevented).toBe(true)
 })

@@ -1,7 +1,13 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
+import { createCompositionState, isComposingKeyEvent } from '../../overlay/base/utils'
+
 import type { BaseSelectT } from './base-select.types'
+
+function isAndroidUserAgent(): boolean {
+  return /android/i.test(globalThis.navigator?.userAgent ?? '')
+}
 
 export interface BaseSelectSearchInputOptions<TItem extends BaseSelectT.Item = BaseSelectT.Item> {
   state: Pick<
@@ -37,9 +43,11 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
 ) {
   const state = options.state
   const [compositionDraft, setCompositionDraft] = createSignal<string>()
+  const composition = createCompositionState()
   const isComposing = () => compositionDraft() !== undefined
   const displayValue = () => options.displayValue?.() ?? options.searchValue()
   const enabled = () => options.enabled?.() ?? true
+  onCleanup(() => composition.dispose())
 
   function commit(value: string): string {
     const next = options.setSearchValue(options.transformInput?.(value) ?? value)
@@ -110,16 +118,21 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
         target.value = displayValue()
         return
       }
-      if (isComposing() || event.isComposing) {
+      if (!isAndroidUserAgent() && (isComposing() || event.isComposing)) {
         setCompositionDraft(target.value)
         return
       }
       commit(target.value)
     },
     onCompositionStart(event: CompositionEvent) {
+      if (isAndroidUserAgent()) {
+        return
+      }
+      composition.onCompositionStart()
       setCompositionDraft((event.currentTarget as HTMLInputElement).value)
     },
     onCompositionEnd(event: CompositionEvent) {
+      composition.onCompositionEnd()
       const target = event.currentTarget as HTMLInputElement
       if (!isComposing()) {
         target.value = displayValue()
@@ -130,9 +143,10 @@ export function createBaseSelectSearchInput<TItem extends BaseSelectT.Item = Bas
       target.value = commit(value)
     },
     onKeyDown(event: KeyboardEvent) {
-      if (!isComposing()) {
-        state.keyDown(event, enabled())
+      if (isComposing() || isComposingKeyEvent(event, composition)) {
+        return
       }
+      state.keyDown(event, enabled())
     },
     onFocus(event: FocusEvent) {
       state.focus(event)

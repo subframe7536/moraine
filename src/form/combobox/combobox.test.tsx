@@ -347,11 +347,10 @@ describe('Combobox', () => {
 
     // Form value remains ''
     expect(getInput(form)).toEqual({ choice: '' })
-    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
-      'input[type="checkbox"][aria-hidden="true"]',
+    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
+      'input[aria-hidden="true"]',
     )
-    expect(hiddenCheckbox?.checked).toBe(true)
-    expect(hiddenCheckbox?.value).toBe('')
+    expect(hiddenInput?.value).toBe('')
   })
 
   test('preserves initial empty-string Form.Field selection when defaultSearchValue hides the empty item', () => {
@@ -379,11 +378,10 @@ describe('Combobox', () => {
     )
 
     expect(getInput(form)).toEqual({ choice: '' })
-    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
-      'input[type="checkbox"][aria-hidden="true"]',
+    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
+      'input[aria-hidden="true"]',
     )
-    expect(hiddenCheckbox?.checked).toBe(true)
-    expect(hiddenCheckbox?.value).toBe('')
+    expect(hiddenInput?.value).toBe('')
   })
 
   test('treats empty string as unselected when items do not contain an empty string value', () => {
@@ -404,11 +402,11 @@ describe('Combobox', () => {
       ),
     )
 
-    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
-      'input[type="checkbox"][aria-hidden="true"]',
+    const hiddenInput = screen.container.querySelector<HTMLInputElement>(
+      'input[aria-hidden="true"]',
     )
-    expect(hiddenCheckbox?.checked).toBe(false)
-    expect(hiddenCheckbox?.value).toBe('')
+    expect(hiddenInput?.value).toBe('')
+    expect(hiddenInput?.getAttribute('name')).toBeNull()
   })
 
   test('has data-editable on control for search input focus ring', () => {
@@ -507,6 +505,69 @@ test('filters items with Intl.Collator from the provider locale', () => {
   fireEvent.input(screen.getByRole('combobox'), { target: { value: 'AP' } })
   expect(within(document.body).getByRole('option', { name: 'Apple', hidden: true })).toBeTruthy()
   expect(within(document.body).queryByRole('option', { name: 'Banana', hidden: true })).toBeNull()
+})
+
+test('keeps Home and End on the query caret while the list is open', () => {
+  const screen = render(() => <Combobox items={ITEMS} defaultOpen />)
+  const input = screen.getByRole<HTMLInputElement>('combobox')
+  fireEvent.input(input, { target: { value: 'a' } })
+  fireEvent.keyDown(input, { key: 'ArrowDown' })
+  const highlighted = () =>
+    within(document.body)
+      .getAllByRole('option', { hidden: true })
+      .find((option) => option.hasAttribute('data-highlighted'))?.textContent
+  const current = highlighted()
+  const home = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Home' })
+  input.dispatchEvent(home)
+  expect(home.defaultPrevented).toBe(false)
+  expect(highlighted()).toBe(current)
+})
+
+test('lets Enter submit when the open list has nothing to commit', () => {
+  const screen = render(() => (
+    <form>
+      <Combobox items={ITEMS} defaultOpen />
+    </form>
+  ))
+  const input = screen.getByRole('combobox')
+  fireEvent.input(input, { target: { value: 'zzzz' } })
+  const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
+  input.dispatchEvent(enter)
+  expect(enter.defaultPrevented).toBe(false)
+  expect(input.getAttribute('aria-expanded')).toBe('false')
+})
+
+test('commits Android composition input immediately', () => {
+  const userAgent = vi
+    .spyOn(navigator, 'userAgent', 'get')
+    .mockReturnValue('Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36')
+  const onSearch = vi.fn()
+  try {
+    const screen = render(() => <Combobox items={ITEMS} onSearch={onSearch} />)
+    const input = screen.getByRole('combobox')
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: 'ば' }, isComposing: true })
+    expect(onSearch).toHaveBeenCalledWith('ば')
+  } finally {
+    userAgent.mockRestore()
+  }
+})
+
+test('ignores Enter immediately after compositionend', () => {
+  vi.useFakeTimers()
+  try {
+    const onChange = vi.fn()
+    const screen = render(() => <Combobox items={ITEMS} defaultOpen onValueChange={onChange} />)
+    const input = screen.getByRole('combobox')
+    fireEvent.compositionStart(input)
+    fireEvent.compositionEnd(input)
+    const enter = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Enter' })
+    input.dispatchEvent(enter)
+    expect(enter.defaultPrevented).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 test('combobox allowClear provides tabbable button and keyboard clear', () => {
