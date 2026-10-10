@@ -25,15 +25,11 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'styles',
   ])
   const resolved = createStyles(scrollAreaRecipe, local, {
-    inheritedStyles: () => {
+    variables: () => {
       if (local.shadowSize === undefined) {
         return undefined
       }
-      return {
-        styles: {
-          root: { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` },
-        },
-      }
+      return { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` }
     },
   })
   const orientation = () => resolved.variants.orientation

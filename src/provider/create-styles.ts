@@ -31,10 +31,14 @@ type StyleProps<S extends string, V> = VariantInput<V> &
     style?: JSX.CSSProperties
   }
 
+type CssVariables = Partial<Record<`--${string}`, string | number | null | undefined>>
+
 interface CreateStylesOptions<S extends string, V> {
   rootSlot?: S
-  /** Receives recipe CSS variables. Defaults to `root`, or `rootSlot` when no root slot exists. */
+  /** Receives recipe and instance CSS variables. Defaults to `root`, or `rootSlot` when no root slot exists. */
   variablesSlot?: S
+  /** Instance CSS variables for `variablesSlot`. Applied after recipe keys and before inherited/caller styles. */
+  variables?: () => CssVariables | undefined
   inheritedVariants?: () => VariantInput<V> | undefined
   inheritedStyles?: () => InheritedStyles<S> | undefined
 }
@@ -53,6 +57,24 @@ type SlotBindings<S extends string> = { readonly [K in S]: SlotBinding }
 export type CreateStylesResult<R extends RecipeDefinition> = {
   styles: SlotBindings<Extract<keyof RecipeSlots<R>, string>>
   variants: ResolvedVariantInput<RecipeVariant<R>>
+}
+
+function resolveCssVariables(
+  values: CssVariables | undefined,
+): Partial<Record<`--${string}`, string | number>> | undefined {
+  if (values === undefined) {
+    return undefined
+  }
+  const style: Partial<Record<`--${string}`, string | number>> = {}
+  let hasValue = false
+  for (const [key, value] of Object.entries(values)) {
+    if (value === undefined || value === null) {
+      continue
+    }
+    style[key as `--${string}`] = value
+    hasValue = true
+  }
+  return hasValue ? style : undefined
 }
 
 function resolveRootSlot<S extends string>(slots: readonly string[], rootSlot: S | undefined): S {
@@ -125,6 +147,7 @@ export function createStyles<R extends RecipeDefinition>(
       get style() {
         return {
           ...(slot === recipeStyleSlot ? output().style : undefined),
+          ...(slot === recipeStyleSlot ? resolveCssVariables(options.variables?.()) : undefined),
           ...options.inheritedStyles?.()?.styles?.[slot],
           ...props.styles?.[slot],
           ...(slot === rootSlot ? props.style : undefined),

@@ -50,21 +50,14 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
     config,
   )
+  const [keyboardInset, setKeyboardInset] = createSignal(0)
   const resolved = createStyles(sheetRecipe, local, {
     rootSlot: 'content',
     inheritedVariants: () => ({ side: config.side, inset: config.inset }),
     inheritedStyles: () => family.presentation,
+    variables: () => ({ '--sheet-keyboard-inset': `${keyboardInset()}px` }),
   })
   const registration = createContentAnatomy()
-  const [keyboardInset, setKeyboardInset] = createSignal(0)
-  const contentProps = mergeProps(resolved.styles.content, {
-    get style() {
-      return {
-        ...resolved.styles.content.style,
-        '--sheet-keyboard-inset': `${keyboardInset()}px`,
-      }
-    },
-  })
 
   createEffect(
     on([family.open, family.contentElement], ([isOpen, content]) => {
@@ -131,7 +124,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
           overlay={merged.overlay}
           overlayClass={resolved.styles.overlay.class}
           overlayStyle={resolved.styles.overlay.style}
-          {...contentProps}
+          {...resolved.styles.content}
           ariaLabel={local['aria-label'] ?? merged.ariaLabel}
           ariaLabelledBy={
             (local['aria-label'] ?? merged.ariaLabel) === undefined
