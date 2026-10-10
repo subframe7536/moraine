@@ -430,12 +430,36 @@ describe('Switch', () => {
     expect(screen.getAllByText('0')).toHaveLength(2)
     expect(screen.getByText('Loading')).not.toBeNull()
     expect(reads).toEqual({
-      checkedIcon: 1,
+      checkedIcon: 0,
       description: 1,
       label: 1,
       loadingIcon: 1,
-      uncheckedIcon: 1,
+      uncheckedIcon: 0,
     })
+  })
+
+  test('does not evaluate unused indicator icons while unchecked', () => {
+    const reads = { checkedIcon: 0, loadingIcon: 0, uncheckedIcon: 0 }
+
+    render(() =>
+      createComponent(Switch, {
+        get checkedIcon() {
+          reads.checkedIcon += 1
+          return <span>Checked</span>
+        },
+        get loadingIcon() {
+          reads.loadingIcon += 1
+          return <span>Loading</span>
+        },
+        get uncheckedIcon() {
+          reads.uncheckedIcon += 1
+          return <span>Unchecked</span>
+        },
+        label: 'Idle',
+      }),
+    )
+
+    expect(reads).toEqual({ checkedIcon: 0, loadingIcon: 0, uncheckedIcon: 1 })
   })
 
   test('applies default md size variants when rendered standalone', () => {

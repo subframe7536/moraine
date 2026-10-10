@@ -11,7 +11,6 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
-import type { IconT } from '../icon'
 
 import { BUTTON_LOADING_ICON_CLASS, buttonDataAttributes, buttonRecipe } from './button.recipe'
 import type { ButtonProps } from './button.types'
@@ -60,8 +59,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
-  const loadingIconName = createMemo<IconT.Name>(() => local.loadingIcon ?? 'icon-loading')
-
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
   const isTrailingLoading = createMemo(() => isLoading() && (!leading() || !trailing()))
 
@@ -71,7 +68,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     }
 
     if (leading() || !trailing()) {
-      return loadingIconName()
+      return local.loadingIcon ?? 'icon-loading'
     }
 
     return undefined
@@ -83,7 +80,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     }
 
     if (!leading() && trailing()) {
-      return loadingIconName()
+      return local.loadingIcon ?? 'icon-loading'
     }
 
     return trailing()

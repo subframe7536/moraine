@@ -270,21 +270,21 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }),
   )
 
-  const incrementIcon = createMemo<IconT.Name>(() => {
+  const incrementIcon = (): IconT.Name => {
     if (merged.incrementIcon) {
       return merged.incrementIcon
     }
 
     return resolved.variants.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
-  })
+  }
 
-  const decrementIcon = createMemo<IconT.Name>(() => {
+  const decrementIcon = (): IconT.Name => {
     if (merged.decrementIcon) {
       return merged.decrementIcon
     }
 
     return resolved.variants.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
-  })
+  }
 
   const isVertical = createMemo(() => resolved.variants.orientation === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
