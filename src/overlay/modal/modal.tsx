@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
+import { attachEventListener } from '../../shared/event-listener'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
 import { dataSlotName } from '../../theme/data-slot'
@@ -55,6 +56,7 @@ export function ModalInternal<K extends ModalKind>(
   let restoreFocusOnDeactivate = false
   let hadOpenContent = false
   let closeCycleActive = false
+  let pendingOpenInteraction: 'touch' | null = null
 
   const captureRestoreFocus = (ownerDocument: Document): void => {
     capturedTrigger = untrack(triggerElement)
@@ -119,16 +121,40 @@ export function ModalInternal<K extends ModalKind>(
   )
 
   createEffect(
+    on(triggerElement, (trigger) => {
+      if (!trigger) {
+        return
+      }
+      onCleanup(
+        attachEventListener(trigger, 'pointerdown', (event) => {
+          pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
+        }),
+      )
+      onCleanup(
+        attachEventListener(trigger, 'keydown', () => {
+          pendingOpenInteraction = null
+        }),
+      )
+    }),
+  )
+
+  createEffect(
     on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
       if (!present || !modal || !currentContent) {
         return
       }
       let active = true
       let release: (() => void) | undefined
+      const openByTouch = pendingOpenInteraction === 'touch'
+      pendingOpenInteraction = null
       queueMicrotask(() => {
         if (active && currentContent.isConnected) {
           release = acquireAriaHideOutside(currentContent)
-          focusContent(currentContent)
+          if (openByTouch) {
+            focusWithoutScrolling(currentContent)
+          } else {
+            focusContent(currentContent)
+          }
         }
       })
 

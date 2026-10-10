@@ -63,6 +63,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'aria-describedby',
     'class',
     'style',
+    'role',
     'onKeyDown',
   ])
   const context = useModalContext()
@@ -115,7 +116,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         })
       }}
       id={context.contentId()}
-      role="dialog"
+      role={local.role ?? 'dialog'}
       aria-modal={context.isModal() ? 'true' : undefined}
       aria-label={local['aria-label'] ?? local.ariaLabel}
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
