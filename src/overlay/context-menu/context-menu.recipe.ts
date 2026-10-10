@@ -16,4 +16,8 @@ export const contextMenuRecipe = /* @__PURE__ */ defineRecipe<
   ContextMenuStyleVariant
 >('contextMenu', {
   ...overlayMenuRecipeOptions,
+  base: {
+    ...overlayMenuRecipeOptions.base,
+    trigger: '[-webkit-touch-callout:none]',
+  },
 })
