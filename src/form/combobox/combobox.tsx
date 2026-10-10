@@ -95,7 +95,11 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       focusInput()
     }
     function onInputKeyDown(event: KeyboardEvent): void {
-      if (input.isComposing() || event.isComposing || state.locked()) {
+      if (input.isComposing() || event.isComposing) {
+        return
+      }
+      if (state.locked()) {
+        input.inputProps.onKeyDown(event)
         return
       }
       if (local.allowClear && canClear()) {

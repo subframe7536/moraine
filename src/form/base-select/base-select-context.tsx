@@ -207,7 +207,13 @@ export function createSelectState<T extends BaseSelectT.Item>(
     onMatch: (item) => (open() ? setHighlightedValue(item.value) : select(item)),
   })
   function keyDown(event: KeyboardEvent, textInput = false) {
-    if (event.defaultPrevented || field.disabled() || event.isComposing) {
+    if (
+      event.defaultPrevented ||
+      field.disabled() ||
+      event.isComposing ||
+      event.which === 229 ||
+      event.keyCode === 229
+    ) {
       return
     }
     if (!textInput && typeahead.handleKeyDown(event)) {
@@ -225,7 +231,11 @@ export function createSelectState<T extends BaseSelectT.Item>(
       }
       return
     }
-    if (key === 'ArrowDown' || key === 'ArrowUp' || (open() && (key === 'Home' || key === 'End'))) {
+    if (
+      key === 'ArrowDown' ||
+      key === 'ArrowUp' ||
+      (open() && !textInput && (key === 'Home' || key === 'End'))
+    ) {
       event.preventDefault()
       setOpen(true)
       const items = enabled()
@@ -254,14 +264,21 @@ export function createSelectState<T extends BaseSelectT.Item>(
       return
     }
     if (key === 'Enter' || (!textInput && (key === ' ' || key === 'Spacebar'))) {
-      event.preventDefault()
       if (!open()) {
+        event.preventDefault()
         setOpen(true)
         return
       }
-      const item = items().find((item) => sameValue(item.value, highlightedValue()))
+      const item = items().find(
+        (candidate) => sameValue(candidate.value, highlightedValue()) && !itemDisabled(candidate),
+      )
       if (item) {
+        event.preventDefault()
         select(item)
+        return
+      }
+      if (key === 'Enter') {
+        setOpen(false)
       }
     }
   }
@@ -407,21 +424,38 @@ export function createSelectState<T extends BaseSelectT.Item>(
           ref={(element) => {
             formInput = element
           }}
-          type="checkbox"
+          type="text"
           aria-hidden="true"
-          autocomplete="off"
           disabled={field.disabled()}
-          required={field.required()}
+          required={field.required() && !hasSelection()}
           tabIndex={-1}
-          checked={hasSelection()}
           name={serialized().length > 0 ? field.name() : undefined}
           value={primarySerializedValue()}
-          onInput={(event) => {
-            event.currentTarget.checked = hasSelection()
-            event.currentTarget.value = primarySerializedValue()
-          }}
           onChange={(event) => {
-            event.currentTarget.checked = hasSelection()
+            if (props.multiple || locked()) {
+              event.currentTarget.value = primarySerializedValue()
+              return
+            }
+            const nextValue = event.currentTarget.value
+            const nextValueLower = nextValue.toLowerCase()
+            const match = items().find((item) => {
+              if (itemDisabled(item)) {
+                return false
+              }
+              const serializedValue = props.serializeValue
+                ? props.serializeValue(item.value)
+                : String(item.value)
+              const label = labelString(item, props.itemToLabelString)
+              return (
+                (serializedValue !== undefined &&
+                  serializedValue.toLowerCase() === nextValueLower) ||
+                label.toLowerCase() === nextValueLower
+              )
+            })
+            if (match) {
+              change([match.value])
+              return
+            }
             event.currentTarget.value = primarySerializedValue()
           }}
           onInvalid={(event) => {

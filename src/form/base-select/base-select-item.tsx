@@ -23,6 +23,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     'onClick',
     'onPointerMove',
     'onPointerDown',
+    'onMouseDown',
   ])
   const resolved = createStyles(baseSelectRecipe, local, {
     rootSlot: 'item',
@@ -74,13 +75,15 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (
-          !event.defaultPrevented &&
-          event.pointerType === 'mouse' &&
-          !disabled() &&
-          !state.locked()
+          event.defaultPrevented ||
+          event.pointerType !== 'mouse' ||
+          disabled() ||
+          state.locked() ||
+          (event.movementX === 0 && event.movementY === 0)
         ) {
-          state.setHighlightedValue(item().value as any)
+          return
         }
+        state.setHighlightedValue(item().value as any)
       }}
       onPointerDown={(event) => {
         callHandler(event, local.onPointerDown)
@@ -89,6 +92,12 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
           event.pointerType !== 'touch' &&
           event.pointerType !== 'pen'
         ) {
+          event.preventDefault()
+        }
+      }}
+      onMouseDown={(event) => {
+        callHandler(event, local.onMouseDown)
+        if (!event.defaultPrevented) {
           event.preventDefault()
         }
       }}
