@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { createEventListenerMap } from '../../shared/event-listener'
@@ -36,7 +36,7 @@ export function ModalInternal<K extends ModalKind>(
   // oxlint-disable-next-line subf/solid-reactivity -- The family is fixed for this root; props retain their reactive getters.
   const configuration = { kind: props.kind, props } as ModalConfiguration
   const rootId = createId(() => props.id, 'modal')
-  const contentId = createMemo(() => `${rootId()}-content`)
+  const contentId = () => `${rootId()}-content`
   const [open, updateOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
@@ -45,17 +45,23 @@ export function ModalInternal<K extends ModalKind>(
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [overlayScroll, setOverlayScroll] = createSignal(false)
-  const presence = createTransitionPresence({ open })
+  let hadOpenContent = false
+  const presence = createTransitionPresence({
+    open,
+    onExitComplete: () => {
+      if (hadOpenContent) {
+        hadOpenContent = false
+        props.onExitComplete?.()
+      }
+    },
+  })
   const dismissible = () => props.dismissible ?? true
-  const contentMounted = () => contentElement() !== undefined
-  const isPresent = createMemo(() => contentMounted() && presence.present())
+  const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
   let restoreFocusOnDeactivate = false
-  let hadOpenContent = false
-  let closeCycleActive = false
   let pendingOpenInteraction: 'touch' | null = null
 
   const captureRestoreFocus = (ownerDocument: Document): void => {
@@ -83,32 +89,22 @@ export function ModalInternal<K extends ModalKind>(
   }
 
   createEffect(
-    on([open, contentMounted, presence.present], ([isOpen, mounted, present]) => {
-      if (isOpen) {
-        if (mounted && present) {
-          hadOpenContent = true
-        }
-        closeCycleActive = false
-        return
-      }
-
-      if (hadOpenContent) {
-        closeCycleActive = true
-      }
-
-      if (closeCycleActive && !present) {
-        closeCycleActive = false
-        hadOpenContent = false
-        props.onExitComplete?.()
+    on([open, isPresent], ([isOpen, present]) => {
+      if (isOpen && present) {
+        hadOpenContent = true
       }
     }),
   )
 
   createEffect(
     on(
-      [isPresent, contentElement, () => props.preventScroll !== false, overlayScroll],
-      ([present, currentContent, preventScroll]) => {
-        if (!present || !currentContent || !preventScroll) {
+      [isPresent, () => props.preventScroll !== false, overlayScroll],
+      ([present, preventScroll]) => {
+        if (!present || !preventScroll) {
+          return
+        }
+        const currentContent = contentElement()
+        if (!currentContent) {
           return
         }
         const scrollContainer = currentContent.parentElement
@@ -137,7 +133,8 @@ export function ModalInternal<K extends ModalKind>(
   )
 
   createEffect(
-    on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
+    on([isPresent, isModal], ([present, modal]) => {
+      const currentContent = contentElement()
       if (!present || !modal || !currentContent) {
         return
       }

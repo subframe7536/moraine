@@ -8,7 +8,7 @@
   - [x] add rule to AGENTS.md
 - [x] cleanup unneccessory createMemo and accessors: single usage memo, nest object accessors, etc.
   - [x] add rule to AGENTS.md
-- [ ] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`; implement a more solid-native `ModalInternal`
+- [x] remove `Overlay` and `composite` in `ModalSurface`, and try to get rid of `ModalSurface` by directly using `Modal.Content` and `Modal.Overlay`; implement a more solid-native `ModalInternal`
 - [ ] add `useAlertDialog()`, add `.confirm()` / `.info()` / `.warning()` / `.error()` / `.success()` (antdesign-like api)
 - [ ] inline `solid-toaster` and optimize
 - [ ] simplify InputNumber internal state

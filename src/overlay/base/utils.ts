@@ -374,7 +374,7 @@ export function acquireAriaHideOutside(
 /** Locks the body and, when supplied, the reference element's scrollable ancestors. */
 export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => void {
   const ownerDocument = referenceElement?.ownerDocument
-  if (!ownerDocument) {
+  if (!ownerDocument || !ownerDocument.body) {
     return () => undefined
   }
 

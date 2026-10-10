@@ -91,6 +91,12 @@ export namespace ModalT {
     /** Receives the mounted overlay element and `undefined` when it unmounts. */
     ref?: (element: HTMLDivElement | undefined) => void
 
+    /**
+     * Whether to render the visual backdrop layer. When false, acts as an unstyled container for nested content.
+     * @default true
+     */
+    overlay?: boolean
+
     /** Whether the overlay should scroll its content. */
     scrollable?: boolean
 

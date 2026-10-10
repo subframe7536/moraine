@@ -1,13 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createEffect,
-  createMemo,
-  on,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { children as resolveChildren, createMemo, onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
@@ -19,41 +11,11 @@ import { useModalContext } from './modal-context'
 import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
-export type ModalSurfaceProps = ModalT.ContentProps & {
-  /** Internal overlay support for composed overlays (Dialog, Sheet). */
-  composite?: boolean
-  overlay?: boolean
-  overlayScroll?: boolean
-  overlayClass?: string
-  overlayStyle?: JSX.CSSProperties
-}
-
-/** Standalone Modal presentation; composed overlays use the same recipe-backed surface. */
+/** Standalone Modal content surface; composed overlays reuse this component. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style'])
-
-  const context = useModalContext()
-  return (
-    <ModalSurface
-      {...rest}
-      {...createStyles(modalRecipe, local, {
-        rootSlot: 'content',
-        inheritedStyles: () => context.presentation,
-      }).styles.content}
-    />
-  )
-}
-
-/** Shared modal DOM, focus, and recipe-backed presentation behavior. */
-export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const cn = useCn()
   const [local, rest] = splitProps(props, [
     'ref',
-    'composite',
-    'overlay',
-    'overlayScroll',
-    'overlayClass',
-    'overlayStyle',
     'children',
     'ariaLabel',
     'ariaLabelledBy',
@@ -67,10 +29,15 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'onKeyDown',
   ])
   const context = useModalContext()
-  const overlayScroll = () => Boolean(local.overlayScroll && local.overlay)
-  createEffect(on(overlayScroll, context.setOverlayScroll))
-  onCleanup(() => context.setOverlayScroll(false))
   const presence = context.presence
+  const isModalRoot = context.configuration.kind === 'modal'
+  const resolved = isModalRoot
+    ? createStyles(modalRecipe, local, {
+        rootSlot: 'content',
+        inheritedStyles: () => context.presentation,
+      })
+    : undefined
+
   const child = resolveChildren(() => local.children as JSX.Element)
   const body = createMemo(() =>
     renderWithProps(child(), {
@@ -78,25 +45,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     }),
   )
 
-  const Overlay = (overlayProps: { children?: JSX.Element }): JSX.Element => (
-    <div
-      data-slot={local.overlay ? context.slotName('overlay') : undefined}
-      {...modalDataAttributes.overlay({
-        overlayScroll,
-        expanded: context.open,
-        closed: () => !context.open(),
-      })}
-      ref={(element) => {
-        onCleanup(presence.registerElement(element))
-      }}
-      class={local.overlay ? cn(local.overlayClass) : undefined}
-      style={local.overlay ? local.overlayStyle : undefined}
-    >
-      {overlayProps.children}
-    </div>
-  )
-
-  const Content = (): JSX.Element => (
+  return (
     <div
       data-slot={context.slotName('content')}
       {...modalDataAttributes.content({
@@ -123,8 +72,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
       aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
-      class={cn(local.class)}
-      style={local.style}
+      class={isModalRoot ? resolved!.styles.content.class : cn(local.class)}
+      style={isModalRoot ? resolved!.styles.content.style : local.style}
       onKeyDown={(event) => {
         callHandler(event, local.onKeyDown)
         if (event.defaultPrevented) {
@@ -137,23 +86,5 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     >
       {body()}
     </div>
-  )
-
-  return (
-    <Show
-      when={local.composite}
-      fallback={
-        <>
-          <Show when={local.overlay}>
-            <Overlay />
-          </Show>
-          <Content />
-        </>
-      }
-    >
-      <Overlay>
-        <Content />
-      </Overlay>
-    </Show>
   )
 }

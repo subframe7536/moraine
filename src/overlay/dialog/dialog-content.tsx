@@ -8,7 +8,6 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { createShorthandContent } from '../base/shorthand-content'
 import { Modal } from '../modal/modal'
-import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 import { ModalPortal } from '../modal/modal-portal'
 
@@ -63,54 +62,57 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
       }}
     >
       <ModalPortal>
-        <ModalSurface
-          {...rest}
-          dir={rest.dir ?? direction()}
-          composite
-          overlayScroll={overlayScroll()}
+        <Modal.Overlay
           overlay={merged.overlay}
-          overlayClass={resolved.styles.overlay.class}
-          overlayStyle={resolved.styles.overlay.style}
-          {...resolved.styles.content}
-          ariaLabel={local['aria-label'] ?? merged.ariaLabel}
-          ariaLabelledBy={
-            (local['aria-label'] ?? merged.ariaLabel) === undefined
-              ? registration.titleIds().join(' ') || undefined
-              : undefined
-          }
-          ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+          scrollable={overlayScroll()}
+          class={resolved.styles.overlay.class}
+          style={resolved.styles.overlay.style}
         >
-          {(_props) => {
-            const contentShorthand = createShorthandContent(local)
-            const explicitChildren = createLazyMemo(() => untrack(() => local.children))
-            const closeIcon = createLazyMemo(() => merged.closeIcon)
-            const content = explicitChildren()
-            return (
-              <>
-                <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
-                  <DialogShorthandHeader>
-                    <Show when={hasJsxContent(contentShorthand.title())}>
-                      <DialogTitle>{contentShorthand.title()}</DialogTitle>
-                    </Show>
-                    <Show when={hasJsxContent(contentShorthand.description())}>
-                      <DialogDescription>{contentShorthand.description()}</DialogDescription>
-                    </Show>
-                  </DialogShorthandHeader>
-                </Show>
-                <Show when={merged.close}>
-                  <Modal.Close
-                    data-slot="dialog-content-close"
-                    aria-label={messages().close}
-                    {...resolved.styles.contentClose}
-                  >
-                    <Icon name={closeIcon()} />
-                  </Modal.Close>
-                </Show>
-                {content}
-              </>
-            )
-          }}
-        </ModalSurface>
+          <Modal.Content
+            {...rest}
+            dir={rest.dir ?? direction()}
+            class={resolved.styles.content.class}
+            style={resolved.styles.content.style}
+            ariaLabel={local['aria-label'] ?? merged.ariaLabel}
+            ariaLabelledBy={
+              (local['aria-label'] ?? merged.ariaLabel) === undefined
+                ? registration.titleIds().join(' ') || undefined
+                : undefined
+            }
+            ariaDescribedBy={registration.descriptionIds().join(' ') || undefined}
+          >
+            {(_props) => {
+              const contentShorthand = createShorthandContent(local)
+              const explicitChildren = createLazyMemo(() => untrack(() => local.children))
+              const closeIcon = createLazyMemo(() => merged.closeIcon)
+              const content = explicitChildren()
+              return (
+                <>
+                  <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
+                    <DialogShorthandHeader>
+                      <Show when={hasJsxContent(contentShorthand.title())}>
+                        <DialogTitle>{contentShorthand.title()}</DialogTitle>
+                      </Show>
+                      <Show when={hasJsxContent(contentShorthand.description())}>
+                        <DialogDescription>{contentShorthand.description()}</DialogDescription>
+                      </Show>
+                    </DialogShorthandHeader>
+                  </Show>
+                  <Show when={merged.close}>
+                    <Modal.Close
+                      data-slot="dialog-content-close"
+                      aria-label={messages().close}
+                      {...resolved.styles.contentClose}
+                    >
+                      <Icon name={closeIcon()} />
+                    </Modal.Close>
+                  </Show>
+                  {content}
+                </>
+              )
+            }}
+          </Modal.Content>
+        </Modal.Overlay>
       </ModalPortal>
     </DialogContentProvider>
   )

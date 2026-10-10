@@ -206,6 +206,16 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the visual backdrop layer. When false, acts as an unstyled container for nested content.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "ref",
           "optional": true,
           "type": "(element: HTMLDivElement | undefined) => void",
