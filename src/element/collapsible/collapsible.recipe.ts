@@ -23,6 +23,7 @@ export const COLLAPSIBLE_CONTENT_WRAPPER_CLASS =
 
 export const collapsibleRecipe = /* @__PURE__ */ defineRecipe<CollapsibleStyleSlot>('collapsible', {
   base: {
+    '--mo-collapsible-content-height': '0px',
     root: '',
     trigger: '',
     content: '',

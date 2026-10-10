@@ -59,7 +59,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       hidden={disclosure.hidden()}
       inert={disclosure.inert()}
       style={{
-        '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
         animation: disclosure.initialOpen() ? 'none' : undefined,
         height: disclosure.initialOpen() ? 'auto' : undefined,
       }}

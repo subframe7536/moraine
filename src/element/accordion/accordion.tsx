@@ -12,13 +12,68 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import type { InheritedStyles } from '../../provider/create-styles'
 import { createControllableValue } from '../../shared/controllable-value'
+import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { callRef, createId } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
+import type { AccordionStyleSlot } from './accordion.style-types'
 import type { AccordionProps } from './accordion.types'
+
+function AccordionItemPanel(props: {
+  disclosure: DisclosureState
+  contentId: () => string
+  triggerId: () => string
+  presentation: InheritedStyles<Extract<keyof AccordionStyleSlot, string>>
+  children: JSX.Element
+}): JSX.Element {
+  const resolved = createStyles(
+    accordionRecipe,
+    {},
+    {
+      rootSlot: 'content',
+      variablesSlot: 'content',
+      inheritedStyles: () => props.presentation,
+      variables: () => ({
+        '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
+      }),
+    },
+  )
+
+  return (
+    <div
+      ref={(element) => {
+        onCleanup(props.disclosure.registerPresenceElement(element))
+      }}
+      id={props.contentId()}
+      role="region"
+      aria-labelledby={props.triggerId()}
+      aria-hidden={props.disclosure.ariaHidden()}
+      hidden={props.disclosure.hidden()}
+      inert={props.disclosure.inert()}
+      data-slot="accordion-content"
+      {...resolved.styles.content}
+      style={{
+        ...resolved.styles.content.style,
+        get animation() {
+          return props.disclosure.initialOpen() ? 'none' : undefined
+        },
+        get height() {
+          return props.disclosure.initialOpen() ? 'auto' : undefined
+        },
+      }}
+      {...accordionDataAttributes.content({
+        closed: () => props.disclosure.dataAttrs()['data-closed'],
+        expanded: () => props.disclosure.dataAttrs()['data-expanded'],
+      })}
+    >
+      {props.children}
+    </div>
+  )
+}
 
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
@@ -41,7 +96,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
-  const resolved = createStyles(accordionRecipe, local, { variablesSlot: 'content' })
+  const resolved = createStyles(accordionRecipe, local)
 
   const merged = mergeProps(
     {
@@ -346,39 +401,23 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 </button>
               </h3>
 
-              <div
-                ref={(element) => {
-                  onCleanup(disclosure.registerPresenceElement(element))
-                }}
-                id={contentId()}
-                role="region"
-                aria-labelledby={triggerId()}
-                aria-hidden={disclosure.ariaHidden()}
-                hidden={disclosure.hidden()}
-                inert={disclosure.inert()}
-                data-slot="accordion-content"
-                class={resolved.styles.content.class}
-                style={{
-                  ...resolved.styles.content.style,
-                  get '--mo-collapsible-content-height'() {
-                    return `${disclosure.contentHeight()}px`
+              <AccordionItemPanel
+                disclosure={disclosure}
+                contentId={contentId}
+                triggerId={triggerId}
+                presentation={{
+                  get classes() {
+                    return local.classes
                   },
-                  get animation() {
-                    return disclosure.initialOpen() ? 'none' : undefined
-                  },
-                  get height() {
-                    return disclosure.initialOpen() ? 'auto' : undefined
+                  get styles() {
+                    return local.styles
                   },
                 }}
-                {...accordionDataAttributes.content({
-                  closed: () => disclosure.dataAttrs()['data-closed'],
-                  expanded: () => disclosure.dataAttrs()['data-expanded'],
-                })}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />
                 </Show>
-              </div>
+              </AccordionItemPanel>
             </div>
           )
         }}

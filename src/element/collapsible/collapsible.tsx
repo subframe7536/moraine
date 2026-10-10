@@ -29,7 +29,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createStyles(collapsibleRecipe, local)
   const rootId = createId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -43,6 +42,11 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     disabled: () => Boolean(local.disabled),
     transition: () => Boolean(local.transition),
     unmountOnHide: () => local.unmountOnHide,
+  })
+  const resolved = createStyles(collapsibleRecipe, local, {
+    variables: () => ({
+      '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
+    }),
   })
 
   function setOpen(nextOpen: boolean): void {
