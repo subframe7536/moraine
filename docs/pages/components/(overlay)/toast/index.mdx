@@ -40,6 +40,12 @@ import { Button, Toaster, toast } from '@src'
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: false },
     { kind: 'switch', prop: 'closeButton', label: 'Close button', defaultValue: true },
     { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
+    {
+      kind: 'input',
+      prop: 'cancelText',
+      label: 'Cancel text',
+      defaultValue: 'Dismiss',
+    },
     { kind: 'switch', prop: 'showProgress', label: 'Show progress bar', defaultValue: false },
   ]}
 >
@@ -54,6 +60,12 @@ import { Button, Toaster, toast } from '@src'
         action: props.action
           ? {
               label: 'Undo',
+              onClick: () => {},
+            }
+          : undefined,
+        cancel: props.cancelText
+          ? {
+              label: props.cancelText,
               onClick: () => {},
             }
           : undefined,
@@ -89,6 +101,7 @@ import { Button, Toaster, toast } from '@src'
 
 <Anatomy
   value={{
+    name: 'Toast',
     root: { slot: 'root' },
     children: [
       { slot: 'icon' },

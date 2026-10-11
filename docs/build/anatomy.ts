@@ -183,7 +183,10 @@ export function validateAnatomyConfig(
   }
 
   const config = object(value, 'Anatomy')
-  keys(config, ['root', 'children'], 'Anatomy')
+  keys(config, ['name', 'root', 'children'], 'Anatomy')
+  if (Object.hasOwn(config, 'name')) {
+    name(config.name, 'Anatomy.name')
+  }
   const root = object(config.root, 'Anatomy.root')
   keys(root, ['slot', 'noDom', 'element'], 'Anatomy.root')
   if (root.noDom === true && !Object.hasOwn(root, 'slot') && !Object.hasOwn(root, 'element')) {

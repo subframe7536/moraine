@@ -54,6 +54,9 @@ describe('Anatomy static config', () => {
       ].join('\n'),
     )
     expect(renderAnatomyText('Card', { root: { noDom: true } })).toBe('Card [component; no DOM]')
+    expect(renderAnatomyText('Toaster', { name: 'Toast', root: { slot: 'root' } })).toBe(
+      'Toast [component; slot=root]',
+    )
   })
 
   test.each([

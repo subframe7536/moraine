@@ -15,6 +15,7 @@ export type AnatomyNode = AnatomyChildren &
   )
 
 export interface AnatomyConfig {
+  name?: string
   root: AnatomyRoot
   children?: AnatomyNode[]
 }
@@ -32,7 +33,8 @@ export function renderAnatomyText(componentName: string, config: AnatomyConfig):
   const annotation = config.root.noDom
     ? 'no DOM'
     : `slot=root${config.root.element ? `; <${config.root.element}>` : ''}`
-  const lines = [`${componentName} [component; ${annotation}]`]
+  const name = config.name ?? componentName
+  const lines = [`${name} [component; ${annotation}]`]
   const visit = (nodes: AnatomyNode[], prefix: string) => {
     for (const [index, node] of nodes.entries()) {
       const last = index === nodes.length - 1

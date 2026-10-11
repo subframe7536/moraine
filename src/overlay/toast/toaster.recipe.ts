@@ -66,7 +66,7 @@ export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, Toas
       close: 'text-muted-foreground shrink-0 transition-colors hover:text-foreground',
       action: 'shrink-0',
       cancel: 'shrink-0',
-      progress: 'bottom-0 left-0 right-0 absolute overflow-hidden',
+      progress: 'left-0 right-0 top-0 absolute overflow-hidden',
     },
     variants: {
       variant: {
