@@ -337,4 +337,73 @@ describe('Toaster Component', () => {
       expect(screen.queryByText('To clear 2')).toBeNull()
     })
   })
+
+  it('sets data-front and data-behind attributes for stacked toasts', async () => {
+    render(() => <Toaster />)
+
+    toast.add('Toast 1')
+    toast.add('Toast 2')
+
+    await screen.findByText('Toast 1')
+    await screen.findByText('Toast 2')
+
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    expect(toasts.length).toBe(2)
+    // Most recent toast (Toast 2) is front (index 0)
+    expect(toasts[0]?.hasAttribute('data-front')).toBe(true)
+    expect(toasts[0]?.hasAttribute('data-behind')).toBe(false)
+    // Older toast (Toast 1) is behind (index 1)
+    expect(toasts[1]?.hasAttribute('data-front')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-behind')).toBe(true)
+  })
+
+  it('expands toasts on mouse enter and collapses on mouse leave', async () => {
+    render(() => <Toaster />)
+
+    toast.add('Expand 1')
+    toast.add('Expand 2')
+
+    await screen.findByText('Expand 1')
+    await screen.findByText('Expand 2')
+
+    const list = screen.getByRole('list')
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+
+    // Initially collapsed
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
+
+    // Hover to expand
+    fireEvent.mouseEnter(list)
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(true)
+    expect(toasts[1]?.hasAttribute('data-expanded')).toBe(true)
+
+    // Mouse leave to collapse
+    fireEvent.mouseLeave(list)
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-expanded')).toBe(false)
+  })
+
+  it('dismisses toast on swipe gesture past threshold', async () => {
+    render(() => <Toaster />)
+
+    toast.add('Swipe me away')
+    const toastItem = await screen.findByText('Swipe me away')
+    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+    expect(itemEl).not.toBeNull()
+
+    // Pointer down
+    fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
+    expect(itemEl.hasAttribute('data-swiping')).toBe(true)
+
+    // Pointer move past threshold (SWIPE_THRESHOLD = 45)
+    fireEvent.pointerMove(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+
+    // Pointer up
+    fireEvent.pointerUp(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Swipe me away')).toBeNull()
+    })
+  })
 })

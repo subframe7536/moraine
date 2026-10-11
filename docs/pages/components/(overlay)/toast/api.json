@@ -360,6 +360,10 @@
         "data-front",
         "data-index",
         "data-limited",
+        "data-mounted",
+        "data-removed",
+        "data-swipeDirection",
+        "data-swipeOut",
         "data-swiping",
         "data-type"
       ]

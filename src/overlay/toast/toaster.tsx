@@ -57,6 +57,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
   const [isMounted, setIsMounted] = createSignal(false)
   const [isExpanded, setIsExpanded] = createSignal(false)
   const [isHovered, setIsHovered] = createSignal(false)
+  const [isInteracting, setIsInteracting] = createSignal(false)
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
@@ -86,6 +87,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
   onMount(() => {
     createEventListener(window, 'focus', () => setIsWindowFocused(true))
     createEventListener(window, 'blur', () => setIsWindowFocused(false))
+    createEventListener(window, 'pointerup', () => setIsInteracting(false))
     createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
   })
 
@@ -202,6 +204,9 @@ export function Toaster(props: ToasterProps): JSX.Element {
                     tabIndex={-1}
                     class={cn(
                       TOAST_VIEWPORT_BASE_CLASS,
+                      activeGroupToasts().length > 0
+                        ? 'pointer-events-auto'
+                        : 'pointer-events-none',
                       getToastPlacementClass(group.placement, group.align),
                       local.class,
                     )}
@@ -214,12 +219,29 @@ export function Toaster(props: ToasterProps): JSX.Element {
                       setIsHovered(true)
                       setIsExpanded(true)
                     }}
+                    onMouseMove={() => {
+                      setIsHovered(true)
+                      setIsExpanded(true)
+                    }}
                     onMouseLeave={() => {
                       setIsHovered(false)
-                      if (!local.expand) {
+                      if (!isInteracting() && !local.expand) {
                         setIsExpanded(false)
                       }
                     }}
+                    onPointerDown={(event) => {
+                      const toastTarget =
+                        event.target instanceof Element
+                          ? event.target.closest('[data-slot="toast"]')
+                          : null
+                      const isDismissible =
+                        toastTarget instanceof HTMLElement &&
+                        toastTarget.getAttribute('data-dismissible') !== 'false'
+                      if (isDismissible) {
+                        setIsInteracting(true)
+                      }
+                    }}
+                    onPointerUp={() => setIsInteracting(false)}
                   >
                     <For each={activeGroupToasts()}>
                       {(item, index) => {
@@ -244,7 +266,8 @@ export function Toaster(props: ToasterProps): JSX.Element {
                             frontmostHeight={frontmostHeight()}
                             offsetY={offsetY()}
                             expanded={expandedState()}
-                            isHovered={isHovered()}
+                            isHovered={isHovered}
+                            isInteracting={isInteracting}
                             isWindowFocused={isWindowFocused}
                             isDocumentHidden={isDocumentHidden}
                             placement={group.placement}

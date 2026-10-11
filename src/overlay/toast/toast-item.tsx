@@ -14,7 +14,6 @@ import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { Progress } from '../../element/progress'
 import { createStyles } from '../../provider'
-import { createTransitionPresence } from '../../shared/transition-presence'
 import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
 
 import { toasterRecipe, toastItemDataAttributes } from './toaster.recipe'
@@ -30,7 +29,8 @@ export interface ToastItemProps {
   frontmostHeight: number
   offsetY: number
   expanded: boolean
-  isHovered: boolean
+  isHovered: Accessor<boolean>
+  isInteracting: Accessor<boolean>
   isWindowFocused: Accessor<boolean>
   isDocumentHidden: Accessor<boolean>
   placement?: OverlayPlacement
@@ -54,14 +54,22 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
   let pointerStart: { x: number; y: number } | null = null
+  let isDeleting = false
 
   const initialDuration = () => props.toast.duration ?? props.duration ?? 4000
   let remainingTime = untrack(() => props.toast.duration ?? props.duration ?? 4000)
 
+  const [mounted, setMounted] = createSignal(false)
+  const [removed, setRemoved] = createSignal(false)
+  const [swiping, setSwiping] = createSignal(false)
+  const [swipeOut, setSwipeOut] = createSignal(false)
+  const [swipeDirection, setSwipeDirection] = createSignal<'x' | 'y' | null>(null)
+  const [swipeOutDirection, setSwipeOutDirection] = createSignal<
+    'left' | 'right' | 'up' | 'down' | null
+  >(null)
   const [swipeMovementX, setSwipeMovementX] = createSignal(0)
   const [swipeMovementY, setSwipeMovementY] = createSignal(0)
-  const [isSwiping, setIsSwiping] = createSignal(false)
-  const [swipeDirection, setSwipeDirection] = createSignal<'x' | 'y' | null>(null)
+  const [offsetBeforeRemove, setOffsetBeforeRemove] = createSignal(0)
   const [isBumping, setIsBumping] = createSignal(false)
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
   const [progressPercent, setProgressPercent] = createSignal(100)
@@ -71,18 +79,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const isDismissible = () => props.toast.dismissible !== false
   const isLoading = () => props.toast.variant === 'loading'
 
-  const presence = createTransitionPresence({
-    open: () => !props.toast.dismissed,
-    onExitComplete: () => props.onRemove(props.toast.id),
-  })
-
   const isTop = () => {
     const p = props.toast.placement ?? props.placement ?? 'bottom'
     const a = props.toast.align ?? props.align ?? 'end'
     return p === 'top' || ((p === 'left' || p === 'right') && a === 'start')
   }
 
-  const dirSign = () => (isTop() ? 1 : -1)
+  const lift = () => (isTop() ? 1 : -1)
 
   const scale = createMemo(() => {
     if (props.expanded || isFront()) {
@@ -93,16 +96,132 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const currentYOffset = createMemo(() => {
     if (props.expanded) {
-      return dirSign() * props.offsetY
+      return lift() * props.offsetY
     }
-    return dirSign() * (props.index * 12)
+    return lift() * (props.index * 12)
   })
 
+  const deleteToast = () => {
+    if (isDeleting) {
+      return
+    }
+    isDeleting = true
+    const toastId = props.toast.id
+    const onRemove = props.onRemove
+    setRemoved(true)
+    setOffsetBeforeRemove(currentYOffset())
+    props.onHeight(toastId, 0)
+    let cleanedUp = false
+    const finish = () => {
+      if (cleanedUp) {
+        return
+      }
+      cleanedUp = true
+      onRemove(toastId)
+    }
+
+    const timer = window.setTimeout(finish, 200)
+
+    if (itemRef) {
+      const onEnd = (event: Event) => {
+        if (event.target === itemRef) {
+          clearTimeout(timer)
+          itemRef?.removeEventListener('transitionend', onEnd)
+          itemRef?.removeEventListener('animationend', onEnd)
+          finish()
+        }
+      }
+      itemRef.addEventListener('transitionend', onEnd)
+      itemRef.addEventListener('animationend', onEnd)
+    }
+  }
+
+  createEffect(
+    on(
+      () => props.toast.dismissed,
+      (dismissed) => {
+        if (dismissed && !isDeleting) {
+          deleteToast()
+          props.toast.onDismiss?.(props.toast)
+        }
+      },
+    ),
+  )
+
   const transform = createMemo(() => {
-    const x = swipeMovementX()
-    const y = currentYOffset() + swipeMovementY()
-    return `translate3d(${x}px, ${y}px, 0) scale(${scale()})`
+    if (swipeOut()) {
+      const dir = swipeOutDirection()
+      if (dir === 'left') {
+        return `translate3d(calc(${swipeMovementX()}px - 100%), ${currentYOffset()}px, 0) scale(${scale()})`
+      }
+      if (dir === 'right') {
+        return `translate3d(calc(${swipeMovementX()}px + 100%), ${currentYOffset()}px, 0) scale(${scale()})`
+      }
+      if (dir === 'up') {
+        return `translate3d(${swipeMovementX()}px, calc(${currentYOffset() + swipeMovementY()}px - 100%), 0) scale(${scale()})`
+      }
+      if (dir === 'down') {
+        return `translate3d(${swipeMovementX()}px, calc(${currentYOffset() + swipeMovementY()}px + 100%), 0) scale(${scale()})`
+      }
+    }
+
+    if (swiping()) {
+      const x = swipeMovementX()
+      const y = currentYOffset() + swipeMovementY()
+      return `translate3d(${x}px, ${y}px, 0) scale(${scale()})`
+    }
+
+    if (removed()) {
+      if (isFront()) {
+        return `translate3d(0, ${lift() * -100}%, 0) scale(1)`
+      }
+      if (props.expanded) {
+        return `translate3d(0, ${offsetBeforeRemove() + (lift() > 0 ? -100 : 100)}px, 0) scale(1)`
+      }
+      return `translate3d(0, 40%, 0) scale(${scale()})`
+    }
+
+    if (!mounted()) {
+      return `translate3d(0, ${lift() * -100}%, 0) scale(1)`
+    }
+
+    if (props.expanded) {
+      return `translate3d(0, ${lift() * props.offsetY}px, 0) scale(1)`
+    }
+
+    if (isFront()) {
+      return 'translate3d(0, 0px, 0) scale(1)'
+    }
+
+    return `translate3d(0, ${lift() * (props.index * 12)}px, 0) scale(${scale()})`
   })
+
+  const opacity = createMemo(() => {
+    if (!mounted() || removed() || !isVisible()) {
+      return 0
+    }
+    return 1
+  })
+
+  const height = createMemo(() => {
+    if (props.expanded) {
+      return measuredHeight() > 0 ? `${measuredHeight()}px` : 'auto'
+    }
+    if (isFront()) {
+      return 'auto'
+    }
+    return `${props.frontmostHeight}px`
+  })
+
+  const transitionStyle = () => {
+    if (swiping()) {
+      return 'none'
+    }
+    if (swipeOut()) {
+      return 'transform 200ms ease-out, opacity 200ms ease-out'
+    }
+    return 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), height 400ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms'
+  }
 
   // oxlint-disable-next-line subf/solid-reactivity -- Toast item styling binds to the stable toast instance.
   const resolved = createStyles(toasterRecipe, props.toast, {
@@ -120,46 +239,54 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   // Height measurement
   const measureHeight = () => {
     if (itemRef) {
-      const rect = itemRef.getBoundingClientRect()
-      if (rect.height > 0) {
-        setMeasuredHeight(rect.height)
-        props.onHeight(props.toast.id, rect.height)
+      const h = itemRef.offsetHeight || itemRef.getBoundingClientRect().height
+      if (h > 0) {
+        setMeasuredHeight(h)
+        props.onHeight(props.toast.id, h)
       }
     }
   }
 
   onMount(() => {
     measureHeight()
+    setMounted(true)
     onCleanup(() => {
       props.onHeight(props.toast.id, 0)
     })
   })
 
   createEffect(
-    on([() => props.toast.title, () => props.toast.description], () => {
-      queueMicrotask(measureHeight)
-    }),
+    on(
+      [
+        () => props.toast.title,
+        () => props.toast.description,
+        () => props.toast.jsx,
+        () => props.toast.action,
+        () => props.toast.cancel,
+      ],
+      () => {
+        queueMicrotask(measureHeight)
+      },
+    ),
   )
 
   // Bump pulse animation on bumpKey update
+  const bumpKey = () => props.toast.bumpKey
+
   createEffect(
-    on(
-      () => props.toast.bumpKey,
-      (bumpKey) => {
-        if (!bumpKey) {
-          return
-        }
-        remainingTime = initialDuration()
-        setIsBumping(false)
-        if (bumpTimerId) {
-          clearTimeout(bumpTimerId)
-        }
-        requestAnimationFrame(() => {
-          setIsBumping(true)
-          bumpTimerId = setTimeout(() => setIsBumping(false), 240)
-        })
-      },
-    ),
+    on(bumpKey, (key) => {
+      if (!key) {
+        return
+      }
+      setIsBumping(false)
+      if (bumpTimerId) {
+        clearTimeout(bumpTimerId)
+      }
+      requestAnimationFrame(() => {
+        setIsBumping(true)
+        bumpTimerId = setTimeout(() => setIsBumping(false), 240)
+      })
+    }),
   )
 
   onCleanup(() => {
@@ -174,14 +301,15 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       isLoading() ||
       initialDuration() === Number.POSITIVE_INFINITY ||
       props.expanded ||
-      props.isHovered ||
-      isSwiping() ||
+      props.isHovered() ||
+      props.isInteracting() ||
+      swiping() ||
       props.isDocumentHidden() ||
       !props.isWindowFocused(),
   )
 
   createEffect(
-    on([isPaused, () => props.toast.bumpKey], ([paused]) => {
+    on([isPaused, bumpKey], ([paused, bumpToken]) => {
       if (timerId) {
         clearTimeout(timerId)
         timerId = undefined
@@ -189,6 +317,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       if (progressTimerId) {
         clearInterval(progressTimerId)
         progressTimerId = undefined
+      }
+
+      if (bumpToken) {
+        remainingTime = initialDuration()
+        closeTimerStartTime = 0
       }
 
       if (paused) {
@@ -205,13 +338,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
       if (currentRemaining <= 0) {
         props.toast.onAutoClose?.(props.toast)
-        props.onDismiss(props.toast.id)
+        deleteToast()
         return
       }
 
       timerId = setTimeout(() => {
         props.toast.onAutoClose?.(props.toast)
-        props.onDismiss(props.toast.id)
+        deleteToast()
       }, currentRemaining)
 
       // Update progress bar
@@ -249,7 +382,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
     dragStartTime = Date.now()
     targetEl?.setPointerCapture?.(event.pointerId)
-    setIsSwiping(true)
+    setSwiping(true)
     pointerStart = { x: event.clientX, y: event.clientY }
   }
 
@@ -258,26 +391,44 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       return
     }
 
+    const isHighlighted = window.getSelection()?.toString().length
+    if (isHighlighted) {
+      return
+    }
+
     const xDelta = event.clientX - pointerStart.x
     const yDelta = event.clientY - pointerStart.y
 
-    if (!swipeDirection() && (Math.abs(xDelta) > 2 || Math.abs(yDelta) > 2)) {
+    if (!swipeDirection() && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
       setSwipeDirection(Math.abs(xDelta) > Math.abs(yDelta) ? 'x' : 'y')
     }
 
+    const getDampening = (delta: number) => 1 / (1.5 + Math.abs(delta) / 20)
+
     if (swipeDirection() === 'x') {
-      const dampening = 1 / (1.5 + Math.abs(xDelta) / 20)
-      setSwipeMovementX(xDelta * dampening * 1.5)
+      const align = props.toast.align ?? props.align ?? 'end'
+      let movement = xDelta
+      if (align === 'end' && xDelta < 0) {
+        movement = xDelta * getDampening(xDelta)
+      } else if (align === 'start' && xDelta > 0) {
+        movement = xDelta * getDampening(xDelta)
+      }
+      setSwipeMovementX(movement)
       setSwipeMovementY(0)
     } else if (swipeDirection() === 'y') {
-      const dampening = 1 / (1.5 + Math.abs(yDelta) / 20)
-      setSwipeMovementY(yDelta * dampening * 1.5)
+      let movement = yDelta
+      if (isTop() && yDelta > 0) {
+        movement = yDelta * getDampening(yDelta)
+      } else if (!isTop() && yDelta < 0) {
+        movement = yDelta * getDampening(yDelta)
+      }
+      setSwipeMovementY(movement)
       setSwipeMovementX(0)
     }
   }
 
   function handlePointerUp() {
-    if (!pointerStart) {
+    if (!pointerStart || swipeOut()) {
       return
     }
 
@@ -288,16 +439,23 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     const velocity = primaryDistance / timeTaken
 
     pointerStart = null
-    setIsSwiping(false)
-    setSwipeDirection(null)
 
     if (primaryDistance >= SWIPE_THRESHOLD || velocity > 0.11) {
+      if (swipeDirection() === 'x') {
+        setSwipeOutDirection(movedX > 0 ? 'right' : 'left')
+      } else {
+        setSwipeOutDirection(movedY > 0 ? 'down' : 'up')
+      }
+      setSwipeOut(true)
       props.toast.onDismiss?.(props.toast)
-      props.onDismiss(props.toast.id)
-    } else {
-      setSwipeMovementX(0)
-      setSwipeMovementY(0)
+      deleteToast()
+      return
     }
+
+    setSwiping(false)
+    setSwipeDirection(null)
+    setSwipeMovementX(0)
+    setSwipeMovementY(0)
   }
 
   const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
@@ -351,158 +509,160 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     index: () => props.index,
     front: isFront,
     behind: () => !isFront(),
+    mounted,
+    removed,
     expanded: () => props.expanded,
     limited: () => !isVisible(),
-    swiping: isSwiping,
+    swiping,
+    swipeOut,
+    swipeDirection: swipeOutDirection,
     bump: isBumping,
     type: () => props.toast.variant ?? 'default',
     dismissible: isDismissible,
   })
 
   return (
-    <Show when={presence.present()}>
-      {(_present) => (
-        <li
-          ref={(el) => {
-            itemRef = el
-            presence.setElement(el)
-          }}
-          data-slot="toast"
-          role={role()}
-          aria-live={ariaLive()}
-          aria-atomic="true"
-          tabIndex={0}
-          inert={!isVisible() ? true : undefined}
-          {...presence.dataAttrs}
-          {...itemDataAttrs}
-          class={resolved.styles.root.class}
-          style={{
-            ...resolved.styles.root.style,
-            [isTop() ? 'top' : 'bottom']: '0',
-            ...(props.align === 'start'
-              ? { left: '0' }
-              : props.align === 'center'
-                ? { left: '0', right: '0', margin: '0 auto' }
-                : { right: '0' }),
-            transform: transform(),
-            'z-index': props.toastsCount - props.index,
-            height: props.expanded ? 'auto' : isFront() ? 'auto' : `${props.frontmostHeight}px`,
-          }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-        >
-          <Show
-            when={props.toast.jsx}
-            fallback={
-              <>
-                <Show when={renderIcon()}>
-                  {(iconContent) => (
-                    <div class={resolved.styles.icon.class} style={resolved.styles.icon.style}>
-                      {iconContent()}
-                    </div>
-                  )}
-                </Show>
-
-                <div class={resolved.styles.content.class} style={resolved.styles.content.style}>
-                  <Show when={renderTitle()}>
-                    <div class={resolved.styles.title.class} style={resolved.styles.title.style}>
-                      {renderTitle()}
-                    </div>
-                  </Show>
-                  <Show when={renderDescription()}>
-                    <div
-                      class={resolved.styles.description.class}
-                      style={resolved.styles.description.style}
-                    >
-                      {renderDescription()}
-                    </div>
-                  </Show>
+    <li
+      ref={(el) => {
+        itemRef = el
+      }}
+      data-slot="toast"
+      role={role()}
+      aria-live={ariaLive()}
+      aria-atomic="true"
+      tabIndex={0}
+      inert={!isVisible() ? true : undefined}
+      {...itemDataAttrs}
+      class={resolved.styles.root.class}
+      style={{
+        ...resolved.styles.root.style,
+        [isTop() ? 'top' : 'bottom']: '0',
+        ...(props.align === 'start'
+          ? { left: '0' }
+          : props.align === 'center'
+            ? { left: '0', right: '0', margin: '0 auto' }
+            : { right: '0' }),
+        transform: transform(),
+        opacity: opacity(),
+        height: height(),
+        transition: transitionStyle(),
+        'z-index': props.toastsCount - props.index,
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      <Show
+        when={props.toast.jsx}
+        fallback={
+          <>
+            <Show when={renderIcon()}>
+              {(iconContent) => (
+                <div class={resolved.styles.icon.class} style={resolved.styles.icon.style}>
+                  {iconContent()}
                 </div>
+              )}
+            </Show>
 
-                <Show when={props.toast.cancel}>
-                  {(cancel) => {
-                    const c = cancel()
-                    return typeof c === 'object' &&
-                      c !== null &&
-                      'label' in c &&
-                      typeof (c as any).label !== 'undefined' ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        class={resolved.styles.cancel.class}
-                        style={resolved.styles.cancel.style}
-                        onClick={(e) => {
-                          ;(c as any).onClick?.(e)
-                          props.onDismiss(props.toast.id)
-                        }}
-                      >
-                        {(c as any).label}
-                      </Button>
-                    ) : (
-                      (c as JSX.Element)
-                    )
-                  }}
-                </Show>
+            <div class={resolved.styles.content.class} style={resolved.styles.content.style}>
+              <Show when={renderTitle()}>
+                <div class={resolved.styles.title.class} style={resolved.styles.title.style}>
+                  {renderTitle()}
+                </div>
+              </Show>
+              <Show when={renderDescription()}>
+                <div
+                  class={resolved.styles.description.class}
+                  style={resolved.styles.description.style}
+                >
+                  {renderDescription()}
+                </div>
+              </Show>
+            </div>
 
-                <Show when={props.toast.action}>
-                  {(action) => {
-                    const a = action()
-                    return typeof a === 'object' &&
-                      a !== null &&
-                      'label' in a &&
-                      typeof (a as any).label !== 'undefined' ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        class={resolved.styles.action.class}
-                        style={resolved.styles.action.style}
-                        onClick={(e) => {
-                          ;(a as any).onClick?.(e)
-                          if (!e.defaultPrevented) {
-                            props.onDismiss(props.toast.id)
-                          }
-                        }}
-                      >
-                        {(a as any).label}
-                      </Button>
-                    ) : (
-                      (a as JSX.Element)
-                    )
-                  }}
-                </Show>
-
-                <Show when={showCloseButton()}>
+            <Show when={props.toast.cancel}>
+              {(cancel) => {
+                const c = cancel()
+                return typeof c === 'object' &&
+                  c !== null &&
+                  'label' in c &&
+                  typeof (c as any).label !== 'undefined' ? (
                   <Button
-                    size="icon-sm"
+                    size="sm"
                     variant="ghost"
-                    leading="icon-close"
-                    aria-label={props.closeButtonAriaLabel ?? 'Close notification'}
-                    class={resolved.styles.close.class}
-                    style={resolved.styles.close.style}
-                    onClick={() => props.onDismiss(props.toast.id)}
-                  />
-                </Show>
-
-                <Show when={props.showProgress || props.toast.showProgress}>
-                  <div
-                    class={resolved.styles.progress.class}
-                    style={resolved.styles.progress.style}
+                    class={resolved.styles.cancel.class}
+                    style={resolved.styles.cancel.style}
+                    onClick={(e) => {
+                      ;(c as any).onClick?.(e)
+                      deleteToast()
+                      props.toast.onDismiss?.(props.toast)
+                    }}
                   >
-                    <Progress size="sm" value={progressPercent()} />
-                  </div>
-                </Show>
-              </>
-            }
-          >
-            {(customJsx) => {
-              const jsx = customJsx()
-              return typeof jsx === 'function' ? (jsx as any)(props.toast.id) : jsx
-            }}
-          </Show>
-        </li>
-      )}
-    </Show>
+                    {(c as any).label}
+                  </Button>
+                ) : (
+                  (c as JSX.Element)
+                )
+              }}
+            </Show>
+
+            <Show when={props.toast.action}>
+              {(action) => {
+                const a = action()
+                return typeof a === 'object' &&
+                  a !== null &&
+                  'label' in a &&
+                  typeof (a as any).label !== 'undefined' ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    class={resolved.styles.action.class}
+                    style={resolved.styles.action.style}
+                    onClick={(e) => {
+                      ;(a as any).onClick?.(e)
+                      if (!e.defaultPrevented) {
+                        deleteToast()
+                        props.toast.onDismiss?.(props.toast)
+                      }
+                    }}
+                  >
+                    {(a as any).label}
+                  </Button>
+                ) : (
+                  (a as JSX.Element)
+                )
+              }}
+            </Show>
+
+            <Show when={showCloseButton()}>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                leading="icon-close"
+                aria-label={props.closeButtonAriaLabel ?? 'Close notification'}
+                class={resolved.styles.close.class}
+                style={resolved.styles.close.style}
+                onClick={() => {
+                  deleteToast()
+                  props.toast.onDismiss?.(props.toast)
+                }}
+              />
+            </Show>
+
+            <Show when={props.showProgress || props.toast.showProgress}>
+              <div class={resolved.styles.progress.class} style={resolved.styles.progress.style}>
+                <Progress size="sm" value={progressPercent()} />
+              </div>
+            </Show>
+          </>
+        }
+      >
+        {(customJsx) => {
+          const jsx = customJsx()
+          return typeof jsx === 'function' ? (jsx as any)(props.toast.id) : jsx
+        }}
+      </Show>
+    </li>
   )
 }

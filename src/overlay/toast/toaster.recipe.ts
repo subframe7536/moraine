@@ -9,9 +9,13 @@ export const toastItemDataAttributes = /* @__PURE__ */ createDataAttributes(
   'index',
   'front',
   'behind',
+  'mounted',
+  'removed',
   'expanded',
   'limited',
   'swiping',
+  'swipeOut',
+  'swipeDirection',
   'bump',
   'type',
   'dismissible',
@@ -22,8 +26,7 @@ export const toasterDataAttributes = {
 } satisfies DataAttributeContract<keyof ToasterStyleSlot>
 
 /** Base viewport class for toast list containers. */
-export const TOAST_VIEWPORT_BASE_CLASS =
-  'm-0 p-4 outline-none list-none flex flex-col pointer-events-none fixed z-floating'
+export const TOAST_VIEWPORT_BASE_CLASS = 'm-0 outline-none list-none flex flex-col fixed z-floating'
 
 /** Resolves viewport positioning classes based on placement and alignment. */
 export function getToastPlacementClass(
@@ -32,42 +35,42 @@ export function getToastPlacementClass(
 ): string {
   if (placement === 'top') {
     if (align === 'start') {
-      return 'top-0 left-0 items-start'
+      return 'top-4 left-4 items-start'
     }
     if (align === 'center') {
-      return 'top-0 left-1/2 -translate-x-1/2 items-center'
+      return 'top-4 left-1/2 -translate-x-1/2 items-center'
     }
-    return 'top-0 right-0 items-end'
+    return 'top-4 right-4 items-end'
   }
 
   if (placement === 'left') {
     if (align === 'start') {
-      return 'top-0 left-0 items-start'
+      return 'top-4 left-4 items-start'
     }
     if (align === 'center') {
-      return 'top-1/2 left-0 -translate-y-1/2 items-start'
+      return 'top-1/2 left-4 -translate-y-1/2 items-start'
     }
-    return 'bottom-0 left-0 items-start'
+    return 'bottom-4 left-4 items-start'
   }
 
   if (placement === 'right') {
     if (align === 'start') {
-      return 'top-0 right-0 items-end'
+      return 'top-4 right-4 items-end'
     }
     if (align === 'center') {
-      return 'top-1/2 right-0 -translate-y-1/2 items-end'
+      return 'top-1/2 right-4 -translate-y-1/2 items-end'
     }
-    return 'bottom-0 right-0 items-end'
+    return 'bottom-4 right-4 items-end'
   }
 
   // placement === 'bottom' (default)
   if (align === 'start') {
-    return 'bottom-0 left-0 items-start'
+    return 'bottom-4 left-4 items-start'
   }
   if (align === 'center') {
-    return 'bottom-0 left-1/2 -translate-x-1/2 items-center'
+    return 'bottom-4 left-1/2 -translate-x-1/2 items-center'
   }
-  return 'bottom-0 right-0 items-end'
+  return 'bottom-4 right-4 items-end'
 }
 
 export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, ToasterStyleVariant>(
@@ -83,7 +86,7 @@ export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, Toas
       '--toast-swipe-movement-x': '0px',
       '--toast-swipe-movement-y': '0px',
       '--toast-scale': 1,
-      root: 'text-popover-foreground p-4 outline-none will-change-transform border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm pointer-events-auto select-none shadow-overlay transition-[transform,opacity,height,box-shadow] duration-300 ease-out items-center absolute overflow-hidden focus-visible:(border-ring ring-2 ring-ring/50) [&[data-behind]:not([data-expanded])>*]:opacity-0 data-limited:(opacity-0 pointer-events-none) data-swiping:transition-none data-transition:data-closed:(animate-mo-exit exit-opacity-0)',
+      root: "text-popover-foreground p-4 outline-none will-change-transform border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none focus-visible:(border-ring ring-2 ring-ring/50) [&[data-behind]:not([data-expanded])>*]:opacity-0 [&>*]:(transition-opacity duration-400) data-bump:animate-toast-bump data-expanded:after:(h-[calc(var(--toast-gap,14px)+1px)] w-full content-[''] bottom-full left-0 absolute)",
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
       description: 'text-xs text-muted-foreground leading-normal',
