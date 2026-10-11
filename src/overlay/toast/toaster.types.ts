@@ -87,12 +87,22 @@ export namespace ToasterT {
     bumpKey?: number
   }
 
+  /**
+   * Custom predicate or boolean flag for preventing duplicate toasts.
+   * When a function is provided, it receives the candidate toast options and the front toast,
+   * returning true if the new toast should be prevented as a duplicate.
+   */
+  export type PreventDuplicate = boolean | ((candidate: Partial<Item>, frontToast: Item) => boolean)
+
   /** Options passed to toast creation methods. */
   export interface AddOptions extends Omit<Partial<Item>, 'id' | 'dismissed' | 'bumpKey'> {
     /** Explicit identifier for updating or preventing duplicate toasts. */
     id?: string | number
-    /** Prevent creating duplicate toasts with matching content. */
-    preventDuplicate?: boolean
+    /**
+     * Prevent creating duplicate toasts with matching content.
+     * Can be a boolean or a custom predicate comparing the candidate against the front toast.
+     */
+    preventDuplicate?: PreventDuplicate
   }
 
   /** Options for binding toast lifecycles to an asynchronous promise. */
@@ -173,9 +183,10 @@ export namespace ToasterT {
 
     /**
      * Prevent duplicate toasts with matching content.
+     * Can be a boolean or a custom predicate comparing candidate against the front toast.
      * @default false
      */
-    preventDuplicate?: boolean
+    preventDuplicate?: PreventDuplicate
 
     /**
      * Invert toast colors.

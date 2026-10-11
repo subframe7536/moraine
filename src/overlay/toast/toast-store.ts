@@ -13,20 +13,48 @@ function isSameToastValue(first: unknown, second: unknown): boolean {
   return Object.is(first, second)
 }
 
+function isSameAction(first: unknown, second: unknown): boolean {
+  if (first === second) {
+    return true
+  }
+  if (
+    typeof first === 'object' &&
+    first !== null &&
+    typeof second === 'object' &&
+    second !== null &&
+    'label' in first &&
+    'label' in second
+  ) {
+    return isSameToastValue((first as any).label, (second as any).label)
+  }
+  return false
+}
+
 function isSameToastContent(first: ToasterT.Item, second: Partial<ToasterT.Item>): boolean {
-  return (
-    isSameToastValue(first.title, second.title) &&
-    isSameToastValue(first.description, second.description) &&
-    isSameToastValue(first.variant, second.variant) &&
-    first.toasterId === second.toasterId &&
-    first.placement === second.placement &&
-    first.align === second.align
-  )
+  if (first.jsx !== undefined || second.jsx !== undefined) {
+    return isSameToastValue(first.jsx, second.jsx)
+  }
+
+  const sameTitle = isSameToastValue(first.title, second.title)
+  const sameDescription = isSameToastValue(first.description, second.description)
+  const sameVariant = isSameToastValue(first.variant ?? 'default', second.variant ?? 'default')
+  const sameAction =
+    (first.action === undefined && second.action === undefined) ||
+    isSameAction(first.action, second.action)
+  const sameCancel =
+    (first.cancel === undefined && second.cancel === undefined) ||
+    isSameAction(first.cancel, second.cancel)
+
+  return sameTitle && sameDescription && sameVariant && sameAction && sameCancel
 }
 
 export interface ToastStore {
   (message: JSX.Element | ToasterT.AddOptions, options?: ToasterT.AddOptions): string | number
   add: (
+    message: JSX.Element | ToasterT.AddOptions,
+    options?: ToasterT.AddOptions,
+  ) => string | number
+  message: (
     message: JSX.Element | ToasterT.AddOptions,
     options?: ToasterT.AddOptions,
   ) => string | number
@@ -50,7 +78,7 @@ export interface ToastStore {
   getHistory: () => ToasterT.Item[]
   subscribe: (subscriber: (toast: ToasterT.Item) => void) => () => void
   readonly toasts: ToasterT.Item[]
-  preventDuplicate: boolean
+  preventDuplicate: ToasterT.PreventDuplicate
 }
 
 /**
@@ -61,7 +89,7 @@ export function createToastStore(): ToastStore {
   const subscribers: Array<(toast: ToasterT.Item) => void> = []
   const history: ToasterT.Item[] = []
   let counter = 1
-  let defaultPreventDuplicate = false
+  let defaultPreventDuplicate: ToasterT.PreventDuplicate = false
 
   const publish = (toastItem: ToasterT.Item): void => {
     subscribers.forEach((subscriber) => subscriber(toastItem))
@@ -101,7 +129,8 @@ export function createToastStore(): ToastStore {
         'description' in (message as any) ||
         'variant' in (message as any) ||
         'id' in (message as any) ||
-        'jsx' in (message as any))
+        'jsx' in (message as any) ||
+        'preventDuplicate' in (message as any))
     ) {
       resolvedOptions = { ...(message as ToasterT.AddOptions), ...options }
       resolvedTitle = resolvedOptions.title
@@ -110,9 +139,12 @@ export function createToastStore(): ToastStore {
     }
 
     const id = resolvedOptions.id !== undefined ? resolvedOptions.id : nextId()
-    const shouldPreventDuplicate = resolvedOptions.preventDuplicate ?? defaultPreventDuplicate
+    const preventOption =
+      resolvedOptions.preventDuplicate !== undefined
+        ? resolvedOptions.preventDuplicate
+        : defaultPreventDuplicate
 
-    if (shouldPreventDuplicate && resolvedOptions.id === undefined) {
+    if (preventOption && resolvedOptions.id === undefined) {
       const candidate: Partial<ToasterT.Item> = {
         title: resolvedTitle,
         description: resolvedOptions.description,
@@ -120,13 +152,38 @@ export function createToastStore(): ToastStore {
         toasterId: resolvedOptions.toasterId,
         placement: resolvedOptions.placement,
         align: resolvedOptions.align,
+        action: resolvedOptions.action,
+        cancel: resolvedOptions.cancel,
+        jsx: resolvedOptions.jsx,
       }
 
-      const existingIndex = store.findIndex((t) => !t.dismissed && isSameToastContent(t, candidate))
-      if (existingIndex !== -1) {
-        const existing = store[existingIndex]!
-        setStore(existingIndex, 'bumpKey', (k) => (k ?? 0) + 1)
-        return existing.id
+      const targetPlacement = candidate.placement ?? 'bottom'
+      const targetAlign = candidate.align ?? 'end'
+
+      // Find the frontmost (latest) active toast in this placement/align and toasterId group
+      const frontIndex = store.findIndex((t) => {
+        if (t.dismissed) {
+          return false
+        }
+        if (candidate.toasterId ? t.toasterId !== candidate.toasterId : Boolean(t.toasterId)) {
+          return false
+        }
+        const tPlacement = t.placement ?? 'bottom'
+        const tAlign = t.align ?? 'end'
+        return tPlacement === targetPlacement && tAlign === targetAlign
+      })
+
+      if (frontIndex !== -1) {
+        const frontToast = store[frontIndex]!
+        const isDuplicate =
+          typeof preventOption === 'function'
+            ? preventOption(candidate, frontToast)
+            : isSameToastContent(frontToast, candidate)
+
+        if (isDuplicate) {
+          setStore(frontIndex, 'bumpKey', (k) => (k ?? 0) + 1)
+          return frontToast.id
+        }
       }
     }
 
@@ -185,9 +242,10 @@ export function createToastStore(): ToastStore {
     render: (id: string | number) => JSX.Element,
     options?: ToasterT.AddOptions,
   ): string | number => {
-    const id = options?.id ?? nextId()
-    add(undefined, { ...options, id, jsx: () => render(id) })
-    return id
+    return add(undefined, {
+      ...options,
+      jsx: (id: string | number) => render(id),
+    })
   }
 
   const promise = <T>(
@@ -303,6 +361,7 @@ export function createToastStore(): ToastStore {
 
   Object.defineProperties(manager, {
     add: { value: add, writable: true, configurable: true },
+    message: { value: add, writable: true, configurable: true },
     success: { value: success, writable: true, configurable: true },
     error: { value: error, writable: true, configurable: true },
     warning: { value: warning, writable: true, configurable: true },
@@ -326,7 +385,7 @@ export function createToastStore(): ToastStore {
       get() {
         return defaultPreventDuplicate
       },
-      set(val: boolean) {
+      set(val: ToasterT.PreventDuplicate) {
         defaultPreventDuplicate = val
       },
       configurable: true,

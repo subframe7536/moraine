@@ -245,6 +245,71 @@ describe('Toaster Component', () => {
     expect(toasts.length).toBe(1)
   })
 
+  it('prevents duplicates only against the front toast in the stack', async () => {
+    toast.preventDuplicate = true
+    render(() => <Toaster />)
+
+    const idA1 = toast.add('Toast A')
+    const idB = toast.add('Toast B')
+
+    // Adding Toast A again when Toast B is the front toast should NOT be prevented
+    const idA2 = toast.add('Toast A')
+    expect(idA2).not.toBe(idA1)
+    expect(idA2).not.toBe(idB)
+
+    await screen.findByText('Toast B')
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(3)
+
+    // Now Toast A (idA2) is the front toast; adding Toast A immediately should be prevented
+    const idA3 = toast.add('Toast A')
+    expect(idA3).toBe(idA2)
+  })
+
+  it('allows customizing preventDuplicate when calling toast() or similar functions', async () => {
+    // 1. Per-call disable when global preventDuplicate is true
+    toast.preventDuplicate = true
+    render(() => <Toaster />)
+
+    const id1 = toast.add('Allow duplicate')
+    const id2 = toast.add('Allow duplicate', { preventDuplicate: false })
+    expect(id1).not.toBe(id2)
+
+    // 2. Per-call enable on helper when global preventDuplicate is false
+    toast.preventDuplicate = false
+    const s1 = toast.success('Saved', { preventDuplicate: true })
+    const s2 = toast.success('Saved', { preventDuplicate: true })
+    expect(s1).toBe(s2)
+
+    // 3. Custom predicate function
+    const e1 = toast.error('Error: network timeout', {
+      preventDuplicate: (candidate, front) =>
+        typeof candidate.title === 'string' &&
+        candidate.title.startsWith('Error:') &&
+        typeof front.title === 'string' &&
+        front.title.startsWith('Error:'),
+    })
+    const e2 = toast.error('Error: server disconnect', {
+      preventDuplicate: (candidate, front) =>
+        typeof candidate.title === 'string' &&
+        candidate.title.startsWith('Error:') &&
+        typeof front.title === 'string' &&
+        front.title.startsWith('Error:'),
+    })
+    expect(e1).toBe(e2)
+
+    // 4. Custom toast render with preventDuplicate
+    const c1 = toast.custom((id) => <div>Custom {id}</div>, {
+      id: 'custom-single',
+      preventDuplicate: true,
+    })
+    const c2 = toast.custom((id) => <div>Custom {id}</div>, {
+      id: 'custom-single',
+      preventDuplicate: true,
+    })
+    expect(c1).toBe(c2)
+  })
+
   it('applies inert and data-limited to toasts past visibleToasts limit', async () => {
     render(() => <Toaster visibleToasts={2} />)
 
