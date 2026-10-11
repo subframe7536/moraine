@@ -11,7 +11,7 @@ import { defaultDialogMessages } from '../dialog/dialog.messages'
 
 import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
 
-const ALERT_DIALOG_HEADER_CLASS = 'flex gap-3 items-start'
+const ALERT_DIALOG_HEADER_CLASS = 'flex gap-3 items-center'
 const ALERT_DIALOG_COPY_CLASS = 'flex-1 gap-2 grid min-w-0'
 const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
 const ALERT_DIALOG_ICON_TONE_CLASS = {

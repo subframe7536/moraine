@@ -71,16 +71,6 @@
           "description": "Replaces the type icon. `null` omits the icon."
         },
         {
-          "name": "overlayDismissable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "okText",
           "optional": true,
           "type": "JSX.Element"
@@ -93,6 +83,16 @@
           "default": {
             "kind": "literal",
             "value": "default"
+          }
+        },
+        {
+          "name": "overlayDismissable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": false
           }
         },
         {

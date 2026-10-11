@@ -125,9 +125,9 @@ Each method uses its own icon. Cancel stays hidden unless `cancel` is set.
 
 <Preview path="./alert-types" />
 
-### Retry a publish that stays open after failure
+### Update a publish confirm when checks finish
 
-The first `onOk` rejects, so the dialog stays open and the Publish button shows loading while the
-promise is pending. Publishing again resolves and closes it.
+Open the confirm while a check is still running. `update` replaces the title, body, and OK label
+when the check passes, and the dialog stays open until you publish or wait.
 
 <Preview path="./alert-publish" />
