@@ -1,16 +1,15 @@
 ---
 title: Toast
-description: Show temporary status messages through solid-toaster integration.
+description: Show temporary status messages through stacked, accessible notifications.
+api:
+  path: src/overlay/toast/toaster
 sidebar:
   order: 8
 search:
   tags: [notification, message, feedback, promise, toast, alert, toaster]
-upstreamHref: https://github.com/subframe7536/solid-toaster
 ---
 
-import 'solid-toaster/style.css'
-import { Button, Icon } from '@src'
-import { toast, BaseToaster } from 'solid-toaster'
+import { Button, Toaster, toast } from '@src'
 
 <Playground
   controls={[
@@ -33,147 +32,145 @@ import { toast, BaseToaster } from 'solid-toaster'
       ],
     },
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: true },
+    { kind: 'switch', prop: 'closeButton', label: 'Close button', defaultValue: true },
+    { kind: 'switch', prop: 'showProgress', label: 'Show progress bar', defaultValue: false },
   ]}
 >
   {(props) => {
-    const options = { toasterId: 'toast-playground' }
     const showToast = () => {
       const message = props.message
       switch (props.tone) {
         case 'warning':
-          toast.warning(message, options)
+          toast.warning(message)
           break
         case 'error':
-          toast.error(message, options)
+          toast.error(message)
           break
         case 'info':
-          toast.info(message, options)
+          toast.info(message)
           break
         default:
-          toast.success(message, options)
+          toast.success(message)
       }
     }
 
     return (
-      <>
-        <BaseToaster
-          id="toast-playground"
+      <div class="p-6 flex items-center justify-center">
+        <Toaster
           preventDuplicate={props.preventDuplicate}
-          icons={{
-            success: () => <Icon name="icon-success" />,
-            error: () => <Icon name="icon-error" />,
-            warning: () => <Icon name="icon-warning" />,
-            info: () => <Icon name="icon-info" />,
-            close: () => <Icon name="icon-close" />,
-          }}
-          style={{
-            '--normal-bg': 'var(--popover)',
-            '--normal-text': 'var(--popover-foreground)',
-            '--normal-border': 'var(--border)',
-            '--border-radius': 'var(--radius)',
-          }}
+          closeButton={props.closeButton}
+          showProgress={props.showProgress}
         />
         <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
           Trigger Toast Notification
         </Button>
-      </>
+      </div>
     )
 
-}
-}
+}}
 
 </Playground>
 
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'icon' },
+      {
+        slot: 'content',
+        children: [{ slot: 'title' }, { slot: 'description' }],
+      },
+      { slot: 'action' },
+      { slot: 'cancel' },
+      { slot: 'close' },
+      { slot: 'progress' },
+    ],
+  }}
+/>
+
 ## Usage
 
-Use `solid-toaster` for temporary status that does not block the page. Moraine does not export a
-Toast component. Use [Dialog](/components/dialog) when the user must confirm or complete a task.
-Use [Tooltip](/components/tooltip) for a hint attached to a control. Mount the toaster host once
-and use Moraine icons and theme variables to match your application.
+Mount `<Toaster />` once at your application root or inside a layout, then trigger toasts anywhere
+in your app using the imperative `toast` manager.
 
 ```tsx
-import 'solid-toaster/style.css'
-
-import { Button, Icon } from 'moraine'
-import { BaseToaster, toast } from 'solid-toaster'
+import { Button, Toaster, toast } from 'moraine'
 
 export default function App() {
   return (
     <>
       <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
-      <BaseToaster
-        visibleToasts={4}
-        preventDuplicate
-        style={{
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-          '--border-radius': 'var(--radius)',
-        }}
-        icons={{
-          success: () => <Icon name="icon-success" />,
-          error: () => <Icon name="icon-error" />,
-          warning: () => <Icon name="icon-warning" />,
-          info: () => <Icon name="icon-info" />,
-          loading: () => <Icon name="icon-loading" class="animate-spin" />,
-          close: () => <Icon name="icon-close" />,
-        }}
-      />
+      <Toaster />
     </>
   )
 }
 ```
 
-### Install and mount the host
+### Semantic methods
 
-Install `solid-toaster`:
-
-```shell title="bun" group-id="install-toaster"
-bun add solid-toaster
-```
-
-```shell title="pnpm" group-id="install-toaster"
-pnpm add solid-toaster
-```
-
-```shell title="npm" group-id="install-toaster"
-npm i solid-toaster
-```
-
-Import `solid-toaster/style.css` and mount one `BaseToaster` at your application root before
-calling `toast` methods. Its `icons` and `style` props connect the host to Moraine's semantic
-icons and theme variables, as shown in the example above.
-
-### Calls and lifecycles
-
-Use semantic toast calls for immediate feedback and `toast.promise` for a promise whose pending,
-success, and error states need distinct messages. Duration and scoped instances are supplied to the
-toaster integration.
+Call dedicated tone methods for direct feedback, or use the default `toast` function:
 
 ```tsx
-toast.success('Changes saved successfully!')
-toast.error('Failed to update repository settings.')
-toast.promise(request, {
-  loading: 'Sync in progress...',
-  success: 'Sync finished',
-  error: (error) => `Sync failed: ${String(error)}`,
+toast('Default message')
+toast.success('File uploaded successfully')
+toast.error('Network request failed')
+toast.warning('Storage is almost full')
+toast.info('New release available')
+```
+
+### Action and cancel buttons
+
+Pass `action` or `cancel` configurations to prompt for immediate user interaction:
+
+```tsx
+toast.add('Message archived', {
+  action: {
+    label: 'Undo',
+    onClick: () => restoreMessage(),
+  },
 })
 ```
 
-### Duplicate messages
+### Promises
 
-Set `preventDuplicate` on the host to avoid showing repeated toasts with the same content.
+Bind asynchronous tasks to pending, success, and error outcomes with `toast.promise`:
 
 ```tsx
-<BaseToaster preventDuplicate />
+toast.promise(saveSettings(), {
+  loading: 'Saving profile...',
+  success: 'Profile updated successfully',
+  error: (err) => `Failed to save: ${String(err)}`,
+})
 ```
+
+### Custom rendering
+
+Render arbitrary Solid JSX using `toast.custom`:
+
+```tsx
+toast.custom((id) => (
+  <div class="p-4 bg-background border rounded-lg shadow-overlay flex items-center gap-3">
+    <span>Custom banner notification</span>
+    <Button size="sm" variant="ghost" onClick={() => toast.dismiss(id)}>
+      Dismiss
+    </Button>
+  </div>
+))
+```
+
+### Accessibility and navigation
+
+The toast container is rendered as an accessible notification region (`role="region"`). Users can
+press <kbd>F6</kbd> anywhere on the page to focus the notification list, navigate with <kbd>Tab</kbd>,
+and dismiss individual toasts with <kbd>Escape</kbd> or swipe gestures.
 
 ## Examples
 
 ### Mount a themed toaster
 
-Mount a default host and a second `custom` host at bottom-left. Theme both with Moraine icons and
-CSS variables, then trigger a success toast.
+Mount a default host and a second `custom` host at bottom-left, then trigger a success toast.
 
 <Preview path="./setup-usage" />
 
@@ -185,20 +182,18 @@ Call `toast.success`, `toast.error`, and `toast.warning` for distinct outcomes.
 
 ### Preview toast tones including a loading sequence
 
-Show default, success, warning, and error toasts, then replace a loading toast with success after
-upload.
+Show default, success, warning, and error toasts, then transition a loading toast to success after upload.
 
 <Preview path="./basic-toasts" />
 
 ### Prevent duplicate save toasts
 
-`preventDuplicate` on a scoped host keeps repeated "Changes saved!" calls from stacking.
+`preventDuplicate` keeps repeated identical notifications from stacking.
 
 <Preview path="./prevent-duplicate" />
 
 ### Sync with a promise and a second toaster
 
-`toast.promise` reports pending, success, and error. Send info to the `custom` toaster, or dismiss
-all toasts.
+`toast.promise` reports pending, success, and error states. Send info to the scoped toaster, or dismiss all.
 
 <Preview path="./promise-scoped-instances" />

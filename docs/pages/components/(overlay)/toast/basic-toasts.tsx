@@ -1,7 +1,4 @@
-import 'solid-toaster/style.css'
-
-import { Button } from '@src'
-import { toast } from 'solid-toaster'
+import { Button, Toaster, toast } from '@src'
 
 export function BasicToasts() {
   const wait = (ms: number) =>
@@ -17,9 +14,8 @@ export function BasicToasts() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Button onClick={() => toast('Default message', { onAutoClose: console.log })}>
-        Default
-      </Button>
+      <Toaster />
+      <Button onClick={() => toast('Default message')}>Default</Button>
       <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>
         Success
       </Button>

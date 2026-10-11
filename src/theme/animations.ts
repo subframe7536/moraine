@@ -109,6 +109,27 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
     '45%': { transform: 'translateY(0) scaleY(1)' },
     '100%': { transform: 'translateY(-100%) scaleY(0.9)' },
   },
+  'toast-bump': {
+    '0%': { transform: 'scale(1)' },
+    '45%': { transform: 'scale(1.05)' },
+    '100%': { transform: 'scale(1)' },
+  },
+  'toast-swipe-out-left': {
+    from: { transform: 'translateX(var(--toast-swipe-x, 0px))', opacity: '1' },
+    to: { transform: 'translateX(calc(var(--toast-swipe-x, 0px) - 100%))', opacity: '0' },
+  },
+  'toast-swipe-out-right': {
+    from: { transform: 'translateX(var(--toast-swipe-x, 0px))', opacity: '1' },
+    to: { transform: 'translateX(calc(var(--toast-swipe-x, 0px) + 100%))', opacity: '0' },
+  },
+  'toast-swipe-out-up': {
+    from: { transform: 'translateY(var(--toast-swipe-y, 0px))', opacity: '1' },
+    to: { transform: 'translateY(calc(var(--toast-swipe-y, 0px) - 100%))', opacity: '0' },
+  },
+  'toast-swipe-out-down': {
+    from: { transform: 'translateY(var(--toast-swipe-y, 0px))', opacity: '1' },
+    to: { transform: 'translateY(calc(var(--toast-swipe-y, 0px) + 100%))', opacity: '0' },
+  },
 }
 
 export function getMoraineAnimations(): {

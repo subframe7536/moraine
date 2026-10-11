@@ -1,28 +1,11 @@
-import { Button, Icon } from '@src'
-import { BaseToaster, toast } from 'solid-toaster'
+import { Button, Toaster, toast } from '@src'
 
 export function SetupUsage() {
-  const ICONS = {
-    success: () => <Icon name="icon-success" />,
-    error: () => <Icon name="icon-error" />,
-    warning: () => <Icon name="icon-warning" />,
-    info: () => <Icon name="icon-info" />,
-    loading: () => <Icon name="icon-loading" class="animate-spin" />,
-    close: () => <Icon name="icon-close" />,
-  }
-
-  const TOASTER_STYLE = {
-    '--normal-bg': 'var(--popover)',
-    '--normal-text': 'var(--popover-foreground)',
-    '--normal-border': 'var(--border)',
-    '--border-radius': 'var(--radius)',
-  }
-
   return (
-    <>
-      <BaseToaster style={TOASTER_STYLE} visibleToasts={4} icons={ICONS} />
-      <BaseToaster id="custom" position="bottom-left" style={TOASTER_STYLE} icons={ICONS} />
+    <div class="flex flex-wrap gap-3 items-center">
+      <Toaster visibleToasts={4} />
+      <Toaster id="custom" placement="bottom" align="start" />
       <Button onClick={() => toast.success('Changes saved!')}>Trigger Success Toast</Button>
-    </>
+    </div>
   )
 }

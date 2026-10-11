@@ -1,6 +1,5 @@
-import { Button } from '@src'
+import { Button, Toaster, toast } from '@src'
 import { createSignal } from 'solid-js'
-import { toast } from 'solid-toaster'
 
 export function PromiseScopedInstances() {
   const [promiseRuns, setPromiseRuns] = createSignal(0)
@@ -18,12 +17,13 @@ export function PromiseScopedInstances() {
       loading: `Sync #${nextRun} in progress...`,
       success: (result) => `Sync #${result.run} finished`,
       error: (error) => `Sync failed: ${String(error)}`,
-      duration: 1e6,
     })
   }
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
+      <Toaster />
+      <Toaster id="custom" placement="bottom" align="start" />
       <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
       <Button
         variant="outline"
