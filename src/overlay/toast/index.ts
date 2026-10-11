@@ -1,3 +1,5 @@
 export { Toaster } from './toaster'
+export { Toast, ToastItem } from './toast'
 export { toast, createToastStore } from './toast-store'
 export type { ToasterProps, ToasterT } from './toaster.types'
+export type { ToastProps, ToastItemProps } from './toast'

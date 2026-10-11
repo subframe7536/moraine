@@ -15,7 +15,7 @@ import { useCn } from '../../provider'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
 import type { OverlayAlign } from '../../theme/style-types'
 
-import { ToastItem } from './toast-item'
+import { Toast } from './toast'
 import { toast } from './toast-store'
 import {
   getToastPlacementClass,
@@ -268,7 +268,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
                     })
 
                     return (
-                      <ToastItem
+                      <Toast
                         toast={item}
                         index={index()}
                         toastsCount={activeGroupToasts().length}

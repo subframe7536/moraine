@@ -20,6 +20,12 @@ import { Button, Toaster, toast } from '@src'
       defaultValue: 'Changes saved successfully',
     },
     {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Your preferences have been updated.',
+    },
+    {
       kind: 'select',
       prop: 'tone',
       label: 'Tone',
@@ -33,6 +39,7 @@ import { Button, Toaster, toast } from '@src'
     },
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: false },
     { kind: 'switch', prop: 'closeButton', label: 'Close button', defaultValue: true },
+    { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
     { kind: 'switch', prop: 'showProgress', label: 'Show progress bar', defaultValue: false },
   ]}
 >
@@ -40,9 +47,16 @@ import { Button, Toaster, toast } from '@src'
     const showToast = () => {
       const message = props.message
       const options = {
+        description: props.description || undefined,
         preventDuplicate: props.preventDuplicate,
         closeButton: props.closeButton,
         showProgress: props.showProgress,
+        action: props.action
+          ? {
+              label: 'Undo',
+              onClick: () => {},
+            }
+          : undefined,
       }
       switch (props.tone) {
         case 'warning':

@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { toast } from './toast-store'
-import { Toaster } from './toaster'
+
+import { Toast, Toaster } from './index'
 
 describe('Toaster Component', () => {
   beforeEach(() => {
@@ -538,5 +539,30 @@ describe('Toaster Component', () => {
     expect(toastNodeAAfter).toBe(toastNodeA)
     expect(toastNodeAAfter.hasAttribute('data-front')).toBe(false)
     expect(toastNodeAAfter.hasAttribute('data-behind')).toBe(true)
+  })
+
+  it('exports Toast component and renders data-slot attributes on all toast parts', async () => {
+    expect(typeof Toast).toBe('function')
+
+    render(() => <Toaster closeButton showProgress />)
+
+    toast.add({
+      title: 'Slot Test Title',
+      description: 'Slot Test Description',
+      variant: 'success',
+      action: { label: 'Action Btn', onClick: vi.fn() },
+      cancel: { label: 'Cancel Btn', onClick: vi.fn() },
+    })
+
+    const root = await screen.findByRole('status')
+    expect(root.getAttribute('data-slot')).toBe('toast')
+    expect(root.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-content"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-title"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-description"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-action"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-close"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
   })
 })

@@ -9,7 +9,7 @@ import type { ToasterT } from './toaster.types'
 
 export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
 
-export const toastItemDataAttributes = /* @__PURE__ */ createDataAttributes(
+export const toastDataAttributes = /* @__PURE__ */ createDataAttributes(
   'front',
   'behind',
   'expanded',
@@ -17,8 +17,11 @@ export const toastItemDataAttributes = /* @__PURE__ */ createDataAttributes(
   'bump',
 )
 
+/** @deprecated Use toastDataAttributes instead. */
+export const toastItemDataAttributes = toastDataAttributes
+
 export const toasterDataAttributes = {
-  root: toastItemDataAttributes,
+  root: toastDataAttributes,
 } satisfies DataAttributeContract<keyof ToasterStyleSlot>
 
 /** Base viewport class for toast list containers. */

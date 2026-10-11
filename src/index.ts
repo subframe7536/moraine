@@ -147,6 +147,7 @@ export {
   Sheet,
   Tooltip,
   Toaster,
+  Toast,
   toast,
   createToastStore,
 } from './overlay'
@@ -167,6 +168,7 @@ export type {
   TooltipT,
   ToasterProps,
   ToasterT,
+  ToastProps,
 } from './overlay'
 export { MoraineProvider, useCn, useLocale } from './provider'
 export type { MoraineProviderProps } from './provider'

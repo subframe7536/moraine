@@ -115,7 +115,7 @@
         {
           "name": "placement",
           "optional": true,
-          "type": "'top' | 'bottom'",
+          "type": "Placement",
           "description": "Viewport placement on the screen.",
           "default": {
             "kind": "literal",
@@ -126,7 +126,7 @@
           "name": "preventDuplicate",
           "optional": true,
           "type": "PreventDuplicate",
-          "description": "Prevent duplicate toasts with matching content.",
+          "description": "Prevent duplicate toasts with matching content.\nCan be a boolean or a custom predicate comparing candidate against the front toast.",
           "default": {
             "kind": "literal",
             "value": false
@@ -291,7 +291,7 @@
       {
         "name": "placement",
         "optional": true,
-        "type": "'top' | 'bottom'",
+        "type": "Placement",
         "description": "Viewport placement on screen."
       },
       {
