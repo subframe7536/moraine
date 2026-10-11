@@ -5,6 +5,8 @@ import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
 
 import type { ToasterStyleSlot, ToasterStyleVariant } from './toaster.style-types'
 
+export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
+
 export const toastItemDataAttributes = /* @__PURE__ */ createDataAttributes(
   'index',
   'front',

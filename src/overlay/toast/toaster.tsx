@@ -18,7 +18,11 @@ import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
 
 import { ToastItem } from './toast-item'
 import { toast } from './toast-store'
-import { getToastPlacementClass, TOAST_VIEWPORT_BASE_CLASS } from './toaster.recipe'
+import {
+  getToastPlacementClass,
+  TOAST_VIEWPORT_BASE_CLASS,
+  toastListDataAttributes,
+} from './toaster.recipe'
 import type { ToasterProps, ToasterT } from './toaster.types'
 
 function matchesToasterId(item: ToasterT.Item, toasterId?: string): boolean {
@@ -223,9 +227,36 @@ export function Toaster(props: ToasterProps): JSX.Element {
                   return 0
                 }
 
+                const listHeight = createMemo(() => {
+                  const toasts = activeGroupToasts()
+                  if (toasts.length === 0) {
+                    return 0
+                  }
+                  const count = Math.min(toasts.length, local.visibleToasts ?? 3)
+                  const gap = gapSize()
+                  const frontH = frontmostHeight() || 58
+
+                  if (!expandedState()) {
+                    return frontH + (count > 1 ? (count - 1) * gap : 0)
+                  }
+
+                  let totalH = 0
+                  for (let i = 0; i < count; i++) {
+                    const t = toasts[i]
+                    const h = (t ? heights()[t.id] : 0) || frontH
+                    totalH += h
+                  }
+                  return totalH + (count > 1 ? (count - 1) * gap : 0)
+                })
+
+                const listDataAttrs = toastListDataAttributes({
+                  expanded: expandedState,
+                })
+
                 return (
-                  <ol
+                  <ul
                     tabIndex={-1}
+                    {...listDataAttrs}
                     class={cn(
                       TOAST_VIEWPORT_BASE_CLASS,
                       activeGroupToasts().length > 0
@@ -237,6 +268,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
                     style={{
                       ...local.style,
                       width: '384px',
+                      height: listHeight() > 0 ? `${listHeight()}px` : 'auto',
                       '--toast-frontmost-height': `${frontmostHeight()}px`,
                     }}
                     onMouseEnter={() => {
@@ -309,7 +341,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
                         )
                       }}
                     </For>
-                  </ol>
+                  </ul>
                 )
               }}
             </For>

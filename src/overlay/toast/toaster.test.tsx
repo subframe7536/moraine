@@ -281,7 +281,7 @@ describe('Toaster Component', () => {
     await screen.findByText('Global notification')
     await screen.findByText('Scoped notification')
 
-    const lists = document.querySelectorAll('ol')
+    const lists = document.querySelectorAll('ul')
     expect(lists.length).toBe(2)
     expect(lists[0]?.textContent).toContain('Global notification')
     expect(lists[0]?.textContent).not.toContain('Scoped notification')
@@ -369,18 +369,22 @@ describe('Toaster Component', () => {
     await screen.findByText('Expand 2')
 
     const list = screen.getByRole('list')
+    expect(list.tagName).toBe('UL')
     const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
 
     // Initially collapsed
+    expect(list.hasAttribute('data-expanded')).toBe(false)
     expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
 
-    // Hover to expand
+    // Hover over ul container to expand
     fireEvent.mouseEnter(list)
+    expect(list.hasAttribute('data-expanded')).toBe(true)
     expect(toasts[0]?.hasAttribute('data-expanded')).toBe(true)
     expect(toasts[1]?.hasAttribute('data-expanded')).toBe(true)
 
-    // Mouse leave to collapse
+    // Mouse leave ul container to collapse
     fireEvent.mouseLeave(list)
+    expect(list.hasAttribute('data-expanded')).toBe(false)
     expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
     expect(toasts[1]?.hasAttribute('data-expanded')).toBe(false)
   })
