@@ -50,7 +50,12 @@ handler. Use [Dialog](/components/dialog) when the task has its own trigger, bod
 
 Mount `<AlertDialog>` once, inside `MoraineProvider`. It renders no children. Props on that host
 are defaults for every dialog opened while it is mounted, and options passed to a method override
-them. Call `AlertDialog` before the host is mounted and the call throws.
+them. Call `AlertDialog` before the host is mounted and the call throws. On the server the same
+calls return a promise that is already settled as `false` and do not require a host.
+
+Give a host an `id` when more than one is mounted. A call without an id uses the last mounted host.
+Pass the id as the first argument to target one host. Unmounting a host settles its open dialogs as
+`false` and removes them immediately.
 
 ```tsx
 import { AlertDialog, Button, MoraineProvider } from 'moraine'
@@ -81,22 +86,31 @@ export function App() {
 `close` / `destroy`. `confirm` includes a cancel action. `info`, `warning`, `error`, and `success`
 show the OK action only, unless `cancel` is set.
 
-`onOk` and `onCancel` run before the dialog closes. A rejected promise leaves it open and shows
-loading on the action button while the promise is pending. `close`, `destroy`, and `destroyAll`
-resolve `false` without calling those handlers. `destroy` removes the dialog immediately. `close`
-plays the exit transition. `update` merges the next options into the open dialog.
+`onOk` and `onCancel` run before the dialog closes. A rejected promise or a synchronous throw leaves
+the dialog open. A synchronous throw is reported with `console.error` and does not show loading. A
+rejection is reported with `console.error`, rethrown to the action button, and shows loading while
+the promise is pending. While one action is pending, the other action is disabled and Escape does
+not dismiss the dialog. `close`, `destroy`, and `destroyAll` resolve `false` without calling those
+handlers, including while an action is pending. `destroy` removes the dialog immediately. `close`
+plays the exit transition and resolves `false` before that transition finishes. `update` merges the
+next options into the open dialog. Calling `update` after `close` does not reopen it.
 
 ```ts
 const AlertDialog: {
-  confirm: (options: AlertDialogT.Options) => AlertDialogT.Instance
-  info: (options: AlertDialogT.Options) => AlertDialogT.Instance
-  warning: (options: AlertDialogT.Options) => AlertDialogT.Instance
-  error: (options: AlertDialogT.Options) => AlertDialogT.Instance
-  success: (options: AlertDialogT.Options) => AlertDialogT.Instance
-  destroyAll: () => void
+  confirm: AlertDialogT.Method
+  info: AlertDialogT.Method
+  warning: AlertDialogT.Method
+  error: AlertDialogT.Method
+  success: AlertDialogT.Method
+  destroyAll: (id?: string) => void
 }
 
 namespace AlertDialogT {
+  interface Method {
+    (options: Options): Instance
+    (id: string, options: Options): Instance
+  }
+
   interface Instance extends Promise<boolean> {
     close: () => void
     destroy: () => void
@@ -133,9 +147,9 @@ AlertDialog.confirm({
 
 ### Dismissal
 
-An outside pointer press does not dismiss the dialog unless `overlayDismissable` is set. Escape dismisses
-it unless `closeOnEscape` is `false`. The corner close button stays hidden unless `closable` is
-set. Escape closes only the topmost alert dialog.
+An outside pointer press does not dismiss the dialog unless `closeOnOverlayClick` is set. Escape
+dismisses it unless `closeOnEscape` is `false`. The corner close button stays hidden unless `close`
+is set. Escape closes only the topmost alert dialog.
 
 ## Examples
 

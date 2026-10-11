@@ -37,7 +37,7 @@ export namespace AlertDialogT {
      * Whether the corner close button is shown.
      * @default false
      */
-    closable?: boolean
+    close?: boolean
     /**
      * Centers the icon, title, and description, and stretches the actions into an equal row.
      * @default false
@@ -54,7 +54,7 @@ export namespace AlertDialogT {
      * Whether an outside pointer press on the overlay dismisses the dialog.
      * @default false
      */
-    overlayDismissable?: boolean
+    closeOnOverlayClick?: boolean
     okText?: JSX.Element
     /**
      * Visual treatment of the OK action.
@@ -74,19 +74,40 @@ export namespace AlertDialogT {
     width?: string | number
   }
 
-  export type Props = Base
-
   export type Config = Base
+
+  export interface Props extends Base {
+    /**
+     * Selects this host from `AlertDialog.confirm(id, options)` and the other methods.
+     * A call without an id uses the last mounted host. Unmounting the host settles its open dialogs as `false`.
+     */
+    id?: string
+  }
 
   export interface Options extends Config {
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
     description?: JSX.Element
-    /** Called before the dialog closes from a cancel or dismiss gesture. A rejection leaves it open. */
+    /**
+     * Called before the dialog closes from a cancel or dismiss gesture.
+     * A rejection or synchronous throw leaves it open.
+     * A synchronous throw is reported with `console.error`.
+     * A rejection is reported with `console.error` and rethrown to the action button.
+     */
     onCancel?: () => void | Promise<unknown>
-    /** Called before the dialog closes from the OK action. A rejection leaves it open. */
+    /**
+     * Called before the dialog closes from the OK action.
+     * A rejection or synchronous throw leaves it open.
+     * A synchronous throw is reported with `console.error`.
+     * A rejection is reported with `console.error` and rethrown to the action button.
+     */
     onOk?: () => void | Promise<unknown>
     title?: JSX.Element
+  }
+
+  export interface Method {
+    (options: Options): Instance
+    (id: string, options: Options): Instance
   }
 
   export interface Instance extends Promise<boolean> {

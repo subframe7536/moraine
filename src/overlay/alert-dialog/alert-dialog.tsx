@@ -1,5 +1,17 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, createUniqueId, onCleanup, untrack } from 'solid-js'
+import {
+  DEV,
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  on,
+  onCleanup,
+  untrack,
+} from 'solid-js'
+import { isServer } from 'solid-js/web'
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
@@ -32,11 +44,11 @@ const ALERT_DIALOG_CONFIG_KEYS = [
   'class',
   'classes',
   'closeOnEscape',
-  'closable',
+  'close',
   'center',
   'danger',
   'icon',
-  'overlayDismissable',
+  'closeOnOverlayClick',
   'okText',
   'okVariant',
   'style',
@@ -47,6 +59,8 @@ const ALERT_DIALOG_CONFIG_KEYS = [
 
 const ALERT_DIALOG_CONFIG_KEY_SET = new Set<string>(ALERT_DIALOG_CONFIG_KEYS)
 
+type PendingKind = 'ok' | 'cancel'
+
 interface AlertDialogEntryProps {
   accept: () => Promise<void> | void
   ariaLabel: () => string | undefined
@@ -56,17 +70,18 @@ interface AlertDialogEntryProps {
   class: () => string | undefined
   classes: () => AlertDialogT.Options['classes']
   closeOnEscape: () => boolean | undefined
-  closable: () => boolean | undefined
+  close: () => boolean | undefined
   center: () => boolean | null | undefined
   danger: () => boolean | null | undefined
   description: () => JSX.Element | undefined
   dismiss: () => Promise<void> | void
   icon: () => AlertDialogT.Options['icon']
   id: string
-  overlayDismissable: () => boolean | undefined
+  closeOnOverlayClick: () => boolean | undefined
   okText: () => JSX.Element | undefined
   okVariant: () => AlertDialogT.Options['okVariant']
   open: () => boolean
+  pendingKind: () => PendingKind | undefined
   remove: () => void
   style: () => JSX.CSSProperties | undefined
   styles: () => AlertDialogT.Options['styles']
@@ -85,11 +100,12 @@ interface AlertDialogRecord {
 
 interface AlertDialogController {
   destroyAll: () => void
+  id: () => string | undefined
   open: (type: AlertDialogT.Type, options: AlertDialogT.Options) => AlertDialogT.Instance
 }
 
-// The last mounted host receives calls.
-const providers: AlertDialogController[] = []
+// Client hosts only. The last mounted host receives calls that omit an id.
+const hosts: AlertDialogController[] = []
 
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
@@ -97,6 +113,34 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
     value !== null &&
     typeof (value as PromiseLike<unknown>).then === 'function'
   )
+}
+
+function createSettledInstance(value: boolean): AlertDialogT.Instance {
+  return Object.assign(Promise.resolve(value), {
+    close: () => undefined,
+    destroy: () => undefined,
+    update: () => undefined,
+  })
+}
+
+function activeHost(id?: string): AlertDialogController | undefined {
+  if (id === undefined) {
+    return hosts.at(-1)
+  }
+  for (let index = hosts.length - 1; index >= 0; index -= 1) {
+    const host = hosts[index]
+    if (host?.id() === id) {
+      return host
+    }
+  }
+  return undefined
+}
+
+function missingHostMessage(id?: string): string {
+  if (id === undefined) {
+    return 'Mount <AlertDialog> before calling AlertDialog.'
+  }
+  return `Mount <AlertDialog id="${id}"> before calling AlertDialog.`
 }
 
 // Host defaults are snapshotted when a dialog opens. Later host changes do not rewrite it.
@@ -109,11 +153,11 @@ function readAlertDialogConfig(props: AlertDialogProps): AlertDialogT.Config {
     class: props.class,
     classes: props.classes,
     closeOnEscape: props.closeOnEscape,
-    closable: props.closable,
+    close: props.close,
     center: props.center,
     danger: props.danger,
     icon: props.icon,
-    overlayDismissable: props.overlayDismissable,
+    closeOnOverlayClick: props.closeOnOverlayClick,
     okText: props.okText,
     okVariant: props.okVariant,
     style: props.style,
@@ -149,6 +193,7 @@ function createAlertDialog(
 } {
   const [open, setOpen] = createSignal(true)
   const [currentOptions, setCurrentOptions] = createSignal(options)
+  const [pendingKind, setPendingKind] = createSignal<PendingKind | undefined>()
   let settled = false
   let pending: Promise<void> | undefined
   let resolveResult: (value: boolean) => void = () => undefined
@@ -177,21 +222,27 @@ function createAlertDialog(
     let outcome: unknown
     try {
       outcome = action?.()
-    } catch {
+    } catch (error) {
+      console.error(error)
       return
     }
     if (!isPromiseLike(outcome)) {
       finish(confirmed)
       return
     }
+    setPendingKind(confirmed ? 'ok' : 'cancel')
     const task = Promise.resolve(outcome)
       .then(() => {
         finish(confirmed)
       })
-      .catch(() => undefined)
+      .catch((error: unknown) => {
+        console.error(error)
+        throw error
+      })
       .finally(() => {
         if (pending === task) {
           pending = undefined
+          setPendingKind(undefined)
         }
       })
     pending = task
@@ -216,17 +267,18 @@ function createAlertDialog(
       class: optionValue(currentOptions, config, 'class'),
       classes: optionValue(currentOptions, config, 'classes'),
       closeOnEscape: optionValue(currentOptions, config, 'closeOnEscape'),
-      closable: optionValue(currentOptions, config, 'closable'),
+      close: optionValue(currentOptions, config, 'close'),
       center: optionValue(currentOptions, config, 'center'),
       danger: optionValue(currentOptions, config, 'danger'),
       description: optionValue(currentOptions, config, 'description'),
       dismiss: () => runAction(false),
       icon: optionValue(currentOptions, config, 'icon'),
       id,
-      overlayDismissable: optionValue(currentOptions, config, 'overlayDismissable'),
+      closeOnOverlayClick: optionValue(currentOptions, config, 'closeOnOverlayClick'),
       okText: optionValue(currentOptions, config, 'okText'),
       okVariant: optionValue(currentOptions, config, 'okVariant'),
       open,
+      pendingKind,
       remove: () => record.remove(),
       style: optionValue(currentOptions, config, 'style'),
       styles: optionValue(currentOptions, config, 'styles'),
@@ -254,12 +306,35 @@ function createAlertDialog(
 function openAlertDialog(
   type: AlertDialogT.Type,
   options: AlertDialogT.Options,
+  hostId?: string,
 ): AlertDialogT.Instance {
-  const provider = providers.at(-1)
-  if (!provider) {
-    throw new Error('Mount <AlertDialog> before calling AlertDialog.')
+  if (isServer) {
+    return createSettledInstance(false)
   }
-  return provider.open(type, options)
+  const host = activeHost(hostId)
+  if (!host) {
+    throw new Error(missingHostMessage(hostId))
+  }
+  return host.open(type, options)
+}
+
+function openAlertDialogMethod(
+  type: AlertDialogT.Type,
+  optionsOrId: AlertDialogT.Options | string,
+  options?: AlertDialogT.Options,
+): AlertDialogT.Instance {
+  if (typeof optionsOrId === 'string') {
+    return openAlertDialog(type, options ?? {}, optionsOrId)
+  }
+  return openAlertDialog(type, optionsOrId)
+}
+
+function createAlertDialogMethod(type: AlertDialogT.Type): AlertDialogT.Method {
+  const method = (
+    optionsOrId: AlertDialogT.Options | string,
+    options?: AlertDialogT.Options,
+  ): AlertDialogT.Instance => openAlertDialogMethod(type, optionsOrId, options)
+  return method
 }
 
 function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
@@ -323,15 +398,25 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
   )
   const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
     props.okVariant() ?? (resolved.variants.danger ? 'destructive' : 'default')
+  const pending = () => props.pendingKind() !== undefined
+
+  createEffect(
+    on([title, () => props.ariaLabel()], ([currentTitle, currentLabel]) => {
+      if (!DEV || hasJsxContent(currentTitle) || currentLabel) {
+        return
+      }
+      console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
+    }),
+  )
 
   return (
     <Dialog
       id={props.id}
       open={props.open()}
       modal
-      close={props.closable() ?? false}
-      disablePointerDismissal={props.overlayDismissable() !== true}
-      closeOnEscape={props.closeOnEscape() !== false}
+      close={(props.close() ?? false) && !pending()}
+      closeOnOverlayClick={props.closeOnOverlayClick() === true}
+      closeOnEscape={props.closeOnEscape() !== false && !pending()}
       ariaLabel={hasJsxContent(title()) ? undefined : props.ariaLabel()}
       onOpenChange={(next) => {
         if (!next) {
@@ -346,36 +431,40 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
         style={resolved.styles.content.style}
       >
         <Show when={showHeader()}>
-          <Dialog.Header>
-            <div class={resolved.styles.header.class}>
-              <Show when={icon()}>
-                {(current) => (
-                  <Show
-                    when={resolved.variants.center}
-                    fallback={
-                      <Icon
-                        name={current()}
-                        class={cn(
-                          resolved.styles.icon.class,
-                          ALERT_DIALOG_ICON_TONE_CLASS[props.type],
-                        )}
-                      />
-                    }
-                  >
-                    <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                      <Icon name={current()} class={resolved.styles.icon.class} />
-                    </div>
-                  </Show>
-                )}
+          <Dialog.Header class={resolved.styles.header.class}>
+            <Show when={icon()}>
+              {(current) => (
+                <Show
+                  when={resolved.variants.center}
+                  fallback={
+                    <Icon
+                      name={current()}
+                      class={cn(
+                        resolved.styles.icon.class,
+                        ALERT_DIALOG_ICON_TONE_CLASS[props.type],
+                      )}
+                    />
+                  }
+                >
+                  <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
+                    <Icon
+                      name={current()}
+                      class={cn(
+                        resolved.styles.icon.class,
+                        ALERT_DIALOG_ICON_TONE_CLASS[props.type],
+                      )}
+                    />
+                  </div>
+                </Show>
+              )}
+            </Show>
+            <div class={resolved.styles.copy.class}>
+              <Show when={hasJsxContent(title())}>
+                <Dialog.Title>{title()}</Dialog.Title>
               </Show>
-              <div class={resolved.styles.copy.class}>
-                <Show when={hasJsxContent(title())}>
-                  <Dialog.Title>{title()}</Dialog.Title>
-                </Show>
-                <Show when={hasJsxContent(description())}>
-                  <Dialog.Description>{description()}</Dialog.Description>
-                </Show>
-              </div>
+              <Show when={hasJsxContent(description())}>
+                <Dialog.Description>{description()}</Dialog.Description>
+              </Show>
             </div>
           </Dialog.Header>
         </Show>
@@ -384,6 +473,7 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
             <Button
               variant={props.cancelVariant() ?? 'outline'}
               class={resolved.styles.action.class}
+              disabled={props.pendingKind() === 'ok'}
               loadingAuto
               onClick={() => props.dismiss()}
             >
@@ -393,6 +483,7 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
           <Button
             variant={okVariant()}
             class={resolved.styles.action.class}
+            disabled={props.pendingKind() === 'cancel'}
             loadingAuto
             onClick={() => props.accept()}
           >
@@ -411,6 +502,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
     setDialogs((current) => current.filter((item) => item.id !== id))
   }
   const controller: AlertDialogController = {
+    id: () => props.id,
     open(type, options) {
       const created = createAlertDialog(
         type,
@@ -428,11 +520,16 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
       setDialogs([])
     },
   }
-  providers.push(controller)
+  if (!isServer) {
+    hosts.push(controller)
+  }
   onCleanup(() => {
-    const index = providers.lastIndexOf(controller)
+    if (isServer) {
+      return
+    }
+    const index = hosts.lastIndexOf(controller)
     if (index !== -1) {
-      providers.splice(index, 1)
+      hosts.splice(index, 1)
     }
     for (const item of dialogs()) {
       item.settle(false)
@@ -442,16 +539,21 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
   return <For each={dialogs()}>{(item) => <AlertDialogEntry {...item.entry} />}</For>
 }
 
-AlertDialog.confirm = (options: AlertDialogT.Options): AlertDialogT.Instance =>
-  openAlertDialog('confirm', options)
-AlertDialog.info = (options: AlertDialogT.Options): AlertDialogT.Instance =>
-  openAlertDialog('info', options)
-AlertDialog.warning = (options: AlertDialogT.Options): AlertDialogT.Instance =>
-  openAlertDialog('warning', options)
-AlertDialog.error = (options: AlertDialogT.Options): AlertDialogT.Instance =>
-  openAlertDialog('error', options)
-AlertDialog.success = (options: AlertDialogT.Options): AlertDialogT.Instance =>
-  openAlertDialog('success', options)
-AlertDialog.destroyAll = (): void => {
-  providers.at(-1)?.destroyAll()
+AlertDialog.confirm = createAlertDialogMethod('confirm')
+AlertDialog.info = createAlertDialogMethod('info')
+AlertDialog.warning = createAlertDialogMethod('warning')
+AlertDialog.error = createAlertDialogMethod('error')
+AlertDialog.success = createAlertDialogMethod('success')
+AlertDialog.destroyAll = (id?: string): void => {
+  if (isServer) {
+    return
+  }
+  const host = activeHost(id)
+  if (!host) {
+    if (id !== undefined) {
+      throw new Error(missingHostMessage(id))
+    }
+    return
+  }
+  host.destroyAll()
 }

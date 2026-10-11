@@ -50,7 +50,7 @@
           "description": "Slot class defaults for this alert dialog."
         },
         {
-          "name": "closable",
+          "name": "close",
           "optional": true,
           "type": "boolean",
           "description": "Whether the corner close button is shown.",
@@ -70,6 +70,16 @@
           }
         },
         {
+          "name": "closeOnOverlayClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "danger",
           "optional": true,
           "type": "boolean | null",
@@ -86,6 +96,12 @@
           "description": "Replaces the type icon. `null` omits the icon."
         },
         {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Selects this host from `AlertDialog.confirm(id, options)` and the other methods.\nA call without an id uses the last mounted host. Unmounting the host settles its open dialogs as `false`."
+        },
+        {
           "name": "okText",
           "optional": true,
           "type": "JSX.Element"
@@ -98,16 +114,6 @@
           "default": {
             "kind": "literal",
             "value": "default"
-          }
-        },
-        {
-          "name": "overlayDismissable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
-          "default": {
-            "kind": "literal",
-            "value": false
           }
         },
         {

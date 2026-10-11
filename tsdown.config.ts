@@ -66,7 +66,6 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
-      utils: './src/utils.ts',
       virtualizer: './src/virtualizer.ts',
     },
     unbundle: true,

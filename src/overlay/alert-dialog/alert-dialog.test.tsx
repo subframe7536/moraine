@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -103,7 +104,7 @@ describe('AlertDialog', () => {
     const cases: Array<[AlertDialogT.Type, string | undefined, string | undefined, boolean]> = [
       ['confirm', undefined, undefined, true],
       ['info', 'icon-info', 'text-primary', false],
-      ['warning', 'icon-warning', 'text-destructive', false],
+      ['warning', 'icon-warning', 'text-foreground', false],
       ['error', 'icon-error', 'text-destructive', false],
       ['success', 'icon-success', 'text-primary', false],
     ]
@@ -153,13 +154,13 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
-  test('closes from the overlay when overlayDismissable is set and can block Escape', async () => {
+  test('closes from the overlay when closeOnOverlayClick is set and can block Escape', async () => {
     setup()
     const onCancel = vi.fn()
     const blocked = AlertDialog.info({
       title: 'Info',
       cancel: true,
-      overlayDismissable: true,
+      closeOnOverlayClick: true,
       closeOnEscape: false,
       onCancel,
     })
@@ -249,7 +250,7 @@ describe('AlertDialog', () => {
     first.update({
       title: 'Updated',
       danger: true,
-      closable: true,
+      close: true,
       icon: null,
       style: { 'max-width': '12rem' },
       width: 280,
@@ -276,10 +277,10 @@ describe('AlertDialog', () => {
     expect(dialogs()).toHaveLength(0)
   })
 
-  test('close resolves false after the exit transition and the corner button runs onCancel', async () => {
+  test('corner close runs onCancel and close resolves false before exit finishes', async () => {
     setup()
     const onCancel = vi.fn()
-    const closed = AlertDialog.info({ title: 'Closable', closable: true, onCancel })
+    const closed = AlertDialog.info({ title: 'Closable', close: true, onCancel })
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     })
@@ -412,6 +413,11 @@ describe('AlertDialog', () => {
     expect(footer?.className).toContain('bg-muted/50')
     expect(footer?.className).toContain('border-t')
     expect(footer?.className).toContain('flex-row')
+    expect(footer?.className).toContain('px-6')
+    expect(footer?.className).toContain('pt-4')
+    expect(document.body.querySelector('[data-slot="icon"]')?.className).toContain(
+      'text-destructive',
+    )
     expect(button("Don't allow").className).toContain('flex-1')
     expect(button('Allow').className).toContain('flex-1')
     expect(document.body.querySelector('[data-slot="icon"]')?.parentElement?.className).toContain(
@@ -420,5 +426,225 @@ describe('AlertDialog', () => {
     expect(
       document.body.querySelector('[data-slot="dialog-title"]')?.parentElement?.className,
     ).toContain('text-center')
+  })
+
+  test('focuses the first action and restores focus to the opener', async () => {
+    const screen = render(() => (
+      <>
+        <button
+          type="button"
+          data-testid="open"
+          onClick={() => {
+            void AlertDialog.confirm({ title: 'Focus' })
+          }}
+        >
+          Open
+        </button>
+        <AlertDialog />
+      </>
+    ))
+    const opener = screen.getByTestId('open')
+    opener.focus()
+    fireEvent.click(opener)
+    await waitFor(() => {
+      expect(document.activeElement).toBe(button('Cancel'))
+    })
+    fireEvent.click(button('Cancel'))
+    await waitForDialogCount(0)
+    await waitFor(() => {
+      expect(document.activeElement).toBe(opener)
+    })
+  })
+
+  test('reports a synchronous throw and keeps the dialog open', async () => {
+    setup()
+    const error = new Error('sync')
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const result = AlertDialog.confirm({
+      title: 'Throw',
+      onOk: () => {
+        throw error
+      },
+    })
+    let settled = false
+    void result.then(() => {
+      settled = true
+    })
+    await waitForTitle('Throw')
+    fireEvent.click(button('OK'))
+    await Promise.resolve()
+    expect(spy).toHaveBeenCalledWith(error)
+    expect(settled).toBe(false)
+    expect(dialogs()).toHaveLength(1)
+    spy.mockRestore()
+  })
+
+  test('reports a rejected action and keeps the dialog open', async () => {
+    setup()
+    const error = new Error('async')
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const result = AlertDialog.confirm({
+      title: 'Reject',
+      onOk: () => Promise.reject(error),
+    })
+    let settled = false
+    void result.then(() => {
+      settled = true
+    })
+    await waitForTitle('Reject')
+    fireEvent.click(button('OK'))
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(error)
+      expect(button('OK').hasAttribute('data-loading')).toBe(false)
+    })
+    expect(settled).toBe(false)
+    expect(dialogs()).toHaveLength(1)
+    spy.mockRestore()
+  })
+
+  test('disables the other action and Escape while a handler is pending', async () => {
+    setup()
+    const onCancel = vi.fn()
+    let resolveOk: () => void = () => undefined
+    const result = AlertDialog.confirm({
+      title: 'Pending',
+      close: true,
+      onCancel,
+      onOk: () =>
+        new Promise<void>((resolve) => {
+          resolveOk = resolve
+        }),
+    })
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
+    })
+    fireEvent.click(button('OK'))
+    await waitFor(() => {
+      expect(button('OK').hasAttribute('data-loading')).toBe(true)
+      expect(button('Cancel').disabled).toBe(true)
+      expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
+    })
+    dialog().focus()
+    fireEvent.keyDown(dialog(), { key: 'Escape' })
+    await Promise.resolve()
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(dialogs()).toHaveLength(1)
+    resolveOk()
+    await expect(result).resolves.toBe(true)
+    await waitForDialogCount(0)
+  })
+
+  test('destroy and close settle false while an action is pending', async () => {
+    setup()
+    let resolveOk: () => void = () => undefined
+    const destroyed = AlertDialog.confirm({
+      title: 'Destroy pending',
+      onOk: () =>
+        new Promise<void>((resolve) => {
+          resolveOk = resolve
+        }),
+    })
+    await waitForTitle('Destroy pending')
+    fireEvent.click(button('OK'))
+    await waitFor(() => {
+      expect(button('OK').hasAttribute('data-loading')).toBe(true)
+    })
+    destroyed.destroy()
+    await expect(destroyed).resolves.toBe(false)
+    expect(dialogs()).toHaveLength(0)
+    resolveOk()
+
+    const closed = AlertDialog.confirm({
+      title: 'Close pending',
+      onOk: () => new Promise<void>(() => undefined),
+    })
+    await waitForTitle('Close pending')
+    fireEvent.click(button('OK'))
+    await waitFor(() => {
+      expect(button('OK').hasAttribute('data-loading')).toBe(true)
+    })
+    closed.close()
+    await expect(closed).resolves.toBe(false)
+    expect(dialogs()).toHaveLength(1)
+    await waitForDialogCount(0)
+  })
+
+  test('ignores a second OK click while the first action is pending', async () => {
+    setup()
+    const onOk = vi.fn(() => new Promise<void>(() => undefined))
+    void AlertDialog.confirm({ title: 'Double', onOk })
+    await waitForTitle('Double')
+    const ok = button('OK')
+    fireEvent.click(ok)
+    fireEvent.click(ok)
+    await waitFor(() => {
+      expect(ok.hasAttribute('data-loading')).toBe(true)
+    })
+    expect(onOk).toHaveBeenCalledTimes(1)
+  })
+
+  test('update after close does not reopen the dialog', async () => {
+    setup()
+    const closed = AlertDialog.info({ title: 'Gone' })
+    await waitForTitle('Gone')
+    closed.close()
+    await expect(closed).resolves.toBe(false)
+    closed.update({ title: 'Back' })
+    await waitForDialogCount(0)
+    expect(document.body.querySelector('[data-slot="dialog-title"]')).toBeNull()
+  })
+
+  test('targets a host by id and uses the last mounted host by default', async () => {
+    render(() => (
+      <>
+        <AlertDialog id="first" okText="First OK" />
+        <AlertDialog id="second" okText="Second OK" />
+      </>
+    ))
+    void AlertDialog.confirm('first', { title: 'On first' })
+    void AlertDialog.info('second', { title: 'On second' })
+    await waitFor(() => {
+      expect(dialogs()).toHaveLength(2)
+    })
+    expect(button('First OK')).toBeInstanceOf(HTMLButtonElement)
+    expect(button('Second OK')).toBeInstanceOf(HTMLButtonElement)
+
+    AlertDialog.destroyAll('first')
+    await waitFor(() => {
+      expect(dialogs()).toHaveLength(1)
+    })
+    expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('On second')
+
+    void AlertDialog.warning({ title: 'Default host' })
+    await waitFor(() => {
+      expect(dialogs().some((element) => element.textContent?.includes('Default host'))).toBe(true)
+    })
+    const opened = dialogs().find((element) => element.textContent?.includes('Default host'))
+    expect(button('Second OK', opened)).toBeInstanceOf(HTMLButtonElement)
+    expect(() => AlertDialog.confirm('missing', { title: 'No' })).toThrow('id="missing"')
+  })
+
+  test('settles open dialogs as false when the host unmounts', async () => {
+    const [mounted, setMounted] = createSignal(true)
+    render(() => (
+      <Show when={mounted()}>
+        <AlertDialog />
+      </Show>
+    ))
+    const result = AlertDialog.confirm({ title: 'Leaving' })
+    await waitForTitle('Leaving')
+    setMounted(false)
+    await expect(result).resolves.toBe(false)
+    expect(dialogs()).toHaveLength(0)
+  })
+
+  test('warns in development when title and ariaLabel are both absent', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    setup()
+    void AlertDialog.info({})
+    await waitFor(() => {
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('accessible name'))
+    })
+    warn.mockRestore()
   })
 })

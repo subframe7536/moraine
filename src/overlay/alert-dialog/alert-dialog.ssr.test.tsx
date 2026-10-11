@@ -1,4 +1,3 @@
-import { waitFor } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
@@ -6,7 +5,7 @@ import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 import { AlertDialogFixture } from './alert-dialog.ssr.fixture'
 
 describe('AlertDialog SSR', () => {
-  test('hydrates the host and mounts the portaled alert dialog', async () => {
+  test('hydrates an empty host', () => {
     const html = renderSsrFixture(
       '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
       'renderAlertDialogFixture',
@@ -20,15 +19,15 @@ describe('AlertDialog SSR', () => {
     )
 
     expect(container.innerHTML).toBe('')
-    await waitFor(() => {
-      expect(document.body.querySelector('[role="alertdialog"]')?.textContent).toContain(
-        'Server title',
-      )
-    })
-    const content = document.body.querySelector('[role="alertdialog"]')
-    expect(content?.textContent).toContain('Server title')
-    expect(content?.textContent).toContain('Server description')
-    expect(document.body.querySelector('[data-slot="dialog-body"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
+    expect(document.body.querySelector('[role="alertdialog"]')).toBeNull()
+  })
+
+  test('settles server calls as false without a host', () => {
+    expect(
+      renderSsrFixture(
+        '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
+        'renderServerAlertCallFixture',
+      ),
+    ).toBe('false:false')
   })
 })

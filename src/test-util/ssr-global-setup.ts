@@ -42,7 +42,7 @@ export async function renderFixtures(
           throw new TypeError(`SSR fixture export is not callable: ${modulePath}#${exportName}`)
         }
 
-        const value = (candidate as SsrFixture)()
+        const value = await (candidate as SsrFixture)()
         if (typeof value !== 'string') {
           throw new TypeError(
             `SSR fixture export must return a string: ${modulePath}#${exportName}`,
