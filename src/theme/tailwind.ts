@@ -137,6 +137,7 @@ export const moraineTailwind = plugin(
           'shadow-start',
           'pressed',
           'submitting',
+          'swipe-out',
           'swiping',
           'tags',
           'text',

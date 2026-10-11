@@ -3,13 +3,17 @@ import type { JSX } from 'solid-js'
 import type { BaseProps } from '../../shared/types'
 import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { ToasterStyleSlot, ToasterStyleVariant } from './toaster.style-types'
+import type { ToastStore } from './toast-store'
+import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
 
-export namespace ToasterT {
+export const DEFAULT_TOAST_DURATION = 4000
+export const DEFAULT_TOAST_GAP = 14
+
+export namespace ToastT {
   export type Kind = 'single'
 
-  export type Slot<T = unknown> = ToasterStyleSlot<T>
-  export type Variant = NonNullable<ToasterStyleVariant['variant']>
+  export type Slot<T = unknown> = ToastStyleSlot<T>
+  export type Variant = NonNullable<ToastStyleVariant['variant']>
   export type Placement = 'top' | 'bottom'
 
   export type Classes = Slot<SlotClassValue>
@@ -73,8 +77,8 @@ export namespace ToasterT {
     style?: SlotStyleValue
     /** Custom arbitrary JSX renderer. */
     jsx?: JSX.Element | ((id: string | number) => JSX.Element)
-    /** Target toaster ID for scoped toast instances. */
-    toasterId?: string
+    /** Target Toast host `id` for scoped instances. */
+    toastId?: string
     /** ARIA role for this toast. Defaults to 'alert' for error variant, 'status' otherwise. */
     role?: 'status' | 'alert'
     /** Whether the toast is currently marked for dismissal. */
@@ -110,18 +114,18 @@ export namespace ToasterT {
     /** Message shown when the promise rejects. */
     error?: JSX.Element | ((error: unknown) => JSX.Element)
     /** Secondary description rendered during or after resolution. */
-    description?: JSX.Element | ((data: any) => JSX.Element)
+    description?: JSX.Element | ((data: unknown) => JSX.Element)
     /** Optional callback executed after promise settlement. */
     finally?: () => void | Promise<void>
   }
 
-  /** Result returned from toast.promise, exposing unwrap helper. */
+  /** Result returned from Toast.promise, exposing unwrap helper. */
   export type PromiseReturn<T = unknown> = (string | number) & {
     /** Unwrap the underlying promise result. */
     unwrap: () => Promise<T>
   }
 
-  /** Base props for the Toaster container component. */
+  /** Base props for the Toast host component. */
   export interface Base {
     /**
      * Viewport placement on the screen.
@@ -167,6 +171,7 @@ export namespace ToasterT {
 
     /**
      * Keyboard shortcuts to focus the notification region.
+     * All listed keys must be pressed together.
      * @default ['F6']
      */
     hotkey?: string[]
@@ -191,9 +196,14 @@ export namespace ToasterT {
     invert?: boolean
 
     /**
-     * Match toasts targeting a specific toaster identifier.
+     * Match toasts targeting a specific Toast host identifier.
      */
     id?: string
+
+    /**
+     * Isolated store rendered by this host. Defaults to the shared `Toast.*` store.
+     */
+    store?: ToastStore
 
     /**
      * Gap between toasts in pixels when expanded.
@@ -218,9 +228,9 @@ export namespace ToasterT {
     styles?: Styles
   }
 
-  /** Props for the Toaster component. */
+  /** Props for the Toast host component. */
   export type Props = BaseProps<'section', Base, never, Classes, Styles, 'section'>
 }
 
-/** Props for the Toaster component. */
-export type ToasterProps = ToasterT.Props
+/** Props for the Toast host component. */
+export type ToastProps = ToastT.Props

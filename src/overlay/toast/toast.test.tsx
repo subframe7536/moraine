@@ -1,0 +1,812 @@
+import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { finishExitMotion } from '../../test-util/overlay-test'
+
+import { createToastStore } from './toast-store'
+
+import { Toast } from './index'
+
+describe('Toast', () => {
+  beforeEach(() => {
+    Toast.clear()
+    Toast.preventDuplicate = false
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+    Toast.clear()
+  })
+
+  it('renders a toast with default props', async () => {
+    render(() => <Toast />)
+
+    Toast.show('My Toast Notification')
+
+    expect(await screen.findByText('My Toast Notification')).not.toBeNull()
+    const toastItem = document.querySelector('[data-slot="toast"]')
+    expect(toastItem).not.toBeNull()
+    expect(toastItem?.hasAttribute('data-front')).toBe(true)
+  })
+
+  it('renders JSX messages instead of treating DOM nodes as options', async () => {
+    render(() => <Toast />)
+
+    Toast.show(<strong data-testid="jsx-message">JSX toast body</strong>)
+
+    const message = await screen.findByTestId('jsx-message')
+    expect(message.textContent).toBe('JSX toast body')
+    expect(message.closest('[data-slot="toast"]')).not.toBeNull()
+  })
+
+  it('renders toast variant helpers (success, error, warning, info, loading)', async () => {
+    render(() => <Toast />)
+
+    Toast.success('Success message')
+    Toast.error('Error message')
+    Toast.warning('Warning message')
+    Toast.info('Info message')
+    Toast.loading('Loading message')
+
+    expect(await screen.findByText('Success message')).not.toBeNull()
+    expect(await screen.findByText('Error message')).not.toBeNull()
+    expect(await screen.findByText('Warning message')).not.toBeNull()
+    expect(await screen.findByText('Info message')).not.toBeNull()
+    expect(await screen.findByText('Loading message')).not.toBeNull()
+
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(5)
+  })
+
+  it('renders action button and triggers callback on click', async () => {
+    const handleAction = vi.fn()
+    render(() => <Toast />)
+
+    Toast.show('Action Needed', {
+      action: {
+        label: 'Undo Action',
+        onClick: handleAction,
+      },
+    })
+
+    const actionButton = await screen.findByRole('button', { name: 'Undo Action' })
+    expect(actionButton).not.toBeNull()
+
+    fireEvent.click(actionButton)
+    expect(handleAction).toHaveBeenCalledTimes(1)
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Action Needed')).toBeNull()
+    })
+  })
+
+  it('renders cancel button and triggers callback on click', async () => {
+    const handleCancel = vi.fn()
+    render(() => <Toast />)
+
+    Toast.show('Discard changes?', {
+      cancel: {
+        label: 'Cancel',
+        onClick: handleCancel,
+      },
+    })
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' })
+    expect(cancelButton).not.toBeNull()
+
+    fireEvent.click(cancelButton)
+    expect(handleCancel).toHaveBeenCalledTimes(1)
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Discard changes?')).toBeNull()
+    })
+  })
+
+  it('renders close button and dismisses on click', async () => {
+    render(() => <Toast closeButton closeButtonAriaLabel="Dismiss notification" />)
+
+    Toast.show('Closable item')
+
+    const closeBtn = await screen.findByRole('button', { name: 'Dismiss notification' })
+    expect(closeBtn).not.toBeNull()
+
+    fireEvent.click(closeBtn)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Closable item')).toBeNull()
+    })
+  })
+
+  it('uses item-level closeButtonAriaLabel over the host default', async () => {
+    render(() => <Toast closeButton closeButtonAriaLabel="Host close" />)
+
+    Toast.show('Item label', { closeButton: true, closeButtonAriaLabel: 'Item close' })
+
+    expect(await screen.findByRole('button', { name: 'Item close' })).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'Host close' })).toBeNull()
+  })
+
+  it('auto-dismisses after duration', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={2000} />)
+      await Promise.resolve()
+
+      Toast.show('Auto fading message')
+      expect(screen.getByText('Auto fading message')).not.toBeNull()
+
+      await vi.advanceTimersByTimeAsync(2100)
+      await finishExitMotion()
+
+      expect(screen.queryByText('Auto fading message')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('auto-dismisses when expand is set', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={2000} expand />)
+      await Promise.resolve()
+
+      Toast.show('Expanded auto dismiss')
+      expect(screen.getByText('Expanded auto dismiss')).not.toBeNull()
+
+      await vi.advanceTimersByTimeAsync(2100)
+      await finishExitMotion()
+
+      expect(screen.queryByText('Expanded auto dismiss')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('pauses timer on hover and resumes on mouse leave', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={3000} />)
+      await Promise.resolve()
+
+      Toast.show('Hover test toast')
+      expect(screen.getByText('Hover test toast')).not.toBeNull()
+
+      const list = screen.getByRole('list')
+
+      await vi.advanceTimersByTimeAsync(1500)
+      expect(screen.queryByText('Hover test toast')).not.toBeNull()
+
+      fireEvent.mouseEnter(list)
+
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(screen.queryByText('Hover test toast')).not.toBeNull()
+
+      fireEvent.mouseLeave(list)
+
+      await vi.advanceTimersByTimeAsync(1600)
+      await finishExitMotion()
+      expect(screen.queryByText('Hover test toast')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('pauses timer on window blur and document hidden', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={2000} />)
+      await Promise.resolve()
+
+      Toast.show('Blur pause toast')
+      expect(screen.getByText('Blur pause toast')).not.toBeNull()
+
+      await vi.advanceTimersByTimeAsync(800)
+      fireEvent.blur(window)
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(screen.queryByText('Blur pause toast')).not.toBeNull()
+
+      fireEvent.focus(window)
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true })
+      fireEvent(document, new Event('visibilitychange'))
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(screen.queryByText('Blur pause toast')).not.toBeNull()
+
+      Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+      fireEvent(document, new Event('visibilitychange'))
+      await vi.advanceTimersByTimeAsync(1300)
+      await finishExitMotion()
+      expect(screen.queryByText('Blur pause toast')).toBeNull()
+    } finally {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+      vi.useRealTimers()
+    }
+  })
+
+  it('resets the timer when updating an existing id', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={2000} />)
+      await Promise.resolve()
+
+      Toast.show('Original', { id: 'same' })
+      await vi.advanceTimersByTimeAsync(1500)
+      Toast.show('Updated', { id: 'same' })
+      await vi.advanceTimersByTimeAsync(1500)
+      expect(screen.queryByText('Updated')).not.toBeNull()
+
+      await vi.advanceTimersByTimeAsync(600)
+      await finishExitMotion()
+      expect(screen.queryByText('Updated')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('supports custom JSX toasts via Toast.custom', async () => {
+    render(() => <Toast />)
+
+    Toast.custom((id) => (
+      <div data-testid="custom-toast">
+        <span>Custom JSX Content {id}</span>
+        <button type="button" onClick={() => Toast.dismiss(id)}>
+          Close Custom
+        </button>
+      </div>
+    ))
+
+    expect(await screen.findByTestId('custom-toast')).not.toBeNull()
+    expect(screen.getByText(/Custom JSX Content/)).not.toBeNull()
+
+    const closeBtn = screen.getByRole('button', { name: 'Close Custom' })
+    fireEvent.click(closeBtn)
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByTestId('custom-toast')).toBeNull()
+    })
+  })
+
+  it('handles promise resolution transitions', async () => {
+    render(() => <Toast />)
+
+    let resolvePromise: (val: string) => void
+    const samplePromise = new Promise<string>((res) => {
+      resolvePromise = res
+    })
+
+    const promiseReturn = Toast.promise(samplePromise, {
+      loading: 'Saving profile...',
+      success: (data) => `Profile saved: ${data}`,
+      error: 'Failed to save',
+    })
+
+    expect(await screen.findByText('Saving profile...')).not.toBeNull()
+
+    resolvePromise!('Alice')
+
+    expect(await screen.findByText('Profile saved: Alice')).not.toBeNull()
+    expect(await promiseReturn.unwrap()).toBe('Alice')
+  })
+
+  it('handles promise rejection transitions', async () => {
+    render(() => <Toast />)
+
+    let rejectPromise: (err: Error) => void
+    const samplePromise = new Promise<string>((_res, rej) => {
+      rejectPromise = rej
+    })
+
+    const promiseReturn = Toast.promise(samplePromise, {
+      loading: 'Uploading file...',
+      success: 'File uploaded',
+      error: (err) => `Upload failed: ${(err as Error).message}`,
+    })
+
+    expect(await screen.findByText('Uploading file...')).not.toBeNull()
+
+    rejectPromise!(new Error('Network error'))
+
+    expect(await screen.findByText('Upload failed: Network error')).not.toBeNull()
+    await expect(promiseReturn.unwrap()).rejects.toThrow('Network error')
+  })
+
+  it('dismisses the loading toast when a promise settles without a matching handler', async () => {
+    render(() => <Toast />)
+
+    let resolvePromise: (val: string) => void
+    const samplePromise = new Promise<string>((res) => {
+      resolvePromise = res
+    })
+
+    Toast.promise(samplePromise, {
+      loading: 'Only error handler',
+      error: 'Failed',
+    })
+
+    expect(await screen.findByText('Only error handler')).not.toBeNull()
+    resolvePromise!('ok')
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Only error handler')).toBeNull()
+    })
+  })
+
+  it('does not apply the final duration to the loading toast', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast />)
+      await Promise.resolve()
+
+      const pending = new Promise<string>(() => {})
+      Toast.promise(pending, {
+        loading: 'Still loading',
+        success: 'Done',
+        duration: 50,
+      })
+
+      expect(screen.getByText('Still loading')).not.toBeNull()
+      await vi.advanceTimersByTimeAsync(400)
+      expect(screen.queryByText('Still loading')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('defaults preventDuplicate to false', async () => {
+    render(() => <Toast />)
+
+    expect(Toast.preventDuplicate).toBe(false)
+    const id1 = Toast.show('Repeated default message')
+    const id2 = Toast.show('Repeated default message')
+
+    expect(id1).not.toBe(id2)
+    await screen.findAllByText('Repeated default message')
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(2)
+  })
+
+  it('supports placement top and bottom', async () => {
+    render(() => <Toast placement="top" align="center" />)
+    Toast.show('Top notification')
+
+    await screen.findByText('Top notification')
+    const list = screen.getByRole('list')
+    expect(list.className).toContain('top-4')
+  })
+
+  it('does not leak scoped host preventDuplicate to the default host', async () => {
+    render(() => (
+      <>
+        <Toast />
+        <Toast id="scoped-pd" preventDuplicate />
+      </>
+    ))
+
+    expect(Toast.preventDuplicate).toBe(false)
+    const d1 = Toast.show('Default message')
+    const d2 = Toast.show('Default message')
+    expect(d1).not.toBe(d2)
+
+    const s1 = Toast.show('Scoped message', { toastId: 'scoped-pd' })
+    const s2 = Toast.show('Scoped message', { toastId: 'scoped-pd' })
+    expect(s1).toBe(s2)
+  })
+
+  it('prevents duplicates and bumps bumpKey when preventDuplicate is set', async () => {
+    Toast.preventDuplicate = true
+    render(() => <Toast />)
+
+    const id1 = Toast.show('Duplicate message')
+    const id2 = Toast.show('Duplicate message')
+
+    expect(id1).toBe(id2)
+
+    await screen.findByText('Duplicate message')
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(1)
+  })
+
+  it('prevents duplicates only against the front toast in the stack', async () => {
+    Toast.preventDuplicate = true
+    render(() => <Toast />)
+
+    const idA1 = Toast.show('Toast A')
+    const idB = Toast.show('Toast B')
+
+    const idA2 = Toast.show('Toast A')
+    expect(idA2).not.toBe(idA1)
+    expect(idA2).not.toBe(idB)
+
+    await screen.findByText('Toast B')
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(3)
+
+    const idA3 = Toast.show('Toast A')
+    expect(idA3).toBe(idA2)
+  })
+
+  it('allows customizing preventDuplicate when calling Toast.show or similar functions', async () => {
+    Toast.preventDuplicate = true
+    render(() => <Toast />)
+
+    const id1 = Toast.show('Allow duplicate')
+    const id2 = Toast.show('Allow duplicate', { preventDuplicate: false })
+    expect(id1).not.toBe(id2)
+
+    Toast.preventDuplicate = false
+    const s1 = Toast.success('Saved', { preventDuplicate: true })
+    const s2 = Toast.success('Saved', { preventDuplicate: true })
+    expect(s1).toBe(s2)
+
+    const e1 = Toast.error('Error: network timeout', {
+      preventDuplicate: (candidate, front) =>
+        typeof candidate.title === 'string' &&
+        candidate.title.startsWith('Error:') &&
+        typeof front.title === 'string' &&
+        front.title.startsWith('Error:'),
+    })
+    const e2 = Toast.error('Error: server disconnect', {
+      preventDuplicate: (candidate, front) =>
+        typeof candidate.title === 'string' &&
+        candidate.title.startsWith('Error:') &&
+        typeof front.title === 'string' &&
+        front.title.startsWith('Error:'),
+    })
+    expect(e1).toBe(e2)
+
+    const c1 = Toast.custom((id) => <div>Custom {id}</div>, {
+      id: 'custom-single',
+      preventDuplicate: true,
+    })
+    const c2 = Toast.custom((id) => <div>Custom {id}</div>, {
+      id: 'custom-single',
+      preventDuplicate: true,
+    })
+    expect(c1).toBe(c2)
+  })
+
+  it('applies inert and data-limited to toasts past visibleToasts limit', async () => {
+    render(() => <Toast visibleToasts={2} />)
+
+    Toast.show('Toast 1')
+    Toast.show('Toast 2')
+    Toast.show('Toast 3')
+
+    await screen.findByText('Toast 1')
+    await screen.findByText('Toast 2')
+    await screen.findByText('Toast 3')
+
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    expect(toasts.length).toBe(3)
+
+    expect(toasts[2]?.hasAttribute('data-limited')).toBe(true)
+    expect(toasts[0]?.hasAttribute('data-limited')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-limited')).toBe(false)
+  })
+
+  it('filters by toastId for scoped host instances', async () => {
+    render(() => (
+      <>
+        <Toast />
+        <Toast id="scoped-host" />
+      </>
+    ))
+
+    Toast.show('Global notification')
+    Toast.show('Scoped notification', { toastId: 'scoped-host' })
+
+    await screen.findByText('Global notification')
+    await screen.findByText('Scoped notification')
+
+    const lists = document.querySelectorAll('ul')
+    expect(lists.length).toBe(2)
+    expect(lists[0]?.textContent).toContain('Global notification')
+    expect(lists[0]?.textContent).not.toContain('Scoped notification')
+    expect(lists[1]?.textContent).toContain('Scoped notification')
+    expect(lists[1]?.textContent).not.toContain('Global notification')
+  })
+
+  it('supports F6 hotkey to expand and focus notifications region', async () => {
+    render(() => <Toast hotkey={['F6']} />)
+
+    Toast.show('Accessible notification')
+
+    const region = await screen.findByRole('region', { name: /Notifications/ })
+    expect(region).not.toBeNull()
+    expect(region.getAttribute('aria-live')).toBe('polite')
+
+    fireEvent.keyDown(window, { key: 'F6' })
+
+    const toastItem = region.querySelector<HTMLElement>('[data-slot="toast"]')
+    expect(document.activeElement).toBe(toastItem)
+    expect(toastItem?.getAttribute('data-expanded')).toBe('')
+  })
+
+  it('does not preventDefault F6 when this host has no toasts', () => {
+    render(() => <Toast hotkey={['F6']} />)
+
+    const event = new KeyboardEvent('keydown', { key: 'F6', bubbles: true, cancelable: true })
+    window.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(false)
+  })
+
+  it('requires every key in a hotkey combo', async () => {
+    render(() => <Toast hotkey={['altKey', 'KeyT']} />)
+
+    Toast.show('Combo toast')
+    await screen.findByText('Combo toast')
+
+    const plain = new KeyboardEvent('keydown', {
+      key: 't',
+      code: 'KeyT',
+      bubbles: true,
+      cancelable: true,
+    })
+    window.dispatchEvent(plain)
+    expect(plain.defaultPrevented).toBe(false)
+
+    const combo = new KeyboardEvent('keydown', {
+      key: 't',
+      code: 'KeyT',
+      altKey: true,
+      bubbles: true,
+      cancelable: true,
+    })
+    window.dispatchEvent(combo)
+    expect(combo.defaultPrevented).toBe(true)
+    expect(document.activeElement?.getAttribute('data-slot')).toBe('toast')
+  })
+
+  it('restores focus after Escape following F6', async () => {
+    render(() => (
+      <>
+        <button type="button">Prior focus</button>
+        <Toast />
+      </>
+    ))
+
+    const prior = screen.getByRole('button', { name: 'Prior focus' })
+    prior.focus()
+    Toast.show('Focus restore')
+    await screen.findByText('Focus restore')
+
+    fireEvent.keyDown(window, { key: 'F6' })
+    expect(document.activeElement?.getAttribute('data-slot')).toBe('toast')
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(document.activeElement).toBe(prior)
+  })
+
+  it('renders progress bar when showProgress is enabled', async () => {
+    render(() => <Toast showProgress />)
+
+    Toast.show('With Progress Bar')
+
+    await screen.findByText('With Progress Bar')
+    const progress = document.querySelector('[role="progressbar"]')
+    expect(progress).not.toBeNull()
+  })
+
+  it('dismisses via Toast.dismiss and clears via Toast.clear', async () => {
+    render(() => <Toast />)
+
+    const id = Toast.show('To dismiss')
+    expect(await screen.findByText('To dismiss')).not.toBeNull()
+
+    Toast.dismiss(id)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('To dismiss')).toBeNull()
+    })
+
+    Toast.show('To clear 1')
+    Toast.show('To clear 2')
+    expect(await screen.findByText('To clear 1')).not.toBeNull()
+    expect(await screen.findByText('To clear 2')).not.toBeNull()
+    expect(Toast.getHistory().length).toBeGreaterThan(0)
+
+    Toast.clear()
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('To clear 1')).toBeNull()
+      expect(screen.queryByText('To clear 2')).toBeNull()
+    })
+    expect(Toast.getHistory()).toEqual([])
+  })
+
+  it('sets data-front and data-behind attributes for stacked toasts', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Toast 1')
+    Toast.show('Toast 2')
+
+    await screen.findByText('Toast 1')
+    await screen.findByText('Toast 2')
+
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    expect(toasts.length).toBe(2)
+    expect(toasts[0]?.hasAttribute('data-front')).toBe(true)
+    expect(toasts[0]?.hasAttribute('data-behind')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-front')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-behind')).toBe(true)
+  })
+
+  it('expands toasts on mouse enter and collapses on mouse leave', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Expand 1')
+    Toast.show('Expand 2')
+
+    await screen.findByText('Expand 1')
+    await screen.findByText('Expand 2')
+
+    const list = screen.getByRole('list')
+    expect(list.tagName).toBe('UL')
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+
+    expect(list.hasAttribute('data-expanded')).toBe(false)
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
+
+    fireEvent.mouseEnter(list)
+    expect(list.hasAttribute('data-expanded')).toBe(true)
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(true)
+    expect(toasts[1]?.hasAttribute('data-expanded')).toBe(true)
+
+    fireEvent.mouseLeave(list)
+    expect(list.hasAttribute('data-expanded')).toBe(false)
+    expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
+    expect(toasts[1]?.hasAttribute('data-expanded')).toBe(false)
+  })
+
+  it('dismisses toast on swipe gesture past threshold', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Swipe me away')
+    const toastItem = await screen.findByText('Swipe me away')
+    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+    expect(itemEl).not.toBeNull()
+
+    fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
+    fireEvent.pointerMove(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+    fireEvent.pointerUp(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Swipe me away')).toBeNull()
+    })
+  })
+
+  it('does not dismiss on a small-distance swipe even with high velocity', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Jitter click')
+    const toastItem = await screen.findByText('Jitter click')
+    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+
+    fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
+    fireEvent.pointerMove(itemEl, { clientX: 203, clientY: 200, pointerId: 1 })
+    fireEvent.pointerUp(itemEl, { clientX: 203, clientY: 200, pointerId: 1 })
+
+    expect(screen.getByText('Jitter click')).not.toBeNull()
+  })
+
+  it('does not dismiss when swiping in the dampened direction', async () => {
+    render(() => <Toast align="end" />)
+
+    Toast.show('Stay put')
+    const toastItem = await screen.findByText('Stay put')
+    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+
+    fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
+    fireEvent.pointerMove(itemEl, { clientX: 120, clientY: 200, pointerId: 1 })
+    fireEvent.pointerUp(itemEl, { clientX: 120, clientY: 200, pointerId: 1 })
+
+    expect(screen.getByText('Stay put')).not.toBeNull()
+  })
+
+  it('preserves existing toast DOM node and updates stacking state when a new toast is created', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Toast A')
+    const itemA = await screen.findByText('Toast A')
+    const toastNodeA = itemA.closest('[data-slot="toast"]') as HTMLElement
+    expect(toastNodeA).not.toBeNull()
+    expect(toastNodeA.hasAttribute('data-front')).toBe(true)
+    expect(toastNodeA.hasAttribute('data-behind')).toBe(false)
+
+    Toast.show('Toast B')
+    await screen.findByText('Toast B')
+
+    const itemAAfter = screen.getByText('Toast A')
+    const toastNodeAAfter = itemAAfter.closest('[data-slot="toast"]') as HTMLElement
+
+    expect(toastNodeAAfter).toBe(toastNodeA)
+    expect(toastNodeAAfter.hasAttribute('data-front')).toBe(false)
+    expect(toastNodeAAfter.hasAttribute('data-behind')).toBe(true)
+  })
+
+  it('renders data-slot attributes on all toast parts', async () => {
+    render(() => <Toast closeButton showProgress />)
+
+    Toast.show({
+      title: 'Slot Test Title',
+      description: 'Slot Test Description',
+      variant: 'success',
+      action: { label: 'Action Btn', onClick: vi.fn() },
+      cancel: { label: 'Cancel Btn', onClick: vi.fn() },
+    })
+
+    const root = await screen.findByRole('status')
+    expect(root.getAttribute('data-slot')).toBe('toast')
+    expect(root.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-content"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-title"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-description"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-action"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-close"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
+  })
+
+  it('warns on duplicate host ids', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(() => (
+      <>
+        <Toast id="dup" />
+        <Toast id="dup" />
+      </>
+    ))
+    expect(warn).toHaveBeenCalledWith(
+      '[moraine] Duplicate <Toast id="dup" />. Each Toast host id must be unique.',
+    )
+  })
+
+  it('renders an isolated store independently from Toast.*', async () => {
+    const store = createToastStore()
+    render(() => (
+      <>
+        <Toast />
+        <Toast id="isolated" store={store} />
+      </>
+    ))
+
+    store.show('Isolated only', { toastId: 'isolated' })
+    Toast.show('Default only')
+
+    await screen.findByText('Isolated only')
+    await screen.findByText('Default only')
+
+    const isolatedRegion = document.querySelectorAll('[data-slot="toast-region"]')[1]?.textContent
+    expect(isolatedRegion).toContain('Isolated only')
+    expect(isolatedRegion).not.toContain('Default only')
+  })
+
+  it('cleans up rendered toasts when the host unmounts', async () => {
+    const result = render(() => <Toast />)
+    Toast.show('Unmount me')
+    expect(await screen.findByText('Unmount me')).not.toBeNull()
+
+    result.unmount()
+    expect(screen.queryByText('Unmount me')).toBeNull()
+    expect(document.querySelector('[data-slot="toast-region"]')).toBeNull()
+  })
+
+  it('applies host invert and classes to toast items', async () => {
+    render(() => <Toast invert classes={{ title: 'host-title-class' }} />)
+    Toast.show('Inverted')
+    const title = await screen.findByText('Inverted')
+    expect(title.className).toContain('host-title-class')
+  })
+
+  it('lets user style.width override the default list width', async () => {
+    render(() => <Toast style={{ width: '200px' }} />)
+    Toast.show('Width override')
+    await screen.findByText('Width override')
+    const list = screen.getByRole('list')
+    expect(list.style.width).toBe('200px')
+  })
+})

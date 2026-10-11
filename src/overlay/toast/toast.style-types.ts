@@ -1,6 +1,6 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 
-export interface ToasterStyleSlot<T = unknown> {
+export interface ToastStyleSlot<T = unknown> {
   /** Outer container for an individual toast notification. */
   root?: T
 
@@ -29,7 +29,7 @@ export interface ToasterStyleSlot<T = unknown> {
   progress?: T
 }
 
-export interface ToasterStyleVariant {
+export interface ToastStyleVariant {
   /**
    * Visual status variant.
    * @default 'default'
@@ -43,4 +43,4 @@ export interface ToasterStyleVariant {
   invert?: boolean
 }
 
-export type ToasterStyleConfig = ComponentStyleConfig<ToasterStyleSlot, ToasterStyleVariant>
+export type ToastStyleConfig = ComponentStyleConfig<ToastStyleSlot, ToastStyleVariant>

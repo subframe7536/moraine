@@ -2,14 +2,14 @@
 title: Toast
 description: Show temporary status messages through stacked, accessible notifications.
 api:
-  path: src/overlay/toast/toaster
+  path: src/overlay/toast/toast
 sidebar:
   order: 8
 search:
-  tags: [notification, message, feedback, promise, toast, alert, toaster]
+  tags: [notification, message, feedback, promise, toast, alert]
 ---
 
-import { Button, Toaster, toast } from '@src'
+import { Button, Toast } from '@src'
 
 <Playground
   controls={[
@@ -72,16 +72,16 @@ import { Button, Toaster, toast } from '@src'
       }
       switch (props.tone) {
         case 'warning':
-          toast.warning(message, options)
+          Toast.warning(message, options)
           break
         case 'error':
-          toast.error(message, options)
+          Toast.error(message, options)
           break
         case 'info':
-          toast.info(message, options)
+          Toast.info(message, options)
           break
         default:
-          toast.success(message, options)
+          Toast.success(message, options)
       }
     }
 
@@ -119,17 +119,17 @@ import { Button, Toaster, toast } from '@src'
 
 ## Usage
 
-Mount `<Toaster />` once at your application root or inside a layout, then trigger toasts anywhere
-in your app using the imperative `toast` manager.
+Mount `<Toast />` once at your application root or inside a layout, then trigger toasts anywhere
+in your app using static methods on `Toast`.
 
 ```tsx
-import { Button, Toaster, toast } from 'moraine'
+import { Button, Toast } from 'moraine'
 
 export default function App() {
   return (
     <>
-      <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
-      <Toaster />
+      <Button onClick={() => Toast.success('Changes saved!')}>Save</Button>
+      <Toast />
     </>
   )
 }
@@ -137,14 +137,14 @@ export default function App() {
 
 ### Semantic methods
 
-Call dedicated tone methods for direct feedback, or use the default `toast` function:
+Call dedicated tone methods for direct feedback, or use `Toast.show` for the default tone:
 
 ```tsx
-toast('Default message')
-toast.success('File uploaded successfully')
-toast.error('Network request failed')
-toast.warning('Storage is almost full')
-toast.info('New release available')
+Toast.show('Default message')
+Toast.success('File uploaded successfully')
+Toast.error('Network request failed')
+Toast.warning('Storage is almost full')
+Toast.info('New release available')
 ```
 
 ### Action and cancel buttons
@@ -152,7 +152,7 @@ toast.info('New release available')
 Pass `action` or `cancel` configurations to prompt for immediate user interaction:
 
 ```tsx
-toast.add('Message archived', {
+Toast.show('Message archived', {
   action: {
     label: 'Undo',
     onClick: () => restoreMessage(),
@@ -162,10 +162,10 @@ toast.add('Message archived', {
 
 ### Promises
 
-Bind asynchronous tasks to pending, success, and error outcomes with `toast.promise`:
+Bind asynchronous tasks to pending, success, and error outcomes with `Toast.promise`:
 
 ```tsx
-toast.promise(saveSettings(), {
+Toast.promise(saveSettings(), {
   loading: 'Saving profile...',
   success: 'Profile updated successfully',
   error: (err) => `Failed to save: ${String(err)}`,
@@ -174,13 +174,13 @@ toast.promise(saveSettings(), {
 
 ### Custom rendering
 
-Render arbitrary Solid JSX using `toast.custom`:
+Render arbitrary Solid JSX using `Toast.custom`:
 
 ```tsx
-toast.custom((id) => (
+Toast.custom((id) => (
   <div class="p-4 bg-background border rounded-lg shadow-overlay flex items-center gap-3">
     <span>Custom banner notification</span>
-    <Button size="sm" variant="ghost" onClick={() => toast.dismiss(id)}>
+    <Button size="sm" variant="ghost" onClick={() => Toast.dismiss(id)}>
       Dismiss
     </Button>
   </div>
@@ -189,21 +189,23 @@ toast.custom((id) => (
 
 ### Accessibility and navigation
 
-The toast container is rendered as an accessible notification region (`role="region"`). Users can
-press <kbd>F6</kbd> anywhere on the page to focus the notification list, navigate with <kbd>Tab</kbd>,
-and dismiss individual toasts with <kbd>Escape</kbd> or swipe gestures.
+The toast container is rendered as an accessible notification region (`role="region"`) with a
+persistent polite live region. Users can press <kbd>F6</kbd> anywhere on the page to focus the
+notification list, navigate with <kbd>Tab</kbd>, and dismiss individual toasts with
+
+<kbd>Escape</kbd> or swipe gestures.
 
 ## Examples
 
-### Mount a themed toaster
+### Mount a themed host
 
-Mount a default host and a second `custom` host at bottom-left, then trigger a success toast.
+Mount a default host and a second `setup-custom` host at bottom-left, then trigger a success toast.
 
 <Preview path="./setup-usage" />
 
 ### Report a save, a settings failure, and low storage
 
-Call `toast.success`, `toast.error`, and `toast.warning` for distinct outcomes.
+Call `Toast.success`, `Toast.error`, and `Toast.warning` for distinct outcomes.
 
 <Preview path="./calls-usage" />
 
@@ -215,12 +217,12 @@ Show default, success, warning, and error toasts, then transition a loading toas
 
 ### Prevent duplicate toasts
 
-Enable `preventDuplicate` on a `<Toaster />` container or pass it inline to individual calls like `toast.info` to avoid stacking repeated notifications.
+Enable `preventDuplicate` on a `<Toast />` host or pass it inline to individual calls like `Toast.info` to avoid stacking repeated notifications.
 
 <Preview path="./prevent-duplicate" />
 
-### Sync with a promise and a second toaster
+### Sync with a promise and a second host
 
-`toast.promise` reports pending, success, and error states. Send info to the scoped toaster, or dismiss all.
+`Toast.promise` reports pending, success, and error states. Send info to the scoped host, or dismiss all.
 
 <Preview path="./promise-scoped-instances" />

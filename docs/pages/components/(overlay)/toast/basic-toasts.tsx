@@ -1,4 +1,4 @@
-import { Button, toast } from '@src'
+import { Button, Toast } from '@src'
 
 export function BasicToasts() {
   const wait = (ms: number) =>
@@ -7,21 +7,21 @@ export function BasicToasts() {
     })
 
   const runLoadingToast = async () => {
-    const id = toast.loading('Uploading files...')
+    const id = Toast.loading('Uploading files...')
     await wait(1200)
-    toast.success('Upload complete', { id })
+    Toast.success('Upload complete', { id })
   }
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Button onClick={() => toast('Default message')}>Default</Button>
-      <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>
+      <Button onClick={() => Toast.show('Default message')}>Default</Button>
+      <Button variant="secondary" onClick={() => Toast.success('Saved successfully')}>
         Success
       </Button>
-      <Button variant="outline" onClick={() => toast.warning('Careful with this action')}>
+      <Button variant="outline" onClick={() => Toast.warning('Careful with this action')}>
         Warning
       </Button>
-      <Button variant="destructive" onClick={() => toast.error('Something went wrong')}>
+      <Button variant="destructive" onClick={() => Toast.error('Something went wrong')}>
         Error
       </Button>
       <Button variant="ghost" onClick={runLoadingToast}>

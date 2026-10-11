@@ -1,4 +1,4 @@
-import { Button, Toaster, toast } from '@src'
+import { Button, Toast } from '@src'
 import { createSignal } from 'solid-js'
 
 export function PromiseScopedInstances() {
@@ -13,7 +13,7 @@ export function PromiseScopedInstances() {
     setPromiseRuns(nextRun)
     const request = wait(1400).then(() => ({ run: nextRun }))
 
-    toast.promise(request, {
+    Toast.promise(request, {
       loading: `Sync #${nextRun} in progress...`,
       success: (result) => `Sync #${result.run} finished`,
       error: (error) => `Sync failed: ${String(error)}`,
@@ -22,15 +22,15 @@ export function PromiseScopedInstances() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Toaster id="custom" placement="bottom" align="start" />
+      <Toast id="promise-custom" placement="bottom" align="start" />
       <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
       <Button
         variant="outline"
-        onClick={() => toast.info('To bottom-left custom', { toasterId: 'custom' })}
+        onClick={() => Toast.info('To bottom-left custom', { toastId: 'promise-custom' })}
       >
-        Send to custom toaster
+        Send to custom host
       </Button>
-      <Button variant="ghost" onClick={() => toast.dismiss()}>
+      <Button variant="ghost" onClick={() => Toast.dismiss()}>
         Dismiss all
       </Button>
     </div>

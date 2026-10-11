@@ -1,7 +1,12 @@
 import type { JSX } from 'solid-js'
+import { DEV } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
-import type { ToasterT } from './toaster.types'
+import { DEFAULT_TOAST_DURATION } from './toast.types'
+import type { ToastT } from './toast.types'
+
+const HISTORY_LIMIT = 100
+const DEFAULT_HOST_KEY = ''
 
 function isSameToastValue(first: unknown, second: unknown): boolean {
   if (typeof first === 'string' || typeof first === 'number') {
@@ -25,12 +30,12 @@ function isSameAction(first: unknown, second: unknown): boolean {
     'label' in first &&
     'label' in second
   ) {
-    return isSameToastValue((first as any).label, (second as any).label)
+    return isSameToastValue((first as ToastT.Action).label, (second as ToastT.Action).label)
   }
   return false
 }
 
-function isSameToastContent(first: ToasterT.Item, second: Partial<ToasterT.Item>): boolean {
+function isSameToastContent(first: ToastT.Item, second: Partial<ToastT.Item>): boolean {
   if (first.jsx !== undefined || second.jsx !== undefined) {
     return isSameToastValue(first.jsx, second.jsx)
   }
@@ -48,80 +53,155 @@ function isSameToastContent(first: ToasterT.Item, second: Partial<ToasterT.Item>
   return sameTitle && sameDescription && sameVariant && sameAction && sameCancel
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false
+  }
+  if (typeof Node === 'function' && value instanceof Node) {
+    return false
+  }
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+function isToastOptions(value: unknown): value is ToastT.AddOptions {
+  if (!isPlainObject(value)) {
+    return false
+  }
+  // Solid compiled JSX is a plain object whose `t` field is the template function.
+  return typeof value.t !== 'function'
+}
+
 export interface ToastStore {
-  (message: JSX.Element | ToasterT.AddOptions, options?: ToasterT.AddOptions): string | number
-  add: (
-    message: JSX.Element | ToasterT.AddOptions,
-    options?: ToasterT.AddOptions,
-  ) => string | number
-  message: (
-    message: JSX.Element | ToasterT.AddOptions,
-    options?: ToasterT.AddOptions,
-  ) => string | number
-  success: (message: JSX.Element, options?: ToasterT.AddOptions) => string | number
-  error: (message: JSX.Element, options?: ToasterT.AddOptions) => string | number
-  warning: (message: JSX.Element, options?: ToasterT.AddOptions) => string | number
-  info: (message: JSX.Element, options?: ToasterT.AddOptions) => string | number
-  loading: (message: JSX.Element, options?: ToasterT.AddOptions) => string | number
+  show: (message: JSX.Element | ToastT.AddOptions, options?: ToastT.AddOptions) => string | number
+  success: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
+  error: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
+  warning: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
+  info: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
+  loading: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
   promise: <T>(
     promiseValue: Promise<T> | (() => Promise<T>),
-    options: ToasterT.PromiseOptions<T>,
-  ) => ToasterT.PromiseReturn<T>
+    options: ToastT.PromiseOptions<T>,
+  ) => ToastT.PromiseReturn<T>
   custom: (
     render: (id: string | number) => JSX.Element,
-    options?: ToasterT.AddOptions,
+    options?: ToastT.AddOptions,
   ) => string | number
   dismiss: (id?: string | number) => void
   remove: (id?: string | number) => void
   clear: () => void
-  getToasts: () => ToasterT.Item[]
-  getHistory: () => ToasterT.Item[]
-  subscribe: (subscriber: (toast: ToasterT.Item) => void) => () => void
-  readonly toasts: ToasterT.Item[]
-  preventDuplicate: ToasterT.PreventDuplicate
-  setToasterPreventDuplicate?: (
-    toasterId: string | undefined,
-    value: ToasterT.PreventDuplicate | undefined,
+  getToasts: () => ToastT.Item[]
+  getHistory: () => ToastT.Item[]
+  readonly toasts: ToastT.Item[]
+  preventDuplicate: ToastT.PreventDuplicate
+}
+
+/** Host registration surface used by the Toast viewport. */
+export interface ToastHostStore extends ToastStore {
+  setHostPreventDuplicate: (
+    hostId: string | undefined,
+    value: ToastT.PreventDuplicate | undefined,
   ) => void
+  registerHost: (hostId: string | undefined) => void
+  unregisterHost: (hostId: string | undefined) => void
+}
+
+function matchesHostId(item: ToastT.Item, hostId: string | undefined): boolean {
+  if (hostId) {
+    return item.toastId === hostId
+  }
+  return !item.toastId
+}
+
+function splitPromiseOptions<T>(options: ToastT.PromiseOptions<T>): {
+  loading: ToastT.PromiseOptions<T>['loading']
+  success: ToastT.PromiseOptions<T>['success']
+  error: ToastT.PromiseOptions<T>['error']
+  onFinally: ToastT.PromiseOptions<T>['finally']
+  description: ToastT.PromiseOptions<T>['description']
+  duration: number | undefined
+  itemOptions: ToastT.AddOptions
+} {
+  const {
+    loading,
+    success,
+    error,
+    finally: onFinally,
+    description,
+    duration,
+    variant: _variant,
+    ...itemOptions
+  } = options
+  return { loading, success, error, onFinally, description, duration, itemOptions }
 }
 
 /**
  * Creates an isolated reactive toast store instance.
  */
 export function createToastStore(): ToastStore {
-  const [store, setStore] = createStore<ToasterT.Item[]>([])
-  const subscribers: Array<(toast: ToasterT.Item) => void> = []
-  const history: ToasterT.Item[] = []
-  const toasterPreventDuplicates = new Map<string, ToasterT.PreventDuplicate>()
+  const [store, setStore] = createStore<ToastT.Item[]>([])
+  const history: ToastT.Item[] = []
+  const hostPreventDuplicates = new Map<string, ToastT.PreventDuplicate>()
+  const registeredHosts = new Map<string, number>()
   let counter = 1
-  let defaultPreventDuplicate: ToasterT.PreventDuplicate = false
+  let defaultPreventDuplicate: ToastT.PreventDuplicate = false
 
-  const setToasterPreventDuplicate = (
-    toasterId: string | undefined,
-    value: ToasterT.PreventDuplicate | undefined,
+  const hostKey = (hostId: string | undefined): string => hostId ?? DEFAULT_HOST_KEY
+
+  const hasMatchingHost = (item: ToastT.Item): boolean => {
+    return (registeredHosts.get(hostKey(item.toastId)) ?? 0) > 0
+  }
+
+  const setHostPreventDuplicate = (
+    hostId: string | undefined,
+    value: ToastT.PreventDuplicate | undefined,
   ): void => {
-    if (toasterId) {
-      if (value === undefined || value === false) {
-        toasterPreventDuplicates.delete(toasterId)
-      } else {
-        toasterPreventDuplicates.set(toasterId, value)
+    const key = hostKey(hostId)
+    if (value === undefined) {
+      hostPreventDuplicates.delete(key)
+      if (key === DEFAULT_HOST_KEY) {
+        defaultPreventDuplicate = false
       }
-    } else {
-      defaultPreventDuplicate = value ?? false
+      return
+    }
+    if (key === DEFAULT_HOST_KEY) {
+      defaultPreventDuplicate = value
+      return
+    }
+    if (value === false) {
+      hostPreventDuplicates.delete(key)
+      return
+    }
+    hostPreventDuplicates.set(key, value)
+  }
+
+  const registerHost = (hostId: string | undefined): void => {
+    const key = hostKey(hostId)
+    const next = (registeredHosts.get(key) ?? 0) + 1
+    registeredHosts.set(key, next)
+    if (DEV && next > 1) {
+      console.warn(
+        hostId
+          ? `[moraine] Duplicate <Toast id="${hostId}" />. Each Toast host id must be unique.`
+          : '[moraine] Duplicate <Toast /> without id. Mount one default host, or give each instance an id.',
+      )
     }
   }
 
-  const publish = (toastItem: ToasterT.Item): void => {
-    subscribers.forEach((subscriber) => subscriber(toastItem))
+  const unregisterHost = (hostId: string | undefined): void => {
+    const key = hostKey(hostId)
+    const next = (registeredHosts.get(key) ?? 0) - 1
+    if (next <= 0) {
+      registeredHosts.delete(key)
+    } else {
+      registeredHosts.set(key, next)
+    }
   }
 
-  const subscribe = (subscriber: (toastItem: ToasterT.Item) => void) => {
-    subscribers.push(subscriber)
-    return () => {
-      const index = subscribers.indexOf(subscriber)
-      if (index !== -1) {
-        subscribers.splice(index, 1)
-      }
+  const recordHistory = (item: ToastT.Item): void => {
+    history.push({ ...item })
+    if (history.length > HISTORY_LIMIT) {
+      history.splice(0, history.length - HISTORY_LIMIT)
     }
   }
 
@@ -134,25 +214,15 @@ export function createToastStore(): ToastStore {
     return id
   }
 
-  const add = (
-    message: JSX.Element | ToasterT.AddOptions,
-    options?: ToasterT.AddOptions,
+  const show = (
+    message: JSX.Element | ToastT.AddOptions,
+    options?: ToastT.AddOptions,
   ): string | number => {
-    let resolvedOptions: ToasterT.AddOptions = options ?? {}
+    let resolvedOptions: ToastT.AddOptions = options ?? {}
     let resolvedTitle: JSX.Element | (() => JSX.Element) | undefined
 
-    if (
-      typeof message === 'object' &&
-      message !== null &&
-      !('t' in (message as any)) &&
-      ('title' in (message as any) ||
-        'description' in (message as any) ||
-        'variant' in (message as any) ||
-        'id' in (message as any) ||
-        'jsx' in (message as any) ||
-        'preventDuplicate' in (message as any))
-    ) {
-      resolvedOptions = { ...(message as ToasterT.AddOptions), ...options }
+    if (isToastOptions(message)) {
+      resolvedOptions = { ...message, ...options }
       resolvedTitle = resolvedOptions.title
     } else {
       resolvedTitle = (message as JSX.Element | (() => JSX.Element)) ?? resolvedOptions.title
@@ -162,16 +232,16 @@ export function createToastStore(): ToastStore {
     const preventOption =
       resolvedOptions.preventDuplicate !== undefined
         ? resolvedOptions.preventDuplicate
-        : resolvedOptions.toasterId
-          ? (toasterPreventDuplicates.get(resolvedOptions.toasterId) ?? false)
+        : resolvedOptions.toastId
+          ? (hostPreventDuplicates.get(resolvedOptions.toastId) ?? false)
           : defaultPreventDuplicate
 
     if (preventOption && resolvedOptions.id === undefined) {
-      const candidate: Partial<ToasterT.Item> = {
+      const candidate: Partial<ToastT.Item> = {
         title: resolvedTitle,
         description: resolvedOptions.description,
         variant: resolvedOptions.variant ?? 'default',
-        toasterId: resolvedOptions.toasterId,
+        toastId: resolvedOptions.toastId,
         placement: resolvedOptions.placement,
         align: resolvedOptions.align,
         action: resolvedOptions.action,
@@ -182,12 +252,11 @@ export function createToastStore(): ToastStore {
       const targetPlacement = candidate.placement ?? 'bottom'
       const targetAlign = candidate.align ?? 'end'
 
-      // Find the frontmost (latest) active toast in this placement/align and toasterId group
       const frontIndex = store.findIndex((t) => {
         if (t.dismissed) {
           return false
         }
-        if (candidate.toasterId ? t.toasterId !== candidate.toasterId : Boolean(t.toasterId)) {
+        if (candidate.toastId ? t.toastId !== candidate.toastId : Boolean(t.toastId)) {
           return false
         }
         const tPlacement = t.placement ?? 'bottom'
@@ -209,9 +278,9 @@ export function createToastStore(): ToastStore {
       }
     }
 
-    let publishedItem: ToasterT.Item | undefined
+    let publishedItem: ToastT.Item | undefined
     const existingIndex = store.findIndex((t) => t.id === id)
-    const toastItem: ToasterT.Item = {
+    const toastItem: ToastT.Item = {
       dismissible: true,
       variant: 'default',
       ...resolvedOptions,
@@ -234,27 +303,26 @@ export function createToastStore(): ToastStore {
     }
 
     if (publishedItem) {
-      history.push({ ...publishedItem })
-      publish(publishedItem)
+      recordHistory(publishedItem)
     }
 
     return id
   }
 
-  const success = (message: JSX.Element, options?: ToasterT.AddOptions) =>
-    add(message, { ...options, variant: 'success' })
+  const success = (message: JSX.Element, options?: ToastT.AddOptions) =>
+    show(message, { ...options, variant: 'success' })
 
-  const error = (message: JSX.Element, options?: ToasterT.AddOptions) =>
-    add(message, { ...options, variant: 'error' })
+  const error = (message: JSX.Element, options?: ToastT.AddOptions) =>
+    show(message, { ...options, variant: 'error' })
 
-  const warning = (message: JSX.Element, options?: ToasterT.AddOptions) =>
-    add(message, { ...options, variant: 'warning' })
+  const warning = (message: JSX.Element, options?: ToastT.AddOptions) =>
+    show(message, { ...options, variant: 'warning' })
 
-  const info = (message: JSX.Element, options?: ToasterT.AddOptions) =>
-    add(message, { ...options, variant: 'info' })
+  const info = (message: JSX.Element, options?: ToastT.AddOptions) =>
+    show(message, { ...options, variant: 'info' })
 
-  const loading = (message: JSX.Element, options?: ToasterT.AddOptions) =>
-    add(message, {
+  const loading = (message: JSX.Element, options?: ToastT.AddOptions) =>
+    show(message, {
       ...options,
       variant: 'loading',
       duration: options?.duration ?? Number.POSITIVE_INFINITY,
@@ -262,24 +330,66 @@ export function createToastStore(): ToastStore {
 
   const custom = (
     render: (id: string | number) => JSX.Element,
-    options?: ToasterT.AddOptions,
+    options?: ToastT.AddOptions,
   ): string | number => {
-    return add(undefined, {
+    return show(undefined, {
       ...options,
       jsx: (id: string | number) => render(id),
     })
   }
 
+  const dismiss = (id?: string | number): void => {
+    const shouldDismiss = (item: ToastT.Item) => (id === undefined ? true : item.id === id)
+
+    setStore((prev) => {
+      const next: ToastT.Item[] = []
+      for (const item of prev) {
+        if (!shouldDismiss(item)) {
+          next.push(item)
+          continue
+        }
+        if (!hasMatchingHost(item)) {
+          continue
+        }
+        next.push(item.dismissed ? item : { ...item, dismissed: true })
+      }
+      return next
+    })
+  }
+
+  const remove = (id?: string | number): void => {
+    if (id !== undefined) {
+      setStore((prev) => prev.filter((t) => t.id !== id))
+    } else {
+      setStore([])
+    }
+  }
+
+  const clear = (): void => {
+    setStore([])
+    history.length = 0
+  }
+
   const promise = <T>(
     promiseValue: Promise<T> | (() => Promise<T>),
-    options: ToasterT.PromiseOptions<T>,
-  ): ToasterT.PromiseReturn<T> => {
+    options: ToastT.PromiseOptions<T>,
+  ): ToastT.PromiseReturn<T> => {
+    const {
+      loading: loadingMessage,
+      success: successMessage,
+      error: errorMessage,
+      onFinally,
+      description,
+      duration,
+      itemOptions,
+    } = splitPromiseOptions(options)
+
     let id: string | number | undefined
 
-    if (options.loading !== undefined) {
-      id = loading(typeof options.loading === 'function' ? options.loading() : options.loading, {
-        ...options,
-        description: typeof options.description !== 'function' ? options.description : undefined,
+    if (loadingMessage !== undefined) {
+      id = loading(typeof loadingMessage === 'function' ? loadingMessage() : loadingMessage, {
+        ...itemOptions,
+        description: typeof description !== 'function' ? description : undefined,
       })
     } else {
       id = options.id ?? nextId()
@@ -291,18 +401,24 @@ export function createToastStore(): ToastStore {
 
     let result: ['resolve', T] | ['reject', unknown]
 
-    const resolvePayload = async (variant: ToasterT.Variant, handler: unknown, param: unknown) => {
+    const resolvePayload = async (variant: ToastT.Variant, handler: unknown, param: unknown) => {
       const title = typeof handler === 'function' ? await handler(param) : handler
-      const description =
-        typeof options.description === 'function' ? options.description(param) : options.description
+      const resolvedDescription =
+        typeof description === 'function' ? description(param) : description
 
-      add(title as JSX.Element, {
-        ...options,
+      show(title as JSX.Element, {
+        ...itemOptions,
         id,
         variant,
-        description,
-        duration: options.duration ?? 4000,
+        description: resolvedDescription,
+        duration: duration ?? DEFAULT_TOAST_DURATION,
       })
+    }
+
+    const settleWithoutHandler = () => {
+      if (id !== undefined) {
+        dismiss(id)
+      }
     }
 
     const originalPromise = actualPromise
@@ -310,25 +426,30 @@ export function createToastStore(): ToastStore {
       .then(async (response) => {
         result = ['resolve', response]
         if (response instanceof Error) {
-          if (options.error !== undefined) {
-            await resolvePayload('error', options.error, response)
+          if (errorMessage !== undefined) {
+            await resolvePayload('error', errorMessage, response)
+          } else {
+            settleWithoutHandler()
           }
           return
         }
 
-        if (options.success !== undefined) {
-          await resolvePayload('success', options.success, response)
+        if (successMessage !== undefined) {
+          await resolvePayload('success', successMessage, response)
+        } else {
+          settleWithoutHandler()
         }
       })
       // oxlint-disable-next-line subf/solid-reactivity -- Promise rejection executes outside component rendering.
       .catch(async (errorValue) => {
         result = ['reject', errorValue]
-        if (options.error !== undefined) {
-          await resolvePayload('error', options.error, errorValue)
+        if (errorMessage !== undefined) {
+          await resolvePayload('error', errorMessage, errorValue)
+        } else {
+          settleWithoutHandler()
         }
       })
       .finally(() => {
-        const onFinally = options.finally
         if (onFinally) {
           void onFinally()
         }
@@ -347,104 +468,53 @@ export function createToastStore(): ToastStore {
           .catch(reject)
       })
 
-    const returnId = (id ?? nextId()) as any
+    const returnId = (id ?? nextId()) as ToastT.PromiseReturn<T>
     return Object.assign(returnId, { unwrap })
   }
 
-  const dismiss = (id?: string | number): void => {
-    if (id !== undefined) {
-      setStore((t) => t.id === id, 'dismissed', true)
-    } else {
-      setStore(() => true, 'dismissed', true)
-    }
-  }
-
-  const remove = (id?: string | number): void => {
-    if (id !== undefined) {
-      setStore((prev) => prev.filter((t) => t.id !== id))
-    } else {
-      setStore([])
-    }
-  }
-
-  const clear = (): void => {
-    remove()
-  }
-
-  const getToasts = (): ToasterT.Item[] => {
+  const getToasts = (): ToastT.Item[] => {
     return store.filter((t) => !t.dismissed)
   }
 
-  const getHistory = (): ToasterT.Item[] => history
+  const getHistory = (): ToastT.Item[] => history
 
-  // oxlint-disable-next-line subf/solid-reactivity -- Manager callable forwards to imperative add method.
-  const manager = ((message: JSX.Element | ToasterT.AddOptions, options?: ToasterT.AddOptions) =>
-    add(message, options)) as ToastStore
-
-  Object.defineProperties(manager, {
-    add: { value: add, writable: true, configurable: true },
-    message: { value: add, writable: true, configurable: true },
-    success: { value: success, writable: true, configurable: true },
-    error: { value: error, writable: true, configurable: true },
-    warning: { value: warning, writable: true, configurable: true },
-    info: { value: info, writable: true, configurable: true },
-    loading: { value: loading, writable: true, configurable: true },
-    promise: { value: promise, writable: true, configurable: true },
-    custom: { value: custom, writable: true, configurable: true },
-    dismiss: { value: dismiss, writable: true, configurable: true },
-    remove: { value: remove, writable: true, configurable: true },
-    clear: { value: clear, writable: true, configurable: true },
-    getToasts: { value: getToasts, writable: true, configurable: true },
-    getHistory: { value: getHistory, writable: true, configurable: true },
-    subscribe: { value: subscribe, writable: true, configurable: true },
-    toasts: {
-      get() {
-        return store
-      },
-      configurable: true,
+  const manager: ToastHostStore = {
+    show,
+    success,
+    error,
+    warning,
+    info,
+    loading,
+    promise,
+    custom,
+    dismiss,
+    remove,
+    clear,
+    getToasts,
+    getHistory,
+    get toasts() {
+      return store
     },
-    preventDuplicate: {
-      get() {
-        return defaultPreventDuplicate
-      },
-      set(val: ToasterT.PreventDuplicate) {
-        defaultPreventDuplicate = val
-      },
-      configurable: true,
+    get preventDuplicate() {
+      return defaultPreventDuplicate
     },
-    setToasterPreventDuplicate: {
-      value: setToasterPreventDuplicate,
-      writable: true,
-      configurable: true,
+    set preventDuplicate(val: ToastT.PreventDuplicate) {
+      defaultPreventDuplicate = val
     },
-  })
-
+    setHostPreventDuplicate,
+    registerHost,
+    unregisterHost,
+  }
   return manager
 }
 
-let defaultStore: ToastStore | undefined
+let defaultStore: ToastHostStore | undefined
 
-/**
- * Returns the active toast store singleton, initializing it lazily on first access.
- */
-export function getToastStore(): ToastStore {
+export function getDefaultToastStore(): ToastHostStore {
   if (!defaultStore) {
-    defaultStore = createToastStore()
+    defaultStore = createToastStore() as ToastHostStore
   }
   return defaultStore
 }
 
-/** Global toast singleton with lazy initialization. */
-export const toast: ToastStore = /* @__PURE__ */ new Proxy(
-  ((message: JSX.Element | ToasterT.AddOptions, options?: ToasterT.AddOptions) =>
-    getToastStore()(message, options)) as ToastStore,
-  {
-    get(_target, prop) {
-      return (getToastStore() as any)[prop]
-    },
-    set(_target, prop, value) {
-      ;(getToastStore() as any)[prop] = value
-      return true
-    },
-  },
-)
+export { matchesHostId }

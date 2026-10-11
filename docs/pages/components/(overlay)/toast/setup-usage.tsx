@@ -1,13 +1,13 @@
-import { Button, Toaster, toast } from '@src'
+import { Button, Toast } from '@src'
 
 export function SetupUsage() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Toaster id="custom" placement="bottom" align="start" />
-      <Button onClick={() => toast.success('Changes saved!')}>Trigger Default Toast</Button>
+      <Toast id="setup-custom" placement="bottom" align="start" />
+      <Button onClick={() => Toast.success('Changes saved!')}>Trigger Default Toast</Button>
       <Button
         variant="outline"
-        onClick={() => toast.info('Custom bottom-left!', { toasterId: 'custom' })}
+        onClick={() => Toast.info('Custom bottom-left!', { toastId: 'setup-custom' })}
       >
         Trigger Custom Toast
       </Button>

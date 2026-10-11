@@ -146,9 +146,7 @@ export {
   Popover,
   Sheet,
   Tooltip,
-  Toaster,
   Toast,
-  toast,
   createToastStore,
 } from './overlay'
 export type {
@@ -166,9 +164,9 @@ export type {
   SheetT,
   TooltipProps,
   TooltipT,
-  ToasterProps,
-  ToasterT,
   ToastProps,
+  ToastT,
+  ToastStore,
 } from './overlay'
 export { MoraineProvider, useCn, useLocale } from './provider'
 export type { MoraineProviderProps } from './provider'

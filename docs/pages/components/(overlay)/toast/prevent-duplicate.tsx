@@ -1,17 +1,17 @@
-import { Button, Toaster, toast } from '@src'
+import { Button, Toast } from '@src'
 
 export function PreventDuplicate() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Toaster id="pd" placement="top" align="end" preventDuplicate />
-      <Button onClick={() => toast.success('Changes saved!', { toasterId: 'pd' })}>
+      <Toast id="pd" placement="top" align="end" preventDuplicate />
+      <Button onClick={() => Toast.success('Changes saved!', { toastId: 'pd' })}>
         Scoped container
       </Button>
       <Button
         variant="outline"
-        onClick={() => toast.info('System update available', { preventDuplicate: true })}
+        onClick={() => Toast.info('System update available', { preventDuplicate: true })}
       >
-        Inline toast.info
+        Inline Toast.info
       </Button>
     </div>
   )

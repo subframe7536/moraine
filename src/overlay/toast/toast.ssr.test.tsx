@@ -2,40 +2,33 @@ import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
-import { toast } from './toast-store'
-import { Toaster } from './toaster'
+import { Toast } from './toast'
 
-describe('Toaster SSR Hydration', () => {
+describe('Toast SSR Hydration', () => {
   test('server renders empty shell safely without portal leak', () => {
-    const html = renderSsrFixture(
-      '/src/overlay/toast/toaster.ssr.fixture.tsx',
-      'renderToasterFixture',
-    )
+    const html = renderSsrFixture('/src/overlay/toast/toast.ssr.fixture.tsx', 'renderToastFixture')
     expect(html).not.toContain('role="region"')
   })
 
   test('hydrates cleanly and mounts portal on client', async () => {
-    toast.clear()
+    Toast.clear()
     const { container } = hydrateFixture(
-      '/src/overlay/toast/toaster.ssr.fixture.tsx',
-      'renderToasterFixture',
-      () => <Toaster />,
+      '/src/overlay/toast/toast.ssr.fixture.tsx',
+      'renderToastFixture',
+      () => <Toast />,
     )
 
     expect(container).not.toBeNull()
-
-    // Microtask runs to mount client portal
-    await Promise.resolve()
 
     const region = document.querySelector('[role="region"]')
     expect(region).not.toBeNull()
     expect(region?.getAttribute('aria-label')).toContain('Notifications')
 
-    toast.add('Hydrated toast message')
+    Toast.show('Hydrated toast message')
     const item = document.querySelector('[data-slot="toast"]')
     expect(item).not.toBeNull()
     expect(item?.textContent).toContain('Hydrated toast message')
 
-    toast.clear()
+    Toast.clear()
   })
 })

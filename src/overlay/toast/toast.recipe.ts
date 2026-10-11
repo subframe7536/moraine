@@ -4,32 +4,34 @@ import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import type { OverlayAlign } from '../../theme/style-types'
 
-import type { ToasterStyleSlot, ToasterStyleVariant } from './toaster.style-types'
-import type { ToasterT } from './toaster.types'
+import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
+import { DEFAULT_TOAST_GAP } from './toast.types'
+import type { ToastT } from './toast.types'
 
 export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
 
-export const toastDataAttributes = /* @__PURE__ */ createDataAttributes(
+const toastRootDataAttributes = /* @__PURE__ */ createDataAttributes(
   'front',
   'behind',
   'expanded',
   'limited',
   'bump',
+  'swiping',
+  'swipe-out',
 )
 
-/** @deprecated Use toastDataAttributes instead. */
-export const toastItemDataAttributes = toastDataAttributes
+export const toastDataAttributes = {
+  root: toastRootDataAttributes,
+} satisfies DataAttributeContract<keyof ToastStyleSlot>
 
-export const toasterDataAttributes = {
-  root: toastDataAttributes,
-} satisfies DataAttributeContract<keyof ToasterStyleSlot>
+export { toastRootDataAttributes }
 
 /** Base viewport class for toast list containers. */
 export const TOAST_VIEWPORT_BASE_CLASS = 'm-0 outline-none list-none flex flex-col fixed z-floating'
 
 /** Resolves viewport positioning classes based on placement and alignment. */
 export function getToastPlacementClass(
-  placement: ToasterT.Placement = 'bottom',
+  placement: ToastT.Placement = 'bottom',
   align: OverlayAlign = 'end',
 ): string {
   if (placement === 'top') {
@@ -42,7 +44,6 @@ export function getToastPlacementClass(
     return 'top-4 right-4 items-end'
   }
 
-  // placement === 'bottom' (default)
   if (align === 'start') {
     return 'bottom-4 left-4 items-start'
   }
@@ -52,13 +53,12 @@ export function getToastPlacementClass(
   return 'bottom-4 right-4 items-end'
 }
 
-export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, ToasterStyleVariant>(
-  'toaster',
+export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastStyleVariant>(
+  'toast',
   {
     base: {
-      '--toast-gap': '0.75rem',
-      '--toast-peek': '0.75rem',
-      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} data-limited:(opacity-0 pointer-events-none) data-bump:animate-toast-bump data-expanded:after:(h-[calc(var(--toast-gap,14px)+1px)] w-full content-[''] bottom-full left-0 absolute)`,
+      '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
+      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] data-limited:(opacity-0 pointer-events-none) data-swipe-out:(duration-200 ease-out) data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none data-expanded:after:(h-[calc(var(--toast-gap)+1px)] w-full content-[''] bottom-full left-0 absolute) data-bump:motion-reduce:animate-none`,
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
       description: 'text-xs text-muted-foreground leading-normal',
@@ -84,7 +84,7 @@ export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, Toas
           icon: 'text-sky-500',
         },
         loading: {
-          icon: 'text-muted-foreground animate-spin',
+          icon: 'text-muted-foreground animate-spin motion-reduce:animate-none',
         },
       },
       invert: {

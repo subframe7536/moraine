@@ -1,17 +1,17 @@
 {
   "key": "toast",
-  "name": "Toaster",
-  "description": "Props for the Toaster component.",
+  "name": "Toast",
+  "description": "Props for the Toast host component.",
   "kind": "single",
   "parts": [
     {
       "id": "toast",
-      "name": "Toaster",
+      "name": "Toast",
       "access": {
         "kind": "export",
-        "name": "Toaster"
+        "name": "Toast"
       },
-      "description": "Props for the Toaster component.",
+      "description": "Props for the Toast host component.",
       "defaultElement": "section",
       "props": [
         {
@@ -90,7 +90,7 @@
           "name": "hotkey",
           "optional": true,
           "type": "string[]",
-          "description": "Keyboard shortcuts to focus the notification region.",
+          "description": "Keyboard shortcuts to focus the notification region.\nAll listed keys must be pressed together.",
           "default": {
             "kind": "expression",
             "text": "['F6']"
@@ -100,7 +100,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Match toasts targeting a specific toaster identifier."
+          "description": "Match toasts targeting a specific Toast host identifier."
         },
         {
           "name": "invert",
@@ -151,6 +151,12 @@
             "kind": "literal",
             "value": false
           }
+        },
+        {
+          "name": "store",
+          "optional": true,
+          "type": "ToastStore",
+          "description": "Isolated store rendered by this host. Defaults to the shared `Toast.*` store."
         },
         {
           "name": "style",
@@ -325,10 +331,10 @@
         "description": "Primary notification title."
       },
       {
-        "name": "toasterId",
+        "name": "toastId",
         "optional": true,
         "type": "string",
-        "description": "Target toaster ID for scoped toast instances."
+        "description": "Target Toast host `id` for scoped instances."
       },
       {
         "name": "variant",
@@ -357,7 +363,9 @@
         "data-bump",
         "data-expanded",
         "data-front",
-        "data-limited"
+        "data-limited",
+        "data-swipe-out",
+        "data-swiping"
       ]
     }
   ]
