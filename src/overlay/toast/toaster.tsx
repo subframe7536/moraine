@@ -98,7 +98,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
       () => local.preventDuplicate,
       (val) => {
         if (!isDuplicate() && val !== undefined) {
-          toast.preventDuplicate = val
+          toast.setToasterPreventDuplicate?.(local.id, val)
         }
       },
     ),
@@ -109,7 +109,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
       activeDefaultToasters = Math.max(0, activeDefaultToasters - 1)
     }
     if (!isDuplicate() && local.preventDuplicate !== undefined) {
-      toast.preventDuplicate = false
+      toast.setToasterPreventDuplicate?.(local.id, undefined)
     }
   })
 

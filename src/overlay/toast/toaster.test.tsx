@@ -253,6 +253,26 @@ describe('Toaster Component', () => {
     expect(list.className).toContain('top-4')
   })
 
+  it('does not leak scoped toaster preventDuplicate to default toaster', async () => {
+    render(() => (
+      <>
+        <Toaster />
+        <Toaster id="scoped-pd" preventDuplicate />
+      </>
+    ))
+
+    // Default toaster should NOT have preventDuplicate enabled
+    expect(toast.preventDuplicate).toBe(false)
+    const d1 = toast.add('Default message')
+    const d2 = toast.add('Default message')
+    expect(d1).not.toBe(d2)
+
+    // Scoped toaster SHOULD have preventDuplicate enabled
+    const s1 = toast.add('Scoped message', { toasterId: 'scoped-pd' })
+    const s2 = toast.add('Scoped message', { toasterId: 'scoped-pd' })
+    expect(s1).toBe(s2)
+  })
+
   it('prevents duplicates and bumps bumpKey when preventDuplicate is set', async () => {
     toast.preventDuplicate = true
     render(() => <Toaster />)

@@ -79,6 +79,10 @@ export interface ToastStore {
   subscribe: (subscriber: (toast: ToasterT.Item) => void) => () => void
   readonly toasts: ToasterT.Item[]
   preventDuplicate: ToasterT.PreventDuplicate
+  setToasterPreventDuplicate?: (
+    toasterId: string | undefined,
+    value: ToasterT.PreventDuplicate | undefined,
+  ) => void
 }
 
 /**
@@ -88,8 +92,24 @@ export function createToastStore(): ToastStore {
   const [store, setStore] = createStore<ToasterT.Item[]>([])
   const subscribers: Array<(toast: ToasterT.Item) => void> = []
   const history: ToasterT.Item[] = []
+  const toasterPreventDuplicates = new Map<string, ToasterT.PreventDuplicate>()
   let counter = 1
   let defaultPreventDuplicate: ToasterT.PreventDuplicate = false
+
+  const setToasterPreventDuplicate = (
+    toasterId: string | undefined,
+    value: ToasterT.PreventDuplicate | undefined,
+  ): void => {
+    if (toasterId) {
+      if (value === undefined || value === false) {
+        toasterPreventDuplicates.delete(toasterId)
+      } else {
+        toasterPreventDuplicates.set(toasterId, value)
+      }
+    } else {
+      defaultPreventDuplicate = value ?? false
+    }
+  }
 
   const publish = (toastItem: ToasterT.Item): void => {
     subscribers.forEach((subscriber) => subscriber(toastItem))
@@ -142,7 +162,9 @@ export function createToastStore(): ToastStore {
     const preventOption =
       resolvedOptions.preventDuplicate !== undefined
         ? resolvedOptions.preventDuplicate
-        : defaultPreventDuplicate
+        : resolvedOptions.toasterId
+          ? (toasterPreventDuplicates.get(resolvedOptions.toasterId) ?? false)
+          : defaultPreventDuplicate
 
     if (preventOption && resolvedOptions.id === undefined) {
       const candidate: Partial<ToasterT.Item> = {
@@ -388,6 +410,11 @@ export function createToastStore(): ToastStore {
       set(val: ToasterT.PreventDuplicate) {
         defaultPreventDuplicate = val
       },
+      configurable: true,
+    },
+    setToasterPreventDuplicate: {
+      value: setToasterPreventDuplicate,
+      writable: true,
       configurable: true,
     },
   })
