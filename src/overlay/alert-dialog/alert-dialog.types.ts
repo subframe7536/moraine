@@ -28,6 +28,11 @@ export namespace AlertDialogT {
      * @default false
      */
     closable?: boolean
+    /**
+     * Centers the icon, title, and description, and stretches the actions into an equal row.
+     * @default false
+     */
+    center?: boolean
     /** Styles the OK action as `destructive` when `okVariant` is omitted. */
     danger?: boolean
     /** Replaces the type icon. `null` omits the icon. */
@@ -45,6 +50,11 @@ export namespace AlertDialogT {
     okVariant?: ButtonT.Variant['variant']
     style?: JSX.CSSProperties
     styles?: DialogT.Styles
+    /**
+     * Gives the footer a top border and muted background, like Card's `subtle` variant.
+     * @default false
+     */
+    subtle?: boolean
     /** Sets the dialog content `max-width`. */
     width?: string | number
   }

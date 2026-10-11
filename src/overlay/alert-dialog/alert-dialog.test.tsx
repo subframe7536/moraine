@@ -386,4 +386,30 @@ describe('AlertDialog', () => {
       ),
     ).toBe(false)
   })
+
+  test('centers the layout and paints a subtle footer', async () => {
+    setup()
+    void AlertDialog.confirm({
+      title: 'Allow accessory to connect?',
+      description: 'Connect this device?',
+      center: true,
+      subtle: true,
+      okText: 'Allow',
+      cancelText: "Don't allow",
+    })
+    await waitForTitle('Allow accessory to connect?')
+
+    const footer = document.body.querySelector('[data-slot="dialog-footer"]')
+    expect(footer?.className).toContain('bg-muted/50')
+    expect(footer?.className).toContain('border-t')
+    expect(footer?.className).toContain('flex-row')
+    expect(button("Don't allow").className).toContain('flex-1')
+    expect(button('Allow').className).toContain('flex-1')
+    expect(document.body.querySelector('[data-slot="icon"]')?.parentElement?.className).toContain(
+      'bg-muted',
+    )
+    expect(
+      document.body.querySelector('[data-slot="dialog-title"]')?.parentElement?.className,
+    ).toContain('text-center')
+  })
 })

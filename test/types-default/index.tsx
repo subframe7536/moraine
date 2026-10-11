@@ -236,6 +236,8 @@ export type PublicEntryIsolation = [
   >,
   Assert<'children' extends keyof import('moraine').AlertDialogProps ? false : true>,
   Assert<'okText' extends keyof import('moraine').AlertDialogProps ? true : false>,
+  Assert<'center' extends keyof import('moraine').AlertDialogProps ? true : false>,
+  Assert<'subtle' extends keyof import('moraine').AlertDialogProps ? true : false>,
   Assert<'title' extends keyof import('moraine').AlertDialogProps ? false : true>,
   Assert<'confirm' extends keyof RootAlertDialogOptions ? false : true>,
   Assert<'title' extends keyof RootAlertDialogOptions ? true : false>,

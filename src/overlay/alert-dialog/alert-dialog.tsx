@@ -14,6 +14,12 @@ import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
 const ALERT_DIALOG_HEADER_CLASS = 'flex gap-3 items-center'
 const ALERT_DIALOG_COPY_CLASS = 'flex-1 gap-2 grid min-w-0'
 const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
+const ALERT_DIALOG_CENTER_HEADER_CLASS = 'text-center flex flex-col gap-4 items-center'
+const ALERT_DIALOG_CENTER_COPY_CLASS = 'text-center gap-2 grid min-w-0'
+const ALERT_DIALOG_CENTER_ICON_CLASS =
+  'rounded-xl bg-muted flex shrink-0 size-10 items-center justify-center'
+const ALERT_DIALOG_CENTER_FOOTER_CLASS = 'p-4 border-t border-border flex-row gap-3'
+const ALERT_DIALOG_SUBTLE_FOOTER_CLASS = 'pt-4 border-t border-border bg-muted/50'
 const ALERT_DIALOG_ICON_TONE_CLASS = {
   confirm: 'text-destructive',
   warning: 'text-destructive',
@@ -38,6 +44,7 @@ const ALERT_DIALOG_CONFIG_KEYS = [
   'classes',
   'closeOnEscape',
   'closable',
+  'center',
   'danger',
   'icon',
   'overlayDismissable',
@@ -45,6 +52,7 @@ const ALERT_DIALOG_CONFIG_KEYS = [
   'okVariant',
   'style',
   'styles',
+  'subtle',
   'width',
 ] as const satisfies readonly (keyof AlertDialogT.Config)[]
 
@@ -60,6 +68,7 @@ interface AlertDialogEntryProps {
   classes: () => AlertDialogT.Options['classes']
   closeOnEscape: () => boolean | undefined
   closable: () => boolean | undefined
+  center: () => boolean | undefined
   content: () => JSX.Element | undefined
   danger: () => boolean | undefined
   description: () => JSX.Element | undefined
@@ -73,6 +82,7 @@ interface AlertDialogEntryProps {
   remove: () => void
   style: () => JSX.CSSProperties | undefined
   styles: () => AlertDialogT.Options['styles']
+  subtle: () => boolean | undefined
   title: () => JSX.Element | undefined
   type: AlertDialogT.Type
   width: () => string | number | undefined
@@ -112,6 +122,7 @@ function readAlertDialogConfig(props: AlertDialogProps): AlertDialogT.Config {
     classes: props.classes,
     closeOnEscape: props.closeOnEscape,
     closable: props.closable,
+    center: props.center,
     danger: props.danger,
     icon: props.icon,
     overlayDismissable: props.overlayDismissable,
@@ -119,6 +130,7 @@ function readAlertDialogConfig(props: AlertDialogProps): AlertDialogT.Config {
     okVariant: props.okVariant,
     style: props.style,
     styles: props.styles,
+    subtle: props.subtle,
     width: props.width,
   }
 }
@@ -217,6 +229,7 @@ function createAlertDialog(
       classes: optionValue(currentOptions, config, 'classes'),
       closeOnEscape: optionValue(currentOptions, config, 'closeOnEscape'),
       closable: optionValue(currentOptions, config, 'closable'),
+      center: optionValue(currentOptions, config, 'center'),
       content: optionValue(currentOptions, config, 'content'),
       danger: optionValue(currentOptions, config, 'danger'),
       description: optionValue(currentOptions, config, 'description'),
@@ -230,6 +243,7 @@ function createAlertDialog(
       remove: () => record.remove(),
       style: optionValue(currentOptions, config, 'style'),
       styles: optionValue(currentOptions, config, 'styles'),
+      subtle: optionValue(currentOptions, config, 'subtle'),
       title: optionValue(currentOptions, config, 'title'),
       type,
       width: optionValue(currentOptions, config, 'width'),
@@ -291,6 +305,12 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
   const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
     props.okVariant() ?? (props.danger() ? 'destructive' : 'default')
 
+  const footerClass = () =>
+    cn(
+      props.subtle() && ALERT_DIALOG_SUBTLE_FOOTER_CLASS,
+      props.center() && ALERT_DIALOG_CENTER_FOOTER_CLASS,
+    )
+
   return (
     <Dialog
       id={props.id}
@@ -312,16 +332,32 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
       <Dialog.Content role="alertdialog" class={props.class()} style={contentStyle()}>
         <Show when={showHeader()}>
           <Dialog.Header>
-            <div class={ALERT_DIALOG_HEADER_CLASS}>
+            <div
+              class={props.center() ? ALERT_DIALOG_CENTER_HEADER_CLASS : ALERT_DIALOG_HEADER_CLASS}
+            >
               <Show when={icon()}>
                 {(current) => (
-                  <Icon
-                    name={current()}
-                    class={cn(ALERT_DIALOG_ICON_CLASS, ALERT_DIALOG_ICON_TONE_CLASS[props.type])}
-                  />
+                  <Show
+                    when={props.center()}
+                    fallback={
+                      <Icon
+                        name={current()}
+                        class={cn(
+                          ALERT_DIALOG_ICON_CLASS,
+                          ALERT_DIALOG_ICON_TONE_CLASS[props.type],
+                        )}
+                      />
+                    }
+                  >
+                    <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
+                      <Icon name={current()} class={ALERT_DIALOG_ICON_CLASS} />
+                    </div>
+                  </Show>
                 )}
               </Show>
-              <div class={ALERT_DIALOG_COPY_CLASS}>
+              <div
+                class={props.center() ? ALERT_DIALOG_CENTER_COPY_CLASS : ALERT_DIALOG_COPY_CLASS}
+              >
                 <Show when={hasJsxContent(title())}>
                   <Dialog.Title>{title()}</Dialog.Title>
                 </Show>
@@ -333,19 +369,25 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
           </Dialog.Header>
         </Show>
         <Show when={hasJsxContent(content())}>
-          <Dialog.Body>{content()}</Dialog.Body>
+          <Dialog.Body class={props.center() ? 'text-center' : undefined}>{content()}</Dialog.Body>
         </Show>
-        <Dialog.Footer>
+        <Dialog.Footer class={footerClass()}>
           <Show when={showCancel()}>
             <Button
               variant={props.cancelVariant() ?? 'outline'}
+              class={props.center() ? 'flex-1' : undefined}
               loadingAuto
               onClick={() => props.dismiss()}
             >
               {props.cancelText() ?? messages().cancel}
             </Button>
           </Show>
-          <Button variant={okVariant()} loadingAuto onClick={() => props.accept()}>
+          <Button
+            variant={okVariant()}
+            class={props.center() ? 'flex-1' : undefined}
+            loadingAuto
+            onClick={() => props.accept()}
+          >
             {props.okText() ?? messages().ok}
           </Button>
         </Dialog.Footer>

@@ -28,6 +28,16 @@
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
         },
         {
+          "name": "center",
+          "optional": true,
+          "type": "boolean",
+          "description": "Centers the icon, title, and description, and stretches the actions into an equal row.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "string",
@@ -104,6 +114,16 @@
           "name": "styles",
           "optional": true,
           "type": "DialogT.Styles"
+        },
+        {
+          "name": "subtle",
+          "optional": true,
+          "type": "boolean",
+          "description": "Gives the footer a top border and muted background, like Card's `subtle` variant.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "width",

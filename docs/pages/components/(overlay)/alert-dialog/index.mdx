@@ -15,6 +15,8 @@ import { AlertDialog, Button } from '@src'
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Delete this project?' },
     { kind: 'switch', prop: 'danger', label: 'Danger', defaultValue: true },
+    { kind: 'switch', prop: 'center', label: 'Center', defaultValue: false },
+    { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -25,6 +27,8 @@ import { AlertDialog, Button } from '@src'
           title: props.title,
           content: 'This action cannot be undone.',
           danger: props.danger,
+          center: props.center,
+          subtle: props.subtle,
         })
       }
     >
@@ -104,6 +108,23 @@ call are kept: `icon: null` still omits the icon when the host sets one.
 OK and Cancel labels use the `dialog` message group (`ok`, `cancel`) when `okText` and
 `cancelText` are omitted. `ariaLabel` names the dialog when `title` is omitted.
 
+### Layout
+
+`subtle` gives the footer a top border and muted background, like Card's subtle variant. `center`
+stacks the icon, title, and description and stretches the actions into an equal row.
+
+```tsx
+AlertDialog.confirm({
+  title: 'Allow accessory to connect?',
+  description: 'Do you want to allow the USB accessory to connect to this device?',
+  icon: 'i-lucide-bluetooth',
+  center: true,
+  subtle: true,
+  okText: 'Allow',
+  cancelText: "Don't allow",
+})
+```
+
 ### Dismissal
 
 An outside pointer press does not dismiss the dialog unless `overlayDismissable` is set. Escape dismisses
@@ -131,3 +152,9 @@ Open the confirm while a check is still running. `update` replaces the title, bo
 when the check passes, and the dialog stays open until you publish or wait.
 
 <Preview path="./alert-publish" />
+
+### Allow a USB accessory
+
+`center` stacks the icon and copy. `subtle` paints the action row like a Card footer.
+
+<Preview path="./alert-center" />
