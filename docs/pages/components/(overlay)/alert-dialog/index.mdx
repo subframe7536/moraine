@@ -14,6 +14,12 @@ import { AlertDialog, Button } from '@src'
 <Playground
   controls={[
     { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Delete this project?' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'This action cannot be undone.',
+    },
     { kind: 'switch', prop: 'danger', label: 'Danger', defaultValue: true },
     { kind: 'switch', prop: 'center', label: 'Center', defaultValue: false },
     { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
@@ -25,7 +31,7 @@ import { AlertDialog, Button } from '@src'
       onClick={() =>
         void AlertDialog.confirm({
           title: props.title,
-          content: 'This action cannot be undone.',
+          description: props.description,
           danger: props.danger,
           center: props.center,
           subtle: props.subtle,
@@ -57,7 +63,7 @@ export function App() {
         onClick={() => {
           void AlertDialog.confirm({
             title: 'Delete this project?',
-            content: 'This action cannot be undone.',
+            description: 'This action cannot be undone.',
             danger: true,
           })
         }}
@@ -142,13 +148,13 @@ in place.
 
 ### Show info, warning, error, and success
 
-Each method uses its own icon. Cancel stays hidden unless `cancel` is set.
+`info`, `warning`, `error`, and `success` each use their own icon. `confirm` shows the caution icon only when `danger` is set. Cancel stays hidden unless `cancel` is set.
 
 <Preview path="./alert-types" />
 
 ### Update a publish confirm when checks finish
 
-Open the confirm while a check is still running. `update` replaces the title, body, and OK label
+Open the confirm while a check is still running. `update` replaces the title, description, and OK label
 when the check passes, and the dialog stays open until you publish or wait.
 
 <Preview path="./alert-publish" />

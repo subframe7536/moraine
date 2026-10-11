@@ -1246,7 +1246,7 @@ describe('Dialog', () => {
     expect(close.style.opacity).toBe('0.8')
   })
 
-  test('adjusts body padding when header or footer is absent', () => {
+  test('pads the dialog content instead of the body', () => {
     const { unmount } = render(() => (
       <Dialog open close={false}>
         <Dialog.Content title={false} description={false}>
@@ -1256,8 +1256,12 @@ describe('Dialog', () => {
     ))
 
     const bodyNoHeader = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
+    const contentNoHeader = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
     expect(bodyNoHeader.hasAttribute('data-header')).toBe(false)
-    expect(bodyNoHeader.className).toContain('pb-6')
+    expect(contentNoHeader.className).toContain('p-6')
+    expect(contentNoHeader.className).toContain('gap-4')
+    expect(bodyNoHeader.className).not.toContain('pb-6')
+    expect(bodyNoHeader.className).not.toContain('px-6')
     unmount()
 
     render(() => (
@@ -1273,7 +1277,8 @@ describe('Dialog', () => {
 
     const bodyWithBoth = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     expect(bodyWithBoth.hasAttribute('data-header')).toBe(true)
-    expect(bodyWithBoth.className).toContain('pb-2')
+    expect(bodyWithBoth.className).not.toContain('pb-2')
+    expect(bodyWithBoth.className).not.toContain('px-6')
   })
 
   test('keeps structured section padding symmetric around the corner close', () => {
@@ -1286,13 +1291,16 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
     const header = document.body.querySelector('[data-slot="dialog-header"]') as HTMLElement
     const body = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     const footer = document.body.querySelector('[data-slot="dialog-footer"]') as HTMLElement
 
-    expect(header.className).toContain('p-6')
-    expect(body.className).toContain('px-6')
-    expect(footer.className).toContain('p-6')
+    expect(content.className).toContain('p-6')
+    expect(content.className).toContain('gap-4')
+    expect(header.className).not.toContain('p-6')
+    expect(body.className).not.toContain('px-6')
+    expect(footer.className).not.toContain('p-6')
     expect(header.className).not.toContain('pe-12')
     expect(body.className).not.toContain('pe-14')
     expect(footer.className).not.toContain('pe-14')

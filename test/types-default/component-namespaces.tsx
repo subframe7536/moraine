@@ -1,6 +1,7 @@
 import { Button, Icon, Kbd, Select, createForm } from 'moraine'
 import type {
   AccordionT,
+  AlertDialogT,
   AvatarGroupT,
   AvatarT,
   BadgeT,
@@ -56,6 +57,13 @@ export type ComponentNamespaceHeaders = {
     AccordionT.Variant,
     AccordionT.Classes,
     AccordionT.Styles
+  >
+  AlertDialog: Header<
+    AlertDialogT.Kind,
+    AlertDialogT.Slot,
+    AlertDialogT.Variant,
+    AlertDialogT.Classes,
+    AlertDialogT.Styles
   >
   AvatarGroup: Header<
     AvatarGroupT.Kind,

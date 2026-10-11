@@ -65,7 +65,6 @@ describe('AlertDialog', () => {
     const confirmed = AlertDialog.confirm({
       title: 'Delete project',
       description: 'This cannot be undone.',
-      content: 'All files will be removed.',
       onOk,
       onCancel,
     })
@@ -82,10 +81,8 @@ describe('AlertDialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-description"]')?.textContent).toBe(
       'This cannot be undone.',
     )
-    expect(document.body.querySelector('[data-slot="dialog-body"]')?.textContent).toBe(
-      'All files will be removed.',
-    )
-    expect(document.body.querySelector('[data-slot="icon"]')?.className).toContain('icon-caution')
+    expect(document.body.querySelector('[data-slot="dialog-body"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="icon"]')).toBeNull()
 
     fireEvent.click(button('Cancel'))
     await expect(confirmed).resolves.toBe(false)
@@ -103,8 +100,8 @@ describe('AlertDialog', () => {
 
   test('uses each type icon and shows cancel only for confirm by default', async () => {
     setup()
-    const cases: Array<[AlertDialogT.Type, string, string, boolean]> = [
-      ['confirm', 'icon-caution', 'text-destructive', true],
+    const cases: Array<[AlertDialogT.Type, string | undefined, string | undefined, boolean]> = [
+      ['confirm', undefined, undefined, true],
       ['info', 'icon-info', 'text-primary', false],
       ['warning', 'icon-warning', 'text-destructive', false],
       ['error', 'icon-error', 'text-destructive', false],
@@ -116,14 +113,25 @@ describe('AlertDialog', () => {
       void AlertDialog[type]({ title: type })
       await waitForTitle(type)
       const iconElement = document.body.querySelector('[data-slot="icon"]')
-      expect(iconElement?.className).toContain(icon)
-      expect(iconElement?.className).toContain(tone)
+      if (icon === undefined) {
+        expect(iconElement).toBeNull()
+      } else {
+        expect(iconElement?.className).toContain(icon)
+        expect(iconElement?.className).toContain(tone)
+      }
       expect(
         Array.from(document.body.querySelectorAll('button')).some(
           (item) => item.textContent === 'Cancel',
         ),
       ).toBe(showsCancel)
     }
+
+    AlertDialog.destroyAll()
+    void AlertDialog.confirm({ title: 'Danger confirm', danger: true })
+    await waitForTitle('Danger confirm')
+    const dangerIcon = document.body.querySelector('[data-slot="icon"]')
+    expect(dangerIcon?.className).toContain('icon-caution')
+    expect(dangerIcon?.className).toContain('text-destructive')
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
@@ -290,7 +298,7 @@ describe('AlertDialog', () => {
 
   test('uses dialog messages, an accessible name, and reads each JSX option once', async () => {
     let titleReads = 0
-    let contentReads = 0
+    let descriptionReads = 0
 
     render(() => (
       <MoraineProvider messages={{ dialog: { ok: '确定', cancel: '取消' } }}>
@@ -302,16 +310,16 @@ describe('AlertDialog', () => {
         titleReads += 1
         return '标题'
       },
-      get content() {
-        contentReads += 1
-        return '正文'
+      get description() {
+        descriptionReads += 1
+        return '说明'
       },
     })
     void AlertDialog.info({ ariaLabel: 'Notice', icon: <span data-testid="custom-icon">!</span> })
 
     await waitFor(() => {
       expect(titleReads).toBe(1)
-      expect(contentReads).toBe(1)
+      expect(descriptionReads).toBe(1)
       expect(button('确定')).toBeInstanceOf(HTMLButtonElement)
       expect(button('取消')).toBeInstanceOf(HTMLButtonElement)
       const named = document.body.querySelector('[aria-label="Notice"]')
@@ -394,6 +402,7 @@ describe('AlertDialog', () => {
       description: 'Connect this device?',
       center: true,
       subtle: true,
+      danger: true,
       okText: 'Allow',
       cancelText: "Don't allow",
     })

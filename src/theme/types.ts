@@ -39,6 +39,7 @@ import type { PaginationStyleConfig } from '../navigation/pagination/pagination.
 import type { SidebarFrameStyleConfig } from '../navigation/sidebar-frame/sidebar-frame.style-types'
 import type { StepperStyleConfig } from '../navigation/stepper/stepper.style-types'
 import type { TabsStyleConfig } from '../navigation/tabs/tabs.style-types'
+import type { AlertDialogStyleConfig } from '../overlay/alert-dialog/alert-dialog.style-types'
 import type { ContextMenuStyleConfig } from '../overlay/context-menu/context-menu.style-types'
 import type { DialogStyleConfig } from '../overlay/dialog/dialog.style-types'
 import type { DropdownMenuStyleConfig } from '../overlay/dropdown-menu/dropdown-menu.style-types'
@@ -97,6 +98,7 @@ export interface MoraineStyleSchema {
   stepper: StepperStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig
+  alertDialog: AlertDialogStyleConfig
   contextMenu: ContextMenuStyleConfig
   dialog: DialogStyleConfig
   dropdownMenu: DropdownMenuStyleConfig

@@ -8,7 +8,6 @@ export function AlertConfirm() {
     const confirmed = await AlertDialog.confirm({
       title: 'Delete saved filter?',
       description: 'Assigned to me will be removed from your saved filters.',
-      content: 'You can create another filter later.',
       danger: true,
       okText: 'Delete filter',
     })

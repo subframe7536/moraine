@@ -30,7 +30,7 @@
         {
           "name": "center",
           "optional": true,
-          "type": "boolean",
+          "type": "boolean | null",
           "description": "Centers the icon, title, and description, and stretches the actions into an equal row.",
           "default": {
             "kind": "literal",
@@ -46,7 +46,8 @@
         {
           "name": "classes",
           "optional": true,
-          "type": "DialogT.Classes"
+          "type": "Classes",
+          "description": "Slot class defaults for this alert dialog."
         },
         {
           "name": "closable",
@@ -71,8 +72,12 @@
         {
           "name": "danger",
           "optional": true,
-          "type": "boolean",
-          "description": "Styles the OK action as `destructive` when `okVariant` is omitted."
+          "type": "boolean | null",
+          "description": "Styles the OK action as `destructive` when `okVariant` is omitted.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "icon",
@@ -108,17 +113,19 @@
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "JSX.CSSProperties",
+          "description": "Style applied to the dialog content."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": "DialogT.Styles"
+          "type": "Styles",
+          "description": "Slot style defaults for this alert dialog."
         },
         {
           "name": "subtle",
           "optional": true,
-          "type": "boolean",
+          "type": "boolean | null",
           "description": "Gives the footer a top border and muted background, like Card's `subtle` variant.",
           "default": {
             "kind": "literal",
@@ -134,6 +141,13 @@
       ]
     }
   ],
-  "slots": [],
+  "slots": [
+    "content",
+    "header",
+    "icon",
+    "copy",
+    "footer",
+    "action"
+  ],
   "dataAttributes": []
 }

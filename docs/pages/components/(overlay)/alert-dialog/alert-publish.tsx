@@ -9,7 +9,7 @@ export function AlertPublish() {
     let settled = false
     const dialog = AlertDialog.confirm({
       title: 'Publish release 1.4.0?',
-      content: 'The last check is still running.',
+      description: 'The last check is still running.',
       okText: 'Publish anyway',
       cancelText: 'Wait',
       onOk: () => {
@@ -26,7 +26,7 @@ export function AlertPublish() {
       }
       dialog.update({
         title: 'Checks passed',
-        content: 'Release 1.4.0 is ready. Members get it when you publish.',
+        description: 'Release 1.4.0 is ready. Members get it when you publish.',
         okText: 'Publish now',
       })
       setStatus('Checks passed')

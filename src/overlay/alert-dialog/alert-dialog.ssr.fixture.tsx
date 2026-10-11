@@ -7,7 +7,6 @@ function OpenAlert(): JSX.Element {
   void AlertDialog.confirm({
     title: 'Server title',
     description: 'Server description',
-    content: 'Server body',
   })
   return <></>
 }

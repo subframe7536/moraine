@@ -28,7 +28,7 @@ describe('AlertDialog SSR', () => {
     const content = document.body.querySelector('[role="alertdialog"]')
     expect(content?.textContent).toContain('Server title')
     expect(content?.textContent).toContain('Server description')
-    expect(content?.textContent).toContain('Server body')
+    expect(document.body.querySelector('[data-slot="dialog-body"]')).toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
   })
 })
