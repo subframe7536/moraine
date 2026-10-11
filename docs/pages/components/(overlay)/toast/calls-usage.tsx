@@ -1,9 +1,9 @@
-import { Button } from '@src'
-import { toast } from 'solid-toaster'
+import { Button, Toaster, toast } from '@src'
 
 export function CallsUsage() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
+      <Toaster />
       <Button variant="outline" onClick={() => toast.success('Changes saved successfully!')}>
         Success
       </Button>

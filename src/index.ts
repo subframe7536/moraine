@@ -138,7 +138,18 @@ export type {
   NavigationMenuProps,
   NavigationMenuT,
 } from './navigation'
-export { Modal, ContextMenu, Dialog, DropdownMenu, Popover, Sheet, Tooltip } from './overlay'
+export {
+  Modal,
+  ContextMenu,
+  Dialog,
+  DropdownMenu,
+  Popover,
+  Sheet,
+  Tooltip,
+  Toaster,
+  toast,
+  createToastStore,
+} from './overlay'
 export type {
   ModalProps,
   ModalT,
@@ -154,6 +165,8 @@ export type {
   SheetT,
   TooltipProps,
   TooltipT,
+  ToasterProps,
+  ToasterT,
 } from './overlay'
 export { MoraineProvider, useCn, useLocale } from './provider'
 export type { MoraineProviderProps } from './provider'
