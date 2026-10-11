@@ -5,9 +5,9 @@ api:
   path: src/overlay/dialog/dialog
   parts: [Trigger, Content, Header, Title, Description, Body, Footer, Close]
 sidebar:
-  order: 4
+  order: 5
 search:
-  tags: [modal, overlay, confirmation, focus trap, dialog, alert dialog, window]
+  tags: [modal, overlay, confirmation, focus trap, dialog, window]
 ---
 
 import { Button, Dialog } from '@src'
@@ -108,10 +108,8 @@ Use Dialog for a labeled modal task with title, description, body, and footer. U
 for anchored interactive content that should not take over the page. Use
 [Tooltip](/components/tooltip) for a brief non-interactive hint. Use
 [DropdownMenu](/components/dropdown-menu) or [ContextMenu](/components/context-menu) for an action
-list.
-
-Open confirm, info, warning, error, and success dialogs from an event handler with
-[useAlertDialog](/docs/utils/use-alert-dialog).
+list. Use [Alert Dialog](/components/alert-dialog) for confirm, info, warning, error, and
+success prompts opened from an event handler.
 
 The trigger and content share disclosure state through the root.
 
@@ -236,39 +234,6 @@ runs after the overlay and content finish their exit animations.
 </Dialog>
 ```
 
-### Imperative alerts
-
-`useAlertDialog` from [`moraine/utils`](/docs/utils/use-alert-dialog) returns the alert API and a
-holder. Mount the holder beside the caller. `confirm` resolves `true` from OK and `false` from
-cancel or Escape.
-
-```tsx
-import { Button } from 'moraine'
-import { useAlertDialog } from 'moraine/utils'
-
-export function DeleteProject() {
-  const [alert, Holder] = useAlertDialog()
-
-  return (
-    <>
-      <Button
-        onClick={() =>
-          void alert.confirm({
-            title: 'Delete this project?',
-            content: 'This action cannot be undone.',
-            danger: true,
-            okText: 'Delete',
-          })
-        }
-      >
-        Delete
-      </Button>
-      <Holder />
-    </>
-  )
-}
-```
-
 ### Keyboard interaction
 
 | Key                    | Description                                                        |
@@ -318,24 +283,3 @@ content finish their exit animations.
 A page button owns `open`. The completed-exit count updates after exit motion finishes.
 
 <Preview path="./controlled-lifecycle" />
-
-### Confirm a saved filter
-
-`confirm` opens the alert from the Delete button. OK removes the filter. Cancel and Escape leave it
-in place. Options, messages, and the instance API are on the
-[useAlertDialog](/docs/utils/use-alert-dialog) page.
-
-<Preview path="./alert-confirm" />
-
-### Show info, warning, error, and success
-
-Each method uses its own icon. Cancel stays hidden unless `cancel` is set.
-
-<Preview path="./alert-types" />
-
-### Retry a publish that stays open after failure
-
-The first `onOk` rejects, so the dialog stays open and the Publish button shows loading while the
-promise is pending. Publishing again resolves and closes it.
-
-<Preview path="./alert-publish" />

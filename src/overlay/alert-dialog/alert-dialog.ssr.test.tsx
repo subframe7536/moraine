@@ -3,18 +3,18 @@ import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
 
-import { AlertDialogFixture } from './use-alert-dialog.ssr.fixture'
+import { AlertDialogFixture } from './alert-dialog.ssr.fixture'
 
-describe('useAlertDialog SSR', () => {
-  test('hydrates the holder and mounts the portaled alert dialog', async () => {
+describe('AlertDialog SSR', () => {
+  test('hydrates the host and mounts the portaled alert dialog', async () => {
     const html = renderSsrFixture(
-      '/src/overlay/dialog/use-alert-dialog.ssr.fixture.tsx',
+      '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
       'renderAlertDialogFixture',
     )
     expect(html).toBe('')
 
     const { container } = hydrateFixture(
-      '/src/overlay/dialog/use-alert-dialog.ssr.fixture.tsx',
+      '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
       'renderAlertDialogFixture',
       () => <AlertDialogFixture />,
     )

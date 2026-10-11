@@ -1,15 +1,12 @@
-import { Button } from '@src'
-import { useAlertDialog } from '@src/utils'
+import { AlertDialog, Button } from '@src'
 
 export function AlertTypes() {
-  const [alert, Holder] = useAlertDialog()
-
   return (
     <div class="flex flex-wrap gap-3 items-center">
       <Button
         variant="outline"
         onClick={() =>
-          void alert.info({
+          void AlertDialog.info({
             title: 'Sync scheduled',
             content: 'The workspace will refresh in the background.',
           })
@@ -20,7 +17,7 @@ export function AlertTypes() {
       <Button
         variant="outline"
         onClick={() =>
-          void alert.warning({
+          void AlertDialog.warning({
             title: 'Storage is almost full',
             content: 'Free space before the next backup.',
           })
@@ -31,7 +28,7 @@ export function AlertTypes() {
       <Button
         variant="outline"
         onClick={() =>
-          void alert.error({
+          void AlertDialog.error({
             title: 'Deploy failed',
             content: 'The last deploy did not finish.',
           })
@@ -42,7 +39,7 @@ export function AlertTypes() {
       <Button
         variant="outline"
         onClick={() =>
-          void alert.success({
+          void AlertDialog.success({
             title: 'Deploy finished',
             content: 'The release is live.',
           })
@@ -50,7 +47,6 @@ export function AlertTypes() {
       >
         Success
       </Button>
-      <Holder />
     </div>
   )
 }

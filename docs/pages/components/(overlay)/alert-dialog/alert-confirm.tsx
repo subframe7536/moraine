@@ -1,13 +1,11 @@
-import { Button } from '@src'
-import { useAlertDialog } from '@src/utils'
+import { AlertDialog, Button } from '@src'
 import { createSignal, Show } from 'solid-js'
 
 export function AlertConfirm() {
-  const [alert, Holder] = useAlertDialog()
   const [exists, setExists] = createSignal(true)
 
   const confirmDelete = async () => {
-    const confirmed = await alert.confirm({
+    const confirmed = await AlertDialog.confirm({
       title: 'Delete saved filter?',
       description: 'Assigned to me will be removed from your saved filters.',
       content: 'You can create another filter later.',
@@ -27,7 +25,6 @@ export function AlertConfirm() {
           Delete
         </Button>
       </Show>
-      <Holder />
     </div>
   )
 }

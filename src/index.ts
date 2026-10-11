@@ -138,7 +138,16 @@ export type {
   NavigationMenuProps,
   NavigationMenuT,
 } from './navigation'
-export { Modal, ContextMenu, Dialog, DropdownMenu, Popover, Sheet, Tooltip } from './overlay'
+export {
+  Modal,
+  ContextMenu,
+  Dialog,
+  AlertDialog,
+  DropdownMenu,
+  Popover,
+  Sheet,
+  Tooltip,
+} from './overlay'
 export type {
   ModalProps,
   ModalT,
@@ -146,6 +155,8 @@ export type {
   ContextMenuT,
   DialogProps,
   DialogT,
+  AlertDialogProps,
+  AlertDialogT,
   DropdownMenuProps,
   DropdownMenuT,
   PopoverProps,

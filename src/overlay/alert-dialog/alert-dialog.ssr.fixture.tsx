@@ -1,16 +1,24 @@
 import type { JSX } from 'solid-js'
 import { renderToString } from 'solid-js/web'
 
-import { useAlertDialog } from './use-alert-dialog'
+import { AlertDialog } from './alert-dialog'
 
-export function AlertDialogFixture(): JSX.Element {
-  const [alert, Holder] = useAlertDialog()
-  void alert.confirm({
+function OpenAlert(): JSX.Element {
+  void AlertDialog.confirm({
     title: 'Server title',
     description: 'Server description',
     content: 'Server body',
   })
-  return <Holder />
+  return <></>
+}
+
+export function AlertDialogFixture(): JSX.Element {
+  return (
+    <>
+      <AlertDialog />
+      <OpenAlert />
+    </>
+  )
 }
 
 export function renderAlertDialogFixture(): string {

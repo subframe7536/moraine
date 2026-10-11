@@ -6,6 +6,11 @@
       "category": "element"
     },
     {
+      "key": "alert-dialog",
+      "name": "AlertDialog",
+      "category": "overlay"
+    },
+    {
       "key": "avatar",
       "name": "Avatar",
       "category": "element"

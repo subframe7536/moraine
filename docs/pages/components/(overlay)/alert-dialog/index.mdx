@@ -1,0 +1,133 @@
+---
+title: Alert Dialog
+description: Confirm, inform, or report a result from an imperative call.
+api:
+  path: src/overlay/alert-dialog/alert-dialog
+sidebar:
+  order: 4
+search:
+  tags: [confirm, warning, alert, alert dialog, AlertDialog, destructive, prompt]
+---
+
+import { AlertDialog, Button } from '@src'
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Delete this project?' },
+    { kind: 'switch', prop: 'danger', label: 'Danger', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Button
+      variant={props.danger ? 'destructive' : 'default'}
+      onClick={() =>
+        void AlertDialog.confirm({
+          title: props.title,
+          content: 'This action cannot be undone.',
+          danger: props.danger,
+        })
+      }
+    >
+      Open alert
+    </Button>
+  )}
+</Playground>
+
+## Usage
+
+Use Alert Dialog for a short confirm, info, warning, error, or success prompt opened from an event
+handler. Use [Dialog](/components/dialog) when the task has its own trigger, body, and footer.
+
+Mount `<AlertDialog>` once, inside `MoraineProvider`. It renders no children. Props on that host
+are defaults for every dialog opened while it is mounted, and options passed to a method override
+them. Call `AlertDialog` before the host is mounted and the call throws.
+
+```tsx
+import { AlertDialog, Button, MoraineProvider } from 'moraine'
+
+export function App() {
+  return (
+    <MoraineProvider>
+      <AlertDialog okText="Continue" cancelText="Back" width={420} />
+      <Button
+        onClick={() => {
+          void AlertDialog.confirm({
+            title: 'Delete this project?',
+            content: 'This action cannot be undone.',
+            danger: true,
+          })
+        }}
+      >
+        Delete
+      </Button>
+    </MoraineProvider>
+  )
+}
+```
+
+### Methods
+
+`confirm` resolves `true` from OK and `false` from cancel, Escape, the corner close button, or
+`close` / `destroy`. `confirm` includes a cancel action. `info`, `warning`, `error`, and `success`
+show the OK action only, unless `cancel` is set.
+
+`onOk` and `onCancel` run before the dialog closes. A rejected promise leaves it open and shows
+loading on the action button while the promise is pending. `close`, `destroy`, and `destroyAll`
+resolve `false` without calling those handlers. `destroy` removes the dialog immediately. `close`
+plays the exit transition. `update` merges the next options into the open dialog.
+
+```ts
+const AlertDialog: {
+  confirm: (options: AlertDialogT.Options) => AlertDialogT.Instance
+  info: (options: AlertDialogT.Options) => AlertDialogT.Instance
+  warning: (options: AlertDialogT.Options) => AlertDialogT.Instance
+  error: (options: AlertDialogT.Options) => AlertDialogT.Instance
+  success: (options: AlertDialogT.Options) => AlertDialogT.Instance
+  destroyAll: () => void
+}
+
+namespace AlertDialogT {
+  interface Instance extends Promise<boolean> {
+    close: () => void
+    destroy: () => void
+    update: (options: Partial<Options>) => void
+  }
+}
+```
+
+### Defaults
+
+Host props are read when a dialog opens. Changing them later does not update a dialog that is
+already open. Omitted host props do not replace a call option. `false`, `0`, and `null` on the
+call are kept: `icon: null` still omits the icon when the host sets one.
+
+OK and Cancel labels use the `dialog` message group (`ok`, `cancel`) when `okText` and
+`cancelText` are omitted. `ariaLabel` names the dialog when `title` is omitted.
+
+### Dismissal
+
+An outside pointer press does not dismiss the dialog unless `overlayDismissable` is set. Escape dismisses
+it unless `closeOnEscape` is `false`. The corner close button stays hidden unless `closable` is
+set. Escape closes only the topmost alert dialog.
+
+## Examples
+
+### Confirm a saved filter
+
+`confirm` opens the alert from the Delete button. OK removes the filter. Cancel and Escape leave it
+in place.
+
+<Preview path="./alert-confirm" />
+
+### Show info, warning, error, and success
+
+Each method uses its own icon. Cancel stays hidden unless `cancel` is set.
+
+<Preview path="./alert-types" />
+
+### Retry a publish that stays open after failure
+
+The first `onOk` rejects, so the dialog stays open and the Publish button shows loading while the
+promise is pending. Publishing again resolves and closes it.
+
+<Preview path="./alert-publish" />

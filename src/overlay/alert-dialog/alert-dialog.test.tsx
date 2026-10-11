@@ -4,24 +4,18 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
-import type { AlertDialogApi, AlertDialogType } from './use-alert-dialog'
-import { useAlertDialog } from './use-alert-dialog'
+import { AlertDialog } from './alert-dialog'
+import type { AlertDialogT } from './alert-dialog.types'
 
-function setup(): { alert: AlertDialogApi } {
-  let alert!: AlertDialogApi
-  render(() => {
-    const [api, Holder] = useAlertDialog()
-    alert = api
-    return (
-      <>
-        <button type="button" data-testid="outside">
-          Outside
-        </button>
-        <Holder />
-      </>
-    )
-  })
-  return { alert }
+function setup(): void {
+  render(() => (
+    <>
+      <button type="button" data-testid="outside">
+        Outside
+      </button>
+      <AlertDialog />
+    </>
+  ))
 }
 
 function dialogs(): HTMLElement[] {
@@ -59,12 +53,16 @@ async function waitForTitle(title: string): Promise<void> {
   })
 }
 
-describe('useAlertDialog', () => {
+describe('AlertDialog', () => {
+  test('requires a mounted host', () => {
+    expect(() => AlertDialog.confirm({ title: 'Missing' })).toThrow('Mount <AlertDialog>')
+  })
+
   test('confirms from OK and cancels from the cancel button', async () => {
-    const { alert } = setup()
+    setup()
     const onOk = vi.fn()
     const onCancel = vi.fn()
-    const confirmed = alert.confirm({
+    const confirmed = AlertDialog.confirm({
       title: 'Delete project',
       description: 'This cannot be undone.',
       content: 'All files will be removed.',
@@ -95,7 +93,7 @@ describe('useAlertDialog', () => {
     expect(onOk).not.toHaveBeenCalled()
     await waitForDialogCount(0)
 
-    const accepted = alert.info({ title: 'Saved', onOk })
+    const accepted = AlertDialog.info({ title: 'Saved', onOk })
     await waitForTitle('Saved')
     fireEvent.click(button('OK'))
     await expect(accepted).resolves.toBe(true)
@@ -104,8 +102,8 @@ describe('useAlertDialog', () => {
   })
 
   test('uses each type icon and shows cancel only for confirm by default', async () => {
-    const { alert } = setup()
-    const cases: Array<[AlertDialogType, string, string, boolean]> = [
+    setup()
+    const cases: Array<[AlertDialogT.Type, string, string, boolean]> = [
       ['confirm', 'icon-caution', 'text-destructive', true],
       ['info', 'icon-info', 'text-primary', false],
       ['warning', 'icon-warning', 'text-destructive', false],
@@ -114,8 +112,8 @@ describe('useAlertDialog', () => {
     ]
 
     for (const [type, icon, tone, showsCancel] of cases) {
-      alert.destroyAll()
-      void alert[type]({ title: type })
+      AlertDialog.destroyAll()
+      void AlertDialog[type]({ title: type })
       await waitForTitle(type)
       const iconElement = document.body.querySelector('[data-slot="icon"]')
       expect(iconElement?.className).toContain(icon)
@@ -129,9 +127,9 @@ describe('useAlertDialog', () => {
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
-    const { alert } = setup()
+    setup()
     const onCancel = vi.fn()
-    const result = alert.confirm({ title: 'Stay', onCancel })
+    const result = AlertDialog.confirm({ title: 'Stay', onCancel })
     await waitForTitle('Stay')
 
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -147,13 +145,13 @@ describe('useAlertDialog', () => {
     await waitForDialogCount(0)
   })
 
-  test('closes from the mask when maskClosable is set and can block Escape', async () => {
-    const { alert } = setup()
+  test('closes from the overlay when overlayDismissable is set and can block Escape', async () => {
+    setup()
     const onCancel = vi.fn()
-    const blocked = alert.info({
+    const blocked = AlertDialog.info({
       title: 'Info',
       cancel: true,
-      maskClosable: true,
+      overlayDismissable: true,
       closeOnEscape: false,
       onCancel,
     })
@@ -173,10 +171,10 @@ describe('useAlertDialog', () => {
   })
 
   test('shows loading while an async OK action is pending and stays open when it rejects', async () => {
-    const { alert } = setup()
+    setup()
     let rejectOk: (reason?: unknown) => void = () => undefined
     let resolveOk: () => void = () => undefined
-    const result = alert.confirm({
+    const result = AlertDialog.confirm({
       title: 'Save',
       onOk: () =>
         new Promise<void>((resolve, reject) => {
@@ -214,8 +212,8 @@ describe('useAlertDialog', () => {
   })
 
   test('keeps the dialog open when a cancel action rejects', async () => {
-    const { alert } = setup()
-    const result = alert.confirm({
+    setup()
+    const result = AlertDialog.confirm({
       title: 'Keep',
       onCancel: () => Promise.reject(new Error('stay')),
     })
@@ -234,8 +232,8 @@ describe('useAlertDialog', () => {
   })
 
   test('updates options, destroys one dialog, and destroys the rest', async () => {
-    const { alert } = setup()
-    const first = alert.confirm({ title: 'First', width: 280, class: 'custom-alert' })
+    setup()
+    const first = AlertDialog.confirm({ title: 'First', width: 280, class: 'custom-alert' })
     await waitForTitle('First')
     expect(dialog().style.maxWidth).toBe('280px')
     expect(dialog().className).toContain('custom-alert')
@@ -255,7 +253,7 @@ describe('useAlertDialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     expect(dialog().style.maxWidth).toBe('12rem')
 
-    const second = alert.warning({ title: 'Second', okVariant: 'outline', danger: true })
+    const second = AlertDialog.warning({ title: 'Second', okVariant: 'outline', danger: true })
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
@@ -265,15 +263,15 @@ describe('useAlertDialog', () => {
     await expect(first).resolves.toBe(false)
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Second')
 
-    alert.destroyAll()
+    AlertDialog.destroyAll()
     await expect(second).resolves.toBe(false)
     expect(dialogs()).toHaveLength(0)
   })
 
   test('close resolves false after the exit transition and the corner button runs onCancel', async () => {
-    const { alert } = setup()
+    setup()
     const onCancel = vi.fn()
-    const closed = alert.info({ title: 'Closable', closable: true, onCancel })
+    const closed = AlertDialog.info({ title: 'Closable', closable: true, onCancel })
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     })
@@ -282,7 +280,7 @@ describe('useAlertDialog', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
     await waitForDialogCount(0)
 
-    const animated = alert.success({ title: 'Animated' })
+    const animated = AlertDialog.success({ title: 'Animated' })
     await waitForTitle('Animated')
     animated.close()
     await expect(animated).resolves.toBe(false)
@@ -294,25 +292,22 @@ describe('useAlertDialog', () => {
     let titleReads = 0
     let contentReads = 0
 
-    render(() => {
-      const [alert, Holder] = useAlertDialog()
-      void alert.confirm({
-        get title() {
-          titleReads += 1
-          return '标题'
-        },
-        get content() {
-          contentReads += 1
-          return '正文'
-        },
-      })
-      void alert.info({ ariaLabel: 'Notice', icon: <span data-testid="custom-icon">!</span> })
-      return (
-        <MoraineProvider messages={{ dialog: { ok: '确定', cancel: '取消' } }}>
-          <Holder />
-        </MoraineProvider>
-      )
+    render(() => (
+      <MoraineProvider messages={{ dialog: { ok: '确定', cancel: '取消' } }}>
+        <AlertDialog />
+      </MoraineProvider>
+    ))
+    void AlertDialog.confirm({
+      get title() {
+        titleReads += 1
+        return '标题'
+      },
+      get content() {
+        contentReads += 1
+        return '正文'
+      },
     })
+    void AlertDialog.info({ ariaLabel: 'Notice', icon: <span data-testid="custom-icon">!</span> })
 
     await waitFor(() => {
       expect(titleReads).toBe(1)
@@ -327,25 +322,25 @@ describe('useAlertDialog', () => {
   })
 
   test('hides cancel for confirm and shows it for other types when requested', async () => {
-    const { alert } = setup()
-    void alert.confirm({ title: 'No cancel', cancel: false })
+    setup()
+    void AlertDialog.confirm({ title: 'No cancel', cancel: false })
     await waitForTitle('No cancel')
     expect(
       Array.from(document.body.querySelectorAll('button')).some(
         (item) => item.textContent === 'Cancel',
       ),
     ).toBe(false)
-    alert.destroyAll()
-    void alert.error({ title: 'With cancel', cancel: true, cancelText: 'Back' })
+    AlertDialog.destroyAll()
+    void AlertDialog.error({ title: 'With cancel', cancel: true, cancelText: 'Back' })
     await waitFor(() => {
       expect(button('Back')).toBeInstanceOf(HTMLButtonElement)
     })
   })
 
   test('Escape closes only the top alert dialog', async () => {
-    const { alert } = setup()
-    const first = alert.confirm({ title: 'Bottom' })
-    const second = alert.info({ title: 'Top' })
+    setup()
+    const first = AlertDialog.confirm({ title: 'Bottom' })
+    const second = AlertDialog.info({ title: 'Top' })
     let firstSettled = false
     void first.then(() => {
       firstSettled = true
@@ -367,5 +362,28 @@ describe('useAlertDialog', () => {
       expect(dialogs()).toHaveLength(1)
     })
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Bottom')
+  })
+
+  test('applies host defaults and lets the call override them', async () => {
+    render(() => <AlertDialog okText="Continue" cancelText="Back" width={420} danger />)
+    void AlertDialog.confirm({ title: 'Defaults' })
+    await waitFor(() => {
+      expect(button('Continue')).toBeInstanceOf(HTMLButtonElement)
+      expect(button('Back')).toBeInstanceOf(HTMLButtonElement)
+    })
+    expect(dialog().style.maxWidth).toBe('420px')
+    expect(button('Continue').className).toContain('bg-destructive')
+
+    AlertDialog.destroyAll()
+    void AlertDialog.info({ title: 'Override', okText: 'Done', danger: false })
+    await waitFor(() => {
+      expect(button('Done')).toBeInstanceOf(HTMLButtonElement)
+    })
+    expect(button('Done').className).not.toContain('bg-destructive')
+    expect(
+      Array.from(document.body.querySelectorAll('button')).some(
+        (item) => item.textContent === 'Back',
+      ),
+    ).toBe(false)
   })
 })

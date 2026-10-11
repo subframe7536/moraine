@@ -194,7 +194,6 @@ describe('docs route metadata', () => {
       'create-selectable-collection-navigation',
       'create-slider',
       'create-transition-presence',
-      'use-alert-dialog',
     ])
   })
 

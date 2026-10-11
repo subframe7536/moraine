@@ -20,10 +20,3 @@ export type {
   CreateSliderOptions,
   CreateSliderReturn,
 } from './form/slider/hook/slider'
-export { useAlertDialog } from './overlay/dialog/use-alert-dialog'
-export type {
-  AlertDialogApi,
-  AlertDialogInstance,
-  AlertDialogOptions,
-  AlertDialogType,
-} from './overlay/dialog/use-alert-dialog'
