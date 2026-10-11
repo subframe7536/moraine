@@ -740,16 +740,17 @@ describe('Toast', () => {
       cancel: { label: 'Cancel Btn', onClick: vi.fn() },
     })
 
-    const root = await screen.findByRole('status')
-    expect(root.getAttribute('data-slot')).toBe('toast')
-    expect(root.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-content"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-title"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-description"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-action"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-close"]')).not.toBeNull()
-    expect(root.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
+    const root = await screen.findByText('Slot Test Title')
+    expect(root.closest('[data-slot="toast"]')?.getAttribute('data-slot')).toBe('toast')
+    const toastRoot = root.closest('[data-slot="toast"]')!
+    expect(toastRoot.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-content"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-title"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-description"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-action"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-close"]')).not.toBeNull()
+    expect(toastRoot.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
   })
 
   it('warns on duplicate host ids', () => {

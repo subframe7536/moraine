@@ -483,7 +483,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
+  const role = () => props.toast.role
 
   const showCloseButton = () =>
     (props.toast.closeButton ?? props.closeButton ?? false) && !isLoading()
