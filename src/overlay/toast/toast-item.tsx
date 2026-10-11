@@ -378,6 +378,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           class={resolved.styles.root.class}
           style={{
             ...resolved.styles.root.style,
+            [isTop() ? 'top' : 'bottom']: '0',
+            ...(props.align === 'start'
+              ? { left: '0' }
+              : props.align === 'center'
+                ? { left: '0', right: '0', margin: '0 auto' }
+                : { right: '0' }),
             transform: transform(),
             'z-index': props.toastsCount - props.index,
             height: props.expanded ? 'auto' : isFront() ? 'auto' : `${props.frontmostHeight}px`,

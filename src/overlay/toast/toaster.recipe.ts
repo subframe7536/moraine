@@ -83,7 +83,7 @@ export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, Toas
       '--toast-swipe-movement-x': '0px',
       '--toast-swipe-movement-y': '0px',
       '--toast-scale': 1,
-      root: 'text-popover-foreground p-4 outline-none will-change-transform border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm pointer-events-auto select-none shadow-overlay transition-[transform,opacity,height,box-shadow] duration-300 ease-out items-center absolute overflow-hidden focus-visible:(border-ring ring-2 ring-ring/50) data-behind:opacity-0 data-expanded:opacity-100 data-limited:(opacity-0 pointer-events-none) data-swiping:transition-none data-transition:data-closed:(animate-mo-exit exit-opacity-0)',
+      root: 'text-popover-foreground p-4 outline-none will-change-transform border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm pointer-events-auto select-none shadow-overlay transition-[transform,opacity,height,box-shadow] duration-300 ease-out items-center absolute overflow-hidden focus-visible:(border-ring ring-2 ring-ring/50) [&[data-behind]:not([data-expanded])>*]:opacity-0 data-limited:(opacity-0 pointer-events-none) data-swiping:transition-none data-transition:data-closed:(animate-mo-exit exit-opacity-0)',
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
       description: 'text-xs text-muted-foreground leading-normal',

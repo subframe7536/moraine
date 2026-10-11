@@ -336,5 +336,29 @@ export function createToastStore(): ToastStore {
   return manager
 }
 
-/** Global toast singleton. */
-export const toast: ToastStore = createToastStore()
+let defaultStore: ToastStore | undefined
+
+/**
+ * Returns the active toast store singleton, initializing it lazily on first access.
+ */
+export function getToastStore(): ToastStore {
+  if (!defaultStore) {
+    defaultStore = createToastStore()
+  }
+  return defaultStore
+}
+
+/** Global toast singleton with lazy initialization. */
+export const toast: ToastStore = /* @__PURE__ */ new Proxy(
+  ((message: JSX.Element | ToasterT.AddOptions, options?: ToasterT.AddOptions) =>
+    getToastStore()(message, options)) as ToastStore,
+  {
+    get(_target, prop) {
+      return (getToastStore() as any)[prop]
+    },
+    set(_target, prop, value) {
+      ;(getToastStore() as any)[prop] = value
+      return true
+    },
+  },
+)

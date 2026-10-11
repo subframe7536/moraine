@@ -274,14 +274,14 @@ export function Toaster(props: ToasterProps): JSX.Element {
 }
 
 // Mirror methods on Toaster component
-Toaster.add = toast.add
-Toaster.success = toast.success
-Toaster.error = toast.error
-Toaster.warning = toast.warning
-Toaster.info = toast.info
-Toaster.loading = toast.loading
-Toaster.promise = toast.promise
-Toaster.custom = toast.custom
-Toaster.dismiss = toast.dismiss
-Toaster.remove = toast.remove
-Toaster.clear = toast.clear
+Toaster.add = ((...args: any[]) => (toast.add as any)(...args)) as typeof toast.add
+Toaster.success = ((...args: any[]) => (toast.success as any)(...args)) as typeof toast.success
+Toaster.error = ((...args: any[]) => (toast.error as any)(...args)) as typeof toast.error
+Toaster.warning = ((...args: any[]) => (toast.warning as any)(...args)) as typeof toast.warning
+Toaster.info = ((...args: any[]) => (toast.info as any)(...args)) as typeof toast.info
+Toaster.loading = ((...args: any[]) => (toast.loading as any)(...args)) as typeof toast.loading
+Toaster.promise = ((...args: any[]) => (toast.promise as any)(...args)) as typeof toast.promise
+Toaster.custom = ((...args: any[]) => (toast.custom as any)(...args)) as typeof toast.custom
+Toaster.dismiss = ((...args: any[]) => (toast.dismiss as any)(...args)) as typeof toast.dismiss
+Toaster.remove = ((...args: any[]) => (toast.remove as any)(...args)) as typeof toast.remove
+Toaster.clear = (() => toast.clear()) as typeof toast.clear
