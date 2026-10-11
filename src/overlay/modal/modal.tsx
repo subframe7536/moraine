@@ -55,8 +55,8 @@ export function ModalInternal<K extends ModalKind>(
       }
     },
   })
-  const dismissible = () => props.dismissible ?? true
-  const disablePointerDismissal = () => props.disablePointerDismissal ?? false
+  const closeOnOverlayClick = () => props.closeOnOverlayClick !== false
+  const closeOnEscape = () => props.closeOnEscape !== false
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   let capturedTrigger: HTMLElement | undefined
@@ -75,18 +75,18 @@ export function ModalInternal<K extends ModalKind>(
         : undefined)
   }
 
-  const requestDismiss = (event: Event, preventDefault: boolean): void => {
+  const requestDismiss = (event: Event, preventDefault: boolean, allowed: boolean): void => {
     if (event.defaultPrevented) {
       return
     }
     if (preventDefault) {
       event.preventDefault()
     }
-    if (dismissible()) {
+    if (allowed) {
       updateOpen(false)
-    } else {
-      props.onClosePrevent?.()
+      return
     }
+    props.onClosePrevent?.()
   }
 
   createEffect(
@@ -223,19 +223,7 @@ export function ModalInternal<K extends ModalKind>(
         })
       }
     },
-    onPointerOutside: (event) => {
-      if (!disablePointerDismissal()) {
-        requestDismiss(event, isModal())
-        return
-      }
-      if (event.defaultPrevented) {
-        return
-      }
-      if (isModal()) {
-        event.preventDefault()
-      }
-      props.onClosePrevent?.()
-    },
+    onPointerOutside: (event) => requestDismiss(event, isModal(), closeOnOverlayClick()),
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
@@ -255,22 +243,8 @@ export function ModalInternal<K extends ModalKind>(
           focusContent(currentContent)
         }
       })
-
-      if (!dismissible()) {
-        props.onClosePrevent?.()
-      }
     },
-    onEscape: (event) => {
-      if (props.closeOnEscape !== false) {
-        requestDismiss(event, true)
-        return
-      }
-      if (event.defaultPrevented) {
-        return
-      }
-      event.preventDefault()
-      props.onClosePrevent?.()
-    },
+    onEscape: (event) => requestDismiss(event, true, closeOnEscape()),
     onDeactivate: () => {
       if (!restoreFocusOnDeactivate) {
         return

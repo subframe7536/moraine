@@ -27,7 +27,21 @@
           "name": "closeOnEscape",
           "optional": true,
           "type": "boolean",
-          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.\nWhen omitted, Escape follows `dismissible`."
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOverlayClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "defaultOpen",
@@ -40,26 +54,6 @@
           }
         },
         {
-          "name": "disablePointerDismissal",
-          "optional": true,
-          "type": "boolean",
-          "description": "Blocks outside pointer dismissal and reports it through `onClosePrevent`.\nEscape stays under `dismissible` and `closeOnEscape`.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether outside pointer interaction and Escape should dismiss the shell.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -69,7 +63,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer dismissal follows `dismissible` unless `disablePointerDismissal` is set.\nEscape follows `dismissible` unless `closeOnEscape` is false.",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer dismissal is controlled by `closeOnOverlayClick`.\nEscape dismissal is controlled by `closeOnEscape`.",
           "default": {
             "kind": "literal",
             "value": true

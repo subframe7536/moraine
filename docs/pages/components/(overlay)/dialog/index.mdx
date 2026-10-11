@@ -170,7 +170,8 @@ Content's automatic corner close button.
 technology, and native outside pointer actions are prevented. Closing restores focus to the trigger.
 
 Setting `modal={false}` allows focus to leave the surface, but does not disable Escape or outside
-dismissal. `dismissible` controls those close requests. Scroll locking is independent:
+dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close requests. Both default to
+`true`. Scroll locking is independent:
 `preventScroll` defaults to `true`. For interaction with the background page, also set
 `preventScroll={false}` and `overlay={false}`.
 
@@ -206,11 +207,18 @@ topmost dialog or popover, then returns focus to its trigger inside the parent d
 ### State and dismissal
 
 Use controlled `open` with `onOpenChange` when the surrounding flow owns visibility.
-`dismissible={false}` blocks outside and Escape dismissal and calls `onClosePrevent`. Provide a
-clear explicit close path in that case.
+`closeOnOverlayClick={false}` blocks an outside pointer press, and `closeOnEscape={false}` blocks
+Escape. Both report the attempt through `onClosePrevent`. Provide a clear explicit close path when
+either one is blocked.
 
 ```tsx
-<Dialog open={open()} onOpenChange={setOpen} dismissible={false} onClosePrevent={onBlocked}>
+<Dialog
+  open={open()}
+  onOpenChange={setOpen}
+  closeOnOverlayClick={false}
+  closeOnEscape={false}
+  onClosePrevent={onBlocked}
+>
   <Dialog.Content title="Unsaved changes">
     <Dialog.Footer>
       <Button onClick={() => setOpen(false)}>Discard</Button>
@@ -238,7 +246,7 @@ runs after the overlay and content finish their exit animations.
 
 | Key                    | Description                                                        |
 | ---------------------- | ------------------------------------------------------------------ |
-| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.                      |
+| <kbd>Escape</kbd>      | Requests dismissal when `closeOnEscape` is not `false`.            |
 | <kbd>Tab</kbd>         | Moves focus forward through focusable controls inside the dialog.  |
 | <kbd>Shift + Tab</kbd> | Moves focus backward through focusable controls inside the dialog. |
 
@@ -259,8 +267,8 @@ layer and restores focus to its trigger.
 
 ### Save unsaved configuration
 
-Own visibility from the page. Toggle `dismissible` to block Escape and outside clicks;
-`onClosePrevent` counts blocked attempts until Save or Discard.
+Own visibility from the page. Toggle `closeOnOverlayClick` and `closeOnEscape` together to block
+outside clicks and Escape. `onClosePrevent` counts blocked attempts until Save or Discard.
 
 <Preview path="./state-dismissal" />
 

@@ -16,13 +16,19 @@ import { Button, Modal } from '@src'
 
 <Playground
   controls={[
-    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    {
+      kind: 'switch',
+      prop: 'closeOnOverlayClick',
+      label: 'Close on overlay click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'closeOnEscape', label: 'Close on Escape', defaultValue: true },
     { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
   ]}
 >
   {(props) => {
     return (
-      <Modal dismissible={props.dismissible}>
+      <Modal closeOnOverlayClick={props.closeOnOverlayClick} closeOnEscape={props.closeOnEscape}>
         <Modal.Trigger as={Button} variant="outline">
           Open Modal
         </Modal.Trigger>
@@ -142,7 +148,9 @@ name with `ariaLabel` or `ariaLabelledBy` on `Modal.Content`.
 technology, and native outside pointer actions are prevented.
 
 Setting `modal={false}` allows focus to leave, but Escape and outside interactions still request
-closure according to `dismissible`. Scroll locking is independent: `preventScroll` defaults to
+closure. `closeOnOverlayClick` controls outside pointer dismissal and `closeOnEscape` controls
+Escape. Both default to `true`. A `false` value blocks that gesture and reports it through
+`onClosePrevent`. Scroll locking is independent: `preventScroll` defaults to
 `true`. To allow background page interaction, set `preventScroll={false}` and omit `Modal.Overlay`.
 
 ### Styling and portal placement
@@ -171,11 +179,11 @@ and content exit animations to finish. An empty `class` does not disable built-i
 
 ### Keyboard interaction
 
-| Key                    | Description                                        |
-| ---------------------- | -------------------------------------------------- |
-| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.      |
-| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.  |
-| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope. |
+| Key                    | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `closeOnEscape` is not `false`. |
+| <kbd>Tab</kbd>         | Moves focus forward within the modal focus scope.       |
+| <kbd>Shift + Tab</kbd> | Moves focus backward within the modal focus scope.      |
 
 ## Examples
 

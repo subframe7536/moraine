@@ -3,29 +3,30 @@ import { createSignal, Show } from 'solid-js'
 
 export function StateDismissal() {
   const [open, setOpen] = createSignal(false)
-  const [dismissible, setDismissible] = createSignal(false)
+  const [allowDismiss, setAllowDismiss] = createSignal(false)
   const [preventedAttempts, setPreventedAttempts] = createSignal(0)
 
   return (
     <div class="flex flex-wrap gap-4 items-center">
       <Button onClick={() => setOpen(true)}>
-        Open {dismissible() ? 'Dismissible' : 'Non-Dismissible'} Dialog
+        Open {allowDismiss() ? 'Dismissible' : 'Non-Dismissible'} Dialog
       </Button>
 
       <Button
         variant="outline"
         onClick={() => {
-          setDismissible((prev) => !prev)
+          setAllowDismiss((prev) => !prev)
           setPreventedAttempts(0)
         }}
       >
-        Mode: {dismissible() ? 'Dismissible' : 'Strict (Buttons Only)'}
+        Mode: {allowDismiss() ? 'Overlay and Escape' : 'Strict (Buttons Only)'}
       </Button>
 
       <Dialog
         open={open()}
         onOpenChange={setOpen}
-        dismissible={dismissible()}
+        closeOnOverlayClick={allowDismiss()}
+        closeOnEscape={allowDismiss()}
         onClosePrevent={() => setPreventedAttempts((c) => c + 1)}
       >
         <Dialog.Content
@@ -35,7 +36,7 @@ export function StateDismissal() {
           <Dialog.Body>
             <div class="py-2 space-y-3">
               <p class="text-sm text-muted-foreground">
-                {dismissible()
+                {allowDismiss()
                   ? 'Press Escape or click the backdrop to dismiss.'
                   : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
               </p>
