@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import type { OverlayAlign } from '../../theme/style-types'
@@ -9,19 +10,11 @@ import type { ToasterT } from './toaster.types'
 export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
 
 export const toastItemDataAttributes = /* @__PURE__ */ createDataAttributes(
-  'index',
   'front',
   'behind',
-  'mounted',
-  'removed',
   'expanded',
   'limited',
-  'swiping',
-  'swipeOut',
-  'swipeDirection',
   'bump',
-  'type',
-  'dismissible',
 )
 
 export const toasterDataAttributes = {
@@ -62,14 +55,7 @@ export const toasterRecipe = /* @__PURE__ */ defineRecipe<ToasterStyleSlot, Toas
     base: {
       '--toast-gap': '0.75rem',
       '--toast-peek': '0.75rem',
-      '--toast-index': 0,
-      '--toast-offset-y': '0px',
-      '--toast-height': 'auto',
-      '--toast-frontmost-height': 'auto',
-      '--toast-swipe-movement-x': '0px',
-      '--toast-swipe-movement-y': '0px',
-      '--toast-scale': 1,
-      root: "text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none focus-visible:(border-ring ring-2 ring-ring/50) [&[data-behind]:not([data-expanded])>*]:opacity-0 data-limited:(opacity-0 pointer-events-none) [&>*]:(transition-opacity duration-400) data-bump:animate-toast-bump data-expanded:after:(h-[calc(var(--toast-gap,14px)+1px)] w-full content-[''] bottom-full left-0 absolute)",
+      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} data-limited:(opacity-0 pointer-events-none) data-bump:animate-toast-bump data-expanded:after:(h-[calc(var(--toast-gap,14px)+1px)] w-full content-[''] bottom-full left-0 absolute)`,
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
       description: 'text-xs text-muted-foreground leading-normal',

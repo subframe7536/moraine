@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   createEffect,
   createMemo,
@@ -14,6 +14,7 @@ import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { Progress } from '../../element/progress'
 import { createStyles } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
 import type { OverlayAlign } from '../../theme/style-types'
 
 import { toasterRecipe, toastItemDataAttributes } from './toaster.recipe'
@@ -29,10 +30,10 @@ export interface ToastItemProps {
   frontmostHeight: number
   offsetY: number
   expanded: boolean
-  isHovered: Accessor<boolean>
-  isInteracting: Accessor<boolean>
-  isWindowFocused: Accessor<boolean>
-  isDocumentHidden: Accessor<boolean>
+  hovered?: boolean
+  interacting?: boolean
+  windowFocused?: boolean
+  documentHidden?: boolean
   placement?: ToasterT.Placement
   align?: OverlayAlign
   closeButton?: boolean
@@ -46,31 +47,38 @@ export interface ToastItemProps {
   onRemove: (id: string | number) => void
 }
 
-const mountedToastIds = new Set<string | number>()
+interface ActionButtonConfig {
+  label: JSX.Element
+  onClick?: (event: MouseEvent) => void
+}
+
+function isActionConfig(value: unknown): value is ActionButtonConfig {
+  return typeof value === 'object' && value !== null && 'label' in value
+}
 
 export function ToastItem(props: ToastItemProps): JSX.Element {
   let itemRef: HTMLLIElement | undefined
   let dragStartTime = 0
+  let pointerStart: { x: number; y: number } | null = null
+  let dragAxis: 'x' | 'y' | null = null
+  let isDeleting = false
+  let exitTimerId: ReturnType<typeof setTimeout> | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
   let progressTimerId: ReturnType<typeof setInterval> | undefined
   let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
-  let pointerStart: { x: number; y: number } | null = null
-  let isDeleting = false
 
   const initialDuration = () => props.toast.duration ?? props.duration ?? 4000
   let remainingTime = untrack(() => props.toast.duration ?? props.duration ?? 4000)
 
-  const [mounted, setMounted] = createSignal(untrack(() => mountedToastIds.has(props.toast.id)))
+  const [mounted, setMounted] = createSignal(false)
   const [removed, setRemoved] = createSignal(false)
   const [swiping, setSwiping] = createSignal(false)
+  const [swipeOffset, setSwipeOffset] = createSignal({ x: 0, y: 0 })
   const [swipeOut, setSwipeOut] = createSignal(false)
-  const [swipeDirection, setSwipeDirection] = createSignal<'x' | 'y' | null>(null)
   const [swipeOutDirection, setSwipeOutDirection] = createSignal<
     'left' | 'right' | 'up' | 'down' | null
   >(null)
-  const [swipeMovementX, setSwipeMovementX] = createSignal(0)
-  const [swipeMovementY, setSwipeMovementY] = createSignal(0)
   const [offsetBeforeRemove, setOffsetBeforeRemove] = createSignal(0)
   const [isBumping, setIsBumping] = createSignal(false)
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
@@ -90,19 +98,41 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const lift = () => (isTop() ? 1 : -1)
 
-  const scale = createMemo(() => {
+  const scale = () => {
     if (props.expanded || isFront()) {
       return 1
     }
     return Math.max(0.85, 1 - props.index * 0.05)
-  })
+  }
 
-  const currentYOffset = createMemo(() => {
+  const currentYOffset = () => {
     if (props.expanded) {
       return lift() * props.offsetY
     }
     return lift() * (props.index * (props.gap ?? 14))
-  })
+  }
+
+  const opacity = () => {
+    if (!mounted() || removed() || !isVisible()) {
+      return 0
+    }
+    return 1
+  }
+
+  const height = () => {
+    if (measuredHeight() > 0) {
+      return `${measuredHeight()}px`
+    }
+    return 'auto'
+  }
+
+  const finishDelete = () => {
+    if (exitTimerId) {
+      clearTimeout(exitTimerId)
+      exitTimerId = undefined
+    }
+    props.onRemove(props.toast.id)
+  }
 
   const deleteToast = () => {
     if (isDeleting) {
@@ -110,34 +140,24 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
     isDeleting = true
     const toastId = props.toast.id
-    const onRemove = props.onRemove
     setRemoved(true)
     setOffsetBeforeRemove(currentYOffset())
     props.onHeight(toastId, 0)
-    let cleanedUp = false
-    const finish = () => {
-      if (cleanedUp) {
-        return
-      }
-      cleanedUp = true
-      onRemove(toastId)
-    }
 
-    const timer = window.setTimeout(finish, 200)
+    exitTimerId = setTimeout(finishDelete, 200)
+  }
 
-    if (itemRef) {
-      const onEnd = (event: Event) => {
-        if (event.target === itemRef) {
-          clearTimeout(timer)
-          itemRef?.removeEventListener('transitionend', onEnd)
-          itemRef?.removeEventListener('animationend', onEnd)
-          finish()
-        }
-      }
-      itemRef.addEventListener('transitionend', onEnd)
-      itemRef.addEventListener('animationend', onEnd)
+  const handleEndTransition = (event: Event) => {
+    if (isDeleting && event.target === itemRef) {
+      finishDelete()
     }
   }
+
+  onCleanup(() => {
+    if (exitTimerId) {
+      clearTimeout(exitTimerId)
+    }
+  })
 
   createEffect(
     on(
@@ -154,23 +174,25 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const transform = createMemo(() => {
     if (swipeOut()) {
       const dir = swipeOutDirection()
+      const offset = swipeOffset()
       if (dir === 'left') {
-        return `translate3d(calc(${swipeMovementX()}px - 100%), ${currentYOffset()}px, 0) scale(${scale()})`
+        return `translate3d(calc(${offset.x}px - 100%), ${currentYOffset()}px, 0) scale(${scale()})`
       }
       if (dir === 'right') {
-        return `translate3d(calc(${swipeMovementX()}px + 100%), ${currentYOffset()}px, 0) scale(${scale()})`
+        return `translate3d(calc(${offset.x}px + 100%), ${currentYOffset()}px, 0) scale(${scale()})`
       }
       if (dir === 'up') {
-        return `translate3d(${swipeMovementX()}px, calc(${currentYOffset() + swipeMovementY()}px - 100%), 0) scale(${scale()})`
+        return `translate3d(${offset.x}px, calc(${currentYOffset() + offset.y}px - 100%), 0) scale(${scale()})`
       }
       if (dir === 'down') {
-        return `translate3d(${swipeMovementX()}px, calc(${currentYOffset() + swipeMovementY()}px + 100%), 0) scale(${scale()})`
+        return `translate3d(${offset.x}px, calc(${currentYOffset() + offset.y}px + 100%), 0) scale(${scale()})`
       }
     }
 
     if (swiping()) {
-      const x = swipeMovementX()
-      const y = currentYOffset() + swipeMovementY()
+      const offset = swipeOffset()
+      const x = offset.x
+      const y = currentYOffset() + offset.y
       return `translate3d(${x}px, ${y}px, 0) scale(${scale()})`
     }
 
@@ -199,20 +221,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     return `translate3d(0, ${currentYOffset()}px, 0) scale(${scale()})`
   })
 
-  const opacity = createMemo(() => {
-    if (!mounted() || removed() || !isVisible()) {
-      return 0
-    }
-    return 1
-  })
-
-  const height = createMemo(() => {
-    if (measuredHeight() > 0) {
-      return `${measuredHeight()}px`
-    }
-    return 'auto'
-  })
-
   const transitionStyle = () => {
     if (swiping()) {
       return 'none'
@@ -224,17 +232,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   // oxlint-disable-next-line subf/solid-reactivity -- Toast item styling binds to the stable toast instance.
-  const resolved = createStyles(toasterRecipe, props.toast, {
-    variables: () => ({
-      '--toast-index': props.index,
-      '--toast-offset-y': `${props.offsetY}px`,
-      '--toast-height': `${measuredHeight()}px`,
-      '--toast-frontmost-height': `${props.frontmostHeight}px`,
-      '--toast-swipe-movement-x': `${swipeMovementX()}px`,
-      '--toast-swipe-movement-y': `${swipeMovementY()}px`,
-      '--toast-scale': scale(),
-    }),
-  })
+  const resolved = createStyles(toasterRecipe, props.toast)
 
   // Height measurement
   const measureHeight = () => {
@@ -251,12 +249,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   onMount(() => {
-    mountedToastIds.add(props.toast.id)
     measureHeight()
-    setMounted(true)
+    requestAnimationFrame(() => setMounted(true))
     onCleanup(() => {
       props.onHeight(props.toast.id, 0)
-      mountedToastIds.delete(props.toast.id)
     })
   })
 
@@ -272,6 +268,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       () => {
         queueMicrotask(measureHeight)
       },
+      { defer: true },
     ),
   )
 
@@ -301,17 +298,15 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   })
 
   // Timer logic
-  const isPaused = createMemo(
-    () =>
-      isLoading() ||
-      initialDuration() === Number.POSITIVE_INFINITY ||
-      props.expanded ||
-      props.isHovered() ||
-      props.isInteracting() ||
-      swiping() ||
-      props.isDocumentHidden() ||
-      !props.isWindowFocused(),
-  )
+  const isPaused = () =>
+    isLoading() ||
+    initialDuration() === Number.POSITIVE_INFINITY ||
+    props.expanded ||
+    Boolean(props.hovered) ||
+    Boolean(props.interacting) ||
+    swiping() ||
+    Boolean(props.documentHidden) ||
+    !props.windowFocused
 
   createEffect(
     on([isPaused, bumpKey], ([paused, bumpToken]) => {
@@ -386,9 +381,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
 
     dragStartTime = Date.now()
-    targetEl?.setPointerCapture?.(event.pointerId)
+    itemRef?.setPointerCapture?.(event.pointerId)
     setSwiping(true)
     pointerStart = { x: event.clientX, y: event.clientY }
+    dragAxis = null
   }
 
   function handlePointerMove(event: PointerEvent) {
@@ -404,13 +400,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     const xDelta = event.clientX - pointerStart.x
     const yDelta = event.clientY - pointerStart.y
 
-    if (!swipeDirection() && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
-      setSwipeDirection(Math.abs(xDelta) > Math.abs(yDelta) ? 'x' : 'y')
+    if (!dragAxis && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
+      dragAxis = Math.abs(xDelta) > Math.abs(yDelta) ? 'x' : 'y'
     }
 
     const getDampening = (delta: number) => 1 / (1.5 + Math.abs(delta) / 20)
 
-    if (swipeDirection() === 'x') {
+    if (dragAxis === 'x') {
       const align = props.toast.align ?? props.align ?? 'end'
       let movement = xDelta
       if (align === 'end' && xDelta < 0) {
@@ -418,35 +414,40 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       } else if (align === 'start' && xDelta > 0) {
         movement = xDelta * getDampening(xDelta)
       }
-      setSwipeMovementX(movement)
-      setSwipeMovementY(0)
-    } else if (swipeDirection() === 'y') {
+      setSwipeOffset({ x: movement, y: 0 })
+    } else if (dragAxis === 'y') {
       let movement = yDelta
       if (isTop() && yDelta > 0) {
         movement = yDelta * getDampening(yDelta)
       } else if (!isTop() && yDelta < 0) {
         movement = yDelta * getDampening(yDelta)
       }
-      setSwipeMovementY(movement)
-      setSwipeMovementX(0)
+      setSwipeOffset({ x: 0, y: movement })
     }
   }
 
-  function handlePointerUp() {
+  function handlePointerUp(event: PointerEvent) {
     if (!pointerStart || swipeOut()) {
       return
     }
 
+    if (itemRef?.hasPointerCapture?.(event.pointerId)) {
+      try {
+        itemRef.releasePointerCapture(event.pointerId)
+      } catch {}
+    }
+
     const timeTaken = Math.max(Date.now() - dragStartTime, 1)
-    const movedX = swipeMovementX()
-    const movedY = swipeMovementY()
-    const primaryDistance = swipeDirection() === 'y' ? Math.abs(movedY) : Math.abs(movedX)
+    const offset = swipeOffset()
+    const movedX = offset.x
+    const movedY = offset.y
+    const primaryDistance = dragAxis === 'y' ? Math.abs(movedY) : Math.abs(movedX)
     const velocity = primaryDistance / timeTaken
 
     pointerStart = null
 
     if (primaryDistance >= SWIPE_THRESHOLD || velocity > 0.11) {
-      if (swipeDirection() === 'x') {
+      if (dragAxis === 'x') {
         setSwipeOutDirection(movedX > 0 ? 'right' : 'left')
       } else {
         setSwipeOutDirection(movedY > 0 ? 'down' : 'up')
@@ -458,9 +459,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
 
     setSwiping(false)
-    setSwipeDirection(null)
-    setSwipeMovementX(0)
-    setSwipeMovementY(0)
+    dragAxis = null
+    setSwipeOffset({ x: 0, y: 0 })
   }
 
   const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
@@ -489,42 +489,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     return undefined
   }
 
-  const renderIcon = () => {
-    if (props.toast.icon) {
-      return typeof props.toast.icon === 'function' ? props.toast.icon() : props.toast.icon
-    }
-    const name = defaultIcon()
-    if (name) {
-      return <Icon name={name} class={name === 'icon-loading' ? 'animate-spin' : undefined} />
-    }
-    return null
-  }
-
-  const renderTitle = () => {
-    const t = props.toast.title
-    return typeof t === 'function' ? t() : t
-  }
-
-  const renderDescription = () => {
-    const d = props.toast.description
-    return typeof d === 'function' ? d() : d
-  }
-
-  const itemDataAttrs = toastItemDataAttributes({
-    index: () => props.index,
-    front: isFront,
-    behind: () => !isFront(),
-    mounted,
-    removed,
-    expanded: () => props.expanded,
-    limited: () => !isVisible(),
-    swiping,
-    swipeOut,
-    swipeDirection: swipeOutDirection,
-    bump: isBumping,
-    type: () => props.toast.variant ?? 'default',
-    dismissible: isDismissible,
-  })
+  const iconSource = () => props.toast.icon ?? defaultIcon()
 
   return (
     <li
@@ -537,7 +502,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       aria-atomic="true"
       tabIndex={0}
       inert={!isVisible() ? true : undefined}
-      {...itemDataAttrs}
+      {...toastItemDataAttributes({
+        front: isFront,
+        behind: () => !isFront(),
+        expanded: () => props.expanded,
+        limited: () => !isVisible(),
+        bump: isBumping,
+      })}
       class={resolved.styles.root.class}
       style={{
         ...resolved.styles.root.style,
@@ -557,87 +528,94 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      onTransitionEnd={handleEndTransition}
+      onAnimationEnd={handleEndTransition}
     >
       <Show
         when={props.toast.jsx}
         fallback={
           <>
-            <Show when={renderIcon()}>
-              {(iconContent) => (
+            <Show when={iconSource()}>
+              {(source) => (
                 <div class={resolved.styles.icon.class} style={resolved.styles.icon.style}>
-                  {iconContent()}
+                  <Icon
+                    name={source()}
+                    class={props.toast.variant === 'loading' ? 'animate-spin' : undefined}
+                  />
                 </div>
               )}
             </Show>
 
             <div class={resolved.styles.content.class} style={resolved.styles.content.style}>
-              <Show when={renderTitle()}>
-                <div class={resolved.styles.title.class} style={resolved.styles.title.style}>
-                  {renderTitle()}
-                </div>
+              <Show when={props.toast.title}>
+                {(title) => (
+                  <div class={resolved.styles.title.class} style={resolved.styles.title.style}>
+                    {renderWithProps(title(), {})}
+                  </div>
+                )}
               </Show>
-              <Show when={renderDescription()}>
-                <div
-                  class={resolved.styles.description.class}
-                  style={resolved.styles.description.style}
-                >
-                  {renderDescription()}
-                </div>
+              <Show when={props.toast.description}>
+                {(desc) => (
+                  <div
+                    class={resolved.styles.description.class}
+                    style={resolved.styles.description.style}
+                  >
+                    {renderWithProps(desc(), {})}
+                  </div>
+                )}
               </Show>
             </div>
 
             <Show when={props.toast.cancel}>
-              {(cancel) => {
-                const c = cancel()
-                return typeof c === 'object' &&
-                  c !== null &&
-                  'label' in c &&
-                  typeof (c as any).label !== 'undefined' ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    class={resolved.styles.cancel.class}
-                    style={resolved.styles.cancel.style}
-                    onClick={(e) => {
-                      ;(c as any).onClick?.(e)
-                      deleteToast()
-                      props.toast.onDismiss?.(props.toast)
-                    }}
-                  >
-                    {(c as any).label}
-                  </Button>
-                ) : (
-                  (c as JSX.Element)
-                )
-              }}
+              {(cancel) => (
+                <Show
+                  when={isActionConfig(cancel()) ? (cancel() as ActionButtonConfig) : undefined}
+                  fallback={cancel() as JSX.Element}
+                >
+                  {(config) => (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      class={resolved.styles.cancel.class}
+                      style={resolved.styles.cancel.style}
+                      onClick={(e) => {
+                        config().onClick?.(e)
+                        deleteToast()
+                        props.toast.onDismiss?.(props.toast)
+                      }}
+                    >
+                      {config().label}
+                    </Button>
+                  )}
+                </Show>
+              )}
             </Show>
 
             <Show when={props.toast.action}>
-              {(action) => {
-                const a = action()
-                return typeof a === 'object' &&
-                  a !== null &&
-                  'label' in a &&
-                  typeof (a as any).label !== 'undefined' ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    class={resolved.styles.action.class}
-                    style={resolved.styles.action.style}
-                    onClick={(e) => {
-                      ;(a as any).onClick?.(e)
-                      if (!e.defaultPrevented) {
-                        deleteToast()
-                        props.toast.onDismiss?.(props.toast)
-                      }
-                    }}
-                  >
-                    {(a as any).label}
-                  </Button>
-                ) : (
-                  (a as JSX.Element)
-                )
-              }}
+              {(action) => (
+                <Show
+                  when={isActionConfig(action()) ? (action() as ActionButtonConfig) : undefined}
+                  fallback={action() as JSX.Element}
+                >
+                  {(config) => (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      class={resolved.styles.action.class}
+                      style={resolved.styles.action.style}
+                      onClick={(e) => {
+                        config().onClick?.(e)
+                        if (!e.defaultPrevented) {
+                          deleteToast()
+                          props.toast.onDismiss?.(props.toast)
+                        }
+                      }}
+                    >
+                      {config().label}
+                    </Button>
+                  )}
+                </Show>
+              )}
             </Show>
 
             <Show when={showCloseButton()}>
@@ -665,7 +643,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       >
         {(customJsx) => {
           const jsx = customJsx()
-          return typeof jsx === 'function' ? (jsx as any)(props.toast.id) : jsx
+          return typeof jsx === 'function' ? jsx(props.toast.id) : jsx
         }}
       </Show>
     </li>

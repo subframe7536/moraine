@@ -28,7 +28,7 @@ describe('Toaster Component', () => {
     expect(await screen.findByText('My Toast Notification')).not.toBeNull()
     const toastItem = document.querySelector('[data-slot="toast"]')
     expect(toastItem).not.toBeNull()
-    expect(toastItem?.getAttribute('data-type')).toBe('default')
+    expect(toastItem?.hasAttribute('data-front')).toBe(true)
   })
 
   it('renders toast variant helpers (success, error, warning, info, loading)', async () => {
@@ -506,7 +506,6 @@ describe('Toaster Component', () => {
 
     // Pointer down
     fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
-    expect(itemEl.hasAttribute('data-swiping')).toBe(true)
 
     // Pointer move past threshold (SWIPE_THRESHOLD = 45)
     fireEvent.pointerMove(itemEl, { clientX: 280, clientY: 200, pointerId: 1 })
@@ -540,14 +539,15 @@ describe('Toaster Component', () => {
     warnSpy.mockRestore()
   })
 
-  it('preserves existing toast DOM node and mounted state when a new toast is created', async () => {
+  it('preserves existing toast DOM node and updates stacking state when a new toast is created', async () => {
     render(() => <Toaster />)
 
     toast.add('Toast A')
     const itemA = await screen.findByText('Toast A')
     const toastNodeA = itemA.closest('[data-slot="toast"]') as HTMLElement
     expect(toastNodeA).not.toBeNull()
-    expect(toastNodeA.hasAttribute('data-mounted')).toBe(true)
+    expect(toastNodeA.hasAttribute('data-front')).toBe(true)
+    expect(toastNodeA.hasAttribute('data-behind')).toBe(false)
 
     // Add second toast
     toast.add('Toast B')
@@ -558,7 +558,7 @@ describe('Toaster Component', () => {
 
     // Same DOM node reference preserved, no unmount or retriggering enter animation
     expect(toastNodeAAfter).toBe(toastNodeA)
-    expect(toastNodeAAfter.hasAttribute('data-mounted')).toBe(true)
+    expect(toastNodeAAfter.hasAttribute('data-front')).toBe(false)
     expect(toastNodeAAfter.hasAttribute('data-behind')).toBe(true)
   })
 })

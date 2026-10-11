@@ -290,10 +290,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
                         event.target instanceof Element
                           ? event.target.closest('[data-slot="toast"]')
                           : null
-                      const isDismissible =
-                        toastTarget instanceof HTMLElement &&
-                        toastTarget.getAttribute('data-dismissible') !== 'false'
-                      if (isDismissible) {
+                      if (toastTarget) {
                         setIsInteracting(true)
                       }
                     }}
@@ -322,10 +319,10 @@ export function Toaster(props: ToasterProps): JSX.Element {
                             frontmostHeight={frontmostHeight()}
                             offsetY={offsetY()}
                             expanded={expandedState()}
-                            isHovered={isHovered}
-                            isInteracting={isInteracting}
-                            isWindowFocused={isWindowFocused}
-                            isDocumentHidden={isDocumentHidden}
+                            hovered={isHovered()}
+                            interacting={isInteracting()}
+                            windowFocused={isWindowFocused()}
+                            documentHidden={isDocumentHidden()}
                             placement={placement}
                             align={align}
                             closeButton={local.closeButton}

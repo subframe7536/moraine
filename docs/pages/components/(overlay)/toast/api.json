@@ -355,17 +355,9 @@
       "attributes": [
         "data-behind",
         "data-bump",
-        "data-dismissible",
         "data-expanded",
         "data-front",
-        "data-index",
-        "data-limited",
-        "data-mounted",
-        "data-removed",
-        "data-swipeDirection",
-        "data-swipeOut",
-        "data-swiping",
-        "data-type"
+        "data-limited"
       ]
     }
   ]
