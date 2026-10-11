@@ -46,6 +46,8 @@ export interface ToastItemProps {
   onRemove: (id: string | number) => void
 }
 
+const mountedToastIds = new Set<string | number>()
+
 export function ToastItem(props: ToastItemProps): JSX.Element {
   let itemRef: HTMLLIElement | undefined
   let dragStartTime = 0
@@ -59,7 +61,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const initialDuration = () => props.toast.duration ?? props.duration ?? 4000
   let remainingTime = untrack(() => props.toast.duration ?? props.duration ?? 4000)
 
-  const [mounted, setMounted] = createSignal(false)
+  const [mounted, setMounted] = createSignal(untrack(() => mountedToastIds.has(props.toast.id)))
   const [removed, setRemoved] = createSignal(false)
   const [swiping, setSwiping] = createSignal(false)
   const [swipeOut, setSwipeOut] = createSignal(false)
@@ -100,7 +102,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     if (props.expanded) {
       return lift() * props.offsetY
     }
-    return lift() * (props.index * 12)
+    return lift() * (props.index * (props.gap ?? 14))
   })
 
   const deleteToast = () => {
@@ -195,7 +197,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       return 'translate3d(0, 0px, 0) scale(1)'
     }
 
-    return `translate3d(0, ${lift() * (props.index * 12)}px, 0) scale(${scale()})`
+    return `translate3d(0, ${currentYOffset()}px, 0) scale(${scale()})`
   })
 
   const opacity = createMemo(() => {
@@ -206,13 +208,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   })
 
   const height = createMemo(() => {
-    if (props.expanded) {
-      return measuredHeight() > 0 ? `${measuredHeight()}px` : 'auto'
+    if (measuredHeight() > 0) {
+      return `${measuredHeight()}px`
     }
-    if (isFront()) {
-      return 'auto'
-    }
-    return `${props.frontmostHeight}px`
+    return 'auto'
   })
 
   const transitionStyle = () => {
@@ -241,7 +240,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   // Height measurement
   const measureHeight = () => {
     if (itemRef) {
+      const originalHeight = itemRef.style.height
+      itemRef.style.height = 'auto'
       const h = itemRef.offsetHeight || itemRef.getBoundingClientRect().height
+      itemRef.style.height = originalHeight
       if (h > 0) {
         setMeasuredHeight(h)
         props.onHeight(props.toast.id, h)
@@ -250,10 +252,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   onMount(() => {
+    mountedToastIds.add(props.toast.id)
     measureHeight()
     setMounted(true)
     onCleanup(() => {
       props.onHeight(props.toast.id, 0)
+      mountedToastIds.delete(props.toast.id)
     })
   })
 

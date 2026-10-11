@@ -428,4 +428,26 @@ describe('Toaster Component', () => {
 
     warnSpy.mockRestore()
   })
+
+  it('preserves existing toast DOM node and mounted state when a new toast is created', async () => {
+    render(() => <Toaster />)
+
+    toast.add('Toast A')
+    const itemA = await screen.findByText('Toast A')
+    const toastNodeA = itemA.closest('[data-slot="toast"]') as HTMLElement
+    expect(toastNodeA).not.toBeNull()
+    expect(toastNodeA.hasAttribute('data-mounted')).toBe(true)
+
+    // Add second toast
+    toast.add('Toast B')
+    await screen.findByText('Toast B')
+
+    const itemAAfter = screen.getByText('Toast A')
+    const toastNodeAAfter = itemAAfter.closest('[data-slot="toast"]') as HTMLElement
+
+    // Same DOM node reference preserved, no unmount or retriggering enter animation
+    expect(toastNodeAAfter).toBe(toastNodeA)
+    expect(toastNodeAAfter.hasAttribute('data-mounted')).toBe(true)
+    expect(toastNodeAAfter.hasAttribute('data-behind')).toBe(true)
+  })
 })

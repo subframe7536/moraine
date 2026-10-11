@@ -160,42 +160,16 @@ export function Toaster(props: ToasterProps): JSX.Element {
     ),
   )
 
-  // Group toasts by viewport position
-  interface PositionGroup {
-    key: string
-    placement: OverlayPlacement
-    align: OverlayAlign
-    items: ToasterT.Item[]
-  }
-
   const defaultPlacement = () => local.placement ?? 'bottom'
   const defaultAlign = () => local.align ?? 'end'
+  const defaultKey = () => `${defaultPlacement()}-${defaultAlign()}`
 
-  const positionGroups = createMemo(() => {
-    const map = new Map<string, PositionGroup>()
+  const possiblePositions = createMemo(() => {
+    const activePositions = filteredToasts()
+      .filter((t) => t.placement || t.align)
+      .map((t) => `${t.placement ?? defaultPlacement()}-${t.align ?? defaultAlign()}`)
 
-    filteredToasts().forEach((t) => {
-      const p = t.placement ?? defaultPlacement()
-      const a = t.align ?? defaultAlign()
-      const key = `${p}-${a}`
-
-      if (!map.has(key)) {
-        map.set(key, { key, placement: p, align: a, items: [] })
-      }
-      map.get(key)!.items.push(t)
-    })
-
-    if (map.size === 0) {
-      const key = `${defaultPlacement()}-${defaultAlign()}`
-      map.set(key, {
-        key,
-        placement: defaultPlacement(),
-        align: defaultAlign(),
-        items: [],
-      })
-    }
-
-    return Array.from(map.values())
+    return Array.from(new Set([defaultKey(), ...activePositions]))
   })
 
   const updateHeight = (id: string | number, h: number) => {
@@ -223,12 +197,30 @@ export function Toaster(props: ToasterProps): JSX.Element {
             class="pointer-events-none inset-0 fixed z-floating"
             {...rest}
           >
-            <For each={positionGroups()}>
-              {(group) => {
-                const activeGroupToasts = createMemo(() => group.items)
+            <For each={possiblePositions()}>
+              {(positionKey) => {
+                const [placement, align] = positionKey.split('-') as [
+                  OverlayPlacement,
+                  OverlayAlign,
+                ]
+
+                const activeGroupToasts = createMemo(() => {
+                  return filteredToasts().filter((t) => {
+                    const p = t.placement ?? defaultPlacement()
+                    const a = t.align ?? defaultAlign()
+                    return `${p}-${a}` === positionKey
+                  })
+                })
+
                 const frontmostHeight = () => {
-                  const frontId = activeGroupToasts()[0]?.id
-                  return frontId ? (heights()[frontId] ?? 0) : 0
+                  const toasts = activeGroupToasts()
+                  for (const t of toasts) {
+                    const h = heights()[t.id]
+                    if (h && h > 0) {
+                      return h
+                    }
+                  }
+                  return 0
                 }
 
                 return (
@@ -239,7 +231,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
                       activeGroupToasts().length > 0
                         ? 'pointer-events-auto'
                         : 'pointer-events-none',
-                      getToastPlacementClass(group.placement, group.align),
+                      getToastPlacementClass(placement, align),
                       local.class,
                     )}
                     style={{
@@ -302,8 +294,8 @@ export function Toaster(props: ToasterProps): JSX.Element {
                             isInteracting={isInteracting}
                             isWindowFocused={isWindowFocused}
                             isDocumentHidden={isDocumentHidden}
-                            placement={group.placement}
-                            align={group.align}
+                            placement={placement}
+                            align={align}
                             closeButton={local.closeButton}
                             closeButtonAriaLabel={local.closeButtonAriaLabel}
                             showProgress={local.showProgress}
