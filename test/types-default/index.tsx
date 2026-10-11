@@ -209,6 +209,13 @@ type UtilsCn = typeof import('moraine/utils').cn
 type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 // @ts-expect-error Slider hook is only public from the utils entry.
 type RootUseSlider = typeof import('moraine').createSlider
+type RootAlertDialog = typeof import('moraine').AlertDialog
+type RootAlertDialogOptions = import('moraine').AlertDialogT.Options
+type RootAlertDialogInstance = import('moraine').AlertDialogT.Instance
+// @ts-expect-error Alert dialog is only public from the root entry.
+type UtilsAlertDialog = typeof import('moraine/utils').AlertDialog
+// @ts-expect-error The alert dialog hook is not a public export.
+type RootUseAlertDialog = typeof import('moraine').useAlertDialog
 type UtilsSliderHook = typeof import('moraine/utils').createSlider
 type UtilsUseSliderProps = import('moraine/utils').CreateSliderProps
 type UtilsUseSliderOptions = import('moraine/utils').CreateSliderOptions
@@ -218,6 +225,24 @@ export type PublicEntryIsolation = [
   RecipeEntry,
   RootRecipe,
   RootUseSlider,
+  RootAlertDialog,
+  Assert<
+    RootAlertDialog extends ((props: import('moraine').AlertDialogProps) => unknown) & {
+      confirm: (options: RootAlertDialogOptions) => RootAlertDialogInstance
+      destroyAll: () => void
+    }
+      ? true
+      : false
+  >,
+  Assert<'children' extends keyof import('moraine').AlertDialogProps ? false : true>,
+  Assert<'okText' extends keyof import('moraine').AlertDialogProps ? true : false>,
+  Assert<'title' extends keyof import('moraine').AlertDialogProps ? false : true>,
+  Assert<'confirm' extends keyof RootAlertDialogOptions ? false : true>,
+  Assert<'title' extends keyof RootAlertDialogOptions ? true : false>,
+  Assert<RootAlertDialogInstance extends Promise<boolean> ? true : false>,
+  Assert<'destroy' extends keyof RootAlertDialogInstance ? true : false>,
+  UtilsAlertDialog,
+  RootUseAlertDialog,
   UtilsProvider,
   UtilsCn,
   UtilsStyleVarRecord,

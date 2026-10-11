@@ -56,6 +56,7 @@ export function ModalInternal<K extends ModalKind>(
     },
   })
   const dismissible = () => props.dismissible ?? true
+  const disablePointerDismissal = () => props.disablePointerDismissal ?? false
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   let capturedTrigger: HTMLElement | undefined
@@ -222,7 +223,19 @@ export function ModalInternal<K extends ModalKind>(
         })
       }
     },
-    onPointerOutside: (event) => requestDismiss(event, isModal()),
+    onPointerOutside: (event) => {
+      if (!disablePointerDismissal()) {
+        requestDismiss(event, isModal())
+        return
+      }
+      if (event.defaultPrevented) {
+        return
+      }
+      if (isModal()) {
+        event.preventDefault()
+      }
+      props.onClosePrevent?.()
+    },
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
@@ -247,7 +260,17 @@ export function ModalInternal<K extends ModalKind>(
         props.onClosePrevent?.()
       }
     },
-    onEscape: (event) => requestDismiss(event, true),
+    onEscape: (event) => {
+      if (props.closeOnEscape !== false) {
+        requestDismiss(event, true)
+        return
+      }
+      if (event.defaultPrevented) {
+        return
+      }
+      event.preventDefault()
+      props.onClosePrevent?.()
+    },
     onDeactivate: () => {
       if (!restoreFocusOnDeactivate) {
         return

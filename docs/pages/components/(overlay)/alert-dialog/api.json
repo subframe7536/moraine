@@ -1,0 +1,119 @@
+{
+  "key": "alert-dialog",
+  "name": "AlertDialog",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "alert-dialog",
+      "name": "AlertDialog",
+      "access": {
+        "kind": "export",
+        "name": "AlertDialog"
+      },
+      "props": [
+        {
+          "name": "cancel",
+          "optional": true,
+          "type": "boolean",
+          "description": "Shows the cancel action. Defaults to true for `confirm` and false otherwise."
+        },
+        {
+          "name": "cancelText",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "cancelVariant",
+          "optional": true,
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "string",
+          "description": "Class applied to the dialog content."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "DialogT.Classes"
+        },
+        {
+          "name": "closable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the corner close button is shown.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "danger",
+          "optional": true,
+          "type": "boolean",
+          "description": "Styles the OK action as `destructive` when `okVariant` is omitted."
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "type": "IconT.Name | null",
+          "description": "Replaces the type icon. `null` omits the icon."
+        },
+        {
+          "name": "overlayDismissable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "okText",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
+          "name": "okVariant",
+          "optional": true,
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual treatment of the OK action.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "DialogT.Styles"
+        },
+        {
+          "name": "width",
+          "optional": true,
+          "type": "string | number",
+          "description": "Sets the dialog content `max-width`."
+        }
+      ]
+    }
+  ],
+  "slots": [],
+  "dataAttributes": []
+}

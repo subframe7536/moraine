@@ -50,6 +50,12 @@
           }
         },
         {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.\nWhen omitted, Escape follows `dismissible`."
+        },
+        {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
@@ -60,10 +66,20 @@
           }
         },
         {
+          "name": "disablePointerDismissal",
+          "optional": true,
+          "type": "boolean",
+          "description": "Blocks outside pointer dismissal and reports it through `onClosePrevent`.\nEscape stays under `dismissible` and `closeOnEscape`.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "dismissible",
           "optional": true,
           "type": "boolean",
-          "description": "Whether outside interaction and Escape should dismiss the shell.",
+          "description": "Whether outside pointer interaction and Escape should dismiss the shell.",
           "default": {
             "kind": "literal",
             "value": true
@@ -89,7 +105,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer and Escape dismissal remain controlled by `dismissible`.",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer dismissal follows `dismissible` unless `disablePointerDismissal` is set.\nEscape follows `dismissible` unless `closeOnEscape` is false.",
           "default": {
             "kind": "literal",
             "value": true

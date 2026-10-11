@@ -5,9 +5,9 @@ api:
   path: src/overlay/dialog/dialog
   parts: [Trigger, Content, Header, Title, Description, Body, Footer, Close]
 sidebar:
-  order: 4
+  order: 5
 search:
-  tags: [modal, overlay, confirmation, focus trap, dialog, alert dialog, window]
+  tags: [modal, overlay, confirmation, focus trap, dialog, window]
 ---
 
 import { Button, Dialog } from '@src'
@@ -108,7 +108,8 @@ Use Dialog for a labeled modal task with title, description, body, and footer. U
 for anchored interactive content that should not take over the page. Use
 [Tooltip](/components/tooltip) for a brief non-interactive hint. Use
 [DropdownMenu](/components/dropdown-menu) or [ContextMenu](/components/context-menu) for an action
-list.
+list. Use [Alert Dialog](/components/alert-dialog) for confirm, info, warning, error, and
+success prompts opened from an event handler.
 
 The trigger and content share disclosure state through the root.
 
