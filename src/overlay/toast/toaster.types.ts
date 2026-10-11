@@ -1,12 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
-import type {
-  OverlayAlign,
-  OverlayPlacement,
-  SlotClassValue,
-  SlotStyleValue,
-} from '../../theme/style-types'
+import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ToasterStyleSlot, ToasterStyleVariant } from './toaster.style-types'
 
@@ -15,6 +10,7 @@ export namespace ToasterT {
 
   export type Slot<T = unknown> = ToasterStyleSlot<T>
   export type Variant = NonNullable<ToasterStyleVariant['variant']>
+  export type Placement = 'top' | 'bottom'
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -64,7 +60,7 @@ export namespace ToasterT {
     /** Whether to invert toast colors. */
     invert?: boolean
     /** Viewport placement on screen. */
-    placement?: OverlayPlacement
+    placement?: Placement
     /** Viewport alignment on screen. */
     align?: OverlayAlign
     /** Class overrides for toast slots. */
@@ -131,7 +127,7 @@ export namespace ToasterT {
      * Viewport placement on the screen.
      * @default 'bottom'
      */
-    placement?: OverlayPlacement
+    placement?: Placement
 
     /**
      * Viewport alignment relative to the placement side.

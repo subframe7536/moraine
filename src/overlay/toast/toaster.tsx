@@ -14,7 +14,7 @@ import { Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider'
 import { createEventListener } from '../../shared/event-listener'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
+import type { OverlayAlign } from '../../theme/style-types'
 
 import { ToastItem } from './toast-item'
 import { toast } from './toast-store'
@@ -108,7 +108,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
     if (!local.id && !isDuplicate()) {
       activeDefaultToasters = Math.max(0, activeDefaultToasters - 1)
     }
-    if (!isDuplicate()) {
+    if (!isDuplicate() && local.preventDuplicate !== undefined) {
       toast.preventDuplicate = false
     }
   })
@@ -204,7 +204,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
             <For each={possiblePositions()}>
               {(positionKey) => {
                 const [placement, align] = positionKey.split('-') as [
-                  OverlayPlacement,
+                  ToasterT.Placement,
                   OverlayAlign,
                 ]
 

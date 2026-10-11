@@ -1,9 +1,10 @@
 import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
+import type { OverlayAlign } from '../../theme/style-types'
 
 import type { ToasterStyleSlot, ToasterStyleVariant } from './toaster.style-types'
+import type { ToasterT } from './toaster.types'
 
 export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
 
@@ -32,7 +33,7 @@ export const TOAST_VIEWPORT_BASE_CLASS = 'm-0 outline-none list-none flex flex-c
 
 /** Resolves viewport positioning classes based on placement and alignment. */
 export function getToastPlacementClass(
-  placement: OverlayPlacement = 'bottom',
+  placement: ToasterT.Placement = 'bottom',
   align: OverlayAlign = 'end',
 ): string {
   if (placement === 'top') {
@@ -43,26 +44,6 @@ export function getToastPlacementClass(
       return 'top-4 left-1/2 -translate-x-1/2 items-center'
     }
     return 'top-4 right-4 items-end'
-  }
-
-  if (placement === 'left') {
-    if (align === 'start') {
-      return 'top-4 left-4 items-start'
-    }
-    if (align === 'center') {
-      return 'top-1/2 left-4 -translate-y-1/2 items-start'
-    }
-    return 'bottom-4 left-4 items-start'
-  }
-
-  if (placement === 'right') {
-    if (align === 'start') {
-      return 'top-4 right-4 items-end'
-    }
-    if (align === 'center') {
-      return 'top-1/2 right-4 -translate-y-1/2 items-end'
-    }
-    return 'bottom-4 right-4 items-end'
   }
 
   // placement === 'bottom' (default)

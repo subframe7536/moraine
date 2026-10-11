@@ -14,7 +14,7 @@ import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { Progress } from '../../element/progress'
 import { createStyles } from '../../provider'
-import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
+import type { OverlayAlign } from '../../theme/style-types'
 
 import { toasterRecipe, toastItemDataAttributes } from './toaster.recipe'
 import type { ToasterT } from './toaster.types'
@@ -33,7 +33,7 @@ export interface ToastItemProps {
   isInteracting: Accessor<boolean>
   isWindowFocused: Accessor<boolean>
   isDocumentHidden: Accessor<boolean>
-  placement?: OverlayPlacement
+  placement?: ToasterT.Placement
   align?: OverlayAlign
   closeButton?: boolean
   closeButtonAriaLabel?: string
@@ -85,8 +85,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const isTop = () => {
     const p = props.toast.placement ?? props.placement ?? 'bottom'
-    const a = props.toast.align ?? props.align ?? 'end'
-    return p === 'top' || ((p === 'left' || p === 'right') && a === 'start')
+    return p === 'top'
   }
 
   const lift = () => (isTop() ? 1 : -1)

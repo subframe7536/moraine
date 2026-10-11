@@ -115,7 +115,7 @@
         {
           "name": "placement",
           "optional": true,
-          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "type": "'top' | 'bottom'",
           "description": "Viewport placement on the screen.",
           "default": {
             "kind": "literal",
@@ -125,7 +125,7 @@
         {
           "name": "preventDuplicate",
           "optional": true,
-          "type": "boolean",
+          "type": "PreventDuplicate",
           "description": "Prevent duplicate toasts with matching content.",
           "default": {
             "kind": "literal",
@@ -291,7 +291,7 @@
       {
         "name": "placement",
         "optional": true,
-        "type": "'top' | 'right' | 'bottom' | 'left'",
+        "type": "'top' | 'bottom'",
         "description": "Viewport placement on screen."
       },
       {

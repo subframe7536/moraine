@@ -231,6 +231,28 @@ describe('Toaster Component', () => {
     await expect(promiseReturn.unwrap()).rejects.toThrow('Network error')
   })
 
+  it('defaults preventDuplicate to false', async () => {
+    render(() => <Toaster />)
+
+    expect(toast.preventDuplicate).toBe(false)
+    const id1 = toast.add('Repeated default message')
+    const id2 = toast.add('Repeated default message')
+
+    expect(id1).not.toBe(id2)
+    await screen.findAllByText('Repeated default message')
+    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    expect(toasts.length).toBe(2)
+  })
+
+  it('supports placement top and bottom', async () => {
+    render(() => <Toaster placement="top" align="center" />)
+    toast.add('Top notification')
+
+    await screen.findByText('Top notification')
+    const list = screen.getByRole('list')
+    expect(list.className).toContain('top-4')
+  })
+
   it('prevents duplicates and bumps bumpKey when preventDuplicate is set', async () => {
     toast.preventDuplicate = true
     render(() => <Toaster />)
