@@ -39,28 +39,28 @@ import { Button, Toaster, toast } from '@src'
   {(props) => {
     const showToast = () => {
       const message = props.message
+      const options = {
+        preventDuplicate: props.preventDuplicate,
+        closeButton: props.closeButton,
+        showProgress: props.showProgress,
+      }
       switch (props.tone) {
         case 'warning':
-          toast.warning(message)
+          toast.warning(message, options)
           break
         case 'error':
-          toast.error(message)
+          toast.error(message, options)
           break
         case 'info':
-          toast.info(message)
+          toast.info(message, options)
           break
         default:
-          toast.success(message)
+          toast.success(message, options)
       }
     }
 
     return (
       <div class="p-6 flex items-center justify-center">
-        <Toaster
-          preventDuplicate={props.preventDuplicate}
-          closeButton={props.closeButton}
-          showProgress={props.showProgress}
-        />
         <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
           Trigger Toast Notification
         </Button>

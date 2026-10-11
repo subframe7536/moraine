@@ -1,6 +1,6 @@
 import { Button, Toaster, toast } from '@src'
 
-export function PrevientDuplicate() {
+export function PreventDuplicate() {
   return (
     <div class="space-y-4">
       <Toaster id="pd" placement="top" align="end" preventDuplicate />

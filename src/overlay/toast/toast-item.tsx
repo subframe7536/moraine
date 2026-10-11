@@ -78,6 +78,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const isVisible = () => props.index < props.visibleToasts
   const isDismissible = () => props.toast.dismissible !== false
   const isLoading = () => props.toast.variant === 'loading'
+  const showProgressBar = () =>
+    (props.toast.showProgress ?? props.showProgress ?? false) && !isLoading()
 
   const isTop = () => {
     const p = props.toast.placement ?? props.placement ?? 'bottom'
@@ -348,7 +350,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       }, currentRemaining)
 
       // Update progress bar
-      if (props.showProgress || props.toast.showProgress) {
+      if (showProgressBar()) {
         progressTimerId = setInterval(() => {
           if (closeTimerStartTime > 0) {
             const elapsed = Date.now() - closeTimerStartTime
@@ -650,7 +652,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
               />
             </Show>
 
-            <Show when={props.showProgress || props.toast.showProgress}>
+            <Show when={showProgressBar()}>
               <div class={resolved.styles.progress.class} style={resolved.styles.progress.style}>
                 <Progress size="sm" value={progressPercent()} />
               </div>

@@ -1,4 +1,4 @@
-import { Button, Toaster, toast } from '@src'
+import { Button, toast } from '@src'
 
 export function BasicToasts() {
   const wait = (ms: number) =>
@@ -14,7 +14,6 @@ export function BasicToasts() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Toaster />
       <Button onClick={() => toast('Default message')}>Default</Button>
       <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>
         Success

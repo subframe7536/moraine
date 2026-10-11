@@ -22,7 +22,6 @@ export function PromiseScopedInstances() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Toaster />
       <Toaster id="custom" placement="bottom" align="start" />
       <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
       <Button

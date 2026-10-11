@@ -4,15 +4,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
 import { toast } from './toast-store'
-import { Toaster } from './toaster'
+import { _resetDefaultToasterCount, Toaster } from './toaster'
 
 describe('Toaster Component', () => {
   beforeEach(() => {
+    _resetDefaultToasterCount()
     toast.clear()
     toast.preventDuplicate = false
   })
 
   afterEach(() => {
+    _resetDefaultToasterCount()
     vi.useRealTimers()
     vi.restoreAllMocks()
     toast.clear()
@@ -405,5 +407,25 @@ describe('Toaster Component', () => {
     await waitFor(() => {
       expect(screen.queryByText('Swipe me away')).toBeNull()
     })
+  })
+
+  it('deduplicates multiple unscoped default toasters', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(() => (
+      <>
+        <Toaster />
+        <Toaster />
+      </>
+    ))
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Multiple default <Toaster /> instances detected'),
+    )
+
+    toast.add('Single render test')
+    const matches = await screen.findAllByText('Single render test')
+    expect(matches).toHaveLength(1)
+
+    warnSpy.mockRestore()
   })
 })

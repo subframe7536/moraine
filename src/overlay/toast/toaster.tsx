@@ -28,6 +28,15 @@ function matchesToasterId(item: ToasterT.Item, toasterId?: string): boolean {
   return !item.toasterId
 }
 
+let activeDefaultToasters = 0
+
+/**
+ * Reset default toaster count. Used for testing teardown.
+ */
+export function _resetDefaultToasterCount(): void {
+  activeDefaultToasters = 0
+}
+
 /**
  * All-in-one turn-key Toaster container.
  */
@@ -55,6 +64,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
 
   const cn = useCn()
   const [isMounted, setIsMounted] = createSignal(false)
+  const [isDuplicate, setIsDuplicate] = createSignal(false)
   const [isExpanded, setIsExpanded] = createSignal(false)
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
@@ -64,6 +74,17 @@ export function Toaster(props: ToasterProps): JSX.Element {
 
   // SSR Gate 4: Defer client portal mount via microtask after initial hydration
   onMount(() => {
+    if (!local.id) {
+      if (activeDefaultToasters > 0) {
+        setIsDuplicate(true)
+        console.warn(
+          '[moraine] Multiple default <Toaster /> instances detected. Only one default Toaster should be mounted.',
+        )
+        return
+      }
+      activeDefaultToasters++
+    }
+
     queueMicrotask(() => setIsMounted(true))
   })
 
@@ -72,7 +93,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
     on(
       () => local.preventDuplicate,
       (val) => {
-        if (val !== undefined) {
+        if (!isDuplicate() && val !== undefined) {
           toast.preventDuplicate = val
         }
       },
@@ -80,11 +101,19 @@ export function Toaster(props: ToasterProps): JSX.Element {
   )
 
   onCleanup(() => {
-    toast.preventDuplicate = false
+    if (!local.id && !isDuplicate()) {
+      activeDefaultToasters = Math.max(0, activeDefaultToasters - 1)
+    }
+    if (!isDuplicate()) {
+      toast.preventDuplicate = false
+    }
   })
 
   // Window blur & focus listeners
   onMount(() => {
+    if (isDuplicate()) {
+      return
+    }
     createEventListener(window, 'focus', () => setIsWindowFocused(true))
     createEventListener(window, 'blur', () => setIsWindowFocused(false))
     createEventListener(window, 'pointerup', () => setIsInteracting(false))
@@ -96,6 +125,9 @@ export function Toaster(props: ToasterProps): JSX.Element {
 
   // Global keyboard shortcuts (F6 to focus, Escape to collapse)
   onMount(() => {
+    if (isDuplicate()) {
+      return
+    }
     createEventListener(window, 'keydown', (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsExpanded(false)
@@ -181,7 +213,7 @@ export function Toaster(props: ToasterProps): JSX.Element {
   const gapSize = () => local.gap ?? 14
 
   return (
-    <Show when={isMounted()}>
+    <Show when={isMounted() && !isDuplicate()}>
       {(_mounted) => (
         <Portal>
           <section
