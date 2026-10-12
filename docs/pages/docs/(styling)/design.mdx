@@ -13,7 +13,7 @@ Use semantic CSS variables to customize colors, typography, spacing, radiuses, a
 
 With UnoCSS, `presetMoraine()` supplies a neutral light and dark palette and accepts named [`override` entries](/docs/unocss#theme-tokens). Use `presetMoraine({ wind3: true })` with Wind3. When defining the palette in CSS, set `themeDefaults: false` and supply the colors and semantic shadows yourself. Tailwind users also define these values in CSS.
 
-The following example defines the default colors and scale values. Add the [semantic shadows](#backdrop-and-semantic-shadows) and [font families](#typography-and-spacing) described below when using an external theme. `color-scheme` makes native browser controls follow the light or dark theme:
+The following example defines the default colors and scale values. The status colors `--info`, `--success`, `--warning`, and `--danger` follow Obsidian's callout colors, so `--warning` is orange rather than yellow. Add the [semantic shadows](#backdrop-and-semantic-shadows) and [font families](#typography-and-spacing) described below when using an external theme. `color-scheme` makes native browser controls follow the light or dark theme:
 
 ```css title="src/theme.css"
 :root {
@@ -32,10 +32,10 @@ The following example defines the default colors and scale values. Add the [sema
   --muted-foreground: rgb(115, 115, 115);
   --accent: rgb(245, 245, 245);
   --accent-foreground: rgb(23, 23, 23);
-  --danger: rgb(239, 68, 68);
-  --info: rgb(59, 130, 246);
-  --success: rgb(34, 197, 94);
-  --warning: rgb(234, 179, 8);
+  --danger: rgb(233, 49, 71);
+  --info: rgb(8, 109, 221);
+  --success: rgb(8, 185, 78);
+  --warning: rgb(236, 117, 0);
   --border: rgb(229, 229, 229);
   --input: rgb(229, 229, 229);
   --control: rgb(255, 255, 255);
@@ -62,10 +62,10 @@ The following example defines the default colors and scale values. Add the [sema
   --muted-foreground: rgb(161, 161, 161);
   --accent: rgb(38, 38, 38);
   --accent-foreground: rgb(250, 250, 250);
-  --danger: rgb(248, 113, 113);
-  --info: rgb(96, 165, 250);
-  --success: rgb(74, 222, 128);
-  --warning: rgb(250, 204, 21);
+  --danger: rgb(251, 70, 76);
+  --info: rgb(2, 122, 255);
+  --success: rgb(68, 207, 110);
+  --warning: rgb(233, 151, 63);
   --border: rgb(35, 35, 35);
   --input: rgb(47, 47, 47);
   --control: rgb(23, 23, 23);

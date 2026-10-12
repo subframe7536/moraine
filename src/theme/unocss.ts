@@ -110,6 +110,7 @@ const DEFAULT_THEME_SHADOWS = {
 } satisfies MorainePresetTheme['shadows']
 
 // shadcn/ui's neutral palette in 8-bit sRGB, compositing dark borders over the page background.
+// Status colors (danger, info, success, warning) follow Obsidian's callout colors.
 const DEFAULT_THEME_COLORS = {
   light: {
     background: { base: 'rgb(255, 255, 255)' },
@@ -120,10 +121,10 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    danger: { base: 'rgb(239, 68, 68)' },
-    info: { base: 'rgb(59, 130, 246)' },
-    success: { base: 'rgb(34, 197, 94)' },
-    warning: { base: 'rgb(234, 179, 8)' },
+    danger: { base: 'rgb(233, 49, 71)' },
+    info: { base: 'rgb(8, 109, 221)' },
+    success: { base: 'rgb(8, 185, 78)' },
+    warning: { base: 'rgb(236, 117, 0)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
@@ -139,10 +140,10 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
     muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
     accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
-    danger: { base: 'rgb(248, 113, 113)' },
-    info: { base: 'rgb(96, 165, 250)' },
-    success: { base: 'rgb(74, 222, 128)' },
-    warning: { base: 'rgb(250, 204, 21)' },
+    danger: { base: 'rgb(251, 70, 76)' },
+    info: { base: 'rgb(2, 122, 255)' },
+    success: { base: 'rgb(68, 207, 110)' },
+    warning: { base: 'rgb(233, 151, 63)' },
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',

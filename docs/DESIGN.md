@@ -72,6 +72,9 @@ palette is allowed.
 | Warning        | `--warning` / `--warning-foreground`, with state variants                           | Caution paired with explicit text or an icon.                       |
 | Danger         | `--danger` / `--danger-foreground`, with state variants                             | Destructive actions, errors, and failure feedback.                  |
 
+The built-in info, success, warning, and danger values follow Obsidian's callout colors; warning is
+orange rather than yellow.
+
 Form surfaces use `--control`, independently of `--input` boundaries and neutral tracks/separators.
 Outline fields, unchecked choices, and upload controls use `control`; subtle fields use `muted`.
 Both text-field variants retain the same boundary and shadow. Grouped containers own their surface;
