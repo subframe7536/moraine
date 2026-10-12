@@ -16,8 +16,8 @@ export const toastDataAttributes = {
     'swiping',
     'swipe-out',
   ),
-  /** Viewport list (`ol`/`ul`) expanded / empty state. */
-  list: /* @__PURE__ */ createDataAttributes('expanded', 'empty'),
+  /** Stack list (`ul`) expanded state. */
+  list: /* @__PURE__ */ createDataAttributes('expanded'),
 } satisfies DataAttributeContract<keyof ToastStyleSlot>
 
 export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastStyleVariant>(
@@ -27,7 +27,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
       // Corner-anchored and sized to the toast width; never a full-screen overlay.
       viewport: 'max-w-[calc(100vw-2rem)] w-sm pointer-events-none fixed z-floating',
-      list: 'm-0 outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating data-empty:pointer-events-none',
+      list: 'm-0 outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating',
       root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 data-limited:(opacity-0 pointer-events-none) data-swipe-out:duration-200 data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none`,
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',

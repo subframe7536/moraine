@@ -672,7 +672,6 @@ describe('Toast', () => {
     Toast.show('Reactive attrs')
     await screen.findByText('Reactive attrs')
     const list = document.querySelector('ul')!
-    expect(list.hasAttribute('data-empty')).toBe(false)
     expect(list.hasAttribute('data-expanded')).toBe(false)
 
     fireEvent.mouseEnter(list)
@@ -1018,23 +1017,27 @@ describe('Toast', () => {
     expect(isolatedViewport).not.toContain('Default only')
   })
 
-  it('renders the viewport only while the host has toasts, including exiting ones', async () => {
+  it('keeps the viewport mounted and renders the list only while it has toasts', async () => {
     render(() => <Toast />)
     const viewport = () => document.querySelector('[data-slot="toast-viewport"]')
-    expect(viewport()).toBeNull()
+    const list = () => document.querySelector('[data-slot="toast-list"]')
+    // Persistent live region; no empty list.
+    expect(viewport()?.getAttribute('aria-live')).toBe('polite')
+    expect(list()).toBeNull()
 
     const id = Toast.show('Lifecycle toast')
     await screen.findByText('Lifecycle toast')
-    expect(viewport()).not.toBeNull()
+    expect(list()).not.toBeNull()
 
     Toast.dismiss(id)
     // Still mounted while the exit animation plays.
     await Promise.resolve()
-    expect(viewport()).not.toBeNull()
+    expect(list()).not.toBeNull()
     expect(screen.queryByText('Lifecycle toast')).not.toBeNull()
 
     await finishExitMotion()
-    await waitFor(() => expect(viewport()).toBeNull())
+    await waitFor(() => expect(list()).toBeNull())
+    expect(viewport()).not.toBeNull()
   })
 
   it('cleans up rendered toasts when the host unmounts', async () => {

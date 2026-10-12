@@ -268,55 +268,52 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const gapSize = () => local.gap ?? DEFAULT_TOAST_GAP
   const hostPaused = () => keyboardExpanded() || isDocumentHidden() || !isWindowFocused()
 
-  // Mounted while any toast (including ones still playing their exit animation) is in the store.
   return (
-    <Show when={filteredToasts().length > 0}>
-      <Portal>
-        <section
-          ref={(el) => {
-            viewportRef = el
-          }}
-          data-slot="toast-viewport"
-          role="region"
-          tabIndex={-1}
-          {...rest}
-          aria-live="polite"
-          aria-relevant="additions text"
-          aria-atomic="false"
-          aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
-          {...resolved.styles.viewport}
-        >
-          <For each={possiblePositions()}>
-            {(positionKey) => (
-              <ToastList
-                positionKey={positionKey}
-                filteredToasts={filteredToasts}
-                defaultPlacement={defaultPlacement}
-                defaultAlign={defaultAlign}
-                expand={local.expand}
-                keyboardExpanded={keyboardExpanded}
-                hostPaused={hostPaused}
-                heights={heights}
-                gapSize={gapSize}
-                visibleToasts={local.visibleToasts ?? 3}
-                class={local.class}
-                style={local.style}
-                closeButton={local.closeButton}
-                closeButtonAriaLabel={local.closeButtonAriaLabel}
-                showProgress={local.showProgress}
-                invert={local.invert}
-                classes={local.classes}
-                styles={local.styles}
-                duration={local.duration}
-                onHeight={updateHeight}
-                onDismiss={(id) => store().dismiss(id)}
-                onRemove={(id) => store().remove(id)}
-              />
-            )}
-          </For>
-        </section>
-      </Portal>
-    </Show>
+    <Portal>
+      <section
+        ref={(el) => {
+          viewportRef = el
+        }}
+        data-slot="toast-viewport"
+        role="region"
+        tabIndex={-1}
+        {...rest}
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-atomic="false"
+        aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
+        {...resolved.styles.viewport}
+      >
+        <For each={possiblePositions()}>
+          {(positionKey) => (
+            <ToastList
+              positionKey={positionKey}
+              filteredToasts={filteredToasts}
+              defaultPlacement={defaultPlacement}
+              defaultAlign={defaultAlign}
+              expand={local.expand}
+              keyboardExpanded={keyboardExpanded}
+              hostPaused={hostPaused}
+              heights={heights}
+              gapSize={gapSize}
+              visibleToasts={local.visibleToasts ?? 3}
+              class={local.class}
+              style={local.style}
+              closeButton={local.closeButton}
+              closeButtonAriaLabel={local.closeButtonAriaLabel}
+              showProgress={local.showProgress}
+              invert={local.invert}
+              classes={local.classes}
+              styles={local.styles}
+              duration={local.duration}
+              onHeight={updateHeight}
+              onDismiss={(id) => store().dismiss(id)}
+              onRemove={(id) => store().remove(id)}
+            />
+          )}
+        </For>
+      </section>
+    </Portal>
   )
 }
 
@@ -428,59 +425,59 @@ function ToastList(props: ToastListProps): JSX.Element {
     }),
   })
 
+  // Mounted while the group has toasts, including ones still playing their exit animation.
   return (
-    <ul
-      data-slot="toast-list"
-      tabIndex={-1}
-      {...toastDataAttributes.list({
-        expanded: layoutExpanded,
-        empty: () => activeGroupToasts().length === 0,
-      })}
-      {...resolved.styles.list}
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseMove={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
-      onPointerDown={(event) => {
-        // The list only contains toast items, so any target other than the list is inside a toast.
-        if (event.target !== event.currentTarget) {
-          setIsInteracting(true)
-        }
-      }}
-      onPointerUp={() => setIsInteracting(false)}
-    >
-      <For each={activeGroupToasts()}>
-        {(item, index) => (
-          <ToastItem
-            toast={item}
-            index={index()}
-            toastsCount={activeGroupToasts().length}
-            visibleToasts={props.visibleToasts}
-            offsetY={offsets()[index()] ?? 0}
-            expanded={layoutExpanded()}
-            paused={timerPaused()}
-            placement={placement()}
-            align={align()}
-            closeButton={props.closeButton}
-            closeButtonAriaLabel={props.closeButtonAriaLabel}
-            showProgress={props.showProgress}
-            invert={props.invert}
-            classes={props.classes}
-            styles={props.styles}
-            gap={props.gapSize()}
-            duration={props.duration}
-            onHeight={props.onHeight}
-            onDismiss={props.onDismiss}
-            onRemove={props.onRemove}
-          />
-        )}
-      </For>
-    </ul>
+    <Show when={activeGroupToasts().length > 0}>
+      <ul
+        data-slot="toast-list"
+        tabIndex={-1}
+        {...toastDataAttributes.list({ expanded: layoutExpanded })}
+        {...resolved.styles.list}
+        onMouseEnter={() => {
+          setIsHovered(true)
+        }}
+        onMouseMove={() => {
+          setIsHovered(true)
+        }}
+        onMouseLeave={() => {
+          setIsHovered(false)
+        }}
+        onPointerDown={(event) => {
+          // The list only contains toast items, so any target other than the list is inside a toast.
+          if (event.target !== event.currentTarget) {
+            setIsInteracting(true)
+          }
+        }}
+        onPointerUp={() => setIsInteracting(false)}
+      >
+        <For each={activeGroupToasts()}>
+          {(item, index) => (
+            <ToastItem
+              toast={item}
+              index={index()}
+              toastsCount={activeGroupToasts().length}
+              visibleToasts={props.visibleToasts}
+              offsetY={offsets()[index()] ?? 0}
+              expanded={layoutExpanded()}
+              paused={timerPaused()}
+              placement={placement()}
+              align={align()}
+              closeButton={props.closeButton}
+              closeButtonAriaLabel={props.closeButtonAriaLabel}
+              showProgress={props.showProgress}
+              invert={props.invert}
+              classes={props.classes}
+              styles={props.styles}
+              gap={props.gapSize()}
+              duration={props.duration}
+              onHeight={props.onHeight}
+              onDismiss={props.onDismiss}
+              onRemove={props.onRemove}
+            />
+          )}
+        </For>
+      </ul>
+    </Show>
   )
 }
 

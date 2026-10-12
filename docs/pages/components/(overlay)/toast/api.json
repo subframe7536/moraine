@@ -359,7 +359,6 @@
     {
       "target": "list",
       "attributes": [
-        "data-empty",
         "data-expanded"
       ]
     }

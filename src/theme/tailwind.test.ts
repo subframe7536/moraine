@@ -784,17 +784,6 @@ describe('attribute variants', () => {
     `)
   })
 
-  test('data-empty variant works with pointer-events', async () => {
-    const css = await compileCSS(['data-empty:pointer-events-none'])
-    expect(css).toMatchInlineSnapshot(`
-      "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .data-empty\\:pointer-events-none[data-empty] {
-        pointer-events: none;
-      }
-      "
-    `)
-  })
-
   test('aria-busy variant transforms correctly', async () => {
     const css = await compileCSS(['aria-busy:opacity-80'])
     expect(css).toMatchInlineSnapshot(`
