@@ -201,7 +201,7 @@ export default createRoute({
       <MDXProvider components={DOCS_MDX_COMPONENTS}>
         <DocsAppLayout>{props.children}</DocsAppLayout>
       </MDXProvider>
-      <Toast closeButton />
+      <Toast close />
     </MoraineProvider>
   ),
 })

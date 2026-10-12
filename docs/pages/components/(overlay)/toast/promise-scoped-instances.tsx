@@ -26,12 +26,12 @@ export function PromiseScopedInstances() {
       <Button onClick={runPromiseToast}>Run promise toast ({promiseRuns()})</Button>
       <Button
         variant="outline"
-        onClick={() => Toast.info('To bottom-left custom', { toastId: 'promise-custom' })}
+        onClick={() => Toast.info({ title: 'To bottom-left custom', toastId: 'promise-custom' })}
       >
         Send to custom host
       </Button>
-      <Button variant="ghost" onClick={() => Toast.dismiss()}>
-        Dismiss all
+      <Button variant="ghost" onClick={() => Toast.close()}>
+        Close all
       </Button>
     </div>
   )

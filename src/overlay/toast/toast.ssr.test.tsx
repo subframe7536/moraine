@@ -11,7 +11,7 @@ describe('Toast SSR Hydration', () => {
   })
 
   test('hydrates cleanly and mounts portal on client', async () => {
-    Toast.clear()
+    Toast.close()
     const { container } = hydrateFixture(
       '/src/overlay/toast/toast.ssr.fixture.tsx',
       'renderToastFixture',
@@ -24,11 +24,11 @@ describe('Toast SSR Hydration', () => {
     expect(region).not.toBeNull()
     expect(region?.getAttribute('aria-label')).toContain('Notifications')
 
-    Toast.show('Hydrated toast message')
+    Toast.add({ title: 'Hydrated toast message' })
     const item = document.querySelector('[data-slot="toast"]')
     expect(item).not.toBeNull()
     expect(item?.textContent).toContain('Hydrated toast message')
 
-    Toast.clear()
+    Toast.close()
   })
 })

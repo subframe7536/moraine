@@ -37,26 +37,20 @@
           "description": "Class overrides for component slots."
         },
         {
-          "name": "closeButton",
+          "name": "close",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether to show a close button on toasts by default.",
+          "type": "Action | JSX.Element",
+          "description": "Close button configuration or custom JSX element. When truthy, enables closing.",
           "default": {
             "kind": "literal",
             "value": false
           }
         },
         {
-          "name": "closeButtonAriaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible label for the close button.\nDefaults to the `toast.close` locale message."
-        },
-        {
           "name": "duration",
           "optional": true,
           "type": "number",
-          "description": "Default duration before auto-dismissal in milliseconds.",
+          "description": "Default duration before auto-close in milliseconds.",
           "default": {
             "kind": "literal",
             "value": 4000
@@ -80,16 +74,6 @@
           "default": {
             "kind": "literal",
             "value": 14
-          }
-        },
-        {
-          "name": "hotkey",
-          "optional": true,
-          "type": "string[]",
-          "description": "Keyboard shortcuts to focus the notification viewport.\nAll listed keys must be pressed together.",
-          "default": {
-            "kind": "expression",
-            "text": "['F6']"
           }
         },
         {
@@ -169,167 +153,6 @@
       ]
     }
   ],
-  "item": {
-    "description": "Complete internal and external representation of a toast notification.",
-    "props": [
-      {
-        "name": "action",
-        "optional": true,
-        "type": "Action | JSX.Element",
-        "description": "Primary call-to-action button."
-      },
-      {
-        "name": "align",
-        "optional": true,
-        "type": "'start' | 'center' | 'end'",
-        "description": "Viewport alignment on screen."
-      },
-      {
-        "name": "bumpKey",
-        "optional": true,
-        "type": "number",
-        "description": "Key bumped on duplicate toast trigger to replay attention animation."
-      },
-      {
-        "name": "cancel",
-        "optional": true,
-        "type": "Action | JSX.Element",
-        "description": "Secondary cancel button."
-      },
-      {
-        "name": "class",
-        "optional": true,
-        "type": "SlotClassValue",
-        "description": "Custom class for toast root."
-      },
-      {
-        "name": "classes",
-        "optional": true,
-        "type": "Classes",
-        "description": "Class overrides for toast slots."
-      },
-      {
-        "name": "closeButton",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether to show a close button. Default: false."
-      },
-      {
-        "name": "closeButtonAriaLabel",
-        "optional": true,
-        "type": "string",
-        "description": "Accessible label for the close button."
-      },
-      {
-        "name": "description",
-        "optional": true,
-        "type": "JSX.Element | (() => JSX.Element)",
-        "description": "Secondary notification description."
-      },
-      {
-        "name": "dismissed",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether the toast is currently marked for dismissal."
-      },
-      {
-        "name": "dismissible",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether user interaction can dismiss the toast. Default: true."
-      },
-      {
-        "name": "duration",
-        "optional": true,
-        "type": "number",
-        "description": "Auto-dismiss duration in milliseconds. Pass Infinity to disable auto-dismiss."
-      },
-      {
-        "name": "icon",
-        "optional": true,
-        "type": "IconT.Name",
-        "description": "Custom leading icon. Accepts the same values as `<Icon name={…} />`."
-      },
-      {
-        "name": "id",
-        "optional": false,
-        "type": "string | number",
-        "description": "Unique identifier for the toast."
-      },
-      {
-        "name": "invert",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether to invert toast colors."
-      },
-      {
-        "name": "jsx",
-        "optional": true,
-        "type": "JSX.Element | ((id: string | number) => JSX.Element)",
-        "description": "Custom arbitrary JSX renderer."
-      },
-      {
-        "name": "onAutoClose",
-        "optional": true,
-        "type": "(item: Item) => void",
-        "description": "Callback invoked when auto-dismiss timer expires."
-      },
-      {
-        "name": "onDismiss",
-        "optional": true,
-        "type": "(item: Item) => void",
-        "description": "Callback invoked when the toast begins dismiss."
-      },
-      {
-        "name": "placement",
-        "optional": true,
-        "type": "Placement",
-        "description": "Viewport placement on screen."
-      },
-      {
-        "name": "role",
-        "optional": true,
-        "type": "'status' | 'alert'",
-        "description": "ARIA role for this toast. Defaults to 'alert' for error variant, 'status' otherwise."
-      },
-      {
-        "name": "showProgress",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether to show the remaining duration progress bar."
-      },
-      {
-        "name": "style",
-        "optional": true,
-        "type": "JSX.CSSProperties",
-        "description": "Custom style for toast root."
-      },
-      {
-        "name": "styles",
-        "optional": true,
-        "type": "Styles",
-        "description": "Style overrides for toast slots."
-      },
-      {
-        "name": "title",
-        "optional": true,
-        "type": "JSX.Element | (() => JSX.Element)",
-        "description": "Primary notification title."
-      },
-      {
-        "name": "toastId",
-        "optional": true,
-        "type": "string",
-        "description": "Target Toast host `id` for scoped instances."
-      },
-      {
-        "name": "variant",
-        "optional": true,
-        "type": "Variant",
-        "description": "Visual status variant."
-      }
-    ]
-  },
   "slots": [
     "viewport",
     "list",

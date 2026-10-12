@@ -51,29 +51,29 @@ describe('localized component text', () => {
   })
 
   test('uses toast close and viewport messages', async () => {
-    Toast.clear()
+    Toast.close()
     render(() => (
       <MoraineProvider
         messages={{
           toast: {
             close: 'Fermer la notification',
-            viewport: ({ hotkey }) => `Notifications (${hotkey})`,
+            viewport: 'Notifications',
           },
         }}
       >
-        <Toast closeButton />
+        <Toast close />
       </MoraineProvider>
     ))
 
-    Toast.show('Bonjour', { closeButton: true })
+    Toast.add({ title: 'Bonjour', close: true })
     const region = document.body.querySelector('[data-slot="toast-viewport"]')
-    expect(region?.getAttribute('aria-label')).toBe('Notifications (F6)')
+    expect(region?.getAttribute('aria-label')).toBe('Notifications')
     await waitFor(() => {
       expect(
         document.body.querySelector('[data-slot="toast-close"]')?.getAttribute('aria-label'),
       ).toBe('Fermer la notification')
     })
-    Toast.clear()
+    Toast.close()
   })
 
   test('uses select, combobox, and multi-select messages unless a prop sets the text', () => {

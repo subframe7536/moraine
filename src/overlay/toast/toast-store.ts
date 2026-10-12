@@ -3,9 +3,8 @@ import { DEV } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 
 import { DEFAULT_TOAST_DURATION } from './toast.types'
-import type { ToastT } from './toast.types'
+import type { ToastItemRecord, ToastT } from './toast.types'
 
-const HISTORY_LIMIT = 100
 const DEFAULT_HOST_KEY = ''
 
 function isSameToastValue(first: unknown, second: unknown): boolean {
@@ -42,7 +41,7 @@ function isSameAction(first: unknown, second: unknown): boolean {
   return false
 }
 
-function isSameToastContent(first: ToastT.Item, second: Partial<ToastT.Item>): boolean {
+function isSameToastContent(first: ToastItemRecord, second: Partial<ToastItemRecord>): boolean {
   if (first.jsx !== undefined || second.jsx !== undefined) {
     return isSameToastValue(first.jsx, second.jsx)
   }
@@ -60,51 +59,21 @@ function isSameToastContent(first: ToastT.Item, second: Partial<ToastT.Item>): b
   return sameTitle && sameDescription && sameVariant && sameAction && sameCancel
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return false
-  }
-  if (typeof Node === 'function' && value instanceof Node) {
-    return false
-  }
-  const proto = Object.getPrototypeOf(value)
-  return proto === Object.prototype || proto === null
-}
-
-function isToastOptions(value: unknown): value is ToastT.AddOptions {
-  if (!isPlainObject(value)) {
-    return false
-  }
-  // Solid compiled JSX is a plain object whose `t` field is the template function.
-  return typeof value.t !== 'function'
-}
-
 export interface ToastStore {
-  show: (message: JSX.Element | ToastT.AddOptions, options?: ToastT.AddOptions) => string | number
-  success: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
-  error: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
-  warning: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
-  info: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
-  loading: (message: JSX.Element, options?: ToastT.AddOptions) => string | number
+  readonly toasts: ToastItemRecord[]
+  add: (options: ToastT.InitOptions) => string | number
+  loading: (options: ToastT.InitOptions) => string | number
   promise: <T>(
     promiseValue: Promise<T> | (() => Promise<T>),
     options: ToastT.PromiseOptions<T>,
   ) => ToastT.PromiseReturn<T>
   custom: (
     render: (id: string | number) => JSX.Element,
-    options?: ToastT.AddOptions,
+    options?: ToastT.InitOptions,
   ) => string | number
-  dismiss: (id?: string | number) => void
-  remove: (id?: string | number) => void
-  clear: () => void
-  getToasts: () => ToastT.Item[]
-  getHistory: () => ToastT.Item[]
-  readonly toasts: ToastT.Item[]
+  update: (id: string | number, options: ToastT.UpdateOptions) => string | number
+  close: (id?: string | number) => void
   preventDuplicate: ToastT.PreventDuplicate
-}
-
-/** Host registration surface used by the Toast viewport. */
-export interface ToastHostStore extends ToastStore {
   setHostPreventDuplicate: (
     hostId: string | undefined,
     value: ToastT.PreventDuplicate | undefined,
@@ -113,7 +82,7 @@ export interface ToastHostStore extends ToastStore {
   unregisterHost: (hostId: string | undefined) => void
 }
 
-export function matchesHostId(item: ToastT.Item, hostId: string | undefined): boolean {
+export function matchesHostId(item: ToastItemRecord, hostId: string | undefined): boolean {
   if (hostId) {
     return item.toastId === hostId
   }
@@ -127,7 +96,7 @@ function splitPromiseOptions<T>(options: ToastT.PromiseOptions<T>): {
   onFinally: ToastT.PromiseOptions<T>['finally']
   description: ToastT.PromiseOptions<T>['description']
   duration: number | undefined
-  itemOptions: ToastT.AddOptions
+  itemOptions: ToastT.InitOptions
 } {
   const {
     loading,
@@ -136,7 +105,6 @@ function splitPromiseOptions<T>(options: ToastT.PromiseOptions<T>): {
     finally: onFinally,
     description,
     duration,
-    variant: _variant,
     ...itemOptions
   } = options
   return { loading, success, error, onFinally, description, duration, itemOptions }
@@ -146,8 +114,7 @@ function splitPromiseOptions<T>(options: ToastT.PromiseOptions<T>): {
  * Creates an isolated reactive toast store instance.
  */
 export function createToastStore(): ToastStore {
-  const [store, setStore] = createStore<ToastT.Item[]>([])
-  const history: ToastT.Item[] = []
+  const [store, setStore] = createStore<ToastItemRecord[]>([])
   const hostPreventDuplicates = new Map<string, ToastT.PreventDuplicate>()
   const registeredHosts = new Map<string, number>()
   let counter = 1
@@ -155,7 +122,7 @@ export function createToastStore(): ToastStore {
 
   const hostKey = (hostId: string | undefined): string => hostId ?? DEFAULT_HOST_KEY
 
-  const hasMatchingHost = (item: ToastT.Item): boolean => {
+  const hasMatchingHost = (item: ToastItemRecord): boolean => {
     return (registeredHosts.get(hostKey(item.toastId)) ?? 0) > 0
   }
 
@@ -205,13 +172,6 @@ export function createToastStore(): ToastStore {
     }
   }
 
-  const recordHistory = (item: ToastT.Item): void => {
-    history.push({ ...item })
-    if (history.length > HISTORY_LIMIT) {
-      history.splice(0, history.length - HISTORY_LIMIT)
-    }
-  }
-
   const nextId = (): number => {
     let id = counter
     while (store.some((t) => t.id === id)) {
@@ -221,46 +181,54 @@ export function createToastStore(): ToastStore {
     return id
   }
 
-  const show = (
-    message: JSX.Element | ToastT.AddOptions,
-    options?: ToastT.AddOptions,
-  ): string | number => {
-    let resolvedOptions: ToastT.AddOptions = options ?? {}
-    let resolvedTitle: JSX.Element | (() => JSX.Element) | undefined
+  const triggerBump = (index: number): void => {
+    setStore(
+      produce((list) => {
+        list[index]!.isBumping = false
+      }),
+    )
+    queueMicrotask(() => {
+      setStore(
+        produce((list) => {
+          list[index]!.isBumping = true
+        }),
+      )
+      setTimeout(() => {
+        setStore(
+          produce((list) => {
+            list[index]!.isBumping = false
+          }),
+        )
+      }, 240)
+    })
+  }
 
-    if (isToastOptions(message)) {
-      resolvedOptions = { ...message, ...options }
-      resolvedTitle = resolvedOptions.title
-    } else {
-      resolvedTitle = (message as JSX.Element | (() => JSX.Element)) ?? resolvedOptions.title
-    }
-
-    const id = resolvedOptions.id !== undefined ? resolvedOptions.id : nextId()
+  const add = (options: ToastT.InitOptions): string | number => {
+    const id = options.id !== undefined ? options.id : nextId()
     const preventOption =
-      resolvedOptions.preventDuplicate !== undefined
-        ? resolvedOptions.preventDuplicate
-        : resolvedOptions.toastId
-          ? (hostPreventDuplicates.get(resolvedOptions.toastId) ?? false)
+      options.preventDuplicate !== undefined
+        ? options.preventDuplicate
+        : options.toastId
+          ? (hostPreventDuplicates.get(options.toastId) ?? false)
           : defaultPreventDuplicate
 
-    if (preventOption && resolvedOptions.id === undefined) {
-      const candidate: Partial<ToastT.Item> = {
-        title: resolvedTitle,
-        description: resolvedOptions.description,
-        variant: resolvedOptions.variant ?? 'default',
-        toastId: resolvedOptions.toastId,
-        placement: resolvedOptions.placement,
-        align: resolvedOptions.align,
-        action: resolvedOptions.action,
-        cancel: resolvedOptions.cancel,
-        jsx: resolvedOptions.jsx,
+    if (preventOption && options.id === undefined) {
+      const candidate: Partial<ToastItemRecord> = {
+        title: options.title,
+        description: options.description,
+        variant: options.variant ?? 'default',
+        toastId: options.toastId,
+        placement: options.placement,
+        align: options.align,
+        action: options.action,
+        cancel: options.cancel,
       }
 
       const targetPlacement = candidate.placement ?? 'bottom'
       const targetAlign = candidate.align ?? 'end'
 
       const frontIndex = store.findIndex((t) => {
-        if (t.dismissed) {
+        if (t.closed) {
           return false
         }
         if (candidate.toastId ? t.toastId !== candidate.toastId : Boolean(t.toastId)) {
@@ -279,84 +247,73 @@ export function createToastStore(): ToastStore {
             : isSameToastContent(frontToast, candidate)
 
         if (isDuplicate) {
-          setStore(
-            frontIndex,
-            produce((item) => {
-              item.bumpKey = (item.bumpKey ?? 0) + 1
-            }),
-          )
+          triggerBump(frontIndex)
           return frontToast.id
         }
       }
     }
 
-    let publishedItem: ToastT.Item | undefined
     const existingIndex = store.findIndex((t) => t.id === id)
-    const toastItem: ToastT.Item = {
-      dismissible: true,
+    const toastItem: ToastItemRecord = {
       variant: 'default',
-      ...resolvedOptions,
+      role: options.variant === 'error' ? 'alert' : 'status',
+      ...options,
       id,
-      title: resolvedTitle,
-      dismissed: false,
-      bumpKey: 0,
+      closed: false,
+      isBumping: false,
     }
 
     if (existingIndex !== -1) {
       setStore(
         existingIndex,
         produce((item) => {
-          const nextBump = (item.bumpKey ?? 0) + 1
           Object.assign(item, toastItem)
-          item.bumpKey = nextBump
         }),
       )
-      publishedItem = store[existingIndex]
+      triggerBump(existingIndex)
     } else {
-      setStore((prev) => [toastItem, ...prev])
-      publishedItem = toastItem
-    }
-
-    if (publishedItem) {
-      recordHistory(publishedItem)
+      setStore(
+        produce((draft) => {
+          draft.unshift(toastItem)
+        }),
+      )
     }
 
     return id
   }
 
-  const success = (message: JSX.Element, options?: ToastT.AddOptions) =>
-    show(message, { ...options, variant: 'success' })
-
-  const error = (message: JSX.Element, options?: ToastT.AddOptions) =>
-    show(message, { ...options, variant: 'error' })
-
-  const warning = (message: JSX.Element, options?: ToastT.AddOptions) =>
-    show(message, { ...options, variant: 'warning' })
-
-  const info = (message: JSX.Element, options?: ToastT.AddOptions) =>
-    show(message, { ...options, variant: 'info' })
-
-  const loading = (message: JSX.Element, options?: ToastT.AddOptions) =>
-    show(message, {
+  const loading = (options: ToastT.InitOptions) =>
+    add({
       ...options,
       variant: 'loading',
-      duration: options?.duration ?? Number.POSITIVE_INFINITY,
+      duration: options.duration ?? Number.POSITIVE_INFINITY,
     })
+
+  const update = (id: string | number, options: ToastT.UpdateOptions): string | number => {
+    const existingIndex = store.findIndex((t) => t.id === id)
+    if (existingIndex !== -1) {
+      setStore(
+        existingIndex,
+        produce((item) => {
+          Object.assign(item, options)
+        }),
+      )
+      triggerBump(existingIndex)
+    }
+    return id
+  }
 
   const custom = (
     render: (id: string | number) => JSX.Element,
-    options?: ToastT.AddOptions,
+    options?: ToastT.InitOptions,
   ): string | number => {
-    return show(undefined, {
+    return add({
       ...options,
-      jsx: (id: string | number) => render(id),
-    })
+      jsx: render,
+    } as ToastItemRecord)
   }
 
-  const dismiss = (id?: string | number): void => {
-    // Mutate dismissed in place so Solid <For> keeps the same item identity and
-    // ToastItem can play its exit transition. Replacing the object remounts the
-    // item already-dismissed and skips the animation.
+  const close = (id?: string | number): void => {
     const orphanIds: Array<string | number> = []
 
     for (let i = 0; i < store.length; i++) {
@@ -364,15 +321,15 @@ export function createToastStore(): ToastStore {
       if (id !== undefined && item.id !== id) {
         continue
       }
-      if (!hasMatchingHost(item)) {
+      if (!hasMatchingHost(item) || item.closed) {
         orphanIds.push(item.id)
         continue
       }
-      if (!item.dismissed) {
+      if (!item.closed) {
         setStore(
           i,
           produce((draft) => {
-            draft.dismissed = true
+            draft.closed = true
           }),
         )
       }
@@ -380,21 +337,16 @@ export function createToastStore(): ToastStore {
 
     if (orphanIds.length > 0) {
       const orphanSet = new Set(orphanIds)
-      setStore((prev) => prev.filter((item) => !orphanSet.has(item.id)))
+      setStore(
+        produce((draft) => {
+          for (let i = draft.length - 1; i >= 0; i--) {
+            if (orphanSet.has(draft[i]!.id)) {
+              draft.splice(i, 1)
+            }
+          }
+        }),
+      )
     }
-  }
-
-  const remove = (id?: string | number): void => {
-    if (id !== undefined) {
-      setStore((prev) => prev.filter((t) => t.id !== id))
-    } else {
-      setStore([])
-    }
-  }
-
-  const clear = (): void => {
-    setStore([])
-    history.length = 0
   }
 
   const promise = <T>(
@@ -414,8 +366,9 @@ export function createToastStore(): ToastStore {
     let id: string | number | undefined
 
     if (loadingMessage !== undefined) {
-      id = loading(typeof loadingMessage === 'function' ? loadingMessage() : loadingMessage, {
+      id = loading({
         ...itemOptions,
+        title: loadingMessage,
         description: typeof description !== 'function' ? description : undefined,
       })
     } else {
@@ -433,10 +386,11 @@ export function createToastStore(): ToastStore {
       const resolvedDescription =
         typeof description === 'function' ? description(param) : description
 
-      show(title as JSX.Element, {
+      add({
         ...itemOptions,
         id,
         variant,
+        title: title as JSX.Element,
         description: resolvedDescription,
         duration: duration ?? DEFAULT_TOAST_DURATION,
       })
@@ -444,7 +398,7 @@ export function createToastStore(): ToastStore {
 
     const settleWithoutHandler = () => {
       if (id !== undefined) {
-        dismiss(id)
+        close(id)
       }
     }
 
@@ -499,26 +453,13 @@ export function createToastStore(): ToastStore {
     return Object.assign(returnId, { unwrap })
   }
 
-  const getToasts = (): ToastT.Item[] => {
-    return store.filter((t) => !t.dismissed)
-  }
-
-  const getHistory = (): ToastT.Item[] => history
-
-  const manager: ToastHostStore = {
-    show,
-    success,
-    error,
-    warning,
-    info,
+  return {
+    add,
     loading,
     promise,
     custom,
-    dismiss,
-    remove,
-    clear,
-    getToasts,
-    getHistory,
+    update,
+    close,
     get toasts() {
       return store
     },
@@ -532,14 +473,13 @@ export function createToastStore(): ToastStore {
     registerHost,
     unregisterHost,
   }
-  return manager
 }
 
-let defaultStore: ToastHostStore | undefined
+let defaultStore: ToastStore | undefined
 
-export function getDefaultToastStore(): ToastHostStore {
+export function getDefaultToastStore(): ToastStore {
   if (!defaultStore) {
-    defaultStore = createToastStore() as ToastHostStore
+    defaultStore = createToastStore()
   }
   return defaultStore
 }

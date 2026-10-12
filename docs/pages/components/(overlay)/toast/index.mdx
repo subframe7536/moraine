@@ -67,11 +67,11 @@ import { Button, Toast } from '@src'
 >
   {(props) => {
     const showToast = () => {
-      const message = 'Changes saved'
       const options = {
+        title: 'Changes saved',
         description: 'Your preferences have been updated.',
         preventDuplicate: props.preventDuplicate,
-        closeButton: props.closeButton,
+        close: props.closeButton,
         showProgress: props.showProgress,
         action: props.action
           ? {
@@ -90,22 +90,22 @@ import { Button, Toast } from '@src'
       }
       switch (props.tone) {
         case 'default':
-          Toast.show(message, options)
+          Toast.add(options)
           break
         case 'warning':
-          Toast.warning(message, options)
+          Toast.warning(options)
           break
         case 'error':
-          Toast.error(message, options)
+          Toast.error(options)
           break
         case 'info':
-          Toast.info(message, options)
+          Toast.info(options)
           break
         case 'loading':
-          Toast.loading(message, options)
+          Toast.loading(options)
           break
         default:
-          Toast.success(message, options)
+          Toast.success(options)
       }
     }
 
@@ -152,7 +152,7 @@ import { Button, Toast } from 'moraine'
 export default function App() {
   return (
     <>
-      <Button onClick={() => Toast.success('Changes saved!')}>Save</Button>
+      <Button onClick={() => Toast.success({ title: 'Changes saved!' })}>Save</Button>
       <Toast />
     </>
   )
@@ -161,14 +161,14 @@ export default function App() {
 
 ### Semantic methods
 
-Call dedicated tone methods for direct feedback, or use `Toast.show` for the default tone:
+Call dedicated tone methods for direct feedback, or use `Toast.add` for the default tone:
 
 ```tsx
-Toast.show('Default message')
-Toast.success('File uploaded successfully')
-Toast.error('Network request failed')
-Toast.warning('Storage is almost full')
-Toast.info('New release available')
+Toast.add({ title: 'Default message' })
+Toast.success({ title: 'File uploaded successfully' })
+Toast.error({ title: 'Network request failed' })
+Toast.warning({ title: 'Storage is almost full' })
+Toast.info({ title: 'New release available' })
 ```
 
 ### Action and cancel buttons
@@ -176,7 +176,8 @@ Toast.info('New release available')
 Pass `action` or `cancel` configurations to prompt for immediate user interaction:
 
 ```tsx
-Toast.show('Message archived', {
+Toast.add({
+  title: 'Message archived',
   action: {
     label: 'Undo',
     onClick: () => restoreMessage(),
@@ -204,20 +205,33 @@ Render arbitrary Solid JSX using `Toast.custom`:
 Toast.custom((id) => (
   <div class="p-4 bg-background border rounded-lg shadow-overlay flex items-center gap-3">
     <span>Custom banner notification</span>
-    <Button size="sm" variant="ghost" onClick={() => Toast.dismiss(id)}>
+    <Button size="sm" variant="ghost" onClick={() => Toast.close(id)}>
       Dismiss
     </Button>
   </div>
 ))
 ```
 
+### Updates and closing
+
+Update an existing toast in place using `Toast.update`, or close programmatically using `Toast.close`:
+
+```tsx
+const id = Toast.loading({ title: 'Uploading files...' })
+
+// Update title and visual variant in place
+Toast.update(id, { title: 'Upload complete', variant: 'success' })
+
+// Close specific toast or close all toasts
+Toast.close(id)
+Toast.close()
+```
+
 ### Accessibility and navigation
 
 The toast container is rendered as an accessible notification region (`role="region"`) with a
-persistent polite live region. Users can press <kbd>F6</kbd> anywhere on the page to focus the
-notification list and navigate with <kbd>Tab</kbd>. Press <kbd>Escape</kbd> to collapse the
-stack and restore focus. Dismiss individual toasts with the close button, action/cancel
-controls, swipe gestures, or `Toast.dismiss`.
+persistent polite live region. Dismiss individual toasts with the close button, action/cancel
+controls, swipe gestures, or `Toast.close`.
 
 ## Examples
 

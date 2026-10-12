@@ -7,21 +7,24 @@ export function BasicToasts() {
     })
 
   const runLoadingToast = async () => {
-    const id = Toast.loading('Uploading files...')
+    const id = Toast.loading({ title: 'Uploading files...' })
     await wait(1200)
-    Toast.success('Upload complete', { id })
+    Toast.success({ title: 'Upload complete', id })
   }
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Button onClick={() => Toast.show('Default message')}>Default</Button>
-      <Button variant="secondary" onClick={() => Toast.success('Saved successfully')}>
+      <Button onClick={() => Toast.add({ title: 'Default message' })}>Default</Button>
+      <Button variant="secondary" onClick={() => Toast.success({ title: 'Saved successfully' })}>
         Success
       </Button>
-      <Button variant="outline" onClick={() => Toast.warning('Careful with this action')}>
+      <Button
+        variant="outline"
+        onClick={() => Toast.warning({ title: 'Careful with this action' })}
+      >
         Warning
       </Button>
-      <Button variant="danger" onClick={() => Toast.error('Something went wrong')}>
+      <Button variant="danger" onClick={() => Toast.error({ title: 'Something went wrong' })}>
         Error
       </Button>
       <Button variant="ghost" onClick={runLoadingToast}>

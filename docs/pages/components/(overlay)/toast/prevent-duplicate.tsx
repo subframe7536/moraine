@@ -4,12 +4,12 @@ export function PreventDuplicate() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
       <Toast id="pd" placement="top" align="end" preventDuplicate />
-      <Button onClick={() => Toast.success('Changes saved!', { toastId: 'pd' })}>
+      <Button onClick={() => Toast.success({ title: 'Changes saved!', toastId: 'pd' })}>
         Scoped container
       </Button>
       <Button
         variant="outline"
-        onClick={() => Toast.info('System update available', { preventDuplicate: true })}
+        onClick={() => Toast.info({ title: 'System update available', preventDuplicate: true })}
       >
         Inline Toast.info
       </Button>

@@ -3,25 +3,27 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  Match,
   on,
   onCleanup,
   onMount,
   Show,
+  Switch,
   untrack,
 } from 'solid-js'
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
-import { Progress } from '../../element/progress'
+import type { IconT } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { OverlayAlign } from '../../theme/style-types'
 
 import { defaultToastMessages } from './toast.messages'
-import { toastDataAttributes, toastRecipe } from './toast.recipe'
+import { toastDataAttributes, toastRecipe, TOAST_PROGRESS_CLASS } from './toast.recipe'
 import { DEFAULT_TOAST_DURATION, DEFAULT_TOAST_GAP } from './toast.types'
-import type { ToastT } from './toast.types'
+import type { ToastItemRecord, ToastT } from './toast.types'
 
 const SWIPE_THRESHOLD = 45
 const SWIPE_MIN_DISTANCE = 12
@@ -32,7 +34,7 @@ const TOAST_EXIT_MS = 400
 const PROGRESS_TICK_MS = 16
 
 export interface ToastItemProps {
-  toast: ToastT.Item
+  toast: ToastItemRecord
   index: number
   toastsCount: number
   visibleToasts: number
@@ -41,8 +43,7 @@ export interface ToastItemProps {
   paused?: boolean
   placement?: ToastT.Placement
   align?: OverlayAlign
-  closeButton?: boolean
-  closeButtonAriaLabel?: string
+  close?: ToastT.Action | JSX.Element
   showProgress?: boolean
   invert?: boolean
   classes?: ToastT.Classes
@@ -50,8 +51,7 @@ export interface ToastItemProps {
   gap?: number
   duration?: number
   onHeight: (id: string | number, height: number) => void
-  onDismiss: (id: string | number) => void
-  onRemove: (id: string | number) => void
+  onClose: (id: string | number) => void
 }
 
 function isActionConfig(value: unknown): value is ToastT.Action {
@@ -89,8 +89,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let exitTimerId: ReturnType<typeof setTimeout> | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
   let progressTimerId: ReturnType<typeof setInterval> | undefined
-  let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
+  let closedCallbackFired = false
 
   const initialDuration = () => props.toast.duration ?? props.duration ?? DEFAULT_TOAST_DURATION
   let remainingTime = untrack(initialDuration)
@@ -106,13 +106,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const swipeOut = () => swipeOutDirection() !== null
   // Y offset captured when removal starts; read only together with removed().
   let offsetBeforeRemove = 0
-  const [isBumping, setIsBumping] = createSignal(false)
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
   const [progressPercent, setProgressPercent] = createSignal(100)
 
   const isFront = () => props.index === 0
   const isVisible = () => props.index < props.visibleToasts
-  const isDismissible = () => props.toast.dismissible !== false
   const isLoading = () => props.toast.variant === 'loading'
   const showProgressBar = () =>
     (props.toast.showProgress ?? props.showProgress ?? false) && !isLoading()
@@ -157,7 +155,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       clearTimeout(exitTimerId)
       exitTimerId = undefined
     }
-    props.onRemove(props.toast.id)
+    props.onClose(props.toast.id)
   }
 
   const deleteToast = () => {
@@ -177,13 +175,24 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
   }
 
+  const triggerClose = (auto: boolean) => {
+    if (!closedCallbackFired) {
+      closedCallbackFired = true
+      props.toast.onClose?.(props.toast.id, auto)
+    }
+    props.onClose(props.toast.id)
+  }
+
   createEffect(
     on(
-      () => props.toast.dismissed,
-      (dismissed) => {
-        if (dismissed && !untrack(removed)) {
+      () => props.toast.closed,
+      (closed) => {
+        if (closed && !untrack(removed)) {
+          if (!closedCallbackFired) {
+            closedCallbackFired = true
+            props.toast.onClose?.(props.toast.id, false)
+          }
           deleteToast()
-          props.toast.onDismiss?.(props.toast)
         }
       },
     ),
@@ -303,41 +312,20 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     ),
   )
 
-  const bumpKey = () => props.toast.bumpKey
-
-  createEffect(
-    on(bumpKey, (key) => {
-      if (!key) {
-        return
-      }
-      setIsBumping(false)
-      if (bumpTimerId) {
-        clearTimeout(bumpTimerId)
-      }
-      requestAnimationFrame(() => {
-        setIsBumping(true)
-        bumpTimerId = setTimeout(() => setIsBumping(false), 240)
-      })
-    }),
-  )
-
-  // Keep remainingTime aligned when duration changes (e.g. host default or item update).
-  // bumpKey already resets the timer for duplicate/update bumps.
-  createEffect(
-    on(
-      initialDuration,
-      (duration) => {
-        remainingTime = duration
-        closeTimerStartTime = 0
-        setProgressPercent(100)
-      },
-      { defer: true },
-    ),
-  )
-
   const syncProgress = (left: number) => {
     const total = untrack(initialDuration)
     setProgressPercent(total > 0 && Number.isFinite(total) ? (left / total) * 100 : 100)
+  }
+
+  const stopTimer = () => {
+    if (timerId) {
+      clearTimeout(timerId)
+      timerId = undefined
+    }
+    if (progressTimerId) {
+      clearInterval(progressTimerId)
+      progressTimerId = undefined
+    }
   }
 
   const isPaused = () =>
@@ -346,69 +334,88 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     Boolean(props.paused) ||
     swiping()
 
+  const startTimer = () => {
+    stopTimer()
+    if (isPaused()) {
+      return
+    }
+    closeTimerStartTime = Date.now()
+    const currentRemaining = remainingTime
+
+    if (currentRemaining <= 0) {
+      triggerClose(true)
+      return
+    }
+
+    timerId = setTimeout(() => {
+      stopTimer()
+      syncProgress(0)
+      triggerClose(true)
+    }, currentRemaining)
+
+    if (showProgressBar()) {
+      syncProgress(currentRemaining)
+      progressTimerId = setInterval(() => {
+        syncProgress(Math.max(0, remainingTime - (Date.now() - closeTimerStartTime)))
+      }, PROGRESS_TICK_MS)
+    }
+  }
+
+  const resetCloseTimer = () => {
+    remainingTime = untrack(initialDuration)
+    closeTimerStartTime = 0
+    syncProgress(remainingTime)
+  }
+
   createEffect(
-    on([isPaused, bumpKey], ([paused, bumpToken]) => {
-      if (timerId) {
-        clearTimeout(timerId)
-        timerId = undefined
-      }
-      if (progressTimerId) {
-        clearInterval(progressTimerId)
-        progressTimerId = undefined
-      }
+    on(
+      () => props.toast.isBumping,
+      (bumping) => {
+        if (bumping) {
+          resetCloseTimer()
+          startTimer()
+        }
+      },
+      { defer: true },
+    ),
+  )
 
-      if (bumpToken) {
-        remainingTime = initialDuration()
-        closeTimerStartTime = 0
-      }
+  // Keep remainingTime aligned when duration changes (e.g. host default or item update).
+  createEffect(
+    on(
+      initialDuration,
+      () => {
+        resetCloseTimer()
+        startTimer()
+      },
+      { defer: true },
+    ),
+  )
 
+  createEffect(
+    on(isPaused, (paused) => {
       if (paused) {
         if (closeTimerStartTime > 0) {
           const elapsed = Date.now() - closeTimerStartTime
           remainingTime = Math.max(0, remainingTime - elapsed)
           closeTimerStartTime = 0
         }
-        // Freeze the bar at the exact remaining fraction.
+        stopTimer()
         syncProgress(remainingTime)
-        return
-      }
-
-      closeTimerStartTime = Date.now()
-      const currentRemaining = remainingTime
-
-      if (currentRemaining <= 0) {
-        props.toast.onAutoClose?.(props.toast)
-        props.onDismiss(props.toast.id)
-        return
-      }
-
-      timerId = setTimeout(() => {
-        clearInterval(progressTimerId)
-        progressTimerId = undefined
-        // Dismiss and progress end share one clock: the bar is empty exactly at dismiss.
-        syncProgress(0)
-        props.toast.onAutoClose?.(props.toast)
-        props.onDismiss(props.toast.id)
-      }, currentRemaining)
-
-      if (showProgressBar()) {
-        syncProgress(currentRemaining)
-        progressTimerId = setInterval(() => {
-          syncProgress(Math.max(0, remainingTime - (Date.now() - closeTimerStartTime)))
-        }, PROGRESS_TICK_MS)
+      } else {
+        startTimer()
       }
     }),
   )
 
   onCleanup(() => {
     clearTimeout(exitTimerId)
-    clearTimeout(bumpTimerId)
     clearTimeout(timerId)
     clearInterval(progressTimerId)
   })
 
   function handlePointerDown(event: PointerEvent) {
-    if (event.button === 2 || isLoading() || !isDismissible()) {
+    if (event.button === 2 || isLoading()) {
       return
     }
 
@@ -425,7 +432,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   function handlePointerMove(event: PointerEvent) {
-    if (!pointerStart || !isDismissible()) {
+    if (!pointerStart) {
       return
     }
 
@@ -493,7 +500,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       } else {
         setSwipeOutDirection(movedY > 0 ? 'down' : 'up')
       }
-      props.onDismiss(props.toast.id)
+      triggerClose(false)
       return
     }
 
@@ -504,11 +511,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
 
-  const showCloseButton = () =>
-    (props.toast.closeButton ?? props.closeButton ?? false) && !isLoading()
-
-  const closeLabel = () =>
-    props.toast.closeButtonAriaLabel ?? props.closeButtonAriaLabel ?? messages().close
+  const closeConfig = () => props.toast.close ?? props.close
 
   const defaultIcon = () => {
     const v = props.toast.variant
@@ -530,7 +533,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     return undefined
   }
 
-  const iconSource = (): ToastT.Item['icon'] => props.toast.icon ?? defaultIcon()
+  const iconSource = (): IconT.Name | undefined => props.toast.icon ?? defaultIcon()
 
   return (
     <li
@@ -546,11 +549,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         behind: () => !isFront(),
         expanded: () => props.expanded,
         limited: () => !isVisible(),
-        bump: isBumping,
+        bump: () => Boolean(props.toast.isBumping),
         swiping,
         swipeOut,
       })}
       {...resolved.slots.root}
+      onMouseEnter={resetCloseTimer}
+      onMouseMove={resetCloseTimer}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -610,7 +615,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       }))}
                       onClick={(e) => {
                         config().onClick?.(e)
-                        props.onDismiss(props.toast.id)
+                        triggerClose(false)
                       }}
                     >
                       {config().label}
@@ -644,7 +649,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       onClick={(e) => {
                         config().onClick?.(e)
                         if (!e.defaultPrevented) {
-                          props.onDismiss(props.toast.id)
+                          triggerClose(false)
                         }
                       }}
                     >
@@ -655,28 +660,75 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
               )}
             </Show>
 
-            <Show when={showCloseButton()}>
-              <Button
-                data-slot="toast-close"
-                slotName="toast-close"
-                size="icon-sm"
-                variant="ghost"
-                leading="icon-close"
-                aria-label={closeLabel()}
-                {...resolved.slots.close}
-                onClick={() => {
-                  props.onDismiss(props.toast.id)
-                }}
-              />
+            <Show when={closeConfig() && !isLoading()}>
+              {(_close) => {
+                const config = closeConfig()
+                return (
+                  <Switch>
+                    <Match when={config === true}>
+                      <Button
+                        data-slot="toast-close"
+                        slotName="toast-close"
+                        size="icon-sm"
+                        variant="ghost"
+                        leading="icon-close"
+                        aria-label={messages().close}
+                        {...resolved.slots.close}
+                        onClick={() => triggerClose(false)}
+                      />
+                    </Match>
+                    <Match when={isActionConfig(config) ? config : undefined}>
+                      {(actionConfig) => (
+                        <Button
+                          data-slot="toast-close"
+                          slotName="toast-close"
+                          size={
+                            actionConfig().size ??
+                            (typeof actionConfig().label === 'string' ? 'sm' : 'icon-sm')
+                          }
+                          variant={actionConfig().variant ?? 'ghost'}
+                          leading="icon-close"
+                          activeEffect={actionConfig().activeEffect}
+                          aria-label={
+                            typeof actionConfig().label === 'string'
+                              ? (actionConfig().label as string)
+                              : messages().close
+                          }
+                          {...resolved.slotWith('close', () => ({
+                            class: actionConfig().class,
+                            style: actionConfig().style,
+                          }))}
+                          onClick={(e) => {
+                            actionConfig().onClick?.(e)
+                            if (!e.defaultPrevented) {
+                              triggerClose(false)
+                            }
+                          }}
+                        >
+                          {actionConfig().label}
+                        </Button>
+                      )}
+                    </Match>
+                    <Match when={config}>
+                      <div
+                        data-slot="toast-close"
+                        {...resolved.slots.close}
+                        onClick={() => triggerClose(false)}
+                      >
+                        {config as JSX.Element}
+                      </div>
+                    </Match>
+                  </Switch>
+                )
+              }}
             </Show>
 
             <Show when={showProgressBar()}>
               <div data-slot="toast-progress" {...resolved.slots.progress}>
-                <Progress
-                  size="sm"
-                  value={progressPercent()}
-                  // Indicator transition would trail the timer and look unfinished at dismiss.
-                  classes={{ indicator: 'transition-none' }}
+                <div
+                  data-slot="toast-progress-indicator"
+                  class={TOAST_PROGRESS_CLASS}
+                  style={{ width: `${progressPercent()}%` }}
                 />
               </div>
             </Show>

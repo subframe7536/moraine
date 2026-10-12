@@ -6,6 +6,8 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 
+export const TOAST_PROGRESS_CLASS = 'bg-primary h-full transition-none'
+
 export const toastDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
     'front',
@@ -16,7 +18,6 @@ export const toastDataAttributes = {
     'swiping',
     'swipe-out',
   ),
-  /** Stack list (`ul`) expanded state. */
   list: /* @__PURE__ */ createDataAttributes('expanded'),
 } satisfies DataAttributeContract<keyof ToastStyleSlot>
 
@@ -35,7 +36,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       close: 'text-muted-foreground shrink-0 transition-colors hover:text-foreground',
       action: 'shrink-0',
       cancel: 'shrink-0',
-      progress: 'left-0 right-0 top-0 absolute overflow-hidden',
+      progress: 'bg-muted h-1 left-0 right-0 top-0 absolute overflow-hidden',
     },
     variants: {
       variant: {

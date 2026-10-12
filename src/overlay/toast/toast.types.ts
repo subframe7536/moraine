@@ -11,6 +11,14 @@ import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
 export const DEFAULT_TOAST_DURATION = 4000
 export const DEFAULT_TOAST_GAP = 14
 
+export interface ToastItemRecord extends ToastT.InitOptions {
+  id: string | number
+  closed?: boolean
+  isBumping?: boolean
+  role?: 'status' | 'alert'
+  jsx?: JSX.Element | ((id: string | number) => JSX.Element)
+}
+
 export namespace ToastT {
   export type Kind = 'single'
 
@@ -33,84 +41,85 @@ export namespace ToastT {
     style?: SlotStyleValue
   }
 
-  /** Complete internal and external representation of a toast notification. */
-  export interface Item {
-    /** Unique identifier for the toast. */
-    id: string | number
-    /** Primary notification title. */
-    title?: JSX.Element | (() => JSX.Element)
-    /** Secondary notification description. */
-    description?: JSX.Element | (() => JSX.Element)
-    /** Visual status variant. */
-    variant?: Variant
-    /** Custom leading icon. Accepts the same values as `<Icon name={…} />`. */
-    icon?: IconT.Name
-    /** Auto-dismiss duration in milliseconds. Pass Infinity to disable auto-dismiss. */
-    duration?: number
-    /** Whether user interaction can dismiss the toast. Default: true. */
-    dismissible?: boolean
-    /** Whether to show a close button. Default: false. */
-    closeButton?: boolean
-    /** Accessible label for the close button. */
-    closeButtonAriaLabel?: string
-    /** Whether to show the remaining duration progress bar. */
-    showProgress?: boolean
-    /** Primary call-to-action button. */
-    action?: Action | JSX.Element
-    /** Secondary cancel button. */
-    cancel?: Action | JSX.Element
-    /** Callback invoked when the toast begins dismiss. */
-    onDismiss?: (item: Item) => void
-    /** Callback invoked when auto-dismiss timer expires. */
-    onAutoClose?: (item: Item) => void
-    /** Whether to invert toast colors. */
-    invert?: boolean
-    /** Viewport placement on screen. */
-    placement?: Placement
-    /** Viewport alignment on screen. */
-    align?: OverlayAlign
-    /** Class overrides for toast slots. */
-    classes?: Classes
-    /** Style overrides for toast slots. */
-    styles?: Styles
-    /** Custom class for toast root. */
-    class?: SlotClassValue
-    /** Custom style for toast root. */
-    style?: SlotStyleValue
-    /** Custom arbitrary JSX renderer. */
-    jsx?: JSX.Element | ((id: string | number) => JSX.Element)
-    /** Target Toast host `id` for scoped instances. */
-    toastId?: string
-    /** ARIA role for this toast. Defaults to 'alert' for error variant, 'status' otherwise. */
-    role?: 'status' | 'alert'
-    /** Whether the toast is currently marked for dismissal. */
-    dismissed?: boolean
-    /** Key bumped on duplicate toast trigger to replay attention animation. */
-    bumpKey?: number
-  }
-
   /**
    * Custom predicate or boolean flag for preventing duplicate toasts.
    * When a function is provided, it receives the candidate toast options and the front toast,
    * returning true if the new toast should be prevented as a duplicate.
    */
-  export type PreventDuplicate = boolean | ((candidate: Partial<Item>, frontToast: Item) => boolean)
+  export type PreventDuplicate =
+    | boolean
+    | ((candidate: Partial<ToastItemRecord>, frontToast: ToastItemRecord) => boolean)
 
   /** Options passed to toast creation methods. */
-  export interface AddOptions extends Omit<Partial<Item>, 'id' | 'dismissed' | 'bumpKey'> {
+  export interface InitOptions {
     /** Explicit identifier for updating or preventing duplicate toasts. */
     id?: string | number
-    /**
-     * Prevent creating duplicate toasts with matching content.
-     * Can be a boolean or a custom predicate comparing the candidate against the front toast.
-     */
+
+    /** Primary notification title. */
+    title?: JSX.Element
+
+    /** Secondary notification description. */
+    description?: JSX.Element
+
+    /** Visual status variant. */
+    variant?: Variant
+
+    /** Custom leading icon name. */
+    icon?: IconT.Name
+
+    /** Auto-close duration in milliseconds. Pass Infinity to disable auto-close. */
+    duration?: number
+
+    /** Close button configuration or custom JSX element. Pass `true` for default button. */
+    close?: Action | JSX.Element
+
+    /** Whether to show the remaining duration progress bar. */
+    showProgress?: boolean
+
+    /** Primary call-to-action button. */
+    action?: Action | JSX.Element
+
+    /** Secondary cancel button. */
+    cancel?: Action | JSX.Element
+
+    /** Callback invoked when toast closes. `auto` is true if triggered by duration timer. */
+    onClose?: (id: string | number, auto: boolean) => void
+
+    /** Whether to invert toast colors. */
+    invert?: boolean
+
+    /** Viewport placement on screen. */
+    placement?: Placement
+
+    /** Viewport alignment on screen. */
+    align?: OverlayAlign
+
+    /** Class overrides for toast slots. */
+    classes?: Classes
+
+    /** Style overrides for toast slots. */
+    styles?: Styles
+
+    /** Custom class for toast root. */
+    class?: SlotClassValue
+
+    /** Custom style for toast root. */
+    style?: SlotStyleValue
+
+    /** Target Toast host `id` for scoped instances. */
+    toastId?: string
+
+    /** Prevent duplicate toasts with matching content. */
     preventDuplicate?: PreventDuplicate
   }
 
+  /** Options for updating an existing toast in place. */
+  export interface UpdateOptions extends Partial<Omit<InitOptions, 'id'>> {}
+
   /** Options for binding toast lifecycles to an asynchronous promise. */
-  export interface PromiseOptions<T = unknown> extends Omit<AddOptions, 'title' | 'description'> {
+  export interface PromiseOptions<T = unknown> extends Omit<InitOptions, 'title' | 'description'> {
     /** Message shown while the promise is pending. */
-    loading?: JSX.Element | (() => JSX.Element)
+    loading?: JSX.Element
     /** Message shown when the promise resolves. */
     success?: JSX.Element | ((data: T) => JSX.Element)
     /** Message shown when the promise rejects. */
@@ -148,35 +157,22 @@ export namespace ToastT {
     visibleToasts?: number
 
     /**
-     * Default duration before auto-dismissal in milliseconds.
+     * Default duration before auto-close in milliseconds.
      * @default 4000
      */
     duration?: number
 
     /**
-     * Whether to show a close button on toasts by default.
+     * Close button configuration or custom JSX element. When truthy, enables closing.
      * @default false
      */
-    closeButton?: boolean
-
-    /**
-     * Accessible label for the close button.
-     * Defaults to the `toast.close` locale message.
-     */
-    closeButtonAriaLabel?: string
+    close?: Action | JSX.Element
 
     /**
      * Whether to show the remaining duration progress bar.
      * @default false
      */
     showProgress?: boolean
-
-    /**
-     * Keyboard shortcuts to focus the notification viewport.
-     * All listed keys must be pressed together.
-     * @default ['F6']
-     */
-    hotkey?: string[]
 
     /**
      * Whether to expand the stacked toast list by default.

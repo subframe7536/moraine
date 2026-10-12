@@ -18,69 +18,18 @@ import type { OverlayAlign } from '../../theme/style-types'
 
 import { ToastItem } from './toast-item'
 import { getDefaultToastStore, matchesHostId } from './toast-store'
-import type { ToastHostStore, ToastStore } from './toast-store'
+import type { ToastStore } from './toast-store'
 import { defaultToastMessages } from './toast.messages'
 import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
-import type { ToastProps, ToastT } from './toast.types'
+import type { ToastItemRecord, ToastProps, ToastT } from './toast.types'
 
-const MODIFIER_PARTS: Record<string, 'altKey' | 'ctrlKey' | 'metaKey' | 'shiftKey'> = {
-  altKey: 'altKey',
-  Alt: 'altKey',
-  ctrlKey: 'ctrlKey',
-  controlKey: 'ctrlKey',
-  Control: 'ctrlKey',
-  Ctrl: 'ctrlKey',
-  metaKey: 'metaKey',
-  Meta: 'metaKey',
-  shiftKey: 'shiftKey',
-  Shift: 'shiftKey',
-}
-
-function matchesToastHotkey(event: KeyboardEvent, hotkey: readonly string[]): boolean {
-  if (hotkey.length === 0) {
-    return false
-  }
-
-  const required = {
-    altKey: false,
-    ctrlKey: false,
-    metaKey: false,
-    shiftKey: false,
-  }
-  const keys: string[] = []
-
-  for (const part of hotkey) {
-    const modifier = MODIFIER_PARTS[part]
-    if (modifier) {
-      required[modifier] = true
-    } else {
-      keys.push(part)
-    }
-  }
-
-  if (
-    event.altKey !== required.altKey ||
-    event.ctrlKey !== required.ctrlKey ||
-    event.metaKey !== required.metaKey ||
-    event.shiftKey !== required.shiftKey
-  ) {
-    return false
-  }
-
-  if (keys.length === 0) {
-    return true
-  }
-
-  return keys.every((key) => event.key === key || event.code === key)
-}
-
-function hostStore(store: ToastStore | undefined): ToastHostStore {
-  return (store as ToastHostStore | undefined) ?? getDefaultToastStore()
+function hostStore(store: ToastStore | undefined): ToastStore {
+  return store ?? getDefaultToastStore()
 }
 
 /**
- * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and the other static methods.
+ * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and other static methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -89,10 +38,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'align',
     'visibleToasts',
     'duration',
-    'closeButton',
-    'closeButtonAriaLabel',
+    'close',
     'showProgress',
-    'hotkey',
     'expand',
     'preventDuplicate',
     'invert',
@@ -107,23 +54,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const messages = useMessages('toast', defaultToastMessages)
   const store = () => hostStore(local.store)
-  const [keyboardExpanded, setKeyboardExpanded] = createSignal(false)
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
-
-  let viewportRef: HTMLElement | undefined
-  let restoreFocusEl: HTMLElement | null = null
-  let focusedViaHotkey = false
-
-  const restoreFocus = () => {
-    if (!focusedViaHotkey) {
-      return
-    }
-    focusedViaHotkey = false
-    restoreFocusEl?.focus?.()
-    restoreFocusEl = null
-  }
 
   // class/style bind to each stack list, not the viewport.
   const resolved = createStyles(
@@ -149,9 +82,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
         if (val === undefined) {
           return
         }
-        store().setHostPreventDuplicate(id, val)
+        store().setHostPreventDuplicate?.(id, val)
         onCleanup(() => {
-          store().setHostPreventDuplicate(id, undefined)
+          store().setHostPreventDuplicate?.(id, undefined)
         })
       },
     ),
@@ -161,37 +94,30 @@ function ToastRoot(props: ToastProps): JSX.Element {
     on(
       () => local.id,
       (id) => {
-        store().registerHost(id)
+        store().registerHost?.(id)
         onCleanup(() => {
-          store().unregisterHost(id)
+          store().unregisterHost?.(id)
         })
       },
     ),
   )
 
-  const hotkeys = () => local.hotkey ?? ['F6']
-  const hotkeyLabel = () => hotkeys().join('+')
-
   const filteredToasts = createMemo(() => {
     return store().toasts.filter((t) => matchesHostId(t, local.id))
   })
 
-  const activeToasts = createMemo(() => filteredToasts().filter((t) => !t.dismissed))
+  const activeToasts = createMemo(() => filteredToasts().filter((t) => !t.closed))
 
   const hasToasts = () => activeToasts().length > 0
 
-  // Like Base UI's ToastList: only listen for window focus/visibility and the hotkey
-  // while this host has toasts, so empty hosts attach nothing and never intercept F6.
   createEffect(
     on(hasToasts, (active) => {
       if (!active) {
         return
       }
-      // Re-sync on attach; state may have changed while detached.
       setIsWindowFocused(document.hasFocus())
       setIsDocumentHidden(document.hidden)
       onCleanup(() => {
-        // Reset to defaults so a stale blurred/hidden state can't stick.
         setIsWindowFocused(true)
         setIsDocumentHidden(false)
       })
@@ -200,46 +126,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         blur: () => setIsWindowFocused(false),
       })
       createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
-      createEventListener(window, 'keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-          setKeyboardExpanded(false)
-          restoreFocus()
-          return
-        }
-
-        if (
-          !matchesToastHotkey(event, hotkeys()) ||
-          (viewportRef && event.target === viewportRef)
-        ) {
-          return
-        }
-
-        event.preventDefault()
-        const active = document.activeElement
-        if (!focusedViaHotkey) {
-          restoreFocusEl = active instanceof HTMLElement ? active : null
-        }
-        focusedViaHotkey = true
-        // keyboardExpanded also pauses timers.
-        setKeyboardExpanded(true)
-        const firstToast = viewportRef?.querySelector<HTMLElement>('[data-slot="toast"]')
-        firstToast?.focus({ preventScroll: true })
-      })
     }),
-  )
-
-  createEffect(
-    on(
-      () => activeToasts().length,
-      (len) => {
-        if (len <= 1) {
-          setKeyboardExpanded(false)
-        }
-        if (len === 0) {
-          restoreFocus()
-        }
-      },
-    ),
   )
 
   const defaultPlacement = () => local.placement ?? 'bottom'
@@ -266,14 +153,17 @@ function ToastRoot(props: ToastProps): JSX.Element {
   }
 
   const gapSize = () => local.gap ?? DEFAULT_TOAST_GAP
-  const hostPaused = () => keyboardExpanded() || isDocumentHidden() || !isWindowFocused()
+  const hostPaused = () => isDocumentHidden() || !isWindowFocused()
+
+  const viewportAriaLabel = () =>
+    local['aria-label'] ??
+    (typeof messages().viewport === 'function'
+      ? (messages().viewport as unknown as () => string)()
+      : messages().viewport)
 
   return (
     <Portal>
       <section
-        ref={(el) => {
-          viewportRef = el
-        }}
         data-slot="toast-viewport"
         role="region"
         tabIndex={-1}
@@ -281,7 +171,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
+        aria-label={viewportAriaLabel()}
         {...resolved.slots.viewport}
       >
         <For each={possiblePositions()}>
@@ -292,23 +182,20 @@ function ToastRoot(props: ToastProps): JSX.Element {
               defaultPlacement={defaultPlacement}
               defaultAlign={defaultAlign}
               expand={local.expand}
-              keyboardExpanded={keyboardExpanded}
               hostPaused={hostPaused}
               heights={heights}
               gapSize={gapSize}
               visibleToasts={local.visibleToasts ?? 3}
               class={local.class}
               style={local.style}
-              closeButton={local.closeButton}
-              closeButtonAriaLabel={local.closeButtonAriaLabel}
+              close={local.close}
               showProgress={local.showProgress}
               invert={local.invert}
               classes={local.classes}
               styles={local.styles}
               duration={local.duration}
               onHeight={updateHeight}
-              onDismiss={(id) => store().dismiss(id)}
-              onRemove={(id) => store().remove(id)}
+              onClose={(id) => store().close(id)}
             />
           )}
         </For>
@@ -319,28 +206,24 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
 interface ToastListProps {
   positionKey: string
-  filteredToasts: () => ToastT.Item[]
+  filteredToasts: () => ToastItemRecord[]
   defaultPlacement: () => ToastT.Placement
   defaultAlign: () => OverlayAlign
   expand?: boolean
-  keyboardExpanded: () => boolean
-  /** Keyboard focus, hidden document, or blurred window. */
   hostPaused: () => boolean
   heights: () => Record<string | number, number>
   gapSize: () => number
   visibleToasts: number
   class?: ToastProps['class']
   style?: ToastProps['style']
-  closeButton?: boolean
-  closeButtonAriaLabel?: string
+  close?: ToastT.Action | JSX.Element
   showProgress?: boolean
   invert?: boolean
   classes?: ToastT.Classes
   styles?: ToastT.Styles
   duration?: number
   onHeight: (id: string | number, height: number) => void
-  onDismiss: (id: string | number) => void
-  onRemove: (id: string | number) => void
+  onClose: (id: string | number) => void
 }
 
 function ToastList(props: ToastListProps): JSX.Element {
@@ -358,13 +241,13 @@ function ToastList(props: ToastListProps): JSX.Element {
     })
   })
 
-  const layoutExpanded = () => Boolean(props.expand) || props.keyboardExpanded() || isHovered()
+  const layoutExpanded = () => Boolean(props.expand) || isHovered()
   const timerPaused = () => isHovered() || isInteracting() || props.hostPaused()
 
   const frontmostHeight = createMemo(() => {
-    const heights = props.heights()
+    const currentHeights = props.heights()
     for (const t of activeGroupToasts()) {
-      const h = heights[t.id]
+      const h = currentHeights[t.id]
       if (h && h > 0) {
         return h
       }
@@ -374,13 +257,13 @@ function ToastList(props: ToastListProps): JSX.Element {
 
   // Expanded Y offset per index: prefix sum of earlier heights plus gaps, computed once per group.
   const offsets = createMemo(() => {
-    const heights = props.heights()
+    const currentHeights = props.heights()
     const gap = props.gapSize()
     const result: number[] = []
     let total = 0
     for (const t of activeGroupToasts()) {
       result.push(total)
-      total += (heights[t.id] ?? 0) + gap
+      total += (currentHeights[t.id] ?? 0) + gap
     }
     return result
   })
@@ -414,7 +297,6 @@ function ToastList(props: ToastListProps): JSX.Element {
       placement: placement(),
       align: align(),
     }),
-    // Component-controlled layout style; user `styles.list` / `style` still win.
     own: () => ({
       list: {
         style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
@@ -425,7 +307,6 @@ function ToastList(props: ToastListProps): JSX.Element {
     }),
   })
 
-  // Mounted while the group has toasts, including ones still playing their exit animation.
   return (
     <Show when={activeGroupToasts().length > 0}>
       <ul
@@ -443,7 +324,6 @@ function ToastList(props: ToastListProps): JSX.Element {
           setIsHovered(false)
         }}
         onPointerDown={(event) => {
-          // The list only contains toast items, so any target other than the list is inside a toast.
           if (event.target !== event.currentTarget) {
             setIsInteracting(true)
           }
@@ -462,8 +342,7 @@ function ToastList(props: ToastListProps): JSX.Element {
               paused={timerPaused()}
               placement={placement()}
               align={align()}
-              closeButton={props.closeButton}
-              closeButtonAriaLabel={props.closeButtonAriaLabel}
+              close={props.close}
               showProgress={props.showProgress}
               invert={props.invert}
               classes={props.classes}
@@ -471,8 +350,7 @@ function ToastList(props: ToastListProps): JSX.Element {
               gap={props.gapSize()}
               duration={props.duration}
               onHeight={props.onHeight}
-              onDismiss={props.onDismiss}
-              onRemove={props.onRemove}
+              onClose={props.onClose}
             />
           )}
         </For>
@@ -481,21 +359,24 @@ function ToastList(props: ToastListProps): JSX.Element {
   )
 }
 
-export const Toast: typeof ToastRoot & ToastStore = ToastRoot as typeof ToastRoot & ToastStore
+export const Toast = ToastRoot as typeof ToastRoot &
+  ToastStore & {
+    success: (options: ToastT.InitOptions) => string | number
+    error: (options: ToastT.InitOptions) => string | number
+    warning: (options: ToastT.InitOptions) => string | number
+    info: (options: ToastT.InitOptions) => string | number
+  }
 
-Toast.show = (message, options) => getDefaultToastStore().show(message, options)
-Toast.success = (message, options) => getDefaultToastStore().success(message, options)
-Toast.error = (message, options) => getDefaultToastStore().error(message, options)
-Toast.warning = (message, options) => getDefaultToastStore().warning(message, options)
-Toast.info = (message, options) => getDefaultToastStore().info(message, options)
-Toast.loading = (message, options) => getDefaultToastStore().loading(message, options)
+Toast.add = (options) => getDefaultToastStore().add(options)
+Toast.success = (options) => getDefaultToastStore().add({ variant: 'success', ...options })
+Toast.error = (options) => getDefaultToastStore().add({ variant: 'error', ...options })
+Toast.warning = (options) => getDefaultToastStore().add({ variant: 'warning', ...options })
+Toast.info = (options) => getDefaultToastStore().add({ variant: 'info', ...options })
+Toast.loading = (options) => getDefaultToastStore().loading(options)
 Toast.promise = (promiseValue, options) => getDefaultToastStore().promise(promiseValue, options)
 Toast.custom = (render, options) => getDefaultToastStore().custom(render, options)
-Toast.dismiss = (id) => getDefaultToastStore().dismiss(id)
-Toast.remove = (id) => getDefaultToastStore().remove(id)
-Toast.clear = () => getDefaultToastStore().clear()
-Toast.getToasts = () => getDefaultToastStore().getToasts()
-Toast.getHistory = () => getDefaultToastStore().getHistory()
+Toast.update = (id, options) => getDefaultToastStore().update(id, options)
+Toast.close = (id) => getDefaultToastStore().close(id)
 
 Object.defineProperties(Toast, {
   toasts: {
