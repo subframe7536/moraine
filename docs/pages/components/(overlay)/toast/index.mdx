@@ -14,27 +14,17 @@ import { Button, Toast } from '@src'
 <Playground
   controls={[
     {
-      kind: 'input',
-      prop: 'message',
-      label: 'Message',
-      defaultValue: 'Changes saved successfully',
-    },
-    {
-      kind: 'input',
-      prop: 'description',
-      label: 'Description',
-      defaultValue: 'Your preferences have been updated.',
-    },
-    {
       kind: 'select',
       prop: 'tone',
       label: 'Tone',
       defaultValue: 'success',
       options: [
+        { label: 'Default', value: 'default' },
         { label: 'Success', value: 'success' },
+        { label: 'Info', value: 'info' },
         { label: 'Warning', value: 'warning' },
         { label: 'Error', value: 'error' },
-        { label: 'Info', value: 'info' },
+        { label: 'Loading', value: 'loading' },
       ],
     },
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: false },
@@ -44,11 +34,11 @@ import { Button, Toast } from '@src'
       kind: 'select',
       prop: 'actionVariant',
       label: 'Action variant',
-      defaultValue: 'outline',
+      defaultValue: 'default',
       options: [
-        { label: 'Outline', value: 'outline' },
         { label: 'Default', value: 'default' },
         { label: 'Secondary', value: 'secondary' },
+        { label: 'Outline', value: 'outline' },
         { label: 'Ghost', value: 'ghost' },
         { label: 'Danger', value: 'danger' },
       ],
@@ -63,12 +53,12 @@ import { Button, Toast } from '@src'
       kind: 'select',
       prop: 'cancelVariant',
       label: 'Cancel variant',
-      defaultValue: 'ghost',
+      defaultValue: 'secondary',
       options: [
+        { label: 'Secondary', value: 'secondary' },
         { label: 'Ghost', value: 'ghost' },
         { label: 'Outline', value: 'outline' },
         { label: 'Default', value: 'default' },
-        { label: 'Secondary', value: 'secondary' },
         { label: 'Danger', value: 'danger' },
       ],
     },
@@ -77,9 +67,9 @@ import { Button, Toast } from '@src'
 >
   {(props) => {
     const showToast = () => {
-      const message = props.message
+      const message = 'Changes saved'
       const options = {
-        description: props.description || undefined,
+        description: 'Your preferences have been updated.',
         preventDuplicate: props.preventDuplicate,
         closeButton: props.closeButton,
         showProgress: props.showProgress,
@@ -99,6 +89,9 @@ import { Button, Toast } from '@src'
           : undefined,
       }
       switch (props.tone) {
+        case 'default':
+          Toast.show(message, options)
+          break
         case 'warning':
           Toast.warning(message, options)
           break
@@ -107,6 +100,9 @@ import { Button, Toast } from '@src'
           break
         case 'info':
           Toast.info(message, options)
+          break
+        case 'loading':
+          Toast.loading(message, options)
           break
         default:
           Toast.success(message, options)

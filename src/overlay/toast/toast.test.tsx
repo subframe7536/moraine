@@ -107,13 +107,28 @@ describe('Toast', () => {
     })
   })
 
+  it('defaults action button variant to default and cancel button variant to secondary', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Item deleted', {
+      action: { label: 'Undo' },
+      cancel: { label: 'Dismiss' },
+    })
+
+    const actionButton = await screen.findByRole('button', { name: 'Undo' })
+    const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
+
+    expect(actionButton.className).toContain('bg-primary')
+    expect(cancelButton.className).toContain('bg-secondary')
+  })
+
   it('applies custom variant and size on action and cancel button configs', async () => {
     render(() => <Toast />)
 
     Toast.show('Item deleted', {
       action: {
         label: 'Undo',
-        variant: 'default',
+        variant: 'outline',
         size: 'lg',
       },
       cancel: {
@@ -125,7 +140,7 @@ describe('Toast', () => {
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('bg-primary')
+    expect(actionButton.className).toContain('border-border')
     expect(actionButton.className).toContain('text-base')
     expect(cancelButton.className).toContain('bg-danger')
   })
