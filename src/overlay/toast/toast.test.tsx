@@ -725,6 +725,40 @@ describe('Toast', () => {
     expect(document.activeElement).toBe(prior)
   })
 
+  it('keeps progress in sync with the dismiss timer across pause/resume', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={1000} showProgress />)
+      await Promise.resolve()
+      Toast.show('Synced progress')
+      const value = () =>
+        Number(document.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow'))
+
+      await vi.advanceTimersByTimeAsync(400)
+      const list = document.querySelector('ul')!
+      fireEvent.mouseEnter(list)
+      await vi.advanceTimersByTimeAsync(0)
+      expect(value()).toBeCloseTo(60, 0)
+      await vi.advanceTimersByTimeAsync(2000)
+      expect(value()).toBeCloseTo(60, 0)
+
+      fireEvent.mouseLeave(list)
+      await vi.advanceTimersByTimeAsync(590)
+      expect(screen.queryByText('Synced progress')).not.toBeNull()
+      expect(value()).toBeGreaterThan(0)
+      expect(value()).toBeLessThan(5)
+
+      await vi.advanceTimersByTimeAsync(10)
+      // Dismissed exactly as progress hits 0.
+      expect(value()).toBe(0)
+      expect(document.querySelector('[data-slot="toast"]')?.getAttribute('style')).toContain(
+        'opacity: 0',
+      )
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('renders progress bar when showProgress is enabled', async () => {
     render(() => <Toast showProgress />)
 

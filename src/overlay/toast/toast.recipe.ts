@@ -27,7 +27,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
       region: 'pointer-events-none inset-0 fixed z-floating',
       list: 'm-0 outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating data-empty:pointer-events-none',
-      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] data-limited:(opacity-0 pointer-events-none) data-swipe-out:(duration-200 ease-out) data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none data-expanded:after:(h-[calc(var(--toast-gap)+1px)] w-full content-[''] bottom-full left-0 absolute)`,
+      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 data-limited:(opacity-0 pointer-events-none) data-swipe-out:duration-200 data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none`,
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
       description: 'text-xs text-muted-foreground leading-normal',

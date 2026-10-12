@@ -28,6 +28,8 @@ const SWIPE_MIN_DISTANCE = 12
 const SWIPE_VELOCITY = 0.11
 /** Fallback unmount delay; matches recipe `duration-400` (swipe-out uses 200ms via transitionend). */
 const TOAST_EXIT_MS = 400
+/** Progress sample interval (~1 frame); the indicator has no CSS transition, so no lag. */
+const PROGRESS_TICK_MS = 16
 
 export interface ToastItemProps {
   toast: ToastT.Item
@@ -323,6 +325,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     ),
   )
 
+  const syncProgress = (left: number) => {
+    const total = untrack(initialDuration)
+    setProgressPercent(total > 0 && Number.isFinite(total) ? (left / total) * 100 : 100)
+  }
+
   const isPaused = () =>
     isLoading() ||
     initialDuration() === Number.POSITIVE_INFINITY ||
@@ -351,6 +358,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           remainingTime = Math.max(0, remainingTime - elapsed)
           closeTimerStartTime = 0
         }
+        // Freeze the bar at the exact remaining fraction.
+        syncProgress(remainingTime)
         return
       }
 
@@ -364,18 +373,19 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       }
 
       timerId = setTimeout(() => {
+        clearInterval(progressTimerId)
+        progressTimerId = undefined
+        // Dismiss and progress end share one clock: the bar is empty exactly at dismiss.
+        syncProgress(0)
         props.toast.onAutoClose?.(props.toast)
         props.onDismiss(props.toast.id)
       }, currentRemaining)
 
       if (showProgressBar()) {
+        syncProgress(currentRemaining)
         progressTimerId = setInterval(() => {
-          if (closeTimerStartTime > 0) {
-            const elapsed = Date.now() - closeTimerStartTime
-            const left = Math.max(0, remainingTime - elapsed)
-            setProgressPercent((left / initialDuration()) * 100)
-          }
-        }, 50)
+          syncProgress(Math.max(0, remainingTime - (Date.now() - closeTimerStartTime)))
+        }, PROGRESS_TICK_MS)
       }
     }),
   )
@@ -661,7 +671,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
             <Show when={showProgressBar()}>
               <div data-slot="toast-progress" {...resolved.styles.progress}>
-                <Progress size="sm" value={progressPercent()} />
+                <Progress
+                  size="sm"
+                  value={progressPercent()}
+                  // Indicator transition would trail the timer and look unfinished at dismiss.
+                  classes={{ indicator: 'transition-none' }}
+                />
               </div>
             </Show>
           </>
