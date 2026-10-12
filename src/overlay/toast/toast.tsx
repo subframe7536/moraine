@@ -11,23 +11,18 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { useCn } from '../../provider'
+import { createStyles } from '../../provider'
+import { useMessages } from '../../provider/locale/locale-context'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
-import type { Cn } from '../../theme/cn'
 import type { OverlayAlign } from '../../theme/style-types'
 
 import { ToastItem } from './toast-item'
 import { getDefaultToastStore, matchesHostId } from './toast-store'
 import type { ToastHostStore, ToastStore } from './toast-store'
-import {
-  getToastPlacementClass,
-  TOAST_VIEWPORT_BASE_CLASS,
-  toastListDataAttributes,
-} from './toast.recipe'
+import { defaultToastMessages } from './toast.messages'
+import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastProps, ToastT } from './toast.types'
-
-const DEFAULT_TOAST_WIDTH = '384px'
 
 const MODIFIER_PARTS: Record<string, 'altKey' | 'ctrlKey' | 'metaKey' | 'shiftKey'> = {
   altKey: 'altKey',
@@ -111,7 +106,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'style',
   ])
 
-  const cn = useCn()
+  const messages = useMessages('toast', defaultToastMessages)
   const store = () => hostStore(local.store)
   const [keyboardExpanded, setKeyboardExpanded] = createSignal(false)
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
@@ -130,6 +125,19 @@ function ToastRoot(props: ToastProps): JSX.Element {
     restoreFocusEl?.focus?.()
     restoreFocusEl = null
   }
+
+  // class/style bind to the list viewport, not the region.
+  const resolved = createStyles(
+    toastRecipe,
+    {},
+    {
+      rootSlot: 'region',
+      inheritedStyles: () => ({
+        classes: local.classes,
+        styles: local.styles,
+      }),
+    },
+  )
 
   createEffect(
     on(
@@ -247,9 +255,11 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-relevant="additions text"
         aria-atomic="false"
         aria-label={
-          local['aria-label'] ?? local.regionAriaLabel ?? `Notifications (${hotkeyLabel()})`
+          local['aria-label'] ??
+          local.regionAriaLabel ??
+          messages().region({ hotkey: hotkeyLabel() })
         }
-        class="pointer-events-none inset-0 fixed z-floating"
+        {...resolved.styles.region}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
@@ -277,7 +287,6 @@ function ToastRoot(props: ToastProps): JSX.Element {
               onHeight={updateHeight}
               onDismiss={(id) => store().dismiss(id)}
               onRemove={(id) => store().remove(id)}
-              cn={cn}
             />
           )}
         </For>
@@ -310,7 +319,6 @@ interface ToastViewportProps {
   onHeight: (id: string | number, height: number) => void
   onDismiss: (id: string | number) => void
   onRemove: (id: string | number) => void
-  cn: Cn
 }
 
 function ToastViewport(props: ToastViewportProps): JSX.Element {
@@ -369,26 +377,32 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
     return totalH + (count > 1 ? (count - 1) * gap : 0)
   })
 
-  const listDataAttrs = toastListDataAttributes({
+  const resolved = createStyles(toastRecipe, props, {
+    rootSlot: 'list',
+    variablesSlot: 'list',
+    inheritedVariants: () => ({
+      placement: placement(),
+      align: align(),
+    }),
+    variables: () => ({
+      '--toast-gap': `${props.gapSize()}px`,
+      '--toast-frontmost-height': `${frontmostHeight()}px`,
+    }),
+  })
+
+  const listDataAttrs = toastDataAttributes.list({
     expanded: layoutExpanded,
+    empty: () => activeGroupToasts().length === 0,
   })
 
   return (
     <ul
       tabIndex={-1}
       {...listDataAttrs}
-      class={props.cn(
-        TOAST_VIEWPORT_BASE_CLASS,
-        activeGroupToasts().length > 0 ? 'pointer-events-auto' : 'pointer-events-none',
-        getToastPlacementClass(placement(), align()),
-        props.class,
-      )}
+      {...resolved.styles.list}
       style={{
-        width: DEFAULT_TOAST_WIDTH,
-        ...props.style,
+        ...resolved.styles.list.style,
         height: listHeight() > 0 ? `${listHeight()}px` : 'auto',
-        '--toast-gap': `${props.gapSize()}px`,
-        '--toast-frontmost-height': `${frontmostHeight()}px`,
       }}
       onMouseEnter={() => {
         setIsHovered(true)
@@ -485,5 +499,3 @@ Object.defineProperties(Toast, {
     },
   },
 })
-
-export type { ToastStore }

@@ -1,6 +1,13 @@
+import type { OverlayAlign } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface ToastStyleSlot<T = unknown> {
+  /** Full-viewport region that hosts all toast stacks. */
+  region?: T
+
+  /** Positioned list container for one placement/align stack. */
+  list?: T
+
   /** Outer container for an individual toast notification. */
   root?: T
 
@@ -41,6 +48,18 @@ export interface ToastStyleVariant {
    * @default false
    */
   invert?: boolean
+
+  /**
+   * Vertical stack placement on the viewport.
+   * @default 'bottom'
+   */
+  placement?: 'top' | 'bottom'
+
+  /**
+   * Horizontal alignment of the stack.
+   * @default 'end'
+   */
+  align?: OverlayAlign
 }
 
 export type ToastStyleConfig = ComponentStyleConfig<ToastStyleSlot, ToastStyleVariant>

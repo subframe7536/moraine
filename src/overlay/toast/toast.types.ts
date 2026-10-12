@@ -160,7 +160,7 @@ export namespace ToastT {
 
     /**
      * Accessible label for the close button.
-     * @default 'Close notification'
+     * Defaults to the `toast.close` locale message.
      */
     closeButtonAriaLabel?: string
 
@@ -214,7 +214,7 @@ export namespace ToastT {
 
     /**
      * Accessible label for the notification region.
-     * @default 'Notifications (F6)'
+     * Defaults to the `toast.region` locale message.
      */
     regionAriaLabel?: string
 

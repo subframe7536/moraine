@@ -22,6 +22,7 @@ import { defaultSidebarFrameMessages } from '../../navigation/sidebar-frame/side
 import { Dialog } from '../../overlay/dialog/dialog'
 import { defaultDialogMessages } from '../../overlay/dialog/dialog.messages'
 import { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
+import { defaultToastMessages } from '../../overlay/toast/toast.messages'
 import { MoraineProvider } from '../moraine-provider'
 
 import { useLocale, useMessages } from './locale-context'
@@ -30,6 +31,7 @@ import type { MoraineMessagesInput, MoraineMessages } from './messages.types'
 const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   dialog: defaultDialogMessages,
   sheet: defaultSheetMessages,
+  toast: defaultToastMessages,
   breadcrumb: defaultBreadcrumbMessages,
   commandPalette: defaultCommandPaletteMessages,
   select: defaultSelectMessages,

@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 import { DEV } from 'solid-js'
-import { createStore } from 'solid-js/store'
+import { createStore, produce } from 'solid-js/store'
 
 import { DEFAULT_TOAST_DURATION } from './toast.types'
 import type { ToastT } from './toast.types'
@@ -106,7 +106,7 @@ export interface ToastHostStore extends ToastStore {
   unregisterHost: (hostId: string | undefined) => void
 }
 
-function matchesHostId(item: ToastT.Item, hostId: string | undefined): boolean {
+export function matchesHostId(item: ToastT.Item, hostId: string | undefined): boolean {
   if (hostId) {
     return item.toastId === hostId
   }
@@ -272,7 +272,12 @@ export function createToastStore(): ToastStore {
             : isSameToastContent(frontToast, candidate)
 
         if (isDuplicate) {
-          setStore(frontIndex, 'bumpKey', (k) => (k ?? 0) + 1)
+          setStore(
+            frontIndex,
+            produce((item) => {
+              item.bumpKey = (item.bumpKey ?? 0) + 1
+            }),
+          )
           return frontToast.id
         }
       }
@@ -291,11 +296,14 @@ export function createToastStore(): ToastStore {
     }
 
     if (existingIndex !== -1) {
-      setStore(existingIndex, (prev) => ({
-        ...prev,
-        ...toastItem,
-        bumpKey: (prev.bumpKey ?? 0) + 1,
-      }))
+      setStore(
+        existingIndex,
+        produce((item) => {
+          const nextBump = (item.bumpKey ?? 0) + 1
+          Object.assign(item, toastItem)
+          item.bumpKey = nextBump
+        }),
+      )
       publishedItem = store[existingIndex]
     } else {
       setStore((prev) => [toastItem, ...prev])
@@ -354,7 +362,12 @@ export function createToastStore(): ToastStore {
         continue
       }
       if (!item.dismissed) {
-        setStore(i, 'dismissed', true)
+        setStore(
+          i,
+          produce((draft) => {
+            draft.dismissed = true
+          }),
+        )
       }
     }
 
@@ -523,5 +536,3 @@ export function getDefaultToastStore(): ToastHostStore {
   }
   return defaultStore
 }
-
-export { matchesHostId }

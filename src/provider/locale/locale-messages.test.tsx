@@ -21,6 +21,7 @@ import { SidebarFrame } from '../../navigation/sidebar-frame/sidebar-frame'
 import { useSidebarFrame } from '../../navigation/sidebar-frame/sidebar-frame-context'
 import { Dialog } from '../../overlay/dialog/dialog'
 import { Sheet } from '../../overlay/sheet/sheet'
+import { Toast } from '../../overlay/toast/toast'
 import { renderWithOwner } from '../../test-util/owner-render'
 import { MoraineProvider } from '../moraine-provider'
 
@@ -47,6 +48,33 @@ describe('localized component text', () => {
     expect(
       document.body.querySelector('[data-slot="sheet-content-close"]')?.getAttribute('aria-label'),
     ).toBe('Fermer la feuille')
+  })
+
+  test('uses toast close and region messages', async () => {
+    Toast.clear()
+    render(() => (
+      <MoraineProvider
+        messages={{
+          toast: {
+            close: 'Fermer la notification',
+            region: ({ hotkey }) => `Notifications (${hotkey})`,
+          },
+        }}
+      >
+        <Toast closeButton />
+      </MoraineProvider>
+    ))
+
+    const region = document.body.querySelector('[data-slot="toast-region"]')
+    expect(region?.getAttribute('aria-label')).toBe('Notifications (F6)')
+
+    Toast.show('Bonjour', { closeButton: true })
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="toast-close"]')?.getAttribute('aria-label'),
+      ).toBe('Fermer la notification')
+    })
+    Toast.clear()
   })
 
   test('uses select, combobox, and multi-select messages unless a prop sets the text', () => {

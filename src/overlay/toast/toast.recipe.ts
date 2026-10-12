@@ -2,11 +2,9 @@ import { defineRecipe } from '../../theme/recipe'
 import { FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.class'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import type { OverlayAlign } from '../../theme/style-types'
 
 import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
 import { DEFAULT_TOAST_GAP } from './toast.types'
-import type { ToastT } from './toast.types'
 
 export const toastDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
@@ -18,43 +16,17 @@ export const toastDataAttributes = {
     'swiping',
     'swipe-out',
   ),
+  /** Viewport list (`ol`/`ul`) expanded / empty state. */
+  list: /* @__PURE__ */ createDataAttributes('expanded', 'empty'),
 } satisfies DataAttributeContract<keyof ToastStyleSlot>
-
-/** Viewport list expanded state. Not a public recipe slot. */
-export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
-
-/** Base viewport class for toast list containers. */
-export const TOAST_VIEWPORT_BASE_CLASS = 'm-0 outline-none list-none flex flex-col fixed z-floating'
-
-/** Resolves viewport positioning classes based on placement and alignment. */
-export function getToastPlacementClass(
-  placement: ToastT.Placement = 'bottom',
-  align: OverlayAlign = 'end',
-): string {
-  if (placement === 'top') {
-    if (align === 'start') {
-      return 'top-4 left-4 items-start'
-    }
-    if (align === 'center') {
-      return 'top-4 left-1/2 -translate-x-1/2 items-center'
-    }
-    return 'top-4 right-4 items-end'
-  }
-
-  if (align === 'start') {
-    return 'bottom-4 left-4 items-start'
-  }
-  if (align === 'center') {
-    return 'bottom-4 left-1/2 -translate-x-1/2 items-center'
-  }
-  return 'bottom-4 right-4 items-end'
-}
 
 export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastStyleVariant>(
   'toast',
   {
     base: {
       '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
+      region: 'pointer-events-none inset-0 fixed z-floating',
+      list: 'm-0 outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating data-empty:pointer-events-none',
       root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-lg bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-center absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] data-limited:(opacity-0 pointer-events-none) data-swipe-out:(duration-200 ease-out) data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none data-expanded:after:(h-[calc(var(--toast-gap)+1px)] w-full content-[''] bottom-full left-0 absolute)`,
       content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-none font-medium',
@@ -92,10 +64,36 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
           root: 'text-popover-foreground border-border bg-popover',
         },
       },
+      placement: {
+        top: {
+          list: 'top-4',
+          root: 'top-0',
+        },
+        bottom: {
+          list: 'bottom-4',
+          root: 'bottom-0',
+        },
+      },
+      align: {
+        start: {
+          list: 'items-start left-4',
+          root: 'left-0',
+        },
+        center: {
+          list: 'items-center left-1/2 -translate-x-1/2',
+          root: 'mx-auto left-0 right-0',
+        },
+        end: {
+          list: 'items-end right-4',
+          root: 'right-0',
+        },
+      },
     },
     defaultVariants: {
       variant: 'default',
       invert: false,
+      placement: 'bottom',
+      align: 'end',
     },
   },
 )
