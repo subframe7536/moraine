@@ -22,7 +22,7 @@ export interface AlertDialogStyleVariant {
    */
   center?: boolean
   /**
-   * Styles the OK action as `destructive` when `okVariant` is omitted.
+   * Styles the OK action as `danger` when `okVariant` is omitted.
    * @default false
    */
   danger?: boolean

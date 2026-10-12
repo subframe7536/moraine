@@ -44,7 +44,7 @@ export namespace AlertDialogT {
      */
     center?: boolean | null
     /**
-     * Styles the OK action as `destructive` when `okVariant` is omitted.
+     * Styles the OK action as `danger` when `okVariant` is omitted.
      * @default false
      */
     danger?: boolean | null

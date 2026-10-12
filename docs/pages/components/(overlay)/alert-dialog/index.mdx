@@ -6,7 +6,7 @@ api:
 sidebar:
   order: 4
 search:
-  tags: [confirm, warning, alert, alert dialog, AlertDialog, destructive, prompt]
+  tags: [confirm, warning, alert, alert dialog, AlertDialog, danger, prompt]
 ---
 
 import { AlertDialog, Button } from '@src'
@@ -27,7 +27,7 @@ import { AlertDialog, Button } from '@src'
 >
   {(props) => (
     <Button
-      variant={props.danger ? 'destructive' : 'default'}
+      variant={props.danger ? 'danger' : 'default'}
       onClick={() =>
         void AlertDialog.confirm({
           title: props.title,

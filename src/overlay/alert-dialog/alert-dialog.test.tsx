@@ -103,10 +103,10 @@ describe('AlertDialog', () => {
     setup()
     const cases: Array<[AlertDialogT.Type, string | undefined, string | undefined, boolean]> = [
       ['confirm', undefined, undefined, true],
-      ['info', 'icon-info', 'text-primary', false],
-      ['warning', 'icon-warning', 'text-foreground', false],
-      ['error', 'icon-error', 'text-destructive', false],
-      ['success', 'icon-success', 'text-primary', false],
+      ['info', 'icon-info', 'text-info', false],
+      ['warning', 'icon-warning', 'text-warning', false],
+      ['error', 'icon-error', 'text-danger', false],
+      ['success', 'icon-success', 'text-success', false],
     ]
 
     for (const [type, icon, tone, showsCancel] of cases) {
@@ -132,7 +132,7 @@ describe('AlertDialog', () => {
     await waitForTitle('Danger confirm')
     const dangerIcon = document.body.querySelector('[data-slot="icon"]')
     expect(dangerIcon?.className).toContain('icon-caution')
-    expect(dangerIcon?.className).toContain('text-destructive')
+    expect(dangerIcon?.className).toContain('text-danger')
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
@@ -256,7 +256,7 @@ describe('AlertDialog', () => {
       width: 280,
     })
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
-    expect(button('OK').className).toContain('bg-destructive')
+    expect(button('OK').className).toContain('bg-danger')
     expect(document.body.querySelector('.icon-caution')).toBeNull()
     expect(document.body.querySelector('.icon-close')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
@@ -266,7 +266,7 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
-    expect(button('OK', dialogs()[1]).className).not.toContain('bg-destructive')
+    expect(button('OK', dialogs()[1]).className).not.toContain('bg-danger')
 
     first.destroy()
     await expect(first).resolves.toBe(false)
@@ -381,14 +381,14 @@ describe('AlertDialog', () => {
       expect(button('Back')).toBeInstanceOf(HTMLButtonElement)
     })
     expect(dialog().style.maxWidth).toBe('420px')
-    expect(button('Continue').className).toContain('bg-destructive')
+    expect(button('Continue').className).toContain('bg-danger')
 
     AlertDialog.destroyAll()
     void AlertDialog.info({ title: 'Override', okText: 'Done', danger: false })
     await waitFor(() => {
       expect(button('Done')).toBeInstanceOf(HTMLButtonElement)
     })
-    expect(button('Done').className).not.toContain('bg-destructive')
+    expect(button('Done').className).not.toContain('bg-danger')
     expect(
       Array.from(document.body.querySelectorAll('button')).some(
         (item) => item.textContent === 'Back',
@@ -415,9 +415,7 @@ describe('AlertDialog', () => {
     expect(footer?.className).toContain('flex-row')
     expect(footer?.className).toContain('px-6')
     expect(footer?.className).toContain('pt-4')
-    expect(document.body.querySelector('[data-slot="icon"]')?.className).toContain(
-      'text-destructive',
-    )
+    expect(document.body.querySelector('[data-slot="icon"]')?.className).toContain('text-danger')
     expect(button("Don't allow").className).toContain('flex-1')
     expect(button('Allow').className).toContain('flex-1')
     expect(document.body.querySelector('[data-slot="icon"]')?.parentElement?.className).toContain(

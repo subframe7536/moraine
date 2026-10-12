@@ -397,7 +397,7 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
     { rootSlot: 'content' },
   )
   const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
-    props.okVariant() ?? (resolved.variants.danger ? 'destructive' : 'default')
+    props.okVariant() ?? (resolved.variants.danger ? 'danger' : 'default')
   const pending = () => props.pendingKind() !== undefined
 
   createEffect(

@@ -6,11 +6,11 @@ export const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
 export const ALERT_DIALOG_CENTER_ICON_CLASS =
   'rounded-xl bg-muted flex shrink-0 size-10 items-center justify-center'
 export const ALERT_DIALOG_ICON_TONE_CLASS = {
-  confirm: 'text-destructive',
-  warning: 'text-foreground',
-  error: 'text-destructive',
-  info: 'text-primary',
-  success: 'text-primary',
+  confirm: 'text-danger',
+  warning: 'text-warning',
+  error: 'text-danger',
+  info: 'text-info',
+  success: 'text-success',
 } as const
 
 export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
