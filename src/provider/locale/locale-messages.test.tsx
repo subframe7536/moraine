@@ -50,14 +50,14 @@ describe('localized component text', () => {
     ).toBe('Fermer la feuille')
   })
 
-  test('uses toast close and region messages', async () => {
+  test('uses toast close and viewport messages', async () => {
     Toast.clear()
     render(() => (
       <MoraineProvider
         messages={{
           toast: {
             close: 'Fermer la notification',
-            region: ({ hotkey }) => `Notifications (${hotkey})`,
+            viewport: ({ hotkey }) => `Notifications (${hotkey})`,
           },
         }}
       >
@@ -65,7 +65,7 @@ describe('localized component text', () => {
       </MoraineProvider>
     ))
 
-    const region = document.body.querySelector('[data-slot="toast-region"]')
+    const region = document.body.querySelector('[data-slot="toast-viewport"]')
     expect(region?.getAttribute('aria-label')).toBe('Notifications (F6)')
 
     Toast.show('Bonjour', { closeButton: true })

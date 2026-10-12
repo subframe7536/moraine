@@ -629,7 +629,20 @@ describe('Toast', () => {
     expect(lists[1]?.textContent).not.toContain('Global notification')
   })
 
-  it('supports F6 hotkey to expand and focus notifications region', async () => {
+  it('anchors the viewport to the placement corner instead of covering the screen', async () => {
+    render(() => <Toast placement="top" align="start" />)
+    Toast.show('Anchored')
+    await screen.findByText('Anchored')
+
+    const viewport = document.querySelector<HTMLElement>('[data-slot="toast-viewport"]')!
+    expect(viewport.getAttribute('role')).toBe('region')
+    const classes = viewport.className.split(/\s+/)
+    expect(classes).not.toContain('inset-0')
+    expect(classes).toEqual(expect.arrayContaining(['fixed', 'top-4', 'left-4', 'w-sm']))
+    expect(classes).not.toContain('bottom-4')
+  })
+
+  it('supports F6 hotkey to expand and focus notifications viewport', async () => {
     render(() => <Toast hotkey={['F6']} />)
 
     Toast.show('Accessible notification')
@@ -657,8 +670,8 @@ describe('Toast', () => {
     render(() => (
       <>
         <button type="button">Prior focus</button>
-        <Toast id="empty-host" regionAriaLabel="Empty region" />
-        <Toast id="busy-host" regionAriaLabel="Busy region" />
+        <Toast id="empty-host" viewportAriaLabel="Empty region" />
+        <Toast id="busy-host" viewportAriaLabel="Busy region" />
       </>
     ))
 
@@ -959,9 +972,10 @@ describe('Toast', () => {
     await screen.findByText('Isolated only')
     await screen.findByText('Default only')
 
-    const isolatedRegion = document.querySelectorAll('[data-slot="toast-region"]')[1]?.textContent
-    expect(isolatedRegion).toContain('Isolated only')
-    expect(isolatedRegion).not.toContain('Default only')
+    const isolatedViewport = document.querySelectorAll('[data-slot="toast-viewport"]')[1]
+      ?.textContent
+    expect(isolatedViewport).toContain('Isolated only')
+    expect(isolatedViewport).not.toContain('Default only')
   })
 
   it('cleans up rendered toasts when the host unmounts', async () => {
@@ -971,7 +985,7 @@ describe('Toast', () => {
 
     result.unmount()
     expect(screen.queryByText('Unmount me')).toBeNull()
-    expect(document.querySelector('[data-slot="toast-region"]')).toBeNull()
+    expect(document.querySelector('[data-slot="toast-viewport"]')).toBeNull()
   })
 
   it('applies host invert and classes to toast items', async () => {

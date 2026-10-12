@@ -171,7 +171,7 @@ export namespace ToastT {
     showProgress?: boolean
 
     /**
-     * Keyboard shortcuts to focus the notification region.
+     * Keyboard shortcuts to focus the notification viewport.
      * All listed keys must be pressed together.
      * @default ['F6']
      */
@@ -213,10 +213,10 @@ export namespace ToastT {
     gap?: number
 
     /**
-     * Accessible label for the notification region.
-     * Defaults to the `toast.region` locale message.
+     * Accessible label for the notification viewport.
+     * Defaults to the `toast.viewport` locale message.
      */
-    regionAriaLabel?: string
+    viewportAriaLabel?: string
 
     /**
      * Class overrides for component slots.

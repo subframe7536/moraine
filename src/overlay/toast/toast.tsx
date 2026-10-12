@@ -88,7 +88,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'preventDuplicate',
     'invert',
     'gap',
-    'regionAriaLabel',
+    'viewportAriaLabel',
     'aria-label',
     'store',
     'classes',
@@ -104,7 +104,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
 
-  let regionRef: HTMLElement | undefined
+  let viewportRef: HTMLElement | undefined
   let restoreFocusEl: HTMLElement | null = null
   let focusedViaHotkey = false
 
@@ -117,12 +117,16 @@ function ToastRoot(props: ToastProps): JSX.Element {
     restoreFocusEl = null
   }
 
-  // class/style bind to the list viewport, not the region.
+  // class/style bind to each stack list, not the viewport.
   const resolved = createStyles(
     toastRecipe,
     {},
     {
-      rootSlot: 'region',
+      rootSlot: 'viewport',
+      inheritedVariants: () => ({
+        placement: local.placement ?? 'bottom',
+        align: local.align ?? 'end',
+      }),
       inheritedStyles: () => ({
         classes: local.classes,
         styles: local.styles,
@@ -168,7 +172,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const hasToasts = () => activeToasts().length > 0
 
-  // Like Base UI's ToastViewport: only listen for window focus/visibility and the hotkey
+  // Like Base UI's ToastList: only listen for window focus/visibility and the hotkey
   // while this host has toasts, so empty hosts attach nothing and never intercept F6.
   createEffect(
     on(hasToasts, (active) => {
@@ -195,7 +199,10 @@ function ToastRoot(props: ToastProps): JSX.Element {
           return
         }
 
-        if (!matchesToastHotkey(event, hotkeys()) || (regionRef && event.target === regionRef)) {
+        if (
+          !matchesToastHotkey(event, hotkeys()) ||
+          (viewportRef && event.target === viewportRef)
+        ) {
           return
         }
 
@@ -207,7 +214,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         focusedViaHotkey = true
         // keyboardExpanded also pauses timers.
         setKeyboardExpanded(true)
-        const firstToast = regionRef?.querySelector<HTMLElement>('[data-slot="toast"]')
+        const firstToast = viewportRef?.querySelector<HTMLElement>('[data-slot="toast"]')
         firstToast?.focus({ preventScroll: true })
       })
     }),
@@ -257,9 +264,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
     <Portal>
       <section
         ref={(el) => {
-          regionRef = el
+          viewportRef = el
         }}
-        data-slot="toast-region"
+        data-slot="toast-viewport"
         role="region"
         tabIndex={-1}
         {...rest}
@@ -268,14 +275,14 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-atomic="false"
         aria-label={
           local['aria-label'] ??
-          local.regionAriaLabel ??
-          messages().region({ hotkey: hotkeyLabel() })
+          local.viewportAriaLabel ??
+          messages().viewport({ hotkey: hotkeyLabel() })
         }
-        {...resolved.styles.region}
+        {...resolved.styles.viewport}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
-            <ToastViewport
+            <ToastList
               positionKey={positionKey}
               filteredToasts={filteredToasts}
               defaultPlacement={defaultPlacement}
@@ -306,7 +313,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   )
 }
 
-interface ToastViewportProps {
+interface ToastListProps {
   positionKey: string
   filteredToasts: () => ToastT.Item[]
   defaultPlacement: () => ToastT.Placement
@@ -332,7 +339,7 @@ interface ToastViewportProps {
   onRemove: (id: string | number) => void
 }
 
-function ToastViewport(props: ToastViewportProps): JSX.Element {
+function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
 

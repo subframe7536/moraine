@@ -86,7 +86,7 @@
           "name": "hotkey",
           "optional": true,
           "type": "string[]",
-          "description": "Keyboard shortcuts to focus the notification region.\nAll listed keys must be pressed together.",
+          "description": "Keyboard shortcuts to focus the notification viewport.\nAll listed keys must be pressed together.",
           "default": {
             "kind": "expression",
             "text": "['F6']"
@@ -129,10 +129,10 @@
           }
         },
         {
-          "name": "regionAriaLabel",
+          "name": "viewportAriaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible label for the notification region.\nDefaults to the `toast.region` locale message."
+          "description": "Accessible label for the notification viewport.\nDefaults to the `toast.viewport` locale message."
         },
         {
           "name": "showProgress",
@@ -337,7 +337,7 @@
     ]
   },
   "slots": [
-    "region",
+    "viewport",
     "list",
     "root",
     "content",

@@ -2,8 +2,8 @@ import type { OverlayAlign } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface ToastStyleSlot<T = unknown> {
-  /** Full-viewport region that hosts all toast stacks. */
-  region?: T
+  /** Fixed, corner-anchored live region (role="region") that hosts the toast stacks. */
+  viewport?: T
 
   /** Positioned list container for one placement/align stack. */
   list?: T
