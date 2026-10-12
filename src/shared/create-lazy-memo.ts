@@ -4,9 +4,12 @@ import { createMemo, getOwner, runWithOwner } from 'solid-js'
 /** Creates a memo on first access while preserving the owner where it was declared. */
 export function createLazyMemo<T>(
   value: () => T,
-  options?: { equals?: false | ((prev: T, next: T) => boolean) },
+  options?: {
+    equals?: false | ((prev: T, next: T) => boolean)
+    owner?: ReturnType<typeof getOwner>
+  },
 ): Accessor<T> {
-  const owner = getOwner()
+  const owner = options?.owner !== undefined ? options.owner : getOwner()
   const createMemoForValue = (
     options === undefined
       ? createMemo.bind(null, value)

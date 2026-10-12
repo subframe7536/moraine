@@ -713,14 +713,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 })}
                 {...resolved.slotWith(
                   'panel',
-                  { class: panelItem().class, style: panelItem().style },
-                  {
+                  () => ({ class: panelItem().class, style: panelItem().style }),
+                  () => ({
                     style: {
                       'flex-grow': size(),
                       'flex-shrink': 1,
                       'flex-basis': '0px',
                     },
-                  },
+                  }),
                 )}
                 onTransitionEnd={(event) => {
                   const result = callHandler(event, panelPart()!.local.onTransitionEnd)
@@ -849,10 +849,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         cross: bindings.crossHovered,
                         dragging: bindings.dragging,
                       })}
-                      {...resolved.slotWith('handle', {
+                      {...resolved.slotWith('handle', () => ({
                         class: handlePart().local.class,
                         style: handlePart().local.style,
-                      })}
+                      }))}
                       onMouseEnter={(event) =>
                         callHandleEvent(
                           event,

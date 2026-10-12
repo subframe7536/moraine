@@ -426,3 +426,79 @@ test.each(['root', 'label'] as const)(
     }
   },
 )
+
+test('slotWith accepts accessors and reacts to dynamic style updates', () => {
+  const [extraClass, setExtraClass] = createSignal('item-custom')
+  const [pos, setPos] = createSignal('10px')
+
+  function Fixture() {
+    const result = createStyles(buttonRecipe, {})
+    const item = result.slotWith(
+      'root',
+      // oxlint-disable-next-line subf/solid-reactivity -- slotWith extra accessor.
+      () => ({ class: extraClass() }),
+      // oxlint-disable-next-line subf/solid-reactivity -- slotWith enforcedExtra accessor.
+      () => ({ style: { left: pos() } }),
+    )
+    return <button {...item}>Click</button>
+  }
+
+  const screen = render(() => <Fixture />)
+  const button = screen.getByRole('button')
+  expect(button.className).toContain('item-custom')
+  expect(button.style.left).toBe('10px')
+
+  setExtraClass('item-updated')
+  setPos('25px')
+  expect(button.className).toContain('item-updated')
+  expect(button.style.left).toBe('25px')
+})
+
+test('ensureVariant is lazy and preserves owner when theme variants are introduced', () => {
+  type Slots = { root: string }
+  type Variants = { size: 'sm' | 'lg'; custom?: 'a' | 'b' }
+  const recipe = defineRecipe<Slots, Variants>('button', {
+    base: { root: 'base-root' },
+    defaultVariants: { size: 'sm' },
+    variants: {
+      size: { sm: { root: 'size-sm' }, lg: { root: 'size-lg' } },
+    },
+  })
+  const theme = defineTheme({
+    button: {
+      variants: {
+        custom: {
+          a: { root: 'custom-a' },
+          b: { root: 'custom-b' },
+        },
+      },
+    } as any,
+  })
+
+  const [custom, setCustom] = createSignal<'a' | 'b' | undefined>('a')
+  let capturedVariants!: ReturnType<typeof createStyles<typeof recipe>>['variants']
+
+  function Fixture() {
+    const result = createStyles(recipe, {
+      get custom() {
+        return custom()
+      },
+    } as any)
+    capturedVariants = result.variants
+    return <button {...result.slots.root}>Save</button>
+  }
+
+  const screen = render(() => (
+    <MoraineProvider theme={theme}>
+      <Fixture />
+    </MoraineProvider>
+  ))
+
+  const button = screen.getByRole('button')
+  expect(button.className).toContain('custom-a')
+  expect((capturedVariants as any).custom).toBe('a')
+
+  setCustom('b')
+  expect(button.className).toContain('custom-b')
+  expect((capturedVariants as any).custom).toBe('b')
+})

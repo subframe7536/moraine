@@ -227,7 +227,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   state,
                   disabled,
                 })}
-                {...resolved.slotWith('item', { class: entry.item.class })}
+                {...resolved.slotWith('item', () => ({ class: entry.item.class }))}
               >
                 <button
                   id={triggerId()}

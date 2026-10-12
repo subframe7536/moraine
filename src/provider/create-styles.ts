@@ -1,6 +1,6 @@
 import type { ClassValue } from 'cn'
 import type { JSX } from 'solid-js'
-import { createMemo } from 'solid-js'
+import { createMemo, getOwner } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
 import { createLazyMemo } from '../shared/create-lazy-memo'
@@ -78,8 +78,8 @@ export type CreateStylesResult<R extends RecipeDefinition> = {
   variants: ResolvedVariantInput<RecipeVariant<R>>
   slotWith: (
     slot: Extract<keyof RecipeSlots<R>, string>,
-    extra?: SlotValue,
-    enforcedExtra?: SlotValue,
+    extra?: () => SlotValue | undefined,
+    enforcedExtra?: () => SlotValue | undefined,
   ) => SlotBinding
 }
 
@@ -384,6 +384,7 @@ export function createStyles<R extends RecipeDefinition>(
   const defaultVariants = createMemo(() => getRecipeDefaultVariants(resolvedRecipe()) ?? EMPTY)
   const contextVariants = createMemo(() => options.contextVariants?.() ?? EMPTY)
 
+  const owner = getOwner()
   const seedVariantKeys = new Set<string>([
     ...Object.keys(recipe.config.defaultVariants ?? {}),
     ...Object.keys(recipe.config.variants ?? {}),
@@ -394,16 +395,19 @@ export function createStyles<R extends RecipeDefinition>(
     if (Object.prototype.hasOwnProperty.call(variants, key)) {
       return
     }
-    const selection = createMemo(() => {
-      const supplied = (props as Record<string, unknown>)[key]
-      if (supplied !== undefined) {
-        return supplied
-      }
-      const inherited = (contextVariants() as Record<string, unknown>)[key]
-      return inherited === undefined
-        ? (defaultVariants() as Record<string, unknown>)[key]
-        : inherited
-    })
+    const selection = createLazyMemo(
+      () => {
+        const supplied = (props as Record<string, unknown>)[key]
+        if (supplied !== undefined) {
+          return supplied
+        }
+        const inherited = (contextVariants() as Record<string, unknown>)[key]
+        return inherited === undefined
+          ? (defaultVariants() as Record<string, unknown>)[key]
+          : inherited
+      },
+      { owner },
+    )
     Object.defineProperty(variants, key, {
       enumerable: true,
       configurable: true,
@@ -519,29 +523,38 @@ export function createStyles<R extends RecipeDefinition>(
     slots[slot] = createSlotBinding(slot)
   }
 
-  function slotWith(slot: Slots, extra?: SlotValue, enforcedExtra?: SlotValue): SlotBinding {
+  function slotWith(
+    slot: Slots,
+    extra?: () => SlotValue | undefined,
+    enforcedExtra?: () => SlotValue | undefined,
+  ): SlotBinding {
     const parent = slots[slot]
     if (isServer) {
       return {
         get class() {
-          return cn(parent.class, extra?.class, enforcedExtra?.class)
+          return cn(parent.class, extra?.()?.class, enforcedExtra?.()?.class)
         },
         get style() {
           const merged: Record<string, unknown> = { ...(parent.style as Record<string, unknown>) }
-          assignDefinedStyle(merged, extra?.style as Record<string, unknown> | undefined)
-          assignDefinedStyle(merged, enforcedExtra?.style as Record<string, unknown> | undefined)
+          assignDefinedStyle(merged, extra?.()?.style as Record<string, unknown> | undefined)
+          assignDefinedStyle(
+            merged,
+            enforcedExtra?.()?.style as Record<string, unknown> | undefined,
+          )
           return merged as JSX.CSSProperties
         },
       }
     }
 
     // createLazyMemo captures the For-item owner at call time.
-    const classMemo = createLazyMemo(() => cn(parent.class, extra?.class, enforcedExtra?.class))
+    const classMemo = createLazyMemo(() =>
+      cn(parent.class, extra?.()?.class, enforcedExtra?.()?.class),
+    )
     const styleMemo = createLazyMemo(
       () => {
         const merged: Record<string, unknown> = { ...(parent.style as Record<string, unknown>) }
-        assignDefinedStyle(merged, extra?.style as Record<string, unknown> | undefined)
-        assignDefinedStyle(merged, enforcedExtra?.style as Record<string, unknown> | undefined)
+        assignDefinedStyle(merged, extra?.()?.style as Record<string, unknown> | undefined)
+        assignDefinedStyle(merged, enforcedExtra?.()?.style as Record<string, unknown> | undefined)
         return merged as JSX.CSSProperties
       },
       { equals: shallowEqualStyle },

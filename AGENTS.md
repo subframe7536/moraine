@@ -127,7 +127,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   3. `own` — component-controlled, user-overridable (icon font-size, button active class, decorative item classes)
   4. User: `classes` / `styles`[slot], then `class` / `style` on the current `slot`
   5. `enforced` — functional, must not be user-overridable (positioning, virtual scroll, visually-hidden, flex sizes)
-- Prefer `enforced` for layout / position / virtualization and `own` for visual cosmetics. For per-item hosts inside `<For>`, call `slotWith(slot, extra?, enforcedExtra?)` under the item owner so item classes merge on top of the parent slot memo.
+- Prefer `enforced` for layout / position / virtualization and `own` for visual cosmetics. For per-item hosts inside `<For>`, call `slotWith(slot, extra?, enforcedExtra?)` (both extra arguments are accessors returning `{ class?, style? }`) under the item owner so item classes merge on top of the parent slot memo.
 - **Fine-grained reactivity:** `createStyles` compiles the theme-resolved recipe into per-slot contribution lists and a `slot → variantKeys` map (WeakMap-cached). Each slot's `.class` / `.style` is a lazy memo created on first read under the `createStyles` owner; unread slots create nothing. Class memos use string equality; style memos use shallow equality and reuse the previous object when equal. A slot memo only reads the variant keys that affect that slot (and var keys for `varsSlot`). SSR (`isServer`) computes directly without memos.
 - **Component CSS variables:** Define component-specific custom properties as recipe style keys, never as `[--name:value]` class utilities:
   1. Declare defaults on `base` / `variants` / `compoundVariants` as `'--name': value`.

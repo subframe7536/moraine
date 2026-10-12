@@ -590,8 +590,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         }}
         {...resolved.slotWith(
           'item',
-          { class: itemAttributes()?.class, style: itemAttributes()?.style },
-          { class: itemProps.virtualProps?.class, style: itemProps.virtualProps?.style },
+          () => ({ class: itemAttributes()?.class, style: itemAttributes()?.style }),
+          () => ({ class: itemProps.virtualProps?.class, style: itemProps.virtualProps?.style }),
         )}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)

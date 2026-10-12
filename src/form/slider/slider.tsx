@@ -173,9 +173,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {(markerIndex) => (
               <div
                 data-slot="slider-marker"
-                {...resolved.slotWith('marker', undefined, {
+                {...resolved.slotWith('marker', undefined, () => ({
                   style: slider.getMarkerStyle(markerIndex),
-                })}
+                }))}
               />
             )}
           </For>
@@ -206,14 +206,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             })}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            {...resolved.slotWith('thumb', undefined, {
+            {...resolved.slotWith('thumb', undefined, () => ({
               style: {
                 left: slider.thumbStyles()[thumbIndex]?.left,
                 right: slider.thumbStyles()[thumbIndex]?.right,
                 top: slider.thumbStyles()[thumbIndex]?.top,
                 bottom: slider.thumbStyles()[thumbIndex]?.bottom,
               },
-            })}
+            }))}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}

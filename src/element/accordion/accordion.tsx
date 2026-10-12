@@ -339,7 +339,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="accordion-item"
-              {...resolved.slotWith('item', { class: item.class })}
+              {...resolved.slotWith('item', () => ({ class: item.class }))}
               {...accordionDataAttributes.item(itemState)}
             >
               <h3 data-slot="accordion-header" {...resolved.slots.header}>
