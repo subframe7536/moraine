@@ -29,8 +29,7 @@ export const EDITABLE_FOCUS_WITHIN_CLASS =
   'data-editable:focus-within:(outline-none border-ring ring-3 ring-ring/50)'
 
 export const DATA_INVALID_CLASS = 'data-invalid:(border-danger ring-3 ring-danger/20)'
-export const DARK_DATA_INVALID_CLASS =
-  'dark:data-invalid:(border-danger/50 ring-danger/40)'
+export const DARK_DATA_INVALID_CLASS = 'dark:data-invalid:(border-danger/50 ring-danger/40)'
 export const FOCUS_INVALID_CLASS =
   'focus:data-invalid:(border-danger ring-3 ring-danger/20) dark:focus:data-invalid:(border-danger/50 ring-danger/40)'
 export const FOCUS_WITHIN_INVALID_CLASS =

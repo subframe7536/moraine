@@ -382,7 +382,7 @@ export namespace NeverT {
     )
     const variantProp = paginationPart.props.find((p) => p.name === 'variant')
     expect(variantProp?.type).toBe(
-      "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+      "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
     )
   })
 })

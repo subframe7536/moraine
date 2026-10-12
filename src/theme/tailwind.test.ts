@@ -204,15 +204,12 @@ describe('colors', () => {
     `)
   })
 
-  test.each(['info', 'success', 'warning'] as const)(
-    '%s colors resolve',
-    async (color) => {
-      const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
-      expect(css).toContain(`background-color: var(--${color});`)
-      expect(css).toContain(`color: var(--${color});`)
-      expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
-    },
-  )
+  test.each(['info', 'success', 'warning'] as const)('%s colors resolve', async (color) => {
+    const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
+    expect(css).toContain(`background-color: var(--${color});`)
+    expect(css).toContain(`color: var(--${color});`)
+    expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
+  })
 
   test('semantic hover and active colors resolve with base fallbacks', async () => {
     const css = await compileCSS([

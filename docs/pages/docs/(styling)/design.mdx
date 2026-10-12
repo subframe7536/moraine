@@ -84,8 +84,8 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--backdrop`                                                                                                | Scrim behind modal overlays, used by `bg-backdrop`.                                                      | Black at 10% opacity.                                                                                                  |
 | `--shadow-surface`, `--shadow-overlay`, `--shadow-input`                                                    | Elevation by component role, used by `shadow-surface`, `shadow-overlay`, and `shadow-input`.             | UnoCSS: Tailwind `sm`, `md`, and `xs`, respectively. External themes must define them; `none` removes a role's shadow. |
 | `--<color>-hover`, `--<color>-active`                                                                       | Explicit interaction colors, such as `--primary-hover` and `--accent-active`.                            | Generated state color, then the documented [state cascade](#interactive-state-cascade).                                |
-| `--danger-foreground`                                                                                        | Optional text and icon color for danger surfaces.                                                        | `--background`.                                                                                                        |
-| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                          | Optional text and icon color for status surfaces.                                                        | `--background`.                                                                                                        |
+| `--danger-foreground`                                                                                       | Optional text and icon color for danger surfaces.                                                        | `--background`.                                                                                                        |
+| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Optional text and icon color for status surfaces.                                                        | `--background`.                                                                                                        |
 | `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
 | `--sidebar-width`                                                                                           | Desktop sidebar width; also used by `w-sidebar`.                                                         | No variable value is set by default; the width falls back to `clamp(14rem, 25%, 20rem)`.                               |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
@@ -115,20 +115,20 @@ Use the [Animations guide](/docs/animations) to customize entrance and exit moti
 
 Grouped surface colors use corresponding `-foreground` variables for text, icons, and indicators. `control` is a single-value form surface: ordinary field text uses `foreground` and placeholders use `muted-foreground`. Check both when replacing a palette:
 
-| Role            | Surface token   | Foreground token                      | Primary use                                                 |
-| :-------------- | :-------------- | :------------------------------------ | :---------------------------------------------------------- |
-| **Control**     | `--control`     | `--foreground`                        | Default outline fields, unchecked choices, upload controls. |
-| **Page**        | `--background`  | `--foreground`                        | Default viewport canvas and readable body text.             |
-| **Primary**     | `--primary`     | `--primary-foreground`                | High-emphasis actions and active selections.                |
-| **Secondary**   | `--secondary`   | `--secondary-foreground`              | Secondary action buttons, subtle badges.                    |
-| **Card**        | `--card`        | `--card-foreground`                   | Cards and grouped surfaces.                                 |
-| **Popover**     | `--popover`     | `--popover-foreground`                | Floating overlays, menus, tooltips, dialogs.                |
-| **Muted**       | `--muted`       | `--muted-foreground`                  | Subtle backgrounds, secondary descriptions, disabled state. |
-| **Accent**      | `--accent`      | `--accent-foreground`                 | Hover states, tab indicators, highlighted list items.       |
-| **Danger**      | `--danger`      | `--danger-foreground` (optional)      | Destructive actions, errors, and failure feedback.          |
-| **Info**        | `--info`        | `--info-foreground` (optional)        | Informational status.                                       |
-| **Success**     | `--success`     | `--success-foreground` (optional)     | Confirmed completion and positive status.                   |
-| **Warning**     | `--warning`     | `--warning-foreground` (optional)     | Caution that needs attention.                               |
+| Role          | Surface token  | Foreground token                  | Primary use                                                 |
+| :------------ | :------------- | :-------------------------------- | :---------------------------------------------------------- |
+| **Control**   | `--control`    | `--foreground`                    | Default outline fields, unchecked choices, upload controls. |
+| **Page**      | `--background` | `--foreground`                    | Default viewport canvas and readable body text.             |
+| **Primary**   | `--primary`    | `--primary-foreground`            | High-emphasis actions and active selections.                |
+| **Secondary** | `--secondary`  | `--secondary-foreground`          | Secondary action buttons, subtle badges.                    |
+| **Card**      | `--card`       | `--card-foreground`               | Cards and grouped surfaces.                                 |
+| **Popover**   | `--popover`    | `--popover-foreground`            | Floating overlays, menus, tooltips, dialogs.                |
+| **Muted**     | `--muted`      | `--muted-foreground`              | Subtle backgrounds, secondary descriptions, disabled state. |
+| **Accent**    | `--accent`     | `--accent-foreground`             | Hover states, tab indicators, highlighted list items.       |
+| **Danger**    | `--danger`     | `--danger-foreground` (optional)  | Destructive actions, errors, and failure feedback.          |
+| **Info**      | `--info`       | `--info-foreground` (optional)    | Informational status.                                       |
+| **Success**   | `--success`    | `--success-foreground` (optional) | Confirmed completion and positive status.                   |
+| **Warning**   | `--warning`    | `--warning-foreground` (optional) | Caution that needs attention.                               |
 
 ### Form surface migration
 
