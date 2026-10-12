@@ -1,5 +1,6 @@
 export * from './api-reference'
 export * from './code'
+export { ColorTokenTable } from './color-token-table'
 export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
 export { IconGallery } from './icon-gallery'
 export * from './markdown.class'

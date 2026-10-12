@@ -7,6 +7,7 @@ import { Kbd, cn } from '../../../../src'
 
 import { Anatomy } from './anatomy'
 import { CodeBlock, CodeTabs } from './code'
+import { ColorTokenTable } from './color-token-table'
 import { ComponentsIndex } from './components-index'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
@@ -48,6 +49,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   Anatomy,
   Playground,
   IconGallery,
+  ColorTokenTable,
   ComponentsIndex,
 
   Preview(props: MdxProps) {
