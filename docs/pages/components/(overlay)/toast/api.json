@@ -261,8 +261,8 @@
       {
         "name": "icon",
         "optional": true,
-        "type": "JSX.Element | (() => JSX.Element)",
-        "description": "Custom leading icon."
+        "type": "IconT.Name",
+        "description": "Custom leading icon. Accepts the same values as `<Icon name={…} />`."
       },
       {
         "name": "id",
