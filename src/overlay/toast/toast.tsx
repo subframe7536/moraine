@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  on,
-  onCleanup,
-  onMount,
-  splitProps,
-} from 'solid-js'
+import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -177,21 +168,26 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const hasToasts = () => activeToasts().length > 0
 
-  onMount(() => {
-    createEventListenerMap(window, {
-      focus: () => setIsWindowFocused(true),
-      blur: () => setIsWindowFocused(false),
-    })
-    createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
-  })
-
-  // Like Base UI's ToastViewport: only listen for the hotkey while this host has toasts,
-  // so empty hosts never intercept F6.
+  // Like Base UI's ToastViewport: only listen for window focus/visibility and the hotkey
+  // while this host has toasts, so empty hosts attach nothing and never intercept F6.
   createEffect(
     on(hasToasts, (active) => {
       if (!active) {
         return
       }
+      // Re-sync on attach; state may have changed while detached.
+      setIsWindowFocused(document.hasFocus())
+      setIsDocumentHidden(document.hidden)
+      onCleanup(() => {
+        // Reset to defaults so a stale blurred/hidden state can't stick.
+        setIsWindowFocused(true)
+        setIsDocumentHidden(false)
+      })
+      createEventListenerMap(window, {
+        focus: () => setIsWindowFocused(true),
+        blur: () => setIsWindowFocused(false),
+      })
+      createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
       createEventListener(window, 'keydown', (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
           setKeyboardExpanded(false)

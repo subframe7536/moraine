@@ -11,6 +11,8 @@ describe('Toast', () => {
   beforeEach(() => {
     Toast.clear()
     Toast.preventDuplicate = false
+    // jsdom reports an unfocused document by default; the host re-syncs from hasFocus() on attach.
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true)
   })
 
   afterEach(() => {
@@ -309,6 +311,35 @@ describe('Toast', () => {
       expect(screen.queryByText('Blur pause toast')).toBeNull()
     } finally {
       Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+      vi.useRealTimers()
+    }
+  })
+
+  it('only tracks window focus/visibility while host has toasts', async () => {
+    vi.useFakeTimers()
+    const hasFocus = vi.mocked(document.hasFocus)
+    try {
+      render(() => <Toast duration={1000} />)
+      await Promise.resolve()
+
+      // No toasts: blur is ignored, so it can't leave the host stuck paused.
+      fireEvent.blur(window)
+      Toast.show('First toast')
+      await vi.advanceTimersByTimeAsync(1200)
+      await finishExitMotion()
+      expect(screen.queryByText('First toast')).toBeNull()
+
+      // Re-attach re-syncs from document.hasFocus(): an unfocused window starts paused.
+      hasFocus.mockReturnValue(false)
+      Toast.show('Second toast')
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(screen.queryByText('Second toast')).not.toBeNull()
+
+      fireEvent.focus(window)
+      await vi.advanceTimersByTimeAsync(1200)
+      await finishExitMotion()
+      expect(screen.queryByText('Second toast')).toBeNull()
+    } finally {
       vi.useRealTimers()
     }
   })
