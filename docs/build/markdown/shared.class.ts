@@ -7,8 +7,12 @@ export const DOCS_HEADING_ANCHOR_ARIA_LABEL = 'Link to this section'
 export const DOCS_INLINE_CODE_CLASS = 'docs-inline-code'
 
 export const DOCS_TABLE_WRAPPER_CLASS = 'mb-3.5 mt-6 b-1 b-border rounded-lg overflow-x-auto'
-/** Inline code in table cells stays on one line; the wrapper scrolls horizontally instead. */
-export const DOCS_TABLE_CLASS = 'text-sm m-0 w-full border-collapse [&_code]:whitespace-nowrap'
+/**
+ * Inline code in table cells stays on one line at `text-xs`; the wrapper scrolls horizontally instead.
+ * `[&_code]` (class + element) outranks the single-class `docs-inline-code` `text-sm`.
+ */
+export const DOCS_TABLE_CLASS =
+  'text-sm m-0 w-full border-collapse [&_code]:text-xs [&_code]:whitespace-nowrap'
 export const DOCS_TABLE_THEAD_TR_CLASS =
   'text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase'
 export const DOCS_TABLE_TBODY_TR_CLASS = 'b-t b-border hover:bg-muted/50'

@@ -16,7 +16,7 @@ import YAML from 'yaml'
 import packageMetadata from '../../package.json' with { type: 'json' }
 import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/icons.ts'
 import { renderAnatomyText } from '../shared/anatomy.ts'
-import { listDocsColorTokens } from '../shared/color-tokens.ts'
+import { formatDocsColorTokenDefault, listDocsColorTokens } from '../shared/color-tokens.ts'
 
 import { parseAnatomyNode, validateAnatomy, validateAnatomyConfig } from './anatomy.ts'
 import { loadComponentApiDoc } from './api-doc/load.ts'
@@ -280,9 +280,12 @@ function renderComponentNode(
   }
   if (node.name === 'ColorTokenTable') {
     return [
-      '| Token | CSS variable |',
-      '| :---- | :----------- |',
-      ...listDocsColorTokens().map((token) => `| \`${token.name}\` | \`${token.cssVariable}\` |`),
+      '| Token | CSS variable | Light default | Dark default |',
+      '| :---- | :----------- | :------------ | :----------- |',
+      ...listDocsColorTokens().map(
+        (token) =>
+          `| \`${token.name}\` | \`${token.cssVariable}\` | ${formatDocsColorTokenDefault(token.defaults.light)} | ${formatDocsColorTokenDefault(token.defaults.dark)} |`,
+      ),
     ].join('\n')
   }
   if (node.name === 'ComponentsIndex') {

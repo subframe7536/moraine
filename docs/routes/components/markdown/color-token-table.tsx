@@ -1,4 +1,4 @@
-import { For } from 'solid-js'
+import { For, Match, Switch } from 'solid-js'
 
 import {
   DOCS_INLINE_CODE_CLASS,
@@ -10,8 +10,31 @@ import {
   DOCS_TABLE_WRAPPER_CLASS,
 } from '../../../build/markdown/shared.class'
 import { listDocsColorTokens } from '../../../shared/color-tokens'
+import type { DocsColorTokenDefault } from '../../../shared/color-tokens'
 
 const COLOR_TOKENS = listDocsColorTokens()
+
+function DefaultValue(props: { value: DocsColorTokenDefault }) {
+  const literal = () => (props.value.type === 'value' ? props.value.value : undefined)
+  const percent = () => (props.value.type === 'auto' ? props.value.percent : undefined)
+  const fallback = () => (props.value.type === 'fallback' ? props.value.variable : undefined)
+
+  return (
+    <Switch fallback="none">
+      <Match when={literal()}>
+        {(value) => <code class={DOCS_INLINE_CODE_CLASS}>{value()}</code>}
+      </Match>
+      <Match when={percent()}>{(value) => `auto (color-mix, ${value()}%)`}</Match>
+      <Match when={fallback()}>
+        {(value) => (
+          <>
+            falls back to <code class={DOCS_INLINE_CODE_CLASS}>{value()}</code>
+          </>
+        )}
+      </Match>
+    </Switch>
+  )
+}
 
 /** Live preview of every Moraine color token; swatches follow the active docs theme. */
 export function ColorTokenTable() {
@@ -23,6 +46,8 @@ export function ColorTokenTable() {
             <th class={DOCS_TABLE_TH_CLASS}>Preview</th>
             <th class={DOCS_TABLE_TH_CLASS}>Token</th>
             <th class={DOCS_TABLE_TH_CLASS}>CSS variable</th>
+            <th class={DOCS_TABLE_TH_CLASS}>Light default</th>
+            <th class={DOCS_TABLE_TH_CLASS}>Dark default</th>
           </tr>
         </thead>
         <tbody>
@@ -42,6 +67,12 @@ export function ColorTokenTable() {
                 </td>
                 <td class={DOCS_TABLE_TD_CLASS}>
                   <code class={DOCS_INLINE_CODE_CLASS}>{token.cssVariable}</code>
+                </td>
+                <td class={`${DOCS_TABLE_TD_CLASS} whitespace-nowrap`}>
+                  <DefaultValue value={token.defaults.light} />
+                </td>
+                <td class={`${DOCS_TABLE_TD_CLASS} whitespace-nowrap`}>
+                  <DefaultValue value={token.defaults.dark} />
                 </td>
               </tr>
             )}
