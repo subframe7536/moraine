@@ -72,16 +72,16 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       variant: {
         default: {},
         success: {
-          icon: 'text-emerald-500',
+          icon: 'text-success',
         },
         error: {
-          icon: 'text-destructive',
+          icon: 'text-danger',
         },
         warning: {
-          icon: 'text-amber-500',
+          icon: 'text-warning',
         },
         info: {
-          icon: 'text-sky-500',
+          icon: 'text-info',
         },
         loading: {
           icon: 'text-muted-foreground animate-spin motion-reduce:animate-none',
