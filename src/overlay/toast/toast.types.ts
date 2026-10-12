@@ -213,12 +213,6 @@ export namespace ToastT {
     gap?: number
 
     /**
-     * Accessible label for the notification viewport.
-     * Defaults to the `toast.viewport` locale message.
-     */
-    viewportAriaLabel?: string
-
-    /**
      * Class overrides for component slots.
      */
     classes?: Classes

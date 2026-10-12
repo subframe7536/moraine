@@ -129,12 +129,6 @@
           }
         },
         {
-          "name": "viewportAriaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible label for the notification viewport.\nDefaults to the `toast.viewport` locale message."
-        },
-        {
           "name": "showProgress",
           "optional": true,
           "type": "boolean",

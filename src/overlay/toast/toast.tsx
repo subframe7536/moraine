@@ -88,7 +88,6 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'preventDuplicate',
     'invert',
     'gap',
-    'viewportAriaLabel',
     'aria-label',
     'store',
     'classes',
@@ -273,11 +272,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={
-          local['aria-label'] ??
-          local.viewportAriaLabel ??
-          messages().viewport({ hotkey: hotkeyLabel() })
-        }
+        aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
         {...resolved.styles.viewport}
       >
         <For each={possiblePositions()}>
@@ -415,15 +410,13 @@ function ToastList(props: ToastListProps): JSX.Element {
     }),
   })
 
-  const listDataAttrs = toastDataAttributes.list({
-    expanded: layoutExpanded,
-    empty: () => activeGroupToasts().length === 0,
-  })
-
   return (
     <ul
       tabIndex={-1}
-      {...listDataAttrs}
+      {...toastDataAttributes.list({
+        expanded: layoutExpanded,
+        empty: () => activeGroupToasts().length === 0,
+      })}
       {...resolved.styles.list}
       style={{
         ...resolved.styles.list.style,

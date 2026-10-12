@@ -642,6 +642,34 @@ describe('Toast', () => {
     expect(classes).not.toContain('bottom-4')
   })
 
+  it('applies aria-label to the viewport and falls back to the locale message', async () => {
+    render(() => (
+      <>
+        <Toast />
+        <Toast id="labelled" aria-label="Custom alerts" />
+      </>
+    ))
+    const viewports = document.querySelectorAll('[data-slot="toast-viewport"]')
+    expect(viewports[0]?.getAttribute('aria-label')).toBe('Notifications (F6)')
+    expect(viewports[1]?.getAttribute('aria-label')).toBe('Custom alerts')
+  })
+
+  it('updates list data attributes reactively', async () => {
+    render(() => <Toast />)
+    const list = document.querySelector('ul')!
+    expect(list.hasAttribute('data-empty')).toBe(true)
+
+    Toast.show('Reactive attrs')
+    await screen.findByText('Reactive attrs')
+    expect(list.hasAttribute('data-empty')).toBe(false)
+    expect(list.hasAttribute('data-expanded')).toBe(false)
+
+    fireEvent.mouseEnter(list)
+    expect(list.getAttribute('data-expanded')).toBe('')
+    fireEvent.mouseLeave(list)
+    expect(list.hasAttribute('data-expanded')).toBe(false)
+  })
+
   it('supports F6 hotkey to expand and focus notifications viewport', async () => {
     render(() => <Toast hotkey={['F6']} />)
 
@@ -670,8 +698,8 @@ describe('Toast', () => {
     render(() => (
       <>
         <button type="button">Prior focus</button>
-        <Toast id="empty-host" viewportAriaLabel="Empty region" />
-        <Toast id="busy-host" viewportAriaLabel="Busy region" />
+        <Toast id="empty-host" aria-label="Empty region" />
+        <Toast id="busy-host" aria-label="Busy region" />
       </>
     ))
 
