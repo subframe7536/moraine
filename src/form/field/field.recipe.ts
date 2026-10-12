@@ -17,10 +17,10 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldRec
       wrapper: 'flex flex-col gap-1',
       labelWrapper: 'flex gap-1.5 items-center',
       label:
-        "text-foreground font-medium block data-required:after:(text-destructive ms-0.5 content-['*'])",
+        "text-foreground font-medium block data-required:after:(text-danger ms-0.5 content-['*'])",
       container: 'flex flex-col gap-1.5 relative',
       description: 'text-muted-foreground leading-normal',
-      error: 'text-destructive leading-normal font-medium',
+      error: 'text-danger leading-normal font-medium',
       hint: 'text-muted-foreground',
       help: 'text-muted-foreground leading-normal',
     },
@@ -76,7 +76,7 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldRec
       {
         variants: { orientation: 'horizontal' },
         label:
-          "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
+          "data-required:before:(text-danger me-0.5 content-['*']) data-required:after:content-none",
       },
       {
         variants: { orientation: 'vertical', size: 'sm', hasText: true },

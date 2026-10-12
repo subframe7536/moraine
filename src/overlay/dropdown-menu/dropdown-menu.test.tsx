@@ -1181,7 +1181,7 @@ describe('DropdownMenu', () => {
             },
             {
               label: 'Delete',
-              variant: 'destructive',
+              variant: 'danger',
             },
           ]}
         />
@@ -1196,12 +1196,12 @@ describe('DropdownMenu', () => {
       document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-item"]'),
     )
     const disabledItem = items[0]!
-    const destructiveItem = items[1]!
+    const dangerItem = items[1]!
 
     expect(disabledItem.getAttribute('data-disabled')).toBe('')
     expect(disabledItem.className).not.toContain('pointer-events-none')
-    expect(destructiveItem.getAttribute('data-destructive')).toBe('')
-    expect(destructiveItem.className).toContain('data-destructive:text-destructive')
+    expect(dangerItem.getAttribute('data-danger')).toBe('')
+    expect(dangerItem.className).toContain('data-danger:text-danger')
 
     fireEvent.pointerDown(disabledItem)
     expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
@@ -1280,14 +1280,14 @@ describe('DropdownMenu', () => {
     expect(onCompactSelect).not.toHaveBeenCalled()
   })
 
-  test('destructive item icon does not force muted color class', async () => {
+  test('danger item icon does not force muted color class', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          items={[{ label: 'Delete', variant: 'destructive', icon: 'icon-trash-2' }]}
+          items={[{ label: 'Delete', variant: 'danger', icon: 'icon-trash-2' }]}
         />
       </DropdownMenu>
     ))
@@ -1302,7 +1302,7 @@ describe('DropdownMenu', () => {
     expect(leading.className).not.toContain('text-muted-foreground')
   })
 
-  test('exposes destructive state without annotating default items', async () => {
+  test('exposes danger state without annotating default items', async () => {
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
@@ -1311,18 +1311,18 @@ describe('DropdownMenu', () => {
         <DropdownMenu.Content
           items={[
             { label: 'Default' },
-            { label: 'Leaf', variant: 'destructive' },
-            { label: 'Checkbox', type: 'checkbox', variant: 'destructive' },
+            { label: 'Leaf', variant: 'danger' },
+            { label: 'Checkbox', type: 'checkbox', variant: 'danger' },
             {
               label: 'Radio',
               type: 'radio',
               group: 'choice',
               value: 'radio',
-              variant: 'destructive',
+              variant: 'danger',
             },
             {
               label: 'Submenu',
-              variant: 'destructive',
+              variant: 'danger',
               children: [{ label: 'Nested action' }],
             },
           ]}
@@ -1335,9 +1335,9 @@ describe('DropdownMenu', () => {
     })
 
     const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
-    expect(items[0]?.hasAttribute('data-destructive')).toBe(false)
+    expect(items[0]?.hasAttribute('data-danger')).toBe(false)
     for (const item of items.slice(1)) {
-      expect(item.getAttribute('data-destructive')).toBe('')
+      expect(item.getAttribute('data-danger')).toBe('')
       expect(item.hasAttribute('data-variant')).toBe(false)
     }
   })

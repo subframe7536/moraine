@@ -14,6 +14,12 @@ import type { MdxNode } from './mdx.ts'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   DOCS_INLINE_CODE_CLASS,
+  DOCS_TABLE_CLASS,
+  DOCS_TABLE_TBODY_TR_CLASS,
+  DOCS_TABLE_TD_CLASS,
+  DOCS_TABLE_TH_CLASS,
+  DOCS_TABLE_THEAD_TR_CLASS,
+  DOCS_TABLE_WRAPPER_CLASS,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from './shared.class.ts'
@@ -31,12 +37,6 @@ export const DOCS_MDX_FEATURES = {
   frontmatter: true,
   smartPunctuation: true,
 }
-
-const DEFAULT_TABLE_THEAD_TR_CLASS =
-  'text-xs text-muted-foreground tracking-wider text-left bg-muted uppercase'
-const DEFAULT_TABLE_TBODY_TR_CLASS = 'b-t b-border hover:bg-muted/50'
-const DEFAULT_TABLE_TH_CLASS = 'font-medium px-3 py-2'
-const DEFAULT_TABLE_TD_CLASS = 'px-3 py-2'
 
 function toAnchorSlug(value: string): string {
   return toKebabCase(value) || 'section'
@@ -172,12 +172,12 @@ export function createDocsHastPlugin() {
       {
         filter: ['table'],
         visit(node, ctx) {
-          ctx.setProperty(node, 'class', appendClass(node, 'text-sm m-0 w-full border-collapse'))
+          ctx.setProperty(node, 'class', appendClass(node, DOCS_TABLE_CLASS))
           ctx.wrapNode(node, {
             type: 'element',
             tagName: 'div',
             properties: {
-              class: 'mt-6 mb-3.5 b-1 b-border rounded-lg overflow-x-auto',
+              class: DOCS_TABLE_WRAPPER_CLASS,
             },
             children: [],
           })
@@ -192,23 +192,20 @@ export function createDocsHastPlugin() {
           ctx.setProperty(
             node,
             'class',
-            appendClass(
-              node,
-              isThead ? DEFAULT_TABLE_THEAD_TR_CLASS : DEFAULT_TABLE_TBODY_TR_CLASS,
-            ),
+            appendClass(node, isThead ? DOCS_TABLE_THEAD_TR_CLASS : DOCS_TABLE_TBODY_TR_CLASS),
           )
         },
       },
       {
         filter: ['th'],
         visit(node, ctx) {
-          ctx.setProperty(node, 'class', appendClass(node, DEFAULT_TABLE_TH_CLASS))
+          ctx.setProperty(node, 'class', appendClass(node, DOCS_TABLE_TH_CLASS))
         },
       },
       {
         filter: ['td'],
         visit(node, ctx) {
-          ctx.setProperty(node, 'class', appendClass(node, DEFAULT_TABLE_TD_CLASS))
+          ctx.setProperty(node, 'class', appendClass(node, DOCS_TABLE_TD_CLASS))
         },
       },
     ],

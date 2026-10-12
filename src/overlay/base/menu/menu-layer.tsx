@@ -605,7 +605,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           aria-expanded={isOpen() ? 'true' : 'false'}
           aria-disabled={itemProps.item.disabled ? 'true' : undefined}
           {...overlayMenuDataAttributes.item({
-            destructive: () => itemProps.item.variant === 'destructive',
+            danger: () => itemProps.item.variant === 'danger',
             disabled: () => itemProps.item.disabled,
             highlighted: () => layer.highlightedItemId() === submenuId(),
             expanded: isOpen,

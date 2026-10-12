@@ -1,6 +1,7 @@
 import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
 import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
+import { DEFAULT_COLOR_STATES, DEFAULT_THEME_COLORS } from './defaults.ts'
 import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
 import {
   MORAINE_COLORS,
@@ -11,6 +12,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
+  usesBackgroundForegroundFallback,
 } from './tokens.ts'
 
 type MoraineColorMap = typeof MORAINE_COLORS
@@ -99,50 +101,12 @@ function toUnocssKeyframes(): Record<string, string> {
 
 const RE_ATTR = /^(data|aria)-([\w-]+):/
 
-const DEFAULT_COLOR_STATES = { hover: 8, active: 12 } as const
-
 // Map the Tailwind shadow defaults used by shadcn/ui's neutral theme to Moraine roles.
 const DEFAULT_THEME_SHADOWS = {
   surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
   overlay: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
   input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
 } satisfies MorainePresetTheme['shadows']
-
-// shadcn/ui's neutral palette in 8-bit sRGB, compositing dark borders over the page background.
-const DEFAULT_THEME_COLORS = {
-  light: {
-    background: { base: 'rgb(255, 255, 255)' },
-    foreground: 'rgb(10, 10, 10)',
-    card: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
-    popover: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
-    primary: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
-    secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
-    accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    destructive: { base: 'rgb(231, 0, 11)' },
-    border: 'rgb(229, 229, 229)',
-    input: 'rgb(229, 229, 229)',
-    control: 'rgb(255, 255, 255)',
-    backdrop: 'rgb(0 0 0 / 0.1)',
-    ring: 'rgb(161, 161, 161)',
-  },
-  dark: {
-    background: { base: 'rgb(10, 10, 10)' },
-    foreground: 'rgb(250, 250, 250)',
-    card: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
-    popover: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
-    primary: { base: 'rgb(229, 229, 229)', foreground: 'rgb(23, 23, 23)' },
-    secondary: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
-    muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
-    accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
-    destructive: { base: 'rgb(255, 100, 103)' },
-    border: 'rgb(35, 35, 35)',
-    input: 'rgb(47, 47, 47)',
-    control: 'rgb(23, 23, 23)',
-    backdrop: 'rgb(0 0 0 / 0.1)',
-    ring: 'rgb(115, 115, 115)',
-  },
-} satisfies Record<'light' | 'dark', MoraineThemeColors>
 
 function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): MorainePresetTheme {
   const colors = { ...base.colors } as Record<string, unknown>
@@ -235,7 +199,7 @@ function stateForegroundReference(color: string): string {
   if (color === 'background') {
     return colorReference('foreground')
   }
-  return `var(${colorVariable(color, 'foreground')}, ${colorReference(color === 'destructive' ? 'background' : 'foreground')})`
+  return `var(${colorVariable(color, 'foreground')}, ${colorReference(usesBackgroundForegroundFallback(color) ? 'background' : 'foreground')})`
 }
 
 function resolveColorStateValue(options: {
@@ -327,7 +291,7 @@ function createThemeCSS(
               : foregroundReference
             : typeof group.foreground === 'string'
               ? group.foreground
-              : color === 'destructive' && typeof palette?.background === 'string'
+              : usesBackgroundForegroundFallback(color) && typeof palette?.background === 'string'
                 ? palette.background
                 : foregroundReference
         if (typeof group.base === 'string') {
@@ -470,7 +434,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       multiPass: true,
       match(matcher, { theme }) {
         const match = matcher.match(
-          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
+          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|danger|info|success|warning|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
         )
         if (!match) {
           return matcher

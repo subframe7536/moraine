@@ -22,7 +22,7 @@
         {
           "name": "activeVariant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
           "description": "Visual treatment while pressed.",
           "default": {
             "kind": "literal",
@@ -152,7 +152,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
           "description": "Visual treatment while unpressed.",
           "default": {
             "kind": "literal",

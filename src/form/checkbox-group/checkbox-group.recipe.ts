@@ -26,7 +26,7 @@ export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
     root: 'relative',
     fieldset: 'flex',
     legend:
-      "text-foreground font-medium mb-1.5 block data-required:after:(text-destructive ms-0.5 content-['*'])",
+      "text-foreground font-medium mb-1.5 block data-required:after:(text-danger ms-0.5 content-['*'])",
     item: '',
     container: '',
     control: '',

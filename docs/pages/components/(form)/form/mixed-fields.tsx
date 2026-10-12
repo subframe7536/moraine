@@ -38,7 +38,7 @@ export function MixedFields() {
       </form.Field>
       <Button type="submit">Create project</Button>
       <Show when={submitted()}>
-        <p class="text-success text-sm">Project created.</p>
+        <p class="text-sm text-success">Project created.</p>
       </Show>
     </form.Form>
   )

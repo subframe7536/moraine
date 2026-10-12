@@ -132,7 +132,7 @@ describe('createApiReferenceModel', () => {
       formatSummaryPropType({
         name: 'variant',
         optional: true,
-        type: "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+        type: "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
       }),
     ).toBe('string')
     expect(

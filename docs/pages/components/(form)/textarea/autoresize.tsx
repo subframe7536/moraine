@@ -24,7 +24,7 @@ export function Autoresize() {
         <span class="text-muted-foreground">Auto-expands as you type up to 8 rows.</span>
         <span
           class={`font-medium font-mono ${
-            post().length > maxLength ? 'text-destructive' : 'text-muted-foreground'
+            post().length > maxLength ? 'text-danger' : 'text-muted-foreground'
           }`}
         >
           {post().length} / {maxLength}

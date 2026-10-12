@@ -44,7 +44,7 @@ export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, Ch
       wrapper: 'flex flex-col gap-0.5 w-full',
       container: 'flex items-center',
       label:
-        "text-foreground font-medium block select-none data-required:after:(text-destructive ms-0.5 content-['*'])",
+        "text-foreground font-medium block select-none data-required:after:(text-danger ms-0.5 content-['*'])",
       description: 'text-muted-foreground leading-normal',
     },
     defaultVariants: {
