@@ -18,9 +18,10 @@ export const toastDataAttributes = {
     'swiping',
     'swipe-out',
   ),
-  /** Viewport list (`ol`/`ul`) expanded state. Not a recipe style slot. */
-  list: /* @__PURE__ */ createDataAttributes('expanded'),
-} satisfies DataAttributeContract<keyof ToastStyleSlot | 'list'>
+} satisfies DataAttributeContract<keyof ToastStyleSlot>
+
+/** Viewport list expanded state. Not a public recipe slot. */
+export const toastListDataAttributes = /* @__PURE__ */ createDataAttributes('expanded')
 
 /** Base viewport class for toast list containers. */
 export const TOAST_VIEWPORT_BASE_CLASS = 'm-0 outline-none list-none flex flex-col fixed z-floating'

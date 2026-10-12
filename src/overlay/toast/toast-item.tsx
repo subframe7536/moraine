@@ -12,7 +12,6 @@ import {
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
-import type { IconT } from '../../element/icon'
 import { Progress } from '../../element/progress'
 import { createStyles, useCn } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -499,8 +498,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () =>
-    props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
+  const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
 
   const showCloseButton = () =>
     (props.toast.closeButton ?? props.closeButton ?? false) && !isLoading()
@@ -528,7 +526,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     return undefined
   }
 
-  const iconSource = () => props.toast.icon ?? defaultIcon()
+  const iconSource = (): ToastT.Item['icon'] => props.toast.icon ?? defaultIcon()
 
   return (
     <li
@@ -580,7 +578,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   class={resolved.styles.icon.class}
                   style={resolved.styles.icon.style}
                 >
-                  <Icon name={source() as IconT.Name} />
+                  <Icon name={source()} />
                 </div>
               )}
             </Show>
@@ -637,7 +635,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       class={cn(resolved.styles.cancel.class, config().class)}
                       style={{
                         ...resolved.styles.cancel.style,
-                        ...(config().style ?? {}),
+                        ...config().style,
                       }}
                       onClick={(e) => {
                         config().onClick?.(e)
@@ -674,7 +672,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       class={cn(resolved.styles.action.class, config().class)}
                       style={{
                         ...resolved.styles.action.style,
-                        ...(config().style ?? {}),
+                        ...config().style,
                       }}
                       onClick={(e) => {
                         config().onClick?.(e)
