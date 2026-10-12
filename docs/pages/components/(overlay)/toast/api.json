@@ -50,11 +50,7 @@
           "name": "closeButtonAriaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible label for the close button.",
-          "default": {
-            "kind": "literal",
-            "value": "Close notification"
-          }
+          "description": "Accessible label for the close button.\nDefaults to the `toast.close` locale message."
         },
         {
           "name": "duration",
@@ -136,11 +132,7 @@
           "name": "regionAriaLabel",
           "optional": true,
           "type": "string",
-          "description": "Accessible label for the notification region.",
-          "default": {
-            "kind": "literal",
-            "value": "Notifications (F6)"
-          }
+          "description": "Accessible label for the notification region.\nDefaults to the `toast.region` locale message."
         },
         {
           "name": "showProgress",
@@ -345,6 +337,8 @@
     ]
   },
   "slots": [
+    "region",
+    "list",
     "root",
     "content",
     "title",
@@ -366,6 +360,13 @@
         "data-limited",
         "data-swipe-out",
         "data-swiping"
+      ]
+    },
+    {
+      "target": "list",
+      "attributes": [
+        "data-empty",
+        "data-expanded"
       ]
     }
   ]
