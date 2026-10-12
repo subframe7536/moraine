@@ -7,7 +7,7 @@ export interface ButtonGroupContextValue {
   readonly size?: ButtonT.Variant['size'] | null
   readonly variant?: ButtonT.Variant['variant'] | null
   readonly orientation?: ButtonGroupT.Variant['orientation'] | null
-  readonly presentation?: {
+  readonly slotOverrides?: {
     readonly classes?: ButtonGroupT.Classes
     readonly styles?: ButtonGroupT.Styles
   }

@@ -20,7 +20,7 @@ export function SidebarFrameMain<T extends ValidComponent = 'div'>(
       component={(local.as ?? 'div') as ValidComponent}
       data-slot="sidebar-frame-main"
       {...(rest as object)}
-      {...resolved.styles.main}
+      {...resolved.slots.main}
       onScroll={(event: UIEvent & { currentTarget: HTMLElement }) => {
         const result = callHandler(event, local.onScroll)
         if (!result.defaultPrevented) {

@@ -70,7 +70,7 @@ export function createDropdownMenu(props: DropdownMenuProps) {
   }
 
   return {
-    get presentation() {
+    get slotOverrides() {
       return { classes: props.classes, styles: props.styles }
     },
     triggerProps,

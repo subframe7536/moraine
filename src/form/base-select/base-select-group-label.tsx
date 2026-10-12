@@ -14,9 +14,9 @@ export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   const group = useGroupContext()
   const id = createId(() => props.id, 'select-group-label')
   const resolved = createStyles(baseSelectRecipe, props, {
-    rootSlot: 'groupLabel',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'groupLabel',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   createEffect(
     on(id, (value) => {
@@ -29,7 +29,7 @@ export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
       data-slot={state.slotName('groupLabel')}
       {...props}
       id={id()}
-      {...resolved.styles.groupLabel}
+      {...resolved.slots.groupLabel}
     >
       {props.children}
     </div>

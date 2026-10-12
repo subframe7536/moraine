@@ -36,10 +36,10 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   const field = useFieldContext()
   const messages = useMessages('select', defaultSelectMessages)
   const styles = createStyles(selectRecipe, props, {
-    rootSlot: 'control',
-    inheritedVariants: () => ({ size: field?.size }),
+    slot: 'control',
+    contextVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
+  const baseSelectStyles = createBaseSelectStyleProps(styles.slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
@@ -63,11 +63,11 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.styles.control}
+          {...styles.slots.control}
           ref={(element) => callRef(local.ref, element)}
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
-            {...styles.styles.trigger}
+            {...styles.slots.trigger}
             onKeyDown={(event) => {
               if (
                 local.allowClear &&
@@ -80,14 +80,12 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             }}
           >
             <Show when={local.leadingIcon}>
-              {(icon) => (
-                <Icon name={icon()} slotName="select-leading" {...styles.styles.leading} />
-              )}
+              {(icon) => <Icon name={icon()} slotName="select-leading" {...styles.slots.leading} />}
             </Show>
             <span
               data-slot="select-value"
               {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
-              {...styles.styles.value}
+              {...styles.slots.value}
             >
               {selectedItem()?.label ??
                 (hasValue()
@@ -102,7 +100,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               {...selectDataAttributes.trailing({ loading: () => local.loading })}
-              {...styles.styles.trailing}
+              {...styles.slots.trailing}
             />
           </BaseSelect.Trigger>
           <Show when={!local.loading && local.allowClear && hasValue()}>
@@ -111,7 +109,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               data-slot="select-clear"
               aria-label={messages().clear}
               tabIndex={0}
-              {...styles.styles.clear}
+              {...styles.slots.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -128,7 +126,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             </button>
           </Show>
         </BaseSelect.Control>
-        <DefaultSelectContent {...local} view={source()} slot={(slot) => styles.styles[slot]} />
+        <DefaultSelectContent {...local} view={source()} slot={(slot) => styles.slots[slot]} />
       </>
     )
   }

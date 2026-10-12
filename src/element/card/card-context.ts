@@ -5,7 +5,7 @@ import type { CardT } from './card.types'
 interface CardContext {
   readonly variant: CardT.Variant['variant']
   readonly size: CardT.Variant['size']
-  readonly presentation: {
+  readonly slotOverrides: {
     readonly classes?: CardT.Classes
     readonly styles?: CardT.Styles
   }

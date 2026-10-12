@@ -136,7 +136,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     invalidateHoverTimers,
     hasClose,
     registerClose,
-    get presentation() {
+    get slotOverrides() {
       return { classes: merged.classes, styles: merged.styles }
     },
   }

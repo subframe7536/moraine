@@ -18,13 +18,13 @@ export function renderInputGroupPart(
     throw new Error(`InputGroup.${name} must be used within InputGroup`)
   }
   const resolved = createStyles(inputGroupRecipe, local, {
-    rootSlot: part,
-    inheritedVariants: () => ({
+    slot: part,
+    contextVariants: () => ({
       size: group.size,
       orientation: group.orientation,
       variant: group.variant,
     }),
-    inheritedStyles: () => group.presentation,
+    contextSlots: () => group.slotOverrides,
   })
   return (
     <div
@@ -34,7 +34,7 @@ export function renderInputGroupPart(
         compact: () => resolved.variants.compact,
       })}
       {...rest}
-      {...resolved.styles[part]}
+      {...resolved.slots[part]}
     >
       {local.children}
     </div>

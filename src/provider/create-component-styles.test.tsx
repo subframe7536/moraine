@@ -6,6 +6,7 @@ import { buttonRecipe } from '../element/button/button.recipe'
 import type { ButtonT } from '../element/button/button.types'
 import { tooltipRecipe } from '../overlay/tooltip/tooltip.recipe'
 import { defineTheme } from '../theme/create-theme'
+import { defineRecipe } from '../theme/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { createStyles } from './create-styles'
@@ -34,10 +35,10 @@ describe('createStyles', () => {
           },
         },
         {
-          inheritedVariants: () => ({ size: inherited() }),
+          contextVariants: () => ({ size: inherited() }),
         },
       )
-      return <button {...styles.styles.root}>Save</button>
+      return <button {...styles.slots.root}>Save</button>
     }
     const screen = render(() => (
       <MoraineProvider theme={theme()}>
@@ -67,7 +68,7 @@ describe('createStyles', () => {
     expect(screen.getByRole('button')).toBe(button)
   })
 
-  test('merges inherited, instance, and root bindings', () => {
+  test('merges context, own, user, and enforced layers with undefined skip', () => {
     const [classes, setClasses] = createSignal<ButtonT.Classes>({ root: 'p-3', label: 'text-lg' })
     const [slotStyles, setSlotStyles] = createSignal<ButtonT.Styles>({ root: { color: 'blue' } })
     function Fixture() {
@@ -84,37 +85,47 @@ describe('createStyles', () => {
           },
         },
         {
-          inheritedStyles: () => ({
+          contextSlots: () => ({
             classes: { root: 'p-2' },
             styles: { root: { color: 'green', width: '20px' } },
+          }),
+          own: () => ({
+            root: { class: 'own-root', style: { opacity: '0.5', width: undefined } },
+          }),
+          enforced: () => ({
+            root: { class: 'enforced-root', style: { position: 'absolute', color: 'purple' } },
           }),
         },
       )
       return (
-        <button {...styles.styles.root}>
-          <span {...styles.styles.label}>Save</span>
+        <button {...styles.slots.root}>
+          <span {...styles.slots.label}>Save</span>
         </button>
       )
     }
     const screen = render(() => <Fixture />)
     const button = screen.getByRole('button')
     expect(button.className).toContain('p-4')
-    expect(button.style.color).toBe('red')
+    expect(button.className).toContain('own-root')
+    expect(button.className).toContain('enforced-root')
+    expect(button.style.color).toBe('purple')
     expect(button.style.width).toBe('20px')
+    expect(button.style.position).toBe('absolute')
+    expect(button.style.opacity).toBe('0.5')
     const label = screen.getByText('Save')
     expect(label.className).toContain('text-lg')
     expect(label.style.color).toBe('')
     setClasses({ root: 'p-5', label: 'text-sm' })
-    setSlotStyles({ root: { width: '30px' }, label: { color: 'purple' } })
+    setSlotStyles({ root: { width: '30px' }, label: { color: 'orange' } })
     expect(button.className).toContain('p-4')
-    expect(button.style.color).toBe('red')
+    expect(button.style.color).toBe('purple')
     expect(button.style.width).toBe('30px')
     expect(label.className).toContain('text-sm')
-    expect(label.style.color).toBe('purple')
+    expect(label.style.color).toBe('orange')
     expect(screen.getByText('Save')).toBe(label)
   })
 
-  test('preserves false over inherited and theme defaults', () => {
+  test('preserves false over context and theme defaults', () => {
     const theme = defineTheme({
       tooltip: {
         base: { '--tooltip-color': 'purple' },
@@ -136,9 +147,9 @@ describe('createStyles', () => {
             return invert()
           },
         },
-        { rootSlot: 'content', inheritedVariants: () => ({ invert: true }) },
+        { slot: 'content', contextVariants: () => ({ invert: true }) },
       )
-      return <div data-testid="select" {...styles.styles.content} />
+      return <div data-testid="select" {...styles.slots.content} />
     }
     const screen = render(() => (
       <MoraineProvider theme={theme}>
@@ -151,11 +162,121 @@ describe('createStyles', () => {
     setInvert(undefined)
     expect(root.className).toContain('inverted')
   })
+
+  test('fine-grained slot memos only recompute affected slots and skip unread ones', () => {
+    type Slots = { root: string; label: string; idle: string }
+    type Variants = { size: 'sm' | 'lg'; tone: 'a' | 'b' }
+    const recipe = defineRecipe<Slots, Variants>('fineGrainFixture', {
+      base: { root: 'base-root', label: 'base-label', idle: 'base-idle' },
+      defaultVariants: { size: 'sm', tone: 'a' },
+      variants: {
+        size: {
+          sm: { root: 'size-sm' },
+          lg: { root: 'size-lg' },
+        },
+        tone: {
+          a: { label: 'tone-a' },
+          b: { label: 'tone-b' },
+        },
+      },
+    })
+    const [size, setSize] = createSignal<Variants['size']>('sm')
+    const [tone, setTone] = createSignal<Variants['tone']>('a')
+    let ownReads = 0
+    let slots!: ReturnType<typeof createStyles<typeof recipe>>['slots']
+
+    function Fixture() {
+      const result = createStyles(
+        recipe,
+        {
+          get size() {
+            return size()
+          },
+          get tone() {
+            return tone()
+          },
+        },
+        {
+          own: () => {
+            ownReads += 1
+            return {}
+          },
+        },
+      )
+      slots = result.slots
+      return null
+    }
+
+    render(() => <Fixture />)
+
+    expect(ownReads).toBe(0)
+
+    const rootClass = slots.root.class
+    const afterRootClass = ownReads
+    expect(afterRootClass).toBe(1)
+    expect(rootClass).toContain('size-sm')
+    expect(slots.root.class).toBe(rootClass)
+    expect(ownReads).toBe(afterRootClass)
+
+    void slots.root.style
+    const afterRootStyle = ownReads
+    expect(afterRootStyle).toBe(afterRootClass + 1)
+
+    const labelClass = slots.label.class
+    const afterLabelClass = ownReads
+    expect(afterLabelClass).toBe(afterRootStyle + 1)
+    expect(labelClass).toContain('tone-a')
+    expect(slots.label.class).toBe(labelClass)
+    expect(ownReads).toBe(afterLabelClass)
+
+    // idle unread → no additional own reads
+    expect(ownReads).toBe(afterLabelClass)
+
+    setSize('lg')
+    expect(slots.root.class).toContain('size-lg')
+    expect(ownReads).toBe(afterLabelClass + 1)
+    expect(slots.label.class).toBe(labelClass)
+    expect(ownReads).toBe(afterLabelClass + 1)
+
+    setTone('b')
+    expect(slots.label.class).toContain('tone-b')
+    expect(ownReads).toBe(afterLabelClass + 2)
+    expect(slots.root.class).toContain('size-lg')
+    expect(ownReads).toBe(afterLabelClass + 2)
+  })
+
+  test('class change does not recompute style memo and vice versa', () => {
+    const [rootClass, setRootClass] = createSignal('user-a')
+    const [rootColor, setRootColor] = createSignal('red')
+    let slots!: ReturnType<typeof createStyles<typeof buttonRecipe>>['slots']
+    function Fixture() {
+      const result = createStyles(buttonRecipe, {
+        get classes() {
+          return { root: rootClass() }
+        },
+        get styles() {
+          return { root: { color: rootColor() } }
+        },
+      })
+      slots = result.slots
+      return <button {...slots.root}>Save</button>
+    }
+    render(() => <Fixture />)
+    const styleA = slots.root.style
+    expect(slots.root.class).toContain('user-a')
+    setRootClass('user-b')
+    expect(slots.root.class).toContain('user-b')
+    expect(slots.root.style).toBe(styleA)
+    const classB = slots.root.class
+    setRootColor('blue')
+    expect(slots.root.style.color).toBe('blue')
+    expect(slots.root.class).toBe(classB)
+  })
 })
 
 test.each([undefined, 'label'] as const)(
   'inherits theme variables on %s and removes stale values without replacing nodes',
-  (variablesSlot) => {
+  (varsSlot) => {
     const parent = defineTheme({
       button: {
         defaultVariants: { size: 'sm' },
@@ -187,13 +308,13 @@ test.each([undefined, 'label'] as const)(
           },
         },
         {
-          variablesSlot,
-          inheritedVariants: () => ({ size: inherited() }),
+          varsSlot,
+          contextVariants: () => ({ size: inherited() }),
         },
       )
       return (
-        <button {...styles.styles.root}>
-          <span {...styles.styles.label}>Save</span>
+        <button {...styles.slots.root}>
+          <span {...styles.slots.label}>Save</span>
         </button>
       )
     }
@@ -204,8 +325,8 @@ test.each([undefined, 'label'] as const)(
     ))
     const button = screen.getByRole('button')
     const label = screen.getByText('Save')
-    const target = variablesSlot === 'label' ? label : button
-    const other = variablesSlot === 'label' ? button : label
+    const target = varsSlot === 'label' ? label : button
+    const other = varsSlot === 'label' ? button : label
     expect(target.style.getPropertyValue('--size')).toBe('16px')
     expect(target.style.getPropertyValue('--shared')).toBe('child')
     expect(other.getAttribute('style')).toBeNull()
@@ -223,7 +344,7 @@ test.each([undefined, 'label'] as const)(
   },
 )
 
-test('applies instance variables after recipe keys and before inherited and caller styles', () => {
+test('applies instance variables after recipe keys and before context and caller styles', () => {
   const theme = defineTheme({
     button: {
       base: { '--size': '4px', '--shared': 'recipe' },
@@ -238,15 +359,15 @@ test('applies instance variables after recipe keys and before inherited and call
         style: { '--root': 'root' },
       },
       {
-        inheritedStyles: () => ({ styles: { root: { '--shared': 'group', '--group': 'group' } } }),
-        variables: () => ({
+        contextSlots: () => ({ styles: { root: { '--shared': 'group', '--group': 'group' } } }),
+        vars: () => ({
           '--size': size(),
           '--shared': 'instance',
           '--empty': undefined,
         }),
       },
     )
-    return <button {...styles.styles.root}>Save</button>
+    return <button {...styles.slots.root}>Save</button>
   }
   const screen = render(() => (
     <MoraineProvider theme={theme}>
@@ -286,14 +407,14 @@ test.each(['root', 'label'] as const)(
           style: { '--root': 'root' },
         },
         {
-          rootSlot: slot,
-          variablesSlot: slot,
-          inheritedStyles: () => ({
+          slot,
+          varsSlot: slot,
+          contextSlots: () => ({
             styles: { [slot]: { '--group': 'group', '--slot': 'group', '--root': 'group' } },
           }),
         },
       )
-      return <button {...styles.styles[slot]}>Save</button>
+      return <button {...styles.slots[slot]}>Save</button>
     }
     const screen = render(() => (
       <MoraineProvider theme={theme}>

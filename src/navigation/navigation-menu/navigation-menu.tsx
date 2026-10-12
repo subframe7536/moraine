@@ -70,7 +70,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           disabled: () => local.disabled,
           orientation: context.orientation,
         })}
-        {...presentation.styles.root}
+        {...presentation.slots.root}
       >
         {local.children}
         <NavigationMenuPanel />

@@ -3,7 +3,6 @@ import { DEV, For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
 import { resolveDirection } from '../../overlay/base/utils'
-import { useCn } from '../../provider/cn-context'
 import { createStyles } from '../../provider/index'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -27,7 +26,6 @@ interface NormalizedStepperItem {
  * Tab-structured step navigation with configurable orientation and separator layout.
  */
 export function Stepper(props: StepperProps): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'value',
@@ -197,7 +195,7 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <div data-slot="stepper" {...rest} id={id()} {...resolved.styles.root}>
+    <div data-slot="stepper" {...rest} id={id()} {...resolved.slots.root}>
       <div
         ref={(element) => {
           headerRef = element
@@ -207,7 +205,7 @@ export function Stepper(props: StepperProps): JSX.Element {
         aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="stepper-header"
-        {...resolved.styles.header}
+        {...resolved.slots.header}
       >
         <For each={normalizedItems()}>
           {(entry) => {
@@ -229,8 +227,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   state,
                   disabled,
                 })}
-                class={cn(resolved.styles.item.class, entry.item.class)}
-                style={resolved.styles.item.style}
+                {...resolved.slotWith('item', { class: entry.item.class })}
               >
                 <button
                   id={triggerId()}
@@ -251,7 +248,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   disabled={disabled()}
                   aria-labelledby={entry.item.title ? titleId() : undefined}
                   aria-describedby={entry.item.description ? descriptionId() : undefined}
-                  {...resolved.styles.trigger}
+                  {...resolved.slots.trigger}
                   onClick={() => selectStep(entry.value)}
                   onKeyDown={(event) => {
                     onNavigationKeyDown(
@@ -264,20 +261,20 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <span
                     {...stepperDataAttributes.indicator({ state })}
                     data-slot="stepper-indicator"
-                    {...resolved.styles.indicator}
+                    {...resolved.slots.indicator}
                   >
                     <Icon
                       slotName="stepper-icon"
                       name={entry.item.icon || (() => entry.index + 1)}
-                      class={resolved.styles.icon.class}
-                      style={resolved.styles.icon.style}
+                      class={resolved.slots.icon.class}
+                      style={resolved.slots.icon.style}
                     />
                   </span>
 
                   <Show when={entry.item.title || entry.item.description}>
-                    <span data-slot="stepper-wrapper" {...resolved.styles.wrapper}>
+                    <span data-slot="stepper-wrapper" {...resolved.slots.wrapper}>
                       <Show when={entry.item.title}>
-                        <span data-slot="stepper-title" id={titleId()} {...resolved.styles.title}>
+                        <span data-slot="stepper-title" id={titleId()} {...resolved.slots.title}>
                           {entry.item.title}
                         </span>
                       </Show>
@@ -286,7 +283,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                         <span
                           data-slot="stepper-description"
                           id={descriptionId()}
-                          {...resolved.styles.description}
+                          {...resolved.slots.description}
                         >
                           {entry.item.description}
                         </span>
@@ -302,7 +299,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                       state,
                       disabled,
                     })}
-                    {...resolved.styles.separator}
+                    {...resolved.slots.separator}
                   />
                 </Show>
               </div>
@@ -327,8 +324,8 @@ export function Stepper(props: StepperProps): JSX.Element {
               aria-labelledby={getTriggerId(entry.instanceKey)}
               {...stepperDataAttributes.content({ selected: true })}
               data-slot="stepper-content"
-              class={resolved.styles.content.class}
-              style={resolved.styles.content.style}
+              class={resolved.slots.content.class}
+              style={resolved.slots.content.style}
             >
               {entry.item.content}
             </div>

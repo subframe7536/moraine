@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { createStyles, pickSlotOverrides } from '../../provider'
 
 import { useNavigationMenuContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
@@ -11,16 +11,16 @@ export function NavigationMenuList(props: NavigationMenuT.ListProps): JSX.Elemen
   const context = useNavigationMenuContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
   const resolved = createStyles(navigationMenuRecipe, local, {
-    rootSlot: 'list',
-    inheritedStyles: () => context.options,
-    inheritedVariants: () => ({ orientation: context.orientation() }),
+    slot: 'list',
+    contextSlots: () => pickSlotOverrides(context.options),
+    contextVariants: () => ({ orientation: context.orientation() }),
   })
   return (
     <ul
       data-slot="navigation-menu-list"
       {...navigationMenuDataAttributes.list({ orientation: context.orientation })}
       {...rest}
-      {...resolved.styles.list}
+      {...resolved.slots.list}
     >
       {local.children}
     </ul>

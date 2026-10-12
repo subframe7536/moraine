@@ -39,7 +39,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     ],
   )
   const resolved = createStyles(toggleButtonRecipe, local, {
-    inheritedVariants: () => group ?? undefined,
+    contextVariants: () => group ?? undefined,
   })
   const [pressed, setPressed] = createControllableValue<boolean>({
     value: () => local.pressed,
@@ -83,30 +83,30 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       activeEffect="none"
       classes={{
         get root() {
-          return resolved.styles.root.class
+          return resolved.slots.root.class
         },
         get leading() {
-          return resolved.styles.leading.class
+          return resolved.slots.leading.class
         },
         get label() {
-          return resolved.styles.label.class
+          return resolved.slots.label.class
         },
         get trailing() {
-          return resolved.styles.trailing.class
+          return resolved.slots.trailing.class
         },
       }}
       styles={{
         get root() {
-          return resolved.styles.root.style
+          return resolved.slots.root.style
         },
         get leading() {
-          return resolved.styles.leading.style
+          return resolved.slots.leading.style
         },
         get label() {
-          return resolved.styles.label.style
+          return resolved.slots.label.style
         },
         get trailing() {
-          return resolved.styles.trailing.style
+          return resolved.slots.trailing.style
         },
       }}
       onClick={handleClick}

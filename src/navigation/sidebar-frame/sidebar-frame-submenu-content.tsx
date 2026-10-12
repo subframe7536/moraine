@@ -16,7 +16,7 @@ export function SidebarFrameSubmenuContent(props: SidebarFrameT.SubmenuContentPr
       as="div"
       data-slot="sidebar-frame-submenu-content"
       {...rest}
-      {...resolved.styles.submenuContent}
+      {...resolved.slots.submenuContent}
     >
       {local.children}
     </Collapsible.Content>

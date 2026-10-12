@@ -28,9 +28,9 @@ export function EmptyPart(props: EmptyPartProps): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
   const context = useEmptyContext()
   const resolved = createStyles(emptyRecipe, local, {
-    rootSlot: untrack(() => local.slot),
-    inheritedVariants: () => ({ size: context.size }),
-    inheritedStyles: () => context.presentation,
+    slot: untrack(() => local.slot),
+    contextVariants: () => ({ size: context.size }),
+    contextSlots: () => context.slotOverrides,
   })
 
   return (
@@ -38,7 +38,7 @@ export function EmptyPart(props: EmptyPartProps): JSX.Element {
       component={local.as ?? local.fallback}
       data-slot={`empty-${local.slot}`}
       {...rest}
-      {...resolved.styles[local.slot]}
+      {...resolved.slots[local.slot]}
     >
       {local.children}
     </Dynamic>

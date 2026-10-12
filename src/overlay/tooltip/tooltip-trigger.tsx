@@ -16,8 +16,8 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const context = useTooltipContext()
   const resolved = createStyles(tooltipRecipe, props, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => context.presentation,
+    slot: 'trigger',
+    contextSlots: () => context.slotOverrides,
   })
   const popper = context.popper
   const triggerProps = mergeProps(
@@ -44,7 +44,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
       },
       props,
     ),
-    resolved.styles.trigger,
+    resolved.slots.trigger,
     { context: popper, toggleOnClick: false, describeTrigger: true },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
   return <PopperTrigger<T> {...triggerProps} />

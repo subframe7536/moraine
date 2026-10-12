@@ -26,8 +26,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
   const resolved = createStyles(collapsibleRecipe, local, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => context.presentation,
+    slot: 'trigger',
+    contextSlots: () => context.slotOverrides,
   })
   const tag: Accessor<ValidComponent> = () =>
     local.as ?? ((rest as any).href !== undefined && (rest as any).href !== null ? 'a' : 'button')
@@ -68,7 +68,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       })}
       {...binding}
       id={context.triggerId()}
-      {...resolved.styles.trigger}
+      {...resolved.slots.trigger}
     >
       {children()}
     </Dynamic>

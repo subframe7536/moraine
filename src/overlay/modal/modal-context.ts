@@ -22,7 +22,7 @@ export type ModalConfiguration<K extends ModalKind = ModalKind> = {
 export interface ModalContext {
   configuration: ModalConfiguration
   slotName: (slot: string) => string
-  readonly presentation: { classes?: ModalT.Classes; styles?: ModalT.Styles }
+  readonly slotOverrides: { classes?: ModalT.Classes; styles?: ModalT.Styles }
   open: Accessor<boolean>
   presence: ReturnType<typeof createTransitionPresence>
   contentId: Accessor<string>

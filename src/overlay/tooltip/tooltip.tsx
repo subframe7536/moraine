@@ -355,7 +355,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         clearSkipDelay(currentDocument, tooltipId())
       }
     },
-    get presentation() {
+    get slotOverrides() {
       return { classes: merged.classes, styles: merged.styles }
     },
   }

@@ -90,7 +90,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   }
 
   const context = {
-    get presentation() {
+    get slotOverrides() {
       return { classes: local.classes, styles: local.styles }
     },
     get scrollThreshold() {
@@ -122,7 +122,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
           variant: () => context.variant,
         })}
         {...rest}
-        {...resolved.styles.root}
+        {...resolved.slots.root}
       >
         {local.children}
       </div>

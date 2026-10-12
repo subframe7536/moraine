@@ -13,12 +13,12 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
   const [local, rest] = splitProps(props, ['orientation', 'class', 'style'])
   const group = useButtonGroupContext()
   const resolved = createStyles(buttonGroupRecipe, local, {
-    rootSlot: 'separator',
-    inheritedVariants: () => ({
+    slot: 'separator',
+    contextVariants: () => ({
       orientation:
         group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
     }),
-    inheritedStyles: () => group?.presentation,
+    contextSlots: () => group?.slotOverrides,
   })
 
   return (
@@ -26,7 +26,7 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
       data-slot="button-group-separator"
       orientation={resolved.variants.orientation}
       {...rest}
-      {...resolved.styles.separator}
+      {...resolved.slots.separator}
     />
   )
 }

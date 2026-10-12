@@ -63,7 +63,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
   const hasLabelText = () => (showLabel() && !labelHidden()) || showHint()
   const hasText = () => hasLabelText() || showDescription()
   const resolved = createStyles(fieldRecipe, local, {
-    inheritedVariants: () => ({
+    contextVariants: () => ({
       labelHidden: labelHidden(),
       hasLabelText: hasLabelText(),
       hasText: hasText(),
@@ -189,21 +189,21 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     )
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...resolved.styles.root}>
-        <div data-slot="field-wrapper" {...resolved.styles.wrapper}>
+      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...resolved.slots.root}>
+        <div data-slot="field-wrapper" {...resolved.slots.wrapper}>
           <Show when={showLabel()}>
-            <div data-slot="field-label-wrapper" {...resolved.styles.labelWrapper}>
+            <div data-slot="field-label-wrapper" {...resolved.slots.labelWrapper}>
               <label
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="field-label"
                 {...fieldDataAttributes.label({ required: isRequired })}
-                {...resolved.styles.label}
+                {...resolved.slots.label}
               >
                 {label()}
               </label>
               <Show when={showHint()}>
-                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...resolved.styles.hint}>
+                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...resolved.slots.hint}>
                   {hint()}
                 </span>
               </Show>
@@ -213,7 +213,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
             <p
               id={`${ariaId()}-description`}
               data-slot="field-description"
-              {...resolved.styles.description}
+              {...resolved.slots.description}
             >
               {description()}
             </p>
@@ -222,20 +222,20 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
         <div
           data-slot="field-container"
           {...fieldDataAttributes.container({ hasText })}
-          {...resolved.styles.container}
+          {...resolved.slots.container}
         >
           {fieldChildren()}
           <Show
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div id={`${ariaId()}-help`} data-slot="field-help" {...resolved.styles.help}>
+                <div id={`${ariaId()}-help`} data-slot="field-help" {...resolved.slots.help}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div id={`${ariaId()}-error`} data-slot="field-error" {...resolved.styles.error}>
+            <div id={`${ariaId()}-error`} data-slot="field-error" {...resolved.slots.error}>
               {resolvedError()}
             </div>
           </Show>

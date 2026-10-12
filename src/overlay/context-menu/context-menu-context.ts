@@ -514,7 +514,7 @@ export function createContextMenu(props: ContextMenuProps) {
   }) as OverlayTriggerBinding
 
   return {
-    get presentation() {
+    get slotOverrides() {
       return { classes: props.classes, styles: props.styles }
     },
     disabled: () => Boolean(merged.disabled),

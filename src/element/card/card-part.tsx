@@ -28,9 +28,9 @@ export function CardPart(props: CardPartProps): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
   const context = useCardContext()
   const resolved = createStyles(cardRecipe, local, {
-    rootSlot: untrack(() => local.slot),
-    inheritedVariants: () => ({ variant: context.variant, size: context.size }),
-    inheritedStyles: () => context.presentation,
+    slot: untrack(() => local.slot),
+    contextVariants: () => ({ variant: context.variant, size: context.size }),
+    contextSlots: () => context.slotOverrides,
   })
 
   return (
@@ -38,7 +38,7 @@ export function CardPart(props: CardPartProps): JSX.Element {
       component={local.as ?? local.fallback}
       data-slot={`card-${local.slot}`}
       {...rest}
-      {...resolved.styles[local.slot]}
+      {...resolved.slots[local.slot]}
     >
       {local.children}
     </Dynamic>

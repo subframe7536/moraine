@@ -88,8 +88,8 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     },
   }
   const resolved = createStyles(popoverRecipe, local, {
-    rootSlot: 'content',
-    inheritedStyles: () => behavior.presentation,
+    slot: 'content',
+    contextSlots: () => behavior.slotOverrides,
   })
 
   return (
@@ -153,10 +153,10 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             {...contentDataAttrs}
             {...mergePopperElementProps(contentProps, rest)}
             aria-label={local.ariaLabel ?? rest['aria-label']}
-            {...resolved.styles.content}
+            {...resolved.slots.content}
           >
             <Show when={hasJsxContent(content())}>
-              <div data-slot="popover-body" {...resolved.styles.body}>
+              <div data-slot="popover-body" {...resolved.slots.body}>
                 {content()}
               </div>
             </Show>

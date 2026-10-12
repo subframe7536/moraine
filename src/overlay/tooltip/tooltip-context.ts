@@ -16,7 +16,7 @@ export interface TooltipContextValue {
   dismiss: () => void
   resetPress: () => void
   keepOpen: () => void
-  presentation: { classes?: TooltipT.Classes; styles?: TooltipT.Styles }
+  slotOverrides: { classes?: TooltipT.Classes; styles?: TooltipT.Styles }
 }
 
 export const [TooltipProvider, useTooltipContext] =

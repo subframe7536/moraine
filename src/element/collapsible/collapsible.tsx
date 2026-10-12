@@ -44,7 +44,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     unmountOnHide: () => local.unmountOnHide,
   })
   const resolved = createStyles(collapsibleRecipe, local, {
-    variables: () => ({
+    vars: () => ({
       '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
     }),
   })
@@ -60,7 +60,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   }
 
   const context: CollapsibleContext = {
-    presentation: {
+    slotOverrides: {
       get classes() {
         return local.classes
       },
@@ -84,7 +84,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
           closed: disclosure.closed,
         })}
         {...rest}
-        {...resolved.styles.root}
+        {...resolved.slots.root}
       >
         {local.children}
       </div>

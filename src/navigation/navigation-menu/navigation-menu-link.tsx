@@ -3,7 +3,7 @@ import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { mergePopperElementProps } from '../../overlay/base/popper'
-import { createStyles } from '../../provider'
+import { createStyles, pickSlotOverrides } from '../../provider'
 
 import {
   useNavigationMenuContext,
@@ -29,8 +29,8 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'styles',
   ])
   const resolved = createStyles(navigationMenuRecipe, local, {
-    rootSlot: 'link',
-    inheritedStyles: () => context.options,
+    slot: 'link',
+    contextSlots: () => pickSlotOverrides(context.options),
   })
   const body = resolveChildren(() => local.children)
   const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
@@ -72,7 +72,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       data-slot="navigation-menu-link"
       data-moraine-navigation-menu-control=""
       {...navigationMenuDataAttributes.link({ active: () => local.active, disabled })}
-      {...resolved.styles.link}
+      {...resolved.slots.link}
     >
       {body()}
     </Dynamic>

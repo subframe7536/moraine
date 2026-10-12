@@ -53,7 +53,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(switchRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
   })
 
   const merged = mergeProps(
@@ -276,7 +276,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       })}
       {...rest}
       ref={(element) => callRef(local.ref, element)}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -318,7 +318,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-slot="switch-track"
         aria-checked={checked()}
         {...switchAriaAttrs()}
-        {...resolved.styles.track}
+        {...resolved.slots.track}
         onPointerDown={onPointerDown}
         onFocus={onTrackFocus}
         onBlur={onTrackBlur}
@@ -337,7 +337,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             unchecked: () => !checked(),
             disabled: field.disabled,
           })}
-          {...resolved.styles.thumb}
+          {...resolved.slots.thumb}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -349,7 +349,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                   unchecked: () => !merged.loading && !checked(),
                   loading: () => merged.loading,
                 })}
-                class={resolved.styles.icon.class}
+                class={resolved.slots.icon.class}
               />
             )}
           </Show>
@@ -357,14 +357,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="switch-wrapper" {...resolved.styles.wrapper}>
+        <span data-slot="switch-wrapper" {...resolved.slots.wrapper}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="switch-label"
               {...switchDataAttributes.label({ required: field.required })}
-              {...resolved.styles.label}
+              {...resolved.slots.label}
             >
               {label()}
             </label>
@@ -374,7 +374,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             <span
               id={descriptionId()}
               data-slot="switch-description"
-              {...resolved.styles.description}
+              {...resolved.slots.description}
             >
               {description()}
             </span>

@@ -14,9 +14,9 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   const resolved = createStyles(baseSelectRecipe, local, {
-    rootSlot: 'listbox',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'listbox',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
@@ -54,7 +54,7 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
           }
         })
       }}
-      {...resolved.styles.listbox}
+      {...resolved.slots.listbox}
     >
       {local.children}
     </div>
