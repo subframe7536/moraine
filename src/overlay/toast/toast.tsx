@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  onCleanup,
+  Show,
+  splitProps,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -259,52 +268,55 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const gapSize = () => local.gap ?? DEFAULT_TOAST_GAP
   const hostPaused = () => keyboardExpanded() || isDocumentHidden() || !isWindowFocused()
 
+  // Mounted while any toast (including ones still playing their exit animation) is in the store.
   return (
-    <Portal>
-      <section
-        ref={(el) => {
-          viewportRef = el
-        }}
-        data-slot="toast-viewport"
-        role="region"
-        tabIndex={-1}
-        {...rest}
-        aria-live="polite"
-        aria-relevant="additions text"
-        aria-atomic="false"
-        aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
-        {...resolved.styles.viewport}
-      >
-        <For each={possiblePositions()}>
-          {(positionKey) => (
-            <ToastList
-              positionKey={positionKey}
-              filteredToasts={filteredToasts}
-              defaultPlacement={defaultPlacement}
-              defaultAlign={defaultAlign}
-              expand={local.expand}
-              keyboardExpanded={keyboardExpanded}
-              hostPaused={hostPaused}
-              heights={heights}
-              gapSize={gapSize}
-              visibleToasts={local.visibleToasts ?? 3}
-              class={local.class}
-              style={local.style}
-              closeButton={local.closeButton}
-              closeButtonAriaLabel={local.closeButtonAriaLabel}
-              showProgress={local.showProgress}
-              invert={local.invert}
-              classes={local.classes}
-              styles={local.styles}
-              duration={local.duration}
-              onHeight={updateHeight}
-              onDismiss={(id) => store().dismiss(id)}
-              onRemove={(id) => store().remove(id)}
-            />
-          )}
-        </For>
-      </section>
-    </Portal>
+    <Show when={filteredToasts().length > 0}>
+      <Portal>
+        <section
+          ref={(el) => {
+            viewportRef = el
+          }}
+          data-slot="toast-viewport"
+          role="region"
+          tabIndex={-1}
+          {...rest}
+          aria-live="polite"
+          aria-relevant="additions text"
+          aria-atomic="false"
+          aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
+          {...resolved.styles.viewport}
+        >
+          <For each={possiblePositions()}>
+            {(positionKey) => (
+              <ToastList
+                positionKey={positionKey}
+                filteredToasts={filteredToasts}
+                defaultPlacement={defaultPlacement}
+                defaultAlign={defaultAlign}
+                expand={local.expand}
+                keyboardExpanded={keyboardExpanded}
+                hostPaused={hostPaused}
+                heights={heights}
+                gapSize={gapSize}
+                visibleToasts={local.visibleToasts ?? 3}
+                class={local.class}
+                style={local.style}
+                closeButton={local.closeButton}
+                closeButtonAriaLabel={local.closeButtonAriaLabel}
+                showProgress={local.showProgress}
+                invert={local.invert}
+                classes={local.classes}
+                styles={local.styles}
+                duration={local.duration}
+                onHeight={updateHeight}
+                onDismiss={(id) => store().dismiss(id)}
+                onRemove={(id) => store().remove(id)}
+              />
+            )}
+          </For>
+        </section>
+      </Portal>
+    </Show>
   )
 }
 

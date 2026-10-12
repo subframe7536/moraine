@@ -649,13 +649,19 @@ describe('Toast', () => {
         <Toast id="labelled" aria-label="Custom alerts" />
       </>
     ))
-    const viewports = document.querySelectorAll('[data-slot="toast-viewport"]')
-    expect(viewports[0]?.getAttribute('aria-label')).toBe('Notifications (F6)')
-    expect(viewports[1]?.getAttribute('aria-label')).toBe('Custom alerts')
+    Toast.show('Default label')
+    Toast.show('Custom label', { toastId: 'labelled' })
+    await screen.findByText('Custom label')
+    const viewportOf = (text: string) =>
+      screen.getByText(text).closest('[data-slot="toast-viewport"]')
+    expect(viewportOf('Default label')?.getAttribute('aria-label')).toBe('Notifications (F6)')
+    expect(viewportOf('Custom label')?.getAttribute('aria-label')).toBe('Custom alerts')
   })
 
-  it('marks the stack list with data-slot="toast-list"', () => {
+  it('marks the stack list with data-slot="toast-list"', async () => {
     render(() => <Toast />)
+    Toast.show('List slot')
+    await screen.findByText('List slot')
     const list = document.querySelector('ul')
     expect(list?.getAttribute('data-slot')).toBe('toast-list')
     expect(document.querySelectorAll('[data-slot="toast-list"]').length).toBe(1)
@@ -663,11 +669,9 @@ describe('Toast', () => {
 
   it('updates list data attributes reactively', async () => {
     render(() => <Toast />)
-    const list = document.querySelector('ul')!
-    expect(list.hasAttribute('data-empty')).toBe(true)
-
     Toast.show('Reactive attrs')
     await screen.findByText('Reactive attrs')
+    const list = document.querySelector('ul')!
     expect(list.hasAttribute('data-empty')).toBe(false)
     expect(list.hasAttribute('data-expanded')).toBe(false)
 
@@ -1007,10 +1011,30 @@ describe('Toast', () => {
     await screen.findByText('Isolated only')
     await screen.findByText('Default only')
 
-    const isolatedViewport = document.querySelectorAll('[data-slot="toast-viewport"]')[1]
-      ?.textContent
+    const isolatedViewport = screen
+      .getByText('Isolated only')
+      .closest('[data-slot="toast-viewport"]')?.textContent
     expect(isolatedViewport).toContain('Isolated only')
     expect(isolatedViewport).not.toContain('Default only')
+  })
+
+  it('renders the viewport only while the host has toasts, including exiting ones', async () => {
+    render(() => <Toast />)
+    const viewport = () => document.querySelector('[data-slot="toast-viewport"]')
+    expect(viewport()).toBeNull()
+
+    const id = Toast.show('Lifecycle toast')
+    await screen.findByText('Lifecycle toast')
+    expect(viewport()).not.toBeNull()
+
+    Toast.dismiss(id)
+    // Still mounted while the exit animation plays.
+    await Promise.resolve()
+    expect(viewport()).not.toBeNull()
+    expect(screen.queryByText('Lifecycle toast')).not.toBeNull()
+
+    await finishExitMotion()
+    await waitFor(() => expect(viewport()).toBeNull())
   })
 
   it('cleans up rendered toasts when the host unmounts', async () => {

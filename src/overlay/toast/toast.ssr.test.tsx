@@ -19,12 +19,13 @@ describe('Toast SSR Hydration', () => {
     )
 
     expect(container).not.toBeNull()
+    // No viewport until there is a toast.
+    expect(document.querySelector('[role="region"]')).toBeNull()
 
+    Toast.show('Hydrated toast message')
     const region = document.querySelector('[role="region"]')
     expect(region).not.toBeNull()
     expect(region?.getAttribute('aria-label')).toContain('Notifications')
-
-    Toast.show('Hydrated toast message')
     const item = document.querySelector('[data-slot="toast"]')
     expect(item).not.toBeNull()
     expect(item?.textContent).toContain('Hydrated toast message')

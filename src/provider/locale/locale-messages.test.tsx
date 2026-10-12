@@ -65,10 +65,9 @@ describe('localized component text', () => {
       </MoraineProvider>
     ))
 
+    Toast.show('Bonjour', { closeButton: true })
     const region = document.body.querySelector('[data-slot="toast-viewport"]')
     expect(region?.getAttribute('aria-label')).toBe('Notifications (F6)')
-
-    Toast.show('Bonjour', { closeButton: true })
     await waitFor(() => {
       expect(
         document.body.querySelector('[data-slot="toast-close"]')?.getAttribute('aria-label'),
