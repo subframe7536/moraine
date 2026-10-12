@@ -26,7 +26,7 @@ export function BasicToasts() {
       <Button variant="outline" onClick={() => toast.warning('Careful with this action')}>
         Warning
       </Button>
-      <Button variant="destructive" onClick={() => toast.error('Something went wrong')}>
+      <Button variant="danger" onClick={() => toast.error('Something went wrong')}>
         Error
       </Button>
       <Button variant="ghost" onClick={runLoadingToast}>

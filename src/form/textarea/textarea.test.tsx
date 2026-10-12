@@ -219,7 +219,7 @@ describe('Textarea', () => {
     const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(root?.className).toContain('focus:ring-ring/50')
-    expect(root?.className).toContain('data-invalid:border-destructive')
+    expect(root?.className).toContain('data-invalid:border-danger')
     expect(root?.className).toContain('root-override')
   })
 

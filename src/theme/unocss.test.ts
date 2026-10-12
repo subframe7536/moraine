@@ -156,8 +156,8 @@ describe('presetMoraine', () => {
     expect(css).toContain('[data-highlighted]')
     expect(css).toContain('var(--accent-hover')
     expect(css).toContain('--accent-foreground')
-    expect(css).toContain('[data-destructive]')
-    expect(css).toContain('--destructive')
+    expect(css).toContain('[data-danger]')
+    expect(css).toContain('--danger')
   })
   test.each([
     ['Wind3', presetWind3],
@@ -224,8 +224,8 @@ describe('presetMoraine', () => {
         'bg-info',
         'text-success',
         'text-warning',
-        'text-error',
-        'text-error-foreground',
+        'text-danger',
+        'text-danger-foreground',
         'hover:bg-info-hover',
         'active:bg-success-active',
         'bg-control',
@@ -258,8 +258,8 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--info)')
     expect(css).toContain('var(--success)')
     expect(css).toContain('var(--warning)')
-    expect(css).toContain('var(--error)')
-    expect(css).toContain('var(--error-foreground, var(--background))')
+    expect(css).toContain('var(--danger)')
+    expect(css).toContain('var(--danger-foreground, var(--background))')
     expect(css).toContain('var(--info-hover, var(--mo-auto-info-hover, var(--info)))')
     expect(css).toContain(
       'var(--success-active, var(--mo-auto-success-active, var(--success-hover, var(--mo-auto-success-hover, var(--success)))))',
@@ -359,14 +359,14 @@ describe('presetMoraine', () => {
     const css = await generate([
       'data-disabled:opacity-64',
       'data-focused:ring-3',
-      'aria-invalid:border-destructive',
+      'aria-invalid:border-danger',
     ])
 
     expect(css).toContain('[data-disabled]')
     expect(css).toContain('[data-focused]')
     expect(css).toContain('[aria-invalid]')
     expect(css).toMatch(/opacity:(0\.64|64%)/)
-    expect(css).toContain('var(--destructive)')
+    expect(css).toContain('var(--danger)')
   })
 
   test.each([
@@ -513,11 +513,10 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary: rgb(23, 23, 23);')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(root).toContain('--muted-foreground: rgb(115, 115, 115);')
-    expect(root).toContain('--destructive: rgb(231, 0, 11);')
+    expect(root).toContain('--danger: rgb(239, 68, 68);')
     expect(root).toContain('--info: rgb(59, 130, 246);')
     expect(root).toContain('--success: rgb(34, 197, 94);')
     expect(root).toContain('--warning: rgb(234, 179, 8);')
-    expect(root).toContain('--error: rgb(239, 68, 68);')
     expect(css).not.toContain('--sidebar-width:')
     expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
     expect(css).toMatch(/:root \{[^}]*--font-size: 1rem;/)
@@ -527,7 +526,7 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\.dark \{[^}]*--info: rgb\(96, 165, 250\);/)
     expect(css).toMatch(/\.dark \{[^}]*--success: rgb\(74, 222, 128\);/)
     expect(css).toMatch(/\.dark \{[^}]*--warning: rgb\(250, 204, 21\);/)
-    expect(css).toMatch(/\.dark \{[^}]*--error: rgb\(248, 113, 113\);/)
+    expect(css).toMatch(/\.dark \{[^}]*--danger: rgb\(248, 113, 113\);/)
     expect(css).toContain('--background: rgb(10, 10, 10);')
     expect(css).toContain('--primary: rgb(229, 229, 229);')
     expect(css).toContain('--border: rgb(35, 35, 35);')
@@ -545,7 +544,7 @@ describe('presetMoraine', () => {
       '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
     )
     expect(css).toContain(
-      '--mo-auto-destructive-hover: color-mix(in oklch, var(--destructive), var(--destructive-foreground, var(--background)) 8%);',
+      '--mo-auto-danger-hover: color-mix(in oklch, var(--danger), var(--danger-foreground, var(--background)) 8%);',
     )
     expect(css).toContain(
       '--mo-auto-info-hover: color-mix(in oklch, var(--info), var(--info-foreground, var(--background)) 8%);',
@@ -555,9 +554,6 @@ describe('presetMoraine', () => {
     )
     expect(css).toContain(
       '--mo-auto-warning-hover: color-mix(in oklch, var(--warning), var(--warning-foreground, var(--background)) 8%);',
-    )
-    expect(css).toContain(
-      '--mo-auto-error-hover: color-mix(in oklch, var(--error), var(--error-foreground, var(--background)) 8%);',
     )
     expect(css).not.toContain('--primary-hover: color-mix(')
     expect(css).toContain('background-color: var(--background)')
@@ -839,12 +835,12 @@ describe('Wind3 semantic color and layout compatibility', () => {
       [
         'bg-primary/20',
         'text-primary/50',
-        'border-destructive/50',
+        'border-danger/50',
         'bg-info/20',
-        'text-error/50',
+        'text-danger/50',
         'ring-ring/50',
         'bg-primary/[0.2]',
-        'data-destructive:data-highlighted:bg-destructive/15',
+        'data-danger:data-highlighted:bg-danger/15',
         'hover:bg-primary-hover/30',
         'hover:bg-warning-hover/30',
       ],
@@ -856,13 +852,13 @@ describe('Wind3 semantic color and layout compatibility', () => {
     )
     expect(css).toContain('color-mix(in srgb,var(--primary) calc(0.2 * 100%),transparent)')
     expect(css).toContain('color-mix(in srgb,var(--primary) 50%,transparent)')
-    expect(css).toContain('color-mix(in srgb,var(--destructive) 15%,transparent)')
+    expect(css).toContain('color-mix(in srgb,var(--danger) 15%,transparent)')
     expect(css).toContain('color-mix(in srgb,var(--info) 20%,transparent)')
-    expect(css).toContain('color-mix(in srgb,var(--error) 50%,transparent)')
+    expect(css).toContain('color-mix(in srgb,var(--danger) 50%,transparent)')
     expect(css).toContain('color-mix(in srgb,var(--ring) 50%,transparent)')
     expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary))) 30%')
     expect(css).toContain('var(--warning-hover, var(--mo-auto-warning-hover, var(--warning))) 30%')
-    expect(css).toContain('[data-highlighted][data-destructive]')
+    expect(css).toContain('[data-highlighted][data-danger]')
   })
 
   test.each([undefined, false, true])(

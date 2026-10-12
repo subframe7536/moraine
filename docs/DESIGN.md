@@ -70,8 +70,7 @@ palette is allowed.
 | Info           | `--info` / `--info-foreground`, with state variants                                 | Informational status.                                               |
 | Success        | `--success` / `--success-foreground`, with state variants                           | Confirmed completion and positive status.                           |
 | Warning        | `--warning` / `--warning-foreground`, with state variants                           | Caution paired with explicit text or an icon.                       |
-| Error          | `--error` / `--error-foreground`, with state variants                               | Error status and failure feedback.                                  |
-| Destructive    | `--destructive` / `--destructive-foreground`, with state variants                   | Destructive actions and irreversible consequences.                  |
+| Danger         | `--danger` / `--danger-foreground`, with state variants                             | Destructive actions, errors, and failure feedback.                  |
 
 Form surfaces use `--control`, independently of `--input` boundaries and neutral tracks/separators.
 Outline fields, unchecked choices, and upload controls use `control`; subtle fields use `muted`.
@@ -142,7 +141,7 @@ distinguished with the action or accent surface plus text contrast.
 Disabled controls remain recognizable, non-interactive, and preserve their label. Loading keeps the
 current context visible, announces its state where the component supports it, and does not shift the
 shell. Empty states explain what is absent and the next useful action. Error states use the
-error role with explicit text, rather than color alone. Search and theme controls keep compact
+danger role with explicit text, rather than color alone. Search and theme controls keep compact
 hit areas using `docs-compact-control` where their component API permits it.
 
 ## Usage and examples

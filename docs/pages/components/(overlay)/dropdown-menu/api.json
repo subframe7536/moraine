@@ -482,7 +482,7 @@
       {
         "name": "variant",
         "optional": true,
-        "type": "'default' | 'destructive'",
+        "type": "'default' | 'danger'",
         "description": "Visual treatment of the menu item.",
         "default": {
           "kind": "literal",
@@ -529,7 +529,7 @@
     {
       "target": "item",
       "attributes": [
-        "data-destructive",
+        "data-danger",
         "data-disabled",
         "data-expanded",
         "data-highlighted",

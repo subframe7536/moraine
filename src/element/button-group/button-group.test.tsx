@@ -201,7 +201,7 @@ describe('ButtonGroup', () => {
     ['outline', 'border-border'],
     ['ghost', 'hover:text-accent-foreground'],
     ['link', 'hover:underline'],
-    ['destructive', 'bg-destructive'],
+    ['danger', 'bg-danger'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
     const screen = render(() => (
       <MoraineProvider>
@@ -220,7 +220,7 @@ describe('ButtonGroup', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup size="lg" variant="secondary">
-          <Button size="sm" variant="destructive">
+          <Button size="sm" variant="danger">
             Remove
           </Button>
         </ButtonGroup>
@@ -229,7 +229,7 @@ describe('ButtonGroup', () => {
 
     const button = screen.getByRole('button', { name: 'Remove' })
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('bg-destructive')
+    expect(button.className).toContain('bg-danger')
   })
 
   test('supports a cohesive vertical orientation', () => {

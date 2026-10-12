@@ -7,8 +7,8 @@ export function Variants() {
       <ToggleButton variant="outline" activeVariant="default">
         Outline to primary
       </ToggleButton>
-      <ToggleButton variant="secondary" activeVariant="destructive" defaultPressed>
-        Secondary to destructive
+      <ToggleButton variant="secondary" activeVariant="danger" defaultPressed>
+        Secondary to danger
       </ToggleButton>
     </div>
   )

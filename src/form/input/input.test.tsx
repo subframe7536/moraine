@@ -623,8 +623,8 @@ describe('Input', () => {
     const root = screen.container.querySelector('[data-slot="input"]')
 
     expect(root?.className).toContain('focus:ring-ring/50')
-    expect(root?.className).toContain('data-invalid:border-destructive')
-    expect(root?.className).toContain('focus:data-invalid:border-destructive')
+    expect(root?.className).toContain('data-invalid:border-danger')
+    expect(root?.className).toContain('focus:data-invalid:border-danger')
     expect(root?.className).toContain('root-override')
   })
 

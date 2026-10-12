@@ -120,11 +120,10 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
-    destructive: { base: 'rgb(231, 0, 11)' },
+    danger: { base: 'rgb(239, 68, 68)' },
     info: { base: 'rgb(59, 130, 246)' },
     success: { base: 'rgb(34, 197, 94)' },
     warning: { base: 'rgb(234, 179, 8)' },
-    error: { base: 'rgb(239, 68, 68)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
@@ -140,11 +139,10 @@ const DEFAULT_THEME_COLORS = {
     secondary: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
     muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
     accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
-    destructive: { base: 'rgb(255, 100, 103)' },
+    danger: { base: 'rgb(248, 113, 113)' },
     info: { base: 'rgb(96, 165, 250)' },
     success: { base: 'rgb(74, 222, 128)' },
     warning: { base: 'rgb(250, 204, 21)' },
-    error: { base: 'rgb(248, 113, 113)' },
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
@@ -479,7 +477,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       multiPass: true,
       match(matcher, { theme }) {
         const match = matcher.match(
-          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|info|success|warning|error|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
+          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|danger|info|success|warning|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
         )
         if (!match) {
           return matcher

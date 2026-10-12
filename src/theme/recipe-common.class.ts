@@ -28,26 +28,26 @@ export const PEER_FOCUS_VISIBLE_CLASS =
 export const EDITABLE_FOCUS_WITHIN_CLASS =
   'data-editable:focus-within:(outline-none border-ring ring-3 ring-ring/50)'
 
-export const DATA_INVALID_CLASS = 'data-invalid:(border-destructive ring-3 ring-destructive/20)'
+export const DATA_INVALID_CLASS = 'data-invalid:(border-danger ring-3 ring-danger/20)'
 export const DARK_DATA_INVALID_CLASS =
-  'dark:data-invalid:(border-destructive/50 ring-destructive/40)'
+  'dark:data-invalid:(border-danger/50 ring-danger/40)'
 export const FOCUS_INVALID_CLASS =
-  'focus:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus:data-invalid:(border-destructive/50 ring-destructive/40)'
+  'focus:data-invalid:(border-danger ring-3 ring-danger/20) dark:focus:data-invalid:(border-danger/50 ring-danger/40)'
 export const FOCUS_WITHIN_INVALID_CLASS =
-  'focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)'
+  'focus-within:data-invalid:(border-danger ring-3 ring-danger/20) dark:focus-within:data-invalid:(border-danger/50 ring-danger/40)'
 export const PEER_INVALID_CLASS =
-  'peer-aria-[invalid=true]:border-destructive peer-aria-[invalid=true]:ring-3 peer-aria-[invalid=true]:ring-destructive/20 dark:peer-aria-[invalid=true]:border-destructive/50 dark:peer-aria-[invalid=true]:ring-destructive/40'
+  'peer-aria-[invalid=true]:border-danger peer-aria-[invalid=true]:ring-3 peer-aria-[invalid=true]:ring-danger/20 dark:peer-aria-[invalid=true]:border-danger/50 dark:peer-aria-[invalid=true]:ring-danger/40'
 export const EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
-  'data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20)'
+  'data-editable:focus-within:data-invalid:(border-danger ring-danger/20)'
 export const DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS =
-  'dark:data-editable:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)'
+  'dark:data-editable:focus-within:data-invalid:(border-danger/50 ring-danger/40)'
 
 export const DISABLED_CLASS = 'disabled:(opacity-64 pointer-events-none)'
 export const DATA_DISABLED_CLASS = 'data-disabled:(opacity-64 pointer-events-none)'
 export const ARIA_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-none)'
 
 export const SELECT_TRIGGER_FOCUS_CLASS =
-  "focus-visible:after:(border border-ring rounded-md pointer-events-none content-[''] ring-3 ring-ring/50 inset-0 absolute z-10) focus-visible:data-invalid:after:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:after:(border-destructive/50 ring-destructive/40)"
+  "focus-visible:after:(border border-ring rounded-md pointer-events-none content-[''] ring-3 ring-ring/50 inset-0 absolute z-10) focus-visible:data-invalid:after:(border-danger ring-danger/20) dark:focus-visible:data-invalid:after:(border-danger/50 ring-danger/40)"
 
 export const HIGHLIGHTED_MUTED_TEXT_CLASS =
   'text-muted-foreground data-highlighted:text-accent-foreground'

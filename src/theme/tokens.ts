@@ -61,9 +61,9 @@ function stateColor(color: string, state: 'hover' | 'active'): string {
     : `var(--${color}-active, var(--mo-auto-${color}-active, ${hover}))`
 }
 
-const BACKGROUND_FOREGROUND_COLORS = new Set(['destructive', 'info', 'success', 'warning', 'error'])
+const BACKGROUND_FOREGROUND_COLORS = new Set(['danger', 'info', 'success', 'warning'])
 
-/** Status and destructive colors mix toward `--background` when their foreground token is unset. */
+/** Status and danger colors mix toward `--background` when their foreground token is unset. */
 export function usesBackgroundForegroundFallback(color: string): boolean {
   return BACKGROUND_FOREGROUND_COLORS.has(color)
 }
@@ -112,11 +112,11 @@ export const MORAINE_COLORS = {
     hover: stateColor('accent', 'hover'),
     active: stateColor('accent', 'active'),
   },
-  destructive: {
-    DEFAULT: 'var(--destructive)',
-    foreground: 'var(--destructive-foreground, var(--background))',
-    hover: stateColor('destructive', 'hover'),
-    active: stateColor('destructive', 'active'),
+  danger: {
+    DEFAULT: 'var(--danger)',
+    foreground: 'var(--danger-foreground, var(--background))',
+    hover: stateColor('danger', 'hover'),
+    active: stateColor('danger', 'active'),
   },
   info: {
     DEFAULT: 'var(--info)',
@@ -136,12 +136,6 @@ export const MORAINE_COLORS = {
     hover: stateColor('warning', 'hover'),
     active: stateColor('warning', 'active'),
   },
-  error: {
-    DEFAULT: 'var(--error)',
-    foreground: 'var(--error-foreground, var(--background))',
-    hover: stateColor('error', 'hover'),
-    active: stateColor('error', 'active'),
-  },
   border: 'var(--border)',
   input: 'var(--input)',
   control: 'var(--control)',
@@ -157,11 +151,10 @@ const MORAINE_STATE_COLORS = [
   'popover',
   'muted',
   'accent',
-  'destructive',
+  'danger',
   'info',
   'success',
   'warning',
-  'error',
 ] as const
 
 export const MORAINE_WIDTH = {

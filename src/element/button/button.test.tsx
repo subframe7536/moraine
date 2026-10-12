@@ -165,14 +165,14 @@ describe('Button', () => {
   test('applies variant and size classes', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <Button variant="destructive" size="sm">
+        <Button variant="danger" size="sm">
           Delete
         </Button>
       </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Delete' })
-    expect(button.className).toContain('bg-destructive')
+    expect(button.className).toContain('bg-danger')
     expect(button.className).toContain('h-7')
   })
 
@@ -244,7 +244,7 @@ describe('Button', () => {
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
   })
 
-  test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const)(
+  test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'danger'] as const)(
     'does not apply a built-in shadow to the %s variant',
     (variant) => {
       const screen = render(() => (
@@ -1162,7 +1162,7 @@ describe('Button', () => {
           {/* Button with instance override */}
           <Button
             data-testid="i-btn"
-            variant="destructive"
+            variant="danger"
             class="instance-class"
             style={{ color: 'green' }}
           >
@@ -1186,7 +1186,7 @@ describe('Button', () => {
 
       const iBtn = screen.getByTestId('i-btn')
       // Instance variant overrides all
-      expect(iBtn.className).toContain('bg-destructive')
+      expect(iBtn.className).toContain('bg-danger')
       expect(iBtn.className).toContain('instance-class')
       expect(iBtn.style.color).toBe('green')
     })

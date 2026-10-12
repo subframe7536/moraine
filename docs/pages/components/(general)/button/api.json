@@ -138,7 +138,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
