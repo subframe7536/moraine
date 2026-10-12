@@ -3,7 +3,6 @@ import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import type { ValidComponent } from '../../shared/types'
 
 import { iconRecipe } from './icon.recipe'
@@ -11,7 +10,6 @@ import type { IconProps } from './icon.types'
 
 /** Renders an icon from a UnoCSS icon class, JSX element, or Solid component. */
 export function Icon(props: IconProps): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'name',
     'class',
@@ -23,9 +21,18 @@ export function Icon(props: IconProps): JSX.Element {
     'aria-hidden',
     'role',
   ])
-  const resolved = createStyles(iconRecipe, local)
-
   const name = createMemo(() => local.name)
+  const resolved = createStyles(iconRecipe, local, {
+    own: () => ({
+      root: {
+        class: typeof name() === 'string' ? name() : undefined,
+        style: {
+          'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
+        },
+      },
+    }),
+  })
+
   const accessibilityProps = () => {
     const labelled = Boolean(rest['aria-label'] || rest['aria-labelledby'])
 
@@ -58,11 +65,7 @@ export function Icon(props: IconProps): JSX.Element {
       data-slot={local.slotName ?? 'icon'}
       {...rest}
       {...accessibilityProps()}
-      style={{
-        'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-        ...resolved.styles.root.style,
-      }}
-      class={cn(typeof name() === 'string' && name(), resolved.styles.root.class)}
+      {...resolved.slots.root}
     >
       {componentProps().children}
     </Dynamic>

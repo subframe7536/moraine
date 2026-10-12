@@ -3,7 +3,6 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
@@ -18,7 +17,6 @@ import type { CheckboxProps } from './checkbox.types'
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
 ): JSX.Element {
-  const cn = useCn()
   type RootProps = CheckboxProps<TTrue, TFalse> & {
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
   }
@@ -52,9 +50,16 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
   const themeField = useFieldContext()
+  let indicator!: () => string | undefined
   const resolved = createStyles(checkboxRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
+    enforced: () => ({
+      control: {
+        class: indicator() === 'hidden' ? VISUALLY_HIDDEN_CLASS : undefined,
+      },
+    }),
   })
+  indicator = () => resolved.variants.indicator
 
   const merged = mergeProps(
     {
@@ -345,10 +350,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         invalid: field.invalid,
       })}
       {...rest}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onClick={onRootClick}
     >
-      <div data-slot="checkbox-container" {...resolved.styles.container}>
+      <div data-slot="checkbox-container" {...resolved.slots.container}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -389,10 +394,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           disabled={field.disabled()}
           data-slot="checkbox-control"
           aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
-          class={cn(resolved.styles.control.class, [
-            resolved.variants.indicator === 'hidden' && VISUALLY_HIDDEN_CLASS,
-          ])}
-          style={resolved.styles.control.style}
+          {...resolved.slots.control}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
@@ -413,7 +415,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="checkbox-indicator"
-              {...resolved.styles.indicator}
+              {...resolved.slots.indicator}
               {...checkboxDataAttributes.indicator({
                 checked: resolvedChecked,
                 disabled: field.disabled,
@@ -423,7 +425,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               <Icon
                 name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
                 slotName="checkbox-icon"
-                {...resolved.styles.icon}
+                {...resolved.slots.icon}
               />
             </span>
           </Show>
@@ -431,7 +433,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       </div>
 
       <Show when={label() || description()}>
-        <div data-slot="checkbox-wrapper" {...resolved.styles.wrapper}>
+        <div data-slot="checkbox-wrapper" {...resolved.slots.wrapper}>
           <Show when={label()}>
             <Show
               when={resolved.variants.variant === 'card'}
@@ -441,7 +443,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   id={labelId()}
                   data-slot="checkbox-label"
                   {...checkboxDataAttributes.label({ required: field.required })}
-                  {...resolved.styles.label}
+                  {...resolved.slots.label}
                 >
                   {label()}
                 </label>
@@ -451,7 +453,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 id={labelId()}
                 data-slot="checkbox-label"
                 {...checkboxDataAttributes.label({ required: field.required })}
-                {...resolved.styles.label}
+                {...resolved.slots.label}
               >
                 {label()}
               </p>
@@ -462,7 +464,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             <p
               id={descriptionId()}
               data-slot="checkbox-description"
-              {...resolved.styles.description}
+              {...resolved.slots.description}
             >
               {description()}
             </p>

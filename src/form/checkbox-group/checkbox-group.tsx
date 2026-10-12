@@ -102,7 +102,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(checkboxGroupRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
   })
 
   const merged = mergeProps(
@@ -285,7 +285,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       })}
       {...rest}
       id={`${groupId()}-root`}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <fieldset
         ref={(element) => {
@@ -299,7 +299,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         aria-labelledby={
           field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
-        {...resolved.styles.fieldset}
+        {...resolved.slots.fieldset}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>
@@ -307,7 +307,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
             id={legendId()}
             data-slot="checkbox-group-legend"
             {...checkboxGroupDataAttributes.legend({ required: field.required })}
-            {...resolved.styles.legend}
+            {...resolved.slots.legend}
           >
             {legend()}
           </legend>
@@ -341,24 +341,24 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
                 classes={{
-                  root: resolved.styles.item.class,
-                  container: resolved.styles.container.class,
-                  control: resolved.styles.control.class,
-                  indicator: resolved.styles.indicator.class,
-                  icon: resolved.styles.icon.class,
-                  wrapper: resolved.styles.wrapper.class,
-                  label: resolved.styles.label.class,
-                  description: resolved.styles.description.class,
+                  root: resolved.slots.item.class,
+                  container: resolved.slots.container.class,
+                  control: resolved.slots.control.class,
+                  indicator: resolved.slots.indicator.class,
+                  icon: resolved.slots.icon.class,
+                  wrapper: resolved.slots.wrapper.class,
+                  label: resolved.slots.label.class,
+                  description: resolved.slots.description.class,
                 }}
                 styles={{
-                  root: resolved.styles.item.style,
-                  container: resolved.styles.container.style,
-                  control: resolved.styles.control.style,
-                  indicator: resolved.styles.indicator.style,
-                  icon: resolved.styles.icon.style,
-                  wrapper: resolved.styles.wrapper.style,
-                  label: resolved.styles.label.style,
-                  description: resolved.styles.description.style,
+                  root: resolved.slots.item.style,
+                  container: resolved.slots.container.style,
+                  control: resolved.slots.control.style,
+                  indicator: resolved.slots.indicator.style,
+                  icon: resolved.slots.icon.style,
+                  wrapper: resolved.slots.wrapper.style,
+                  label: resolved.slots.label.style,
+                  description: resolved.slots.description.style,
                 }}
                 onCheckedChange={(checked) => onItemCheckedChange(item().value, checked)}
               />

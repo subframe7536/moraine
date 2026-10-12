@@ -31,9 +31,9 @@ export function BaseSelectTrigger<
     'ref' as any,
   ])
   const resolved = createStyles(baseSelectRecipe, local, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'trigger',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   const child = resolveChildren(() => local.children)
   const resolvedChildren = createMemo(() => renderWithProps(child(), state.presentation))
@@ -111,7 +111,7 @@ export function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      {...resolved.styles.trigger}
+      {...resolved.slots.trigger}
     >
       {resolvedChildren()}
     </Dynamic>

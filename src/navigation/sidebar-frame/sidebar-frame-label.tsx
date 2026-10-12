@@ -19,7 +19,7 @@ export function SidebarFrameLabel<T extends ValidComponent = 'div'>(
       component={local.as ?? 'div'}
       data-slot="sidebar-frame-label"
       {...rest}
-      {...resolved.styles.label}
+      {...resolved.slots.label}
     >
       {local.children}
     </Dynamic>

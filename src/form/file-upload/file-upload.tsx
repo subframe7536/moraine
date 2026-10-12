@@ -297,7 +297,7 @@ export function FileUpload<Multiple extends boolean = false>(
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(fileUploadRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
   })
 
   const merged = mergeProps(
@@ -530,7 +530,7 @@ export function FileUpload<Multiple extends boolean = false>(
         type="button"
         aria-label={messages().remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
-        {...resolved.styles.fileRemove}
+        {...resolved.slots.fileRemove}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -608,12 +608,12 @@ export function FileUpload<Multiple extends boolean = false>(
       <div
         data-slot="file-upload-wrapper"
         {...fileUploadDataAttributes.wrapper({ dropzone })}
-        {...resolved.styles.wrapper}
+        {...resolved.slots.wrapper}
       >
-        <Icon name={merged.icon} slotName="file-upload-icon" {...resolved.styles.icon} />
+        <Icon name={merged.icon} slotName="file-upload-icon" {...resolved.slots.icon} />
 
         <Show when={label()}>
-          <span id={labelId()} data-slot="file-upload-label" {...resolved.styles.label}>
+          <span id={labelId()} data-slot="file-upload-label" {...resolved.slots.label}>
             {label()}
           </span>
         </Show>
@@ -622,7 +622,7 @@ export function FileUpload<Multiple extends boolean = false>(
           <span
             id={descriptionId()}
             data-slot="file-upload-description"
-            {...resolved.styles.description}
+            {...resolved.slots.description}
           >
             {description()}
           </span>
@@ -716,7 +716,7 @@ export function FileUpload<Multiple extends boolean = false>(
       }
       aria-disabled={field.disabled() ? true : undefined}
       id={`${field.id()}-root`}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <Show
         when={dropzone()}
@@ -725,7 +725,7 @@ export function FileUpload<Multiple extends boolean = false>(
             ref={setControlElement}
             type="button"
             data-slot="file-upload-control"
-            {...resolved.styles.control}
+            {...resolved.slots.control}
             {...fileUploadDataAttributes.control({
               dragging: undefined,
               dropzone,
@@ -747,7 +747,7 @@ export function FileUpload<Multiple extends boolean = false>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="file-upload-control"
-          {...resolved.styles.control}
+          {...resolved.slots.control}
           {...fileUploadDataAttributes.control({
             dropzone,
             dragging,
@@ -793,18 +793,18 @@ export function FileUpload<Multiple extends boolean = false>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul data-slot="file-upload-files" {...resolved.styles.files}>
+        <ul data-slot="file-upload-files" {...resolved.slots.files}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file-upload-file" {...resolved.styles.file}>
-                <span data-slot="file-upload-file-preview" {...resolved.styles.filePreview}>
+              <li data-slot="file-upload-file" {...resolved.slots.file}>
+                <span data-slot="file-upload-file-preview" {...resolved.slots.filePreview}>
                   <Show
                     when={previewUrls().get(file)}
                     fallback={
                       <Icon
                         name={merged.fileIcon}
                         slotName="file-upload-icon"
-                        class={resolved.styles.icon.class}
+                        class={resolved.slots.icon.class}
                       />
                     }
                   >
@@ -812,11 +812,11 @@ export function FileUpload<Multiple extends boolean = false>(
                   </Show>
                 </span>
 
-                <div data-slot="file-upload-file-meta" {...resolved.styles.fileMeta}>
-                  <span data-slot="file-upload-file-name" {...resolved.styles.fileName}>
+                <div data-slot="file-upload-file-meta" {...resolved.slots.fileMeta}>
+                  <span data-slot="file-upload-file-name" {...resolved.slots.fileName}>
                     {file.name}
                   </span>
-                  <span data-slot="file-upload-file-size" {...resolved.styles.fileSize}>
+                  <span data-slot="file-upload-file-size" {...resolved.slots.fileSize}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

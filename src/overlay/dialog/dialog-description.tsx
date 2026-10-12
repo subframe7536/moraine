@@ -19,9 +19,9 @@ export function DialogDescription<T extends ValidComponent = 'p'>(
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
   const resolved = createStyles(dialogRecipe, local, {
-    rootSlot: 'description',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'description',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
@@ -29,7 +29,7 @@ export function DialogDescription<T extends ValidComponent = 'p'>(
       data-slot="dialog-description"
       {...rest}
       id={id()}
-      {...resolved.styles.description}
+      {...resolved.slots.description}
     >
       {local.children}
     </Dynamic>

@@ -19,9 +19,9 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'description',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'description',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
@@ -29,7 +29,7 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
       data-slot="sheet-description"
       {...rest}
       id={id()}
-      {...resolved.styles.description}
+      {...resolved.slots.description}
     >
       {local.children}
     </Dynamic>

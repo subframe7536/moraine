@@ -29,9 +29,9 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     'onExitComplete',
   ])
   const resolved = createStyles(baseSelectRecipe, local, {
-    rootSlot: 'content',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'content',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   const presence = createTransitionPresence({
     open: state.open,
@@ -112,7 +112,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
               presence.setElement(element)
               callRef(local.ref, element)
             }}
-            {...resolved.styles.content}
+            {...resolved.slots.content}
           >
             {local.children}
           </div>

@@ -153,7 +153,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
@@ -164,8 +164,8 @@ export function Progress(props: ProgressProps): JSX.Element {
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="progress-status"
-                class={resolved.styles.status.class}
-                style={{ ...statusStyle(), ...resolved.styles.status.style }}
+                class={resolved.slots.status.class}
+                style={{ ...statusStyle(), ...resolved.slots.status.style }}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
                   {renderWithProps(statusRender(), {
@@ -180,23 +180,23 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="progress-track" {...resolved.styles.track}>
+      <div data-slot="progress-track" {...resolved.slots.track}>
         <div
           data-slot="progress-indicator"
-          class={resolved.styles.indicator.class}
-          style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
+          class={resolved.slots.indicator.class}
+          style={{ ...indicatorStyle(), ...resolved.slots.indicator.style }}
           {...indicatorDataAttrs}
         />
       </div>
 
       <Show when={hasSteps()}>
-        <div data-slot="progress-steps" {...resolved.styles.steps}>
+        <div data-slot="progress-steps" {...resolved.slots.steps}>
           <Index each={steps()}>
             {(step, index) => (
               <div
                 data-slot="progress-step"
                 {...progressDataAttributes.step({ state: () => stepState(index) })}
-                {...resolved.styles.step}
+                {...resolved.slots.step}
               >
                 <Show when={local.stepRender} fallback={step()} keyed>
                   {(StepRender) => (

@@ -41,7 +41,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
   const resolved = createStyles(buttonRecipe, local, {
-    inheritedVariants: () => group ?? undefined,
+    contextVariants: () => group ?? undefined,
+    own: () => ({
+      root: { class: customActiveEffectClass() },
+    }),
   })
 
   const { isLoading, onClick } = useLoadingAutoClick<HTMLElement>({
@@ -100,7 +103,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const binding = root.bind(interactionProps)
   const child = resolveChildren(() => local.children)
-  const customActiveEffectClass = () => {
+  function customActiveEffectClass() {
     const effect = local.activeEffect
     if (typeof effect !== 'function') {
       return
@@ -130,8 +133,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         disabled: () => local.disabled,
       })}
       {...binding}
-      style={{ ...resolved.styles.root.style }}
-      class={cn(resolved.styles.root.class, customActiveEffectClass())}
+      {...resolved.slots.root}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
@@ -140,16 +142,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             slotName="button-leading"
             class={cn(
               isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              resolved.styles.leading.class,
+              resolved.slots.leading.class,
             )}
-            style={resolved.styles.leading.style}
+            style={resolved.slots.leading.style}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span data-slot="button-label" {...resolved.styles.label}>
+        <span data-slot="button-label" {...resolved.slots.label}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -161,9 +163,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             slotName="button-trailing"
             class={cn(
               isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              resolved.styles.trailing.class,
+              resolved.slots.trailing.class,
             )}
-            style={resolved.styles.trailing.style}
+            style={resolved.slots.trailing.style}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}

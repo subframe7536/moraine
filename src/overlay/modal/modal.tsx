@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
 
+import { pickSlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createEventListenerMap } from '../../shared/event-listener'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -272,8 +273,8 @@ export function ModalInternal<K extends ModalKind>(
   const context = {
     configuration,
     slotName: (slot: string) => dataSlotName(configuration.kind, slot),
-    get presentation() {
-      return { classes: props.classes, styles: props.styles }
+    get slotOverrides() {
+      return pickSlotOverrides(props)
     },
     open,
     presence,

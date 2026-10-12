@@ -19,9 +19,9 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'title',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'title',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
@@ -29,7 +29,7 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
       data-slot="sheet-title"
       {...rest}
       id={id()}
-      {...resolved.styles.title}
+      {...resolved.slots.title}
     >
       {local.children}
     </Dynamic>

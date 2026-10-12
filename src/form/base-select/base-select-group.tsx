@@ -12,9 +12,9 @@ export function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
   const resolved = createStyles(baseSelectRecipe, props, {
-    rootSlot: 'group',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'group',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   return (
     <GroupProvider value={{ labelId, setLabelId }}>
@@ -23,7 +23,7 @@ export function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
         data-slot={state.slotName('group')}
         {...props}
         aria-labelledby={labelId() ?? props['aria-labelledby']}
-        {...resolved.styles.group}
+        {...resolved.slots.group}
       >
         {props.children}
       </div>

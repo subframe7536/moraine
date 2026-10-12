@@ -35,17 +35,12 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         get orientation() {
           return resolved.variants.orientation
         },
-        get presentation() {
+        get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <div
-        role={local.role ?? 'group'}
-        data-slot="button-group"
-        {...rest}
-        {...resolved.styles.root}
-      >
+      <div role={local.role ?? 'group'} data-slot="button-group" {...rest} {...resolved.slots.root}>
         {local.children}
       </div>
     </ButtonGroupProvider>

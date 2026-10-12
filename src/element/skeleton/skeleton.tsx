@@ -11,5 +11,5 @@ export function Skeleton(props: SkeletonProps): JSX.Element {
   const [local, rest] = splitProps(props, ['variant', 'class', 'style', 'classes', 'styles'])
   const resolved = createStyles(skeletonRecipe, local)
 
-  return <div data-slot="skeleton" {...rest} {...resolved.styles.root} />
+  return <div data-slot="skeleton" {...rest} {...resolved.slots.root} />
 }

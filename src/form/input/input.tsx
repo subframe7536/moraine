@@ -47,7 +47,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const themeField = useFieldContext()
   const group = useInputGroupContext()
   const resolved = createStyles(inputRecipe, local, {
-    inheritedVariants: () => ({
+    contextVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
       size: group?.size ?? themeField?.size,
@@ -189,7 +189,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

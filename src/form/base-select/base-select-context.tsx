@@ -113,10 +113,10 @@ export function createSelectState<T extends BaseSelectT.Item>(
   const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
   const styleState = createStyles(baseSelectRecipe, props, {
-    rootSlot: 'control',
-    inheritedVariants: () => ({ size: field.size() ?? undefined }),
+    slot: 'control',
+    contextVariants: () => ({ size: field.size() ?? undefined }),
   })
-  const stylePresentation = {
+  const slotOverrides = {
     get classes() {
       return props.classes
     },
@@ -406,7 +406,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     listboxId,
     itemId,
     field,
-    stylePresentation,
+    slotOverrides,
     slotName,
     get styleSize() {
       return styleState.variants.size

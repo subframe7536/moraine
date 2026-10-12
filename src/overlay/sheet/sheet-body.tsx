@@ -17,9 +17,9 @@ export function SheetBody<T extends ValidComponent = 'div'>(
   const family = useModalContext()
   const content = useSheetContent()
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'body',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'body',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
   return (
@@ -28,7 +28,7 @@ export function SheetBody<T extends ValidComponent = 'div'>(
       data-slot="sheet-body"
       {...bodyAttrs}
       {...rest}
-      {...resolved.styles.body}
+      {...resolved.slots.body}
     >
       {local.children}
     </Dynamic>

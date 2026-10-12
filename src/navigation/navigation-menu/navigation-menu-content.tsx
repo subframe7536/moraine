@@ -8,7 +8,7 @@ import {
   resolveDirection,
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
-import { createStyles } from '../../provider'
+import { createStyles, pickSlotOverrides } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -23,10 +23,10 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const item = useNavigationMenuItemContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
   const resolved = createStyles(navigationMenuRecipe, local, {
-    rootSlot: 'content',
-    variablesSlot: 'content',
-    inheritedVariants: () => ({ orientation: context.orientation() }),
-    inheritedStyles: () => context.options,
+    slot: 'content',
+    varsSlot: 'content',
+    contextVariants: () => ({ orientation: context.orientation() }),
+    contextSlots: () => pickSlotOverrides(context.options),
   })
   const expanded = createMemo(() => context.open() && context.activeItem() === item)
   // Item switches animate content; closing animates the shared panel with its content intact.
@@ -131,7 +131,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
               closed: () => !displayed(),
               orientation: context.orientation,
             })}
-            {...resolved.styles.content}
+            {...resolved.slots.content}
           >
             {local.children}
           </div>

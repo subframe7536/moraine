@@ -47,8 +47,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   ])
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages)
+  let slider!: ReturnType<typeof createSlider<TValue>>
   const resolved = createStyles(sliderRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
+    enforced: () => ({
+      range: { style: slider.rangeStyle() },
+    }),
   })
   const merged = mergeProps(
     {
@@ -78,7 +82,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   })
   const inputEls: HTMLInputElement[] = []
 
-  const slider = createSlider<TValue>(merged, {
+  slider = createSlider<TValue>(merged, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)
@@ -141,14 +145,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       id={`${field.id()}-root`}
       aria-label={local['aria-label']}
       {...field.ariaAttrs()}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <div
         ref={(element) => {
           slider.setTrackRef(element)
         }}
         data-slot="slider-track"
-        {...resolved.styles.track}
+        {...resolved.slots.track}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
@@ -161,14 +165,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             multiple: isMultiple,
             inverted: () => merged.inverted,
           })}
-          style={{
-            left: slider.rangeStyle().left,
-            right: slider.rangeStyle().right,
-            top: slider.rangeStyle().top,
-            bottom: slider.rangeStyle().bottom,
-            ...resolved.styles.range.style,
-          }}
-          class={resolved.styles.range.class}
+          {...resolved.slots.range}
         />
 
         <Show when={merged.marker}>
@@ -176,11 +173,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {(markerIndex) => (
               <div
                 data-slot="slider-marker"
-                style={{
-                  ...slider.getMarkerStyle(markerIndex),
-                  ...resolved.styles.marker.style,
-                }}
-                class={resolved.styles.marker.class}
+                {...resolved.slotWith('marker', undefined, () => ({
+                  style: slider.getMarkerStyle(markerIndex),
+                }))}
               />
             )}
           </For>
@@ -211,14 +206,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             })}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            style={{
-              left: slider.thumbStyles()[thumbIndex]?.left,
-              right: slider.thumbStyles()[thumbIndex]?.right,
-              top: slider.thumbStyles()[thumbIndex]?.top,
-              bottom: slider.thumbStyles()[thumbIndex]?.bottom,
-              ...resolved.styles.thumb.style,
-            }}
-            class={resolved.styles.thumb.class}
+            {...resolved.slotWith('thumb', undefined, () => ({
+              style: {
+                left: slider.thumbStyles()[thumbIndex]?.left,
+                right: slider.thumbStyles()[thumbIndex]?.right,
+                top: slider.thumbStyles()[thumbIndex]?.top,
+                bottom: slider.thumbStyles()[thumbIndex]?.bottom,
+              },
+            }))}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}

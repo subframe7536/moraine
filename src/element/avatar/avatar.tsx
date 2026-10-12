@@ -120,7 +120,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <img
         data-slot="avatar-image"
@@ -141,7 +141,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         }}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        {...resolved.styles.image}
+        {...resolved.slots.image}
       />
 
       <span
@@ -158,14 +158,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        {...resolved.styles.fallback}
+        {...resolved.slots.fallback}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
               slotName="avatar-fallback-content"
-              {...resolved.styles.fallbackContent}
+              {...resolved.slots.fallbackContent}
             />
           )}
         </Show>
@@ -173,7 +173,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="avatar-badge" {...resolved.styles.badge}>
+          <span data-slot="avatar-badge" {...resolved.slots.badge}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}

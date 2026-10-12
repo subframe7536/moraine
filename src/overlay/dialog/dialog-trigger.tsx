@@ -13,8 +13,8 @@ export function DialogTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const family = useModalContext()
   const resolved = createStyles(dialogRecipe, props, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => family.presentation,
+    slot: 'trigger',
+    contextSlots: () => family.slotOverrides,
   })
-  return <Modal.Trigger {...props} {...resolved.styles.trigger} />
+  return <Modal.Trigger {...props} {...resolved.slots.trigger} />
 }
