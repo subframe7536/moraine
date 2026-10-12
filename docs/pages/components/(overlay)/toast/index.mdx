@@ -27,79 +27,40 @@ import { Button, Toast } from '@src'
         { label: 'Loading', value: 'loading' },
       ],
     },
-    { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: false },
-    { kind: 'switch', prop: 'closeButton', label: 'Close button', defaultValue: true },
     { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
-    {
-      kind: 'select',
-      prop: 'actionVariant',
-      label: 'Action variant',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Outline', value: 'outline' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'Danger', value: 'danger' },
-      ],
-    },
-    {
-      kind: 'input',
-      prop: 'cancelText',
-      label: 'Cancel text',
-      defaultValue: 'Dismiss',
-    },
-    {
-      kind: 'select',
-      prop: 'cancelVariant',
-      label: 'Cancel variant',
-      defaultValue: 'secondary',
-      options: [
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'Outline', value: 'outline' },
-        { label: 'Default', value: 'default' },
-        { label: 'Danger', value: 'danger' },
-      ],
-    },
-    { kind: 'switch', prop: 'showProgress', label: 'Show progress bar', defaultValue: false },
+    { kind: 'switch', prop: 'close', label: 'Close button', defaultValue: true },
+    { kind: 'switch', prop: 'showProgress', label: 'Progress bar', defaultValue: false },
+    { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate', defaultValue: false },
   ]}
 >
   {(props) => {
     const showToast = () => {
       const options = {
-        title: 'Changes saved',
-        description: 'Your preferences have been updated.',
-        preventDuplicate: props.preventDuplicate,
-        close: props.closeButton,
+        title: 'Preferences updated',
+        description: 'Your account settings were saved.',
+        close: props.close,
         showProgress: props.showProgress,
+        preventDuplicate: props.preventDuplicate,
         action: props.action
           ? {
               label: 'Undo',
-              variant: props.actionVariant,
-              onClick: () => {},
-            }
-          : undefined,
-        cancel: props.cancelText
-          ? {
-              label: props.cancelText,
-              variant: props.cancelVariant,
               onClick: () => {},
             }
           : undefined,
       }
+
       switch (props.tone) {
         case 'default':
           Toast.add(options)
+          break
+        case 'info':
+          Toast.info(options)
           break
         case 'warning':
           Toast.warning(options)
           break
         case 'error':
           Toast.error(options)
-          break
-        case 'info':
-          Toast.info(options)
           break
         case 'loading':
           Toast.loading(options)
@@ -112,7 +73,7 @@ import { Button, Toast } from '@src'
     return (
       <div class="p-6 flex items-center justify-center">
         <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
-          Trigger Toast Notification
+          Trigger notification
         </Button>
       </div>
     )
@@ -125,75 +86,123 @@ import { Button, Toast } from '@src'
 
 <Anatomy
   value={{
-    name: 'Toast',
-    root: { slot: 'root' },
+    root: {
+      noDom: true,
+    },
     children: [
-      { slot: 'icon' },
       {
-        slot: 'content',
-        children: [{ slot: 'title' }, { slot: 'description' }],
+        slot: 'viewport',
+        children: [
+          {
+            slot: 'list',
+            children: [
+              {
+                slot: 'root',
+                children: [
+                  { slot: 'icon' },
+                  {
+                    slot: 'content',
+                    children: [{ slot: 'title' }, { slot: 'description' }],
+                  },
+                  { slot: 'action' },
+                  { slot: 'cancel' },
+                  { slot: 'close' },
+                  { slot: 'progress' },
+                ],
+              },
+            ],
+          },
+        ],
       },
-      { slot: 'action' },
-      { slot: 'cancel' },
-      { slot: 'close' },
-      { slot: 'progress' },
     ],
   }}
 />
 
+`<Toast />` renders an accessible, portaled viewport and list stack. Individual toast notifications render as list items with status icon, content, action and cancel buttons, close control, and duration progress bar.
+
 ## Usage
 
-Mount `<Toast />` once at your application root or inside a layout, then trigger toasts anywhere
-in your app using static methods on `Toast`.
+Use Toast for temporary feedback that does not interrupt the user's workflow. Use
+[Dialog](/components/dialog) when an action requires explicit user confirmation. Use
+[Empty](/components/empty) to explain missing content within the page layout.
+
+Mount `<Toast />` once at your application root or inside a layout. Trigger notifications from
+event handlers or asynchronous tasks using static methods on `Toast`.
 
 ```tsx
 import { Button, Toast } from 'moraine'
 
-export default function App() {
+export function Example() {
   return (
     <>
-      <Button onClick={() => Toast.success({ title: 'Changes saved!' })}>Save</Button>
+      <Button onClick={() => Toast.success({ title: 'Preferences saved' })}>Save</Button>
       <Toast />
     </>
   )
 }
 ```
 
-### Semantic methods
+### Status tones
 
-Call dedicated tone methods for direct feedback, or use `Toast.add` for the default tone:
+Call dedicated tone methods to communicate distinct outcomes, or use `Toast.add` for a neutral notice:
 
 ```tsx
-Toast.add({ title: 'Default message' })
-Toast.success({ title: 'File uploaded successfully' })
-Toast.error({ title: 'Network request failed' })
-Toast.warning({ title: 'Storage is almost full' })
-Toast.info({ title: 'New release available' })
+Toast.success({ title: 'Project published', description: 'Your changes are now live.' })
+Toast.error({ title: 'Upload failed', description: 'File size exceeds the 10 MB limit.' })
+Toast.warning({ title: 'Low disk space', description: 'Volume is at 92% capacity.' })
+Toast.info({ title: 'Update available', description: 'Version 2.4 is ready to install.' })
+Toast.add({ title: 'Draft saved' })
 ```
 
-### Action and cancel buttons
+### Action and dismissal
 
-Pass `action` or `cancel` configurations to prompt for immediate user interaction:
+Provide an interactive `action` button for reversible operations, or a `cancel` button for explicit dismissal:
 
 ```tsx
 Toast.add({
-  title: 'Message archived',
+  title: 'Conversation archived',
   action: {
     label: 'Undo',
-    onClick: () => restoreMessage(),
+    onClick: () => restoreConversation(),
   },
 })
 ```
 
-### Promises
+### Asynchronous promises
 
-Bind asynchronous tasks to pending, success, and error outcomes with `Toast.promise`:
+Use `Toast.promise` to automatically track pending, success, and error outcomes of an asynchronous task:
 
 ```tsx
-Toast.promise(saveSettings(), {
-  loading: 'Saving profile...',
-  success: 'Profile updated successfully',
-  error: (err) => `Failed to save: ${String(err)}`,
+Toast.promise(deployProject(), {
+  loading: 'Deploying project...',
+  success: 'Deployment live!',
+  error: (err) => `Deploy failed: ${String(err)}`,
+})
+```
+
+### In-place updates and programmatic dismissal
+
+Update an existing toast in place using its returned identifier, or close toasts programmatically:
+
+```tsx
+const id = Toast.loading({ title: 'Exporting report...' })
+
+// Update the toast when the task finishes
+Toast.update(id, { title: 'Report ready', variant: 'success', duration: 4000 })
+
+// Close a specific toast or dismiss all active toasts
+Toast.close(id)
+Toast.close()
+```
+
+### Preventing duplicate toasts
+
+Enable `preventDuplicate` on the `<Toast />` host or pass it directly in toast options to keep rapid clicks from flooding the viewport:
+
+```tsx
+Toast.info({
+  title: 'Link copied to clipboard',
+  preventDuplicate: true,
 })
 ```
 
@@ -203,8 +212,8 @@ Render arbitrary Solid JSX using `Toast.custom`:
 
 ```tsx
 Toast.custom((id) => (
-  <div class="p-4 bg-background border rounded-lg shadow-overlay flex items-center gap-3">
-    <span>Custom banner notification</span>
+  <div class="p-3 bg-background border rounded-lg shadow-overlay flex items-center justify-between gap-4">
+    <span class="text-sm">Maintenance scheduled in 10 minutes</span>
     <Button size="sm" variant="ghost" onClick={() => Toast.close(id)}>
       Dismiss
     </Button>
@@ -212,55 +221,34 @@ Toast.custom((id) => (
 ))
 ```
 
-### Updates and closing
-
-Update an existing toast in place using `Toast.update`, or close programmatically using `Toast.close`:
-
-```tsx
-const id = Toast.loading({ title: 'Uploading files...' })
-
-// Update title and visual variant in place
-Toast.update(id, { title: 'Upload complete', variant: 'success' })
-
-// Close specific toast or close all toasts
-Toast.close(id)
-Toast.close()
-```
-
-### Accessibility and navigation
-
-The toast container is rendered as an accessible notification region (`role="region"`) with a
-persistent polite live region. Dismiss individual toasts with the close button, action/cancel
-controls, swipe gestures, or `Toast.close`.
-
 ## Examples
 
-### Mount a themed host
+### Archive an item with undo
 
-Mount a default host and a second `setup-custom` host at bottom-left, then trigger a success toast.
+Prompt an immediate undo action when moving an item or completing a reversible operation.
 
-<Preview path="./setup-usage" />
+<Preview path="./archive-item" />
 
-### Report a save, a settings failure, and low storage
+### Track an asynchronous deployment
 
-Call `Toast.success`, `Toast.error`, and `Toast.warning` for distinct outcomes.
+Bind an asynchronous task to pending, success, and error outcomes using `Toast.promise`.
 
-<Preview path="./calls-usage" />
+<Preview path="./track-deployment" />
 
-### Preview toast tones including a loading sequence
+### Report distinct task outcomes
 
-Show default, success, warning, and error toasts, then transition a loading toast to success after upload.
+Use dedicated tone methods with descriptive titles and messages for immediate feedback.
 
-<Preview path="./basic-toasts" />
+<Preview path="./status-outcomes" />
 
-### Prevent duplicate toasts
+### Deduplicate rapid user actions
 
-Enable `preventDuplicate` on a `<Toast />` host or pass it inline to individual calls like `Toast.info` to avoid stacking repeated notifications.
+Prevent repeated clicks on high-frequency actions from flooding the screen with stacked notifications.
 
 <Preview path="./prevent-duplicate" />
 
-### Sync with a promise and a second host
+### Route notifications to a custom viewport corner
 
-`Toast.promise` reports pending, success, and error states. Send info to the scoped host, or dismiss all.
+Mount a scoped toast host to place notifications in a different screen position, or clear notifications with `Toast.close`.
 
-<Preview path="./promise-scoped-instances" />
+<Preview path="./custom-placement" />
