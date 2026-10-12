@@ -22,7 +22,7 @@ import type { ToastHostStore, ToastStore } from './toast-store'
 import {
   getToastPlacementClass,
   TOAST_VIEWPORT_BASE_CLASS,
-  toastListDataAttributes,
+  toastDataAttributes,
 } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastProps, ToastT } from './toast.types'
@@ -369,7 +369,7 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
     return totalH + (count > 1 ? (count - 1) * gap : 0)
   })
 
-  const listDataAttrs = toastListDataAttributes({
+  const listDataAttrs = toastDataAttributes.list({
     expanded: layoutExpanded,
   })
 
@@ -435,7 +435,6 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
               offsetY={offsetY()}
               expanded={layoutExpanded()}
               paused={timerPaused()}
-              interacting={isInteracting()}
               placement={placement()}
               align={align()}
               closeButton={props.closeButton}

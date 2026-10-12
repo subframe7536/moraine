@@ -12,18 +12,21 @@ import {
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
+import type { IconT } from '../../element/icon'
 import { Progress } from '../../element/progress'
-import { createStyles } from '../../provider'
+import { createStyles, useCn } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { OverlayAlign } from '../../theme/style-types'
 
-import { toastRecipe, toastRootDataAttributes } from './toast.recipe'
+import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_DURATION, DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastT } from './toast.types'
 
 const SWIPE_THRESHOLD = 45
 const SWIPE_MIN_DISTANCE = 12
 const SWIPE_VELOCITY = 0.11
+/** Fallback unmount delay; matches recipe `duration-400` (swipe-out uses 200ms via transitionend). */
+const TOAST_EXIT_MS = 400
 
 export interface ToastItemProps {
   toast: ToastT.Item
@@ -34,7 +37,6 @@ export interface ToastItemProps {
   offsetY: number
   expanded: boolean
   paused?: boolean
-  interacting?: boolean
   placement?: ToastT.Placement
   align?: OverlayAlign
   closeButton?: boolean
@@ -53,6 +55,8 @@ export interface ToastItemProps {
 interface ActionButtonConfig {
   label: JSX.Element
   onClick?: (event: MouseEvent) => void
+  class?: ToastT.Action['class']
+  style?: ToastT.Action['style']
 }
 
 function isActionConfig(value: unknown): value is ActionButtonConfig {
@@ -82,6 +86,7 @@ function isAwaySwipe(
 }
 
 export function ToastItem(props: ToastItemProps): JSX.Element {
+  const cn = useCn()
   let itemRef: HTMLLIElement | undefined
   let dragStartTime = 0
   let pointerStart: { x: number; y: number } | null = null
@@ -94,9 +99,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let closeTimerStartTime = 0
 
   const initialDuration = () => props.toast.duration ?? props.duration ?? DEFAULT_TOAST_DURATION
-  let remainingTime = untrack(
-    () => props.toast.duration ?? props.duration ?? DEFAULT_TOAST_DURATION,
-  )
+  let remainingTime = untrack(initialDuration)
 
   const [mounted, setMounted] = createSignal(false)
   const [removed, setRemoved] = createSignal(false)
@@ -171,7 +174,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setOffsetBeforeRemove(currentYOffset())
     props.onHeight(toastId, 0)
 
-    exitTimerId = setTimeout(finishDelete, 200)
+    exitTimerId = setTimeout(finishDelete, TOAST_EXIT_MS)
   }
 
   const handleEndTransition = (event: Event) => {
@@ -320,11 +323,24 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
   })
 
+  // Keep remainingTime aligned when duration changes (e.g. host default or item update).
+  // bumpKey already resets the timer for duplicate/update bumps.
+  createEffect(
+    on(
+      initialDuration,
+      (duration) => {
+        remainingTime = duration
+        closeTimerStartTime = 0
+        setProgressPercent(100)
+      },
+      { defer: true },
+    ),
+  )
+
   const isPaused = () =>
     isLoading() ||
     initialDuration() === Number.POSITIVE_INFINITY ||
     Boolean(props.paused) ||
-    Boolean(props.interacting) ||
     swiping()
 
   createEffect(
@@ -483,7 +499,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () => props.toast.role
+  const role = () =>
+    props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
 
   const showCloseButton = () =>
     (props.toast.closeButton ?? props.closeButton ?? false) && !isLoading()
@@ -522,7 +539,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       role={role()}
       tabIndex={0}
       inert={!isVisible() ? true : undefined}
-      {...toastRootDataAttributes({
+      {...toastDataAttributes.root({
         front: isFront,
         behind: () => !isFront(),
         expanded: () => props.expanded,
@@ -563,7 +580,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   class={resolved.styles.icon.class}
                   style={resolved.styles.icon.style}
                 >
-                  <Icon name={source()} />
+                  <Icon name={source() as IconT.Name} />
                 </div>
               )}
             </Show>
@@ -617,8 +634,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       slotName="toast-cancel"
                       size="sm"
                       variant="ghost"
-                      class={resolved.styles.cancel.class}
-                      style={resolved.styles.cancel.style}
+                      class={cn(resolved.styles.cancel.class, config().class)}
+                      style={{
+                        ...resolved.styles.cancel.style,
+                        ...(config().style ?? {}),
+                      }}
                       onClick={(e) => {
                         config().onClick?.(e)
                         props.onDismiss(props.toast.id)
@@ -651,8 +671,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       slotName="toast-action"
                       size="sm"
                       variant="outline"
-                      class={resolved.styles.action.class}
-                      style={resolved.styles.action.style}
+                      class={cn(resolved.styles.action.class, config().class)}
+                      style={{
+                        ...resolved.styles.action.style,
+                        ...(config().style ?? {}),
+                      }}
                       onClick={(e) => {
                         config().onClick?.(e)
                         if (!e.defaultPrevented) {

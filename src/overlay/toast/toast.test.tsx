@@ -120,6 +120,66 @@ describe('Toast', () => {
     })
   })
 
+  it('keeps the same toast node mounted through close exit animation', async () => {
+    render(() => <Toast closeButton closeButtonAriaLabel="Dismiss notification" />)
+
+    Toast.show('Exit close anim')
+    const label = await screen.findByText('Exit close anim')
+    const item = label.closest('[data-slot="toast"]') as HTMLElement
+    expect(item).not.toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }))
+
+    // Same DOM node must remain so CSS transform/opacity transitions can play.
+    expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+    expect(item.style.opacity).toBe('0')
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Exit close anim')).toBeNull()
+    })
+  })
+
+  it('keeps the same toast node mounted through programmatic dismiss exit animation', async () => {
+    render(() => <Toast />)
+
+    const id = Toast.show('Exit dismiss anim')
+    const label = await screen.findByText('Exit dismiss anim')
+    const item = label.closest('[data-slot="toast"]') as HTMLElement
+
+    Toast.dismiss(id)
+
+    expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+    expect(item.style.opacity).toBe('0')
+
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Exit dismiss anim')).toBeNull()
+    })
+  })
+
+  it('keeps the same toast node mounted through auto-dismiss exit animation', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast duration={500} />)
+      await Promise.resolve()
+
+      Toast.show('Exit auto anim')
+      const label = screen.getByText('Exit auto anim')
+      const item = label.closest('[data-slot="toast"]') as HTMLElement
+
+      await vi.advanceTimersByTimeAsync(600)
+
+      expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+      expect(item.style.opacity).toBe('0')
+
+      await finishExitMotion()
+      expect(screen.queryByText('Exit auto anim')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('uses item-level closeButtonAriaLabel over the host default', async () => {
     render(() => <Toast closeButton closeButtonAriaLabel="Host close" />)
 
@@ -127,6 +187,34 @@ describe('Toast', () => {
 
     expect(await screen.findByRole('button', { name: 'Item close' })).not.toBeNull()
     expect(screen.queryByRole('button', { name: 'Host close' })).toBeNull()
+  })
+
+  it('defaults role to alert for error and status otherwise', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Status toast')
+    Toast.error('Error toast')
+
+    const statusToast = (await screen.findByText('Status toast')).closest('[data-slot="toast"]')
+    const errorToast = (await screen.findByText('Error toast')).closest('[data-slot="toast"]')
+    expect(statusToast?.getAttribute('role')).toBe('status')
+    expect(errorToast?.getAttribute('role')).toBe('alert')
+  })
+
+  it('forwards action class and style to the action button', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Styled action', {
+      action: {
+        label: 'Retry',
+        class: 'toast-action-extra',
+        style: { color: 'rgb(255, 0, 0)' },
+      },
+    })
+
+    const actionButton = await screen.findByRole('button', { name: 'Retry' })
+    expect(actionButton.className).toContain('toast-action-extra')
+    expect(actionButton.style.color).toBe('rgb(255, 0, 0)')
   })
 
   it('auto-dismisses after duration', async () => {

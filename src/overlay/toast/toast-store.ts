@@ -339,22 +339,29 @@ export function createToastStore(): ToastStore {
   }
 
   const dismiss = (id?: string | number): void => {
-    const shouldDismiss = (item: ToastT.Item) => (id === undefined ? true : item.id === id)
+    // Mutate dismissed in place so Solid <For> keeps the same item identity and
+    // ToastItem can play its exit transition. Replacing the object remounts the
+    // item already-dismissed and skips the animation.
+    const orphanIds: Array<string | number> = []
 
-    setStore((prev) => {
-      const next: ToastT.Item[] = []
-      for (const item of prev) {
-        if (!shouldDismiss(item)) {
-          next.push(item)
-          continue
-        }
-        if (!hasMatchingHost(item)) {
-          continue
-        }
-        next.push(item.dismissed ? item : { ...item, dismissed: true })
+    for (let i = 0; i < store.length; i++) {
+      const item = store[i]!
+      if (id !== undefined && item.id !== id) {
+        continue
       }
-      return next
-    })
+      if (!hasMatchingHost(item)) {
+        orphanIds.push(item.id)
+        continue
+      }
+      if (!item.dismissed) {
+        setStore(i, 'dismissed', true)
+      }
+    }
+
+    if (orphanIds.length > 0) {
+      const orphanSet = new Set(orphanIds)
+      setStore((prev) => prev.filter((item) => !orphanSet.has(item.id)))
+    }
   }
 
   const remove = (id?: string | number): void => {

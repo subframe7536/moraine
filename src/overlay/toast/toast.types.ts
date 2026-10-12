@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 
+import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
 import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -41,8 +42,8 @@ export namespace ToastT {
     description?: JSX.Element | (() => JSX.Element)
     /** Visual status variant. */
     variant?: Variant
-    /** Custom leading icon. */
-    icon?: JSX.Element | (() => JSX.Element)
+    /** Custom leading icon. Accepts the same values as `<Icon name={…} />`. */
+    icon?: IconT.Name
     /** Auto-dismiss duration in milliseconds. Pass Infinity to disable auto-dismiss. */
     duration?: number
     /** Whether user interaction can dismiss the toast. Default: true. */
