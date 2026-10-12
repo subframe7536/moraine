@@ -8,7 +8,7 @@ export function CustomHeader() {
           <p class="text-xs text-muted-foreground">Storage</p>
           <p class="text-2xl font-semibold">72%</p>
         </div>
-        <span class="text-success text-xs font-medium">12 GB free</span>
+        <span class="text-xs text-success font-medium">12 GB free</span>
       </Card.Header>
       <Card.Body>
         <p class="text-sm text-muted-foreground">Archive old uploads to reclaim more space.</p>

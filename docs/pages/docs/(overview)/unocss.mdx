@@ -210,7 +210,7 @@ For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and put the
 
 ### Hover and active colors
 
-For grouped semantic colors, when `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other grouped colors use their own foreground with the global foreground as a fallback. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
+For grouped semantic colors, when `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other grouped colors use their own foreground with the global foreground as a fallback, except `destructive`, `info`, `success`, `warning`, and `error`, which fall back to `--background`. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
 
 ```ts
 presetMoraine({

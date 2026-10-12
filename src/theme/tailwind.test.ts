@@ -204,6 +204,16 @@ describe('colors', () => {
     `)
   })
 
+  test.each(['info', 'success', 'warning', 'error'] as const)(
+    '%s colors resolve',
+    async (color) => {
+      const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
+      expect(css).toContain(`background-color: var(--${color});`)
+      expect(css).toContain(`color: var(--${color});`)
+      expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
+    },
+  )
+
   test('semantic hover and active colors resolve with base fallbacks', async () => {
     const css = await compileCSS([
       'bg-background-hover',
@@ -214,6 +224,10 @@ describe('colors', () => {
       'bg-muted-active',
       'bg-accent-hover',
       'bg-destructive-active',
+      'bg-info-hover',
+      'bg-success-active',
+      'bg-warning-hover',
+      'bg-error-active',
     ])
 
     expect(css).toContain('var(--primary-active, var(--mo-auto-primary-active,')
@@ -221,6 +235,10 @@ describe('colors', () => {
     expect(css).toContain(
       'var(--background-hover, var(--mo-auto-background-hover, var(--background)))',
     )
+    expect(css).toContain('var(--info-hover, var(--mo-auto-info-hover, var(--info)))')
+    expect(css).toContain('var(--success-active, var(--mo-auto-success-active,')
+    expect(css).toContain('var(--warning-hover, var(--mo-auto-warning-hover, var(--warning)))')
+    expect(css).toContain('var(--error-active, var(--mo-auto-error-active,')
     expect(css).not.toContain('-focus')
   })
 
@@ -232,6 +250,9 @@ describe('colors', () => {
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
       '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%)',
+    )
+    expect(css).toContain(
+      '--mo-auto-error-hover: color-mix(in oklch, var(--error), var(--error-foreground, var(--background)) 8%)',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })

@@ -61,6 +61,13 @@ function stateColor(color: string, state: 'hover' | 'active'): string {
     : `var(--${color}-active, var(--mo-auto-${color}-active, ${hover}))`
 }
 
+const BACKGROUND_FOREGROUND_COLORS = new Set(['destructive', 'info', 'success', 'warning', 'error'])
+
+/** Status and destructive colors mix toward `--background` when their foreground token is unset. */
+export function usesBackgroundForegroundFallback(color: string): boolean {
+  return BACKGROUND_FOREGROUND_COLORS.has(color)
+}
+
 /** Design-token color map shared by UnoCSS and Tailwind. */
 export const MORAINE_COLORS = {
   background: {
@@ -111,6 +118,30 @@ export const MORAINE_COLORS = {
     hover: stateColor('destructive', 'hover'),
     active: stateColor('destructive', 'active'),
   },
+  info: {
+    DEFAULT: 'var(--info)',
+    foreground: 'var(--info-foreground, var(--background))',
+    hover: stateColor('info', 'hover'),
+    active: stateColor('info', 'active'),
+  },
+  success: {
+    DEFAULT: 'var(--success)',
+    foreground: 'var(--success-foreground, var(--background))',
+    hover: stateColor('success', 'hover'),
+    active: stateColor('success', 'active'),
+  },
+  warning: {
+    DEFAULT: 'var(--warning)',
+    foreground: 'var(--warning-foreground, var(--background))',
+    hover: stateColor('warning', 'hover'),
+    active: stateColor('warning', 'active'),
+  },
+  error: {
+    DEFAULT: 'var(--error)',
+    foreground: 'var(--error-foreground, var(--background))',
+    hover: stateColor('error', 'hover'),
+    active: stateColor('error', 'active'),
+  },
   border: 'var(--border)',
   input: 'var(--input)',
   control: 'var(--control)',
@@ -127,6 +158,10 @@ const MORAINE_STATE_COLORS = [
   'muted',
   'accent',
   'destructive',
+  'info',
+  'success',
+  'warning',
+  'error',
 ] as const
 
 export const MORAINE_WIDTH = {
@@ -142,7 +177,7 @@ export function createStateColorDeclarations(adjustments: {
       const foreground =
         color === 'background'
           ? 'var(--foreground)'
-          : `var(--${color}-foreground, var(--${color === 'destructive' ? 'background' : 'foreground'}))`
+          : `var(--${color}-foreground, var(--${usesBackgroundForegroundFallback(color) ? 'background' : 'foreground'}))`
       return (['hover', 'active'] as const).map((state) => [
         `--mo-auto-${color}-${state}`,
         `color-mix(in oklch, var(--${color}), ${foreground} ${adjustments[state]}%)`,

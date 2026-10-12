@@ -11,6 +11,7 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
+  usesBackgroundForegroundFallback,
 } from './tokens.ts'
 
 type MoraineColorMap = typeof MORAINE_COLORS
@@ -120,6 +121,10 @@ const DEFAULT_THEME_COLORS = {
     muted: { base: 'rgb(245, 245, 245)', foreground: 'rgb(115, 115, 115)' },
     accent: { base: 'rgb(245, 245, 245)', foreground: 'rgb(23, 23, 23)' },
     destructive: { base: 'rgb(231, 0, 11)' },
+    info: { base: 'rgb(59, 130, 246)' },
+    success: { base: 'rgb(34, 197, 94)' },
+    warning: { base: 'rgb(234, 179, 8)' },
+    error: { base: 'rgb(239, 68, 68)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
@@ -136,6 +141,10 @@ const DEFAULT_THEME_COLORS = {
     muted: { base: 'rgb(38, 38, 38)', foreground: 'rgb(161, 161, 161)' },
     accent: { base: 'rgb(38, 38, 38)', foreground: 'rgb(250, 250, 250)' },
     destructive: { base: 'rgb(255, 100, 103)' },
+    info: { base: 'rgb(96, 165, 250)' },
+    success: { base: 'rgb(74, 222, 128)' },
+    warning: { base: 'rgb(250, 204, 21)' },
+    error: { base: 'rgb(248, 113, 113)' },
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
@@ -235,7 +244,7 @@ function stateForegroundReference(color: string): string {
   if (color === 'background') {
     return colorReference('foreground')
   }
-  return `var(${colorVariable(color, 'foreground')}, ${colorReference(color === 'destructive' ? 'background' : 'foreground')})`
+  return `var(${colorVariable(color, 'foreground')}, ${colorReference(usesBackgroundForegroundFallback(color) ? 'background' : 'foreground')})`
 }
 
 function resolveColorStateValue(options: {
@@ -327,7 +336,7 @@ function createThemeCSS(
               : foregroundReference
             : typeof group.foreground === 'string'
               ? group.foreground
-              : color === 'destructive' && typeof palette?.background === 'string'
+              : usesBackgroundForegroundFallback(color) && typeof palette?.background === 'string'
                 ? palette.background
                 : foregroundReference
         if (typeof group.base === 'string') {
@@ -470,7 +479,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
       multiPass: true,
       match(matcher, { theme }) {
         const match = matcher.match(
-          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
+          /^(.+?)-(background|foreground|primary|secondary|card|popover|muted|accent|destructive|info|success|warning|error|border|input|control|ring)(?:-(foreground|hover|active))?\/(\d+(?:\.\d+)?|\[[^\]]+\])$/,
         )
         if (!match) {
           return matcher
