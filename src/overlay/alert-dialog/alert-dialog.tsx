@@ -18,7 +18,7 @@ import { isServer } from 'solid-js/web'
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
+import type { CreateStylesResult } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { Dialog } from '../dialog'
@@ -340,7 +340,6 @@ function createAlertDialogMethod(type: AlertDialogT.Type): AlertDialogT.Method {
 }
 
 function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
-  const cn = useCn()
   const messages = useMessages('dialog', defaultDialogMessages)
   const title = createMemo(() => props.title())
   const description = createMemo(() => props.description())
@@ -360,18 +359,24 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
   const showHeader = () =>
     hasJsxContent(icon()) || hasJsxContent(title()) || hasJsxContent(description())
   const showCancel = () => props.cancel() ?? props.type === 'confirm'
-  const contentStyle = (): JSX.CSSProperties => {
+  const contentMaxWidth = () => {
     const width = props.width()
-    const style = props.style()
     if (width === undefined) {
-      return style ?? {}
+      return undefined
     }
-    return {
-      'max-width': typeof width === 'number' ? `${width}px` : width,
-      ...style,
-    }
+    return typeof width === 'number' ? `${width}px` : width
   }
-  const resolved = createStyles(
+  const iconTone = (danger: boolean) => {
+    if (props.icon() !== undefined) {
+      return undefined
+    }
+    if (props.type === 'confirm') {
+      return danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
+    }
+    return ALERT_DIALOG_ICON_TONE_CLASS[props.type]
+  }
+  let resolved: CreateStylesResult<typeof alertDialogRecipe>
+  resolved = createStyles(
     alertDialogRecipe,
     {
       get center() {
@@ -390,25 +395,25 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
         return props.classes()
       },
       get style() {
-        return contentStyle()
+        return props.style()
       },
       get styles() {
         return props.styles()
       },
     },
-    { rootSlot: 'content' },
+    {
+      slot: 'content',
+      own: () => ({
+        content:
+          contentMaxWidth() !== undefined
+            ? { style: { 'max-width': contentMaxWidth() } }
+            : undefined,
+        icon: { class: iconTone(resolved.variants.danger) },
+      }),
+    },
   )
   const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
     props.okVariant() ?? (resolved.variants.danger ? 'danger' : 'default')
-  const iconTone = () => {
-    if (props.icon() !== undefined) {
-      return undefined
-    }
-    if (props.type === 'confirm') {
-      return resolved.variants.danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
-    }
-    return ALERT_DIALOG_ICON_TONE_CLASS[props.type]
-  }
   const pending = () => props.pendingKind() !== undefined
 
   createEffect(
@@ -438,26 +443,24 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
     >
       <Dialog.Content
         role="alertdialog"
-        class={resolved.styles.content.class}
-        style={resolved.styles.content.style}
+        class={resolved.slots.content.class}
+        style={resolved.slots.content.style}
       >
         <Show when={showHeader()}>
-          <Dialog.Header class={resolved.styles.header.class}>
+          <Dialog.Header class={resolved.slots.header.class}>
             <Show when={icon()}>
               {(current) => (
                 <Show
                   when={resolved.variants.center}
-                  fallback={
-                    <Icon name={current()} class={cn(resolved.styles.icon.class, iconTone())} />
-                  }
+                  fallback={<Icon name={current()} class={resolved.slots.icon.class} />}
                 >
                   <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                    <Icon name={current()} class={cn(resolved.styles.icon.class, iconTone())} />
+                    <Icon name={current()} class={resolved.slots.icon.class} />
                   </div>
                 </Show>
               )}
             </Show>
-            <div class={resolved.styles.copy.class}>
+            <div class={resolved.slots.copy.class}>
               <Show when={hasJsxContent(title())}>
                 <Dialog.Title>{title()}</Dialog.Title>
               </Show>
@@ -467,11 +470,11 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
             </div>
           </Dialog.Header>
         </Show>
-        <Dialog.Footer class={resolved.styles.footer.class}>
+        <Dialog.Footer class={resolved.slots.footer.class}>
           <Show when={showCancel()}>
             <Button
               variant={props.cancelVariant() ?? 'outline'}
-              class={resolved.styles.action.class}
+              class={resolved.slots.action.class}
               disabled={props.pendingKind() === 'ok'}
               loadingAuto
               onClick={() => props.dismiss()}
@@ -481,7 +484,7 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
           </Show>
           <Button
             variant={okVariant()}
-            class={resolved.styles.action.class}
+            class={resolved.slots.action.class}
             disabled={props.pendingKind() === 'cancel'}
             loadingAuto
             onClick={() => props.accept()}
