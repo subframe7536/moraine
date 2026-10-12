@@ -190,18 +190,25 @@ describe('colors', () => {
     `)
   })
 
-  test('destructive colors resolve', async () => {
-    const css = await compileCSS(['bg-destructive', 'text-destructive-foreground'])
+  test('danger colors resolve', async () => {
+    const css = await compileCSS(['bg-danger', 'text-danger-foreground'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      .bg-destructive {
-        background-color: var(--destructive);
+      .bg-danger {
+        background-color: var(--danger);
       }
-      .text-destructive-foreground {
-        color: var(--destructive-foreground, var(--background));
+      .text-danger-foreground {
+        color: var(--danger-foreground, var(--background));
       }
       "
     `)
+  })
+
+  test.each(['info', 'success', 'warning'] as const)('%s colors resolve', async (color) => {
+    const css = await compileCSS([`bg-${color}`, `text-${color}`, `text-${color}-foreground`])
+    expect(css).toContain(`background-color: var(--${color});`)
+    expect(css).toContain(`color: var(--${color});`)
+    expect(css).toContain(`color: var(--${color}-foreground, var(--background));`)
   })
 
   test('semantic hover and active colors resolve with base fallbacks', async () => {
@@ -213,7 +220,10 @@ describe('colors', () => {
       'bg-secondary-hover',
       'bg-muted-active',
       'bg-accent-hover',
-      'bg-destructive-active',
+      'bg-danger-active',
+      'bg-info-hover',
+      'bg-success-active',
+      'bg-warning-hover',
     ])
 
     expect(css).toContain('var(--primary-active, var(--mo-auto-primary-active,')
@@ -221,6 +231,10 @@ describe('colors', () => {
     expect(css).toContain(
       'var(--background-hover, var(--mo-auto-background-hover, var(--background)))',
     )
+    expect(css).toContain('var(--info-hover, var(--mo-auto-info-hover, var(--info)))')
+    expect(css).toContain('var(--success-active, var(--mo-auto-success-active,')
+    expect(css).toContain('var(--warning-hover, var(--mo-auto-warning-hover, var(--warning)))')
+    expect(css).toContain('var(--danger-active, var(--mo-auto-danger-active,')
     expect(css).not.toContain('-focus')
   })
 
@@ -232,6 +246,9 @@ describe('colors', () => {
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
       '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%)',
+    )
+    expect(css).toContain(
+      '--mo-auto-danger-hover: color-mix(in oklch, var(--danger), var(--danger-foreground, var(--background)) 8%)',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })
@@ -1161,7 +1178,7 @@ describe('component attribute states', () => {
       'data-has-text:px-3',
       'data-autoresize:resize-none',
       'data-auto-align:text-start',
-      'data-destructive:data-highlighted:bg-destructive/15',
+      'data-danger:data-highlighted:bg-danger/15',
     ]
     const designSystem = await loadDesignSystem()
     expect(designSystem.candidatesToCss(candidates).every(Boolean)).toBe(true)
@@ -1176,7 +1193,7 @@ describe('component attribute states', () => {
       'has-text',
       'autoresize',
       'auto-align',
-      'destructive',
+      'danger',
       'highlighted',
     ]) {
       expect(css).toContain(`[data-${attribute}]`)

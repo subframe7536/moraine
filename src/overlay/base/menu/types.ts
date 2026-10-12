@@ -52,7 +52,7 @@ export interface OverlayMenuSharedItem<TItem> {
    *
    * @default 'default'
    */
-  variant?: 'default' | 'destructive'
+  variant?: 'default' | 'danger'
 
   /**
    * Whether the item is non-interactive.

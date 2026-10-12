@@ -25,4 +25,4 @@ export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS = `${SELECT_FIELD_ACTION_CLASS} select-none`
 
 export const TAG_FIELD_CONTROL_CLASS = `${FIELD_CONTROL_CLASS} data-tags:ps-1`
-export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} py-0.5 min-w-12 data-duplicate:text-destructive`
+export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} py-0.5 min-w-12 data-duplicate:text-danger`

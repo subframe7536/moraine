@@ -41,7 +41,7 @@ export function StateDismissal() {
                   : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
               </p>
               <Show when={preventedAttempts() > 0}>
-                <Badge variant="outline" class="text-destructive border-destructive">
+                <Badge variant="outline" class="text-danger border-danger">
                   Blocked {preventedAttempts()} outside dismissal attempt(s)
                 </Badge>
               </Show>

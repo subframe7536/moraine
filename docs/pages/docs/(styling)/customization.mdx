@@ -22,7 +22,7 @@ When styling a component, choose the layer matching your intended scope:
 
 ### How Classes Merge Across Layers
 
-Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) using Moraine's `cn` merger. Conflicting Tailwind/UnoCSS classes (e.g. `bg-primary` vs `bg-destructive` or `p-2` vs `p-4`) resolve with the higher layer winning:
+Classes merge in ascending priority (Layer 1 → Layer 2 → Layer 3 → Layer 4) using Moraine's `cn` merger. Conflicting Tailwind/UnoCSS classes (e.g. `bg-primary` vs `bg-danger` or `p-2` vs `p-4`) resolve with the higher layer winning:
 
 ```tsx
 import { Button } from 'moraine'
@@ -31,11 +31,11 @@ export function CustomAction() {
   return (
     <Button
       // Layer 4: direct class overrides background and adds a shadow
-      class="bg-destructive hover:bg-destructive-hover shadow-lg"
+      class="bg-danger hover:bg-danger-hover shadow-lg"
       // Layer 3: instance slot classes customize inner elements
       classes={{
         label: 'font-mono uppercase tracking-widest',
-        leading: 'text-destructive-foreground',
+        leading: 'text-danger-foreground',
       }}
     >
       Delete Project

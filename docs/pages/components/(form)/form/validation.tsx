@@ -21,7 +21,7 @@ export function Validation() {
       </form.Field>
       <Button type="submit">Submit</Button>
       <Show when={submitted()}>
-        <p class="text-success text-sm">Form submitted.</p>
+        <p class="text-sm text-success">Form submitted.</p>
       </Show>
     </form.Form>
   )

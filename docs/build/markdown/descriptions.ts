@@ -12,7 +12,7 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-compact': 'Present when the component uses its compact presentation.',
   'data-cross': 'Present while a resizable handle cross-target is active.',
   'data-current': 'Present when the item represents the current location or step.',
-  'data-destructive': 'Present when the action has destructive semantics.',
+  'data-danger': 'Present when the action has danger semantics.',
   'data-disabled': 'Present when the component, slot, or item is disabled.',
   'data-dragging': 'Present while the related thumb or handle is being dragged.',
   'data-dropzone': 'Present when the target is an active file dropzone.',

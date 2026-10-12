@@ -43,7 +43,7 @@ export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, Switch
       icon: 'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',
       wrapper: 'flex flex-col gap-0.5',
       label:
-        "text-foreground leading-tight font-medium block cursor-pointer select-none data-required:after:(text-destructive ms-0.5 content-['*'])",
+        "text-foreground leading-tight font-medium block cursor-pointer select-none data-required:after:(text-danger ms-0.5 content-['*'])",
       description: 'text-muted-foreground leading-normal',
     },
     defaultVariants: {

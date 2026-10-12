@@ -362,7 +362,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
-          destructive: () => itemProps.item.variant === 'destructive',
+          danger: () => itemProps.item.variant === 'danger',
           disabled: () => itemProps.item.disabled,
           expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
@@ -431,7 +431,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
-          destructive: () => itemProps.item.variant === 'destructive',
+          danger: () => itemProps.item.variant === 'danger',
           selected: checked,
           disabled: () => itemProps.item.disabled,
           expanded: undefined,
@@ -520,7 +520,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
-          destructive: () => itemProps.item.variant === 'destructive',
+          danger: () => itemProps.item.variant === 'danger',
           selected: checked,
           disabled: () => itemProps.item.disabled,
           expanded: undefined,

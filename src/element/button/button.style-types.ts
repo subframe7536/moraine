@@ -20,7 +20,7 @@ export interface ButtonStyleVariant {
   /** Visual treatment of the component.
    * @default 'default'
    */
-  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'
+  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'
   /** Visual size of the component.
    * @default 'md'
    */

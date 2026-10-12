@@ -178,16 +178,16 @@ setInput(tupleForm, { input: ['next', 'wrong'] })
 // @ts-expect-error Root tuple indices must be numeric.
 ;<tupleForm.Field name="0" />
 
-const destructiveMenuItem: DropdownMenuT.Item = {
+const dangerMenuItem: DropdownMenuT.Item = {
   label: 'Delete',
-  variant: 'destructive',
+  variant: 'danger',
 }
-void destructiveMenuItem
+void dangerMenuItem
 
 const invalidMenuItemVariant: DropdownMenuT.Item = {
   label: 'Delete',
-  // @ts-expect-error Menu item variants are limited to default and destructive.
-  variant: 'danger',
+  // @ts-expect-error Menu item variants are limited to default and danger.
+  variant: 'destructive',
 }
 void invalidMenuItemVariant
 

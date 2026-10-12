@@ -218,7 +218,7 @@ describe('ContextMenu', () => {
         <ContextMenu.Content
           items={[
             { label: 'Rename', onSelect },
-            { label: 'Delete', variant: 'destructive' },
+            { label: 'Delete', variant: 'danger' },
           ]}
         />
       </ContextMenu>
@@ -1599,7 +1599,7 @@ describe('ContextMenu', () => {
             },
             {
               label: 'Move to trash',
-              variant: 'destructive',
+              variant: 'danger',
             },
           ]}
         />
@@ -1616,12 +1616,12 @@ describe('ContextMenu', () => {
       document.body.querySelectorAll<HTMLElement>('[data-slot="context-menu-item"]'),
     )
     const disabledItem = items[0]!
-    const destructiveItem = items[1]!
+    const dangerItem = items[1]!
 
     expect(disabledItem.getAttribute('data-disabled')).toBe('')
     expect(disabledItem.className).not.toContain('pointer-events-none')
-    expect(destructiveItem.getAttribute('data-destructive')).toBe('')
-    expect(destructiveItem.className).toContain('data-destructive:text-destructive')
+    expect(dangerItem.getAttribute('data-danger')).toBe('')
+    expect(dangerItem.className).toContain('data-danger:text-danger')
 
     fireEvent.pointerDown(disabledItem)
     expect(document.body.querySelector('[data-slot="context-menu-content"]')).not.toBeNull()
@@ -1690,12 +1690,12 @@ describe('ContextMenu', () => {
     expect(onDisabledSelect).not.toHaveBeenCalled()
   })
 
-  test('destructive item icon does not force muted color class', async () => {
+  test('danger item icon does not force muted color class', async () => {
     const screen = render(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
-          items={[{ label: 'Delete', variant: 'destructive', icon: 'icon-trash-2' }]}
+          items={[{ label: 'Delete', variant: 'danger', icon: 'icon-trash-2' }]}
         />
       </ContextMenu>
     ))
