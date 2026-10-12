@@ -654,6 +654,13 @@ describe('Toast', () => {
     expect(viewports[1]?.getAttribute('aria-label')).toBe('Custom alerts')
   })
 
+  it('marks the stack list with data-slot="toast-list"', () => {
+    render(() => <Toast />)
+    const list = document.querySelector('ul')
+    expect(list?.getAttribute('data-slot')).toBe('toast-list')
+    expect(document.querySelectorAll('[data-slot="toast-list"]').length).toBe(1)
+  })
+
   it('updates list data attributes reactively', async () => {
     render(() => <Toast />)
     const list = document.querySelector('ul')!

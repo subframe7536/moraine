@@ -247,9 +247,19 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       placement: props.placement,
       align: props.align,
     }),
+    // Host styles first, then component-controlled layout; the toast's own styles/style still win.
     inheritedStyles: () => ({
       classes: props.classes,
-      styles: props.styles,
+      styles: {
+        ...props.styles,
+        root: {
+          ...props.styles?.root,
+          transform: transform(),
+          opacity: opacity(),
+          height: height(),
+          'z-index': props.toastsCount - props.index,
+        },
+      },
     }),
     variables: () => ({
       '--toast-gap': `${props.gap ?? DEFAULT_TOAST_GAP}px`,
@@ -541,13 +551,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         swipeOut,
       })}
       {...resolved.styles.root}
-      style={{
-        ...resolved.styles.root.style,
-        transform: transform(),
-        opacity: opacity(),
-        height: height(),
-        'z-index': props.toastsCount - props.index,
-      }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

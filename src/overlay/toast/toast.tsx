@@ -405,6 +405,12 @@ function ToastList(props: ToastListProps): JSX.Element {
       placement: placement(),
       align: align(),
     }),
+    // Component-controlled layout style; user `styles.list` / `style` still win.
+    inheritedStyles: () => ({
+      styles: {
+        list: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
+      },
+    }),
     variables: () => ({
       '--toast-gap': `${props.gapSize()}px`,
     }),
@@ -412,16 +418,13 @@ function ToastList(props: ToastListProps): JSX.Element {
 
   return (
     <ul
+      data-slot="toast-list"
       tabIndex={-1}
       {...toastDataAttributes.list({
         expanded: layoutExpanded,
         empty: () => activeGroupToasts().length === 0,
       })}
       {...resolved.styles.list}
-      style={{
-        ...resolved.styles.list.style,
-        height: listHeight() > 0 ? `${listHeight()}px` : 'auto',
-      }}
       onMouseEnter={() => {
         setIsHovered(true)
       }}
@@ -432,9 +435,8 @@ function ToastList(props: ToastListProps): JSX.Element {
         setIsHovered(false)
       }}
       onPointerDown={(event) => {
-        const toastTarget =
-          event.target instanceof Element ? event.target.closest('[data-slot="toast"]') : null
-        if (toastTarget) {
+        // The list only contains toast items, so any target other than the list is inside a toast.
+        if (event.target !== event.currentTarget) {
           setIsInteracting(true)
         }
       }}
