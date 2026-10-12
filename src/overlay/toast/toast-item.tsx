@@ -13,7 +13,7 @@ import {
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { Progress } from '../../element/progress'
-import { createStyles, useCn } from '../../provider'
+import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { OverlayAlign } from '../../theme/style-types'
@@ -81,7 +81,6 @@ function isAwaySwipe(
 }
 
 export function ToastItem(props: ToastItemProps): JSX.Element {
-  const cn = useCn()
   const messages = useMessages('toast', defaultToastMessages)
   let itemRef: HTMLLIElement | undefined
   let dragStartTime = 0
@@ -242,18 +241,19 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   // oxlint-disable-next-line subf/solid-reactivity -- Toast item styling binds to the stable toast instance.
   const resolved = createStyles(toastRecipe, props.toast, {
-    inheritedVariants: () => ({
+    contextVariants: () => ({
       invert: props.invert,
       placement: props.placement,
       align: props.align,
     }),
-    // Host styles first, then component-controlled layout; the toast's own styles/style still win.
-    inheritedStyles: () => ({
+    contextSlots: () => ({
       classes: props.classes,
-      styles: {
-        ...props.styles,
-        root: {
-          ...props.styles?.root,
+      styles: props.styles,
+    }),
+    // Host styles first, then component-controlled layout; the toast's own styles/style still win.
+    own: () => ({
+      root: {
+        style: {
           transform: transform(),
           opacity: opacity(),
           height: height(),
@@ -261,7 +261,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         },
       },
     }),
-    variables: () => ({
+    vars: () => ({
       '--toast-gap': `${props.gap ?? DEFAULT_TOAST_GAP}px`,
     }),
   })
@@ -550,7 +550,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         swiping,
         swipeOut,
       })}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -564,23 +564,23 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           <>
             <Show when={iconSource()}>
               {(source) => (
-                <div data-slot="toast-icon" {...resolved.styles.icon}>
+                <div data-slot="toast-icon" {...resolved.slots.icon}>
                   <Icon name={source()} />
                 </div>
               )}
             </Show>
 
-            <div data-slot="toast-content" {...resolved.styles.content}>
+            <div data-slot="toast-content" {...resolved.slots.content}>
               <Show when={props.toast.title}>
                 {(title) => (
-                  <div data-slot="toast-title" {...resolved.styles.title}>
+                  <div data-slot="toast-title" {...resolved.slots.title}>
                     {renderWithProps(title(), {})}
                   </div>
                 )}
               </Show>
               <Show when={props.toast.description}>
                 {(desc) => (
-                  <div data-slot="toast-description" {...resolved.styles.description}>
+                  <div data-slot="toast-description" {...resolved.slots.description}>
                     {renderWithProps(desc(), {})}
                   </div>
                 )}
@@ -592,7 +592,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 <Show
                   when={isActionConfig(cancel()) ? (cancel() as ToastT.Action) : undefined}
                   fallback={
-                    <div data-slot="toast-cancel" {...resolved.styles.cancel}>
+                    <div data-slot="toast-cancel" {...resolved.slots.cancel}>
                       {cancel() as JSX.Element}
                     </div>
                   }
@@ -603,12 +603,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       slotName="toast-cancel"
                       size="sm"
                       variant="ghost"
-                      {...resolved.styles.cancel}
-                      class={cn(resolved.styles.cancel.class, config().class)}
-                      style={{
-                        ...resolved.styles.cancel.style,
-                        ...config().style,
-                      }}
+                      {...resolved.slotWith('cancel', () => ({
+                        class: config().class,
+                        style: config().style,
+                      }))}
                       onClick={(e) => {
                         config().onClick?.(e)
                         props.onDismiss(props.toast.id)
@@ -626,7 +624,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 <Show
                   when={isActionConfig(action()) ? (action() as ToastT.Action) : undefined}
                   fallback={
-                    <div data-slot="toast-action" {...resolved.styles.action}>
+                    <div data-slot="toast-action" {...resolved.slots.action}>
                       {action() as JSX.Element}
                     </div>
                   }
@@ -637,12 +635,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                       slotName="toast-action"
                       size="sm"
                       variant="outline"
-                      {...resolved.styles.action}
-                      class={cn(resolved.styles.action.class, config().class)}
-                      style={{
-                        ...resolved.styles.action.style,
-                        ...config().style,
-                      }}
+                      {...resolved.slotWith('action', () => ({
+                        class: config().class,
+                        style: config().style,
+                      }))}
                       onClick={(e) => {
                         config().onClick?.(e)
                         if (!e.defaultPrevented) {
@@ -665,7 +661,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 variant="ghost"
                 leading="icon-close"
                 aria-label={closeLabel()}
-                {...resolved.styles.close}
+                {...resolved.slots.close}
                 onClick={() => {
                   props.onDismiss(props.toast.id)
                 }}
@@ -673,7 +669,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
             </Show>
 
             <Show when={showProgressBar()}>
-              <div data-slot="toast-progress" {...resolved.styles.progress}>
+              <div data-slot="toast-progress" {...resolved.slots.progress}>
                 <Progress
                   size="sm"
                   value={progressPercent()}

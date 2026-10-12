@@ -130,12 +130,12 @@ function ToastRoot(props: ToastProps): JSX.Element {
     toastRecipe,
     {},
     {
-      rootSlot: 'viewport',
-      inheritedVariants: () => ({
+      slot: 'viewport',
+      contextVariants: () => ({
         placement: local.placement ?? 'bottom',
         align: local.align ?? 'end',
       }),
-      inheritedStyles: () => ({
+      contextSlots: () => ({
         classes: local.classes,
         styles: local.styles,
       }),
@@ -282,7 +282,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-relevant="additions text"
         aria-atomic="false"
         aria-label={local['aria-label'] ?? messages().viewport({ hotkey: hotkeyLabel() })}
-        {...resolved.styles.viewport}
+        {...resolved.slots.viewport}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
@@ -408,19 +408,19 @@ function ToastList(props: ToastListProps): JSX.Element {
   })
 
   const resolved = createStyles(toastRecipe, props, {
-    rootSlot: 'list',
-    variablesSlot: 'list',
-    inheritedVariants: () => ({
+    slot: 'list',
+    varsSlot: 'list',
+    contextVariants: () => ({
       placement: placement(),
       align: align(),
     }),
     // Component-controlled layout style; user `styles.list` / `style` still win.
-    inheritedStyles: () => ({
-      styles: {
-        list: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
+    own: () => ({
+      list: {
+        style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
       },
     }),
-    variables: () => ({
+    vars: () => ({
       '--toast-gap': `${props.gapSize()}px`,
     }),
   })
@@ -432,7 +432,7 @@ function ToastList(props: ToastListProps): JSX.Element {
         data-slot="toast-list"
         tabIndex={-1}
         {...toastDataAttributes.list({ expanded: layoutExpanded })}
-        {...resolved.styles.list}
+        {...resolved.slots.list}
         onMouseEnter={() => {
           setIsHovered(true)
         }}
