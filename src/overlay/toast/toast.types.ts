@@ -100,10 +100,10 @@ export namespace ToastT {
     /** Style overrides for toast slots. */
     styles?: Styles
 
-    /** Custom class for toast root. */
+    /** Custom class for toast item. */
     class?: SlotClassValue
 
-    /** Custom style for toast root. */
+    /** Custom style for toast item. */
     style?: SlotStyleValue
 
     /** Target Toast host `id` for scoped instances. */

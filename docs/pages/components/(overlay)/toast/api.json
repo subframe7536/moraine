@@ -154,10 +154,10 @@
     }
   ],
   "slots": [
-    "viewport",
-    "list",
     "root",
-    "content",
+    "list",
+    "item",
+    "wrapper",
     "title",
     "description",
     "icon",
@@ -168,7 +168,7 @@
   ],
   "dataAttributes": [
     {
-      "target": "root",
+      "target": "item",
       "attributes": [
         "data-behind",
         "data-bump",

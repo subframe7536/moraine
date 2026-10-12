@@ -66,7 +66,7 @@ describe('localized component text', () => {
     ))
 
     Toast.add({ title: 'Bonjour', close: true })
-    const region = document.body.querySelector('[data-slot="toast-viewport"]')
+    const region = document.body.querySelector('[data-slot="toast"]')
     expect(region?.getAttribute('aria-label')).toBe('Notifications')
     await waitFor(() => {
       expect(

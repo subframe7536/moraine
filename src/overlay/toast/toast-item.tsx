@@ -250,6 +250,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   // oxlint-disable-next-line subf/solid-reactivity -- Toast item styling binds to the stable toast instance.
   const resolved = createStyles(toastRecipe, props.toast, {
+    slot: 'item',
+    varsSlot: 'item',
     contextVariants: () => ({
       invert: props.invert,
       placement: props.placement,
@@ -261,7 +263,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }),
     // Host styles first, then component-controlled layout; the toast's own styles/style still win.
     own: () => ({
-      root: {
+      item: {
         style: {
           transform: transform(),
           opacity: opacity(),
@@ -540,11 +542,11 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       ref={(el) => {
         itemRef = el
       }}
-      data-slot="toast"
+      data-slot="toast-item"
       role={role()}
       tabIndex={0}
       inert={!isVisible() ? true : undefined}
-      {...toastDataAttributes.root({
+      {...toastDataAttributes.item({
         front: isFront,
         behind: () => !isFront(),
         expanded: () => props.expanded,
@@ -553,7 +555,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         swiping,
         swipeOut,
       })}
-      {...resolved.slots.root}
+      {...resolved.slots.item}
       onMouseEnter={resetCloseTimer}
       onMouseMove={resetCloseTimer}
       onPointerDown={handlePointerDown}
@@ -575,7 +577,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
               )}
             </Show>
 
-            <div data-slot="toast-content" {...resolved.slots.content}>
+            <div data-slot="toast-wrapper" {...resolved.slots.wrapper}>
               <Show when={props.toast.title}>
                 {(title) => (
                   <div data-slot="toast-title" {...resolved.slots.title}>

@@ -9,7 +9,7 @@ import { DEFAULT_TOAST_GAP } from './toast.types'
 export const TOAST_PROGRESS_CLASS = 'bg-primary h-full transition-none'
 
 export const toastDataAttributes = {
-  root: /* @__PURE__ */ createDataAttributes(
+  item: /* @__PURE__ */ createDataAttributes(
     'front',
     'behind',
     'expanded',
@@ -26,10 +26,10 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
   {
     base: {
       '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
-      viewport: 'pointer-events-none fixed z-floating',
+      root: 'pointer-events-none fixed z-floating',
       list: 'outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating',
-      root: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-start absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 data-limited:(opacity-0 pointer-events-none) data-swipe-out:duration-200 data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none`,
-      content: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
+      item: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay items-start absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 data-limited:(opacity-0 pointer-events-none) data-swipe-out:duration-200 data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none`,
+      wrapper: 'flex flex-1 flex-col gap-1 min-w-0 overflow-hidden',
       title: 'text-sm text-foreground leading-5 font-medium',
       description: 'text-sm text-muted-foreground leading-normal',
       icon: 'text-base flex shrink-0 size-5 items-center justify-center',
@@ -59,40 +59,40 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       },
       invert: {
         true: {
-          root: 'text-background border-transparent bg-foreground',
+          item: 'text-background border-transparent bg-foreground',
         },
         false: {
-          root: 'text-popover-foreground border-border bg-popover',
+          item: 'text-popover-foreground border-border bg-popover',
         },
       },
       placement: {
         top: {
-          viewport: 'top-4',
+          root: 'top-4',
           list: 'top-4',
-          root: 'top-0',
+          item: 'top-0',
         },
         bottom: {
-          viewport: 'bottom-4',
+          root: 'bottom-4',
           list: 'bottom-4',
-          root: 'bottom-0',
+          item: 'bottom-0',
         },
       },
       align: {
         start: {
-          viewport: 'left-4',
+          root: 'left-4',
           list: 'items-start left-4',
-          root: 'left-0',
+          item: 'left-0',
         },
         center: {
           // No transform here: it would become the containing block for the fixed lists.
-          viewport: 'mx-auto left-0 right-0',
-          list: 'items-center left-1/2 -translate-x-1/2',
           root: 'mx-auto left-0 right-0',
+          list: 'items-center left-1/2 -translate-x-1/2',
+          item: 'mx-auto left-0 right-0',
         },
         end: {
-          viewport: 'right-4',
+          root: 'right-4',
           list: 'items-end right-4',
-          root: 'right-0',
+          item: 'right-0',
         },
       },
     },

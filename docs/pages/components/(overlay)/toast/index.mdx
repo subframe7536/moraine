@@ -87,29 +87,25 @@ import { Button, Toast } from '@src'
 <Anatomy
   value={{
     root: {
-      noDom: true,
+      slot: 'root',
+      element: 'section',
     },
     children: [
       {
-        slot: 'viewport',
+        slot: 'list',
         children: [
           {
-            slot: 'list',
+            slot: 'item',
             children: [
+              { slot: 'icon' },
               {
-                slot: 'root',
-                children: [
-                  { slot: 'icon' },
-                  {
-                    slot: 'content',
-                    children: [{ slot: 'title' }, { slot: 'description' }],
-                  },
-                  { slot: 'action' },
-                  { slot: 'cancel' },
-                  { slot: 'close' },
-                  { slot: 'progress' },
-                ],
+                slot: 'wrapper',
+                children: [{ slot: 'title' }, { slot: 'description' }],
               },
+              { slot: 'action' },
+              { slot: 'cancel' },
+              { slot: 'close' },
+              { slot: 'progress' },
             ],
           },
         ],
@@ -118,7 +114,7 @@ import { Button, Toast } from '@src'
   }}
 />
 
-`<Toast />` renders an accessible, portaled viewport and list stack. Individual toast notifications render as list items with status icon, content, action and cancel buttons, close control, and duration progress bar.
+`<Toast />` renders an accessible, portaled root live region and list stack. Individual toast notifications render as list items with status icon, wrapper with title and description, action and cancel buttons, close control, and duration progress bar.
 
 ## Usage
 

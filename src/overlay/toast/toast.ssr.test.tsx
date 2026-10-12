@@ -25,7 +25,7 @@ describe('Toast SSR Hydration', () => {
     expect(region?.getAttribute('aria-label')).toContain('Notifications')
 
     Toast.add({ title: 'Hydrated toast message' })
-    const item = document.querySelector('[data-slot="toast"]')
+    const item = document.querySelector('[data-slot="toast-item"]')
     expect(item).not.toBeNull()
     expect(item?.textContent).toContain('Hydrated toast message')
 

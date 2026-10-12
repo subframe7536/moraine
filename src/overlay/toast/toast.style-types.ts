@@ -3,16 +3,16 @@ import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface ToastStyleSlot<T = unknown> {
   /** Fixed, corner-anchored live region (role="region") that hosts the toast stacks. */
-  viewport?: T
+  root?: T
 
   /** Positioned list container for one placement/align stack. */
   list?: T
 
   /** Outer container for an individual toast notification. */
-  root?: T
+  item?: T
 
   /** Main content wrapper containing title and description. */
-  content?: T
+  wrapper?: T
 
   /** Primary notification title. */
   title?: T

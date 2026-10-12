@@ -27,7 +27,7 @@ describe('Toast', () => {
     Toast.add({ title: 'My Toast Notification' })
 
     expect(await screen.findByText('My Toast Notification')).not.toBeNull()
-    const toastItem = document.querySelector('[data-slot="toast"]')
+    const toastItem = document.querySelector('[data-slot="toast-item"]')
     expect(toastItem).not.toBeNull()
     expect(toastItem?.hasAttribute('data-front')).toBe(true)
   })
@@ -39,7 +39,7 @@ describe('Toast', () => {
 
     const message = await screen.findByTestId('jsx-message')
     expect(message.textContent).toBe('JSX toast body')
-    expect(message.closest('[data-slot="toast"]')).not.toBeNull()
+    expect(message.closest('[data-slot="toast-item"]')).not.toBeNull()
   })
 
   it('renders toast variant helpers (success, error, warning, info, loading)', async () => {
@@ -57,7 +57,7 @@ describe('Toast', () => {
     expect(await screen.findByText('Info message')).not.toBeNull()
     expect(await screen.findByText('Loading message')).not.toBeNull()
 
-    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    const toasts = document.querySelectorAll('[data-slot="toast-item"]')
     expect(toasts.length).toBe(5)
   })
 
@@ -169,13 +169,13 @@ describe('Toast', () => {
 
     Toast.add({ title: 'Exit close anim' })
     const label = await screen.findByText('Exit close anim')
-    const item = label.closest('[data-slot="toast"]') as HTMLElement
+    const item = label.closest('[data-slot="toast-item"]') as HTMLElement
     expect(item).not.toBeNull()
 
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }))
 
     // Same DOM node must remain so CSS transform/opacity transitions can play.
-    expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+    expect(document.querySelector('[data-slot="toast-item"]')).toBe(item)
     expect(item.style.opacity).toBe('0')
 
     await finishExitMotion()
@@ -189,11 +189,11 @@ describe('Toast', () => {
 
     const id = Toast.add({ title: 'Exit dismiss anim' })
     const label = await screen.findByText('Exit dismiss anim')
-    const item = label.closest('[data-slot="toast"]') as HTMLElement
+    const item = label.closest('[data-slot="toast-item"]') as HTMLElement
 
     Toast.close(id)
 
-    expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+    expect(document.querySelector('[data-slot="toast-item"]')).toBe(item)
     expect(item.style.opacity).toBe('0')
 
     await finishExitMotion()
@@ -210,11 +210,11 @@ describe('Toast', () => {
 
       Toast.add({ title: 'Exit auto anim' })
       const label = screen.getByText('Exit auto anim')
-      const item = label.closest('[data-slot="toast"]') as HTMLElement
+      const item = label.closest('[data-slot="toast-item"]') as HTMLElement
 
       await vi.advanceTimersByTimeAsync(600)
 
-      expect(document.querySelector('[data-slot="toast"]')).toBe(item)
+      expect(document.querySelector('[data-slot="toast-item"]')).toBe(item)
       expect(item.style.opacity).toBe('0')
 
       await finishExitMotion()
@@ -251,8 +251,10 @@ describe('Toast', () => {
     Toast.add({ title: 'Status toast' })
     Toast.error({ title: 'Error toast' })
 
-    const statusToast = (await screen.findByText('Status toast')).closest('[data-slot="toast"]')
-    const errorToast = (await screen.findByText('Error toast')).closest('[data-slot="toast"]')
+    const statusToast = (await screen.findByText('Status toast')).closest(
+      '[data-slot="toast-item"]',
+    )
+    const errorToast = (await screen.findByText('Error toast')).closest('[data-slot="toast-item"]')
     expect(statusToast?.getAttribute('role')).toBe('status')
     expect(errorToast?.getAttribute('role')).toBe('alert')
   })
@@ -319,7 +321,7 @@ describe('Toast', () => {
       Toast.add({ title: 'Hover reset toast' })
       expect(screen.getByText('Hover reset toast')).not.toBeNull()
 
-      const toastEl = document.querySelector('[data-slot="toast"]')!
+      const toastEl = document.querySelector('[data-slot="toast-item"]')!
 
       // Run 2000ms out of 3000ms
       await vi.advanceTimersByTimeAsync(2000)
@@ -441,7 +443,7 @@ describe('Toast', () => {
     expect(screen.getByText('Updated Desc')).not.toBeNull()
     expect(screen.queryByText('Initial Title')).toBeNull()
 
-    const toastEl = document.querySelector('[data-slot="toast"]')
+    const toastEl = document.querySelector('[data-slot="toast-item"]')
     await waitFor(() => {
       expect(toastEl?.hasAttribute('data-bump')).toBe(true)
     })
@@ -604,7 +606,7 @@ describe('Toast', () => {
     expect(id1).not.toBe(id2)
 
     await screen.findAllByText('Allow dup')
-    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    const toasts = document.querySelectorAll('[data-slot="toast-item"]')
     expect(toasts.length).toBe(2)
   })
 
@@ -619,8 +621,10 @@ describe('Toast', () => {
     Toast.add({ title: 'Top message', toastId: 'top-host' })
     Toast.add({ title: 'Bottom message', toastId: 'bottom-host' })
 
-    const topItem = (await screen.findByText('Top message')).closest('[data-slot="toast"]')
-    const bottomItem = (await screen.findByText('Bottom message')).closest('[data-slot="toast"]')
+    const topItem = (await screen.findByText('Top message')).closest('[data-slot="toast-item"]')
+    const bottomItem = (await screen.findByText('Bottom message')).closest(
+      '[data-slot="toast-item"]',
+    )
     expect(topItem?.className).toContain('top-0')
     expect(bottomItem?.className).toContain('bottom-0')
   })
@@ -652,7 +656,7 @@ describe('Toast', () => {
     expect(id1).toBe(id2)
 
     await screen.findByText('Duplicate message')
-    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    const toasts = document.querySelectorAll('[data-slot="toast-item"]')
     expect(toasts.length).toBe(1)
 
     await waitFor(() => {
@@ -672,7 +676,7 @@ describe('Toast', () => {
     expect(idA2).not.toBe(idB)
 
     await screen.findByText('Toast B')
-    const toasts = document.querySelectorAll('[data-slot="toast"]')
+    const toasts = document.querySelectorAll('[data-slot="toast-item"]')
     expect(toasts.length).toBe(3)
 
     const idA3 = Toast.add({ title: 'Toast A' })
@@ -704,7 +708,7 @@ describe('Toast', () => {
     await screen.findByText('Two')
     await screen.findByText('Three')
 
-    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast-item"]')
     expect(toasts.length).toBe(3)
     expect(toasts[2]?.hasAttribute('data-limited')).toBe(true)
     expect(toasts[0]?.hasAttribute('data-limited')).toBe(false)
@@ -725,8 +729,8 @@ describe('Toast', () => {
     const defaultTitle = await screen.findByText('Default host toast')
     const alertsTitle = await screen.findByText('Alerts host toast')
 
-    const defaultRegion = defaultTitle.closest('[data-slot="toast-viewport"]')
-    const alertsRegion = alertsTitle.closest('[data-slot="toast-viewport"]')
+    const defaultRegion = defaultTitle.closest('[data-slot="toast"]')
+    const alertsRegion = alertsTitle.closest('[data-slot="toast"]')
     expect(defaultRegion).not.toBe(alertsRegion)
   })
 
@@ -789,7 +793,7 @@ describe('Toast', () => {
     try {
       render(() => <Toast showProgress duration={4000} />)
       Toast.add({ title: 'Hover progress test' })
-      const toastEl = document.querySelector('[data-slot="toast"]')!
+      const toastEl = document.querySelector('[data-slot="toast-item"]')!
       const indicator = document.querySelector<HTMLElement>(
         '[data-slot="toast-progress-indicator"]',
       )!
@@ -839,7 +843,7 @@ describe('Toast', () => {
     await screen.findByText('Toast 1')
     await screen.findByText('Toast 2')
 
-    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast-item"]')
     expect(toasts.length).toBe(2)
     expect(toasts[0]?.hasAttribute('data-front')).toBe(true)
     expect(toasts[0]?.hasAttribute('data-behind')).toBe(false)
@@ -858,7 +862,7 @@ describe('Toast', () => {
 
     const list = screen.getByRole('list')
     expect(list.tagName).toBe('UL')
-    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast"]')
+    const toasts = document.querySelectorAll<HTMLElement>('[data-slot="toast-item"]')
 
     expect(list.hasAttribute('data-expanded')).toBe(false)
     expect(toasts[0]?.hasAttribute('data-expanded')).toBe(false)
@@ -879,7 +883,7 @@ describe('Toast', () => {
 
     Toast.add({ title: 'Swipe me away' })
     const toastItem = await screen.findByText('Swipe me away')
-    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+    const itemEl = toastItem.closest('[data-slot="toast-item"]') as HTMLElement
     expect(itemEl).not.toBeNull()
 
     fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
@@ -897,7 +901,7 @@ describe('Toast', () => {
 
     Toast.add({ title: 'Jitter click' })
     const toastItem = await screen.findByText('Jitter click')
-    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+    const itemEl = toastItem.closest('[data-slot="toast-item"]') as HTMLElement
 
     fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
     fireEvent.pointerMove(itemEl, { clientX: 203, clientY: 200, pointerId: 1 })
@@ -911,7 +915,7 @@ describe('Toast', () => {
 
     Toast.add({ title: 'Stay put' })
     const toastItem = await screen.findByText('Stay put')
-    const itemEl = toastItem.closest('[data-slot="toast"]') as HTMLElement
+    const itemEl = toastItem.closest('[data-slot="toast-item"]') as HTMLElement
 
     fireEvent.pointerDown(itemEl, { clientX: 200, clientY: 200, pointerId: 1 })
     fireEvent.pointerMove(itemEl, { clientX: 120, clientY: 200, pointerId: 1 })
@@ -925,7 +929,7 @@ describe('Toast', () => {
 
     Toast.add({ title: 'Toast A' })
     const itemA = await screen.findByText('Toast A')
-    const toastNodeA = itemA.closest('[data-slot="toast"]') as HTMLElement
+    const toastNodeA = itemA.closest('[data-slot="toast-item"]') as HTMLElement
     expect(toastNodeA).not.toBeNull()
     expect(toastNodeA.hasAttribute('data-front')).toBe(true)
     expect(toastNodeA.hasAttribute('data-behind')).toBe(false)
@@ -934,7 +938,7 @@ describe('Toast', () => {
     await screen.findByText('Toast B')
 
     const itemAAfter = screen.getByText('Toast A')
-    const toastNodeAAfter = itemAAfter.closest('[data-slot="toast"]') as HTMLElement
+    const toastNodeAAfter = itemAAfter.closest('[data-slot="toast-item"]') as HTMLElement
 
     expect(toastNodeAAfter).toBe(toastNodeA)
     expect(toastNodeAAfter.hasAttribute('data-front')).toBe(false)
@@ -952,17 +956,19 @@ describe('Toast', () => {
       cancel: { label: 'Cancel Btn', onClick: vi.fn() },
     })
 
-    const root = await screen.findByText('Slot Test Title')
-    expect(root.closest('[data-slot="toast"]')?.getAttribute('data-slot')).toBe('toast')
-    const toastRoot = root.closest('[data-slot="toast"]')!
-    expect(toastRoot.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-content"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-title"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-description"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-action"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-close"]')).not.toBeNull()
-    expect(toastRoot.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
+    const titleEl = await screen.findByText('Slot Test Title')
+    expect(titleEl.closest('[data-slot="toast-item"]')?.getAttribute('data-slot')).toBe(
+      'toast-item',
+    )
+    const toastItem = titleEl.closest('[data-slot="toast-item"]')!
+    expect(toastItem.querySelector('[data-slot="toast-icon"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-wrapper"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-title"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-description"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-action"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-cancel"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-close"]')).not.toBeNull()
+    expect(toastItem.querySelector('[data-slot="toast-progress"]')).not.toBeNull()
   })
 
   it('warns on duplicate host ids', () => {
@@ -995,17 +1001,17 @@ describe('Toast', () => {
 
     const isolatedViewport = screen
       .getByText('Isolated only')
-      .closest('[data-slot="toast-viewport"]')?.textContent
+      .closest('[data-slot="toast"]')?.textContent
     expect(isolatedViewport).toContain('Isolated only')
     expect(isolatedViewport).not.toContain('Default only')
   })
 
-  it('keeps the viewport mounted and renders the list only while it has toasts', async () => {
+  it('keeps the host mounted and renders the list only while it has toasts', async () => {
     render(() => <Toast />)
-    const viewport = () => document.querySelector('[data-slot="toast-viewport"]')
+    const host = () => document.querySelector('[data-slot="toast"]')
     const list = () => document.querySelector('[data-slot="toast-list"]')
     // Persistent live region; no empty list.
-    expect(viewport()?.getAttribute('aria-live')).toBe('polite')
+    expect(host()?.getAttribute('aria-live')).toBe('polite')
     expect(list()).toBeNull()
 
     const id = Toast.add({ title: 'Lifecycle toast' })
@@ -1020,7 +1026,7 @@ describe('Toast', () => {
 
     await finishExitMotion()
     await waitFor(() => expect(list()).toBeNull())
-    expect(viewport()).not.toBeNull()
+    expect(host()).not.toBeNull()
   })
 
   it('cleans up rendered toasts when the host unmounts', async () => {
@@ -1030,7 +1036,7 @@ describe('Toast', () => {
 
     result.unmount()
     expect(screen.queryByText('Unmount me')).toBeNull()
-    expect(document.querySelector('[data-slot="toast-viewport"]')).toBeNull()
+    expect(document.querySelector('[data-slot="toast"]')).toBeNull()
   })
 
   it('applies host invert and classes to toast items', async () => {
@@ -1040,11 +1046,24 @@ describe('Toast', () => {
     expect(title.className).toContain('host-title-class')
   })
 
-  it('lets user style.width override the default list width', async () => {
-    render(() => <Toast style={{ width: '200px' }} />)
+  it('lets user styles.list.width override the default list width', async () => {
+    render(() => <Toast styles={{ list: { width: '200px' } }} />)
     Toast.add({ title: 'Width override' })
     await screen.findByText('Width override')
     const list = screen.getByRole('list')
     expect(list.style.width).toBe('200px')
+  })
+
+  it('applies class and style to root section and classes/styles to item', async () => {
+    render(() => <Toast class="host-root-class" classes={{ item: 'item-custom-class' }} />)
+    Toast.add({ title: 'Slot custom classes' })
+    const title = await screen.findByText('Slot custom classes')
+    const host = document.querySelector('[data-slot="toast"]') as HTMLElement
+    const item = title.closest('[data-slot="toast-item"]') as HTMLElement
+
+    expect(host).not.toBeNull()
+    expect(host.className).toContain('host-root-class')
+    expect(item).not.toBeNull()
+    expect(item.className).toContain('item-custom-class')
   })
 })

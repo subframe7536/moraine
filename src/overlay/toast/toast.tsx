@@ -58,22 +58,18 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
 
-  // class/style bind to each stack list, not the viewport.
-  const resolved = createStyles(
-    toastRecipe,
-    {},
-    {
-      slot: 'viewport',
-      contextVariants: () => ({
-        placement: local.placement ?? 'bottom',
-        align: local.align ?? 'end',
-      }),
-      contextSlots: () => ({
-        classes: local.classes,
-        styles: local.styles,
-      }),
-    },
-  )
+  const resolved = createStyles(toastRecipe, props, {
+    slot: 'root',
+    varsSlot: 'root',
+    contextVariants: () => ({
+      placement: local.placement ?? 'bottom',
+      align: local.align ?? 'end',
+    }),
+    contextSlots: () => ({
+      classes: local.classes,
+      styles: local.styles,
+    }),
+  })
 
   createEffect(
     on(
@@ -164,7 +160,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   return (
     <Portal>
       <section
-        data-slot="toast-viewport"
+        data-slot="toast"
         role="region"
         tabIndex={-1}
         {...rest}
@@ -172,7 +168,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-relevant="additions text"
         aria-atomic="false"
         aria-label={viewportAriaLabel()}
-        {...resolved.slots.viewport}
+        {...resolved.slots.root}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (
@@ -186,8 +182,6 @@ function ToastRoot(props: ToastProps): JSX.Element {
               heights={heights}
               gapSize={gapSize}
               visibleToasts={local.visibleToasts ?? 3}
-              class={local.class}
-              style={local.style}
               close={local.close}
               showProgress={local.showProgress}
               invert={local.invert}
@@ -214,8 +208,6 @@ interface ToastListProps {
   heights: () => Record<string | number, number>
   gapSize: () => number
   visibleToasts: number
-  class?: ToastProps['class']
-  style?: ToastProps['style']
   close?: ToastT.Action | JSX.Element
   showProgress?: boolean
   invert?: boolean
@@ -290,22 +282,30 @@ function ToastList(props: ToastListProps): JSX.Element {
     return totalH + (count > 1 ? (count - 1) * gap : 0)
   })
 
-  const resolved = createStyles(toastRecipe, props, {
-    slot: 'list',
-    varsSlot: 'list',
-    contextVariants: () => ({
-      placement: placement(),
-      align: align(),
-    }),
-    own: () => ({
-      list: {
-        style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
-      },
-    }),
-    vars: () => ({
-      '--toast-gap': `${props.gapSize()}px`,
-    }),
-  })
+  const resolved = createStyles(
+    toastRecipe,
+    {},
+    {
+      slot: 'list',
+      varsSlot: 'list',
+      contextVariants: () => ({
+        placement: placement(),
+        align: align(),
+      }),
+      contextSlots: () => ({
+        classes: props.classes,
+        styles: props.styles,
+      }),
+      own: () => ({
+        list: {
+          style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
+        },
+      }),
+      vars: () => ({
+        '--toast-gap': `${props.gapSize()}px`,
+      }),
+    },
+  )
 
   return (
     <Show when={activeGroupToasts().length > 0}>
