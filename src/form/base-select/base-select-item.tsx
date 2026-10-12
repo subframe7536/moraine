@@ -26,9 +26,9 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     'onMouseDown',
   ])
   const resolved = createStyles(baseSelectRecipe, local, {
-    rootSlot: 'item',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'item',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   const item = () => local.item
   const selected = () => state.value().includes(item().value)
@@ -71,7 +71,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       tabIndex={-1}
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
-      {...resolved.styles.item}
+      {...resolved.slots.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (

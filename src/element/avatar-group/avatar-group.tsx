@@ -36,31 +36,31 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="avatar-group" {...rest} {...resolved.styles.root}>
+      <div data-slot="avatar-group" {...rest} {...resolved.slots.root}>
         <For each={visibleItems()}>
           {(item) => (
             <AvatarFace
               {...item}
               size={size()}
               rootSlot="avatar-group-item"
-              {...resolved.styles.item}
+              {...resolved.slots.item}
               classes={{
-                image: resolved.styles.image.class,
-                fallback: resolved.styles.fallback.class,
-                fallbackContent: resolved.styles.fallbackContent.class,
-                badge: resolved.styles.badge.class,
+                image: resolved.slots.image.class,
+                fallback: resolved.slots.fallback.class,
+                fallbackContent: resolved.slots.fallbackContent.class,
+                badge: resolved.slots.badge.class,
               }}
               styles={{
-                image: resolved.styles.image.style,
-                fallback: resolved.styles.fallback.style,
-                fallbackContent: resolved.styles.fallbackContent.style,
-                badge: resolved.styles.badge.style,
+                image: resolved.slots.image.style,
+                fallback: resolved.slots.fallback.style,
+                fallbackContent: resolved.slots.fallbackContent.style,
+                badge: resolved.slots.badge.style,
               }}
             />
           )}
         </For>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="avatar-group-count" {...resolved.styles.count}>
+          <span data-slot="avatar-group-count" {...resolved.slots.count}>
             +{hiddenCount()}
           </span>
         </Show>

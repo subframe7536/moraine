@@ -10,13 +10,13 @@ import type { BaseSelectPartProps } from './base-select.types'
 export function BaseSelectEmpty(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const resolved = createStyles(baseSelectRecipe, props, {
-    rootSlot: 'empty',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'empty',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   return (
     <Show when={state.items().length === 0}>
-      <div data-slot={state.slotName('empty')} {...props} {...resolved.styles.empty}>
+      <div data-slot={state.slotName('empty')} {...props} {...resolved.slots.empty}>
         {props.children}
       </div>
     </Show>

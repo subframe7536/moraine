@@ -7,7 +7,7 @@ import type { DisclosureState } from '../../shared/disclosure-state'
 import type { CollapsibleT } from './collapsible.types'
 
 export interface CollapsibleContext {
-  presentation: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }
+  slotOverrides: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }
   triggerId: Accessor<string>
   contentId: Accessor<string>
   toggle: () => void

@@ -52,10 +52,10 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
   )
   const [keyboardInset, setKeyboardInset] = createSignal(0)
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'content',
-    inheritedVariants: () => ({ side: config.side, inset: config.inset }),
-    inheritedStyles: () => family.presentation,
-    variables: () => ({ '--sheet-keyboard-inset': `${keyboardInset()}px` }),
+    slot: 'content',
+    contextVariants: () => ({ side: config.side, inset: config.inset }),
+    contextSlots: () => family.slotOverrides,
+    vars: () => ({ '--sheet-keyboard-inset': `${keyboardInset()}px` }),
   })
   const registration = createContentAnatomy()
 
@@ -113,8 +113,8 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
       <ModalPortal>
         <Modal.Overlay
           overlay={merged.overlay}
-          class={resolved.styles.overlay.class}
-          style={resolved.styles.overlay.style}
+          class={resolved.slots.overlay.class}
+          style={resolved.slots.overlay.style}
         >
           <Modal.Content
             {...sheetDataAttributes.content({
@@ -124,8 +124,8 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
             })}
             {...rest}
             dir={rest.dir ?? direction()}
-            class={resolved.styles.content.class}
-            style={resolved.styles.content.style}
+            class={resolved.slots.content.class}
+            style={resolved.slots.content.style}
             ariaLabel={local['aria-label'] ?? merged.ariaLabel}
             ariaLabelledBy={
               (local['aria-label'] ?? merged.ariaLabel) === undefined
@@ -155,7 +155,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     <Modal.Close
                       data-slot="sheet-content-close"
                       aria-label={messages().close}
-                      {...resolved.styles.contentClose}
+                      {...resolved.slots.contentClose}
                     >
                       <Icon name={closeIcon()} />
                     </Modal.Close>

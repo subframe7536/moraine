@@ -153,20 +153,20 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
       data-slot={triggerProps.withActions ? 'sidebar-frame-item-trigger' : 'sidebar-frame-item'}
       {...itemData(Boolean(triggerProps.withActions))}
       {...binding}
-      {...resolved.styles.item}
+      {...resolved.slots.item}
     >
       <Show when={local.leading}>
         {(iconName) => (
           <Icon
             name={iconName()}
             slotName="sidebar-frame-item-leading"
-            {...resolved.styles.itemLeading}
+            {...resolved.slots.itemLeading}
             aria-hidden={true}
           />
         )}
       </Show>
       <Show when={hasChildren()}>
-        <span data-slot="sidebar-frame-item-label" {...resolved.styles.itemLabel}>
+        <span data-slot="sidebar-frame-item-label" {...resolved.slots.itemLabel}>
           {children()}
         </span>
       </Show>
@@ -175,7 +175,7 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
           <Icon
             name={iconName()}
             slotName="sidebar-frame-item-trailing"
-            {...resolved.styles.itemTrailing}
+            {...resolved.slots.itemTrailing}
             aria-hidden={true}
             {...sidebarFrameDataAttributes.itemTrailing({
               expanded: () => local.as === Collapsible.Trigger && collapsible?.disclosure.open(),
@@ -194,7 +194,7 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
         {...itemData()}
       >
         <ItemTrigger withActions />
-        <div data-slot="sidebar-frame-item-actions" {...resolved.styles.itemActions}>
+        <div data-slot="sidebar-frame-item-actions" {...resolved.slots.itemActions}>
           {actions()}
         </div>
       </div>

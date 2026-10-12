@@ -225,12 +225,12 @@ export function Pagination(props: PaginationProps): JSX.Element {
       role={merged.role}
       {...rest}
       ref={(el) => callRef(local.ref, el)}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       aria-label={local['aria-label'] ?? messages().label}
     >
-      <ul data-slot="pagination-list" {...resolved.styles.list}>
+      <ul data-slot="pagination-list" {...resolved.slots.list}>
         <Show when={merged.showControls}>
-          <li data-slot="pagination-list-item" {...resolved.styles.listItem}>
+          <li data-slot="pagination-list-item" {...resolved.slots.listItem}>
             <Button
               slotName="pagination-prev"
               variant={resolved.variants.controlVariant}
@@ -241,9 +241,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 loading: undefined,
                 text: () => Boolean(merged.prevText),
               })}
-              {...resolved.styles.prev}
-              classes={{ label: merged.prevText ? resolved.styles.controlLabel.class : undefined }}
-              styles={{ label: merged.prevText ? resolved.styles.controlLabel.style : undefined }}
+              {...resolved.slots.prev}
+              classes={{ label: merged.prevText ? resolved.slots.controlLabel.class : undefined }}
+              styles={{ label: merged.prevText ? resolved.slots.controlLabel.style : undefined }}
               onClick={(event) => selectPage(currentPage() - 1, event)}
               {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
               leading={merged.prevText ? merged.prevIcon : undefined}
@@ -263,7 +263,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               {...paginationDataAttributes.ellipsis({
                 ellipsis: () => typeof item !== 'number',
               })}
-              {...resolved.styles.listItem}
+              {...resolved.slots.listItem}
             >
               <Show
                 when={typeof item === 'number' ? item : undefined}
@@ -271,7 +271,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                   <Icon
                     slotName="pagination-ellipsis"
                     name={merged.ellipsisIcon}
-                    {...resolved.styles.ellipsis}
+                    {...resolved.slots.ellipsis}
                   />
                 }
               >
@@ -291,7 +291,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                         disabled: undefined,
                         loading: undefined,
                       })}
-                      {...resolved.styles.item}
+                      {...resolved.slots.item}
                       onClick={(event) => selectPage(pageNumber(), event)}
                       {...getItemProps(pageNumber())}
                     >
@@ -305,7 +305,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="pagination-list-item" {...resolved.styles.listItem}>
+          <li data-slot="pagination-list-item" {...resolved.slots.listItem}>
             <Button
               slotName="pagination-next"
               variant={resolved.variants.controlVariant}
@@ -316,9 +316,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 loading: undefined,
                 text: () => Boolean(merged.nextText),
               })}
-              {...resolved.styles.next}
-              classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
-              styles={{ label: merged.nextText ? resolved.styles.controlLabel.style : undefined }}
+              {...resolved.slots.next}
+              classes={{ label: merged.nextText ? resolved.slots.controlLabel.class : undefined }}
+              styles={{ label: merged.nextText ? resolved.slots.controlLabel.style : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}
               trailing={merged.nextText ? merged.nextIcon : undefined}
               {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}

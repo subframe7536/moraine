@@ -19,16 +19,16 @@ function SheetHeaderRoot<T extends ValidComponent>(
   const unregister = content.registerHeader(untrack(() => local.headerKind))
   onCleanup(unregister)
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'header',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'header',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-header"
       {...rest}
-      {...resolved.styles.header}
+      {...resolved.slots.header}
     >
       {local.children}
     </Dynamic>

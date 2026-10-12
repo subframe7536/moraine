@@ -17,16 +17,16 @@ export function SheetFooter<T extends ValidComponent = 'div'>(
   const family = useModalContext()
   const content = useSheetContent()
   const resolved = createStyles(sheetRecipe, local, {
-    rootSlot: 'footer',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'footer',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-footer"
       {...rest}
-      {...resolved.styles.footer}
+      {...resolved.slots.footer}
     >
       {local.children}
     </Dynamic>

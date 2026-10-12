@@ -22,7 +22,7 @@ export function createRegion<P extends RegionProps>(slot: RegionSlot, dataSlot: 
     const [local, rest] = splitProps(props as RegionProps, ['children', 'class', 'style'])
     const resolved = useSidebarFrameStyles(slot, local)
     return (
-      <div data-slot={dataSlot} {...rest} {...resolved.styles[slot]}>
+      <div data-slot={dataSlot} {...rest} {...resolved.slots[slot]}>
         {local.children}
       </div>
     )

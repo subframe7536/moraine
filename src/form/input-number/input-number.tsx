@@ -143,7 +143,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
   const resolved = createStyles(inputNumberRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
   })
 
   const merged = mergeProps(
@@ -409,7 +409,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get disabled() {
         return isControlDisabled()
       },
-      ...resolved.styles[kind],
+      ...resolved.slots[kind],
       ...press.handlers(kind),
     })
     return controlProps as InputNumberControlProps
@@ -534,7 +534,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -566,7 +566,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         placeholder={merged.placeholder}
         data-slot="input-number-input"
         {...inputDataAttrs}
-        {...resolved.styles.input}
+        {...resolved.slots.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = draftText() ?? formattedValue()
@@ -673,7 +673,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="input-number-controls" {...resolved.styles.controls}>
+        <div data-slot="input-number-controls" {...resolved.slots.controls}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} />

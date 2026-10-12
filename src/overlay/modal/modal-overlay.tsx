@@ -25,12 +25,10 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   const presence = context.presence
   const isOverlay = () => local.overlay !== false
   const isModalRoot = context.configuration.kind === 'modal'
-  const resolved = isModalRoot
-    ? createStyles(modalRecipe, local, {
-        rootSlot: 'overlay',
-        inheritedStyles: () => context.presentation,
-      })
-    : undefined
+  const resolved = createStyles(modalRecipe, local, {
+    slot: 'overlay',
+    contextSlots: () => (isModalRoot ? context.slotOverrides : undefined),
+  })
 
   createEffect(on(() => Boolean(local.scrollable && isOverlay()), context.setOverlayScroll))
   onCleanup(() => context.setOverlayScroll(false))
@@ -61,11 +59,9 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
           })
         }}
         class={
-          isOverlay() ? (isModalRoot ? resolved!.styles.overlay.class : cn(local.class)) : undefined
+          isOverlay() ? (isModalRoot ? resolved.slots.overlay.class : cn(local.class)) : undefined
         }
-        style={
-          isOverlay() ? (isModalRoot ? resolved!.styles.overlay.style : local.style) : undefined
-        }
+        style={isOverlay() ? (isModalRoot ? resolved.slots.overlay.style : local.style) : undefined}
       >
         {local.children}
       </div>

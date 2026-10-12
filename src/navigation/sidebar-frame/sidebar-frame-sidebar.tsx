@@ -53,7 +53,7 @@ export function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
       inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
       aria-label={local['aria-label']}
       {...(rest as object)}
-      {...resolved.styles.sidebar}
+      {...resolved.slots.sidebar}
     >
       {content()}
     </Dynamic>

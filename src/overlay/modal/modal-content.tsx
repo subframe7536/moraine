@@ -31,12 +31,10 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const presence = context.presence
   const isModalRoot = context.configuration.kind === 'modal'
-  const resolved = isModalRoot
-    ? createStyles(modalRecipe, local, {
-        rootSlot: 'content',
-        inheritedStyles: () => context.presentation,
-      })
-    : undefined
+  const resolved = createStyles(modalRecipe, local, {
+    slot: 'content',
+    contextSlots: () => (isModalRoot ? context.slotOverrides : undefined),
+  })
 
   const child = resolveChildren(() => local.children as JSX.Element)
   const body = createMemo(() =>
@@ -72,8 +70,8 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
       aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
-      class={isModalRoot ? resolved!.styles.content.class : cn(local.class)}
-      style={isModalRoot ? resolved!.styles.content.style : local.style}
+      class={isModalRoot ? resolved.slots.content.class : cn(local.class)}
+      style={isModalRoot ? resolved.slots.content.style : local.style}
       onKeyDown={(event) => {
         callHandler(event, local.onKeyDown)
         if (event.defaultPrevented) {

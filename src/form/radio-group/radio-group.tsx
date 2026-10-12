@@ -66,7 +66,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(radioGroupRecipe, local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    contextVariants: () => ({ size: themeField?.size }),
   })
   const merged = mergeProps(
     {
@@ -314,7 +314,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       }}
       id={groupId()}
       {...field.ariaAttrs()}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onFocusIn={onGroupFocusIn}
       onFocusOut={onGroupFocusOut}
     >
@@ -344,9 +344,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 checked: selected,
                 disabled,
               })}
-              {...resolved.styles.item}
+              {...resolved.slots.item}
             >
-              <div data-slot="radio-group-container" {...resolved.styles.container}>
+              <div data-slot="radio-group-container" {...resolved.slots.container}>
                 <HiddenInput
                   ref={(element) => {
                     inputRefs.set(item.id, element)
@@ -390,10 +390,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 <div
                   data-slot="radio-group-control"
                   class={cn(
-                    resolved.styles.control.class,
+                    resolved.slots.control.class,
                     resolved.variants.indicator === 'hidden' && VISUALLY_HIDDEN_CLASS,
                   )}
-                  style={resolved.styles.control.style}
+                  style={resolved.slots.control.style}
                   {...radioGroupDataAttributes.control({
                     checked: selected,
                     invalid: field.invalid,
@@ -405,7 +405,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   <Show when={selected()}>
                     <div
                       data-slot="radio-group-indicator"
-                      {...resolved.styles.indicator}
+                      {...resolved.slots.indicator}
                       {...radioGroupDataAttributes.indicator({ checked: selected })}
                     />
                   </Show>
@@ -413,7 +413,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               </div>
 
               <Show when={item.label || item.description}>
-                <div data-slot="radio-group-wrapper" {...resolved.styles.wrapper}>
+                <div data-slot="radio-group-wrapper" {...resolved.slots.wrapper}>
                   <Show when={item.label}>
                     <Show
                       when={resolved.variants.variant === 'list'}
@@ -421,7 +421,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         <p
                           id={item.labelId}
                           data-slot="radio-group-label"
-                          {...resolved.styles.label}
+                          {...resolved.slots.label}
                         >
                           {item.label}
                         </p>
@@ -431,7 +431,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         id={item.labelId}
                         for={item.inputId}
                         data-slot="radio-group-label"
-                        {...resolved.styles.label}
+                        {...resolved.slots.label}
                       >
                         {item.label}
                       </label>
@@ -442,7 +442,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     <p
                       id={item.descriptionId}
                       data-slot="radio-group-description"
-                      {...resolved.styles.description}
+                      {...resolved.slots.description}
                     >
                       {item.description}
                     </p>

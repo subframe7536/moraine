@@ -31,8 +31,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
   const resolved = createStyles(collapsibleRecipe, local, {
-    rootSlot: 'content',
-    inheritedStyles: () => context.presentation,
+    slot: 'content',
+    contextSlots: () => context.slotOverrides,
   })
 
   const shouldRenderContent = () =>
@@ -72,7 +72,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             closed: disclosure.closed,
           })}
           {...rest}
-          {...resolved.styles.content}
+          {...resolved.slots.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
         >
           {resolveChildren(() => local.children)()}

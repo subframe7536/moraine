@@ -107,7 +107,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       novalidate
       onSubmit={onSubmit}
       onReset={onReset}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       {local.children}
     </form>

@@ -27,7 +27,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
   ])
   const field = useFieldContext()
   const resolved = createStyles(inputGroupRecipe, local, {
-    inheritedVariants: () => ({ size: field?.size }),
+    contextVariants: () => ({ size: field?.size }),
   })
 
   const onPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
@@ -62,7 +62,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         get orientation() {
           return resolved.variants.orientation
         },
-        get presentation() {
+        get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
@@ -75,11 +75,11 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
           orientation: () => resolved.variants.orientation,
         })}
         {...rest}
-        {...resolved.styles.root}
+        {...resolved.slots.root}
         onPointerDown={onPointerDown}
       >
         {local.children}
-        <span aria-hidden="true" data-slot="input-group-frame" {...resolved.styles.frame} />
+        <span aria-hidden="true" data-slot="input-group-frame" {...resolved.slots.frame} />
       </div>
     </InputGroupProvider>
   )

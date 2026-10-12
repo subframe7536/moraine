@@ -32,12 +32,12 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
         get size() {
           return resolved.variants.size
         },
-        get presentation() {
+        get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rest} {...resolved.styles.root}>
+      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rest} {...resolved.slots.root}>
         {local.children}
       </Dynamic>
     </EmptyProvider>

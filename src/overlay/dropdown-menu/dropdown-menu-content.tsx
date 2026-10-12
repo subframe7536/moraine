@@ -27,14 +27,14 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
 
   const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
   const resolved = createStyles(dropdownMenuRecipe, local, {
-    rootSlot: 'content',
-    inheritedStyles: () => context.presentation,
+    slot: 'content',
+    contextSlots: () => context.slotOverrides,
   })
   return (
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
       owner="dropdown-menu"
-      slotBinding={(slot) => resolved.styles[slot]}
+      slotBinding={(slot) => resolved.slots[slot]}
       size={resolved.variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}

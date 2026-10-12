@@ -27,8 +27,8 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const context = useDropdownMenuContext()
 
   const resolved = createStyles(dropdownMenuRecipe, local, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => context.presentation,
+    slot: 'trigger',
+    contextSlots: () => context.slotOverrides,
   })
   const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
@@ -99,7 +99,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
-    <Dynamic component={tag()} {...binding} {...resolved.styles.trigger}>
+    <Dynamic component={tag()} {...binding} {...resolved.slots.trigger}>
       {children()}
     </Dynamic>
   )

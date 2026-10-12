@@ -120,12 +120,20 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
 - Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
-- Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts`. Use the returned stable `styles.<slot>.class` and `styles.<slot>.style` bindings directly; do not add memos solely for class or style resolution.
+- Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts` (internal; not part of the public `moraine` entry). Use the returned stable `slots.<slot>.class` and `slots.<slot>.style` bindings directly; do not add memos solely for class or style resolution. The API returns `{ slots, variants, slotWith }`.
+- **`createStyles` layer order** (later wins). `cn` merges classes; style objects skip `undefined` / `null` so they do not overwrite earlier layers:
+  1. Recipe base + variants/compound + Provider theme overrides (inside recipe resolve) + recipe CSS vars + `vars()`
+  2. `contextSlots` — ancestor Context `{ classes, styles }` (use `pickSlotOverrides(props)` when storing on Context as `slotOverrides`)
+  3. `own` — component-controlled, user-overridable (icon font-size, button active class, decorative item classes)
+  4. User: `classes` / `styles`[slot], then `class` / `style` on the current `slot`
+  5. `enforced` — functional, must not be user-overridable (positioning, virtual scroll, visually-hidden, flex sizes)
+- Prefer `enforced` for layout / position / virtualization and `own` for visual cosmetics. For per-item hosts inside `<For>`, call `slotWith(slot, extra?, enforcedExtra?)` (both extra arguments are accessors returning `{ class?, style? }`) under the item owner so item classes merge on top of the parent slot memo.
+- **Fine-grained reactivity:** `createStyles` compiles the theme-resolved recipe into per-slot contribution lists and a `slot → variantKeys` map (WeakMap-cached). Each slot's `.class` / `.style` is a lazy memo created on first read under the `createStyles` owner; unread slots create nothing. Class memos use string equality; style memos use shallow equality and reuse the previous object when equal. A slot memo only reads the variant keys that affect that slot (and var keys for `varsSlot`). SSR (`isServer`) computes directly without memos.
 - **Component CSS variables:** Define component-specific custom properties as recipe style keys, never as `[--name:value]` class utilities:
   1. Declare defaults on `base` / `variants` / `compoundVariants` as `'--name': value`.
   2. Consume them in slot or colocated classes with `prop-(--name)`.
-  3. `createStyles()` applies recipe keys to `variablesSlot` (default `root`, or `rootSlot` when the recipe has no root). Pass instance values with `variables: () => ({ '--name': value })` so the slot `style` binding already includes them. Do not rebuild that binding with `mergeProps` or a later `style={{ ...styles.<slot>.style, '--name': value }}`.
-  4. Merge order on `variablesSlot` is recipe keys, then `variables()`, then inherited styles, then caller `styles` / `style`. Per-item hosts (Accordion content) call `createStyles` for that host with `variables()`. Private wrappers may inherit a root `variables()` value instead of adding a public slot. `element.style.setProperty` is only for imperative geometry on a node that is not updated through that binding (Floating UI).
+  3. `createStyles()` applies recipe keys to `varsSlot` (default `root`, or `slot` when the recipe has no root). Pass instance values with `vars: () => ({ '--name': value })` so the slot `style` binding already includes them. Do not rebuild that binding with `mergeProps` or a later `style={{ ...slots.<slot>.style, '--name': value }}`.
+  4. Merge order on `varsSlot` is recipe keys, then `vars()`, then `contextSlots`, `own`, caller `styles` / `style`, then `enforced`. Per-item hosts (Accordion content) call `createStyles` for that host with `vars()`. Private wrappers may inherit a root `vars()` value instead of adding a public slot. `element.style.setProperty` is only for imperative geometry on a node that is not updated through that binding (Floating UI).
      Theme engine variables (`--mo-enter-*`, `--mo-exit-*`, `--mo-anim-*`, `--mo-auto-*`) stay in `src/theme`. Do not add a public recipe slot solely to hold a private wrapper variable.
 - Put truly reusable static class values in a `*.class.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.
 - Keep component-private visual class constants in the component's `*.recipe.ts` file alongside its recipe, using `UPPER_SNAKE_CASE`. Do not add public slots solely to relocate internal styles.
@@ -170,7 +178,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   3. Keep `createMemo` for a JSX prop read more than once, such as a condition and its render. A single render site reads the prop directly. Do not read a JSX-producing getter for a branch that is absent from the tree; that evaluation creates hydration keys for nodes that were never serialized.
   4. Do not read one field out of an object accessor through another accessor (`() => bag()['data-expanded']`) when a primitive accessor already exists (`open`, `closed`). Keep object bags such as `dataAttrs()` and `ariaAttrs()` when callers spread them.
   5. Read an object accessor once when several of its fields are used. Do not keep `createMemo` for an object that is only spread at one site: inline a short expression there, and use a plain accessor for a longer one-site derivation.
-  6. `createStyles` callbacks (`inheritedVariants`, `variables`, `inheritedStyles`) stay as accessors that return their contract object.
+  6. `createStyles` callbacks (`contextVariants`, `vars`, `contextSlots`, `own`, `enforced`) stay as accessors that return their contract object.
 
 - Inner component should call using JSX style instead of directly function call
 
@@ -186,7 +194,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **`{...rest}` attribute overload:** Solid JSX uses later-wins. On every public host, apply attributes in this order:
   1. Default attributes the component generates (`data-slot`, default `role`, generated `data-*` / `aria-*`).
   2. `{...rest}` so callers overload those defaults.
-  3. Merged presentation (`{...resolved.styles.<slot>}` or `class`/`style` from `createStyles` / `useCn`). Always split `class`, `style`, `classes`, and `styles` out of rest.
+  3. Merged presentation (`{...resolved.slots.<slot>}` or `class`/`style` from `createStyles` / `useCn`). Always split `class`, `style`, `classes`, and `styles` out of rest.
   4. Owned wiring rest must not replace: composed `ref`, form `id` / `name` / `value` / `checked` / `disabled` / `required` / `readOnly`, value-derived ARIA (`aria-valuenow`, `aria-checked`, `aria-pressed` when bound to the control value), and event handlers composed with `callHandler`.
      Split `??` fallback props such as i18n `aria-label` out of rest and assign `local['aria-label'] ?? messages().label` after rest. Do not reconstruct `data-slot` from rest after spreading it; put the default before rest. `mergeProps(defaults, rest, composedHandlers)` is the same rule.
 - **`<Dynamic>`:** `component` must be the first attribute. Apply the `{...rest}` attribute overload order after it.

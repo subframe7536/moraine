@@ -40,10 +40,10 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   const field = useFieldContext()
   const messages = useMessages('combobox', defaultComboboxMessages)
   const styles = createStyles(comboboxRecipe, props, {
-    rootSlot: 'control',
-    inheritedVariants: () => ({ size: field?.size }),
+    slot: 'control',
+    contextVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
+  const baseSelectStyles = createBaseSelectStyleProps(styles.slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<ComboboxT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
@@ -121,7 +121,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.styles.control}
+          {...styles.slots.control}
           {...comboboxDataAttributes.control({
             closed: undefined,
             disabled: undefined,
@@ -153,15 +153,13 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => (
-              <Icon name={icon()} slotName="combobox-leading" {...styles.styles.leading} />
-            )}
+            {(icon) => <Icon name={icon()} slotName="combobox-leading" {...styles.slots.leading} />}
           </Show>
           <input
             {...input.inputProps}
             {...state.field.ariaAttrs()}
             data-slot="combobox-input"
-            {...styles.styles.input}
+            {...styles.slots.input}
             placeholder={(local.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
@@ -175,7 +173,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
               data-slot="combobox-clear"
               aria-label={messages().clear}
               tabIndex={0}
-              {...styles.styles.clear}
+              {...styles.slots.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -200,7 +198,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             aria-busy={local.loading ? 'true' : undefined}
             {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
             disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.styles.trigger}
+            {...styles.slots.trigger}
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
@@ -226,7 +224,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...local}
           view={search.view()}
           onExitComplete={() => search.setValue('')}
-          slot={(slot) => styles.styles[slot]}
+          slot={(slot) => styles.slots[slot]}
           emptyRender={() => (
             <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
               {renderWithProps(local.emptyRender, {
