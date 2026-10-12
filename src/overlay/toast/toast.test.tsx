@@ -622,6 +622,31 @@ describe('Toast', () => {
     expect(event.defaultPrevented).toBe(false)
   })
 
+  it('only the host with toasts reacts to F6 when multiple hosts exist', async () => {
+    render(() => (
+      <>
+        <button type="button">Prior focus</button>
+        <Toast id="empty-host" regionAriaLabel="Empty region" />
+        <Toast id="busy-host" regionAriaLabel="Busy region" />
+      </>
+    ))
+
+    const prior = screen.getByRole('button', { name: 'Prior focus' })
+    prior.focus()
+    Toast.show('Busy notification', { toastId: 'busy-host' })
+    await screen.findByText('Busy notification')
+
+    const event = new KeyboardEvent('keydown', { key: 'F6', bubbles: true, cancelable: true })
+    window.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(true)
+    const focused = document.activeElement as HTMLElement
+    expect(focused.getAttribute('data-slot')).toBe('toast')
+    expect(focused.textContent).toContain('Busy notification')
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(document.activeElement).toBe(prior)
+  })
+
   it('requires every key in a hotkey combo', async () => {
     render(() => <Toast hotkey={['altKey', 'KeyT']} />)
 

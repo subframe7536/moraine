@@ -175,32 +175,47 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const activeToasts = createMemo(() => filteredToasts().filter((t) => !t.dismissed))
 
+  const hasToasts = () => activeToasts().length > 0
+
   onMount(() => {
     createEventListenerMap(window, {
       focus: () => setIsWindowFocused(true),
       blur: () => setIsWindowFocused(false),
-      keydown: (event: KeyboardEvent) => {
+    })
+    createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
+  })
+
+  // Like Base UI's ToastViewport: only listen for the hotkey while this host has toasts,
+  // so empty hosts never intercept F6.
+  createEffect(
+    on(hasToasts, (active) => {
+      if (!active) {
+        return
+      }
+      createEventListener(window, 'keydown', (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
           setKeyboardExpanded(false)
           restoreFocus()
           return
         }
 
-        if (!matchesToastHotkey(event, hotkeys()) || activeToasts().length === 0) {
+        if (!matchesToastHotkey(event, hotkeys()) || (regionRef && event.target === regionRef)) {
           return
         }
 
         event.preventDefault()
-        setKeyboardExpanded(true)
         const active = document.activeElement
-        restoreFocusEl = active instanceof HTMLElement ? active : null
+        if (!focusedViaHotkey) {
+          restoreFocusEl = active instanceof HTMLElement ? active : null
+        }
         focusedViaHotkey = true
+        // keyboardExpanded also pauses timers.
+        setKeyboardExpanded(true)
         const firstToast = regionRef?.querySelector<HTMLElement>('[data-slot="toast"]')
-        firstToast?.focus()
-      },
-    })
-    createEventListener(document, 'visibilitychange', () => setIsDocumentHidden(document.hidden))
-  })
+        firstToast?.focus({ preventScroll: true })
+      })
+    }),
+  )
 
   createEffect(
     on(
