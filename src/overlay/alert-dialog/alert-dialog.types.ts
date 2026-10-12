@@ -78,8 +78,10 @@ export namespace AlertDialogT {
 
   export interface Props extends Base {
     /**
+     * Unique identifier for this host when multiple hosts are mounted.
      * Selects this host from `AlertDialog.confirm(id, options)` and the other methods.
-     * A call without an id uses the last mounted host. Unmounting the host settles its open dialogs as `false`.
+     * A call without an id uses the last mounted host. If duplicate ids are mounted,
+     * the last mounted host takes precedence. Unmounting the host settles its open dialogs as `false`.
      */
     id?: string
   }

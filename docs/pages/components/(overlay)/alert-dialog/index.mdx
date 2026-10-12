@@ -53,7 +53,8 @@ are defaults for every dialog opened while it is mounted, and options passed to 
 them. Call `AlertDialog` before the host is mounted and the call throws. On the server the same
 calls return a promise that is already settled as `false` and do not require a host.
 
-Give a host an `id` when more than one is mounted. A call without an id uses the last mounted host.
+Give each host a unique `id` when more than one is mounted. If multiple hosts share an id, calls
+targeting that id resolve to the last mounted host. A call without an id uses the last mounted host.
 Pass the id as the first argument to target one host. Unmounting a host settles its open dialogs as
 `false` and removes them immediately.
 

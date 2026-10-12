@@ -7,8 +7,10 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
+  getOwner,
   on,
   onCleanup,
+  runWithOwner,
   untrack,
 } from 'solid-js'
 import { isServer } from 'solid-js/web'
@@ -398,6 +400,15 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
   )
   const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
     props.okVariant() ?? (resolved.variants.danger ? 'danger' : 'default')
+  const iconTone = () => {
+    if (props.icon() !== undefined) {
+      return undefined
+    }
+    if (props.type === 'confirm') {
+      return resolved.variants.danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
+    }
+    return ALERT_DIALOG_ICON_TONE_CLASS[props.type]
+  }
   const pending = () => props.pendingKind() !== undefined
 
   createEffect(
@@ -437,23 +448,11 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
                 <Show
                   when={resolved.variants.center}
                   fallback={
-                    <Icon
-                      name={current()}
-                      class={cn(
-                        resolved.styles.icon.class,
-                        ALERT_DIALOG_ICON_TONE_CLASS[props.type],
-                      )}
-                    />
+                    <Icon name={current()} class={cn(resolved.styles.icon.class, iconTone())} />
                   }
                 >
                   <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                    <Icon
-                      name={current()}
-                      class={cn(
-                        resolved.styles.icon.class,
-                        ALERT_DIALOG_ICON_TONE_CLASS[props.type],
-                      )}
-                    />
+                    <Icon name={current()} class={cn(resolved.styles.icon.class, iconTone())} />
                   </div>
                 </Show>
               )}
@@ -497,6 +496,7 @@ function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
 
 /** Mount once under `MoraineProvider`. Its props are the defaults for every alert dialog. */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
+  const owner = getOwner()
   const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
   const removeDialog = (id: string): void => {
     setDialogs((current) => current.filter((item) => item.id !== id))
@@ -504,14 +504,16 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const controller: AlertDialogController = {
     id: () => props.id,
     open(type, options) {
-      const created = createAlertDialog(
-        type,
-        options,
-        untrack(() => readAlertDialogConfig(props)),
-      )
-      created.record.remove = () => removeDialog(created.record.id)
-      setDialogs((current) => [...current, created.record])
-      return created.instance
+      return runWithOwner(owner, () => {
+        const created = createAlertDialog(
+          type,
+          options,
+          untrack(() => readAlertDialogConfig(props)),
+        )
+        created.record.remove = () => removeDialog(created.record.id)
+        setDialogs((current) => [...current, created.record])
+        return created.instance
+      })!
     },
     destroyAll() {
       for (const item of dialogs()) {
@@ -522,6 +524,24 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
   }
   if (!isServer) {
     hosts.push(controller)
+  }
+  if (DEV) {
+    createEffect(
+      on(
+        () => props.id,
+        (id) => {
+          if (!id) {
+            return
+          }
+          const duplicate = hosts.some((host) => host !== controller && host.id() === id)
+          if (duplicate) {
+            console.warn(
+              `[moraine] Duplicate AlertDialog host id "${id}". Later host will take precedence.`,
+            )
+          }
+        },
+      ),
+    )
   }
   onCleanup(() => {
     if (isServer) {

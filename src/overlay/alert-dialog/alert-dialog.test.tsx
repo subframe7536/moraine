@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createSignal } from 'solid-js'
+import { Show, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -133,6 +133,20 @@ describe('AlertDialog', () => {
     const dangerIcon = document.body.querySelector('[data-slot="icon"]')
     expect(dangerIcon?.className).toContain('icon-caution')
     expect(dangerIcon?.className).toContain('text-danger')
+
+    AlertDialog.destroyAll()
+    void AlertDialog.confirm({ title: 'Custom confirm icon', icon: 'icon-help', danger: false })
+    await waitForTitle('Custom confirm icon')
+    const customConfirmIcon = document.body.querySelector('[data-slot="icon"]')
+    expect(customConfirmIcon?.className).toContain('icon-help')
+    expect(customConfirmIcon?.className).not.toContain('text-danger')
+
+    AlertDialog.destroyAll()
+    void AlertDialog.info({ title: 'Custom info icon', icon: 'icon-star' })
+    await waitForTitle('Custom info icon')
+    const customInfoIcon = document.body.querySelector('[data-slot="icon"]')
+    expect(customInfoIcon?.className).toContain('icon-star')
+    expect(customInfoIcon?.className).not.toContain('text-info')
   })
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
@@ -644,5 +658,35 @@ describe('AlertDialog', () => {
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('accessible name'))
     })
     warn.mockRestore()
+  })
+
+  test('warns in development when duplicate host id is mounted', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    render(() => (
+      <>
+        <AlertDialog id="duplicate-host" />
+        <AlertDialog id="duplicate-host" />
+      </>
+    ))
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate AlertDialog host id "duplicate-host"'),
+    )
+    warn.mockRestore()
+  })
+
+  test('preserves reactivity and lifecycle when opened inside a disposed effect owner', async () => {
+    setup()
+    let instance: AlertDialogT.Instance | undefined
+    createRoot((dispose) => {
+      instance = AlertDialog.confirm({ title: 'Initial title' })
+      dispose()
+    })
+    await waitForTitle('Initial title')
+    expect(instance).toBeDefined()
+    instance!.update({ title: 'Updated title after dispose' })
+    await waitForTitle('Updated title after dispose')
+
+    button('OK').click()
+    await expect(instance!).resolves.toBe(true)
   })
 })

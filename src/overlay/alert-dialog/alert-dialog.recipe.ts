@@ -31,6 +31,9 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
     subtle: false,
   },
   variants: {
+    danger: {
+      true: {},
+    },
     subtle: {
       true: {
         content: 'p-0 gap-0',
@@ -48,10 +51,4 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
   },
-  compoundVariants: [
-    {
-      variants: { center: true, subtle: true },
-      footer: 'px-6 pb-6 pt-4 border-t border-border bg-muted/50 flex-row gap-3',
-    },
-  ],
 })
