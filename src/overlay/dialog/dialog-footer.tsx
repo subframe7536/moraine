@@ -19,16 +19,16 @@ export function DialogFooter<T extends ValidComponent = 'div'>(
   const unregister = content.registerFooter()
   onCleanup(unregister)
   const resolved = createStyles(dialogRecipe, local, {
-    rootSlot: 'footer',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'footer',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="dialog-footer"
       {...rest}
-      {...resolved.styles.footer}
+      {...resolved.slots.footer}
     >
       {local.children}
     </Dynamic>

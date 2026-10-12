@@ -26,7 +26,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'styles',
   ])
   const resolved = createStyles(scrollAreaRecipe, local, {
-    variables: () => {
+    vars: () => {
       if (local.shadowSize === undefined) {
         return undefined
       }
@@ -146,7 +146,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
         root = element
         callRef(local.ref, element)
       }}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       {local.children}
     </div>

@@ -19,7 +19,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       aria-orientation={orientation()}
       {...separatorDataAttributes.root({ orientation })}
       {...rest}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     />
   )
 }

@@ -41,8 +41,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     },
   }
   const resolved = createStyles(tooltipRecipe, local, {
-    rootSlot: 'content',
-    inheritedStyles: () => behavior.presentation,
+    slot: 'content',
+    contextSlots: () => behavior.slotOverrides,
   })
   return (
     <PopperContent
@@ -74,10 +74,10 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
             data-slot="tooltip-content"
             {...contentDataAttrs}
             {...mergePopperElementProps(contentProps, rest)}
-            {...resolved.styles.content}
+            {...resolved.slots.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>
-              <span data-slot="tooltip-text" {...resolved.styles.text}>
+              <span data-slot="tooltip-text" {...resolved.slots.text}>
                 {text()}
               </span>
             </Show>
@@ -88,7 +88,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
                   variant={local.kbdVariant ?? (resolved.variants.invert ? 'invert' : undefined)}
                   size="sm"
                   items={keys()}
-                  {...resolved.styles.kbds}
+                  {...resolved.slots.kbds}
                 />
               )}
             </Show>

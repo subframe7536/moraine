@@ -3,7 +3,6 @@ import { children as resolveChildren, mergeProps, onMount, splitProps } from 'so
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
@@ -21,12 +20,14 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
-  const cn = useCn()
   const context = useContextMenuContext()
 
   const resolved = createStyles(contextMenuRecipe, local, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => context.presentation,
+    slot: 'trigger',
+    contextSlots: () => context.slotOverrides,
+    own: () => ({
+      trigger: { class: CONTEXT_MENU_TRIGGER_CLASS },
+    }),
   })
   const tag = () => local.as ?? 'div'
   const root = createPolymorphicRoot({
@@ -83,13 +84,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
-    <Dynamic
-      component={tag()}
-      type={undefined}
-      {...binding}
-      {...resolved.styles.trigger}
-      class={cn(resolved.styles.trigger.class, CONTEXT_MENU_TRIGGER_CLASS)}
-    >
+    <Dynamic component={tag()} type={undefined} {...binding} {...resolved.slots.trigger}>
       {children()}
     </Dynamic>
   )

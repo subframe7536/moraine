@@ -12,9 +12,9 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   const resolved = createStyles(baseSelectRecipe, local, {
-    rootSlot: 'control',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'control',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   return (
     <div
@@ -37,7 +37,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
           }
         })
       }}
-      {...resolved.styles.control}
+      {...resolved.slots.control}
     >
       {local.children}
     </div>

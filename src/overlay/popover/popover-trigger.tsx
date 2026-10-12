@@ -17,8 +17,8 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const context = usePopoverContext()
   const resolved = createStyles(popoverRecipe, props, {
-    rootSlot: 'trigger',
-    inheritedStyles: () => context.presentation,
+    slot: 'trigger',
+    contextSlots: () => context.slotOverrides,
   })
   const popper = context.popper
   const triggerProps = mergeProps(
@@ -67,7 +67,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
       props,
       { 'aria-haspopup': 'dialog' as const },
     ),
-    resolved.styles.trigger,
+    resolved.slots.trigger,
     {
       context: popper,
       get toggleOnClick() {

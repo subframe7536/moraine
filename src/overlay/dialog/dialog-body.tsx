@@ -17,9 +17,9 @@ export function DialogBody<T extends ValidComponent = 'div'>(
   const family = useModalContext()
   const content = useDialogContent()
   const resolved = createStyles(dialogRecipe, local, {
-    rootSlot: 'body',
-    inheritedVariants: () => content.variants,
-    inheritedStyles: () => family.presentation,
+    slot: 'body',
+    contextVariants: () => content.variants,
+    contextSlots: () => family.slotOverrides,
   })
   const bodyAttrs = dialogDataAttributes.body({
     header: content.hasHeader,
@@ -32,7 +32,7 @@ export function DialogBody<T extends ValidComponent = 'div'>(
       data-slot="dialog-body"
       {...bodyAttrs}
       {...rest}
-      {...resolved.styles.body}
+      {...resolved.slots.body}
     >
       {local.children}
     </Dynamic>

@@ -43,9 +43,9 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
     config,
   )
   const resolved = createStyles(dialogRecipe, local, {
-    rootSlot: 'content',
-    inheritedVariants: () => ({ fullscreen: config.fullscreen, scrollable: config.scrollable }),
-    inheritedStyles: () => family.presentation,
+    slot: 'content',
+    contextVariants: () => ({ fullscreen: config.fullscreen, scrollable: config.scrollable }),
+    contextSlots: () => family.slotOverrides,
   })
   const registration = createDialogContentRegistration()
   const overlayScroll = () =>
@@ -65,14 +65,14 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
         <Modal.Overlay
           overlay={merged.overlay}
           scrollable={overlayScroll()}
-          class={resolved.styles.overlay.class}
-          style={resolved.styles.overlay.style}
+          class={resolved.slots.overlay.class}
+          style={resolved.slots.overlay.style}
         >
           <Modal.Content
             {...rest}
             dir={rest.dir ?? direction()}
-            class={resolved.styles.content.class}
-            style={resolved.styles.content.style}
+            class={resolved.slots.content.class}
+            style={resolved.slots.content.style}
             ariaLabel={local['aria-label'] ?? merged.ariaLabel}
             ariaLabelledBy={
               (local['aria-label'] ?? merged.ariaLabel) === undefined
@@ -102,7 +102,7 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
                     <Modal.Close
                       data-slot="dialog-content-close"
                       aria-label={messages().close}
-                      {...resolved.styles.contentClose}
+                      {...resolved.slots.contentClose}
                     >
                       <Icon name={closeIcon()} />
                     </Modal.Close>

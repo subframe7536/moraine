@@ -48,10 +48,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   const messages = useMessages('multiSelect', defaultMultiSelectMessages)
   const locale = useLocale().locale
   const styles = createStyles(multiSelectRecipe, props, {
-    rootSlot: 'control',
-    inheritedVariants: () => ({ size: field?.size }),
+    slot: 'control',
+    contextVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.styles)
+  const baseSelectStyles = createBaseSelectStyleProps(styles.slots)
   const [created, setCreated] = createSignal<T[]>([])
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], created(), prev),
@@ -149,7 +149,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       commitInput,
       tokenSeparators: () => local.tokenSeparators,
       locked: state.locked,
-      slot: (slot) => styles.styles[slot],
+      slot: (slot) => styles.slots[slot],
       slotName: state.slotName,
       closeIcon: () => local.closeIcon,
       resolve: (value) => {
@@ -281,7 +281,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.styles.control}
+          {...styles.slots.control}
           {...multiSelectDataAttributes.control({
             closed: undefined,
             disabled: undefined,
@@ -319,10 +319,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         >
           <Show when={local.leadingIcon}>
             {(icon) => (
-              <Icon name={icon()} slotName="multi-select-leading" {...styles.styles.leading} />
+              <Icon name={icon()} slotName="multi-select-leading" {...styles.slots.leading} />
             )}
           </Show>
-          <div data-slot="multi-select-tags-container" {...styles.styles.tagsContainer}>
+          <div data-slot="multi-select-tags-container" {...styles.slots.tagsContainer}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
@@ -348,7 +348,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   <span
                     data-slot="multi-select-tag-overflow"
                     aria-label={messages().overflow({ count: tags.overflow() })}
-                    {...styles.styles.tagOverflow}
+                    {...styles.slots.tagOverflow}
                   >
                     +{tags.overflow()}
                   </span>
@@ -379,7 +379,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 {...state.field.ariaAttrs()}
                 data-slot="multi-select-input"
                 {...multiSelectDataAttributes.input({ duplicate: isDuplicate })}
-                {...styles.styles.input}
+                {...styles.slots.input}
                 placeholder={tags.tags().length ? '' : local.placeholder}
                 ref={(element) => {
                   inputBinding.inputProps.ref(element)
@@ -397,7 +397,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               data-slot="multi-select-clear"
               aria-label={messages().clear}
               disabled={state.locked()}
-              {...styles.styles.clear}
+              {...styles.slots.clear}
               onPointerDown={tags.isolatePointer}
               onClick={(event) => {
                 event.stopPropagation()
@@ -420,7 +420,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   loading: () => local.loading,
                 })}
                 disabled={Boolean(local.loading)}
-                {...styles.styles.trigger}
+                {...styles.slots.trigger}
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
               >
@@ -466,7 +466,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 loading: () => local.loading,
               })}
               disabled={state.field.disabled() || Boolean(local.loading)}
-              {...styles.styles.trigger}
+              {...styles.slots.trigger}
               onPointerDown={(event) => {
                 event.preventDefault()
                 event.stopPropagation()
@@ -499,7 +499,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           {...local}
           view={search.view()}
           onExitComplete={() => search.setValue('')}
-          slot={(slot) => styles.styles[slot]}
+          slot={(slot) => styles.slots[slot]}
           emptyRender={() => (
             <Show
               when={local.emptyRender !== undefined}

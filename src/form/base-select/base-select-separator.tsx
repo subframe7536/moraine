@@ -9,9 +9,9 @@ import type { BaseSelectPartProps } from './base-select.types'
 export function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const resolved = createStyles(baseSelectRecipe, props, {
-    rootSlot: 'separator',
-    inheritedStyles: () => state.stylePresentation,
-    inheritedVariants: () => ({ size: state.styleSize }),
+    slot: 'separator',
+    contextSlots: () => state.slotOverrides,
+    contextVariants: () => ({ size: state.styleSize }),
   })
   return (
     <div
@@ -19,7 +19,7 @@ export function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
       aria-hidden="true"
       data-slot={state.slotName('separator')}
       {...props}
-      {...resolved.styles.separator}
+      {...resolved.slots.separator}
     />
   )
 }

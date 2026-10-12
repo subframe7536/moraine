@@ -11,8 +11,7 @@ import {
 } from 'solid-js'
 
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
-import type { InheritedStyles } from '../../provider/create-styles'
+import type { SlotOverrides } from '../../provider/create-styles'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -27,18 +26,26 @@ function AccordionItemPanel(props: {
   disclosure: DisclosureState
   contentId: () => string
   triggerId: () => string
-  presentation: InheritedStyles<Extract<keyof AccordionStyleSlot, string>>
+  slotOverrides: SlotOverrides<Extract<keyof AccordionStyleSlot, string>>
   children: JSX.Element
 }): JSX.Element {
   const resolved = createStyles(
     accordionRecipe,
     {},
     {
-      rootSlot: 'content',
-      variablesSlot: 'content',
-      inheritedStyles: () => props.presentation,
-      variables: () => ({
+      slot: 'content',
+      varsSlot: 'content',
+      contextSlots: () => props.slotOverrides,
+      vars: () => ({
         '--mo-collapsible-content-height': `${props.disclosure.contentHeight()}px`,
+      }),
+      enforced: () => ({
+        content: {
+          style: {
+            animation: props.disclosure.initialOpen() ? 'none' : undefined,
+            height: props.disclosure.initialOpen() ? 'auto' : undefined,
+          },
+        },
       }),
     },
   )
@@ -55,16 +62,7 @@ function AccordionItemPanel(props: {
       hidden={props.disclosure.hidden()}
       inert={props.disclosure.inert()}
       data-slot="accordion-content"
-      {...resolved.styles.content}
-      style={{
-        ...resolved.styles.content.style,
-        get animation() {
-          return props.disclosure.initialOpen() ? 'none' : undefined
-        },
-        get height() {
-          return props.disclosure.initialOpen() ? 'auto' : undefined
-        },
-      }}
+      {...resolved.slots.content}
       {...accordionDataAttributes.content({
         closed: props.disclosure.closed,
         expanded: props.disclosure.open,
@@ -77,7 +75,6 @@ function AccordionItemPanel(props: {
 
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'value',
@@ -247,7 +244,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
         callRef(local.ref, element)
       }}
       id={rootId()}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
     >
       <For each={items()}>
         {(item) => {
@@ -286,7 +283,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       onCleanup(disclosure.registerMeasureElement(element))
                     }}
                     data-slot="accordion-body"
-                    {...resolved.styles.body}
+                    {...resolved.slots.body}
                   >
                     {value()}
                   </div>
@@ -342,11 +339,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="accordion-item"
-              class={cn(resolved.styles.item.class, item.class)}
-              style={resolved.styles.item.style}
+              {...resolved.slotWith('item', () => ({ class: item.class }))}
               {...accordionDataAttributes.item(itemState)}
             >
-              <h3 data-slot="accordion-header" {...resolved.styles.header}>
+              <h3 data-slot="accordion-header" {...resolved.slots.header}>
                 <button
                   ref={(element) => {
                     disclosure.setTriggerElement(element)
@@ -358,7 +354,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-label={item.ariaLabel ?? (label() === undefined ? itemValue() : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
-                  {...resolved.styles.trigger}
+                  {...resolved.slots.trigger}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -376,14 +372,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       <Icon
                         name={value()}
                         slotName="accordion-leading"
-                        {...resolved.styles.leading}
+                        {...resolved.slots.leading}
                       />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span data-slot="accordion-label" {...resolved.styles.label}>
+                      <span data-slot="accordion-label" {...resolved.slots.label}>
                         {value()}
                       </span>
                     )}
@@ -393,7 +389,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     <Icon
                       name={trailing()}
                       slotName="accordion-trailing"
-                      {...resolved.styles.trailing}
+                      {...resolved.slots.trailing}
                       {...accordionDataAttributes.trailing({ expanded })}
                     />
                   </Show>
@@ -404,7 +400,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 disclosure={disclosure}
                 contentId={contentId}
                 triggerId={triggerId}
-                presentation={{
+                slotOverrides={{
                   get classes() {
                     return local.classes
                   },

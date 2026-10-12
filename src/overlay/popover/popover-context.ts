@@ -12,7 +12,7 @@ export interface PopoverContextValue {
   invalidateHoverTimers: () => void
   hasClose: () => boolean
   registerClose: () => () => void
-  presentation: { classes?: PopoverT.Classes; styles?: PopoverT.Styles }
+  slotOverrides: { classes?: PopoverT.Classes; styles?: PopoverT.Styles }
 }
 
 export const [PopoverProvider, usePopoverContext] =

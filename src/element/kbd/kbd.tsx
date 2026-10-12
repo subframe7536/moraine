@@ -49,7 +49,7 @@ export function Kbd(props: KbdProps): JSX.Element {
         data-slot={local.slotName ?? 'kbd'}
         aria-label={label()}
         {...rest}
-        {...resolved.styles.root}
+        {...resolved.slots.root}
       >
         {text()}
       </kbd>

@@ -66,7 +66,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   const themeField = useFieldContext()
   const group = useInputGroupContext()
   const resolved = createStyles(textareaRecipe, local, {
-    inheritedVariants: () => ({
+    contextVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
       size: group?.size ?? themeField?.size,
@@ -293,7 +293,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...resolved.styles.root}
+      {...resolved.slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

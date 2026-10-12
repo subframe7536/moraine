@@ -9,7 +9,7 @@ import type { SidebarFrameStyleSlot } from './sidebar-frame.style-types'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 export interface SidebarFrameContext extends SidebarFrameT.Context {
-  readonly presentation: {
+  readonly slotOverrides: {
     classes?: SidebarFrameT.Classes
     styles?: SidebarFrameT.Styles
   }
@@ -25,7 +25,7 @@ export function useSidebarFrame(): SidebarFrameT.Context {
 }
 
 export function useSidebarFrameStyles(
-  rootSlot: keyof SidebarFrameStyleSlot,
+  slot: keyof SidebarFrameStyleSlot,
   local: {
     class?: SlotClassValue
     style?: JSX.CSSProperties
@@ -33,9 +33,9 @@ export function useSidebarFrameStyles(
 ) {
   const context = useSidebarFrameContext()
   return createStyles(sidebarFrameRecipe, local, {
-    rootSlot,
-    inheritedStyles: () => context.presentation,
-    inheritedVariants: () => ({
+    slot,
+    contextSlots: () => context.slotOverrides,
+    contextVariants: () => ({
       side: context.side,
       variant: context.variant,
     }),

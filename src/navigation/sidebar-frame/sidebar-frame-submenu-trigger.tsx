@@ -53,12 +53,12 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
           as={(local.as ?? 'button') as ValidComponent}
           data-slot="sidebar-frame-submenu-trigger"
           {...rest}
-          {...resolved.styles.submenuTrigger}
+          {...resolved.slots.submenuTrigger}
           onClick={onClick}
         >
           <Icon
             name={trailingIcon()}
-            {...resolved.styles.itemTrailing}
+            {...resolved.slots.itemTrailing}
             aria-hidden={true}
             {...sidebarFrameDataAttributes.itemTrailing({
               expanded: () => disclosure.open(),
