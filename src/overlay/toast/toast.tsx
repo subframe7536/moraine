@@ -251,6 +251,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   }
 
   const gapSize = () => local.gap ?? DEFAULT_TOAST_GAP
+  const hostPaused = () => keyboardExpanded() || isDocumentHidden() || !isWindowFocused()
 
   return (
     <Portal>
@@ -281,8 +282,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
               defaultAlign={defaultAlign}
               expand={local.expand}
               keyboardExpanded={keyboardExpanded}
-              isWindowFocused={isWindowFocused}
-              isDocumentHidden={isDocumentHidden}
+              hostPaused={hostPaused}
               heights={heights}
               gapSize={gapSize}
               visibleToasts={local.visibleToasts ?? 3}
@@ -313,8 +313,8 @@ interface ToastViewportProps {
   defaultAlign: () => OverlayAlign
   expand?: boolean
   keyboardExpanded: () => boolean
-  isWindowFocused: () => boolean
-  isDocumentHidden: () => boolean
+  /** Keyboard focus, hidden document, or blurred window. */
+  hostPaused: () => boolean
   heights: () => Record<string | number, number>
   gapSize: () => number
   visibleToasts: number
@@ -348,23 +348,31 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
   })
 
   const layoutExpanded = () => Boolean(props.expand) || props.keyboardExpanded() || isHovered()
-  const timerPaused = () =>
-    isHovered() ||
-    isInteracting() ||
-    props.keyboardExpanded() ||
-    props.isDocumentHidden() ||
-    !props.isWindowFocused()
+  const timerPaused = () => isHovered() || isInteracting() || props.hostPaused()
 
-  const frontmostHeight = () => {
-    const toasts = activeGroupToasts()
-    for (const t of toasts) {
-      const h = props.heights()[t.id]
+  const frontmostHeight = createMemo(() => {
+    const heights = props.heights()
+    for (const t of activeGroupToasts()) {
+      const h = heights[t.id]
       if (h && h > 0) {
         return h
       }
     }
     return 0
-  }
+  })
+
+  // Expanded Y offset per index: prefix sum of earlier heights plus gaps, computed once per group.
+  const offsets = createMemo(() => {
+    const heights = props.heights()
+    const gap = props.gapSize()
+    const result: number[] = []
+    let total = 0
+    for (const t of activeGroupToasts()) {
+      result.push(total)
+      total += (heights[t.id] ?? 0) + gap
+    }
+    return result
+  })
 
   const listHeight = createMemo(() => {
     const toasts = activeGroupToasts()
@@ -397,7 +405,6 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
     }),
     variables: () => ({
       '--toast-gap': `${props.gapSize()}px`,
-      '--toast-frontmost-height': `${frontmostHeight()}px`,
     }),
   })
 
@@ -423,9 +430,6 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
       }}
       onMouseLeave={() => {
         setIsHovered(false)
-        if (!isInteracting()) {
-          setIsInteracting(false)
-        }
       }}
       onPointerDown={(event) => {
         const toastTarget =
@@ -437,45 +441,30 @@ function ToastViewport(props: ToastViewportProps): JSX.Element {
       onPointerUp={() => setIsInteracting(false)}
     >
       <For each={activeGroupToasts()}>
-        {(item, index) => {
-          const offsetY = createMemo(() => {
-            const i = index()
-            let totalH = 0
-            for (let prev = 0; prev < i; prev++) {
-              const prevItem = activeGroupToasts()[prev]
-              if (prevItem) {
-                totalH += props.heights()[prevItem.id] ?? 0
-              }
-            }
-            return totalH + i * props.gapSize()
-          })
-
-          return (
-            <ToastItem
-              toast={item}
-              index={index()}
-              toastsCount={activeGroupToasts().length}
-              visibleToasts={props.visibleToasts}
-              frontmostHeight={frontmostHeight()}
-              offsetY={offsetY()}
-              expanded={layoutExpanded()}
-              paused={timerPaused()}
-              placement={placement()}
-              align={align()}
-              closeButton={props.closeButton}
-              closeButtonAriaLabel={props.closeButtonAriaLabel}
-              showProgress={props.showProgress}
-              invert={props.invert}
-              classes={props.classes}
-              styles={props.styles}
-              gap={props.gapSize()}
-              duration={props.duration}
-              onHeight={props.onHeight}
-              onDismiss={props.onDismiss}
-              onRemove={props.onRemove}
-            />
-          )
-        }}
+        {(item, index) => (
+          <ToastItem
+            toast={item}
+            index={index()}
+            toastsCount={activeGroupToasts().length}
+            visibleToasts={props.visibleToasts}
+            offsetY={offsets()[index()] ?? 0}
+            expanded={layoutExpanded()}
+            paused={timerPaused()}
+            placement={placement()}
+            align={align()}
+            closeButton={props.closeButton}
+            closeButtonAriaLabel={props.closeButtonAriaLabel}
+            showProgress={props.showProgress}
+            invert={props.invert}
+            classes={props.classes}
+            styles={props.styles}
+            gap={props.gapSize()}
+            duration={props.duration}
+            onHeight={props.onHeight}
+            onDismiss={props.onDismiss}
+            onRemove={props.onRemove}
+          />
+        )}
       </For>
     </ul>
   )

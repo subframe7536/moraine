@@ -34,7 +34,6 @@ export interface ToastItemProps {
   index: number
   toastsCount: number
   visibleToasts: number
-  frontmostHeight: number
   offsetY: number
   expanded: boolean
   paused?: boolean
@@ -53,14 +52,7 @@ export interface ToastItemProps {
   onRemove: (id: string | number) => void
 }
 
-interface ActionButtonConfig {
-  label: JSX.Element
-  onClick?: (event: MouseEvent) => void
-  class?: ToastT.Action['class']
-  style?: ToastT.Action['style']
-}
-
-function isActionConfig(value: unknown): value is ActionButtonConfig {
+function isActionConfig(value: unknown): value is ToastT.Action {
   return typeof value === 'object' && value !== null && !(value instanceof Node) && 'label' in value
 }
 
@@ -93,7 +85,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let dragStartTime = 0
   let pointerStart: { x: number; y: number } | null = null
   let dragAxis: 'x' | 'y' | null = null
-  let isDeleting = false
   let exitTimerId: ReturnType<typeof setTimeout> | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
   let progressTimerId: ReturnType<typeof setInterval> | undefined
@@ -107,11 +98,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const [removed, setRemoved] = createSignal(false)
   const [swiping, setSwiping] = createSignal(false)
   const [swipeOffset, setSwipeOffset] = createSignal({ x: 0, y: 0 })
-  const [swipeOut, setSwipeOut] = createSignal(false)
+  // Non-null once swiped out; doubles as the swipe-out flag.
   const [swipeOutDirection, setSwipeOutDirection] = createSignal<
     'left' | 'right' | 'up' | 'down' | null
   >(null)
-  const [offsetBeforeRemove, setOffsetBeforeRemove] = createSignal(0)
+  const swipeOut = () => swipeOutDirection() !== null
+  // Y offset captured when removal starts; read only together with removed().
+  let offsetBeforeRemove = 0
   const [isBumping, setIsBumping] = createSignal(false)
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
   const [progressPercent, setProgressPercent] = createSignal(100)
@@ -167,35 +160,27 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   }
 
   const deleteToast = () => {
-    if (isDeleting) {
+    if (untrack(removed)) {
       return
     }
-    isDeleting = true
-    const toastId = props.toast.id
+    offsetBeforeRemove = untrack(currentYOffset)
     setRemoved(true)
-    setOffsetBeforeRemove(currentYOffset())
-    props.onHeight(toastId, 0)
+    props.onHeight(props.toast.id, 0)
 
     exitTimerId = setTimeout(finishDelete, TOAST_EXIT_MS)
   }
 
   const handleEndTransition = (event: Event) => {
-    if (isDeleting && event.target === itemRef) {
+    if (removed() && event.target === itemRef) {
       finishDelete()
     }
   }
-
-  onCleanup(() => {
-    if (exitTimerId) {
-      clearTimeout(exitTimerId)
-    }
-  })
 
   createEffect(
     on(
       () => props.toast.dismissed,
       (dismissed) => {
-        if (dismissed && !isDeleting) {
+        if (dismissed && !untrack(removed)) {
           deleteToast()
           props.toast.onDismiss?.(props.toast)
         }
@@ -204,8 +189,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   )
 
   const transform = createMemo(() => {
-    if (swipeOut()) {
-      const dir = swipeOutDirection()
+    const dir = swipeOutDirection()
+    if (dir) {
       const offset = swipeOffset()
       if (dir === 'left') {
         return `translate3d(calc(${offset.x}px - 100%), ${currentYOffset()}px, 0) scale(${scale()})`
@@ -233,7 +218,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         return `translate3d(0, ${lift() * -100}%, 0) scale(1)`
       }
       if (props.expanded) {
-        return `translate3d(0, ${offsetBeforeRemove() + (lift() > 0 ? -100 : 100)}px, 0) scale(1)`
+        return `translate3d(0, ${offsetBeforeRemove + (lift() > 0 ? -100 : 100)}px, 0) scale(1)`
       }
       return `translate3d(0, 40%, 0) scale(${scale()})`
     }
@@ -324,12 +309,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }),
   )
 
-  onCleanup(() => {
-    if (bumpTimerId) {
-      clearTimeout(bumpTimerId)
-    }
-  })
-
   // Keep remainingTime aligned when duration changes (e.g. host default or item update).
   // bumpKey already resets the timer for duplicate/update bumps.
   createEffect(
@@ -402,12 +381,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   )
 
   onCleanup(() => {
-    if (timerId) {
-      clearTimeout(timerId)
-    }
-    if (progressTimerId) {
-      clearInterval(progressTimerId)
-    }
+    clearTimeout(exitTimerId)
+    clearTimeout(bumpTimerId)
+    clearTimeout(timerId)
+    clearInterval(progressTimerId)
   })
 
   function handlePointerDown(event: PointerEvent) {
@@ -496,7 +473,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       } else {
         setSwipeOutDirection(movedY > 0 ? 'down' : 'up')
       }
-      setSwipeOut(true)
       props.onDismiss(props.toast.id)
       return
     }
@@ -601,7 +577,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
             <Show when={props.toast.cancel}>
               {(cancel) => (
                 <Show
-                  when={isActionConfig(cancel()) ? (cancel() as ActionButtonConfig) : undefined}
+                  when={isActionConfig(cancel()) ? (cancel() as ToastT.Action) : undefined}
                   fallback={
                     <div data-slot="toast-cancel" {...resolved.styles.cancel}>
                       {cancel() as JSX.Element}
@@ -635,7 +611,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
             <Show when={props.toast.action}>
               {(action) => (
                 <Show
-                  when={isActionConfig(action()) ? (action() as ActionButtonConfig) : undefined}
+                  when={isActionConfig(action()) ? (action() as ToastT.Action) : undefined}
                   fallback={
                     <div data-slot="toast-action" {...resolved.styles.action}>
                       {action() as JSX.Element}
