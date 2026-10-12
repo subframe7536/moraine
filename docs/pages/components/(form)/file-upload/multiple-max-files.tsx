@@ -46,7 +46,7 @@ export function MultipleMaxFiles() {
       />
 
       <Show when={rejectWarning()}>
-        <p class="text-xs text-destructive">{rejectWarning()}</p>
+        <p class="text-xs text-danger">{rejectWarning()}</p>
       </Show>
 
       <Show when={filesList().length > 0}>

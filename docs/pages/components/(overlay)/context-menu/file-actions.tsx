@@ -52,7 +52,7 @@ export function FileActions() {
     {
       label: 'Move to trash',
       icon: 'i-lucide:trash-2',
-      variant: 'destructive',
+      variant: 'danger',
       onSelect: () => {
         setDeleted(true)
         setStatus('Project brief.pdf moved to trash.')

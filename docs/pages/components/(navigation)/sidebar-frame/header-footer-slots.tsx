@@ -34,7 +34,7 @@ export function HeaderFooterSlots() {
     { label: 'Billing & Invoices', icon: 'i-lucide:credit-card' },
     { label: 'Notifications', icon: 'i-lucide:bell' },
     { type: 'separator' as const },
-    { label: 'Log out', icon: 'i-lucide:log-out', variant: 'destructive' as const },
+    { label: 'Log out', icon: 'i-lucide:log-out', variant: 'danger' as const },
   ]
 
   const projects = [

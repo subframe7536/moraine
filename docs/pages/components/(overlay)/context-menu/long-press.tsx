@@ -12,7 +12,7 @@ export function LongPress() {
       <ContextMenu.Content
         items={[
           { label: 'Copy note', icon: 'i-lucide:copy' },
-          { label: 'Delete note', variant: 'destructive', icon: 'i-lucide:trash-2' },
+          { label: 'Delete note', variant: 'danger', icon: 'i-lucide:trash-2' },
         ]}
       />
     </ContextMenu>

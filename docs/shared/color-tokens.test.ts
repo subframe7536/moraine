@@ -1,0 +1,91 @@
+import { describe, expect, it } from 'vitest'
+
+import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
+import { MORAINE_COLORS } from '../../src/theme/tokens.ts'
+
+import { formatDocsColorTokenDefault, listDocsColorTokens } from './color-tokens.ts'
+
+function findToken(name: string) {
+  const token = listDocsColorTokens().find((item) => item.name === name)
+  expect(token, name).toBeDefined()
+  return token!
+}
+
+describe('listDocsColorTokens', () => {
+  it('lists every MORAINE_COLORS entry and variant', () => {
+    const tokens = listDocsColorTokens()
+    const expectedCount = Object.values(MORAINE_COLORS).reduce(
+      (count, schema) => count + (typeof schema === 'string' ? 1 : Object.keys(schema).length),
+      0,
+    )
+
+    expect(tokens).toHaveLength(expectedCount)
+    expect(new Set(tokens.map((token) => token.name)).size).toBe(expectedCount)
+    for (const token of tokens) {
+      expect(token.cssVariable).toBe(`--${token.name}`)
+    }
+    expect(tokens.map((token) => token.name)).toEqual(
+      expect.arrayContaining([
+        'background',
+        'background-hover',
+        'foreground',
+        'primary',
+        'primary-foreground',
+        'primary-hover',
+        'primary-active',
+        'warning-foreground',
+        'control',
+        'backdrop',
+        'ring',
+      ]),
+    )
+  })
+
+  it('keeps the utility value so swatches follow fallbacks', () => {
+    expect(findToken('danger-foreground').value).toBe('var(--danger-foreground, var(--background))')
+  })
+
+  it('reads light and dark defaults from the preset palette', () => {
+    expect(findToken('primary').defaults).toEqual({
+      light: { type: 'value', value: DEFAULT_THEME_COLORS.light.primary.base },
+      dark: { type: 'value', value: DEFAULT_THEME_COLORS.dark.primary.base },
+    })
+    expect(findToken('muted-foreground').defaults.dark).toEqual({
+      type: 'value',
+      value: DEFAULT_THEME_COLORS.dark.muted.foreground,
+    })
+    expect(findToken('foreground').defaults.light).toEqual({
+      type: 'value',
+      value: DEFAULT_THEME_COLORS.light.foreground,
+    })
+    expect(findToken('backdrop').defaults.dark).toEqual({
+      type: 'value',
+      value: DEFAULT_THEME_COLORS.dark.backdrop,
+    })
+  })
+
+  it('describes derived defaults for state and status foreground rows', () => {
+    expect(findToken('primary-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
+    expect(findToken('background-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
+    expect(findToken('warning-foreground').defaults).toEqual({
+      light: { type: 'fallback', variable: '--background' },
+      dark: { type: 'fallback', variable: '--background' },
+    })
+    for (const token of listDocsColorTokens()) {
+      expect(token.defaults.light.type, token.name).not.toBe('none')
+      expect(token.defaults.dark.type, token.name).not.toBe('none')
+    }
+  })
+})
+
+describe('formatDocsColorTokenDefault', () => {
+  it('formats values as inline code and derived defaults as short text', () => {
+    expect(formatDocsColorTokenDefault({ type: 'value', value: 'rgb(0, 0, 0)' })).toBe(
+      '`rgb(0, 0, 0)`',
+    )
+    expect(formatDocsColorTokenDefault({ type: 'auto', percent: 8 })).toBe('auto (color-mix, 8%)')
+    expect(formatDocsColorTokenDefault({ type: 'fallback', variable: '--background' })).toBe(
+      'falls back to `--background`',
+    )
+  })
+})

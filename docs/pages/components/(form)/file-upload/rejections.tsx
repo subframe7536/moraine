@@ -34,7 +34,7 @@ export function Rejections() {
 
       <For each={rejections()}>
         {(rejection) => (
-          <p class="text-sm text-destructive">
+          <p class="text-sm text-danger">
             {rejection.name}: {rejection.reason}
           </p>
         )}

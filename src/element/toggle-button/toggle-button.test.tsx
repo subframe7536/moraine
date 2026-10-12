@@ -206,7 +206,7 @@ describe('ToggleButton', () => {
         >
           Theme
         </ToggleButton>
-        <ButtonGroup size="sm" variant="destructive">
+        <ButtonGroup size="sm" variant="danger">
           <ToggleButton>Grouped</ToggleButton>
         </ButtonGroup>
       </MoraineProvider>
@@ -236,14 +236,14 @@ describe('ToggleButton', () => {
     setActiveVariant('secondary')
     expect(button.className).toContain('bg-secondary')
     fireEvent.click(button)
-    setVariant('destructive')
+    setVariant('danger')
     setSize('icon-sm')
     setCustomClass('updated-class')
-    expect(button.className).toContain('bg-destructive')
+    expect(button.className).toContain('bg-danger')
     expect(button.className).toContain('size-6')
     expect(button.className).toContain('updated-class')
     const grouped = screen.getByRole('button', { name: 'Grouped' })
-    expect(grouped.className).toContain('bg-destructive')
+    expect(grouped.className).toContain('bg-danger')
     expect(grouped.className).toContain('h-7')
     fireEvent.click(grouped)
     expect(grouped.className).toContain('bg-primary')

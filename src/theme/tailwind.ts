@@ -101,7 +101,7 @@ export const moraineTailwind = plugin(
           'collapse',
           'compact',
           'cross',
-          'destructive',
+          'danger',
           'disabled',
           'dragging',
           'dropzone',

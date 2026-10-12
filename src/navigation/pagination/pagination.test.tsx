@@ -15,9 +15,9 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 
 describe('Pagination', () => {
   test('applies button variants only to their page and control buttons', () => {
-    const [destructive, setDestructive] = createSignal(false)
+    const [danger, setDanger] = createSignal(false)
     const screen = render(() => (
-      <Pagination total={30} page={2} controlVariant={destructive() ? 'destructive' : 'ghost'} />
+      <Pagination total={30} page={2} controlVariant={danger() ? 'danger' : 'ghost'} />
     ))
     const root = screen.getByRole('navigation')
     const current = screen.container.querySelector(
@@ -28,9 +28,9 @@ describe('Pagination', () => {
     expect(current.className).toContain('bg-background')
     expect(next.className).toContain('bg-accent-hover')
 
-    setDestructive(true)
+    setDanger(true)
     expect(root.className).not.toMatch(/bg-|hover:|border-/)
-    expect(next.className).toContain('bg-destructive')
+    expect(next.className).toContain('bg-danger')
     expect(current.className).toContain('bg-background')
   })
 

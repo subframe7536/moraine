@@ -41,7 +41,7 @@ export function IconGallery() {
                   message() === 'Copied'
                     ? 'text-primary'
                     : message() === 'Copy failed'
-                      ? 'text-destructive'
+                      ? 'text-danger'
                       : 'text-muted-foreground',
                 ]}
               />

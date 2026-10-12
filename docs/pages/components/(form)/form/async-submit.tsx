@@ -31,7 +31,7 @@ export function AsyncSubmit() {
         Save draft
       </Button>
       <Show when={saved()}>
-        <p class="text-success text-sm">Saved.</p>
+        <p class="text-sm text-success">Saved.</p>
       </Show>
     </form.Form>
   )

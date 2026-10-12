@@ -120,7 +120,7 @@ Keep the CSS import in the application entry when using lazy routes; do not rely
 
 ## Preset options
 
-`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`; their colors stay the same across parent surfaces. The default selectors are `:root` and `.dark`. Configure single-value tokens at the top level; put colors, shadows, and `colorScheme` in named `override` entries.
+`presetMoraine()` provides Moraine's utility tokens, state variants, opaque neutral light and dark colors as RGB values, a translucent backdrop, default shadows, and base values for radius, font size, and spacing. Dark `border` and `input` use `rgb(35, 35, 35)` and `rgb(47, 47, 47)`; their colors stay the same across parent surfaces. The status colors `info`, `success`, `warning`, and `danger` follow Obsidian's callout colors. The default selectors are `:root` and `.dark`. Configure single-value tokens at the top level; put colors, shadows, and `colorScheme` in named `override` entries.
 
 Semantic shadow defaults use the Tailwind values inherited by the [shadcn/ui neutral theme](https://ui.shadcn.com/docs/theming#default-theme-css): surface → `sm`, overlay → `md`, input → `xs`. The preset emits `--shadow-surface`, `--shadow-overlay`, and `--shadow-input` at `:root`; dark mode inherits these values unless `override.dark.shadows` supplies replacements. Native size utilities such as `shadow-xs` retain the CSS engine's own values and configuration. Set `themeDefaults: false` to omit default colors and semantic shadows while retaining explicit overrides.
 
@@ -210,7 +210,7 @@ For Wind3, use `presetWind3()` with `presetMoraine({ wind3: true })` and put the
 
 ### Hover and active colors
 
-For grouped semantic colors, when `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other grouped colors use their own foreground with the global foreground as a fallback. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
+For grouped semantic colors, when `color-mix(in oklch, …)` is supported, missing states mix the color toward its foreground in the scope where the utility is used. `background` uses the global foreground; other grouped colors use their own foreground with the global foreground as a fallback, except `danger`, `info`, `success`, and `warning`, which fall back to `--background`. An explicit state variable always wins. An explicit state can be a CSS color, a mixing percentage, or a callback:
 
 ```ts
 presetMoraine({

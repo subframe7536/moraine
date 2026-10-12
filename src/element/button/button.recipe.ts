@@ -21,7 +21,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
   'button',
   {
     base: {
-      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-destructive ring-3 ring-destructive/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`,
+      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-danger ring-3 ring-danger/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`,
       leading: '',
       label: 'min-w-0 truncate',
       trailing: '',
@@ -53,8 +53,8 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
         link: {
           root: 'text-primary border-transparent underline-offset-4 hover:underline',
         },
-        destructive: {
-          root: 'text-destructive-foreground border-transparent bg-destructive focus-visible:(border-destructive/40 ring-destructive/20) active:bg-destructive-active hover:bg-destructive-hover dark:focus-visible:ring-destructive/40',
+        danger: {
+          root: 'text-danger-foreground border-transparent bg-danger focus-visible:(border-danger/40 ring-danger/20) active:bg-danger-active hover:bg-danger-hover dark:focus-visible:ring-danger/40',
         },
       },
       size: {
