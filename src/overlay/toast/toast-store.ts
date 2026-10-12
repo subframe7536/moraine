@@ -30,7 +30,14 @@ function isSameAction(first: unknown, second: unknown): boolean {
     'label' in first &&
     'label' in second
   ) {
-    return isSameToastValue((first as ToastT.Action).label, (second as ToastT.Action).label)
+    const a = first as ToastT.Action
+    const b = second as ToastT.Action
+    return (
+      isSameToastValue(a.label, b.label) &&
+      isSameToastValue(a.variant, b.variant) &&
+      isSameToastValue(a.size, b.size) &&
+      isSameToastValue(a.activeEffect, b.activeEffect)
+    )
   }
   return false
 }

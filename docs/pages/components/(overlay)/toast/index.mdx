@@ -41,10 +41,36 @@ import { Button, Toast } from '@src'
     { kind: 'switch', prop: 'closeButton', label: 'Close button', defaultValue: true },
     { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
     {
+      kind: 'select',
+      prop: 'actionVariant',
+      label: 'Action variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Danger', value: 'danger' },
+      ],
+    },
+    {
       kind: 'input',
       prop: 'cancelText',
       label: 'Cancel text',
       defaultValue: 'Dismiss',
+    },
+    {
+      kind: 'select',
+      prop: 'cancelVariant',
+      label: 'Cancel variant',
+      defaultValue: 'ghost',
+      options: [
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Default', value: 'default' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Danger', value: 'danger' },
+      ],
     },
     { kind: 'switch', prop: 'showProgress', label: 'Show progress bar', defaultValue: false },
   ]}
@@ -60,12 +86,14 @@ import { Button, Toast } from '@src'
         action: props.action
           ? {
               label: 'Undo',
+              variant: props.actionVariant,
               onClick: () => {},
             }
           : undefined,
         cancel: props.cancelText
           ? {
               label: props.cancelText,
+              variant: props.cancelVariant,
               onClick: () => {},
             }
           : undefined,

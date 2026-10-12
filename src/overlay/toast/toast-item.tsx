@@ -601,8 +601,9 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                     <Button
                       data-slot="toast-cancel"
                       slotName="toast-cancel"
-                      size="sm"
-                      variant="ghost"
+                      size={config().size ?? 'sm'}
+                      variant={config().variant ?? 'ghost'}
+                      activeEffect={config().activeEffect}
                       {...resolved.slotWith('cancel', () => ({
                         class: config().class,
                         style: config().style,
@@ -633,8 +634,9 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                     <Button
                       data-slot="toast-action"
                       slotName="toast-action"
-                      size="sm"
-                      variant="outline"
+                      size={config().size ?? 'sm'}
+                      variant={config().variant ?? 'outline'}
+                      activeEffect={config().activeEffect}
                       {...resolved.slotWith('action', () => ({
                         class: config().class,
                         style: config().style,

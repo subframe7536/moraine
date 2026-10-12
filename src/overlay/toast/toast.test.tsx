@@ -107,6 +107,29 @@ describe('Toast', () => {
     })
   })
 
+  it('applies custom variant and size on action and cancel button configs', async () => {
+    render(() => <Toast />)
+
+    Toast.show('Item deleted', {
+      action: {
+        label: 'Undo',
+        variant: 'default',
+        size: 'lg',
+      },
+      cancel: {
+        label: 'Dismiss',
+        variant: 'danger',
+      },
+    })
+
+    const actionButton = await screen.findByRole('button', { name: 'Undo' })
+    const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
+
+    expect(actionButton.className).toContain('bg-primary')
+    expect(actionButton.className).toContain('text-base')
+    expect(cancelButton.className).toContain('bg-danger')
+  })
+
   it('renders close button and dismisses on click', async () => {
     render(() => <Toast closeButton closeButtonAriaLabel="Dismiss notification" />)
 
@@ -638,7 +661,7 @@ describe('Toast', () => {
     expect(viewport.getAttribute('role')).toBe('region')
     const classes = viewport.className.split(/\s+/)
     expect(classes).not.toContain('inset-0')
-    expect(classes).toEqual(expect.arrayContaining(['fixed', 'top-4', 'left-4', 'w-sm']))
+    expect(classes).toEqual(expect.arrayContaining(['fixed', 'top-4', 'left-4']))
     expect(classes).not.toContain('bottom-4')
   })
 

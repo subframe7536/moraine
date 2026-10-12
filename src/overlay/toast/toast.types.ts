@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 
+import type { ButtonT } from '../../element/button'
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
 import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -21,7 +22,7 @@ export namespace ToastT {
   export type Styles = Slot<SlotStyleValue>
 
   /** Action button configuration for a toast. */
-  export interface Action {
+  export interface Action extends ButtonT.Variant {
     /** Button label content. */
     label: JSX.Element
     /** Click handler callback. */
