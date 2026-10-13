@@ -200,6 +200,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
               duration={local.duration}
               onHeight={updateHeight}
               onClose={(id) => store().close(id)}
+              onBump={(listener) => store().onBump(listener)}
             />
           )}
         </For>
@@ -228,6 +229,7 @@ interface ToastListProps {
   duration?: number
   onHeight: (id: string | number, height: number) => void
   onClose: (id: string | number) => void
+  onBump?: (listener: (id: string | number) => void) => () => void
 }
 
 function ToastList(props: ToastListProps): JSX.Element {
@@ -365,6 +367,7 @@ function ToastList(props: ToastListProps): JSX.Element {
               duration={props.duration}
               onHeight={props.onHeight}
               onClose={props.onClose}
+              onBump={props.onBump}
             />
           )}
         </For>
@@ -395,6 +398,7 @@ Toast.promise = (promiseValue, options) => getDefaultToastStore().promise(promis
 Toast.custom = (render, options) => getDefaultToastStore().custom(render, options)
 Toast.update = (id, options) => getDefaultToastStore().update(id, options)
 Toast.close = (id) => getDefaultToastStore().close(id)
+Toast.onBump = (listener) => getDefaultToastStore().onBump(listener)
 
 Object.defineProperties(Toast, {
   toasts: {

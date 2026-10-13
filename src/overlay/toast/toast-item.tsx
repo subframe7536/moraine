@@ -52,6 +52,7 @@ export interface ToastItemProps {
   duration?: number
   onHeight: (id: string | number, height: number) => void
   onClose: (id: string | number) => void
+  onBump?: (listener: (id: string | number) => void) => () => void
 }
 
 function isActionConfig(value: unknown): value is ToastT.Action {
@@ -88,6 +89,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let dragAxis: 'x' | 'y' | null = null
   let exitTimerId: ReturnType<typeof setTimeout> | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
+  let bumpTimerId: ReturnType<typeof setTimeout> | undefined
   let closeTimerStartTime = 0
   let closedCallbackFired = false
 
@@ -96,6 +98,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const [mounted, setMounted] = createSignal(false)
   const [removed, setRemoved] = createSignal(false)
+  const [isBumping, setIsBumping] = createSignal(false)
   const [swiping, setSwiping] = createSignal(false)
   const [swipeOffset, setSwipeOffset] = createSignal({ x: 0, y: 0 })
   // Non-null once swiped out; doubles as the swipe-out flag.
@@ -354,18 +357,34 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setProgressEpoch((prev) => prev + 1)
   }
 
-  createEffect(
-    on(
-      () => props.toast.isBumping,
-      (bumping) => {
-        if (bumping) {
-          resetCloseTimer()
-          startTimer()
-        }
-      },
-      { defer: true },
-    ),
-  )
+  const handleBump = () => {
+    if (bumpTimerId) {
+      clearTimeout(bumpTimerId)
+    }
+    setIsBumping(false)
+    // oxlint-disable-next-line subf/solid-reactivity -- Microtask re-triggers the CSS bump animation on the next tick.
+    queueMicrotask(() => {
+      setIsBumping(true)
+      resetCloseTimer()
+      startTimer()
+      bumpTimerId = setTimeout(() => {
+        setIsBumping(false)
+        bumpTimerId = undefined
+      }, 240)
+    })
+  }
+
+  onMount(() => {
+    // oxlint-disable-next-line subf/solid-reactivity -- Event subscription handles bumps outside tracked effect scopes.
+    const unsubscribe = props.onBump?.((id) => {
+      if (id === props.toast.id) {
+        handleBump()
+      }
+    })
+    onCleanup(() => {
+      unsubscribe?.()
+    })
+  })
 
   // Keep remainingTime aligned when duration changes (e.g. host default or item update).
   createEffect(
@@ -397,6 +416,9 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   onCleanup(() => {
     clearTimeout(exitTimerId)
     clearTimeout(timerId)
+    if (bumpTimerId) {
+      clearTimeout(bumpTimerId)
+    }
   })
 
   function handlePointerDown(event: PointerEvent) {
@@ -494,8 +516,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () =>
-    props.toast.role ?? (props.toast.variants?.variant === 'error' ? 'alert' : 'status')
+  const role = () => (props.toast.variants?.variant === 'error' ? 'alert' : 'status')
 
   const closeConfig = () => props.toast.close ?? props.close
 
@@ -537,7 +558,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         behind: () => !isFront(),
         expanded: () => props.expanded,
         limited: () => !isVisible(),
-        bump: () => Boolean(props.toast.isBumping),
+        bump: isBumping,
         swiping,
         swipeOut,
       })}

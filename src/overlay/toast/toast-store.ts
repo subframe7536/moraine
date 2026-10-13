@@ -76,6 +76,7 @@ export interface ToastStore {
   ) => string | number
   update: (id: string | number, options: ToastT.UpdateOptions) => string | number
   close: (id?: string | number) => void
+  onBump: (listener: (id: string | number) => void) => () => void
   preventDuplicate: ToastT.PreventDuplicate
   setHostPreventDuplicate: (
     hostId: string | undefined,
@@ -120,7 +121,7 @@ export function createToastStore(): ToastStore {
   const [store, setStore] = createStore<ToastItemRecord[]>([])
   const hostPreventDuplicates = new Map<string, ToastT.PreventDuplicate>()
   const registeredHosts = new Map<string, number>()
-  const bumpTimers = new Map<string | number, ReturnType<typeof setTimeout>>()
+  const bumpListeners = new Set<(id: string | number) => void>()
   let counter = 1
   let defaultPreventDuplicate: ToastT.PreventDuplicate = false
 
@@ -185,39 +186,15 @@ export function createToastStore(): ToastStore {
     return id
   }
 
-  const clearBumpTimer = (id: string | number): void => {
-    const timer = bumpTimers.get(id)
-    if (timer === undefined) {
-      return
-    }
-    clearTimeout(timer)
-    bumpTimers.delete(id)
-  }
-
-  const setBumping = (id: string | number, value: boolean): void => {
-    setStore(
-      produce((list) => {
-        const item = list.find((entry) => entry.id === id)
-        if (item) {
-          item.isBumping = value
-        }
-      }),
-    )
-  }
-
   const triggerBump = (id: string | number): void => {
-    clearBumpTimer(id)
-    setBumping(id, false)
-    queueMicrotask(() => {
-      setBumping(id, true)
-      bumpTimers.set(
-        id,
-        setTimeout(() => {
-          bumpTimers.delete(id)
-          setBumping(id, false)
-        }, 240),
-      )
-    })
+    bumpListeners.forEach((fn) => fn(id))
+  }
+
+  const onBump = (listener: (id: string | number) => void): (() => void) => {
+    bumpListeners.add(listener)
+    return () => {
+      bumpListeners.delete(listener)
+    }
   }
 
   const add = (options: ToastT.InitOptions): string | number => {
@@ -230,23 +207,14 @@ export function createToastStore(): ToastStore {
           : defaultPreventDuplicate
 
     if (preventOption && options.id === undefined) {
-      const candidate: Partial<ToastItemRecord> = {
-        title: options.title,
-        description: options.description,
-        variants: options.variants,
-        toastId: options.toastId,
-        action: options.action,
-        cancel: options.cancel,
-      }
-
-      const targetPlacement = candidate.variants?.placement ?? 'bottom'
-      const targetAlign = candidate.variants?.align ?? 'end'
+      const targetPlacement = options.variants?.placement ?? 'bottom'
+      const targetAlign = options.variants?.align ?? 'end'
 
       const frontIndex = store.findIndex((t) => {
         if (t.closed) {
           return false
         }
-        if (candidate.toastId ? t.toastId !== candidate.toastId : Boolean(t.toastId)) {
+        if (options.toastId ? t.toastId !== options.toastId : Boolean(t.toastId)) {
           return false
         }
         const tPlacement = t.variants?.placement ?? 'bottom'
@@ -258,8 +226,8 @@ export function createToastStore(): ToastStore {
         const frontToast = store[frontIndex]!
         const isDuplicate =
           typeof preventOption === 'function'
-            ? preventOption(candidate, frontToast)
-            : isSameToastContent(frontToast, candidate)
+            ? preventOption(options, frontToast)
+            : isSameToastContent(frontToast, options)
 
         if (isDuplicate) {
           triggerBump(frontToast.id)
@@ -268,33 +236,26 @@ export function createToastStore(): ToastStore {
       }
     }
 
-    const existingIndex = store.findIndex((t) => t.id === id)
     const toastItem: ToastItemRecord = {
-      role: options.variants?.variant === 'error' ? 'alert' : 'status',
       ...options,
-      variants: {
-        variant: 'default',
-        ...options.variants,
-      },
       id,
-      closed: false,
-      isBumping: false,
     }
 
-    if (existingIndex !== -1) {
-      setStore(
-        existingIndex,
-        produce((item) => {
+    let isExisting = false
+    setStore(
+      produce((draft) => {
+        const item = draft.find((t) => t.id === id)
+        if (item) {
+          isExisting = true
           Object.assign(item, toastItem)
-        }),
-      )
-      triggerBump(id)
-    } else {
-      setStore(
-        produce((draft) => {
+        } else {
           draft.unshift(toastItem)
-        }),
-      )
+        }
+      }),
+    )
+
+    if (isExisting) {
+      triggerBump(id)
     }
 
     return id
@@ -311,11 +272,12 @@ export function createToastStore(): ToastStore {
     })
 
   const update = (id: string | number, options: ToastT.UpdateOptions): string | number => {
-    const existingIndex = store.findIndex((t) => t.id === id)
-    if (existingIndex !== -1) {
-      setStore(
-        existingIndex,
-        produce((item) => {
+    let found = false
+    setStore(
+      produce((draft) => {
+        const item = draft.find((t) => t.id === id)
+        if (item) {
+          found = true
           const mergedVariants =
             options.variants || item.variants
               ? { ...item.variants, ...options.variants }
@@ -324,8 +286,10 @@ export function createToastStore(): ToastStore {
             ...options,
             ...(mergedVariants ? { variants: mergedVariants } : {}),
           })
-        }),
-      )
+        }
+      }),
+    )
+    if (found) {
       triggerBump(id)
     }
     return id
@@ -342,40 +306,21 @@ export function createToastStore(): ToastStore {
   }
 
   const close = (id?: string | number): void => {
-    const orphanIds: Array<string | number> = []
-
-    for (let i = 0; i < store.length; i++) {
-      const item = store[i]!
-      if (id !== undefined && item.id !== id) {
-        continue
-      }
-      clearBumpTimer(item.id)
-      if (!hasMatchingHost(item) || item.closed) {
-        orphanIds.push(item.id)
-        continue
-      }
-      if (!item.closed) {
-        setStore(
-          i,
-          produce((draft) => {
-            draft.closed = true
-          }),
-        )
-      }
-    }
-
-    if (orphanIds.length > 0) {
-      const orphanSet = new Set(orphanIds)
-      setStore(
-        produce((draft) => {
-          for (let i = draft.length - 1; i >= 0; i--) {
-            if (orphanSet.has(draft[i]!.id)) {
-              draft.splice(i, 1)
-            }
+    setStore(
+      produce((draft) => {
+        for (let i = draft.length - 1; i >= 0; i--) {
+          const item = draft[i]!
+          if (id !== undefined && item.id !== id) {
+            continue
           }
-        }),
-      )
-    }
+          if (!hasMatchingHost(item) || item.closed) {
+            draft.splice(i, 1)
+          } else {
+            item.closed = true
+          }
+        }
+      }),
+    )
   }
 
   const promise = <T>(
@@ -496,6 +441,7 @@ export function createToastStore(): ToastStore {
     custom,
     update,
     close,
+    onBump,
     get toasts() {
       return store
     },

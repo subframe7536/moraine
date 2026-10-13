@@ -433,7 +433,7 @@ describe('Toast', () => {
     }
   })
 
-  it('updates title and description in place via Toast.update and triggers isBumping', async () => {
+  it('updates title and description in place via Toast.update and triggers bump', async () => {
     render(() => <Toast />)
     const id = Toast.add({ title: 'Initial Title', description: 'Initial Desc' })
     expect(await screen.findByText('Initial Title')).not.toBeNull()
@@ -448,6 +448,20 @@ describe('Toast', () => {
     await waitFor(() => {
       expect(toastEl?.hasAttribute('data-bump')).toBe(true)
     })
+  })
+
+  it('notifies listeners registered with onBump when a toast is bumped', () => {
+    const bumpListener = vi.fn()
+    const unsubscribe = Toast.onBump(bumpListener)
+
+    const id = Toast.add({ title: 'Test Bump' })
+    Toast.update(id, { title: 'Updated Bump' })
+
+    expect(bumpListener).toHaveBeenCalledWith(id)
+    unsubscribe()
+
+    Toast.update(id, { title: 'Another Update' })
+    expect(bumpListener).toHaveBeenCalledTimes(1)
   })
 
   it('does not throw when a bump timer fires after the toast is removed', async () => {
@@ -475,10 +489,9 @@ describe('Toast', () => {
       Toast.add({ title: 'Second' })
       await vi.advanceTimersByTimeAsync(300)
 
-      const first = Toast.toasts.find((item) => item.id === idA)
-      const second = Toast.toasts.find((item) => item.title === 'Second')
-      expect(first?.isBumping).toBe(false)
-      expect(second?.isBumping).toBe(false)
+      const items = document.querySelectorAll('[data-slot="toast-item"]')
+      expect(items[0]?.hasAttribute('data-bump')).toBe(false)
+      expect(items[1]?.hasAttribute('data-bump')).toBe(false)
     } finally {
       vi.useRealTimers()
     }

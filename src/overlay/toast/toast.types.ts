@@ -14,8 +14,6 @@ export const DEFAULT_TOAST_GAP = 14
 export interface ToastItemRecord extends ToastT.InitOptions {
   id: string | number
   closed?: boolean
-  isBumping?: boolean
-  role?: 'status' | 'alert'
   jsx?: JSX.Element | ((id: string | number) => JSX.Element)
 }
 
