@@ -126,7 +126,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuetext={valueText()}
       {...resolved.slots.root}
       style={{
-        '--progress-value': percent() === undefined ? undefined : percent()! / 100,
+        '--p-value': percent() === undefined ? undefined : percent()! / 100,
         ...resolved.slots.root.style,
       }}
     >

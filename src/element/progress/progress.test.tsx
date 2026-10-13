@@ -78,7 +78,7 @@ describe('Progress', () => {
 
     expect(status.textContent).toBe('40%')
     expect(status.style.width).toBe('')
-    expect(withStatus.getByRole('progressbar').style.getPropertyValue('--progress-value')).toBe(
+    expect(withStatus.getByRole('progressbar').style.getPropertyValue('--p-value')).toBe(
       '0.4',
     )
 
@@ -178,7 +178,7 @@ describe('Progress', () => {
       expect(progress.hasAttribute('aria-valuenow')).toBe(false)
       expect(progress.getAttribute('aria-valuetext')).toBe('indeterminate progress')
       expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
-      expect(progress.style.getPropertyValue('--progress-value')).toBe('')
+      expect(progress.style.getPropertyValue('--p-value')).toBe('')
       expect(
         (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
           .transform,
@@ -195,7 +195,7 @@ describe('Progress', () => {
     expect(progress.getAttribute('aria-valuetext')).toBe('0%')
     expect(progress.getAttribute('data-progress')).toBe('complete')
     expect(screen.container.querySelector('[data-slot="progress-status"]')?.textContent).toBe('0%')
-    expect(progress.style.getPropertyValue('--progress-value')).toBe('0')
+    expect(progress.style.getPropertyValue('--p-value')).toBe('0')
     expect(
       (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
         .transform,
@@ -212,7 +212,7 @@ describe('Progress', () => {
 
     expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
     expect(status.textContent).toBe('33.33%')
-    expect(progress.style.getPropertyValue('--progress-value')).toBe('0.3333')
+    expect(progress.style.getPropertyValue('--p-value')).toBe('0.3333')
     expect(status.style.width).toBe('')
     expect(indicator.style.transform).toBe('')
   })
@@ -423,12 +423,12 @@ describe('Progress', () => {
     ) as HTMLElement
 
     expect(root?.className).toContain('flex-row-reverse')
-    expect((root as HTMLElement).style.getPropertyValue('--progress-value')).toBe('0.25')
-    expect(status.className).toContain('h-[calc((1_-_var(--progress-value))*100%)]')
+    expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('0.25')
+    expect(status.className).toContain('h-[calc((1_-_var(--p-value))*100%)]')
     expect(status.style.height).toBe('')
     expect(indicator.className).toContain('animate-swing-vertical')
     expect(indicator.className).toContain(
-      'not-[[data-indeterminate]]:scale-y-[var(--progress-value)]',
+      'not-[[data-indeterminate]]:scale-y-[var(--p-value)]',
     )
     expect(indicator.className).toContain('origin-bottom')
     expect(indicator.style.transform).toBe('')
@@ -449,10 +449,10 @@ describe('Progress', () => {
       '[data-slot="progress-indicator"]',
     ) as HTMLElement
 
-    expect(root.style.getPropertyValue('--progress-value')).toBe('0.6')
-    expect(status.className).toContain('w-[calc(var(--progress-value)*100%)]')
+    expect(root.style.getPropertyValue('--p-value')).toBe('0.6')
+    expect(status.className).toContain('w-[calc(var(--p-value)*100%)]')
     expect(indicator.className).toContain(
-      'not-[[data-indeterminate]]:scale-x-[var(--progress-value)]',
+      'not-[[data-indeterminate]]:scale-x-[var(--p-value)]',
     )
     expect(indicator.className).toContain('origin-left')
     expect(indicator.className).toContain('rtl:origin-right')
@@ -464,7 +464,7 @@ describe('Progress', () => {
     const root = screen.getByRole('progressbar')
 
     expect(root.style.color).toBe('red')
-    expect(root.style.getPropertyValue('--progress-value')).toBe('0.5')
+    expect(root.style.getPropertyValue('--p-value')).toBe('0.5')
   })
 
   test('uses reverse animation classes without inverse utilities', () => {

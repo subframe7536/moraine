@@ -33,17 +33,17 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
         horizontal: {
           root: 'flex flex-col w-full',
           status:
-            'flex-row min-w-fit w-[calc(var(--progress-value)*100%)] items-center justify-end',
+            'flex-row min-w-fit w-[calc(var(--p-value)*100%)] items-center justify-end',
           track: 'h-(--p-size) w-full',
           indicator:
-            'origin-left rtl:origin-right not-[[data-indeterminate]]:scale-x-[var(--progress-value)]',
+            'origin-left rtl:origin-right not-[[data-indeterminate]]:scale-x-[var(--p-value)]',
           steps: 'w-full',
         },
         vertical: {
           root: 'flex flex-row-reverse h-full min-h-36 items-start',
-          status: 'flex-col h-[calc((1_-_var(--progress-value))*100%)] min-h-fit justify-end',
+          status: 'flex-col h-[calc((1_-_var(--p-value))*100%)] min-h-fit justify-end',
           track: 'h-full min-h-36 w-(--p-size)',
-          indicator: 'origin-bottom not-[[data-indeterminate]]:scale-y-[var(--progress-value)]',
+          indicator: 'origin-bottom not-[[data-indeterminate]]:scale-y-[var(--p-value)]',
           steps: 'ms-2 h-full items-start',
         },
       },
