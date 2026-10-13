@@ -36,7 +36,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'id',
     'placement',
     'align',
-    'size',
+    'large',
+    'variant',
     'itemRender',
     'visibleToasts',
     'duration',
@@ -66,6 +67,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
     contextVariants: () => ({
       placement: local.placement ?? 'bottom',
       align: local.align ?? 'end',
+      large: local.large ?? false,
+      variant: local.variant ?? 'default',
     }),
     contextSlots: () => ({
       classes: local.classes,
@@ -133,8 +136,11 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const possiblePositions = createMemo(() => {
     const activePositions = filteredToasts()
-      .filter((t) => t.placement || t.align)
-      .map((t) => `${t.placement ?? defaultPlacement()}-${t.align ?? defaultAlign()}`)
+      .filter((t) => t.variants?.placement || t.variants?.align)
+      .map(
+        (t) =>
+          `${t.variants?.placement ?? defaultPlacement()}-${t.variants?.align ?? defaultAlign()}`,
+      )
 
     return Array.from(new Set([defaultKey(), ...activePositions]))
   })
@@ -187,7 +193,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
               close={local.close}
               showProgress={local.showProgress}
               invert={local.invert}
-              size={local.size}
+              large={local.large}
               itemRender={local.itemRender}
               classes={local.classes}
               styles={local.styles}
@@ -214,8 +220,8 @@ interface ToastListProps {
   visibleToasts: number
   close?: ToastT.Action | JSX.Element
   showProgress?: boolean
-  invert?: boolean
-  size?: ToastT.Size
+  invert?: boolean | null
+  large?: boolean | null
   itemRender?: (props: ToastT.ItemRenderProps) => JSX.Element
   classes?: ToastT.Classes
   styles?: ToastT.Styles
@@ -233,8 +239,8 @@ function ToastList(props: ToastListProps): JSX.Element {
 
   const activeGroupToasts = createMemo(() => {
     return props.filteredToasts().filter((t) => {
-      const p = t.placement ?? props.defaultPlacement()
-      const a = t.align ?? props.defaultAlign()
+      const p = t.variants?.placement ?? props.defaultPlacement()
+      const a = t.variants?.align ?? props.defaultAlign()
       return `${p}-${a}` === props.positionKey
     })
   })
@@ -351,7 +357,7 @@ function ToastList(props: ToastListProps): JSX.Element {
               close={props.close}
               showProgress={props.showProgress}
               invert={props.invert}
-              size={props.size}
+              large={props.large}
               itemRender={props.itemRender}
               classes={props.classes}
               styles={props.styles}
@@ -376,10 +382,14 @@ export const Toast = ToastRoot as typeof ToastRoot &
   }
 
 Toast.add = (options) => getDefaultToastStore().add(options)
-Toast.success = (options) => getDefaultToastStore().add({ variant: 'success', ...options })
-Toast.error = (options) => getDefaultToastStore().add({ variant: 'error', ...options })
-Toast.warning = (options) => getDefaultToastStore().add({ variant: 'warning', ...options })
-Toast.info = (options) => getDefaultToastStore().add({ variant: 'info', ...options })
+Toast.success = (options) =>
+  getDefaultToastStore().add({ ...options, variants: { variant: 'success', ...options.variants } })
+Toast.error = (options) =>
+  getDefaultToastStore().add({ ...options, variants: { variant: 'error', ...options.variants } })
+Toast.warning = (options) =>
+  getDefaultToastStore().add({ ...options, variants: { variant: 'warning', ...options.variants } })
+Toast.info = (options) =>
+  getDefaultToastStore().add({ ...options, variants: { variant: 'info', ...options.variants } })
 Toast.loading = (options) => getDefaultToastStore().loading(options)
 Toast.promise = (promiseValue, options) => getDefaultToastStore().promise(promiseValue, options)
 Toast.custom = (render, options) => getDefaultToastStore().custom(render, options)

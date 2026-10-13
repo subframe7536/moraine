@@ -59,14 +59,14 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
           icon: 'text-muted-foreground animate-spin motion-reduce:animate-none',
         },
       },
-      size: {
-        default: {
-          item: 'items-center',
-        },
-        large: {
+      large: {
+        true: {
           item: 'flex-wrap items-start',
           actions: 'mt-1 w-full justify-end',
           close: 'right-3.5 top-3.5 absolute',
+        },
+        false: {
+          item: 'items-center',
         },
       },
       invert: {
@@ -110,7 +110,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
     },
     defaultVariants: {
       variant: 'default',
-      size: 'default',
+      large: false,
       invert: false,
       placement: 'bottom',
       align: 'end',

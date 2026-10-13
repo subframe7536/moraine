@@ -950,7 +950,7 @@ describe('Toast', () => {
     Toast.add({
       title: 'Slot Test Title',
       description: 'Slot Test Description',
-      variant: 'success',
+      variants: { variant: 'success' },
       action: { label: 'Action Btn', onClick: vi.fn() },
       cancel: { label: 'Cancel Btn', onClick: vi.fn() },
     })
@@ -1066,7 +1066,7 @@ describe('Toast', () => {
     expect(item.className).toContain('item-custom-class')
   })
 
-  it('supports size="default" and size="large" layout variants', async () => {
+  it('supports default and large layout variants', async () => {
     render(() => <Toast />)
 
     Toast.add({
@@ -1079,7 +1079,7 @@ describe('Toast', () => {
     Toast.add({
       id: 'large-toast',
       title: 'Large Size',
-      size: 'large',
+      variants: { large: true },
       action: { label: 'Action Large' },
       cancel: { label: 'Cancel Large' },
       close: true,
@@ -1091,11 +1091,11 @@ describe('Toast', () => {
     const defaultEl = screen.getByText('Default Size').closest('[data-slot="toast-item"]')!
     const largeEl = screen.getByText('Large Size').closest('[data-slot="toast-item"]')!
 
-    // Default size has center alignment
+    // Default layout has center alignment
     expect(defaultEl.className).toContain('items-center')
     expect(defaultEl.querySelector('[data-slot="toast-actions"]')).not.toBeNull()
 
-    // Large size has multi-line wrapping layout and top-right close
+    // Large layout has multi-line wrapping layout and top-right close
     expect(largeEl.className).toContain('items-start')
     expect(largeEl.className).toContain('flex-wrap')
 
@@ -1111,8 +1111,8 @@ describe('Toast', () => {
     expect(largeClose.className).toContain('top-3.5')
   })
 
-  it('inherits host-level size="large" default variant', async () => {
-    render(() => <Toast size="large" />)
+  it('inherits host-level large default variant', async () => {
+    render(() => <Toast large />)
 
     Toast.add({
       title: 'Inherited Large Size',
@@ -1153,20 +1153,5 @@ describe('Toast', () => {
     await waitFor(() => {
       expect(screen.queryByText('Custom: ItemRender Toast')).toBeNull()
     })
-  })
-
-  it('supports per-item itemRender override', async () => {
-    render(() => <Toast />)
-
-    Toast.add({
-      title: 'Per-item render',
-      itemRender: (props) => (
-        <div data-testid="per-item-custom">
-          <span>Per Item Custom {props.toast.id}</span>
-        </div>
-      ),
-    })
-
-    expect(await screen.findByText(/Per Item Custom/)).not.toBeNull()
   })
 })

@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import type { ButtonT } from '../../element/button'
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
-import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ToastStore } from './toast-store'
 import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
@@ -23,9 +23,9 @@ export namespace ToastT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = ToastStyleSlot<T>
-  export type Variant = NonNullable<ToastStyleVariant['variant']>
-  export type Size = NonNullable<ToastStyleVariant['size']>
-  export type Placement = 'top' | 'bottom'
+  export type Variant = ToastStyleVariant
+  export type Variants = ToastStyleVariant
+  export type Placement = NonNullable<ToastStyleVariant['placement']>
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -45,7 +45,9 @@ export namespace ToastT {
   /** Action button configuration for a toast. */
   export interface Action extends ButtonT.Variant {
     /** Button label content. */
-    label: JSX.Element
+    label?: JSX.Element
+    /** Custom leading icon name. */
+    leading?: IconT.Name
     /** Click handler callback. */
     onClick?: (event: MouseEvent) => void
     /** Class override for the button. */
@@ -74,11 +76,8 @@ export namespace ToastT {
     /** Secondary notification description. */
     description?: JSX.Element
 
-    /** Visual status variant. */
-    variant?: Variant
-
-    /** Layout size variant. */
-    size?: Size
+    /** Variant styling options (status variant, large layout, placement, align, invert). */
+    variants?: Variants
 
     /** Custom leading icon name. */
     icon?: IconT.Name
@@ -101,15 +100,6 @@ export namespace ToastT {
     /** Callback invoked when toast closes. `auto` is true if triggered by duration timer. */
     onClose?: (id: string | number, auto: boolean) => void
 
-    /** Whether to invert toast colors. */
-    invert?: boolean
-
-    /** Viewport placement on screen. */
-    placement?: Placement
-
-    /** Viewport alignment on screen. */
-    align?: OverlayAlign
-
     /** Class overrides for toast slots. */
     classes?: Classes
 
@@ -127,9 +117,6 @@ export namespace ToastT {
 
     /** Prevent duplicate toasts with matching content. */
     preventDuplicate?: PreventDuplicate
-
-    /** Custom renderer for this toast item. */
-    itemRender?: (props: ItemRenderProps) => JSX.Element
   }
 
   /** Options for updating an existing toast in place. */
@@ -157,24 +144,6 @@ export namespace ToastT {
 
   /** Base props for the Toast host component. */
   export interface Base {
-    /**
-     * Viewport placement on the screen.
-     * @default 'bottom'
-     */
-    placement?: Placement
-
-    /**
-     * Viewport alignment relative to the placement side.
-     * @default 'end'
-     */
-    align?: OverlayAlign
-
-    /**
-     * Default layout size variant for toasts.
-     * @default 'default'
-     */
-    size?: Size
-
     /**
      * Custom renderer for individual toast items.
      */
@@ -218,12 +187,6 @@ export namespace ToastT {
     preventDuplicate?: PreventDuplicate
 
     /**
-     * Invert toast colors.
-     * @default false
-     */
-    invert?: boolean
-
-    /**
      * Match toasts targeting a specific Toast host identifier.
      */
     id?: string
@@ -238,20 +201,10 @@ export namespace ToastT {
      * @default 14
      */
     gap?: number
-
-    /**
-     * Class overrides for component slots.
-     */
-    classes?: Classes
-
-    /**
-     * Style overrides for component slots.
-     */
-    styles?: Styles
   }
 
   /** Props for the Toast host component. */
-  export type Props = BaseProps<'section', Base, never, Classes, Styles, 'section'>
+  export type Props = BaseProps<'section', Base, Variant, Classes, Styles, 'section'>
 }
 
 /** Props for the Toast host component. */

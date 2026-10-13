@@ -41,11 +41,11 @@ export interface ToastItemProps {
   paused?: boolean
   placement?: ToastT.Placement
   align?: OverlayAlign
-  size?: ToastT.Size
+  large?: boolean | null
   itemRender?: (props: ToastT.ItemRenderProps) => JSX.Element
   close?: ToastT.Action | JSX.Element
   showProgress?: boolean
-  invert?: boolean
+  invert?: boolean | null
   classes?: ToastT.Classes
   styles?: ToastT.Styles
   gap?: number
@@ -110,12 +110,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const isFront = () => props.index === 0
   const isVisible = () => props.index < props.visibleToasts
-  const isLoading = () => props.toast.variant === 'loading'
+  const isLoading = () => props.toast.variants?.variant === 'loading'
   const showProgressBar = () =>
     (props.toast.showProgress ?? props.showProgress ?? false) && !isLoading()
 
   const isTop = () => {
-    const p = props.toast.placement ?? props.placement ?? 'bottom'
+    const p = props.toast.variants?.placement ?? props.placement ?? 'bottom'
     return p === 'top'
   }
 
@@ -255,7 +255,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       invert: props.invert,
       placement: props.placement,
       align: props.align,
-      size: props.toast.size ?? props.size ?? 'default',
+      large: props.large,
+      ...props.toast.variants,
     }),
     contextSlots: () => ({
       classes: props.classes,
@@ -306,7 +307,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         () => props.toast.jsx,
         () => props.toast.action,
         () => props.toast.cancel,
-        () => props.toast.size,
+        () => props.toast.variants?.large,
       ],
       () => {
         queueMicrotask(measureHeight)
@@ -435,7 +436,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     const getDampening = (delta: number) => 1 / (1.5 + Math.abs(delta) / 20)
 
     if (dragAxis === 'x') {
-      const align = props.toast.align ?? props.align ?? 'end'
+      const align = props.toast.variants?.align ?? props.align ?? 'end'
       let movement = xDelta
       if (align === 'end' && xDelta < 0) {
         movement = xDelta * getDampening(xDelta)
@@ -471,7 +472,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     const movedY = offset.y
     const primaryDistance = dragAxis === 'y' ? Math.abs(movedY) : Math.abs(movedX)
     const velocity = primaryDistance / timeTaken
-    const align = props.toast.align ?? props.align ?? 'end'
+    const align = props.toast.variants?.align ?? props.align ?? 'end'
     const allowed = dragAxis !== null && isAwaySwipe(dragAxis, movedX, movedY, align, isTop())
     const distanceOk = primaryDistance >= SWIPE_THRESHOLD
     const velocityOk = velocity > SWIPE_VELOCITY && primaryDistance >= SWIPE_MIN_DISTANCE
@@ -493,12 +494,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () => props.toast.role ?? (props.toast.variant === 'error' ? 'alert' : 'status')
+  const role = () =>
+    props.toast.role ?? (props.toast.variants?.variant === 'error' ? 'alert' : 'status')
 
   const closeConfig = () => props.toast.close ?? props.close
 
   const defaultIcon = () => {
-    const v = props.toast.variant
+    const v = props.toast.variants?.variant
     if (v === 'success') {
       return 'icon-success'
     }
@@ -519,7 +521,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const iconSource = (): IconT.Name | undefined => props.toast.icon ?? defaultIcon()
 
-  const itemRenderer = () => props.toast.itemRender ?? props.itemRender
+  const itemRenderer = () => props.itemRender
 
   return (
     <li
@@ -678,7 +680,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                                 (typeof actionConfig().label === 'string' ? 'sm' : 'icon-sm')
                               }
                               variant={actionConfig().variant ?? 'ghost'}
-                              leading="icon-close"
+                              leading={
+                                actionConfig().leading ??
+                                (actionConfig().label ? undefined : 'icon-close')
+                              }
                               activeEffect={actionConfig().activeEffect}
                               aria-label={
                                 typeof actionConfig().label === 'string'

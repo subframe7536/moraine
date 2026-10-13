@@ -48,7 +48,10 @@ function isSameToastContent(first: ToastItemRecord, second: Partial<ToastItemRec
 
   const sameTitle = isSameToastValue(first.title, second.title)
   const sameDescription = isSameToastValue(first.description, second.description)
-  const sameVariant = isSameToastValue(first.variant ?? 'default', second.variant ?? 'default')
+  const sameVariant = isSameToastValue(
+    first.variants?.variant ?? 'default',
+    second.variants?.variant ?? 'default',
+  )
   const sameAction =
     (first.action === undefined && second.action === undefined) ||
     isSameAction(first.action, second.action)
@@ -216,16 +219,14 @@ export function createToastStore(): ToastStore {
       const candidate: Partial<ToastItemRecord> = {
         title: options.title,
         description: options.description,
-        variant: options.variant ?? 'default',
+        variants: options.variants,
         toastId: options.toastId,
-        placement: options.placement,
-        align: options.align,
         action: options.action,
         cancel: options.cancel,
       }
 
-      const targetPlacement = candidate.placement ?? 'bottom'
-      const targetAlign = candidate.align ?? 'end'
+      const targetPlacement = candidate.variants?.placement ?? 'bottom'
+      const targetAlign = candidate.variants?.align ?? 'end'
 
       const frontIndex = store.findIndex((t) => {
         if (t.closed) {
@@ -234,8 +235,8 @@ export function createToastStore(): ToastStore {
         if (candidate.toastId ? t.toastId !== candidate.toastId : Boolean(t.toastId)) {
           return false
         }
-        const tPlacement = t.placement ?? 'bottom'
-        const tAlign = t.align ?? 'end'
+        const tPlacement = t.variants?.placement ?? 'bottom'
+        const tAlign = t.variants?.align ?? 'end'
         return tPlacement === targetPlacement && tAlign === targetAlign
       })
 
@@ -255,9 +256,12 @@ export function createToastStore(): ToastStore {
 
     const existingIndex = store.findIndex((t) => t.id === id)
     const toastItem: ToastItemRecord = {
-      variant: 'default',
-      role: options.variant === 'error' ? 'alert' : 'status',
+      role: options.variants?.variant === 'error' ? 'alert' : 'status',
       ...options,
+      variants: {
+        variant: 'default',
+        ...options.variants,
+      },
       id,
       closed: false,
       isBumping: false,
@@ -285,7 +289,10 @@ export function createToastStore(): ToastStore {
   const loading = (options: ToastT.InitOptions) =>
     add({
       ...options,
-      variant: 'loading',
+      variants: {
+        variant: 'loading',
+        ...options.variants,
+      },
       duration: options.duration ?? Number.POSITIVE_INFINITY,
     })
 
@@ -295,7 +302,14 @@ export function createToastStore(): ToastStore {
       setStore(
         existingIndex,
         produce((item) => {
-          Object.assign(item, options)
+          const mergedVariants =
+            options.variants || item.variants
+              ? { ...item.variants, ...options.variants }
+              : undefined
+          Object.assign(item, {
+            ...options,
+            ...(mergedVariants ? { variants: mergedVariants } : {}),
+          })
         }),
       )
       triggerBump(existingIndex)
@@ -381,7 +395,11 @@ export function createToastStore(): ToastStore {
 
     let result: ['resolve', T] | ['reject', unknown]
 
-    const resolvePayload = async (variant: ToastT.Variant, handler: unknown, param: unknown) => {
+    const resolvePayload = async (
+      variant: NonNullable<ToastT.Variants['variant']>,
+      handler: unknown,
+      param: unknown,
+    ) => {
       const title = typeof handler === 'function' ? await handler(param) : handler
       const resolvedDescription =
         typeof description === 'function' ? description(param) : description
@@ -389,7 +407,10 @@ export function createToastStore(): ToastStore {
       add({
         ...itemOptions,
         id,
-        variant,
+        variants: {
+          ...itemOptions.variants,
+          variant,
+        },
         title: title as JSX.Element,
         description: resolvedDescription,
         duration: duration ?? DEFAULT_TOAST_DURATION,

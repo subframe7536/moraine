@@ -27,7 +27,9 @@ import { Button, Toast } from '@src'
         { label: 'Loading', value: 'loading' },
       ],
     },
+    { kind: 'switch', prop: 'large', label: 'Large', defaultValue: false },
     { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
+    { kind: 'switch', prop: 'cancel', label: 'Cancel button', defaultValue: false },
     { kind: 'switch', prop: 'close', label: 'Close button', defaultValue: true },
     { kind: 'switch', prop: 'showProgress', label: 'Progress bar', defaultValue: false },
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate', defaultValue: false },
@@ -38,7 +40,20 @@ import { Button, Toast } from '@src'
       const options = {
         title: 'Preferences updated',
         description: 'Your account settings were saved.',
-        close: props.close,
+        variants: {
+          large: props.large,
+        },
+        close: props.close
+          ? {
+              label: 'Close',
+            }
+          : undefined,
+        cancel: props.cancel
+          ? {
+              label: 'Cancel',
+              onClick: () => {},
+            }
+          : undefined,
         showProgress: props.showProgress,
         preventDuplicate: props.preventDuplicate,
         action: props.action
@@ -164,6 +179,23 @@ Toast.add({
 })
 ```
 
+### Large multi-line layout
+
+Enable `large` to switch to a multi-line notification layout where actions wrap to a full-width bottom row and the close control moves to the top-right corner:
+
+```tsx
+Toast.success({
+  title: 'Export finished',
+  description: 'Your dataset is packaged and ready to download.',
+  variants: { large: true },
+  action: { label: 'Download', onClick: () => downloadFile() },
+  cancel: { label: 'Dismiss', onClick: () => {} },
+  close: { label: 'Close' },
+})
+```
+
+You can also set `large` globally on the `<Toast large />` host component to render all notifications in the large layout by default.
+
 ### Asynchronous promises
 
 Use `Toast.promise` to automatically track pending, success, and error outcomes of an asynchronous task:
@@ -184,7 +216,7 @@ Update an existing toast in place using its returned identifier, or close toasts
 const id = Toast.loading({ title: 'Exporting report...' })
 
 // Update the toast when the task finishes
-Toast.update(id, { title: 'Report ready', variant: 'success', duration: 4000 })
+Toast.update(id, { title: 'Report ready', variants: { variant: 'success' }, duration: 4000 })
 
 // Close a specific toast or dismiss all active toasts
 Toast.close(id)

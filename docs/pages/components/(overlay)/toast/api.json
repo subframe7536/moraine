@@ -18,7 +18,7 @@
           "name": "align",
           "optional": true,
           "type": "'start' | 'center' | 'end'",
-          "description": "Viewport alignment relative to the placement side.",
+          "description": "Horizontal alignment of the stack.",
           "default": {
             "kind": "literal",
             "value": "end"
@@ -34,7 +34,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Class overrides for component slots."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "close",
@@ -86,7 +86,23 @@
           "name": "invert",
           "optional": true,
           "type": "boolean",
-          "description": "Invert toast colors.",
+          "description": "Whether to invert colors (e.g. dark toast on light theme).",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "(props: ItemRenderProps) => JSX.Element",
+          "description": "Custom renderer for individual toast items."
+        },
+        {
+          "name": "large",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to use large multi-line layout.",
           "default": {
             "kind": "literal",
             "value": false
@@ -95,8 +111,8 @@
         {
           "name": "placement",
           "optional": true,
-          "type": "Placement",
-          "description": "Viewport placement on the screen.",
+          "type": "'top' | 'bottom'",
+          "description": "Vertical stack placement on the viewport.",
           "default": {
             "kind": "literal",
             "value": "bottom"
@@ -138,7 +154,17 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Style overrides for component slots."
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'",
+          "description": "Visual status variant.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
         },
         {
           "name": "visibleToasts",
@@ -161,6 +187,7 @@
     "title",
     "description",
     "icon",
+    "actions",
     "close",
     "action",
     "cancel",

@@ -47,10 +47,10 @@ export interface ToastStyleVariant {
   variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'
 
   /**
-   * Layout size variant.
-   * @default 'default'
+   * Whether to use large multi-line layout.
+   * @default false
    */
-  size?: 'default' | 'large'
+  large?: boolean
 
   /**
    * Whether to invert colors (e.g. dark toast on light theme).
