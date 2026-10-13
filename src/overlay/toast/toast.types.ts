@@ -24,10 +24,23 @@ export namespace ToastT {
 
   export type Slot<T = unknown> = ToastStyleSlot<T>
   export type Variant = NonNullable<ToastStyleVariant['variant']>
+  export type Size = NonNullable<ToastStyleVariant['size']>
   export type Placement = 'top' | 'bottom'
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
+  /** Context provided to a custom toast item renderer. */
+  export interface ItemRenderProps {
+    /** The toast record being rendered. */
+    toast: ToastItemRecord
+    /** Closes this toast notification. */
+    close: () => void
+    /** Position index of the toast in its stack. */
+    index: number
+    /** Whether the toast stack is expanded. */
+    expanded: boolean
+  }
 
   /** Action button configuration for a toast. */
   export interface Action extends ButtonT.Variant {
@@ -63,6 +76,9 @@ export namespace ToastT {
 
     /** Visual status variant. */
     variant?: Variant
+
+    /** Layout size variant. */
+    size?: Size
 
     /** Custom leading icon name. */
     icon?: IconT.Name
@@ -111,6 +127,9 @@ export namespace ToastT {
 
     /** Prevent duplicate toasts with matching content. */
     preventDuplicate?: PreventDuplicate
+
+    /** Custom renderer for this toast item. */
+    itemRender?: (props: ItemRenderProps) => JSX.Element
   }
 
   /** Options for updating an existing toast in place. */
@@ -149,6 +168,17 @@ export namespace ToastT {
      * @default 'end'
      */
     align?: OverlayAlign
+
+    /**
+     * Default layout size variant for toasts.
+     * @default 'default'
+     */
+    size?: Size
+
+    /**
+     * Custom renderer for individual toast items.
+     */
+    itemRender?: (props: ItemRenderProps) => JSX.Element
 
     /**
      * Max number of simultaneously visible toasts in a stack.

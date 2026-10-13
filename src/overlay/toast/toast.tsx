@@ -36,6 +36,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'id',
     'placement',
     'align',
+    'size',
+    'itemRender',
     'visibleToasts',
     'duration',
     'close',
@@ -185,6 +187,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
               close={local.close}
               showProgress={local.showProgress}
               invert={local.invert}
+              size={local.size}
+              itemRender={local.itemRender}
               classes={local.classes}
               styles={local.styles}
               duration={local.duration}
@@ -211,6 +215,8 @@ interface ToastListProps {
   close?: ToastT.Action | JSX.Element
   showProgress?: boolean
   invert?: boolean
+  size?: ToastT.Size
+  itemRender?: (props: ToastT.ItemRenderProps) => JSX.Element
   classes?: ToastT.Classes
   styles?: ToastT.Styles
   duration?: number
@@ -345,6 +351,8 @@ function ToastList(props: ToastListProps): JSX.Element {
               close={props.close}
               showProgress={props.showProgress}
               invert={props.invert}
+              size={props.size}
+              itemRender={props.itemRender}
               classes={props.classes}
               styles={props.styles}
               gap={props.gapSize()}

@@ -30,8 +30,6 @@ const SWIPE_MIN_DISTANCE = 12
 const SWIPE_VELOCITY = 0.11
 /** Fallback unmount delay; matches recipe `duration-400` (swipe-out uses 200ms via transitionend). */
 const TOAST_EXIT_MS = 400
-/** Progress sample interval (~1 frame); the indicator has no CSS transition, so no lag. */
-const PROGRESS_TICK_MS = 16
 
 export interface ToastItemProps {
   toast: ToastItemRecord
@@ -43,6 +41,8 @@ export interface ToastItemProps {
   paused?: boolean
   placement?: ToastT.Placement
   align?: OverlayAlign
+  size?: ToastT.Size
+  itemRender?: (props: ToastT.ItemRenderProps) => JSX.Element
   close?: ToastT.Action | JSX.Element
   showProgress?: boolean
   invert?: boolean
@@ -88,7 +88,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   let dragAxis: 'x' | 'y' | null = null
   let exitTimerId: ReturnType<typeof setTimeout> | undefined
   let timerId: ReturnType<typeof setTimeout> | undefined
-  let progressTimerId: ReturnType<typeof setInterval> | undefined
   let closeTimerStartTime = 0
   let closedCallbackFired = false
 
@@ -107,7 +106,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   // Y offset captured when removal starts; read only together with removed().
   let offsetBeforeRemove = 0
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
-  const [progressPercent, setProgressPercent] = createSignal(100)
+  const [progressEpoch, setProgressEpoch] = createSignal(1)
 
   const isFront = () => props.index === 0
   const isVisible = () => props.index < props.visibleToasts
@@ -256,6 +255,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       invert: props.invert,
       placement: props.placement,
       align: props.align,
+      size: props.toast.size ?? props.size ?? 'default',
     }),
     contextSlots: () => ({
       classes: props.classes,
@@ -306,6 +306,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         () => props.toast.jsx,
         () => props.toast.action,
         () => props.toast.cancel,
+        () => props.toast.size,
       ],
       () => {
         queueMicrotask(measureHeight)
@@ -314,19 +315,10 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     ),
   )
 
-  const syncProgress = (left: number) => {
-    const total = untrack(initialDuration)
-    setProgressPercent(total > 0 && Number.isFinite(total) ? (left / total) * 100 : 100)
-  }
-
   const stopTimer = () => {
     if (timerId) {
       clearTimeout(timerId)
       timerId = undefined
-    }
-    if (progressTimerId) {
-      clearInterval(progressTimerId)
-      progressTimerId = undefined
     }
   }
 
@@ -351,22 +343,14 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
     timerId = setTimeout(() => {
       stopTimer()
-      syncProgress(0)
       triggerClose(true)
     }, currentRemaining)
-
-    if (showProgressBar()) {
-      syncProgress(currentRemaining)
-      progressTimerId = setInterval(() => {
-        syncProgress(Math.max(0, remainingTime - (Date.now() - closeTimerStartTime)))
-      }, PROGRESS_TICK_MS)
-    }
   }
 
   const resetCloseTimer = () => {
     remainingTime = untrack(initialDuration)
     closeTimerStartTime = 0
-    syncProgress(remainingTime)
+    setProgressEpoch((prev) => prev + 1)
   }
 
   createEffect(
@@ -403,7 +387,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           closeTimerStartTime = 0
         }
         stopTimer()
-        syncProgress(remainingTime)
       } else {
         startTimer()
       }
@@ -413,7 +396,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   onCleanup(() => {
     clearTimeout(exitTimerId)
     clearTimeout(timerId)
-    clearInterval(progressTimerId)
   })
 
   function handlePointerDown(event: PointerEvent) {
@@ -537,6 +519,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const iconSource = (): IconT.Name | undefined => props.toast.icon ?? defaultIcon()
 
+  const itemRenderer = () => props.toast.itemRender ?? props.itemRender
+
   return (
     <li
       ref={(el) => {
@@ -556,8 +540,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         swipeOut,
       })}
       {...resolved.slots.item}
-      onMouseEnter={resetCloseTimer}
-      onMouseMove={resetCloseTimer}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -568,173 +550,200 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       <Show
         when={props.toast.jsx}
         fallback={
-          <>
-            <Show when={iconSource()}>
-              {(source) => (
-                <div data-slot="toast-icon" {...resolved.slots.icon}>
-                  <Icon name={source()} />
-                </div>
-              )}
-            </Show>
-
-            <div data-slot="toast-wrapper" {...resolved.slots.wrapper}>
-              <Show when={props.toast.title}>
-                {(title) => (
-                  <div data-slot="toast-title" {...resolved.slots.title}>
-                    {renderWithProps(title(), {})}
-                  </div>
-                )}
-              </Show>
-              <Show when={props.toast.description}>
-                {(desc) => (
-                  <div data-slot="toast-description" {...resolved.slots.description}>
-                    {renderWithProps(desc(), {})}
-                  </div>
-                )}
-              </Show>
-            </div>
-
-            <Show when={props.toast.cancel}>
-              {(cancel) => (
-                <Show
-                  when={isActionConfig(cancel()) ? (cancel() as ToastT.Action) : undefined}
-                  fallback={
-                    <div data-slot="toast-cancel" {...resolved.slots.cancel}>
-                      {cancel() as JSX.Element}
+          <Show
+            when={itemRenderer()}
+            fallback={
+              <>
+                <Show when={iconSource()}>
+                  {(source) => (
+                    <div data-slot="toast-icon" {...resolved.slots.icon}>
+                      <Icon name={source()} />
                     </div>
-                  }
-                >
-                  {(config) => (
-                    <Button
-                      data-slot="toast-cancel"
-                      slotName="toast-cancel"
-                      size={config().size ?? 'sm'}
-                      variant={config().variant ?? 'secondary'}
-                      activeEffect={config().activeEffect}
-                      {...resolved.slotWith('cancel', () => ({
-                        class: config().class,
-                        style: config().style,
-                      }))}
-                      onClick={(e) => {
-                        config().onClick?.(e)
-                        triggerClose(false)
-                      }}
-                    >
-                      {config().label}
-                    </Button>
                   )}
                 </Show>
-              )}
-            </Show>
 
-            <Show when={props.toast.action}>
-              {(action) => (
-                <Show
-                  when={isActionConfig(action()) ? (action() as ToastT.Action) : undefined}
-                  fallback={
-                    <div data-slot="toast-action" {...resolved.slots.action}>
-                      {action() as JSX.Element}
-                    </div>
-                  }
-                >
-                  {(config) => (
-                    <Button
-                      data-slot="toast-action"
-                      slotName="toast-action"
-                      size={config().size ?? 'sm'}
-                      variant={config().variant ?? 'default'}
-                      activeEffect={config().activeEffect}
-                      {...resolved.slotWith('action', () => ({
-                        class: config().class,
-                        style: config().style,
-                      }))}
-                      onClick={(e) => {
-                        config().onClick?.(e)
-                        if (!e.defaultPrevented) {
-                          triggerClose(false)
-                        }
-                      }}
-                    >
-                      {config().label}
-                    </Button>
-                  )}
-                </Show>
-              )}
-            </Show>
-
-            <Show when={closeConfig() && !isLoading()}>
-              {(_close) => {
-                const config = closeConfig()
-                return (
-                  <Switch>
-                    <Match when={config === true}>
-                      <Button
-                        data-slot="toast-close"
-                        slotName="toast-close"
-                        size="icon-sm"
-                        variant="ghost"
-                        leading="icon-close"
-                        aria-label={messages().close}
-                        {...resolved.slots.close}
-                        onClick={() => triggerClose(false)}
-                      />
-                    </Match>
-                    <Match when={isActionConfig(config) ? config : undefined}>
-                      {(actionConfig) => (
-                        <Button
-                          data-slot="toast-close"
-                          slotName="toast-close"
-                          size={
-                            actionConfig().size ??
-                            (typeof actionConfig().label === 'string' ? 'sm' : 'icon-sm')
-                          }
-                          variant={actionConfig().variant ?? 'ghost'}
-                          leading="icon-close"
-                          activeEffect={actionConfig().activeEffect}
-                          aria-label={
-                            typeof actionConfig().label === 'string'
-                              ? (actionConfig().label as string)
-                              : messages().close
-                          }
-                          {...resolved.slotWith('close', () => ({
-                            class: actionConfig().class,
-                            style: actionConfig().style,
-                          }))}
-                          onClick={(e) => {
-                            actionConfig().onClick?.(e)
-                            if (!e.defaultPrevented) {
-                              triggerClose(false)
-                            }
-                          }}
-                        >
-                          {actionConfig().label}
-                        </Button>
-                      )}
-                    </Match>
-                    <Match when={config}>
-                      <div
-                        data-slot="toast-close"
-                        {...resolved.slots.close}
-                        onClick={() => triggerClose(false)}
-                      >
-                        {config as JSX.Element}
+                <div data-slot="toast-wrapper" {...resolved.slots.wrapper}>
+                  <Show when={props.toast.title}>
+                    {(title) => (
+                      <div data-slot="toast-title" {...resolved.slots.title}>
+                        {renderWithProps(title(), {})}
                       </div>
-                    </Match>
-                  </Switch>
-                )
-              }}
-            </Show>
+                    )}
+                  </Show>
+                  <Show when={props.toast.description}>
+                    {(desc) => (
+                      <div data-slot="toast-description" {...resolved.slots.description}>
+                        {renderWithProps(desc(), {})}
+                      </div>
+                    )}
+                  </Show>
+                </div>
 
-            <Show when={showProgressBar()}>
-              <div data-slot="toast-progress" {...resolved.slots.progress}>
-                <div
-                  data-slot="toast-progress-indicator"
-                  class={TOAST_PROGRESS_CLASS}
-                  style={{ width: `${progressPercent()}%` }}
+                <Show when={props.toast.cancel || props.toast.action}>
+                  <div data-slot="toast-actions" {...resolved.slots.actions}>
+                    <Show when={props.toast.cancel}>
+                      {(cancel) => (
+                        <Show
+                          when={isActionConfig(cancel()) ? (cancel() as ToastT.Action) : undefined}
+                          fallback={
+                            <div data-slot="toast-cancel" {...resolved.slots.cancel}>
+                              {cancel() as JSX.Element}
+                            </div>
+                          }
+                        >
+                          {(config) => (
+                            <Button
+                              data-slot="toast-cancel"
+                              slotName="toast-cancel"
+                              size={config().size ?? 'sm'}
+                              variant={config().variant ?? 'secondary'}
+                              activeEffect={config().activeEffect}
+                              {...resolved.slotWith('cancel', () => ({
+                                class: config().class,
+                                style: config().style,
+                              }))}
+                              onClick={(e) => {
+                                config().onClick?.(e)
+                                triggerClose(false)
+                              }}
+                            >
+                              {config().label}
+                            </Button>
+                          )}
+                        </Show>
+                      )}
+                    </Show>
+
+                    <Show when={props.toast.action}>
+                      {(action) => (
+                        <Show
+                          when={isActionConfig(action()) ? (action() as ToastT.Action) : undefined}
+                          fallback={
+                            <div data-slot="toast-action" {...resolved.slots.action}>
+                              {action() as JSX.Element}
+                            </div>
+                          }
+                        >
+                          {(config) => (
+                            <Button
+                              data-slot="toast-action"
+                              slotName="toast-action"
+                              size={config().size ?? 'sm'}
+                              variant={config().variant ?? 'default'}
+                              activeEffect={config().activeEffect}
+                              {...resolved.slotWith('action', () => ({
+                                class: config().class,
+                                style: config().style,
+                              }))}
+                              onClick={(e) => {
+                                config().onClick?.(e)
+                                if (!e.defaultPrevented) {
+                                  triggerClose(false)
+                                }
+                              }}
+                            >
+                              {config().label}
+                            </Button>
+                          )}
+                        </Show>
+                      )}
+                    </Show>
+                  </div>
+                </Show>
+
+                <Show when={closeConfig() && !isLoading()}>
+                  {(_close) => {
+                    const config = closeConfig()
+                    return (
+                      <Switch>
+                        <Match when={config === true}>
+                          <Button
+                            data-slot="toast-close"
+                            slotName="toast-close"
+                            size="icon-sm"
+                            variant="ghost"
+                            leading="icon-close"
+                            aria-label={messages().close}
+                            {...resolved.slots.close}
+                            onClick={() => triggerClose(false)}
+                          />
+                        </Match>
+                        <Match when={isActionConfig(config) ? config : undefined}>
+                          {(actionConfig) => (
+                            <Button
+                              data-slot="toast-close"
+                              slotName="toast-close"
+                              size={
+                                actionConfig().size ??
+                                (typeof actionConfig().label === 'string' ? 'sm' : 'icon-sm')
+                              }
+                              variant={actionConfig().variant ?? 'ghost'}
+                              leading="icon-close"
+                              activeEffect={actionConfig().activeEffect}
+                              aria-label={
+                                typeof actionConfig().label === 'string'
+                                  ? (actionConfig().label as string)
+                                  : messages().close
+                              }
+                              {...resolved.slotWith('close', () => ({
+                                class: actionConfig().class,
+                                style: actionConfig().style,
+                              }))}
+                              onClick={(e) => {
+                                actionConfig().onClick?.(e)
+                                if (!e.defaultPrevented) {
+                                  triggerClose(false)
+                                }
+                              }}
+                            >
+                              {actionConfig().label}
+                            </Button>
+                          )}
+                        </Match>
+                        <Match when={config}>
+                          <div
+                            data-slot="toast-close"
+                            {...resolved.slots.close}
+                            onClick={() => triggerClose(false)}
+                          >
+                            {config as JSX.Element}
+                          </div>
+                        </Match>
+                      </Switch>
+                    )
+                  }}
+                </Show>
+
+                <Show when={showProgressBar()}>
+                  <div data-slot="toast-progress" {...resolved.slots.progress}>
+                    <Show when={progressEpoch()} keyed>
+                      {(_epoch) => (
+                        <div
+                          data-slot="toast-progress-indicator"
+                          class={TOAST_PROGRESS_CLASS}
+                          style={{
+                            'animation-duration': `${initialDuration()}ms`,
+                            'animation-play-state': isPaused() ? 'paused' : 'running',
+                          }}
+                        />
+                      )}
+                    </Show>
+                  </div>
+                </Show>
+              </>
+            }
+          >
+            <Show when={itemRenderer()} keyed>
+              {(ItemRender) => (
+                <ItemRender
+                  toast={props.toast}
+                  close={() => triggerClose(false)}
+                  index={props.index}
+                  expanded={props.expanded}
                 />
-              </div>
+              )}
             </Show>
-          </>
+          </Show>
         }
       >
         {(customJsx) => {

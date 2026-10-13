@@ -26,6 +26,9 @@ export interface ToastStyleSlot<T = unknown> {
   /** Close dismiss button. */
   close?: T
 
+  /** Actions wrapper containing cancel and action buttons. */
+  actions?: T
+
   /** Primary call-to-action button. */
   action?: T
 
@@ -42,6 +45,12 @@ export interface ToastStyleVariant {
    * @default 'default'
    */
   variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'
+
+  /**
+   * Layout size variant.
+   * @default 'default'
+   */
+  size?: 'default' | 'large'
 
   /**
    * Whether to invert colors (e.g. dark toast on light theme).

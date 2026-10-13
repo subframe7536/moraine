@@ -8,6 +8,7 @@ import {
   MultiSelect,
   Progress,
   Select,
+  Toast,
 } from 'moraine'
 
 // @ts-expect-error Each step requires its own renderer instance.
@@ -30,6 +31,8 @@ import {
 ;<ContextMenu.Content itemRender={<span />} />
 // @ts-expect-error Each separator requires its own renderer instance.
 ;<KbdGroup items={['Ctrl', 'K']} separator={<span />} />
+// @ts-expect-error Each toast requires its own renderer instance.
+;<Toast itemRender={<span />} />
 
 ;<Progress statusRender={<span />} stepRender={(props) => <span>{props.step}</span>} />
 ;<Breadcrumb itemRender={(props) => <span>{props.index}</span>} />
@@ -56,3 +59,4 @@ import {
 ;<ContextMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={1} />
+;<Toast itemRender={(props) => <span>{props.toast.title}</span>} />

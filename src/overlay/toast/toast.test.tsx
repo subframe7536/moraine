@@ -6,6 +6,7 @@ import { finishExitMotion } from '../../test-util/overlay-test'
 import { createToastStore } from './toast-store'
 
 import { Toast } from './index'
+import type { ToastT } from './index'
 
 describe('Toast', () => {
   beforeEach(() => {
@@ -312,41 +313,41 @@ describe('Toast', () => {
     }
   })
 
-  it('resets timer back to full duration on mouse enter/move', async () => {
+  it('pauses timer on mouse enter and resumes remaining duration on mouse leave', async () => {
     vi.useFakeTimers()
     try {
       render(() => <Toast duration={3000} />)
       await Promise.resolve()
 
-      Toast.add({ title: 'Hover reset toast' })
-      expect(screen.getByText('Hover reset toast')).not.toBeNull()
+      Toast.add({ title: 'Hover pause toast' })
+      expect(screen.getByText('Hover pause toast')).not.toBeNull()
 
       const toastEl = document.querySelector('[data-slot="toast-item"]')!
 
-      // Run 2000ms out of 3000ms
+      // Run 2000ms out of 3000ms (1000ms remaining)
       await vi.advanceTimersByTimeAsync(2000)
-      expect(screen.queryByText('Hover reset toast')).not.toBeNull()
+      expect(screen.queryByText('Hover pause toast')).not.toBeNull()
 
-      // Mouse enters list and toast, resetting timer back to full 3000ms
+      // Mouse enters list and toast; timer pauses without resetting
       const list = screen.getByRole('list')
       fireEvent.mouseEnter(list)
       fireEvent.mouseEnter(toastEl)
 
       // While paused / hovering, advance 4000ms - toast stays visible
       await vi.advanceTimersByTimeAsync(4000)
-      expect(screen.queryByText('Hover reset toast')).not.toBeNull()
+      expect(screen.queryByText('Hover pause toast')).not.toBeNull()
 
-      // Mouse leaves
+      // Mouse leaves: timer resumes with remaining 1000ms
       fireEvent.mouseLeave(list)
 
-      // After 2500ms from mouse leave, toast should STILL be alive (since duration was reset to 3000ms!)
-      await vi.advanceTimersByTimeAsync(2500)
-      expect(screen.queryByText('Hover reset toast')).not.toBeNull()
+      // After 500ms from mouse leave, toast should STILL be alive (1000ms remaining)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(screen.queryByText('Hover pause toast')).not.toBeNull()
 
-      // After another 600ms (3100ms total after leave), toast finishes
+      // After another 600ms (1100ms total after leave, past 1000ms), toast finishes
       await vi.advanceTimersByTimeAsync(600)
       await finishExitMotion()
-      expect(screen.queryByText('Hover reset toast')).toBeNull()
+      expect(screen.queryByText('Hover pause toast')).toBeNull()
     } finally {
       vi.useRealTimers()
     }
@@ -773,8 +774,8 @@ describe('Toast', () => {
     expect(list.getAttribute('data-expanded')).toBe('')
   })
 
-  it('renders raw div progress bar with width style when showProgress is enabled', async () => {
-    render(() => <Toast showProgress />)
+  it('renders bottom progress bar with CSS transform scaleX animation when showProgress is enabled', async () => {
+    render(() => <Toast showProgress duration={4000} />)
 
     Toast.add({ title: 'With Progress Bar' })
 
@@ -785,31 +786,29 @@ describe('Toast', () => {
     )
     expect(progressTrack).not.toBeNull()
     expect(progressIndicator).not.toBeNull()
-    expect(progressIndicator?.style.width).toBe('100%')
+    expect(progressTrack?.className).toContain('bottom-0')
+    expect(progressIndicator?.className).toContain('animate-toast-progress')
+    expect(progressIndicator?.className).toContain('origin-left')
+    expect(progressIndicator?.style.animationDuration).toBe('4000ms')
+    expect(progressIndicator?.style.animationPlayState).toBe('running')
+    expect(progressIndicator?.style.width).toBe('')
   })
 
-  it('resets progress indicator to 100% on mouse enter/move', async () => {
-    vi.useFakeTimers()
-    try {
-      render(() => <Toast showProgress duration={4000} />)
-      Toast.add({ title: 'Hover progress test' })
-      const toastEl = document.querySelector('[data-slot="toast-item"]')!
-      const indicator = document.querySelector<HTMLElement>(
-        '[data-slot="toast-progress-indicator"]',
-      )!
+  it('pauses progress indicator animation on mouse enter without resetting', async () => {
+    render(() => <Toast showProgress duration={4000} />)
+    Toast.add({ title: 'Hover progress test' })
+    await screen.findByText('Hover progress test')
 
-      expect(indicator.style.width).toBe('100%')
+    const list = screen.getByRole('list')
+    const indicator = document.querySelector<HTMLElement>('[data-slot="toast-progress-indicator"]')!
+    expect(indicator).not.toBeNull()
+    expect(indicator.style.animationPlayState).toBe('running')
 
-      await vi.advanceTimersByTimeAsync(1000)
-      const intermediateWidth = Number.parseFloat(indicator.style.width)
-      expect(intermediateWidth).toBeLessThan(100)
-      expect(intermediateWidth).toBeGreaterThan(0)
+    fireEvent.mouseEnter(list)
+    expect(indicator.style.animationPlayState).toBe('paused')
 
-      fireEvent.mouseEnter(toastEl)
-      expect(indicator.style.width).toBe('100%')
-    } finally {
-      vi.useRealTimers()
-    }
+    fireEvent.mouseLeave(list)
+    expect(indicator.style.animationPlayState).toBe('running')
   })
 
   it('closes specific toast via Toast.close(id) and closes all toasts via Toast.close()', async () => {
@@ -1065,5 +1064,109 @@ describe('Toast', () => {
     expect(host.className).toContain('host-root-class')
     expect(item).not.toBeNull()
     expect(item.className).toContain('item-custom-class')
+  })
+
+  it('supports size="default" and size="large" layout variants', async () => {
+    render(() => <Toast />)
+
+    Toast.add({
+      id: 'default-toast',
+      title: 'Default Size',
+      action: { label: 'Action Default' },
+      close: true,
+    })
+
+    Toast.add({
+      id: 'large-toast',
+      title: 'Large Size',
+      size: 'large',
+      action: { label: 'Action Large' },
+      cancel: { label: 'Cancel Large' },
+      close: true,
+    })
+
+    await screen.findByText('Default Size')
+    await screen.findByText('Large Size')
+
+    const defaultEl = screen.getByText('Default Size').closest('[data-slot="toast-item"]')!
+    const largeEl = screen.getByText('Large Size').closest('[data-slot="toast-item"]')!
+
+    // Default size has center alignment
+    expect(defaultEl.className).toContain('items-center')
+    expect(defaultEl.querySelector('[data-slot="toast-actions"]')).not.toBeNull()
+
+    // Large size has multi-line wrapping layout and top-right close
+    expect(largeEl.className).toContain('items-start')
+    expect(largeEl.className).toContain('flex-wrap')
+
+    const largeActions = largeEl.querySelector('[data-slot="toast-actions"]')!
+    expect(largeActions).not.toBeNull()
+    expect(largeActions.className).toContain('w-full')
+    expect(largeActions.className).toContain('justify-end')
+
+    const largeClose = largeEl.querySelector('[data-slot="toast-close"]')!
+    expect(largeClose).not.toBeNull()
+    expect(largeClose.className).toContain('absolute')
+    expect(largeClose.className).toContain('right-3.5')
+    expect(largeClose.className).toContain('top-3.5')
+  })
+
+  it('inherits host-level size="large" default variant', async () => {
+    render(() => <Toast size="large" />)
+
+    Toast.add({
+      title: 'Inherited Large Size',
+      action: { label: 'Action' },
+      close: true,
+    })
+
+    await screen.findByText('Inherited Large Size')
+    const itemEl = screen.getByText('Inherited Large Size').closest('[data-slot="toast-item"]')!
+    expect(itemEl.className).toContain('items-start')
+    expect(itemEl.className).toContain('flex-wrap')
+  })
+
+  it('supports custom itemRender on <Toast>', async () => {
+    const customRender = vi.fn((props: ToastT.ItemRenderProps) => (
+      <div data-testid={`custom-item-${props.toast.id}`}>
+        <span>Custom: {props.toast.title}</span>
+        <button type="button" onClick={() => props.close()}>
+          Custom Dismiss
+        </button>
+      </div>
+    ))
+
+    render(() => <Toast itemRender={customRender} />)
+
+    Toast.add({ title: 'ItemRender Toast' })
+
+    await screen.findByText('Custom: ItemRender Toast')
+    expect(customRender).toHaveBeenCalled()
+    const callArgs = customRender.mock.calls[0]![0]
+    expect(callArgs.toast.title).toBe('ItemRender Toast')
+    expect(callArgs.index).toBe(0)
+    expect(typeof callArgs.close).toBe('function')
+
+    // Custom close dismisses toast
+    fireEvent.click(screen.getByText('Custom Dismiss'))
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(screen.queryByText('Custom: ItemRender Toast')).toBeNull()
+    })
+  })
+
+  it('supports per-item itemRender override', async () => {
+    render(() => <Toast />)
+
+    Toast.add({
+      title: 'Per-item render',
+      itemRender: (props) => (
+        <div data-testid="per-item-custom">
+          <span>Per Item Custom {props.toast.id}</span>
+        </div>
+      ),
+    })
+
+    expect(await screen.findByText(/Per Item Custom/)).not.toBeNull()
   })
 })
