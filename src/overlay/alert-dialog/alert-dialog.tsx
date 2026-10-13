@@ -308,35 +308,15 @@ function createAlertDialog(
 function openAlertDialog(
   type: AlertDialogT.Type,
   options: AlertDialogT.Options,
-  hostId?: string,
 ): AlertDialogT.Instance {
   if (isServer) {
     return createSettledInstance(false)
   }
-  const host = activeHost(hostId)
+  const host = activeHost(options.id)
   if (!host) {
-    throw new Error(missingHostMessage(hostId))
+    throw new Error(missingHostMessage(options.id))
   }
   return host.open(type, options)
-}
-
-function openAlertDialogMethod(
-  type: AlertDialogT.Type,
-  optionsOrId: AlertDialogT.Options | string,
-  options?: AlertDialogT.Options,
-): AlertDialogT.Instance {
-  if (typeof optionsOrId === 'string') {
-    return openAlertDialog(type, options ?? {}, optionsOrId)
-  }
-  return openAlertDialog(type, optionsOrId)
-}
-
-function createAlertDialogMethod(type: AlertDialogT.Type): AlertDialogT.Method {
-  const method = (
-    optionsOrId: AlertDialogT.Options | string,
-    options?: AlertDialogT.Options,
-  ): AlertDialogT.Instance => openAlertDialogMethod(type, optionsOrId, options)
-  return method
 }
 
 function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
@@ -562,11 +542,11 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
   return <For each={dialogs()}>{(item) => <AlertDialogEntry {...item.entry} />}</For>
 }
 
-AlertDialog.confirm = createAlertDialogMethod('confirm')
-AlertDialog.info = createAlertDialogMethod('info')
-AlertDialog.warning = createAlertDialogMethod('warning')
-AlertDialog.error = createAlertDialogMethod('error')
-AlertDialog.success = createAlertDialogMethod('success')
+AlertDialog.confirm = openAlertDialog.bind(undefined, 'confirm')
+AlertDialog.info = openAlertDialog.bind(undefined, 'info')
+AlertDialog.warning = openAlertDialog.bind(undefined, 'warning')
+AlertDialog.error = openAlertDialog.bind(undefined, 'error')
+AlertDialog.success = openAlertDialog.bind(undefined, 'success')
 AlertDialog.destroyAll = (id?: string): void => {
   if (isServer) {
     return

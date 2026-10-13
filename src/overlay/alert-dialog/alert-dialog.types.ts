@@ -79,7 +79,7 @@ export namespace AlertDialogT {
   export interface Props extends Base {
     /**
      * Unique identifier for this host when multiple hosts are mounted.
-     * Selects this host from `AlertDialog.confirm(id, options)` and the other methods.
+     * Selects this host from `AlertDialog.confirm({ id, ... })` and the other methods.
      * A call without an id uses the last mounted host. If duplicate ids are mounted,
      * the last mounted host takes precedence. Unmounting the host settles its open dialogs as `false`.
      */
@@ -90,6 +90,12 @@ export namespace AlertDialogT {
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
     description?: JSX.Element
+    /**
+     * Unique identifier of the target AlertDialog host.
+     * Selects this host when multiple hosts are mounted.
+     * If omitted, the last mounted host is used.
+     */
+    id?: string
     /**
      * Called before the dialog closes from a cancel or dismiss gesture.
      * A rejection or synchronous throw leaves it open.
@@ -105,11 +111,6 @@ export namespace AlertDialogT {
      */
     onOk?: () => void | Promise<unknown>
     title?: JSX.Element
-  }
-
-  export interface Method {
-    (options: Options): Instance
-    (id: string, options: Options): Instance
   }
 
   export interface Instance extends Promise<boolean> {

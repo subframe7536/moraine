@@ -613,8 +613,8 @@ describe('AlertDialog', () => {
         <AlertDialog id="second" okText="Second OK" />
       </>
     ))
-    void AlertDialog.confirm('first', { title: 'On first' })
-    void AlertDialog.info('second', { title: 'On second' })
+    void AlertDialog.confirm({ id: 'first', title: 'On first' })
+    void AlertDialog.info({ id: 'second', title: 'On second' })
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
@@ -633,7 +633,7 @@ describe('AlertDialog', () => {
     })
     const opened = dialogs().find((element) => element.textContent?.includes('Default host'))
     expect(button('Second OK', opened)).toBeInstanceOf(HTMLButtonElement)
-    expect(() => AlertDialog.confirm('missing', { title: 'No' })).toThrow('id="missing"')
+    expect(() => AlertDialog.confirm({ id: 'missing', title: 'No' })).toThrow('id="missing"')
   })
 
   test('settles open dialogs as false when the host unmounts', async () => {

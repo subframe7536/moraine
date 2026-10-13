@@ -13,7 +13,7 @@ export function renderAlertDialogFixture(): string {
 
 export async function renderServerAlertCallFixture(): Promise<string> {
   const confirmed = await AlertDialog.confirm({ title: 'Server title' })
-  const informed = await AlertDialog.info('billing', { title: 'Server info' })
+  const informed = await AlertDialog.info({ id: 'billing', title: 'Server info' })
   AlertDialog.destroyAll()
   AlertDialog.destroyAll('billing')
   return `${confirmed}:${informed}`
