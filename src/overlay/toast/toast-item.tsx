@@ -662,7 +662,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                           <Button
                             data-slot="toast-close"
                             slotName="toast-close"
-                            size="icon-sm"
+                            size="icon-md"
                             variant="ghost"
                             leading="icon-close"
                             aria-label={messages().close}
@@ -677,7 +677,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                               slotName="toast-close"
                               size={
                                 actionConfig().size ??
-                                (typeof actionConfig().label === 'string' ? 'sm' : 'icon-sm')
+                                (typeof actionConfig().label === 'string' ? 'sm' : 'icon-md')
                               }
                               variant={actionConfig().variant ?? 'ghost'}
                               leading={
