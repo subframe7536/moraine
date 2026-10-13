@@ -199,6 +199,7 @@
       "attributes": [
         "data-behind",
         "data-bump",
+        "data-closed",
         "data-expanded",
         "data-front",
         "data-limited",
