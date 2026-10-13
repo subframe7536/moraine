@@ -4,7 +4,7 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { Button, MoraineProvider, Progress, SidebarFrame, Toast, useSidebarFrame } from '../../src'
 import { createMediaQuery } from '../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.class'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
@@ -201,6 +201,7 @@ export default createRoute({
       <MDXProvider components={DOCS_MDX_COMPONENTS}>
         <DocsAppLayout>{props.children}</DocsAppLayout>
       </MDXProvider>
+      <Toast close />
     </MoraineProvider>
   ),
 })

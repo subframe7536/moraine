@@ -236,6 +236,11 @@
       "category": "form"
     },
     {
+      "key": "toast",
+      "name": "Toast",
+      "category": "overlay"
+    },
+    {
       "key": "toggle-button",
       "name": "ToggleButton",
       "category": "element"
