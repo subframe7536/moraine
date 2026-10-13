@@ -105,8 +105,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     'left' | 'right' | 'up' | 'down' | null
   >(null)
   const swipeOut = () => swipeOutDirection() !== null
-  // Y offset captured when removal starts; read only together with removed().
-  let offsetBeforeRemove = 0
   const [measuredHeight, setMeasuredHeight] = createSignal(0)
   const [progressEpoch, setProgressEpoch] = createSignal(1)
 
@@ -163,10 +161,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     if (untrack(removed)) {
       return
     }
-    offsetBeforeRemove = untrack(currentYOffset)
     setRemoved(true)
     props.onHeight(props.toast.id, 0)
-
     exitTimerId = setTimeout(finishDelete, TOAST_EXIT_MS)
   }
 
@@ -229,21 +225,13 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         return `translate3d(0, ${lift() * -100}%, 0) scale(1)`
       }
       if (props.expanded) {
-        return `translate3d(0, ${offsetBeforeRemove + (lift() > 0 ? -100 : 100)}px, 0) scale(1)`
+        return `translate3d(0, ${currentYOffset() + (lift() > 0 ? -100 : 100)}px, 0) scale(1)`
       }
-      return `translate3d(0, 40%, 0) scale(${scale()})`
+      return `translate3d(0, ${currentYOffset() + 20}px, 0) scale(${scale()})`
     }
 
     if (!mounted()) {
       return `translate3d(0, ${lift() * -100}%, 0) scale(1)`
-    }
-
-    if (props.expanded) {
-      return `translate3d(0, ${lift() * props.offsetY}px, 0) scale(1)`
-    }
-
-    if (isFront()) {
-      return 'translate3d(0, 0px, 0) scale(1)'
     }
 
     return `translate3d(0, ${currentYOffset()}px, 0) scale(${scale()})`
@@ -271,11 +259,15 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           transform: transform(),
           opacity: opacity(),
           height: height(),
-          'z-index': props.toastsCount - props.index,
+          'z-index': removed()
+            ? props.toastsCount + 10
+            : Math.max(1, props.toastsCount - props.index),
         },
       },
     }),
     vars: () => ({
+      '--toast-index': props.index,
+      '--toast-offset-y': `${props.offsetY}px`,
       '--toast-gap': `${props.gap ?? DEFAULT_TOAST_GAP}px`,
     }),
   })
@@ -554,6 +546,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         bump: isBumping,
         swiping,
         swipeOut,
+        closed: () => props.toast.closed || removed(),
       })}
       {...resolved.slots.item}
       onPointerDown={handlePointerDown}

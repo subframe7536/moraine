@@ -18,6 +18,7 @@ export const toastDataAttributes = {
     'bump',
     'swiping',
     'swipe-out',
+    'closed',
   ),
   list: /* @__PURE__ */ createDataAttributes('expanded'),
 } satisfies DataAttributeContract<keyof ToastStyleSlot>
@@ -27,6 +28,8 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
   {
     base: {
       '--toast-gap': `${DEFAULT_TOAST_GAP}px`,
+      '--toast-index': 0,
+      '--toast-offset-y': '0px',
       root: 'pointer-events-none fixed z-floating',
       list: 'outline-none list-none flex flex-col w-sm pointer-events-auto fixed z-floating',
       item: `text-popover-foreground p-4 outline-none will-change-transform border border-border rounded-xl bg-popover flex gap-3 max-w-[calc(100vw-2rem)] w-sm select-none shadow-overlay absolute overflow-hidden touch-none ${FOCUS_VISIBLE_CLASS} transition-[transform,opacity,height,box-shadow] duration-400 data-limited:(opacity-0 pointer-events-none) data-swipe-out:duration-200 data-swiping:transition-none motion-reduce:transition-none data-bump:animate-toast-bump motion-reduce:animate-none`,

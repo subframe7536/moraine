@@ -239,7 +239,7 @@ function ToastList(props: ToastListProps): JSX.Element {
   const placement = () => props.positionKey.split('-')[0] as ToastT.Placement
   const align = () => props.positionKey.split('-')[1] as OverlayAlign
 
-  const activeGroupToasts = createMemo(() => {
+  const groupToasts = createMemo(() => {
     return props.filteredToasts().filter((t) => {
       const p = t.variants?.placement ?? props.defaultPlacement()
       const a = t.variants?.align ?? props.defaultAlign()
@@ -252,30 +252,49 @@ function ToastList(props: ToastListProps): JSX.Element {
 
   const frontmostHeight = createMemo(() => {
     const currentHeights = props.heights()
-    for (const t of activeGroupToasts()) {
-      const h = currentHeights[t.id]
-      if (h && h > 0) {
-        return h
+    for (const t of groupToasts()) {
+      if (!t.closed) {
+        const h = currentHeights[t.id]
+        if (h && h > 0) {
+          return h
+        }
       }
     }
     return 0
   })
 
-  // Expanded Y offset per index: prefix sum of earlier heights plus gaps, computed once per group.
-  const offsets = createMemo(() => {
+  // Computes index and vertical offset for each toast (referencing Base UI's createToastMetadata).
+  // Non-closing toasts advance visibleIndex and accumulate offsetY.
+  // Closing toasts retain their domIndex and current position so remaining toasts advance immediately.
+  const toastMeta = createMemo(() => {
+    const toasts = groupToasts()
     const currentHeights = props.heights()
     const gap = props.gapSize()
-    const result: number[] = []
-    let total = 0
-    for (const t of activeGroupToasts()) {
-      result.push(total)
-      total += (currentHeights[t.id] ?? 0) + gap
-    }
-    return result
+    const meta = new Map<string | number, { index: number; offsetY: number }>()
+    let visibleIndex = 0
+    let offsetY = 0
+
+    toasts.forEach((t, domIndex) => {
+      const isEnding = Boolean(t.closed)
+      meta.set(t.id, {
+        index: isEnding ? domIndex : visibleIndex,
+        offsetY,
+      })
+
+      if (!isEnding) {
+        visibleIndex += 1
+        const h = currentHeights[t.id] || frontmostHeight() || 58
+        offsetY += h + gap
+      }
+    })
+
+    return meta
   })
 
+  const activeCount = createMemo(() => groupToasts().filter((t) => !t.closed).length)
+
   const listHeight = createMemo(() => {
-    const toasts = activeGroupToasts()
+    const toasts = groupToasts().filter((t) => !t.closed)
     if (toasts.length === 0) {
       return 0
     }
@@ -322,7 +341,7 @@ function ToastList(props: ToastListProps): JSX.Element {
   )
 
   return (
-    <Show when={activeGroupToasts().length > 0}>
+    <Show when={groupToasts().length > 0}>
       <ul
         data-slot="toast-list"
         tabIndex={-1}
@@ -344,32 +363,35 @@ function ToastList(props: ToastListProps): JSX.Element {
         }}
         onPointerUp={() => setIsInteracting(false)}
       >
-        <For each={activeGroupToasts()}>
-          {(item, index) => (
-            <ToastItem
-              toast={item}
-              index={index()}
-              toastsCount={activeGroupToasts().length}
-              visibleToasts={props.visibleToasts}
-              offsetY={offsets()[index()] ?? 0}
-              expanded={layoutExpanded()}
-              paused={timerPaused()}
-              placement={placement()}
-              align={align()}
-              close={props.close}
-              showProgress={props.showProgress}
-              invert={props.invert}
-              large={props.large}
-              itemRender={props.itemRender}
-              classes={props.classes}
-              styles={props.styles}
-              gap={props.gapSize()}
-              duration={props.duration}
-              onHeight={props.onHeight}
-              onClose={props.onClose}
-              onBump={props.onBump}
-            />
-          )}
+        <For each={groupToasts()}>
+          {(item) => {
+            const meta = () => toastMeta().get(item.id) ?? { index: 0, offsetY: 0 }
+            return (
+              <ToastItem
+                toast={item}
+                index={meta().index}
+                offsetY={meta().offsetY}
+                toastsCount={activeCount()}
+                visibleToasts={props.visibleToasts}
+                expanded={layoutExpanded()}
+                paused={timerPaused()}
+                placement={placement()}
+                align={align()}
+                close={props.close}
+                showProgress={props.showProgress}
+                invert={props.invert}
+                large={props.large}
+                itemRender={props.itemRender}
+                classes={props.classes}
+                styles={props.styles}
+                gap={props.gapSize()}
+                duration={props.duration}
+                onHeight={props.onHeight}
+                onClose={props.onClose}
+                onBump={props.onBump}
+              />
+            )
+          }}
         </For>
       </ul>
     </Show>

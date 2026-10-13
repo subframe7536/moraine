@@ -924,6 +924,75 @@ describe('Toast', () => {
     expect(toasts[1]?.hasAttribute('data-expanded')).toBe(false)
   })
 
+  it('does not cause an extra drop for upper toasts when closing a toast in expanded mode', async () => {
+    render(() => <Toast expand />)
+
+    Toast.add({ title: 'Toast 1' })
+    const id2 = Toast.add({ title: 'Toast 2' })
+
+    const toast1El = await screen.findByText('Toast 1')
+    const item1 = toast1El.closest('[data-slot="toast-item"]') as HTMLElement
+    const toast2El = await screen.findByText('Toast 2')
+    const item2 = toast2El.closest('[data-slot="toast-item"]') as HTMLElement
+
+    await waitFor(() => {
+      expect(item1.style.opacity).toBe('1')
+      expect(item2.style.opacity).toBe('1')
+    })
+
+    // id2 is at front (index 0), id1 is behind (index 1)
+    Toast.close(id2)
+    await Promise.resolve()
+
+    // id1 should now immediately target the front position with offset 0
+    await waitFor(() => {
+      expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+    })
+
+    // After exit animation completes and id2 unmounts:
+    await finishExitMotion()
+    expect(screen.queryByText('Toast 2')).toBeNull()
+
+    // id1 should STILL remain at offset 0 (no extra drop after exit completes)
+    expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+  })
+
+  it('does not cause an extra drop for upper toasts when closing a toast in collapsed mode', async () => {
+    render(() => <Toast />)
+
+    Toast.add({ title: 'Toast 1' })
+    const id2 = Toast.add({ title: 'Toast 2' })
+
+    const toast1El = await screen.findByText('Toast 1')
+    const item1 = toast1El.closest('[data-slot="toast-item"]') as HTMLElement
+    const toast2El = await screen.findByText('Toast 2')
+    const item2 = toast2El.closest('[data-slot="toast-item"]') as HTMLElement
+
+    await waitFor(() => {
+      expect(item1.style.opacity).toBe('1')
+      expect(item2.style.opacity).toBe('1')
+    })
+
+    // Initially id2 is front (index 0, 0px), id1 is behind (index 1, -14px)
+    expect(item1.style.transform).toBe('translate3d(0, -14px, 0) scale(0.95)')
+
+    // Close front toast (id2)
+    Toast.close(id2)
+    await Promise.resolve()
+
+    // id1 immediately becomes active front and targets 0px (scale 1)
+    await waitFor(() => {
+      expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+    })
+
+    // After exit completes:
+    await finishExitMotion()
+    expect(screen.queryByText('Toast 2')).toBeNull()
+
+    // id1 remains at 0px
+    expect(item1.style.transform).toBe('translate3d(0, 0px, 0) scale(1)')
+  })
+
   it('closes toast on swipe gesture past threshold', async () => {
     render(() => <Toast />)
 
