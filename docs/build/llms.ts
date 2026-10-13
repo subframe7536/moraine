@@ -313,7 +313,12 @@ function renderComponentNode(
   if (node.name === 'CodeTabs') {
     return renderCodeTabsNode(node, context)
   }
-  if (node.name === 'ToastHosts' || node.name === 'Playground') {
+  if (
+    node.name === 'AlertDialog' ||
+    node.name === 'Toast' ||
+    node.name === 'ToastHosts' ||
+    node.name === 'Playground'
+  ) {
     return ''
   }
   throw new Error(`[docs-llms] unsupported JSX component <${node.name}> in ${context.sourcePath}`)

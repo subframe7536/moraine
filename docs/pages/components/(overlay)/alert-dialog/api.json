@@ -99,7 +99,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Selects this host from `AlertDialog.confirm(id, options)` and the other methods.\nA call without an id uses the last mounted host. Unmounting the host settles its open dialogs as `false`."
+          "description": "Unique identifier for this host when multiple hosts are mounted.\nSelects this host from `AlertDialog.confirm(id, options)` and the other methods.\nA call without an id uses the last mounted host. If duplicate ids are mounted,\nthe last mounted host takes precedence. Unmounting the host settles its open dialogs as `false`."
         },
         {
           "name": "okText",
