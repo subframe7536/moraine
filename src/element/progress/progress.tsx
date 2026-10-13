@@ -45,8 +45,6 @@ export function Progress(props: ProgressProps): JSX.Element {
   const resolved = createStyles(progressRecipe, local)
   const messages = useMessages('progress', defaultProgressMessages)
 
-  const orientation = () => resolved.variants.orientation
-
   const steps = createMemo<string[]>(() => {
     const max = local.max
     return Array.isArray(max) ? max : []
@@ -96,33 +94,6 @@ export function Progress(props: ProgressProps): JSX.Element {
     return `${percent() ?? 0}%`
   })
 
-  const statusStyle = createMemo<JSX.CSSProperties>(() => {
-    const currentPercent = percent() ?? 0
-    if (orientation() === 'vertical') {
-      return { height: `${100 - currentPercent}%` }
-    }
-
-    return { width: `${currentPercent}%` }
-  })
-
-  const indicatorStyle = createMemo<JSX.CSSProperties | undefined>(() => {
-    const currentPercent = percent()
-    if (currentPercent === undefined) {
-      return undefined
-    }
-
-    const distance = 100 - currentPercent
-    if (orientation() === 'vertical') {
-      return {
-        transform: `translateY(${distance}%)`,
-      }
-    }
-
-    return {
-      transform: `translateX(-${distance}%)`,
-    }
-  })
-
   function stepState(index: number): ProgressT.StepRenderProps['state'] {
     const activeIndex = Number.isFinite(resolvedValue()) ? Math.round(resolvedValue()) : 0
     const isActive = !isIndeterminate() && index === activeIndex
@@ -154,6 +125,10 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       {...resolved.slots.root}
+      style={{
+        '--progress-value': percent() === undefined ? undefined : percent()! / 100,
+        ...resolved.slots.root.style,
+      }}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
@@ -162,11 +137,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
           return (
             <Show when={shouldRenderStatus()}>
-              <div
-                data-slot="progress-status"
-                class={resolved.slots.status.class}
-                style={{ ...statusStyle(), ...resolved.slots.status.style }}
-              >
+              <div data-slot="progress-status" {...resolved.slots.status}>
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
                   {renderWithProps(statusRender(), {
                     get percent() {
@@ -181,12 +152,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       </Show>
 
       <div data-slot="progress-track" {...resolved.slots.track}>
-        <div
-          data-slot="progress-indicator"
-          class={resolved.slots.indicator.class}
-          style={{ ...indicatorStyle(), ...resolved.slots.indicator.style }}
-          {...indicatorDataAttrs}
-        />
+        <div data-slot="progress-indicator" {...indicatorDataAttrs} {...resolved.slots.indicator} />
       </div>
 
       <Show when={hasSteps()}>

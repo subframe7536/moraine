@@ -77,7 +77,10 @@ describe('Progress', () => {
     ) as HTMLElement
 
     expect(status.textContent).toBe('40%')
-    expect(status.style.width).toBe('40%')
+    expect(status.style.width).toBe('')
+    expect(withStatus.getByRole('progressbar').style.getPropertyValue('--progress-value')).toBe(
+      '0.4',
+    )
 
     const withRenderStatus = render(() => (
       <Progress value={25} statusRender={(props) => <>Done {props.percent}%</>} />
@@ -175,6 +178,7 @@ describe('Progress', () => {
       expect(progress.hasAttribute('aria-valuenow')).toBe(false)
       expect(progress.getAttribute('aria-valuetext')).toBe('indeterminate progress')
       expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
+      expect(progress.style.getPropertyValue('--progress-value')).toBe('')
       expect(
         (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
           .transform,
@@ -191,10 +195,11 @@ describe('Progress', () => {
     expect(progress.getAttribute('aria-valuetext')).toBe('0%')
     expect(progress.getAttribute('data-progress')).toBe('complete')
     expect(screen.container.querySelector('[data-slot="progress-status"]')?.textContent).toBe('0%')
+    expect(progress.style.getPropertyValue('--progress-value')).toBe('0')
     expect(
       (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
         .transform,
-    ).toBe('translateX(-100%)')
+    ).toBe('')
   })
 
   test('keeps fractional percentages synchronized without integer rounding', () => {
@@ -207,8 +212,9 @@ describe('Progress', () => {
 
     expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
     expect(status.textContent).toBe('33.33%')
-    expect(status.style.width).toBe('33.33%')
-    expect(indicator.style.transform).toBe('translateX(-66.67%)')
+    expect(progress.style.getPropertyValue('--progress-value')).toBe('0.3333')
+    expect(status.style.width).toBe('')
+    expect(indicator.style.transform).toBe('')
   })
 
   test('keeps overall progress on root, animation state on indicator, and local step state', () => {
@@ -417,9 +423,48 @@ describe('Progress', () => {
     ) as HTMLElement
 
     expect(root?.className).toContain('flex-row-reverse')
-    expect(status.style.height).toBe('75%')
+    expect((root as HTMLElement).style.getPropertyValue('--progress-value')).toBe('0.25')
+    expect(status.className).toContain('h-[calc((1_-_var(--progress-value))*100%)]')
+    expect(status.style.height).toBe('')
     expect(indicator.className).toContain('animate-swing-vertical')
-    expect(indicator.style.transform).toBe('translateY(75%)')
+    expect(indicator.className).toContain(
+      'not-[[data-indeterminate]]:scale-y-[var(--progress-value)]',
+    )
+    expect(indicator.className).toContain('origin-bottom')
+    expect(indicator.style.transform).toBe('')
+  })
+
+  test('drives horizontal fill with scale from the inline-start edge, including RTL', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <div dir="rtl">
+          <Progress value={60} status />
+        </div>
+      </MoraineProvider>
+    ))
+
+    const root = screen.getByRole('progressbar')
+    const status = screen.container.querySelector('[data-slot="progress-status"]') as HTMLElement
+    const indicator = screen.container.querySelector(
+      '[data-slot="progress-indicator"]',
+    ) as HTMLElement
+
+    expect(root.style.getPropertyValue('--progress-value')).toBe('0.6')
+    expect(status.className).toContain('w-[calc(var(--progress-value)*100%)]')
+    expect(indicator.className).toContain(
+      'not-[[data-indeterminate]]:scale-x-[var(--progress-value)]',
+    )
+    expect(indicator.className).toContain('origin-left')
+    expect(indicator.className).toContain('rtl:origin-right')
+    expect(indicator.style.transform).toBe('')
+  })
+
+  test('merges the progress value variable with user root style', () => {
+    const screen = render(() => <Progress value={50} style={{ color: 'red' }} />)
+    const root = screen.getByRole('progressbar')
+
+    expect(root.style.color).toBe('red')
+    expect(root.style.getPropertyValue('--progress-value')).toBe('0.5')
   })
 
   test('uses reverse animation classes without inverse utilities', () => {
