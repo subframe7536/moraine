@@ -14,7 +14,6 @@ import {
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
-import type { IconT } from '../../element/icon'
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -113,7 +112,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   const isFront = () => props.index === 0
   const isVisible = () => props.index < props.visibleToasts
-  const isLoading = () => props.toast.variants?.variant === 'loading'
+  const isLoading = () => props.toast.variants?.type === 'loading'
   const showProgressBar = () =>
     (props.toast.showProgress ?? props.showProgress ?? false) && !isLoading()
 
@@ -516,33 +515,27 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const role = () => (props.toast.variants?.variant === 'error' ? 'alert' : 'status')
-
-  const closeConfig = () => props.toast.close ?? props.close
-
-  const defaultIcon = () => {
-    const v = props.toast.variants?.variant
-    if (v === 'success') {
-      return 'icon-success'
+  const closeConfig = createMemo(() => props.toast.close ?? props.close)
+  const iconSource = createMemo(() => {
+    if (props.toast.icon) {
+      return props.toast.icon
     }
-    if (v === 'error') {
-      return 'icon-error'
+    switch (props.toast.variants?.type) {
+      case 'success':
+        return 'icon-success'
+      case 'error':
+        return 'icon-error'
+      case 'warning':
+        return 'icon-warning'
+      case 'info':
+        return 'icon-info'
+      case 'loading':
+        return 'icon-loading'
+      default:
+        return undefined
     }
-    if (v === 'warning') {
-      return 'icon-warning'
-    }
-    if (v === 'info') {
-      return 'icon-info'
-    }
-    if (v === 'loading') {
-      return 'icon-loading'
-    }
-    return undefined
-  }
-
-  const iconSource = (): IconT.Name | undefined => props.toast.icon ?? defaultIcon()
-
-  const itemRenderer = () => props.itemRender
+  })
+  const itemRenderer = createMemo(() => props.itemRender)
 
   return (
     <li
@@ -550,7 +543,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
         itemRef = el
       }}
       data-slot="toast-item"
-      role={role()}
+      role={props.toast.variants?.type === 'error' ? 'alert' : 'status'}
       tabIndex={0}
       inert={!isVisible() ? true : undefined}
       {...toastDataAttributes.item({

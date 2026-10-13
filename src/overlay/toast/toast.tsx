@@ -37,7 +37,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'placement',
     'align',
     'large',
-    'variant',
+    'type',
     'itemRender',
     'visibleToasts',
     'duration',
@@ -68,7 +68,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
       placement: local.placement ?? 'bottom',
       align: local.align ?? 'end',
       large: local.large ?? false,
-      variant: local.variant ?? 'default',
+      type: local.type ?? 'default',
     }),
     contextSlots: () => ({
       classes: local.classes,
@@ -386,13 +386,13 @@ export const Toast = ToastRoot as typeof ToastRoot &
 
 Toast.add = (options) => getDefaultToastStore().add(options)
 Toast.success = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { variant: 'success', ...options.variants } })
+  getDefaultToastStore().add({ ...options, variants: { type: 'success', ...options.variants } })
 Toast.error = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { variant: 'error', ...options.variants } })
+  getDefaultToastStore().add({ ...options, variants: { type: 'error', ...options.variants } })
 Toast.warning = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { variant: 'warning', ...options.variants } })
+  getDefaultToastStore().add({ ...options, variants: { type: 'warning', ...options.variants } })
 Toast.info = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { variant: 'info', ...options.variants } })
+  getDefaultToastStore().add({ ...options, variants: { type: 'info', ...options.variants } })
 Toast.loading = (options) => getDefaultToastStore().loading(options)
 Toast.promise = (promiseValue, options) => getDefaultToastStore().promise(promiseValue, options)
 Toast.custom = (render, options) => getDefaultToastStore().custom(render, options)

@@ -212,7 +212,7 @@ Update an existing toast in place using its returned identifier, or close toasts
 const id = Toast.loading({ title: 'Exporting report...' })
 
 // Update the toast when the task finishes
-Toast.update(id, { title: 'Report ready', variants: { variant: 'success' }, duration: 4000 })
+Toast.update(id, { title: 'Report ready', variants: { type: 'success' }, duration: 4000 })
 
 // Close a specific toast or dismiss all active toasts
 Toast.close(id)

@@ -49,8 +49,8 @@ function isSameToastContent(first: ToastItemRecord, second: Partial<ToastItemRec
   const sameTitle = isSameToastValue(first.title, second.title)
   const sameDescription = isSameToastValue(first.description, second.description)
   const sameVariant = isSameToastValue(
-    first.variants?.variant ?? 'default',
-    second.variants?.variant ?? 'default',
+    first.variants?.type ?? 'default',
+    second.variants?.type ?? 'default',
   )
   const sameAction =
     (first.action === undefined && second.action === undefined) ||
@@ -91,27 +91,6 @@ export function matchesHostId(item: ToastItemRecord, hostId: string | undefined)
     return item.toastId === hostId
   }
   return !item.toastId
-}
-
-function splitPromiseOptions<T>(options: ToastT.PromiseOptions<T>): {
-  loading: ToastT.PromiseOptions<T>['loading']
-  success: ToastT.PromiseOptions<T>['success']
-  error: ToastT.PromiseOptions<T>['error']
-  onFinally: ToastT.PromiseOptions<T>['finally']
-  description: ToastT.PromiseOptions<T>['description']
-  duration: number | undefined
-  itemOptions: ToastT.InitOptions
-} {
-  const {
-    loading,
-    success,
-    error,
-    finally: onFinally,
-    description,
-    duration,
-    ...itemOptions
-  } = options
-  return { loading, success, error, onFinally, description, duration, itemOptions }
 }
 
 /**
@@ -265,7 +244,7 @@ export function createToastStore(): ToastStore {
     add({
       ...options,
       variants: {
-        variant: 'loading',
+        type: 'loading',
         ...options.variants,
       },
       duration: options.duration ?? Number.POSITIVE_INFINITY,
@@ -331,11 +310,11 @@ export function createToastStore(): ToastStore {
       loading: loadingMessage,
       success: successMessage,
       error: errorMessage,
-      onFinally,
+      finally: onFinally,
       description,
       duration,
-      itemOptions,
-    } = splitPromiseOptions(options)
+      ...itemOptions
+    } = options
 
     let id: string | number | undefined
 
@@ -356,7 +335,7 @@ export function createToastStore(): ToastStore {
     let result: ['resolve', T] | ['reject', unknown]
 
     const resolvePayload = async (
-      variant: NonNullable<ToastT.Variants['variant']>,
+      variant: NonNullable<ToastT.Variants['type']>,
       handler: unknown,
       param: unknown,
     ) => {
@@ -369,7 +348,7 @@ export function createToastStore(): ToastStore {
         id,
         variants: {
           ...itemOptions.variants,
-          variant,
+          type: variant,
         },
         title: title as JSX.Element,
         description: resolvedDescription,

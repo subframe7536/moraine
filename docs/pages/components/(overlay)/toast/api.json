@@ -157,7 +157,7 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "variant",
+          "name": "type",
           "optional": true,
           "type": "'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'",
           "description": "Visual status variant.",

@@ -997,7 +997,7 @@ describe('Toast', () => {
     Toast.add({
       title: 'Slot Test Title',
       description: 'Slot Test Description',
-      variants: { variant: 'success' },
+      variants: { type: 'success' },
       action: { label: 'Action Btn', onClick: vi.fn() },
       cancel: { label: 'Cancel Btn', onClick: vi.fn() },
     })

@@ -41,7 +41,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       progress: 'bg-muted h-1 bottom-0 left-0 right-0 absolute overflow-hidden',
     },
     variants: {
-      variant: {
+      type: {
         default: {},
         success: {
           icon: 'text-success',
@@ -109,7 +109,7 @@ export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastSty
       },
     },
     defaultVariants: {
-      variant: 'default',
+      type: 'default',
       large: false,
       invert: false,
       placement: 'bottom',

@@ -44,7 +44,7 @@ export interface ToastStyleVariant {
    * Visual status variant.
    * @default 'default'
    */
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'
+  type?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'
 
   /**
    * Whether to use large multi-line layout.
