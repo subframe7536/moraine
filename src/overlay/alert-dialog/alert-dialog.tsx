@@ -39,6 +39,8 @@ const ALERT_DIALOG_ICONS = {
   success: 'icon-success',
 } as const satisfies Record<AlertDialogT.Type, string>
 
+type AlertDialogConfig = Omit<AlertDialogT.Props, 'id'>
+
 const ALERT_DIALOG_CONFIG_KEYS = [
   'cancel',
   'cancelText',
@@ -57,7 +59,7 @@ const ALERT_DIALOG_CONFIG_KEYS = [
   'styles',
   'subtle',
   'width',
-] as const satisfies readonly (keyof AlertDialogT.Config)[]
+] as const satisfies readonly (keyof AlertDialogConfig)[]
 
 const ALERT_DIALOG_CONFIG_KEY_SET = new Set<string>(ALERT_DIALOG_CONFIG_KEYS)
 
@@ -69,7 +71,7 @@ interface AlertDialogEntryProps {
   cancel: () => boolean | undefined
   cancelText: () => JSX.Element | undefined
   cancelVariant: () => AlertDialogT.Options['cancelVariant']
-  class: () => string | undefined
+  class: () => AlertDialogT.Options['class']
   classes: () => AlertDialogT.Options['classes']
   closeOnEscape: () => boolean | undefined
   close: () => boolean | undefined
@@ -85,7 +87,7 @@ interface AlertDialogEntryProps {
   open: () => boolean
   pendingKind: () => PendingKind | undefined
   remove: () => void
-  style: () => JSX.CSSProperties | undefined
+  style: () => AlertDialogT.Options['style']
   styles: () => AlertDialogT.Options['styles']
   subtle: () => boolean | null | undefined
   title: () => JSX.Element | undefined
@@ -147,7 +149,7 @@ function missingHostMessage(id?: string): string {
 
 // Host defaults are snapshotted when a dialog opens. Later host changes do not rewrite it.
 // oxlint-disable subf/solid-reactivity
-function readAlertDialogConfig(props: AlertDialogProps): AlertDialogT.Config {
+function readAlertDialogConfig(props: AlertDialogProps): AlertDialogConfig {
   return {
     cancel: props.cancel,
     cancelText: props.cancelText,
@@ -172,7 +174,7 @@ function readAlertDialogConfig(props: AlertDialogProps): AlertDialogT.Config {
 
 function optionValue<K extends keyof AlertDialogT.Options>(
   options: () => AlertDialogT.Options,
-  config: AlertDialogT.Config,
+  config: AlertDialogConfig,
   key: K,
 ): () => AlertDialogT.Options[K] {
   return () => {
@@ -180,7 +182,7 @@ function optionValue<K extends keyof AlertDialogT.Options>(
     if (own !== undefined || !ALERT_DIALOG_CONFIG_KEY_SET.has(key)) {
       return own
     }
-    const fallback = config[key as keyof AlertDialogT.Config]
+    const fallback = config[key as keyof AlertDialogConfig]
     return (fallback === undefined ? own : fallback) as AlertDialogT.Options[K]
   }
 }
@@ -188,7 +190,7 @@ function optionValue<K extends keyof AlertDialogT.Options>(
 function createAlertDialog(
   type: AlertDialogT.Type,
   options: AlertDialogT.Options,
-  config: AlertDialogT.Config,
+  config: AlertDialogConfig,
 ): {
   instance: AlertDialogT.Instance
   record: AlertDialogRecord
@@ -250,7 +252,7 @@ function createAlertDialog(
     pending = task
     return task
   }
-  const update = (next: Partial<AlertDialogT.Options>): void => {
+  const update = (next: AlertDialogT.UpdateOptions): void => {
     setCurrentOptions((current) => ({ ...current, ...next }))
   }
   const id = `alert-dialog-${createUniqueId()}`

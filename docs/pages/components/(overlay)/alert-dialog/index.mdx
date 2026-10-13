@@ -112,7 +112,7 @@ namespace AlertDialogT {
   interface Instance extends Promise<boolean> {
     close: () => void
     destroy: () => void
-    update: (options: Partial<Options>) => void
+    update: (options: AlertDialogT.UpdateOptions) => void
   }
 }
 ```
