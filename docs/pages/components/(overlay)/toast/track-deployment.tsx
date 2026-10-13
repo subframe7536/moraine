@@ -13,9 +13,9 @@ export function TrackDeployment() {
     })
 
     Toast.promise(task, {
-      loading: 'Deploying to production...',
-      success: (data) => `Deployed ${data.version} successfully!`,
-      error: (err) => `Deploy failed: ${(err as Error).message}`,
+      loading: { title: 'Deploying to production...' },
+      success: (data) => ({ title: `Deployed ${data.version} successfully!` }),
+      error: (err) => ({ title: `Deploy failed: ${(err as Error).message}` }),
     })
   }
 

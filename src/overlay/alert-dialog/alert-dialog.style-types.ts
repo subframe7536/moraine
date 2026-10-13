@@ -22,7 +22,8 @@ export interface AlertDialogStyleVariant {
    */
   center?: boolean
   /**
-   * Styles the OK action as `danger` when `okVariant` is omitted.
+   * Shows a caution icon when `type` is `default`, and styles the primary action as `danger`
+   * when its variant is omitted.
    * @default false
    */
   danger?: boolean

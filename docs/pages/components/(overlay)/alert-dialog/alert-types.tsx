@@ -11,7 +11,7 @@ export function AlertTypes() {
             title: 'System update available',
             description:
               'Version 2.5.0 has been downloaded in the background. Restart your workspace to apply performance improvements.',
-            okText: 'Restart now',
+            action: { label: 'Restart now' },
           })
         }
       >
@@ -25,7 +25,7 @@ export function AlertTypes() {
             title: 'Storage threshold reached',
             description:
               'Your team organization has utilized 92% of allocated disk capacity. Automatic snapshots may be throttled soon.',
-            okText: 'Manage quota',
+            action: { label: 'Manage quota' },
           })
         }
       >
@@ -39,7 +39,7 @@ export function AlertTypes() {
             title: 'Pipeline deployment failed',
             description:
               'Worker process exited with code 137 (Out of Memory) during asset minification. Inspect build logs for diagnostics.',
-            okText: 'View logs',
+            action: { label: 'View logs' },
           })
         }
       >
@@ -53,7 +53,7 @@ export function AlertTypes() {
             title: 'Database snapshot completed',
             description:
               'Encrypted database backup "prod_db_20261013" was successfully uploaded to cold storage.',
-            okText: 'Done',
+            action: { label: 'Done' },
           })
         }
       >

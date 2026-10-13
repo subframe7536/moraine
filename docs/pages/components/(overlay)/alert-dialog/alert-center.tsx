@@ -5,18 +5,18 @@ export function AlertCenter() {
   const [status, setStatus] = createSignal<'idle' | 'allowed' | 'blocked'>('idle')
 
   const connect = async () => {
-    const allowed = await AlertDialog.confirm({
+    const result = await AlertDialog.confirm({
       title: 'Allow security key to connect?',
       description:
         'Hardware key "YubiKey 5C NFC" is requesting permission to authenticate and read security credentials.',
       icon: 'i-lucide:usb',
       center: true,
       subtle: true,
-      okText: 'Allow key',
-      cancelText: "Don't allow",
       width: 380,
-    })
-    setStatus(allowed ? 'allowed' : 'blocked')
+      action: { label: 'Allow key' },
+      cancel: { label: "Don't allow" },
+    }).result()
+    setStatus(result === 'action' ? 'allowed' : 'blocked')
   }
 
   return (

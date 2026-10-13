@@ -211,7 +211,7 @@ type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 type RootUseSlider = typeof import('moraine').createSlider
 type RootAlertDialog = typeof import('moraine').AlertDialog
 type RootAlertDialogOptions = import('moraine').AlertDialogT.Options
-type RootAlertDialogInstance = import('moraine').AlertDialogT.Instance
+type RootAlertDialogHandle = import('moraine').AlertDialogT.Handle
 // @ts-expect-error Alert dialog is only public from the root entry.
 type UtilsAlertDialog = typeof import('moraine/utils').AlertDialog
 // @ts-expect-error The alert dialog hook is not a public export.
@@ -228,21 +228,24 @@ export type PublicEntryIsolation = [
   RootAlertDialog,
   Assert<
     RootAlertDialog extends ((props: import('moraine').AlertDialogProps) => unknown) & {
-      confirm: (options: RootAlertDialogOptions) => RootAlertDialogInstance
-      destroyAll: () => void
+      confirm: (options: RootAlertDialogOptions) => RootAlertDialogHandle
+      show: (options: RootAlertDialogOptions) => RootAlertDialogHandle
+      close: (id?: import('moraine').AlertDialogT.Id) => void
     }
       ? true
       : false
   >,
   Assert<'children' extends keyof import('moraine').AlertDialogProps ? false : true>,
-  Assert<'okText' extends keyof import('moraine').AlertDialogProps ? true : false>,
+  Assert<'okText' extends keyof import('moraine').AlertDialogProps ? false : true>,
+  Assert<'dialogRender' extends keyof import('moraine').AlertDialogProps ? true : false>,
   Assert<'center' extends keyof import('moraine').AlertDialogProps ? true : false>,
   Assert<'subtle' extends keyof import('moraine').AlertDialogProps ? true : false>,
   Assert<'title' extends keyof import('moraine').AlertDialogProps ? false : true>,
   Assert<'confirm' extends keyof RootAlertDialogOptions ? false : true>,
   Assert<'title' extends keyof RootAlertDialogOptions ? true : false>,
-  Assert<RootAlertDialogInstance extends Promise<boolean> ? true : false>,
-  Assert<'destroy' extends keyof RootAlertDialogInstance ? true : false>,
+  Assert<RootAlertDialogHandle extends Promise<boolean> ? false : true>,
+  Assert<'result' extends keyof RootAlertDialogHandle ? true : false>,
+  Assert<'destroy' extends keyof RootAlertDialogHandle ? false : true>,
   UtilsAlertDialog,
   RootUseAlertDialog,
   UtilsProvider,

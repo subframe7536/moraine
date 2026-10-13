@@ -5,18 +5,20 @@ export function AlertConfirm() {
   const [revoked, setRevoked] = createSignal(false)
 
   const confirmRevoke = async () => {
-    const confirmed = await AlertDialog.confirm({
+    const result = await AlertDialog.confirm({
       title: 'Revoke secret API key?',
       description:
         'Active background workers and webhook integrations using "Production Sync Key" will immediately lose API access.',
       danger: true,
-      okText: 'Revoke key',
-      cancelText: 'Keep key',
-      onOk: async () => {
-        await new Promise((resolve) => setTimeout(resolve, 600))
+      action: {
+        label: 'Revoke key',
+        onClick: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 600))
+        },
       },
-    })
-    if (confirmed) {
+      cancel: { label: 'Keep key' },
+    }).result()
+    if (result === 'action') {
       setRevoked(true)
     }
   }

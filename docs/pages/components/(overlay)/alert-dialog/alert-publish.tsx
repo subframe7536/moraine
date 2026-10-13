@@ -20,22 +20,20 @@ export function AlertPublish() {
     setPublishedAt(undefined)
   }
 
-  const publish = () => {
-    let settled = false
+  const publishRelease = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    setStage('published')
+    setPublishedAt(new Date().toLocaleTimeString())
+  }
 
-    // If checks have already passed before opening
+  const publish = () => {
     if (stage() === 'passed') {
       void AlertDialog.confirm({
         title: 'Publish release v2.4.0?',
         description: 'All 18 automated checks passed. Ready to deploy to production.',
-        okText: 'Publish release',
-        cancelText: 'Cancel',
         width: 440,
-        onOk: async () => {
-          await new Promise((resolve) => setTimeout(resolve, 800))
-          setStage('published')
-          setPublishedAt(new Date().toLocaleTimeString())
-        },
+        action: { label: 'Publish release', onClick: publishRelease },
+        cancel: { label: 'Cancel' },
       })
       return
     }
@@ -45,24 +43,19 @@ export function AlertPublish() {
       description:
         'Automated checks are still running (1 pending: e2e-regression). Publishing now will bypass remaining verification.',
       danger: true,
-      okText: 'Publish anyway',
-      cancelText: 'Wait for checks',
       width: 440,
-      onOk: async () => {
-        await new Promise((resolve) => setTimeout(resolve, 800))
-        setStage('published')
-        setPublishedAt(new Date().toLocaleTimeString())
-      },
+      action: { label: 'Publish anyway', onClick: publishRelease },
+      cancel: { label: 'Wait for checks' },
     })
 
-    void dialog.then(() => {
+    let settled = false
+    void dialog.result().then(() => {
       settled = true
       if (timer) {
         clearTimeout(timer)
       }
     })
 
-    // Simulate the CI check completing in background after 2 seconds
     timer = setTimeout(() => {
       setStage('passed')
       if (settled) {
@@ -72,10 +65,9 @@ export function AlertPublish() {
         title: 'All checks passed — Publish release v2.4.0?',
         description:
           'Automated checks finished successfully (18/18 passed). Ready to deploy to production.',
-        okText: 'Publish release',
-        cancelText: 'Cancel',
         danger: false,
-        okVariant: 'default',
+        action: { label: 'Publish release', onClick: publishRelease },
+        cancel: { label: 'Cancel' },
       })
     }, 2000)
   }

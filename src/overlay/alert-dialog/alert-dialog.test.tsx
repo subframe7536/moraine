@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../element/button'
 import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-util/overlay-test'
 
@@ -33,7 +34,7 @@ function dialog(): HTMLElement {
 
 function button(name: string, root: ParentNode = document.body): HTMLButtonElement {
   const match = Array.from(root.querySelectorAll('button')).find(
-    (candidate) => candidate.textContent === name,
+    (candidate) => candidate.textContent === name || candidate.getAttribute('aria-label') === name,
   )
   if (!(match instanceof HTMLButtonElement)) {
     throw new Error(`expected a ${name} button`)
@@ -59,16 +60,17 @@ describe('AlertDialog', () => {
     expect(() => AlertDialog.confirm({ title: 'Missing' })).toThrow('Mount <AlertDialog>')
   })
 
-  test('confirms from OK and cancels from the cancel button', async () => {
+  test('resolves action from OK and cancel from the cancel button', async () => {
     setup()
-    const onOk = vi.fn()
+    const onAction = vi.fn()
     const onCancel = vi.fn()
     const confirmed = AlertDialog.confirm({
       title: 'Delete project',
       description: 'This cannot be undone.',
-      onOk,
-      onCancel,
+      action: { onClick: onAction },
+      cancel: { onClick: onCancel },
     })
+    expect('then' in confirmed).toBe(false)
     await waitForTitle('Delete project')
 
     expect(dialog().getAttribute('aria-modal')).toBe('true')
@@ -76,72 +78,65 @@ describe('AlertDialog', () => {
       document.body.querySelector('[data-slot="dialog-title"]')?.id,
     )
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe(
-      'Delete project',
-    )
     expect(document.body.querySelector('[data-slot="dialog-description"]')?.textContent).toBe(
       'This cannot be undone.',
     )
-    expect(document.body.querySelector('[data-slot="dialog-body"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="icon"]')).toBeNull()
 
     fireEvent.click(button('Cancel'))
-    await expect(confirmed).resolves.toBe(false)
+    await expect(confirmed.result()).resolves.toBe('cancel')
+    expect(confirmed.result()).toBe(confirmed.result())
     expect(onCancel).toHaveBeenCalledTimes(1)
-    expect(onOk).not.toHaveBeenCalled()
+    expect(onAction).not.toHaveBeenCalled()
     await waitForDialogCount(0)
 
-    const accepted = AlertDialog.info({ title: 'Saved', onOk })
+    const accepted = AlertDialog.info({ title: 'Saved', action: { onClick: onAction } })
     await waitForTitle('Saved')
     fireEvent.click(button('OK'))
-    await expect(accepted).resolves.toBe(true)
-    expect(onOk).toHaveBeenCalledTimes(1)
+    await expect(accepted.result()).resolves.toBe('action')
+    expect(onAction).toHaveBeenCalledTimes(1)
     await waitForDialogCount(0)
   })
 
   test('uses each type icon and shows cancel only for confirm by default', async () => {
     setup()
-    const cases: Array<[AlertDialogT.Type, string | undefined, string | undefined, boolean]> = [
-      ['confirm', undefined, undefined, true],
-      ['info', 'icon-info', 'text-info', false],
-      ['warning', 'icon-warning', 'text-warning', false],
-      ['error', 'icon-error', 'text-danger', false],
-      ['success', 'icon-success', 'text-success', false],
+    const cases: Array<['info' | 'warning' | 'error' | 'success', string, string]> = [
+      ['info', 'icon-info', 'text-info'],
+      ['warning', 'icon-warning', 'text-warning'],
+      ['error', 'icon-error', 'text-danger'],
+      ['success', 'icon-success', 'text-success'],
     ]
 
-    for (const [type, icon, tone, showsCancel] of cases) {
-      AlertDialog.destroyAll()
+    void AlertDialog.confirm({ title: 'confirm' })
+    await waitForTitle('confirm')
+    expect(document.body.querySelector('[data-slot="icon"]')).toBeNull()
+    expect(button('Cancel')).toBeInstanceOf(HTMLButtonElement)
+    AlertDialog.close()
+    await waitForDialogCount(0)
+
+    for (const [type, icon, tone] of cases) {
       void AlertDialog[type]({ title: type })
       await waitForTitle(type)
       const iconElement = document.body.querySelector('[data-slot="icon"]')
-      if (icon === undefined) {
-        expect(iconElement).toBeNull()
-      } else {
-        expect(iconElement?.className).toContain(icon)
-        expect(iconElement?.className).toContain(tone)
-      }
+      expect(iconElement?.className).toContain(icon)
+      expect(iconElement?.className).toContain(tone)
       expect(
         Array.from(document.body.querySelectorAll('button')).some(
           (item) => item.textContent === 'Cancel',
         ),
-      ).toBe(showsCancel)
+      ).toBe(false)
+      AlertDialog.close()
+      await waitForDialogCount(0)
     }
 
-    AlertDialog.destroyAll()
     void AlertDialog.confirm({ title: 'Danger confirm', danger: true })
     await waitForTitle('Danger confirm')
     const dangerIcon = document.body.querySelector('[data-slot="icon"]')
     expect(dangerIcon?.className).toContain('icon-caution')
     expect(dangerIcon?.className).toContain('text-danger')
+    expect(button('OK').className).toContain('bg-danger')
 
-    AlertDialog.destroyAll()
-    void AlertDialog.confirm({ title: 'Custom confirm icon', icon: 'icon-help', danger: false })
-    await waitForTitle('Custom confirm icon')
-    const customConfirmIcon = document.body.querySelector('[data-slot="icon"]')
-    expect(customConfirmIcon?.className).toContain('icon-help')
-    expect(customConfirmIcon?.className).not.toContain('text-danger')
-
-    AlertDialog.destroyAll()
+    AlertDialog.close()
+    await waitForDialogCount(0)
     void AlertDialog.info({ title: 'Custom info icon', icon: 'icon-star' })
     await waitForTitle('Custom info icon')
     const customInfoIcon = document.body.querySelector('[data-slot="icon"]')
@@ -151,110 +146,118 @@ describe('AlertDialog', () => {
 
   test('keeps outside pointer dismissal disabled and still closes on Escape', async () => {
     setup()
-    const onCancel = vi.fn()
-    const result = AlertDialog.confirm({ title: 'Stay', onCancel })
+    const onClose = vi.fn()
+    const result = AlertDialog.confirm({ title: 'Stay', onClose })
     await waitForTitle('Stay')
 
     await new Promise((resolve) => setTimeout(resolve, 0))
     fireEvent.pointerDown(document.body.querySelector('[data-testid="outside"]')!)
     await Promise.resolve()
-    expect(onCancel).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
     expect(dialogs()).toHaveLength(1)
 
     dialog().focus()
     fireEvent.keyDown(dialog(), { key: 'Escape' })
-    await expect(result).resolves.toBe(false)
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    await expect(result.result()).resolves.toBe('dismiss')
+    expect(onClose).toHaveBeenCalledWith('dismiss')
     await waitForDialogCount(0)
   })
 
   test('closes from the overlay when closeOnOverlayClick is set and can block Escape', async () => {
     setup()
-    const onCancel = vi.fn()
+    const onClose = vi.fn()
     const blocked = AlertDialog.info({
       title: 'Info',
       cancel: true,
       closeOnOverlayClick: true,
       closeOnEscape: false,
-      onCancel,
+      onClose,
     })
     await waitForTitle('Info')
 
     dialog().focus()
     fireEvent.keyDown(dialog(), { key: 'Escape' })
     await Promise.resolve()
-    expect(onCancel).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
     expect(dialogs()).toHaveLength(1)
 
     await new Promise((resolve) => setTimeout(resolve, 0))
     fireEvent.pointerDown(document.body.querySelector('[data-testid="outside"]')!)
-    await expect(blocked).resolves.toBe(false)
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    await expect(blocked.result()).resolves.toBe('dismiss')
+    expect(onClose).toHaveBeenCalledTimes(1)
     await waitForDialogCount(0)
   })
 
-  test('shows loading while an async OK action is pending and stays open when it rejects', async () => {
+  test('shows loading while an async action is pending and stays open when it rejects', async () => {
     setup()
-    let rejectOk: (reason?: unknown) => void = () => undefined
-    let resolveOk: () => void = () => undefined
+    let rejectAction: (reason?: unknown) => void = () => undefined
+    let resolveAction: () => void = () => undefined
     const result = AlertDialog.confirm({
-      title: 'Save',
-      onOk: () =>
-        new Promise<void>((resolve, reject) => {
-          resolveOk = resolve
-          rejectOk = reject
-        }),
+      title: 'Pending',
+      action: {
+        onClick: () =>
+          new Promise<void>((resolve, reject) => {
+            resolveAction = resolve
+            rejectAction = reject
+          }),
+      },
     })
-    await waitForTitle('Save')
-    let settled = false
-    void result.then(() => {
-      settled = true
-    })
-
-    const ok = button('OK')
-    fireEvent.click(ok)
+    await waitForTitle('Pending')
+    fireEvent.click(button('OK'))
     await waitFor(() => {
-      expect(ok.hasAttribute('data-loading')).toBe(true)
-      expect(ok.getAttribute('aria-busy')).toBe('true')
+      expect(button('OK').hasAttribute('data-loading')).toBe(true)
     })
+    expect(button('Cancel').disabled).toBe(true)
 
-    rejectOk(new Error('failed'))
+    rejectAction(new Error('nope'))
     await waitFor(() => {
-      expect(ok.hasAttribute('data-loading')).toBe(false)
+      expect(button('OK').hasAttribute('data-loading')).toBe(false)
     })
-    expect(settled).toBe(false)
     expect(dialogs()).toHaveLength(1)
 
-    fireEvent.click(ok)
+    fireEvent.click(button('OK'))
     await waitFor(() => {
-      expect(ok.hasAttribute('data-loading')).toBe(true)
+      expect(button('OK').hasAttribute('data-loading')).toBe(true)
     })
-    resolveOk()
-    await expect(result).resolves.toBe(true)
+    resolveAction()
+    await expect(result.result()).resolves.toBe('action')
     await waitForDialogCount(0)
   })
 
-  test('keeps the dialog open when a cancel action rejects', async () => {
+  test('keeps the dialog open when a cancel action rejects or calls preventDefault', async () => {
     setup()
-    const result = AlertDialog.confirm({
-      title: 'Keep',
-      onCancel: () => Promise.reject(new Error('stay')),
+    const rejected = AlertDialog.confirm({
+      title: 'Reject cancel',
+      cancel: {
+        onClick: () => Promise.reject(new Error('keep')),
+      },
     })
-    let settled = false
-    void result.then(() => {
-      settled = true
-    })
-    await waitForTitle('Keep')
-
+    await waitForTitle('Reject cancel')
     fireEvent.click(button('Cancel'))
     await waitFor(() => {
       expect(button('Cancel').hasAttribute('data-loading')).toBe(false)
     })
-    expect(settled).toBe(false)
     expect(dialogs()).toHaveLength(1)
+    AlertDialog.close()
+    await expect(rejected.result()).resolves.toBe('api')
+    await waitForDialogCount(0)
+
+    const prevented = AlertDialog.confirm({
+      title: 'Prevented',
+      action: {
+        onClick: (event) => {
+          event?.preventDefault()
+        },
+      },
+    })
+    await waitForTitle('Prevented')
+    fireEvent.click(button('OK'))
+    await Promise.resolve()
+    expect(dialogs()).toHaveLength(1)
+    prevented.close()
   })
 
-  test('updates options, destroys one dialog, and destroys the rest', async () => {
+  test('updates options, closes one dialog, and closes the rest', async () => {
     setup()
     const first = AlertDialog.confirm({ title: 'First', width: 280, class: 'custom-alert' })
     await waitForTitle('First')
@@ -272,41 +275,53 @@ describe('AlertDialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
     expect(button('OK').className).toContain('bg-danger')
     expect(document.body.querySelector('.icon-caution')).toBeNull()
-    expect(document.body.querySelector('.icon-close')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     expect(dialog().style.maxWidth).toBe('12rem')
 
-    const second = AlertDialog.warning({ title: 'Second', okVariant: 'outline', danger: true })
+    const second = AlertDialog.warning({
+      title: 'Second',
+      danger: true,
+      action: { variant: 'outline' },
+    })
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
     expect(button('OK', dialogs()[1]).className).not.toContain('bg-danger')
 
-    first.destroy()
-    await expect(first).resolves.toBe(false)
+    first.close()
+    await expect(first.result()).resolves.toBe('api')
+    expect(dialogs().length).toBeGreaterThan(0)
+    await waitForDialogCount(1)
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Second')
 
-    AlertDialog.destroyAll()
-    await expect(second).resolves.toBe(false)
-    expect(dialogs()).toHaveLength(0)
+    AlertDialog.close()
+    await expect(second.result()).resolves.toBe('api')
+    await waitForDialogCount(0)
   })
 
-  test('corner close runs onCancel and close resolves false before exit finishes', async () => {
+  test('corner close dismisses without running cancel, and close settles before exit finishes', async () => {
     setup()
     const onCancel = vi.fn()
-    const closed = AlertDialog.info({ title: 'Closable', close: true, onCancel })
+    const onClose = vi.fn()
+    const closed = AlertDialog.info({
+      title: 'Closable',
+      close: true,
+      cancel: { onClick: onCancel },
+      onClose,
+    })
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     })
-    fireEvent.click(document.body.querySelector('[data-slot="dialog-content-close"]')!)
-    await expect(closed).resolves.toBe(false)
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    fireEvent.click(button('Close'))
+    await expect(closed.result()).resolves.toBe('dismiss')
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(onClose).toHaveBeenCalledWith('dismiss')
     await waitForDialogCount(0)
 
     const animated = AlertDialog.success({ title: 'Animated' })
     await waitForTitle('Animated')
     animated.close()
-    await expect(animated).resolves.toBe(false)
+    await expect(animated.result()).resolves.toBe('api')
     expect(dialogs()).toHaveLength(1)
     await waitForDialogCount(0)
   })
@@ -344,7 +359,7 @@ describe('AlertDialog', () => {
     })
   })
 
-  test('hides cancel for confirm and shows it for other types when requested', async () => {
+  test('hides cancel for confirm and shows it for other methods when requested', async () => {
     setup()
     void AlertDialog.confirm({ title: 'No cancel', cancel: false })
     await waitForTitle('No cancel')
@@ -353,8 +368,9 @@ describe('AlertDialog', () => {
         (item) => item.textContent === 'Cancel',
       ),
     ).toBe(false)
-    AlertDialog.destroyAll()
-    void AlertDialog.error({ title: 'With cancel', cancel: true, cancelText: 'Back' })
+    AlertDialog.close()
+    await waitForDialogCount(0)
+    void AlertDialog.error({ title: 'With cancel', cancel: { label: 'Back' } })
     await waitFor(() => {
       expect(button('Back')).toBeInstanceOf(HTMLButtonElement)
     })
@@ -365,7 +381,7 @@ describe('AlertDialog', () => {
     const first = AlertDialog.confirm({ title: 'Bottom' })
     const second = AlertDialog.info({ title: 'Top' })
     let firstSettled = false
-    void first.then(() => {
+    void first.result().then(() => {
       firstSettled = true
     })
     await waitFor(() => {
@@ -378,7 +394,7 @@ describe('AlertDialog', () => {
     }
     top.focus()
     fireEvent.keyDown(top, { key: 'Escape' })
-    await expect(second).resolves.toBe(false)
+    await expect(second.result()).resolves.toBe('dismiss')
     expect(firstSettled).toBe(false)
     await finishExitMotion(top)
     await waitFor(() => {
@@ -387,25 +403,36 @@ describe('AlertDialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Bottom')
   })
 
-  test('applies host defaults and lets the call override them', async () => {
-    render(() => <AlertDialog okText="Continue" cancelText="Back" width={420} danger />)
+  test('applies live host defaults and lets the call override them', async () => {
+    const [width, setWidth] = createSignal(420)
+    render(() => <AlertDialog width={width()} danger close />)
     void AlertDialog.confirm({ title: 'Defaults' })
-    await waitFor(() => {
-      expect(button('Continue')).toBeInstanceOf(HTMLButtonElement)
-      expect(button('Back')).toBeInstanceOf(HTMLButtonElement)
-    })
+    await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
-    expect(button('Continue').className).toContain('bg-danger')
+    expect(button('OK').className).toContain('bg-danger')
+    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
-    AlertDialog.destroyAll()
-    void AlertDialog.info({ title: 'Override', okText: 'Done', danger: false })
+    setWidth(240)
+    await waitFor(() => {
+      expect(dialog().style.maxWidth).toBe('240px')
+    })
+
+    AlertDialog.close()
+    await waitForDialogCount(0)
+    void AlertDialog.info({
+      title: 'Override',
+      danger: false,
+      close: false,
+      action: { label: 'Done' },
+    })
     await waitFor(() => {
       expect(button('Done')).toBeInstanceOf(HTMLButtonElement)
     })
     expect(button('Done').className).not.toContain('bg-danger')
+    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
     expect(
       Array.from(document.body.querySelectorAll('button')).some(
-        (item) => item.textContent === 'Back',
+        (item) => item.textContent === 'Cancel',
       ),
     ).toBe(false)
   })
@@ -418,8 +445,8 @@ describe('AlertDialog', () => {
       center: true,
       subtle: true,
       danger: true,
-      okText: 'Allow',
-      cancelText: "Don't allow",
+      action: { label: 'Allow' },
+      cancel: { label: "Don't allow" },
     })
     await waitForTitle('Allow accessory to connect?')
 
@@ -470,223 +497,239 @@ describe('AlertDialog', () => {
 
   test('reports a synchronous throw and keeps the dialog open', async () => {
     setup()
-    const error = new Error('sync')
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const result = AlertDialog.confirm({
-      title: 'Throw',
-      onOk: () => {
-        throw error
+      title: 'Throws',
+      action: {
+        onClick: () => {
+          throw new Error('sync')
+        },
       },
     })
-    let settled = false
-    void result.then(() => {
-      settled = true
-    })
-    await waitForTitle('Throw')
+    await waitForTitle('Throws')
     fireEvent.click(button('OK'))
     await Promise.resolve()
-    expect(spy).toHaveBeenCalledWith(error)
-    expect(settled).toBe(false)
+    expect(error).toHaveBeenCalled()
     expect(dialogs()).toHaveLength(1)
-    spy.mockRestore()
+    expect(button('OK').hasAttribute('data-loading')).toBe(false)
+    result.close()
+    error.mockRestore()
   })
 
   test('reports a rejected action and keeps the dialog open', async () => {
     setup()
-    const error = new Error('async')
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const result = AlertDialog.confirm({
-      title: 'Reject',
-      onOk: () => Promise.reject(error),
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    AlertDialog.confirm({
+      title: 'Rejects',
+      action: { onClick: () => Promise.reject(new Error('async')) },
     })
-    let settled = false
-    void result.then(() => {
-      settled = true
-    })
-    await waitForTitle('Reject')
+    await waitForTitle('Rejects')
     fireEvent.click(button('OK'))
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith(error)
-      expect(button('OK').hasAttribute('data-loading')).toBe(false)
+      expect(error).toHaveBeenCalled()
     })
-    expect(settled).toBe(false)
     expect(dialogs()).toHaveLength(1)
-    spy.mockRestore()
+    error.mockRestore()
   })
 
   test('disables the other action and Escape while a handler is pending', async () => {
     setup()
-    const onCancel = vi.fn()
-    let resolveOk: () => void = () => undefined
-    const result = AlertDialog.confirm({
-      title: 'Pending',
-      close: true,
-      onCancel,
-      onOk: () =>
-        new Promise<void>((resolve) => {
-          resolveOk = resolve
-        }),
+    let resolveAction: () => void = () => undefined
+    AlertDialog.confirm({
+      title: 'Busy',
+      action: {
+        onClick: () =>
+          new Promise<void>((resolve) => {
+            resolveAction = resolve
+          }),
+      },
     })
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
-    })
+    await waitForTitle('Busy')
     fireEvent.click(button('OK'))
     await waitFor(() => {
-      expect(button('OK').hasAttribute('data-loading')).toBe(true)
       expect(button('Cancel').disabled).toBe(true)
-      expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
     })
     dialog().focus()
     fireEvent.keyDown(dialog(), { key: 'Escape' })
     await Promise.resolve()
-    expect(onCancel).not.toHaveBeenCalled()
     expect(dialogs()).toHaveLength(1)
-    resolveOk()
-    await expect(result).resolves.toBe(true)
+    resolveAction()
+    await waitFor(() => {
+      expect(dialog().hasAttribute('data-closed')).toBe(true)
+    })
     await waitForDialogCount(0)
   })
 
-  test('destroy and close settle false while an action is pending', async () => {
+  test('close settles api while an action is pending', async () => {
     setup()
-    let resolveOk: () => void = () => undefined
-    const destroyed = AlertDialog.confirm({
-      title: 'Destroy pending',
-      onOk: () =>
-        new Promise<void>((resolve) => {
-          resolveOk = resolve
-        }),
+    let resolveAction: () => void = () => undefined
+    const result = AlertDialog.confirm({
+      title: 'Busy close',
+      action: {
+        onClick: () =>
+          new Promise<void>((resolve) => {
+            resolveAction = resolve
+          }),
+      },
     })
-    await waitForTitle('Destroy pending')
+    await waitForTitle('Busy close')
     fireEvent.click(button('OK'))
     await waitFor(() => {
       expect(button('OK').hasAttribute('data-loading')).toBe(true)
     })
-    destroyed.destroy()
-    await expect(destroyed).resolves.toBe(false)
-    expect(dialogs()).toHaveLength(0)
-    resolveOk()
-
-    const closed = AlertDialog.confirm({
-      title: 'Close pending',
-      onOk: () => new Promise<void>(() => undefined),
-    })
-    await waitForTitle('Close pending')
-    fireEvent.click(button('OK'))
-    await waitFor(() => {
-      expect(button('OK').hasAttribute('data-loading')).toBe(true)
-    })
-    closed.close()
-    await expect(closed).resolves.toBe(false)
-    expect(dialogs()).toHaveLength(1)
+    result.close()
+    await expect(result.result()).resolves.toBe('api')
+    resolveAction()
     await waitForDialogCount(0)
   })
 
   test('ignores a second OK click while the first action is pending', async () => {
     setup()
-    const onOk = vi.fn(() => new Promise<void>(() => undefined))
-    void AlertDialog.confirm({ title: 'Double', onOk })
-    await waitForTitle('Double')
-    const ok = button('OK')
-    fireEvent.click(ok)
-    fireEvent.click(ok)
+    const onAction = vi.fn(
+      () =>
+        new Promise<void>(() => {
+          // stays pending
+        }),
+    )
+    AlertDialog.confirm({ title: 'Once', action: { onClick: onAction } })
+    await waitForTitle('Once')
+    fireEvent.click(button('OK'))
+    fireEvent.click(button('OK'))
     await waitFor(() => {
-      expect(ok.hasAttribute('data-loading')).toBe(true)
+      expect(onAction).toHaveBeenCalledTimes(1)
     })
-    expect(onOk).toHaveBeenCalledTimes(1)
   })
 
   test('update after close does not reopen the dialog', async () => {
     setup()
-    const closed = AlertDialog.info({ title: 'Gone' })
+    const result = AlertDialog.info({ title: 'Gone' })
     await waitForTitle('Gone')
-    closed.close()
-    await expect(closed).resolves.toBe(false)
-    closed.update({ title: 'Back' })
+    result.close()
+    result.update({ title: 'Back' })
     await waitForDialogCount(0)
-    expect(document.body.querySelector('[data-slot="dialog-title"]')).toBeNull()
+    expect(document.body.textContent).not.toContain('Back')
+    await expect(result.result()).resolves.toBe('api')
   })
 
   test('targets a host by id and uses the last mounted host by default', async () => {
     render(() => (
       <>
-        <AlertDialog id="first" okText="First OK" />
-        <AlertDialog id="second" okText="Second OK" />
+        <AlertDialog id="first" />
+        <AlertDialog id="second" />
       </>
     ))
-    void AlertDialog.confirm({ id: 'first', title: 'On first' })
-    void AlertDialog.info({ id: 'second', title: 'On second' })
+    const targeted = AlertDialog.info({ host: 'first', title: 'First host' })
+    const latest = AlertDialog.info({ title: 'Second host' })
     await waitFor(() => {
-      expect(dialogs()).toHaveLength(2)
+      expect(document.body.textContent).toContain('First host')
+      expect(document.body.textContent).toContain('Second host')
     })
-    expect(button('First OK')).toBeInstanceOf(HTMLButtonElement)
-    expect(button('Second OK')).toBeInstanceOf(HTMLButtonElement)
-
-    AlertDialog.destroyAll('first')
-    await waitFor(() => {
-      expect(dialogs()).toHaveLength(1)
-    })
-    expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('On second')
-
-    void AlertDialog.warning({ title: 'Default host' })
-    await waitFor(() => {
-      expect(dialogs().some((element) => element.textContent?.includes('Default host'))).toBe(true)
-    })
-    const opened = dialogs().find((element) => element.textContent?.includes('Default host'))
-    expect(button('Second OK', opened)).toBeInstanceOf(HTMLButtonElement)
-    expect(() => AlertDialog.confirm({ id: 'missing', title: 'No' })).toThrow('id="missing"')
+    AlertDialog.close(targeted.id)
+    await waitForDialogCount(1)
+    expect(document.body.textContent).toContain('Second host')
+    latest.close()
   })
 
-  test('settles open dialogs as false when the host unmounts', async () => {
+  test('settles open dialogs as api when the host unmounts', async () => {
     const [mounted, setMounted] = createSignal(true)
     render(() => (
       <Show when={mounted()}>
         <AlertDialog />
       </Show>
     ))
-    const result = AlertDialog.confirm({ title: 'Leaving' })
-    await waitForTitle('Leaving')
+    const result = AlertDialog.confirm({ title: 'Unmount' })
+    await waitForTitle('Unmount')
     setMounted(false)
-    await expect(result).resolves.toBe(false)
+    await expect(result.result()).resolves.toBe('api')
     expect(dialogs()).toHaveLength(0)
   })
 
   test('warns in development when title and ariaLabel are both absent', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     setup()
-    void AlertDialog.info({})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    AlertDialog.info({})
     await waitFor(() => {
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('accessible name'))
+      expect(warn).toHaveBeenCalledWith(
+        '[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.',
+      )
     })
     warn.mockRestore()
   })
 
-  test('warns in development when duplicate host id is mounted', () => {
+  test('warns in development when a duplicate host id is mounted', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     render(() => (
       <>
-        <AlertDialog id="duplicate-host" />
-        <AlertDialog id="duplicate-host" />
+        <AlertDialog id="same" />
+        <AlertDialog id="same" />
       </>
     ))
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('Duplicate AlertDialog host id "duplicate-host"'),
+      '[moraine] Duplicate <AlertDialog id="same">. The last mounted host takes precedence.',
     )
     warn.mockRestore()
   })
 
   test('preserves reactivity and lifecycle when opened inside a disposed effect owner', async () => {
     setup()
-    let instance: AlertDialogT.Instance | undefined
+    let opened: AlertDialogT.Handle | undefined
     createRoot((dispose) => {
-      instance = AlertDialog.confirm({ title: 'Initial title' })
       dispose()
+      opened = AlertDialog.confirm({ title: 'Disposed owner' })
     })
-    await waitForTitle('Initial title')
-    expect(instance).toBeDefined()
-    instance!.update({ title: 'Updated title after dispose' })
-    await waitForTitle('Updated title after dispose')
+    await waitForTitle('Disposed owner')
+    opened?.update({ title: 'Still reactive' })
+    await waitForTitle('Still reactive')
+    fireEvent.click(button('OK'))
+    await expect(opened?.result()).resolves.toBe('action')
+  })
 
-    button('OK').click()
-    await expect(instance!).resolves.toBe(true)
+  test('custom render receives options and shares action semantics, and dialogRender is the fallback', async () => {
+    const dialogRender = vi.fn((props: AlertDialogT.RenderProps) => (
+      <p data-testid="host-render">{props.options.title}</p>
+    ))
+    render(() => <AlertDialog dialogRender={dialogRender} />)
+
+    const custom = AlertDialog.custom(
+      (props) => (
+        <>
+          <h2 id={props.titleId}>{props.options.title}</h2>
+          <Button
+            onClick={() => {
+              props.update({ title: 'Renamed' })
+            }}
+          >
+            Rename
+          </Button>
+          <Button onClick={(event) => void props.action(event)}>Delete</Button>
+        </>
+      ),
+      {
+        title: 'Delete repository?',
+        action: {
+          onClick: () => undefined,
+        },
+      },
+    )
+    await waitFor(() => {
+      expect(document.body.querySelector('h2')?.textContent).toBe('Delete repository?')
+    })
+    expect(dialogRender).not.toHaveBeenCalled()
+    expect(dialog().getAttribute('aria-labelledby')).toBe(document.body.querySelector('h2')?.id)
+
+    fireEvent.click(button('Rename'))
+    await waitFor(() => {
+      expect(document.body.querySelector('h2')?.textContent).toBe('Renamed')
+    })
+    fireEvent.click(button('Delete'))
+    await expect(custom.result()).resolves.toBe('action')
+    await waitForDialogCount(0)
+
+    AlertDialog.show({ title: 'From host' })
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-testid="host-render"]')?.textContent).toBe(
+        'From host',
+      )
+    })
   })
 })

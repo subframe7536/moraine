@@ -1,564 +1,153 @@
 import type { JSX } from 'solid-js'
-import {
-  DEV,
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  getOwner,
-  on,
-  onCleanup,
-  runWithOwner,
-  untrack,
-} from 'solid-js'
+import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
-import { Button } from '../../element/button'
-import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
-import type { CreateStylesResult } from '../../provider'
-import { useMessages } from '../../provider/locale/locale-context'
-import { hasJsxContent } from '../../shared/jsx-content'
-import { Dialog } from '../dialog'
-import { defaultDialogMessages } from '../dialog/dialog.messages'
+import { inertFeedbackHandle } from '../base/feedback/handle'
+import { createHostRegistry } from '../base/feedback/host-registry'
+import type { FeedbackHost } from '../base/feedback/host-registry'
 
-import {
-  ALERT_DIALOG_CENTER_ICON_CLASS,
-  ALERT_DIALOG_ICON_TONE_CLASS,
-  alertDialogRecipe,
-} from './alert-dialog.recipe'
+import { AlertDialogEntry } from './alert-dialog-entry'
+import { createAlertDialogRecord } from './alert-dialog-record'
+import type { AlertDialogHostDefaults, AlertDialogRecord } from './alert-dialog-record'
 import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
 
-const ALERT_DIALOG_ICONS = {
-  confirm: 'icon-caution',
-  info: 'icon-info',
-  warning: 'icon-warning',
-  error: 'icon-error',
-  success: 'icon-success',
-} as const satisfies Record<AlertDialogT.Type, string>
-
-type AlertDialogConfig = Omit<AlertDialogT.Props, 'id'>
-
-const ALERT_DIALOG_CONFIG_KEYS = [
-  'cancel',
-  'cancelText',
-  'cancelVariant',
-  'class',
-  'classes',
-  'closeOnEscape',
-  'close',
-  'center',
-  'danger',
-  'icon',
-  'closeOnOverlayClick',
-  'okText',
-  'okVariant',
-  'style',
-  'styles',
-  'subtle',
-  'width',
-] as const satisfies readonly (keyof AlertDialogConfig)[]
-
-const ALERT_DIALOG_CONFIG_KEY_SET = new Set<string>(ALERT_DIALOG_CONFIG_KEYS)
-
-type PendingKind = 'ok' | 'cancel'
-
-interface AlertDialogEntryProps {
-  accept: () => Promise<void> | void
-  ariaLabel: () => string | undefined
-  cancel: () => boolean | undefined
-  cancelText: () => JSX.Element | undefined
-  cancelVariant: () => AlertDialogT.Options['cancelVariant']
-  class: () => AlertDialogT.Options['class']
-  classes: () => AlertDialogT.Options['classes']
-  closeOnEscape: () => boolean | undefined
-  close: () => boolean | undefined
-  center: () => boolean | null | undefined
-  danger: () => boolean | null | undefined
-  description: () => JSX.Element | undefined
-  dismiss: () => Promise<void> | void
-  icon: () => AlertDialogT.Options['icon']
-  id: string
-  closeOnOverlayClick: () => boolean | undefined
-  okText: () => JSX.Element | undefined
-  okVariant: () => AlertDialogT.Options['okVariant']
-  open: () => boolean
-  pendingKind: () => PendingKind | undefined
-  remove: () => void
-  style: () => AlertDialogT.Options['style']
-  styles: () => AlertDialogT.Options['styles']
-  subtle: () => boolean | null | undefined
-  title: () => JSX.Element | undefined
-  type: AlertDialogT.Type
-  width: () => string | number | undefined
+interface AlertDialogController extends FeedbackHost {
+  defaults: () => AlertDialogHostDefaults
+  dialogRender: () => AlertDialogT.Render | undefined
+  open: (
+    mode: 'confirm' | 'standard',
+    options: AlertDialogT.Options,
+    render?: AlertDialogT.Render,
+  ) => AlertDialogT.Handle
+  update: (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions) => boolean
+  close: (id?: AlertDialogT.Id) => void
 }
 
-interface AlertDialogRecord {
-  entry: AlertDialogEntryProps
-  id: string
-  remove: () => void
-  settle: (value: boolean) => void
-}
+const registry = createHostRegistry<AlertDialogController>('AlertDialog')
 
-interface AlertDialogController {
-  destroyAll: () => void
-  id: () => string | undefined
-  open: (type: AlertDialogT.Type, options: AlertDialogT.Options) => AlertDialogT.Instance
-}
-
-// Client hosts only. The last mounted host receives calls that omit an id.
-const hosts: AlertDialogController[] = []
-
-function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-  return (
-    (typeof value === 'object' || typeof value === 'function') &&
-    value !== null &&
-    typeof (value as PromiseLike<unknown>).then === 'function'
-  )
-}
-
-function createSettledInstance(value: boolean): AlertDialogT.Instance {
-  return Object.assign(Promise.resolve(value), {
-    close: () => undefined,
-    destroy: () => undefined,
-    update: () => undefined,
-  })
-}
-
-function activeHost(id?: string): AlertDialogController | undefined {
-  if (id === undefined) {
-    return hosts.at(-1)
-  }
-  for (let index = hosts.length - 1; index >= 0; index -= 1) {
-    const host = hosts[index]
-    if (host?.id() === id) {
-      return host
-    }
-  }
-  return undefined
-}
-
-function missingHostMessage(id?: string): string {
-  if (id === undefined) {
-    return 'Mount <AlertDialog> before calling AlertDialog.'
-  }
-  return `Mount <AlertDialog id="${id}"> before calling AlertDialog.`
-}
-
-// Host defaults are snapshotted when a dialog opens. Later host changes do not rewrite it.
-// oxlint-disable subf/solid-reactivity
-function readAlertDialogConfig(props: AlertDialogProps): AlertDialogConfig {
+/* oxlint-disable subf/solid-reactivity -- Host defaults are read when a dialog renders so later prop changes stay live. */
+function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
   return {
-    cancel: props.cancel,
-    cancelText: props.cancelText,
-    cancelVariant: props.cancelVariant,
+    close: props.close,
+    closeOnEscape: props.closeOnEscape,
+    closeOnOverlayClick: props.closeOnOverlayClick,
+    center: props.center,
+    subtle: props.subtle,
+    danger: props.danger,
+    type: props.type ?? undefined,
+    width: props.width,
     class: props.class,
     classes: props.classes,
-    closeOnEscape: props.closeOnEscape,
-    close: props.close,
-    center: props.center,
-    danger: props.danger,
-    icon: props.icon,
-    closeOnOverlayClick: props.closeOnOverlayClick,
-    okText: props.okText,
-    okVariant: props.okVariant,
     style: props.style,
     styles: props.styles,
-    subtle: props.subtle,
-    width: props.width,
   }
 }
-// oxlint-enable subf/solid-reactivity
-
-function optionValue<K extends keyof AlertDialogT.Options>(
-  options: () => AlertDialogT.Options,
-  config: AlertDialogConfig,
-  key: K,
-): () => AlertDialogT.Options[K] {
-  return () => {
-    const own = options()[key]
-    if (own !== undefined || !ALERT_DIALOG_CONFIG_KEY_SET.has(key)) {
-      return own
-    }
-    const fallback = config[key as keyof AlertDialogConfig]
-    return (fallback === undefined ? own : fallback) as AlertDialogT.Options[K]
-  }
-}
-
-function createAlertDialog(
-  type: AlertDialogT.Type,
-  options: AlertDialogT.Options,
-  config: AlertDialogConfig,
-): {
-  instance: AlertDialogT.Instance
-  record: AlertDialogRecord
-} {
-  const [open, setOpen] = createSignal(true)
-  const [currentOptions, setCurrentOptions] = createSignal(options)
-  const [pendingKind, setPendingKind] = createSignal<PendingKind | undefined>()
-  let settled = false
-  let pending: Promise<void> | undefined
-  let resolveResult: (value: boolean) => void = () => undefined
-  const result = new Promise<boolean>((resolve) => {
-    resolveResult = resolve
-  })
-  const settle = (value: boolean): void => {
-    if (settled) {
-      return
-    }
-    settled = true
-    resolveResult(value)
-  }
-  const finish = (confirmed: boolean): void => {
-    if (settled) {
-      return
-    }
-    settle(confirmed)
-    setOpen(false)
-  }
-  const runAction = (confirmed: boolean): Promise<void> | void => {
-    if (settled || pending) {
-      return
-    }
-    const action = confirmed ? currentOptions().onOk : currentOptions().onCancel
-    let outcome: unknown
-    try {
-      outcome = action?.()
-    } catch (error) {
-      console.error(error)
-      return
-    }
-    if (!isPromiseLike(outcome)) {
-      finish(confirmed)
-      return
-    }
-    setPendingKind(confirmed ? 'ok' : 'cancel')
-    const task = Promise.resolve(outcome)
-      .then(() => {
-        finish(confirmed)
-      })
-      .catch((error: unknown) => {
-        console.error(error)
-        throw error
-      })
-      .finally(() => {
-        if (pending === task) {
-          pending = undefined
-          setPendingKind(undefined)
-        }
-      })
-    pending = task
-    return task
-  }
-  const update = (next: AlertDialogT.UpdateOptions): void => {
-    setCurrentOptions((current) => ({ ...current, ...next }))
-  }
-  const id = `alert-dialog-${createUniqueId()}`
-  // Accessors are stored here and read later from AlertDialogEntry.
-  // oxlint-disable subf/solid-reactivity
-  const record: AlertDialogRecord = {
-    id,
-    remove: () => undefined,
-    settle,
-    entry: {
-      accept: () => runAction(true),
-      ariaLabel: optionValue(currentOptions, config, 'ariaLabel'),
-      cancel: optionValue(currentOptions, config, 'cancel'),
-      cancelText: optionValue(currentOptions, config, 'cancelText'),
-      cancelVariant: optionValue(currentOptions, config, 'cancelVariant'),
-      class: optionValue(currentOptions, config, 'class'),
-      classes: optionValue(currentOptions, config, 'classes'),
-      closeOnEscape: optionValue(currentOptions, config, 'closeOnEscape'),
-      close: optionValue(currentOptions, config, 'close'),
-      center: optionValue(currentOptions, config, 'center'),
-      danger: optionValue(currentOptions, config, 'danger'),
-      description: optionValue(currentOptions, config, 'description'),
-      dismiss: () => runAction(false),
-      icon: optionValue(currentOptions, config, 'icon'),
-      id,
-      closeOnOverlayClick: optionValue(currentOptions, config, 'closeOnOverlayClick'),
-      okText: optionValue(currentOptions, config, 'okText'),
-      okVariant: optionValue(currentOptions, config, 'okVariant'),
-      open,
-      pendingKind,
-      remove: () => record.remove(),
-      style: optionValue(currentOptions, config, 'style'),
-      styles: optionValue(currentOptions, config, 'styles'),
-      subtle: optionValue(currentOptions, config, 'subtle'),
-      title: optionValue(currentOptions, config, 'title'),
-      type,
-      width: optionValue(currentOptions, config, 'width'),
-    },
-  }
-  // oxlint-enable subf/solid-reactivity
-  const instance: AlertDialogT.Instance = Object.assign(result, {
-    close: () => {
-      settle(false)
-      setOpen(false)
-    },
-    destroy: () => {
-      settle(false)
-      record.remove()
-    },
-    update,
-  })
-  return { instance, record }
-}
+/* oxlint-enable subf/solid-reactivity */
 
 function openAlertDialog(
-  type: AlertDialogT.Type,
+  mode: 'confirm' | 'standard',
   options: AlertDialogT.Options,
-): AlertDialogT.Instance {
+  render?: AlertDialogT.Render,
+): AlertDialogT.Handle {
   if (isServer) {
-    return createSettledInstance(false)
+    return inertFeedbackHandle(options.id ?? 0)
   }
-  const host = activeHost(options.id)
-  if (!host) {
-    throw new Error(missingHostMessage(options.id))
-  }
-  return host.open(type, options)
+  const host = registry.require(options.host)
+  return host.open(mode, options, render)
 }
 
-function AlertDialogEntry(props: AlertDialogEntryProps): JSX.Element {
-  const messages = useMessages('dialog', defaultDialogMessages)
-  const title = createMemo(() => props.title())
-  const description = createMemo(() => props.description())
-  const icon = createMemo(() => {
-    const configured = props.icon()
-    if (configured === null) {
-      return undefined
-    }
-    if (configured !== undefined) {
-      return configured
-    }
-    if (props.type === 'confirm') {
-      return props.danger() ? ALERT_DIALOG_ICONS.confirm : undefined
-    }
-    return ALERT_DIALOG_ICONS[props.type]
-  })
-  const showHeader = () =>
-    hasJsxContent(icon()) || hasJsxContent(title()) || hasJsxContent(description())
-  const showCancel = () => props.cancel() ?? props.type === 'confirm'
-  const contentMaxWidth = () => {
-    const width = props.width()
-    if (width === undefined) {
-      return undefined
-    }
-    return typeof width === 'number' ? `${width}px` : width
-  }
-  const iconTone = (danger: boolean) => {
-    if (props.icon() !== undefined) {
-      return undefined
-    }
-    if (props.type === 'confirm') {
-      return danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
-    }
-    return ALERT_DIALOG_ICON_TONE_CLASS[props.type]
-  }
-  let resolved: CreateStylesResult<typeof alertDialogRecipe>
-  resolved = createStyles(
-    alertDialogRecipe,
-    {
-      get center() {
-        return props.center()
-      },
-      get danger() {
-        return props.danger()
-      },
-      get subtle() {
-        return props.subtle()
-      },
-      get class() {
-        return props.class()
-      },
-      get classes() {
-        return props.classes()
-      },
-      get style() {
-        return props.style()
-      },
-      get styles() {
-        return props.styles()
-      },
-    },
-    {
-      slot: 'content',
-      own: () => ({
-        content:
-          contentMaxWidth() !== undefined
-            ? { style: { 'max-width': contentMaxWidth() } }
-            : undefined,
-        icon: { class: iconTone(resolved.variants.danger) },
-      }),
-    },
-  )
-  const okVariant = (): NonNullable<AlertDialogT.Options['okVariant']> =>
-    props.okVariant() ?? (resolved.variants.danger ? 'danger' : 'default')
-  const pending = () => props.pendingKind() !== undefined
-
-  createEffect(
-    on([title, () => props.ariaLabel()], ([currentTitle, currentLabel]) => {
-      if (!DEV || hasJsxContent(currentTitle) || currentLabel) {
-        return
-      }
-      console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
-    }),
-  )
-
-  return (
-    <Dialog
-      id={props.id}
-      open={props.open()}
-      modal
-      close={(props.close() ?? false) && !pending()}
-      closeOnOverlayClick={props.closeOnOverlayClick() === true}
-      closeOnEscape={props.closeOnEscape() !== false && !pending()}
-      ariaLabel={hasJsxContent(title()) ? undefined : props.ariaLabel()}
-      onOpenChange={(next) => {
-        if (!next) {
-          void props.dismiss()
-        }
-      }}
-      onExitComplete={() => props.remove()}
-    >
-      <Dialog.Content
-        role="alertdialog"
-        class={resolved.slots.content.class}
-        style={resolved.slots.content.style}
-      >
-        <Show when={showHeader()}>
-          <Dialog.Header class={resolved.slots.header.class}>
-            <Show when={icon()}>
-              {(current) => (
-                <Show
-                  when={resolved.variants.center}
-                  fallback={<Icon name={current()} class={resolved.slots.icon.class} />}
-                >
-                  <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                    <Icon name={current()} class={resolved.slots.icon.class} />
-                  </div>
-                </Show>
-              )}
-            </Show>
-            <div class={resolved.slots.copy.class}>
-              <Show when={hasJsxContent(title())}>
-                <Dialog.Title>{title()}</Dialog.Title>
-              </Show>
-              <Show when={hasJsxContent(description())}>
-                <Dialog.Description>{description()}</Dialog.Description>
-              </Show>
-            </div>
-          </Dialog.Header>
-        </Show>
-        <Dialog.Footer class={resolved.slots.footer.class}>
-          <Show when={showCancel()}>
-            <Button
-              variant={props.cancelVariant() ?? 'outline'}
-              class={resolved.slots.action.class}
-              disabled={props.pendingKind() === 'ok'}
-              loadingAuto
-              onClick={() => props.dismiss()}
-            >
-              {props.cancelText() ?? messages().cancel}
-            </Button>
-          </Show>
-          <Button
-            variant={okVariant()}
-            class={resolved.slots.action.class}
-            disabled={props.pendingKind() === 'cancel'}
-            loadingAuto
-            onClick={() => props.accept()}
-          >
-            {props.okText() ?? messages().ok}
-          </Button>
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
-  )
+function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): AlertDialogT.Options {
+  return { ...options, type }
 }
 
 /** Mount once under `MoraineProvider`. Its props are the defaults for every alert dialog. */
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
   const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
-  const removeDialog = (id: string): void => {
+  const removeDialog = (id: AlertDialogT.Id): void => {
     setDialogs((current) => current.filter((item) => item.id !== id))
   }
   const controller: AlertDialogController = {
     id: () => props.id,
-    open(type, options) {
+    defaults: () => readHostDefaults(props),
+    dialogRender: () => props.dialogRender,
+    open(mode, options, render) {
+      if (options.id !== undefined) {
+        const existing = dialogs().find((item) => item.id === options.id && item.open())
+        if (existing) {
+          existing.handle.update(options)
+          return existing.handle
+        }
+      }
       return runWithOwner(owner, () => {
-        const created = createAlertDialog(
-          type,
-          options,
-          untrack(() => readAlertDialogConfig(props)),
-        )
-        created.record.remove = () => removeDialog(created.record.id)
-        setDialogs((current) => [...current, created.record])
-        return created.instance
+        const created = createAlertDialogRecord(mode, options, () => controller.defaults(), render)
+        created.remove = () => removeDialog(created.id)
+        setDialogs((current) => [...current, created])
+        return created.handle
       })!
     },
-    destroyAll() {
-      for (const item of dialogs()) {
-        item.settle(false)
+    update(id, options) {
+      const match = dialogs().find((item) => item.id === id)
+      if (!match) {
+        return false
       }
-      setDialogs([])
+      match.handle.update(options)
+      return true
+    },
+    close(id) {
+      for (const item of dialogs()) {
+        if (id === undefined || item.id === id) {
+          item.handle.close()
+        }
+      }
     },
   }
-  if (!isServer) {
-    hosts.push(controller)
-  }
-  if (DEV) {
-    createEffect(
-      on(
-        () => props.id,
-        (id) => {
-          if (!id) {
-            return
-          }
-          const duplicate = hosts.some((host) => host !== controller && host.id() === id)
-          if (duplicate) {
-            console.warn(
-              `[moraine] Duplicate AlertDialog host id "${id}". Later host will take precedence.`,
-            )
-          }
-        },
-      ),
-    )
-  }
+  const unregister = registry.register(controller)
   onCleanup(() => {
-    if (isServer) {
-      return
-    }
-    const index = hosts.lastIndexOf(controller)
-    if (index !== -1) {
-      hosts.splice(index, 1)
-    }
+    unregister()
     for (const item of dialogs()) {
-      item.settle(false)
+      item.abandon()
     }
   })
 
-  return <For each={dialogs()}>{(item) => <AlertDialogEntry {...item.entry} />}</For>
+  return (
+    <For each={dialogs()}>
+      {(item) => <AlertDialogEntry record={item} dialogRender={controller.dialogRender} />}
+    </For>
+  )
 }
 
-AlertDialog.confirm = openAlertDialog.bind(undefined, 'confirm')
-AlertDialog.info = openAlertDialog.bind(undefined, 'info')
-AlertDialog.warning = openAlertDialog.bind(undefined, 'warning')
-AlertDialog.error = openAlertDialog.bind(undefined, 'error')
-AlertDialog.success = openAlertDialog.bind(undefined, 'success')
-AlertDialog.destroyAll = (id?: string): void => {
+AlertDialog.show = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('standard', options)
+AlertDialog.confirm = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('confirm', options)
+AlertDialog.info = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('standard', withType('info', options))
+AlertDialog.success = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('standard', withType('success', options))
+AlertDialog.warning = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('standard', withType('warning', options))
+AlertDialog.error = (options: AlertDialogT.Options): AlertDialogT.Handle =>
+  openAlertDialog('standard', withType('error', options))
+AlertDialog.custom = (
+  render: AlertDialogT.Render,
+  options?: AlertDialogT.Options,
+): AlertDialogT.Handle => openAlertDialog('standard', options ?? {}, render)
+AlertDialog.update = (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions): void => {
   if (isServer) {
     return
   }
-  const host = activeHost(id)
-  if (!host) {
-    if (id !== undefined) {
-      throw new Error(missingHostMessage(id))
+  for (const host of registry.entries()) {
+    if (host.update(id, options)) {
+      return
     }
+  }
+}
+AlertDialog.close = (id?: AlertDialogT.Id): void => {
+  if (isServer) {
     return
   }
-  host.destroyAll()
+  for (const host of registry.entries()) {
+    host.close(id)
+  }
 }

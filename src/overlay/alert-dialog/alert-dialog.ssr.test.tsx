@@ -22,12 +22,12 @@ describe('AlertDialog SSR', () => {
     expect(document.body.querySelector('[role="alertdialog"]')).toBeNull()
   })
 
-  test('settles server calls as false without a host', () => {
+  test('settles server calls as api without a host', () => {
     expect(
       renderSsrFixture(
         '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
         'renderServerAlertCallFixture',
       ),
-    ).toBe('false:false')
+    ).toBe('api:api')
   })
 })

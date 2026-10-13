@@ -1,9 +1,15 @@
 import type { JSX } from 'solid-js'
 
-import type { ButtonT } from '../../element/button'
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type {
+  FeedbackAction,
+  FeedbackCloseReason,
+  FeedbackHandle,
+  FeedbackId,
+  FeedbackPending,
+} from '../base/feedback/feedback.types'
 
 import type { AlertDialogStyleSlot, AlertDialogStyleVariant } from './alert-dialog.style-types'
 
@@ -17,22 +23,26 @@ export namespace AlertDialogT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Type = 'confirm' | 'info' | 'warning' | 'error' | 'success'
+  export type Id = FeedbackId
+  export type CloseReason = FeedbackCloseReason
+  export type Type = 'default' | 'info' | 'success' | 'warning' | 'error'
+  export type Action = FeedbackAction
 
-  /** Defaults applied to every alert dialog opened while this host is mounted. */
+  /** Defaults applied to every alert dialog opened on this host. */
   export interface Base {
     /**
      * Unique identifier for this host when multiple hosts are mounted.
-     * Selects this host from `AlertDialog.confirm({ id, ... })` and the other methods.
-     * A call without an id uses the last mounted host. If duplicate ids are mounted,
-     * the last mounted host takes precedence. Unmounting the host settles its open dialogs as `false`.
+     * A call without `host` uses the last mounted host. Pass `host` in the call options
+     * to target one host. If duplicate ids are mounted, the last mounted host takes precedence.
+     * Unmounting a host settles its open dialogs with reason `api`.
      */
     id?: string
 
-    /** Shows the cancel action. Defaults to true for `confirm` and false otherwise. */
-    cancel?: boolean
-    cancelText?: JSX.Element
-    cancelVariant?: ButtonT.Variant['variant']
+    /**
+     * Renders the inner content of every dialog on this host that was not opened with
+     * `AlertDialog.custom`. Receives the instance context and the resolved call options.
+     */
+    dialogRender?: Render
 
     /**
      * Whether the corner close button is shown.
@@ -52,15 +62,11 @@ export namespace AlertDialogT {
      */
     closeOnOverlayClick?: boolean
 
-    /** Replaces the type icon. `null` omits the icon. */
-    icon?: IconT.Name | null
-
-    okText?: JSX.Element
     /**
-     * Visual treatment of the OK action.
+     * Status tone. `default` has no icon unless `danger` is set.
      * @default 'default'
      */
-    okVariant?: ButtonT.Variant['variant']
+    type?: Type
 
     /** Sets the dialog content `max-width`. */
     width?: string | number
@@ -70,40 +76,67 @@ export namespace AlertDialogT {
   export type Props = BaseProps<never, Base, Variant, Classes, Styles>
 
   /** Options passed to alert dialog creation methods. */
-  export interface Options extends Props {
+  export interface Options {
+    /** Stable id used by `update` and `close`. Reusing an open id updates that dialog. */
+    id?: Id
+    /** Targets `<AlertDialog id="..." />`. Omit to use the last mounted host. */
+    host?: string
+    /** Status tone. Methods such as `info` set this for you. */
+    type?: Type
+    title?: JSX.Element
+    description?: JSX.Element
+    /** Replaces the type icon. `null` omits the icon. */
+    icon?: IconT.Name | null
+    /** Primary action. A returned promise shows loading and disables the other action. */
+    action?: Action
+    /**
+     * Cancel action. `true` uses the locale label. `confirm` shows it when this is omitted;
+     * other methods hide it.
+     */
+    cancel?: Action | boolean
+    /** Whether the corner close button is shown. */
+    close?: boolean
+    /** Called once when the dialog closes. */
+    onClose?: (reason: CloseReason) => void
+    class?: SlotClassValue
+    style?: SlotStyleValue
+    classes?: Classes
+    styles?: Styles
+    danger?: boolean | null
+    center?: boolean | null
+    subtle?: boolean | null
+    width?: string | number
+    closeOnEscape?: boolean
+    closeOnOverlayClick?: boolean
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
-    description?: JSX.Element
-    /**
-     * Called before the dialog closes from a cancel or dismiss gesture.
-     * A rejection or synchronous throw leaves it open.
-     * A synchronous throw is reported with `console.error`.
-     * A rejection is reported with `console.error` and rethrown to the action button.
-     */
-    onCancel?: () => void | Promise<unknown>
-    /**
-     * Called before the dialog closes from the OK action.
-     * A rejection or synchronous throw leaves it open.
-     * A synchronous throw is reported with `console.error`.
-     * A rejection is reported with `console.error` and rethrown to the action button.
-     */
-    onOk?: () => void | Promise<unknown>
-    title?: JSX.Element
   }
-
-  /** Options alias for parity with Toast. */
-  export type InitOptions = Options
 
   /** Options for updating an open alert dialog in place. */
-  export type UpdateOptions = Partial<Options>
+  export type UpdateOptions = Partial<Omit<Options, 'host' | 'id'>>
 
-  export interface Instance extends Promise<boolean> {
-    /** Resolves `false` and plays the exit transition. */
-    close: () => void
-    /** Resolves `false` and removes the dialog immediately. */
-    destroy: () => void
+  export interface Handle extends FeedbackHandle<UpdateOptions> {}
+
+  /** Props for `AlertDialog.custom` and `dialogRender`. */
+  export interface RenderProps {
+    id: Id
+    /** Host defaults merged with the call options. Reflects later `update` calls. */
+    options: Options
+    pending: () => FeedbackPending | undefined
+    /** Runs `options.action.onClick`, then closes with reason `action`. */
+    action: (event?: MouseEvent) => Promise<void>
+    /** Runs `options.cancel.onClick` when `cancel` is an action, then closes with reason `cancel`. */
+    cancel: (event?: MouseEvent) => Promise<void>
+    /** Closes the dialog. The reason defaults to `dismiss`. */
+    close: (reason?: CloseReason) => void
     update: (options: UpdateOptions) => void
+    /** Id to place on the custom title so the dialog is named by `aria-labelledby`. */
+    titleId: string
+    /** Id to place on the custom description so the dialog is described by `aria-describedby`. */
+    descriptionId: string
   }
+
+  export type Render = (props: RenderProps) => JSX.Element
 }
 
 /** Props for the AlertDialog host component. */

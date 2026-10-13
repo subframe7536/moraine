@@ -55,9 +55,9 @@ A component prop always wins over default messages. `placeholder`, `aria-label`,
 
 ## Messages
 
-Component defaults provide built-in English copy colocated with each component without bundling monolithic message packs. Pass partial overrides to `MoraineProvider` through the `messages` prop (typed as `MoraineProviderProps['messages']`). Available groups are `dialog`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, `kbd`, and `progress`.
+Component defaults provide built-in English copy colocated with each component without bundling monolithic message packs. Pass partial overrides to `MoraineProvider` through the `messages` prop (typed as `MoraineProviderProps['messages']`). Available groups are `dialog`, `toast`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, `kbd`, and `progress`.
 
-`dialog` messages are `close`, `ok`, and `cancel`. Dialog uses `close` for the corner button. Alert Dialog uses `ok` and `cancel` when a call omits `okText` and `cancelText`.
+`dialog` messages are `close`, `ok`, and `cancel`. Dialog and Alert Dialog use `close` for the corner button. Alert Dialog uses `ok` and `cancel` when an action omits `label`. `toast` messages are `close`, `cancel`, and `viewport`. Toast uses `close` for the corner button, `cancel` when `cancel` is `true`, and `viewport` for the live region label.
 
 Dynamic messages that include a number or a name are functions so translations control word order:
 

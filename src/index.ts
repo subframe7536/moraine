@@ -148,7 +148,6 @@ export {
   Sheet,
   Tooltip,
   Toast,
-  createToastStore,
 } from './overlay'
 export type {
   ModalProps,
@@ -169,7 +168,6 @@ export type {
   TooltipT,
   ToastProps,
   ToastT,
-  ToastStore,
 } from './overlay'
 export { MoraineProvider, useCn, useLocale } from './provider'
 export type { MoraineProviderProps } from './provider'

@@ -39,8 +39,8 @@
         {
           "name": "close",
           "optional": true,
-          "type": "Action | JSX.Element",
-          "description": "Close button configuration or custom JSX element. When truthy, enables closing.",
+          "type": "boolean",
+          "description": "Whether toasts show a close button.",
           "default": {
             "kind": "literal",
             "value": false
@@ -95,8 +95,8 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: ItemRenderProps) => JSX.Element",
-          "description": "Custom renderer for individual toast items."
+          "type": "Render",
+          "description": "Renders the inner content of every toast on this host that was not opened with\n`Toast.custom`. Receives the instance context and the resolved call options."
         },
         {
           "name": "large",
@@ -121,15 +121,15 @@
         {
           "name": "preventDuplicate",
           "optional": true,
-          "type": "PreventDuplicate",
-          "description": "Prevent duplicate toasts with matching content.\nCan be a boolean or a custom predicate comparing candidate against the front toast.",
+          "type": "boolean",
+          "description": "Prevent duplicate toasts with matching content.",
           "default": {
             "kind": "literal",
             "value": false
           }
         },
         {
-          "name": "showProgress",
+          "name": "progress",
           "optional": true,
           "type": "boolean",
           "description": "Whether to show the remaining duration progress bar.",
@@ -137,12 +137,6 @@
             "kind": "literal",
             "value": false
           }
-        },
-        {
-          "name": "store",
-          "optional": true,
-          "type": "ToastStore",
-          "description": "Isolated store rendered by this host. Defaults to the shared `Toast.*` store."
         },
         {
           "name": "style",
@@ -187,8 +181,8 @@
     "title",
     "description",
     "icon",
-    "actions",
     "close",
+    "actions",
     "action",
     "cancel",
     "progress"

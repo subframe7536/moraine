@@ -65,7 +65,7 @@ describe('localized component text', () => {
       </MoraineProvider>
     ))
 
-    Toast.add({ title: 'Bonjour', close: true })
+    Toast.show({ title: 'Bonjour', close: true })
     const region = document.body.querySelector('[data-slot="toast"]')
     expect(region?.getAttribute('aria-label')).toBe('Notifications')
     await waitFor(() => {

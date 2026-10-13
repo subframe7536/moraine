@@ -1,35 +1,33 @@
 import type { JSX } from 'solid-js'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  on,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
+import { Portal, isServer } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
-import type { OverlayAlign } from '../../theme/style-types'
+import { inertFeedbackHandle } from '../base/feedback/handle'
 
-import { ToastItem } from './toast-item'
-import { getDefaultToastStore, matchesHostId } from './toast-store'
-import type { ToastStore } from './toast-store'
+import { ToastList } from './toast-list'
+import { getDefaultToastStore, resolveToastOptions } from './toast-store'
+import type { ToastHost, ToastHostDefaults } from './toast-store'
 import { defaultToastMessages } from './toast.messages'
-import { toastDataAttributes, toastRecipe } from './toast.recipe'
+import { toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
-import type { ToastItemRecord, ToastProps, ToastT } from './toast.types'
+import type { ToastProps, ToastT } from './toast.types'
 
-function hostStore(store: ToastStore | undefined): ToastStore {
-  return store ?? getDefaultToastStore()
+function showToast(options: ToastT.Options, render?: ToastT.Render): ToastT.Handle {
+  if (isServer) {
+    return inertFeedbackHandle(options.id ?? 0)
+  }
+  return getDefaultToastStore().add(options, render)
+}
+
+function withType(type: ToastT.Type, options: ToastT.Options): ToastT.Options {
+  return { ...options, type }
 }
 
 /**
- * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and other static methods.
+ * Notification host. Trigger toasts with `Toast.show`, `Toast.success`, and the other static methods.
  */
 function ToastRoot(props: ToastProps): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -38,28 +36,44 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'align',
     'large',
     'type',
+    'invert',
     'itemRender',
     'visibleToasts',
     'duration',
     'close',
-    'showProgress',
+    'progress',
     'expand',
     'preventDuplicate',
-    'invert',
     'gap',
     'aria-label',
-    'store',
     'classes',
     'styles',
     'class',
     'style',
   ])
-
   const messages = useMessages('toast', defaultToastMessages)
-  const store = () => hostStore(local.store)
+  const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
+
+  const defaults = (): ToastHostDefaults => ({
+    type: local.type ?? undefined,
+    large: local.large,
+    invert: local.invert,
+    placement: local.placement ?? undefined,
+    align: local.align ?? undefined,
+    duration: local.duration,
+    close: local.close,
+    progress: local.progress,
+    preventDuplicate: local.preventDuplicate,
+    classes: local.classes,
+    styles: local.styles,
+  })
+  const controller: ToastHost = {
+    id: () => local.id,
+    defaults,
+  }
 
   const resolved = createStyles(toastRecipe, props, {
     slot: 'root',
@@ -78,37 +92,19 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   createEffect(
     on(
-      () => [local.id, local.preventDuplicate] as const,
-      ([id, val]) => {
-        if (val === undefined) {
-          return
-        }
-        store().setHostPreventDuplicate?.(id, val)
-        onCleanup(() => {
-          store().setHostPreventDuplicate?.(id, undefined)
-        })
-      },
-    ),
-  )
-
-  createEffect(
-    on(
       () => local.id,
       (id) => {
-        store().registerHost?.(id)
+        const unregister = store.registry.register(controller)
         onCleanup(() => {
-          store().unregisterHost?.(id)
+          unregister()
+          store.abandonHost(id)
         })
       },
     ),
   )
 
-  const filteredToasts = createMemo(() => {
-    return store().toasts.filter((t) => matchesHostId(t, local.id))
-  })
-
-  const activeToasts = createMemo(() => filteredToasts().filter((t) => !t.closed))
-
+  const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === local.id))
+  const activeToasts = createMemo(() => filteredToasts().filter((toast) => !toast.closed))
   const hasToasts = () => activeToasts().length > 0
 
   createEffect(
@@ -133,37 +129,26 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const defaultPlacement = () => local.placement ?? 'bottom'
   const defaultAlign = () => local.align ?? 'end'
   const defaultKey = () => `${defaultPlacement()}-${defaultAlign()}`
-
   const possiblePositions = createMemo(() => {
-    const activePositions = filteredToasts()
-      .filter((t) => t.variants?.placement || t.variants?.align)
-      .map(
-        (t) =>
-          `${t.variants?.placement ?? defaultPlacement()}-${t.variants?.align ?? defaultAlign()}`,
-      )
-
+    const activePositions = filteredToasts().map((toast) => {
+      const options = resolveToastOptions(toast.options, defaults())
+      return `${options.placement}-${options.align}`
+    })
     return Array.from(new Set([defaultKey(), ...activePositions]))
   })
 
-  const updateHeight = (id: string | number, h: number) => {
+  const updateHeight = (id: string | number, height: number) => {
     setHeights((prev) => {
-      if (h <= 0) {
+      if (height <= 0) {
         const next = { ...prev }
         delete next[id]
         return next
       }
-      return { ...prev, [id]: h }
+      return { ...prev, [id]: height }
     })
   }
 
-  const gapSize = () => local.gap ?? DEFAULT_TOAST_GAP
-  const hostPaused = () => isDocumentHidden() || !isWindowFocused()
-
-  const viewportAriaLabel = () =>
-    local['aria-label'] ??
-    (typeof messages().viewport === 'function'
-      ? (messages().viewport as unknown as () => string)()
-      : messages().viewport)
+  const viewportAriaLabel = () => local['aria-label'] ?? messages().viewport
 
   return (
     <Portal>
@@ -183,24 +168,18 @@ function ToastRoot(props: ToastProps): JSX.Element {
             <ToastList
               positionKey={positionKey}
               filteredToasts={filteredToasts}
-              defaultPlacement={defaultPlacement}
-              defaultAlign={defaultAlign}
+              host={defaults}
               expand={local.expand}
-              hostPaused={hostPaused}
+              hostPaused={() => isDocumentHidden() || !isWindowFocused()}
               heights={heights}
-              gapSize={gapSize}
+              gapSize={() => local.gap ?? DEFAULT_TOAST_GAP}
               visibleToasts={local.visibleToasts ?? 3}
-              close={local.close}
-              showProgress={local.showProgress}
-              invert={local.invert}
-              large={local.large}
               itemRender={local.itemRender}
-              classes={local.classes}
-              styles={local.styles}
-              duration={local.duration}
               onHeight={updateHeight}
-              onClose={(id) => store().close(id)}
-              onBump={(listener) => store().onBump(listener)}
+              requestClose={(id, reason) => store.close(id, reason)}
+              onRemove={(id) => store.remove(id)}
+              onUpdate={(id, options) => store.update(id, options)}
+              onBump={(listener) => store.onBump(listener)}
             />
           )}
         </For>
@@ -209,229 +188,61 @@ function ToastRoot(props: ToastProps): JSX.Element {
   )
 }
 
-interface ToastListProps {
-  positionKey: string
-  filteredToasts: () => ToastItemRecord[]
-  defaultPlacement: () => ToastT.Placement
-  defaultAlign: () => OverlayAlign
-  expand?: boolean
-  hostPaused: () => boolean
-  heights: () => Record<string | number, number>
-  gapSize: () => number
-  visibleToasts: number
-  close?: ToastT.Action | JSX.Element
-  showProgress?: boolean
-  invert?: boolean | null
-  large?: boolean | null
-  itemRender?: (props: ToastT.ItemRenderProps) => JSX.Element
-  classes?: ToastT.Classes
-  styles?: ToastT.Styles
-  duration?: number
-  onHeight: (id: string | number, height: number) => void
-  onClose: (id: string | number) => void
-  onBump?: (listener: (id: string | number) => void) => () => void
+export const Toast = ToastRoot as typeof ToastRoot & {
+  show: (options: ToastT.Options) => ToastT.Handle
+  info: (options: ToastT.Options) => ToastT.Handle
+  success: (options: ToastT.Options) => ToastT.Handle
+  warning: (options: ToastT.Options) => ToastT.Handle
+  error: (options: ToastT.Options) => ToastT.Handle
+  loading: (options: ToastT.Options) => ToastT.Handle
+  promise: <T>(
+    value: Promise<T> | (() => Promise<T>),
+    options: ToastT.PromiseOptions<T>,
+  ) => ToastT.Handle
+  custom: (render: ToastT.Render, options?: ToastT.Options) => ToastT.Handle
+  update: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
+  close: (id?: ToastT.Id) => void
 }
 
-function ToastList(props: ToastListProps): JSX.Element {
-  const [isHovered, setIsHovered] = createSignal(false)
-  const [isInteracting, setIsInteracting] = createSignal(false)
-
-  const placement = () => props.positionKey.split('-')[0] as ToastT.Placement
-  const align = () => props.positionKey.split('-')[1] as OverlayAlign
-
-  const groupToasts = createMemo(() => {
-    return props.filteredToasts().filter((t) => {
-      const p = t.variants?.placement ?? props.defaultPlacement()
-      const a = t.variants?.align ?? props.defaultAlign()
-      return `${p}-${a}` === props.positionKey
-    })
-  })
-
-  const layoutExpanded = () => Boolean(props.expand) || isHovered()
-  const timerPaused = () => isHovered() || isInteracting() || props.hostPaused()
-
-  const frontmostHeight = createMemo(() => {
-    const currentHeights = props.heights()
-    for (const t of groupToasts()) {
-      if (!t.closed) {
-        const h = currentHeights[t.id]
-        if (h && h > 0) {
-          return h
-        }
+Toast.show = (options) => showToast(options)
+Toast.info = (options) => showToast(withType('info', options))
+Toast.success = (options) => showToast(withType('success', options))
+Toast.warning = (options) => showToast(withType('warning', options))
+Toast.error = (options) => showToast(withType('error', options))
+Toast.loading = (options) => showToast(withType('loading', options))
+Toast.promise = (value, options) => {
+  const handle = Toast.loading(options.loading ?? {})
+  const task = Promise.resolve(typeof value === 'function' ? value() : value)
+  void task.then(
+    (data) => {
+      const next = typeof options.success === 'function' ? options.success(data) : options.success
+      if (next === undefined) {
+        handle.close()
+        return
       }
-    }
-    return 0
-  })
-
-  // Computes index and vertical offset for each toast (referencing Base UI's createToastMetadata).
-  // Non-closing toasts advance visibleIndex and accumulate offsetY.
-  // Closing toasts retain their domIndex and current position so remaining toasts advance immediately.
-  const toastMeta = createMemo(() => {
-    const toasts = groupToasts()
-    const currentHeights = props.heights()
-    const gap = props.gapSize()
-    const meta = new Map<string | number, { index: number; offsetY: number }>()
-    let visibleIndex = 0
-    let offsetY = 0
-
-    toasts.forEach((t, domIndex) => {
-      const isEnding = Boolean(t.closed)
-      meta.set(t.id, {
-        index: isEnding ? domIndex : visibleIndex,
-        offsetY,
-      })
-
-      if (!isEnding) {
-        visibleIndex += 1
-        const h = currentHeights[t.id] || frontmostHeight() || 58
-        offsetY += h + gap
+      handle.update({ type: 'success', ...next })
+    },
+    (error: unknown) => {
+      const next = typeof options.error === 'function' ? options.error(error) : options.error
+      if (next === undefined) {
+        handle.close()
+        return
       }
-    })
-
-    return meta
-  })
-
-  const activeCount = createMemo(() => groupToasts().filter((t) => !t.closed).length)
-
-  const listHeight = createMemo(() => {
-    const toasts = groupToasts().filter((t) => !t.closed)
-    if (toasts.length === 0) {
-      return 0
-    }
-    const count = Math.min(toasts.length, props.visibleToasts)
-    const gap = props.gapSize()
-    const frontH = frontmostHeight() || 58
-
-    if (!layoutExpanded()) {
-      return frontH + (count > 1 ? (count - 1) * gap : 0)
-    }
-
-    let totalH = 0
-    for (let i = 0; i < count; i++) {
-      const t = toasts[i]
-      const h = (t ? props.heights()[t.id] : 0) || frontH
-      totalH += h
-    }
-    return totalH + (count > 1 ? (count - 1) * gap : 0)
-  })
-
-  const resolved = createStyles(
-    toastRecipe,
-    {},
-    {
-      slot: 'list',
-      varsSlot: 'list',
-      contextVariants: () => ({
-        placement: placement(),
-        align: align(),
-      }),
-      contextSlots: () => ({
-        classes: props.classes,
-        styles: props.styles,
-      }),
-      own: () => ({
-        list: {
-          style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
-        },
-      }),
-      vars: () => ({
-        '--toast-gap': `${props.gapSize()}px`,
-      }),
+      handle.update({ type: 'error', ...next })
     },
   )
-
-  return (
-    <Show when={groupToasts().length > 0}>
-      <ul
-        data-slot="toast-list"
-        tabIndex={-1}
-        {...toastDataAttributes.list({ expanded: layoutExpanded })}
-        {...resolved.slots.list}
-        onMouseEnter={() => {
-          setIsHovered(true)
-        }}
-        onMouseMove={() => {
-          setIsHovered(true)
-        }}
-        onMouseLeave={() => {
-          setIsHovered(false)
-        }}
-        onPointerDown={(event) => {
-          if (event.target !== event.currentTarget) {
-            setIsInteracting(true)
-          }
-        }}
-        onPointerUp={() => setIsInteracting(false)}
-      >
-        <For each={groupToasts()}>
-          {(item) => {
-            const meta = () => toastMeta().get(item.id) ?? { index: 0, offsetY: 0 }
-            return (
-              <ToastItem
-                toast={item}
-                index={meta().index}
-                offsetY={meta().offsetY}
-                toastsCount={activeCount()}
-                visibleToasts={props.visibleToasts}
-                expanded={layoutExpanded()}
-                paused={timerPaused()}
-                placement={placement()}
-                align={align()}
-                close={props.close}
-                showProgress={props.showProgress}
-                invert={props.invert}
-                large={props.large}
-                itemRender={props.itemRender}
-                classes={props.classes}
-                styles={props.styles}
-                gap={props.gapSize()}
-                duration={props.duration}
-                onHeight={props.onHeight}
-                onClose={props.onClose}
-                onBump={props.onBump}
-              />
-            )
-          }}
-        </For>
-      </ul>
-    </Show>
-  )
+  return handle
 }
-
-export const Toast = ToastRoot as typeof ToastRoot &
-  ToastStore & {
-    success: (options: ToastT.InitOptions) => string | number
-    error: (options: ToastT.InitOptions) => string | number
-    warning: (options: ToastT.InitOptions) => string | number
-    info: (options: ToastT.InitOptions) => string | number
+Toast.custom = (render, options) => showToast(options ?? {}, render)
+Toast.update = (id, options) => {
+  if (isServer) {
+    return
   }
-
-Toast.add = (options) => getDefaultToastStore().add(options)
-Toast.success = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { type: 'success', ...options.variants } })
-Toast.error = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { type: 'error', ...options.variants } })
-Toast.warning = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { type: 'warning', ...options.variants } })
-Toast.info = (options) =>
-  getDefaultToastStore().add({ ...options, variants: { type: 'info', ...options.variants } })
-Toast.loading = (options) => getDefaultToastStore().loading(options)
-Toast.promise = (promiseValue, options) => getDefaultToastStore().promise(promiseValue, options)
-Toast.custom = (render, options) => getDefaultToastStore().custom(render, options)
-Toast.update = (id, options) => getDefaultToastStore().update(id, options)
-Toast.close = (id) => getDefaultToastStore().close(id)
-Toast.onBump = (listener) => getDefaultToastStore().onBump(listener)
-
-Object.defineProperties(Toast, {
-  toasts: {
-    configurable: true,
-    get: () => getDefaultToastStore().toasts,
-  },
-  preventDuplicate: {
-    configurable: true,
-    get: () => getDefaultToastStore().preventDuplicate,
-    set: (value: ToastT.PreventDuplicate) => {
-      getDefaultToastStore().preventDuplicate = value
-    },
-  },
-})
+  getDefaultToastStore().update(id, options)
+}
+Toast.close = (id) => {
+  if (isServer) {
+    return
+  }
+  getDefaultToastStore().close(id, 'api')
+}

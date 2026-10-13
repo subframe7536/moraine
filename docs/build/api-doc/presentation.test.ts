@@ -269,6 +269,12 @@ describe('createApiReferenceModel', () => {
     expect(getDomSlotName('toggle-button', 'root')).toBe('toggle-button')
     expect(getDomSlotName('toggle-button', 'label')).toBe('button-label')
     expect(getDomSlotName('select', 'itemLabel')).toBe('select-item-label')
+    expect(getDomSlotName('alert-dialog', 'content')).toBe('dialog-content')
+    expect(getDomSlotName('alert-dialog', 'header')).toBe('dialog-header')
+    expect(getDomSlotName('alert-dialog', 'footer')).toBe('dialog-footer')
+    expect(getDomSlotName('alert-dialog', 'icon')).toBe('icon')
+    expect(getDomSlotName('alert-dialog', 'copy')).toBe('alert-dialog-copy')
+    expect(getDomSlotName('alert-dialog', 'action')).toBe('alert-dialog-action')
   })
 
   test('uses the simplified API hierarchy in the TOC', () => {
