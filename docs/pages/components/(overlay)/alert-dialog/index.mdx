@@ -156,28 +156,30 @@ is set. Escape closes only the topmost alert dialog.
 
 ## Examples
 
-### Confirm a saved filter
+### Revoke an API key
 
-`confirm` opens the alert from the Delete button. OK removes the filter. Cancel and Escape leave it
-in place.
+`confirm` opens the confirmation dialog from the Revoke button with `danger: true`. An asynchronous
+`onOk` handler simulates revoking the key with a loading state before the dialog settles.
 
 <Preview path="./alert-confirm" />
 
 ### Show info, warning, error, and success
 
-`info`, `warning`, `error`, and `success` each use their own icon. `confirm` shows the caution icon only when `danger` is set. Cancel stays hidden unless `cancel` is set.
+`info`, `warning`, `error`, and `success` each communicate distinct operational feedback with dedicated
+tone icons. Cancel stays hidden unless `cancel` is set.
 
 <Preview path="./alert-types" />
 
 ### Update a publish confirm when checks finish
 
-Open the confirm while a check is still running. `update` replaces the title, description, and OK label
-when the check passes, and the dialog stays open until you publish or wait.
+Open a release confirmation while CI checks are still running. When background verification passes,
+`update` reactively clears the warning, swaps "Publish anyway" to "Publish release", and transitions
+the dialog to a safe state without dismissing it.
 
 <Preview path="./alert-publish" />
 
-### Allow a USB accessory
+### Authorize a hardware security key
 
-`center` stacks the icon and copy. `subtle` paints the action row like a Card footer.
+`center` stacks the icon and copy. `subtle` styles the action row with a muted background and top border.
 
 <Preview path="./alert-center" />

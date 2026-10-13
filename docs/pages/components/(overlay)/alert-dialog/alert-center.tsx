@@ -1,29 +1,60 @@
-import { AlertDialog, Button } from '@src'
-import { createSignal } from 'solid-js'
+import { AlertDialog, Badge, Button } from '@src'
+import { createSignal, Show } from 'solid-js'
 
 export function AlertCenter() {
-  const [status, setStatus] = createSignal('No accessory connected')
+  const [status, setStatus] = createSignal<'idle' | 'allowed' | 'blocked'>('idle')
 
   const connect = async () => {
     const allowed = await AlertDialog.confirm({
-      title: 'Allow accessory to connect?',
-      description: 'Do you want to allow the USB accessory to connect to this device?',
-      icon: 'i-lucide-bluetooth',
+      title: 'Allow security key to connect?',
+      description:
+        'Hardware key "YubiKey 5C NFC" is requesting permission to authenticate and read security credentials.',
+      icon: 'i-lucide:usb',
       center: true,
       subtle: true,
-      okText: 'Allow',
+      okText: 'Allow key',
       cancelText: "Don't allow",
-      width: 360,
+      width: 380,
     })
-    setStatus(allowed ? 'USB accessory connected' : 'Accessory blocked')
+    setStatus(allowed ? 'allowed' : 'blocked')
   }
 
   return (
-    <div class="flex flex-wrap gap-3 items-center">
-      <Button size="sm" onClick={() => void connect()}>
-        Connect accessory
-      </Button>
-      <span class="text-sm text-muted-foreground">{status()}</span>
+    <div class="p-4 b-1 b-border rounded-xl bg-card/50 flex flex-col gap-3 max-w-md w-full">
+      <div class="flex items-center justify-between">
+        <div class="flex gap-2 items-center">
+          <span class="text-sm font-medium">YubiKey 5C NFC</span>
+          <Show when={status() === 'idle'}>
+            <Badge variant="outline" class="text-xs text-muted-foreground">
+              Not connected
+            </Badge>
+          </Show>
+          <Show when={status() === 'allowed'}>
+            <Badge variant="outline" class="text-xs text-success border-success/30 bg-success/10">
+              Connected
+            </Badge>
+          </Show>
+          <Show when={status() === 'blocked'}>
+            <Badge variant="outline" class="text-xs text-danger border-danger/30 bg-danger/10">
+              Blocked
+            </Badge>
+          </Show>
+        </div>
+        <span class="text-xs text-muted-foreground font-mono">USB-C / NFC</span>
+      </div>
+      <p class="text-xs text-muted-foreground">
+        Hardware FIDO2 / WebAuthn token used for multi-factor authentication.
+      </p>
+      <div class="pt-2 b-border b-t-1 flex items-center justify-between">
+        <span class="text-xs text-muted-foreground">
+          {status() === 'idle' && 'Waiting for authorization...'}
+          {status() === 'allowed' && 'Hardware credentials authorized.'}
+          {status() === 'blocked' && 'Access request denied by user.'}
+        </span>
+        <Button size="sm" variant="outline" onClick={() => void connect()}>
+          {status() === 'allowed' ? 'Reconnect' : 'Connect key'}
+        </Button>
+      </div>
     </div>
   )
 }
