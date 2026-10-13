@@ -120,6 +120,7 @@ export function createToastStore(): ToastStore {
   const [store, setStore] = createStore<ToastItemRecord[]>([])
   const hostPreventDuplicates = new Map<string, ToastT.PreventDuplicate>()
   const registeredHosts = new Map<string, number>()
+  const bumpTimers = new Map<string | number, ReturnType<typeof setTimeout>>()
   let counter = 1
   let defaultPreventDuplicate: ToastT.PreventDuplicate = false
 
@@ -184,25 +185,38 @@ export function createToastStore(): ToastStore {
     return id
   }
 
-  const triggerBump = (index: number): void => {
+  const clearBumpTimer = (id: string | number): void => {
+    const timer = bumpTimers.get(id)
+    if (timer === undefined) {
+      return
+    }
+    clearTimeout(timer)
+    bumpTimers.delete(id)
+  }
+
+  const setBumping = (id: string | number, value: boolean): void => {
     setStore(
       produce((list) => {
-        list[index]!.isBumping = false
+        const item = list.find((entry) => entry.id === id)
+        if (item) {
+          item.isBumping = value
+        }
       }),
     )
+  }
+
+  const triggerBump = (id: string | number): void => {
+    clearBumpTimer(id)
+    setBumping(id, false)
     queueMicrotask(() => {
-      setStore(
-        produce((list) => {
-          list[index]!.isBumping = true
-        }),
+      setBumping(id, true)
+      bumpTimers.set(
+        id,
+        setTimeout(() => {
+          bumpTimers.delete(id)
+          setBumping(id, false)
+        }, 240),
       )
-      setTimeout(() => {
-        setStore(
-          produce((list) => {
-            list[index]!.isBumping = false
-          }),
-        )
-      }, 240)
     })
   }
 
@@ -248,7 +262,7 @@ export function createToastStore(): ToastStore {
             : isSameToastContent(frontToast, candidate)
 
         if (isDuplicate) {
-          triggerBump(frontIndex)
+          triggerBump(frontToast.id)
           return frontToast.id
         }
       }
@@ -274,7 +288,7 @@ export function createToastStore(): ToastStore {
           Object.assign(item, toastItem)
         }),
       )
-      triggerBump(existingIndex)
+      triggerBump(id)
     } else {
       setStore(
         produce((draft) => {
@@ -312,7 +326,7 @@ export function createToastStore(): ToastStore {
           })
         }),
       )
-      triggerBump(existingIndex)
+      triggerBump(id)
     }
     return id
   }
@@ -335,6 +349,7 @@ export function createToastStore(): ToastStore {
       if (id !== undefined && item.id !== id) {
         continue
       }
+      clearBumpTimer(item.id)
       if (!hasMatchingHost(item) || item.closed) {
         orphanIds.push(item.id)
         continue

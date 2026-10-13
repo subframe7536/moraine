@@ -450,6 +450,40 @@ describe('Toast', () => {
     })
   })
 
+  it('does not throw when a bump timer fires after the toast is removed', async () => {
+    vi.useFakeTimers()
+    try {
+      const id = Toast.add({ title: 'Bump then gone' })
+      Toast.update(id, { title: 'Bumped' })
+      Toast.close(id)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(Toast.toasts.some((item) => item.id === id)).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('keeps bump completion on the original toast after a newer toast is prepended', async () => {
+    vi.useFakeTimers()
+    try {
+      render(() => <Toast />)
+      await Promise.resolve()
+
+      const idA = Toast.add({ title: 'First' })
+      Toast.update(idA, { title: 'First bumped' })
+      await Promise.resolve()
+      Toast.add({ title: 'Second' })
+      await vi.advanceTimersByTimeAsync(300)
+
+      const first = Toast.toasts.find((item) => item.id === idA)
+      const second = Toast.toasts.find((item) => item.title === 'Second')
+      expect(first?.isBumping).toBe(false)
+      expect(second?.isBumping).toBe(false)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('invokes onClose with auto: true on timer expiration and auto: false on manual close', async () => {
     vi.useFakeTimers()
     const onAutoClose = vi.fn()
