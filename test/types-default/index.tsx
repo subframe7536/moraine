@@ -925,6 +925,7 @@ const theme = defineTheme({
     variants: { orientation: { vertical: { root: 'h-full' } } },
   },
   sheet: { variants: { side: { left: { content: 'left-0' } } } },
+  toast: { base: { root: 'rounded-xl' }, defaultVariants: { type: 'info' } },
 })
 ;<MoraineProvider theme={theme}>
   <Button />

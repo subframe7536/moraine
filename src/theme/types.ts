@@ -46,6 +46,7 @@ import type { DropdownMenuStyleConfig } from '../overlay/dropdown-menu/dropdown-
 import type { ModalStyleConfig } from '../overlay/modal/modal.style-types'
 import type { PopoverStyleConfig } from '../overlay/popover/popover.style-types'
 import type { SheetStyleConfig } from '../overlay/sheet/sheet.style-types'
+import type { ToastStyleConfig } from '../overlay/toast/toast.style-types'
 import type { TooltipStyleConfig } from '../overlay/tooltip/tooltip.style-types'
 
 import type { RecipeLayerConfig } from './recipe'
@@ -105,6 +106,7 @@ export interface MoraineStyleSchema {
   modal: ModalStyleConfig
   popover: PopoverStyleConfig
   sheet: SheetStyleConfig
+  toast: ToastStyleConfig
   tooltip: TooltipStyleConfig
 }
 

@@ -73,7 +73,7 @@ export default defineConfig({
       '@src': sourceRoot,
       moraine: sourceRoot,
     },
-    dedupe: ['solid-js', '@solidjs/router'],
+    dedupe: ['solid-js', 'solid-js/store', '@solidjs/router'],
   },
   optimizeDeps: {
     entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
@@ -83,6 +83,12 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
+            {
+              name: 'solid-vendor',
+              test: /[\\/]node_modules[\\/]solid-js[\\/]/,
+              priority: 30,
+              includeDependenciesRecursively: true,
+            },
             {
               name: 'moraine-theme',
               test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,

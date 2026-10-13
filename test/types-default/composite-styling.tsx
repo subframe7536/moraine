@@ -159,6 +159,7 @@ import { defineTheme } from 'moraine/theme'
 
 defineTheme({ dialog: { base: { contentClose: 'close' } } })
 defineTheme({ sheet: { base: { contentClose: 'close' } } })
+defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: true } } })
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
 

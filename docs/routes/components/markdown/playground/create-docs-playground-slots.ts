@@ -29,7 +29,7 @@ function getPortalRoot(element: HTMLElement, preview: HTMLElement): HTMLElement 
     : undefined
 }
 
-function getOwnedRoots(preview: HTMLElement): HTMLElement[] {
+function getOwnedRoots(preview: HTMLElement, slotByDomName?: Map<string, string>): HTMLElement[] {
   const roots = [preview]
   for (let index = 0; index < roots.length; index++) {
     const root = roots[index]!
@@ -50,6 +50,18 @@ function getOwnedRoots(preview: HTMLElement): HTMLElement[] {
       }
     }
   }
+
+  if (slotByDomName) {
+    for (const element of preview.ownerDocument.querySelectorAll<HTMLElement>('[data-slot]')) {
+      if (slotByDomName.has(element.dataset.slot ?? '')) {
+        const portalRoot = getPortalRoot(element, preview)
+        if (portalRoot && !roots.includes(portalRoot)) {
+          roots.push(portalRoot)
+        }
+      }
+    }
+  }
+
   return roots
 }
 
@@ -205,7 +217,7 @@ export function createDocsPlaygroundSlots(props: {
     let roots: HTMLElement[] = [preview]
 
     const scan = () => {
-      roots = getOwnedRoots(preview)
+      roots = getOwnedRoots(preview, slotByDomName)
       const next = new Map<string, HTMLElement[]>()
       for (const root of roots) {
         if (root.hasAttribute('data-slot')) {

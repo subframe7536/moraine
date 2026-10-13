@@ -109,6 +109,15 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
     '45%': { transform: 'translateY(0) scaleY(1)' },
     '100%': { transform: 'translateY(-100%) scaleY(0.9)' },
   },
+  'toast-bump': {
+    '0%': { transform: 'scale(1)' },
+    '45%': { transform: 'scale(1.05)' },
+    '100%': { transform: 'scale(1)' },
+  },
+  'toast-progress': {
+    from: { transform: 'scaleX(1)' },
+    to: { transform: 'scaleX(0)' },
+  },
 }
 
 export function getMoraineAnimations(): {
@@ -121,6 +130,12 @@ export function getMoraineAnimations(): {
   const timingFns: Record<string, string> = {}
   const counts: Record<string, string> = {}
   for (const name of Object.keys(MORAINE_KEYFRAMES)) {
+    if (name === 'toast-progress') {
+      durations[name] = 'var(--toast-duration, 4000ms)'
+      timingFns[name] = MORAINE_EASE_LINEAR
+      counts[name] = '1'
+      continue
+    }
     const type = getAnimType(name)
     durations[name] = ANIMATION_DURATIONS[type]
     timingFns[name] = name === 'shimmer' ? MORAINE_EASE_LINEAR : ANIMATION_TIMING_FUNCTIONS[type]
@@ -130,6 +145,9 @@ export function getMoraineAnimations(): {
     durations,
     timingFns,
     counts,
-    properties: { 'mo-exit': { 'animation-fill-mode': 'forwards' } },
+    properties: {
+      'mo-exit': { 'animation-fill-mode': 'forwards' },
+      'toast-progress': { 'animation-fill-mode': 'forwards' },
+    },
   }
 }

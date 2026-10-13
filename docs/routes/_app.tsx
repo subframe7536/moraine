@@ -10,6 +10,7 @@ import {
   MoraineProvider,
   Progress,
   SidebarFrame,
+  Toast,
   useSidebarFrame,
 } from '../../src'
 import { createMediaQuery } from '../../src/utils'
@@ -209,6 +210,7 @@ export default createRoute({
       <MDXProvider components={DOCS_MDX_COMPONENTS}>
         <DocsAppLayout>{props.children}</DocsAppLayout>
       </MDXProvider>
+      <Toast close />
     </MoraineProvider>
   ),
 })
