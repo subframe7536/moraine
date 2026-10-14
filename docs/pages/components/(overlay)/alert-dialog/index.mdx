@@ -84,8 +84,8 @@ live defaults for every dialog, and options passed to a method override them. `f
 before the host is mounted throws. On the server the same call returns a handle whose `result()`
 is already `'api'`.
 
-Give each host a unique `id` when more than one is mounted. A call without `host` uses the last
-mounted host. Pass `host` to target `<AlertDialog id="billing" />`. Unmounting a host settles its
+Give each host a unique `id` when more than one is mounted. A call without `host` goes to the host
+without an id and throws if only hosts with an id are mounted. Pass `host` to target `<AlertDialog id="billing" />`. Unmounting a host settles its
 open dialogs as `'api'` and removes them immediately.
 
 ```tsx

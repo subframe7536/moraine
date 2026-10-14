@@ -192,7 +192,8 @@ render wins, then the host render, then the built-in layout. The render receives
 resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `index`, and
 `expanded`. It replaces the inner content. The toast keeps its stack, swipe, timer, and live region.
 
-A call without `host` uses the last mounted host. Pass `host` to target `<Toast id="alerts" />`.
+A call without `host` goes to the host without an id and throws if only hosts with an id are
+mounted. Pass `host` to target `<Toast id="alerts" />`.
 
 ### Methods
 

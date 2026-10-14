@@ -85,7 +85,7 @@
           "name": "id",
           "optional": true,
           "type": "string",
-          "description": "Unique identifier for this host when multiple hosts are mounted.\nA call without `host` uses the last mounted host. Pass `host` in the call options\nto target one host. If duplicate ids are mounted, the last mounted host takes precedence.\nUnmounting a host settles its open dialogs with reason `api`."
+          "description": "Unique identifier for this host when multiple hosts are mounted.\nA call without `host` goes to the last mounted host without an id. Pass `host` in the\ncall options to target one host. If duplicate ids are mounted, the last mounted host takes precedence.\nUnmounting a host settles its open dialogs with reason `api`."
         },
         {
           "name": "style",

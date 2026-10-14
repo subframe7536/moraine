@@ -611,11 +611,11 @@ describe('AlertDialog', () => {
     await expect(result.result()).resolves.toBe('api')
   })
 
-  test('targets a host by id and uses the last mounted host by default', async () => {
+  test('targets a host by id and sends calls without host to the host without an id', async () => {
     render(() => (
       <>
+        <AlertDialog />
         <AlertDialog id="first" />
-        <AlertDialog id="second" />
       </>
     ))
     const targeted = AlertDialog.info({ host: 'first', title: 'First host' })
@@ -628,6 +628,14 @@ describe('AlertDialog', () => {
     await waitForDialogCount(1)
     expect(document.body.textContent).toContain('Second host')
     latest.close()
+    await waitForDialogCount(0)
+  })
+
+  test('throws when only hosts with an id are mounted and the call omits host', () => {
+    render(() => <AlertDialog id="only" />)
+    expect(() => AlertDialog.show({ title: 'Nowhere' })).toThrow(
+      'Mount <AlertDialog> before calling AlertDialog.',
+    )
   })
 
   test('settles open dialogs as api when the host unmounts', async () => {

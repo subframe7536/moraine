@@ -22,10 +22,8 @@ export function createHostRegistry<T extends FeedbackHost>(componentName: string
     return `Mount <${componentName} id="${hostId}"> before calling ${componentName}.`
   }
 
+  /** Without `hostId`, only hosts without an id receive the call. */
   const active = (hostId?: string): T | undefined => {
-    if (hostId === undefined) {
-      return hosts.at(-1)
-    }
     for (let index = hosts.length - 1; index >= 0; index -= 1) {
       const host = hosts[index]
       if (host?.id() === hostId) {

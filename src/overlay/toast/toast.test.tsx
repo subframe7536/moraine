@@ -1124,6 +1124,27 @@ describe('Toast', () => {
     expect(isolatedViewport).not.toContain('Default only')
   })
 
+  it('sends calls without host only to the host without an id', async () => {
+    render(() => (
+      <>
+        <Toast />
+        <Toast id="dock" />
+      </>
+    ))
+    Toast.show({ title: 'Default call' })
+    const title = await screen.findByText('Default call')
+    const hosts = Array.from(document.querySelectorAll('[data-slot="toast"]'))
+    const dock = hosts.at(-1)
+    expect(hosts.length).toBe(2)
+    expect(dock?.textContent ?? '').not.toContain('Default call')
+    expect(hosts[0]?.contains(title)).toBe(true)
+  })
+
+  it('throws when only hosts with an id are mounted and the call omits host', () => {
+    render(() => <Toast id="dock" />)
+    expect(() => Toast.show({ title: 'Nowhere' })).toThrow('Mount <Toast> before calling Toast.')
+  })
+
   it('keeps the host mounted and renders the list only while it has toasts', async () => {
     render(() => <Toast />)
     const host = () => document.querySelector('[data-slot="toast"]')

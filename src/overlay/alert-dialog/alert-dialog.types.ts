@@ -32,8 +32,8 @@ export namespace AlertDialogT {
   export interface Base {
     /**
      * Unique identifier for this host when multiple hosts are mounted.
-     * A call without `host` uses the last mounted host. Pass `host` in the call options
-     * to target one host. If duplicate ids are mounted, the last mounted host takes precedence.
+     * A call without `host` goes to the last mounted host without an id. Pass `host` in the
+     * call options to target one host. If duplicate ids are mounted, the last mounted host takes precedence.
      * Unmounting a host settles its open dialogs with reason `api`.
      */
     id?: string
@@ -82,7 +82,7 @@ export namespace AlertDialogT {
      * updates that dialog in place; otherwise the open dialog closes with `api` and a new one opens.
      */
     id?: Id
-    /** Targets `<AlertDialog id="..." />`. Omit to use the last mounted host. */
+    /** Targets `<AlertDialog id="..." />`. Omit to use the host without an id. */
     host?: string
     /** Status tone. Methods such as `info` set this for you. */
     type?: Type

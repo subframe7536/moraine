@@ -36,7 +36,7 @@ export namespace ToastT {
   export interface Options {
     /** Stable id used by `update` and `close`. Reusing an open id updates that toast. */
     id?: Id
-    /** Targets `<Toast id="..." />`. Omit to use the last mounted host. */
+    /** Targets `<Toast id="..." />`. Omit to use the host without an id. */
     host?: string
     /** Status tone. Methods such as `success` set this for you. */
     type?: Type
