@@ -181,8 +181,8 @@
     "title",
     "description",
     "icon",
-    "close",
     "actions",
+    "close",
     "action",
     "cancel",
     "progress"

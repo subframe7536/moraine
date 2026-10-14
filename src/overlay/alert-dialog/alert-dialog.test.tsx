@@ -817,6 +817,16 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
   })
 
+  test('safely handles null target in close without throwing or closing dialogs', async () => {
+    setup()
+    const alert = AlertDialog.show({ title: 'Keep open' })
+    await waitForTitle('Keep open')
+    expect(() => AlertDialog.close(null as unknown as undefined)).not.toThrow()
+    expect(dialogs()).toHaveLength(1)
+    alert.close()
+    await waitForDialogCount(0)
+  })
+
   test('gives the cancel and action buttons distinct slots', async () => {
     setup()
     const result = AlertDialog.confirm({

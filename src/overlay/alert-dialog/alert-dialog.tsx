@@ -151,7 +151,7 @@ AlertDialog.close = (target?: AlertDialogT.Id | AlertDialogT.CloseTarget): void 
   if (isServer) {
     return
   }
-  const scope = typeof target === 'object' ? target : { id: target }
+  const scope = typeof target === 'object' && target !== null ? target : { id: target }
   for (const host of registry.entries()) {
     if (scope.host === undefined || host.id() === scope.host) {
       host.close(scope.id)
