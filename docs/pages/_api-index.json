@@ -6,6 +6,11 @@
       "category": "element"
     },
     {
+      "key": "alert-dialog",
+      "name": "AlertDialog",
+      "category": "overlay"
+    },
+    {
       "key": "avatar",
       "name": "Avatar",
       "category": "element"
@@ -234,6 +239,11 @@
       "key": "textarea",
       "name": "Textarea",
       "category": "form"
+    },
+    {
+      "key": "toast",
+      "name": "Toast",
+      "category": "overlay"
     },
     {
       "key": "toggle-button",

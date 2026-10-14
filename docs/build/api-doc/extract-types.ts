@@ -472,7 +472,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<{
     props: PropApi[]
-    defaultElement: string
+    defaultElement?: string
     generics?: GenericParameterApi[]
   }> {
     const args = typeRef.typeArguments?.params ?? []
@@ -501,7 +501,7 @@ export class TypeExtractor {
       }
     }
 
-    if (!defaultElement) {
+    if (!defaultElement && tElementNode?.type !== 'TSNeverKeyword') {
       throw new Error(
         `[api-doc] BaseProps in ${module.filePath} must declare a literal element or a generic default.`,
       )
@@ -588,7 +588,7 @@ export class TypeExtractor {
     }
 
     const asProp = props.find((prop) => prop.name === 'as')
-    if (asProp && !asProp.default) {
+    if (asProp && !asProp.default && defaultElement) {
       asProp.default = { kind: 'literal', value: defaultElement }
     }
 

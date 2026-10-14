@@ -15,6 +15,7 @@ import type { defaultPaginationMessages } from '../../navigation/pagination/pagi
 import type { defaultSidebarFrameMessages } from '../../navigation/sidebar-frame/sidebar-frame.messages'
 import type { defaultDialogMessages } from '../../overlay/dialog/dialog.messages'
 import type { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
+import type { defaultToastMessages } from '../../overlay/toast/toast.messages'
 
 type ComponentMessages<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : string
@@ -23,6 +24,7 @@ type ComponentMessages<T> = {
 export interface MoraineMessages {
   dialog: ComponentMessages<typeof defaultDialogMessages>
   sheet: ComponentMessages<typeof defaultSheetMessages>
+  toast: ComponentMessages<typeof defaultToastMessages>
   breadcrumb: ComponentMessages<typeof defaultBreadcrumbMessages>
   commandPalette: ComponentMessages<typeof defaultCommandPaletteMessages>
   select: ComponentMessages<typeof defaultSelectMessages>

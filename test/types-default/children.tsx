@@ -1,4 +1,5 @@
 import {
+  AlertDialog,
   Avatar,
   Badge,
   BaseSelect,
@@ -35,3 +36,5 @@ import {
 ;<Separator children="Unexpected" />
 // @ts-expect-error Textarea does not accept child content.
 ;<Textarea children="Unexpected" />
+// @ts-expect-error AlertDialog does not accept child content.
+;<AlertDialog children="Unexpected" />

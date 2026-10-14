@@ -38,10 +38,18 @@ export namespace ModalT {
     onExitComplete?: () => void
 
     /**
-     * Whether outside interaction and Escape should dismiss the shell.
+     * Whether an outside pointer press on the overlay dismisses the shell.
+     * `false` blocks the press and reports it through `onClosePrevent`.
      * @default true
      */
-    dismissible?: boolean
+    closeOnOverlayClick?: boolean
+
+    /**
+     * Whether Escape dismisses the shell.
+     * `false` blocks Escape and reports it through `onClosePrevent`.
+     * @default true
+     */
+    closeOnEscape?: boolean
 
     /** Called when a dismissal attempt is blocked. */
     onClosePrevent?: () => void
@@ -55,7 +63,8 @@ export namespace ModalT {
     /**
      * Whether the surface contains focus, restores focus on close, hides outside content from
      * assistive technology, and prevents the native default action of outside pointer events.
-     * Outside pointer and Escape dismissal remain controlled by `dismissible`.
+     * Outside pointer dismissal is controlled by `closeOnOverlayClick`.
+     * Escape dismissal is controlled by `closeOnEscape`.
      * @default true
      */
     modal?: boolean

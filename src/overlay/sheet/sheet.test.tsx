@@ -746,11 +746,11 @@ describe('Sheet', () => {
     expect(overlay.className).not.toContain('bg-black/10')
   })
 
-  test('prevents close when dismissible=false and emits onClosePrevent', async () => {
+  test('prevents close when closeOnEscape is false and emits onClosePrevent', async () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+      <Sheet defaultOpen closeOnEscape={false} onClosePrevent={onClosePrevent}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
@@ -778,7 +778,7 @@ describe('Sheet', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Sheet defaultOpen closeOnOverlayClick={false} onClosePrevent={onClosePrevent}>
           <Sheet.Trigger as="button" type="button">
             Trigger
           </Sheet.Trigger>
@@ -798,12 +798,12 @@ describe('Sheet', () => {
     })
   })
 
-  test('allows close when dismissible=true', async () => {
+  test('closes on Escape by default', async () => {
     const onClosePrevent = vi.fn()
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen dismissible onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+      <Sheet defaultOpen onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>

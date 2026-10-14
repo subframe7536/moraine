@@ -13,7 +13,11 @@ export async function finishExitMotion(
 
   const contents = targetContent
     ? [targetContent]
-    : (Array.from(document.body.querySelectorAll('[data-slot$="-content"]')) as HTMLElement[])
+    : (Array.from(
+        document.body.querySelectorAll(
+          '[data-slot$="-content"], [data-slot="toast"], [data-slot="toast-item"]',
+        ),
+      ) as HTMLElement[])
   const overlays = targetOverlay
     ? [targetOverlay]
     : (Array.from(document.body.querySelectorAll('[data-slot$="-overlay"]')) as HTMLElement[])

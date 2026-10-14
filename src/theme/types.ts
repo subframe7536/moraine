@@ -39,12 +39,14 @@ import type { PaginationStyleConfig } from '../navigation/pagination/pagination.
 import type { SidebarFrameStyleConfig } from '../navigation/sidebar-frame/sidebar-frame.style-types'
 import type { StepperStyleConfig } from '../navigation/stepper/stepper.style-types'
 import type { TabsStyleConfig } from '../navigation/tabs/tabs.style-types'
+import type { AlertDialogStyleConfig } from '../overlay/alert-dialog/alert-dialog.style-types'
 import type { ContextMenuStyleConfig } from '../overlay/context-menu/context-menu.style-types'
 import type { DialogStyleConfig } from '../overlay/dialog/dialog.style-types'
 import type { DropdownMenuStyleConfig } from '../overlay/dropdown-menu/dropdown-menu.style-types'
 import type { ModalStyleConfig } from '../overlay/modal/modal.style-types'
 import type { PopoverStyleConfig } from '../overlay/popover/popover.style-types'
 import type { SheetStyleConfig } from '../overlay/sheet/sheet.style-types'
+import type { ToastStyleConfig } from '../overlay/toast/toast.style-types'
 import type { TooltipStyleConfig } from '../overlay/tooltip/tooltip.style-types'
 
 import type { RecipeLayerConfig } from './recipe'
@@ -97,12 +99,14 @@ export interface MoraineStyleSchema {
   stepper: StepperStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig
+  alertDialog: AlertDialogStyleConfig
   contextMenu: ContextMenuStyleConfig
   dialog: DialogStyleConfig
   dropdownMenu: DropdownMenuStyleConfig
   modal: ModalStyleConfig
   popover: PopoverStyleConfig
   sheet: SheetStyleConfig
+  toast: ToastStyleConfig
   tooltip: TooltipStyleConfig
 }
 

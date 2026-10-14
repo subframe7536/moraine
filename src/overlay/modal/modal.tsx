@@ -56,7 +56,8 @@ export function ModalInternal<K extends ModalKind>(
       }
     },
   })
-  const dismissible = () => props.dismissible ?? true
+  const closeOnOverlayClick = () => props.closeOnOverlayClick !== false
+  const closeOnEscape = () => props.closeOnEscape !== false
   const isPresent = () => Boolean(contentElement() && presence.present())
   const isModal = () => props.modal !== false
   let capturedTrigger: HTMLElement | undefined
@@ -75,18 +76,18 @@ export function ModalInternal<K extends ModalKind>(
         : undefined)
   }
 
-  const requestDismiss = (event: Event, preventDefault: boolean): void => {
+  const requestDismiss = (event: Event, preventDefault: boolean, allowed: boolean): void => {
     if (event.defaultPrevented) {
       return
     }
     if (preventDefault) {
       event.preventDefault()
     }
-    if (dismissible()) {
+    if (allowed) {
       updateOpen(false)
-    } else {
-      props.onClosePrevent?.()
+      return
     }
+    props.onClosePrevent?.()
   }
 
   createEffect(
@@ -223,7 +224,7 @@ export function ModalInternal<K extends ModalKind>(
         })
       }
     },
-    onPointerOutside: (event) => requestDismiss(event, isModal()),
+    onPointerOutside: (event) => requestDismiss(event, isModal(), closeOnOverlayClick()),
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
@@ -243,12 +244,8 @@ export function ModalInternal<K extends ModalKind>(
           focusContent(currentContent)
         }
       })
-
-      if (!dismissible()) {
-        props.onClosePrevent?.()
-      }
     },
-    onEscape: (event) => requestDismiss(event, true),
+    onEscape: (event) => requestDismiss(event, true, closeOnEscape()),
     onDeactivate: () => {
       if (!restoreFocusOnDeactivate) {
         return

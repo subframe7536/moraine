@@ -958,11 +958,11 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
   })
 
-  test('prevents close when dismissible=false and emits onClosePrevent', async () => {
+  test('prevents close when closeOnEscape is false and emits onClosePrevent', async () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+      <Dialog defaultOpen closeOnEscape={false} onClosePrevent={onClosePrevent}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
@@ -990,7 +990,7 @@ describe('Dialog', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Dialog defaultOpen closeOnOverlayClick={false} onClosePrevent={onClosePrevent}>
           <Dialog.Trigger as="button" type="button">
             Trigger
           </Dialog.Trigger>
@@ -1046,12 +1046,101 @@ describe('Dialog', () => {
     })
   })
 
-  test('allows close when dismissible=true', async () => {
+  test('blocks outside pointer dismissal without blocking Escape', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Dialog
+          defaultOpen
+          closeOnOverlayClick={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content>
+            <Dialog.Body>Body</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+      </>
+    ))
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onOpenChange).not.toHaveBeenCalled()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
+    })
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    })
+  })
+
+  test('blocks Escape without blocking outside pointer dismissal', async () => {
+    const onClosePrevent = vi.fn()
+    const onOpenChange = vi.fn()
+
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Dialog
+          defaultOpen
+          closeOnEscape={false}
+          onClosePrevent={onClosePrevent}
+          onOpenChange={onOpenChange}
+        >
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content>
+            <Dialog.Body>Body</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+      </>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(onClosePrevent).toHaveBeenCalledTimes(1)
+      expect(onOpenChange).not.toHaveBeenCalled()
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerDown(screen.getByTestId('outside'))
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    })
+  })
+
+  test('closes on Escape by default', async () => {
     const onClosePrevent = vi.fn()
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Dialog defaultOpen dismissible onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+      <Dialog defaultOpen onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>

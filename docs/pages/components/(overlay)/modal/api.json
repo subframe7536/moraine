@@ -24,6 +24,26 @@
           "description": "Family slot class defaults for this Modal instance."
         },
         {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the shell.\n`false` blocks Escape and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOverlayClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the shell.\n`false` blocks the press and reports it through `onClosePrevent`.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "defaultOpen",
           "optional": true,
           "type": "boolean",
@@ -31,16 +51,6 @@
           "default": {
             "kind": "literal",
             "value": false
-          }
-        },
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether outside interaction and Escape should dismiss the shell.",
-          "default": {
-            "kind": "literal",
-            "value": true
           }
         },
         {
@@ -53,7 +63,7 @@
           "name": "modal",
           "optional": true,
           "type": "boolean",
-          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer and Escape dismissal remain controlled by `dismissible`.",
+          "description": "Whether the surface contains focus, restores focus on close, hides outside content from\nassistive technology, and prevents the native default action of outside pointer events.\nOutside pointer dismissal is controlled by `closeOnOverlayClick`.\nEscape dismissal is controlled by `closeOnEscape`.",
           "default": {
             "kind": "literal",
             "value": true

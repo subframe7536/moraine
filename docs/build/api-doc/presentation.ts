@@ -193,6 +193,12 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
     label: 'button-label',
     trailing: 'button-trailing',
   },
+  'alert-dialog': {
+    content: 'dialog-content',
+    header: 'dialog-header',
+    footer: 'dialog-footer',
+    icon: 'icon',
+  },
 }
 
 export function getDomSlotName(componentKey: string, slot: string): string {
