@@ -28,6 +28,6 @@ describe('AlertDialog SSR', () => {
         '/src/overlay/alert-dialog/alert-dialog.ssr.fixture.tsx',
         'renderServerAlertCallFixture',
       ),
-    ).toBe('api:api')
+    ).toBe('api:api:unique')
   })
 })

@@ -24,6 +24,7 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
     copy: 'flex-1 gap-2 grid min-w-0',
     footer: 'p-0',
     action: '',
+    cancel: '',
   },
   defaultVariants: {
     center: false,
@@ -48,6 +49,7 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
         copy: 'text-center flex-none',
         footer: 'px-6 pb-6 pt-4 border-t border-border flex-row gap-3',
         action: 'flex-1',
+        cancel: 'flex-1',
       },
     },
   },

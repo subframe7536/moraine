@@ -77,7 +77,10 @@ export namespace AlertDialogT {
 
   /** Options passed to alert dialog creation methods. */
   export interface Options {
-    /** Stable id used by `update` and `close`. Reusing an open id updates that dialog. */
+    /**
+     * Stable id used by `update` and `close`. Reusing an open id with the same method and render
+     * updates that dialog in place; otherwise the open dialog closes with `api` and a new one opens.
+     */
     id?: Id
     /** Targets `<AlertDialog id="..." />`. Omit to use the last mounted host. */
     host?: string
@@ -110,6 +113,14 @@ export namespace AlertDialogT {
     closeOnOverlayClick?: boolean
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
+  }
+
+  /** Selects dialogs for `AlertDialog.close`. Omitted fields match every dialog. */
+  export interface CloseTarget {
+    /** Closes only the dialog with this id. */
+    id?: Id
+    /** Closes only dialogs on `<AlertDialog id="..." />`. */
+    host?: string
   }
 
   /** Options for updating an open alert dialog in place. */

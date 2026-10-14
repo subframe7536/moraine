@@ -31,7 +31,7 @@ export interface AlertDialogRecord {
   pending: () => 'action' | 'cancel' | undefined
   presentation: AlertDialogT.RenderProps
   handle: AlertDialogT.Handle
-  /** Resolves `api` without playing an exit. Used when the host unmounts. */
+  /** Settles with `api` and calls `onClose` without playing an exit. Used when the host unmounts. */
   abandon: () => void
   remove: () => void
 }
@@ -114,18 +114,21 @@ export function createAlertDialogRecord(
     }
   }
 
-  const finish = (reason: FeedbackCloseReason): void => {
+  const finish = (reason: FeedbackCloseReason): boolean => {
     if (!result.settle(reason)) {
-      return
+      return false
     }
     const notify = options().onClose
     setOpen(false)
     notify?.(reason)
+    return true
   }
 
   const runner = createActionRunner({
     closed: () => !open(),
-    onFinish: (kind) => finish(kind),
+    onFinish: (kind) => {
+      finish(kind)
+    },
   })
 
   const update = (next: AlertDialogT.UpdateOptions): void => {
@@ -143,7 +146,9 @@ export function createAlertDialogRecord(
     pending: runner.pending,
     action: (event) => runner.run('action', event, actionOf(options().action)?.onClick),
     cancel: (event) => runner.run('cancel', event, cancelActionOf(options().cancel)?.onClick),
-    close: (reason = 'dismiss') => finish(reason),
+    close: (reason = 'dismiss') => {
+      finish(reason)
+    },
     update,
     titleId,
     descriptionId,
@@ -160,11 +165,13 @@ export function createAlertDialogRecord(
     handle: {
       id,
       update,
-      close: () => finish('api'),
+      close: () => {
+        finish('api')
+      },
       result: result.result,
     },
     abandon: () => {
-      result.settle('api')
+      finish('api')
     },
     remove: () => undefined,
   }

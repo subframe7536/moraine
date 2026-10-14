@@ -38,51 +38,29 @@ function showsCancel(
   return cancel !== false
 }
 
-function RegisterCustomLabels(props: {
-  record: AlertDialogRecord
-  titleId: string
-  descriptionId: string
-}): JSX.Element {
+function RegisterCustomLabels(props: { titleId: string; descriptionId: string }): JSX.Element {
   const content = useDialogContent()
   useRegisteredContentId(() => props.titleId, content.registerTitle)
   useRegisteredContentId(() => props.descriptionId, content.registerDescription)
-  createEffect(
-    on(
-      () => [props.record.options().title, props.record.options().ariaLabel] as const,
-      ([title, label]) => {
-        if (!DEV || hasJsxContent(title) || label) {
-          return
-        }
-        console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
-      },
-    ),
-  )
   return <></>
 }
 
-function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
-  const messages = useMessages('dialog', defaultDialogMessages)
-  const options = () => props.record.options()
-  const title = createMemo(() => options().title)
-  const description = createMemo(() => options().description)
-  const icon = createMemo(() =>
-    resolveFeedbackIcon({
-      type: options().type,
-      icon: options().icon,
-      danger: options().danger,
-    }),
-  )
-  const iconToneClass = (): string | undefined => {
-    if (options().icon !== undefined) {
-      return undefined
-    }
-    const type = options().type
-    if (type === undefined || type === 'default') {
-      return options().danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
-    }
-    return ALERT_DIALOG_ICON_TONE_CLASS[type]
+type AlertDialogStyles = ReturnType<typeof createAlertDialogStyles>
+
+function iconToneClass(options: AlertDialogT.Options): string | undefined {
+  if (options.icon !== undefined) {
+    return undefined
   }
-  const resolved = createStyles(
+  const type = options.type
+  if (type === undefined || type === 'default') {
+    return options.danger ? ALERT_DIALOG_ICON_TONE_CLASS.confirm : undefined
+  }
+  return ALERT_DIALOG_ICON_TONE_CLASS[type]
+}
+
+function createAlertDialogStyles(options: () => AlertDialogT.Options) {
+  const maxWidth = () => contentMaxWidth(options().width)
+  return createStyles(
     alertDialogRecipe,
     {
       get center() {
@@ -110,10 +88,31 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
     {
       slot: 'content',
       own: () => {
-        const tone = iconToneClass()
-        return tone === undefined ? undefined : { icon: { class: tone } }
+        const width = maxWidth()
+        const tone = iconToneClass(options())
+        return {
+          content: width === undefined ? undefined : { style: { 'max-width': width } },
+          icon: tone === undefined ? undefined : { class: tone },
+        }
       },
     },
+  )
+}
+
+function AlertDialogDefault(props: {
+  record: AlertDialogRecord
+  resolved: AlertDialogStyles
+}): JSX.Element {
+  const messages = useMessages('dialog', defaultDialogMessages)
+  const options = () => props.record.options()
+  const title = createMemo(() => options().title)
+  const description = createMemo(() => options().description)
+  const icon = createMemo(() =>
+    resolveFeedbackIcon({
+      type: options().type,
+      icon: options().icon,
+      danger: options().danger,
+    }),
   )
   const cancelConfig = () => {
     const cancel = options().cancel
@@ -122,39 +121,30 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
   const showHeader = () =>
     hasJsxContent(icon()) || hasJsxContent(title()) || hasJsxContent(description())
 
-  createEffect(
-    on(
-      () => [title(), options().ariaLabel] as const,
-      ([currentTitle, label]) => {
-        if (!DEV || hasJsxContent(currentTitle) || label) {
-          return
-        }
-        console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
-      },
-    ),
-  )
-
   return (
     <>
       <Show when={showHeader()}>
-        <Dialog.Header class={resolved.slots.header.class} style={resolved.slots.header.style}>
+        <Dialog.Header
+          class={props.resolved.slots.header.class}
+          style={props.resolved.slots.header.style}
+        >
           <Show when={icon()}>
             {(current) => (
               <Show
-                when={resolved.variants.center}
+                when={props.resolved.variants.center}
                 fallback={
                   <Icon
                     name={current()}
-                    class={resolved.slots.icon.class}
-                    style={resolved.slots.icon.style}
+                    class={props.resolved.slots.icon.class}
+                    style={props.resolved.slots.icon.style}
                   />
                 }
               >
                 <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
                   <Icon
                     name={current()}
-                    class={resolved.slots.icon.class}
-                    style={resolved.slots.icon.style}
+                    class={props.resolved.slots.icon.class}
+                    style={props.resolved.slots.icon.style}
                   />
                 </div>
               </Show>
@@ -162,8 +152,8 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
           </Show>
           <div
             data-slot="alert-dialog-copy"
-            class={resolved.slots.copy.class}
-            style={resolved.slots.copy.style}
+            class={props.resolved.slots.copy.class}
+            style={props.resolved.slots.copy.style}
           >
             <Show when={hasJsxContent(title())}>
               <Dialog.Title>{title()}</Dialog.Title>
@@ -174,7 +164,10 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
           </div>
         </Dialog.Header>
       </Show>
-      <Dialog.Footer class={resolved.slots.footer.class} style={resolved.slots.footer.style}>
+      <Dialog.Footer
+        class={props.resolved.slots.footer.class}
+        style={props.resolved.slots.footer.style}
+      >
         <Show when={showsCancel(props.record.mode, options().cancel)}>
           <FeedbackActionButton
             action={cancelConfig()}
@@ -182,8 +175,8 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
             variant="outline"
             loading={props.record.pending() === 'cancel'}
             disabled={props.record.pending() === 'action'}
-            slotName="alert-dialog-action"
-            {...resolved.slotWith('action', () => ({
+            slotName="alert-dialog-cancel"
+            {...props.resolved.slotWith('cancel', () => ({
               class: cancelConfig()?.class,
               style: cancelConfig()?.style,
             }))}
@@ -197,7 +190,7 @@ function AlertDialogDefault(props: { record: AlertDialogRecord }): JSX.Element {
           loading={props.record.pending() === 'action'}
           disabled={props.record.pending() === 'cancel'}
           slotName="alert-dialog-action"
-          {...resolved.slotWith('action', () => ({
+          {...props.resolved.slotWith('action', () => ({
             class: options().action?.class,
             style: options().action?.style,
           }))}
@@ -214,38 +207,18 @@ export function AlertDialogEntry(props: {
 }): JSX.Element {
   const options = () => props.record.options()
   const customRender = () => props.record.render ?? props.dialogRender()
-  const maxWidth = () => contentMaxWidth(options().width)
-  const resolved = createStyles(
-    alertDialogRecipe,
-    {
-      get center() {
-        return options().center
+  const resolved = createAlertDialogStyles(options)
+
+  createEffect(
+    on(
+      () => [options().title, options().ariaLabel] as const,
+      ([title, label]) => {
+        if (!DEV || hasJsxContent(title) || label) {
+          return
+        }
+        console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
       },
-      get danger() {
-        return options().danger
-      },
-      get subtle() {
-        return options().subtle
-      },
-      get class() {
-        return options().class
-      },
-      get classes() {
-        return options().classes
-      },
-      get style() {
-        return options().style
-      },
-      get styles() {
-        return options().styles
-      },
-    },
-    {
-      slot: 'content',
-      own: () => ({
-        content: maxWidth() !== undefined ? { style: { 'max-width': maxWidth() } } : undefined,
-      }),
-    },
+    ),
   )
 
   return (
@@ -273,11 +246,14 @@ export function AlertDialogEntry(props: {
         class={resolved.slots.content.class}
         style={resolved.slots.content.style}
       >
-        <Show when={customRender()} keyed fallback={<AlertDialogDefault record={props.record} />}>
+        <Show
+          when={customRender()}
+          keyed
+          fallback={<AlertDialogDefault record={props.record} resolved={resolved} />}
+        >
           {(render) => (
             <>
               <RegisterCustomLabels
-                record={props.record}
                 titleId={props.record.presentation.titleId}
                 descriptionId={props.record.presentation.descriptionId}
               />

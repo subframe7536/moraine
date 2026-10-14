@@ -11,8 +11,10 @@ export interface AlertDialogStyleSlot<T = unknown> {
   copy?: T
   /** Action region. */
   footer?: T
-  /** OK and cancel actions. */
+  /** Primary (OK) action. */
   action?: T
+  /** Cancel action. */
+  cancel?: T
 }
 
 export interface AlertDialogStyleVariant {

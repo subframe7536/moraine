@@ -154,7 +154,7 @@ if ((await handle.result()) === 'action') {
 ```
 
 `update` merges the next options into an open instance. An update after close does not reopen it.
-Reusing an open `id` updates that instance in place. `update` replaces `action` and `cancel` as a
+Reusing an open `id` with the same method and render updates that instance in place. With a different method or render, the open dialog closes with `'api'` and a new one opens. `update` replaces `action` and `cancel` as a
 whole, so include `onClick` again when the label changes.
 
 Custom content has two entry points. `AlertDialog.custom(render, options?)` supplies a render for
@@ -171,8 +171,9 @@ cancel as well. Set `cancel: true` to use the locale label, `cancel: { label }` 
 `cancel: false` to hide it on a confirm. With `danger` and the default type, confirm uses the
 caution icon and a danger action.
 
-`close()` closes every open dialog. `close(id)` closes one. Both settle with `'api'` before the
-exit transition finishes.
+`close()` closes every open dialog. `close(id)` closes one. `close({ host })` closes every dialog on
+that host, and `close({ host, id })` closes one dialog there. All settle with `'api'` before the exit
+transition finishes. Unmounting a host also closes its dialogs with `'api'` and calls `onClose`.
 
 ```ts
 AlertDialog.show(options)
@@ -184,6 +185,7 @@ AlertDialog.error(options)
 AlertDialog.custom(render, options?)
 AlertDialog.update(id, options)
 AlertDialog.close(id?)
+AlertDialog.close({ host?, id? })
 ```
 
 ### Defaults

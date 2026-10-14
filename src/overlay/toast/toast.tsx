@@ -17,7 +17,7 @@ import type { ToastProps, ToastT } from './toast.types'
 
 function showToast(options: ToastT.Options, render?: ToastT.Render): ToastT.Handle {
   if (isServer) {
-    return inertFeedbackHandle(options.id ?? 0)
+    return inertFeedbackHandle(options.id)
   }
   return getDefaultToastStore().add(options, render)
 }

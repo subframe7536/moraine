@@ -732,4 +732,99 @@ describe('AlertDialog', () => {
       )
     })
   })
+
+  test('reopening an id during the exit keeps the new dialog and routes updates to it', async () => {
+    setup()
+    const first = AlertDialog.show({ id: 'reuse', title: 'Old' })
+    await waitForTitle('Old')
+    first.close()
+    const second = AlertDialog.show({ id: 'reuse', title: 'New' })
+    expect(second).not.toBe(first)
+    AlertDialog.update('reuse', { title: 'Updated' })
+    await waitForDialogCount(1)
+    expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
+    let settled = false
+    void second.result().then(() => {
+      settled = true
+    })
+    await Promise.resolve()
+    expect(settled).toBe(false)
+    AlertDialog.close('reuse')
+    await expect(second.result()).resolves.toBe('api')
+    await waitForDialogCount(0)
+  })
+
+  test('reusing an open id with another method replaces the dialog', async () => {
+    setup()
+    const shown = AlertDialog.show({ id: 'swap', title: 'Shown' })
+    await waitForTitle('Shown')
+    const same = AlertDialog.show({ id: 'swap', title: 'Same method' })
+    expect(same).toBe(shown)
+    const confirmed = AlertDialog.confirm({ id: 'swap', title: 'Confirm' })
+    expect(confirmed).not.toBe(shown)
+    await expect(shown.result()).resolves.toBe('api')
+    await waitForDialogCount(1)
+    expect(button('Cancel')).toBeTruthy()
+    confirmed.close()
+    await waitForDialogCount(0)
+  })
+
+  test('calls onClose with api when the host unmounts', async () => {
+    const [mounted, setMounted] = createSignal(true)
+    render(() => (
+      <Show when={mounted()}>
+        <AlertDialog />
+      </Show>
+    ))
+    const onClose = vi.fn()
+    const result = AlertDialog.show({ title: 'Gone', onClose })
+    await waitForTitle('Gone')
+    setMounted(false)
+    await expect(result.result()).resolves.toBe('api')
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(onClose).toHaveBeenCalledWith('api')
+  })
+
+  test('closes every dialog on one host with close({ host })', async () => {
+    render(() => (
+      <>
+        <AlertDialog id="a" />
+        <AlertDialog id="b" />
+      </>
+    ))
+    const a1 = AlertDialog.show({ host: 'a', title: 'A1' })
+    const a2 = AlertDialog.show({ host: 'a', title: 'A2' })
+    const b1 = AlertDialog.show({ host: 'b', title: 'B1' })
+    await waitFor(() => {
+      expect(dialogs()).toHaveLength(3)
+    })
+    AlertDialog.close({ host: 'a' })
+    await expect(a1.result()).resolves.toBe('api')
+    await expect(a2.result()).resolves.toBe('api')
+    await waitForDialogCount(1)
+    expect(document.body.textContent).toContain('B1')
+    AlertDialog.close({ host: 'b', id: 'missing' })
+    await waitForDialogCount(1)
+    b1.close()
+    await waitForDialogCount(0)
+  })
+
+  test('gives the cancel and action buttons distinct slots', async () => {
+    setup()
+    const result = AlertDialog.confirm({
+      title: 'Slots',
+      cancel: { class: 'cancel-extra' },
+      action: { class: 'action-extra' },
+    })
+    await waitForTitle('Slots')
+    const cancel = document.body.querySelector('[data-slot="alert-dialog-cancel"]')
+    const action = document.body.querySelector('[data-slot="alert-dialog-action"]')
+    expect(cancel?.textContent).toBe('Cancel')
+    expect(cancel?.className).toContain('cancel-extra')
+    expect(action?.textContent).toBe('OK')
+    expect(action?.className).toContain('action-extra')
+    expect(document.body.querySelectorAll('[data-slot="alert-dialog-action"]')).toHaveLength(1)
+    result.close()
+    await waitForDialogCount(0)
+  })
 })

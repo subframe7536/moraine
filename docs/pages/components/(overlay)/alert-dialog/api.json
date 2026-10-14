@@ -112,7 +112,7 @@
         {
           "name": "type",
           "optional": true,
-          "type": "'default' | 'info' | 'success' | 'warning' | 'error'",
+          "type": "Type",
           "description": "Status tone. `default` has no icon unless `danger` is set.",
           "default": {
             "kind": "literal",
@@ -134,7 +134,8 @@
     "icon",
     "copy",
     "footer",
-    "action"
+    "action",
+    "cancel"
   ],
   "dataAttributes": []
 }

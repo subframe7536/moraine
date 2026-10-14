@@ -26,11 +26,14 @@ export function createCloseResult(): CloseResult {
 }
 
 /** Handle returned for calls made on the server, where no host is mounted. */
-export function inertFeedbackHandle<Update>(id: FeedbackId = 0): FeedbackHandle<Update> {
+let inertHandleCount = 0
+
+export function inertFeedbackHandle<Update>(id?: FeedbackId): FeedbackHandle<Update> {
+  inertHandleCount += 1
   const { result, settle } = createCloseResult()
   settle('api')
   return {
-    id,
+    id: id ?? `inert-${inertHandleCount}`,
     update: () => undefined,
     close: () => undefined,
     result,

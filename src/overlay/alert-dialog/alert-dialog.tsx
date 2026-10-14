@@ -50,7 +50,7 @@ function openAlertDialog(
   render?: AlertDialogT.Render,
 ): AlertDialogT.Handle {
   if (isServer) {
-    return inertFeedbackHandle(options.id ?? 0)
+    return inertFeedbackHandle(options.id)
   }
   const host = registry.require(options.host)
   return host.open(mode, options, render)
@@ -64,30 +64,34 @@ function withType(type: AlertDialogT.Type, options: AlertDialogT.Options): Alert
 export function AlertDialog(props: AlertDialogProps): JSX.Element {
   const owner = getOwner()
   const [dialogs, setDialogs] = createSignal<AlertDialogRecord[]>([])
-  const removeDialog = (id: AlertDialogT.Id): void => {
-    setDialogs((current) => current.filter((item) => item.id !== id))
+  const removeDialog = (record: AlertDialogRecord): void => {
+    setDialogs((current) => current.filter((item) => item !== record))
   }
+  const findOpen = (id: AlertDialogT.Id): AlertDialogRecord | undefined =>
+    dialogs().find((item) => item.id === id && item.open())
   const controller: AlertDialogController = {
     id: () => props.id,
     defaults: () => readHostDefaults(props),
     dialogRender: () => props.dialogRender,
     open(mode, options, render) {
       if (options.id !== undefined) {
-        const existing = dialogs().find((item) => item.id === options.id && item.open())
-        if (existing) {
+        const existing = findOpen(options.id)
+        if (existing && existing.mode === mode && existing.render === render) {
           existing.handle.update(options)
           return existing.handle
         }
+        // A different method or render cannot be applied in place, so replace the dialog.
+        existing?.handle.close()
       }
       return runWithOwner(owner, () => {
         const created = createAlertDialogRecord(mode, options, () => controller.defaults(), render)
-        created.remove = () => removeDialog(created.id)
+        created.remove = () => removeDialog(created)
         setDialogs((current) => [...current, created])
         return created.handle
       })!
     },
     update(id, options) {
-      const match = dialogs().find((item) => item.id === id)
+      const match = findOpen(id)
       if (!match) {
         return false
       }
@@ -96,7 +100,7 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
     },
     close(id) {
       for (const item of dialogs()) {
-        if (id === undefined || item.id === id) {
+        if (item.open() && (id === undefined || item.id === id)) {
           item.handle.close()
         }
       }
@@ -143,11 +147,14 @@ AlertDialog.update = (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions):
     }
   }
 }
-AlertDialog.close = (id?: AlertDialogT.Id): void => {
+AlertDialog.close = (target?: AlertDialogT.Id | AlertDialogT.CloseTarget): void => {
   if (isServer) {
     return
   }
+  const scope = typeof target === 'object' ? target : { id: target }
   for (const host of registry.entries()) {
-    host.close(id)
+    if (scope.host === undefined || host.id() === scope.host) {
+      host.close(scope.id)
+    }
   }
 }
