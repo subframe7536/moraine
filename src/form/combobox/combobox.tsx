@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
@@ -23,7 +23,7 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
 } from '../shared/select/props'
 import { useComboboxSearch } from '../shared/select/search'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.recipe'
 
 import { defaultComboboxMessages } from './combobox.messages'
 import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
@@ -39,11 +39,11 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   )
   const field = useFieldContext()
   const messages = useMessages('combobox', defaultComboboxMessages)
-  const styles = createStyles(comboboxRecipe, props, {
+  const { slots, variants } = useRecipe(comboboxRecipe, props, {
     slot: 'control',
     contextVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.slots)
+  const baseSelectStyles = createBaseSelectStyleProps(slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<ComboboxT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
@@ -121,7 +121,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.slots.control}
+          {...slots.control}
           {...comboboxDataAttributes.control({
             closed: undefined,
             disabled: undefined,
@@ -153,13 +153,13 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="combobox-leading" {...styles.slots.leading} />}
+            {(icon) => <Icon name={icon()} slotName="combobox-leading" {...slots.leading} />}
           </Show>
           <input
             {...input.inputProps}
             {...state.field.ariaAttrs()}
             data-slot="combobox-input"
-            {...styles.slots.input}
+            {...slots.input}
             placeholder={(local.placeholder ?? messages().placeholder) || undefined}
             ref={(element) => {
               input.inputProps.ref(element)
@@ -173,7 +173,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
               data-slot="combobox-clear"
               aria-label={messages().clear}
               tabIndex={0}
-              {...styles.slots.clear}
+              {...slots.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -198,7 +198,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
             aria-busy={local.loading ? 'true' : undefined}
             {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
             disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.slots.trigger}
+            {...slots.trigger}
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
@@ -224,7 +224,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           {...local}
           view={search.view()}
           onExitComplete={() => search.setValue('')}
-          slot={(slot) => styles.slots[slot]}
+          slot={(slot) => slots[slot]}
           emptyRender={() => (
             <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
               {renderWithProps(local.emptyRender, {
@@ -261,7 +261,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
         local.onReset?.()
       }}
       multiple={false}
-      size={styles.variants.size ?? undefined}
+      size={variants.size ?? undefined}
       classes={baseSelectStyles.classes()}
       styles={baseSelectStyles.styles()}
     >

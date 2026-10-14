@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -40,7 +40,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'trailing',
     'children',
   ])
-  const resolved = createStyles(buttonRecipe, local, {
+  const { slots } = useRecipe(buttonRecipe, local, {
     contextVariants: () => group ?? undefined,
     own: () => ({
       root: { class: customActiveEffectClass() },
@@ -133,7 +133,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         disabled: () => local.disabled,
       })}
       {...binding}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
@@ -142,16 +142,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             slotName="button-leading"
             class={cn(
               isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              resolved.slots.leading.class,
+              slots.leading.class,
             )}
-            style={resolved.slots.leading.style}
+            style={slots.leading.style}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span data-slot="button-label" {...resolved.slots.label}>
+        <span data-slot="button-label" {...slots.label}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -163,9 +163,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             slotName="button-trailing"
             class={cn(
               isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              resolved.slots.trailing.class,
+              slots.trailing.class,
             )}
-            style={resolved.slots.trailing.style}
+            style={slots.trailing.style}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import type { SlotClassValue } from '../../theme/style-types'
 
@@ -27,7 +27,7 @@ export type CardPartProps = Omit<
 export function CardPart(props: CardPartProps): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
   const context = useCardContext()
-  const resolved = createStyles(cardRecipe, local, {
+  const { slots } = useRecipe(cardRecipe, local, {
     slot: untrack(() => local.slot),
     contextVariants: () => ({ variant: context.variant, size: context.size }),
     contextSlots: () => context.slotOverrides,
@@ -38,7 +38,7 @@ export function CardPart(props: CardPartProps): JSX.Element {
       component={local.as ?? local.fallback}
       data-slot={`card-${local.slot}`}
       {...rest}
-      {...resolved.slots[local.slot]}
+      {...slots[local.slot]}
     >
       {local.children}
     </Dynamic>

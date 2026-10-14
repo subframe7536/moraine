@@ -1,7 +1,7 @@
 import { For, createSignal } from 'solid-js'
 
 import { Button, Card, Field, Input, cn } from '../../../../src'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 const toolbarButtonClass = `text-xs px-3 py-1.5 border rounded-md flex gap-2 min-h-9 transition-colors items-center ${DOCS_FOCUS_RING_OFFSET_CLASS}`
 const INITIAL_NAME = 'Alex Morgan'

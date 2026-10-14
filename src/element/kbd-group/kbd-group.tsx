@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, For, Show, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { Kbd } from '../kbd/kbd'
 import type { KbdT } from '../kbd/kbd.types'
 
@@ -29,7 +29,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createStyles(kbdGroupRecipe, local)
+  const { slots, variants } = useRecipe(kbdGroupRecipe, local)
 
   const normalizedItems = createMemo<NormalizedKbdItem[]>((previous = []) => {
     const rawItems = local.items ?? []
@@ -57,15 +57,15 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
 
   return (
     <Show when={normalizedItems().length > 0}>
-      <kbd data-slot="kbd-group" {...rest} {...resolved.slots.root}>
+      <kbd data-slot="kbd-group" {...rest} {...slots.root}>
         <For each={normalizedItems()}>
           {(entry, index) => (
             <>
               <Kbd
                 {...toItemProps(entry.item)}
-                size={resolved.variants.size}
-                variant={resolved.variants.variant}
-                {...resolved.slots.item}
+                size={variants.size}
+                variant={variants.variant}
+                {...slots.item}
                 slotName="kbd-group-item"
               />
               <Show when={index() < normalizedItems().length - 1}>

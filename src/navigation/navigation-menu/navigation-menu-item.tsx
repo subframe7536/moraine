@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createSignal, splitProps } from 'solid-js'
 
-import { createStyles, pickSlotOverrides } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
 
 import { NavigationMenuItemProvider, useNavigationMenuContext } from './navigation-menu-context'
@@ -20,7 +20,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
     'classes',
     'styles',
   ])
-  const resolved = createStyles(navigationMenuRecipe, local, {
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'item',
     contextSlots: () => pickSlotOverrides(context.options),
   })
@@ -55,7 +55,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
           expanded: () => context.open() && context.activeItem() === item,
         })}
         {...rest}
-        {...resolved.slots.item}
+        {...slots.item}
       >
         {local.children}
       </li>

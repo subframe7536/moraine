@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import type { SlotClassValue } from '../../theme/style-types'
 
@@ -27,7 +27,7 @@ export type EmptyPartProps = Omit<
 export function EmptyPart(props: EmptyPartProps): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
   const context = useEmptyContext()
-  const resolved = createStyles(emptyRecipe, local, {
+  const { slots } = useRecipe(emptyRecipe, local, {
     slot: untrack(() => local.slot),
     contextVariants: () => ({ size: context.size }),
     contextSlots: () => context.slotOverrides,
@@ -38,7 +38,7 @@ export function EmptyPart(props: EmptyPartProps): JSX.Element {
       component={local.as ?? local.fallback}
       data-slot={`empty-${local.slot}`}
       {...rest}
-      {...resolved.slots[local.slot]}
+      {...slots[local.slot]}
     >
       {local.children}
     </Dynamic>

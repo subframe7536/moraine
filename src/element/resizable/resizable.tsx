@@ -13,7 +13,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
@@ -136,11 +136,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'style',
     'ref',
   ])
-  const resolved = createStyles(resizableRecipe, localProps)
+  const { slots, variants, slotWith } = useRecipe(resizableRecipe, localProps)
   const local = mergeProps({ keyboardDelta: '10%' as const }, localProps)
 
   const panelIdPrefix = createId(() => local.id, 'resizable')
-  const orientation = () => resolved.variants.orientation ?? 'horizontal'
+  const orientation = () => variants.orientation ?? 'horizontal'
   const content = resolveChildren(() => local.children)
 
   const parts = createMemo(() => {
@@ -688,7 +688,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
         callRef(local.ref, element)
       }}
       id={local.id}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
@@ -711,7 +711,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   resizing: interactionResizing,
                   transitioning: isTransitioning,
                 })}
-                {...resolved.slotWith(
+                {...slotWith(
                   'panel',
                   () => ({ class: panelItem().class, style: panelItem().style }),
                   () => ({
@@ -849,7 +849,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         cross: bindings.crossHovered,
                         dragging: bindings.dragging,
                       })}
-                      {...resolved.slotWith('handle', () => ({
+                      {...slotWith('handle', () => ({
                         class: handlePart().local.class,
                         style: handlePart().local.style,
                       }))}
@@ -886,7 +886,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                             resizableHandleStartTarget: true,
                             resizableHandleEndTarget: undefined,
                           })}
-                          {...resolved.slots.intersection}
+                          {...slots.intersection}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                           }
@@ -912,7 +912,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           {...resizableDataAttributes.handleControl({
                             collapse: () => handleCollapseAction(),
                           })}
-                          {...resolved.slots.handleControl}
+                          {...slots.handleControl}
                         >
                           <Show when={handlePart().content() !== undefined}>
                             {renderWithProps(handlePart().content(), handleContext)}
@@ -927,7 +927,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                             resizableHandleStartTarget: undefined,
                             resizableHandleEndTarget: true,
                           })}
-                          {...resolved.slots.intersection}
+                          {...slots.intersection}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                           }

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 
@@ -69,7 +69,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
     return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
   })
-  const resolved = createStyles(progressRecipe, style, {
+  const { slots } = useRecipe(progressRecipe, style, {
     vars: () => {
       const next = percent()
       if (next === undefined) {
@@ -119,16 +119,16 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <Show when={hasLabel()}>
-        <span data-slot="progress-label" {...resolved.slots.label}>
+        <span data-slot="progress-label" {...slots.label}>
           {labelContent()}
         </span>
       </Show>
 
       <Show when={showValueSlot()}>
-        <span data-slot="progress-value" {...resolved.slots.value}>
+        <span data-slot="progress-value" {...slots.value}>
           <Show when={valueRender()} fallback={`${percent() ?? 0}%`}>
             {renderWithProps(valueRender(), {
               get percent() {
@@ -139,8 +139,8 @@ export function Progress(props: ProgressProps): JSX.Element {
         </span>
       </Show>
 
-      <div data-slot="progress-track" {...resolved.slots.track}>
-        <div data-slot="progress-indicator" {...indicatorDataAttrs} {...resolved.slots.indicator} />
+      <div data-slot="progress-track" {...slots.track}>
+        <div data-slot="progress-indicator" {...indicatorDataAttrs} {...slots.indicator} />
       </div>
     </div>
   )

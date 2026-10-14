@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -38,7 +38,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       'children',
     ],
   )
-  const resolved = createStyles(toggleButtonRecipe, local, {
+  const { variants, overrides } = useRecipe(toggleButtonRecipe, local, {
     contextVariants: () => group ?? undefined,
   })
   const [pressed, setPressed] = createControllableValue<boolean>({
@@ -78,37 +78,10 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       {...rest}
       as={local.as}
       aria-pressed={pressed()}
-      variant={pressed() ? resolved.variants.activeVariant : resolved.variants.variant}
-      size={resolved.variants.size}
+      variant={pressed() ? variants.activeVariant : variants.variant}
+      size={variants.size}
       activeEffect="none"
-      classes={{
-        get root() {
-          return resolved.slots.root.class
-        },
-        get leading() {
-          return resolved.slots.leading.class
-        },
-        get label() {
-          return resolved.slots.label.class
-        },
-        get trailing() {
-          return resolved.slots.trailing.class
-        },
-      }}
-      styles={{
-        get root() {
-          return resolved.slots.root.style
-        },
-        get leading() {
-          return resolved.slots.leading.style
-        },
-        get label() {
-          return resolved.slots.label.style
-        },
-        get trailing() {
-          return resolved.slots.trailing.style
-        },
-      }}
+      {...overrides()}
       onClick={handleClick}
       children={buttonChildren()}
     />

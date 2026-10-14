@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { createId } from '../../shared/utils'
@@ -43,7 +43,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     transition: () => Boolean(local.transition),
     unmountOnHide: () => local.unmountOnHide,
   })
-  const resolved = createStyles(collapsibleRecipe, local, {
+  const { slots } = useRecipe(collapsibleRecipe, local, {
     vars: () => ({
       '--mo-collapsible-content-height': `${disclosure.contentHeight()}px`,
     }),
@@ -84,7 +84,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
           closed: disclosure.closed,
         })}
         {...rest}
-        {...resolved.slots.root}
+        {...slots.root}
       >
         {local.children}
       </div>

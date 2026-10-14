@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.class'
+import { OVERLAY_CLOSE_BUTTON_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'

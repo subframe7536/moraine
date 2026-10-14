@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
 
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider'
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -65,7 +65,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const resolved = createStyles(textareaRecipe, local, {
+  const { slots } = useRecipe(textareaRecipe, local, {
     contextVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
@@ -293,7 +293,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...resolved.slots.root}
+      {...slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

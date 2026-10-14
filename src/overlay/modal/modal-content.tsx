@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
@@ -31,7 +31,7 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const context = useModalContext()
   const presence = context.presence
   const isModalRoot = context.configuration.kind === 'modal'
-  const resolved = createStyles(modalRecipe, local, {
+  const { slots } = useRecipe(modalRecipe, local, {
     slot: 'content',
     contextSlots: () => (isModalRoot ? context.slotOverrides : undefined),
   })
@@ -70,8 +70,8 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
       aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
-      class={isModalRoot ? resolved.slots.content.class : cn(local.class)}
-      style={isModalRoot ? resolved.slots.content.style : local.style}
+      class={isModalRoot ? slots.content.class : cn(local.class)}
+      style={isModalRoot ? slots.content.style : local.style}
       onKeyDown={(event) => {
         callHandler(event, local.onKeyDown)
         if (event.defaultPrevented) {

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useRegisteredContentId } from '../base/content-anatomy'
 import { useModalContext } from '../modal/modal-context'
@@ -18,7 +18,7 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
   const family = useModalContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
-  const resolved = createStyles(sheetRecipe, local, {
+  const { slots } = useRecipe(sheetRecipe, local, {
     slot: 'description',
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
@@ -29,7 +29,7 @@ export function SheetDescription<T extends ValidComponent = 'p'>(
       data-slot="sheet-description"
       {...rest}
       id={id()}
-      {...resolved.slots.description}
+      {...slots.description}
     >
       {local.children}
     </Dynamic>

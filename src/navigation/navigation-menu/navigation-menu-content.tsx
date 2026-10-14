@@ -8,7 +8,7 @@ import {
   resolveDirection,
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
-import { createStyles, pickSlotOverrides } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -22,7 +22,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
-  const resolved = createStyles(navigationMenuRecipe, local, {
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
     varsSlot: 'content',
     contextVariants: () => ({ orientation: context.orientation() }),
@@ -131,7 +131,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
               closed: () => !displayed(),
               orientation: context.orientation,
             })}
-            {...resolved.slots.content}
+            {...slots.content}
           >
             {local.children}
           </div>

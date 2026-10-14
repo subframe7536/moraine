@@ -15,7 +15,7 @@ import {
   DOCS_BLOCK_CONTAINER_CLASS,
   DOCS_INLINE_CODE_CLASS,
   DOCS_PREVIEW_CANVAS_CLASS,
-} from './markdown.class'
+} from './markdown.recipe'
 import { DocsPlayground as Playground } from './playground'
 
 export const DOCS_DEMO_BLOCK_CLASS = DOCS_BLOCK_CONTAINER_CLASS

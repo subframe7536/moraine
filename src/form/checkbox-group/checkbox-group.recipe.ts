@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { JOINED_COLUMN_CLASS, JOINED_ROW_CLASS } from '../../theme/recipe-common.class'
+import { JOINED_COLUMN_CLASS, JOINED_ROW_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { checkboxDataAttributes } from '../checkbox/checkbox.recipe'

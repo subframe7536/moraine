@@ -1,7 +1,7 @@
 import type { RecipeConfig } from '../../../theme/recipe'
 import type { DataAttributeContract } from '../../../theme/style-contract'
 import { createDataAttributes } from '../../../theme/style-contract'
-import { POPPER_SIDE_CLASS } from '../popper.class'
+import { POPPER_SIDE_CLASS } from '../popper.recipe'
 
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
 

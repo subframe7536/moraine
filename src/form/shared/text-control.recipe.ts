@@ -4,7 +4,10 @@ import {
   FOCUS_CLASS,
   FOCUS_INVALID_CLASS,
   groupAccentClass,
-} from '../../theme/recipe-common.class'
+} from '../../theme/recipe-common.recipe'
+
+export const TEXT_CONTROL_CLASS =
+  'text-foreground outline-none bg-transparent min-w-0 w-full transition-[color,background-color,border-color,box-shadow] placeholder:text-muted-foreground disabled:opacity-64 disabled:cursor-not-allowed'
 
 const INPUT_GROUP_ACCENT_CLASS = `${groupAccentClass('input-group')}  ${groupAccentClass('input-group', 'placeholder:text-accent-foreground')}`
 

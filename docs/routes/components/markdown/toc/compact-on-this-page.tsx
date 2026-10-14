@@ -1,9 +1,9 @@
 import { For, Show, createSignal } from 'solid-js'
 
 import { Collapsible, Icon } from '../../../../../src'
-import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.recipe'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
-import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
+import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
 
 export function CompactOnThisPage(props: { entries: OnThisPageEntry[] }) {
   const [open, setOpen] = createSignal(false)

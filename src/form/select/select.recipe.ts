@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { groupAccentClass } from '../../theme/recipe-common.class'
+import { groupAccentClass } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe'

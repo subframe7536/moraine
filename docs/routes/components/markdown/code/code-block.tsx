@@ -10,7 +10,7 @@ import {
   DOCS_CODE_EXPAND_BUTTON_CLASS,
   DOCS_CODE_FALLBACK_PRE_CLASS,
   DOCS_CODE_SOURCE_CLASS,
-} from '../markdown.class'
+} from '../markdown.recipe'
 
 import { CopyButton } from './copy-button'
 

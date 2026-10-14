@@ -4,7 +4,7 @@ import {
   DATA_DISABLED_CLASS,
   DATA_INVALID_CLASS,
   FOCUS_VISIBLE_CLASS,
-} from '../../theme/recipe-common.class'
+} from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 

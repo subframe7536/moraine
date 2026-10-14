@@ -8,7 +8,7 @@ import {
   DOCS_TABS_LIST_CLASS,
   DOCS_TABS_ROOT_CLASS,
   DOCS_TABS_TRIGGER_CLASS,
-} from '../markdown.class'
+} from '../markdown.recipe'
 
 import { CodeBlock } from './code-block'
 

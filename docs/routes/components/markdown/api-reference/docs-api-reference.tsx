@@ -4,7 +4,7 @@ import { For, Show, createMemo } from 'solid-js'
 import { createApiReferenceModel } from '../../../../build/api-doc/presentation'
 import type { PresentationPartSection } from '../../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../../build/api-doc/types'
-import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
+import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
 
 import { AttributesSection } from './api-attributes-section'
 import { PropRows } from './api-prop-rows'

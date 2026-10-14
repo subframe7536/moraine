@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { scrollIntoViewWithin } from '../../overlay/base/utils'
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
 import { sameValue } from '../shared/select/collection'
 
@@ -13,7 +13,7 @@ import type { BaseSelectPartProps } from './base-select.types'
 export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
-  const resolved = createStyles(baseSelectRecipe, local, {
+  const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'listbox',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -54,7 +54,7 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
           }
         })
       }}
-      {...resolved.slots.listbox}
+      {...slots.listbox}
     >
       {local.children}
     </div>

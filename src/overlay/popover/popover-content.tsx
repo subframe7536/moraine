@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { parseFloatingPlacement } from '../base/placement'
 import { PopperContent, mergePopperElementProps } from '../base/popper'
@@ -87,7 +87,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
   }
-  const resolved = createStyles(popoverRecipe, local, {
+  const { slots } = useRecipe(popoverRecipe, local, {
     slot: 'content',
     contextSlots: () => behavior.slotOverrides,
   })
@@ -153,10 +153,10 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             {...contentDataAttrs}
             {...mergePopperElementProps(contentProps, rest)}
             aria-label={local.ariaLabel ?? rest['aria-label']}
-            {...resolved.slots.content}
+            {...slots.content}
           >
             <Show when={hasJsxContent(content())}>
-              <div data-slot="popover-body" {...resolved.slots.body}>
+              <div data-slot="popover-body" {...slots.body}>
                 {content()}
               </div>
             </Show>

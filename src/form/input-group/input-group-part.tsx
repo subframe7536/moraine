@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
@@ -17,7 +17,7 @@ export function renderInputGroupPart(
     const name = part === 'leading' ? 'Leading' : 'Trailing'
     throw new Error(`InputGroup.${name} must be used within InputGroup`)
   }
-  const resolved = createStyles(inputGroupRecipe, local, {
+  const { slots, variants } = useRecipe(inputGroupRecipe, local, {
     slot: part,
     contextVariants: () => ({
       size: group.size,
@@ -31,10 +31,10 @@ export function renderInputGroupPart(
       data-slot={`input-group-${part}`}
       {...inputGroupDataAttributes[part]({
         orientation: () => group.orientation,
-        compact: () => resolved.variants.compact,
+        compact: () => variants.compact,
       })}
       {...rest}
-      {...resolved.slots[part]}
+      {...slots[part]}
     >
       {local.children}
     </div>

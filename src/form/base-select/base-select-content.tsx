@@ -5,7 +5,7 @@ import { Portal } from 'solid-js/web'
 import { useFloatingPosition } from '../../overlay/base/floating'
 import { useOverlayInteraction } from '../../overlay/base/interaction'
 import { acquireBodyScrollLock } from '../../overlay/base/utils'
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { callRef } from '../../shared/utils'
 
@@ -28,7 +28,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     'overflowPadding',
     'onExitComplete',
   ])
-  const resolved = createStyles(baseSelectRecipe, local, {
+  const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'content',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -112,7 +112,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
               presence.setElement(element)
               callRef(local.ref, element)
             }}
-            {...resolved.slots.content}
+            {...slots.content}
           >
             {local.children}
           </div>

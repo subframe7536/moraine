@@ -7,7 +7,7 @@ import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from '../../../../build/markdown/shared.class'
+} from '../../../../build/markdown/shared.recipe'
 
 export function HeadingWithAnchor(props: {
   id: string

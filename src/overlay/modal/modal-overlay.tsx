@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, on, onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { callRef } from '../../shared/utils'
 
@@ -25,7 +25,7 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   const presence = context.presence
   const isOverlay = () => local.overlay !== false
   const isModalRoot = context.configuration.kind === 'modal'
-  const resolved = createStyles(modalRecipe, local, {
+  const { slots } = useRecipe(modalRecipe, local, {
     slot: 'overlay',
     contextSlots: () => (isModalRoot ? context.slotOverrides : undefined),
   })
@@ -58,10 +58,8 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
             callRef(local.ref, undefined)
           })
         }}
-        class={
-          isOverlay() ? (isModalRoot ? resolved.slots.overlay.class : cn(local.class)) : undefined
-        }
-        style={isOverlay() ? (isModalRoot ? resolved.slots.overlay.style : local.style) : undefined}
+        class={isOverlay() ? (isModalRoot ? slots.overlay.class : cn(local.class)) : undefined}
+        style={isOverlay() ? (isModalRoot ? slots.overlay.style : local.style) : undefined}
       >
         {local.children}
       </div>

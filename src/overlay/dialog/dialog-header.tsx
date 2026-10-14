@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useModalContext } from '../modal/modal-context'
 
@@ -18,18 +18,13 @@ function DialogHeaderRoot<T extends ValidComponent>(
   const content = useDialogContent()
   const unregister = content.registerHeader(untrack(() => local.headerKind))
   onCleanup(unregister)
-  const resolved = createStyles(dialogRecipe, local, {
+  const { slots } = useRecipe(dialogRecipe, local, {
     slot: 'header',
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
   })
   return (
-    <Dynamic
-      component={local.as ?? 'div'}
-      data-slot="dialog-header"
-      {...rest}
-      {...resolved.slots.header}
-    >
+    <Dynamic component={local.as ?? 'div'} data-slot="dialog-header" {...rest} {...slots.header}>
       {local.children}
     </Dynamic>
   )

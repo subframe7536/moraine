@@ -3,12 +3,12 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 
 import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { callHandler, callRef, createId } from '../../shared/utils'
-import { PEER_CLASS } from '../../theme/recipe-common.class'
+import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
@@ -52,7 +52,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
   const themeField = useFieldContext()
-  const resolved = createStyles(switchRecipe, local, {
+  const { slots } = useRecipe(switchRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),
   })
 
@@ -276,7 +276,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       })}
       {...rest}
       ref={(element) => callRef(local.ref, element)}
-      {...resolved.slots.root}
+      {...slots.root}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -318,7 +318,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-slot="switch-track"
         aria-checked={checked()}
         {...switchAriaAttrs()}
-        {...resolved.slots.track}
+        {...slots.track}
         onPointerDown={onPointerDown}
         onFocus={onTrackFocus}
         onBlur={onTrackBlur}
@@ -337,7 +337,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             unchecked: () => !checked(),
             disabled: field.disabled,
           })}
-          {...resolved.slots.thumb}
+          {...slots.thumb}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -349,7 +349,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                   unchecked: () => !merged.loading && !checked(),
                   loading: () => merged.loading,
                 })}
-                class={resolved.slots.icon.class}
+                class={slots.icon.class}
               />
             )}
           </Show>
@@ -357,25 +357,21 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="switch-wrapper" {...resolved.slots.wrapper}>
+        <span data-slot="switch-wrapper" {...slots.wrapper}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="switch-label"
               {...switchDataAttributes.label({ required: field.required })}
-              {...resolved.slots.label}
+              {...slots.label}
             >
               {label()}
             </label>
           </Show>
 
           <Show when={showDescription()}>
-            <span
-              id={descriptionId()}
-              data-slot="switch-description"
-              {...resolved.slots.description}
-            >
+            <span id={descriptionId()} data-slot="switch-description" {...slots.description}>
               {description()}
             </span>
           </Show>

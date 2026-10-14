@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
@@ -42,37 +42,30 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
     config,
   )
-  const resolved = createStyles(dialogRecipe, local, {
+  const { slots, variants } = useRecipe(dialogRecipe, local, {
     slot: 'content',
     contextVariants: () => ({ fullscreen: config.fullscreen, scrollable: config.scrollable }),
     contextSlots: () => family.slotOverrides,
   })
   const registration = createDialogContentRegistration()
-  const overlayScroll = () =>
-    resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen
+  const overlayScroll = () => variants.scrollable && merged.overlay && !variants.fullscreen
 
   return (
     <DialogContentProvider
       value={{
         ...registration,
         get variants() {
-          return resolved.variants
+          return variants
         },
         overlayScroll,
       }}
     >
       <ModalPortal>
-        <Modal.Overlay
-          overlay={merged.overlay}
-          scrollable={overlayScroll()}
-          class={resolved.slots.overlay.class}
-          style={resolved.slots.overlay.style}
-        >
+        <Modal.Overlay overlay={merged.overlay} scrollable={overlayScroll()} {...slots.overlay}>
           <Modal.Content
             {...rest}
             dir={rest.dir ?? direction()}
-            class={resolved.slots.content.class}
-            style={resolved.slots.content.style}
+            {...slots.content}
             ariaLabel={local['aria-label'] ?? merged.ariaLabel}
             ariaLabelledBy={
               (local['aria-label'] ?? merged.ariaLabel) === undefined
@@ -102,7 +95,7 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
                     <Modal.Close
                       data-slot="dialog-content-close"
                       aria-label={messages().close}
-                      {...resolved.slots.contentClose}
+                      {...slots.contentClose}
                     >
                       <Icon name={closeIcon()} />
                     </Modal.Close>

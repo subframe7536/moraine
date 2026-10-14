@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 
 import { ButtonGroupProvider } from './button-group-context'
 import { ButtonGroupSeparator } from './button-group-separator'
@@ -21,26 +21,26 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'style',
     'children',
   ])
-  const resolved = createStyles(buttonGroupRecipe, local)
+  const { slots, variants } = useRecipe(buttonGroupRecipe, local)
 
   return (
     <ButtonGroupProvider
       value={{
         get size() {
-          return resolved.variants.size
+          return variants.size
         },
         get variant() {
-          return resolved.variants.variant
+          return variants.variant
         },
         get orientation() {
-          return resolved.variants.orientation
+          return variants.orientation
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="button-group" {...rest} {...resolved.slots.root}>
+      <div role={local.role ?? 'group'} data-slot="button-group" {...rest} {...slots.root}>
         {local.children}
       </div>
     </ButtonGroupProvider>

@@ -3,7 +3,7 @@ import { DEV, Show, createEffect, createMemo, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { useRegisteredContentId } from '../base/content-anatomy'
@@ -38,7 +38,7 @@ function showsCancel(
   return cancel !== false
 }
 
-type AlertDialogStyles = ReturnType<typeof createAlertDialogStyles>
+type AlertDialogRecipe = ReturnType<typeof createAlertDialogRecipe>
 
 function iconToneClass(options: AlertDialogT.Options): string | undefined {
   if (options.icon !== undefined) {
@@ -51,9 +51,9 @@ function iconToneClass(options: AlertDialogT.Options): string | undefined {
   return ALERT_DIALOG_ICON_TONE_CLASS[type]
 }
 
-function createAlertDialogStyles(options: () => AlertDialogT.Options) {
+function createAlertDialogRecipe(options: () => AlertDialogT.Options) {
   const maxWidth = () => contentMaxWidth(options().width)
-  return createStyles(
+  return useRecipe(
     alertDialogRecipe,
     {
       get center() {
@@ -94,7 +94,7 @@ function createAlertDialogStyles(options: () => AlertDialogT.Options) {
 
 function AlertDialogDefault(props: {
   record: AlertDialogRecord
-  resolved: AlertDialogStyles
+  recipe: AlertDialogRecipe
 }): JSX.Element {
   const messages = useMessages('dialog', defaultDialogMessages)
   const options = () => props.record.options()
@@ -117,37 +117,20 @@ function AlertDialogDefault(props: {
   return (
     <>
       <Show when={showHeader()}>
-        <Dialog.Header
-          class={props.resolved.slots.header.class}
-          style={props.resolved.slots.header.style}
-        >
+        <Dialog.Header {...props.recipe.slots.header}>
           <Show when={icon()}>
             {(current) => (
               <Show
-                when={props.resolved.variants.center}
-                fallback={
-                  <Icon
-                    name={current()}
-                    class={props.resolved.slots.icon.class}
-                    style={props.resolved.slots.icon.style}
-                  />
-                }
+                when={props.recipe.variants.center}
+                fallback={<Icon name={current()} {...props.recipe.slots.icon} />}
               >
                 <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                  <Icon
-                    name={current()}
-                    class={props.resolved.slots.icon.class}
-                    style={props.resolved.slots.icon.style}
-                  />
+                  <Icon name={current()} {...props.recipe.slots.icon} />
                 </div>
               </Show>
             )}
           </Show>
-          <div
-            data-slot="alert-dialog-copy"
-            class={props.resolved.slots.copy.class}
-            style={props.resolved.slots.copy.style}
-          >
+          <div data-slot="alert-dialog-copy" {...props.recipe.slots.copy}>
             <Show when={hasJsxContent(title())}>
               <Dialog.Title>{title()}</Dialog.Title>
             </Show>
@@ -157,10 +140,7 @@ function AlertDialogDefault(props: {
           </div>
         </Dialog.Header>
       </Show>
-      <Dialog.Footer
-        class={props.resolved.slots.footer.class}
-        style={props.resolved.slots.footer.style}
-      >
+      <Dialog.Footer {...props.recipe.slots.footer}>
         <Show when={showsCancel(props.record.mode, options().cancel)}>
           <FeedbackActionButton
             action={cancelConfig()}
@@ -169,7 +149,7 @@ function AlertDialogDefault(props: {
             loading={props.record.pending() === 'cancel'}
             disabled={props.record.pending() === 'action'}
             slotName="alert-dialog-cancel"
-            {...props.resolved.slotWith('cancel', () => ({
+            {...props.recipe.slotWith('cancel', () => ({
               class: cancelConfig()?.class,
               style: cancelConfig()?.style,
             }))}
@@ -183,7 +163,7 @@ function AlertDialogDefault(props: {
           loading={props.record.pending() === 'action'}
           disabled={props.record.pending() === 'cancel'}
           slotName="alert-dialog-action"
-          {...props.resolved.slotWith('action', () => ({
+          {...props.recipe.slotWith('action', () => ({
             class: options().action?.class,
             style: options().action?.style,
           }))}
@@ -200,7 +180,7 @@ export function AlertDialogEntry(props: {
 }): JSX.Element {
   const options = () => props.record.options()
   const customRender = () => props.record.render ?? props.dialogRender()
-  const resolved = createAlertDialogStyles(options)
+  const recipe = createAlertDialogRecipe(options)
 
   createEffect(
     on(
@@ -234,15 +214,11 @@ export function AlertDialogEntry(props: {
       }}
       onExitComplete={() => props.record.remove()}
     >
-      <Dialog.Content
-        role="alertdialog"
-        class={resolved.slots.content.class}
-        style={resolved.slots.content.style}
-      >
+      <Dialog.Content role="alertdialog" {...recipe.slots.content}>
         <Show
           when={customRender()}
           keyed
-          fallback={<AlertDialogDefault record={props.record} resolved={resolved} />}
+          fallback={<AlertDialogDefault record={props.record} recipe={recipe} />}
         >
           {(render) => {
             const content = useDialogContent()

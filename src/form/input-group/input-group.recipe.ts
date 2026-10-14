@@ -4,7 +4,7 @@ import {
   PEER_FOCUS_CLASS,
   PEER_INVALID_CLASS,
   INPUT_VARIANT,
-} from '../../theme/recipe-common.class'
+} from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 

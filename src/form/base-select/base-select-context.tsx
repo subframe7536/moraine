@@ -10,7 +10,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { HiddenInput } from '../../shared/hidden-input'
@@ -112,7 +112,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
-  const styleState = createStyles(baseSelectRecipe, props, {
+  const { variants } = useRecipe(baseSelectRecipe, props, {
     slot: 'control',
     contextVariants: () => ({ size: field.size() ?? undefined }),
   })
@@ -409,7 +409,7 @@ export function createSelectState<T extends BaseSelectT.Item>(
     slotOverrides,
     slotName,
     get styleSize() {
-      return styleState.variants.size
+      return variants.size
     },
     locked,
     change,

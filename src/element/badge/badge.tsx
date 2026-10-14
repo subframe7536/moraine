@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { Icon } from '../icon'
 
@@ -36,24 +36,22 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
       return square()
     },
   })
-  const resolved = createStyles(badgeRecipe, styleProps)
+  const { slots } = useRecipe(badgeRecipe, styleProps)
 
   return (
-    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rest} {...resolved.slots.root}>
+    <Dynamic component={local.as ?? 'span'} data-slot="badge" {...rest} {...slots.root}>
       <Show when={leading()}>
-        {(leading) => (
-          <Icon name={leading()} slotName="badge-leading" {...resolved.slots.leading} />
-        )}
+        {(leading) => <Icon name={leading()} slotName="badge-leading" {...slots.leading} />}
       </Show>
 
       <Show when={hasChildren()}>
-        <span data-slot="badge-label" {...resolved.slots.label}>
+        <span data-slot="badge-label" {...slots.label}>
           {resolvedChildren()}
         </span>
       </Show>
 
       <Show when={trailing()}>
-        <Icon name={trailing()} slotName="badge-trailing" {...resolved.slots.trailing} />
+        <Icon name={trailing()} slotName="badge-trailing" {...slots.trailing} />
       </Show>
     </Dynamic>
   )

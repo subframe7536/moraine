@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { AvatarFace } from '../avatar/avatar'
 
 import { avatarGroupRecipe } from './avatar-group.recipe'
@@ -18,9 +18,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createStyles(avatarGroupRecipe, local)
+  const { slots, variants, overrides } = useRecipe(avatarGroupRecipe, local)
 
-  const size = () => resolved.variants.size
+  const size = () => variants.size
   const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
@@ -36,31 +36,20 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="avatar-group" {...rest} {...resolved.slots.root}>
+      <div data-slot="avatar-group" {...rest} {...slots.root}>
         <For each={visibleItems()}>
           {(item) => (
             <AvatarFace
               {...item}
               size={size()}
               rootSlot="avatar-group-item"
-              {...resolved.slots.item}
-              classes={{
-                image: resolved.slots.image.class,
-                fallback: resolved.slots.fallback.class,
-                fallbackContent: resolved.slots.fallbackContent.class,
-                badge: resolved.slots.badge.class,
-              }}
-              styles={{
-                image: resolved.slots.image.style,
-                fallback: resolved.slots.fallback.style,
-                fallbackContent: resolved.slots.fallbackContent.style,
-                badge: resolved.slots.badge.style,
-              }}
+              {...slots.item}
+              {...overrides(['image', 'fallback', 'fallbackContent', 'badge'])}
             />
           )}
         </For>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="avatar-group-count" {...resolved.slots.count}>
+          <span data-slot="avatar-group-count" {...slots.count}>
             +{hiddenCount()}
           </span>
         </Show>

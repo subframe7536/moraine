@@ -11,7 +11,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
@@ -101,7 +101,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'style',
   ])
   const themeField = useFieldContext()
-  const resolved = createStyles(checkboxGroupRecipe, local, {
+  const { slots, variants, overrides } = useRecipe(checkboxGroupRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),
   })
 
@@ -127,7 +127,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         return merged.name
       },
       get size() {
-        return resolved.variants.size
+        return variants.size
       },
       get disabled() {
         return merged.disabled
@@ -285,7 +285,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       })}
       {...rest}
       id={`${groupId()}-root`}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <fieldset
         ref={(element) => {
@@ -299,7 +299,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         aria-labelledby={
           field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
-        {...resolved.slots.fieldset}
+        {...slots.fieldset}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>
@@ -307,7 +307,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
             id={legendId()}
             data-slot="checkbox-group-legend"
             {...checkboxGroupDataAttributes.legend({ required: field.required })}
-            {...resolved.slots.legend}
+            {...slots.legend}
           >
             {legend()}
           </legend>
@@ -335,31 +335,21 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 required={
                   field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex()
                 }
-                size={resolved.variants.size}
-                variant={resolved.variants.variant === 'table' ? 'card' : resolved.variants.variant}
+                size={variants.size}
+                variant={variants.variant === 'table' ? 'card' : variants.variant}
                 indicator={merged.indicator}
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
-                classes={{
-                  root: resolved.slots.item.class,
-                  container: resolved.slots.container.class,
-                  control: resolved.slots.control.class,
-                  indicator: resolved.slots.indicator.class,
-                  icon: resolved.slots.icon.class,
-                  wrapper: resolved.slots.wrapper.class,
-                  label: resolved.slots.label.class,
-                  description: resolved.slots.description.class,
-                }}
-                styles={{
-                  root: resolved.slots.item.style,
-                  container: resolved.slots.container.style,
-                  control: resolved.slots.control.style,
-                  indicator: resolved.slots.indicator.style,
-                  icon: resolved.slots.icon.style,
-                  wrapper: resolved.slots.wrapper.style,
-                  label: resolved.slots.label.style,
-                  description: resolved.slots.description.style,
-                }}
+                {...overrides({
+                  root: 'item',
+                  container: 'container',
+                  control: 'control',
+                  indicator: 'indicator',
+                  icon: 'icon',
+                  wrapper: 'wrapper',
+                  label: 'label',
+                  description: 'description',
+                })}
                 onCheckedChange={(checked) => onItemCheckedChange(item().value, checked)}
               />
             )

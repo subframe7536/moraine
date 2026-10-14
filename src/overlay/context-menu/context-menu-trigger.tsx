@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, mergeProps, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
@@ -22,7 +22,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
   const context = useContextMenuContext()
 
-  const resolved = createStyles(contextMenuRecipe, local, {
+  const { slots } = useRecipe(contextMenuRecipe, local, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
     own: () => ({
@@ -84,7 +84,7 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
-    <Dynamic component={tag()} type={undefined} {...binding} {...resolved.slots.trigger}>
+    <Dynamic component={tag()} type={undefined} {...binding} {...slots.trigger}>
       {children()}
     </Dynamic>
   )

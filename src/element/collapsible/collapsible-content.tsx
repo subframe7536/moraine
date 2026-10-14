@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
@@ -30,7 +30,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   ])
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
-  const resolved = createStyles(collapsibleRecipe, local, {
+  const { slots } = useRecipe(collapsibleRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
   })
@@ -72,7 +72,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             closed: disclosure.closed,
           })}
           {...rest}
-          {...resolved.slots.content}
+          {...slots.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
         >
           {resolveChildren(() => local.children)()}

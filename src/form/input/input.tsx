@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider'
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -46,7 +46,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const resolved = createStyles(inputRecipe, local, {
+  const { slots } = useRecipe(inputRecipe, local, {
     contextVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
@@ -189,7 +189,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...resolved.slots.root}
+      {...slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

@@ -2,9 +2,9 @@ import {
   POPPER_CONTENT_MAX_HEIGHT_CLASS,
   POPPER_CONTENT_MAX_WIDTH_CLASS,
   POPPER_SIDE_Y_CLASS,
-} from '../../overlay/base/popper.class'
+} from '../../overlay/base/popper.recipe'
 import { defineRecipe } from '../../theme/recipe'
-import { DATA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-common.class'
+import { DATA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 

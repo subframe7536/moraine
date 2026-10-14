@@ -1,6 +1,17 @@
 export { MoraineProvider } from './moraine-provider'
 export type { MoraineProviderProps } from './moraine-provider'
-export { createStyles, pickSlotOverrides } from './create-styles'
-export type { SlotBinding, SlotOverrides, SlotValue, CreateStylesResult } from './create-styles'
+export { useRecipe, createStyles, pickSlotOverrides } from './use-recipe'
+export type {
+  SlotBinding,
+  SlotOverrides,
+  SlotValue,
+  UseRecipeOptions,
+  UseRecipeResult,
+  CreateStylesOptions,
+  CreateStylesResult,
+  SlotStylesHelper,
+  SlotClassesHelper,
+  SlotOverridesHelper,
+} from './use-recipe'
 export { useCn } from './cn-context'
 export { useLocale } from './locale/locale-context'

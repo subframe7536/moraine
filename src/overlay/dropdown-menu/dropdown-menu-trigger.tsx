@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, mergeProps, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -26,7 +26,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   ])
   const context = useDropdownMenuContext()
 
-  const resolved = createStyles(dropdownMenuRecipe, local, {
+  const { slots } = useRecipe(dropdownMenuRecipe, local, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
   })
@@ -99,7 +99,7 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
-    <Dynamic component={tag()} {...binding} {...resolved.slots.trigger}>
+    <Dynamic component={tag()} {...binding} {...slots.trigger}>
       {children()}
     </Dynamic>
   )

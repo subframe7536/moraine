@@ -8,7 +8,7 @@ import {
   DOCS_TABLE_TH_CLASS,
   DOCS_TABLE_THEAD_TR_CLASS,
   DOCS_TABLE_WRAPPER_CLASS,
-} from '../../../build/markdown/shared.class'
+} from '../../../build/markdown/shared.recipe'
 import { listDocsColorTokens } from '../../../shared/color-tokens'
 import type { DocsColorTokenDefault } from '../../../shared/color-tokens'
 

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { OverlayAlign } from '../../theme/style-types'
 import type { FeedbackCloseReason } from '../base/feedback/feedback.types'
 
@@ -100,7 +100,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     return total + (count > 1 ? (count - 1) * gap : 0)
   })
 
-  const resolved = createStyles(
+  const { slots } = useRecipe(
     toastRecipe,
     {},
     {
@@ -131,7 +131,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
         data-slot="toast-list"
         tabIndex={-1}
         {...toastDataAttributes.list({ expanded: layoutExpanded })}
-        {...resolved.slots.list}
+        {...slots.list}
         onMouseEnter={() => setIsHovered(true)}
         onMouseMove={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useModalContext } from '../modal/modal-context'
 
@@ -16,7 +16,7 @@ export function DialogBody<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
   const family = useModalContext()
   const content = useDialogContent()
-  const resolved = createStyles(dialogRecipe, local, {
+  const { slots } = useRecipe(dialogRecipe, local, {
     slot: 'body',
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
@@ -32,7 +32,7 @@ export function DialogBody<T extends ValidComponent = 'div'>(
       data-slot="dialog-body"
       {...bodyAttrs}
       {...rest}
-      {...resolved.slots.body}
+      {...slots.body}
     >
       {local.children}
     </Dynamic>

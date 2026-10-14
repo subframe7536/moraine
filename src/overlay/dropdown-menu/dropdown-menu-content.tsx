@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { OverlayMenu } from '../base/menu'
 
 import { useDropdownMenuContext } from './dropdown-menu-context'
@@ -26,7 +26,7 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
   const context = useDropdownMenuContext()
 
   const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
-  const resolved = createStyles(dropdownMenuRecipe, local, {
+  const { slots, variants } = useRecipe(dropdownMenuRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
   })
@@ -34,8 +34,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
       owner="dropdown-menu"
-      slotBinding={(slot) => resolved.slots[slot]}
-      size={resolved.variants.size ?? undefined}
+      slotBinding={(slot) => slots[slot]}
+      size={variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}

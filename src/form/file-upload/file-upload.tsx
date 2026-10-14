@@ -13,7 +13,7 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callHandler, callRef, createId } from '../../shared/utils'
@@ -296,7 +296,7 @@ export function FileUpload<Multiple extends boolean = false>(
     'aria-label',
   ])
   const themeField = useFieldContext()
-  const resolved = createStyles(fileUploadRecipe, local, {
+  const { slots, variants } = useRecipe(fileUploadRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),
   })
 
@@ -333,7 +333,7 @@ export function FileUpload<Multiple extends boolean = false>(
         return merged.name
       },
       get size() {
-        return resolved.variants.size
+        return variants.size
       },
       get disabled() {
         return merged.disabled
@@ -530,7 +530,7 @@ export function FileUpload<Multiple extends boolean = false>(
         type="button"
         aria-label={messages().remove({ name: props.file.name })}
         data-slot="file-upload-file-remove"
-        {...resolved.slots.fileRemove}
+        {...slots.fileRemove}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -608,22 +608,18 @@ export function FileUpload<Multiple extends boolean = false>(
       <div
         data-slot="file-upload-wrapper"
         {...fileUploadDataAttributes.wrapper({ dropzone })}
-        {...resolved.slots.wrapper}
+        {...slots.wrapper}
       >
-        <Icon name={merged.icon} slotName="file-upload-icon" {...resolved.slots.icon} />
+        <Icon name={merged.icon} slotName="file-upload-icon" {...slots.icon} />
 
         <Show when={label()}>
-          <span id={labelId()} data-slot="file-upload-label" {...resolved.slots.label}>
+          <span id={labelId()} data-slot="file-upload-label" {...slots.label}>
             {label()}
           </span>
         </Show>
 
         <Show when={description()}>
-          <span
-            id={descriptionId()}
-            data-slot="file-upload-description"
-            {...resolved.slots.description}
-          >
+          <span id={descriptionId()} data-slot="file-upload-description" {...slots.description}>
             {description()}
           </span>
         </Show>
@@ -716,7 +712,7 @@ export function FileUpload<Multiple extends boolean = false>(
       }
       aria-disabled={field.disabled() ? true : undefined}
       id={`${field.id()}-root`}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <Show
         when={dropzone()}
@@ -725,7 +721,7 @@ export function FileUpload<Multiple extends boolean = false>(
             ref={setControlElement}
             type="button"
             data-slot="file-upload-control"
-            {...resolved.slots.control}
+            {...slots.control}
             {...fileUploadDataAttributes.control({
               dragging: undefined,
               dropzone,
@@ -747,7 +743,7 @@ export function FileUpload<Multiple extends boolean = false>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="file-upload-control"
-          {...resolved.slots.control}
+          {...slots.control}
           {...fileUploadDataAttributes.control({
             dropzone,
             dragging,
@@ -793,18 +789,18 @@ export function FileUpload<Multiple extends boolean = false>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul data-slot="file-upload-files" {...resolved.slots.files}>
+        <ul data-slot="file-upload-files" {...slots.files}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file-upload-file" {...resolved.slots.file}>
-                <span data-slot="file-upload-file-preview" {...resolved.slots.filePreview}>
+              <li data-slot="file-upload-file" {...slots.file}>
+                <span data-slot="file-upload-file-preview" {...slots.filePreview}>
                   <Show
                     when={previewUrls().get(file)}
                     fallback={
                       <Icon
                         name={merged.fileIcon}
                         slotName="file-upload-icon"
-                        class={resolved.slots.icon.class}
+                        class={slots.icon.class}
                       />
                     }
                   >
@@ -812,11 +808,11 @@ export function FileUpload<Multiple extends boolean = false>(
                   </Show>
                 </span>
 
-                <div data-slot="file-upload-file-meta" {...resolved.slots.fileMeta}>
-                  <span data-slot="file-upload-file-name" {...resolved.slots.fileName}>
+                <div data-slot="file-upload-file-meta" {...slots.fileMeta}>
+                  <span data-slot="file-upload-file-name" {...slots.fileName}>
                     {file.name}
                   </span>
-                  <span data-slot="file-upload-file-size" {...resolved.slots.fileSize}>
+                  <span data-slot="file-upload-file-size" {...slots.fileSize}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

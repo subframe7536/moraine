@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
 import { EmptyActions } from './empty-actions'
@@ -24,20 +24,20 @@ export function Empty<T extends ValidComponent = 'div'>(props: EmptyT.Props<T>):
     'style',
     'children',
   ])
-  const resolved = createStyles(emptyRecipe, local)
+  const { slots, variants } = useRecipe(emptyRecipe, local)
 
   return (
     <EmptyProvider
       value={{
         get size() {
-          return resolved.variants.size
+          return variants.size
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rest} {...resolved.slots.root}>
+      <Dynamic component={local.as ?? 'div'} data-slot="empty" {...rest} {...slots.root}>
         {local.children}
       </Dynamic>
     </EmptyProvider>

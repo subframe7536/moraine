@@ -3,7 +3,7 @@ import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { mergePopperElementProps } from '../../overlay/base/popper'
-import { createStyles, pickSlotOverrides } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 
 import {
   useNavigationMenuContext,
@@ -28,7 +28,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'classes',
     'styles',
   ])
-  const resolved = createStyles(navigationMenuRecipe, local, {
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'link',
     contextSlots: () => pickSlotOverrides(context.options),
   })
@@ -72,7 +72,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       data-slot="navigation-menu-link"
       data-moraine-navigation-menu-control=""
       {...navigationMenuDataAttributes.link({ active: () => local.active, disabled })}
-      {...resolved.slots.link}
+      {...slots.link}
     >
       {body()}
     </Dynamic>

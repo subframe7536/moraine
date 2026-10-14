@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
 import { Portal, isServer } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
 import { inertFeedbackHandle } from '../base/feedback/handle'
@@ -75,7 +75,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     defaults,
   }
 
-  const resolved = createStyles(toastRecipe, props, {
+  const { slots } = useRecipe(toastRecipe, props, {
     slot: 'root',
     varsSlot: 'root',
     contextVariants: () => ({
@@ -161,7 +161,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-relevant="additions text"
         aria-atomic="false"
         aria-label={viewportAriaLabel()}
-        {...resolved.slots.root}
+        {...slots.root}
       >
         <For each={possiblePositions()}>
           {(positionKey) => (

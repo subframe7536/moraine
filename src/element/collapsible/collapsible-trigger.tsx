@@ -2,7 +2,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -25,7 +25,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   ])
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
-  const resolved = createStyles(collapsibleRecipe, local, {
+  const { slots } = useRecipe(collapsibleRecipe, local, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
   })
@@ -68,7 +68,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       })}
       {...binding}
       id={context.triggerId()}
-      {...resolved.slots.trigger}
+      {...slots.trigger}
     >
       {children()}
     </Dynamic>

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 
 import { defaultKbdMessages } from './kbd.messages'
@@ -24,7 +24,7 @@ export function Kbd(props: KbdProps): JSX.Element {
     'styles',
     'aria-label',
   ])
-  const resolved = createStyles(kbdRecipe, local)
+  const { slots } = useRecipe(kbdRecipe, local)
   const messages = useMessages('kbd', defaultKbdMessages)
 
   const aliasKey = createMemo(() => {
@@ -45,12 +45,7 @@ export function Kbd(props: KbdProps): JSX.Element {
 
   return (
     <Show when={text()}>
-      <kbd
-        data-slot={local.slotName ?? 'kbd'}
-        aria-label={label()}
-        {...rest}
-        {...resolved.slots.root}
-      >
+      <kbd data-slot={local.slotName ?? 'kbd'} aria-label={label()} {...rest} {...slots.root}>
         {text()}
       </kbd>
     </Show>

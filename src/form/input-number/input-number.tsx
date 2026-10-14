@@ -16,7 +16,7 @@ import { delegateEvents } from 'solid-js/web'
 import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
 import { getActiveElement } from '../../overlay/base/dom'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import {
   formatLocaleNumber,
@@ -142,7 +142,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const messages = useMessages('inputNumber', defaultInputNumberMessages)
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
-  const resolved = createStyles(inputNumberRecipe, local, {
+  const { slots, variants } = useRecipe(inputNumberRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),
   })
 
@@ -258,7 +258,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return merged.incrementIcon
     }
 
-    return resolved.variants.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
+    return variants.orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
   }
 
   const decrementIcon = (): IconT.Name => {
@@ -266,10 +266,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       return merged.decrementIcon
     }
 
-    return resolved.variants.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
+    return variants.orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
   }
 
-  const isVertical = createMemo(() => resolved.variants.orientation === 'vertical')
+  const isVertical = createMemo(() => variants.orientation === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
   const fieldDataState = {
@@ -281,7 +281,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const rootDataAttrs = inputNumberDataAttributes.root(fieldDataState)
   const inputDataAttrs = inputNumberDataAttributes.input({
     ...fieldDataState,
-    autoAlign: () => resolved.variants.align === undefined && !isVertical() && !showDecrement(),
+    autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
   })
 
   function commitValue(nextValue: number): boolean {
@@ -409,7 +409,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get disabled() {
         return isControlDisabled()
       },
-      ...resolved.slots[kind],
+      ...slots[kind],
       ...press.handlers(kind),
     })
     return controlProps as InputNumberControlProps
@@ -534,7 +534,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -566,7 +566,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         placeholder={merged.placeholder}
         data-slot="input-number-input"
         {...inputDataAttrs}
-        {...resolved.slots.input}
+        {...slots.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = draftText() ?? formattedValue()
@@ -673,7 +673,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="input-number-controls" {...resolved.slots.controls}>
+        <div data-slot="input-number-controls" {...slots.controls}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} />

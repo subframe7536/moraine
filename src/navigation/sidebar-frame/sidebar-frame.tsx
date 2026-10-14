@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createMediaQuery } from '../../shared/media-query'
 import { createId } from '../../shared/utils'
@@ -43,7 +43,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'style',
     'variant',
   ])
-  const resolved = createStyles(sidebarFrameRecipe, local)
+  const { slots, variants } = useRecipe(sidebarFrameRecipe, local)
 
   const sidebarId = createId(() => local.sidebarId, 'sidebar-frame-sidebar')
   const mediaMatches = createMediaQuery(
@@ -105,10 +105,10 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     setOpen,
     toggle: () => setOpen(!isOpen()),
     get variant() {
-      return resolved.variants.variant
+      return variants.variant
     },
     get side() {
-      return resolved.variants.side
+      return variants.side
     },
   }
 
@@ -122,7 +122,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
           variant: () => context.variant,
         })}
         {...rest}
-        {...resolved.slots.root}
+        {...slots.root}
       >
         {local.children}
       </div>

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, on, onCleanup } from 'solid-js'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { createId } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
@@ -13,7 +13,7 @@ export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
   const group = useGroupContext()
   const id = createId(() => props.id, 'select-group-label')
-  const resolved = createStyles(baseSelectRecipe, props, {
+  const { slots } = useRecipe(baseSelectRecipe, props, {
     slot: 'groupLabel',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -25,12 +25,7 @@ export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
     }),
   )
   return (
-    <div
-      data-slot={state.slotName('groupLabel')}
-      {...props}
-      id={id()}
-      {...resolved.slots.groupLabel}
-    >
+    <div data-slot={state.slotName('groupLabel')} {...props} id={id()} {...slots.groupLabel}>
       {props.children}
     </div>
   )

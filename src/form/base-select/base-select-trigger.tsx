@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -30,7 +30,7 @@ export function BaseSelectTrigger<
     'onBlur',
     'ref' as any,
   ])
-  const resolved = createStyles(baseSelectRecipe, local, {
+  const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'trigger',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -111,7 +111,7 @@ export function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      {...resolved.slots.trigger}
+      {...slots.trigger}
     >
       {resolvedChildren()}
     </Dynamic>

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { PopperTrigger, mergePopperElementProps } from '../base/popper'
 import type { createPopper } from '../base/popper'
@@ -15,7 +15,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {
   const context = useTooltipContext()
-  const resolved = createStyles(tooltipRecipe, props, {
+  const { slots } = useRecipe(tooltipRecipe, props, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
   })
@@ -44,7 +44,7 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
       },
       props,
     ),
-    resolved.slots.trigger,
+    slots.trigger,
     { context: popper, toggleOnClick: false, describeTrigger: true },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
   return <PopperTrigger<T> {...triggerProps} />

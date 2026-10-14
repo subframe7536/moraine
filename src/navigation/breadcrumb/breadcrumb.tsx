@@ -3,7 +3,7 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
 
@@ -26,7 +26,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'style',
     'aria-label',
   ])
-  const resolved = createStyles(breadcrumbRecipe, local)
+  const { slots } = useRecipe(breadcrumbRecipe, local)
   const messages = useMessages('breadcrumb', defaultBreadcrumbMessages)
 
   const separator = () => local.separator ?? 'icon-chevron-right'
@@ -44,10 +44,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
       data-slot="breadcrumb"
       {...rest}
       ref={(el) => callRef(local.ref, el)}
-      {...resolved.slots.root}
+      {...slots.root}
       aria-label={local['aria-label'] ?? messages().label}
     >
-      <ol data-slot="breadcrumb-list" {...resolved.slots.list}>
+      <ol data-slot="breadcrumb-list" {...slots.list}>
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
@@ -64,7 +64,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
             return (
               <>
-                <li data-slot="breadcrumb-item" {...resolved.slots.item}>
+                <li data-slot="breadcrumb-item" {...slots.item}>
                   <Show
                     when={local.itemRender}
                     keyed
@@ -72,7 +72,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       <Dynamic
                         component={isInteractive() ? 'a' : 'span'}
                         data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
-                        {...resolved.slots[isCurrent() ? 'page' : 'link']}
+                        {...slots[isCurrent() ? 'page' : 'link']}
                         role={isDisabledLink() ? 'link' : undefined}
                         aria-disabled={isDisabledLink() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
@@ -88,15 +88,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       >
                         <Show when={leading()}>
                           {(icon) => (
-                            <Icon
-                              name={icon()}
-                              slotName="breadcrumb-leading"
-                              {...resolved.slots.leading}
-                            />
+                            <Icon name={icon()} slotName="breadcrumb-leading" {...slots.leading} />
                           )}
                         </Show>
                         <Show when={hasLabel()}>
-                          <span data-slot="breadcrumb-label" {...resolved.slots.label}>
+                          <span data-slot="breadcrumb-label" {...slots.label}>
                             {label()}
                           </span>
                         </Show>
@@ -119,7 +115,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     data-slot="breadcrumb-separator"
                     role="presentation"
                     aria-hidden="true"
-                    {...resolved.slots.separator}
+                    {...slots.separator}
                   >
                     <Icon name={separator()} />
                   </li>
