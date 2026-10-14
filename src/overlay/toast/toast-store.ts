@@ -1,11 +1,95 @@
-import type { JSX } from 'solid-js'
-import { DEV } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 
-import { DEFAULT_TOAST_DURATION } from './toast.types'
-import type { ToastItemRecord, ToastT } from './toast.types'
+import type { FeedbackCloseReason } from '../base/feedback/feedback.types'
+import { createCloseResult } from '../base/feedback/handle'
+import { createHostRegistry } from '../base/feedback/host-registry'
+import type { FeedbackHost } from '../base/feedback/host-registry'
+import { mergeDefined, pickDefined } from '../base/feedback/merge-defined'
 
-const DEFAULT_HOST_KEY = ''
+import type { ToastT } from './toast.types'
+
+export interface ToastHostDefaults {
+  type?: ToastT.Type
+  large?: boolean | null
+  invert?: boolean | null
+  placement?: ToastT.Placement
+  align?: ToastT.Variant['align']
+  duration?: number
+  close?: boolean
+  progress?: boolean
+  preventDuplicate?: boolean
+  class?: ToastT.Options['class']
+  classes?: ToastT.Classes
+  style?: ToastT.Options['style']
+  styles?: ToastT.Styles
+}
+
+export interface ToastHost extends FeedbackHost {
+  defaults: () => ToastHostDefaults
+}
+
+export interface ToastRecord {
+  id: ToastT.Id
+  hostId: string | undefined
+  options: ToastT.Options
+  render?: ToastT.Render
+  closed?: boolean
+}
+
+interface ToastSession {
+  handle: ToastT.Handle
+  settle: (reason: FeedbackCloseReason) => boolean
+  onClose?: (reason: FeedbackCloseReason) => void
+}
+
+function mergeSlots<T extends object>(
+  fallback: T | undefined,
+  override: T | undefined,
+): T | undefined {
+  if (fallback === undefined) {
+    return override
+  }
+  if (override === undefined) {
+    return fallback
+  }
+  return mergeDefined(fallback, override)
+}
+
+export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefaults): ToastT.Options {
+  return {
+    id: call.id,
+    host: call.host,
+    get title() {
+      return call.title
+    },
+    get description() {
+      return call.description
+    },
+    get icon() {
+      return call.icon
+    },
+    get action() {
+      return call.action
+    },
+    get cancel() {
+      return call.cancel
+    },
+    onClose: call.onClose,
+    type: pickDefined(call.type, host.type) ?? 'default',
+    large: pickDefined(call.large, host.large),
+    invert: pickDefined(call.invert, host.invert),
+    placement: pickDefined(call.placement, host.placement) ?? 'bottom',
+    align: pickDefined(call.align, host.align) ?? 'end',
+    duration: pickDefined(call.duration, host.duration),
+    close: pickDefined(call.close, host.close),
+    progress: pickDefined(call.progress, host.progress),
+    preventDuplicate: pickDefined(call.preventDuplicate, host.preventDuplicate),
+    class: pickDefined(call.class, host.class),
+    classes: mergeSlots(host.classes, call.classes),
+    style: pickDefined(call.style, host.style),
+    styles: mergeSlots(host.styles, call.styles),
+  }
+}
 
 function isSameToastValue(first: unknown, second: unknown): boolean {
   if (typeof first === 'string' || typeof first === 'number') {
@@ -17,422 +101,212 @@ function isSameToastValue(first: unknown, second: unknown): boolean {
   return Object.is(first, second)
 }
 
-function isSameAction(first: unknown, second: unknown): boolean {
+function isSameAction(
+  first: ToastT.Action | boolean | undefined,
+  second: ToastT.Action | boolean | undefined,
+): boolean {
   if (first === second) {
     return true
   }
-  if (
-    typeof first === 'object' &&
-    first !== null &&
-    typeof second === 'object' &&
-    second !== null &&
-    'label' in first &&
-    'label' in second
-  ) {
-    const a = first as ToastT.Action
-    const b = second as ToastT.Action
-    return (
-      isSameToastValue(a.label, b.label) &&
-      isSameToastValue(a.variant, b.variant) &&
-      isSameToastValue(a.size, b.size) &&
-      isSameToastValue(a.activeEffect, b.activeEffect)
-    )
+  if (!first || !second || typeof first === 'boolean' || typeof second === 'boolean') {
+    return first === second
   }
-  return false
+  return (
+    isSameToastValue(first.label, second.label) &&
+    isSameToastValue(first.variant, second.variant) &&
+    isSameToastValue(first.leading, second.leading)
+  )
 }
 
-function isSameToastContent(first: ToastItemRecord, second: Partial<ToastItemRecord>): boolean {
-  if (first.jsx !== undefined || second.jsx !== undefined) {
-    return isSameToastValue(first.jsx, second.jsx)
-  }
-
-  const sameTitle = isSameToastValue(first.title, second.title)
-  const sameDescription = isSameToastValue(first.description, second.description)
-  const sameVariant = isSameToastValue(
-    first.variants?.type ?? 'default',
-    second.variants?.type ?? 'default',
-  )
-  const sameAction =
-    (first.action === undefined && second.action === undefined) ||
-    isSameAction(first.action, second.action)
-  const sameCancel =
-    (first.cancel === undefined && second.cancel === undefined) ||
+function isSameToastContent(first: ToastT.Options, second: ToastT.Options): boolean {
+  return (
+    isSameToastValue(first.title, second.title) &&
+    isSameToastValue(first.description, second.description) &&
+    (first.type ?? 'default') === (second.type ?? 'default') &&
+    isSameAction(first.action, second.action) &&
     isSameAction(first.cancel, second.cancel)
-
-  return sameTitle && sameDescription && sameVariant && sameAction && sameCancel
+  )
 }
 
 export interface ToastStore {
-  readonly toasts: ToastItemRecord[]
-  add: (options: ToastT.InitOptions) => string | number
-  loading: (options: ToastT.InitOptions) => string | number
-  promise: <T>(
-    promiseValue: Promise<T> | (() => Promise<T>),
-    options: ToastT.PromiseOptions<T>,
-  ) => ToastT.PromiseReturn<T>
-  custom: (
-    render: (id: string | number) => JSX.Element,
-    options?: ToastT.InitOptions,
-  ) => string | number
-  update: (id: string | number, options: ToastT.UpdateOptions) => string | number
-  close: (id?: string | number) => void
-  onBump: (listener: (id: string | number) => void) => () => void
-  preventDuplicate: ToastT.PreventDuplicate
-  setHostPreventDuplicate: (
-    hostId: string | undefined,
-    value: ToastT.PreventDuplicate | undefined,
-  ) => void
-  registerHost: (hostId: string | undefined) => void
-  unregisterHost: (hostId: string | undefined) => void
+  readonly toasts: ToastRecord[]
+  registry: ReturnType<typeof createHostRegistry<ToastHost>>
+  add: (options: ToastT.Options, render?: ToastT.Render) => ToastT.Handle
+  update: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
+  close: (id: ToastT.Id | undefined, reason?: FeedbackCloseReason) => void
+  remove: (id: ToastT.Id) => void
+  abandonHost: (hostId: string | undefined) => void
+  onBump: (listener: (id: ToastT.Id) => void) => () => void
 }
 
-export function matchesHostId(item: ToastItemRecord, hostId: string | undefined): boolean {
-  if (hostId) {
-    return item.toastId === hostId
-  }
-  return !item.toastId
-}
-
-/**
- * Creates an isolated reactive toast store instance.
- */
 export function createToastStore(): ToastStore {
-  const [store, setStore] = createStore<ToastItemRecord[]>([])
-  const hostPreventDuplicates = new Map<string, ToastT.PreventDuplicate>()
-  const registeredHosts = new Map<string, number>()
-  const bumpListeners = new Set<(id: string | number) => void>()
+  const registry = createHostRegistry<ToastHost>('Toast')
+  const [toasts, setToasts] = createStore<ToastRecord[]>([])
+  const sessions = new Map<ToastT.Id, ToastSession>()
+  const bumpListeners = new Set<(id: ToastT.Id) => void>()
   let counter = 1
-  let defaultPreventDuplicate: ToastT.PreventDuplicate = false
 
-  const hostKey = (hostId: string | undefined): string => hostId ?? DEFAULT_HOST_KEY
-
-  const hasMatchingHost = (item: ToastItemRecord): boolean => {
-    return (registeredHosts.get(hostKey(item.toastId)) ?? 0) > 0
-  }
-
-  const setHostPreventDuplicate = (
-    hostId: string | undefined,
-    value: ToastT.PreventDuplicate | undefined,
-  ): void => {
-    const key = hostKey(hostId)
-    if (value === undefined) {
-      hostPreventDuplicates.delete(key)
-      if (key === DEFAULT_HOST_KEY) {
-        defaultPreventDuplicate = false
-      }
-      return
-    }
-    if (key === DEFAULT_HOST_KEY) {
-      defaultPreventDuplicate = value
-      return
-    }
-    if (value === false) {
-      hostPreventDuplicates.delete(key)
-      return
-    }
-    hostPreventDuplicates.set(key, value)
-  }
-
-  const registerHost = (hostId: string | undefined): void => {
-    const key = hostKey(hostId)
-    const next = (registeredHosts.get(key) ?? 0) + 1
-    registeredHosts.set(key, next)
-    if (DEV && next > 1) {
-      console.warn(
-        hostId
-          ? `[moraine] Duplicate <Toast id="${hostId}" />. Each Toast host id must be unique.`
-          : '[moraine] Duplicate <Toast /> without id. Mount one default host, or give each instance an id.',
-      )
-    }
-  }
-
-  const unregisterHost = (hostId: string | undefined): void => {
-    const key = hostKey(hostId)
-    const next = (registeredHosts.get(key) ?? 0) - 1
-    if (next <= 0) {
-      registeredHosts.delete(key)
-    } else {
-      registeredHosts.set(key, next)
-    }
+  const triggerBump = (id: ToastT.Id): void => {
+    bumpListeners.forEach((listener) => listener(id))
   }
 
   const nextId = (): number => {
     let id = counter
-    while (store.some((t) => t.id === id)) {
+    while (toasts.some((item) => item.id === id)) {
       id += 1
     }
     counter = id + 1
     return id
   }
 
-  const triggerBump = (id: string | number): void => {
-    bumpListeners.forEach((fn) => fn(id))
-  }
+  const hostMounted = (hostId: string | undefined): boolean =>
+    registry.entries().some((host) => host.id() === hostId)
 
-  const onBump = (listener: (id: string | number) => void): (() => void) => {
-    bumpListeners.add(listener)
-    return () => {
-      bumpListeners.delete(listener)
-    }
-  }
-
-  const add = (options: ToastT.InitOptions): string | number => {
-    const id = options.id !== undefined ? options.id : nextId()
-    const preventOption =
-      options.preventDuplicate !== undefined
-        ? options.preventDuplicate
-        : options.toastId
-          ? (hostPreventDuplicates.get(options.toastId) ?? false)
-          : defaultPreventDuplicate
-
-    if (preventOption && options.id === undefined) {
-      const targetPlacement = options.variants?.placement ?? 'bottom'
-      const targetAlign = options.variants?.align ?? 'end'
-
-      const frontIndex = store.findIndex((t) => {
-        if (t.closed) {
-          return false
-        }
-        if (options.toastId ? t.toastId !== options.toastId : Boolean(t.toastId)) {
-          return false
-        }
-        const tPlacement = t.variants?.placement ?? 'bottom'
-        const tAlign = t.variants?.align ?? 'end'
-        return tPlacement === targetPlacement && tAlign === targetAlign
-      })
-
-      if (frontIndex !== -1) {
-        const frontToast = store[frontIndex]!
-        const isDuplicate =
-          typeof preventOption === 'function'
-            ? preventOption(options, frontToast)
-            : isSameToastContent(frontToast, options)
-
-        if (isDuplicate) {
-          triggerBump(frontToast.id)
-          return frontToast.id
-        }
-      }
-    }
-
-    const toastItem: ToastItemRecord = {
-      ...options,
-      id,
-    }
-
-    let isExisting = false
-    setStore(
-      produce((draft) => {
-        const item = draft.find((t) => t.id === id)
-        if (item) {
-          isExisting = true
-          Object.assign(item, toastItem)
-        } else {
-          draft.unshift(toastItem)
-        }
-      }),
-    )
-
-    if (isExisting) {
-      triggerBump(id)
-    }
-
-    return id
-  }
-
-  const loading = (options: ToastT.InitOptions) =>
-    add({
-      ...options,
-      variants: {
-        type: 'loading',
-        ...options.variants,
-      },
-      duration: options.duration ?? Number.POSITIVE_INFINITY,
-    })
-
-  const update = (id: string | number, options: ToastT.UpdateOptions): string | number => {
+  const update = (id: ToastT.Id, options: ToastT.UpdateOptions): void => {
     let found = false
-    setStore(
+    setToasts(
       produce((draft) => {
-        const item = draft.find((t) => t.id === id)
-        if (item) {
-          found = true
-          const mergedVariants =
-            options.variants || item.variants
-              ? { ...item.variants, ...options.variants }
-              : undefined
-          Object.assign(item, {
-            ...options,
-            ...(mergedVariants ? { variants: mergedVariants } : {}),
-          })
+        const item = draft.find((entry) => entry.id === id)
+        if (!item || item.closed) {
+          return
+        }
+        found = true
+        item.options = mergeDefined(item.options, options)
+        const session = sessions.get(id)
+        if (session && options.onClose) {
+          session.onClose = options.onClose
         }
       }),
     )
     if (found) {
       triggerBump(id)
     }
-    return id
   }
 
-  const custom = (
-    render: (id: string | number) => JSX.Element,
-    options?: ToastT.InitOptions,
-  ): string | number => {
-    return add({
-      ...options,
-      jsx: render,
-    } as ToastItemRecord)
-  }
-
-  const close = (id?: string | number): void => {
-    setStore(
+  const remove = (id: ToastT.Id): void => {
+    setToasts(
       produce((draft) => {
-        for (let i = draft.length - 1; i >= 0; i--) {
-          const item = draft[i]!
-          if (id !== undefined && item.id !== id) {
-            continue
-          }
-          if (!hasMatchingHost(item) || item.closed) {
-            draft.splice(i, 1)
-          } else {
-            item.closed = true
-          }
+        const index = draft.findIndex((item) => item.id === id)
+        if (index !== -1) {
+          draft.splice(index, 1)
         }
       }),
     )
   }
 
-  const promise = <T>(
-    promiseValue: Promise<T> | (() => Promise<T>),
-    options: ToastT.PromiseOptions<T>,
-  ): ToastT.PromiseReturn<T> => {
-    const {
-      loading: loadingMessage,
-      success: successMessage,
-      error: errorMessage,
-      finally: onFinally,
-      description,
-      duration,
-      ...itemOptions
-    } = options
-
-    let id: string | number | undefined
-
-    if (loadingMessage !== undefined) {
-      id = loading({
-        ...itemOptions,
-        title: loadingMessage,
-        description: typeof description !== 'function' ? description : undefined,
-      })
-    } else {
-      id = options.id ?? nextId()
+  const close = (id: ToastT.Id | undefined, reason: FeedbackCloseReason = 'api'): void => {
+    const targets = toasts.filter((item) => id === undefined || item.id === id)
+    for (const item of targets) {
+      const session = sessions.get(item.id)
+      const didSettle = session?.settle(reason) ?? false
+      if (didSettle) {
+        session?.onClose?.(reason)
+      }
+      if (!hostMounted(item.hostId)) {
+        remove(item.id)
+        continue
+      }
+      setToasts(
+        produce((draft) => {
+          const match = draft.find((entry) => entry.id === item.id)
+          if (match && !match.closed) {
+            match.closed = true
+          }
+        }),
+      )
     }
+  }
 
-    const actualPromise = Promise.resolve(
-      typeof promiseValue === 'function' ? promiseValue() : promiseValue,
-    )
-
-    let result: ['resolve', T] | ['reject', unknown]
-
-    const resolvePayload = async (
-      variant: NonNullable<ToastT.Variants['type']>,
-      handler: unknown,
-      param: unknown,
-    ) => {
-      const title = typeof handler === 'function' ? await handler(param) : handler
-      const resolvedDescription =
-        typeof description === 'function' ? description(param) : description
-
-      add({
-        ...itemOptions,
-        id,
-        variants: {
-          ...itemOptions.variants,
-          type: variant,
-        },
-        title: title as JSX.Element,
-        description: resolvedDescription,
-        duration: duration ?? DEFAULT_TOAST_DURATION,
-      })
+  const createHandle = (id: ToastT.Id, onClose: ToastT.Options['onClose']): ToastT.Handle => {
+    const result = createCloseResult()
+    const handle: ToastT.Handle = {
+      id,
+      update: (options) => update(id, options),
+      close: () => close(id, 'api'),
+      result: result.result,
     }
+    sessions.set(id, { handle, settle: result.settle, onClose })
+    return handle
+  }
 
-    const settleWithoutHandler = () => {
-      if (id !== undefined) {
-        close(id)
+  const abandonHost = (hostId: string | undefined): void => {
+    if (registry.entries().some((host) => host.id() === hostId)) {
+      return
+    }
+    const ids = toasts.filter((item) => item.hostId === hostId).map((item) => item.id)
+    for (const id of ids) {
+      const session = sessions.get(id)
+      if (session?.settle('api')) {
+        session.onClose?.('api')
+      }
+      sessions.delete(id)
+      remove(id)
+    }
+  }
+
+  const add = (options: ToastT.Options, render?: ToastT.Render): ToastT.Handle => {
+    const host = registry.require(options.host)
+    const hostId = host.id()
+    const defaults = host.defaults()
+    const id = options.id !== undefined ? options.id : nextId()
+
+    if (options.id !== undefined) {
+      const existing = toasts.find((item) => item.id === id)
+      const session = sessions.get(id)
+      if (existing && session) {
+        if (!existing.closed) {
+          update(id, options)
+          return session.handle
+        }
+        remove(id)
+        sessions.delete(id)
       }
     }
 
-    const originalPromise = actualPromise
-      // oxlint-disable-next-line subf/solid-reactivity -- Promise resolution executes outside component rendering.
-      .then(async (response) => {
-        result = ['resolve', response]
-        if (response instanceof Error) {
-          if (errorMessage !== undefined) {
-            await resolvePayload('error', errorMessage, response)
-          } else {
-            settleWithoutHandler()
-          }
-          return
+    const prevent = options.preventDuplicate ?? defaults.preventDuplicate ?? false
+    if (prevent && options.id === undefined) {
+      const candidate = resolveToastOptions(options, defaults)
+      const front = toasts.find((item) => {
+        if (item.closed || item.hostId !== hostId) {
+          return false
         }
+        const resolved = resolveToastOptions(item.options, defaults)
+        return resolved.placement === candidate.placement && resolved.align === candidate.align
+      })
+      if (front && isSameToastContent(resolveToastOptions(front.options, defaults), candidate)) {
+        triggerBump(front.id)
+        return sessions.get(front.id)!.handle
+      }
+    }
 
-        if (successMessage !== undefined) {
-          await resolvePayload('success', successMessage, response)
-        } else {
-          settleWithoutHandler()
-        }
-      })
-      // oxlint-disable-next-line subf/solid-reactivity -- Promise rejection executes outside component rendering.
-      .catch(async (errorValue) => {
-        result = ['reject', errorValue]
-        if (errorMessage !== undefined) {
-          await resolvePayload('error', errorMessage, errorValue)
-        } else {
-          settleWithoutHandler()
-        }
-      })
-      .finally(() => {
-        if (onFinally) {
-          void onFinally()
-        }
-      })
-
-    const unwrap = () =>
-      new Promise<T>((resolve, reject) => {
-        originalPromise
-          .then(() => {
-            if (result[0] === 'reject') {
-              reject(result[1])
-            } else {
-              resolve(result[1])
-            }
-          })
-          .catch(reject)
-      })
-
-    const returnId = (id ?? nextId()) as ToastT.PromiseReturn<T>
-    return Object.assign(returnId, { unwrap })
+    const record: ToastRecord = {
+      id,
+      hostId,
+      options: { ...options, id },
+      render,
+      closed: false,
+    }
+    const handle = createHandle(id, options.onClose)
+    setToasts(produce((draft) => draft.unshift(record)))
+    return handle
   }
 
   return {
+    get toasts() {
+      return toasts
+    },
+    registry,
     add,
-    loading,
-    promise,
-    custom,
     update,
     close,
-    onBump,
-    get toasts() {
-      return store
+    remove,
+    abandonHost,
+    onBump: (listener) => {
+      bumpListeners.add(listener)
+      return () => {
+        bumpListeners.delete(listener)
+      }
     },
-    get preventDuplicate() {
-      return defaultPreventDuplicate
-    },
-    set preventDuplicate(val: ToastT.PreventDuplicate) {
-      defaultPreventDuplicate = val
-    },
-    setHostPreventDuplicate,
-    registerHost,
-    unregisterHost,
   }
 }
 

@@ -5,7 +5,7 @@ api:
   path: src/overlay/sheet/sheet
   parts: [Trigger, Content, Header, Title, Description, Body, Footer, Close]
 sidebar:
-  order: 5
+  order: 6
 search:
   tags: [drawer, panel, overlay, mobile, sheet, sidebar drawer, slideover]
 ---
@@ -26,13 +26,24 @@ import { Button, Field, Input, Sheet } from '@src'
         { label: 'Bottom', value: 'bottom' },
       ],
     },
-    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+    {
+      kind: 'switch',
+      prop: 'closeOnOverlayClick',
+      label: 'Close on overlay click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'closeOnEscape', label: 'Close on Escape', defaultValue: true },
     { kind: 'switch', prop: 'overlay', label: 'Overlay', defaultValue: true },
   ]}
 >
   {(props) => {
     return (
-      <Sheet dismissible={props.dismissible} side={props.side} overlay={props.overlay}>
+      <Sheet
+        closeOnOverlayClick={props.closeOnOverlayClick}
+        closeOnEscape={props.closeOnEscape}
+        side={props.side}
+        overlay={props.overlay}
+      >
         <Sheet.Trigger as={Button} variant="outline">
           Open Sheet
         </Sheet.Trigger>
@@ -182,7 +193,8 @@ automatic corner close button. Use root `close={false}` to hide the automatic cl
 technology, and native outside pointer actions are prevented. Closing restores focus to the trigger.
 
 Setting `modal={false}` allows focus to leave the surface, but does not disable Escape or outside
-dismissal. `dismissible` controls those close requests. Scroll locking is independent:
+dismissal. `closeOnOverlayClick` and `closeOnEscape` control those close requests. Both default to
+`true`. Scroll locking is independent:
 `preventScroll` defaults to `true`. For interaction with the background page, also set
 `preventScroll={false}` and `overlay={false}`.
 
@@ -226,7 +238,7 @@ attempts.
     </Sheet.Footer>
   </Sheet.Content>
 </Sheet>
-<Sheet dismissible={false} onClosePrevent={onBlocked}>
+<Sheet closeOnOverlayClick={false} closeOnEscape={false} onClosePrevent={onBlocked}>
   <Sheet.Content title="Persistent sheet">
     <Sheet.Footer>
       <Button onClick={() => setOpen(false)}>Close</Button>
@@ -237,11 +249,11 @@ attempts.
 
 ### Keyboard interaction
 
-| Key                    | Description                                       |
-| ---------------------- | ------------------------------------------------- |
-| <kbd>Escape</kbd>      | Requests dismissal when `dismissible={true}`.     |
-| <kbd>Tab</kbd>         | Moves focus forward; modal sheets contain focus.  |
-| <kbd>Shift + Tab</kbd> | Moves focus backward; modal sheets contain focus. |
+| Key                    | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| <kbd>Escape</kbd>      | Requests dismissal when `closeOnEscape` is not `false`. |
+| <kbd>Tab</kbd>         | Moves focus forward; modal sheets contain focus.        |
+| <kbd>Shift + Tab</kbd> | Moves focus backward; modal sheets contain focus.       |
 
 ## Examples
 
@@ -259,7 +271,8 @@ A page button owns `open`. Closing from the footer reports back through `onOpenC
 
 ### Keep a sheet open until an explicit close
 
-`dismissible={false}` blocks overlay click and Escape. `onClosePrevent` counts blocked attempts
+`closeOnOverlayClick={false}` and `closeOnEscape={false}` block overlay click and Escape.
+`onClosePrevent` counts blocked attempts
 until the footer close action.
 
 <Preview path="./dismiss-control" />

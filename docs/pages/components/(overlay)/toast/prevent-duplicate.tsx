@@ -20,7 +20,7 @@ export function PreventDuplicate() {
         variant="outline"
         leading="i-lucide:bell-ring"
         onClick={() =>
-          Toast.add({
+          Toast.show({
             title: 'Already up to date',
             description: 'Checked for updates just now.',
             preventDuplicate: true,

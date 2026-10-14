@@ -1,0 +1,141 @@
+{
+  "key": "alert-dialog",
+  "name": "AlertDialog",
+  "description": "Props for the AlertDialog host component.",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "alert-dialog",
+      "name": "AlertDialog",
+      "access": {
+        "kind": "export",
+        "name": "AlertDialog"
+      },
+      "description": "Props for the AlertDialog host component.",
+      "props": [
+        {
+          "name": "center",
+          "optional": true,
+          "type": "boolean",
+          "description": "Centers the icon, title, and description, and stretches the actions into an equal row.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "close",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the corner close button is shown.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "closeOnEscape",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether Escape dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "closeOnOverlayClick",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether an outside pointer press on the overlay dismisses the dialog.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "danger",
+          "optional": true,
+          "type": "boolean",
+          "description": "Shows a caution icon when `type` is `default`, and styles the primary action as `danger`\nwhen its variant is omitted.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "dialogRender",
+          "optional": true,
+          "type": "Render",
+          "description": "Renders the inner content of every dialog on this host that was not opened with\n`AlertDialog.custom`. Receives the instance context and the resolved call options."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier for this host when multiple hosts are mounted.\nA call without `host` goes to the last mounted host without an id. Pass `host` in the\ncall options to target one host. If duplicate ids are mounted, the last mounted host takes precedence.\nUnmounting a host settles its open dialogs with reason `api`."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "subtle",
+          "optional": true,
+          "type": "boolean",
+          "description": "Gives the footer a top border and muted background, like Card's `subtle` variant.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "type": "Type",
+          "description": "Status tone. `default` has no icon unless `danger` is set.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
+        },
+        {
+          "name": "width",
+          "optional": true,
+          "type": "string | number",
+          "description": "Sets the dialog content `max-width`."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "content",
+    "header",
+    "icon",
+    "copy",
+    "footer",
+    "action",
+    "cancel"
+  ],
+  "dataAttributes": []
+}

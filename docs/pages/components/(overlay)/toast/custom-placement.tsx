@@ -11,7 +11,7 @@ export function CustomPlacement() {
           Toast.info({
             title: 'Background task started',
             description: 'Analyzing code workspace...',
-            toastId: 'bottom-dock',
+            host: 'bottom-dock',
           })
         }
       >

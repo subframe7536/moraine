@@ -59,4 +59,4 @@ import {
 ;<ContextMenu.Content itemRender={(props) => <span>{props.item.label}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={(props) => <span>{props.index}</span>} />
 ;<KbdGroup items={['Ctrl', 'K']} separator={1} />
-;<Toast itemRender={(props) => <span>{props.toast.title}</span>} />
+;<Toast itemRender={(props) => <span>{props.options.title}</span>} />

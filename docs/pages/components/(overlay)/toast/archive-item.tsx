@@ -2,7 +2,7 @@ import { Button, Toast } from '@src'
 
 export function ArchiveItem() {
   const handleArchive = () => {
-    Toast.add({
+    Toast.show({
       title: 'Conversation archived',
       description: 'Moved to your archive folder.',
       action: {

@@ -10,7 +10,8 @@ export function DismissControl() {
       <Sheet
         open={open()}
         onOpenChange={setOpen}
-        dismissible={false}
+        closeOnOverlayClick={false}
+        closeOnEscape={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
       >
         <Sheet.Trigger as={Button} variant="outline">

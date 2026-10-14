@@ -1752,9 +1752,12 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test.each([true, false])(
-    'keeps outside and Escape handling when modal is false and dismissible is %s',
-    async (dismissible) => {
+  test.each([
+    { closeOnOverlayClick: true, closeOnEscape: true, closes: 2, prevents: 0 },
+    { closeOnOverlayClick: false, closeOnEscape: false, closes: 0, prevents: 2 },
+  ])(
+    'keeps outside and Escape handling when modal is false and dismissal is $closeOnOverlayClick/$closeOnEscape',
+    async ({ closeOnOverlayClick, closeOnEscape, closes, prevents }) => {
       const onOpenChange = vi.fn()
       const onClosePrevent = vi.fn()
       const screen = render(() => (
@@ -1765,7 +1768,8 @@ describe('Modal primitives', () => {
           <Modal
             open
             modal={false}
-            dismissible={dismissible}
+            closeOnOverlayClick={closeOnOverlayClick}
+            closeOnEscape={closeOnEscape}
             onOpenChange={onOpenChange}
             onClosePrevent={onClosePrevent}
           >
@@ -1793,8 +1797,8 @@ describe('Modal primitives', () => {
       })
       document.dispatchEvent(escape)
       expect(escape.defaultPrevented).toBe(true)
-      expect(onOpenChange).toHaveBeenCalledTimes(dismissible ? 2 : 0)
-      expect(onClosePrevent).toHaveBeenCalledTimes(dismissible ? 0 : 2)
+      expect(onOpenChange).toHaveBeenCalledTimes(closes)
+      expect(onClosePrevent).toHaveBeenCalledTimes(prevents)
       screen.unmount()
     },
   )
