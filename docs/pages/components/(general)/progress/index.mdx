@@ -6,13 +6,14 @@ api:
 sidebar:
   order: 11
 search:
-  tags: [loading, percentage, steps, indicator, progress bar, meter]
+  tags: [loading, percentage, indicator, progress bar, meter]
 ---
 
 import { Progress } from '@src'
 
 <Playground
   controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Uploading design.fig' },
     { kind: 'input', prop: 'value', label: 'Progress (%)', defaultValue: 65, inputType: 'number' },
     {
       kind: 'select',
@@ -25,14 +26,15 @@ import { Progress } from '@src'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'switch', prop: 'status', label: 'Status label', defaultValue: true },
+    { kind: 'switch', prop: 'showValue', label: 'Value', defaultValue: true },
   ]}
 >
   {(props) => (
     <Progress
+      label={props.label}
       value={props.value}
       size={props.size}
-      status={props.status}
+      showValue={props.showValue}
       aria-label="Upload progress"
     />
   )}
@@ -44,14 +46,11 @@ import { Progress } from '@src'
   value={{
     root: { slot: 'root' },
     children: [
-      { slot: 'status' },
+      { slot: 'label' },
+      { slot: 'value' },
       {
         slot: 'track',
         children: [{ slot: 'indicator' }],
-      },
-      {
-        slot: 'steps',
-        children: [{ slot: 'step' }],
       },
     ],
   }}
@@ -74,25 +73,24 @@ export function Example() {
 ### Progress models
 
 Provide a numeric `value` for determinate progress. Omit `value` or pass `null` for indeterminate
-progress. Pass a string array as `max` for a discrete sequence; `value` is then the active step
-index. `getValueLabel` supplies `aria-valuetext` for determinate values. Indeterminate progress
+progress. `valueLabel` supplies `aria-valuetext` for determinate values. Indeterminate progress
 reads `aria-valuetext` from the `progress.indeterminate` message.
 
 ```tsx
 <Progress value={65} aria-label="Uploading design.fig" />
 <Progress aria-label="Scanning for malware" />
-<Progress value={1} max={['Waiting', 'Cloning', 'Done']} aria-label="Clone repository" />
 ```
 
-### Semantics and status
+### Label and value
 
 The component exposes progressbar metadata. Supply `aria-label` or a relationship when visual
-context alone does not identify the operation. `status` shows the percentage label. `statusRender`
-replaces that label. Animation settings affect presentation, not progress ownership.
+context alone does not identify the operation. `label` fills the label slot. `showValue` shows the
+percentage in the value slot, and `valueRender` replaces that percentage. Indeterminate progress
+keeps the label and hides the value. Animation settings affect presentation, not progress ownership.
 
 ```tsx
-<Progress value={82} status aria-label="Downloading installation bundle" />
-<Progress value={40} statusRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
+<Progress value={82} label="Downloading installation bundle" showValue aria-label="Download" />
+<Progress value={40} valueRender={(ctx) => `${ctx.percent}% complete`} aria-label="Export" />
 ```
 
 ## Examples
@@ -105,13 +103,7 @@ Use a determinate value for known bytes. Omit `value` while a scanner has no tru
 
 ### Announce a bundle download
 
-Set `status` when the percentage should appear on the bar, and keep `aria-label` as the operation
-name.
+Set `label` and `showValue` when the operation name and percentage should appear with the bar.
+Keep `aria-label` as the accessible name.
 
 <Preview path="./semantics" />
-
-### Walk a clone through named steps
-
-Pass a string array as `max`. `value` is then the active step index, not a percentage.
-
-<Preview path="./clone-steps" />

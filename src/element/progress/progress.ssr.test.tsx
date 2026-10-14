@@ -7,8 +7,7 @@ import { Progress } from './progress'
 
 describe('Progress SSR Hydration', () => {
   test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
-    const steps = ['Waiting', 'Working', 'Done']
-    const [value, setValue] = createSignal<number | null>(1)
+    const [value, setValue] = createSignal<number | null>(50)
 
     const { container } = hydrateFixture(
       '/src/element/progress/progress.ssr.fixture.tsx',
@@ -16,9 +15,8 @@ describe('Progress SSR Hydration', () => {
       () => (
         <Progress
           value={value()}
-          max={steps}
-          statusRender={(context) => <span>{context.percent}%</span>}
-          stepRender={(context) => <span>{context.step}</span>}
+          label="Upload"
+          valueRender={(context) => <span>{context.percent}%</span>}
         />
       ),
     )
@@ -26,20 +24,26 @@ describe('Progress SSR Hydration', () => {
     const root = container.querySelector('[data-slot="progress"]')!
     expect(root).not.toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'progress-status',
+      'progress-label',
+      'progress-value',
       'progress-track',
-      'progress-steps',
     ])
     expect(root.getAttribute('data-progress')).toBe('loading')
+    expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('0.5')
+    expect(
+      (container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style.transform,
+    ).toBe('')
 
     setValue(null)
     expect(root.hasAttribute('data-indeterminate')).toBe(true)
-    expect(container.querySelector('[data-slot="progress-status"]')).toBeNull()
+    expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('')
+    expect(container.querySelector('[data-slot="progress-label"]')?.textContent).toBe('Upload')
+    expect(container.querySelector('[data-slot="progress-value"]')).toBeNull()
     expect(container.querySelectorAll('[data-indeterminate]').length).toBeGreaterThan(1)
 
-    setValue(2)
+    setValue(100)
     expect(root.getAttribute('data-progress')).toBe('complete')
-    expect(container.querySelector('[data-slot="progress-status"]')?.textContent).toBe('100%')
+    expect(container.querySelector('[data-slot="progress-value"]')?.textContent).toBe('100%')
     for (const part of container.querySelectorAll('[data-slot]')) {
       expect(part.hasAttribute('data-indeterminate')).toBe(false)
     }

@@ -35,16 +35,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "getValueLabel",
+          "name": "label",
           "optional": true,
-          "type": "(params: { value: number; min: number; max: number }) => string",
-          "description": "Callback to get a localized label for the current value."
+          "type": "JSX.Element",
+          "description": "Content for the label slot."
         },
         {
           "name": "max",
           "optional": true,
-          "type": "number | string[]",
-          "description": "The maximum value of the progress bar, or an array of step labels.",
+          "type": "number",
+          "description": "The maximum value of the progress bar.",
           "default": {
             "kind": "literal",
             "value": 100
@@ -61,6 +61,16 @@
           }
         },
         {
+          "name": "showValue",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show the value slot for determinate progress.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -69,28 +79,6 @@
             "kind": "literal",
             "value": "md"
           }
-        },
-        {
-          "name": "status",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show the status label.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "statusRender",
-          "optional": true,
-          "type": "JSX.Element | ((props: StatusRenderProps) => JSX.Element)",
-          "description": "Content or render function for the status label."
-        },
-        {
-          "name": "stepRender",
-          "optional": true,
-          "type": "(props: StepRenderProps) => JSX.Element",
-          "description": "Renderer for each step when `max` is an array."
         },
         {
           "name": "style",
@@ -113,17 +101,28 @@
             "kind": "literal",
             "value": null
           }
+        },
+        {
+          "name": "valueLabel",
+          "optional": true,
+          "type": "(params: { value: number; min: number; max: number }) => string",
+          "description": "Callback that supplies `aria-valuetext` for a determinate value."
+        },
+        {
+          "name": "valueRender",
+          "optional": true,
+          "type": "JSX.Element | ((props: ValueRenderProps) => JSX.Element)",
+          "description": "Content or render function for the value slot.\nDeterminate progress shows this instead of the percentage."
         }
       ]
     }
   ],
   "slots": [
     "root",
-    "status",
+    "label",
+    "value",
     "track",
-    "indicator",
-    "steps",
-    "step"
+    "indicator"
   ],
   "dataAttributes": [
     {
@@ -138,12 +137,6 @@
       "attributes": [
         "data-indeterminate",
         "data-progress"
-      ]
-    },
-    {
-      "target": "step",
-      "attributes": [
-        "data-state"
       ]
     }
   ]

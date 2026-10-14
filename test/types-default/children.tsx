@@ -30,7 +30,7 @@ import {
 ;<Input children="Unexpected" />
 // @ts-expect-error List rows come from itemRender.
 ;<List items={[1]} itemRender={(context) => <li>{context.item}</li>} children="Unexpected" />
-// @ts-expect-error Progress renders its own status and steps.
+// @ts-expect-error Progress renders its own label, value, and track.
 ;<Progress children="Unexpected" />
 // @ts-expect-error Separator does not render content.
 ;<Separator children="Unexpected" />

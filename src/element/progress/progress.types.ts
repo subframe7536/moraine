@@ -15,18 +15,9 @@ export namespace ProgressT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface StatusRenderProps {
+  export interface ValueRenderProps {
     /** Current progress percentage (0-100). */
     percent?: number
-  }
-
-  export interface StepRenderProps {
-    /** The label of the current step. */
-    step: string
-    /** The index of the current step. */
-    index: number
-    /** The state of the step relative to the active step. */
-    state: 'active' | 'first' | 'last' | 'other'
   }
 
   /** Base props for the Progress component. */
@@ -38,31 +29,32 @@ export namespace ProgressT {
     value?: number | null
 
     /**
-     * The maximum value of the progress bar, or an array of step labels.
+     * The maximum value of the progress bar.
      * @default 100
      */
-    max?: number | string[]
+    max?: number
 
     /**
-     * Whether to show the status label.
+     * Content for the label slot.
+     */
+    label?: JSX.Element
+
+    /**
+     * Whether to show the value slot for determinate progress.
      * @default false
      */
-    status?: boolean
+    showValue?: boolean
 
     /**
-     * Callback to get a localized label for the current value.
+     * Callback that supplies `aria-valuetext` for a determinate value.
      */
-    getValueLabel?: (params: { value: number; min: number; max: number }) => string
+    valueLabel?: (params: { value: number; min: number; max: number }) => string
 
     /**
-     * Content or render function for the status label.
+     * Content or render function for the value slot.
+     * Determinate progress shows this instead of the percentage.
      */
-    statusRender?: JSX.Element | ((props: StatusRenderProps) => JSX.Element)
-
-    /**
-     * Renderer for each step when `max` is an array.
-     */
-    stepRender?: (props: StepRenderProps) => JSX.Element
+    valueRender?: JSX.Element | ((props: ValueRenderProps) => JSX.Element)
   }
 
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

@@ -7,21 +7,18 @@ import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-t
 export const progressDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('indeterminate', 'progress'),
   indicator: /* @__PURE__ */ createDataAttributes('indeterminate', 'progress'),
-  step: /* @__PURE__ */ createDataAttributes('state'),
 } satisfies DataAttributeContract<keyof ProgressStyleSlot>
 
 export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, ProgressStyleVariant>(
   'progress',
   {
     base: {
-      root: 'gap-2 relative',
-      status:
-        'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
+      root: 'gap-y-2 grid relative',
+      label: 'text-sm font-medium min-w-0 self-center',
+      value: 'text-sm text-muted-foreground font-medium self-center justify-self-end tabular-nums',
       track: 'rounded-full bg-muted translate-z-0 relative overflow-hidden',
       indicator:
         'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
-      steps: 'grid items-end',
-      step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=first]:(text-muted-foreground opacity-100) data-[state=active]:opacity-100 data-[state=last]:opacity-100 data-[state=other]:opacity-0',
     },
     defaultVariants: {
       orientation: 'horizontal',
@@ -31,38 +28,32 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
     variants: {
       orientation: {
         horizontal: {
-          root: 'flex flex-col w-full',
-          status: 'flex-row min-w-fit items-center justify-end',
+          root: 'w-full',
           track: 'h-(--p-size) w-full',
-          indicator: 'origin-left',
-          steps: 'w-full',
+          indicator:
+            'origin-left rtl:origin-right not-[[data-indeterminate]]:scale-x-[var(--p-value)]',
         },
         vertical: {
-          root: 'flex flex-row-reverse h-full min-h-36 items-start',
-          status: 'flex-col min-h-fit justify-end',
-          track: 'h-full min-h-36 w-(--p-size)',
-          indicator: 'origin-bottom',
-          steps: 'ms-2 h-full items-start',
+          root: 'h-full min-h-36 w-fit',
+          track: 'h-full min-h-36 w-(--p-size) justify-self-center',
+          indicator: 'origin-bottom not-[[data-indeterminate]]:scale-y-[var(--p-value)]',
         },
       },
       size: {
         sm: {
           '--p-size': '0.25rem',
-          status: 'text-xs',
-          steps: 'text-xs',
-          step: 'text-xs',
+          label: 'text-xs',
+          value: 'text-xs',
         },
         md: {
           '--p-size': '0.5rem',
-          status: 'text-sm',
-          steps: 'text-sm',
-          step: 'text-sm',
+          label: 'text-sm',
+          value: 'text-sm',
         },
         lg: {
           '--p-size': '0.75rem',
-          status: 'text-base',
-          steps: 'text-base',
-          step: 'text-base',
+          label: 'text-base',
+          value: 'text-base',
         },
       },
     },

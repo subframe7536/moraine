@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Index, Show, createMemo, splitProps } from 'solid-js'
+import { Show, createMemo, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -7,13 +7,9 @@ import { renderWithProps } from '../../shared/render-with-props'
 
 import { defaultProgressMessages } from './progress.messages'
 import { progressDataAttributes, progressRecipe } from './progress.recipe'
-import type { ProgressProps, ProgressT } from './progress.types'
+import type { ProgressProps } from './progress.types'
 
-function resolveMaxValue(max: ProgressProps['max']): number {
-  if (Array.isArray(max)) {
-    return Math.max(max.length - 1, 0)
-  }
-
+function resolveMaxValue(max: number | undefined): number {
   if (typeof max === 'number' && Number.isFinite(max) && max >= 0) {
     return max
   }
@@ -25,43 +21,42 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
 }
 
-/** Determinate or indeterminate progress indicator with optional step labels. */
+function hasContent(content: JSX.Element): boolean {
+  return content === 0 || Boolean(content)
+}
+
+/** Determinate or indeterminate progress indicator with an optional label and value. */
 export function Progress(props: ProgressProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'value',
-    'max',
-    'status',
-    'getValueLabel',
-    'statusRender',
-    'stepRender',
-    'orientation',
-    'animation',
-    'size',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
-  const resolved = createStyles(progressRecipe, local)
+  const [local, style, rest] = splitProps(
+    props,
+    ['value', 'max', 'label', 'showValue', 'valueLabel', 'valueRender'],
+    ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
+  )
   const messages = useMessages('progress', defaultProgressMessages)
-
-  const orientation = () => resolved.variants.orientation
-
-  const steps = createMemo<string[]>(() => {
-    const max = local.max
-    return Array.isArray(max) ? max : []
-  })
-  const hasSteps = createMemo(() => steps().length > 0)
-  const resolvedMax = createMemo(() => resolveMaxValue(local.max))
+  const labelContent = createMemo(() => local.label)
+  const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(
     () => local.value === null || local.value === undefined || !Number.isFinite(local.value),
   )
+  const valueRender = createMemo(() => (isIndeterminate() ? undefined : local.valueRender))
+  const showValueSlot = () => {
+    if (isIndeterminate()) {
+      return false
+    }
 
+    if (local.showValue) {
+      return true
+    }
+
+    return valueRender() !== undefined
+  }
+  const showHeader = () => hasLabel() || showValueSlot()
+
+  const resolvedMax = createMemo(() => resolveMaxValue(local.max))
   const minValue = 0
   const resolvedValue = createMemo(() =>
     isIndeterminate() ? minValue : clamp(local.value as number, minValue, resolvedMax()),
   )
-
   const percent = createMemo<number | undefined>(() => {
     if (isIndeterminate()) {
       return undefined
@@ -74,6 +69,25 @@ export function Progress(props: ProgressProps): JSX.Element {
 
     return Math.round(((resolvedValue() - minValue) / range) * 10000) / 100
   })
+  const resolved = createStyles(progressRecipe, style, {
+    vars: () => {
+      const next = percent()
+      if (next === undefined) {
+        return undefined
+      }
+
+      return { '--p-value': next / 100 }
+    },
+    enforced: () => ({
+      root: {
+        class:
+          hasLabel() && showValueSlot() ? 'grid-cols-[minmax(0,1fr)_auto] gap-x-2' : 'grid-cols-1',
+      },
+      label: { class: 'col-start-1 row-start-1' },
+      value: { class: hasLabel() ? 'col-start-2 row-start-1' : 'col-start-1 row-start-1' },
+      track: { class: showHeader() ? 'col-span-full row-start-2' : 'col-span-full row-start-1' },
+    }),
+  })
 
   const progressState = {
     indeterminate: isIndeterminate,
@@ -82,66 +96,18 @@ export function Progress(props: ProgressProps): JSX.Element {
   }
   const rootDataAttrs = progressDataAttributes.root(progressState)
   const indicatorDataAttrs = progressDataAttributes.indicator(progressState)
-
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
       return messages().indeterminate
     }
 
-    const valueLabel = local.getValueLabel
-    if (valueLabel) {
-      return valueLabel({ value: resolvedValue(), min: minValue, max: resolvedMax() })
+    const formatValue = local.valueLabel
+    if (formatValue) {
+      return formatValue({ value: resolvedValue(), min: minValue, max: resolvedMax() })
     }
 
     return `${percent() ?? 0}%`
   })
-
-  const statusStyle = createMemo<JSX.CSSProperties>(() => {
-    const currentPercent = percent() ?? 0
-    if (orientation() === 'vertical') {
-      return { height: `${100 - currentPercent}%` }
-    }
-
-    return { width: `${currentPercent}%` }
-  })
-
-  const indicatorStyle = createMemo<JSX.CSSProperties | undefined>(() => {
-    const currentPercent = percent()
-    if (currentPercent === undefined) {
-      return undefined
-    }
-
-    const distance = 100 - currentPercent
-    if (orientation() === 'vertical') {
-      return {
-        transform: `translateY(${distance}%)`,
-      }
-    }
-
-    return {
-      transform: `translateX(-${distance}%)`,
-    }
-  })
-
-  function stepState(index: number): ProgressT.StepRenderProps['state'] {
-    const activeIndex = Number.isFinite(resolvedValue()) ? Math.round(resolvedValue()) : 0
-    const isActive = !isIndeterminate() && index === activeIndex
-    const lastIndex = steps().length - 1
-
-    if (isActive && index === 0) {
-      return 'first'
-    }
-
-    if (isActive && index === lastIndex) {
-      return 'last'
-    }
-
-    if (isActive) {
-      return 'active'
-    }
-
-    return 'other'
-  }
 
   return (
     <div
@@ -155,59 +121,27 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuetext={valueText()}
       {...resolved.slots.root}
     >
-      <Show when={!isIndeterminate()}>
-        {(_determinate) => {
-          const statusRender = createMemo(() => local.statusRender)
-          const shouldRenderStatus = createMemo(() => local.status || statusRender() !== undefined)
+      <Show when={hasLabel()}>
+        <span data-slot="progress-label" {...resolved.slots.label}>
+          {labelContent()}
+        </span>
+      </Show>
 
-          return (
-            <Show when={shouldRenderStatus()}>
-              <div
-                data-slot="progress-status"
-                class={resolved.slots.status.class}
-                style={{ ...statusStyle(), ...resolved.slots.status.style }}
-              >
-                <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
-                  {renderWithProps(statusRender(), {
-                    get percent() {
-                      return percent()
-                    },
-                  })}
-                </Show>
-              </div>
-            </Show>
-          )
-        }}
+      <Show when={showValueSlot()}>
+        <span data-slot="progress-value" {...resolved.slots.value}>
+          <Show when={valueRender()} fallback={`${percent() ?? 0}%`}>
+            {renderWithProps(valueRender(), {
+              get percent() {
+                return percent()
+              },
+            })}
+          </Show>
+        </span>
       </Show>
 
       <div data-slot="progress-track" {...resolved.slots.track}>
-        <div
-          data-slot="progress-indicator"
-          class={resolved.slots.indicator.class}
-          style={{ ...indicatorStyle(), ...resolved.slots.indicator.style }}
-          {...indicatorDataAttrs}
-        />
+        <div data-slot="progress-indicator" {...indicatorDataAttrs} {...resolved.slots.indicator} />
       </div>
-
-      <Show when={hasSteps()}>
-        <div data-slot="progress-steps" {...resolved.slots.steps}>
-          <Index each={steps()}>
-            {(step, index) => (
-              <div
-                data-slot="progress-step"
-                {...progressDataAttributes.step({ state: () => stepState(index) })}
-                {...resolved.slots.step}
-              >
-                <Show when={local.stepRender} fallback={step()} keyed>
-                  {(StepRender) => (
-                    <StepRender step={step()} index={index} state={stepState(index)} />
-                  )}
-                </Show>
-              </div>
-            )}
-          </Index>
-        </div>
-      </Show>
     </div>
   )
 }

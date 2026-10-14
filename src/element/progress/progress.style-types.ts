@@ -1,23 +1,21 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface ProgressStyleSlot<T = unknown> {
-  /** Progress container that owns track, indicator, labels, and step markers. */
+  /** Progress container that owns the label, value, track, and indicator. */
   root?: T
 
-  /** Text region that displays the current progress status. */
-  status?: T
+  /** Text that names the operation. */
+  label?: T
+
+  /** Text that shows the current progress value. */
+  value?: T
 
   /** Background rail that represents the full progress range. */
   track?: T
 
   /** Filled bar that represents the current progress value. */
   indicator?: T
-
-  /** Wrapper for step labels when progress is driven by named steps. */
-  steps?: T
-
-  /** Individual step label or marker rendered along the progress scale. */
-  step?: T
 }
 
 export interface ProgressStyleVariant {
