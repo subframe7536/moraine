@@ -18,7 +18,7 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
   AlertDialogStyleVariant
 >('alertDialog', {
   base: {
-    content: 'p-6 gap-4',
+    content: 'p-6 gap-2',
     header: 'p-0 flex gap-3 items-start',
     icon: ALERT_DIALOG_ICON_CLASS,
     copy: 'flex-1 gap-2 grid min-w-0',
@@ -38,16 +38,16 @@ export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
     subtle: {
       true: {
         content: 'p-0 gap-0',
-        header: 'px-6 pb-6 pt-6',
-        footer: 'px-6 pb-6 pt-4 border-t border-border bg-muted/50',
+        header: 'p-6',
+        footer: 'p-3 border-t border-border bg-muted/50',
       },
     },
     center: {
       true: {
         content: 'p-0 gap-0',
-        header: 'px-6 pb-6 pt-6 text-center flex flex-col gap-4 items-center',
+        header: 'p-4 text-center flex flex-col gap-4 items-center',
         copy: 'text-center flex-none',
-        footer: 'px-6 pb-6 pt-4 border-t border-border flex-row gap-3',
+        footer: 'p-4 flex-row gap-3',
         action: 'flex-1',
         cancel: 'flex-1',
       },
