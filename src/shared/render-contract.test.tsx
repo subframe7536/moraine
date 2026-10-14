@@ -14,7 +14,6 @@ import {
   Modal,
   MultiSelect,
   Popover,
-  Progress,
   Select,
 } from '../index'
 import type { ButtonProps } from '../index'
@@ -96,12 +95,6 @@ describe('render and polymorphic contracts', () => {
   })
 
   test.each([
-    [
-      'Progress steps',
-      (props: { renderer: () => JSX.Element }) => (
-        <Progress value={1} max={['One', 'Two']} stepRender={props.renderer} />
-      ),
-    ],
     [
       'MultiSelect tags',
       (props: { renderer: () => JSX.Element }) => (

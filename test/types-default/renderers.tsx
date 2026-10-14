@@ -11,8 +11,6 @@ import {
   Toast,
 } from 'moraine'
 
-// @ts-expect-error Each step requires its own renderer instance.
-;<Progress stepRender={<span />} />
 // @ts-expect-error Each breadcrumb requires its own renderer instance.
 ;<Breadcrumb itemRender={<span />} />
 // @ts-expect-error Each option requires its own renderer instance.
@@ -34,7 +32,8 @@ import {
 // @ts-expect-error Each toast requires its own renderer instance.
 ;<Toast itemRender={<span />} />
 
-;<Progress statusRender={<span />} stepRender={(props) => <span>{props.step}</span>} />
+;<Progress valueRender={<span />} />
+;<Progress valueRender={(props) => <span>{props.percent}</span>} />
 ;<Breadcrumb itemRender={(props) => <span>{props.index}</span>} />
 ;<Select itemRender={(props) => <span>{props.item.label}</span>} />
 ;<Combobox emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
