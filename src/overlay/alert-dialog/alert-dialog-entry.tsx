@@ -38,13 +38,6 @@ function showsCancel(
   return cancel !== false
 }
 
-function RegisterCustomLabels(props: { titleId: string; descriptionId: string }): JSX.Element {
-  const content = useDialogContent()
-  useRegisteredContentId(() => props.titleId, content.registerTitle)
-  useRegisteredContentId(() => props.descriptionId, content.registerDescription)
-  return <></>
-}
-
 type AlertDialogStyles = ReturnType<typeof createAlertDialogStyles>
 
 function iconToneClass(options: AlertDialogT.Options): string | undefined {
@@ -251,12 +244,14 @@ export function AlertDialogEntry(props: {
           keyed
           fallback={<AlertDialogDefault record={props.record} resolved={resolved} />}
         >
-          {(render) => (
-            <>
-              <RegisterCustomLabels
-                titleId={props.record.presentation.titleId}
-                descriptionId={props.record.presentation.descriptionId}
-              />
+          {(render) => {
+            const content = useDialogContent()
+            useRegisteredContentId(() => props.record.presentation.titleId, content.registerTitle)
+            useRegisteredContentId(
+              () => props.record.presentation.descriptionId,
+              content.registerDescription,
+            )
+            return (
               <Dynamic
                 component={render}
                 id={props.record.presentation.id}
@@ -269,8 +264,8 @@ export function AlertDialogEntry(props: {
                 titleId={props.record.presentation.titleId}
                 descriptionId={props.record.presentation.descriptionId}
               />
-            </>
-          )}
+            )
+          }}
         </Show>
       </Dialog.Content>
     </Dialog>
