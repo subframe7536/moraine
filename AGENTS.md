@@ -22,7 +22,13 @@ Run workspace commands from the repository root.
 
 ### Linting & Formatting
 
-- `pnpm run lint` - Run oxlint with fix (fast linter based on oxc).
+- `pnpm run lint` - Run oxlint with fix (fast linter based on oxc). Custom repository rules (`build/oxlint-plugin-moraine.ts`) check and enforce:
+  - `moraine/no-slots-class-style-in-jsx` (spread `{...slots.<slot>}` directly)
+  - `moraine/inline-data-attributes-in-jsx` (inline `*DataAttributes` calls in JSX)
+  - `moraine/require-create-effect-on` (wrap `createEffect` in `on()`)
+  - `moraine/no-emitted-extensions-in-imports` (disallow `.js`/`.jsx` extensions)
+  - `moraine/no-string-style-prop` (prohibit string `style` in JSX)
+  - `moraine/no-direct-component-call` (call components with `<Component />`, not function calls)
 - `pnpm run format` - Format code using oxfmt.
 - Run the fix-capable `lint` and `format` commands first; manually fix only issues they cannot resolve.
 - `pnpm run qa` - Run lint with fixes, format, and typecheck together. **Run this before every commit and review the resulting diff.**
@@ -121,8 +127,8 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
 - Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
 - Resolve recipes in Solid components with `useRecipe()` from `src/theme/use-recipe.ts` (internal; not part of the public `moraine` entry). The API returns `{ slots, variants, slotWith, overrides }`. Components must destructure the return (`const { slots, variants, ... } = useRecipe(...)`) to avoid duplicate `resolved.slots` reads. Use the `overrides` helper to forward presentation to sub-components without manual slot mapping.
-- **Spread slots directly:** Never pass `slots.<slot>.class` or `slots.<slot>.style` directly into `class=` or `style=` JSX attributes. Spread `{...slots.<slot>}` directly onto host elements or use `slotWith` / `overrides`.
-- **Inline data attributes:** Call `*DataAttributes.*(...)` directly inside JSX spreads (e.g. `<div {...dialogDataAttributes.body(...)} />`) rather than assigning to intermediate variables.
+- **Spread slots directly:** Spread `{...slots.<slot>}` directly onto host elements or use `slotWith` / `overrides`.
+- **Inline data attributes:** Call `*DataAttributes.*(...)` directly inside JSX spreads.
 - **`useRecipe` layer order** (later wins). `cn` merges classes; style objects skip `undefined` / `null` so they do not overwrite earlier layers:
   1. Recipe base + variants/compound + Provider theme overrides (inside recipe resolve) + recipe CSS vars + `vars()`
   2. `contextSlots` — ancestor Context `{ classes, styles }` (use `pickSlotOverrides(props)` when storing on Context as `slotOverrides`)
@@ -143,7 +149,6 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Use recipe variants for public component variants and cross-slot presentation changes. Express DOM state with utility selectors such as `data-expanded:` or `aria-disabled:` instead of adding a recipe variant solely for internal state.
 - **`useCn` and `cn` in UI components:** `useCn()` or `cn(...)` can be used in components when combining classes outside `useRecipe` (e.g. normalizing `ClassValue` props, non-recipe wrapper elements, or merging item row classes). Prefer `useRecipe` (`own`, `enforced`, and variants) for recipe-managed elements.
 - Parenthesized utility groups are supported in recipe files (for example, `hover:(bg-red-500 text-white)`). Use standard flat utility syntax elsewhere.
-- **Custom Oxlint Plugin:** Repository rules are enforced by the custom Oxlint plugin (`build/oxlint-plugin-moraine.ts`), including `moraine/no-slots-class-style-in-jsx`, `moraine/inline-data-attributes-in-jsx`, `moraine/require-create-effect-on`, `moraine/no-emitted-extensions-in-imports`, `moraine/no-string-style-prop`, and `moraine/no-direct-component-call`.
 
 ## Code Style & Conventions
 
@@ -169,11 +174,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 ### SolidJS Best Practices
 
-- Always wrap `createEffect` callbacks with Solid's `on()` and declare their reactive dependencies explicitly. Keep dependency accessors free of side effects. Use `on([], callback)` for effects with no reactive dependencies. Reuse the dependency values passed to `on()` callbacks instead of reading the same dependencies again; retain fresh reads when asynchronous work or user callbacks require the latest state.
-
-- Effect dependencies must be signals, existing memos, direct property accessors, boolean condition accessors, or named accessors that snapshot raw nested fields. Prefer boolean accessors when the effect only needs an enabled/open/closed condition; reuse existing boolean helpers when available. Keep raw value and element dependencies when value changes or node replacement must rerun the effect. Keep filtering, lookups, normalization, comparisons, and defaults inside the effect callback unless they directly express its boolean condition. Do not construct conditional tuples, state wrapper objects, or synthetic `undefined` values to skip an effect. Optional properties may naturally be `undefined`. Raw snapshots may copy structure and fields to track in-place updates, but must not contain business logic.
-
-- The dependencies passed to `on()` describe when an effect must rerun, not every reactive value it uses. Read non-triggering state inside the callback, which is already untracked.
+- Always wrap `createEffect` callbacks with Solid's `on()`. Read non-triggering state inside the callback untracked.
 
 - **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
   1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.
@@ -183,7 +184,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
   5. Read an object accessor once when several of its fields are used. Do not keep `createMemo` for an object that is only spread at one site: inline a short expression there, and use a plain accessor for a longer one-site derivation.
   6. `useRecipe` callbacks (`contextVariants`, `vars`, `contextSlots`, `own`, `enforced`) stay as accessors that return their contract object.
 
-- Inner component should call using JSX style instead of directly function call
+- Call components using JSX syntax (`<Component />`), never as direct functions.
 
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
@@ -202,14 +203,14 @@ Component directories normally contain implementation (`{component}.tsx` and any
      Split `??` fallback props such as i18n `aria-label` out of rest and assign `local['aria-label'] ?? messages().label` after rest. Do not reconstruct `data-slot` from rest after spreading it; put the default before rest. `mergeProps(defaults, rest, composedHandlers)` is the same rule.
 - **`<Dynamic>`:** `component` must be the first attribute. Apply the `{...rest}` attribute overload order after it.
 - **Imports:** Organize imports: external lib -> internal shared -> component files.
-- **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) for relative and `@src` imports in `docs/build/**` and files matching `**/*.config.ts`. Omit extensions from other imports under `src/**` and `docs/**`. Never use emitted `.js` or `.jsx` extensions in source import paths.
+- **Internal Import Extensions:** Use explicit source extensions (`.ts` or `.tsx`) in `docs/build/**` and `**/*.config.ts`; omit extensions in `src/**` and `docs/**`.
 
 ### Styling (UnoCSS)
 
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
 - **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
-- **Style Prop:** Style prop must always be typed as `JSX.CSSProperties` (object). String style (`string | JSX.CSSProperties`) is strictly forbidden across all component props, slots, and element wrappers. Narrow native HTML element props using `ElementProps` or `Omit<JSX.HTMLAttributes<...>, 'style'> & { style?: JSX.CSSProperties }`. Do not write defensive runtime guards like `typeof style === 'object'` or `toStyleObject()` assuming style could be a string.
+- **Style Prop:** Style prop must always be typed as `JSX.CSSProperties` (object); string style is strictly forbidden.
 
 ### Error Handling
 
