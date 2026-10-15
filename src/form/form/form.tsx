@@ -33,7 +33,6 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'of',
     'onSubmit',
     'onReset',
-    'children',
   ])
   const { slots } = useRecipe(formRecipe, local)
   const messages = useMessages('form', defaultFormMessages)
@@ -94,6 +93,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       data-slot="form"
       {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
       {...formProps}
+      {...slots.root}
       ref={(element) => {
         local.of[INTERNAL].element = element
         callRef(local.ref, element)
@@ -106,10 +106,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       novalidate
       onSubmit={onSubmit}
       onReset={onReset}
-      {...slots.root}
-    >
-      {local.children}
-    </form>
+    />
   )
 }
 

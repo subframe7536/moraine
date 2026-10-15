@@ -14,7 +14,6 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
   const [local, rest] = splitProps(props, [
     'value',
     'disabled',
-    'children',
     'class',
     'style',
     'classes',
@@ -56,9 +55,7 @@ export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Elemen
         })}
         {...rest}
         {...slots.item}
-      >
-        {local.children}
-      </li>
+      />
     </NavigationMenuItemProvider>
   )
 }

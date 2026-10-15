@@ -25,7 +25,7 @@ export type EmptyPartProps = Omit<
 }
 
 export function EmptyPart(props: EmptyPartProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useEmptyContext()
   const { slots } = useRecipe(emptyRecipe, local, {
     slot: untrack(() => local.slot),
@@ -39,8 +39,6 @@ export function EmptyPart(props: EmptyPartProps): JSX.Element {
       data-slot={`empty-${local.slot}`}
       {...rest}
       {...slots[local.slot]}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

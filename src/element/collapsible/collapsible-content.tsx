@@ -21,7 +21,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
     'as',
-    'children',
     'class',
     'style',
     'ref' as any,
@@ -74,9 +73,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           {...rest}
           {...slots.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
-        >
-          {local.children}
-        </Dynamic>
+        />
       </Show>
     </div>
   )

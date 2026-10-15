@@ -14,7 +14,7 @@ import type { DialogT } from './dialog.types'
 export function DialogTitle<T extends ValidComponent = 'h2'>(
   props: DialogT.TitleProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
   const family = useModalContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
@@ -30,8 +30,6 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
       {...rest}
       id={id()}
       {...slots.title}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

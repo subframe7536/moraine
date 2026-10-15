@@ -13,7 +13,7 @@ import type { DialogT } from './dialog.types'
 export function DialogBody<T extends ValidComponent = 'div'>(
   props: DialogT.BodyProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const family = useModalContext()
   const content = useDialogContent()
   const { slots } = useRecipe(dialogRecipe, local, {
@@ -32,8 +32,6 @@ export function DialogBody<T extends ValidComponent = 'div'>(
       })}
       {...rest}
       {...slots.body}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

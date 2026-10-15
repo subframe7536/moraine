@@ -11,7 +11,7 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 export function SidebarFrameLabel<T extends ValidComponent = 'div'>(
   props: SidebarFrameT.LabelProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const resolved = useSidebarFrameStyles('label', local)
 
   return (
@@ -20,8 +20,6 @@ export function SidebarFrameLabel<T extends ValidComponent = 'div'>(
       data-slot="sidebar-frame-label"
       {...rest}
       {...resolved.slots.label}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

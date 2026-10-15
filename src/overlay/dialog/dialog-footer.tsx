@@ -13,7 +13,7 @@ import type { DialogT } from './dialog.types'
 export function DialogFooter<T extends ValidComponent = 'div'>(
   props: DialogT.FooterProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const family = useModalContext()
   const content = useDialogContent()
   const unregister = content.registerFooter()
@@ -24,8 +24,6 @@ export function DialogFooter<T extends ValidComponent = 'div'>(
     contextSlots: () => family.slotOverrides,
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="dialog-footer" {...rest} {...slots.footer}>
-      {local.children}
-    </Dynamic>
+    <Dynamic component={local.as ?? 'div'} data-slot="dialog-footer" {...rest} {...slots.footer} />
   )
 }

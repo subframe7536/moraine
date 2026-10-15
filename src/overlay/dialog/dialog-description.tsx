@@ -14,7 +14,7 @@ import type { DialogT } from './dialog.types'
 export function DialogDescription<T extends ValidComponent = 'p'>(
   props: DialogT.DescriptionProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
   const family = useModalContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerDescription)
@@ -30,8 +30,6 @@ export function DialogDescription<T extends ValidComponent = 'p'>(
       {...rest}
       id={id()}
       {...slots.description}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

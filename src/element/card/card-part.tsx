@@ -25,7 +25,7 @@ export type CardPartProps = Omit<
 }
 
 export function CardPart(props: CardPartProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useCardContext()
   const { slots } = useRecipe(cardRecipe, local, {
     slot: untrack(() => local.slot),
@@ -39,8 +39,6 @@ export function CardPart(props: CardPartProps): JSX.Element {
       data-slot={`card-${local.slot}`}
       {...rest}
       {...slots[local.slot]}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

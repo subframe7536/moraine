@@ -12,7 +12,7 @@ import type { BaseSelectPartProps } from './base-select.types'
 
 export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
   const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'listbox',
     contextSlots: () => state.slotOverrides,
@@ -43,6 +43,7 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
       aria-readonly={state.field.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       {...rest}
+      {...slots.listbox}
       id={state.listboxId()}
       tabIndex={-1}
       ref={(element) => {
@@ -54,9 +55,6 @@ export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
           }
         })
       }}
-      {...slots.listbox}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

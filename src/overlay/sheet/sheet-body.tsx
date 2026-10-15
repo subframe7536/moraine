@@ -13,7 +13,7 @@ import type { SheetT } from './sheet.types'
 export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const family = useModalContext()
   const content = useSheetContent()
   const { slots } = useRecipe(sheetRecipe, local, {
@@ -28,8 +28,6 @@ export function SheetBody<T extends ValidComponent = 'div'>(
       {...sheetDataAttributes.body({ header: content.hasHeader })}
       {...rest}
       {...slots.body}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

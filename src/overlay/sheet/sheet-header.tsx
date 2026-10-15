@@ -13,7 +13,7 @@ import type { SheetT } from './sheet.types'
 function SheetHeaderRoot<T extends ValidComponent>(
   props: SheetT.HeaderProps<T> & { headerKind: 'explicit' | 'shorthand' },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'headerKind'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'headerKind'])
   const family = useModalContext()
   const content = useSheetContent()
   const unregister = content.registerHeader(untrack(() => local.headerKind))
@@ -24,9 +24,7 @@ function SheetHeaderRoot<T extends ValidComponent>(
     contextSlots: () => family.slotOverrides,
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...rest} {...slots.header}>
-      {local.children}
-    </Dynamic>
+    <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...rest} {...slots.header} />
   )
 }
 

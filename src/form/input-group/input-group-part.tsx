@@ -11,7 +11,7 @@ export function renderInputGroupPart(
   part: 'leading' | 'trailing',
   props: InputGroupT.LeadingProps | InputGroupT.TrailingProps,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'compact', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['compact', 'class', 'style'])
   const group = useInputGroupContext()
   if (!group) {
     const name = part === 'leading' ? 'Leading' : 'Trailing'
@@ -35,8 +35,6 @@ export function renderInputGroupPart(
       })}
       {...rest}
       {...slots[part]}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

@@ -21,7 +21,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
+  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
     varsSlot: 'content',
@@ -118,23 +118,21 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
         )
         return (
           <div
-            {...attributes}
-            id={`${context.id()}-${item.value()}-content`}
-            role={rest.role ?? 'region'}
-            aria-labelledby={item.trigger()?.id}
-            aria-hidden={!expanded() ? true : undefined}
-            inert={!expanded() ? true : undefined}
-            tabIndex={-1}
             data-slot="navigation-menu-content"
             {...navigationMenuDataAttributes.content({
               expanded: displayed,
               closed: () => !displayed(),
               orientation: context.orientation,
             })}
+            {...attributes}
             {...slots.content}
-          >
-            {local.children}
-          </div>
+            id={`${context.id()}-${item.value()}-content`}
+            role={rest.role ?? 'region'}
+            aria-labelledby={item.trigger()?.id}
+            aria-hidden={!expanded() ? true : undefined}
+            inert={!expanded() ? true : undefined}
+            tabIndex={-1}
+          />
         )
       }}
     </Show>

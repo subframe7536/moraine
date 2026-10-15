@@ -10,7 +10,7 @@ import type { BaseSelectT } from './base-select.types'
 
 export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
   const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'control',
     contextSlots: () => state.slotOverrides,
@@ -28,6 +28,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
         closed: () => !state.open(),
       })}
       {...rest}
+      {...slots.control}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)
@@ -37,9 +38,6 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
           }
         })
       }}
-      {...slots.control}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

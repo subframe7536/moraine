@@ -11,7 +11,6 @@ import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
 /** Native scroll container with optional fades at overflowing edges. */
 export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'children',
     'ref',
     'orientation',
     'shadow',
@@ -142,13 +141,11 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       tabIndex={canScroll() ? 0 : -1}
       {...scrollAreaDataAttributes.root({ orientation, shadowStart, shadowEnd })}
       {...rest}
+      {...slots.root}
       ref={(element) => {
         root = element
         callRef(local.ref, element)
       }}
-      {...slots.root}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

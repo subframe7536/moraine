@@ -23,7 +23,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'disabled',
     'transition',
     'unmountOnHide',
-    'children',
     'classes',
     'styles',
     'class',
@@ -85,9 +84,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         })}
         {...rest}
         {...slots.root}
-      >
-        {local.children}
-      </div>
+      />
     </CollapsibleProvider>
   )
 }

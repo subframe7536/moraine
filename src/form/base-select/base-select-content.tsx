@@ -20,7 +20,6 @@ import type { BaseSelectT } from './base-select.types'
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, [
-    'children',
     'ref',
     'class',
     'style',
@@ -107,15 +106,13 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
               side,
             })}
             {...rest}
+            {...slots.content}
             ref={(element) => {
               setContent(element)
               presence.setElement(element)
               callRef(local.ref, element)
             }}
-            {...slots.content}
-          >
-            {local.children}
-          </div>
+          />
         </div>
       </Portal>
     </Show>

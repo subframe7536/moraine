@@ -13,7 +13,7 @@ import type { SheetT } from './sheet.types'
 export function SheetFooter<T extends ValidComponent = 'div'>(
   props: SheetT.FooterProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const family = useModalContext()
   const content = useSheetContent()
   const { slots } = useRecipe(sheetRecipe, local, {
@@ -22,8 +22,6 @@ export function SheetFooter<T extends ValidComponent = 'div'>(
     contextSlots: () => family.slotOverrides,
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="sheet-footer" {...rest} {...slots.footer}>
-      {local.children}
-    </Dynamic>
+    <Dynamic component={local.as ?? 'div'} data-slot="sheet-footer" {...rest} {...slots.footer} />
   )
 }

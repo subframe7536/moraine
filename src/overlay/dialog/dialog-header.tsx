@@ -13,7 +13,7 @@ import type { DialogT } from './dialog.types'
 function DialogHeaderRoot<T extends ValidComponent>(
   props: DialogT.HeaderProps<T> & { headerKind: 'explicit' | 'shorthand' },
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'headerKind'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'headerKind'])
   const family = useModalContext()
   const content = useDialogContent()
   const unregister = content.registerHeader(untrack(() => local.headerKind))
@@ -24,9 +24,7 @@ function DialogHeaderRoot<T extends ValidComponent>(
     contextSlots: () => family.slotOverrides,
   })
   return (
-    <Dynamic component={local.as ?? 'div'} data-slot="dialog-header" {...rest} {...slots.header}>
-      {local.children}
-    </Dynamic>
+    <Dynamic component={local.as ?? 'div'} data-slot="dialog-header" {...rest} {...slots.header} />
   )
 }
 

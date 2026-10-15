@@ -12,7 +12,7 @@ export function SidebarFrameMain<T extends ValidComponent = 'div'>(
   props: SidebarFrameT.MainProps<T>,
 ): JSX.Element {
   const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'onScroll'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'onScroll'])
   const resolved = useSidebarFrameStyles('main', local)
 
   return (
@@ -27,8 +27,6 @@ export function SidebarFrameMain<T extends ValidComponent = 'div'>(
           context.setScrolled(event.currentTarget.scrollTop > context.scrollThreshold)
         }
       }}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

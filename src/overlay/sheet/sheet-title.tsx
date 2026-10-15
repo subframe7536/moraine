@@ -14,7 +14,7 @@ import type { SheetT } from './sheet.types'
 export function SheetTitle<T extends ValidComponent = 'h2'>(
   props: SheetT.TitleProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
   const family = useModalContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
@@ -30,8 +30,6 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
       {...rest}
       id={id()}
       {...slots.title}
-    >
-      {local.children}
-    </Dynamic>
+    />
   )
 }

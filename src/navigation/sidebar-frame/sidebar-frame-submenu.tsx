@@ -19,12 +19,8 @@ export function useSidebarFrameSubmenu() {
 
 /** Container for expandable sub-navigation in a sidebar menu. */
 export function SidebarFrameSubmenu(props: SidebarFrameT.SubmenuProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['class', 'style'])
   const resolved = useSidebarFrameStyles('submenu', local)
 
-  return (
-    <Collapsible data-slot="sidebar-frame-submenu" {...rest} {...resolved.slots.submenu}>
-      {local.children}
-    </Collapsible>
-  )
+  return <Collapsible data-slot="sidebar-frame-submenu" {...rest} {...resolved.slots.submenu} />
 }

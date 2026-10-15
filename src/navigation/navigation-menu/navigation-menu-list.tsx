@@ -9,7 +9,7 @@ import type { NavigationMenuT } from './navigation-menu.types'
 
 export function NavigationMenuList(props: NavigationMenuT.ListProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
+  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'list',
     contextSlots: () => pickSlotOverrides(context.options),
@@ -21,8 +21,6 @@ export function NavigationMenuList(props: NavigationMenuT.ListProps): JSX.Elemen
       {...navigationMenuDataAttributes.list({ orientation: context.orientation })}
       {...rest}
       {...slots.list}
-    >
-      {local.children}
-    </ul>
+    />
   )
 }
