@@ -34,12 +34,12 @@ describe('callRef', () => {
           count()
         }, element)
       })
+
+      expect(runs).toBe(1)
+      setCount(1)
+      expect(runs).toBe(1)
       dispose()
     })
-
-    expect(runs).toBe(1)
-    setCount(1)
-    expect(runs).toBe(1)
   })
 })
 

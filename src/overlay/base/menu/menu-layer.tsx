@@ -652,6 +652,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               onAutoFocusHandled={() => {
                 setAutoFocusStrategy('none')
               }}
+              onContentPointerDown={undefined}
+              onContextMenu={undefined}
               refState={(state) => {
                 submenuLayerState = state
               }}
@@ -790,8 +792,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           callRef(props.contentProps?.ref, element)
           createEventListener(element, 'keydown', onContentKeyDown)
         }}
-        {...props.contentProps}
-        {...resolveSlot('content')}
+        class={cn(resolveSlot('content').class, props.contentProps?.class)}
+        style={{
+          ...resolveSlot('content').style,
+          ...props.contentProps?.style,
+        }}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
           if (!defaultPrevented) {
