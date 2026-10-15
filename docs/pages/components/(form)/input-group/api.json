@@ -13,12 +13,6 @@
       "defaultElement": "div",
       "props": [
         {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element",
-          "description": "Place the control before supporting content in DOM order."
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",

@@ -6,7 +6,6 @@ import { createControllableValue } from '../../shared/controllable-value'
 import { createEventListenerMap } from '../../shared/event-listener'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import { createId } from '../../shared/utils'
-import { dataSlotName } from '../../theme/data-slot'
 import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../base/dom'
 import { useOverlayInteraction } from '../base/interaction'
 import {
@@ -20,7 +19,7 @@ import {
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
 import { ModalProvider } from './modal-context'
-import type { ModalConfiguration, ModalKind, ModalPropsByKind } from './modal-context'
+import type { ModalContext } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
 import { ModalPortal } from './modal-portal'
 import { ModalTrigger } from './modal-trigger'
@@ -28,14 +27,6 @@ import type { ModalProps } from './modal.types'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
-  return <ModalInternal kind="modal" {...props} />
-}
-
-export function ModalInternal<K extends ModalKind>(
-  props: { kind: K } & ModalPropsByKind[K],
-): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- The family is fixed for this root; props retain their reactive getters.
-  const configuration = { kind: props.kind, props } as ModalConfiguration
   const rootId = createId(() => props.id, 'modal')
   const contentId = () => `${rootId()}-content`
   const [open, updateOpen] = createControllableValue<boolean>({
@@ -267,9 +258,7 @@ export function ModalInternal<K extends ModalKind>(
     },
   })
 
-  const context = {
-    configuration,
-    slotName: (slot: string) => dataSlotName(configuration.kind, slot),
+  const context: ModalContext = {
     get slotOverrides() {
       return pickSlotOverrides(props)
     },

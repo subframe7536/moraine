@@ -204,7 +204,7 @@ describe('SidebarFrame', () => {
   test('uses the custom Sidebar accessible name for the mobile Sheet', async () => {
     const screen = render(() => (
       <SidebarFrame isMobile>
-        <SidebarFrame.Sidebar ariaLabel="Project navigation">Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Sidebar aria-label="Project navigation">Navigation</SidebarFrame.Sidebar>
         <SidebarFrame.Main>
           <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
         </SidebarFrame.Main>
@@ -291,7 +291,7 @@ describe('SidebarFrame', () => {
     const [mobile, setMobile] = createSignal(false)
     const screen = render(() => (
       <SidebarFrame isMobile={mobile()}>
-        <SidebarFrame.Sidebar ariaLabel="Account navigation">Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Sidebar aria-label="Account navigation">Navigation</SidebarFrame.Sidebar>
         <SidebarFrame.Main>
           <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
         </SidebarFrame.Main>

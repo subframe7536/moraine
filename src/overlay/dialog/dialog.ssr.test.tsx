@@ -85,14 +85,15 @@ describe('Dialog SSR Hydration', () => {
       'renderDialogFixture',
       () => (
         <>
-          <Dialog
-            closeIcon={<span data-testid="server-close-icon">Close</span>}
-            ariaLabel="Server dialog"
-          >
+          <Dialog closeIcon={<span data-testid="server-close-icon">Close</span>}>
             <Dialog.Trigger as="button" type="button">
               Open custom dialog
             </Dialog.Trigger>
-            <Dialog.Content title="Server title" description="Server description">
+            <Dialog.Content
+              aria-label="Server dialog"
+              title="Server title"
+              description="Server description"
+            >
               <Dialog.Header>
                 <div data-testid="server-header">Server header</div>
               </Dialog.Header>

@@ -207,7 +207,7 @@ export function ComponentRadar() {
             <Popover.Trigger as={Button} variant="outline" size="sm">
               Open popover
             </Popover.Trigger>
-            <Popover.Content ariaLabel="Popover example">
+            <Popover.Content aria-label="Popover example">
               <div class="p-4 max-w-52 space-y-1">
                 <p class="text-sm font-medium">Contextual content</p>
                 <p class="text-xs text-muted-foreground">

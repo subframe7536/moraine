@@ -15,7 +15,7 @@ export function NestedOverlays() {
             <Popover.Trigger as={Button} variant="outline">
               View settings help
             </Popover.Trigger>
-            <Popover.Content ariaLabel="Settings help" class="p-3">
+            <Popover.Content aria-label="Settings help" class="p-3">
               Changes apply to this workspace only.
             </Popover.Content>
           </Popover>

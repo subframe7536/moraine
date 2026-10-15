@@ -5,9 +5,8 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useRegisteredContentId } from '../base/content-anatomy'
-import { useModalContext } from '../modal/modal-context'
 
-import { useSheetContent } from './sheet-context'
+import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
@@ -15,13 +14,13 @@ export function SheetTitle<T extends ValidComponent = 'h2'>(
   props: SheetT.TitleProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
-  const family = useModalContext()
+  const sheet = useSheetContext()
   const content = useSheetContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
   const { slots } = useRecipe(sheetRecipe, local, {
     slot: 'title',
     contextVariants: () => content.variants,
-    contextSlots: () => family.slotOverrides,
+    contextSlots: () => sheet.slotOverrides,
   })
   return (
     <Dynamic

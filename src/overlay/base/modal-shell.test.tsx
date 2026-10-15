@@ -186,7 +186,7 @@ describe.each([
 
   test('prefers a native aria-label over a registered title', () => {
     render(() => (
-      <Root open ariaLabel="Root label">
+      <Root open>
         <Root.Content aria-label="Native label" title="Visible title" description="Details">
           <Root.Body>Body</Root.Body>
         </Root.Content>

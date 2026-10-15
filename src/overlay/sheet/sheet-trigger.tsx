@@ -3,18 +3,18 @@ import type { JSX } from 'solid-js'
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { Modal } from '../modal/modal'
-import { useModalContext } from '../modal/modal-context'
 
+import { useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
 export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
-  const family = useModalContext()
+  const sheet = useSheetContext()
   const { slots } = useRecipe(sheetRecipe, props, {
     slot: 'trigger',
-    contextSlots: () => family.slotOverrides,
+    contextSlots: () => sheet.slotOverrides,
   })
-  return <Modal.Trigger {...props} {...slots.trigger} />
+  return <Modal.Trigger data-slot="sheet-trigger" {...props} {...slots.trigger} />
 }

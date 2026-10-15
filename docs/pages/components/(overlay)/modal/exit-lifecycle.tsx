@@ -16,7 +16,7 @@ export function ExitLifecycle() {
       >
         <Modal.Portal>
           <Modal.Overlay />
-          <Modal.Content ariaLabel="Exit lifecycle example">
+          <Modal.Content aria-label="Exit lifecycle example">
             {({ close }) => (
               <div class="p-5 rounded-xl bg-card shadow-xl">
                 <p class="text-sm mb-4">

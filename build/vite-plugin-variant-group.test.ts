@@ -15,7 +15,8 @@ describe('variantGroupPlugin', () => {
     expect(transform.filter?.id).toBeInstanceOf(RegExp)
     expect(transform.filter?.code).toBeInstanceOf(RegExp)
 
-    const result = await transform.handler(
+    const result = await transform.handler.call(
+      {} as any,
       "export const BUTTON_CLASS = 'hover:(bg-primary text-primary-foreground)'\n",
       '/project/src/element/button/button.recipe.ts',
     )
@@ -32,7 +33,11 @@ describe('variantGroupPlugin', () => {
     }
 
     await expect(
-      transform.handler("export const BUTTON_CLASS = 'bg-primary'\n", '/project/button.recipe.ts'),
+      transform.handler.call(
+        {} as any,
+        "export const BUTTON_CLASS = 'bg-primary'\n",
+        '/project/button.recipe.ts',
+      ),
     ).resolves.toBeNull()
   })
 })

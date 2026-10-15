@@ -214,14 +214,14 @@ describe('Sheet', () => {
     )
   })
 
-  test('uses ariaLabel for a custom header without dangling generated IDs', () => {
+  test('uses aria-label for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Sheet
-        open
-
-        ariaLabel="Account panel"
-      >
-        <Sheet.Content title="Suppressed title" description="Suppressed description">
+      <Sheet open>
+        <Sheet.Content
+          aria-label="Account panel"
+          title="Suppressed title"
+          description="Suppressed description"
+        >
           <Sheet.Header>
             <div>Custom header</div>
           </Sheet.Header>
@@ -239,11 +239,7 @@ describe('Sheet', () => {
 
   test('preserves native ARIA naming attributes over generated Sheet relationships', () => {
     render(() => (
-      <Sheet
-        open
-
-        ariaLabel="Root sheet label"
-      >
+      <Sheet open>
         <Sheet.Content
           aria-label="Native sheet label"
           aria-labelledby="custom-sheet-title"
@@ -320,8 +316,8 @@ describe('Sheet', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Sheet open ariaLabel={ariaLabel}>
-          <Sheet.Content title={title} description={description}>
+        <Sheet open>
+          <Sheet.Content aria-label={ariaLabel} title={title} description={description}>
             <Sheet.Body>Body</Sheet.Body>
           </Sheet.Content>
         </Sheet>
@@ -452,14 +448,8 @@ describe('Sheet', () => {
     const [transition, setTransition] = createSignal(true)
 
     render(() => (
-      <Sheet
-        open
-        side={side()}
-        inset={inset()}
-        transition={transition()}
-        ariaLabel="Reactive sheet"
-      >
-        <Sheet.Content>
+      <Sheet open side={side()} inset={inset()} transition={transition()}>
+        <Sheet.Content aria-label="Reactive sheet">
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -484,8 +474,8 @@ describe('Sheet', () => {
 
   test('releases content and scroll lock when unmounted during exit', async () => {
     const screen = render(() => (
-      <Sheet defaultOpen ariaLabel="Unmounting sheet">
-        <Sheet.Content>
+      <Sheet defaultOpen>
+        <Sheet.Content aria-label="Unmounting sheet">
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -906,5 +896,126 @@ describe('Sheet', () => {
         value: previousInnerHeight,
       })
     }
+  })
+
+  test('preserves custom id on Sheet.Content and updates trigger aria-controls', () => {
+    render(() => (
+      <Sheet open>
+        <Sheet.Trigger>Open</Sheet.Trigger>
+        <Sheet.Content id="custom-sheet-id">
+          <Sheet.Body>Body</Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    const trigger = document.body.querySelector('[data-slot="sheet-trigger"]')!
+    expect(content.id).toBe('custom-sheet-id')
+    expect(trigger.getAttribute('aria-controls')).toBe('custom-sheet-id')
+  })
+
+  test('preserves locale direction when dir is undefined and allows explicit dir override', () => {
+    render(() => (
+      <MoraineProvider dir="rtl">
+        <Sheet open>
+          <Sheet.Content dir={undefined} data-testid="default-dir">
+            <Sheet.Body>Default RTL</Sheet.Body>
+          </Sheet.Content>
+        </Sheet>
+        <Sheet open>
+          <Sheet.Content dir="ltr" data-testid="explicit-dir">
+            <Sheet.Body>Explicit LTR</Sheet.Body>
+          </Sheet.Content>
+        </Sheet>
+      </MoraineProvider>
+    ))
+
+    const defaultDir = document.body.querySelector('[data-testid="default-dir"]')!
+    const explicitDir = document.body.querySelector('[data-testid="explicit-dir"]')!
+    expect(defaultDir.getAttribute('dir')).toBe('rtl')
+    expect(explicitDir.getAttribute('dir')).toBe('ltr')
+  })
+
+  test('supports render function children receiving close action', () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Sheet defaultOpen onOpenChange={onOpenChange}>
+        <Sheet.Content>
+          {({ close }) => (
+            <button type="button" data-testid="render-close" onClick={close}>
+              Close via render prop
+            </button>
+          )}
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const closeButton = document.body.querySelector<HTMLButtonElement>(
+      '[data-testid="render-close"]',
+    )!
+    expect(closeButton).not.toBeNull()
+    fireEvent.click(closeButton)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('forwards ref to Sheet.Content DOM element', () => {
+    let captured: HTMLDivElement | undefined
+    render(() => (
+      <Sheet open>
+        <Sheet.Content ref={(el) => (captured = el)}>
+          <Sheet.Body>Body</Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    expect(captured).toBeInstanceOf(HTMLElement)
+    expect(captured?.getAttribute('data-slot')).toBe('sheet-content')
+  })
+
+  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+      event.preventDefault()
+    })
+    render(() => (
+      <Sheet open modal>
+        <Sheet.Content onKeyDown={onKeyDown}>
+          <input data-testid="input" />
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalled()
+  })
+
+  test('dynamically toggles overlay={false} without unmounting content or losing state', () => {
+    const [overlay, setOverlay] = createSignal(true)
+    render(() => (
+      <Sheet open overlay={overlay()}>
+        <Sheet.Content>
+          <input data-testid="uncontrolled-input" value="initial text" />
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const input = document.body.querySelector<HTMLInputElement>(
+      '[data-testid="uncontrolled-input"]',
+    )!
+    input.value = 'user typed text'
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
+
+    setOverlay(false)
+
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
+    expect(input.value).toBe('user typed text')
+
+    setOverlay(true)
+
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
+    expect(input.value).toBe('user typed text')
   })
 })

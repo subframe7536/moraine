@@ -521,7 +521,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 ;<Modal defaultOpen>
   <Modal.Portal>
     <Modal.Overlay />
-    <Modal.Content ariaLabel="Type fixture">Modal content</Modal.Content>
+    <Modal.Content aria-label="Type fixture">Modal content</Modal.Content>
   </Modal.Portal>
 </Modal>
 // @ts-expect-error String root style is rejected
@@ -644,7 +644,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 </Resizable>
 
 ;<SidebarFrame isMobile={false}>
-  <SidebarFrame.Sidebar ariaLabel="Sidebar navigation">
+  <SidebarFrame.Sidebar aria-label="Sidebar navigation">
     <SidebarFrame.SidebarHeader>Header</SidebarFrame.SidebarHeader>
     <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
     <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>

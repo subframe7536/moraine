@@ -12,7 +12,7 @@ import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'
 import type { PopoverT } from './popover.types'
 
 export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['ariaLabel', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
   onCleanup(() => clearTimeout(resetTimeout))
@@ -140,7 +140,6 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
               align: () => parseFloatingPlacement(context.currentPlacement()).align,
             })}
             {...mergePopperElementProps(contentProps, rest)}
-            aria-label={local.ariaLabel ?? rest['aria-label']}
             {...slots.content}
           >
             <Show when={hasJsxContent(content())}>

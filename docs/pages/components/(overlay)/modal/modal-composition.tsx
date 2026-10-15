@@ -6,7 +6,7 @@ export function ModalComposition() {
       <Modal.Trigger as={Button}>Open Modal Surface</Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content ariaLabel="Custom Surface">
+        <Modal.Content aria-label="Custom Surface">
           {(context) => (
             <div class="p-4 b-1 b-border rounded-xl bg-background space-y-4">
               <h3 class="text-base font-semibold">Custom Surface</h3>

@@ -150,7 +150,7 @@ Without a Close, the popover stays non-modal so users retain a dismissal route.
 ```tsx
 <Popover>
   <Popover.Trigger as={Button}>Filter</Popover.Trigger>
-  <Popover.Content ariaLabel="Filter settings">Press Escape or click outside.</Popover.Content>
+  <Popover.Content aria-label="Filter settings">Press Escape or click outside.</Popover.Content>
 </Popover>
 <Popover dismissible={false} onClosePrevent={onBlocked}>
   <Popover.Trigger as={Button}>Keep open</Popover.Trigger>

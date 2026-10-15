@@ -2,17 +2,20 @@ import { createSignal } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { createContentAnatomy } from '../base/content-anatomy'
-import { useModalContext } from '../modal/modal-context'
 
 import type { DialogT } from './dialog.types'
 
-export function useDialogConfig(): DialogT.Props {
-  const configuration = useModalContext().configuration
-  if (configuration.kind !== 'dialog') {
-    throw new Error('Dialog parts must be used within <Dialog />')
-  }
-  return configuration.props
+export interface DialogContextValue {
+  readonly slotOverrides: { classes?: DialogT.Classes; styles?: DialogT.Styles }
+  overlay?: boolean
+  fullscreen?: boolean | null
+  scrollable?: boolean | null
+  close?: boolean
+  closeIcon?: DialogT.Base['closeIcon']
 }
+
+export const [DialogProvider, useDialogContext] =
+  /* @__PURE__ */ createContextProvider<DialogContextValue>('Dialog')
 
 export function createDialogContentRegistration() {
   const registration = createContentAnatomy()

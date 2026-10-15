@@ -76,7 +76,6 @@ export namespace SidebarFrameT {
      * title is used when neither native aria-label nor this prop is provided.
      * Localized via MoraineProvider messages when omitted. English default is `Sidebar navigation`.
      */
-    ariaLabel?: string
     'aria-label'?: string
   }
 

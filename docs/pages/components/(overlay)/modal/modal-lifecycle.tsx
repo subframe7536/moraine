@@ -15,7 +15,7 @@ export function ModalLifecycle() {
       >
         <Modal.Portal>
           <Modal.Overlay />
-          <Modal.Content ariaLabel="Lifecycle Monitored">
+          <Modal.Content aria-label="Lifecycle Monitored">
             {(context) => (
               <div class="p-4 b-1 b-border rounded-xl bg-background space-y-4">
                 <h3 class="text-base font-semibold">Lifecycle Monitored</h3>

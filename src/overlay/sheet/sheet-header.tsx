@@ -4,9 +4,8 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { useModalContext } from '../modal/modal-context'
 
-import { useSheetContent } from './sheet-context'
+import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
@@ -15,14 +14,14 @@ function createSheetHeader(headerKind: 'explicit' | 'shorthand') {
     props: SheetT.HeaderProps<T>,
   ): JSX.Element {
     const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-    const family = useModalContext()
+    const sheet = useSheetContext()
     const content = useSheetContent()
     const unregister = content.registerHeader(headerKind)
     onCleanup(unregister)
     const { slots } = useRecipe(sheetRecipe, local, {
       slot: 'header',
       contextVariants: () => content.variants,
-      contextSlots: () => family.slotOverrides,
+      contextSlots: () => sheet.slotOverrides,
     })
     return (
       <Dynamic component={local.as ?? 'div'} data-slot="sheet-header" {...rest} {...slots.header} />

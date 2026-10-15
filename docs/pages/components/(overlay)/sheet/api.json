@@ -12,12 +12,6 @@
       },
       "props": [
         {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when the sheet has no rendered title."
-        },
-        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -250,8 +244,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Composable sheet parts."
+          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
+          "description": "Composable sheet parts or render function receiving close action."
         },
         {
           "name": "class",

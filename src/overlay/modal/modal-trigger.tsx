@@ -50,9 +50,11 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       component={tag()}
-      data-slot={context.slotName('trigger')}
+      data-slot="modal-trigger"
       aria-haspopup="dialog"
-      aria-controls={context.contentElement() ? context.contentId() : undefined}
+      aria-controls={
+        context.contentElement() ? context.contentElement()?.id || context.contentId() : undefined
+      }
       aria-expanded={context.open() ? 'true' : 'false'}
       {...overlayTriggerDataAttributes({
         expanded: context.open,

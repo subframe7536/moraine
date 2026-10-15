@@ -156,7 +156,7 @@ describe('scoped cn', () => {
           <Modal defaultOpen>
             <Modal.Portal>
               <Modal.Overlay />
-              <Modal.Content class="p-2 p-4" ariaLabel="Scoped modal">
+              <Modal.Content class="p-2 p-4" aria-label="Scoped modal">
                 <Portal>
                   <Probe id="portal" />
                 </Portal>

@@ -73,7 +73,6 @@ export namespace PopoverT {
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export interface ContentBase {
-    ariaLabel?: string
     /** Body content. */
     children?: JSX.Element
   }

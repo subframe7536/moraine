@@ -333,6 +333,99 @@ describe('oxlint-plugin-moraine', () => {
       expect(ctx.reports).toHaveLength(0)
     })
 
+    it('reports non-PascalCase function declarations returning JSX', () => {
+      const ctx = createMockContext('/project/src/overlay/sheet/sheet-content.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.FunctionDeclaration({
+        id: { type: 'Identifier', name: 'renderSheetContent' },
+        body: {
+          type: 'BlockStatement',
+          body: [
+            {
+              type: 'ReturnStatement',
+              argument: { type: 'JSXElement' },
+            },
+          ],
+        },
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('mustBePascalCaseComponent')
+      expect(ctx.reports[0]?.data?.name).toBe('renderSheetContent')
+      expect(ctx.reports[0]?.data?.pascalName).toBe('RenderSheetContent')
+    })
+
+    it('reports non-PascalCase arrow functions returning JSX and their direct calls', () => {
+      const ctx = createMockContext('/project/src/overlay/dialog/dialog-content.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.VariableDeclarator({
+        id: { type: 'Identifier', name: 'renderDialogContent' },
+        init: {
+          type: 'ArrowFunctionExpression',
+          body: { type: 'JSXElement' },
+        },
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('mustBePascalCaseComponent')
+      expect(ctx.reports[0]?.data?.name).toBe('renderDialogContent')
+      expect(ctx.reports[0]?.data?.pascalName).toBe('RenderDialogContent')
+
+      visitor.CallExpression({
+        callee: { type: 'Identifier', name: 'renderDialogContent' },
+        arguments: [],
+      })
+      expect(ctx.reports).toHaveLength(2)
+      expect(ctx.reports[1]?.messageId).toBe('noDirectCall')
+      expect(ctx.reports[1]?.data?.name).toBe('renderDialogContent')
+      expect(ctx.reports[1]?.data?.pascalName).toBe('RenderDialogContent')
+    })
+
+    it('allows non-PascalCase functions returning non-JSX values', () => {
+      const ctx = createMockContext('/project/src/element/card/card.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.FunctionDeclaration({
+        id: { type: 'Identifier', name: 'computeStyle' },
+        body: {
+          type: 'BlockStatement',
+          body: [
+            {
+              type: 'ReturnStatement',
+              argument: { type: 'ObjectExpression', properties: [] },
+            },
+          ],
+        },
+      })
+      visitor.VariableDeclarator({
+        id: { type: 'Identifier', name: 'calculateOffset' },
+        init: {
+          type: 'ArrowFunctionExpression',
+          body: { type: 'Literal', value: 42 },
+        },
+      })
+      expect(ctx.reports).toHaveLength(0)
+    })
+
+    it('allows PascalCase function declarations and components', () => {
+      const ctx = createMockContext('/project/src/overlay/sheet/sheet-content.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.FunctionDeclaration({
+        id: { type: 'Identifier', name: 'SheetContentSurface' },
+        body: {
+          type: 'BlockStatement',
+          body: [
+            {
+              type: 'ReturnStatement',
+              argument: { type: 'JSXElement' },
+            },
+          ],
+        },
+      })
+      expect(ctx.reports).toHaveLength(0)
+    })
+
     it('ignores test and non-component files', () => {
       const testCtx = createMockContext('/project/src/element/card/card.test.tsx')
       expect(rule.create(testCtx)).toEqual({})

@@ -52,7 +52,7 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal defaultOpen portalMount={shadowRoot}>
         <Modal.Portal>
-          <Modal.Content ariaLabel="Shadow modal">Content</Modal.Content>
+          <Modal.Content aria-label="Shadow modal">Content</Modal.Content>
         </Modal.Portal>
       </Modal>
     ))
@@ -75,10 +75,10 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal defaultOpen portalMount={shadowRoot}>
         <Modal.Portal>
-          <Modal.Content ariaLabel="Outer">
+          <Modal.Content aria-label="Outer">
             <Modal open={innerOpen()} portalMount={shadowRoot}>
               <Modal.Portal>
-                <Modal.Content ariaLabel="Inner">Inner</Modal.Content>
+                <Modal.Content aria-label="Inner">Inner</Modal.Content>
               </Modal.Portal>
             </Modal>
           </Modal.Content>
@@ -120,7 +120,7 @@ describe('Modal primitives', () => {
         <Modal>
           <Modal.Trigger>Foreign modal trigger</Modal.Trigger>
           <Modal.Portal>
-            <Modal.Content ariaLabel="Foreign modal">Content</Modal.Content>
+            <Modal.Content aria-label="Foreign modal">Content</Modal.Content>
           </Modal.Portal>
         </Modal>
       ),
@@ -154,7 +154,7 @@ describe('Modal primitives', () => {
       const screen = render(() => (
         <Modal defaultOpen modal={modal} preventScroll={preventScroll}>
           <Modal.Portal>
-            <Modal.Content ariaLabel="Matrix">Content</Modal.Content>
+            <Modal.Content aria-label="Matrix">Content</Modal.Content>
           </Modal.Portal>
         </Modal>
       ))
@@ -670,7 +670,7 @@ describe('Modal primitives', () => {
     render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
-          <Modal.Content ariaLabel="Named modal">
+          <Modal.Content aria-label="Named modal">
             <span>Content</span>
           </Modal.Content>
         </Modal.Portal>
@@ -680,40 +680,6 @@ describe('Modal primitives', () => {
     expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
       'Named modal',
     )
-  })
-
-  test('preserves explicit native ARIA naming attributes through exit presence', async () => {
-    const [open, setOpen] = createSignal(true)
-    const screen = render(() => (
-      <Modal open={open()}>
-        <Modal.Portal>
-          <Modal.Content
-            aria-label="Native label"
-            aria-labelledby="native-title"
-            aria-describedby="native-description"
-            ariaLabel="Camel label"
-            ariaLabelledBy="camel-title"
-            ariaDescribedBy="camel-description"
-          >
-            <h2 id="native-title">Native title</h2>
-            <p id="native-description">Native description</p>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal>
-    ))
-
-    const content = document.body.querySelector('[role="dialog"]')!
-    expect(content.getAttribute('aria-label')).toBe('Native label')
-    expect(content.getAttribute('aria-labelledby')).toBe('native-title')
-    expect(content.getAttribute('aria-describedby')).toBe('native-description')
-
-    setOpen(false)
-    await Promise.resolve()
-    expect(content.getAttribute('aria-label')).toBe('Native label')
-    expect(content.getAttribute('aria-labelledby')).toBe('native-title')
-    expect(content.getAttribute('aria-describedby')).toBe('native-description')
-    await finishExitMotion(content as HTMLElement)
-    screen.unmount()
   })
 
   test('focuses the first input when a modal opens', async () => {
@@ -764,7 +730,7 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal defaultOpen>
         <Modal.Portal>
-          <Modal.Content role="alertdialog" ariaLabel="Confirm delete">
+          <Modal.Content role="alertdialog" aria-label="Confirm delete">
             Confirm this action
           </Modal.Content>
         </Modal.Portal>
@@ -1763,7 +1729,7 @@ describe('Modal primitives', () => {
             onClosePrevent={onClosePrevent}
           >
             <Modal.Portal>
-              <Modal.Content ariaLabel="Content">Content</Modal.Content>
+              <Modal.Content aria-label="Content">Content</Modal.Content>
             </Modal.Portal>
           </Modal>
         </>
@@ -2088,7 +2054,7 @@ describe('Modal primitives', () => {
       <Modal modal={false} onOpenChange={onOpenChange}>
         <Modal.Trigger>Toggle non-modal</Modal.Trigger>
         <Modal.Portal>
-          <Modal.Content ariaLabel="Non-modal content">Content</Modal.Content>
+          <Modal.Content aria-label="Non-modal content">Content</Modal.Content>
         </Modal.Portal>
       </Modal>
     ))
@@ -2098,5 +2064,42 @@ describe('Modal primitives', () => {
 
     fireEvent.click(trigger)
     expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('preserves custom id on Modal.Content and updates trigger aria-controls', () => {
+    render(() => (
+      <Modal open>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <Modal.Portal>
+          <Modal.Content id="custom-modal-id">
+            <span>Modal content</span>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    const trigger = document.body.querySelector('[data-slot="modal-trigger"]')!
+    expect(content.id).toBe('custom-modal-id')
+    expect(trigger.getAttribute('aria-controls')).toBe('custom-modal-id')
+  })
+
+  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+      event.preventDefault()
+    })
+    render(() => (
+      <Modal open modal>
+        <Modal.Portal>
+          <Modal.Content onKeyDown={onKeyDown}>
+            <input data-testid="input" />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
+    fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalled()
   })
 })

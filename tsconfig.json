@@ -25,6 +25,6 @@
     },
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "docs", "*.config.ts"],
+  "include": ["src", "docs", "build", "*.config.ts"],
   "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts"]
 }

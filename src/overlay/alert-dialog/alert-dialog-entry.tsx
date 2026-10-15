@@ -204,9 +204,6 @@ export function AlertDialogEntry(props: {
         options().closeOnOverlayClick === true && props.record.pending() === undefined
       }
       closeOnEscape={options().closeOnEscape !== false && props.record.pending() === undefined}
-      ariaLabel={
-        customRender() || !hasJsxContent(options().title) ? options().ariaLabel : undefined
-      }
       onOpenChange={(next) => {
         if (!next && props.record.pending() === undefined) {
           props.record.presentation.close('dismiss')
@@ -214,7 +211,13 @@ export function AlertDialogEntry(props: {
       }}
       onExitComplete={() => props.record.remove()}
     >
-      <Dialog.Content role="alertdialog" {...recipe.slots.content}>
+      <Dialog.Content
+        role="alertdialog"
+        aria-label={
+          customRender() || !hasJsxContent(options().title) ? options().ariaLabel : undefined
+        }
+        {...recipe.slots.content}
+      >
         <Show
           when={customRender()}
           keyed

@@ -29,5 +29,5 @@ export function ModalClose<T extends ValidComponent = 'button'>(
   )
   const binding = root.bind(interaction)
 
-  return <Dynamic component={tag()} data-slot={context.slotName('close')} {...binding} />
+  return <Dynamic component={tag()} data-slot="modal-close" {...binding} />
 }

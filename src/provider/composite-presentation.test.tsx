@@ -41,7 +41,6 @@ describe('composite family presentation', () => {
           styles={{
             content: { width: instanceWidth(), color: 'orange', '--dialog-only': 'yes' },
           }}
-          ariaLabel="Scoped dialog"
         >
           <Dialog.Trigger data-testid="dialog-trigger">Open</Dialog.Trigger>
           <MoraineProvider theme={innerTheme()} cnConfig={config()}>
@@ -104,11 +103,7 @@ describe('composite family presentation', () => {
             <Modal.Content data-testid="modal-content">Modal</Modal.Content>
           </Modal.Portal>
         </Modal>
-        <Sheet
-          open
-          classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}
-          ariaLabel="Sheet"
-        >
+        <Sheet open classes={{ trigger: 'sheet-trigger', content: 'sheet-content' }}>
           <Sheet.Trigger data-testid="sheet-trigger">Open sheet</Sheet.Trigger>
           <Sheet.Content data-testid="sheet-content">
             <Sheet.Body>Sheet</Sheet.Body>
@@ -273,10 +268,10 @@ describe('composite family presentation', () => {
 
   test('same-family nested Dialog uses only the nearest instance presentation', () => {
     render(() => (
-      <Dialog open classes={{ content: 'dialog-outer' }} ariaLabel="Outer">
+      <Dialog open classes={{ content: 'dialog-outer' }}>
         <Dialog.Content data-testid="dialog-outer">
           <Dialog.Body>
-            <Dialog open classes={{ content: 'dialog-inner' }} ariaLabel="Inner">
+            <Dialog open classes={{ content: 'dialog-inner' }}>
               <Dialog.Content data-testid="dialog-inner">
                 <Dialog.Body>Inner</Dialog.Body>
               </Dialog.Content>

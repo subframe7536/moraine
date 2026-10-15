@@ -15,26 +15,14 @@ export function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   props: SidebarFrameT.SidebarProps<T>,
 ): JSX.Element {
   const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, [
-    'as',
-    'ariaLabel',
-    'aria-label',
-    'children',
-    'class',
-    'style',
-  ])
+  const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
   const resolved = useSidebarFrameStyles('sidebar', local)
   const messages = useMessages('sidebarFrame', defaultSidebarFrameMessages)
 
   const mobileAriaLabel = () => {
     const restRecord = rest as Record<string, unknown>
-    return (
-      local['aria-label'] ??
-      local.ariaLabel ??
-      (restRecord.title as string | undefined) ??
-      messages().label
-    )
+    return local['aria-label'] ?? (restRecord.title as string | undefined) ?? messages().label
   }
 
   const SidebarContent = (contentProps: { mobile: boolean }) => (
@@ -66,9 +54,8 @@ export function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
         onOpenChange={context.setOpen}
         side={context.side}
         close={false}
-        ariaLabel={mobileAriaLabel()}
       >
-        <Sheet.Content>
+        <Sheet.Content aria-label={mobileAriaLabel()}>
           <Sheet.Body>
             <SidebarContent mobile />
           </Sheet.Body>

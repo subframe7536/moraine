@@ -577,7 +577,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content ariaLabel="Account actions">{'Named content'}</Popover.Content>
+        <Popover.Content aria-label="Account actions">{'Named content'}</Popover.Content>
       </Popover>
     ))
 

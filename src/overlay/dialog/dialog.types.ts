@@ -21,14 +21,11 @@ export namespace DialogT {
   /**
    * Base props for the Dialog component.
    */
-  export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
+  export interface Base extends ModalT.Base {
     /** Whether to render the overlay element.
      * @default true
      */
     overlay?: boolean
-
-    /** Accessible name used when the dialog has no rendered title. */
-    ariaLabel?: string
 
     /**
      * Whether the dialog should take up the full viewport.
@@ -58,6 +55,8 @@ export namespace DialogT {
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
+  export type ContentRenderProps = ModalT.ContentRenderProps
+
   export interface ContentBase {
     /** Primary title displayed in the dialog header. */
     title?: JSX.Element
@@ -65,8 +64,8 @@ export namespace DialogT {
     /** Secondary description displayed below the title. */
     description?: JSX.Element
 
-    /** Composable dialog parts. */
-    children?: JSX.Element
+    /** Composable dialog parts or render function receiving close action. */
+    children?: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
   }
 
   /**

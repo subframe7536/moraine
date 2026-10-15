@@ -14,12 +14,15 @@ export function renderSheetFixture(): string {
         transition={false}
 
         closeIcon={<span data-testid="server-close-icon">Close</span>}
-        ariaLabel="Server sheet"
       >
         <Sheet.Trigger as="button" type="button">
           Open custom sheet
         </Sheet.Trigger>
-        <Sheet.Content title="Server title" description="Server description">
+        <Sheet.Content
+          aria-label="Server sheet"
+          title="Server title"
+          description="Server description"
+        >
           <Sheet.Header>
             <div data-testid="server-header">Server header</div>
           </Sheet.Header>

@@ -38,9 +38,6 @@ export namespace SheetT {
      */
     overlay?: boolean
 
-    /** Accessible name used when the sheet has no rendered title. */
-    ariaLabel?: string
-
     /**
      * Whether to enable transition animations.
      * @default true
@@ -62,6 +59,8 @@ export namespace SheetT {
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
+  export type ContentRenderProps = ModalT.ContentRenderProps
+
   export interface ContentBase {
     /** Primary title displayed in the sheet header. */
     title?: JSX.Element
@@ -69,8 +68,8 @@ export namespace SheetT {
     /** Secondary description displayed below the title. */
     description?: JSX.Element
 
-    /** Composable sheet parts. */
-    children?: JSX.Element
+    /** Composable sheet parts or render function receiving close action. */
+    children?: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
   }
 
   /**

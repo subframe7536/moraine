@@ -4,9 +4,8 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
-import { useModalContext } from '../modal/modal-context'
 
-import { useSheetContent } from './sheet-context'
+import { useSheetContent, useSheetContext } from './sheet-context'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
@@ -14,12 +13,12 @@ export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style'])
-  const family = useModalContext()
+  const sheet = useSheetContext()
   const content = useSheetContent()
   const { slots } = useRecipe(sheetRecipe, local, {
     slot: 'body',
     contextVariants: () => content.variants,
-    contextSlots: () => family.slotOverrides,
+    contextSlots: () => sheet.slotOverrides,
   })
   return (
     <Dynamic

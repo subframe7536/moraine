@@ -266,14 +266,14 @@ describe('Dialog', () => {
     )
   })
 
-  test('uses ariaLabel for a custom header without dangling generated IDs', () => {
+  test('uses aria-label for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Dialog
-        open
-
-        ariaLabel="Account settings"
-      >
-        <Dialog.Content title="Suppressed title" description="Suppressed description">
+      <Dialog open>
+        <Dialog.Content
+          aria-label="Account settings"
+          title="Suppressed title"
+          description="Suppressed description"
+        >
           <Dialog.Header>
             <div>Custom header</div>
           </Dialog.Header>
@@ -291,11 +291,7 @@ describe('Dialog', () => {
 
   test('preserves native ARIA naming attributes over generated Dialog relationships', () => {
     render(() => (
-      <Dialog
-        open
-
-        ariaLabel="Root dialog label"
-      >
+      <Dialog open>
         <Dialog.Content
           aria-label="Native dialog label"
           aria-labelledby="custom-dialog-title"
@@ -373,8 +369,8 @@ describe('Dialog', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Dialog open ariaLabel={ariaLabel}>
-          <Dialog.Content title={title} description={description}>
+        <Dialog open>
+          <Dialog.Content aria-label={ariaLabel} title={title} description={description}>
             <Dialog.Body>Body</Dialog.Body>
           </Dialog.Content>
         </Dialog>
@@ -1373,5 +1369,126 @@ describe('Dialog', () => {
     expect(onOuterChange).not.toHaveBeenCalled()
     expect(onInnerChange).not.toHaveBeenCalled()
     expect(document.body.querySelectorAll('[data-slot="dialog-content"]').length).toBe(2)
+  })
+
+  test('preserves custom id on Dialog.Content and updates trigger aria-controls', () => {
+    render(() => (
+      <Dialog open>
+        <Dialog.Trigger>Open</Dialog.Trigger>
+        <Dialog.Content id="custom-dialog-id">
+          <Dialog.Body>Body</Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    const trigger = document.body.querySelector('[data-slot="dialog-trigger"]')!
+    expect(content.id).toBe('custom-dialog-id')
+    expect(trigger.getAttribute('aria-controls')).toBe('custom-dialog-id')
+  })
+
+  test('preserves locale direction when dir is undefined and allows explicit dir override', () => {
+    render(() => (
+      <MoraineProvider dir="rtl">
+        <Dialog open>
+          <Dialog.Content dir={undefined} data-testid="default-dir">
+            <Dialog.Body>Default RTL</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+        <Dialog open>
+          <Dialog.Content dir="ltr" data-testid="explicit-dir">
+            <Dialog.Body>Explicit LTR</Dialog.Body>
+          </Dialog.Content>
+        </Dialog>
+      </MoraineProvider>
+    ))
+
+    const defaultDir = document.body.querySelector('[data-testid="default-dir"]')!
+    const explicitDir = document.body.querySelector('[data-testid="explicit-dir"]')!
+    expect(defaultDir.getAttribute('dir')).toBe('rtl')
+    expect(explicitDir.getAttribute('dir')).toBe('ltr')
+  })
+
+  test('supports render function children receiving close action', () => {
+    const onOpenChange = vi.fn()
+    render(() => (
+      <Dialog defaultOpen onOpenChange={onOpenChange}>
+        <Dialog.Content>
+          {({ close }) => (
+            <button type="button" data-testid="render-close" onClick={close}>
+              Close via render prop
+            </button>
+          )}
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const closeButton = document.body.querySelector<HTMLButtonElement>(
+      '[data-testid="render-close"]',
+    )!
+    expect(closeButton).not.toBeNull()
+    fireEvent.click(closeButton)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('forwards ref to Dialog.Content DOM element', () => {
+    let captured: HTMLDivElement | undefined
+    render(() => (
+      <Dialog open>
+        <Dialog.Content ref={(el) => (captured = el)}>
+          <Dialog.Body>Body</Dialog.Body>
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    expect(captured).toBeInstanceOf(HTMLElement)
+    expect(captured?.getAttribute('data-slot')).toBe('dialog-content')
+  })
+
+  test('respects preventDefault in onKeyDown and bypasses focus containment', () => {
+    const onKeyDown = vi.fn((event: KeyboardEvent) => {
+      event.preventDefault()
+    })
+    render(() => (
+      <Dialog open modal>
+        <Dialog.Content onKeyDown={onKeyDown}>
+          <input data-testid="input" />
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    fireEvent.keyDown(content, { key: 'Tab' })
+    expect(onKeyDown).toHaveBeenCalled()
+  })
+
+  test('dynamically toggles overlay={false} without unmounting content or losing state', () => {
+    const [overlay, setOverlay] = createSignal(true)
+    render(() => (
+      <Dialog open overlay={overlay()}>
+        <Dialog.Content>
+          <input data-testid="uncontrolled-input" value="initial text" />
+        </Dialog.Content>
+      </Dialog>
+    ))
+
+    const input = document.body.querySelector<HTMLInputElement>(
+      '[data-testid="uncontrolled-input"]',
+    )!
+    input.value = 'user typed text'
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
+    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
+
+    setOverlay(false)
+
+    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
+    expect(input.value).toBe('user typed text')
+
+    setOverlay(true)
+
+    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
+    expect(input.value).toBe('user typed text')
   })
 })

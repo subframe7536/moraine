@@ -1154,7 +1154,7 @@ describe('Floating component context isolation', () => {
       const screen = render(() => (
         <Popover defaultOpen onOpenChange={outerChanges}>
           <Popover.Trigger>Outer trigger</Popover.Trigger>
-          <Popover.Content ariaLabel="Outer panel">
+          <Popover.Content aria-label="Outer panel">
             <Inner defaultOpen onOpenChange={innerChanges}>
               <Inner.Trigger>Inner trigger</Inner.Trigger>
               <Inner.Content aria-label="Inner panel">Inner content</Inner.Content>

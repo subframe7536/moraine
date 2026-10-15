@@ -7,7 +7,7 @@ export function NoOverlay() {
         Open without backdrop
       </Modal.Trigger>
       <Modal.Portal>
-        <Modal.Content ariaLabel="Modal without a backdrop">
+        <Modal.Content aria-label="Modal without a backdrop">
           {(context) => (
             <div class="p-4 gap-4 grid">
               <p class="text-sm text-foreground">

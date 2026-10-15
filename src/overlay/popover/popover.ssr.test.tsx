@@ -17,7 +17,7 @@ describe('Popover SSR Hydration', () => {
             <Popover.Trigger as="button" type="button">
               Trigger
             </Popover.Trigger>
-            <Popover.Content ariaLabel="Hydrated popover">
+            <Popover.Content aria-label="Hydrated popover">
               <span>Hydrated content</span>
             </Popover.Content>
           </Popover>

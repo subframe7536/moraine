@@ -62,7 +62,7 @@ export function Draggable() {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content
-          ariaLabel="Draggable Modal"
+          aria-label="Draggable Modal"
           style={{
             translate: `calc(-50% + ${position().x}px) calc(-50% + ${position().y}px)`,
             transition: isDragging() ? 'none' : 'translate 150ms ease-out',

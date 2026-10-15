@@ -116,15 +116,6 @@ export namespace ModalT {
      * function is called as an accessor and is not mounted as a component.
      */
     children: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
-
-    /** Accessible name used when no visible label is available. */
-    ariaLabel?: string
-
-    /** Id of the element that labels the modal content. */
-    ariaLabelledBy?: string
-
-    /** Id of the element that describes the modal content. */
-    ariaDescribedBy?: string
   }
 
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>

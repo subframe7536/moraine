@@ -36,7 +36,7 @@ import { Button, Modal } from '@src'
           <Show when={props.overlay}>
             <Modal.Overlay />
           </Show>
-          <Modal.Content ariaLabel="Project details">
+          <Modal.Content aria-label="Project details">
             {() => (
               <div class="p-5 gap-4 grid">
                 <div>
@@ -105,7 +105,7 @@ export function Example() {
       <Modal.Trigger as={Button}>Open</Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content ariaLabel="Details">
+        <Modal.Content aria-label="Details">
           Modal content
           <Modal.Close as={Button}>Close</Modal.Close>
         </Modal.Content>
@@ -127,7 +127,7 @@ Modal root for a second surface.
   <Modal.Trigger as={Button}>Open</Modal.Trigger>
   <Modal.Portal>
     <Modal.Overlay />
-    <Modal.Content ariaLabel="Custom surface">
+    <Modal.Content aria-label="Custom surface">
       {(context) => (
         <div>
           Custom surface
@@ -170,7 +170,7 @@ and content exit animations to finish. An empty `class` does not disable built-i
 <Modal open={open()} onOpenChange={setOpen} onExitComplete={() => setLog('Exit complete')}>
   <Modal.Portal>
     <Modal.Overlay />
-    <Modal.Content ariaLabel="Lifecycle">
+    <Modal.Content aria-label="Lifecycle">
       {(context) => <Button onClick={context.close}>Dismiss</Button>}
     </Modal.Content>
   </Modal.Portal>

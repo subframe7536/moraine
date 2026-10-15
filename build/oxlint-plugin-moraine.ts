@@ -165,6 +165,90 @@ const GLOBAL_BUILTINS = new Set([
   'NaN',
 ])
 
+function isPascalCase(name: string): boolean {
+  return /^[A-Z][a-zA-Z0-9]*$/.test(name)
+}
+
+function toPascalCase(name: string): string {
+  if (!name) {
+    return name
+  }
+  const clean = name.replace(/^_+/, '')
+  if (!clean) {
+    return name
+  }
+  return clean.charAt(0).toUpperCase() + clean.slice(1)
+}
+
+function isJsxNode(node: any): boolean {
+  if (!node) {
+    return false
+  }
+  if (node.type === 'JSXElement' || node.type === 'JSXFragment') {
+    return true
+  }
+  if (node.type === 'ConditionalExpression') {
+    return isJsxNode(node.consequent) || isJsxNode(node.alternate)
+  }
+  if (node.type === 'LogicalExpression') {
+    return isJsxNode(node.right)
+  }
+  return false
+}
+
+function functionReturnsJsx(fnNode: any): boolean {
+  if (!fnNode) {
+    return false
+  }
+  if (fnNode.type === 'ArrowFunctionExpression' && fnNode.body?.type !== 'BlockStatement') {
+    return isJsxNode(fnNode.body)
+  }
+
+  const body = fnNode.body
+  if (!body || body.type !== 'BlockStatement') {
+    return false
+  }
+
+  let found = false
+  function search(current: any) {
+    if (!current || found) {
+      return
+    }
+    if (
+      current !== fnNode &&
+      (current.type === 'FunctionDeclaration' ||
+        current.type === 'FunctionExpression' ||
+        current.type === 'ArrowFunctionExpression')
+    ) {
+      return
+    }
+    if (current.type === 'ReturnStatement') {
+      if (isJsxNode(current.argument)) {
+        found = true
+        return
+      }
+    }
+    for (const key of Object.keys(current)) {
+      if (key === 'parent') {
+        continue
+      }
+      const child = current[key]
+      if (Array.isArray(child)) {
+        for (const item of child) {
+          if (item && typeof item === 'object') {
+            search(item)
+          }
+        }
+      } else if (child && typeof child === 'object') {
+        search(child)
+      }
+    }
+  }
+
+  search(body)
+  return found
+}
+
 export default {
   meta: {
     name: 'moraine',
@@ -220,7 +304,7 @@ export default {
             'Call "...DataAttributes.*(...)" directly inside JSX spreads instead of assigning to variable "{{name}}".',
         },
       },
-      create(context: any) {
+      create(context: any): Record<string, any> {
         const normalized = normalizePath(context.filename)
         if (
           !isComponentFile(context.filename) ||
@@ -263,7 +347,7 @@ export default {
             'Always wrap "createEffect" callbacks with Solid\'s "on()". Use "on([], () => ...)" for effects with no reactive dependencies.',
         },
       },
-      create(context: any) {
+      create(context: any): Record<string, any> {
         if (!isSourceFile(context.filename)) {
           return {}
         }
@@ -345,7 +429,7 @@ export default {
             'String style prop is forbidden. Use a style object (style?: JSX.CSSProperties).',
         },
       },
-      create(context: any) {
+      create(context: any): Record<string, any> {
         const normalized = normalizePath(context.filename)
         if (
           normalized.includes('/test/') ||
@@ -385,14 +469,16 @@ export default {
         type: 'problem',
         docs: {
           description:
-            'Prohibit calling components directly as functions. Use JSX <Component /> syntax instead.',
+            'Prohibit calling components directly as functions and require JSX-returning functions to be PascalCase SolidJS components.',
         },
         messages: {
           noDirectCall:
-            'Do not call component "{{name}}" directly as a function. Use JSX syntax "<{{name}} ... />" instead.',
+            'Do not call component "{{name}}" directly as a function. Use JSX syntax "<{{pascalName}} ... />" instead.',
+          mustBePascalCaseComponent:
+            'Function "{{name}}" returns JSX and must be a SolidJS component with a PascalCase name. Use JSX syntax "<{{pascalName}} ... />" instead.',
         },
       },
-      create(context: any) {
+      create(context: any): Record<string, any> {
         const normalized = normalizePath(context.filename)
         if (
           !isComponentFile(context.filename) ||
@@ -400,19 +486,66 @@ export default {
         ) {
           return {}
         }
+        const jsxFunctions = new Set<string>()
+
+        function checkFunction(name: string, fnNode: any, reportNode: any) {
+          if (
+            !name ||
+            isPascalCase(name) ||
+            /^[A-Z0-9_]+$/.test(name) ||
+            GLOBAL_BUILTINS.has(name)
+          ) {
+            return
+          }
+          if (functionReturnsJsx(fnNode)) {
+            jsxFunctions.add(name)
+            context.report({
+              node: reportNode,
+              messageId: 'mustBePascalCaseComponent',
+              data: {
+                name,
+                pascalName: toPascalCase(name),
+              },
+            })
+          }
+        }
+
         return {
+          FunctionDeclaration(node: any) {
+            if (node.id?.type === 'Identifier') {
+              checkFunction(node.id.name, node, node.id)
+            }
+          },
+          VariableDeclarator(node: any) {
+            if (
+              node.id?.type === 'Identifier' &&
+              node.init &&
+              (node.init.type === 'ArrowFunctionExpression' ||
+                node.init.type === 'FunctionExpression')
+            ) {
+              checkFunction(node.id.name, node.init, node.id)
+            }
+          },
           CallExpression(node: any) {
             if (node.callee.type === 'Identifier') {
               const name = node.callee.name
-              if (
-                /^[A-Z][a-zA-Z0-9]*$/.test(name) &&
-                !/^[A-Z0-9_]+$/.test(name) &&
-                !GLOBAL_BUILTINS.has(name)
-              ) {
+              if (isPascalCase(name) && !/^[A-Z0-9_]+$/.test(name) && !GLOBAL_BUILTINS.has(name)) {
                 context.report({
                   node,
                   messageId: 'noDirectCall',
-                  data: { name },
+                  data: {
+                    name,
+                    pascalName: name,
+                  },
+                })
+              } else if (jsxFunctions.has(name)) {
+                context.report({
+                  node,
+                  messageId: 'noDirectCall',
+                  data: {
+                    name,
+                    pascalName: toPascalCase(name),
+                  },
                 })
               }
             }

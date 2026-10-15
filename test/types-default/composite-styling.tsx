@@ -17,7 +17,6 @@ import { defineTheme } from 'moraine/theme'
   scrollable
   fullscreen
   modal={false}
-  ariaLabel="Dialog"
   close={false}
   portalMount={document.body}
   closeIcon="icon-close"
@@ -36,7 +35,7 @@ import { defineTheme } from 'moraine/theme'
 // @ts-expect-error Dialog layout belongs to the root.
 ;<Dialog.Content scrollable fullscreen />
 // @ts-expect-error Dialog behavior belongs to the root.
-;<Dialog.Content modal={false} close={false} ariaLabel="Dialog" />
+;<Dialog.Content modal={false} close={false} />
 ;<Dialog.Header class="header" />
 // @ts-expect-error Shorthand mode is internal to Dialog.Content.
 ;<Dialog.Header shorthand />
@@ -61,7 +60,6 @@ import { defineTheme } from 'moraine/theme'
   overlay={false}
   transition={false}
   modal={false}
-  ariaLabel="Sheet"
   close={false}
   portalMount={document.body}
   closeIcon="icon-close"
@@ -84,7 +82,7 @@ import { defineTheme } from 'moraine/theme'
 // @ts-expect-error Sheet layout belongs to the root.
 ;<Sheet.Content side="left" inset />
 // @ts-expect-error Sheet behavior belongs to the root.
-;<Sheet.Content transition={false} modal={false} close={false} ariaLabel="Sheet" />
+;<Sheet.Content transition={false} modal={false} close={false} />
 ;<Sheet.Header class="header" />
 // @ts-expect-error Shorthand mode is internal to Sheet.Content.
 ;<Sheet.Header shorthand />
