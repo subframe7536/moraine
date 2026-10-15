@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { ARIA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-common.class'
+import { ARIA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 

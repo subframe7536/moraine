@@ -32,7 +32,7 @@ function Root(
     type?: string
     disabled?: boolean
     focusableWhenDisabled?: boolean
-    ref?: (element: HTMLElement | undefined) => void
+    ref?: (element: HTMLElement) => void
     onPress?: () => void
     bridgeClick?: boolean
   },
@@ -94,7 +94,7 @@ describe('polymorphic root', () => {
     expect(press).toHaveBeenCalledOnce()
   })
 
-  test('releases refs on reactive root replacement and unmount', () => {
+  test('forwards refs on reactive root replacement and does not set undefined on unmount', () => {
     const [as, setAs] = createSignal<ValidComponent>(NativeButton)
     const ref = vi.fn()
     const screen = render(() => (
@@ -106,10 +106,9 @@ describe('polymorphic root', () => {
     setAs(() => NativeLink)
     const replacement = screen.container.firstElementChild
     expect(replacement).not.toBe(initial)
-    expect(ref.mock.calls.map(([element]) => element)).toEqual([initial, undefined, replacement])
+    expect(ref.mock.calls.map(([element]) => element)).toEqual([initial, replacement])
     screen.unmount()
-    expect(ref.mock.calls.at(-1)).toEqual([undefined])
-    expect(ref).toHaveBeenCalledTimes(4)
+    expect(ref).toHaveBeenCalledTimes(2)
   })
 
   test('updates native disabled semantics after a custom root resolves', () => {

@@ -1,25 +1,41 @@
 import {
+  DARK_DATA_INVALID_CLASS,
+  DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
+  DATA_DISABLED_CLASS,
+  DATA_INVALID_CLASS,
+  DISABLED_CLASS,
+  EDITABLE_FOCUS_WITHIN_CLASS,
+  EDITABLE_FOCUS_WITHIN_INVALID_CLASS,
   groupAccentClass,
   HIGHLIGHTED_MUTED_TEXT_CLASS,
   INPUT_VARIANT,
   TEXT_SIZE_VARIANT,
   SELECT_TRIGGER_FOCUS_CLASS,
-} from '../../../theme/recipe-common.class'
+} from '../../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../../theme/style-contract'
 import type { DataAttributeContract } from '../../../theme/style-contract'
 
-import {
-  FIELD_CONTROL_CLASS,
-  FIELD_INPUT_CLASS,
-  PRIMARY_TRIGGER_CLASS,
-  SELECT_CLEAR_ACTION_CLASS,
-  SELECT_LEADING_ICON_CLASS,
-  SELECT_LOADING_ICON_CLASS,
-  SECONDARY_TRIGGER_CLASS,
-  TAG_FIELD_CONTROL_CLASS,
-  TAG_FIELD_INPUT_CLASS,
-} from './select-field.class'
 import type { SelectItemStyleSlot } from './style-types'
+
+export const FIELD_CONTROL_CLASS = `text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[color,background-color,border-color,box-shadow] items-center relative ${EDITABLE_FOCUS_WITHIN_CLASS}  ${EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${DARK_EDITABLE_FOCUS_WITHIN_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
+
+export const FIELD_INPUT_CLASS = `outline-none bg-transparent flex-1 w-full ${DISABLED_CLASS} read-only:cursor-pointer`
+
+export const SELECT_LOADING_ICON_CLASS = 'data-loading:animate-spin'
+
+export const PRIMARY_TRIGGER_CLASS =
+  'text-start outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center static disabled:pointer-events-none'
+
+const SELECT_FIELD_ACTION_CLASS =
+  'text-muted-foreground p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer transition-colors items-center justify-center hover:(text-accent-foreground bg-accent-hover) active:bg-accent-active disabled:pointer-events-none'
+
+export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} outline-none static data-loading:cursor-wait`
+
+export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
+export const SELECT_CLEAR_ACTION_CLASS = `${SELECT_FIELD_ACTION_CLASS} select-none`
+
+export const TAG_FIELD_CONTROL_CLASS = `${FIELD_CONTROL_CLASS} data-tags:ps-1`
+export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} py-0.5 min-w-12 data-duplicate:text-danger`
 
 export const selectItemDataAttributes = {
   itemDescription: /* @__PURE__ */ createDataAttributes('highlighted'),
@@ -111,12 +127,3 @@ export const TAG_SIZES = {
     tagOverflow: TEXT_SIZE_VARIANT.lg,
   },
 } as const
-
-export {
-  FIELD_INPUT_CLASS,
-  PRIMARY_TRIGGER_CLASS,
-  SECONDARY_TRIGGER_CLASS,
-  SELECT_LOADING_ICON_CLASS,
-  TAG_FIELD_CONTROL_CLASS,
-  TAG_FIELD_INPUT_CLASS,
-}

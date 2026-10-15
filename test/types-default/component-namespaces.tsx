@@ -252,10 +252,8 @@ type IsNever<T> = [T] extends [never] ? true : false
 type Assert<T extends true> = T
 
 export type ListStyleContract = [
-  Assert<IsNever<ListT.Slot>>,
+  Assert<'root' extends keyof ListT.Slot ? true : false>,
   Assert<IsNever<ListT.Variant>>,
-  Assert<IsNever<ListT.Classes>>,
-  Assert<IsNever<ListT.Styles>>,
 ]
 
 export type SlotOwnershipContract = [

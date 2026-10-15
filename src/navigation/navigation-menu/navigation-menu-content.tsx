@@ -8,7 +8,7 @@ import {
   resolveDirection,
   scrollIntoViewWithin,
 } from '../../overlay/base/utils'
-import { createStyles, pickSlotOverrides } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createTransitionPresence } from '../../shared/transition-presence'
@@ -21,8 +21,8 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'classes', 'styles'])
-  const resolved = createStyles(navigationMenuRecipe, local, {
+  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
     varsSlot: 'content',
     contextVariants: () => ({ orientation: context.orientation() }),
@@ -118,23 +118,21 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
         )
         return (
           <div
-            {...attributes}
-            id={`${context.id()}-${item.value()}-content`}
-            role={rest.role ?? 'region'}
-            aria-labelledby={item.trigger()?.id}
-            aria-hidden={!expanded() ? true : undefined}
-            inert={!expanded() ? true : undefined}
-            tabIndex={-1}
             data-slot="navigation-menu-content"
             {...navigationMenuDataAttributes.content({
               expanded: displayed,
               closed: () => !displayed(),
               orientation: context.orientation,
             })}
-            {...resolved.slots.content}
-          >
-            {local.children}
-          </div>
+            {...attributes}
+            {...slots.content}
+            id={`${context.id()}-${item.value()}-content`}
+            role={rest.role ?? 'region'}
+            aria-labelledby={item.trigger()?.id}
+            aria-hidden={!expanded() ? true : undefined}
+            inert={!expanded() ? true : undefined}
+            tabIndex={-1}
+          />
         )
       }}
     </Show>

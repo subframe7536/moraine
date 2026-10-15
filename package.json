@@ -69,7 +69,7 @@
     "docs:build": "pnpm --filter @moraine/docs build",
     "docs:preview": "pnpm --filter @moraine/docs preview",
     "test": "pnpm run test:docs && pnpm run test:lib",
-    "test:lib": "pnpm run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json && vitest run src/ test/",
+    "test:lib": "pnpm run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json && vitest run src/ test/ build/",
     "test:docs": "vitest run docs/",
     "lint": "oxlint --fix --max-warnings 0 --report-unused-disable-directives",
     "format": "oxfmt",

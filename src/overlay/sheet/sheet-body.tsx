@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useModalContext } from '../modal/modal-context'
 
@@ -13,24 +13,21 @@ import type { SheetT } from './sheet.types'
 export function SheetBody<T extends ValidComponent = 'div'>(
   props: SheetT.BodyProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style'])
   const family = useModalContext()
   const content = useSheetContent()
-  const resolved = createStyles(sheetRecipe, local, {
+  const { slots } = useRecipe(sheetRecipe, local, {
     slot: 'body',
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
   })
-  const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-body"
-      {...bodyAttrs}
+      {...sheetDataAttributes.body({ header: content.hasHeader })}
       {...rest}
-      {...resolved.slots.body}
-    >
-      {local.children}
-    </Dynamic>
+      {...slots.body}
+    />
   )
 }

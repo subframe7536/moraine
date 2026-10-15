@@ -4,7 +4,7 @@ import { Portal } from 'solid-js/web'
 
 import { Badge, Button, Icon, Switch, cn } from '../../../../../src'
 import { createId } from '../../../../../src/utils'
-import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_CLASS } from '../../../../shared/docs-focus.recipe'
 import { ComponentDocContext } from '../component-doc.context'
 
 import { createDocsPlaygroundSlots } from './create-docs-playground-slots'

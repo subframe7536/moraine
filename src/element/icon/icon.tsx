@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
 import { iconRecipe } from './icon.recipe'
@@ -22,7 +22,7 @@ export function Icon(props: IconProps): JSX.Element {
     'role',
   ])
   const name = createMemo(() => local.name)
-  const resolved = createStyles(iconRecipe, local, {
+  const { slots } = useRecipe(iconRecipe, local, {
     own: () => ({
       root: {
         class: typeof name() === 'string' ? name() : undefined,
@@ -65,7 +65,7 @@ export function Icon(props: IconProps): JSX.Element {
       data-slot={local.slotName ?? 'icon'}
       {...rest}
       {...accessibilityProps()}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       {componentProps().children}
     </Dynamic>

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { mergePopperElementProps } from '../../overlay/base/popper'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 
 import { NavigationMenuContent } from './navigation-menu-content'
 import {
@@ -42,8 +42,8 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
     'class',
     'style',
   ])
-  const presentation = createStyles(navigationMenuRecipe, local)
-  const context = createNavigationMenuState(local, () => presentation.variants.orientation)
+  const { slots, variants } = useRecipe(navigationMenuRecipe, local)
+  const context = createNavigationMenuState(local, () => variants.orientation)
   const attributes = mergePopperElementProps<HTMLElement>(
     {
       ref: context.setRootElement,
@@ -70,7 +70,7 @@ export function NavigationMenu(props: NavigationMenuProps): JSX.Element {
           disabled: () => local.disabled,
           orientation: context.orientation,
         })}
-        {...presentation.slots.root}
+        {...slots.root}
       >
         {local.children}
         <NavigationMenuPanel />

@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
 import { Badge, SidebarFrame, cn, useSidebarFrame } from '../../../../src'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 
 export type SidebarPage = DocsPageEntry

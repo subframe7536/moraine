@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
@@ -48,7 +48,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages)
   let slider!: ReturnType<typeof createSlider<TValue>>
-  const resolved = createStyles(sliderRecipe, local, {
+  const { slots, variants, slotWith } = useRecipe(sliderRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),
     enforced: () => ({
       range: { style: slider.rangeStyle() },
@@ -61,7 +61,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
       get orientation() {
-        return resolved.variants.orientation
+        return variants.orientation
       },
       inverted: false,
     },
@@ -145,14 +145,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       id={`${field.id()}-root`}
       aria-label={local['aria-label']}
       {...field.ariaAttrs()}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <div
         ref={(element) => {
           slider.setTrackRef(element)
         }}
         data-slot="slider-track"
-        {...resolved.slots.track}
+        {...slots.track}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
@@ -165,7 +165,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             multiple: isMultiple,
             inverted: () => merged.inverted,
           })}
-          {...resolved.slots.range}
+          {...slots.range}
         />
 
         <Show when={merged.marker}>
@@ -173,7 +173,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {(markerIndex) => (
               <div
                 data-slot="slider-marker"
-                {...resolved.slotWith('marker', undefined, () => ({
+                {...slotWith('marker', undefined, () => ({
                   style: slider.getMarkerStyle(markerIndex),
                 }))}
               />
@@ -206,7 +206,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             })}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            {...resolved.slotWith('thumb', undefined, () => ({
+            {...slotWith('thumb', undefined, () => ({
               style: {
                 left: slider.thumbStyles()[thumbIndex]?.left,
                 right: slider.thumbStyles()[thumbIndex]?.right,

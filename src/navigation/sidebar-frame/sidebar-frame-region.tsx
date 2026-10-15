@@ -19,12 +19,8 @@ type RegionProps = {
 
 export function createRegion<P extends RegionProps>(slot: RegionSlot, dataSlot: string) {
   return function SidebarFrameRegion(props: P): JSX.Element {
-    const [local, rest] = splitProps(props as RegionProps, ['children', 'class', 'style'])
+    const [local, rest] = splitProps(props as RegionProps, ['class', 'style'])
     const resolved = useSidebarFrameStyles(slot, local)
-    return (
-      <div data-slot={dataSlot} {...rest} {...resolved.slots[slot]}>
-        {local.children}
-      </div>
-    )
+    return <div data-slot={dataSlot} {...rest} {...resolved.slots[slot]} />
   }
 }

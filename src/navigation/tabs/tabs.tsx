@@ -14,7 +14,7 @@ import {
 
 import { Icon } from '../../element/icon'
 import { resolveDirection } from '../../overlay/base/utils'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
@@ -61,7 +61,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     'aria-labelledby',
   ])
   let indicatorStyle!: () => JSX.CSSProperties
-  const resolved = createStyles(tabsRecipe, local, {
+  const { slots, variants } = useRecipe(tabsRecipe, local, {
     enforced: () => ({
       indicator: { style: indicatorStyle() },
     }),
@@ -70,7 +70,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   const merged = mergeProps(
     {
       get orientation() {
-        return resolved.variants.orientation
+        return variants.orientation
       },
     },
     local,
@@ -294,7 +294,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
       {...rest}
       id={rootId()}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <div
         ref={(e) => (listRef = e)}
@@ -303,9 +303,9 @@ export function Tabs(props: TabsProps): JSX.Element {
         aria-labelledby={local['aria-labelledby']}
         aria-orientation={merged.orientation ?? undefined}
         data-slot="tabs-list"
-        {...resolved.slots.list}
+        {...slots.list}
       >
-        <div aria-hidden="true" data-slot="tabs-indicator" {...resolved.slots.indicator} />
+        <div aria-hidden="true" data-slot="tabs-indicator" {...slots.indicator} />
 
         <For each={normalizedItems()}>
           {(item) => {
@@ -345,7 +345,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 })}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="tabs-trigger"
-                {...resolved.slots.trigger}
+                {...slots.trigger}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
@@ -356,13 +356,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span data-slot="tabs-leading" {...resolved.slots.leading}>
+                  <span data-slot="tabs-leading" {...slots.leading}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span data-slot="tabs-label" {...resolved.slots.label}>
+                  <span data-slot="tabs-label" {...slots.label}>
                     {item.label}
                   </span>
                 </Show>
@@ -385,7 +385,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 {...tabsDataAttributes.content({ selected: true })}
                 data-slot="tabs-content"
-                {...resolved.slots.content}
+                {...slots.content}
               >
                 {item.content}
               </div>

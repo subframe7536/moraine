@@ -2,7 +2,7 @@ import { For } from 'solid-js'
 
 import { Icon } from '../../../../src/index'
 import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/icons'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 export function IconGallery() {

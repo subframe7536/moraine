@@ -1,7 +1,7 @@
 import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import { POPPER_SIDE_CLASS } from '../base/popper.class'
+import { POPPER_SIDE_CLASS } from '../base/popper.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
 import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'

@@ -14,7 +14,7 @@ import {
   Tabs,
   cn,
 } from '../../../../src'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 
 const OPTIONS = [
   { label: 'SolidJS', value: 'solid' },

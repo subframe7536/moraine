@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, onMount, splitProps } from 'solid-js'
+import { mergeProps, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
@@ -19,10 +19,10 @@ import type { ContextMenuT } from './context-menu.types'
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled'])
   const context = useContextMenuContext()
 
-  const resolved = createStyles(contextMenuRecipe, local, {
+  const { slots } = useRecipe(contextMenuRecipe, local, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
     own: () => ({
@@ -57,15 +57,14 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       callHandler(event, context.triggerProps[key])
     }
   }
-  const triggerDataAttrs = contextMenuDataAttributes.trigger({
-    closed: () => !context.isOpen(),
-    disabled,
-    expanded: context.isOpen,
-  })
   const triggerProps = mergeProps(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
-    triggerDataAttrs,
+    contextMenuDataAttributes.trigger({
+      closed: () => !context.isOpen(),
+      disabled,
+      expanded: context.isOpen,
+    }),
     {
       get disabled() {
         return a11y().disabled
@@ -81,11 +80,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
-  return (
-    <Dynamic component={tag()} type={undefined} {...binding} {...resolved.slots.trigger}>
-      {children()}
-    </Dynamic>
-  )
+  return <Dynamic component={tag()} type={undefined} {...binding} {...slots.trigger} />
 }

@@ -10,7 +10,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { SlotClassValue } from '../../theme/style-types'
 import { Icon } from '../icon'
 
@@ -60,7 +60,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'size',
     'rootSlot',
   ])
-  const resolved = createStyles(avatarRecipe, local)
+  const { slots } = useRecipe(avatarRecipe, local)
 
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
@@ -120,7 +120,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <img
         data-slot="avatar-image"
@@ -141,7 +141,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         }}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        {...resolved.slots.image}
+        {...slots.image}
       />
 
       <span
@@ -158,14 +158,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        {...resolved.slots.fallback}
+        {...slots.fallback}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
               slotName="avatar-fallback-content"
-              {...resolved.slots.fallbackContent}
+              {...slots.fallbackContent}
             />
           )}
         </Show>
@@ -173,7 +173,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="avatar-badge" {...resolved.slots.badge}>
+          <span data-slot="avatar-badge" {...slots.badge}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}

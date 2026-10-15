@@ -6,7 +6,7 @@ import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } f
 
 import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
 import { createMediaQuery } from '../../src/utils'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
 import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'

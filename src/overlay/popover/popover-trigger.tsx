@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { PopperTrigger, mergePopperElementProps } from '../base/popper'
 import type { createPopper } from '../base/popper'
@@ -16,7 +16,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {
   const context = usePopoverContext()
-  const resolved = createStyles(popoverRecipe, props, {
+  const { slots } = useRecipe(popoverRecipe, props, {
     slot: 'trigger',
     contextSlots: () => context.slotOverrides,
   })
@@ -67,7 +67,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
       props,
       { 'aria-haspopup': 'dialog' as const },
     ),
-    resolved.slots.trigger,
+    slots.trigger,
     {
       context: popper,
       get toggleOnClick() {

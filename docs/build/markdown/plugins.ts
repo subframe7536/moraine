@@ -22,7 +22,7 @@ import {
   DOCS_TABLE_WRAPPER_CLASS,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from './shared.class.ts'
+} from './shared.recipe.ts'
 
 export interface OnThisPageEntryLiteral {
   id: string

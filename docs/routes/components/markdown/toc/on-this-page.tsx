@@ -2,10 +2,10 @@ import { useLocation } from '@solidjs/router'
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
-import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.class'
+import { FOCUS_VISIBLE_RING_CLASS } from '../../../../../src/theme/recipe-common.recipe'
 import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
-import { DOCS_INLINE_CODE_CLASS } from '../markdown.class'
+import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
 
 export { type OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 

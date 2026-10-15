@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, mergeProps, on, onCleanup, onMount, splitProps, untrack } from 'solid-js'
 
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider'
 import type { ModelModifiers } from '../../shared/input-modifiers'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -65,7 +65,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const resolved = createStyles(textareaRecipe, local, {
+  const { slots } = useRecipe(textareaRecipe, local, {
     contextVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
@@ -109,14 +109,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const dataAttrs = textareaDataAttributes.root({
-    invalid: field.invalid,
-    disabled: field.disabled,
-    required: field.required,
-    readonly: field.readOnly,
-    autoresize: () => merged.autoResize,
-  })
-
   const restoreControlledValue = textControl.restoreControlledValue
 
   let initialOverflow = ''
@@ -278,7 +270,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <textarea
       data-slot="textarea"
-      {...dataAttrs}
+      {...textareaDataAttributes.root({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        required: field.required,
+        readonly: field.readOnly,
+        autoresize: () => merged.autoResize,
+      })}
       {...rest}
       id={field.id()}
       name={field.name()}
@@ -293,7 +291,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...resolved.slots.root}
+      {...slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

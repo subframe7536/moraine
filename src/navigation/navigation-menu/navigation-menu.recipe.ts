@@ -1,10 +1,10 @@
-import { POPPER_CONTENT_MAX_SIZE_CLASS } from '../../overlay/base/popper.class'
+import { POPPER_CONTENT_MAX_SIZE_CLASS } from '../../overlay/base/popper.recipe'
 import { defineRecipe } from '../../theme/recipe'
 import {
   DATA_DISABLED_CLASS,
   FOCUS_VISIBLE_RING_CLASS,
   VISUALLY_HIDDEN_CLASS,
-} from '../../theme/recipe-common.class'
+} from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 

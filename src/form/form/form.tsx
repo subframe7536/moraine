@@ -4,7 +4,7 @@ import { INTERNAL, validateFormInput } from '@formisch/solid/internals'
 import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
@@ -33,9 +33,8 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'of',
     'onSubmit',
     'onReset',
-    'children',
   ])
-  const resolved = createStyles(formRecipe, local)
+  const { slots } = useRecipe(formRecipe, local)
   const messages = useMessages('form', defaultFormMessages)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
@@ -94,6 +93,7 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
       data-slot="form"
       {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
       {...formProps}
+      {...slots.root}
       ref={(element) => {
         local.of[INTERNAL].element = element
         callRef(local.ref, element)
@@ -101,16 +101,12 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
           if (local.of[INTERNAL].element === element) {
             local.of[INTERNAL].element = undefined
           }
-          callRef(local.ref, undefined)
         })
       }}
       novalidate
       onSubmit={onSubmit}
       onReset={onReset}
-      {...resolved.slots.root}
-    >
-      {local.children}
-    </form>
+    />
   )
 }
 

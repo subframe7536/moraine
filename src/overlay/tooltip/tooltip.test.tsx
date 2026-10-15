@@ -907,4 +907,22 @@ describe('Tooltip', () => {
     await vi.advanceTimersByTimeAsync(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
+
+  test('inherits placement and align options from root context to content', () => {
+    const screen = render(() => (
+      <Tooltip open placement="left" align="end">
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Inherited options tooltip" />
+      </Tooltip>
+    ))
+    try {
+      const content = document.body.querySelector('[data-slot="tooltip-content"]')
+      expect(content?.getAttribute('data-side')).toBe('left')
+      expect(content?.getAttribute('data-align')).toBe('end')
+    } finally {
+      screen.unmount()
+    }
+  })
 })

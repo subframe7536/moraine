@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, splitProps } from 'solid-js'
+import { mergeProps, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { mergePopperElementProps } from '../../overlay/base/popper'
-import { createStyles, pickSlotOverrides } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 
 import {
   useNavigationMenuContext,
@@ -21,18 +21,16 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'disabled',
     'closeOnClick',
     'linkRender',
-    'children',
     'href',
     'class',
     'style',
     'classes',
     'styles',
   ])
-  const resolved = createStyles(navigationMenuRecipe, local, {
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'link',
     contextSlots: () => pickSlotOverrides(context.options),
   })
-  const body = resolveChildren(() => local.children)
   const disabled = () => Boolean(context.options.disabled || item?.disabled() || local.disabled)
   const attributes = mergeProps(
     mergePopperElementProps<HTMLAnchorElement>(
@@ -72,9 +70,7 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       data-slot="navigation-menu-link"
       data-moraine-navigation-menu-control=""
       {...navigationMenuDataAttributes.link({ active: () => local.active, disabled })}
-      {...resolved.slots.link}
-    >
-      {body()}
-    </Dynamic>
+      {...slots.link}
+    />
   )
 }

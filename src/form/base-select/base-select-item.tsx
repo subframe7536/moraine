@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 import { sameValue } from '../shared/select/collection'
@@ -25,7 +25,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     'onPointerDown',
     'onMouseDown',
   ])
-  const resolved = createStyles(baseSelectRecipe, local, {
+  const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'item',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -71,7 +71,7 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
       tabIndex={-1}
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
-      {...resolved.slots.item}
+      {...slots.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (

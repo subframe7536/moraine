@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
@@ -8,7 +8,7 @@ import type { BaseSelectPartProps } from './base-select.types'
 
 export function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectContext()
-  const resolved = createStyles(baseSelectRecipe, props, {
+  const { slots } = useRecipe(baseSelectRecipe, props, {
     slot: 'separator',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -19,7 +19,7 @@ export function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
       aria-hidden="true"
       data-slot={state.slotName('separator')}
       {...props}
-      {...resolved.slots.separator}
+      {...slots.separator}
     />
   )
 }

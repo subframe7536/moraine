@@ -1,7 +1,6 @@
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../../element/icon'
-import type { SlotBinding as ComponentSlotBinding } from '../../../provider/create-styles'
 import type { ElementProps } from '../../../shared/types'
 import type {
   SlotClassValue,
@@ -9,6 +8,7 @@ import type {
   OverlayAlign,
   OverlayPlacement,
 } from '../../../theme/style-types'
+import type { SlotBinding as ComponentSlotBinding } from '../../../theme/use-recipe'
 
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'

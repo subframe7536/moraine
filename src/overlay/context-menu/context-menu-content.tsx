@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { OverlayMenu } from '../base/menu'
 
 import { useContextMenuContext } from './context-menu-context'
@@ -26,7 +26,7 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const context = useContextMenuContext()
 
   const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
-  const resolved = createStyles(contextMenuRecipe, local, {
+  const { slots, variants } = useRecipe(contextMenuRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
   })
@@ -34,8 +34,8 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
     <OverlayMenu<ContextMenuT.Item>
       {...context.menuProps}
       owner="context-menu"
-      slotBinding={(slot) => resolved.slots[slot]}
-      size={resolved.variants.size ?? undefined}
+      slotBinding={(slot) => slots[slot]}
+      size={variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}

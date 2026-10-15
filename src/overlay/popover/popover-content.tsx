@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { parseFloatingPlacement } from '../base/placement'
 import { PopperContent, mergePopperElementProps } from '../base/popper'
@@ -87,7 +87,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
   }
-  const resolved = createStyles(popoverRecipe, local, {
+  const { slots } = useRecipe(popoverRecipe, local, {
     slot: 'content',
     contextSlots: () => behavior.slotOverrides,
   })
@@ -97,14 +97,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={behavior.options.mode === 'click'}
-      align={behavior.options.align}
-      placement={behavior.options.placement}
-      forceMount={behavior.options.forceMount}
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
-      preventScroll={behavior.options.preventScroll}
-      dismissible={behavior.options.dismissible}
-      onClosePrevent={behavior.options.onClosePrevent}
-      overflowPadding={4}
       role="dialog"
       onPointerDownOutside={(event) => {
         if (behavior.options.dismissible ?? true) {
@@ -143,20 +136,19 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
-        const contentDataAttrs = popoverContentDataAttributes({
-          side: () => parseFloatingPlacement(context.currentPlacement()).side,
-          align: () => parseFloatingPlacement(context.currentPlacement()).align,
-        })
         return (
           <div
             data-slot="popover-content"
-            {...contentDataAttrs}
+            {...popoverContentDataAttributes({
+              side: () => parseFloatingPlacement(context.currentPlacement()).side,
+              align: () => parseFloatingPlacement(context.currentPlacement()).align,
+            })}
             {...mergePopperElementProps(contentProps, rest)}
             aria-label={local.ariaLabel ?? rest['aria-label']}
-            {...resolved.slots.content}
+            {...slots.content}
           >
             <Show when={hasJsxContent(content())}>
-              <div data-slot="popover-body" {...resolved.slots.body}>
+              <div data-slot="popover-body" {...slots.body}>
                 {content()}
               </div>
             </Show>

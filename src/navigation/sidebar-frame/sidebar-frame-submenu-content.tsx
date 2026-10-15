@@ -8,7 +8,7 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 
 /** Collapsible content container for nested sub-navigation items. */
 export function SidebarFrameSubmenuContent(props: SidebarFrameT.SubmenuContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['class', 'style'])
   const resolved = useSidebarFrameStyles('submenuContent', local)
 
   return (
@@ -17,8 +17,6 @@ export function SidebarFrameSubmenuContent(props: SidebarFrameT.SubmenuContentPr
       data-slot="sidebar-frame-submenu-content"
       {...rest}
       {...resolved.slots.submenuContent}
-    >
-      {local.children}
-    </Collapsible.Content>
+    />
   )
 }

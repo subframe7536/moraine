@@ -96,7 +96,6 @@ export function createPolymorphicRoot(options: {
         if (untrack(() => options.registration?.element()) === next) {
           options.registration?.ref(undefined)
         }
-        callRef(consumerRef, undefined)
       }
       onCleanup(() => {
         if (current === next) {

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider/create-styles'
+import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
 
 import { useSelectContext } from './base-select-context'
@@ -10,8 +10,8 @@ import type { BaseSelectT } from './base-select.types'
 
 export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
-  const resolved = createStyles(baseSelectRecipe, local, {
+  const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
+  const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'control',
     contextSlots: () => state.slotOverrides,
     contextVariants: () => ({ size: state.styleSize }),
@@ -28,6 +28,7 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
         closed: () => !state.open(),
       })}
       {...rest}
+      {...slots.control}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)
@@ -37,9 +38,6 @@ export function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element 
           }
         })
       }}
-      {...resolved.slots.control}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { Separator } from '../separator'
 
 import { useButtonGroupContext } from './button-group-context'
@@ -12,7 +12,7 @@ import type { ButtonGroupT } from './button-group.types'
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'class', 'style'])
   const group = useButtonGroupContext()
-  const resolved = createStyles(buttonGroupRecipe, local, {
+  const { slots, variants } = useRecipe(buttonGroupRecipe, local, {
     slot: 'separator',
     contextVariants: () => ({
       orientation:
@@ -24,9 +24,9 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
   return (
     <Separator
       data-slot="button-group-separator"
-      orientation={resolved.variants.orientation}
+      orientation={variants.orientation}
       {...rest}
-      {...resolved.slots.separator}
+      {...slots.separator}
     />
   )
 }

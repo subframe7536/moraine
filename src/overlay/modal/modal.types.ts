@@ -97,8 +97,8 @@ export namespace ModalT {
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
   export interface OverlayBase {
-    /** Receives the mounted overlay element and `undefined` when it unmounts. */
-    ref?: (element: HTMLDivElement | undefined) => void
+    /** Receives the mounted overlay element. */
+    ref?: (element: HTMLDivElement) => void
 
     /**
      * Whether to render the visual backdrop layer. When false, acts as an unstyled container for nested content.

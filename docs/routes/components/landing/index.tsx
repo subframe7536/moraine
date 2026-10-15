@@ -1,6 +1,6 @@
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon, cn } from '../../../../src'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 import type { ClipboardCopyState } from '../../hooks/create-clipboard-copy'
 

@@ -4,11 +4,11 @@ import { Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, ToggleButton, cn, useSidebarFrame } from '../../../../src'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
-import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.class'
+import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import { PageActions } from './page-actions'
 
 export interface DocsHeaderProps {

@@ -11,7 +11,7 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../element/icon'
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
@@ -51,7 +51,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     config,
   )
   const [keyboardInset, setKeyboardInset] = createSignal(0)
-  const resolved = createStyles(sheetRecipe, local, {
+  const { slots, variants } = useRecipe(sheetRecipe, local, {
     slot: 'content',
     contextVariants: () => ({ side: config.side, inset: config.inset }),
     contextSlots: () => family.slotOverrides,
@@ -106,16 +106,12 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
       value={{
         ...registration,
         get variants() {
-          return resolved.variants
+          return variants
         },
       }}
     >
       <ModalPortal>
-        <Modal.Overlay
-          overlay={merged.overlay}
-          class={resolved.slots.overlay.class}
-          style={resolved.slots.overlay.style}
-        >
+        <Modal.Overlay overlay={merged.overlay} {...slots.overlay}>
           <Modal.Content
             {...sheetDataAttributes.content({
               closed: undefined,
@@ -124,8 +120,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
             })}
             {...rest}
             dir={rest.dir ?? direction()}
-            class={resolved.slots.content.class}
-            style={resolved.slots.content.style}
+            {...slots.content}
             ariaLabel={local['aria-label'] ?? merged.ariaLabel}
             ariaLabelledBy={
               (local['aria-label'] ?? merged.ariaLabel) === undefined
@@ -155,7 +150,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     <Modal.Close
                       data-slot="sheet-content-close"
                       aria-label={messages().close}
-                      {...resolved.slots.contentClose}
+                      {...slots.contentClose}
                     >
                       <Icon name={closeIcon()} />
                     </Modal.Close>

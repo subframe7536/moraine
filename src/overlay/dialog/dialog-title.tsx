@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { useRegisteredContentId } from '../base/content-anatomy'
 import { useModalContext } from '../modal/modal-context'
@@ -14,11 +14,11 @@ import type { DialogT } from './dialog.types'
 export function DialogTitle<T extends ValidComponent = 'h2'>(
   props: DialogT.TitleProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'children', 'id'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'id'])
   const family = useModalContext()
   const content = useDialogContent()
   const id = useRegisteredContentId(() => local.id, content.registerTitle)
-  const resolved = createStyles(dialogRecipe, local, {
+  const { slots } = useRecipe(dialogRecipe, local, {
     slot: 'title',
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
@@ -29,9 +29,7 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
       data-slot="dialog-title"
       {...rest}
       id={id()}
-      {...resolved.slots.title}
-    >
-      {local.children}
-    </Dynamic>
+      {...slots.title}
+    />
   )
 }

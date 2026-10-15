@@ -2192,4 +2192,26 @@ describe('DropdownMenu', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(2)
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
+
+  test('merges caller class and style on content without being overwritten by slot styles', () => {
+    const screen = render(() => (
+      <DropdownMenu open>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          class="custom-content-class"
+          style={{ opacity: '0.8', 'z-index': '9999' }}
+          items={[{ label: 'Item' }]}
+        />
+      </DropdownMenu>
+    ))
+    try {
+      const menu = document.body.querySelector('[role="menu"]') as HTMLElement
+      expect(menu).not.toBeNull()
+      expect(menu.className).toContain('custom-content-class')
+      expect(menu.style.opacity).toBe('0.8')
+      expect(menu.style.zIndex).toBe('9999')
+    } finally {
+      screen.unmount()
+    }
+  })
 })

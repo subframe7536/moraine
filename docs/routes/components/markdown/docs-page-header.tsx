@@ -3,7 +3,7 @@ import { Show } from 'solid-js'
 import { Badge, Button } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { FrontmatterData } from '../../../build/markdown/types'
-import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'

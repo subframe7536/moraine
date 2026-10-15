@@ -11,6 +11,7 @@ import {
   on,
   onCleanup,
   onMount,
+  splitProps,
   untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
@@ -102,6 +103,7 @@ export interface OverlayMenuLayerProps<
 export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
+  const [, submenuLayerProps] = splitProps(props, ['onContentPointerDown', 'onContextMenu'])
   const cn = useCn()
   const layer = useOverlayMenuLayerState()
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
@@ -630,26 +632,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <Show when={contentPresence.present()}>
           <Portal mount={triggerElement()?.ownerDocument.body}>
             <OverlayMenuLayer<TItem>
-              owner={props.owner}
+              {...submenuLayerProps}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
               close={closeSubmenu}
-              closeOnTab={props.closeOnTab}
-              closeRoot={props.closeRoot}
               depth={props.depth + 1}
               items={itemProps.item.children}
-              classes={props.classes}
-              styles={props.styles}
-              slotBinding={props.slotBinding}
-              size={props.size}
-              checkedIcon={props.checkedIcon}
-              submenuIcon={props.submenuIcon}
-              itemRender={props.itemRender}
-              contentProps={props.contentProps}
-              itemProps={props.itemProps}
-              contentTop={props.contentTop}
-              contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
               placement={
                 resolveDirection(triggerElement(), direction()) === 'rtl' ? 'left' : 'right'
@@ -657,7 +646,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               align="start"
               gutter={-2}
               shift={-4}
-              overflowPadding={props.overflowPadding}
               parentLayer={layer}
               present={contentPresence.present}
               registerBranch={registerLayerBranch}
@@ -803,25 +791,28 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
           createEventListener(element, 'keydown', onContentKeyDown)
-          onCleanup(() => {
-            const ref = props.contentProps?.ref
-            if (typeof ref === 'function') {
-              ;(ref as (element: HTMLDivElement | undefined) => void)(undefined)
-            }
-          })
         }}
         class={cn(resolveSlot('content').class, props.contentProps?.class)}
-        style={{ ...props.contentProps?.style, ...resolveSlot('content').style }}
+        style={{
+          ...resolveSlot('content').style,
+          ...props.contentProps?.style,
+        }}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
           if (!defaultPrevented) {
             props.onContentPointerDown?.(event)
+          }
+          if (props.parentLayer) {
+            event.stopPropagation()
           }
         }}
         onContextMenu={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onContextMenu)
           if (!defaultPrevented) {
             props.onContextMenu?.(event)
+          }
+          if (props.parentLayer) {
+            event.stopPropagation()
           }
         }}
         onFocusIn={(event) => {

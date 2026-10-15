@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { Modal } from '../modal/modal'
 import { useModalContext } from '../modal/modal-context'
@@ -12,9 +12,9 @@ export function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
   const family = useModalContext()
-  const resolved = createStyles(sheetRecipe, props, {
+  const { slots } = useRecipe(sheetRecipe, props, {
     slot: 'trigger',
     contextSlots: () => family.slotOverrides,
   })
-  return <Modal.Trigger {...props} {...resolved.slots.trigger} />
+  return <Modal.Trigger {...props} {...slots.trigger} />
 }

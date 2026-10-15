@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { SlotClassValue } from '../../theme/style-types'
 
@@ -24,7 +24,7 @@ export function useSidebarFrame(): SidebarFrameT.Context {
   return useSidebarFrameContext()
 }
 
-export function useSidebarFrameStyles(
+export function useSidebarFrameRecipe(
   slot: keyof SidebarFrameStyleSlot,
   local: {
     class?: SlotClassValue
@@ -32,7 +32,7 @@ export function useSidebarFrameStyles(
   },
 ) {
   const context = useSidebarFrameContext()
-  return createStyles(sidebarFrameRecipe, local, {
+  return useRecipe(sidebarFrameRecipe, local, {
     slot,
     contextSlots: () => context.slotOverrides,
     contextVariants: () => ({
@@ -41,3 +41,5 @@ export function useSidebarFrameStyles(
     }),
   })
 }
+
+export const useSidebarFrameStyles = useSidebarFrameRecipe

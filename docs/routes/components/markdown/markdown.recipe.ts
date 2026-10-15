@@ -1,4 +1,4 @@
-import { FOCUS_VISIBLE_RING_CLASS } from '../../../../src/theme/recipe-common.class'
+import { FOCUS_VISIBLE_RING_CLASS } from '../../../../src/theme/recipe-common.recipe'
 
 export const DOCS_INLINE_CODE_CLASS = 'docs-inline-code'
 

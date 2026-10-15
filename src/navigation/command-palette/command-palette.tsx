@@ -20,8 +20,7 @@ import {
   isComposingKeyEvent,
   resolveDirection,
 } from '../../overlay/base/utils'
-import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
+import { useRecipe } from '../../provider'
 import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -126,7 +125,6 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
-  const cn = useCn()
   const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
   const locale = useLocale()
   const direction = locale.dir
@@ -164,7 +162,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'class',
     'style',
   ])
-  const resolved = createStyles(commandPaletteRecipe, local)
+  const { slots, variants, slotWith } = useRecipe(commandPaletteRecipe, local)
 
   const merged = mergeProps(
     {
@@ -190,7 +188,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
   const listboxId = createId(undefined, 'command-palette-listbox')
-  const descriptionPosition = () => resolved.variants.descriptionPosition
+  const descriptionPosition = () => variants.descriptionPosition
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
@@ -459,7 +457,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <Show when={itemProps.item.item.description}>
         <span
           data-slot="command-palette-item-description"
-          {...resolved.slots.itemDescription}
+          {...slots.itemDescription}
           {...commandPaletteDataAttributes.itemDescription({
             highlighted: () => itemProps.highlighted,
           })}
@@ -483,7 +481,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show when={itemProps.item.item.leadingRender !== undefined}>
               <span
                 data-slot="command-palette-item-leading"
-                {...resolved.slots.itemLeading}
+                {...slots.itemLeading}
                 {...commandPaletteDataAttributes.itemLeading({
                   highlighted: () => itemProps.context.highlighted,
                 })}
@@ -492,8 +490,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               </span>
             </Show>
 
-            <span data-slot="command-palette-item-wrapper" {...resolved.slots.itemWrapper}>
-              <span data-slot="command-palette-item-label" {...resolved.slots.itemLabel}>
+            <span data-slot="command-palette-item-wrapper" {...slots.itemWrapper}>
+              <span data-slot="command-palette-item-label" {...slots.itemLabel}>
                 <span>{itemProps.item.item.label ?? itemProps.item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
                   <ItemDescription
@@ -513,7 +511,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show when={itemProps.item.item.trailingRender !== undefined}>
               <span
                 data-slot="command-palette-item-trailing"
-                {...resolved.slots.itemTrailing}
+                {...slots.itemTrailing}
                 {...commandPaletteDataAttributes.itemTrailing({
                   highlighted: () => itemProps.context.highlighted,
                 })}
@@ -588,7 +586,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           callRef(itemAttributes()?.ref, element)
           itemProps.virtualProps?.ref?.(element)
         }}
-        {...resolved.slotWith(
+        {...slotWith(
           'item',
           () => ({ class: itemAttributes()?.class, style: itemAttributes()?.style }),
           () => ({ class: itemProps.virtualProps?.class, style: itemProps.virtualProps?.style }),
@@ -632,19 +630,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   return (
-    <div
-      data-slot="command-palette"
-      {...rest}
-      ref={(el) => callRef(local.ref, el)}
-      {...resolved.slots.root}
-    >
-      <div data-slot="command-palette-input-wrapper" {...resolved.slots.inputWrapper}>
+    <div data-slot="command-palette" {...rest} ref={(el) => callRef(local.ref, el)} {...slots.root}>
+      <div data-slot="command-palette-input-wrapper" {...slots.inputWrapper}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           slotName="command-palette-input-leading"
           aria-busy={merged.loading || undefined}
           {...commandPaletteDataAttributes.inputLeading({ loading: () => merged.loading })}
-          {...resolved.slots.inputLeading}
+          {...slots.inputLeading}
         />
 
         <input
@@ -655,7 +648,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             callRef(local.inputRef, el)
           }}
           data-slot="command-palette-input"
-          {...resolved.slots.input}
+          {...slots.input}
           role="combobox"
           aria-label={
             merged.inputProps?.['aria-label'] ??
@@ -700,7 +693,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <button
             type="button"
             data-slot="command-palette-close"
-            {...resolved.slots.close}
+            {...slots.close}
             onClick={() => {
               merged.onClose?.()
             }}
@@ -718,16 +711,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             as="div"
             items={hasItems() ? visibleGroups() : []}
             fallback={
-              <div data-slot="command-palette-empty" {...resolved.slots.empty}>
+              <div data-slot="command-palette-empty" {...slots.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
               </div>
             }
             itemRender={(context) => (
-              <div data-slot="command-palette-group" {...resolved.slots.group}>
+              <div data-slot="command-palette-group" {...slots.group}>
                 <Show when={context.item.label}>
-                  <span data-slot="command-palette-group-label" {...resolved.slots.groupLabel}>
+                  <span data-slot="command-palette-group-label" {...slots.groupLabel}>
                     {context.item.label}
                   </span>
                 </Show>
@@ -743,11 +736,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               listboxElement = element
               callRef(merged.listboxProps?.ref, element)
             }}
-            style={{
-              ...merged.listboxProps?.style,
-              ...resolved.slots.listbox.style,
-            }}
-            class={cn(resolved.slots.listbox.class, merged.listboxProps?.class)}
+            {...slotWith('listbox', () => ({
+              class: merged.listboxProps?.class,
+              style: merged.listboxProps?.style,
+            }))}
           />
         }
       >
@@ -756,7 +748,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             as="div"
             items={hasItems() ? virtualEntries() : []}
             fallback={
-              <div data-slot="command-palette-empty" {...resolved.slots.empty}>
+              <div data-slot="command-palette-empty" {...slots.empty}>
                 <Show when={merged.emptyRender !== undefined} fallback={messages().empty}>
                   {renderWithProps(merged.emptyRender, getContext())}
                 </Show>
@@ -776,13 +768,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   role="presentation"
                   data-slot="command-palette-group"
                   {...context.props}
-                  style={{
-                    ...context.props?.style,
-                    ...resolved.slots.group.style,
-                  }}
-                  class={cn(resolved.slots.group.class, context.props?.class)}
+                  {...slotWith('group', () => ({
+                    class: context.props?.class,
+                    style: context.props?.style,
+                  }))}
                 >
-                  <span data-slot="command-palette-group-label" {...resolved.slots.groupLabel}>
+                  <span data-slot="command-palette-group-label" {...slots.groupLabel}>
                     {context.item.type === 'label' ? context.item.label : ''}
                   </span>
                 </div>
@@ -796,17 +787,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               listboxElement = element
               callRef(merged.listboxProps?.ref, element)
             }}
-            style={{
-              ...merged.listboxProps?.style,
-              ...resolved.slots.listbox.style,
-            }}
-            class={cn(resolved.slots.listbox.class, merged.listboxProps?.class)}
+            {...slotWith('listbox', () => ({
+              class: merged.listboxProps?.class,
+              style: merged.listboxProps?.style,
+            }))}
           />
         )}
       </Show>
 
       <Show when={merged.footerRender !== undefined}>
-        <div data-slot="command-palette-footer" {...resolved.slots.footer}>
+        <div data-slot="command-palette-footer" {...slots.footer}>
           {renderWithProps(merged.footerRender, getContext())}
         </div>
       </Show>

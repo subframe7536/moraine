@@ -10,8 +10,8 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { createStyles } from '../../provider'
-import type { SlotOverrides } from '../../provider/create-styles'
+import { pickSlotOverrides, useRecipe } from '../../provider'
+import type { SlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -24,12 +24,12 @@ import type { AccordionProps } from './accordion.types'
 
 function AccordionItemPanel(props: {
   disclosure: DisclosureState
-  contentId: () => string
-  triggerId: () => string
+  contentId: string
+  triggerId: string
   slotOverrides: SlotOverrides<Extract<keyof AccordionStyleSlot, string>>
   children: JSX.Element
 }): JSX.Element {
-  const resolved = createStyles(
+  const { slots } = useRecipe(
     accordionRecipe,
     {},
     {
@@ -55,14 +55,14 @@ function AccordionItemPanel(props: {
       ref={(element) => {
         onCleanup(props.disclosure.registerPresenceElement(element))
       }}
-      id={props.contentId()}
+      id={props.contentId}
       role="region"
-      aria-labelledby={props.triggerId()}
+      aria-labelledby={props.triggerId}
       aria-hidden={props.disclosure.ariaHidden()}
       hidden={props.disclosure.hidden()}
       inert={props.disclosure.inert()}
       data-slot="accordion-content"
-      {...resolved.slots.content}
+      {...slots.content}
       {...accordionDataAttributes.content({
         closed: props.disclosure.closed,
         expanded: props.disclosure.open,
@@ -93,7 +93,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
-  const resolved = createStyles(accordionRecipe, local)
+  const { slots, slotWith } = useRecipe(accordionRecipe, local)
 
   const merged = mergeProps(
     {
@@ -244,7 +244,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
         callRef(local.ref, element)
       }}
       id={rootId()}
-      {...resolved.slots.root}
+      {...slots.root}
     >
       <For each={items()}>
         {(item) => {
@@ -283,7 +283,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       onCleanup(disclosure.registerMeasureElement(element))
                     }}
                     data-slot="accordion-body"
-                    {...resolved.slots.body}
+                    {...slots.body}
                   >
                     {value()}
                   </div>
@@ -339,10 +339,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="accordion-item"
-              {...resolved.slotWith('item', () => ({ class: item.class }))}
+              {...slotWith('item', () => ({ class: item.class }))}
               {...accordionDataAttributes.item(itemState)}
             >
-              <h3 data-slot="accordion-header" {...resolved.slots.header}>
+              <h3 data-slot="accordion-header" {...slots.header}>
                 <button
                   ref={(element) => {
                     disclosure.setTriggerElement(element)
@@ -354,7 +354,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-label={item.ariaLabel ?? (label() === undefined ? itemValue() : undefined)}
                   disabled={disabled()}
                   data-slot="accordion-trigger"
-                  {...resolved.slots.trigger}
+                  {...slots.trigger}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -369,17 +369,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon
-                        name={value()}
-                        slotName="accordion-leading"
-                        {...resolved.slots.leading}
-                      />
+                      <Icon name={value()} slotName="accordion-leading" {...slots.leading} />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span data-slot="accordion-label" {...resolved.slots.label}>
+                      <span data-slot="accordion-label" {...slots.label}>
                         {value()}
                       </span>
                     )}
@@ -389,7 +385,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     <Icon
                       name={trailing()}
                       slotName="accordion-trailing"
-                      {...resolved.slots.trailing}
+                      {...slots.trailing}
                       {...accordionDataAttributes.trailing({ expanded })}
                     />
                   </Show>
@@ -398,16 +394,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
               <AccordionItemPanel
                 disclosure={disclosure}
-                contentId={contentId}
-                triggerId={triggerId}
-                slotOverrides={{
-                  get classes() {
-                    return local.classes
-                  },
-                  get styles() {
-                    return local.styles
-                  },
-                }}
+                contentId={contentId()}
+                triggerId={triggerId()}
+                slotOverrides={pickSlotOverrides(local)}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />

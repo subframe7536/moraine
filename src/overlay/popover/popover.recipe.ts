@@ -5,7 +5,7 @@ import {
   POPPER_CONTENT_MAX_HEIGHT_CLASS,
   POPPER_CONTENT_MAX_WIDTH_CLASS,
   POPPER_SIDE_CLASS,
-} from '../base/popper.class'
+} from '../base/popper.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
 import type { PopoverStyleSlot } from './popover.style-types'

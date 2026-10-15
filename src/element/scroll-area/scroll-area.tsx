@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { createEventListener } from '../../shared/event-listener'
 import { callRef } from '../../shared/utils'
 
@@ -11,7 +11,6 @@ import type { ScrollAreaProps, ScrollAreaT } from './scroll-area.types'
 /** Native scroll container with optional fades at overflowing edges. */
 export function ScrollArea(props: ScrollAreaProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'children',
     'ref',
     'orientation',
     'shadow',
@@ -25,7 +24,7 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
     'classes',
     'styles',
   ])
-  const resolved = createStyles(scrollAreaRecipe, local, {
+  const { slots, variants } = useRecipe(scrollAreaRecipe, local, {
     vars: () => {
       if (local.shadowSize === undefined) {
         return undefined
@@ -33,8 +32,8 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       return { '--scroll-area-shadow-size': `${Math.max(0, local.shadowSize)}px` }
     },
   })
-  const orientation = () => resolved.variants.orientation
-  const shadow = () => resolved.variants.shadow === true
+  const orientation = () => variants.orientation
+  const shadow = () => variants.shadow === true
   const [overflow, setOverflow] = createSignal<Exclude<ScrollAreaT.Visibility, 'auto'>>('none')
   const [canScroll, setCanScroll] = createSignal(true)
   let root: HTMLDivElement | undefined
@@ -142,13 +141,11 @@ export function ScrollArea(props: ScrollAreaProps): JSX.Element {
       tabIndex={canScroll() ? 0 : -1}
       {...scrollAreaDataAttributes.root({ orientation, shadowStart, shadowEnd })}
       {...rest}
+      {...slots.root}
       ref={(element) => {
         root = element
         callRef(local.ref, element)
       }}
-      {...resolved.slots.root}
-    >
-      {local.children}
-    </div>
+    />
   )
 }

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -13,15 +13,7 @@ import { FieldProvider } from './field-context'
 import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
 /** Generic field layout and accessibility primitive. */
-export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
-  return <FieldInternal {...props} />
-}
-
-/**
- * Shared field layout with an optional form binding.
- * @internal
- */
-export function FieldInternal<T extends ValidComponent = 'div'>(
+export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -62,7 +54,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
   const hasLabelText = () => (showLabel() && !labelHidden()) || showHint()
   const hasText = () => hasLabelText() || showDescription()
-  const resolved = createStyles(fieldRecipe, local, {
+  const { slots, variants } = useRecipe(fieldRecipe, local, {
     contextVariants: () => ({
       labelHidden: labelHidden(),
       hasLabelText: hasLabelText(),
@@ -163,7 +155,7 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
       return local.binding
     },
     get size() {
-      return resolved.variants.size
+      return variants.size
     },
     get disabled() {
       return local.disabled
@@ -189,32 +181,28 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     )
 
     return (
-      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...resolved.slots.root}>
-        <div data-slot="field-wrapper" {...resolved.slots.wrapper}>
+      <Dynamic component={local.as ?? 'div'} data-slot="field" {...rest} {...slots.root}>
+        <div data-slot="field-wrapper" {...slots.wrapper}>
           <Show when={showLabel()}>
-            <div data-slot="field-label-wrapper" {...resolved.slots.labelWrapper}>
+            <div data-slot="field-label-wrapper" {...slots.labelWrapper}>
               <label
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="field-label"
                 {...fieldDataAttributes.label({ required: isRequired })}
-                {...resolved.slots.label}
+                {...slots.label}
               >
                 {label()}
               </label>
               <Show when={showHint()}>
-                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...resolved.slots.hint}>
+                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...slots.hint}>
                   {hint()}
                 </span>
               </Show>
             </div>
           </Show>
           <Show when={showDescription()}>
-            <p
-              id={`${ariaId()}-description`}
-              data-slot="field-description"
-              {...resolved.slots.description}
-            >
+            <p id={`${ariaId()}-description`} data-slot="field-description" {...slots.description}>
               {description()}
             </p>
           </Show>
@@ -222,20 +210,20 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
         <div
           data-slot="field-container"
           {...fieldDataAttributes.container({ hasText })}
-          {...resolved.slots.container}
+          {...slots.container}
         >
           {fieldChildren()}
           <Show
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div id={`${ariaId()}-help`} data-slot="field-help" {...resolved.slots.help}>
+                <div id={`${ariaId()}-help`} data-slot="field-help" {...slots.help}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div id={`${ariaId()}-error`} data-slot="field-error" {...resolved.slots.error}>
+            <div id={`${ariaId()}-error`} data-slot="field-error" {...slots.error}>
               {resolvedError()}
             </div>
           </Show>
@@ -250,3 +238,5 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     </FieldProvider>
   )
 }
+
+export { Field as FieldInternal }

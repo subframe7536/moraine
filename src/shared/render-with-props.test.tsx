@@ -6,11 +6,11 @@ import { describe, expect, test, vi } from 'vitest'
 import { renderWithProps } from './render-with-props'
 
 describe('renderWithProps', () => {
-  test('returns static JSX unchanged', () => {
+  test('returns static JSX unchanged without props argument', () => {
     let element!: JSX.Element
     const screen = render(() => {
       element = <span>Static content</span>
-      return renderWithProps(element, {})
+      return renderWithProps(element)
     })
 
     expect(screen.container.firstChild).toBe(element)
@@ -34,18 +34,30 @@ describe('renderWithProps', () => {
     expect(screen.container.textContent).toBe('second')
   })
 
-  test('preserves undefined and static primitive values', () => {
+  test('preserves undefined and static primitive values without props', () => {
     const screen = render(() => (
       <div>
-        <span data-testid="undefined">{renderWithProps(undefined, {})}</span>
-        <span data-testid="zero">{renderWithProps(0, {})}</span>
-        <span data-testid="false">{renderWithProps(false, {})}</span>
+        <span data-testid="undefined">{renderWithProps(undefined)}</span>
+        <span data-testid="zero">{renderWithProps(0)}</span>
+        <span data-testid="false">{renderWithProps(false)}</span>
       </div>
     ))
 
     expect(screen.getByTestId('undefined').textContent).toBe('')
     expect(screen.getByTestId('zero').textContent).toBe('0')
     expect(screen.getByTestId('false').textContent).toBe('')
+  })
+
+  test('mounts a zero-argument renderer without props', () => {
+    const screen = render(() => (
+      <div>
+        {renderWithProps(() => (
+          <span>Zero props</span>
+        ))}
+      </div>
+    ))
+
+    expect(screen.container.textContent).toBe('Zero props')
   })
 
   test('owns renderer cleanup across conditional mounts', () => {
@@ -55,7 +67,7 @@ describe('renderWithProps', () => {
       return <span>Owned content</span>
     }
     const [visible, setVisible] = createSignal(true)
-    const screen = render(() => <Show when={visible()}>{renderWithProps(Owned, {})}</Show>)
+    const screen = render(() => <Show when={visible()}>{renderWithProps(Owned)}</Show>)
 
     expect(cleanup).not.toHaveBeenCalled()
 

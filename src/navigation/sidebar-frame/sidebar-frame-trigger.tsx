@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -14,21 +14,13 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref'])
   const context = useSidebarFrameContext()
-  const tag = createMemo(() => local.as ?? 'button')
+  const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
   const disabled = () => Boolean(local.disabled)
-  const ariaControls = () => {
-    const explicit = (rest as { 'aria-controls'?: string })['aria-controls']
-    if (explicit !== undefined) {
-      return explicit
-    }
-    if (context.isMobile() && !context.isOpen()) {
-      return undefined
-    }
-    return context.sidebarId()
-  }
+  const defaultAriaControls = () =>
+    context.isMobile() && !context.isOpen() ? undefined : context.sidebarId()
 
   const interactionProps = useButtonInteraction(
     {
@@ -41,24 +33,19 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interactionProps)
-  const children = resolveChildren(() => local.children)
 
   return (
     <Dynamic
       component={tag()}
       data-slot="sidebar-frame-trigger"
       aria-expanded={context.isOpen()}
+      aria-controls={defaultAriaControls()}
       {...sidebarFrameDataAttributes.trigger({
         open: context.isOpen,
         closed: () => !context.isOpen(),
         disabled,
       })}
       {...binding}
-      class={local.class}
-      style={local.style}
-      aria-controls={ariaControls()}
-    >
-      {children()}
-    </Dynamic>
+    />
   )
 }

@@ -3,7 +3,7 @@ import path from 'node:path'
 import solid from 'vite-plugin-solid'
 import { configDefaults, defineConfig } from 'vitest/config'
 
-import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
+import { variantGroupPlugin } from './build/vite-plugin-variant-group.ts'
 
 // These tests rely on Node or window behavior that differs inside a VM context.
 const VM_INCOMPATIBLE_TESTS = [
@@ -43,6 +43,7 @@ export default defineConfig({
             'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
             'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
             'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+            'build/**/*.{test,spec}.?(c|m)[jt]s?(x)',
           ],
           exclude: [...VM_INCOMPATIBLE_TESTS, 'test/consumer-fixtures/**'],
         },

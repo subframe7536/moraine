@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { containsComposed, isNode } from '../../overlay/base/dom'
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider'
 import { callHandler } from '../../shared/utils'
 import { useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
@@ -26,7 +26,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     'onPointerDown',
   ])
   const field = useFieldContext()
-  const resolved = createStyles(inputGroupRecipe, local, {
+  const { slots, variants } = useRecipe(inputGroupRecipe, local, {
     contextVariants: () => ({ size: field?.size }),
   })
 
@@ -54,13 +54,13 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     <InputGroupProvider
       value={{
         get variant() {
-          return resolved.variants.variant
+          return variants.variant
         },
         get size() {
-          return resolved.variants.size
+          return variants.size
         },
         get orientation() {
-          return resolved.variants.orientation
+          return variants.orientation
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
@@ -72,14 +72,14 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         data-slot="input-group"
         {...inputGroupDataAttributes.root({
           inputGroup: true,
-          orientation: () => resolved.variants.orientation,
+          orientation: () => variants.orientation,
         })}
         {...rest}
-        {...resolved.slots.root}
+        {...slots.root}
         onPointerDown={onPointerDown}
       >
         {local.children}
-        <span aria-hidden="true" data-slot="input-group-frame" {...resolved.slots.frame} />
+        <span aria-hidden="true" data-slot="input-group-frame" {...slots.frame} />
       </div>
     </InputGroupProvider>
   )

@@ -5,14 +5,14 @@ import { describe, expect, test } from 'vitest'
 import { buttonRecipe } from '../element/button/button.recipe'
 import type { ButtonT } from '../element/button/button.types'
 import { tooltipRecipe } from '../overlay/tooltip/tooltip.recipe'
-import { defineTheme } from '../theme/create-theme'
-import { defineRecipe } from '../theme/recipe'
-import type { MoraineTheme } from '../theme/types'
+import { MoraineProvider } from '../provider/moraine-provider'
 
-import { createStyles } from './create-styles'
-import { MoraineProvider } from './moraine-provider'
+import { defineTheme } from './create-theme'
+import { defineRecipe } from './recipe'
+import type { MoraineTheme } from './types'
+import { useRecipe } from './use-recipe'
 
-describe('createStyles', () => {
+describe('useRecipe', () => {
   test('keeps undefined-only precedence reactive and preserves node identity', () => {
     const base = defineTheme({
       button: {
@@ -27,7 +27,7 @@ describe('createStyles', () => {
     const [size, setSize] = createSignal<ButtonT.Variant['size']>()
     const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
     function Fixture() {
-      const styles = createStyles(
+      const { slots } = useRecipe(
         buttonRecipe,
         {
           get size() {
@@ -38,7 +38,7 @@ describe('createStyles', () => {
           contextVariants: () => ({ size: inherited() }),
         },
       )
-      return <button {...styles.slots.root}>Save</button>
+      return <button {...slots.root}>Save</button>
     }
     const screen = render(() => (
       <MoraineProvider theme={theme()}>
@@ -72,7 +72,7 @@ describe('createStyles', () => {
     const [classes, setClasses] = createSignal<ButtonT.Classes>({ root: 'p-3', label: 'text-lg' })
     const [slotStyles, setSlotStyles] = createSignal<ButtonT.Styles>({ root: { color: 'blue' } })
     function Fixture() {
-      const styles = createStyles(
+      const { slots } = useRecipe(
         buttonRecipe,
         {
           class: 'p-4',
@@ -98,8 +98,8 @@ describe('createStyles', () => {
         },
       )
       return (
-        <button {...styles.slots.root}>
-          <span {...styles.slots.label}>Save</span>
+        <button {...slots.root}>
+          <span {...slots.label}>Save</span>
         </button>
       )
     }
@@ -140,7 +140,7 @@ describe('createStyles', () => {
     })
     const [invert, setInvert] = createSignal<boolean | undefined>(false)
     function Fixture() {
-      const styles = createStyles(
+      const { slots } = useRecipe(
         tooltipRecipe,
         {
           get invert() {
@@ -149,7 +149,7 @@ describe('createStyles', () => {
         },
         { slot: 'content', contextVariants: () => ({ invert: true }) },
       )
-      return <div data-testid="select" {...styles.slots.content} />
+      return <div data-testid="select" {...slots.content} />
     }
     const screen = render(() => (
       <MoraineProvider theme={theme}>
@@ -183,10 +183,10 @@ describe('createStyles', () => {
     const [size, setSize] = createSignal<Variants['size']>('sm')
     const [tone, setTone] = createSignal<Variants['tone']>('a')
     let ownReads = 0
-    let slots!: ReturnType<typeof createStyles<typeof recipe>>['slots']
+    let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
 
     function Fixture() {
-      const result = createStyles(
+      const result = useRecipe(
         recipe,
         {
           get size() {
@@ -234,23 +234,66 @@ describe('createStyles', () => {
 
     setSize('lg')
     expect(slots.root.class).toContain('size-lg')
-    expect(ownReads).toBe(afterLabelClass + 1)
+    // Because own is isolated in its own memo and own did not change, own is NOT re-read on variant changes
+    expect(ownReads).toBe(afterLabelClass)
     expect(slots.label.class).toBe(labelClass)
-    expect(ownReads).toBe(afterLabelClass + 1)
+    expect(ownReads).toBe(afterLabelClass)
 
     setTone('b')
     expect(slots.label.class).toContain('tone-b')
-    expect(ownReads).toBe(afterLabelClass + 2)
+    expect(ownReads).toBe(afterLabelClass)
     expect(slots.root.class).toContain('size-lg')
-    expect(ownReads).toBe(afterLabelClass + 2)
+    expect(ownReads).toBe(afterLabelClass)
+  })
+
+  test('updating own for one slot does not recompute other slot memos', () => {
+    type Slots = { root: string; label: string }
+    const recipe = defineRecipe<Slots>('layerIsolation', {
+      base: { root: 'base-root', label: 'base-label' },
+    })
+    const [effectRoot, setEffectRoot] = createSignal('initial-root')
+    let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
+
+    function Fixture2() {
+      const { slots: s } = useRecipe(
+        recipe,
+        {},
+        {
+          own: () => ({
+            root: { class: effectRoot() },
+            label: { class: 'fixed-label' },
+          }),
+        },
+      )
+      // Read inside effect-like subscriptions
+      slots = s
+      return null
+    }
+
+    render(() => <Fixture2 />)
+
+    // Initial read
+    expect(slots.root.class).toContain('initial-root')
+    expect(slots.label.class).toContain('fixed-label')
+
+    // Track downstream slot reactivity
+    const rootClassBefore = slots.root.class
+    const labelClassBefore = slots.label.class
+    expect(rootClassBefore).toContain('initial-root')
+    expect(labelClassBefore).toContain('fixed-label')
+
+    setEffectRoot('updated-root')
+    expect(slots.root.class).toContain('updated-root')
+    // label slot returns the exact same cached string and did not change
+    expect(slots.label.class).toBe(labelClassBefore)
   })
 
   test('class change does not recompute style memo and vice versa', () => {
     const [rootClass, setRootClass] = createSignal('user-a')
     const [rootColor, setRootColor] = createSignal('red')
-    let slots!: ReturnType<typeof createStyles<typeof buttonRecipe>>['slots']
+    let slots!: ReturnType<typeof useRecipe<typeof buttonRecipe>>['slots']
     function Fixture() {
-      const result = createStyles(buttonRecipe, {
+      const result = useRecipe(buttonRecipe, {
         get classes() {
           return { root: rootClass() }
         },
@@ -271,6 +314,50 @@ describe('createStyles', () => {
     setRootColor('blue')
     expect(slots.root.style.color).toBe('blue')
     expect(slots.root.class).toBe(classB)
+  })
+
+  test('overrides helper provides reactive forwarders with slot mapping', () => {
+    const [color, setColor] = createSignal('red')
+    const [extraClass, setExtraClass] = createSignal('dynamic-class')
+
+    function Fixture() {
+      const { overrides } = useRecipe(buttonRecipe, {
+        get classes() {
+          return { root: extraClass(), leading: 'fixed-leading' }
+        },
+        get styles() {
+          return { root: { color: color() }, leading: { width: '10px' } }
+        },
+      })
+
+      // Test zero-arg call (all slots)
+      const allOverrides = overrides()
+      expect(allOverrides.styles?.root?.color).toBe(color())
+      expect(allOverrides.styles?.leading?.width).toBe('10px')
+      expect(allOverrides.classes?.root).toContain(extraClass())
+      expect(allOverrides.classes?.leading).toContain('fixed-leading')
+
+      // Test array mapping
+      const subsetOverrides = overrides(['root', 'leading'])
+      expect(subsetOverrides.styles?.root?.color).toBe(color())
+      expect(subsetOverrides.styles?.leading?.width).toBe('10px')
+
+      // Test target-to-source mapping
+      const mappedOverrides = overrides({ targetRoot: 'root', targetLeading: 'leading' })
+      expect(mappedOverrides.styles?.targetRoot?.color).toBe(color())
+      expect(mappedOverrides.styles?.targetLeading?.width).toBe('10px')
+      expect(mappedOverrides.classes?.targetRoot).toContain(extraClass())
+
+      return <button style={allOverrides.styles?.root}>Button</button>
+    }
+
+    const screen = render(() => <Fixture />)
+    const button = screen.getByRole('button')
+    expect(button.style.color).toBe('red')
+
+    setColor('green')
+    setExtraClass('updated-class')
+    expect(button.style.color).toBe('green')
   })
 })
 
@@ -300,7 +387,7 @@ test.each([undefined, 'label'] as const)(
     const [size, setSize] = createSignal<ButtonT.Variant['size']>()
     const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
     function Fixture() {
-      const styles = createStyles(
+      const { slots } = useRecipe(
         buttonRecipe,
         {
           get size() {
@@ -313,8 +400,8 @@ test.each([undefined, 'label'] as const)(
         },
       )
       return (
-        <button {...styles.slots.root}>
-          <span {...styles.slots.label}>Save</span>
+        <button {...slots.root}>
+          <span {...slots.label}>Save</span>
         </button>
       )
     }
@@ -352,7 +439,7 @@ test('applies instance variables after recipe keys and before context and caller
   })
   const [size, setSize] = createSignal('8px')
   function Fixture() {
-    const styles = createStyles(
+    const { slots } = useRecipe(
       buttonRecipe,
       {
         styles: { root: { '--shared': 'slot' } },
@@ -367,7 +454,7 @@ test('applies instance variables after recipe keys and before context and caller
         }),
       },
     )
-    return <button {...styles.slots.root}>Save</button>
+    return <button {...slots.root}>Save</button>
   }
   const screen = render(() => (
     <MoraineProvider theme={theme}>
@@ -400,7 +487,7 @@ test.each(['root', 'label'] as const)(
       },
     })
     function Fixture() {
-      const styles = createStyles(
+      const { slots } = useRecipe(
         buttonRecipe,
         {
           styles: { [slot]: { '--slot': 'slot', '--root': 'slot' } },
@@ -414,7 +501,7 @@ test.each(['root', 'label'] as const)(
           }),
         },
       )
-      return <button {...styles.slots[slot]}>Save</button>
+      return <button {...slots[slot]}>Save</button>
     }
     const screen = render(() => (
       <MoraineProvider theme={theme}>
@@ -432,8 +519,8 @@ test('slotWith accepts accessors and reacts to dynamic style updates', () => {
   const [pos, setPos] = createSignal('10px')
 
   function Fixture() {
-    const result = createStyles(buttonRecipe, {})
-    const item = result.slotWith(
+    const { slotWith } = useRecipe(buttonRecipe, {})
+    const item = slotWith(
       'root',
       // oxlint-disable-next-line subf/solid-reactivity -- slotWith extra accessor.
       () => ({ class: extraClass() }),
@@ -476,10 +563,10 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   })
 
   const [custom, setCustom] = createSignal<'a' | 'b' | undefined>('a')
-  let capturedVariants!: ReturnType<typeof createStyles<typeof recipe>>['variants']
+  let capturedVariants!: ReturnType<typeof useRecipe<typeof recipe>>['variants']
 
   function Fixture() {
-    const result = createStyles(recipe, {
+    const result = useRecipe(recipe, {
       get custom() {
         return custom()
       },
@@ -501,4 +588,71 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   setCustom('b')
   expect(button.className).toContain('custom-b')
   expect((capturedVariants as any).custom).toBe('b')
+})
+
+test('per-slot own accessor map provides fine-grained slot isolation', () => {
+  type TestSlots = { root: string; leading: string; trailing: string }
+  const recipe = defineRecipe<TestSlots>('test', {
+    base: {
+      root: 'root-base',
+      leading: 'leading-base',
+      trailing: 'trailing-base',
+    },
+  })
+
+  const [leadingActive, setLeadingActive] = createSignal(false)
+  const [trailingActive, setTrailingActive] = createSignal(false)
+  let leadingReads = 0
+  let trailingReads = 0
+
+  let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
+
+  function Fixture() {
+    const result = useRecipe(
+      recipe,
+      {},
+      {
+        own: {
+          leading: () => {
+            leadingReads += 1
+            return { class: leadingActive() ? 'leading-active' : undefined }
+          },
+          trailing: () => {
+            trailingReads += 1
+            return { class: trailingActive() ? 'trailing-active' : undefined }
+          },
+        },
+      },
+    )
+    slots = result.slots
+    return null
+  }
+
+  render(() => <Fixture />)
+
+  // Unread slots do not evaluate own accessors
+  expect(leadingReads).toBe(0)
+  expect(trailingReads).toBe(0)
+
+  // Read leading slot class
+  expect(slots.leading.class).toBe('leading-base')
+  expect(leadingReads).toBe(1)
+  expect(trailingReads).toBe(0)
+
+  // Read trailing slot class
+  expect(slots.trailing.class).toBe('trailing-base')
+  expect(leadingReads).toBe(1)
+  expect(trailingReads).toBe(1)
+
+  // Update leading signal - trailing accessor must NOT run
+  setLeadingActive(true)
+  expect(slots.leading.class).toBe('leading-base leading-active')
+  expect(leadingReads).toBe(2)
+  expect(trailingReads).toBe(1)
+
+  // Update trailing signal - leading accessor must NOT run
+  setTrailingActive(true)
+  expect(slots.trailing.class).toBe('trailing-base trailing-active')
+  expect(leadingReads).toBe(2)
+  expect(trailingReads).toBe(2)
 })

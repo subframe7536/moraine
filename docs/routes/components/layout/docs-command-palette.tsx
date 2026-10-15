@@ -5,7 +5,7 @@ import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from '
 import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
 import type { CommandPaletteT, DialogT } from '../../../../src'
 
-import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.class'
+import { DOCS_HEADER_CONTROL_CLASS } from './docs-header.recipe'
 import type { SidebarPage } from './sidebar'
 
 export type DocsCommandPaletteVariant = 'desktop' | 'mobile'

@@ -1,7 +1,7 @@
 import { For, Show } from 'solid-js'
 
 import { Badge } from '../../../../src'
-import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.class'
+import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.recipe'
 import { getDocsPages } from '../../docs-route'
 
 const SECTIONS = ['general', 'form', 'navigation', 'overlay'] as const

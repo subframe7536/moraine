@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../element/icon/index'
-import { createStyles } from '../../provider/index'
+import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
 import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
@@ -35,11 +35,11 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   )
   const field = useFieldContext()
   const messages = useMessages('select', defaultSelectMessages)
-  const styles = createStyles(selectRecipe, props, {
+  const { slots, variants } = useRecipe(selectRecipe, props, {
     slot: 'control',
     contextVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.slots)
+  const baseSelectStyles = createBaseSelectStyleProps(slots)
   const source = createMemo(
     (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
       createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
@@ -63,11 +63,11 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.slots.control}
+          {...slots.control}
           ref={(element) => callRef(local.ref, element)}
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>>
-            {...styles.slots.trigger}
+            {...slots.trigger}
             onKeyDown={(event) => {
               if (
                 local.allowClear &&
@@ -80,12 +80,12 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             }}
           >
             <Show when={local.leadingIcon}>
-              {(icon) => <Icon name={icon()} slotName="select-leading" {...styles.slots.leading} />}
+              {(icon) => <Icon name={icon()} slotName="select-leading" {...slots.leading} />}
             </Show>
             <span
               data-slot="select-value"
               {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
-              {...styles.slots.value}
+              {...slots.value}
             >
               {selectedItem()?.label ??
                 (hasValue()
@@ -100,7 +100,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               {...selectDataAttributes.trailing({ loading: () => local.loading })}
-              {...styles.slots.trailing}
+              {...slots.trailing}
             />
           </BaseSelect.Trigger>
           <Show when={!local.loading && local.allowClear && hasValue()}>
@@ -109,7 +109,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               data-slot="select-clear"
               aria-label={messages().clear}
               tabIndex={0}
-              {...styles.slots.clear}
+              {...slots.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -126,7 +126,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             </button>
           </Show>
         </BaseSelect.Control>
-        <DefaultSelectContent {...local} view={source()} slot={(slot) => styles.slots[slot]} />
+        <DefaultSelectContent {...local} view={source()} slot={(slot) => slots[slot]} />
       </>
     )
   }
@@ -142,7 +142,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
       onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
       onReset={local.onReset}
       multiple={false}
-      size={styles.variants.size ?? undefined}
+      size={variants.size ?? undefined}
       classes={baseSelectStyles.classes()}
       styles={baseSelectStyles.styles()}
     >

@@ -20,7 +20,19 @@ export default subfLint({
   options: {
     typeAware: true,
   },
+  jsPlugins: [
+    {
+      name: 'moraine',
+      specifier: './build/oxlint-plugin-moraine.ts',
+    },
+  ],
   rules: {
     'typescript/unbound-method': 'off',
+    'moraine/no-slots-class-style-in-jsx': 'error',
+    'moraine/inline-data-attributes-in-jsx': 'error',
+    'moraine/require-create-effect-on': 'error',
+    'moraine/no-emitted-extensions-in-imports': 'error',
+    'moraine/no-string-style-prop': 'error',
+    'moraine/no-direct-component-call': 'error',
   },
 })

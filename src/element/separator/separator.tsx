@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 
 import { separatorDataAttributes, separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'
@@ -9,8 +9,8 @@ import type { SeparatorProps } from './separator.types'
 /** Semantic divider with configurable horizontal or vertical orientation. */
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'class', 'style', 'classes', 'styles'])
-  const resolved = createStyles(separatorRecipe, local)
-  const orientation = () => resolved.variants.orientation
+  const { slots, variants } = useRecipe(separatorRecipe, local)
+  const orientation = () => variants.orientation
 
   return (
     <div
@@ -19,7 +19,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       aria-orientation={orientation()}
       {...separatorDataAttributes.root({ orientation })}
       {...rest}
-      {...resolved.slots.root}
+      {...slots.root}
     />
   )
 }

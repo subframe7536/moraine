@@ -98,8 +98,8 @@ function EditorContent() {
           (props, ['variant', 'side', 'isMobile'])
         </div>
         <div class="pl-4">
-          <span class="text-purple-500">const</span> resolved ={' '}
-          <span class="text-blue-500">createStyles</span>
+          <span class="text-purple-500">const</span> {'{ slots }'} ={' '}
+          <span class="text-blue-500">useRecipe</span>
           (sidebarFrameRecipe, local)
         </div>
         <div class="pl-4">

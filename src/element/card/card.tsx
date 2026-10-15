@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createStyles } from '../../provider'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
 import { CardAction } from './card-action'
@@ -25,27 +25,24 @@ export function Card<T extends ValidComponent = 'div'>(props: CardT.Props<T>): J
     'styles',
     'class',
     'style',
-    'children',
   ])
-  const resolved = createStyles(cardRecipe, local)
+  const { slots, variants } = useRecipe(cardRecipe, local)
 
   return (
     <CardProvider
       value={{
         get variant() {
-          return resolved.variants.variant
+          return variants.variant
         },
         get size() {
-          return resolved.variants.size
+          return variants.size
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rest} {...resolved.slots.root}>
-        {local.children}
-      </Dynamic>
+      <Dynamic component={local.as ?? 'div'} data-slot="card" {...rest} {...slots.root} />
     </CardProvider>
   )
 }
