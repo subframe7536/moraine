@@ -11,6 +11,7 @@ import {
   on,
   onCleanup,
   onMount,
+  splitProps,
   untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
@@ -102,6 +103,7 @@ export interface OverlayMenuLayerProps<
 export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
+  const [, submenuLayerProps] = splitProps(props, ['onContentPointerDown', 'onContextMenu'])
   const cn = useCn()
   const layer = useOverlayMenuLayerState()
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
@@ -630,7 +632,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <Show when={contentPresence.present()}>
           <Portal mount={triggerElement()?.ownerDocument.body}>
             <OverlayMenuLayer<TItem>
-              {...props}
+              {...submenuLayerProps}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
@@ -652,8 +654,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               onAutoFocusHandled={() => {
                 setAutoFocusStrategy('none')
               }}
-              onContentPointerDown={undefined}
-              onContextMenu={undefined}
               refState={(state) => {
                 submenuLayerState = state
               }}
@@ -802,11 +802,17 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           if (!defaultPrevented) {
             props.onContentPointerDown?.(event)
           }
+          if (props.parentLayer) {
+            event.stopPropagation()
+          }
         }}
         onContextMenu={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onContextMenu)
           if (!defaultPrevented) {
             props.onContextMenu?.(event)
+          }
+          if (props.parentLayer) {
+            event.stopPropagation()
           }
         }}
         onFocusIn={(event) => {

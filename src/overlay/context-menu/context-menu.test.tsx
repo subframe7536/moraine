@@ -1886,4 +1886,47 @@ describe('ContextMenu', () => {
     expect(trigger.getAttribute('tabindex')).toBe('-1')
     expect(trigger.hasAttribute('data-disabled')).toBe(true)
   })
+
+  test('does not invoke root onContentPointerDown or onContextMenu on submenu content interactions', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <ContextMenu defaultOpen onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
+        <ContextMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </ContextMenu>
+    ))
+
+    const rootContent = document.body.querySelector(
+      '[data-slot="context-menu-content"]',
+    ) as HTMLElement
+    await waitFor(() => {
+      expect(rootContent.querySelector('[data-slot="context-menu-item"]')).not.toBeNull()
+    })
+
+    const subTrigger = rootContent.querySelector('[data-slot="context-menu-item"]') as HTMLElement
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    const submenuContent = await waitFor(() => {
+      const content = Array.from(
+        document.body.querySelectorAll('[data-slot="context-menu-content"]'),
+      ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement | undefined
+      expect(content).not.toBeNull()
+      return content!
+    })
+
+    fireEvent.pointerDown(submenuContent, { clientX: 200, clientY: 200 })
+    fireEvent.contextMenu(submenuContent, { clientX: 200, clientY: 200 })
+
+    expect(onOpenChange).not.toHaveBeenCalledWith(false)
+    expect(rootContent.isConnected).toBe(true)
+    expect(submenuContent.isConnected).toBe(true)
+    screen.unmount()
+  })
 })
