@@ -52,21 +52,15 @@ export namespace DropdownMenuT {
      */
     align?: OverlayAlign
     children?: JSX.Element
-    /** Family slot class defaults for this DropdownMenu instance. */
-    classes?: Classes
-    /** Family slot style defaults for this DropdownMenu instance. */
-    styles?: Styles
   }
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
-  export type ContentClasses = Omit<Classes, 'trigger'>
-  export type ContentStyles = Omit<Styles, 'trigger'>
   export interface ContentBase extends Omit<
     OverlayMenuRootProps<Item>,
-    keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps'
+    keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps' | 'size'
   > {
     /** Renderer for each menu item. */
     itemRender?: (props: ItemRenderProps) => JSX.Element
@@ -77,7 +71,7 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }
 
 /**

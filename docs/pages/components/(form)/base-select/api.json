@@ -28,7 +28,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this BaseSelect instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "closeOnSelect",
@@ -71,6 +71,16 @@
           "optional": true,
           "type": "(value: TItem['value']) => TItem | undefined",
           "description": "Resolves an item from the canonical collection by value.\n\nUse this when `items` represents only the current navigation view,\nsuch as a filtered collection. When omitted, items are resolved from\nthe current `items` collection."
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Gap between anchor and popup.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
         },
         {
           "name": "id",
@@ -120,6 +130,12 @@
           "description": "The name of the input element, used for form submission."
         },
         {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once after an open popup completes its exit."
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -142,6 +158,16 @@
           "optional": true,
           "type": "boolean",
           "description": "Controlled popup state."
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Viewport collision padding.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          }
         },
         {
           "name": "readOnly",
@@ -183,7 +209,7 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this BaseSelect instance."
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "value",
@@ -286,36 +312,15 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "gutter",
-          "optional": true,
-          "type": "number",
-          "description": "Gap between anchor and popup.",
-          "default": {
-            "kind": "literal",
-            "value": 0
-          }
-        },
-        {
-          "name": "onExitComplete",
-          "optional": true,
-          "type": "() => void",
-          "description": "Called once after an open popup completes its exit."
-        },
-        {
-          "name": "overflowPadding",
-          "optional": true,
-          "type": "number",
-          "description": "Viewport collision padding.",
-          "default": {
-            "kind": "literal",
-            "value": 4
-          }
         },
         {
           "name": "style",
@@ -333,16 +338,24 @@
         "root": "BaseSelect",
         "member": "Listbox"
       },
+      "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
-          "type": "string"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -397,16 +410,24 @@
         "root": "BaseSelect",
         "member": "Group"
       },
+      "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
-          "type": "string"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -418,16 +439,24 @@
         "root": "BaseSelect",
         "member": "GroupLabel"
       },
+      "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
-          "type": "string"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -439,16 +468,24 @@
         "root": "BaseSelect",
         "member": "Separator"
       },
+      "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
-          "type": "string"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -460,16 +497,24 @@
         "root": "BaseSelect",
         "member": "Empty"
       },
+      "defaultElement": "div",
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
-          "type": "string"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": "JSX.CSSProperties"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     }

@@ -24,8 +24,6 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
     'href',
     'class',
     'style',
-    'classes',
-    'styles',
   ])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'link',

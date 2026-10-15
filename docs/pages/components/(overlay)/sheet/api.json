@@ -27,7 +27,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this Sheet instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "close",
@@ -169,7 +169,7 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this Sheet instance."
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "transition",
@@ -260,12 +260,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "ContentClasses",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "description",
           "optional": true,
           "type": "JSX.Element",
@@ -276,12 +270,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "ContentStyles",
-          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "title",

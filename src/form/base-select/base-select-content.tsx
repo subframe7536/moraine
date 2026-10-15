@@ -19,14 +19,7 @@ import type { BaseSelectT } from './base-select.types'
 
 export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectContext()
-  const [local, rest] = splitProps(props, [
-    'ref',
-    'class',
-    'style',
-    'gutter',
-    'overflowPadding',
-    'onExitComplete',
-  ])
+  const [local, rest] = splitProps(props, ['ref', 'class', 'style'])
   const { slots } = useRecipe(baseSelectRecipe, local, {
     slot: 'content',
     contextSlots: () => state.slotOverrides,
@@ -36,7 +29,7 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     open: state.open,
     onExitComplete: () => {
       state.setHighlightedValue(undefined)
-      local.onExitComplete?.()
+      state.onExitComplete?.()
     },
   })
   const [content, setContent] = createSignal<HTMLDivElement>()
@@ -46,11 +39,11 @@ export function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element 
     contentElement: content,
     floatingElement: positioner,
     getReferenceElement: () => state.anchor() ?? state.focusOwner(),
-    gutter: () => local.gutter ?? 0,
+    gutter: () => state.gutter?.() ?? 0,
     onPositionedChange: () => undefined,
     onPlacementChange: (placement) => setSide(placement.split('-')[0] ?? 'bottom'),
     open: presence.present,
-    overflowPadding: () => local.overflowPadding ?? 4,
+    overflowPadding: () => state.overflowPadding?.() ?? 4,
     placement: () => 'bottom-start',
   })
   createEffect(

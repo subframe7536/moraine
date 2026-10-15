@@ -517,6 +517,7 @@ export function createContextMenu(props: ContextMenuProps) {
     get slotOverrides() {
       return { classes: props.classes, styles: props.styles }
     },
+    size: () => props.size,
     disabled: () => Boolean(merged.disabled),
     isOpen: () => open(),
     triggerProps,

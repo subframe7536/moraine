@@ -52,12 +52,8 @@ export namespace ContextMenuT {
      */
     align?: OverlayAlign
     children?: JSX.Element
-    /** Family slot class defaults for this ContextMenu instance. */
-    classes?: Classes
-    /** Family slot style defaults for this ContextMenu instance. */
-    styles?: Styles
   }
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'div'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'div'> = BaseProps<
@@ -69,11 +65,9 @@ export namespace ContextMenuT {
     'div'
   >
 
-  export type ContentClasses = Omit<Classes, 'trigger'>
-  export type ContentStyles = Omit<Styles, 'trigger'>
   export interface ContentBase extends Omit<
     OverlayMenuRootProps<Item>,
-    keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps'
+    keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps' | 'size'
   > {
     /** Renderer for each menu item. */
     itemRender?: (props: ItemRenderProps) => JSX.Element
@@ -84,7 +78,7 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }
 
 /**

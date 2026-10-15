@@ -47,11 +47,8 @@ describe('composite family presentation', () => {
           <MoraineProvider theme={innerTheme()} cnConfig={config()}>
             <Dialog.Content
               data-testid="dialog-content"
-
-              classes={{ content: 'part p-4' }}
-              styles={{ content: { color: 'green', height: '30px' } }}
               class="direct p-5"
-              style={{ color: 'red' }}
+              style={{ color: 'red', height: '30px' }}
             >
               <Dialog.Body>Body</Dialog.Body>
             </Dialog.Content>
@@ -67,7 +64,7 @@ describe('composite family presentation', () => {
     expect(content.className).toContain('inner-theme')
     expect(contentClose.className).toContain('inner-close-theme')
     expect(content.className).not.toContain('outer-theme')
-    for (const padding of ['p-2', 'p-3', 'p-4', 'p-5']) {
+    for (const padding of ['p-2', 'p-3', 'p-5']) {
       expect(content.className).toContain(padding)
     }
     expect(content.style.width).toBe('20px')

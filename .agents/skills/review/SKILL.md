@@ -436,6 +436,19 @@ Challenge:
 
 Prefer narrow public APIs over configurable god components.
 
+## Composite Component Contracts
+
+For composite components (`Kind = 'composite'`):
+
+- `<namespace>T.Base` must be the **only** type containing configuration and behavioral options (e.g. `open`, `gutter`, `overflowPadding`, `onExitComplete`, `restoreFocusOnClose`).
+- `<namespace>T.Base` must never duplicate `classes`, `styles`, or `variant` (provided by `BaseProps`).
+- `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`:
+  - Headless roots (e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variant, Classes, Styles, never>` so `class` and `style` are omitted, accepting only slot maps `classes` and `styles`.
+  - Element-rendering roots use `BaseProps<Tag, Base, Variant, Classes, Styles>`.
+- Composed parts (`ContentProps`, `TriggerProps`, etc.) must be strictly **compose-only** (`BaseProps<Tag, PartBase, never, never, never>`).
+- Part bases must never accept `classes`, `styles`, `variant`, or root configuration options. Styling of parts from consumers is scoped at the root via `classes`/`styles` (slot-targeted) or applied directly on the part element using `class`/`style`.
+- If a part interface has no behavioral options and would only declare `children?: JSX.Element`, do not define a redundant children-only interface — use `FlowComponent` from `solid-js` for the component instead.
+
 ---
 
 # Type-System Complexity
@@ -444,6 +457,9 @@ Review type complexity independently from runtime complexity.
 
 Look for:
 
+- composite `Props` simply aliasing `Base` instead of extending `BaseProps`;
+- composite parts accepting `classes`, `styles`, `variant`, or root configuration instead of being compose-only;
+- interfaces that only declare `children?: JSX.Element` (anti-pattern: do not define a single-member interface solely for children; use `FlowComponent` from `solid-js` instead);
 - unused generic parameters;
 - generics that do not affect inference or output;
 - repeated mapped-type expansion;

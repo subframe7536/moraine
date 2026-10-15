@@ -198,22 +198,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "Pick<Classes, 'list'>",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "Pick<Styles, 'list'>",
-          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -239,12 +227,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "Pick<Classes, 'item'>",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
@@ -259,12 +241,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "Pick<Styles, 'item'>",
-          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "value",
@@ -296,22 +272,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "Pick<Classes, 'trigger' | 'triggerIcon'>",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "Pick<Styles, 'trigger' | 'triggerIcon'>",
-          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -338,22 +302,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "Pick<Classes, 'content'>",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "Pick<Styles, 'content'>",
-          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -389,12 +341,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "Pick<Classes, 'link'>",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
           "name": "closeOnClick",
           "optional": true,
           "type": "boolean",
@@ -425,12 +371,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "Pick<Styles, 'link'>",
-          "description": "Family slot style defaults for this instance."
         }
       ]
     }

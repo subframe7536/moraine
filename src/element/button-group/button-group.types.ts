@@ -29,7 +29,7 @@ export namespace ButtonGroupT {
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 
   /** Base props for the ButtonGroup.Separator component. */
-  export interface SeparatorBase extends Omit<SeparatorT.Base, 'orientation'> {
+  export interface SeparatorBase {
     /**
      * The orientation of the separator. Defaults to perpendicular to the group axis.
      */
@@ -37,7 +37,7 @@ export namespace ButtonGroupT {
   }
 
   /** Props for the ButtonGroup.Separator component. */
-  export type SeparatorProps = BaseProps<'div', SeparatorBase, SeparatorT.Variant, never, never>
+  export type SeparatorProps = BaseProps<'div', SeparatorBase, never, never, never>
 }
 
 /** Props for the ButtonGroup component. */

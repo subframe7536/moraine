@@ -44,11 +44,16 @@ import { Button, Tooltip } from '@src'
 >
   {(props) => (
     <div class="p-6 flex items-center justify-center">
-      <Tooltip placement={props.placement} align={props.align} disabled={props.disabled}>
+      <Tooltip
+        placement={props.placement}
+        align={props.align}
+        disabled={props.disabled}
+        invert={props.invert}
+      >
         <Tooltip.Trigger as={Button} variant="outline" leading="i-lucide:file-plus">
           Hover me
         </Tooltip.Trigger>
-        <Tooltip.Content text={props.text} kbds={['⌘', 'N']} invert={props.invert} />
+        <Tooltip.Content text={props.text} kbds={['⌘', 'N']} />
       </Tooltip>
     </div>
   )}
@@ -122,7 +127,7 @@ Use tooltips for non-interactive hints that supplement an already labeled trigge
 
 Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint;
 it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`,
-or `invert`. When omitted, keycaps follow the content's `invert` setting.
+or `invert`. When omitted, keycaps follow the tooltip's `invert` setting.
 
 ```tsx
 <Tooltip>

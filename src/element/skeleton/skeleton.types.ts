@@ -1,5 +1,3 @@
-import type { JSX } from 'solid-js'
-
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -12,12 +10,9 @@ export namespace SkeletonT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Base {
-    /** Content rendered inside the placeholder. */
-    children?: JSX.Element
-  }
+  export interface Base {}
 
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles, 'div', true>
 }
 
 export type SkeletonProps = SkeletonT.Props

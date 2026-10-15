@@ -637,17 +637,16 @@ describe('Popover', () => {
 
   test('supports classes for content slot', () => {
     render(() => (
-      <Popover open>
+      <Popover
+        open
+        classes={{
+          content: 'content-slot-class',
+        }}
+      >
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content
-          classes={{
-            content: 'content-slot-class',
-          }}
-        >
-          {'Styled'}
-        </Popover.Content>
+        <Popover.Content>{'Styled'}</Popover.Content>
       </Popover>
     ))
 
@@ -1163,11 +1162,11 @@ describe('Popover', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Popover open>
+      <Popover open styles={{ content: { width: '200px' } }}>
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content styles={{ content: { width: '200px' } }}>{'Styled'}</Popover.Content>
+        <Popover.Content>{'Styled'}</Popover.Content>
       </Popover>
     ))
 

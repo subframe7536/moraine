@@ -223,7 +223,6 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
         <DefaultSelectContent
           {...local}
           view={search.view()}
-          onExitComplete={() => search.setValue('')}
           slot={(slot) => slots[slot]}
           emptyRender={() => (
             <Show when={local.emptyRender !== undefined} fallback={messages().empty}>
@@ -250,6 +249,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     <BaseSelectRoot<ComboboxT.NormalizedItem<T>>
       slotOwner="combobox"
       {...baseSelectProps}
+      onExitComplete={() => search.setValue('')}
       items={search.view().items}
       getItemByValue={(value) => source().byValue.get(value)}
       serializeValue={(value) => serializeSourceValue(source(), value)}

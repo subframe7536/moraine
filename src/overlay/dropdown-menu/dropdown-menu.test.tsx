@@ -704,14 +704,18 @@ describe('DropdownMenu', () => {
     ))
 
     render(() => (
-      <DropdownMenu defaultOpen placement="left" align="start">
+      <DropdownMenu
+        defaultOpen
+        placement="left"
+        align="start"
+        classes={{
+          content: 'content-class',
+        }}
+      >
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          classes={{
-            content: 'content-class',
-          }}
           contentTop={contentTop}
           contentBottom={contentBottom}
           items={[
@@ -1504,14 +1508,11 @@ describe('DropdownMenu', () => {
 
   test('applies styles override to content', async () => {
     render(() => (
-      <DropdownMenu defaultOpen>
+      <DropdownMenu defaultOpen styles={{ content: { width: '200px' } }}>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          styles={{ content: { width: '200px' } }}
-          items={[{ label: 'Open file' }]}
-        />
+        <DropdownMenu.Content items={[{ label: 'Open file' }]} />
       </DropdownMenu>
     ))
 

@@ -12,7 +12,6 @@ type RegionSlot = Extract<
 >
 
 type RegionProps = {
-  children?: JSX.Element
   class?: SlotClassValue
   style?: JSX.CSSProperties
 }

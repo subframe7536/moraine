@@ -254,9 +254,9 @@ describe('Tooltip', () => {
     { kbdVariant: 'outline' as const, expectedClass: 'border-b-2' },
   ])('uses $kbdVariant keycap variant with inverted content', ({ kbdVariant, expectedClass }) => {
     render(() => (
-      <Tooltip open>
+      <Tooltip open invert>
         <Tooltip.Trigger>Trigger</Tooltip.Trigger>
-        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} invert kbdVariant={kbdVariant} />
+        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} kbdVariant={kbdVariant} />
       </Tooltip>
     ))
 
@@ -270,11 +270,11 @@ describe('Tooltip', () => {
 
   test('applies classes.content to content slot', () => {
     render(() => (
-      <Tooltip open>
+      <Tooltip open classes={{ content: 'content-override' }}>
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Tooltip content" classes={{ content: 'content-override' }} />
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -327,11 +327,11 @@ describe('Tooltip', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Tooltip open>
+      <Tooltip open styles={{ content: { width: '200px' } }}>
         <Tooltip.Trigger as="button" type="button">
           Trigger
         </Tooltip.Trigger>
-        <Tooltip.Content text="Styled" styles={{ content: { width: '200px' } }} />
+        <Tooltip.Content text="Styled" />
       </Tooltip>
     ))
 

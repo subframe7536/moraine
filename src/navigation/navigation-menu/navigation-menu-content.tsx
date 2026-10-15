@@ -21,7 +21,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
-  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
+  const [local, rest] = splitProps(props, ['class', 'style'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
     varsSlot: 'content',

@@ -7,9 +7,9 @@ import { createId } from '../../shared/utils'
 import { useSelectContext } from './base-select-context'
 import { useGroupContext } from './base-select-group-context'
 import { baseSelectRecipe } from './base-select.recipe'
-import type { BaseSelectPartProps } from './base-select.types'
+import type { BaseSelectT } from './base-select.types'
 
-export function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
+export function BaseSelectGroupLabel(props: BaseSelectT.GroupLabelProps): JSX.Element {
   const state = useSelectContext()
   const group = useGroupContext()
   const id = createId(() => props.id, 'select-group-label')

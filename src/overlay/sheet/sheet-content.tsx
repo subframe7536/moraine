@@ -36,8 +36,6 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     'title',
     'description',
     'children',
-    'classes',
-    'styles',
     'class',
     'style',
     'aria-label',

@@ -8,9 +8,9 @@ import { sameValue } from '../shared/select/collection'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectRecipe } from './base-select.recipe'
-import type { BaseSelectPartProps } from './base-select.types'
+import type { BaseSelectT } from './base-select.types'
 
-export function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
+export function BaseSelectListbox(props: BaseSelectT.ListboxProps): JSX.Element {
   const state = useSelectContext()
   const [local, rest] = splitProps(props, ['class', 'style', 'ref'])
   const { slots } = useRecipe(baseSelectRecipe, local, {

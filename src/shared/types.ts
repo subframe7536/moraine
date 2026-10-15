@@ -63,15 +63,18 @@ type NullableVariantProps<Variant> = {
   [K in keyof Variant]: Variant[K] | null
 }
 
-type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
+type ComponentBaseProps<Base, Variant, Classes, Styles, HasElement extends boolean = true> = Base &
   ([Variant] extends [never] ? {} : NullableVariantProps<Variant>) &
   ([Classes] extends [never] ? {} : { classes?: Classes }) &
-  ([Styles] extends [never] ? {} : { styles?: Styles }) & {
-    /** Class applied to the component root or trigger element. */
-    class?: SlotClassValue
-    /** Style applied to the component root or trigger element. */
-    style?: SlotStyleValue
-  }
+  ([Styles] extends [never] ? {} : { styles?: Styles }) &
+  (HasElement extends true
+    ? {
+        /** Class applied to the component root or trigger element. */
+        class?: SlotClassValue
+        /** Style applied to the component root or trigger element. */
+        style?: SlotStyleValue
+      }
+    : {})
 
 type RootProps<T extends ValidComponent> = T extends Tags
   ? MoraineTypeConfig extends { simpleRootAttributes: true }
@@ -107,7 +110,7 @@ export type BaseProps<
   TDefault extends ValidComponent = TElement,
   AcceptsChildren extends boolean = 'children' extends keyof Base ? true : false,
 > = [TDefault] extends [never]
-  ? ComponentBaseProps<Base, Variant, Classes, Styles>
+  ? ComponentBaseProps<Base, Variant, Classes, Styles, false>
   : Override<
       RootProps<DefaultTag<TElement, TDefault>>,
       ComponentBaseProps<Base, Variant, Classes, Styles> &

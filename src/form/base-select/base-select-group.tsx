@@ -6,9 +6,9 @@ import { useRecipe } from '../../provider'
 import { useSelectContext } from './base-select-context'
 import { GroupProvider } from './base-select-group-context'
 import { baseSelectRecipe } from './base-select.recipe'
-import type { BaseSelectPartProps } from './base-select.types'
+import type { BaseSelectT } from './base-select.types'
 
-export function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
+export function BaseSelectGroup(props: BaseSelectT.GroupProps): JSX.Element {
   const state = useSelectContext()
   const [labelId, setLabelId] = createSignal<string>()
   const { slots } = useRecipe(baseSelectRecipe, props, {

@@ -160,14 +160,14 @@ export namespace BaseSelectT {
     disabled: boolean
   }
 
-  export interface Base<TItem extends Item>
+  export interface Base<TItem extends Item = Item>
     extends
       BaseSelectFieldProps,
       BaseSelectDisclosureProps,
       BaseSelectItemBehaviorProps<TItem>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      Variant {
+      BaseSelectSelection<TItem['value']> {
     /** Current flat navigation collection. */
     items?: readonly TItem[]
     /**
@@ -185,14 +185,29 @@ export namespace BaseSelectT {
     loop?: boolean
     /** Native form value; return undefined to omit a selected value from submission. */
     serializeValue?: (value: TItem['value']) => string | undefined
-    /** Family slot class defaults for this BaseSelect instance. */
-    classes?: Classes
-    /** Family slot style defaults for this BaseSelect instance. */
-    styles?: Styles
+    /** Called once after an open popup completes its exit. */
+    onExitComplete?: () => void
+    /**
+     * Gap between anchor and popup.
+     * @default 0
+     */
+    gutter?: number
+    /**
+     * Viewport collision padding.
+     * @default 4
+     */
+    overflowPadding?: number
     /** Composed trigger and popup parts. */
     children?: JSX.Element
   }
-  export type Props<TItem extends Item = Item> = Base<TItem> & BaseSelectSelection<TItem['value']>
+  export type Props<TItem extends Item = Item> = BaseProps<
+    never,
+    Base<TItem>,
+    Variant,
+    Classes,
+    Styles,
+    never
+  >
 
   export interface TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> {
     /** Element or component to render as. */
@@ -215,27 +230,23 @@ export namespace BaseSelectT {
   export interface ControlBase {}
   export type ControlProps = BaseProps<'div', ControlBase, never, never, never, 'div', true>
 
-  export interface ContentBase {
-    /** Called once after an open popup completes its exit. */
-    onExitComplete?: () => void
-    /**
-     * Gap between anchor and popup.
-     * @default 0
-     */
-    gutter?: number
-    /**
-     * Viewport collision padding.
-     * @default 4
-     */
-    overflowPadding?: number
-  }
+  export interface ContentBase {}
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never, 'div', true>
 
-  export type ListboxProps = BaseSelectPartProps
-  export type GroupProps = BaseSelectPartProps
-  export type GroupLabelProps = BaseSelectPartProps
-  export type SeparatorProps = BaseSelectPartProps
-  export type EmptyProps = BaseSelectPartProps
+  export interface ListboxBase {}
+  export type ListboxProps = BaseProps<'div', ListboxBase, never, never, never, 'div', true>
+
+  export interface GroupBase {}
+  export type GroupProps = BaseProps<'div', GroupBase, never, never, never, 'div', true>
+
+  export interface GroupLabelBase {}
+  export type GroupLabelProps = BaseProps<'div', GroupLabelBase, never, never, never, 'div', true>
+
+  export interface SeparatorBase {}
+  export type SeparatorProps = BaseProps<'div', SeparatorBase, never, never, never, 'div', true>
+
+  export interface EmptyBase {}
+  export type EmptyProps = BaseProps<'div', EmptyBase, never, never, never, 'div', true>
 
   export interface ItemBase<TItem extends Item = Item> {
     /** Raw item belonging to the current navigation collection. */

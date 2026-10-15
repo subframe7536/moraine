@@ -4,7 +4,7 @@ import type { SlotBinding } from '../../../theme/use-recipe'
 import type { BaseSelectT } from '../../base-select/base-select.types'
 
 type SharedBaseSelectForwardProp = keyof Pick<
-  BaseSelectT.Base<BaseSelectT.Item>,
+  BaseSelectT.Base,
   | 'itemToLabelString'
   | 'id'
   | 'name'
@@ -15,6 +15,8 @@ type SharedBaseSelectForwardProp = keyof Pick<
   | 'defaultOpen'
   | 'onOpenChange'
   | 'isItemDisabled'
+  | 'gutter'
+  | 'overflowPadding'
 >
 
 /** BaseSelect ownership shared by the Select-family visual wrappers. */
@@ -29,6 +31,8 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'defaultOpen',
   'onOpenChange',
   'isItemDisabled',
+  'gutter',
+  'overflowPadding',
 ] as const satisfies readonly SharedBaseSelectForwardProp[]
 
 /** Single-value Select wrappers may additionally configure closing after selection. */
@@ -55,8 +59,6 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'listboxProps',
   'onScrollBottom',
   'scrollBottomThreshold',
-  'gutter',
-  'overflowPadding',
   'placeholder',
   'allowClear',
   'onClear',

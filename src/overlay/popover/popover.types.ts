@@ -66,35 +66,22 @@ export namespace PopoverT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
-
-    /** Family slot class defaults for this Popover instance. */
-    classes?: Classes
-
-    /** Family slot style defaults for this Popover instance. */
-    styles?: Styles
   }
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
-  export type ContentClasses = Pick<Classes, 'content' | 'body'>
-  export type ContentStyles = Pick<Styles, 'content' | 'body'>
   export interface ContentBase {
     ariaLabel?: string
     /** Body content. */
     children?: JSX.Element
-    /**
-     * Whether focus returns to the trigger after the content closes.
-     * @default true in click mode, false in hover mode
-     */
-    restoreFocusOnClose?: boolean
   }
 
   /**
    * Props for the Popover component.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
   export type CloseBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>

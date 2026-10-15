@@ -73,6 +73,7 @@ export function createDropdownMenu(props: DropdownMenuProps) {
     get slotOverrides() {
       return { classes: props.classes, styles: props.styles }
     },
+    size: () => props.size,
     triggerProps,
     triggerElement,
     setTriggerElement,

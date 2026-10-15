@@ -17,11 +17,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
     'contentBottom',
     'checkedIcon',
     'submenuIcon',
-    'size',
     'class',
     'style',
-    'classes',
-    'styles',
   ])
   const context = useDropdownMenuContext()
 
@@ -29,6 +26,7 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
   const { slots, variants } = useRecipe(dropdownMenuRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
+    contextVariants: () => ({ size: context.size?.() }),
   })
   return (
     <OverlayMenu<DropdownMenuT.Item>

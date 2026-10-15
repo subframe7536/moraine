@@ -30,7 +30,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this ContextMenu instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "defaultOpen",
@@ -121,10 +121,20 @@
           }
         },
         {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of menu items.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this ContextMenu instance."
+          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -217,12 +227,6 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": "ContentClasses",
-          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "contentBottom",
@@ -339,26 +343,10 @@
           }
         },
         {
-          "name": "size",
-          "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "description": "Menu item size variant.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "ContentStyles",
-          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "submenuIcon",

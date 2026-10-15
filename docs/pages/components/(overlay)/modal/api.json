@@ -21,7 +21,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this Modal instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "closeOnEscape",
@@ -113,7 +113,7 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this Modal instance."
+          "description": "Family slot style defaults for this instance."
         }
       ]
     },

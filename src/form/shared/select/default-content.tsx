@@ -231,11 +231,7 @@ export function DefaultSelectContent<T extends SelectItem>(
   props: DefaultSelectContentProps<T>,
 ): JSX.Element {
   return (
-    <BaseSelect.Content
-      onExitComplete={props.onExitComplete}
-      gutter={props.gutter}
-      overflowPadding={props.overflowPadding}
-    >
+    <BaseSelect.Content>
       <DefaultSelectContentBody {...props} />
     </BaseSelect.Content>
   )

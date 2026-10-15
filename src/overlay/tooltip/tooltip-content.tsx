@@ -20,11 +20,8 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     'kbds',
     'kbdVariant',
     'children',
-    'invert',
     'class',
     'style',
-    'classes',
-    'styles',
   ])
 
   const behavior = useTooltipContext()
@@ -43,6 +40,7 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   const { slots, variants } = useRecipe(tooltipRecipe, local, {
     slot: 'content',
     contextSlots: () => behavior.slotOverrides,
+    contextVariants: () => ({ invert: behavior.options.invert }),
   })
   return (
     <PopperContent

@@ -26,15 +26,7 @@ export function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.
   const item = useNavigationMenuItemContext()
   item.setTriggerOptions(props)
   onCleanup(() => item.setTriggerOptions(undefined))
-  const [local, rest] = splitProps(props, [
-    'id',
-    'disabled',
-    'children',
-    'class',
-    'style',
-    'classes',
-    'styles',
-  ])
+  const [local, rest] = splitProps(props, ['id', 'disabled', 'children', 'class', 'style'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'trigger',
     contextSlots: () => pickSlotOverrides(context.options),

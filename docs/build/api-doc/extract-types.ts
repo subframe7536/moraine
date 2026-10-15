@@ -543,23 +543,25 @@ export class TypeExtractor {
       }
     }
 
-    // 3. Add class & style props
-    if (!props.some((p) => p.name === 'class')) {
-      props.push({
-        name: 'class',
-        optional: true,
-        type: 'SlotClassValue',
-        description: 'Class applied to the component root or trigger element.',
-      })
-    }
+    // 3. Add class & style props (headless roots with never element omit class & style)
+    if (tElementNode?.type !== 'TSNeverKeyword') {
+      if (!props.some((p) => p.name === 'class')) {
+        props.push({
+          name: 'class',
+          optional: true,
+          type: 'SlotClassValue',
+          description: 'Class applied to the component root or trigger element.',
+        })
+      }
 
-    if (!props.some((p) => p.name === 'style')) {
-      props.push({
-        name: 'style',
-        optional: true,
-        type: 'SlotStyleValue',
-        description: 'Style applied to the component root or trigger element.',
-      })
+      if (!props.some((p) => p.name === 'style')) {
+        props.push({
+          name: 'style',
+          optional: true,
+          type: 'SlotStyleValue',
+          description: 'Style applied to the component root or trigger element.',
+        })
+      }
     }
 
     // 4. Add classes & styles if not never

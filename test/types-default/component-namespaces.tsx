@@ -327,8 +327,6 @@ export type RetainedNamespaceMembers = [
   ComboboxT.Row,
   MultiSelectT.TagRenderProps,
   SidebarFrameT.Context,
-  DialogT.ContentClasses,
-  SheetT.ContentStyles,
   FieldT.RenderProps,
   ResizableT.HandleRenderProps,
   ModalT.ContentRenderProps,

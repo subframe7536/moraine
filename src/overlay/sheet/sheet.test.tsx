@@ -116,15 +116,19 @@ describe('Sheet', () => {
 
   test('applies inset without transition state', () => {
     render(() => (
-      <Sheet open side="right" inset transition={false}>
+      <Sheet
+        open
+        side="right"
+        inset
+        transition={false}
+        classes={{
+          content: 'content-class',
+        }}
+      >
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content
-          classes={{
-            content: 'content-class',
-          }}
-        >
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -700,8 +704,8 @@ describe('Sheet', () => {
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
     render(() => (
-      <Sheet open>
-        <Sheet.Content classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
+      <Sheet open classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }}>
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>
@@ -844,11 +848,11 @@ describe('Sheet', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Sheet open>
+      <Sheet open styles={{ content: { width: '200px' } }}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>
-        <Sheet.Content styles={{ content: { width: '200px' } }}>
+        <Sheet.Content>
           <Sheet.Body>Body</Sheet.Body>
         </Sheet.Content>
       </Sheet>

@@ -408,6 +408,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
     field,
     slotOverrides,
     slotName,
+    gutter: () => props.gutter,
+    overflowPadding: () => props.overflowPadding,
+    onExitComplete: () => props.onExitComplete?.(),
     get styleSize() {
       return variants.size
     },

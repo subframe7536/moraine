@@ -41,16 +41,8 @@ export namespace NavigationMenuT {
   }
   export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
 
-  export interface ListBase {
-    children?: JSX.Element
-  }
-  export type ListProps = BaseProps<
-    'ul',
-    ListBase,
-    never,
-    Pick<Classes, 'list'>,
-    Pick<Styles, 'list'>
-  >
+  export interface ListBase {}
+  export type ListProps = BaseProps<'ul', ListBase, never, never, never, 'ul', true>
 
   export interface ItemBase {
     /** Unique item value. Generated when omitted; set explicitly for controlled usage. */
@@ -59,36 +51,13 @@ export namespace NavigationMenuT {
     disabled?: boolean
     children?: JSX.Element
   }
-  export type ItemProps = BaseProps<
-    'li',
-    ItemBase,
-    never,
-    Pick<Classes, 'item'>,
-    Pick<Styles, 'item'>
-  >
+  export type ItemProps = BaseProps<'li', ItemBase, never, never, never>
 
-  export interface TriggerBase {
-    children?: JSX.Element
-  }
-  export type TriggerProps = BaseProps<
-    'button',
-    TriggerBase,
-    never,
-    Pick<Classes, 'trigger' | 'triggerIcon'>,
-    Pick<Styles, 'trigger' | 'triggerIcon'>
-  >
+  export interface TriggerBase {}
+  export type TriggerProps = BaseProps<'button', TriggerBase, never, never, never, 'button', true>
 
-  export interface ContentBase {
-    /** Lazily mounted panel content. */
-    children?: JSX.Element
-  }
-  export type ContentProps = BaseProps<
-    'div',
-    ContentBase,
-    never,
-    Pick<Classes, 'content'>,
-    Pick<Styles, 'content'>
-  >
+  export interface ContentBase {}
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never, 'div', true>
 
   /** Native anchor props passed to a custom link component, including its ref and handlers. */
   export type LinkRenderProps = ElementProps<
@@ -106,13 +75,7 @@ export namespace NavigationMenuT {
     linkRender?: Component<LinkRenderProps>
     children?: JSX.Element
   }
-  export type LinkProps = BaseProps<
-    'a',
-    LinkBase,
-    never,
-    Pick<Classes, 'link'>,
-    Pick<Styles, 'link'>
-  >
+  export type LinkProps = BaseProps<'a', LinkBase, never, never, never>
 }
 
 export type NavigationMenuProps = NavigationMenuT.Props

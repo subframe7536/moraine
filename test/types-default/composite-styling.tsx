@@ -27,7 +27,9 @@ import { defineTheme } from 'moraine/theme'
 ;<Dialog.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Dialog.Trigger classes={{ trigger: 'trigger' }} />
-;<Dialog.Content classes={{ overlay: 'overlay', contentClose: 'close' }} class="content" />
+// @ts-expect-error Dialog.Content is a compose-only part and does not accept classes.
+;<Dialog.Content classes={{ overlay: 'overlay', contentClose: 'close' }} />
+;<Dialog.Content class="content" />
 ;<Dialog.Content title="Title" description="Description" />
 // @ts-expect-error Dialog title shorthand belongs to Content.
 ;<Dialog title="Title" />
@@ -73,7 +75,9 @@ import { defineTheme } from 'moraine/theme'
 ;<Sheet.Trigger class="trigger" />
 // @ts-expect-error A one-slot Trigger has no slot map.
 ;<Sheet.Trigger classes={{ trigger: 'trigger' }} />
+// @ts-expect-error Sheet.Content is a compose-only part and does not accept classes.
 ;<Sheet.Content classes={{ overlay: 'overlay', contentClose: 'close' }} />
+;<Sheet.Content class="content" />
 ;<Sheet.Content title="Title" description="Description" />
 // @ts-expect-error Sheet title shorthand belongs to Content.
 ;<Sheet title="Title" />
@@ -114,6 +118,8 @@ import { defineTheme } from 'moraine/theme'
 ;<Popover.Trigger class="trigger" />
 // @ts-expect-error Popover.Trigger is a one-slot part.
 ;<Popover.Trigger classes={{ trigger: 'trigger' }} />
+;<Popover.Content class="content" />
+// @ts-expect-error Popover.Content is a compose-only part and does not accept classes.
 ;<Popover.Content classes={{ content: 'content', body: 'body' }} />
 // @ts-expect-error Popover.Content cannot configure Popover.Trigger.
 ;<Popover.Content classes={{ trigger: 'trigger' }} />
@@ -124,6 +130,8 @@ import { defineTheme } from 'moraine/theme'
 ;<Tooltip.Trigger class="trigger" />
 // @ts-expect-error Tooltip.Trigger is a one-slot part.
 ;<Tooltip.Trigger classes={{ trigger: 'trigger' }} />
+;<Tooltip.Content class="content" />
+// @ts-expect-error Tooltip.Content is a compose-only part and does not accept classes.
 ;<Tooltip.Content classes={{ content: 'content', text: 'text', kbds: 'kbds' }} />
 // @ts-expect-error Shortcut keycaps belong to KbdGroup.
 ;<Tooltip.Content classes={{ kbd: 'kbd' }} />
@@ -136,6 +144,8 @@ import { defineTheme } from 'moraine/theme'
 ;<DropdownMenu.Trigger class="trigger" />
 // @ts-expect-error DropdownMenu.Trigger is a one-slot part.
 ;<DropdownMenu.Trigger classes={{ trigger: 'trigger' }} />
+;<DropdownMenu.Content items={[]} class="content" />
+// @ts-expect-error DropdownMenu.Content is a compose-only part and does not accept classes.
 ;<DropdownMenu.Content items={[]} classes={{ content: 'content', itemSubIndicator: 'submenu' }} />
 // @ts-expect-error DropdownMenu.Content cannot configure DropdownMenu.Trigger.
 ;<DropdownMenu.Content items={[]} classes={{ trigger: 'trigger' }} />
@@ -146,6 +156,8 @@ import { defineTheme } from 'moraine/theme'
 ;<ContextMenu.Trigger class="trigger" />
 // @ts-expect-error ContextMenu.Trigger is a one-slot part.
 ;<ContextMenu.Trigger classes={{ trigger: 'trigger' }} />
+;<ContextMenu.Content items={[]} class="content" />
+// @ts-expect-error ContextMenu.Content is a compose-only part and does not accept classes.
 ;<ContextMenu.Content items={[]} classes={{ content: 'content', itemSubIndicator: 'submenu' }} />
 // @ts-expect-error ContextMenu.Content cannot configure ContextMenu.Trigger.
 ;<ContextMenu.Content items={[]} classes={{ trigger: 'trigger' }} />

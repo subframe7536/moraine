@@ -496,7 +496,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         <DefaultSelectContent
           {...local}
           view={search.view()}
-          onExitComplete={() => search.setValue('')}
           slot={(slot) => slots[slot]}
           emptyRender={() => (
             <Show
@@ -534,6 +533,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     <BaseSelectRoot<T>
       slotOwner="multi-select"
       {...baseSelectProps}
+      onExitComplete={() => search.setValue('')}
       closeOnSelect={false}
       items={search.view().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}

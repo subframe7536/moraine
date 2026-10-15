@@ -1132,12 +1132,15 @@ describe('ContextMenu', () => {
     ))
 
     const screen = render(() => (
-      <ContextMenu placement="bottom" align="start">
+      <ContextMenu
+        placement="bottom"
+        align="start"
+        classes={{
+          content: 'content-class',
+        }}
+      >
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
-          classes={{
-            content: 'content-class',
-          }}
           contentTop={contentTop}
           contentBottom={contentBottom}
           items={[
@@ -1841,20 +1844,19 @@ describe('ContextMenu', () => {
 
   test('applies styles override to content', async () => {
     const screen = render(() => (
-      <ContextMenu>
+      <ContextMenu
+        styles={{
+          content: {
+            '--mo-enter-translate-x': '1rem',
+            '--mo-enter-translate-y': '2rem',
+            '--mo-exit-translate-x': '3rem',
+            '--mo-exit-translate-y': '4rem',
+            width: '200px',
+          },
+        }}
+      >
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
-        <ContextMenu.Content
-          styles={{
-            content: {
-              '--mo-enter-translate-x': '1rem',
-              '--mo-enter-translate-y': '2rem',
-              '--mo-exit-translate-x': '3rem',
-              '--mo-exit-translate-y': '4rem',
-              width: '200px',
-            },
-          }}
-          items={[{ label: 'Open item' }]}
-        />
+        <ContextMenu.Content items={[{ label: 'Open item' }]} />
       </ContextMenu>
     ))
 

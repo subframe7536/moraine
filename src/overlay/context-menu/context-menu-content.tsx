@@ -17,11 +17,8 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
     'contentBottom',
     'checkedIcon',
     'submenuIcon',
-    'size',
     'class',
     'style',
-    'classes',
-    'styles',
   ])
   const context = useContextMenuContext()
 
@@ -29,6 +26,7 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const { slots, variants } = useRecipe(contextMenuRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
+    contextVariants: () => ({ size: context.size?.() }),
   })
   return (
     <OverlayMenu<ContextMenuT.Item>

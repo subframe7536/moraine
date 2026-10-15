@@ -74,15 +74,9 @@ export namespace ModalT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
-
-    /** Family slot class defaults for this Modal instance. */
-    classes?: Classes
-
-    /** Family slot style defaults for this Modal instance. */
-    styles?: Styles
   }
 
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export interface PortalBase {
     /** Destination for the modal parts; defaults to the trigger document body. */
@@ -113,7 +107,7 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, never, never>
+  export type OverlayProps = BaseProps<'div', OverlayBase, never, never, never>
 
   export interface ContentBase {
     /**
@@ -133,7 +127,7 @@ export namespace ModalT {
     ariaDescribedBy?: string
   }
 
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
   export type CloseBase<T extends ValidComponent = 'button'> = TriggerBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<

@@ -31,7 +31,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this Popover instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "closeDelay",
@@ -171,7 +171,7 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this Popover instance."
+          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -257,32 +257,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "ContentClasses",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
-          "name": "restoreFocusOnClose",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether focus returns to the trigger after the content closes.",
-          "default": {
-            "kind": "expression",
-            "text": "true in click mode, false in hover mode"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "ContentStyles",
-          "description": "Family slot style defaults for this instance."
         }
       ]
     },

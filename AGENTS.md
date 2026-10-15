@@ -167,6 +167,13 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - Component public types must be declared in the component namespace: `<Component>T`.
 - Each public component namespace must declare `Kind` as the literal type `'single'` or `'composite'`. Use `'composite'` when the component exposes attached child components for composition; slot count and group naming do not determine the kind. `FormT.Kind` describes the bound `form.Form`, so it is `'single'`. Documentation reads this type to generate `component.kind`.
 - Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
+- **Composite component contracts:**
+  - `<namespace>T.Base` must be the only type containing configuration and behavioral options. Do not include `classes`, `styles`, or `variant` directly on `Base`; they are supplied via `BaseProps`.
+  - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`.
+    - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variant, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
+    - Element-rendering roots use `BaseProps<Tag, Base, Variant, Classes, Styles>`.
+  - All attached child part props must be compose-only: `BaseProps<Tag, PartBase, never, never, never>`. Part bases (`ContentBase`, `TriggerBase`, `ItemBase`, etc.) must never take `classes`, `styles`, `variant`, or root configuration options (such as `restoreFocusOnClose`, `gutter`, `overflowPadding`, `onExitComplete`). Configuration belongs strictly on root `Base`/`Props`.
+  - If a part or base interface has no unique configuration and would only have `children?: JSX.Element`, do not define a redundant single-member interface — use `FlowComponent` from `solid-js` for the component instead.
 - Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.
 - Top-level type export is only allowed for the component props type: `XxxProps` (must match the component name).
 - Do not export other top-level component types such as `*RenderProps`, `*SlotProps`, `*VariantProps`, `*Value`, `*Item`, `*Context`.
@@ -175,6 +182,8 @@ Component directories normally contain implementation (`{component}.tsx` and any
 ### SolidJS Best Practices
 
 - Always wrap `createEffect` callbacks with Solid's `on()`. Read non-triggering state inside the callback untracked.
+
+- **FlowComponent:** If an interface would only have `children`, do not define a redundant interface — use `FlowComponent` from `solid-js` instead (e.g. `FlowComponent<Props>` for components accepting children without declaring a dummy children-only interface).
 
 - **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
   1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.

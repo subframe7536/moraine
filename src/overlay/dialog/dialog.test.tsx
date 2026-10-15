@@ -661,8 +661,8 @@ describe('Dialog', () => {
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
     render(() => (
-      <Dialog open>
-        <Dialog.Content classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
+      <Dialog open classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }}>
+        <Dialog.Content>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -744,8 +744,8 @@ describe('Dialog', () => {
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
     // Model the recipe's overflow utility in jsdom so scroll locking detects the overlay.
     render(() => (
-      <Dialog open scrollable>
-        <Dialog.Content title="Overlay scroll" styles={{ overlay: { 'overflow-y': 'auto' } }}>
+      <Dialog open scrollable styles={{ overlay: { 'overflow-y': 'auto' } }}>
+        <Dialog.Content title="Overlay scroll">
           <Dialog.Body>Long body</Dialog.Body>
           <Dialog.Footer>Actions</Dialog.Footer>
         </Dialog.Content>
@@ -849,10 +849,8 @@ describe('Dialog', () => {
   test('updates the scroll lock reference when overlay scrolling changes', async () => {
     const [scrollable, setScrollable] = createSignal(false)
     const screen = render(() => (
-      <Dialog open scrollable={scrollable()}>
-        <Dialog.Content title="Scroll reference" styles={{ overlay: { 'overflow-y': 'auto' } }}>
-          Body
-        </Dialog.Content>
+      <Dialog open scrollable={scrollable()} styles={{ overlay: { 'overflow-y': 'auto' } }}>
+        <Dialog.Content title="Scroll reference">Body</Dialog.Content>
       </Dialog>
     ))
     const overlay = document.body.querySelector<HTMLElement>('[data-slot="dialog-overlay"]')!
@@ -1165,11 +1163,11 @@ describe('Dialog', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Dialog open>
+      <Dialog open styles={{ content: { width: '200px' } }}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
-        <Dialog.Content styles={{ content: { width: '200px' } }}>
+        <Dialog.Content>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -1186,6 +1184,8 @@ describe('Dialog', () => {
       <Dialog
         open
         classes={{
+          content: 'custom-content-class',
+          contentClose: 'custom-close-class',
           header: 'custom-header-class',
           title: 'custom-title-class',
           description: 'custom-desc-class',
@@ -1193,6 +1193,8 @@ describe('Dialog', () => {
           footer: 'custom-footer-class',
         }}
         styles={{
+          content: { 'border-width': '3px' },
+          contentClose: { opacity: '0.8' },
           header: { 'padding-top': '20px' },
           title: { 'letter-spacing': '1px' },
           description: { 'line-height': '1.5' },
@@ -1200,18 +1202,7 @@ describe('Dialog', () => {
           footer: { 'margin-top': '10px' },
         }}
       >
-        <Dialog.Content
-          classes={{
-            content: 'custom-content-class',
-            contentClose: 'custom-close-class',
-          }}
-          styles={{
-            content: { 'border-width': '3px' },
-            contentClose: { opacity: '0.8' },
-          }}
-          title="Custom Title"
-          description="Custom Description"
-        >
+        <Dialog.Content title="Custom Title" description="Custom Description">
           <Dialog.Body>Custom Body</Dialog.Body>
           <Dialog.Footer>Custom Footer</Dialog.Footer>
         </Dialog.Content>

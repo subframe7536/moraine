@@ -51,20 +51,12 @@ export namespace TooltipT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
-
-    /** Family slot class defaults for this Tooltip instance. */
-    classes?: Classes
-
-    /** Family slot style defaults for this Tooltip instance. */
-    styles?: Styles
   }
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
-  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds'>
-  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds'>
   export interface ContentBase {
     /**
      * Primary text content or element to display.
@@ -86,7 +78,7 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }
 
 /**

@@ -233,7 +233,9 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<BaseSelect<UserItem>
   isItemDisabled={(item, values) => item.email.length > 0 && values.includes(item.value)}
   onReset={() => {}}
+  onExitComplete={() => {}}
 />
+// @ts-expect-error onExitComplete belongs to BaseSelect root.
 ;<BaseSelect.Content onExitComplete={() => {}} />
 
 export type StringItemNormalization = [

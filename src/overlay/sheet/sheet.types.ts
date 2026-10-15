@@ -22,10 +22,6 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
-    /** Family slot class defaults for this Sheet instance. */
-    classes?: Classes
-    /** Family slot style defaults for this Sheet instance. */
-    styles?: Styles
     /**
      * Edge from which the sheet opens.
      * @default 'right'
@@ -61,13 +57,11 @@ export namespace SheetT {
      */
     closeIcon?: IconT.Name | JSX.Element
   }
-  export type Props = Base
+  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
 
-  export type ContentClasses = Pick<Classes, 'overlay' | 'content' | 'contentClose'>
-  export type ContentStyles = Pick<Styles, 'overlay' | 'content' | 'contentClose'>
   export interface ContentBase {
     /** Primary title displayed in the sheet header. */
     title?: JSX.Element
@@ -82,7 +76,7 @@ export namespace SheetT {
   /**
    * Props for Sheet.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, never, ContentClasses, ContentStyles>
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
     as?: T

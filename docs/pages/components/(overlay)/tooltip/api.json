@@ -31,7 +31,7 @@
           "name": "classes",
           "optional": true,
           "type": "Classes",
-          "description": "Family slot class defaults for this Tooltip instance."
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "closeDelay",
@@ -90,6 +90,16 @@
           }
         },
         {
+          "name": "invert",
+          "optional": true,
+          "type": "boolean",
+          "description": "Visual invert of the component.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "onOpenChange",
           "optional": true,
           "type": "(open: boolean) => void",
@@ -125,7 +135,7 @@
           "name": "styles",
           "optional": true,
           "type": "Styles",
-          "description": "Family slot style defaults for this Tooltip instance."
+          "description": "Family slot style defaults for this instance."
         }
       ]
     },
@@ -206,22 +216,6 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "classes",
-          "optional": true,
-          "type": "ContentClasses",
-          "description": "Family slot class defaults for this instance."
-        },
-        {
-          "name": "invert",
-          "optional": true,
-          "type": "boolean",
-          "description": "Visual invert of the component.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "kbds",
           "optional": true,
           "type": "string[]",
@@ -238,12 +232,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": "ContentStyles",
-          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "text",

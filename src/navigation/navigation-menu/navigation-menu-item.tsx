@@ -11,14 +11,7 @@ import type { NavigationMenuT } from './navigation-menu.types'
 
 export function NavigationMenuItem(props: NavigationMenuT.ItemProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const [local, rest] = splitProps(props, [
-    'value',
-    'disabled',
-    'class',
-    'style',
-    'classes',
-    'styles',
-  ])
+  const [local, rest] = splitProps(props, ['value', 'disabled', 'class', 'style'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'item',
     contextSlots: () => pickSlotOverrides(context.options),

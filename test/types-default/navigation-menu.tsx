@@ -11,12 +11,12 @@ const RouterLink = (props: NavigationMenuT.LinkRenderProps) => <a {...props} />
     void selected
   }}
   orientation="vertical"
-  classes={{ content: 'panel' }}
+  classes={{ content: 'panel', triggerIcon: 'chevron' }}
   styles={{ content: { width: '20rem' } }}
 >
   <NavigationMenu.List>
     <NavigationMenu.Item value="product">
-      <NavigationMenu.Trigger classes={{ triggerIcon: 'chevron' }}>Product</NavigationMenu.Trigger>
+      <NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
       <NavigationMenu.Content>
         <NavigationMenu.Link linkRender={RouterLink} href="/docs" active closeOnClick>
           Docs

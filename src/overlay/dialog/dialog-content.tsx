@@ -28,8 +28,6 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
     'title',
     'description',
     'children',
-    'classes',
-    'styles',
     'class',
     'style',
     'aria-label',
