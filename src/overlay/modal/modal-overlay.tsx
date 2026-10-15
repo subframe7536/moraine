@@ -55,11 +55,16 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
           callRef(local.ref, element)
           onCleanup(() => {
             unregister?.()
-            callRef(local.ref, undefined)
           })
         }}
-        class={isOverlay() ? (isModalRoot ? slots.overlay.class : cn(local.class)) : undefined}
-        style={isOverlay() ? (isModalRoot ? slots.overlay.style : local.style) : undefined}
+        {...(isOverlay()
+          ? isModalRoot
+            ? slots.overlay
+            : {
+                class: cn(local.class),
+                style: local.style,
+              }
+          : undefined)}
       >
         {local.children}
       </div>

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { variantGroupPlugin } from '../vite-plugin-variant-group'
+import { variantGroupPlugin } from './vite-plugin-variant-group'
 
 describe('variantGroupPlugin', () => {
   test('uses an object transform hook and expands variant groups', async () => {

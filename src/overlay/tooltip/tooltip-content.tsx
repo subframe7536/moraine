@@ -64,15 +64,14 @@ export function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
           return value === undefined ? resolveChildren(() => local.children)() : value
         })
         const kbds = createMemo(() => local.kbds)
-        const contentDataAttrs = tooltipContentDataAttributes({
-          side: () => parseFloatingPlacement(context.currentPlacement()).side,
-          align: () => parseFloatingPlacement(context.currentPlacement()).align,
-          instantMotion: behavior.instantMotion,
-        })
         return (
           <div
             data-slot="tooltip-content"
-            {...contentDataAttrs}
+            {...tooltipContentDataAttributes({
+              side: () => parseFloatingPlacement(context.currentPlacement()).side,
+              align: () => parseFloatingPlacement(context.currentPlacement()).align,
+              instantMotion: behavior.instantMotion,
+            })}
             {...mergePopperElementProps(contentProps, rest)}
             {...slots.content}
           >

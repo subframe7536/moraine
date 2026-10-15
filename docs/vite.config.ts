@@ -6,7 +6,7 @@ import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import { variantGroupPlugin } from '../vite-plugin-variant-group.ts'
+import { variantGroupPlugin } from '../build/vite-plugin-variant-group.ts'
 
 import {
   createDocsMdxOptions,

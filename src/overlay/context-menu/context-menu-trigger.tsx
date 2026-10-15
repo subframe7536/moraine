@@ -57,15 +57,14 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       callHandler(event, context.triggerProps[key])
     }
   }
-  const triggerDataAttrs = contextMenuDataAttributes.trigger({
-    closed: () => !context.isOpen(),
-    disabled,
-    expanded: context.isOpen,
-  })
   const triggerProps = mergeProps(
     { 'data-slot': 'context-menu-trigger' },
     context.triggerProps,
-    triggerDataAttrs,
+    contextMenuDataAttributes.trigger({
+      closed: () => !context.isOpen(),
+      disabled,
+      expanded: context.isOpen,
+    }),
     {
       get disabled() {
         return a11y().disabled

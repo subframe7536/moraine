@@ -1,5 +1,5 @@
 import type { ClassValue } from 'cn'
-import type { JSX } from 'solid-js'
+import type { JSX, Owner } from 'solid-js'
 import { createMemo, getOwner } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
@@ -45,6 +45,11 @@ type StyleProps<S extends string, V> = VariantInput<V> &
 
 type CssVariables = Partial<Record<`--${string}`, string | number | null | undefined>>
 
+export type SlotLayerItem = SlotValue | (() => SlotValue | undefined)
+export type SlotLayerAccessor<S extends string> =
+  | Partial<{ [K in S]: SlotLayerItem }>
+  | (() => Partial<Record<S, SlotValue>> | undefined)
+
 export interface UseRecipeOptions<S extends string, V> {
   /** Root slot that receives `class` / `style` props. Defaults to `root`. */
   slot?: S
@@ -56,10 +61,10 @@ export interface UseRecipeOptions<S extends string, V> {
   contextVariants?: () => Partial<V> | VariantInput<V> | undefined
   /** Slot class/style overrides from an ancestor Context. */
   contextSlots?: () => SlotOverrides<S> | undefined
-  /** Component-owned presentation the user may still override. */
-  own?: () => Partial<Record<S, SlotValue>> | undefined
-  /** Functional styles that must win over user overrides (layout, virtualization, a11y). */
-  enforced?: () => Partial<Record<S, SlotValue>> | undefined
+  /** Component-owned presentation the user may still override. Supports per-slot accessor map for fine-grained reactivity. */
+  own?: SlotLayerAccessor<S>
+  /** Functional styles that must win over user overrides (layout, virtualization, a11y). Supports per-slot accessor map. */
+  enforced?: SlotLayerAccessor<S>
 }
 
 type RequiredSlotOptions<S extends string, V> = 'root' extends S
@@ -160,9 +165,15 @@ function resolveRootSlot<S extends string>(slots: readonly string[], rootSlot: S
   return root as S
 }
 
-function shallowEqualStyle(prev: JSX.CSSProperties, next: JSX.CSSProperties): boolean {
+function shallowEqualStyle(
+  prev: JSX.CSSProperties | undefined,
+  next: JSX.CSSProperties | undefined,
+): boolean {
   if (prev === next) {
     return true
+  }
+  if (!prev || !next) {
+    return false
   }
   const prevKeys = Object.keys(prev)
   const nextKeys = Object.keys(next)
@@ -189,6 +200,84 @@ function assignDefinedStyle(
       continue
     }
     target[key] = value
+  }
+}
+
+function readLayerSlot<S extends string>(
+  layer: SlotLayerAccessor<S> | undefined,
+  slot: S,
+): SlotValue | undefined {
+  if (!layer) {
+    return undefined
+  }
+  if (typeof layer === 'function') {
+    return layer()?.[slot]
+  }
+  const entry = layer[slot]
+  return typeof entry === 'function' ? entry() : entry
+}
+
+function createLayerMemos<S extends string>(
+  layer: SlotLayerAccessor<S> | undefined,
+  owner: Owner | null,
+) {
+  if (isServer || !layer) {
+    return undefined
+  }
+  const classMemos = new Map<S, () => ClassValue>()
+  const styleMemos = new Map<S, () => JSX.CSSProperties | undefined>()
+  return {
+    getClass(slot: S): ClassValue {
+      let memo = classMemos.get(slot)
+      if (!memo) {
+        memo = createLazyMemo(() => readLayerSlot(layer, slot)?.class, { owner })
+        classMemos.set(slot, memo)
+      }
+      return memo()
+    },
+    getStyle(slot: S): JSX.CSSProperties | undefined {
+      let memo = styleMemos.get(slot)
+      if (!memo) {
+        memo = createLazyMemo(() => readLayerSlot(layer, slot)?.style, {
+          owner,
+          equals: shallowEqualStyle,
+        })
+        styleMemos.set(slot, memo)
+      }
+      return memo()
+    },
+  }
+}
+
+function createContextLayerMemos<S extends string>(
+  contextSlots: (() => SlotOverrides<S> | undefined) | undefined,
+  owner: Owner | null,
+) {
+  if (isServer || !contextSlots) {
+    return undefined
+  }
+  const classMemos = new Map<S, () => ClassValue>()
+  const styleMemos = new Map<S, () => JSX.CSSProperties | undefined>()
+  return {
+    getClass(slot: S): ClassValue {
+      let memo = classMemos.get(slot)
+      if (!memo) {
+        memo = createLazyMemo(() => contextSlots()?.classes?.[slot], { owner })
+        classMemos.set(slot, memo)
+      }
+      return memo()
+    },
+    getStyle(slot: S): JSX.CSSProperties | undefined {
+      let memo = styleMemos.get(slot)
+      if (!memo) {
+        memo = createLazyMemo(() => contextSlots()?.styles?.[slot], {
+          owner,
+          equals: shallowEqualStyle,
+        })
+        styleMemos.set(slot, memo)
+      }
+      return memo()
+    },
   }
 }
 
@@ -513,117 +602,13 @@ export function useRecipe<R extends RecipeDefinition>(
   const instanceVarsMemo = !isServer
     ? createLazyMemo(() => resolveCssVariables(options.vars?.()), {
         owner,
-        equals: (prev, next) => {
-          if (prev === next) {
-            return true
-          }
-          if (!prev || !next) {
-            return false
-          }
-          return shallowEqualStyle(prev, next)
-        },
+        equals: shallowEqualStyle,
       })
     : undefined
 
-  // Fine-grained per-slot own / context / enforced layer readers with memo equality isolation
-  const ownClassMemos = !isServer ? new Map<Slots, () => ClassValue>() : undefined
-  function getOwnClass(slot: Slots): () => ClassValue {
-    let memo = ownClassMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.own?.()?.[slot]?.class, { owner })
-      ownClassMemos!.set(slot, memo)
-    }
-    return memo
-  }
-
-  const ownStyleMemos = !isServer
-    ? new Map<Slots, () => JSX.CSSProperties | undefined>()
-    : undefined
-  function getOwnStyle(slot: Slots): () => JSX.CSSProperties | undefined {
-    let memo = ownStyleMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.own?.()?.[slot]?.style, {
-        owner,
-        equals: (prev, next) => {
-          if (prev === next) {
-            return true
-          }
-          if (!prev || !next) {
-            return false
-          }
-          return shallowEqualStyle(prev, next)
-        },
-      })
-      ownStyleMemos!.set(slot, memo)
-    }
-    return memo
-  }
-
-  const enforcedClassMemos = !isServer ? new Map<Slots, () => ClassValue>() : undefined
-  function getEnforcedClass(slot: Slots): () => ClassValue {
-    let memo = enforcedClassMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.enforced?.()?.[slot]?.class, { owner })
-      enforcedClassMemos!.set(slot, memo)
-    }
-    return memo
-  }
-
-  const enforcedStyleMemos = !isServer
-    ? new Map<Slots, () => JSX.CSSProperties | undefined>()
-    : undefined
-  function getEnforcedStyle(slot: Slots): () => JSX.CSSProperties | undefined {
-    let memo = enforcedStyleMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.enforced?.()?.[slot]?.style, {
-        owner,
-        equals: (prev, next) => {
-          if (prev === next) {
-            return true
-          }
-          if (!prev || !next) {
-            return false
-          }
-          return shallowEqualStyle(prev, next)
-        },
-      })
-      enforcedStyleMemos!.set(slot, memo)
-    }
-    return memo
-  }
-
-  const contextClassMemos = !isServer ? new Map<Slots, () => ClassValue>() : undefined
-  function getContextClass(slot: Slots): () => ClassValue {
-    let memo = contextClassMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.contextSlots?.()?.classes?.[slot], { owner })
-      contextClassMemos!.set(slot, memo)
-    }
-    return memo
-  }
-
-  const contextStyleMemos = !isServer
-    ? new Map<Slots, () => JSX.CSSProperties | undefined>()
-    : undefined
-  function getContextStyle(slot: Slots): () => JSX.CSSProperties | undefined {
-    let memo = contextStyleMemos!.get(slot)
-    if (!memo) {
-      memo = createLazyMemo(() => options.contextSlots?.()?.styles?.[slot], {
-        owner,
-        equals: (prev, next) => {
-          if (prev === next) {
-            return true
-          }
-          if (!prev || !next) {
-            return false
-          }
-          return shallowEqualStyle(prev, next)
-        },
-      })
-      contextStyleMemos!.set(slot, memo)
-    }
-    return memo
-  }
+  const ownLayer = createLayerMemos(options.own, owner)
+  const enforcedLayer = createLayerMemos(options.enforced, owner)
+  const contextLayer = createContextLayerMemos(options.contextSlots, owner)
 
   function computeSlotClass(slot: Slots): string | undefined {
     if (isServer) {
@@ -634,76 +619,71 @@ export function useRecipe<R extends RecipeDefinition>(
       }
       const active = readActiveVariants(variantKeys, variants)
       const recipeClass = resolveSlotClasses(current, slot, active, cn)
-      const contextSlot = options.contextSlots?.()
-      const ownSlot = options.own?.()?.[slot]
-      const enforcedSlot = options.enforced?.()?.[slot]
       return cn(
         recipeClass,
-        contextSlot?.classes?.[slot],
-        ownSlot?.class,
+        options.contextSlots?.()?.classes?.[slot],
+        readLayerSlot(options.own, slot)?.class,
         props.classes?.[slot],
         slot === rootSlot ? props.class : undefined,
-        enforcedSlot?.class,
+        readLayerSlot(options.enforced, slot)?.class,
       )
     }
 
     const recipeClass = getRecipeSlotClassMemo(slot)()
-    const contextClass = getContextClass(slot)()
-    const ownClass = getOwnClass(slot)()
-    const enforcedClass = getEnforcedClass(slot)()
     return cn(
       recipeClass,
-      contextClass,
-      ownClass,
+      contextLayer?.getClass(slot),
+      ownLayer?.getClass(slot),
       props.classes?.[slot],
       slot === rootSlot ? props.class : undefined,
-      enforcedClass,
+      enforcedLayer?.getClass(slot),
     )
   }
 
   function computeSlotStyle(slot: Slots): JSX.CSSProperties {
+    const isVarsSlot = slot === recipeStyleSlot
+    const merged: Record<string, unknown> = {}
+
     if (isServer) {
-      const current = compiled()
-      const isVarsSlot = slot === recipeStyleSlot
       if (isVarsSlot) {
+        const current = compiled()
         for (const key of current.varVariantKeys) {
           ensureVariant(key)
         }
-      }
-      const active = isVarsSlot
-        ? readActiveVariants(current.varVariantKeys, variants)
-        : (EMPTY as ActiveVariants)
-      const merged: Record<string, unknown> = {}
-      if (isVarsSlot) {
+        const active = readActiveVariants(current.varVariantKeys, variants)
         assignDefinedStyle(merged, resolveRecipeVars(current, active))
         assignDefinedStyle(merged, resolveCssVariables(options.vars?.()))
       }
-      const contextSlot = options.contextSlots?.()
-      const ownSlot = options.own?.()?.[slot]
-      const enforcedSlot = options.enforced?.()?.[slot]
-      assignDefinedStyle(merged, contextSlot?.styles?.[slot] as Record<string, unknown> | undefined)
-      assignDefinedStyle(merged, ownSlot?.style as Record<string, unknown> | undefined)
+      assignDefinedStyle(
+        merged,
+        options.contextSlots?.()?.styles?.[slot] as Record<string, unknown> | undefined,
+      )
+      assignDefinedStyle(
+        merged,
+        readLayerSlot(options.own, slot)?.style as Record<string, unknown> | undefined,
+      )
       assignDefinedStyle(merged, props.styles?.[slot] as Record<string, unknown> | undefined)
       if (slot === rootSlot) {
         assignDefinedStyle(merged, props.style as Record<string, unknown> | undefined)
       }
-      assignDefinedStyle(merged, enforcedSlot?.style as Record<string, unknown> | undefined)
+      assignDefinedStyle(
+        merged,
+        readLayerSlot(options.enforced, slot)?.style as Record<string, unknown> | undefined,
+      )
       return merged as JSX.CSSProperties
     }
 
-    const isVarsSlot = slot === recipeStyleSlot
-    const merged: Record<string, unknown> = {}
     if (isVarsSlot) {
       assignDefinedStyle(merged, recipeVarsMemo!())
       assignDefinedStyle(merged, instanceVarsMemo!())
     }
-    assignDefinedStyle(merged, getContextStyle(slot)() as Record<string, unknown> | undefined)
-    assignDefinedStyle(merged, getOwnStyle(slot)() as Record<string, unknown> | undefined)
+    assignDefinedStyle(merged, contextLayer?.getStyle(slot) as Record<string, unknown> | undefined)
+    assignDefinedStyle(merged, ownLayer?.getStyle(slot) as Record<string, unknown> | undefined)
     assignDefinedStyle(merged, props.styles?.[slot] as Record<string, unknown> | undefined)
     if (slot === rootSlot) {
       assignDefinedStyle(merged, props.style as Record<string, unknown> | undefined)
     }
-    assignDefinedStyle(merged, getEnforcedStyle(slot)() as Record<string, unknown> | undefined)
+    assignDefinedStyle(merged, enforcedLayer?.getStyle(slot) as Record<string, unknown> | undefined)
     return merged as JSX.CSSProperties
   }
 

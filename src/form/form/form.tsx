@@ -101,7 +101,6 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
           if (local.of[INTERNAL].element === element) {
             local.of[INTERNAL].element = undefined
           }
-          callRef(local.ref, undefined)
         })
       }}
       novalidate

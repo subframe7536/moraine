@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import { children as resolveChildren, onCleanup, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -22,7 +21,6 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
     'style',
     'ref' as any,
   ])
-  const cn = useCn()
   const behavior = usePopoverContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
@@ -46,7 +44,7 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
       component={tag()}
       data-slot="popover-close"
       {...binding}
-      class={cn(local.class)}
+      class={local.class}
       style={local.style}
     >
       {children()}

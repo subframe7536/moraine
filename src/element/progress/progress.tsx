@@ -94,8 +94,6 @@ export function Progress(props: ProgressProps): JSX.Element {
     progress: () =>
       isIndeterminate() ? undefined : resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
   }
-  const rootDataAttrs = progressDataAttributes.root(progressState)
-  const indicatorDataAttrs = progressDataAttributes.indicator(progressState)
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
       return messages().indeterminate
@@ -113,7 +111,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     <div
       role="progressbar"
       data-slot="progress"
-      {...rootDataAttrs}
+      {...progressDataAttributes.root(progressState)}
       {...rest}
       aria-valuemin={minValue}
       aria-valuemax={resolvedMax()}
@@ -140,7 +138,11 @@ export function Progress(props: ProgressProps): JSX.Element {
       </Show>
 
       <div data-slot="progress-track" {...slots.track}>
-        <div data-slot="progress-indicator" {...indicatorDataAttrs} {...slots.indicator} />
+        <div
+          data-slot="progress-indicator"
+          {...progressDataAttributes.indicator(progressState)}
+          {...slots.indicator}
+        />
       </div>
     </div>
   )

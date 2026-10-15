@@ -21,16 +21,15 @@ export function DialogBody<T extends ValidComponent = 'div'>(
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
   })
-  const bodyAttrs = dialogDataAttributes.body({
-    header: content.hasHeader,
-    footer: content.hasFooter,
-    scroll: () => !content.overlayScroll(),
-  })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="dialog-body"
-      {...bodyAttrs}
+      {...dialogDataAttributes.body({
+        header: content.hasHeader,
+        footer: content.hasFooter,
+        scroll: () => !content.overlayScroll(),
+      })}
       {...rest}
       {...slots.body}
     >

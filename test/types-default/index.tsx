@@ -936,8 +936,9 @@ const theme = defineTheme({
 
 // @ts-expect-error Unknown component names are rejected.
 defineTheme({ unknownComponent: {} })
-// @ts-expect-error List has no Theme slots.
 defineTheme({ list: { base: { root: 'p-4' } } })
+// @ts-expect-error List has no visual variants.
+defineTheme({ list: { variants: { size: { sm: { root: 'p-4' } } } } })
 defineTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
 // @ts-expect-error Collapsible has no visual variants.
 defineTheme({ collapsible: { defaultVariants: { size: 'sm' } } })

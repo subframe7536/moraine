@@ -80,11 +80,6 @@ export function mergePopperElementProps<T extends HTMLElement>(
         }
         callRef(internal.ref, element)
         callRef(user.ref, element)
-        onCleanup(() => {
-          if (typeof user.ref === 'function') {
-            ;(user.ref as (element: T | undefined) => void)(undefined)
-          }
-        })
       },
     },
     overrides,
@@ -187,38 +182,31 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     },
     rest,
   )
-  const dataAttrs = popperDataAttributes.trigger({
-    closed: () => !context.isOpen(),
-    disabled,
-    expanded: context.isOpen,
-  })
-  const binding = mergeProps(
-    dataAttrs,
-    {
-      get 'aria-haspopup'() {
-        return local.describeTrigger ? undefined : true
-      },
-      get 'aria-controls'() {
-        return !local.describeTrigger && context.contentPresence.present()
-          ? context.contentId()
-          : undefined
-      },
-      get 'aria-describedby'() {
-        return local.describeTrigger && context.contentPresence.present()
-          ? context.contentId()
-          : undefined
-      },
-      get 'aria-expanded'() {
-        return local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'
-      },
-      'data-slot': context.slotName('trigger'),
-    },
-    interaction,
-  )
   const children = resolveChildren(() => local.children)
-  const rootBinding = root.bind(binding)
+  const rootBinding = root.bind(interaction)
   return (
-    <Dynamic component={tag()} {...rootBinding} class={cn(local.class)} style={local.style}>
+    <Dynamic
+      component={tag()}
+      data-slot={context.slotName('trigger')}
+      {...popperDataAttributes.trigger({
+        closed: () => !context.isOpen(),
+        disabled,
+        expanded: context.isOpen,
+      })}
+      aria-haspopup={local.describeTrigger ? undefined : true}
+      aria-controls={
+        !local.describeTrigger && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
+      }
+      aria-describedby={
+        local.describeTrigger && context.contentPresence.present() ? context.contentId() : undefined
+      }
+      aria-expanded={local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'}
+      {...rootBinding}
+      class={cn(local.class)}
+      style={local.style}
+    >
       {children()}
     </Dynamic>
   )
@@ -475,10 +463,6 @@ export function PopperContent(
     }
   }
 
-  const contentDataAttrs = popperDataAttributes.content({
-    closed: () => !context.isOpen(),
-    expanded: context.isOpen,
-  })
   const contentProps = {
     get 'aria-describedby'() {
       return options.ariaDescribedBy
@@ -508,7 +492,15 @@ export function PopperContent(
     },
     tabIndex: -1,
   } as PopperContentAttributes
-  Object.defineProperties(contentProps, Object.getOwnPropertyDescriptors(contentDataAttrs))
+  Object.defineProperties(
+    contentProps,
+    Object.getOwnPropertyDescriptors(
+      popperDataAttributes.content({
+        closed: () => !context.isOpen(),
+        expanded: context.isOpen,
+      }),
+    ),
+  )
 
   return (
     <Show when={contentMounted()}>

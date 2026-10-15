@@ -111,7 +111,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'style',
     'aria-label',
   ])
-  const { slots, variants } = useRecipe(paginationRecipe, local)
+  const { slots, variants, overrides } = useRecipe(paginationRecipe, local)
   const messages = useMessages('pagination', defaultPaginationMessages)
 
   const merged = mergeProps(
@@ -242,8 +242,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 text: () => Boolean(merged.prevText),
               })}
               {...slots.prev}
-              classes={{ label: merged.prevText ? slots.controlLabel.class : undefined }}
-              styles={{ label: merged.prevText ? slots.controlLabel.style : undefined }}
+              {...(merged.prevText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() - 1, event)}
               {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
               leading={merged.prevText ? merged.prevIcon : undefined}
@@ -315,8 +314,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 text: () => Boolean(merged.nextText),
               })}
               {...slots.next}
-              classes={{ label: merged.nextText ? slots.controlLabel.class : undefined }}
-              styles={{ label: merged.nextText ? slots.controlLabel.style : undefined }}
+              {...(merged.nextText ? overrides({ label: 'controlLabel' }) : undefined)}
               onClick={(event) => selectPage(currentPage() + 1, event)}
               trailing={merged.nextText ? merged.nextIcon : undefined}
               {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}

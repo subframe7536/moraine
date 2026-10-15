@@ -349,7 +349,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                   unchecked: () => !merged.loading && !checked(),
                   loading: () => merged.loading,
                 })}
-                class={slots.icon.class}
+                {...slots.icon}
               />
             )}
           </Show>

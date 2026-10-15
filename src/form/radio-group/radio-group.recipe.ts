@@ -6,6 +6,7 @@ import {
   JOINED_COLUMN_CLASS,
   JOINED_ROW_CLASS,
   PEER_FOCUS_VISIBLE_CLASS,
+  VISUALLY_HIDDEN_CLASS,
 } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
@@ -88,6 +89,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
     indicator: {
       start: { item: 'flex-row', wrapper: 'ms-2' },
       end: { item: 'flex-row-reverse', wrapper: 'me-2' },
+      hidden: { control: VISUALLY_HIDDEN_CLASS },
     },
   },
   compoundVariants: [

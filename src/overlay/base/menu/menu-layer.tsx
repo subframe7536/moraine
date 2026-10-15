@@ -803,15 +803,9 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
           createEventListener(element, 'keydown', onContentKeyDown)
-          onCleanup(() => {
-            const ref = props.contentProps?.ref
-            if (typeof ref === 'function') {
-              ;(ref as (element: HTMLDivElement | undefined) => void)(undefined)
-            }
-          })
         }}
-        class={cn(resolveSlot('content').class, props.contentProps?.class)}
-        style={{ ...props.contentProps?.style, ...resolveSlot('content').style }}
+        {...props.contentProps}
+        {...resolveSlot('content')}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
           if (!defaultPrevented) {

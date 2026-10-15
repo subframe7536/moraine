@@ -10,6 +10,7 @@ import type { EmptyStyleConfig } from '../element/empty/empty.style-types'
 import type { IconStyleConfig } from '../element/icon/icon.style-types'
 import type { KbdGroupStyleConfig } from '../element/kbd-group/kbd-group.style-types'
 import type { KbdStyleConfig } from '../element/kbd/kbd.style-types'
+import type { ListStyleConfig } from '../element/list/list.style-types'
 import type { ProgressStyleConfig } from '../element/progress/progress.style-types'
 import type { ResizableStyleConfig } from '../element/resizable/resizable.style-types'
 import type { ScrollAreaStyleConfig } from '../element/scroll-area/scroll-area.style-types'
@@ -70,6 +71,7 @@ export interface MoraineStyleSchema {
   icon: IconStyleConfig
   kbd: KbdStyleConfig
   kbdGroup: KbdGroupStyleConfig
+  list: ListStyleConfig
   progress: ProgressStyleConfig
   resizable: ResizableStyleConfig
   scrollArea: ScrollAreaStyleConfig

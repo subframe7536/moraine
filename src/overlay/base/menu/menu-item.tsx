@@ -4,7 +4,7 @@ import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from '
 
 import { Icon } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd-group'
-import type { SlotBinding } from '../../../provider/create-styles'
+import type { SlotBinding } from '../../../provider/use-recipe'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListenerMap } from '../../../shared/event-listener'

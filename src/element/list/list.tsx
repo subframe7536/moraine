@@ -2,10 +2,11 @@ import type { Component, JSX } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../provider/cn-context'
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
 
+import { listRecipe } from './list.recipe'
 import type { ListProps, ListT } from './list.types'
 
 /** Headless polymorphic list with optional caller-controlled virtualization. */
@@ -14,7 +15,6 @@ export function List<
   T extends ValidComponent = 'ul',
   TItemElement extends HTMLElement = HTMLElement,
 >(props: ListProps<TItem, T, TItemElement>): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props as ListProps<TItem, T, TItemElement> & { ref?: unknown }, [
     'as',
     'items',
@@ -22,9 +22,12 @@ export function List<
     'virtualRender',
     'fallback',
     'ref',
+    'classes',
+    'styles',
     'class',
     'style',
   ])
+  const { slots } = useRecipe(listRecipe, local)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   return (
@@ -37,8 +40,7 @@ export function List<
         setScrollElement(() => element)
         callRef(local.ref, element)
       }}
-      class={cn(local.class)}
-      style={local.style}
+      {...slots.root}
     >
       <Show
         when={'fallback' in props && !local.items?.length}

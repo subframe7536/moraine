@@ -987,8 +987,8 @@ describe('Modal primitives', () => {
     expect(contentRef).toHaveBeenCalledWith(content)
 
     screen.unmount()
-    expect(overlayRef).toHaveBeenLastCalledWith(undefined)
-    expect(contentRef).toHaveBeenLastCalledWith(undefined)
+    expect(overlayRef).toHaveBeenCalledTimes(1)
+    expect(contentRef).toHaveBeenCalledTimes(1)
   })
 
   test('mounts both parts in a custom portal target', () => {

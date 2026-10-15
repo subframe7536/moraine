@@ -3,7 +3,6 @@ import { Show, children as resolveChildren, createMemo, splitProps } from 'solid
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
@@ -19,7 +18,6 @@ import type { ButtonProps } from './button.types'
  * Button component with polymorphic `as` support and loading state.
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
-  const cn = useCn()
   const group = useButtonGroupContext()
   const [local, rest] = splitProps(props as ButtonProps<T> & { ref?: unknown }, [
     'as',
@@ -40,12 +38,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'trailing',
     'children',
   ])
-  const { slots } = useRecipe(buttonRecipe, local, {
-    contextVariants: () => group ?? undefined,
-    own: () => ({
-      root: { class: customActiveEffectClass() },
-    }),
-  })
 
   const { isLoading, onClick } = useLoadingAutoClick<HTMLElement>({
     loading: () => local.loading,
@@ -58,12 +50,30 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
+  function customActiveEffectClass() {
+    const effect = local.activeEffect
+    if (typeof effect !== 'function') {
+      return
+    }
+    const el = root.element()
+    return el ? effect(el) : undefined
+  }
+
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
   const isLeadingLoading = createMemo(() => isLoading() && (leading() || !trailing()))
   const isTrailingLoading = createMemo(() => isLoading() && (!leading() || !trailing()))
+
+  const { slots } = useRecipe(buttonRecipe, local, {
+    contextVariants: () => group ?? undefined,
+    own: {
+      root: () => ({ class: customActiveEffectClass() }),
+      leading: () => ({ class: isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined }),
+      trailing: () => ({ class: isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined }),
+    },
+  })
 
   const resolvedLeading = createMemo(() => {
     if (!isLoading()) {
@@ -103,14 +113,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const binding = root.bind(interactionProps)
   const child = resolveChildren(() => local.children)
-  function customActiveEffectClass() {
-    const effect = local.activeEffect
-    if (typeof effect !== 'function') {
-      return
-    }
-    const el = root.element()
-    return el ? effect(el) : undefined
-  }
   const resolvedChildren = createMemo(() =>
     renderWithProps(child(), {
       get loading() {
@@ -140,12 +142,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={leading()}
             slotName="button-leading"
-            class={cn(
-              isLeadingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              slots.leading.class,
-            )}
-            style={slots.leading.style}
             aria-hidden={isLeadingLoading() ? true : undefined}
+            {...slots.leading}
           />
         )}
       </Show>
@@ -161,12 +159,8 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             slotName="button-trailing"
-            class={cn(
-              isTrailingLoading() ? BUTTON_LOADING_ICON_CLASS : undefined,
-              slots.trailing.class,
-            )}
-            style={slots.trailing.style}
             aria-hidden={isTrailingLoading() ? true : undefined}
+            {...slots.trailing}
           />
         )}
       </Show>

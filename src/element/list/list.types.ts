@@ -1,13 +1,16 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+
+import type { ListStyleSlot, ListStyleVariant } from './list.style-types'
 
 export namespace ListT {
   export type Kind = 'single'
-  export type Slot = never
-  export type Variant = never
-  export type Classes = never
-  export type Styles = never
+  export type Slot<T = unknown> = ListStyleSlot<T>
+  export type Variant = ListStyleVariant
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
 
   export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
     JSX.HTMLAttributes<TItemElement>,

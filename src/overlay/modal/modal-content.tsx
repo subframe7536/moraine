@@ -59,7 +59,6 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
           unregister()
           if (context.contentElement() === element) {
             context.setContentElement(undefined)
-            callRef(local.ref, undefined)
           }
         })
       }}
@@ -70,8 +69,12 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
       aria-labelledby={local['aria-labelledby'] ?? local.ariaLabelledBy}
       aria-describedby={local['aria-describedby'] ?? local.ariaDescribedBy}
       tabIndex={-1}
-      class={isModalRoot ? slots.content.class : cn(local.class)}
-      style={isModalRoot ? slots.content.style : local.style}
+      {...(isModalRoot
+        ? slots.content
+        : {
+            class: cn(local.class),
+            style: local.style,
+          })}
       onKeyDown={(event) => {
         callHandler(event, local.onKeyDown)
         if (event.defaultPrevented) {

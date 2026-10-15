@@ -15,11 +15,10 @@ import { Dynamic } from 'solid-js/web'
 
 import { containsComposed, getActiveElement, isNode } from '../../overlay/base/dom'
 import { useRecipe } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
-import { PEER_CLASS, VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
+import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 import { useFormValue } from '../shared/use-form-value'
@@ -40,7 +39,6 @@ interface NormalizedRadioGroupItem {
 
 /** Single-select radio group with card, list, and table layout variants. */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'name',
@@ -106,12 +104,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const inputRefs = new Map<string, HTMLInputElement>()
   let groupEl: HTMLDivElement | undefined
   let pressedSpaceItemId: string | undefined
-  const dataAttrs = radioGroupDataAttributes.root({
-    invalid: field.invalid,
-    disabled: field.disabled,
-    readonly: field.readOnly,
-    required: field.required,
-  })
 
   const normalizedItems = createMemo<NormalizedRadioGroupItem[]>(() => {
     const valueOccurrences = new Map<string, number>()
@@ -306,7 +298,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       aria-orientation={merged.orientation}
       data-slot="radio-group"
-      {...dataAttrs}
+      {...radioGroupDataAttributes.root({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        readonly: field.readOnly,
+        required: field.required,
+      })}
       {...rest}
       ref={(element) => {
         groupEl = element
@@ -389,11 +386,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
                 <div
                   data-slot="radio-group-control"
-                  class={cn(
-                    slots.control.class,
-                    variants.indicator === 'hidden' && VISUALLY_HIDDEN_CLASS,
-                  )}
-                  style={slots.control.style}
                   {...radioGroupDataAttributes.control({
                     checked: selected,
                     invalid: field.invalid,
@@ -401,6 +393,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     readonly: field.readOnly,
                     required: field.required,
                   })}
+                  {...slots.control}
                 >
                   <Show when={selected()}>
                     <div

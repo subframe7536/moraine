@@ -40,7 +40,7 @@ describe.each([
     expect([triggerReads, contentReads]).toEqual([1, 1])
   })
 
-  test('forwards cancellable content events and clears consumer refs', async () => {
+  test('forwards cancellable content events and forwards consumer refs', async () => {
     const ref = vi.fn()
     const changes = vi.fn()
     const view = render(() => (
@@ -58,7 +58,7 @@ describe.each([
     fireEvent.keyDown(surface, { key: 'Escape' })
     expect(changes).not.toHaveBeenCalled()
     view.unmount()
-    expect(ref).toHaveBeenLastCalledWith(undefined)
+    expect(ref).toHaveBeenCalledTimes(1)
   })
 })
 

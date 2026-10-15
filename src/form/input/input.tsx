@@ -88,13 +88,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const dataAttrs = inputDataAttributes.root({
-    invalid: field.invalid,
-    disabled: field.disabled,
-    required: field.required,
-    readonly: field.readOnly,
-  })
-
   const restoreControlledValue = textControl.restoreControlledValue
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
@@ -173,7 +166,12 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <input
       data-slot="input"
-      {...dataAttrs}
+      {...inputDataAttributes.root({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        required: field.required,
+        readonly: field.readOnly,
+      })}
       {...rest}
       id={field.id()}
       type={merged.type}

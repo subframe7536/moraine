@@ -21,7 +21,6 @@ import {
   resolveDirection,
 } from '../../overlay/base/utils'
 import { useRecipe } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -126,7 +125,6 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
-  const cn = useCn()
   const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
   const locale = useLocale()
   const direction = locale.dir
@@ -738,11 +736,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               listboxElement = element
               callRef(merged.listboxProps?.ref, element)
             }}
-            style={{
-              ...merged.listboxProps?.style,
-              ...slots.listbox.style,
-            }}
-            class={cn(slots.listbox.class, merged.listboxProps?.class)}
+            {...slotWith('listbox', () => ({
+              class: merged.listboxProps?.class,
+              style: merged.listboxProps?.style,
+            }))}
           />
         }
       >
@@ -771,11 +768,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   role="presentation"
                   data-slot="command-palette-group"
                   {...context.props}
-                  style={{
-                    ...context.props?.style,
-                    ...slots.group.style,
-                  }}
-                  class={cn(slots.group.class, context.props?.class)}
+                  {...slotWith('group', () => ({
+                    class: context.props?.class,
+                    style: context.props?.style,
+                  }))}
                 >
                   <span data-slot="command-palette-group-label" {...slots.groupLabel}>
                     {context.item.type === 'label' ? context.item.label : ''}
@@ -791,11 +787,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               listboxElement = element
               callRef(merged.listboxProps?.ref, element)
             }}
-            style={{
-              ...merged.listboxProps?.style,
-              ...slots.listbox.style,
-            }}
-            class={cn(slots.listbox.class, merged.listboxProps?.class)}
+            {...slotWith('listbox', () => ({
+              class: merged.listboxProps?.class,
+              style: merged.listboxProps?.style,
+            }))}
           />
         )}
       </Show>

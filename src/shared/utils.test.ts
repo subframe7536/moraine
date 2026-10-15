@@ -1,4 +1,4 @@
-import { createRoot, createSignal } from 'solid-js'
+import { createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { callRef, cn, createId } from './utils'
@@ -19,6 +19,27 @@ describe('callRef', () => {
     }, element)
 
     expect(received).toBe(element)
+  })
+
+  test('untracks reactive reads inside callback refs', () => {
+    const [count, setCount] = createSignal(0)
+    let runs = 0
+    const element = document.createElement('div')
+
+    createRoot((dispose) => {
+      createRenderEffect(() => {
+        runs++
+        // oxlint-disable-next-line subf/solid-reactivity
+        callRef((_el: HTMLDivElement) => {
+          count()
+        }, element)
+      })
+      dispose()
+    })
+
+    expect(runs).toBe(1)
+    setCount(1)
+    expect(runs).toBe(1)
   })
 })
 

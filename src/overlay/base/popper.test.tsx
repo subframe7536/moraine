@@ -1118,7 +1118,7 @@ describe('Popper native event composition', () => {
     expect(changes).not.toHaveBeenCalled()
   })
 
-  test('preserves custom trigger keyboard activation, disabled state and ref cleanup', () => {
+  test('preserves custom trigger keyboard activation and disabled state', () => {
     const CustomTrigger = (props: JSX.HTMLAttributes<HTMLSpanElement>) => <span {...props} />
     const [disabled, setDisabled] = createSignal(false)
     const changes = vi.fn()
@@ -1140,7 +1140,7 @@ describe('Popper native event composition', () => {
     fireEvent.click(trigger)
     expect(changes).toHaveBeenCalledTimes(1)
     screen.unmount()
-    expect(ref.mock.calls).toEqual([[trigger], [undefined]])
+    expect(ref).toHaveBeenCalledExactlyOnceWith(trigger)
   })
 })
 

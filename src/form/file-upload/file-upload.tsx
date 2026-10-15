@@ -797,11 +797,7 @@ export function FileUpload<Multiple extends boolean = false>(
                   <Show
                     when={previewUrls().get(file)}
                     fallback={
-                      <Icon
-                        name={merged.fileIcon}
-                        slotName="file-upload-icon"
-                        class={slots.icon.class}
-                      />
+                      <Icon name={merged.fileIcon} slotName="file-upload-icon" {...slots.icon} />
                     }
                   >
                     {(url) => <img class="size-full object-cover" src={url()} alt={file.name} />}

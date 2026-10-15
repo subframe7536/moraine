@@ -278,11 +278,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     readonly: readOnly,
     required: field.required,
   }
-  const rootDataAttrs = inputNumberDataAttributes.root(fieldDataState)
-  const inputDataAttrs = inputNumberDataAttributes.input({
-    ...fieldDataState,
-    autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
-  })
 
   function commitValue(nextValue: number): boolean {
     if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
@@ -391,27 +386,28 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
-    const dataAttrs = inputNumberDataAttributes[kind]({
-      active: () => press.isActive(kind),
-      disabled: isControlDisabled,
-    })
-
-    const controlProps = mergeProps(dataAttrs, {
-      'data-slot': `input-number-${kind}`,
-      type: 'button',
-      tabIndex: -1,
-      get 'aria-label'() {
-        return isIncrement ? messages().increment : messages().decrement
+    const controlProps = mergeProps(
+      inputNumberDataAttributes[kind]({
+        active: () => press.isActive(kind),
+        disabled: isControlDisabled,
+      }),
+      {
+        'data-slot': `input-number-${kind}`,
+        type: 'button',
+        tabIndex: -1,
+        get 'aria-label'() {
+          return isIncrement ? messages().increment : messages().decrement
+        },
+        get 'aria-controls'() {
+          return field.id()
+        },
+        get disabled() {
+          return isControlDisabled()
+        },
+        ...slots[kind],
+        ...press.handlers(kind),
       },
-      get 'aria-controls'() {
-        return field.id()
-      },
-      get disabled() {
-        return isControlDisabled()
-      },
-      ...slots[kind],
-      ...press.handlers(kind),
-    })
+    )
     return controlProps as InputNumberControlProps
   }
 
@@ -530,7 +526,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     <div
       role="group"
       data-slot="input-number"
-      {...rootDataAttrs}
+      {...inputNumberDataAttributes.root(fieldDataState)}
       {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
@@ -565,7 +561,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input-number-input"
-        {...inputDataAttrs}
+        {...inputNumberDataAttributes.input({
+          ...fieldDataState,
+          autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
+        })}
         {...slots.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {

@@ -5,8 +5,8 @@ import { defineConfig } from 'tsdown'
 import type { ExportsOptions } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
+import { variantGroupPlugin } from './build/vite-plugin-variant-group.ts'
 import { DEFAULT_ICON_SHORTCUTS } from './src/theme/icons.ts'
-import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
 const packageExports: ExportsOptions = {
   customExports(exports, { chunks }) {

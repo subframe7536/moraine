@@ -109,14 +109,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const dataAttrs = textareaDataAttributes.root({
-    invalid: field.invalid,
-    disabled: field.disabled,
-    required: field.required,
-    readonly: field.readOnly,
-    autoresize: () => merged.autoResize,
-  })
-
   const restoreControlledValue = textControl.restoreControlledValue
 
   let initialOverflow = ''
@@ -278,7 +270,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <textarea
       data-slot="textarea"
-      {...dataAttrs}
+      {...textareaDataAttributes.root({
+        invalid: field.invalid,
+        disabled: field.disabled,
+        required: field.required,
+        readonly: field.readOnly,
+        autoresize: () => merged.autoResize,
+      })}
       {...rest}
       id={field.id()}
       name={field.name()}

@@ -143,14 +143,13 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
-        const contentDataAttrs = popoverContentDataAttributes({
-          side: () => parseFloatingPlacement(context.currentPlacement()).side,
-          align: () => parseFloatingPlacement(context.currentPlacement()).align,
-        })
         return (
           <div
             data-slot="popover-content"
-            {...contentDataAttrs}
+            {...popoverContentDataAttributes({
+              side: () => parseFloatingPlacement(context.currentPlacement()).side,
+              align: () => parseFloatingPlacement(context.currentPlacement()).align,
+            })}
             {...mergePopperElementProps(contentProps, rest)}
             aria-label={local.ariaLabel ?? rest['aria-label']}
             {...slots.content}

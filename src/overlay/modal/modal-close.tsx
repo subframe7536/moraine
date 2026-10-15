@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../provider/cn-context'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -14,7 +13,6 @@ import type { ModalT } from './modal.types'
 export function ModalClose<T extends ValidComponent = 'button'>(
   props: ModalT.CloseProps<T>,
 ): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'as',
     'disabled',
@@ -44,7 +42,7 @@ export function ModalClose<T extends ValidComponent = 'button'>(
       component={tag()}
       data-slot={context.slotName('close')}
       {...binding}
-      class={cn(local.class)}
+      class={local.class}
       style={local.style}
     >
       {children()}

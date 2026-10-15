@@ -607,3 +607,70 @@ test('ensureVariant is lazy and preserves owner when theme variants are introduc
   expect(button.className).toContain('custom-b')
   expect((capturedVariants as any).custom).toBe('b')
 })
+
+test('per-slot own accessor map provides fine-grained slot isolation', () => {
+  type TestSlots = { root: string; leading: string; trailing: string }
+  const recipe = defineRecipe<TestSlots>('test', {
+    base: {
+      root: 'root-base',
+      leading: 'leading-base',
+      trailing: 'trailing-base',
+    },
+  })
+
+  const [leadingActive, setLeadingActive] = createSignal(false)
+  const [trailingActive, setTrailingActive] = createSignal(false)
+  let leadingReads = 0
+  let trailingReads = 0
+
+  let slots!: ReturnType<typeof useRecipe<typeof recipe>>['slots']
+
+  function Fixture() {
+    const result = useRecipe(
+      recipe,
+      {},
+      {
+        own: {
+          leading: () => {
+            leadingReads += 1
+            return { class: leadingActive() ? 'leading-active' : undefined }
+          },
+          trailing: () => {
+            trailingReads += 1
+            return { class: trailingActive() ? 'trailing-active' : undefined }
+          },
+        },
+      },
+    )
+    slots = result.slots
+    return null
+  }
+
+  render(() => <Fixture />)
+
+  // Unread slots do not evaluate own accessors
+  expect(leadingReads).toBe(0)
+  expect(trailingReads).toBe(0)
+
+  // Read leading slot class
+  expect(slots.leading.class).toBe('leading-base')
+  expect(leadingReads).toBe(1)
+  expect(trailingReads).toBe(0)
+
+  // Read trailing slot class
+  expect(slots.trailing.class).toBe('trailing-base')
+  expect(leadingReads).toBe(1)
+  expect(trailingReads).toBe(1)
+
+  // Update leading signal - trailing accessor must NOT run
+  setLeadingActive(true)
+  expect(slots.leading.class).toBe('leading-base leading-active')
+  expect(leadingReads).toBe(2)
+  expect(trailingReads).toBe(1)
+
+  // Update trailing signal - leading accessor must NOT run
+  setTrailingActive(true)
+  expect(slots.trailing.class).toBe('trailing-base trailing-active')
+  expect(leadingReads).toBe(2)
+  expect(trailingReads).toBe(2)
+})

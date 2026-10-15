@@ -21,12 +21,11 @@ export function SheetBody<T extends ValidComponent = 'div'>(
     contextVariants: () => content.variants,
     contextSlots: () => family.slotOverrides,
   })
-  const bodyAttrs = sheetDataAttributes.body({ header: content.hasHeader })
   return (
     <Dynamic
       component={local.as ?? 'div'}
       data-slot="sheet-body"
-      {...bodyAttrs}
+      {...sheetDataAttributes.body({ header: content.hasHeader })}
       {...rest}
       {...slots.body}
     >
