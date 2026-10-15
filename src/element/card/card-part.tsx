@@ -12,19 +12,45 @@ import type { CardStyleSlot } from './card.style-types'
 
 export type CardPartSlot = Exclude<keyof CardStyleSlot, 'root'>
 
-export type CardPartProps = Omit<
+export type CardPartProps<T extends ValidComponent = 'div'> = Omit<
   JSX.HTMLAttributes<HTMLElement>,
   'style' | 'class' | 'children'
 > & {
-  slot: CardPartSlot
-  fallback: ValidComponent
-  as?: ValidComponent
+  as?: T
   class?: SlotClassValue
   style?: JSX.CSSProperties
   children?: JSX.Element
 }
 
-export function CardPart(props: CardPartProps): JSX.Element {
+export function createCardPart<S extends CardPartSlot>(slot: S, fallback: ValidComponent = 'div') {
+  return function CardPartComponent<T extends ValidComponent>(
+    props: CardPartProps<T>,
+  ): JSX.Element {
+    const [local, rest] = splitProps(
+      props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
+      ['as', 'class', 'style'],
+    )
+    const context = useCardContext()
+    const { slots } = useRecipe(cardRecipe, local, {
+      slot,
+      contextVariants: () => ({ variant: context.variant, size: context.size }),
+      contextSlots: () => context.slotOverrides,
+    })
+
+    return (
+      <Dynamic
+        component={local.as ?? fallback}
+        data-slot={`card-${slot}`}
+        {...rest}
+        {...slots[slot]}
+      />
+    )
+  }
+}
+
+export function CardPart(
+  props: CardPartProps & { slot: CardPartSlot; fallback: ValidComponent },
+): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useCardContext()
   const { slots } = useRecipe(cardRecipe, local, {

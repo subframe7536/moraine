@@ -13,12 +13,12 @@ import type { ToastT } from './toast.types'
 
 export interface ToastListProps {
   positionKey: string
-  filteredToasts: () => ToastRecord[]
-  host: () => ToastHostDefaults
+  filteredToasts: ToastRecord[]
+  host: ToastHostDefaults
   expand?: boolean
-  hostPaused: () => boolean
-  heights: () => Record<string | number, number>
-  gapSize: () => number
+  hostPaused: boolean
+  heights: Record<string | number, number>
+  gapSize: number
   visibleToasts: number
   itemRender?: ToastT.Render
   onHeight: (id: ToastT.Id, height: number) => void
@@ -35,17 +35,17 @@ export function ToastList(props: ToastListProps): JSX.Element {
   const align = () => props.positionKey.split('-')[1] as OverlayAlign
 
   const groupToasts = createMemo(() =>
-    props.filteredToasts().filter((toast) => {
-      const options = resolveToastOptions(toast.options, props.host())
+    props.filteredToasts.filter((toast) => {
+      const options = resolveToastOptions(toast.options, props.host)
       return `${options.placement}-${options.align}` === props.positionKey
     }),
   )
 
   const layoutExpanded = () => Boolean(props.expand) || isHovered()
-  const timerPaused = () => isHovered() || isInteracting() || props.hostPaused()
+  const timerPaused = () => isHovered() || isInteracting() || props.hostPaused
 
   const frontmostHeight = createMemo(() => {
-    const currentHeights = props.heights()
+    const currentHeights = props.heights
     for (const toast of groupToasts()) {
       if (!toast.closed) {
         const height = currentHeights[toast.id]
@@ -59,8 +59,8 @@ export function ToastList(props: ToastListProps): JSX.Element {
 
   const toastMeta = createMemo(() => {
     const toasts = groupToasts()
-    const currentHeights = props.heights()
-    const gap = props.gapSize()
+    const currentHeights = props.heights
+    const gap = props.gapSize
     const meta = new Map<ToastT.Id, { index: number; offsetY: number }>()
     let visibleIndex = 0
     let offsetY = 0
@@ -87,7 +87,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
       return 0
     }
     const count = Math.min(toasts.length, props.visibleToasts)
-    const gap = props.gapSize()
+    const gap = props.gapSize
     const frontHeight = frontmostHeight() || 58
     if (!layoutExpanded()) {
       return frontHeight + (count > 1 ? (count - 1) * gap : 0)
@@ -95,7 +95,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
     let total = 0
     for (let index = 0; index < count; index += 1) {
       const toast = toasts[index]
-      total += (toast ? props.heights()[toast.id] : 0) || frontHeight
+      total += (toast ? props.heights[toast.id] : 0) || frontHeight
     }
     return total + (count > 1 ? (count - 1) * gap : 0)
   })
@@ -111,8 +111,8 @@ export function ToastList(props: ToastListProps): JSX.Element {
         align: align(),
       }),
       contextSlots: () => ({
-        classes: props.host().classes,
-        styles: props.host().styles,
+        classes: props.host.classes,
+        styles: props.host.styles,
       }),
       own: () => ({
         list: {
@@ -120,7 +120,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
         },
       }),
       vars: () => ({
-        '--toast-gap': `${props.gapSize()}px`,
+        '--toast-gap': `${props.gapSize}px`,
       }),
     },
   )
@@ -156,7 +156,7 @@ export function ToastList(props: ToastListProps): JSX.Element {
                 paused={timerPaused()}
                 host={props.host}
                 itemRender={props.itemRender}
-                gap={props.gapSize()}
+                gap={props.gapSize}
                 onHeight={props.onHeight}
                 requestClose={props.requestClose}
                 onRemove={props.onRemove}

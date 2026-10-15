@@ -630,26 +630,13 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <Show when={contentPresence.present()}>
           <Portal mount={triggerElement()?.ownerDocument.body}>
             <OverlayMenuLayer<TItem>
-              owner={props.owner}
+              {...props}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
               close={closeSubmenu}
-              closeOnTab={props.closeOnTab}
-              closeRoot={props.closeRoot}
               depth={props.depth + 1}
               items={itemProps.item.children}
-              classes={props.classes}
-              styles={props.styles}
-              slotBinding={props.slotBinding}
-              size={props.size}
-              checkedIcon={props.checkedIcon}
-              submenuIcon={props.submenuIcon}
-              itemRender={props.itemRender}
-              contentProps={props.contentProps}
-              itemProps={props.itemProps}
-              contentTop={props.contentTop}
-              contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
               placement={
                 resolveDirection(triggerElement(), direction()) === 'rtl' ? 'left' : 'right'
@@ -657,7 +644,6 @@ export function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               align="start"
               gutter={-2}
               shift={-4}
-              overflowPadding={props.overflowPadding}
               parentLayer={layer}
               present={contentPresence.present}
               registerBranch={registerLayerBranch}

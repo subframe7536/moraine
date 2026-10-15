@@ -191,32 +191,14 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           />
         </Show>
         <OverlayMenuLayer<TItem>
-          owner={props.owner}
+          {...props}
           id={contentId()}
           ariaLabelledBy={props.triggerElement?.id}
-          open={props.open}
           close={closeRoot}
           closeOnTab={closeOnTab}
           closeRoot={closeRoot}
           depth={0}
-          items={props.items}
-          classes={props.classes}
-          styles={props.styles}
-          slotBinding={props.slotBinding}
-          size={props.size}
-          checkedIcon={props.checkedIcon}
-          submenuIcon={props.submenuIcon}
-          itemRender={props.itemRender}
-          contentProps={props.contentProps}
-          itemProps={props.itemProps}
-          contentTop={props.contentTop}
-          contentBottom={props.contentBottom}
           getReferenceElement={getReferenceElement}
-          placement={props.placement}
-          align={props.align}
-          gutter={props.gutter}
-          shift={props.shift}
-          overflowPadding={props.overflowPadding}
           present={contentPresence.present}
           registerBranch={(element) => {
             branches.add(element)
@@ -226,9 +208,6 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
             }
           }}
           setPresenceElement={contentPresence.setElement}
-          autoFocusStrategy={props.autoFocusStrategy}
-          onAutoFocusHandled={props.onAutoFocusHandled}
-          onContentPointerDown={props.onContentPointerDown}
           onContextMenu={props.onContentContextMenu}
           refState={setRootLayerState}
         />

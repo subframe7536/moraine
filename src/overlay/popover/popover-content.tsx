@@ -97,14 +97,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={behavior.options.mode === 'click'}
-      align={behavior.options.align}
-      placement={behavior.options.placement}
-      forceMount={behavior.options.forceMount}
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
-      preventScroll={behavior.options.preventScroll}
-      dismissible={behavior.options.dismissible}
-      onClosePrevent={behavior.options.onClosePrevent}
-      overflowPadding={4}
       role="dialog"
       onPointerDownOutside={(event) => {
         if (behavior.options.dismissible ?? true) {

@@ -167,12 +167,12 @@ function ToastRoot(props: ToastProps): JSX.Element {
           {(positionKey) => (
             <ToastList
               positionKey={positionKey}
-              filteredToasts={filteredToasts}
-              host={defaults}
+              filteredToasts={filteredToasts()}
+              host={defaults()}
               expand={local.expand}
-              hostPaused={() => isDocumentHidden() || !isWindowFocused()}
-              heights={heights}
-              gapSize={() => local.gap ?? DEFAULT_TOAST_GAP}
+              hostPaused={isDocumentHidden() || !isWindowFocused()}
+              heights={heights()}
+              gapSize={local.gap ?? DEFAULT_TOAST_GAP}
               visibleToasts={local.visibleToasts ?? 3}
               itemRender={local.itemRender}
               onHeight={updateHeight}

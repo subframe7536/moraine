@@ -43,7 +43,7 @@ export interface ToastItemProps {
   offsetY: number
   expanded: boolean
   paused?: boolean
-  host: () => ToastHostDefaults
+  host: ToastHostDefaults
   itemRender?: ToastT.Render
   gap?: number
   onHeight: (id: ToastT.Id, height: number) => void
@@ -88,7 +88,7 @@ function isAwaySwipe(
 
 export function ToastItem(props: ToastItemProps): JSX.Element {
   const messages = useMessages('toast', defaultToastMessages)
-  const options = createMemo(() => resolveToastOptions(props.toast.options, props.host()))
+  const options = createMemo(() => resolveToastOptions(props.toast.options, props.host))
   const runner = createActionRunner({
     closed: () => Boolean(props.toast.closed),
     onFinish: (kind) => props.requestClose(props.toast.id, kind),

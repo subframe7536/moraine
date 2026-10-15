@@ -12,19 +12,48 @@ import type { EmptyStyleSlot } from './empty.style-types'
 
 export type EmptyPartSlot = Exclude<keyof EmptyStyleSlot, 'root'>
 
-export type EmptyPartProps = Omit<
+export type EmptyPartProps<T extends ValidComponent = 'div'> = Omit<
   JSX.HTMLAttributes<HTMLElement>,
   'style' | 'class' | 'children'
 > & {
-  slot: EmptyPartSlot
-  fallback: ValidComponent
-  as?: ValidComponent
+  as?: T
   class?: SlotClassValue
   style?: JSX.CSSProperties
   children?: JSX.Element
 }
 
-export function EmptyPart(props: EmptyPartProps): JSX.Element {
+export function createEmptyPart<S extends EmptyPartSlot>(
+  slot: S,
+  fallback: ValidComponent = 'div',
+) {
+  return function EmptyPartComponent<T extends ValidComponent>(
+    props: EmptyPartProps<T>,
+  ): JSX.Element {
+    const [local, rest] = splitProps(
+      props as { as?: ValidComponent; class?: SlotClassValue; style?: JSX.CSSProperties },
+      ['as', 'class', 'style'],
+    )
+    const context = useEmptyContext()
+    const { slots } = useRecipe(emptyRecipe, local, {
+      slot,
+      contextVariants: () => ({ size: context.size }),
+      contextSlots: () => context.slotOverrides,
+    })
+
+    return (
+      <Dynamic
+        component={local.as ?? fallback}
+        data-slot={`empty-${slot}`}
+        {...rest}
+        {...slots[slot]}
+      />
+    )
+  }
+}
+
+export function EmptyPart(
+  props: EmptyPartProps & { slot: EmptyPartSlot; fallback: ValidComponent },
+): JSX.Element {
   const [local, rest] = splitProps(props, ['slot', 'fallback', 'as', 'class', 'style'])
   const context = useEmptyContext()
   const { slots } = useRecipe(emptyRecipe, local, {

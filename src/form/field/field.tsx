@@ -13,15 +13,7 @@ import { FieldProvider } from './field-context'
 import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
 /** Generic field layout and accessibility primitive. */
-export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
-  return <FieldInternal {...props} />
-}
-
-/**
- * Shared field layout with an optional form binding.
- * @internal
- */
-export function FieldInternal<T extends ValidComponent = 'div'>(
+export function Field<T extends ValidComponent = 'div'>(
   props: FieldProps<T> & { binding?: FieldBinding },
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
@@ -246,3 +238,5 @@ export function FieldInternal<T extends ValidComponent = 'div'>(
     </FieldProvider>
   )
 }
+
+export { Field as FieldInternal }

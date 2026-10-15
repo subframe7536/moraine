@@ -229,6 +229,7 @@ export function PopperContent(
       shift: 0,
       slide: true,
     },
+    context.options,
     props,
   )
   const { contentId, contentElement, setContentElement, triggerElement, contentPresence, setOpen } =

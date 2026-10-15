@@ -10,7 +10,7 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { useRecipe } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import type { DisclosureState } from '../../shared/disclosure-state'
@@ -24,8 +24,8 @@ import type { AccordionProps } from './accordion.types'
 
 function AccordionItemPanel(props: {
   disclosure: DisclosureState
-  contentId: () => string
-  triggerId: () => string
+  contentId: string
+  triggerId: string
   slotOverrides: SlotOverrides<Extract<keyof AccordionStyleSlot, string>>
   children: JSX.Element
 }): JSX.Element {
@@ -55,9 +55,9 @@ function AccordionItemPanel(props: {
       ref={(element) => {
         onCleanup(props.disclosure.registerPresenceElement(element))
       }}
-      id={props.contentId()}
+      id={props.contentId}
       role="region"
-      aria-labelledby={props.triggerId()}
+      aria-labelledby={props.triggerId}
       aria-hidden={props.disclosure.ariaHidden()}
       hidden={props.disclosure.hidden()}
       inert={props.disclosure.inert()}
@@ -394,16 +394,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
               <AccordionItemPanel
                 disclosure={disclosure}
-                contentId={contentId}
-                triggerId={triggerId}
-                slotOverrides={{
-                  get classes() {
-                    return local.classes
-                  },
-                  get styles() {
-                    return local.styles
-                  },
-                }}
+                contentId={contentId()}
+                triggerId={triggerId()}
+                slotOverrides={pickSlotOverrides(local)}
               >
                 <Show when={disclosure.shouldMount()}>
                   <Content />
