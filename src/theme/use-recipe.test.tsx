@@ -5,11 +5,11 @@ import { describe, expect, test } from 'vitest'
 import { buttonRecipe } from '../element/button/button.recipe'
 import type { ButtonT } from '../element/button/button.types'
 import { tooltipRecipe } from '../overlay/tooltip/tooltip.recipe'
-import { defineTheme } from '../theme/create-theme'
-import { defineRecipe } from '../theme/recipe'
-import type { MoraineTheme } from '../theme/types'
+import { MoraineProvider } from '../provider/moraine-provider'
 
-import { MoraineProvider } from './moraine-provider'
+import { defineTheme } from './create-theme'
+import { defineRecipe } from './recipe'
+import type { MoraineTheme } from './types'
 import { useRecipe } from './use-recipe'
 
 describe('useRecipe', () => {
@@ -316,12 +316,12 @@ describe('useRecipe', () => {
     expect(slots.root.class).toBe(classB)
   })
 
-  test('styles, classes, and overrides helpers provide reactive forwarders and direct property reads', () => {
+  test('overrides helper provides reactive forwarders with slot mapping', () => {
     const [color, setColor] = createSignal('red')
     const [extraClass, setExtraClass] = createSignal('dynamic-class')
 
     function Fixture() {
-      const { styles, classes, overrides } = useRecipe(buttonRecipe, {
+      const { overrides } = useRecipe(buttonRecipe, {
         get classes() {
           return { root: extraClass(), leading: 'fixed-leading' }
         },
@@ -330,43 +330,25 @@ describe('useRecipe', () => {
         },
       })
 
-      // Test direct property reads
-      const directRootStyle = styles.root
-      const directRootClass = classes.root
-      expect(directRootStyle.color).toBe(color())
-      expect(directRootClass).toContain(extraClass())
-
       // Test zero-arg call (all slots)
-      const allStyles = styles()
-      const allClasses = classes()
-      expect(allStyles.root.color).toBe(color())
-      expect(allStyles.leading.width).toBe('10px')
-      expect(allClasses.root).toContain(extraClass())
-      expect(allClasses.leading).toContain('fixed-leading')
-
-      // Test array mapping
-      const subsetStyles = styles(['root', 'leading'])
-      expect(subsetStyles.root.color).toBe(color())
-      expect(subsetStyles.leading.width).toBe('10px')
-
-      // Test target-to-source mapping
-      const mappedStyles = styles({ targetRoot: 'root', targetLeading: 'leading' })
-      expect(mappedStyles.targetRoot.color).toBe(color())
-      expect(mappedStyles.targetLeading.width).toBe('10px')
-
-      const mappedClasses = classes({ targetRoot: 'root' })
-      expect(mappedClasses.targetRoot).toContain(extraClass())
-
-      // Test overrides()
       const allOverrides = overrides()
       expect(allOverrides.styles?.root?.color).toBe(color())
+      expect(allOverrides.styles?.leading?.width).toBe('10px')
       expect(allOverrides.classes?.root).toContain(extraClass())
+      expect(allOverrides.classes?.leading).toContain('fixed-leading')
 
-      const mappedOverrides = overrides({ target: 'root' })
-      expect(mappedOverrides.styles?.target?.color).toBe(color())
-      expect(mappedOverrides.classes?.target).toContain(extraClass())
+      // Test array mapping
+      const subsetOverrides = overrides(['root', 'leading'])
+      expect(subsetOverrides.styles?.root?.color).toBe(color())
+      expect(subsetOverrides.styles?.leading?.width).toBe('10px')
 
-      return <button style={allStyles.root}>Button</button>
+      // Test target-to-source mapping
+      const mappedOverrides = overrides({ targetRoot: 'root', targetLeading: 'leading' })
+      expect(mappedOverrides.styles?.targetRoot?.color).toBe(color())
+      expect(mappedOverrides.styles?.targetLeading?.width).toBe('10px')
+      expect(mappedOverrides.classes?.targetRoot).toContain(extraClass())
+
+      return <button style={allOverrides.styles?.root}>Button</button>
     }
 
     const screen = render(() => <Fixture />)

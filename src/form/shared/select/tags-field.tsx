@@ -3,8 +3,8 @@ import { createMemo } from 'solid-js'
 
 import { Icon } from '../../../element/icon/index'
 import type { IconT } from '../../../element/icon/index'
-import type { SlotBinding } from '../../../provider/create-styles'
 import { useMessages } from '../../../provider/locale/locale-context'
+import type { SlotBinding } from '../../../theme/use-recipe'
 
 import { defaultTagsFieldMessages } from './tags-field.messages'
 
