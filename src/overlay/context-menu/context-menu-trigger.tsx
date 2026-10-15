@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, onMount, splitProps } from 'solid-js'
+import { mergeProps, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -19,7 +19,7 @@ import type { ContextMenuT } from './context-menu.types'
 export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   props: ContextMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled'])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled'])
   const context = useContextMenuContext()
 
   const { slots } = useRecipe(contextMenuRecipe, local, {
@@ -80,11 +80,6 @@ export function ContextMenuTrigger<T extends ValidComponent = 'div'>(
     events,
   )
   const binding = root.bind(triggerProps)
-  const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
-  return (
-    <Dynamic component={tag()} type={undefined} {...binding} {...slots.trigger}>
-      {children()}
-    </Dynamic>
-  )
+  return <Dynamic component={tag()} type={undefined} {...binding} {...slots.trigger} />
 }

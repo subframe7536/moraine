@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { children as resolveChildren, onCleanup, splitProps } from 'solid-js'
+import { onCleanup, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -13,14 +13,7 @@ import type { PopoverT } from './popover.types'
 export function PopoverClose<T extends ValidComponent = 'button'>(
   props: PopoverT.CloseProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'disabled',
-    'children',
-    'class',
-    'style',
-    'ref' as any,
-  ])
+  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
   const behavior = usePopoverContext()
   const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
@@ -35,19 +28,8 @@ export function PopoverClose<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interaction)
-  const children = resolveChildren(() => local.children)
   const unregisterClose = behavior.registerClose()
   onCleanup(unregisterClose)
 
-  return (
-    <Dynamic
-      component={tag()}
-      data-slot="popover-close"
-      {...binding}
-      class={local.class}
-      style={local.style}
-    >
-      {children()}
-    </Dynamic>
-  )
+  return <Dynamic component={tag()} data-slot="popover-close" {...binding} />
 }

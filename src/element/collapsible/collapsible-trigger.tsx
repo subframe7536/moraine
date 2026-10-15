@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { children as resolveChildren, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -15,14 +15,7 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'disabled',
-    'children',
-    'class',
-    'style',
-    'ref' as any,
-  ])
+  const [local, rest] = splitProps(props, ['as', 'disabled', 'class', 'style', 'ref' as any])
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
   const { slots } = useRecipe(collapsibleRecipe, local, {
@@ -53,7 +46,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     rest,
   )
   const binding = root.bind(interactionProps)
-  const children = resolveChildren(() => local.children)
 
   return (
     <Dynamic
@@ -69,8 +61,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       {...binding}
       id={context.triggerId()}
       {...slots.trigger}
-    >
-      {children()}
-    </Dynamic>
+    />
   )
 }

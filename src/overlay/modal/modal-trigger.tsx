@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, onMount, splitProps } from 'solid-js'
+import { onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
@@ -15,16 +15,9 @@ import type { ModalT } from './modal.types'
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'disabled',
-    'children',
-    'class',
-    'style',
-    'ref' as any,
-  ])
+  const [local, rest] = splitProps(props, ['as', 'disabled', 'ref' as any])
   const context = useModalContext()
-  const tag = createMemo(() => local.as ?? 'button')
+  const tag = () => local.as ?? 'button'
   const root = createPolymorphicRoot({
     tag,
     bridgeClick: true,
@@ -48,7 +41,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     },
     rest,
   )
-  const children = resolveChildren(() => local.children)
   const binding = root.bind(interactionProps)
 
   onMount(() => {
@@ -68,10 +60,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
         disabled,
       })}
       {...binding}
-      style={local.style}
-      class={local.class}
-    >
-      {children()}
-    </Dynamic>
+    />
   )
 }

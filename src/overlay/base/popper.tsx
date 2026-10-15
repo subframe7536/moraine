@@ -147,14 +147,10 @@ export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): 
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperTriggerState },
 ): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'context',
     'as',
     'disabled',
-    'children',
-    'class',
-    'style',
     'describeTrigger',
     'toggleOnClick',
     'ref' as any,
@@ -182,7 +178,6 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     },
     rest,
   )
-  const children = resolveChildren(() => local.children)
   const rootBinding = root.bind(interaction)
   return (
     <Dynamic
@@ -204,11 +199,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       }
       aria-expanded={local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'}
       {...rootBinding}
-      class={cn(local.class)}
-      style={local.style}
-    >
-      {children()}
-    </Dynamic>
+    />
   )
 }
 

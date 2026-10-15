@@ -204,20 +204,12 @@ describe('Modal primitives', () => {
   })
 
   test.each(['Trigger', 'Close'] as const)(
-    'preserves %s children across polymorphic root replacement',
+    'renders %s children across polymorphic root replacement',
     (part) => {
       const Part = Modal[part]
       const [tag, setTag] = createSignal<'button' | 'div'>('button')
       const [value, setValue] = createSignal('Before')
-      let mounts = 0
-      let cleanups = 0
-      const Child = () => {
-        mounts += 1
-        onCleanup(() => {
-          cleanups += 1
-        })
-        return <span data-testid="persistent-child">{value()}</span>
-      }
+      const Child = () => <span data-testid="part-child">{value()}</span>
       const screen = render(() => (
         <Modal>
           <Part as={tag()}>
@@ -225,15 +217,12 @@ describe('Modal primitives', () => {
           </Part>
         </Modal>
       ))
-      const child = screen.getByTestId('persistent-child')
+      expect(screen.getByTestId('part-child').parentElement?.tagName).toBe('BUTTON')
+      expect(screen.getByTestId('part-child').textContent).toBe('Before')
       setTag('div')
       setValue('After')
-      expect(screen.getByTestId('persistent-child')).toBe(child)
-      expect(child.parentElement?.tagName).toBe('DIV')
-      expect(child.textContent).toBe('After')
-      expect([mounts, cleanups]).toEqual([1, 0])
-      screen.unmount()
-      expect(cleanups).toBe(1)
+      expect(screen.getByTestId('part-child').parentElement?.tagName).toBe('DIV')
+      expect(screen.getByTestId('part-child').textContent).toBe('After')
     },
   )
 

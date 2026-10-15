@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, mergeProps, onMount, splitProps } from 'solid-js'
+import { mergeProps, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -16,14 +16,7 @@ import type { DropdownMenuT } from './dropdown-menu.types'
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   props: DropdownMenuT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'children',
-    'class',
-    'style',
-    'disabled',
-    'ref' as any,
-  ])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'disabled', 'ref' as any])
   const context = useDropdownMenuContext()
 
   const { slots } = useRecipe(dropdownMenuRecipe, local, {
@@ -96,11 +89,6 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
     interaction,
   )
   const binding = root.bind(triggerProps)
-  const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
-  return (
-    <Dynamic component={tag()} {...binding} {...slots.trigger}>
-      {children()}
-    </Dynamic>
-  )
+  return <Dynamic component={tag()} {...binding} {...slots.trigger} />
 }

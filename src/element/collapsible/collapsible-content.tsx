@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, onCleanup, Show, splitProps } from 'solid-js'
+import { onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -75,7 +75,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
           {...slots.content}
           ref={(element: HTMLElement) => callRef(local.ref, element)}
         >
-          {resolveChildren(() => local.children)()}
+          {local.children}
         </Dynamic>
       </Show>
     </div>
