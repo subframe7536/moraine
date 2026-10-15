@@ -294,6 +294,97 @@ describe('Popover', () => {
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('Mouse content')
   })
 
+  test('does not refocus trigger or reopen when dismissed by pointer leave in hover mode', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover mode="hover" openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
+        <Popover.Trigger as="button" type="button">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Mouse content'}</Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')
+    expect(content).not.toBeNull()
+
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+
+    await finishExitMotion(content)
+
+    expect(document.activeElement).not.toBe(trigger)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(onOpenChange).toHaveBeenCalledTimes(2)
+    expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+  })
+
+  test('does not refocus trigger or reopen when pointer leaves content in hover mode', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover mode="hover" openDelay={50} closeDelay={50} onOpenChange={onOpenChange}>
+        <Popover.Trigger as="button" type="button">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Hover content'}</Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')
+    expect(content).not.toBeNull()
+
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(content!, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+
+    fireEvent.pointerLeave(content!, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+
+    await finishExitMotion(content)
+
+    expect(document.activeElement).not.toBe(trigger)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(onOpenChange).toHaveBeenCalledTimes(2)
+    expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
+  })
+
+  test('supports explicit restoreFocusOnClose prop override', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover restoreFocusOnClose={false} onOpenChange={onOpenChange}>
+        <Popover.Trigger as="button" type="button">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Content>{'Content'}</Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+    fireEvent.click(trigger)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')
+    expect(content).not.toBeNull()
+
+    content!.focus()
+    fireEvent.keyDown(content!, { key: 'Escape' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    await finishExitMotion(content)
+
+    expect(document.activeElement).not.toBe(trigger)
+  })
+
   test('keeps hover mode reachable by keyboard focus and press', async () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()

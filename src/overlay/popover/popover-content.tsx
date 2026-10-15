@@ -19,6 +19,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'style',
     'classes',
     'styles',
+    'restoreFocusOnClose',
   ])
   let hasPreventedPointerAttempt = false
   let resetTimeout: ReturnType<typeof setTimeout> | undefined
@@ -97,6 +98,11 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       dir={rest.dir}
       context={behavior.popper}
       closeOnOutsideFocus={behavior.options.mode === 'click'}
+      restoreFocusOnClose={
+        local.restoreFocusOnClose ??
+        behavior.options.restoreFocusOnClose ??
+        behavior.options.mode === 'click'
+      }
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
       role="dialog"
       onPointerDownOutside={(event) => {

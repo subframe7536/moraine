@@ -34,6 +34,7 @@ export namespace PopoverT {
     | 'preventScroll'
     | 'dismissible'
     | 'onClosePrevent'
+    | 'restoreFocusOnClose'
   > {
     /**
      * Whether the content traps focus, hides outside content from assistive technology, prevents
@@ -83,6 +84,11 @@ export namespace PopoverT {
     ariaLabel?: string
     /** Body content. */
     children?: JSX.Element
+    /**
+     * Whether focus returns to the trigger after the content closes.
+     * @default true in click mode, false in hover mode
+     */
+    restoreFocusOnClose?: boolean
   }
 
   /**

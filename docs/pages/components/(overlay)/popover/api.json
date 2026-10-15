@@ -158,6 +158,16 @@
           }
         },
         {
+          "name": "restoreFocusOnClose",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether focus returns to the trigger after the content closes.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
@@ -251,6 +261,16 @@
           "optional": true,
           "type": "ContentClasses",
           "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "restoreFocusOnClose",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether focus returns to the trigger after the content closes.",
+          "default": {
+            "kind": "expression",
+            "text": "true in click mode, false in hover mode"
+          }
         },
         {
           "name": "style",

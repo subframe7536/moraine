@@ -228,8 +228,8 @@
         {
           "name": "ref",
           "optional": true,
-          "type": "(element: HTMLDivElement | undefined) => void",
-          "description": "Receives the mounted overlay element and `undefined` when it unmounts."
+          "type": "(element: HTMLDivElement) => void",
+          "description": "Receives the mounted overlay element."
         },
         {
           "name": "scrollable",
