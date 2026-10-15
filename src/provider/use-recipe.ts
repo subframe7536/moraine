@@ -62,8 +62,6 @@ export interface UseRecipeOptions<S extends string, V> {
   enforced?: () => Partial<Record<S, SlotValue>> | undefined
 }
 
-export type CreateStylesOptions<S extends string, V> = UseRecipeOptions<S, V>
-
 type RequiredSlotOptions<S extends string, V> = 'root' extends S
   ? UseRecipeOptions<S, V>
   : UseRecipeOptions<S, V> & { slot: S }
@@ -117,8 +115,6 @@ export type UseRecipeResult<R extends RecipeDefinition> = {
   classes: SlotClassesHelper<Extract<keyof RecipeSlots<R>, string>>
   overrides: SlotOverridesHelper<Extract<keyof RecipeSlots<R>, string>>
 }
-
-export type CreateStylesResult<R extends RecipeDefinition> = UseRecipeResult<R>
 
 /** Picks `{ classes, styles }` from props for Context `slotOverrides`. */
 export function pickSlotOverrides<S extends string>(props: {
@@ -907,5 +903,3 @@ export function useRecipe<R extends RecipeDefinition>(
 
   return { slots, variants, slotWith, styles, classes, overrides }
 }
-
-export { useRecipe as createStyles }
