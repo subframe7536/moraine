@@ -70,7 +70,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
       return undefined
     }
     return {
-      'clip-path': `inset(${Math.max(0, first[0] - 4)}px 0 ${Math.max(0, height - last[1] - 4)}px 0 round 8px)`,
+      'clip-path': `inset(${Math.max(0, first[0])}px 0 ${Math.max(0, height - last[1])}px 0 round 8px)`,
     }
   })
 
