@@ -1,11 +1,12 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types'
+import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { InputGroupStyleSlot, InputGroupStyleVariant } from './input-group.style-types'
 
-interface InputGroupPartBase {
+interface InputGroupPartBase<T extends ValidComponent = 'div'> {
+  as?: T
   /**
    * Removes the padding between this part and the adjacent control.
    * @default false
@@ -27,11 +28,25 @@ export namespace InputGroupT {
   export interface Base {}
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles, 'div', true>
 
-  export interface LeadingBase extends InputGroupPartBase {}
-  export type LeadingProps = BaseProps<'div', LeadingBase, never, never, never>
+  export interface LeadingBase<T extends ValidComponent = 'div'> extends InputGroupPartBase<T> {}
+  export type LeadingProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    LeadingBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
-  export interface TrailingBase extends InputGroupPartBase {}
-  export type TrailingProps = BaseProps<'div', TrailingBase, never, never, never>
+  export interface TrailingBase<T extends ValidComponent = 'div'> extends InputGroupPartBase<T> {}
+  export type TrailingProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    TrailingBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 }
 
 export type InputGroupProps = InputGroupT.Props

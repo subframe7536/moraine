@@ -60,6 +60,12 @@ export namespace CollapsibleT {
     unmountOnHide?: boolean
 
     /**
+     * Force mounting the content in the DOM even when closed.
+     * @default false
+     */
+    forceMount?: boolean
+
+    /**
      * Content to render inside the collapsible.
      */
     children?: JSX.Element
@@ -81,24 +87,12 @@ export namespace CollapsibleT {
     'button'
   >
 
-  export type ContentBase<T extends ValidComponent = 'div'> = {
+  export interface ContentBase<T extends ValidComponent = 'div'> {
     /**
      * Element or component to render inner content as.
      * @default 'div'
      */
     as?: T
-
-    /**
-     * Whether to unmount content when closed.
-     * @default true
-     */
-    unmountOnHide?: boolean
-
-    /**
-     * Force mounting the content in the DOM even when closed.
-     * @default false
-     */
-    forceMount?: boolean
 
     /** Content to render. */
     children?: JSX.Element

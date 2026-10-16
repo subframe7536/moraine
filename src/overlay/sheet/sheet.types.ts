@@ -61,7 +61,8 @@ export namespace SheetT {
 
   export type ContentRenderProps = ModalT.ContentRenderProps
 
-  export interface ContentBase {
+  export interface ContentBase<T extends ValidComponent = 'div'> {
+    as?: T
     /** Primary title displayed in the sheet header. */
     title?: JSX.Element
 
@@ -79,7 +80,14 @@ export namespace SheetT {
   /**
    * Props for Sheet.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ContentBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
     as?: T

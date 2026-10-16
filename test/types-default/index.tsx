@@ -307,7 +307,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Button activeEffect="bounce" />
 ;<ButtonGroup>
   <Button>Copy</Button>
-  <ButtonGroup.Separator orientation="vertical" class="bg-input" style={{ opacity: 0.8 }} />
+  <ButtonGroup.Separator class="bg-input" style={{ opacity: 0.8 }} />
   <Button>Paste</Button>
 </ButtonGroup>
 ;<Button

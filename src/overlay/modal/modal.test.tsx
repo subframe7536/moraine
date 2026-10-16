@@ -2102,4 +2102,20 @@ describe('Modal primitives', () => {
     fireEvent.keyDown(content, { key: 'Tab' })
     expect(onKeyDown).toHaveBeenCalled()
   })
+
+  test('supports polymorphic rendering via as prop on Content', () => {
+    render(() => (
+      <Modal open>
+        <Modal.Portal>
+          <Modal.Content as="section" data-testid="section-modal">
+            <span>Modal section</span>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal>
+    ))
+    const content = document.body.querySelector('[data-testid="section-modal"]')
+    expect(content).not.toBeNull()
+    expect(content?.tagName).toBe('SECTION')
+    expect(content?.getAttribute('role')).toBe('dialog')
+  })
 })

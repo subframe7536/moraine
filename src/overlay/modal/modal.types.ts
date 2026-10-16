@@ -109,7 +109,8 @@ export namespace ModalT {
 
   export type OverlayProps = BaseProps<'div', OverlayBase, never, never, never>
 
-  export interface ContentBase {
+  export interface ContentBase<T extends ValidComponent = 'div'> {
+    as?: T
     /**
      * Content or render function inside the modal content surface.
      * A render function must declare its parameter, even when unused. A zero-argument
@@ -118,7 +119,14 @@ export namespace ModalT {
     children: JSX.Element | Component<ContentRenderProps>
   }
 
-  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ContentBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
   export type CloseBase<T extends ValidComponent = 'button'> = TriggerBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<

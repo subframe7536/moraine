@@ -9,6 +9,7 @@ import {
   onCleanup,
   splitProps,
 } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
@@ -16,6 +17,7 @@ import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
+import type { ValidComponent } from '../../shared/types'
 import { createShorthandContent } from '../base/shorthand-content'
 import { Modal } from '../modal/modal'
 import { createModalContentBinding } from '../modal/modal-content-binding'
@@ -34,16 +36,17 @@ import { defaultDialogMessages } from './dialog.messages'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogT } from './dialog.types'
 
-export function DialogContent(props: DialogT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+export function DialogContent<T extends ValidComponent = 'div'>(
+  props: DialogT.ContentProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props as DialogT.ContentProps<T> & { ref?: unknown }, [
+    'as',
     'ref',
     'title',
     'description',
     'children',
     'class',
     'style',
-    'aria-label',
-    'dir',
   ])
   const dialog = useDialogContext()
   const messages = useMessages('dialog', defaultDialogMessages)
@@ -51,7 +54,8 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
   const family = useModalContext()
   const binding = createModalContentBinding(family, {
     ref: () => local.ref,
-    onKeyDown: () => rest.onKeyDown,
+    onKeyDown: () =>
+      rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
   const merged = mergeProps(
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
@@ -69,29 +73,31 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
   createEffect(on(overlayScroll, family.setOverlayScroll))
   onCleanup(() => family.setOverlayScroll(false))
 
-  const ariaLabel = () => local['aria-label']
+  const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
   const ariaLabelledBy = () =>
     ariaLabel() === undefined ? registration.titleIds().join(' ') || undefined : undefined
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
   function RenderDialogContent(): JSX.Element {
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children as JSX.Element)
+    const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),
       }),
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
+    const tag = (): ValidComponent => local.as ?? 'div'
 
     return (
-      <div
+      <Dynamic
+        component={tag()}
         data-slot="dialog-content"
         role="dialog"
+        dir={direction()}
         id={family.contentId()}
         tabIndex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
-        aria-label={ariaLabel()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
         {...dialogDataAttributes.content({
@@ -100,7 +106,6 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
         })}
         {...rest}
         {...slots.content}
-        dir={local.dir ?? direction()}
         ref={binding.ref}
         onKeyDown={binding.onKeyDown}
       >
@@ -124,7 +129,7 @@ export function DialogContent(props: DialogT.ContentProps): JSX.Element {
           </Modal.Close>
         </Show>
         {explicitChildren()}
-      </div>
+      </Dynamic>
     )
   }
 

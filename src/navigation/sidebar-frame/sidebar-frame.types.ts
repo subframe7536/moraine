@@ -88,29 +88,43 @@ export namespace SidebarFrameT {
     'aside'
   >
 
-  export interface SidebarHeaderBase {}
-  export type SidebarHeaderProps = BaseProps<
-    'div',
-    SidebarHeaderBase,
+  export interface SidebarHeaderBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type SidebarHeaderProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    SidebarHeaderBase<T>,
     never,
     never,
     never,
-    'div',
-    true
+    'div'
   >
 
-  export interface SidebarBodyBase {}
-  export type SidebarBodyProps = BaseProps<'div', SidebarBodyBase, never, never, never, 'div', true>
+  export interface SidebarBodyBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type SidebarBodyProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    SidebarBodyBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
-  export interface SidebarFooterBase {}
-  export type SidebarFooterProps = BaseProps<
-    'div',
-    SidebarFooterBase,
+  export interface SidebarFooterBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type SidebarFooterProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    SidebarFooterBase<T>,
     never,
     never,
     never,
-    'div',
-    true
+    'div'
   >
 
   export interface MainBase<T extends ValidComponent = 'div'> {
@@ -140,8 +154,18 @@ export namespace SidebarFrameT {
     'button'
   >
 
-  export interface MenuBase {}
-  export type MenuProps = BaseProps<'div', MenuBase, never, never, never, 'div', true>
+  export interface MenuBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type MenuProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    MenuBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
   export interface LabelBase<T extends ValidComponent = 'div'> {
     children?: JSX.Element
@@ -209,15 +233,17 @@ export namespace SidebarFrameT {
     'button'
   >
 
-  export interface SubmenuContentBase {}
-  export type SubmenuContentProps = BaseProps<
-    'div',
-    SubmenuContentBase,
+  export interface SubmenuContentBase<T extends ValidComponent = 'div'> {
+    as?: T
+    children?: JSX.Element
+  }
+  export type SubmenuContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    SubmenuContentBase<T>,
     never,
     never,
     never,
-    'div',
-    true
+    'div'
   >
 }
 

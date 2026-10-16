@@ -23,6 +23,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'disabled',
     'transition',
     'unmountOnHide',
+    'forceMount',
     'classes',
     'styles',
     'class',
@@ -41,6 +42,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     disabled: () => Boolean(local.disabled),
     transition: () => Boolean(local.transition),
     unmountOnHide: () => local.unmountOnHide,
+    forceMount: () => Boolean(local.forceMount),
   })
   const { slots } = useRecipe(collapsibleRecipe, local, {
     vars: () => ({

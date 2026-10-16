@@ -67,32 +67,31 @@ describe('ButtonGroup', () => {
     expect(separator.className).toContain('h-auto')
   })
 
-  test('allows ButtonGroup.Separator orientation to be overridden independently', () => {
+  test('derives ButtonGroup.Separator orientation from the parent ButtonGroup', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <ButtonGroup.Separator orientation="horizontal" />
-      </MoraineProvider>
-    ))
-    const separator = screen.getByRole('separator')
-
-    expect(separator.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(separator.getAttribute('data-orientation')).toBe('horizontal')
-    expect(separator.className).toContain('mx-px')
-    expect(separator.className).toContain('w-auto')
-  })
-
-  test('follows the group axis unless separator orientation is explicit', () => {
-    const screen = render(() => (
-      <ButtonGroup orientation="vertical">
-        <Button>First</Button>
-        <ButtonGroup.Separator />
-        <Button>Second</Button>
-        <ButtonGroup.Separator orientation="vertical" />
-      </ButtonGroup>
+      <div>
+        <ButtonGroup orientation="horizontal" data-testid="horizontal-group">
+          <Button>First</Button>
+          <ButtonGroup.Separator />
+          <Button>Second</Button>
+        </ButtonGroup>
+        <ButtonGroup orientation="vertical" data-testid="vertical-group">
+          <Button>First</Button>
+          <ButtonGroup.Separator />
+          <Button>Second</Button>
+        </ButtonGroup>
+      </div>
     ))
     const separators = screen.getAllByRole('separator')
-    expect(separators[0]?.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(separators[1]?.getAttribute('aria-orientation')).toBe('vertical')
+    expect(separators[0]?.getAttribute('aria-orientation')).toBe('vertical')
+    expect(separators[0]?.getAttribute('data-orientation')).toBe('vertical')
+    expect(separators[0]?.className).toContain('my-px')
+    expect(separators[0]?.className).toContain('h-auto')
+
+    expect(separators[1]?.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(separators[1]?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(separators[1]?.className).toContain('mx-px')
+    expect(separators[1]?.className).toContain('w-auto')
   })
 
   test('applies ButtonGroup separator theme and local slot overrides', () => {
@@ -251,12 +250,12 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
   })
 
-  test('keeps an explicit horizontal separator as the only vertical action boundary', () => {
+  test('keeps a separator as the vertical action boundary', () => {
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup orientation="vertical" aria-label="Move actions">
           <Button>Move up</Button>
-          <ButtonGroup.Separator orientation="horizontal" />
+          <ButtonGroup.Separator />
           <Button>Move down</Button>
         </ButtonGroup>
       </MoraineProvider>

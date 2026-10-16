@@ -1,17 +1,19 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
+import type { ValidComponent } from '../../shared/types'
 
 import { useInputGroupContext } from './input-group-context'
 import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types'
 
 export function createInputGroupPart(part: 'leading' | 'trailing') {
-  return function InputGroupPart(
-    props: InputGroupT.LeadingProps | InputGroupT.TrailingProps,
+  return function InputGroupPart<T extends ValidComponent = 'div'>(
+    props: InputGroupT.LeadingProps<T> | InputGroupT.TrailingProps<T>,
   ): JSX.Element {
-    const [local, rest] = splitProps(props, ['compact', 'class', 'style'])
+    const [local, rest] = splitProps(props, ['as', 'compact', 'class', 'style'])
     const group = useInputGroupContext()
     if (!group) {
       const name = part === 'leading' ? 'Leading' : 'Trailing'
@@ -27,7 +29,8 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
       contextSlots: () => group.slotOverrides,
     })
     return (
-      <div
+      <Dynamic
+        component={local.as ?? 'div'}
         data-slot={`input-group-${part}`}
         {...inputGroupDataAttributes[part]({
           orientation: () => group.orientation,
@@ -40,8 +43,10 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
   }
 }
 
-export const InputGroupLeading: (props: InputGroupT.LeadingProps) => JSX.Element =
-  /* @__PURE__ */ createInputGroupPart('leading')
+export const InputGroupLeading: <T extends ValidComponent = 'div'>(
+  props: InputGroupT.LeadingProps<T>,
+) => JSX.Element = /* @__PURE__ */ createInputGroupPart('leading')
 
-export const InputGroupTrailing: (props: InputGroupT.TrailingProps) => JSX.Element =
-  /* @__PURE__ */ createInputGroupPart('trailing')
+export const InputGroupTrailing: <T extends ValidComponent = 'div'>(
+  props: InputGroupT.TrailingProps<T>,
+) => JSX.Element = /* @__PURE__ */ createInputGroupPart('trailing')

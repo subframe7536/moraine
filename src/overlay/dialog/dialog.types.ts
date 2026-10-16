@@ -57,7 +57,8 @@ export namespace DialogT {
 
   export type ContentRenderProps = ModalT.ContentRenderProps
 
-  export interface ContentBase {
+  export interface ContentBase<T extends ValidComponent = 'div'> {
+    as?: T
     /** Primary title displayed in the dialog header. */
     title?: JSX.Element
 
@@ -75,7 +76,14 @@ export namespace DialogT {
   /**
    * Props for Dialog.Content.
    */
-  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ContentBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 
   export interface HeaderBase<T extends ValidComponent = 'div'> {
     as?: T

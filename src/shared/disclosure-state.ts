@@ -14,6 +14,8 @@ export interface CreateDisclosureStateOptions {
   transition?: Accessor<boolean> | boolean
   /** Whether content unmounts when closed (defaults to true) */
   unmountOnHide?: Accessor<boolean | undefined> | boolean
+  /** Force mounting the content in the DOM even when closed (defaults to false) */
+  forceMount?: Accessor<boolean | undefined> | boolean
   /** Callback when exit transition completes */
   onExitComplete?: () => void
 }
@@ -29,6 +31,7 @@ export interface DisclosureState {
   disabled: Accessor<boolean>
   transition: Accessor<boolean>
   unmountOnHide: Accessor<boolean>
+  forceMount: Accessor<boolean>
 
   contentHeight: Accessor<number>
   dataAttrs: {
@@ -71,6 +74,12 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     }
     return options.unmountOnHide ?? true
   })
+  const forceMount = createMemo(() => {
+    if (typeof options.forceMount === 'function') {
+      return Boolean(options.forceMount())
+    }
+    return Boolean(options.forceMount)
+  })
 
   const presence = createTransitionPresence({
     open: options.open,
@@ -109,7 +118,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   const initialOpen = createMemo(() => options.open() && !hasToggled())
 
   function shouldMount(opts?: ShouldMountOptions): boolean {
-    if (opts?.forceMount) {
+    if (opts?.forceMount ?? forceMount()) {
       return true
     }
     const shouldUnmount = opts?.unmountOnHide ?? unmountOnHide()
@@ -268,6 +277,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     disabled,
     transition,
     unmountOnHide,
+    forceMount,
     contentHeight,
     dataAttrs,
     closed,

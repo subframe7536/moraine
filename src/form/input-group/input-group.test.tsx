@@ -621,4 +621,23 @@ describe('InputGroup', () => {
       expect(document.activeElement).not.toBe(control)
     }
   })
+
+  test('supports polymorphic rendering on Leading and Trailing', () => {
+    const screen = render(() => (
+      <InputGroup>
+        <InputGroup.Leading as="label" for="test-input" data-testid="leading">
+          Prefix
+        </InputGroup.Leading>
+        <Input id="test-input" />
+        <InputGroup.Trailing as="span" data-testid="trailing">
+          Suffix
+        </InputGroup.Trailing>
+      </InputGroup>
+    ))
+    const leading = screen.getByTestId('leading')
+    const trailing = screen.getByTestId('trailing')
+    expect(leading.tagName).toBe('LABEL')
+    expect(leading.getAttribute('for')).toBe('test-input')
+    expect(trailing.tagName).toBe('SPAN')
+  })
 })

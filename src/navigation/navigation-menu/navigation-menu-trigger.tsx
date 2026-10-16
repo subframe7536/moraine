@@ -6,6 +6,7 @@ import { PopperTrigger, mergePopperElementProps } from '../../overlay/base/poppe
 import { resolveDirection } from '../../overlay/base/utils'
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { useLocale } from '../../provider/locale/locale-context'
+import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
 
 import {
@@ -20,13 +21,22 @@ import {
 } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
-export function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.Element {
+export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
+  props: NavigationMenuT.TriggerProps<T>,
+): JSX.Element {
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
   item.setTriggerOptions(props)
   onCleanup(() => item.setTriggerOptions(undefined))
-  const [local, rest] = splitProps(props, ['id', 'disabled', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props as NavigationMenuT.TriggerProps<T> & { id?: string }, [
+    'as',
+    'id',
+    'disabled',
+    'children',
+    'class',
+    'style',
+  ])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'trigger',
     contextSlots: () => pickSlotOverrides(context.options),
@@ -78,6 +88,7 @@ export function NavigationMenuTrigger(props: NavigationMenuT.TriggerProps): JSX.
   return (
     <>
       <PopperTrigger
+        as={local.as}
         {...attributes}
         context={{
           options: context.options,

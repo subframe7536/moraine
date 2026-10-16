@@ -474,11 +474,11 @@ describe('Collapsible', () => {
     expect(screen.getByRole('link', { name: 'Retained details' })).not.toBeNull()
   })
 
-  test('forceMount on Collapsible.Content keeps content mounted in DOM when closed', () => {
+  test('forceMount on Collapsible keeps content mounted in DOM when closed', () => {
     const screen = render(() => (
-      <Collapsible defaultOpen={false}>
+      <Collapsible defaultOpen={false} forceMount>
         <Collapsible.Trigger>Force Mount Trigger</Collapsible.Trigger>
-        <Collapsible.Content forceMount>
+        <Collapsible.Content>
           <a href="/details" data-testid="force-mount-content">
             Force Mounted
           </a>
@@ -529,9 +529,9 @@ describe('Collapsible', () => {
 
   test('keeps force-mounted content inaccessible during and after an exit transition', async () => {
     const screen = render(() => (
-      <Collapsible defaultOpen transition>
+      <Collapsible defaultOpen transition forceMount>
         <Collapsible.Trigger>Force Mount Trigger</Collapsible.Trigger>
-        <Collapsible.Content forceMount>
+        <Collapsible.Content>
           <a href="/details">Force-mounted details</a>
         </Collapsible.Content>
       </Collapsible>

@@ -1259,4 +1259,60 @@ describe('Floating component context isolation', () => {
       screen.unmount()
     }
   })
+
+  test('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
+    const screen = render(() => (
+      <PopperFixture
+        contentRender={(popper) => (
+          <>
+            <PopperTrigger as="div" context={popper} data-testid="poly-trigger">
+              Open
+            </PopperTrigger>
+            <PopperContent context={popper}>
+              <div data-testid="poly-content">Popper content</div>
+            </PopperContent>
+          </>
+        )}
+      />
+    ))
+    try {
+      const trigger = screen.getByTestId('poly-trigger')
+      expect(trigger.tagName.toLowerCase()).toBe('div')
+      expect(trigger.getAttribute('role')).toBe('button')
+      expect(trigger.getAttribute('tabindex')).toBe('0')
+
+      // Press Enter to open
+      trigger.focus()
+      fireEvent.keyDown(trigger, { key: 'Enter' })
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="poly-content"]')?.textContent).toBe(
+          'Popper content',
+        ),
+      )
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+      // Press Enter to close
+      fireEvent.keyDown(trigger, { key: 'Enter' })
+      await waitFor(() => expect(document.querySelector('[data-testid="poly-content"]')).toBeNull())
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+
+      // Press Space (keydown arms, keyup dispatches click) to open
+      fireEvent.keyDown(trigger, { key: ' ' })
+      fireEvent.keyUp(trigger, { key: ' ' })
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="poly-content"]')?.textContent).toBe(
+          'Popper content',
+        ),
+      )
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+      // Press Space to close
+      fireEvent.keyDown(trigger, { key: ' ' })
+      fireEvent.keyUp(trigger, { key: ' ' })
+      await waitFor(() => expect(document.querySelector('[data-testid="poly-content"]')).toBeNull())
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    } finally {
+      screen.unmount()
+    }
+  })
 })

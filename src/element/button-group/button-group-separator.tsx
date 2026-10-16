@@ -10,7 +10,7 @@ import type { ButtonGroupT } from './button-group.types'
 
 /** Explicit semantic divider for adjacent ButtonGroup parts. */
 export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['orientation', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['class', 'style'])
   const group = useButtonGroupContext()
   const { slots, variants } = useRecipe(buttonGroupRecipe, local, {
     slot: 'separator',

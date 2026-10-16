@@ -732,4 +732,50 @@ describe('NavigationMenu', () => {
     setStyles({})
     expect(content.style.getPropertyValue('--mo-anim-ease')).toBe('ease-in-out')
   })
+
+  test('supports polymorphic trigger element via as prop and opens with keyboard', async () => {
+    render(() => (
+      <NavigationMenu>
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="test">
+            <NavigationMenu.Trigger as="div" data-testid="poly-trigger">
+              Custom Trigger
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="/overview">Overview</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+      </NavigationMenu>
+    ))
+    const trigger = page.getByTestId('poly-trigger')
+    expect(trigger.tagName.toLowerCase()).toBe('div')
+    expect(trigger.getAttribute('role')).toBe('button')
+    expect(trigger.getAttribute('tabindex')).toBe('0')
+
+    // Press Enter to open
+    trigger.focus()
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    const link = await page.findByRole('link', { name: 'Overview' })
+    expect(link.isConnected).toBe(true)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+    // Press Enter to close
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+
+    // Press Space to open
+    fireEvent.keyDown(trigger, { key: ' ' })
+    expect(await page.findByRole('link', { name: 'Overview' })).toBeDefined()
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+    // Press Space to close
+    fireEvent.keyDown(trigger, { key: ' ' })
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+
+    // Press ArrowDown to open
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(await page.findByRole('link', { name: 'Overview' })).toBeDefined()
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
 })

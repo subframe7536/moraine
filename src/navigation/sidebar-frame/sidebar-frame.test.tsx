@@ -611,6 +611,46 @@ describe('SidebarFrame.Menu', () => {
     expect(menu?.tagName).toBe('DIV')
     expect(menu?.getAttribute('role')).toBeNull()
   })
+
+  test('Menu as="nav" renders nav element', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Menu as="nav">
+          <span>Content</span>
+        </SidebarFrame.Menu>
+      </SidebarFrame>
+    ))
+    const menu = screen.container.querySelector('[data-slot="sidebar-frame-menu"]')
+    expect(menu?.tagName).toBe('NAV')
+  })
+
+  test('renders polymorphic regions and submenu content', () => {
+    const screen = render(() => (
+      <SidebarFrame>
+        <SidebarFrame.Sidebar>
+          <SidebarFrame.SidebarHeader as="header" data-testid="header">
+            Header
+          </SidebarFrame.SidebarHeader>
+          <SidebarFrame.SidebarBody as="section" data-testid="body">
+            Body
+          </SidebarFrame.SidebarBody>
+          <SidebarFrame.SidebarFooter as="footer" data-testid="footer">
+            Footer
+          </SidebarFrame.SidebarFooter>
+          <SidebarFrame.Submenu defaultOpen>
+            <SidebarFrame.SubmenuTrigger>Sub</SidebarFrame.SubmenuTrigger>
+            <SidebarFrame.SubmenuContent as="ul" data-testid="submenu-content">
+              <li>Item</li>
+            </SidebarFrame.SubmenuContent>
+          </SidebarFrame.Submenu>
+        </SidebarFrame.Sidebar>
+      </SidebarFrame>
+    ))
+    expect(screen.getByTestId('header').tagName).toBe('HEADER')
+    expect(screen.getByTestId('body').tagName).toBe('SECTION')
+    expect(screen.getByTestId('footer').tagName).toBe('FOOTER')
+    expect(screen.getByTestId('submenu-content').tagName).toBe('UL')
+  })
 })
 
 describe('SidebarFrame.Item', () => {

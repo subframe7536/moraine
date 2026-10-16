@@ -10,6 +10,7 @@ import {
   onCleanup,
   splitProps,
 } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
@@ -18,6 +19,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { createEventListener, createEventListenerMap } from '../../shared/event-listener'
 import { hasJsxContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
+import type { ValidComponent } from '../../shared/types'
 import { createContentAnatomy } from '../base/content-anatomy'
 import { getActiveElement } from '../base/dom'
 import { createShorthandContent } from '../base/shorthand-content'
@@ -34,16 +36,17 @@ import { defaultSheetMessages } from './sheet.messages'
 import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetT } from './sheet.types'
 
-export function SheetContent(props: SheetT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+export function SheetContent<T extends ValidComponent = 'div'>(
+  props: SheetT.ContentProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props as SheetT.ContentProps<T> & { ref?: unknown }, [
+    'as',
     'ref',
     'title',
     'description',
     'children',
     'class',
     'style',
-    'aria-label',
-    'dir',
   ])
   const sheet = useSheetContext()
   const messages = useMessages('sheet', defaultSheetMessages)
@@ -51,7 +54,8 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
   const family = useModalContext()
   const binding = createModalContentBinding(family, {
     ref: () => local.ref,
-    onKeyDown: () => rest.onKeyDown,
+    onKeyDown: () =>
+      rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
   const merged = mergeProps(
     { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
@@ -109,29 +113,31 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
     }),
   )
 
-  const ariaLabel = () => local['aria-label']
+  const ariaLabel = () => (rest as { 'aria-label'?: string })['aria-label']
   const ariaLabelledBy = () =>
     ariaLabel() === undefined ? registration.titleIds().join(' ') || undefined : undefined
   const ariaDescribedBy = () => registration.descriptionIds().join(' ') || undefined
 
   function RenderSheetContent(): JSX.Element {
     const contentShorthand = createShorthandContent(local)
-    const child = resolveChildren(() => local.children as JSX.Element)
+    const child = resolveChildren(() => local.children)
     const explicitChildren = createMemo(() =>
       renderWithProps(child(), {
         close: () => family.updateOpen(false),
       }),
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
+    const tag = (): ValidComponent => local.as ?? 'div'
 
     return (
-      <div
+      <Dynamic
+        component={tag()}
         data-slot="sheet-content"
         role="dialog"
+        dir={direction()}
         id={family.contentId()}
         tabIndex={binding.tabIndex}
         aria-modal={binding.ariaModal()}
-        aria-label={ariaLabel()}
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
         {...sheetDataAttributes.content({
@@ -141,7 +147,6 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
         })}
         {...rest}
         {...slots.content}
-        dir={local.dir ?? direction()}
         ref={binding.ref}
         onKeyDown={binding.onKeyDown}
       >
@@ -165,7 +170,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
           </Modal.Close>
         </Show>
         {explicitChildren()}
-      </div>
+      </Dynamic>
     )
   }
 

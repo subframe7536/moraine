@@ -230,6 +230,55 @@ describe('Popover', () => {
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
   })
 
+  test('supports polymorphic div trigger with keyboard Enter and Space activation', async () => {
+    const screen = render(() => (
+      <Popover>
+        <Popover.Trigger as="div" data-testid="poly-popover-trigger">
+          Options
+        </Popover.Trigger>
+        <Popover.Content>Popover content</Popover.Content>
+      </Popover>
+    ))
+
+    const trigger = screen.getByTestId('poly-popover-trigger')
+    expect(trigger.tagName).toBe('DIV')
+    expect(trigger.getAttribute('role')).toBe('button')
+    expect(trigger.getAttribute('tabindex')).toBe('0')
+
+    // Press Enter to open
+    trigger.focus()
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      expect(document.querySelector('[data-slot="popover-content"]')?.textContent).toBe(
+        'Popover content',
+      )
+    })
+
+    // Press Enter to close
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+      expect(trigger.hasAttribute('data-closed')).toBe(true)
+    })
+
+    // Press Space (keydown + keyup) to open
+    fireEvent.keyDown(trigger, { key: ' ' })
+    fireEvent.keyUp(trigger, { key: ' ' })
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      expect(trigger.hasAttribute('data-expanded')).toBe(true)
+    })
+
+    // Press Space (keydown + keyup) to close
+    fireEvent.keyDown(trigger, { key: ' ' })
+    fireEvent.keyUp(trigger, { key: ' ' })
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('false')
+      expect(trigger.hasAttribute('data-closed')).toBe(true)
+    })
+  })
+
   test('keeps trigger ARIA state reactive through controlled open and exit presence', async () => {
     const [open, setOpen] = createSignal(false)
     const screen = render(() => (

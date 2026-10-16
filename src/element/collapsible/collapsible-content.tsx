@@ -19,14 +19,7 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'as',
-    'class',
-    'style',
-    'ref' as any,
-    'unmountOnHide',
-    'forceMount',
-  ])
+  const [local, rest] = splitProps(props, ['as', 'class', 'style', 'ref' as any])
   const context = useCollapsibleContext()
   const disclosure = context.disclosure
   const { slots } = useRecipe(collapsibleRecipe, local, {
@@ -34,11 +27,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     contextSlots: () => context.slotOverrides,
   })
 
-  const shouldRenderContent = () =>
-    disclosure.shouldMount({
-      forceMount: local.forceMount,
-      unmountOnHide: local.unmountOnHide,
-    })
+  const shouldRenderContent = () => disclosure.shouldMount()
 
   return (
     <div

@@ -1513,4 +1513,18 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-slot="dialog-content"]')).toBe(content)
     expect(input.value).toBe('user typed text')
   })
+
+  test('supports polymorphic rendering via as prop on Content', () => {
+    render(() => (
+      <Dialog open>
+        <Dialog.Content as="form" data-testid="form-dialog">
+          <span>Form body</span>
+        </Dialog.Content>
+      </Dialog>
+    ))
+    const dialog = document.body.querySelector('[data-testid="form-dialog"]')
+    expect(dialog).not.toBeNull()
+    expect(dialog?.tagName).toBe('FORM')
+    expect(dialog?.getAttribute('role')).toBe('dialog')
+  })
 })

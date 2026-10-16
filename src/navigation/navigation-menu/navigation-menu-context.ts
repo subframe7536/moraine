@@ -42,7 +42,7 @@ export interface NavigationMenuItemContextValue {
   setContent: (element: HTMLDivElement | undefined) => void
   contentTrees: Accessor<JSX.Element[]>
   registerContent: (tree: JSX.Element) => VoidFunction
-  setTriggerOptions: (options: NavigationMenuT.TriggerProps | undefined) => void
+  setTriggerOptions: (options: NavigationMenuT.TriggerProps<any> | undefined) => void
 }
 
 export const [NavigationMenuItemProvider, useOptionalNavigationMenuItemContext] =

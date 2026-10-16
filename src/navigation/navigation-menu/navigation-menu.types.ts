@@ -1,7 +1,12 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { PopperContentOptions } from '../../overlay/base/popper.types'
-import type { BaseProps, ElementProps } from '../../shared/types'
+import type {
+  BaseProps,
+  ElementProps,
+  TriggerBase as SharedTriggerBase,
+  ValidComponent,
+} from '../../shared/types'
 import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type {
@@ -53,8 +58,15 @@ export namespace NavigationMenuT {
   }
   export type ItemProps = BaseProps<'li', ItemBase, never, never, never>
 
-  export interface TriggerBase {}
-  export type TriggerProps = BaseProps<'button', TriggerBase, never, never, never, 'button', true>
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    TriggerBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
 
   export interface ContentBase {}
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never, 'div', true>

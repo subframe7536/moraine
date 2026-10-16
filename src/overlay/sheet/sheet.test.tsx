@@ -1040,4 +1040,18 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(input.value).toBe('user typed text')
   })
+
+  test('supports polymorphic rendering via as prop on Content', () => {
+    render(() => (
+      <Sheet open>
+        <Sheet.Content as="aside" data-testid="aside-sheet">
+          <span>Sheet body</span>
+        </Sheet.Content>
+      </Sheet>
+    ))
+    const sheet = document.body.querySelector('[data-testid="aside-sheet"]')
+    expect(sheet).not.toBeNull()
+    expect(sheet?.tagName).toBe('ASIDE')
+    expect(sheet?.getAttribute('role')).toBe('dialog')
+  })
 })
