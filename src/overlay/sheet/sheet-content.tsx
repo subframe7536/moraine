@@ -1,13 +1,14 @@
 import type { JSX } from 'solid-js'
 import {
   Show,
+  children as resolveChildren,
   createEffect,
+  createMemo,
   createSignal,
   mergeProps,
   on,
   onCleanup,
   splitProps,
-  untrack,
 } from 'solid-js'
 
 import { Icon } from '../../element/icon'
@@ -115,15 +116,13 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
 
   function RenderSheetContent(): JSX.Element {
     const contentShorthand = createShorthandContent(local)
-    const explicitChildren = createLazyMemo(() =>
-      untrack(() =>
-        renderWithProps(local.children, {
-          close: () => family.updateOpen(false),
-        }),
-      ),
+    const child = resolveChildren(() => local.children as JSX.Element)
+    const explicitChildren = createMemo(() =>
+      renderWithProps(child(), {
+        close: () => family.updateOpen(false),
+      }),
     )
     const closeIcon = createLazyMemo(() => merged.closeIcon)
-    const content = explicitChildren()
 
     return (
       <div
@@ -165,7 +164,7 @@ export function SheetContent(props: SheetT.ContentProps): JSX.Element {
             <Icon name={closeIcon()} />
           </Modal.Close>
         </Show>
-        {content}
+        {explicitChildren()}
       </div>
     )
   }

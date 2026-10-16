@@ -64,7 +64,11 @@ export namespace DialogT {
     /** Secondary description displayed below the title. */
     description?: JSX.Element
 
-    /** Composable dialog parts or render function receiving close action. */
+    /**
+     * Composable dialog parts or render function receiving close action.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
     children?: JSX.Element | Component<ContentRenderProps>
   }
 
