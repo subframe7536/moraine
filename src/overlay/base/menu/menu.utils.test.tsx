@@ -5,6 +5,7 @@ import {
   createPointerGraceIntent,
   isPointInPointerGraceIntent,
   onLayerKeyDown,
+  resolveMenuGroups,
   useOverlayMenuLayerState,
 } from './menu.utils'
 
@@ -315,5 +316,81 @@ describe('useOverlayMenuLayerState', () => {
       second.remove()
       disabled.remove()
     }
+  })
+})
+
+describe('resolveMenuGroups', () => {
+  test('returns empty array when items is undefined or empty', () => {
+    expect(resolveMenuGroups(undefined)).toEqual([])
+    expect(resolveMenuGroups([])).toEqual([])
+  })
+
+  test('resolves flat items into a single group without separator', () => {
+    const items = [{ label: 'Edit' }, { label: 'Delete' }]
+    const groups = resolveMenuGroups(items)
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0]).toEqual({
+      items,
+      separator: false,
+    })
+  })
+
+  test('resolves array-of-arrays into groups with automatic separators between them', () => {
+    const group1 = [{ label: 'Copy' }, { label: 'Cut' }]
+    const group2 = [{ label: 'Delete' }]
+    const groups = resolveMenuGroups([group1, group2])
+
+    expect(groups).toHaveLength(2)
+    expect(groups[0]).toEqual({
+      items: group1,
+      separator: false,
+    })
+    expect(groups[1]).toEqual({
+      items: group2,
+      separator: true,
+    })
+  })
+
+  test('handles explicit group objects with items and legacy children', () => {
+    const item1 = { label: 'Profile' }
+    const item2 = { label: 'Billing' }
+    const item3 = { label: 'Settings' }
+
+    const groups = resolveMenuGroups([
+      item1,
+      { type: 'group', label: 'Account', items: [item2] },
+      { type: 'group', label: 'Preferences', children: [item3] },
+    ])
+
+    expect(groups).toHaveLength(3)
+    expect(groups[0]).toEqual({
+      items: [item1],
+      separator: false,
+    })
+    expect(groups[1]).toEqual({
+      label: 'Account',
+      items: [item2],
+    })
+    expect(groups[2]).toEqual({
+      label: 'Preferences',
+      items: [item3],
+    })
+  })
+
+  test('ignores empty groups and empty nested arrays', () => {
+    const groups = resolveMenuGroups([
+      [],
+      [{ label: 'Item 1' }],
+      [],
+      { type: 'group', label: 'Empty Group', items: [] },
+      [{ label: 'Item 2' }],
+    ])
+
+    expect(groups).toHaveLength(2)
+    expect(groups[0]?.items).toEqual([{ label: 'Item 1' }])
+    expect(groups[0]?.separator).toBe(false)
+    expect(groups[1]?.items).toEqual([{ label: 'Item 2' }])
+    expect(groups[1]?.separator).toBe(true)
   })
 })

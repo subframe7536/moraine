@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
+import type { IconT } from '../../element/icon'
+import type { BaseProps, ValidComponent } from '../../shared/types'
 import type {
   SlotClassValue,
   SlotStyleValue,
@@ -8,9 +9,9 @@ import type {
   OverlayPlacement,
 } from '../../theme/style-types'
 import type {
-  OverlayMenuRootProps,
-  OverlayMenuSharedItem,
-  OverlayMenuSharedItemRenderProps,
+  OverlayMenuContentSlot,
+  OverlayMenuItem,
+  OverlayMenuItemRenderProps,
 } from '../base/menu'
 import type { OverlayTriggerBase } from '../base/trigger'
 
@@ -25,32 +26,36 @@ export namespace ContextMenuT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item extends OverlayMenuSharedItem<Item> {}
-  export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
+  export type Item = OverlayMenuItem
+  export type ItemRenderProps = OverlayMenuItemRenderProps
 
   /**
-   * Base props for the ContextMenu component.
+   * Base props for the ContextMenu root component.
    */
-  export interface Base extends Pick<
-    OverlayMenuRootProps<Item>,
-    | 'id'
-    | 'open'
-    | 'defaultOpen'
-    | 'onOpenChange'
-    | 'disabled'
-    | 'gutter'
-    | 'shift'
-    | 'preventScroll'
-    | 'overflowPadding'
-  > {
-    /** Preferred side relative to the anchor.
-     * @default 'right'
-     */
+  export interface Base {
+    /** Unique identifier for the menu. */
+    id?: string
+    /** Controlled open state. */
+    open?: boolean
+    /** Initial open state when uncontrolled. @default false */
+    defaultOpen?: boolean
+    /** Called whenever the open state changes. */
+    onOpenChange?: (open: boolean) => void
+    /** Whether trigger interactions should be ignored. @default false */
+    disabled?: boolean
+    /** Preferred side relative to the anchor. @default 'right' */
     placement?: OverlayPlacement
-    /** Alignment along the cross axis.
-     * @default 'start'
-     */
+    /** Alignment along the cross axis. @default 'start' */
     align?: OverlayAlign
+    /** Gap between the anchor and the content. @default 0 */
+    gutter?: number
+    /** Cross-axis or alignment offset relative to the anchor. @default 0 */
+    shift?: number
+    /** Whether body scroll should be locked while the menu is open. @default true */
+    preventScroll?: boolean
+    /** Padding applied to the overflow area when calculating position. @default 4 */
+    overflowPadding?: number
+    /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
   export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
@@ -65,18 +70,23 @@ export namespace ContextMenuT {
     'div'
   >
 
-  export interface ContentBase extends Omit<
-    OverlayMenuRootProps<Item>,
-    keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps' | 'size'
-  > {
+  export interface ContentBase {
+    /** Items rendered in the menu body. Supports flat array, explicit group objects, or array-of-arrays. */
+    items?: (Item | Item[])[]
     /** Renderer for each menu item. */
     itemRender?: (props: ItemRenderProps) => JSX.Element
-    /** Additional attributes for an interactive menu item. */
-    itemProps?: (props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined
+    /** Content rendered before the resolved item groups. */
+    contentTop?: OverlayMenuContentSlot
+    /** Content rendered after the resolved item groups. */
+    contentBottom?: OverlayMenuContentSlot
+    /** Icon used for checked checkbox items. @default 'icon-check' */
+    checkedIcon?: IconT.Name
+    /** Icon used for submenu trigger items. @default 'icon-chevron-right' */
+    submenuIcon?: IconT.Name
   }
 
   /**
-   * Props for the ContextMenu component.
+   * Props for the ContextMenu content component.
    */
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 }

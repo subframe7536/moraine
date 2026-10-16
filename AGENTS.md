@@ -183,8 +183,6 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - Always wrap `createEffect` callbacks with Solid's `on()`. Read non-triggering state inside the callback untracked.
 
-- **FlowComponent:** If an interface would only have `children`, do not define a redundant interface — use `FlowComponent` from `solid-js` instead (e.g. `FlowComponent<Props>` for components accepting children without declaring a dummy children-only interface).
-
 - **Memos and accessors:** Use a plain accessor for a cheap primitive. Use `createMemo` when the derivation needs caching, reactive isolation, or a stable identity.
   1. A hook return, context value, or accessor passed to another reader is shared. Keep `createMemo` when that shared value is an object, array, JSX value, or a non-trivial computation.
   2. A cheap primitive with one consumer in the same owner is a plain accessor (`const closed = () => !open()`), not `createMemo`.

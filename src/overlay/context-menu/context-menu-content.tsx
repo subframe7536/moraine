@@ -12,7 +12,6 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const [local, rest] = splitProps(props, [
     'items',
     'itemRender',
-    'itemProps',
     'contentTop',
     'contentBottom',
     'checkedIcon',
@@ -23,23 +22,21 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const context = useContextMenuContext()
 
   const merged = mergeProps({ checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' }, local)
-  const { slots, variants } = useRecipe(contextMenuRecipe, local, {
+  const { slots } = useRecipe(contextMenuRecipe, local, {
     slot: 'content',
     contextSlots: () => context.slotOverrides,
     contextVariants: () => ({ size: context.size?.() }),
   })
   return (
-    <OverlayMenu<ContextMenuT.Item>
+    <OverlayMenu
+      elementAttrs={rest}
       {...context.menuProps}
       owner="context-menu"
       slotBinding={(slot) => slots[slot]}
-      size={variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      contentProps={rest}
-      itemProps={merged.itemProps}
       contentTop={merged.contentTop}
       contentBottom={merged.contentBottom}
     />

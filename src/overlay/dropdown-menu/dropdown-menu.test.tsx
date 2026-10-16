@@ -1524,28 +1524,19 @@ describe('DropdownMenu', () => {
     expect(content?.style.width).toBe('200px')
   })
 
-  test('forwards content and item props and lets item events prevent selection', async () => {
+  test('forwards content props and applies item class and style directly', async () => {
     const contentRef = vi.fn()
-    const itemRef = vi.fn()
-    const onSelect = vi.fn()
     render(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          items={[{ label: 'Archive', onSelect }]}
+          items={[{ label: 'Archive', class: 'item-prop', style: { height: '40px' } }]}
           ref={contentRef}
           data-track="actions-menu"
           class="content-prop"
           style={{ width: '240px' }}
-          itemProps={(context) => ({
-            ref: itemRef,
-            'data-label': context.item.label as string,
-            class: 'item-prop',
-            style: { height: '40px' },
-            onClick: (event) => event.preventDefault(),
-          })}
         />
       </DropdownMenu>
     ))
@@ -1555,109 +1546,13 @@ describe('DropdownMenu', () => {
     })
 
     const content = document.body.querySelector('[data-track="actions-menu"]') as HTMLElement
-    const item = document.body.querySelector('[data-label="Archive"]') as HTMLElement
+    const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
 
     expect(contentRef).toHaveBeenCalledWith(content)
-    expect(itemRef).toHaveBeenCalledWith(item)
     expect(content.className).toContain('content-prop')
     expect(content.style.width).toBe('240px')
     expect(item.className).toContain('item-prop')
     expect(item.style.height).toBe('40px')
-
-    fireEvent.click(item)
-
-    expect(onSelect).not.toHaveBeenCalled()
-    await waitFor(() => {
-      expect(
-        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
-      ).not.toBeNull()
-    })
-  })
-
-  test.each(['item', 'checkbox', 'radio'] as const)(
-    'calls itemProps click once for a %s item',
-    async (type) => {
-      const onClick = vi.fn()
-      render(() => (
-        <DropdownMenu defaultOpen>
-          <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            items={[{ type, label: 'Action', group: 'choice', value: 'action' }]}
-            itemProps={() => ({ onClick })}
-          />
-        </DropdownMenu>
-      ))
-
-      const item = await waitFor(() => {
-        const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
-        expect(element).not.toBeNull()
-        return element!
-      })
-      fireEvent.click(item)
-
-      expect(onClick).toHaveBeenCalledTimes(1)
-    },
-  )
-
-  test('lets an item key handler cancel Escape before the menu handles it', async () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
-    const onOpenChange = vi.fn()
-    render(() => (
-      <DropdownMenu defaultOpen onOpenChange={onOpenChange}>
-        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
-        <DropdownMenu.Content items={[{ label: 'Action' }]} itemProps={() => ({ onKeyDown })} />
-      </DropdownMenu>
-    ))
-
-    const item = await waitFor(() => {
-      const element = document.body.querySelector('[data-slot="dropdown-menu-item"]')
-      expect(element).not.toBeNull()
-      return element!
-    })
-    await waitFor(() =>
-      expect(
-        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
-      ).not.toBeNull(),
-    )
-    fireEvent.keyDown(item, { key: 'Escape' })
-
-    expect(onKeyDown).toHaveBeenCalledTimes(1)
-    expect(onOpenChange).not.toHaveBeenCalled()
-    expect(
-      document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
-    ).not.toBeNull()
-  })
-
-  test('lets a submenu item key handler cancel Escape before the menu handles it', async () => {
-    const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
-    const onOpenChange = vi.fn()
-    render(() => (
-      <DropdownMenu defaultOpen onOpenChange={onOpenChange}>
-        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
-          itemProps={() => ({ onKeyDown })}
-        />
-      </DropdownMenu>
-    ))
-
-    const item = await waitFor(() => {
-      const element = document.body.querySelector('[role="menuitem"][aria-haspopup="menu"]')
-      expect(element).not.toBeNull()
-      return element!
-    })
-    await waitFor(() =>
-      expect(
-        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
-      ).not.toBeNull(),
-    )
-    fireEvent.keyDown(item, { key: 'Escape' })
-
-    expect(onKeyDown).toHaveBeenCalledTimes(1)
-    expect(onOpenChange).not.toHaveBeenCalled()
-    expect(
-      document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
-    ).not.toBeNull()
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {

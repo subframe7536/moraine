@@ -3,7 +3,6 @@ import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { useCn } from '../../../provider/cn-context'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import { createId } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
@@ -16,15 +15,14 @@ import {
   getFocusableElements,
 } from '../utils'
 
-import { OverlayMenuLayer, resolveMenuSlot } from './menu-layer'
+import { OverlayMenuLayer } from './menu-layer'
 import { createVirtualReference } from './menu.utils'
 import type { OverlayMenuCloseOptions, OverlayMenuLayerState } from './menu.utils'
-import type { OverlayMenuProps, OverlayMenuSharedItem } from './types'
+import type { OverlayMenuItem, OverlayMenuProps } from './types'
 
-export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
+export function OverlayMenu<TItem extends OverlayMenuItem = OverlayMenuItem>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
-  const cn = useCn()
   const rootId = createId(() => props.id, 'overlaymenu')
   const contentId = () => `${rootId()}-content`
   const contentPresence = createTransitionPresence({
@@ -187,7 +185,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           <div
             data-slot={dataSlotName(props.owner, 'overlay')}
             aria-hidden="true"
-            {...resolveMenuSlot(props, 'overlay', cn)}
+            {...props.slotBinding('overlay')}
           />
         </Show>
         <OverlayMenuLayer<TItem>
@@ -208,7 +206,6 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
             }
           }}
           setPresenceElement={contentPresence.setElement}
-          onContextMenu={props.onContentContextMenu}
           refState={setRootLayerState}
         />
       </Portal>

@@ -1,40 +1,21 @@
 import type { ClassValue } from 'cn'
 import type { Accessor, JSX, Setter } from 'solid-js'
-import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
 import { Icon } from '../../../element/icon'
+import type { IconT } from '../../../element/icon'
 import { KbdGroup } from '../../../element/kbd-group'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListenerMap } from '../../../shared/event-listener'
-import type { ElementProps } from '../../../shared/types'
-import { callHandler, callRef, createId } from '../../../shared/utils'
+import { createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
 import type { SlotBinding } from '../../../theme/use-recipe'
 
 import { overlayMenuDataAttributes } from './menu.recipe'
 import { focusElement, getOverlayMenuTextValue } from './menu.utils'
 import type { OverlayMenuCloseOptions, OverlayMenuLayerState } from './menu.utils'
-import type {
-  OverlayMenuSharedItem,
-  OverlayMenuSharedItemRenderProps,
-  OverlayMenuSharedProps,
-  OverlayMenuSharedSlots,
-} from './types'
-
-const SELECTABLE_ITEM_EVENT_PROPS = [
-  'onClick',
-  'onFocus',
-  'onKeyDown',
-  'onPointerDown',
-  'onPointerEnter',
-  'onPointerMove',
-  'onPointerLeave',
-] as const
-
-export function itemElementAttributes(attributes: ElementProps<HTMLDivElement> | undefined) {
-  return splitProps(attributes ?? {}, SELECTABLE_ITEM_EVENT_PROPS)[1]
-}
+import type { OverlayMenuItem, OverlayMenuItemRenderProps, OverlayMenuSharedSlots } from './types'
 
 export function createSelectableItemHandlers(
   layer: OverlayMenuLayerState,
@@ -42,7 +23,6 @@ export function createSelectableItemHandlers(
     activate: () => void
     disabled: () => boolean
     element: Accessor<HTMLDivElement | undefined>
-    itemAttributes: Accessor<ElementProps<HTMLDivElement> | undefined>
     itemId: Accessor<string>
   },
 ): Pick<
@@ -82,26 +62,21 @@ export function createSelectableItemHandlers(
 
   return {
     onClick: (event) => {
-      if (options.disabled()) {
+      if (event.defaultPrevented || options.disabled()) {
         event.preventDefault()
         return
       }
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onClick)
-      if (!defaultPrevented) {
-        options.activate()
-      }
+      options.activate()
     },
-    onFocus: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onFocus)
-      if (!defaultPrevented && !options.disabled()) {
+    onFocus: () => {
+      if (!options.disabled()) {
         layer.closeSubmenus()
         layer.setHighlightedItemId(options.itemId())
       }
     },
     onKeyDown: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onKeyDown)
       if (
-        !defaultPrevented &&
+        !event.defaultPrevented &&
         !event.repeat &&
         !options.disabled() &&
         (event.key === 'Enter' || event.key === ' ')
@@ -111,26 +86,18 @@ export function createSelectableItemHandlers(
       }
     },
     onPointerDown: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerDown)
-      if (!defaultPrevented && options.disabled()) {
+      if (options.disabled()) {
         event.preventDefault()
       }
     },
     onPointerEnter: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerEnter)
-      if (!defaultPrevented) {
-        handlePointerMove(event)
-      }
+      handlePointerMove(event)
     },
     onPointerMove: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerMove)
-      if (!defaultPrevented) {
-        handlePointerMove(event)
-      }
+      handlePointerMove(event)
     },
     onPointerLeave: (event) => {
-      const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerLeave)
-      if (!defaultPrevented && event.pointerType === 'mouse') {
+      if (event.pointerType === 'mouse') {
         layer.clearQueuedPointerEnter(event.currentTarget)
         layer.focusContent()
       }
@@ -153,7 +120,7 @@ export function attachSelectableItemHandlers(
   } as Record<string, ((event: Event) => void) | undefined>)
 }
 
-interface MenuItemRenderers<TItem> {
+interface MenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem> {
   LeafItem: (props: { item: TItem }) => JSX.Element
   CheckboxMenuItem: (props: { item: TItem }) => JSX.Element
   RadioMenuItem: (props: { item: TItem }) => JSX.Element
@@ -170,11 +137,17 @@ interface MenuItemRenderers<TItem> {
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
-  ) => OverlayMenuSharedItemRenderProps<TItem>
+  ) => OverlayMenuItemRenderProps<TItem>
 }
 
-export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TItem>>(options: {
-  props: OverlayMenuSharedProps<TItem> & { depth: number }
+export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayMenuItem>(options: {
+  props: {
+    id?: string
+    depth: number
+    checkedIcon?: IconT.Name
+    submenuIcon?: IconT.Name
+    itemRender?: (props: OverlayMenuItemRenderProps<TItem>) => JSX.Element
+  }
   layer: OverlayMenuLayerState
   closeRoot: (options?: OverlayMenuCloseOptions) => void
   radioGroupValues: Accessor<Record<string, string | undefined>>
@@ -193,6 +166,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     slotName,
     cn,
   } = options
+
   function getItemSlot(itemAttrsStyle?: JSX.CSSProperties, itemAttrsClass?: ClassValue) {
     const binding = resolveSlot('item')
     return {
@@ -210,7 +184,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     hasChildren: boolean,
     isCheckbox: boolean,
     isRadio: boolean,
-  ): OverlayMenuSharedItemRenderProps<TItem> {
+  ): OverlayMenuItemRenderProps<TItem> {
     return {
       item,
       depth: props.depth,
@@ -230,7 +204,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     const itemRender = createLazyMemo(() => props.itemRender)
     const label = createLazyMemo(() => contentProps.item.label)
     const description = createLazyMemo(() => contentProps.item.description)
-    const kbds = createLazyMemo(() => contentProps.item.kbds)
+    const kbds = createLazyMemo(() =>
+      'kbds' in contentProps.item ? contentProps.item.kbds : undefined,
+    )
     return (
       <Show
         when={itemRender() === undefined}
@@ -331,9 +307,6 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
   function LeafItem(itemProps: { item: TItem }): JSX.Element {
     const itemId = createId(undefined, `${props.id}-item`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, false)),
-    )
 
     useItemRegistration(() => itemProps.item, element, itemId)
 
@@ -342,7 +315,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         return
       }
 
-      itemProps.item.onSelect?.()
+      if ('onSelect' in itemProps.item) {
+        itemProps.item.onSelect?.()
+      }
       closeRoot({ restoreFocus: true })
     }
 
@@ -350,7 +325,6 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       activate,
       disabled: () => Boolean(itemProps.item.disabled),
       element,
-      itemAttributes,
       itemId,
     })
 
@@ -368,13 +342,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           highlighted: () => layer.highlightedItemId() === itemId(),
           selected: undefined,
         })}
-        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
-          callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -390,12 +362,10 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     const itemId = createId(undefined, `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [checked, setCheckedState] = createControllableValue<boolean>({
-      value: () => itemProps.item.checked,
-      defaultValue: () => itemProps.item.defaultChecked ?? false,
+      value: () => ('checked' in itemProps.item ? itemProps.item.checked : undefined),
+      defaultValue: () =>
+        'defaultChecked' in itemProps.item ? (itemProps.item.defaultChecked ?? false) : false,
     })
-    const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderProps(itemProps.item, false, true, false)),
-    )
 
     useItemRegistration(() => itemProps.item, element, itemId)
 
@@ -405,20 +375,24 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
       }
 
       const nextChecked = !checked()
+      const itemChecked = 'checked' in itemProps.item ? itemProps.item.checked : undefined
 
-      if (itemProps.item.checked === undefined) {
+      if (itemChecked === undefined) {
         setCheckedState(nextChecked)
       }
 
-      itemProps.item.onCheckedChange?.(nextChecked)
-      itemProps.item.onSelect?.()
+      if ('onCheckedChange' in itemProps.item) {
+        itemProps.item.onCheckedChange?.(nextChecked)
+      }
+      if ('onSelect' in itemProps.item) {
+        itemProps.item.onSelect?.()
+      }
     }
 
     const handlers = createSelectableItemHandlers(layer, {
       activate: toggle,
       disabled: () => Boolean(itemProps.item.disabled),
       element,
-      itemAttributes,
       itemId,
     })
 
@@ -437,13 +411,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
-        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
-          callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}
@@ -460,19 +432,22 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
     const itemId = createId(undefined, `${props.id}-radio`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [checkedState, setCheckedState] = createControllableValue<boolean>({
-      value: () => itemProps.item.checked,
-      defaultValue: () => itemProps.item.defaultChecked ?? false,
+      value: () => ('checked' in itemProps.item ? itemProps.item.checked : undefined),
+      defaultValue: () =>
+        'defaultChecked' in itemProps.item ? (itemProps.item.defaultChecked ?? false) : false,
     })
     const checked = createMemo(() => {
-      if (itemProps.item.group && itemProps.item.value !== undefined) {
+      if (
+        'group' in itemProps.item &&
+        itemProps.item.group &&
+        'value' in itemProps.item &&
+        itemProps.item.value !== undefined
+      ) {
         return radioGroupValues()[itemProps.item.group] === itemProps.item.value
       }
 
       return checkedState()
     })
-    const itemAttributes = createMemo(() =>
-      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, true)),
-    )
 
     useItemRegistration(() => itemProps.item, element, itemId)
 
@@ -481,12 +456,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         return
       }
 
-      if (!checked() && itemProps.item.checked === undefined) {
+      const itemChecked = 'checked' in itemProps.item ? itemProps.item.checked : undefined
+      if (!checked() && itemChecked === undefined) {
         setCheckedState(true)
       }
 
-      const group = itemProps.item.group
-      const value = itemProps.item.value
+      const group = 'group' in itemProps.item ? itemProps.item.group : undefined
+      const value = 'value' in itemProps.item ? itemProps.item.value : undefined
       if (group && value !== undefined) {
         setRadioGroupValues((values) => ({
           ...values,
@@ -494,20 +470,23 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
         }))
       }
 
-      itemProps.item.onCheckedChange?.(true)
-
-      if (itemProps.item.value !== undefined) {
-        itemProps.item.onValueChange?.(itemProps.item.value)
+      if ('onCheckedChange' in itemProps.item) {
+        itemProps.item.onCheckedChange?.(true)
       }
 
-      itemProps.item.onSelect?.()
+      if (value !== undefined && 'onValueChange' in itemProps.item) {
+        itemProps.item.onValueChange?.(value)
+      }
+
+      if ('onSelect' in itemProps.item) {
+        itemProps.item.onSelect?.()
+      }
     }
 
     const handlers = createSelectableItemHandlers(layer, {
       activate: select,
       disabled: () => Boolean(itemProps.item.disabled),
       element,
-      itemAttributes,
       itemId,
     })
 
@@ -526,13 +505,11 @@ export function createMenuItemRenderers<TItem extends OverlayMenuSharedItem<TIte
           expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
-        {...itemElementAttributes(itemAttributes())}
         ref={(itemElement) => {
           setElement(itemElement)
-          callRef(itemAttributes()?.ref, itemElement)
           onCleanup(attachSelectableItemHandlers(itemElement, handlers))
         }}
-        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...getItemSlot(itemProps.item.style, itemProps.item.class)}
       >
         <RenderItemContent
           item={itemProps.item}

@@ -447,7 +447,6 @@ For composite components (`Kind = 'composite'`):
   - Element-rendering roots use `BaseProps<Tag, Base, Variant, Classes, Styles>`.
 - Composed parts (`ContentProps`, `TriggerProps`, etc.) must be strictly **compose-only** (`BaseProps<Tag, PartBase, never, never, never>`).
 - Part bases must never accept `classes`, `styles`, `variant`, or root configuration options. Styling of parts from consumers is scoped at the root via `classes`/`styles` (slot-targeted) or applied directly on the part element using `class`/`style`.
-- If a part interface has no behavioral options and would only declare `children?: JSX.Element`, do not define a redundant children-only interface — use `FlowComponent` from `solid-js` for the component instead.
 
 ---
 

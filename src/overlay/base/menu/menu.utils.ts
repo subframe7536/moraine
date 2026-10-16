@@ -6,6 +6,8 @@ import { createSelectableCollectionNavigation } from '../../../shared/selectable
 import { createTypeahead } from '../../../shared/typeahead'
 import { focusWithoutScrolling } from '../utils'
 
+import type { OverlayMenuItem } from './types'
+
 export function getOverlayMenuTextValue(item: {
   label?: JSX.Element
   description?: JSX.Element
@@ -21,26 +23,32 @@ export function getOverlayMenuTextValue(item: {
   return undefined
 }
 
-export function hasOverlayMenuChildren<TItem extends { type?: string; children?: TItem[] }>(
-  item: TItem,
-): boolean {
-  if (item.type === 'group') {
+export function hasOverlayMenuChildren(item: { type?: string; children?: unknown[] }): boolean {
+  if (item.type === 'group' || !item.children?.length) {
     return false
   }
 
-  return Boolean(
-    item.children?.some((child) => child.type !== 'group' || Boolean(child.children?.length)),
+  return item.children.some(
+    (child) =>
+      (child as { type?: string }).type !== 'group' ||
+      Boolean(
+        (
+          (child as { items?: unknown[]; children?: unknown[] }).items ??
+          (child as { children?: unknown[] }).children
+        )?.length,
+      ),
   )
 }
 
-interface OverlayMenuGroup<TItem> {
+export interface OverlayMenuGroup<TItem = OverlayMenuItem> {
   label?: JSX.Element
   items: TItem[]
+  separator?: boolean
 }
 
-export function resolveMenuGroups<
-  TItem extends { type?: string; children?: TItem[]; label?: JSX.Element },
->(items?: TItem[]): OverlayMenuGroup<TItem>[] {
+export function resolveMenuGroups<TItem extends OverlayMenuItem = OverlayMenuItem>(
+  items?: (TItem | TItem[])[],
+): OverlayMenuGroup<TItem>[] {
   if (!items || items.length === 0) {
     return []
   }
@@ -49,16 +57,28 @@ export function resolveMenuGroups<
   let defaultGroup: TItem[] = []
 
   for (const item of items) {
+    if (Array.isArray(item)) {
+      if (defaultGroup.length > 0) {
+        groups.push({ items: defaultGroup, separator: groups.length > 0 })
+        defaultGroup = []
+      }
+      if (item.length > 0) {
+        groups.push({ items: item, separator: groups.length > 0 })
+      }
+      continue
+    }
+
     if (item.type === 'group') {
       if (defaultGroup.length > 0) {
-        groups.push({ items: defaultGroup })
+        groups.push({ items: defaultGroup, separator: groups.length > 0 })
         defaultGroup = []
       }
 
-      if (item.children?.length) {
+      const groupItems = (item.items ?? item.children) as TItem[] | undefined
+      if (groupItems?.length) {
         groups.push({
           label: item.label,
-          items: item.children,
+          items: groupItems,
         })
       }
 
@@ -69,7 +89,7 @@ export function resolveMenuGroups<
   }
 
   if (defaultGroup.length > 0) {
-    groups.push({ items: defaultGroup })
+    groups.push({ items: defaultGroup, separator: groups.length > 0 })
   }
 
   return groups

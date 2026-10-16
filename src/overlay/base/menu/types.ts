@@ -1,32 +1,18 @@
+import type { ClassValue } from 'cn'
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../../element/icon'
-import type { ElementProps } from '../../../shared/types'
-import type {
-  SlotClassValue,
-  SlotStyleValue,
-  OverlayAlign,
-  OverlayPlacement,
-} from '../../../theme/style-types'
+import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
 import type { SlotBinding as ComponentSlotBinding } from '../../../theme/use-recipe'
 
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
-import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
+import type { OverlayMenuStyleSlot } from './style-types'
 
 export type OverlayMenuContentSlot = (context: { sub: boolean }) => JSX.Element
 
 export type OverlayMenuItemType = 'item' | 'separator' | 'checkbox' | 'radio' | 'group'
 
-/**
- * Shared interface for menu items used in overlays like ContextMenu and DropdownMenu.
- */
-export interface OverlayMenuSharedItem<TItem> {
-  /**
-   * The type of menu item to render.
-   * @default 'item'
-   */
-  type?: OverlayMenuItemType
-
+export interface OverlayMenuBaseItem {
   /**
    * Primary label text or element.
    */
@@ -48,8 +34,17 @@ export interface OverlayMenuSharedItem<TItem> {
   kbds?: string[]
 
   /**
+   * Custom CSS class applied to the item element.
+   */
+  class?: ClassValue
+
+  /**
+   * Custom inline styles applied to the item element.
+   */
+  style?: JSX.CSSProperties
+
+  /**
    * Visual treatment of the menu item.
-   *
    * @default 'default'
    */
   variant?: 'default' | 'danger'
@@ -59,26 +54,10 @@ export interface OverlayMenuSharedItem<TItem> {
    * @default false
    */
   disabled?: boolean
+}
 
-  /**
-   * Controlled checked state for checkbox and radio items.
-   */
-  checked?: boolean
-
-  /**
-   * Initial checked state for uncontrolled checkbox and radio items.
-   */
-  defaultChecked?: boolean
-
-  /**
-   * Radio group identifier. Radio items with the same group are mutually exclusive.
-   */
-  group?: string
-
-  /**
-   * Radio item value reported by onValueChange and used for grouped selection.
-   */
-  value?: string
+export interface OverlayMenuActionItem extends OverlayMenuBaseItem {
+  type?: 'item'
 
   /**
    * Controlled open state for submenus.
@@ -93,12 +72,26 @@ export interface OverlayMenuSharedItem<TItem> {
   /**
    * Nested menu items for creating submenus.
    */
-  children?: TItem[]
+  children?: OverlayMenuItem[]
 
   /**
    * Event handler called when the item is activated.
    */
   onSelect?: () => void
+}
+
+export interface OverlayMenuCheckboxItem extends OverlayMenuBaseItem {
+  type: 'checkbox'
+
+  /**
+   * Controlled checked state for checkbox items.
+   */
+  checked?: boolean
+
+  /**
+   * Initial checked state for uncontrolled checkbox items.
+   */
+  defaultChecked?: boolean
 
   /**
    * Event handler called when a checkbox item's state changes.
@@ -106,76 +99,138 @@ export interface OverlayMenuSharedItem<TItem> {
   onCheckedChange?: (checked: boolean) => void
 
   /**
+   * Event handler called when the item is activated.
+   */
+  onSelect?: () => void
+}
+
+export interface OverlayMenuRadioItem extends OverlayMenuBaseItem {
+  type: 'radio'
+
+  /**
+   * Radio group identifier. Radio items with the same group are mutually exclusive.
+   */
+  group?: string
+
+  /**
+   * Radio item value reported by onValueChange and used for grouped selection.
+   */
+  value?: string
+
+  /**
+   * Controlled checked state for radio items.
+   */
+  checked?: boolean
+
+  /**
+   * Initial checked state for uncontrolled radio items.
+   */
+  defaultChecked?: boolean
+
+  /**
    * Event handler called when a radio item is selected.
    */
   onValueChange?: (value: string) => void
+
+  /**
+   * Event handler called when a radio item's checked state changes.
+   */
+  onCheckedChange?: (checked: boolean) => void
+
+  /**
+   * Event handler called when the item is activated.
+   */
+  onSelect?: () => void
 }
 
+export interface OverlayMenuGroupItem extends OverlayMenuBaseItem {
+  type: 'group'
+
+  /**
+   * Child items in this group.
+   */
+  items?: OverlayMenuItem[]
+
+  /**
+   * Backward-compatible alias for `items`.
+   */
+  children?: OverlayMenuItem[]
+}
+
+export interface OverlayMenuSeparatorItem extends OverlayMenuBaseItem {
+  type: 'separator'
+}
+
+export type OverlayMenuItem =
+  | OverlayMenuActionItem
+  | OverlayMenuCheckboxItem
+  | OverlayMenuRadioItem
+  | OverlayMenuGroupItem
+  | OverlayMenuSeparatorItem
+
+/**
+ * Backward-compatible alias for OverlayMenuItem.
+ */
+export type OverlayMenuSharedItem<_TItem = OverlayMenuItem> = OverlayMenuItem
+
 export type OverlayMenuSharedSlots<T = unknown> = OverlayMenuStyleSlot<T>
-
-export type OverlayMenuSharedClasses = OverlayMenuSharedSlots<SlotClassValue>
-
-export type OverlayMenuSharedStyles = OverlayMenuSharedSlots<SlotStyleValue>
-
 export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => ComponentSlotBinding
 
 /**
- * OverlayMenuProps provided to custom menu item render components.
+ * Props provided to custom menu item render components.
  */
-export interface OverlayMenuSharedItemRenderProps<TItem> {
-  /**
-   * The menu item object being rendered.
-   */
+export interface OverlayMenuItemRenderProps<TItem = OverlayMenuItem> {
   item: TItem
-
-  /**
-   * The nesting depth of the item (0 for root items).
-   */
   depth: number
-
-  /**
-   * Whether the item is being rendered as a checkbox.
-   */
   isCheckbox: boolean
-
-  /**
-   * Whether the item is being rendered as a radio item.
-   */
   isRadio: boolean
-
-  /**
-   * Whether the item has nested children and triggers a submenu.
-   */
   hasChildren: boolean
 }
-/** Shared overlay menu props used by the shell, root wrappers, and layers. */
-export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
+
+/**
+ * Backward-compatible alias for OverlayMenuItemRenderProps.
+ */
+export type OverlayMenuSharedItemRenderProps<TItem = OverlayMenuItem> =
+  OverlayMenuItemRenderProps<TItem>
+
+export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuItem> {
+  owner: 'dropdown-menu' | 'context-menu'
+
   /**
-   * Whether body scroll should be locked while the menu is open.
-   * @default true
+   * Additional HTML attributes to forward to the menu content element.
    */
-  preventScroll?: boolean
-
-  /** Unique base id used to derive trigger and content ids. */
-  id?: string
+  elementAttrs?: JSX.HTMLAttributes<HTMLDivElement>
 
   /**
-   * Icon used for checked checkbox items.
-   * @default 'icon-check'
+   * Items rendered in the menu body. Supports flat items, explicit group objects, or array-of-arrays.
    */
-  checkedIcon?: IconT.Name
+  items?: (TItem | TItem[])[]
 
-  /** Slot class overrides for menu sections. */
-  classes?: OverlayMenuSharedClasses
+  /**
+   * Whether the overlay menu is open.
+   */
+  open: boolean
 
-  /** Unified slot class and style resolver. */
-  slotBinding?: OverlayMenuSlotBinding
+  /**
+   * Called when the overlay menu should close.
+   */
+  onClose: () => void
 
-  /** Content rendered after the resolved item groups. */
-  contentBottom?: OverlayMenuContentSlot
+  /**
+   * Trigger element used as the position reference.
+   */
+  triggerElement?: HTMLElement
 
-  /** Content rendered before the resolved item groups. */
-  contentTop?: OverlayMenuContentSlot
+  /**
+   * Preferred content placement relative to the trigger or anchor point.
+   */
+  placement?: OverlayPlacement
+
+  /**
+   * Alignment along the cross axis.
+   * @default 'start'
+   */
+  align?: OverlayAlign
 
   /**
    * Gap between the anchor and the content.
@@ -189,20 +244,6 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
    */
   shift?: number
 
-  /** Renderer for each menu item. */
-  itemRender?: (props: OverlayMenuSharedItemRenderProps<TItem>) => JSX.Element
-
-  /** Additional attributes for each menu layer content element. */
-  contentProps?: Omit<ElementProps<HTMLDivElement>, 'children'>
-
-  /** Additional attributes for an interactive menu item. */
-  itemProps?: (
-    context: OverlayMenuSharedItemRenderProps<TItem>,
-  ) => ElementProps<HTMLDivElement> | undefined
-
-  /** Items rendered in the menu body. */
-  items?: TItem[]
-
   /**
    * Padding applied to the overflow area when calculating the menu's position.
    * @default 4
@@ -210,35 +251,11 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
   overflowPadding?: number
 
   /**
-   * Preferred content placement relative to the trigger or anchor point.
+   * Whether body scroll should be locked while the menu is open.
+   * @default true
    */
-  placement?: OverlayPlacement
+  preventScroll?: boolean
 
-  /** Alignment along the cross axis.
-   * @default 'start'
-   */
-  align?: OverlayAlign
-
-  /**
-   * Menu item size variant.
-   * @default 'md'
-   */
-  size?: OverlayMenuStyleVariant['size']
-
-  /** Slot style overrides for menu sections. */
-  styles?: OverlayMenuSharedStyles
-
-  /**
-   * Icon used for submenu trigger items.
-   * @default 'icon-chevron-right'
-   */
-  submenuIcon?: IconT.Name
-}
-
-export interface OverlayMenuProps<
-  TItem extends OverlayMenuSharedItem<TItem>,
-> extends OverlayMenuSharedProps<TItem> {
-  owner: 'dropdown-menu' | 'context-menu'
   /**
    * Strategy used to auto-focus the menu after it is positioned.
    */
@@ -254,41 +271,67 @@ export interface OverlayMenuProps<
    */
   onAutoFocusHandled?: () => void
 
-  /** Called when the overlay menu should close. */
-  onClose: () => void
+  /**
+   * Unique base id used to derive trigger and content ids.
+   */
+  id?: string
 
-  /** Pointer down handler for the content wrapper. */
+  /**
+   * Icon used for checked checkbox items.
+   * @default 'icon-check'
+   */
+  checkedIcon?: IconT.Name
+
+  /**
+   * Icon used for submenu trigger items.
+   * @default 'icon-chevron-right'
+   */
+  submenuIcon?: IconT.Name
+
+  /**
+   * Unified slot class and style resolver.
+   */
+  slotBinding: OverlayMenuSlotBinding
+
+  /**
+   * Content rendered before the resolved item groups.
+   */
+  contentTop?: OverlayMenuContentSlot
+
+  /**
+   * Content rendered after the resolved item groups.
+   */
+  contentBottom?: OverlayMenuContentSlot
+
+  /**
+   * Renderer for each menu item.
+   */
+  itemRender?: (props: OverlayMenuItemRenderProps<TItem>) => JSX.Element
+
+  /**
+   * Pointer down handler for the content wrapper.
+   */
   onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
 
-  /** Context menu handler for the content wrapper. */
+  /**
+   * Context menu handler for the content wrapper.
+   */
   onContentContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
-
-  /** Whether the overlay menu content is open. */
-  open: boolean
-
-  /** Trigger element used as the position reference. */
-  triggerElement?: HTMLElement
 }
 
-export interface OverlayMenuRootProps<TItem extends OverlayMenuSharedItem<TItem>> extends Omit<
-  OverlayMenuSharedProps<TItem>,
-  'slotBinding'
-> {
-  /** Controlled open state of the menu. */
-  open?: boolean
+/**
+ * Backward-compatible alias for OverlayMenuProps.
+ */
+export type OverlayMenuSharedProps<TItem extends OverlayMenuItem = OverlayMenuItem> =
+  OverlayMenuProps<TItem>
 
-  /**
-   * Initial open state when the component is uncontrolled.
-   * @default false
-   */
+/**
+ * Backward-compatible alias for root props.
+ */
+export interface OverlayMenuRootProps<
+  TItem extends OverlayMenuItem = OverlayMenuItem,
+> extends Partial<OverlayMenuProps<TItem>> {
   defaultOpen?: boolean
-
-  /** Called whenever the menu requests an open state change. */
   onOpenChange?: (open: boolean) => void
-
-  /**
-   * Whether trigger interactions should be ignored.
-   * @default false
-   */
   disabled?: boolean
 }
