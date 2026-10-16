@@ -459,6 +459,9 @@ Look for:
 - composite `Props` simply aliasing `Base` instead of extending `BaseProps`;
 - composite parts accepting `classes`, `styles`, `variant`, or root configuration instead of being compose-only;
 - interfaces that only declare `children?: JSX.Element` (anti-pattern: do not define a single-member interface solely for children; use `FlowComponent` from `solid-js` instead);
+- reusable collection renderers (`itemRender`, `tagRender`, `linkRender`, `separatorRender`, host `<AlertDialog dialogRender={...} />`) accepting `JSX.Element` instead of being strictly `Component<*RenderProps>`;
+- render prop names duplicating their enclosing part name (e.g. `contentTopRender` on `Content` instead of `topRender`);
+- redundant type aliases for render props themselves (`type Render = ...` or `type ItemRender = ...`);
 - unused generic parameters;
 - generics that do not affect inference or output;
 - repeated mapped-type expansion;

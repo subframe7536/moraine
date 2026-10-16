@@ -33,14 +33,15 @@ reading them can instantiate nodes and owned computations.
 
 Before implementation, list every prop that can contain JSX, a component, or a render function. Classify each value exactly once:
 
-| Kind                     | Examples                                                                             | Resolution rule                                                                                                               |
-| ------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Actual children          | `children`                                                                           | Render directly in a stable, single consumer; resolve when inspected, normalized, reused, or retained across a changing root |
-| Arbitrary JSX slot       | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `icon` | Cache repeated reads in the mounting scope; do not apply `children()` indiscriminately to component-capable values |
-| Component/render prop    | `itemRender`, `triggerRender`                                                        | Name with the `Render` suffix and preserve its component boundary                                                             |
-| Preconstructed item data | `items[].label`, `items[].content`                                                   | Do not resolve globally unless a reactive getter is repeatedly evaluated by the owning component                              |
+| Kind                                   | Examples                                                                         | Resolution rule                                                                                                               |
+| -------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Actual children                        | `children`                                                                       | Render directly in a stable, single consumer; resolve when inspected, normalized, reused, or retained across a changing root |
+| Arbitrary JSX slot                     | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `icon`  | Cache repeated reads in the mounting scope; do not apply `children()` indiscriminately to component-capable values            |
+| Reusable / multi-instance render prop  | `itemRender`, `tagRender`, `separatorRender`, `linkRender`                       | Type strictly as `Component<*RenderProps>` (never static `JSX.Element`). Preserves component boundary across loop items.       |
+| Single-usage contextual render slot    | `topRender`, `bottomRender`, `emptyRender`, `leadingRender`, `trailingRender`    | Type as `JSX.Element \| Component<*RenderProps>`. Do not duplicate the part name (e.g. `topRender`, not `contentTopRender`). |
+| Preconstructed item data               | `items[].label`, `items[].content`                                               | Do not resolve globally unless a reactive getter is repeatedly evaluated by the owning component                              |
 
-Reject the API design if a value has ambiguous semantics. A function must not sometimes mean a component and sometimes mean ordinary data.
+Reject the API design if a value has ambiguous semantics. A function must not sometimes mean a component and sometimes mean ordinary data. Reusable collection renderers must never accept static `JSX.Element` because SolidJS creates a single DOM instance upon JSX evaluation that cannot be cloned across multiple items.
 
 Follow Moraine's namespace and public type rules from `AGENTS.md` while defining the API.
 

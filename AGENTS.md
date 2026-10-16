@@ -160,13 +160,20 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Constants:** UPPER_SNAKE_CASE (`DEFAULT_TIMEOUT`).
 - **Types:** PascalCase (`CollapsibleProps`, `CollapsibleRoot`).
 - **Private:** Prefix with `_` (`_internalState`, `_handleClick`).
-- **Props:** If a component prop is a component (`(ctx: Context) => JSX.Element`, `Component<{ ctx: Context }>`), prop name must end with `Render` (`itemRender: <Component>`).
+- **Props:**
+  - If a component prop is a component (`Component<{ ctx: Context }>`, `(ctx: Context) => JSX.Element`), the prop name must end with `Render` (`itemRender: <Component>`, `tagRender: <Component>`).
+  - Do not duplicate the enclosing part name in the prop name (for example, on `Content`, name props `topRender` and `bottomRender`, not `contentTopRender` and `contentBottomRender`).
 
 ### Public Type Exports
 
 - Component public types must be declared in the component namespace: `<Component>T`.
 - Each public component namespace must declare `Kind` as the literal type `'single'` or `'composite'`. Use `'composite'` when the component exposes attached child components for composition; slot count and group naming do not determine the kind. `FormT.Kind` describes the bound `form.Form`, so it is `'single'`. Documentation reads this type to generate `component.kind`.
 - Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
+- **Render prop typing rules:**
+  - **Reusable / Multi-instance renderers:** Multi-instance renderers evaluated across collections, loops, or multiple dynamic instances (`itemRender`, `tagRender`, `linkRender`, `separatorRender`, host `<AlertDialog dialogRender={...} />`) must be typed strictly as `Component<*RenderProps>`. Never accept `JSX.Element` here: in SolidJS, static JSX expressions create a single DOM node instance on evaluation that cannot be cloned or distributed across multiple iterations or instances.
+  - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`topRender`, `bottomRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`.
+  - **No type aliases on `*Render`:** Do not create type aliases for the prop itself (`type Render = ...` or `type ItemRender = ...`). Type the prop directly as `Component<*RenderProps>` or `JSX.Element | Component<*RenderProps>`.
+  - **Render prop parameter types:** Export parameter types in the component namespace: `<Component>T.<Slot>RenderProps` (e.g. `SelectT.ItemRenderProps`, `SelectT.EmptyRenderProps`, `DropdownMenuT.TopRenderProps`).
 - **Composite component contracts:**
   - `<namespace>T.Base` must be the only type containing configuration and behavioral options. Do not include `classes`, `styles`, or `variant` directly on `Base`; they are supplied via `BaseProps`.
   - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`.
