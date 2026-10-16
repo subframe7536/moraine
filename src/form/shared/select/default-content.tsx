@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, Match, Show, Switch, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -15,10 +15,17 @@ import { sameValue } from './collection'
 import { selectItemDataAttributes } from './select-field.recipe'
 import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 
+export interface SelectEmptyRenderProps<T extends SelectItem = SelectItem> {
+  /** Currently selected value. */
+  selectedValue: T['value'] | null
+  /** Close the select popup. */
+  close: () => void
+}
+
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
   view: SelectView<T>
   onExitComplete?: () => void
-  emptyRender?: JSX.Element | (() => JSX.Element)
+  emptyRender?: JSX.Element | Component<SelectEmptyRenderProps<T>>
   slot: (
     name: 'itemLeading' | 'itemWrapper' | 'itemLabel' | 'itemDescription' | 'itemIndicator',
   ) => SlotBinding
@@ -218,7 +225,17 @@ function DefaultSelectContentBody<T extends SelectItem>(
         </Show>
       </BaseSelect.Listbox>
       <Show when={props.emptyRender} keyed>
-        {(empty) => <BaseSelect.Empty>{renderWithProps(empty)}</BaseSelect.Empty>}
+        {(empty) => (
+          <BaseSelect.Empty>
+            {renderWithProps(empty, {
+              get selectedValue() {
+                const current = state.value()
+                return current[0] ?? null
+              },
+              close: () => state.setOpen(false),
+            })}
+          </BaseSelect.Empty>
+        )}
       </Show>
     </>
   )

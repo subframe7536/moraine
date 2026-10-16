@@ -79,7 +79,7 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "JSX.Element",
+          "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
           "description": "Content or render function for the empty state."
         },
         {

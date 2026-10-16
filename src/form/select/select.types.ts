@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
 import type { BaseProps } from '../../shared/types'
@@ -41,6 +41,12 @@ export namespace SelectT {
   export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
+  export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
+    /** Currently selected value. */
+    selectedValue: NormalizedItem<TItem>['value'] | null
+    /** Close the select popup. */
+    close: () => void
+  }
 
   export interface Base<TItem extends string | Item = string | Item>
     extends
@@ -56,7 +62,7 @@ export namespace SelectT {
     /** Called when the selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Content or render function for the empty state. */
-    emptyRender?: JSX.Element
+    emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

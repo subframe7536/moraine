@@ -217,6 +217,8 @@ export interface PopperContentProps extends PopperContentOptions {
 
   /**
    * Content or render function inside the positioned content.
+   * A render function must declare its parameter, even when unused. A zero-argument
+   * function is called as an accessor and is not mounted as a component.
    */
   children: JSX.Element | Component<PopperContentContext>
 

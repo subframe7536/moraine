@@ -42,7 +42,7 @@ export namespace AlertDialogT {
      * Renders the inner content of every dialog on this host that was not opened with
      * `AlertDialog.custom`. Receives the instance context and the resolved call options.
      */
-    dialogRender?: JSX.Element | Component<DialogRenderProps>
+    dialogRender?: Component<DialogRenderProps>
 
     /**
      * Whether the corner close button is shown.

@@ -13,7 +13,7 @@ import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
 
 interface AlertDialogController extends FeedbackHost {
   defaults: () => AlertDialogHostDefaults
-  dialogRender: () => (JSX.Element | Component<AlertDialogT.DialogRenderProps>) | undefined
+  dialogRender: () => Component<AlertDialogT.DialogRenderProps> | undefined
   open: (
     mode: 'confirm' | 'standard',
     options: AlertDialogT.Options,

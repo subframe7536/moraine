@@ -415,9 +415,9 @@ describe('render and polymorphic contracts', () => {
     view.unmount()
   })
 
-  test('KbdGroup separator accepts string, number, and Component separatorRender', () => {
+  test('KbdGroup separatorRender accepts string, number, and Component', () => {
     const CustomSep = (props: { index: number }) => <span>#{props.index}</span>
-    const view1 = render(() => <KbdGroup items={['⌘', 'K']} separator="~" />)
+    const view1 = render(() => <KbdGroup items={['⌘', 'K']} separatorRender="~" />)
     expect(view1.container.textContent).toContain('~')
     view1.unmount()
 
@@ -434,12 +434,16 @@ describe('render and polymorphic contracts', () => {
     view.unmount()
   })
 
-  test('AlertDialog dialogRender accepts both static JSX and Component', () => {
+  test('AlertDialog host dialogRender accepts Component and custom accepts both', () => {
     const ComponentRender = () => <div>Component Dialog</div>
-    const view1 = render(() => <AlertDialog dialogRender={<div>Static Dialog</div>} />)
-    view1.unmount()
+    const view = render(() => <AlertDialog dialogRender={ComponentRender} />)
 
-    const view2 = render(() => <AlertDialog dialogRender={ComponentRender} />)
-    view2.unmount()
+    const handle1 = AlertDialog.custom(<div>Static Custom Dialog</div>)
+    handle1.close()
+
+    const handle2 = AlertDialog.custom(ComponentRender)
+    handle2.close()
+
+    view.unmount()
   })
 })

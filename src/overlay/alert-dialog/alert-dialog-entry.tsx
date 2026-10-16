@@ -176,7 +176,7 @@ function AlertDialogDefault(props: {
 
 export function AlertDialogEntry(props: {
   record: AlertDialogRecord
-  dialogRender: () => (JSX.Element | Component<AlertDialogT.DialogRenderProps>) | undefined
+  dialogRender: () => Component<AlertDialogT.DialogRenderProps> | undefined
 }): JSX.Element {
   const options = () => props.record.options()
   const customRender = () => props.record.render ?? props.dialogRender()

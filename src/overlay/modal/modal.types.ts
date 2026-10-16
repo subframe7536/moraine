@@ -112,6 +112,8 @@ export namespace ModalT {
   export interface ContentBase {
     /**
      * Content or render function inside the modal content surface.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
      */
     children: JSX.Element | Component<ContentRenderProps>
   }
