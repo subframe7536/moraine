@@ -196,16 +196,16 @@ describe('createApiReferenceModel', () => {
     ).toBe('Render')
     expect(
       formatSummaryPropType({
-        name: 'contentTopRender',
+        name: 'topRender',
         optional: true,
-        type: 'JSX.Element | Component<ContentTopRenderProps>',
+        type: 'JSX.Element | Component<TopRenderProps>',
       }),
     ).toBe('Render')
     expect(
       formatSummaryPropType({
-        name: 'contentBottomRender',
+        name: 'bottomRender',
         optional: true,
-        type: 'JSX.Element | Component<ContentBottomRenderProps>',
+        type: 'JSX.Element | Component<BottomRenderProps>',
       }),
     ).toBe('Render')
     expect(

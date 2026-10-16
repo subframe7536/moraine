@@ -390,7 +390,7 @@ describe('render and polymorphic contracts', () => {
     expect((view.container.firstChild as HTMLInputElement).type).toBe('file')
   })
 
-  test('DropdownMenu contentTopRender, contentBottomRender and itemRender render expected content', () => {
+  test('DropdownMenu topRender, bottomRender and itemRender render expected content', () => {
     const TopComponent = (props: { sub: boolean }) => (
       <div data-testid="top-comp">Sub: {String(props.sub)}</div>
     )
@@ -403,8 +403,8 @@ describe('render and polymorphic contracts', () => {
         <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
         <DropdownMenu.Content
           items={[{ label: 'Custom Item' }]}
-          contentTopRender={TopComponent}
-          contentBottomRender={BottomStatic}
+          topRender={TopComponent}
+          bottomRender={BottomStatic}
           itemRender={ItemComponent}
         />
       </DropdownMenu>

@@ -716,8 +716,8 @@ describe('DropdownMenu', () => {
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          contentTopRender={contentTop}
-          contentBottomRender={contentBottom}
+          topRender={contentTop}
+          bottomRender={contentBottom}
           items={[
             {
               type: 'group',

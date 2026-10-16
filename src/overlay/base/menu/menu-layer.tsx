@@ -556,8 +556,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
               itemRender={props.itemRender}
-              contentTopRender={props.contentTopRender}
-              contentBottomRender={props.contentBottomRender}
+              topRender={props.topRender}
+              bottomRender={props.bottomRender}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
@@ -755,11 +755,11 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           layer.resetTypeahead()
         }}
       >
-        <Show when={props.contentTopRender} keyed>
+        <Show when={props.topRender} keyed>
           {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
         <For each={groups()}>{(group) => <MenuGroup group={group} />}</For>
-        <Show when={props.contentBottomRender} keyed>
+        <Show when={props.bottomRender} keyed>
           {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
       </div>

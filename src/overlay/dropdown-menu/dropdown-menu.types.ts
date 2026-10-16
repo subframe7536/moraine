@@ -28,8 +28,8 @@ export namespace DropdownMenuT {
 
   export type Item = OverlayMenuItem
   export type ItemRenderProps = OverlayMenuItemRenderProps
-  export type ContentTopRenderProps = OverlayMenuContentSlotProps
-  export type ContentBottomRenderProps = OverlayMenuContentSlotProps
+  export type TopRenderProps = OverlayMenuContentSlotProps
+  export type BottomRenderProps = OverlayMenuContentSlotProps
 
   /**
    * Base props for the DropdownMenu root component.
@@ -71,9 +71,9 @@ export namespace DropdownMenuT {
     /** Renderer for each menu item. */
     itemRender?: Component<ItemRenderProps>
     /** Content rendered before the resolved item groups. */
-    contentTopRender?: JSX.Element | Component<ContentTopRenderProps>
+    topRender?: JSX.Element | Component<TopRenderProps>
     /** Content rendered after the resolved item groups. */
-    contentBottomRender?: JSX.Element | Component<ContentBottomRenderProps>
+    bottomRender?: JSX.Element | Component<BottomRenderProps>
     /** Icon used for checked checkbox items. @default 'icon-check' */
     checkedIcon?: IconT.Name
     /** Icon used for submenu trigger items. @default 'icon-chevron-right' */

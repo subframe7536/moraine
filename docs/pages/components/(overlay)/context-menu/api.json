@@ -205,6 +205,12 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "bottomRender",
+          "optional": true,
+          "type": "JSX.Element | Component<BottomRenderProps>",
+          "description": "Content rendered after the resolved item groups."
+        },
+        {
           "name": "checkedIcon",
           "optional": true,
           "type": "IconT.Name",
@@ -219,18 +225,6 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "contentBottomRender",
-          "optional": true,
-          "type": "JSX.Element | Component<ContentBottomRenderProps>",
-          "description": "Content rendered after the resolved item groups."
-        },
-        {
-          "name": "contentTopRender",
-          "optional": true,
-          "type": "JSX.Element | Component<ContentTopRenderProps>",
-          "description": "Content rendered before the resolved item groups."
         },
         {
           "name": "itemRender",
@@ -260,6 +254,12 @@
             "kind": "literal",
             "value": "icon-chevron-right"
           }
+        },
+        {
+          "name": "topRender",
+          "optional": true,
+          "type": "JSX.Element | Component<TopRenderProps>",
+          "description": "Content rendered before the resolved item groups."
         }
       ]
     }
