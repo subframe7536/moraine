@@ -9,6 +9,8 @@ import type { DocsPageSource } from '../routes.ts'
 import type { ComponentApi, GenerationResult } from './types.ts'
 import { validateAllComponentApis } from './validate.ts'
 
+export const COMPONENT_API_SCHEMA_URL = 'https://moraine.subf.dev/component-api.schema.json'
+
 function sortComponentApi(component: ComponentApi): ComponentApi {
   const sortedParts = component.parts.map((part) => ({
     ...part,
@@ -23,6 +25,7 @@ function sortComponentApi(component: ComponentApi): ComponentApi {
     : undefined
 
   return {
+    $schema: component.$schema ?? COMPONENT_API_SCHEMA_URL,
     ...component,
     parts: sortedParts,
     ...(sortedItem ? { item: sortedItem } : {}),

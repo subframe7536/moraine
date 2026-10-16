@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "avatar-group",
   "name": "AvatarGroup",
   "description": "Props for the AvatarGroup component.",

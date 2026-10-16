@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "command-palette",
   "name": "CommandPalette",
   "kind": "single",

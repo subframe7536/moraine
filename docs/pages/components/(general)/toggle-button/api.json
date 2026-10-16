@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "toggle-button",
   "name": "ToggleButton",
   "kind": "single",

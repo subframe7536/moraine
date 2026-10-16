@@ -52,6 +52,7 @@ export interface DataAttributeTargetApi {
 }
 
 export interface ComponentApi {
+  $schema?: string
   key: string
   name: string
   description?: string

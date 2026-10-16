@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "radio-group",
   "name": "RadioGroup",
   "description": "Props for the RadioGroup component.",

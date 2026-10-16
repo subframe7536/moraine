@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "button-group",
   "name": "ButtonGroup",
   "description": "Props for the ButtonGroup component.",

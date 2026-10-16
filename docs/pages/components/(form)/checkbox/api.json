@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "checkbox",
   "name": "Checkbox",
   "description": "Props for the Checkbox component.",

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "popover",
   "name": "Popover",
   "kind": "composite",
@@ -239,11 +240,6 @@
       "description": "Props for the Popover component.",
       "defaultElement": "div",
       "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string"
-        },
         {
           "name": "children",
           "optional": true,

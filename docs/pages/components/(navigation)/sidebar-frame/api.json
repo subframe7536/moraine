@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "sidebar-frame",
   "name": "SidebarFrame",
   "kind": "composite",
@@ -135,11 +136,6 @@
       "props": [
         {
           "name": "aria-label",
-          "optional": true,
-          "type": "string"
-        },
-        {
-          "name": "ariaLabel",
           "optional": true,
           "type": "string",
           "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.\nLocalized via MoraineProvider messages when omitted. English default is `Sidebar navigation`."

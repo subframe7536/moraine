@@ -1,4 +1,5 @@
 {
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
   "key": "modal",
   "name": "Modal",
   "kind": "composite",
@@ -255,24 +256,6 @@
       },
       "defaultElement": "div",
       "props": [
-        {
-          "name": "ariaDescribedBy",
-          "optional": true,
-          "type": "string",
-          "description": "Id of the element that describes the modal content."
-        },
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": "string",
-          "description": "Accessible name used when no visible label is available."
-        },
-        {
-          "name": "ariaLabelledBy",
-          "optional": true,
-          "type": "string",
-          "description": "Id of the element that labels the modal content."
-        },
         {
           "name": "children",
           "optional": false,

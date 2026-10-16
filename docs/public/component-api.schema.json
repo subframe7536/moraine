@@ -1,0 +1,328 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moraine.subf.dev/component-api.schema.json",
+  "title": "MoraineComponentApi",
+  "description": "Schema for Moraine component API documentation JSON files.",
+  "type": "object",
+  "required": [
+    "key",
+    "name",
+    "kind",
+    "parts",
+    "slots",
+    "dataAttributes"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URI to this JSON schema."
+    },
+    "key": {
+      "type": "string",
+      "description": "Unique kebab-case component identifier (e.g., 'button', 'multi-select')."
+    },
+    "name": {
+      "type": "string",
+      "description": "PascalCase component name (e.g., 'Button', 'MultiSelect')."
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the component."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "single",
+        "composite"
+      ],
+      "description": "Component composition pattern: 'single' (standalone root element) or 'composite' (compound parts/subcomponents)."
+    },
+    "parts": {
+      "type": "array",
+      "description": "Documented public component parts / primitives.",
+      "items": {
+        "$ref": "#/$defs/PartApi"
+      }
+    },
+    "item": {
+      "$ref": "#/$defs/ItemApi",
+      "description": "Optional specification for item-level configuration in collection-based components."
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Visual styling slots defined by the component recipe."
+    },
+    "dataAttributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DataAttributeTargetApi"
+      },
+      "description": "Public data attributes attached to host or part DOM elements."
+    }
+  },
+  "$defs": {
+    "DefaultValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "literal"
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ],
+              "description": "Literal default value."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "kind": {
+              "const": "expression"
+            },
+            "text": {
+              "type": "string",
+              "description": "Code expression representing default value."
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "GenericParameterApi": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Generic type parameter name."
+        },
+        "constraint": {
+          "type": "string",
+          "description": "TypeScript type constraint (extends)."
+        },
+        "default": {
+          "type": "string",
+          "description": "Default type argument."
+        }
+      },
+      "additionalProperties": false
+    },
+    "AccessApi": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "name"
+          ],
+          "properties": {
+            "kind": {
+              "const": "export"
+            },
+            "name": {
+              "type": "string",
+              "description": "Directly exported component name."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "root",
+            "member"
+          ],
+          "properties": {
+            "kind": {
+              "const": "attached"
+            },
+            "root": {
+              "type": "string",
+              "description": "Root component namespace or host."
+            },
+            "member": {
+              "type": "string",
+              "description": "Attached subcomponent name."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "factory",
+            "member"
+          ],
+          "properties": {
+            "kind": {
+              "const": "factory-member"
+            },
+            "factory": {
+              "type": "string",
+              "description": "Factory function name (e.g., createForm)."
+            },
+            "member": {
+              "type": "string",
+              "description": "Member returned by factory."
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PropApi": {
+      "type": "object",
+      "required": [
+        "name",
+        "optional",
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Prop name."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Whether the prop is optional."
+        },
+        "type": {
+          "type": "string",
+          "description": "TypeScript type signature."
+        },
+        "typeDetails": {
+          "type": "string",
+          "description": "Expanded type representation if complex."
+        },
+        "typeHtml": {
+          "type": "string",
+          "description": "Syntax-highlighted HTML for documentation display."
+        },
+        "description": {
+          "type": "string",
+          "description": "JSDoc description of the prop."
+        },
+        "default": {
+          "$ref": "#/$defs/DefaultValue"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PartApi": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "access",
+        "props"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier for the part."
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the part."
+        },
+        "access": {
+          "$ref": "#/$defs/AccessApi"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the part."
+        },
+        "generics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GenericParameterApi"
+          },
+          "description": "Generic type parameters for the component part."
+        },
+        "defaultElement": {
+          "type": "string",
+          "description": "Default HTML element rendered by this part."
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropApi"
+          },
+          "description": "List of props accepted by this part."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ItemApi": {
+      "type": "object",
+      "required": [
+        "props"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the item shape."
+        },
+        "generics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GenericParameterApi"
+          },
+          "description": "Generic type parameters for items."
+        },
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropApi"
+          },
+          "description": "Props or properties defining the item shape."
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataAttributeTargetApi": {
+      "type": "object",
+      "required": [
+        "target",
+        "attributes"
+      ],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "Target slot or attached part element."
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Data attributes applied to this target."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

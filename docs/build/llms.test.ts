@@ -54,6 +54,9 @@ describe('agent Markdown', () => {
 
   test('includes page frontmatter and removes build metadata, runtime imports, Playground and MDX', async () => {
     for (const { fileName, source } of await documents()) {
+      if (fileName.endsWith('.json')) {
+        continue
+      }
       const match = source.match(/^---\n([\s\S]*?)\n---\n\n/)
       expect(match, fileName).not.toBeNull()
       const frontmatter = YAML.parse(match![1]!) as { title: string; description: string }
@@ -74,6 +77,35 @@ describe('agent Markdown', () => {
       expect(source, fileName).not.toContain('<Playground')
       expect(source, fileName).not.toMatch(/<Preview\b|<ComponentsIndex\b|<CodeTabs\b|<Anatomy\b/)
     }
+  })
+
+  test('emits valid component API json documents with schema and links in llms.txt', async () => {
+    const result = await documents()
+    const jsonDocs = result.filter((item) => item.fileName.endsWith('.json'))
+    expect(jsonDocs.length).toBeGreaterThanOrEqual(40)
+
+    const buttonDoc = result.find((item) => item.fileName === 'components/button.json')
+    expect(buttonDoc).toBeDefined()
+    const parsedButton = JSON.parse(buttonDoc!.source) as {
+      $schema: string
+      key: string
+      name: string
+      kind: string
+      parts: unknown[]
+      slots: string[]
+    }
+    expect(parsedButton.$schema).toBe('https://moraine.subf.dev/component-api.schema.json')
+    expect(parsedButton.key).toBe('button')
+    expect(parsedButton.name).toBe('Button')
+    expect(parsedButton.kind).toBe('single')
+    expect(Array.isArray(parsedButton.parts)).toBe(true)
+    expect(Array.isArray(parsedButton.slots)).toBe(true)
+
+    const index = result.find((item) => item.fileName === 'llms.txt')!.source
+    expect(index).toContain('https://moraine.subf.dev/component-api.schema.json')
+    expect(index).toContain(
+      '[Button](https://moraine.subf.dev/components/button.md) ([JSON](https://moraine.subf.dev/components/button.json))',
+    )
   })
 
   test('expands the component directory and preserves component API sections', async () => {

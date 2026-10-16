@@ -96,6 +96,14 @@ function markdownPageUrl(siteUrl: string, route: DocsRouteEntry): string {
   return absoluteUrl(siteUrl, markdownFileName(route))
 }
 
+function jsonFileName(route: DocsRouteEntry): string {
+  return `${route.info.routePath.slice(1)}.json`
+}
+
+function jsonPageUrl(siteUrl: string, route: DocsRouteEntry): string {
+  return absoluteUrl(siteUrl, jsonFileName(route))
+}
+
 function renderFrontmatter(title: string, description: string): string {
   return `---\n${YAML.stringify({
     title,
@@ -484,12 +492,13 @@ export function buildLlmsTxt(
   options: LlmsTxtPluginOptions,
   routes = scanDocsRoutes(options.projectRoot),
 ) {
+  const schemaUrl = absoluteUrl(options.siteUrl, 'component-api.schema.json')
   const output = [
     `# ${options.siteName}`,
     '',
     `> ${options.description}`,
     '',
-    'Start with Getting Started and Installation. Use the linked Markdown pages for component behavior, examples, and API details.',
+    `Start with Getting Started and Installation. Use the linked Markdown pages for component behavior, examples, and API details. Component API declarations are also available as structured JSON conforming to the [Component API JSON Schema](${schemaUrl}).`,
   ]
   let currentSurface: string | undefined
   let currentSection: string | undefined
@@ -504,9 +513,15 @@ export function buildLlmsTxt(
       currentSection = section
       output.push('', `### ${SECTION_TITLES.get(section) ?? section}`, '')
     }
-    output.push(
-      `- [${route.info.title}](${markdownPageUrl(options.siteUrl, route)}): ${route.info.description}`,
-    )
+    const mdUrl = markdownPageUrl(options.siteUrl, route)
+    if (route.info.surface === 'components' && route.info.api) {
+      const jsonUrl = jsonPageUrl(options.siteUrl, route)
+      output.push(
+        `- [${route.info.title}](${mdUrl}) ([JSON](${jsonUrl})): ${route.info.description}`,
+      )
+    } else {
+      output.push(`- [${route.info.title}](${mdUrl}): ${route.info.description}`)
+    }
   }
   return `${renderFrontmatter(options.siteName, options.description)}${output.join('\n').trimEnd()}\n`
 }
@@ -516,14 +531,12 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
   const documents: LlmsDocument[] = [
     { fileName: 'llms.txt', source: buildLlmsTxt(options, routes) },
   ]
+  const schemaUrl = absoluteUrl(options.siteUrl, 'component-api.schema.json')
   for (const route of routes) {
     const source = readFileSync(route.sourcePath, 'utf8')
+    const apiDoc = loadComponentApiDoc(route.sourcePath)
     if (route.info.surface === 'components' && route.info.routePath !== '/components') {
-      await validateAnatomy(
-        source,
-        route.sourcePath,
-        loadComponentApiDoc(route.sourcePath) ?? undefined,
-      )
+      await validateAnatomy(source, route.sourcePath, apiDoc ?? undefined)
     }
     documents.push({
       fileName: markdownFileName(route),
@@ -534,6 +547,16 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
         sourcePath: route.sourcePath,
       }),
     })
+    if (route.info.surface === 'components' && route.info.api && apiDoc) {
+      const componentJson = {
+        $schema: schemaUrl,
+        ...apiDoc,
+      }
+      documents.push({
+        fileName: jsonFileName(route),
+        source: `${JSON.stringify(componentJson, null, 2)}\n`,
+      })
+    }
   }
   return documents
 }
@@ -541,13 +564,16 @@ export async function buildLlmsDocuments(options: LlmsTxtPluginOptions): Promise
 function isLlmsPath(url: string): boolean {
   return (
     url === '/llms.txt' ||
-    /^\/(?:docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+|components(?:\/[a-z0-9-]+)?)\.md$/.test(url)
+    /^\/(?:docs\/(?:[a-z0-9-]+\/)*[a-z0-9-]+|components(?:\/[a-z0-9-]+)?)\.(?:md|json)$/.test(url)
   )
 }
 
-function sendMarkdownResponse(res: ServerResponse, document: LlmsDocument): void {
+function sendDocumentResponse(res: ServerResponse, document: LlmsDocument): void {
+  const contentType = document.fileName.endsWith('.json')
+    ? 'application/json; charset=utf-8'
+    : 'text/markdown; charset=utf-8'
   res.statusCode = 200
-  res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+  res.setHeader('Content-Type', contentType)
   res.setHeader('Cache-Control', 'no-cache')
   res.end(document.source)
 }
@@ -584,7 +610,7 @@ export function llmsTxtPlugin(options: LlmsTxtPluginOptions): Plugin {
             next()
             return
           }
-          sendMarkdownResponse(response, document)
+          sendDocumentResponse(response, document)
         } catch (error) {
           next(error)
         }
