@@ -245,8 +245,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
-          "description": "Composable sheet parts or render function receiving close action."
+          "type": "JSX.Element | Component<ContentRenderProps>",
+          "description": "Composable sheet parts or render function receiving close action.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
         },
         {
           "name": "class",

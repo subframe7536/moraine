@@ -259,7 +259,7 @@
         {
           "name": "children",
           "optional": false,
-          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
+          "type": "JSX.Element | Component<ContentRenderProps>",
           "description": "Content or render function inside the modal content surface.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
         },
         {

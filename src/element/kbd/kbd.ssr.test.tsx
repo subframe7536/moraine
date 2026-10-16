@@ -9,11 +9,17 @@ import { KbdHydrationFixture } from './kbd.ssr.fixture'
 test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')
   const [items, setItems] = createSignal<KbdGroupT.Item[]>(['ctrl', 'k'])
-  const [separator, setSeparator] = createSignal<KbdGroupT.Base['separator']>()
+  const [separatorRender, setSeparatorRender] = createSignal<KbdGroupT.Base['separatorRender']>()
   const { container } = hydrateFixture(
     '/src/element/kbd/kbd.ssr.fixture.tsx',
     'renderKbdFixture',
-    () => <KbdHydrationFixture keyName={keyName()} items={items()} separator={separator()} />,
+    () => (
+      <KbdHydrationFixture
+        keyName={keyName()}
+        items={items()}
+        separatorRender={separatorRender()}
+      />
+    ),
   )
   const key = container.querySelector('kbd')!
   const group = container.querySelector('[data-slot="kbd-group"]:not([aria-label])')!
@@ -36,7 +42,7 @@ test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   expect(container.querySelector('kbd')).toBe(key)
   expect(key.getAttribute('aria-label')).toBe('Tab')
   expect(group.textContent).toBe('⇧/p')
-  setSeparator('+')
+  setSeparatorRender('+')
   expect(group.textContent).toBe('⇧+p')
   expect(group.querySelector('[data-slot="kbd-group-separator"]')).toBeNull()
 })

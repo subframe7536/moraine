@@ -37,9 +37,9 @@ export namespace CommandPaletteT {
     /** Additional keywords included in built-in search matching. */
     keywords?: string[]
     /** Content or render function at the start of this item. */
-    leadingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element)
+    leadingRender?: JSX.Element | Component<ItemRenderProps>
     /** Content or render function at the end of this item. */
-    trailingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element)
+    trailingRender?: JSX.Element | Component<ItemRenderProps>
     /** Whether the item is disabled and cannot be selected. */
     disabled?: boolean
     /** Whether this item should be excluded from built-in search filtering. */
@@ -174,11 +174,11 @@ export namespace CommandPaletteT {
     /** Custom filter function that fully controls which groups and items are visible. */
     filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
     /** Content or render function for the empty state. */
-    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
+    emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Content or render function for the footer. */
-    footerRender?: JSX.Element | ((props: FooterRenderProps<TItem>) => JSX.Element)
+    footerRender?: JSX.Element | Component<FooterRenderProps<TItem>>
     /** Renderer for each command row. */
-    itemRender?: (props: ItemRenderProps<TItem>) => JSX.Element
+    itemRender?: Component<ItemRenderProps<TItem>>
     /** Renders flattened group labels and commands through a virtualization layer. */
     virtualRender?: Component<VirtualRenderProps<TItem>>
     /** Scrolls a highlighted command into view using its flattened entry index. */

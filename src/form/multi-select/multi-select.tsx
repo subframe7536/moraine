@@ -328,20 +328,20 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   fallback={<tags.DefaultTag tag={tag} index={index()} />}
                   keyed
                 >
-                  {(TagRender) => (
-                    <TagRender
-                      item={source().byValue.get(tag.value)}
-                      value={tag.value}
-                      label={tag.label}
-                      onClose={() => tags.remove(index())}
-                    />
-                  )}
+                  {(tagRender) =>
+                    renderWithProps(tagRender, {
+                      item: source().byValue.get(tag.value),
+                      value: tag.value,
+                      label: tag.label,
+                      onClose: () => tags.remove(index()),
+                    })
+                  }
                 </Show>
               )}
             </For>
             <Show when={tags.overflow() > 0}>
               <Show
-                when={local.tagOverflow !== undefined}
+                when={local.tagOverflowRender !== undefined}
                 fallback={
                   <span
                     data-slot="multi-select-tag-overflow"
@@ -352,7 +352,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   </span>
                 }
               >
-                {renderWithProps(local.tagOverflow, {
+                {renderWithProps(local.tagOverflowRender, {
                   get count() {
                     return tags.overflow()
                   },

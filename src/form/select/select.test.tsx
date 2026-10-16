@@ -187,6 +187,34 @@ describe('Select', () => {
     expect(within(document.body).queryByText('No items')).toBeNull()
   })
 
+  test('renders custom emptyRender with static JSX and Component', () => {
+    const screen1 = render(() => (
+      <Select defaultOpen items={[]} emptyRender={<span>No options</span>} />
+    ))
+    expect(within(document.body).getByText('No options')).toBeTruthy()
+    screen1.unmount()
+
+    const screen2 = render(() => (
+      <Select<string>
+        defaultOpen
+        items={[]}
+        defaultValue="custom"
+        emptyRender={(props) => (
+          <div>
+            <span>Value: {String(props.selectedValue)}</span>
+            <button type="button" onClick={props.close}>
+              Dismiss
+            </button>
+          </div>
+        )}
+      />
+    ))
+    expect(within(document.body).getByText('Value: custom')).toBeTruthy()
+    fireEvent.click(within(document.body).getByText('Dismiss'))
+    expect(screen2.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
+    screen2.unmount()
+  })
+
   test('keeps the trigger structure while loading', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" allowClear loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()

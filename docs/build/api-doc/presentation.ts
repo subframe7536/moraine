@@ -138,9 +138,29 @@ function isStringLiteral(segment: string): boolean {
   )
 }
 
+function isRenderProp(prop: PropApi): boolean {
+  if (prop.name.endsWith('Props')) {
+    return false
+  }
+
+  if (prop.name.endsWith('Render') || prop.name === 'render') {
+    return true
+  }
+
+  if (/\b[A-Za-z0-9_]*(?:RenderProps|ContentSlotProps|PopperContentContext)\b/.test(prop.type)) {
+    return true
+  }
+
+  return false
+}
+
 export function formatSummaryPropType(prop: PropApi): string {
   if (prop.typeDetails) {
     return 'Item[]'
+  }
+
+  if (isRenderProp(prop)) {
+    return 'Render'
   }
 
   if (

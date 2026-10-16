@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
@@ -106,7 +106,7 @@ export namespace ToastT {
     expanded: boolean
   }
 
-  export type Render = (props: RenderProps) => JSX.Element
+  export type ItemRenderProps = RenderProps
 
   /** Base props for the Toast host component. */
   export interface Base {
@@ -114,7 +114,7 @@ export namespace ToastT {
      * Renders the inner content of every toast on this host that was not opened with
      * `Toast.custom`. Receives the instance context and the resolved call options.
      */
-    itemRender?: Render
+    itemRender?: Component<ItemRenderProps>
 
     /**
      * Max number of simultaneously visible toasts in a stack.

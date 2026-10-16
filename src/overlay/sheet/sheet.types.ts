@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -68,8 +68,12 @@ export namespace SheetT {
     /** Secondary description displayed below the title. */
     description?: JSX.Element
 
-    /** Composable sheet parts or render function receiving close action. */
-    children?: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
+    /**
+     * Composable sheet parts or render function receiving close action.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
+    children?: JSX.Element | Component<ContentRenderProps>
   }
 
   /**

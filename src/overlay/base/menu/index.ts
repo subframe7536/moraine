@@ -22,7 +22,7 @@ export type {
   OverlayMenuGroup,
 } from './menu.utils'
 export type {
-  OverlayMenuContentSlot,
+  OverlayMenuContentSlotProps,
   OverlayMenuItemType,
   OverlayMenuBaseItem,
   OverlayMenuActionItem,

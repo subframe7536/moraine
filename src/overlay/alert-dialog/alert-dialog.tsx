@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { For, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js'
 import { isServer } from 'solid-js/web'
 
@@ -13,11 +13,11 @@ import type { AlertDialogProps, AlertDialogT } from './alert-dialog.types'
 
 interface AlertDialogController extends FeedbackHost {
   defaults: () => AlertDialogHostDefaults
-  dialogRender: () => AlertDialogT.Render | undefined
+  dialogRender: () => Component<AlertDialogT.DialogRenderProps> | undefined
   open: (
     mode: 'confirm' | 'standard',
     options: AlertDialogT.Options,
-    render?: AlertDialogT.Render,
+    render?: JSX.Element | Component<AlertDialogT.DialogRenderProps>,
   ) => AlertDialogT.Handle
   update: (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions) => boolean
   close: (id?: AlertDialogT.Id) => void
@@ -45,7 +45,7 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
 function openAlertDialog(
   mode: 'confirm' | 'standard',
   options: AlertDialogT.Options,
-  render?: AlertDialogT.Render,
+  render?: JSX.Element | Component<AlertDialogT.DialogRenderProps>,
 ): AlertDialogT.Handle {
   if (isServer) {
     return inertFeedbackHandle(options.id)
@@ -131,10 +131,16 @@ AlertDialog.warning = (options: AlertDialogT.Options): AlertDialogT.Handle =>
   openAlertDialog('standard', withType('warning', options))
 AlertDialog.error = (options: AlertDialogT.Options): AlertDialogT.Handle =>
   openAlertDialog('standard', withType('error', options))
-AlertDialog.custom = (
-  render: AlertDialogT.Render,
+AlertDialog.custom = ((
+  render: Component<AlertDialogT.DialogRenderProps> | JSX.Element,
   options?: AlertDialogT.Options,
-): AlertDialogT.Handle => openAlertDialog('standard', options ?? {}, render)
+): AlertDialogT.Handle => openAlertDialog('standard', options ?? {}, render)) as {
+  (
+    render: Component<AlertDialogT.DialogRenderProps>,
+    options?: AlertDialogT.Options,
+  ): AlertDialogT.Handle
+  (render: JSX.Element, options?: AlertDialogT.Options): AlertDialogT.Handle
+}
 AlertDialog.update = (id: AlertDialogT.Id, options: AlertDialogT.UpdateOptions): void => {
   if (isServer) {
     return

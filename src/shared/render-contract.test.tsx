@@ -4,6 +4,7 @@ import { createComponent, createSignal, onCleanup, splitProps, untrack } from 's
 import { describe, expect, test, vi } from 'vitest'
 
 import {
+  AlertDialog,
   BaseSelect,
   Breadcrumb,
   Button,
@@ -11,6 +12,8 @@ import {
   CommandPalette,
   ContextMenu,
   DropdownMenu,
+  KbdGroup,
+  List,
   Modal,
   MultiSelect,
   Popover,
@@ -385,5 +388,62 @@ describe('render and polymorphic contracts', () => {
   test('native string Button custom input preserves explicit type', () => {
     const view = render(() => <Button as="input" type="file" />)
     expect((view.container.firstChild as HTMLInputElement).type).toBe('file')
+  })
+
+  test('DropdownMenu topRender, bottomRender and itemRender render expected content', () => {
+    const TopComponent = (props: { sub: boolean }) => (
+      <div data-testid="top-comp">Sub: {String(props.sub)}</div>
+    )
+    const BottomStatic = <div data-testid="bottom-static">Static Bottom</div>
+    const ItemComponent = (props: { item: { label?: JSX.Element } }) => (
+      <div data-testid="item-comp">{props.item.label}</div>
+    )
+    const view = render(() => (
+      <DropdownMenu open>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Custom Item' }]}
+          topRender={TopComponent}
+          bottomRender={BottomStatic}
+          itemRender={ItemComponent}
+        />
+      </DropdownMenu>
+    ))
+    expect(screen.getByTestId('top-comp').textContent).toBe('Sub: false')
+    expect(screen.getByTestId('bottom-static').textContent).toBe('Static Bottom')
+    expect(screen.getByTestId('item-comp').textContent).toBe('Custom Item')
+    view.unmount()
+  })
+
+  test('KbdGroup separatorRender accepts string, number, and Component', () => {
+    const CustomSep = (props: { index: number }) => <span>#{props.index}</span>
+    const view1 = render(() => <KbdGroup items={['⌘', 'K']} separatorRender="~" />)
+    expect(view1.container.textContent).toContain('~')
+    view1.unmount()
+
+    const view2 = render(() => <KbdGroup items={['⌘', 'K']} separatorRender={CustomSep} />)
+    expect(view2.container.textContent).toContain('#0')
+    view2.unmount()
+  })
+
+  test('List itemRender accepts Component', () => {
+    const view = render(() => (
+      <List items={['a', 'b']} itemRender={(props: { item: string }) => <li>{props.item}</li>} />
+    ))
+    expect(view.container.textContent).toBe('ab')
+    view.unmount()
+  })
+
+  test('AlertDialog host dialogRender accepts Component and custom accepts both', () => {
+    const ComponentRender = () => <div>Component Dialog</div>
+    const view = render(() => <AlertDialog dialogRender={ComponentRender} />)
+
+    const handle1 = AlertDialog.custom(<div>Static Custom Dialog</div>)
+    handle1.close()
+
+    const handle2 = AlertDialog.custom(ComponentRender)
+    handle2.close()
+
+    view.unmount()
   })
 })

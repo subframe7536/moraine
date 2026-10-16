@@ -30,7 +30,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: ItemRenderProps) => JSX.Element",
+          "type": "Component<ItemRenderProps>",
           "description": "Renderer for each breadcrumb item."
         },
         {

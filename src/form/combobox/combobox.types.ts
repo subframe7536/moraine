@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
 import type { BaseProps } from '../../shared/types'
@@ -72,7 +72,7 @@ export namespace ComboboxT {
     /** Called when the committed selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Content or render function for the filtered empty state. */
-    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
+    emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Placeholder shown when there is no selected value or query. */
     placeholder?: string
     /** Whether the control is loading. */

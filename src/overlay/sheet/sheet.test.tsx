@@ -958,6 +958,28 @@ describe('Sheet', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
+  test('reacts to Show control flow and zero-argument accessors inside Sheet.Content', () => {
+    const [visible, setVisible] = createSignal(true)
+    const screen = render(() => (
+      <Sheet defaultOpen>
+        <Sheet.Content>
+          <Show when={visible()} fallback={<span data-testid="fallback">Fallback</span>}>
+            <span data-testid="visible">Visible</span>
+          </Show>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    expect(document.body.querySelector('[data-testid="visible"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-testid="fallback"]')).toBeNull()
+
+    setVisible(false)
+
+    expect(document.body.querySelector('[data-testid="visible"]')).toBeNull()
+    expect(document.body.querySelector('[data-testid="fallback"]')).not.toBeNull()
+    screen.unmount()
+  })
+
   test('forwards ref to Sheet.Content DOM element', () => {
     let captured: HTMLDivElement | undefined
     render(() => (

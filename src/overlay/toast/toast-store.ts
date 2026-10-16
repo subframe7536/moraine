@@ -1,3 +1,4 @@
+import type { Component, JSX } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 
 import type { FeedbackCloseReason } from '../base/feedback/feedback.types'
@@ -32,7 +33,7 @@ export interface ToastRecord {
   id: ToastT.Id
   hostId: string | undefined
   options: ToastT.Options
-  render?: ToastT.Render
+  render?: JSX.Element | Component<ToastT.ItemRenderProps>
   closed?: boolean
 }
 
@@ -131,7 +132,10 @@ function isSameToastContent(first: ToastT.Options, second: ToastT.Options): bool
 export interface ToastStore {
   readonly toasts: ToastRecord[]
   registry: ReturnType<typeof createHostRegistry<ToastHost>>
-  add: (options: ToastT.Options, render?: ToastT.Render) => ToastT.Handle
+  add: (
+    options: ToastT.Options,
+    render?: JSX.Element | Component<ToastT.ItemRenderProps>,
+  ) => ToastT.Handle
   update: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
   close: (id: ToastT.Id | undefined, reason?: FeedbackCloseReason) => void
   remove: (id: ToastT.Id) => void
@@ -244,7 +248,10 @@ export function createToastStore(): ToastStore {
     }
   }
 
-  const add = (options: ToastT.Options, render?: ToastT.Render): ToastT.Handle => {
+  const add = (
+    options: ToastT.Options,
+    render?: JSX.Element | Component<ToastT.ItemRenderProps>,
+  ): ToastT.Handle => {
     const host = registry.require(options.host)
     const hostId = host.id()
     const defaults = host.defaults()

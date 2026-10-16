@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
 import { Portal, isServer } from 'solid-js/web'
 
@@ -15,7 +15,10 @@ import { toastRecipe } from './toast.recipe'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 import type { ToastProps, ToastT } from './toast.types'
 
-function showToast(options: ToastT.Options, render?: ToastT.Render): ToastT.Handle {
+function showToast(
+  options: ToastT.Options,
+  render?: JSX.Element | Component<ToastT.ItemRenderProps>,
+): ToastT.Handle {
   if (isServer) {
     return inertFeedbackHandle(options.id)
   }
@@ -199,7 +202,10 @@ export const Toast = ToastRoot as typeof ToastRoot & {
     value: Promise<T> | (() => Promise<T>),
     options: ToastT.PromiseOptions<T>,
   ) => ToastT.Handle
-  custom: (render: ToastT.Render, options?: ToastT.Options) => ToastT.Handle
+  custom: {
+    (render: Component<ToastT.ItemRenderProps>, options?: ToastT.Options): ToastT.Handle
+    (render: JSX.Element, options?: ToastT.Options): ToastT.Handle
+  }
   update: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
   close: (id?: ToastT.Id) => void
 }

@@ -205,6 +205,12 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "bottomRender",
+          "optional": true,
+          "type": "JSX.Element | Component<BottomRenderProps>",
+          "description": "Content rendered after the resolved item groups."
+        },
+        {
           "name": "checkedIcon",
           "optional": true,
           "type": "IconT.Name",
@@ -221,21 +227,9 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "contentBottom",
-          "optional": true,
-          "type": "OverlayMenuContentSlot",
-          "description": "Content rendered after the resolved item groups."
-        },
-        {
-          "name": "contentTop",
-          "optional": true,
-          "type": "OverlayMenuContentSlot",
-          "description": "Content rendered before the resolved item groups."
-        },
-        {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: ItemRenderProps) => JSX.Element",
+          "type": "Component<ItemRenderProps>",
           "description": "Renderer for each menu item."
         },
         {
@@ -260,6 +254,12 @@
             "kind": "literal",
             "value": "icon-chevron-right"
           }
+        },
+        {
+          "name": "topRender",
+          "optional": true,
+          "type": "JSX.Element | Component<TopRenderProps>",
+          "description": "Content rendered before the resolved item groups."
         }
       ]
     }

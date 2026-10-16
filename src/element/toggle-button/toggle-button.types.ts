@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -12,6 +12,13 @@ export namespace ToggleButtonT {
   export type Variant = ToggleButtonStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
+  export interface ChildrenRenderProps {
+    /** Whether the button is currently pressed. */
+    pressed: boolean
+    /** Whether the button is currently in loading state. */
+    loading: boolean
+  }
 
   export type Base<T extends ValidComponent = 'button'> = Omit<
     ButtonT.Base<T>,
@@ -28,7 +35,7 @@ export namespace ToggleButtonT {
      * A render function must declare its parameter, even when unused. A zero-argument
      * function is called as an accessor and is not mounted as a component.
      */
-    children?: JSX.Element | ((props: { pressed: boolean; loading: boolean }) => JSX.Element)
+    children?: JSX.Element | Component<ChildrenRenderProps>
     /** Pressed semantics are owned by the component. */
     'aria-pressed'?: never
   }

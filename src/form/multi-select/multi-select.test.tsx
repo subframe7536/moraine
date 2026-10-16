@@ -314,7 +314,7 @@ describe('MultiSelect', () => {
         items={items()}
         defaultValue={['apple', 'banana', 'cherry']}
         maxTagCount={maxTagCount()}
-        tagOverflow={(props) => (
+        tagOverflowRender={(props) => (
           <span data-testid="custom-overflow">
             {props.count}:
             <For each={props.tags}>

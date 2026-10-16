@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -54,7 +54,7 @@ export namespace ProgressT {
      * Content or render function for the value slot.
      * Determinate progress shows this instead of the percentage.
      */
-    valueRender?: JSX.Element | ((props: ValueRenderProps) => JSX.Element)
+    valueRender?: JSX.Element | Component<ValueRenderProps>
   }
 
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

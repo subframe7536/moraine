@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 
 import { defaultBreadcrumbMessages } from './breadcrumb.messages'
@@ -99,14 +100,14 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       </Dynamic>
                     }
                   >
-                    {(ItemRender) => (
-                      <ItemRender
-                        item={item}
-                        index={index()}
-                        current={isCurrent()}
-                        disabled={isDisabled()}
-                      />
-                    )}
+                    {(render) =>
+                      renderWithProps(render, {
+                        item,
+                        index: index(),
+                        current: isCurrent(),
+                        disabled: isDisabled(),
+                      })
+                    }
                   </Show>
                 </li>
 

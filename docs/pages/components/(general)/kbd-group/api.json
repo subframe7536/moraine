@@ -35,10 +35,10 @@
           "description": "Keyboard keys displayed as one simultaneous shortcut."
         },
         {
-          "name": "separator",
+          "name": "separatorRender",
           "optional": true,
-          "type": "string | number | ((props: SeparatorRenderProps) => JSX.Element)",
-          "description": "String or number shorthand, or a renderer for each separator between keys.",
+          "type": "string | number | Component<SeparatorRenderProps>",
+          "description": "Separator content or custom renderer between keys. Accepts a string, number, or Component.",
           "default": {
             "kind": "literal",
             "value": "+"

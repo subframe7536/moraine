@@ -86,13 +86,13 @@ notation, or supply item labels when the displayed shortcut needs platform-speci
 
 ### Separator
 
-`separator` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom
-JSX, pass a renderer that receives the separator `index`; each position mounts its own instance. It
+`separatorRender` accepts string or number shorthand for inline shortcut notation such as `"+"`. For custom
+JSX, pass a component that receives the separator `index`; each position mounts its own instance. It
 is unrelated to the standalone layout [Separator](/components/separator).
 
 ```tsx
-<KbdGroup items={['Ctrl', 'Shift', 'K']} separator="/" />
-<KbdGroup items={['Ctrl', 'K']} separator={() => <span class="text-muted-foreground">then</span>} />
+<KbdGroup items={['Ctrl', 'Shift', 'K']} separatorRender="/" />
+<KbdGroup items={['Ctrl', 'K']} separatorRender={() => <span class="text-muted-foreground">then</span>} />
 ```
 
 ## Examples

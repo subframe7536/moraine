@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -28,10 +28,10 @@ export namespace KbdGroupT {
     items: Item[]
 
     /**
-     * String or number shorthand, or a renderer for each separator between keys.
+     * Separator content or custom renderer between keys. Accepts a string, number, or Component.
      * @default '+'
      */
-    separator?: string | number | ((props: SeparatorRenderProps) => JSX.Element)
+    separatorRender?: string | number | Component<SeparatorRenderProps>
   }
 
   /** Props for the KbdGroup component. */

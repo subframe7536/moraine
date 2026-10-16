@@ -132,7 +132,7 @@ export function DocsSearchTrigger(
       <Show when={variant() === 'desktop'}>
         <span class="text-sm flex gap-3 w-full items-center justify-between">
           <span>Search docs</span>
-          <KbdGroup items={['⌘', 'K']} separator="" size="sm" variant="outline" />
+          <KbdGroup items={['⌘', 'K']} separatorRender="" size="sm" variant="outline" />
         </span>
       </Show>
     </Button>
@@ -232,7 +232,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                       items={['arrowup', 'arrowdown']}
                       size="sm"
                       variant="outline"
-                      separator="/"
+                      separatorRender="/"
                     />
                     Navigate
                   </span>

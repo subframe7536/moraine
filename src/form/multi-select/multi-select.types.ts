@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
 import type { BaseProps } from '../../shared/types'
@@ -117,11 +117,11 @@ export namespace MultiSelectT {
      */
     tokenSeparators?: string[]
     /** Renderer for each selected tag. */
-    tagRender?: (props: TagRenderProps<TItem>) => JSX.Element
+    tagRender?: Component<TagRenderProps<TItem>>
     /** Content or render function for tags hidden by `maxTagCount`. */
-    tagOverflow?: JSX.Element | ((props: TagOverflowRenderProps<TItem>) => JSX.Element)
+    tagOverflowRender?: JSX.Element | Component<TagOverflowRenderProps<TItem>>
     /** Content or render function for the empty state. */
-    emptyRender?: JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)
+    emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

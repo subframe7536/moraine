@@ -16,14 +16,14 @@ function KbdSeparator(props: KbdGroupT.SeparatorRenderProps) {
 export function KbdHydrationFixture(props: {
   keyName?: string
   items?: KbdGroupT.Item[]
-  separator?: KbdGroupT.Base['separator']
+  separatorRender?: KbdGroupT.Base['separatorRender']
 }) {
   return (
     <>
       <Kbd value={props.keyName ?? 'escape'} />
       <KbdGroup
         items={props.items ?? ['ctrl', 'k']}
-        separator={props.separator ?? KbdSeparator}
+        separatorRender={props.separatorRender ?? KbdSeparator}
         size="sm"
       />
     </>

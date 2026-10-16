@@ -158,9 +158,11 @@ Reusing an open `id` with the same method and render updates that instance in pl
 whole, so include `onClick` again when the label changes.
 
 Custom content has two entry points. `AlertDialog.custom(render, options?)` supplies a render for
-that call. `<AlertDialog dialogRender={render} />` supplies one for every other call on that host.
-A `.custom()` render wins, then the host render, then the built-in layout. The render receives the
-id, the resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `titleId`,
+that specific call, accepting either static `JSX.Element` or a `Component<DialogRenderProps>`.
+Host-level `<AlertDialog dialogRender={render} />` supplies a reusable component for all standard calls
+on that host, requiring a `Component<DialogRenderProps>` because the host creates fresh instances across
+multiple dialog calls. A `.custom()` render wins, then the host render, then the built-in layout. The render
+receives the id, the resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `titleId`,
 and `descriptionId`. It replaces the inner content. The dialog keeps its overlay, focus trap,
 `role="alertdialog"`, and panel width.
 

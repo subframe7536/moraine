@@ -1,3 +1,4 @@
+import type { Component, JSX } from 'solid-js'
 import { createMemo, createSignal, createUniqueId } from 'solid-js'
 
 import { createActionRunner } from '../base/feedback/action-runner'
@@ -25,7 +26,7 @@ export interface AlertDialogHostDefaults {
 export interface AlertDialogRecord {
   id: AlertDialogT.Id
   mode: 'confirm' | 'standard'
-  render?: AlertDialogT.Render
+  render?: JSX.Element | Component<AlertDialogT.DialogRenderProps>
   options: () => AlertDialogT.Options
   open: () => boolean
   pending: () => 'action' | 'cancel' | undefined
@@ -64,7 +65,7 @@ export function createAlertDialogRecord(
   mode: 'confirm' | 'standard',
   initial: AlertDialogT.Options,
   host: () => AlertDialogHostDefaults,
-  render?: AlertDialogT.Render,
+  render?: JSX.Element | Component<AlertDialogT.DialogRenderProps>,
 ): AlertDialogRecord {
   const id = initial.id ?? `alert-dialog-${createUniqueId()}`
   const titleId = createUniqueId()

@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
-import { mergeProps, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import { Show, mergeProps, splitProps } from 'solid-js'
 
 import { mergePopperElementProps } from '../../overlay/base/popper'
 import { pickSlotOverrides, useRecipe } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
 
 import {
   useNavigationMenuContext,
@@ -57,18 +57,27 @@ export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Elemen
       },
     },
   )
+  const linkProps = mergeProps(attributes, {
+    get id() {
+      return local.id
+    },
+    get role() {
+      return disabled() ? 'link' : rest.role
+    },
+    get 'aria-disabled'() {
+      return disabled() ? true : undefined
+    },
+    get 'aria-current'() {
+      return local.active ? 'page' : rest['aria-current']
+    },
+    'data-slot': 'navigation-menu-link',
+    'data-moraine-navigation-menu-control': '',
+    ...navigationMenuDataAttributes.link({ active: () => local.active, disabled }),
+    ...slots.link,
+  })
   return (
-    <Dynamic
-      component={local.linkRender ?? 'a'}
-      {...attributes}
-      id={local.id}
-      role={disabled() ? 'link' : rest.role}
-      aria-disabled={disabled() ? true : undefined}
-      aria-current={local.active ? 'page' : rest['aria-current']}
-      data-slot="navigation-menu-link"
-      data-moraine-navigation-menu-control=""
-      {...navigationMenuDataAttributes.link({ active: () => local.active, disabled })}
-      {...slots.link}
-    />
+    <Show when={local.linkRender} keyed fallback={<a {...linkProps} />}>
+      {(linkRender) => renderWithProps(linkRender, linkProps)}
+    </Show>
   )
 }

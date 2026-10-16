@@ -77,6 +77,12 @@
           }
         },
         {
+          "name": "emptyRender",
+          "optional": true,
+          "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
+          "description": "Content or render function for the empty state."
+        },
+        {
           "name": "gutter",
           "optional": true,
           "type": "number",
@@ -107,7 +113,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>) => JSX.Element",
+          "type": "Component<BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>>",
           "description": "Renderer for each collection item."
         },
         {

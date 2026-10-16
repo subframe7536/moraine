@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -20,7 +20,7 @@ export interface ToastListProps {
   heights: Record<string | number, number>
   gapSize: number
   visibleToasts: number
-  itemRender?: ToastT.Render
+  itemRender?: Component<ToastT.ItemRenderProps>
   onHeight: (id: ToastT.Id, height: number) => void
   requestClose: (id: ToastT.Id, reason: FeedbackCloseReason) => void
   onRemove: (id: ToastT.Id) => void
