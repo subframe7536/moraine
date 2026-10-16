@@ -1,11 +1,11 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { DEV, Show, createEffect, createMemo, on } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasJsxContent } from '../../shared/jsx-content'
+import { renderWithProps } from '../../shared/render-with-props'
 import { useRegisteredContentId } from '../base/content-anatomy'
 import { FeedbackActionButton } from '../base/feedback/feedback-action'
 import { resolveFeedbackIcon } from '../base/feedback/feedback-icons'
@@ -176,7 +176,7 @@ function AlertDialogDefault(props: {
 
 export function AlertDialogEntry(props: {
   record: AlertDialogRecord
-  dialogRender: () => AlertDialogT.Render | undefined
+  dialogRender: () => (JSX.Element | Component<AlertDialogT.DialogRenderProps>) | undefined
 }): JSX.Element {
   const options = () => props.record.options()
   const customRender = () => props.record.render ?? props.dialogRender()
@@ -230,20 +230,7 @@ export function AlertDialogEntry(props: {
               () => props.record.presentation.descriptionId,
               content.registerDescription,
             )
-            return (
-              <Dynamic
-                component={render}
-                id={props.record.presentation.id}
-                options={props.record.presentation.options}
-                pending={props.record.presentation.pending}
-                action={props.record.presentation.action}
-                cancel={props.record.presentation.cancel}
-                close={props.record.presentation.close}
-                update={props.record.presentation.update}
-                titleId={props.record.presentation.titleId}
-                descriptionId={props.record.presentation.descriptionId}
-              />
-            )
+            return renderWithProps(render, props.record.presentation)
           }}
         </Show>
       </Dialog.Content>

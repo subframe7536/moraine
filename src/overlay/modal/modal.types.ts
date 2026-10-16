@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -112,10 +112,8 @@ export namespace ModalT {
   export interface ContentBase {
     /**
      * Content or render function inside the modal content surface.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
+    children: JSX.Element | Component<ContentRenderProps>
   }
 
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>

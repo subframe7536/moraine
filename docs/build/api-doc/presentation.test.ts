@@ -186,6 +186,72 @@ describe('createApiReferenceModel', () => {
     ).toBe('string | number')
   })
 
+  test('formats render props with Render summary type', () => {
+    expect(
+      formatSummaryPropType({
+        name: 'itemRender',
+        optional: true,
+        type: 'JSX.Element | Component<ItemRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'contentTopRender',
+        optional: true,
+        type: 'JSX.Element | Component<ContentTopRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'contentBottomRender',
+        optional: true,
+        type: 'JSX.Element | Component<ContentBottomRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'tagOverflowRender',
+        optional: true,
+        type: 'JSX.Element | Component<MultiSelectT.TagOverflowRenderProps<T>>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'separator',
+        optional: true,
+        type: 'string | number | Component<SeparatorRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'children',
+        optional: true,
+        type: 'JSX.Element | Component<ChildrenRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'children',
+        optional: true,
+        type: 'JSX.Element | Component<ContentRenderProps>',
+      }),
+    ).toBe('Render')
+    expect(
+      formatSummaryPropType({
+        name: 'children',
+        optional: true,
+        type: 'JSX.Element',
+      }),
+    ).toBe('JSX.Element')
+    expect(
+      formatSummaryPropType({
+        name: 'itemProps',
+        optional: true,
+        type: '(context: ItemRenderProps) => ElementProps<HTMLDivElement>',
+      }),
+    ).toBe('function')
+  })
+
   test('derives concise composite headings while retaining full names', () => {
     const model = createApiReferenceModel(component)!
     expect(model.parts.map((part) => [part.heading, part.shortHeading])).toEqual([

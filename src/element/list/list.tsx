@@ -49,7 +49,10 @@ export function List<
             when={local.virtualRender}
             fallback={
               <For each={local.items}>
-                {(item, index) => <local.itemRender item={item} index={index()} />}
+                {(item, index) => {
+                  const ItemRender = local.itemRender
+                  return <ItemRender item={item} index={index()} />
+                }}
               </For>
             }
           >
@@ -58,9 +61,15 @@ export function List<
                 component={virtualRender()}
                 entries={local.items ?? []}
                 scrollElement={scrollElement()}
-                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) => (
-                  <local.itemRender item={item} index={index} props={rowProps} />
-                )}
+                render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) => {
+                  if (typeof local.itemRender === 'function') {
+                    const ItemRender = local.itemRender as Component<
+                      ListT.ItemRenderProps<TItem, TItemElement>
+                    >
+                    return <ItemRender item={item} index={index} props={rowProps} />
+                  }
+                  return local.itemRender
+                }}
               />
             )}
           </Show>

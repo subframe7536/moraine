@@ -234,8 +234,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((props: HandleRenderProps) => JSX.Element)",
-          "description": "Content or render function receiving the live handle state.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+          "type": "JSX.Element | Component<HandleRenderProps>",
+          "description": "Content or render function receiving the live handle state."
         },
         {
           "name": "class",

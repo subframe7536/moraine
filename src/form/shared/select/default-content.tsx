@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../../element/icon/index'
 import type { ListT } from '../../../element/list/index'
 import { useCn } from '../../../provider/cn-context'
+import { renderWithProps } from '../../../shared/render-with-props'
 import { callHandler, callRef } from '../../../shared/utils'
 import type { SlotBinding } from '../../../theme/use-recipe'
 import { BaseSelect, useSelectContext } from '../../base-select/base-select'
@@ -17,7 +18,7 @@ import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
   view: SelectView<T>
   onExitComplete?: () => void
-  emptyRender?: () => JSX.Element
+  emptyRender?: JSX.Element | (() => JSX.Element)
   slot: (
     name: 'itemLeading' | 'itemWrapper' | 'itemLabel' | 'itemDescription' | 'itemIndicator',
   ) => SlotBinding
@@ -144,7 +145,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {(ItemRender) => <ItemRender {...presentation} />}
+            {(render) => renderWithProps(render, presentation)}
           </Show>
         )}
       </BaseSelect.Item>
@@ -217,11 +218,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
         </Show>
       </BaseSelect.Listbox>
       <Show when={props.emptyRender} keyed>
-        {(EmptyRender) => (
-          <BaseSelect.Empty>
-            <EmptyRender />
-          </BaseSelect.Empty>
-        )}
+        {(empty) => <BaseSelect.Empty>{renderWithProps(empty)}</BaseSelect.Empty>}
       </Show>
     </>
   )

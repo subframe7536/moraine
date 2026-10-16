@@ -235,7 +235,7 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
+          "type": "JSX.Element | Component<ContentRenderProps>",
           "description": "Composable dialog parts or render function receiving close action."
         },
         {

@@ -103,7 +103,7 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
           "description": "Content or render function for the filtered empty state."
         },
         {
@@ -153,7 +153,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>) => JSX.Element",
+          "type": "Component<BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>>",
           "description": "Renderer for each collection item."
         },
         {

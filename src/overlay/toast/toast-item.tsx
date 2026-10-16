@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import {
   createEffect,
   createMemo,
@@ -9,13 +9,13 @@ import {
   Show,
   untrack,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { hasJsxContent } from '../../shared/jsx-content'
+import { renderWithProps } from '../../shared/render-with-props'
 import { createActionRunner } from '../base/feedback/action-runner'
 import { FeedbackActionButton } from '../base/feedback/feedback-action'
 import { resolveFeedbackIcon } from '../base/feedback/feedback-icons'
@@ -44,7 +44,7 @@ export interface ToastItemProps {
   expanded: boolean
   paused?: boolean
   host: ToastHostDefaults
-  itemRender?: ToastT.Render
+  itemRender?: Component<ToastT.ItemRenderProps>
   gap?: number
   onHeight: (id: ToastT.Id, height: number) => void
   requestClose: (id: ToastT.Id, reason: FeedbackCloseReason) => void
@@ -666,20 +666,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           </>
         }
       >
-        {(render) => (
-          <Dynamic
-            component={render}
-            id={presentation.id}
-            options={presentation.options}
-            pending={presentation.pending}
-            action={presentation.action}
-            cancel={presentation.cancel}
-            close={presentation.close}
-            index={presentation.index}
-            expanded={presentation.expanded}
-            update={presentation.update}
-          />
-        )}
+        {(render) => renderWithProps(render, presentation)}
       </Show>
     </li>
   )

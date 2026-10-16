@@ -245,7 +245,7 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((props: ContentRenderProps) => JSX.Element)",
+          "type": "JSX.Element | Component<ContentRenderProps>",
           "description": "Composable sheet parts or render function receiving close action."
         },
         {

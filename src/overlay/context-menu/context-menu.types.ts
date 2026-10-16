@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -9,7 +9,7 @@ import type {
   OverlayPlacement,
 } from '../../theme/style-types'
 import type {
-  OverlayMenuContentSlot,
+  OverlayMenuContentSlotProps,
   OverlayMenuItem,
   OverlayMenuItemRenderProps,
 } from '../base/menu'
@@ -28,6 +28,8 @@ export namespace ContextMenuT {
 
   export type Item = OverlayMenuItem
   export type ItemRenderProps = OverlayMenuItemRenderProps
+  export type ContentTopRenderProps = OverlayMenuContentSlotProps
+  export type ContentBottomRenderProps = OverlayMenuContentSlotProps
 
   /**
    * Base props for the ContextMenu root component.
@@ -74,11 +76,11 @@ export namespace ContextMenuT {
     /** Items rendered in the menu body. Supports flat array, explicit group objects, or array-of-arrays. */
     items?: (Item | Item[])[]
     /** Renderer for each menu item. */
-    itemRender?: (props: ItemRenderProps) => JSX.Element
+    itemRender?: Component<ItemRenderProps>
     /** Content rendered before the resolved item groups. */
-    contentTop?: OverlayMenuContentSlot
+    contentTopRender?: JSX.Element | Component<ContentTopRenderProps>
     /** Content rendered after the resolved item groups. */
-    contentBottom?: OverlayMenuContentSlot
+    contentBottomRender?: JSX.Element | Component<ContentBottomRenderProps>
     /** Icon used for checked checkbox items. @default 'icon-check' */
     checkedIcon?: IconT.Name
     /** Icon used for submenu trigger items. @default 'icon-chevron-right' */

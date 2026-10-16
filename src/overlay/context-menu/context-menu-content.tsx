@@ -12,8 +12,8 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
   const [local, rest] = splitProps(props, [
     'items',
     'itemRender',
-    'contentTop',
-    'contentBottom',
+    'contentTopRender',
+    'contentBottomRender',
     'checkedIcon',
     'submenuIcon',
     'class',
@@ -37,8 +37,8 @@ export function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Elemen
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      contentTop={merged.contentTop}
-      contentBottom={merged.contentBottom}
+      contentTopRender={merged.contentTopRender}
+      contentBottomRender={merged.contentBottomRender}
     />
   )
 }

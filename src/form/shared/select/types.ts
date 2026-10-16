@@ -80,7 +80,7 @@ export interface SearchProps<T extends BaseSelectT.Item> {
 }
 export interface ContentProps<T extends BaseSelectT.Item> {
   /** Renderer for each collection item. */
-  itemRender?: (props: BaseSelectT.ItemRenderProps<T>) => JSX.Element
+  itemRender?: Component<BaseSelectT.ItemRenderProps<T>>
   /** Additional row attributes. */
   itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
   /** Additional listbox attributes. */

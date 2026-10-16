@@ -112,7 +112,7 @@
         {
           "name": "valueRender",
           "optional": true,
-          "type": "JSX.Element | ((props: ValueRenderProps) => JSX.Element)",
+          "type": "JSX.Element | Component<ValueRenderProps>",
           "description": "Content or render function for the value slot.\nDeterminate progress shows this instead of the percentage."
         }
       ]

@@ -103,7 +103,7 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
           "description": "Content or render function for the empty state."
         },
         {
@@ -153,7 +153,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: BaseSelectT.ItemRenderProps<TItem>) => JSX.Element",
+          "type": "Component<BaseSelectT.ItemRenderProps<TItem>>",
           "description": "Renderer for each collection item."
         },
         {
@@ -364,15 +364,15 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "tagOverflow",
+          "name": "tagOverflowRender",
           "optional": true,
-          "type": "JSX.Element | ((props: TagOverflowRenderProps<TItem>) => JSX.Element)",
+          "type": "JSX.Element | Component<TagOverflowRenderProps<TItem>>",
           "description": "Content or render function for tags hidden by `maxTagCount`."
         },
         {
           "name": "tagRender",
           "optional": true,
-          "type": "(props: TagRenderProps<TItem>) => JSX.Element",
+          "type": "Component<TagRenderProps<TItem>>",
           "description": "Renderer for each selected tag."
         },
         {

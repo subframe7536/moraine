@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
@@ -42,7 +42,7 @@ export namespace AlertDialogT {
      * Renders the inner content of every dialog on this host that was not opened with
      * `AlertDialog.custom`. Receives the instance context and the resolved call options.
      */
-    dialogRender?: Render
+    dialogRender?: JSX.Element | Component<DialogRenderProps>
 
     /**
      * Whether the corner close button is shown.
@@ -147,7 +147,7 @@ export namespace AlertDialogT {
     descriptionId: string
   }
 
-  export type Render = (props: RenderProps) => JSX.Element
+  export type DialogRenderProps = RenderProps
 }
 
 /** Props for the AlertDialog host component. */

@@ -19,6 +19,7 @@ import { useCn } from '../../../provider/cn-context'
 import { useLocale } from '../../../provider/locale/locale-context'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createEventListener } from '../../../shared/event-listener'
+import { renderWithProps } from '../../../shared/render-with-props'
 import { createTransitionPresence } from '../../../shared/transition-presence'
 import { callHandler, callRef, createId } from '../../../shared/utils'
 import { dataSlotName } from '../../../theme/data-slot'
@@ -555,8 +556,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
               itemRender={props.itemRender}
-              contentTop={props.contentTop}
-              contentBottom={props.contentBottom}
+              contentTopRender={props.contentTopRender}
+              contentBottomRender={props.contentBottomRender}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
@@ -754,12 +755,12 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           layer.resetTypeahead()
         }}
       >
-        <Show when={props.contentTop} keyed>
-          {(ContentTopRender) => <ContentTopRender sub={props.depth > 0} />}
+        <Show when={props.contentTopRender} keyed>
+          {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
         <For each={groups()}>{(group) => <MenuGroup group={group} />}</For>
-        <Show when={props.contentBottom} keyed>
-          {(ContentBottomRender) => <ContentBottomRender sub={props.depth > 0} />}
+        <Show when={props.contentBottomRender} keyed>
+          {(render) => renderWithProps(render, { sub: props.depth > 0 })}
         </Show>
       </div>
     </div>

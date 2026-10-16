@@ -85,7 +85,7 @@
         {
           "name": "emptyRender",
           "optional": true,
-          "type": "JSX.Element | ((props: EmptyRenderProps<TItem>) => JSX.Element)",
+          "type": "JSX.Element | Component<EmptyRenderProps<TItem>>",
           "description": "Content or render function for the empty state."
         },
         {
@@ -97,7 +97,7 @@
         {
           "name": "footerRender",
           "optional": true,
-          "type": "JSX.Element | ((props: FooterRenderProps<TItem>) => JSX.Element)",
+          "type": "JSX.Element | Component<FooterRenderProps<TItem>>",
           "description": "Content or render function for the footer."
         },
         {
@@ -110,7 +110,7 @@
           "name": "groups",
           "optional": true,
           "type": "Group<TItem>[]",
-          "typeDetails": "({\n  /** Unique identifier for the group. */\n  id: string;\n  /** Display name for the group header. */\n  label?: string;\n  /** Items belonging to this group. */\n  items?: ({\n    /** Unique value for the item. */\n    value: string;\n    /** Primary label for the item. */\n    label?: string;\n    /** Secondary description text shown for the item. */\n    description?: string;\n    /** Additional keywords included in built-in search matching. */\n    keywords?: string[];\n    /** Content or render function at the start of this item. */\n    leadingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element);\n    /** Content or render function at the end of this item. */\n    trailingRender?: JSX.Element | ((props: ItemRenderProps) => JSX.Element);\n    /** Whether the item is disabled and cannot be selected. */\n    disabled?: boolean;\n    /** Whether this item should be excluded from built-in search filtering. */\n    alwaysShow?: boolean;\n    /** Callback triggered when the item is selected. */\n    onSelect?: () => void;\n  })[];\n})[]",
+          "typeDetails": "({\n  /** Unique identifier for the group. */\n  id: string;\n  /** Display name for the group header. */\n  label?: string;\n  /** Items belonging to this group. */\n  items?: ({\n    /** Unique value for the item. */\n    value: string;\n    /** Primary label for the item. */\n    label?: string;\n    /** Secondary description text shown for the item. */\n    description?: string;\n    /** Additional keywords included in built-in search matching. */\n    keywords?: string[];\n    /** Content or render function at the start of this item. */\n    leadingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Content or render function at the end of this item. */\n    trailingRender?: JSX.Element | Component<ItemRenderProps>;\n    /** Whether the item is disabled and cannot be selected. */\n    disabled?: boolean;\n    /** Whether this item should be excluded from built-in search filtering. */\n    alwaysShow?: boolean;\n    /** Callback triggered when the item is selected. */\n    onSelect?: () => void;\n  })[];\n})[]",
           "description": "Command groups to display initially.",
           "default": {
             "kind": "expression",
@@ -138,7 +138,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: ItemRenderProps<TItem>) => JSX.Element",
+          "type": "Component<ItemRenderProps<TItem>>",
           "description": "Renderer for each command row."
         },
         {
@@ -291,7 +291,7 @@
       {
         "name": "leadingRender",
         "optional": true,
-        "type": "JSX.Element | ((props: ItemRenderProps) => JSX.Element)",
+        "type": "JSX.Element | Component<ItemRenderProps>",
         "description": "Content or render function at the start of this item."
       },
       {
@@ -303,7 +303,7 @@
       {
         "name": "trailingRender",
         "optional": true,
-        "type": "JSX.Element | ((props: ItemRenderProps) => JSX.Element)",
+        "type": "JSX.Element | Component<ItemRenderProps>",
         "description": "Content or render function at the end of this item."
       },
       {

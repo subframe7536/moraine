@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { createMemo, For, Show, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -22,6 +22,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
     'separator',
+    'separatorRender',
     'size',
     'variant',
     'classes',
@@ -70,11 +71,15 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
               />
               <Show when={index() < normalizedItems().length - 1}>
                 <Show
-                  when={typeof local.separator === 'function' && local.separator}
-                  fallback={(local.separator as string | number) ?? '+'}
+                  when={
+                    typeof (local.separatorRender ?? local.separator) === 'function' &&
+                    ((local.separatorRender ??
+                      local.separator) as Component<KbdGroupT.SeparatorRenderProps>)
+                  }
+                  fallback={((local.separatorRender ?? local.separator) as JSX.Element) ?? '+'}
                   keyed
                 >
-                  {(SeparatorRender) => <SeparatorRender index={index()} />}
+                  {(Separator) => <Separator index={index()} />}
                 </Show>
               </Show>
             </>

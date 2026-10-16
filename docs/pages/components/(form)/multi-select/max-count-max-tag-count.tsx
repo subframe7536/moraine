@@ -38,7 +38,7 @@ export function MaxCountMaxTagCount() {
           items={TECH_STACK}
           defaultValue={['solid', 'ts', 'tailwind']}
           maxTagCount={1}
-          tagOverflow={(props) => (
+          tagOverflowRender={(props) => (
             <Tooltip openDelay={200}>
               <Tooltip.Trigger
                 as="span"

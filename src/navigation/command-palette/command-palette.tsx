@@ -522,7 +522,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           </>
         }
       >
-        {(ItemRender) => <ItemRender {...itemProps.context} />}
+        {(render) => renderWithProps(render, itemProps.context)}
       </Show>
     )
   }

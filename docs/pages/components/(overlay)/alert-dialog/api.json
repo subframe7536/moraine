@@ -73,7 +73,7 @@
         {
           "name": "dialogRender",
           "optional": true,
-          "type": "Render",
+          "type": "JSX.Element | Component<DialogRenderProps>",
           "description": "Renders the inner content of every dialog on this host that was not opened with\n`AlertDialog.custom`. Receives the instance context and the resolved call options."
         },
         {

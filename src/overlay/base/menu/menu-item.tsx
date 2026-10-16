@@ -1,5 +1,5 @@
 import type { ClassValue } from 'cn'
-import type { Accessor, JSX, Setter } from 'solid-js'
+import type { Accessor, Component, JSX, Setter } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount } from 'solid-js'
 
 import { Icon } from '../../../element/icon'
@@ -8,6 +8,7 @@ import { KbdGroup } from '../../../element/kbd-group'
 import { createControllableValue } from '../../../shared/controllable-value'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { attachEventListenerMap } from '../../../shared/event-listener'
+import { renderWithProps } from '../../../shared/render-with-props'
 import { createId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/cn'
 import type { SlotBinding } from '../../../theme/use-recipe'
@@ -146,7 +147,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
     depth: number
     checkedIcon?: IconT.Name
     submenuIcon?: IconT.Name
-    itemRender?: (props: OverlayMenuItemRenderProps<TItem>) => JSX.Element
+    itemRender?: Component<OverlayMenuItemRenderProps<TItem>>
   }
   layer: OverlayMenuLayerState
   closeRoot: (options?: OverlayMenuCloseOptions) => void
@@ -212,16 +213,17 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         when={itemRender() === undefined}
         fallback={
           <Show when={itemRender()} keyed>
-            {(ItemRender) => (
-              <ItemRender
-                {...getItemRenderProps(
+            {(render) =>
+              renderWithProps(
+                render,
+                getItemRenderProps(
                   contentProps.item,
                   contentProps.hasChildren,
                   contentProps.isCheckbox,
                   contentProps.isRadio,
-                )}
-              />
-            )}
+                ),
+              )
+            }
           </Show>
         }
       >

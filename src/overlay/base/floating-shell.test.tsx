@@ -78,7 +78,7 @@ describe.each([
           <Root.Trigger>Trigger</Root.Trigger>
           {createComponent(Root.Content, {
             items: [{ label: 'Action' }],
-            get contentTop() {
+            get contentTopRender() {
               reads++
               return top
             },

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -58,10 +58,8 @@ export namespace FieldT {
     readOnly?: boolean
     /**
      * Content or render function receiving the field state.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children?: JSX.Element | ((props: RenderProps) => JSX.Element)
+    children?: JSX.Element | Component<RenderProps>
   }
 
   /** Props for the Field component. */

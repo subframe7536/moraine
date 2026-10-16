@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -142,10 +142,8 @@ export namespace ResizableT {
 
     /**
      * Content or render function receiving the live handle state.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children?: JSX.Element | ((props: HandleRenderProps) => JSX.Element)
+    children?: JSX.Element | Component<HandleRenderProps>
   }
 
   export type HandleProps = BaseProps<'div', HandleBase, never, never, never>

@@ -279,8 +279,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)",
-          "description": "Label or reactive presentation function.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+          "type": "JSX.Element | Component<TriggerRenderProps<TItem>>",
+          "description": "Label or reactive presentation function."
         },
         {
           "name": "class",
@@ -370,8 +370,8 @@
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)",
-          "description": "Visual content or reactive row presentation.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+          "type": "JSX.Element | Component<ItemRenderProps<TItem>>",
+          "description": "Visual content or reactive row presentation."
         },
         {
           "name": "class",

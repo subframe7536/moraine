@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
@@ -100,7 +100,7 @@ export namespace BreadcrumbT {
     /**
      * Renderer for each breadcrumb item.
      */
-    itemRender?: (props: ItemRenderProps) => JSX.Element
+    itemRender?: Component<ItemRenderProps>
   }
 
   /**

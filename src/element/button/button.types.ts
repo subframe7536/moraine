@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -14,6 +14,13 @@ export namespace ButtonT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
+  export interface ChildrenRenderProps {
+    /**
+     * Whether the button is currently in loading state.
+     */
+    loading: boolean
+  }
 
   /**
    * Base props for the Button component.
@@ -64,17 +71,8 @@ export namespace ButtonT {
 
     /**
      * Content or render function receiving the loading state.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children?:
-      | JSX.Element
-      | ((props: {
-          /**
-           * Whether the button is currently in loading state.
-           */
-          loading: boolean
-        }) => JSX.Element)
+    children?: JSX.Element | Component<ChildrenRenderProps>
   }
 
   /**

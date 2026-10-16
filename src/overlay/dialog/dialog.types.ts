@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
@@ -65,7 +65,7 @@ export namespace DialogT {
     description?: JSX.Element
 
     /** Composable dialog parts or render function receiving close action. */
-    children?: JSX.Element | ((props: ContentRenderProps) => JSX.Element)
+    children?: JSX.Element | Component<ContentRenderProps>
   }
 
   /**

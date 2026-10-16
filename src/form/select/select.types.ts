@@ -55,6 +55,8 @@ export namespace SelectT {
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
     onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
+    /** Content or render function for the empty state. */
+    emptyRender?: JSX.Element
     /**
      * Placeholder text shown when no value is selected.
      * @default ''

@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -216,10 +216,8 @@ export namespace BaseSelectT {
     disabled?: boolean
     /**
      * Label or reactive presentation function.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children?: JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)
+    children?: JSX.Element | Component<TriggerRenderProps<TItem>>
   }
 
   export type TriggerProps<
@@ -255,10 +253,8 @@ export namespace BaseSelectT {
     as?: never
     /**
      * Visual content or reactive row presentation.
-     * A render function must declare its parameter, even when unused. A zero-argument
-     * function is called as an accessor and is not mounted as a component.
      */
-    children?: JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)
+    children?: JSX.Element | Component<ItemRenderProps<TItem>>
   }
   export type ItemProps<TItem extends Item = Item> = BaseProps<
     'div',

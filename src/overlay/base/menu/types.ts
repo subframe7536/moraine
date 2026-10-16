@@ -1,5 +1,5 @@
 import type { ClassValue } from 'cn'
-import type { JSX } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../../element/icon'
 import type { OverlayAlign, OverlayPlacement } from '../../../theme/style-types'
@@ -8,7 +8,10 @@ import type { SlotBinding as ComponentSlotBinding } from '../../../theme/use-rec
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
 import type { OverlayMenuStyleSlot } from './style-types'
 
-export type OverlayMenuContentSlot = (context: { sub: boolean }) => JSX.Element
+export interface OverlayMenuContentSlotProps {
+  /** Whether this content is inside a submenu. */
+  sub: boolean
+}
 
 export type OverlayMenuItemType = 'item' | 'separator' | 'checkbox' | 'radio' | 'group'
 
@@ -296,17 +299,17 @@ export interface OverlayMenuProps<TItem extends OverlayMenuItem = OverlayMenuIte
   /**
    * Content rendered before the resolved item groups.
    */
-  contentTop?: OverlayMenuContentSlot
+  contentTopRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
 
   /**
    * Content rendered after the resolved item groups.
    */
-  contentBottom?: OverlayMenuContentSlot
+  contentBottomRender?: JSX.Element | Component<OverlayMenuContentSlotProps>
 
   /**
    * Renderer for each menu item.
    */
-  itemRender?: (props: OverlayMenuItemRenderProps<TItem>) => JSX.Element
+  itemRender?: Component<OverlayMenuItemRenderProps<TItem>>
 
   /**
    * Pointer down handler for the content wrapper.

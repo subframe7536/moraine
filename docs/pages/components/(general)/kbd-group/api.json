@@ -37,12 +37,18 @@
         {
           "name": "separator",
           "optional": true,
-          "type": "string | number | ((props: SeparatorRenderProps) => JSX.Element)",
+          "type": "string | number | Component<SeparatorRenderProps>",
           "description": "String or number shorthand, or a renderer for each separator between keys.",
           "default": {
             "kind": "literal",
             "value": "+"
           }
+        },
+        {
+          "name": "separatorRender",
+          "optional": true,
+          "type": "Component<SeparatorRenderProps>",
+          "description": "Custom renderer for each separator between keys."
         },
         {
           "name": "size",

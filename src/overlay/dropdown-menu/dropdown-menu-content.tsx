@@ -12,8 +12,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
   const [local, rest] = splitProps(props, [
     'items',
     'itemRender',
-    'contentTop',
-    'contentBottom',
+    'contentTopRender',
+    'contentBottomRender',
     'checkedIcon',
     'submenuIcon',
     'class',
@@ -37,8 +37,8 @@ export function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Elem
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      contentTop={merged.contentTop}
-      contentBottom={merged.contentBottom}
+      contentTopRender={merged.contentTopRender}
+      contentBottomRender={merged.contentBottomRender}
     />
   )
 }

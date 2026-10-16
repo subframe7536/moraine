@@ -221,21 +221,21 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "contentBottom",
+          "name": "contentBottomRender",
           "optional": true,
-          "type": "OverlayMenuContentSlot",
+          "type": "JSX.Element | Component<ContentBottomRenderProps>",
           "description": "Content rendered after the resolved item groups."
         },
         {
-          "name": "contentTop",
+          "name": "contentTopRender",
           "optional": true,
-          "type": "OverlayMenuContentSlot",
+          "type": "JSX.Element | Component<ContentTopRenderProps>",
           "description": "Content rendered before the resolved item groups."
         },
         {
           "name": "itemRender",
           "optional": true,
-          "type": "(props: ItemRenderProps) => JSX.Element",
+          "type": "Component<ItemRenderProps>",
           "description": "Renderer for each menu item."
         },
         {

@@ -1,5 +1,5 @@
 import type { Coords, Placement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 
 import type { ValidComponent } from '../../shared/types'
 import type { OverlayAlign, OverlayPlacement } from '../../theme/style-types'
@@ -217,10 +217,8 @@ export interface PopperContentProps extends PopperContentOptions {
 
   /**
    * Content or render function inside the positioned content.
-   * A render function must declare its parameter, even when unused. A zero-argument
-   * function is called as an accessor and is not mounted as a component.
    */
-  children: JSX.Element | ((props: PopperContentContext) => JSX.Element)
+  children: JSX.Element | Component<PopperContentContext>
 
   /** Viewport coordinates to transition from when content is first positioned. */
   initialPosition?: Coords

@@ -96,7 +96,7 @@
         {
           "name": "itemRender",
           "optional": true,
-          "type": "Render",
+          "type": "Component<ItemRenderProps>",
           "description": "Renders the inner content of every toast on this host that was not opened with\n`Toast.custom`. Receives the instance context and the resolved call options."
         },
         {

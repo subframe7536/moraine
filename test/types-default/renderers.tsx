@@ -11,26 +11,29 @@ import {
   Toast,
 } from 'moraine'
 
-// @ts-expect-error Each breadcrumb requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<Breadcrumb itemRender={<span />} />
-// @ts-expect-error Each option requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<Select itemRender={<span />} />
-// @ts-expect-error Each option requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<Combobox itemRender={<span />} />
-// @ts-expect-error Each option requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<MultiSelect itemRender={<span />} />
-// @ts-expect-error Each tag requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<TagRenderProps>, not JSX.Element.
 ;<MultiSelect tagRender={<span />} />
-// @ts-expect-error Each command requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<CommandPalette itemRender={<span />} />
-// @ts-expect-error Each menu item requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<DropdownMenu.Content itemRender={<span />} />
-// @ts-expect-error Each menu item requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<ContextMenu.Content itemRender={<span />} />
-// @ts-expect-error Each separator requires its own renderer instance.
+// @ts-expect-error Separator accepts string | number | Component<SeparatorRenderProps>, not JSX.Element.
 ;<KbdGroup items={['Ctrl', 'K']} separator={<span />} />
-// @ts-expect-error Each toast requires its own renderer instance.
+// @ts-expect-error Reusable collection renderers require Component<ItemRenderProps>, not JSX.Element.
 ;<Toast itemRender={<span />} />
+
+// @ts-expect-error Object is not a valid itemRender.
+;<Breadcrumb itemRender={{ invalid: true }} />
 
 ;<Progress valueRender={<span />} />
 ;<Progress valueRender={(props) => <span>{props.percent}</span>} />
@@ -39,7 +42,7 @@ import {
 ;<Combobox emptyRender={<span />} itemRender={(props) => <span>{props.item.label}</span>} />
 ;<MultiSelect
   emptyRender={<span />}
-  tagOverflow={<span />}
+  tagOverflowRender={<span />}
   itemRender={(props) => <span>{props.item.label}</span>}
   tagRender={(props) => <span>{props.label}</span>}
 />
