@@ -27,7 +27,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const isDocs = createMemo(() => location.pathname.startsWith('/docs'))
 
   return (
-    <header class="font-sans border-b border-border/60 bg-background shrink-0 h-13 z-sticky">
+    <header class="font-sans bg-background shrink-0 h-13 z-sticky">
       <nav
         aria-label="Main"
         class="px-5 flex gap-4 h-full w-full items-center justify-between sm:px-8 lg:ps-6"
