@@ -1,15 +1,15 @@
 ---
 name: Variant x Tone colors
-overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). In light mode, default foregrounds reuse `--background` (var(--background)) rather than pure white, with status tone base colors calibrated to guarantee WCAG 2.2 AA (>= 4.5:1) against `--background`. The internal tone channel is strictly separated from public theme configuration. Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict input validation (0-100 number or CSS string). Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is a co-equal brand tone to primary (supporting the entire variant matrix); the subtle variant is deleted in favor of soft; breaking changes and migration mapping live strictly in commit messages (not in public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with documented degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, and consumers plus tests are updated.
+overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). For default Light/Dark themes, Solid buttons, Soft washes, and Link/Ghost text are verified to meet WCAG 2.2 AA (>= 4.5:1) against --background, while explicitly scoping that custom themes and arbitrary colored containers are excluded from automatic guarantees. The internal tone channel is strictly separated from public theme configuration. Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict nullish-coalescing (preserving 0 as 0%) and input validation. Tone ink establishes a clear 3-tier precedence (explicit token override > auto-derived mix > base fallback). Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is a co-equal brand tone to primary (supporting the entire variant matrix); the subtle variant is deleted in favor of soft; breaking changes and migration mapping live in PR descriptions, release notes, and commit messages (omitted from public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with verified cascade degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, cross-preset parity and anti-drift integrity tests are added, and consumers plus tests are updated.
 todos:
   - id: tokens
-    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary co-equal to primary), reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
+    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary co-equal to primary), establish 3-tier ink precedence (explicit token > auto-derived --mo-*-ink > base fallback), reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
     status: pending
   - id: presets
-    content: 'unocss.ts / tailwind.ts / defaults.ts: calibrate light status tone bases in DEFAULT_THEME_COLORS to meet WCAG 2.2 AA (>= 4.5:1) against --background (reusing var(--background) rather than pure white), set dark status tone defaults meeting WCAG AA, exclude tone from MoraineThemeColors and createThemeCSS, add validated mix knobs (0-100 number or CSS string), wire shared.mix in resolveThemes, shallow-merge mix in mergeTheme, drop numeric/callback resolvers, add neutral and tone to wind3 regex, intentionally remove legacy duplicate /alpha fallback and document degradation'
+    content: 'unocss.ts / tailwind.ts / defaults.ts: calibrate status tone bases in DEFAULT_THEME_COLORS to meet WCAG 2.2 AA for solid, soft, and link on defaults, exclude tone from MoraineThemeColors and createThemeCSS, add validated mix knobs (preserving 0 via nullish checks, 0-100 number or CSS string), wire shared.mix in resolveThemes, shallow-merge mix in mergeTheme, drop numeric/callback resolvers, add neutral and tone to wind3 regex, intentionally remove legacy duplicate /alpha fallback and verify cascade output'
     status: pending
   - id: button
-    content: 'Button: variant solid|soft|outline|ghost|link x tone (default solid + primary, secondary co-equal to primary); all tones including neutral use the same generic tone-channel formulas (no compounds); link with border-transparent, focus ring tone/20 with dark:40; add tone to splitProps; update container contrast guidelines (prefer solid on colored containers)'
+    content: 'Button: variant solid|soft|outline|ghost|link x tone (default solid + primary, secondary co-equal to primary); all tones including neutral use the same generic tone-channel formulas (no compounds); link with border-transparent, focus ring tone/20 with dark:40; add tone to splitProps; document container contrast limitations (prefer solid on colored containers)'
     status: pending
   - id: badge
     content: 'Badge: variant solid|soft|surface|outline x tone (default soft + neutral); subtle variant deleted in favor of soft; all tones including neutral use the same base variant classes (no compounds); add tone to splitProps'
@@ -21,10 +21,10 @@ todos:
     content: 'Menu danger item, Field error, required asterisks, and select duplicate tag: switch to ink tokens; migrate docs, demos and type fixtures'
     status: pending
   - id: docs
-    content: Rewrite the color sections of unocss.mdx / design.mdx / customization.mdx and docs/shared/color-tokens.ts, documenting Variant x Tone, confirmed slate secondary co-equal to primary, mix knobs, and intentional color-mix degradation (migration details live strictly in commit messages, not in public docs)'
+    content: Rewrite the color sections of unocss.mdx / design.mdx / customization.mdx and docs/shared/color-tokens.ts, documenting Variant x Tone, confirmed slate secondary co-equal to primary, mix knobs, and intentional color-mix degradation (migration details live strictly in PR description, release notes, and commit messages, omitted from public docs)'
     status: pending
   - id: tests
-    content: Add WCAG 2.2 AA automated contrast tests (light & dark x 7 tones x solid against --background), tone channel isolation tests, mix validation tests (range check, CSS strings, resolveThemes shared inheritance, override precedence), update token/preset/component tests, then run pnpm run qa and pnpm run test
+    content: Add WCAG 2.2 AA contrast tests (Solid, Soft, Link across all 7 tones in default light & dark), mix tests (0% preservation, range check, CSS strings, resolveThemes shared inheritance, override precedence), tone ink 3-tier precedence tests, cross-preset UnoCSS/Tailwind parity tests, THEME_COLOR_ROLES anti-drift integrity tests, update component tests, then run pnpm run qa and pnpm run test
     status: pending
 isProject: false
 ---
@@ -66,12 +66,13 @@ flowchart TB
 
 The visual behavior references modern component design systems (Nuxt UI / Radix):
 
-- **`secondary` is co-equal to `primary`**: In Moraine, `secondary` is a first-class brand anchor Tone at the exact same level as `primary`. Both are configurable brand roles, share identical variant formulas, and support every variant in the matrix. Do not omit `secondary`.
+- **`secondary` is co-equal to `primary`**: In Moraine, `secondary` is a first-class brand anchor Tone at the exact same level as `primary`. Both are configurable brand roles, share identical variant formulas, and support every variant in the matrix.
 - **`subtle` is deleted**: The tinted variant is strictly named `soft` across all controls (`solid`, `soft`, `outline`, `ghost`, `link` for Button; `solid`, `soft`, `surface`, `outline` for Badge). The legacy `subtle` variant is removed completely.
+- **Light/Dark theme luminance inversion**: The matrix indicates structural variant behavior. Light vs Dark modes may invert luminance (e.g. Light mode uses dark/vibrant fills with light text, while Dark mode `primary` and `secondary` use light fills with dark text). The structural variant formula remains strictly identical (`bg-tone text-tone-foreground`).
 
 | Variant       | `primary` (Brand)                | `secondary` (Brand)              | `neutral` (Mono)                 | `success` (Status)               | `info` (Status)                  | `warning` (Status)               | `danger` (Status)                | Common Formula                                      |
 | :------------ | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :-------------------------------------------------- |
-| **`solid`**   | Primary fill, light text         | Slate fill, light text           | Dark neutral fill, light text    | Green fill, light text           | Blue fill, light text            | Amber fill, text                 | Red fill, light text             | `bg-tone text-tone-foreground border-transparent`   |
+| **`solid`**   | Primary fill, contrast text      | Slate fill, contrast text        | Charcoal fill, contrast text     | Green fill, contrast text        | Blue fill, contrast text         | Amber fill, contrast text        | Red fill, contrast text          | `bg-tone text-tone-foreground border-transparent`   |
 | **`soft`**    | Primary /12 tint, ink text       | Slate /12 tint, ink text         | Gray /12 tint, ink text          | Green /12 tint, ink text         | Blue /12 tint, ink text          | Amber /12 tint, ink text         | Red /12 tint, ink text           | `bg-tone/12 text-tone-ink border-transparent`       |
 | **`outline`** | Transparent, primary /40 border  | Transparent, slate /40 border    | Transparent, neutral /40 border  | Transparent, green /40 border    | Transparent, blue /40 border     | Transparent, amber /40 border    | Transparent, red /40 border      | `border-tone/40 text-tone-ink bg-transparent`       |
 | **`ghost`**   | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | `border-transparent text-tone-ink hover:bg-tone/10` |
@@ -91,38 +92,39 @@ Core rules:
   - Together with the surface role `accent`, users generally only need to define **`primary`**, **`secondary`**, and **`accent`** to theme an entire Moraine application.
   - All 7 tones are equal first-class citizens in the tone channel, sharing the exact same generic formulas (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-ink`) with zero special-cased class lists.
 
-- **Tone Foregrounds & WCAG 2.2 AA Contrast Guarantee:**
-  - **Light mode foregrounds reuse `--background` (`var(--background)`):** Do not hardcode pure white (`rgb(255, 255, 255)`) as the default foreground for light mode. Reusing `var(--background)` ensures text color harmonizes with custom background tints (such as off-white, paper, or tinted surfaces), avoiding harsh and clashing `#ffffff` text.
-  - **Light mode status tone base calibration:** Because light mode foreground reuses `--background` (default `rgb(255, 255, 255)`), status tone base defaults are calibrated to guarantee WCAG 2.2 AA ($\ge 4.5:1$ for normal text) against `--background`:
-    - `danger.base`: `rgb(220, 38, 38)` (`#dc2626`, Tailwind red-600) $\to$ contrast vs `--background` is **4.83:1** (Pass)
-    - `info.base`: `rgb(8, 109, 221)` (`#086ddd`) $\to$ contrast vs `--background` is **4.95:1** (Pass)
-    - `success.base`: `rgb(21, 128, 61)` (`#15803d`, Tailwind green-700) $\to$ contrast vs `--background` is **5.02:1** (Pass)
-    - `warning.base`: `rgb(180, 83, 9)` (`#b45309`, Tailwind amber-700) $\to$ contrast vs `--background` is **5.02:1** (Pass)
-  - All built-in tone defaults are calibrated and tested to guarantee WCAG 2.2 AA compliance for `<Button variant="solid" tone="{tone}">`:
+- **WCAG 2.2 AA Contrast: Scope, Guarantees & Exclusions:**
+  - **Scope of Guarantee:** The contrast guarantee strictly applies to **built-in default Light/Dark themes (`DEFAULT_THEME_COLORS`)** rendered on **default neutral page surfaces (`--background`)**.
+  - **What is tested & guaranteed in defaults:**
+    1. **`solid` Button/Badge:** Foreground text (`--mo-tone-foreground`) vs base background (`--mo-tone`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes.
+    2. **`soft` Button/Badge:** Ink text (`--mo-tone-ink`) vs tinted wash background (`bg-tone/12` over `--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (verified 6.0:1 ~ 14.3:1).
+    3. **`link` / `ghost` Button:** Ink text (`--mo-tone-ink`) vs page background (`--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (verified 7.2:1 ~ 18.9:1).
+  - **Explicit Exclusions:**
+    - **Custom theme overrides:** If a user supplies custom `--background` (e.g. dark charcoal in light mode) or custom tone `base` colors, contrast depends on their chosen palette and is not guaranteed by Moraine.
+    - **Arbitrary colored containers:** `outline` and `ghost` have transparent backgrounds; their contrast depends entirely on the parent container. On non-neutral colored containers (e.g. inside an Alert banner), developers should prefer `solid` or explicitly verify contrast.
 
-| Tone        | Theme | Base                 | Foreground           | Contrast | WCAG 2.2 AA ($\ge 4.5:1$) |
-| :---------- | :---- | :------------------- | :------------------- | :------- | :------------------------ |
-| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | 18.2:1   | Pass                      |
-| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | 13.9:1   | Pass                      |
-| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | 9.9:1    | Pass                      |
-| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | 12.0:1   | Pass                      |
-| `neutral`   | Light | `rgb(23, 23, 23)`    | `var(--background)`  | 18.7:1   | Pass                      |
-| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | 18.2:1   | Pass                      |
-| `danger`    | Light | `rgb(220, 38, 38)`   | `var(--background)`  | 4.83:1   | Pass                      |
-| `danger`    | Dark  | `rgb(248, 113, 113)` | `rgb(23, 23, 23)`    | 6.48:1   | Pass                      |
-| `info`      | Light | `rgb(8, 109, 221)`   | `var(--background)`  | 4.95:1   | Pass                      |
-| `info`      | Dark  | `rgb(96, 165, 250)`  | `rgb(23, 23, 23)`    | 7.05:1   | Pass                      |
-| `success`   | Light | `rgb(21, 128, 61)`   | `var(--background)`  | 5.02:1   | Pass                      |
-| `success`   | Dark  | `rgb(74, 222, 128)`  | `rgb(23, 23, 23)`    | 10.29:1  | Pass                      |
-| `warning`   | Light | `rgb(180, 83, 9)`    | `var(--background)`  | 5.02:1   | Pass                      |
-| `warning`   | Dark  | `rgb(251, 191, 36)`  | `rgb(23, 23, 23)`    | 10.74:1  | Pass                      |
+#### Default Theme Contrast Verification Table (Light & Dark)
 
-_(Note on Dark Mode status tones: using the vibrant 400 scale with dark foreground `rgb(23, 23, 23)` achieves high contrast (6.5:1 to 10.7:1), matching the dark-mode behavior of `primary`, `secondary`, and `neutral` where solid buttons feature a light fill and dark text.)_
+| Tone        | Theme | Base                 | Foreground Token     | Solid CR | Soft CR (`ink` vs `/12` wash) | Link/Page CR (`ink` vs bg) | WCAG 2.2 AA ($\ge 4.5:1$) |
+| :---------- | :---- | :------------------- | :------------------- | :------- | :---------------------------- | :------------------------- | :------------------------ |
+| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | 18.2:1   | 14.3:1                        | 18.4:1                     | Pass                      |
+| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | 13.9:1   | 12.9:1                        | 16.5:1                     | Pass                      |
+| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | 9.9:1    | 10.4:1                        | 12.7:1                     | Pass                      |
+| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | 12.0:1   | 11.7:1                        | 14.6:1                     | Pass                      |
+| `neutral`   | Light | `rgb(23, 23, 23)`    | `var(--background)`  | 18.7:1   | 14.3:1                        | 18.4:1                     | Pass                      |
+| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | 18.2:1   | 14.3:1                        | 19.0:1                     | Pass                      |
+| `danger`    | Light | `rgb(220, 38, 38)`   | `var(--background)`  | 4.83:1   | 6.05:1                        | 7.29:1                     | Pass                      |
+| `danger`    | Dark  | `rgb(248, 113, 113)` | `rgb(23, 23, 23)`    | 6.48:1   | 7.94:1                        | 9.07:1                     | Pass                      |
+| `info`      | Light | `rgb(8, 109, 221)`   | `var(--background)`  | 4.95:1   | 6.22:1                        | 7.38:1                     | Pass                      |
+| `info`      | Dark  | `rgb(96, 165, 250)`  | `rgb(23, 23, 23)`    | 7.05:1   | 8.45:1                        | 9.84:1                     | Pass                      |
+| `success`   | Light | `rgb(21, 128, 61)`   | `var(--background)`  | 5.02:1   | 6.27:1                        | 7.36:1                     | Pass                      |
+| `success`   | Dark  | `rgb(74, 222, 128)`  | `rgb(23, 23, 23)`    | 10.29:1  | 10.54:1                       | 12.71:1                    | Pass                      |
+| `warning`   | Light | `rgb(180, 83, 9)`    | `var(--background)`  | 5.02:1   | 6.26:1                        | 7.39:1                     | Pass                      |
+| `warning`   | Dark  | `rgb(251, 191, 36)`  | `rgb(23, 23, 23)`    | 10.74:1  | 10.84:1                       | 13.27:1                    | Pass                      |
 
 - **Tones are high-contrast anchors; Surfaces are pre-tinted backgrounds.**
   - A _Surface_ (like `muted: rgb(245, 245, 245)`) is an opaque, low-contrast background fill.
-  - A _Tone_ in an alpha-tinting system (Radix / Nuxt UI) is the full-contrast color anchor whose alpha washes (`/12`, `/40`) generate visible surfaces, borders, and readable text. If `neutral.base` were set to `#f5f5f5`, `bg-tone/12` on white would be `#fefefe` (invisible), `border-tone/40` would be `#fbfbfb` (invisible), and `text-tone-ink` would mix into `#bbbbbb` (1.45:1 contrast, failing WCAG AA).
-  - Therefore, the built-in `neutral` tone in `DEFAULT_THEME_COLORS` uses high-contrast anchor defaults matching the monochrome primary scale:
+  - A _Tone_ in an alpha-tinting system (Radix / Nuxt UI) is the full-contrast color anchor whose alpha washes (`/12`, `/40`) generate visible surfaces, borders, and readable text.
+  - The built-in `neutral` tone in `DEFAULT_THEME_COLORS` uses high-contrast anchor defaults matching the monochrome primary scale:
     - light: `neutral: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' }`
       - `bg-tone/12` on white yields `~#e3e3e3` (a visible soft gray wash).
       - `border-tone/40` on white yields `~#a2a2a2` (a crisp outline border).
@@ -130,14 +132,7 @@ _(Note on Dark Mode status tones: using the vibrant 400 scale with dark foregrou
       - `text-tone-ink` yields dark text with $> 10:1$ contrast.
     - dark: `neutral: { base: 'rgb(250, 250, 250)', foreground: 'rgb(23, 23, 23)' }`
       - `bg-tone/12` on the dark background yields `10 + 0.12 × 240 = rgb(38.8, 38.8, 38.8)` — matching today's dark secondary surface (`rgb(38, 38, 38)`).
-  - Default `soft + neutral` badges (`/12` ≈ `#e3e3e3` on white) are darker than the old accent-filled badge (`#f5f5f5`).
   - Surfaces are `background`, `card`, `popover`, `muted`, `accent`. All 5 surfaces remain unchanged in `DEFAULT_THEME_COLORS` for static opaque background uses.
-- **Identity is per role, states are generic.** Each role only authors `base` and `foreground`. Tones may also author an `ink`.
-- **There are only three derivation rules.**
-  - state (hover/active): mix toward the role's on-color.
-  - ink: readable text on a neutral surface, made by mixing toward `--foreground`.
-  - alpha: wash and edge colors come from alpha modifiers (`bg-tone/12`, `border-tone/40`), with no new token names. Transparent tints are intentional (as in Radix / Nuxt UI / Park UI): one token works on any neutral surface.
-- **Mix amounts are CSS-variable knobs with clear input contracts:** `--mo-mix-hover` (default 8%), `--mo-mix-active` (12%) and `--mo-mix-ink` (25%). Defaults come from `var()` fallbacks inside the formulas, so nothing needs to be emitted by default. Any theme selector or subtree can tune them, for example raising ink in `.dark`.
 - **Tone channel:** the component writes 3 variables inline through recipe style keys. The tone's hover/active are derived generically on `*` from `--mo-tone`, so per-tone state tokens are no longer needed. The internal `tone` channel is strictly excluded from public theme configuration.
 
 ## Token details: [src/theme/tokens.ts](src/theme/tokens.ts)
@@ -198,7 +193,13 @@ warning: {
 },
 ```
 
-Notice that status tones and neutral in `tokens.ts` retain `var(--background)` in their foreground fallback chain. When users or default light themes don't supply an explicit `--<tone>-foreground`, foreground dynamically adopts `var(--background)` rather than hardcoding pure white.
+### Tone ink 3-tier precedence & derivation contract
+
+The fallback chain `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))` defines a strict 3-tier hierarchy:
+
+1. **Tier 1 (Explicit Token Override — `--${tone}-ink`):** Authored optionally in user theme configuration (`colors: { danger: { ink: '#b91c1c' } }`). When provided, it overrides all automatic calculations.
+2. **Tier 2 (Automated Derivation — `--mo-${tone}-ink`):** Generated in the gated `@supports` block via `color-mix(in oklch, var(--${tone}), var(--foreground) var(--mo-mix-ink, 25%))`. This is the zero-config default for all tones. **`mix.ink` strictly tunes this Tier 2 value; it never overwrites a Tier 1 explicit token override.**
+3. **Tier 3 (Fallback for Legacy Browsers — `var(--${tone})`):** The base tone color itself, active computed fallback when `color-mix()` is unsupported and Tier 1 is unset.
 
 ### Tone channel vs Public theme color schema
 
@@ -276,7 +277,6 @@ Why `--mo-tone-ink` references a role chain, while channel hover is derived on `
 
 - A `color-mix` value written inline can't degrade. On old browsers it becomes invalid at computed-value time and resolves to `unset`.
 - So inline values may only contain fallback chains without `color-mix`, and every `color-mix` must stay in the gated `*` rule.
-- Ink keeps per-role authoring because readability needs to be tuned per tone (warning and success on white). States don't.
 
 ## Browser compatibility and intentional removal of alpha fallback
 
@@ -284,10 +284,11 @@ This design makes an **intentional browser compatibility decision** to rely on n
 
 - In `unocss.ts`, remove the legacy duplicate solid color emission in the `moraine-color-alpha` variant (the custom `body(entries)` hook around lines 458–466). UnoCSS will emit a single clean `color-mix()` declaration.
 - Update `docs/pages/docs/(overview)/unocss.mdx` (around line 180) to remove the claim that Wind3 keeps an unmodified solid color fallback.
-- **Degradation behavior on legacy browsers without `color-mix()` support:**
-  - `soft` variant (`bg-tone/12`): alpha background is unsupported and falls back to transparent, visually resembling `ghost`.
-  - `outline` variant (`border-tone/40`): border color falls back to `currentColor` (which carries the text ink color).
-  - Text color: uses tone ink, which cleanly falls back to the base tone color via CSS `var()` fallback chains.
+- **Browser baseline:** Moraine's alpha utilities target modern browsers with `color-mix()` support (Baseline 2023: Chrome 111+, Safari 16.2+, Firefox 113+).
+- **Verified cascade behavior on legacy browsers without `color-mix()` support:**
+  - `soft` variant (`bg-tone/12`): `background-color: color-mix(...)` fails to parse; background is transparent (visually resembles `ghost`).
+  - `outline` variant (`border-tone/40`): `border-color: color-mix(...)` fails to parse; per CSS cascade specification, `border-color` falls back to `currentColor` (matching the text color).
+  - Text color (`text-tone-ink`): cleanly falls back to the base tone color (`var(--${tone})`) via the Tier 3 CSS `var()` fallback chain.
   - Surface and tone hover/active: fall back to the base color via CSS `var()` fallback chains.
 
 ## Preset configuration & input contracts (breaking)
@@ -302,13 +303,14 @@ This design makes an **intentional browser compatibility decision** to rely on n
 - Tone entries: `string | { base?, foreground?, ink? }`.
 - Remove `colorStates`, `MoraineColorStateValue` (numbers and callbacks), `MoraineColorStateResolverContext`, `DEFAULT_COLOR_STATES` and the separate numeric `@supports` block.
 
-### Mix knobs and input contracts
+### Mix knobs and strict input contracts
 
 Add `mix?: Partial<Record<'hover' | 'active' | 'ink', number | string>>` to `MorainePresetTheme` and `PresetMoraineOptions`.
 
 Validation rules (`assertMixValue`):
 
-- **Numbers:** Must be finite numbers between 0 and 100 (`Number.isFinite(n) && n >= 0 && n <= 100`). Formatted as `${n}%`. Numbers outside this range throw `RangeError('[preset-moraine] mix.<key> must be a finite number between 0 and 100.')`.
+- **Numbers:** Must be finite numbers between 0 and 100 (`typeof val === 'number' && Number.isFinite(val) && val >= 0 && val <= 100`). Formatted as `${val}%`. Numbers outside this range throw `RangeError('[preset-moraine] mix.<key> must be a finite number between 0 and 100.')`.
+  - **Preserving 0:** Implementation must use strict nullish-coalescing (`??`) or `!== undefined` checks. `mix.hover = 0` is a valid `0%` setting (no hover mixing) and must never be treated as falsy or replaced by defaults.
 - **Strings:** Preserved as-is. Intended as an advanced escape hatch for custom CSS expressions (e.g. `'calc(var(--custom-mix) * 1%)'` or `'15%'`) that evaluate to a valid `<percentage>`. Non-string/non-number values throw `TypeError`.
 
 Wiring and precedence:
@@ -326,16 +328,17 @@ Wiring and precedence:
   This ensures top-level `presetMoraine({ mix: ... })` is applied to `:root` and `.dark` defaults.
 - In `mergeTheme()`: shallow-merge `mix`: `mix: { ...base.mix, ...override?.mix }`.
 - In `createThemeCSS()`: emit `--mo-mix-hover`, `--mo-mix-active`, `--mo-mix-ink` under each theme's selector if defined. Built-in formulas contain fallback defaults (`var(--mo-mix-hover, 8%)`, `var(--mo-mix-active, 12%)`, `var(--mo-mix-ink, 25%)`).
+- **Strict Precedence:** `override[theme].mix` > `options.mix` (shared) > CSS variable fallback (`8%`, `12%`, `25%`).
 - In `unocss.ts`, wind3 regex:
   - Add both `neutral` and `tone` to group names: `(background|foreground|primary|neutral|secondary|card|popover|muted|accent|danger|info|success|warning|border|input|control|ring|tone)`.
   - Add `ink` to state suffixes: `(?:-(foreground|hover|active|ink))?`.
 
 [src/theme/tailwind.ts](src/theme/tailwind.ts): `addBase` uses the zero-arg gated declarations. Knobs are set by the user in CSS.
 
-## Breaking changes & migration guide (for commit message / PR, not in docs)
+## Breaking changes & migration guide (for PR, Release Notes & Commit Message; omitted from public docs)
 
 > [!NOTE]
-> The migration guide below is solely for git commit messages (`BREAKING CHANGE:` footer) and the PR description. Do NOT add migration or legacy mapping sections to public documentation (`docs/`), which should describe only current state.
+> The migration guide below is published exclusively in the Pull Request description (PR #115), GitHub Release Notes / CHANGELOG, and git commit messages (`BREAKING CHANGE:` footer). Public documentation pages (`docs/`) remain clean and describe only the current system state.
 
 This refactor introduces breaking changes for users upgrading from Moraine pre-alpha:
 
@@ -478,13 +481,16 @@ Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` fi
 
 - **Docs:**
   - Rewrite the color sections of [unocss.mdx](<docs/pages/docs/(overview)/unocss.mdx>) (Hover and active colors, configuration table, mix knobs, removal of duplicate Wind3 alpha fallback), [design.mdx](<docs/pages/docs/(styling)/design.mdx>) and [customization.mdx](<docs/pages/docs/(styling)/customization.mdx>).
-  - Do NOT add migration guides or legacy mapping tables to docs (all migration details live strictly in git commit messages).
+  - Do NOT add migration guides or legacy mapping tables to docs (all migration details live strictly in git commit messages, PR descriptions, and release notes).
   - Update [docs/shared/color-tokens.ts](docs/shared/color-tokens.ts).
   - Migrate `variant="danger"`, `variant="secondary"`, and `variant="subtle"` across docs, demos and `test/types-default`.
 - **Tests to add/update:**
-  - **Automated WCAG 2.2 AA Contrast Suite:** Add test asserting that all 7 tones in both Light and Dark themes satisfy `contrastRatio(base, foreground) >= 4.5:1` in `DEFAULT_THEME_COLORS` against `--background`.
-  - **Tone Channel Isolation Tests:** Verify at type level and runtime that `tone` is NOT present in `MoraineThemeColors`, cannot be configured in `override`, and is never emitted in theme CSS.
+  - **Automated WCAG 2.2 AA Contrast Suite:**
+    - Verify `solid` Button text (`--mo-tone-foreground`) vs base (`--mo-tone`) $\ge 4.5:1$ across all 7 tones in default light and dark themes.
+    - Verify `soft` Button text (`--mo-tone-ink`) vs `/12` wash on default background $\ge 4.5:1$ across all 7 tones in default light and dark themes.
+    - Verify `link` Button text (`--mo-tone-ink`) vs default background $\ge 4.5:1$ across all 7 tones in default light and dark themes.
   - **Mix Input Contract & Validation Tests:**
+    - Verify `0` is strictly preserved as `0%` (`--mo-mix-hover: 0%;`) and not overwritten by falsy coercion.
     - Verify numbers in `0..100` format as `${n}%`.
     - Verify numbers $< 0$, $> 100$, NaN, and Infinity throw `RangeError`.
     - Verify non-number/non-string types throw `TypeError`.
@@ -492,6 +498,17 @@ Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` fi
   - **resolveThemes Inheritance & Precedence Tests:**
     - Verify top-level `presetMoraine({ mix: ... })` is inherited by `:root` and `.dark` defaults.
     - Verify theme-specific overrides take precedence over top-level shared mix.
+  - **Tone Ink 3-Tier Precedence Tests:**
+    - Verify custom explicit `--danger-ink` overrides auto-generated `--mo-danger-ink`.
+    - Verify `mix.ink` modulates auto-generated `--mo-danger-ink` without overriding explicit `--danger-ink`.
+    - Verify fallback chain falls back to base tone when ink tokens are unset and `@supports` rule is inactive.
+  - **Cross-Preset UnoCSS / Tailwind Parity Tests:**
+    - Verify that `bg-tone`, `text-tone-foreground`, `text-tone-ink`, `bg-tone/12`, `border-tone/40`, `hover:bg-tone-hover`, `active:bg-tone-active` generate identical semantic variable references in both UnoCSS and Tailwind.
+  - **Color Map & Role Integrity Tests (Anti-Drift):**
+    - Assert that every role in `THEME_COLOR_ROLES` exists in `MORAINE_COLORS` and is processed by `createThemeCSS`.
+    - Assert that `tone` is strictly excluded from `THEME_COLOR_ROLES` and never emitted as `--tone:` in CSS.
+    - Assert that every tone in `TONES` exists in `MORAINE_COLORS` with `DEFAULT`, `foreground`, `ink`, and has a corresponding entry in `TONE_VARS`.
+    - Assert that `neutral` is mapped and resolves in both UnoCSS and Tailwind.
   - **UnoCSS Wind3 Alpha Tests:** Verify that `wind3: true` outputs a single `color-mix()` rule per alpha utility without duplicate solid fallbacks.
   - **Component Tests:** Update Button, Badge, ToggleButton, ButtonGroup, Toast, and AlertDialog tests to assert `--mo-tone` styles and new variant/tone combinations (asserting `soft` instead of `subtle`).
 - Run `pnpm run qa` and `pnpm run test`.
