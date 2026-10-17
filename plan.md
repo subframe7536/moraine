@@ -1,12 +1,12 @@
 ---
 name: Variant x Tone colors
-overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). For default Light/Dark themes, Solid buttons, Soft washes, and Link/Ghost text are verified to meet WCAG 2.2 AA (>= 4.5:1) against --background, while explicitly scoping that custom themes and arbitrary colored containers are excluded from automatic guarantees. The internal tone channel is strictly separated from public theme configuration. Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict nullish-coalescing (preserving 0 as 0%) and input validation. Tone ink establishes a clear 3-tier precedence (explicit token override > auto-derived mix > base fallback). Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is a co-equal brand tone to primary (supporting the entire variant matrix); the subtle variant is deleted in favor of soft; breaking changes and migration mapping live in PR descriptions, release notes, and commit messages (omitted from public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with verified cascade degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, cross-preset parity and anti-drift integrity tests are added, and consumers plus tests are updated.
+overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). For default Light/Dark themes, Solid, Soft, Link, and Ghost buttons are dynamically verified by automated contrast tests to meet WCAG 2.2 AA (>= 4.5:1) against --background, while explicitly scoping that custom themes and arbitrary colored containers are excluded from automatic guarantees. The internal tone channel (providing generic hover:bg-tone-hover) is strictly separated from public theme roles (where per-role state tokens like hover:bg-primary-hover are deleted). Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict nullish-coalescing (preserving 0 as 0%) and rigorous boundary validation (handling 0, 100, out-of-range, NaN, Infinity, null, and raw CSS strings). Tone ink establishes a clear 3-tier precedence (explicit token override > auto-derived mix > base fallback) with independent derivation-success verification. Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is a co-equal brand tone to primary (supporting the entire variant matrix); the subtle variant is deleted in favor of soft; breaking changes and migration mapping live in PR descriptions, release notes, and commit messages (omitted from public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with verified cascade degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, cross-preset parity and anti-drift integrity tests are added, and consumers plus tests are updated.
 todos:
   - id: tokens
-    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary co-equal to primary), establish 3-tier ink precedence (explicit token > auto-derived --mo-*-ink > base fallback), reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
+    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary co-equal to primary), establish 3-tier ink precedence (explicit token > auto-derived --mo-*-ink > base fallback) with independent generation verification, distinguish internal tone channel states from deleted public tone state tokens, reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
     status: pending
   - id: presets
-    content: 'unocss.ts / tailwind.ts / defaults.ts: calibrate status tone bases in DEFAULT_THEME_COLORS to meet WCAG 2.2 AA for solid, soft, and link on defaults, exclude tone from MoraineThemeColors and createThemeCSS, add validated mix knobs (preserving 0 via nullish checks, 0-100 number or CSS string), wire shared.mix in resolveThemes, shallow-merge mix in mergeTheme, drop numeric/callback resolvers, add neutral and tone to wind3 regex, intentionally remove legacy duplicate /alpha fallback and verify cascade output'
+    content: 'unocss.ts / tailwind.ts / defaults.ts: calibrate status tone bases in DEFAULT_THEME_COLORS to dynamically meet WCAG 2.2 AA for solid, soft, link, and ghost on defaults, exclude tone from MoraineThemeColors and createThemeCSS, add validated mix knobs (preserving 0 via nullish checks, strict input contract for 0, 100, out-of-range, NaN, Infinity, null, and raw CSS strings), wire shared.mix in resolveThemes, shallow-merge mix in mergeTheme, drop numeric/callback resolvers, add neutral and tone to wind3 regex, intentionally remove legacy duplicate /alpha fallback and verify cascade output'
     status: pending
   - id: button
     content: 'Button: variant solid|soft|outline|ghost|link x tone (default solid + primary, secondary co-equal to primary); all tones including neutral use the same generic tone-channel formulas (no compounds); link with border-transparent, focus ring tone/20 with dark:40; add tone to splitProps; document container contrast limitations (prefer solid on colored containers)'
@@ -24,7 +24,7 @@ todos:
     content: Rewrite the color sections of unocss.mdx / design.mdx / customization.mdx and docs/shared/color-tokens.ts, documenting Variant x Tone, confirmed slate secondary co-equal to primary, mix knobs, and intentional color-mix degradation (migration details live strictly in PR description, release notes, and commit messages, omitted from public docs)'
     status: pending
   - id: tests
-    content: Add WCAG 2.2 AA contrast tests (Solid, Soft, Link across all 7 tones in default light & dark), mix tests (0% preservation, range check, CSS strings, resolveThemes shared inheritance, override precedence), tone ink 3-tier precedence tests, cross-preset UnoCSS/Tailwind parity tests, THEME_COLOR_ROLES anti-drift integrity tests, update component tests, then run pnpm run qa and pnpm run test
+    content: Add dynamic WCAG 2.2 AA contrast tests (Solid, Soft, Link, Ghost across all 7 tones in default light & dark computed via WCAG formula), mix boundary validation tests (0% preservation, 0, 100, range errors, NaN, Infinity, null rejection, CSS strings), tone ink 3-tier precedence and generation-success tests, cross-preset UnoCSS/Tailwind parity tests, THEME_COLOR_ROLES anti-drift integrity tests, update component tests, then run pnpm run qa and pnpm run test
     status: pending
 isProject: false
 ---
@@ -94,32 +94,33 @@ Core rules:
 
 - **WCAG 2.2 AA Contrast: Scope, Guarantees & Exclusions:**
   - **Scope of Guarantee:** The contrast guarantee strictly applies to **built-in default Light/Dark themes (`DEFAULT_THEME_COLORS`)** rendered on **default neutral page surfaces (`--background`)**.
-  - **What is tested & guaranteed in defaults:**
+  - **What is tested & guaranteed in defaults (verified via dynamic WCAG calculation tests):**
     1. **`solid` Button/Badge:** Foreground text (`--mo-tone-foreground`) vs base background (`--mo-tone`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes.
-    2. **`soft` Button/Badge:** Ink text (`--mo-tone-ink`) vs tinted wash background (`bg-tone/12` over `--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (verified 6.0:1 ~ 14.3:1).
-    3. **`link` / `ghost` Button:** Ink text (`--mo-tone-ink`) vs page background (`--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (verified 7.2:1 ~ 18.9:1).
+    2. **`soft` Button/Badge:** Ink text (`--mo-tone-ink`) vs tinted wash background (`bg-tone/12` over `--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (dynamically verified 6.0:1 ~ 14.3:1).
+    3. **`link` Button:** Ink text (`--mo-tone-ink`) vs page background (`--background`) $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (dynamically verified 7.2:1 ~ 18.9:1).
+    4. **`ghost` Button:** Ink text (`--mo-tone-ink`) vs page background (`--background`) in resting state $\ge 4.5:1$ across all 7 tones in both Light and Dark themes (dynamically verified 7.2:1 ~ 18.9:1).
   - **Explicit Exclusions:**
     - **Custom theme overrides:** If a user supplies custom `--background` (e.g. dark charcoal in light mode) or custom tone `base` colors, contrast depends on their chosen palette and is not guaranteed by Moraine.
     - **Arbitrary colored containers:** `outline` and `ghost` have transparent backgrounds; their contrast depends entirely on the parent container. On non-neutral colored containers (e.g. inside an Alert banner), developers should prefer `solid` or explicitly verify contrast.
 
-#### Default Theme Contrast Verification Table (Light & Dark)
+#### Default Theme Contrast Verification Table (Illustrative targets, verified dynamically by tests)
 
-| Tone        | Theme | Base                 | Foreground Token     | Solid CR | Soft CR (`ink` vs `/12` wash) | Link/Page CR (`ink` vs bg) | WCAG 2.2 AA ($\ge 4.5:1$) |
-| :---------- | :---- | :------------------- | :------------------- | :------- | :---------------------------- | :------------------------- | :------------------------ |
-| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | 18.2:1   | 14.3:1                        | 18.4:1                     | Pass                      |
-| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | 13.9:1   | 12.9:1                        | 16.5:1                     | Pass                      |
-| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | 9.9:1    | 10.4:1                        | 12.7:1                     | Pass                      |
-| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | 12.0:1   | 11.7:1                        | 14.6:1                     | Pass                      |
-| `neutral`   | Light | `rgb(23, 23, 23)`    | `var(--background)`  | 18.7:1   | 14.3:1                        | 18.4:1                     | Pass                      |
-| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | 18.2:1   | 14.3:1                        | 19.0:1                     | Pass                      |
-| `danger`    | Light | `rgb(220, 38, 38)`   | `var(--background)`  | 4.83:1   | 6.05:1                        | 7.29:1                     | Pass                      |
-| `danger`    | Dark  | `rgb(248, 113, 113)` | `rgb(23, 23, 23)`    | 6.48:1   | 7.94:1                        | 9.07:1                     | Pass                      |
-| `info`      | Light | `rgb(8, 109, 221)`   | `var(--background)`  | 4.95:1   | 6.22:1                        | 7.38:1                     | Pass                      |
-| `info`      | Dark  | `rgb(96, 165, 250)`  | `rgb(23, 23, 23)`    | 7.05:1   | 8.45:1                        | 9.84:1                     | Pass                      |
-| `success`   | Light | `rgb(21, 128, 61)`   | `var(--background)`  | 5.02:1   | 6.27:1                        | 7.36:1                     | Pass                      |
-| `success`   | Dark  | `rgb(74, 222, 128)`  | `rgb(23, 23, 23)`    | 10.29:1  | 10.54:1                       | 12.71:1                    | Pass                      |
-| `warning`   | Light | `rgb(180, 83, 9)`    | `var(--background)`  | 5.02:1   | 6.26:1                        | 7.39:1                     | Pass                      |
-| `warning`   | Dark  | `rgb(251, 191, 36)`  | `rgb(23, 23, 23)`    | 10.74:1  | 10.84:1                       | 13.27:1                    | Pass                      |
+| Tone        | Theme | Base                 | Foreground Token     | Solid CR | Soft CR (`ink` vs `/12` wash) | Link/Ghost CR (`ink` vs bg) | WCAG 2.2 AA ($\ge 4.5:1$) |
+| :---------- | :---- | :------------------- | :------------------- | :------- | :---------------------------- | :-------------------------- | :------------------------ |
+| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | 18.2:1   | 14.3:1                        | 18.4:1                      | Pass                      |
+| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | 13.9:1   | 12.9:1                        | 16.5:1                      | Pass                      |
+| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | 9.9:1    | 10.4:1                        | 12.7:1                      | Pass                      |
+| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | 12.0:1   | 11.7:1                        | 14.6:1                      | Pass                      |
+| `neutral`   | Light | `rgb(23, 23, 23)`    | `var(--background)`  | 18.7:1   | 14.3:1                        | 18.4:1                      | Pass                      |
+| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | 18.2:1   | 14.3:1                        | 19.0:1                      | Pass                      |
+| `danger`    | Light | `rgb(220, 38, 38)`   | `var(--background)`  | 4.83:1   | 6.05:1                        | 7.29:1                      | Pass                      |
+| `danger`    | Dark  | `rgb(248, 113, 113)` | `rgb(23, 23, 23)`    | 6.48:1   | 7.94:1                        | 9.07:1                      | Pass                      |
+| `info`      | Light | `rgb(8, 109, 221)`   | `var(--background)`  | 4.95:1   | 6.22:1                        | 7.38:1                      | Pass                      |
+| `info`      | Dark  | `rgb(96, 165, 250)`  | `rgb(23, 23, 23)`    | 7.05:1   | 8.45:1                        | 9.84:1                      | Pass                      |
+| `success`   | Light | `rgb(21, 128, 61)`   | `var(--background)`  | 5.02:1   | 6.27:1                        | 7.36:1                      | Pass                      |
+| `success`   | Dark  | `rgb(74, 222, 128)`  | `rgb(23, 23, 23)`    | 10.29:1  | 10.54:1                       | 12.71:1                     | Pass                      |
+| `warning`   | Light | `rgb(180, 83, 9)`    | `var(--background)`  | 5.02:1   | 6.26:1                        | 7.39:1                      | Pass                      |
+| `warning`   | Dark  | `rgb(251, 191, 36)`  | `rgb(23, 23, 23)`    | 10.74:1  | 10.84:1                       | 13.27:1                     | Pass                      |
 
 - **Tones are high-contrast anchors; Surfaces are pre-tinted backgrounds.**
   - A _Surface_ (like `muted: rgb(245, 245, 245)`) is an opaque, low-contrast background fill.
@@ -199,11 +200,26 @@ The fallback chain `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))` d
 
 1. **Tier 1 (Explicit Token Override — `--${tone}-ink`):** Authored optionally in user theme configuration (`colors: { danger: { ink: '#b91c1c' } }`). When provided, it overrides all automatic calculations.
 2. **Tier 2 (Automated Derivation — `--mo-${tone}-ink`):** Generated in the gated `@supports` block via `color-mix(in oklch, var(--${tone}), var(--foreground) var(--mo-mix-ink, 25%))`. This is the zero-config default for all tones. **`mix.ink` strictly tunes this Tier 2 value; it never overwrites a Tier 1 explicit token override.**
-3. **Tier 3 (Fallback for Legacy Browsers — `var(--${tone})`):** The base tone color itself, active computed fallback when `color-mix()` is unsupported and Tier 1 is unset.
+3. **Tier 3 (Runtime Resilience Fallback — `var(--${tone})`):** The base tone color itself, active computed fallback when `color-mix()` is unsupported or Tier 2 is absent, ensuring text is never unstyled.
 
-### Tone channel vs Public theme color schema
+**Independent Generation Verification:** While Tier 3 provides runtime fault-tolerance, automated tests must independently verify that:
 
-The `tone` entry in `MORAINE_COLORS` powers component utility classes (`bg-tone`, `text-tone-foreground`, `text-tone-ink`, `border-tone/40`):
+- The gated `@supports` rule successfully generates `--mo-${tone}-ink` for every tone in both Light and Dark themes.
+- Modifying `options.mix.ink` actually changes the calculated/emitted color value of `--mo-${tone}-ink` (not merely asserting the emission of `--mo-mix-ink`).
+- Tier 1 explicit overrides take precedence over Tier 2 generated values.
+- Fallback to base tone occurs strictly when Tier 1 is unset and Tier 2 is inactive.
+
+### Tone channel vs Public theme color schema & State Tokens
+
+To prevent confusion between public theme tokens and the internal component channel, Moraine maintains a strict boundary:
+
+| Level                               | Roles / Identifiers                                                                    | Hover / Active Tokens                 | Architectural Purpose                                                                                                                                                                                        |
+| :---------------------------------- | :------------------------------------------------------------------------------------- | :------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Public Tone Roles**               | `primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`              | **Deleted** (No `-hover` / `-active`) | Public theme color tokens do NOT expose per-role state utilities (`hover:bg-primary-hover`) or per-role state variables (`--primary-hover`). The old 22-variable `--mo-auto-*` matrix is completely removed. |
+| **Internal Component Tone Channel** | `tone` in `MORAINE_COLORS` (`bg-tone`, `hover:bg-tone-hover`, `active:bg-tone-active`) | **Retained as Generic Channel**       | Scoped exclusively to components consuming the tone channel. `--mo-tone-hover` and `--mo-tone-active` are single generic rules derived on `*` from `--mo-tone`. They are NOT per-role tokens.                |
+| **Surface Roles**                   | `background`, `card`, `popover`, `muted`, `accent`                                     | **Retained per role**                 | Surfaces keep their explicit/derived hover/active states (`hover:bg-accent-hover`, `--accent-hover`).                                                                                                        |
+
+The internal `tone` color group in `MORAINE_COLORS`:
 
 ```ts
 tone: {
@@ -309,9 +325,16 @@ Add `mix?: Partial<Record<'hover' | 'active' | 'ink', number | string>>` to `Mor
 
 Validation rules (`assertMixValue`):
 
-- **Numbers:** Must be finite numbers between 0 and 100 (`typeof val === 'number' && Number.isFinite(val) && val >= 0 && val <= 100`). Formatted as `${val}%`. Numbers outside this range throw `RangeError('[preset-moraine] mix.<key> must be a finite number between 0 and 100.')`.
-  - **Preserving 0:** Implementation must use strict nullish-coalescing (`??`) or `!== undefined` checks. `mix.hover = 0` is a valid `0%` setting (no hover mixing) and must never be treated as falsy or replaced by defaults.
-- **Strings:** Preserved as-is. Intended as an advanced escape hatch for custom CSS expressions (e.g. `'calc(var(--custom-mix) * 1%)'` or `'15%'`) that evaluate to a valid `<percentage>`. Non-string/non-number values throw `TypeError`.
+| Input Value                           | Type      | Expected Behavior             | Rationale / Contract                                                                                                                       |
+| :------------------------------------ | :-------- | :---------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`                                   | `number`  | **Valid.** Emits `0%`         | Preserved via `??` or `!== undefined`. `0%` means zero state shift (no color change).                                                      |
+| `100`                                 | `number`  | **Valid.** Emits `100%`       | Full shift toward on-color or foreground.                                                                                                  |
+| `1` to `99`                           | `number`  | **Valid.** Emits `${n}%`      | Standard percentage adjustment.                                                                                                            |
+| `< 0` or `> 100`                      | `number`  | **Throws `RangeError`**       | Must be within 0..100.                                                                                                                     |
+| `NaN`, `Infinity`, `-Infinity`        | `number`  | **Throws `RangeError`**       | Must be finite.                                                                                                                            |
+| `'15%'`, `'calc(var(--custom) * 1%)'` | `string`  | **Valid.** Emits string as-is | Advanced raw CSS escape hatch. Passed directly to CSS without parsing; invalid syntax is left to browser CSS engine (no runtime auto-fix). |
+| `null`                                | `null`    | **Throws `TypeError`**        | `null` is invalid; only `undefined` or omitted key triggers fallback.                                                                      |
+| other types (`boolean`, `object`)     | `unknown` | **Throws `TypeError`**        | Unsupported type.                                                                                                                          |
 
 Wiring and precedence:
 
@@ -345,7 +368,7 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 ### 1. `secondary` semantic shift (Surface $\to$ Brand Tone)
 
 - **Previous behavior:** `secondary` was an opaque light-gray surface background (`rgb(245, 245, 245)` in light, `rgb(38, 38, 38)` in dark).
-- **New behavior:** `secondary` is now an active brand anchor Tone (slate-700 in light, slate-300 in dark by default), co-equal to `primary`.
+- **New behavior:** `secondary` is now an active brand anchor Tone (confirmed Slate-700 in light, Slate-300 in dark by default), co-equal to `primary`.
 - **CSS utility migration:**
   - `bg-secondary` now produces a dark slate background in light mode (brand tone).
   - To achieve the previous light-gray neutral surface fill, use **`bg-muted`** or **`bg-accent`**.
@@ -485,23 +508,26 @@ Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` fi
   - Update [docs/shared/color-tokens.ts](docs/shared/color-tokens.ts).
   - Migrate `variant="danger"`, `variant="secondary"`, and `variant="subtle"` across docs, demos and `test/types-default`.
 - **Tests to add/update:**
-  - **Automated WCAG 2.2 AA Contrast Suite:**
-    - Verify `solid` Button text (`--mo-tone-foreground`) vs base (`--mo-tone`) $\ge 4.5:1$ across all 7 tones in default light and dark themes.
-    - Verify `soft` Button text (`--mo-tone-ink`) vs `/12` wash on default background $\ge 4.5:1$ across all 7 tones in default light and dark themes.
-    - Verify `link` Button text (`--mo-tone-ink`) vs default background $\ge 4.5:1$ across all 7 tones in default light and dark themes.
+  - **Automated WCAG 2.2 AA Contrast Suite (Dynamic Calculation):**
+    - Contrast tests must dynamically compute relative luminance and contrast ratios using the standard sRGB WCAG 2.2 formula from actual RGB definitions and alpha/mix derivations, asserting `contrastRatio >= 4.5` (rather than asserting against static hardcoded expectation numbers).
+    - **`solid` Button:** Verify `--mo-tone-foreground` vs base `--mo-tone` $\ge 4.5:1$ across all 7 tones in default Light and Dark themes.
+    - **`soft` Button:** Verify ink text (`--mo-tone-ink`) vs blended wash background (`bg-tone/12` over default `--background`) $\ge 4.5:1$ across all 7 tones in default Light and Dark themes.
+    - **`link` Button:** Verify ink text (`--mo-tone-ink`) vs default page background (`--background`) $\ge 4.5:1$ across all 7 tones in default Light and Dark themes.
+    - **`ghost` Button:** Verify ink text (`--mo-tone-ink`) vs default page background (`--background`) in resting state $\ge 4.5:1$ across all 7 tones in default Light and Dark themes.
   - **Mix Input Contract & Validation Tests:**
-    - Verify `0` is strictly preserved as `0%` (`--mo-mix-hover: 0%;`) and not overwritten by falsy coercion.
-    - Verify numbers in `0..100` format as `${n}%`.
-    - Verify numbers $< 0$, $> 100$, NaN, and Infinity throw `RangeError`.
-    - Verify non-number/non-string types throw `TypeError`.
-    - Verify string CSS expressions (e.g. `'calc(var(--custom) * 1%)'`) pass through as-is.
+    - Verify `0` is strictly preserved as `0%` (`--mo-mix-hover: 0%;`) via nullish-coalescing and not overwritten by falsy coercion.
+    - Verify `100` outputs `100%`.
+    - Verify numbers $< 0$, $> 100$, NaN, Infinity, and -Infinity throw `RangeError`.
+    - Verify `null`, `boolean`, and unsupported non-number/non-string types throw `TypeError`.
+    - Verify valid string expressions (e.g. `'15%'`, `'calc(var(--custom-mix) * 1%)'`) pass through as-is as raw CSS escape hatches.
   - **resolveThemes Inheritance & Precedence Tests:**
     - Verify top-level `presetMoraine({ mix: ... })` is inherited by `:root` and `.dark` defaults.
     - Verify theme-specific overrides take precedence over top-level shared mix.
-  - **Tone Ink 3-Tier Precedence Tests:**
-    - Verify custom explicit `--danger-ink` overrides auto-generated `--mo-danger-ink`.
-    - Verify `mix.ink` modulates auto-generated `--mo-danger-ink` without overriding explicit `--danger-ink`.
-    - Verify fallback chain falls back to base tone when ink tokens are unset and `@supports` rule is inactive.
+  - **Tone Ink Precedence & Generation Verification Tests:**
+    - Assert that the `@supports` rule successfully generates `--mo-${tone}-ink` for every tone in both Light and Dark themes, and components actively use it.
+    - Assert that modifying `mix.ink` actually changes the calculated/emitted color value of `--mo-${tone}-ink` (not merely asserting the emission of `--mo-mix-ink`).
+    - Assert that custom explicit Tier 1 overrides (e.g. `--danger-ink: #b91c1c`) take precedence over Tier 2 auto-generated `--mo-danger-ink`.
+    - Assert that the fallback chain falls back to base tone (Tier 3) when ink tokens are unset and `@supports` rule is inactive.
   - **Cross-Preset UnoCSS / Tailwind Parity Tests:**
     - Verify that `bg-tone`, `text-tone-foreground`, `text-tone-ink`, `bg-tone/12`, `border-tone/40`, `hover:bg-tone-hover`, `active:bg-tone-active` generate identical semantic variable references in both UnoCSS and Tailwind.
   - **Color Map & Role Integrity Tests (Anti-Drift):**
