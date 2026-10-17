@@ -1,18 +1,18 @@
 ---
 name: Variant x Tone colors
-overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). In light mode, default foregrounds reuse `--background` (var(--background)) rather than pure white, with status tone base colors calibrated to guarantee WCAG 2.2 AA (>= 4.5:1) against `--background`. The internal tone channel is strictly separated from public theme configuration. Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict input validation (0-100 number or CSS string). Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is confirmed as a slate brand tone; breaking changes and migration mapping live strictly in commit messages (not in public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with documented degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, and consumers plus tests are updated.
+overview: Rebuild Moraine's color derivation system around three layers. Palette roles split into surfaces (background, card, popover, muted, accent) and tones (primary, secondary, neutral, danger, info, success, warning). In light mode, default foregrounds reuse `--background` (var(--background)) rather than pure white, with status tone base colors calibrated to guarantee WCAG 2.2 AA (>= 4.5:1) against `--background`. The internal tone channel is strictly separated from public theme configuration. Top-level mix knobs are properly wired through resolveThemes and merged per theme with strict input validation (0-100 number or CSS string). Button and Badge become variant x tone with zero compounds — every tone uses the same generic tone-channel formulas. Secondary is a co-equal brand tone to primary (supporting the entire variant matrix); the subtle variant is deleted in favor of soft; breaking changes and migration mapping live strictly in commit messages (not in public docs). Legacy duplicate alpha fallbacks in Wind3 are intentionally removed with documented degradation. ButtonGroup / ToggleButton / Pagination / FeedbackAction forward tone, tone props are split out to avoid DOM pollution, the per-role --mo-auto-* matrix is replaced, and consumers plus tests are updated.
 todos:
   - id: tokens
-    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary), reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
+    content: 'tokens.ts: split roles into surfaces (5) and tones (7, including secondary co-equal to primary), reuse var(--background) as status tone foreground fallback, separate public theme roles from the internal tone channel, export Tone and TONES, add single-source TONE_VARS, replace createStateColorDeclarations with zero-arg gated declarations using var(--mo-mix-*) fallbacks'
     status: pending
   - id: presets
     content: 'unocss.ts / tailwind.ts / defaults.ts: calibrate light status tone bases in DEFAULT_THEME_COLORS to meet WCAG 2.2 AA (>= 4.5:1) against --background (reusing var(--background) rather than pure white), set dark status tone defaults meeting WCAG AA, exclude tone from MoraineThemeColors and createThemeCSS, add validated mix knobs (0-100 number or CSS string), wire shared.mix in resolveThemes, shallow-merge mix in mergeTheme, drop numeric/callback resolvers, add neutral and tone to wind3 regex, intentionally remove legacy duplicate /alpha fallback and document degradation'
     status: pending
   - id: button
-    content: 'Button: variant solid|soft|outline|ghost|link x tone (default solid + primary); all tones including neutral use the same generic tone-channel formulas (no compounds); link with border-transparent, focus ring tone/20 with dark:40; add tone to splitProps; update container contrast guidelines (prefer solid on colored containers)'
+    content: 'Button: variant solid|soft|outline|ghost|link x tone (default solid + primary, secondary co-equal to primary); all tones including neutral use the same generic tone-channel formulas (no compounds); link with border-transparent, focus ring tone/20 with dark:40; add tone to splitProps; update container contrast guidelines (prefer solid on colored containers)'
     status: pending
   - id: badge
-    content: 'Badge: variant solid|soft|surface|outline x tone (default soft + neutral); all tones including neutral use the same base variant classes (no compounds); add tone to splitProps'
+    content: 'Badge: variant solid|soft|surface|outline x tone (default soft + neutral); subtle variant deleted in favor of soft; all tones including neutral use the same base variant classes (no compounds); add tone to splitProps'
     status: pending
   - id: forwarders
     content: 'ButtonGroup / ToggleButton / Pagination / FeedbackAction / Toast / AlertDialog: forward tone, add tone/activeTone to ToggleButton splitProps, and migrate variant values; migrate input-number and docs-a primary-hover usages'
@@ -21,7 +21,7 @@ todos:
     content: 'Menu danger item, Field error, required asterisks, and select duplicate tag: switch to ink tokens; migrate docs, demos and type fixtures'
     status: pending
   - id: docs
-    content: Rewrite the color sections of unocss.mdx / design.mdx / customization.mdx and docs/shared/color-tokens.ts, documenting Variant x Tone, confirmed slate secondary, mix knobs, and intentional color-mix degradation (migration details live strictly in commit messages, not in public docs)
+    content: Rewrite the color sections of unocss.mdx / design.mdx / customization.mdx and docs/shared/color-tokens.ts, documenting Variant x Tone, confirmed slate secondary co-equal to primary, mix knobs, and intentional color-mix degradation (migration details live strictly in commit messages, not in public docs)'
     status: pending
   - id: tests
     content: Add WCAG 2.2 AA automated contrast tests (light & dark x 7 tones x solid against --background), tone channel isolation tests, mix validation tests (range check, CSS strings, resolveThemes shared inheritance, override precedence), update token/preset/component tests, then run pnpm run qa and pnpm run test
@@ -62,10 +62,25 @@ flowchart TB
   ToneVars --> AlphaRule
 ```
 
+### Visual Reference Matrix (Variant × Tone)
+
+The visual behavior references modern component design systems (Nuxt UI / Radix):
+
+- **`secondary` is co-equal to `primary`**: In Moraine, `secondary` is a first-class brand anchor Tone at the exact same level as `primary`. Both are configurable brand roles, share identical variant formulas, and support every variant in the matrix. Do not omit `secondary`.
+- **`subtle` is deleted**: The tinted variant is strictly named `soft` across all controls (`solid`, `soft`, `outline`, `ghost`, `link` for Button; `solid`, `soft`, `surface`, `outline` for Badge). The legacy `subtle` variant is removed completely.
+
+| Variant       | `primary` (Brand)                | `secondary` (Brand)              | `neutral` (Mono)                 | `success` (Status)               | `info` (Status)                  | `warning` (Status)               | `danger` (Status)                | Common Formula                                      |
+| :------------ | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :------------------------------- | :-------------------------------------------------- |
+| **`solid`**   | Primary fill, light text         | Slate fill, light text           | Dark neutral fill, light text    | Green fill, light text           | Blue fill, light text            | Amber fill, text                 | Red fill, light text             | `bg-tone text-tone-foreground border-transparent`   |
+| **`soft`**    | Primary /12 tint, ink text       | Slate /12 tint, ink text         | Gray /12 tint, ink text          | Green /12 tint, ink text         | Blue /12 tint, ink text          | Amber /12 tint, ink text         | Red /12 tint, ink text           | `bg-tone/12 text-tone-ink border-transparent`       |
+| **`outline`** | Transparent, primary /40 border  | Transparent, slate /40 border    | Transparent, neutral /40 border  | Transparent, green /40 border    | Transparent, blue /40 border     | Transparent, amber /40 border    | Transparent, red /40 border      | `border-tone/40 text-tone-ink bg-transparent`       |
+| **`ghost`**   | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | Transparent, ink text, /10 hover | `border-transparent text-tone-ink hover:bg-tone/10` |
+| **`link`**    | Transparent, ink text, underline | Transparent, ink text, underline | Transparent, ink text, underline | Transparent, ink text, underline | Transparent, ink text, underline | Transparent, ink text, underline | Transparent, ink text, underline | `text-tone-ink hover:underline border-transparent`  |
+
 Core rules:
 
 - **Brand tones vs built-in tones (consumers generally author `primary`, `secondary`, and `accent`):**
-  - **Brand / Theme tones (`primary`, `secondary`)**: Primary is the central brand/accent color; secondary is the secondary brand/support tone. In `DEFAULT_THEME_COLORS`, primary stays `rgb(23, 23, 23)` / `rgb(250, 250, 250)` light, `rgb(229, 229, 229)` / `rgb(23, 23, 23)` dark; secondary is a brand anchor like primary — a dark, high-contrast color in light mode (light in dark mode), just a different hue — so the generic alpha wash (`/12`), edge (`/40`) and ink formulas produce visible results. Today's `rgb(245, 245, 245)` secondary is a surface value and would wash out, so it is replaced. `<Button variant="solid" tone="secondary">` produces a dark slate brand-support fill (not the old light-gray secondary fill).
+  - **Brand / Theme tones (`primary`, `secondary`)**: Primary is the central brand/accent color; secondary is the secondary brand/support tone — **co-equal in tier to `primary`**. In `DEFAULT_THEME_COLORS`, primary stays `rgb(23, 23, 23)` / `rgb(250, 250, 250)` light, `rgb(229, 229, 229)` / `rgb(23, 23, 23)` dark; secondary is a brand anchor like primary — a dark, high-contrast color in light mode (light in dark mode), just a different hue — so the generic alpha wash (`/12`), edge (`/40`) and ink formulas produce visible results. Today's `rgb(245, 245, 245)` secondary is a surface value and would wash out, so it is replaced. `<Button variant="solid" tone="secondary">` produces a dark slate brand-support fill (not the old light-gray secondary fill).
   - **Confirmed secondary defaults (slate brand anchor):** restrained low-chroma slate.
     - light: `secondary: { base: 'rgb(51, 65, 85)', foreground: 'rgb(248, 250, 252)' }` (slate-700 / slate-50)
     - dark: `secondary: { base: 'rgb(203, 213, 225)', foreground: 'rgb(15, 23, 42)' }` (slate-300 / slate-900)
@@ -327,7 +342,7 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 ### 1. `secondary` semantic shift (Surface $\to$ Brand Tone)
 
 - **Previous behavior:** `secondary` was an opaque light-gray surface background (`rgb(245, 245, 245)` in light, `rgb(38, 38, 38)` in dark).
-- **New behavior:** `secondary` is now an active brand anchor Tone (slate-700 in light, slate-300 in dark by default).
+- **New behavior:** `secondary` is now an active brand anchor Tone (slate-700 in light, slate-300 in dark by default), co-equal to `primary`.
 - **CSS utility migration:**
   - `bg-secondary` now produces a dark slate background in light mode (brand tone).
   - To achieve the previous light-gray neutral surface fill, use **`bg-muted`** or **`bg-accent`**.
@@ -342,7 +357,7 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 | `<Button variant="outline">`   | `<Button variant="outline" tone="neutral">` | Crisp neutral border with transparent bg                       |
 | `<Button variant="ghost">`     | `<Button variant="ghost" tone="neutral">`   | Transparent bg with neutral hover wash                         |
 | `<Button variant="danger">`    | `<Button variant="solid" tone="danger">`    | Solid red danger button                                        |
-| `<Badge variant="subtle">`     | `<Badge variant="soft" tone="neutral">`     | Soft neutral tint                                              |
+| `<Badge variant="subtle">`     | `<Badge variant="soft" tone="neutral">`     | Soft neutral tint (`subtle` variant deleted)                   |
 | `<Badge variant="secondary">`  | `<Badge variant="soft" tone="neutral">`     | Soft neutral tint                                              |
 
 ### 3. Removed state tokens
@@ -356,9 +371,9 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 ### Button ([button.recipe.ts](src/element/button/button.recipe.ts), [button.style-types.ts](src/element/button/button.style-types.ts), [button.tsx](src/element/button/button.tsx))
 
 - `variant`: `'solid' | 'soft' | 'outline' | 'ghost' | 'link'`
-- `tone`: `Tone` (default `solid + primary`)
+- `tone`: `Tone` (default `solid + primary`; `secondary` is co-equal to `primary`)
 - `base.root`: replace `FOCUS_VISIBLE_CLASS` with `focus-visible:(outline-none ring-3 ring-tone/20 dark:ring-tone/40)`
-- Variant classes (same formulas for every tone, including neutral — zero compounds):
+- Variant classes (same formulas for every tone, including secondary and neutral — zero compounds):
   - `solid`: `bg-tone text-tone-foreground hover:bg-tone-hover active:bg-tone-active border-transparent`
   - `soft`: `bg-tone/12 text-tone-ink hover:bg-tone/18 active:bg-tone/24 border-transparent`
   - `outline`: `border-tone/40 text-tone-ink bg-transparent hover:bg-tone/8 active:bg-tone/12`
@@ -375,14 +390,14 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 
 ### Badge ([badge.recipe.ts](src/element/badge/badge.recipe.ts), [badge.style-types.ts](src/element/badge/badge.style-types.ts), [badge.tsx](src/element/badge/badge.tsx))
 
-- `variant`: `'solid' | 'soft' | 'surface' | 'outline'`
+- `variant`: `'solid' | 'soft' | 'surface' | 'outline'` (the old `subtle` variant is deleted)
 - `tone`: `Tone` (default `soft + neutral`)
 - Variant classes (same formulas for every tone, including secondary and neutral — zero compounds):
   - `solid`: `bg-tone text-tone-foreground border-transparent shadow-surface`
   - `soft`: `bg-tone/12 text-tone-ink border-transparent`
   - `surface`: `bg-tone/12 text-tone-ink border-tone/30`
   - `outline`: `bg-transparent text-tone-ink border-tone/40`
-- `subtle` is renamed `soft`. Default `soft + neutral` uses the same generic soft formula on the neutral color role — not via special-case classes.
+- The `subtle` variant is removed completely in favor of `soft`. Default `soft + neutral` uses the same generic soft formula on the neutral color role — not via special-case classes.
 - In `badge.tsx`: add `'tone'` to `splitProps` so `styleProps` includes it and it does not leak into `rest` spread on the DOM.
 
 ### Forwarding components
@@ -428,16 +443,18 @@ Tone `-hover` / `-active` tokens (`primary|secondary|danger|info|success|warning
 Source (must change):
 
 - `src/element/button/button.recipe.ts:42,45,57` — old `default` / `secondary` / `danger` variant strings using `bg-*-hover` / `bg-*-active` → replaced by the generic tone-channel variants (`hover:bg-tone-hover active:bg-tone-active`).
+- `src/element/badge/badge.recipe.ts:31` / `src/element/badge/badge.style-types.ts:23` — old `subtle` variant → replaced by `soft`.
 - `src/form/input-number/input-number.recipe.ts:18` — `active:text-primary-active hover:text-primary-hover` → `hover:text-primary/80 active:text-primary/70`.
 - `src/overlay/toast/toast-item.tsx:608` — `variant="secondary"` → `variant="soft" tone="neutral"`.
 - `src/theme/unocss.ts:437` — alpha regex lists `secondary` and `-(foreground|hover|active)`; update per the wind3 regex section (add `neutral|tone`, `ink`). `src/theme/unocss.ts:74,238,241` — `colorStates` option → removed (replaced by `mix`).
 - `docs/unocss.config.ts:20` — `docs-a` `hover:text-primary-hover` → `hover:text-primary/80`.
 
-Docs demos (`variant="secondary"` → `variant="soft" tone="neutral"`), 21 hits:
+Docs demos (`variant="secondary"` → `variant="soft" tone="neutral"`; `variant="subtle"` → `variant="soft"`), 21 hits:
 
 - `docs/pages/components/(general)/button-group/separator.tsx:6,8`; `(general)/card/header-action.tsx:10`; `(general)/toggle-button/variants.tsx:10` (`variant="secondary" activeVariant="danger"` → `variant="soft" tone="neutral" activeVariant="solid" activeTone="danger"`).
 - `(overlay)/popover/dismiss-control.tsx:14`; `(overlay)/dialog/scrollable-fullscreen.tsx:13,27`; `(form)/form/manual-error.tsx:36`; `(form)/input-group/actions.tsx:53`.
 - `form-integration.tsx` submit buttons in `(form)/` select, checkbox-group, radio-group, checkbox, input-number, switch, input, file-upload, textarea, multi-select, combobox, slider.
+- Badge demos using `variant="subtle"` → migrate to `variant="soft"` (or remove variant prop as default).
 
 Docs prose:
 
@@ -453,6 +470,7 @@ Tests / fixtures:
 - `test/consumer-fixtures/unocss.test.ts:148-153` — `--primary-hover` fixture → use a surface state (e.g. `--accent-hover`) or `--mo-mix-hover`.
 - `test/types-default/index.tsx:625` — `variant="secondary"` → `variant="soft" tone="neutral"`; `test/types-default/preset-theme.ts` `colorStates` → `mix`.
 - `src/element/button/button.test.tsx:186-187,1158,1183`; `src/element/button-group/button-group.test.tsx:199,221,316`; `src/element/toggle-button/toggle-button.test.tsx:51,58,237`; `src/overlay/toast/toast.test.tsx:123`; `src/form/input-number/input-number.test.tsx:1529-1530` — `bg-secondary` / `*-hover` class assertions → assert `bg-tone` / `bg-tone/12` plus `--mo-tone` style.
+- `src/element/badge/badge.test.tsx:32,48` — `variant="subtle"` assertions → `variant="soft"`.
 
 Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` files (button.recipe, input-number.recipe, toast-item, unocss.ts), 19 demo files (21 hits), 8 docs prose/tooling/config files, 10 test/fixture files. No `--mo-auto-secondary` reference exists outside tests.
 
@@ -475,5 +493,5 @@ Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` fi
     - Verify top-level `presetMoraine({ mix: ... })` is inherited by `:root` and `.dark` defaults.
     - Verify theme-specific overrides take precedence over top-level shared mix.
   - **UnoCSS Wind3 Alpha Tests:** Verify that `wind3: true` outputs a single `color-mix()` rule per alpha utility without duplicate solid fallbacks.
-  - **Component Tests:** Update Button, Badge, ToggleButton, ButtonGroup, Toast, and AlertDialog tests to assert `--mo-tone` styles and new variant/tone combinations.
+  - **Component Tests:** Update Button, Badge, ToggleButton, ButtonGroup, Toast, and AlertDialog tests to assert `--mo-tone` styles and new variant/tone combinations (asserting `soft` instead of `subtle`).
 - Run `pnpm run qa` and `pnpm run test`.
