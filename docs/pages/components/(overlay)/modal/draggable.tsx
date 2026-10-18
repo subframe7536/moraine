@@ -112,7 +112,7 @@ export function Draggable() {
                 >
                   Reset Position
                 </Button>
-                <Button size="xs" variant="default" onClick={context.close}>
+                <Button size="xs" onClick={context.close}>
                   Done
                 </Button>
               </div>

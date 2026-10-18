@@ -125,7 +125,7 @@ export function FrameRender() {
                     </div>
                     <Badge
                       size="sm"
-                      variant={cluster.health === 'Healthy' ? 'subtle' : 'outline'}
+                      variant={cluster.health === 'Healthy' ? 'soft' : 'outline'}
                       leading={
                         cluster.health === 'Healthy'
                           ? 'i-lucide:check-circle-2'

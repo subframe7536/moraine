@@ -10,6 +10,7 @@ export function FeedbackActionButton(props: {
   action?: FeedbackAction
   label?: JSX.Element
   variant: NonNullable<ButtonT.Variant['variant']>
+  tone?: ButtonT.Variant['tone']
   size?: ButtonT.Variant['size']
   loading?: boolean
   disabled?: boolean
@@ -26,6 +27,7 @@ export function FeedbackActionButton(props: {
       slotName={props.slotName}
       size={props.size}
       variant={props.action?.variant ?? props.variant}
+      tone={props.action?.tone ?? props.tone}
       leading={props.action?.leading}
       disabled={props.disabled || Boolean(props.action?.disabled)}
       loading={props.loading}

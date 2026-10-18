@@ -126,7 +126,7 @@ export function AlertPublish() {
           </Show>
           <Button
             size="sm"
-            variant={stage() === 'published' ? 'outline' : 'default'}
+            variant={stage() === 'published' ? 'outline' : 'solid'}
             disabled={stage() === 'published'}
             leading={stage() === 'published' ? 'i-lucide:check' : 'i-lucide:rocket'}
             onClick={publish}

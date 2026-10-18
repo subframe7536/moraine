@@ -13,8 +13,10 @@ export interface ButtonGroupStyleSlot<T = unknown> {
 export interface ButtonGroupStyleVariant {
   /** Shared button size. @default 'md' */
   size?: ComponentSize
-  /** Shared button treatment. @default 'default' */
+  /** Shared button treatment. @default 'solid' */
   variant?: ButtonStyleVariant['variant']
+  /** Shared button tone. @default 'primary' */
+  tone?: ButtonStyleVariant['tone']
   /** Visual layout direction.
    * @default 'horizontal'
    */

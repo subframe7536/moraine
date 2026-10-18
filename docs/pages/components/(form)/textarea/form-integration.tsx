@@ -27,7 +27,7 @@ export function FormIntegration() {
           <Textarea placeholder="Write your detailed feedback here..." rows={4} autoResize />
         </form.Field>
         <div class="flex gap-3 items-center">
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="soft" tone="neutral" size="sm">
             Send Feedback
           </Button>
           <p class="text-xs text-muted-foreground">

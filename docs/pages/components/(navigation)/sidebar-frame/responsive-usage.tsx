@@ -43,7 +43,7 @@ export function ResponsiveUsage() {
                 </span>
               </div>
             </div>
-            <Badge size="sm" variant="subtle">
+            <Badge size="sm" variant="soft">
               Pro
             </Badge>
           </SidebarFrame.SidebarHeader>
@@ -67,7 +67,7 @@ export function ResponsiveUsage() {
                   <SidebarFrame.Item href={item.href} leading={item.icon} isActive={item.active}>
                     <span class="flex-1 truncate">{item.label}</span>
                     <Show when={item.badge}>
-                      <Badge size="sm" variant="subtle" class="ml-auto shrink-0">
+                      <Badge size="sm" variant="soft" class="ml-auto shrink-0">
                         {item.badge}
                       </Badge>
                     </Show>
@@ -156,7 +156,7 @@ export function ResponsiveUsage() {
                       <div class="flex gap-2 items-center">
                         <Badge
                           size="sm"
-                          variant={item.status === 'Live' ? 'subtle' : 'outline'}
+                          variant={item.status === 'Live' ? 'soft' : 'outline'}
                           leading={
                             item.status === 'Live'
                               ? 'i-lucide:check-circle-2'

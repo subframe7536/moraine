@@ -381,8 +381,6 @@ export namespace NeverT {
       paginationRecipe.variants,
     )
     const variantProp = paginationPart.props.find((p) => p.name === 'variant')
-    expect(variantProp?.type).toBe(
-      "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
-    )
+    expect(variantProp?.type).toBe("'solid' | 'soft' | 'outline' | 'ghost' | 'link'")
   })
 })

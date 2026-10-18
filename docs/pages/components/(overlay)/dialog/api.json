@@ -230,8 +230,24 @@
         "member": "Content"
       },
       "description": "Props for Dialog.Content.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
         {
           "name": "children",
           "optional": true,

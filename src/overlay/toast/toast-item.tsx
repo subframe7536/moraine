@@ -605,7 +605,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   <FeedbackActionButton
                     action={cancelAction(options().cancel)}
                     label={messages().cancel}
-                    variant="secondary"
+                    variant="soft"
+                    tone="neutral"
                     size="sm"
                     loading={runner.pending() === 'cancel'}
                     disabled={runner.pending() === 'action'}
@@ -621,7 +622,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   <FeedbackActionButton
                     action={options().action}
                     label={options().action?.label}
-                    variant="default"
+                    variant="solid"
+                    tone="primary"
                     size="sm"
                     loading={runner.pending() === 'action'}
                     disabled={runner.pending() === 'cancel'}
@@ -641,6 +643,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 slotName="toast-close"
                 size="icon-md"
                 variant="ghost"
+                tone="neutral"
                 leading="icon-close"
                 aria-label={messages().close}
                 {...slots.close}

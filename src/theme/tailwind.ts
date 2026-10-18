@@ -7,7 +7,7 @@ import {
   MORAINE_FONT,
   MORAINE_RADIUS,
   MORAINE_SHADOW,
-  createStateColorDeclarations,
+  createGatedColorDeclarations,
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
@@ -38,7 +38,7 @@ export const moraineTailwind = plugin(
   ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
     addBase({
       '@supports (color: color-mix(in oklch, red, white))': {
-        '*, ::before, ::after': createStateColorDeclarations({ hover: 8, active: 12 }),
+        '*, ::before, ::after': createGatedColorDeclarations(),
       },
     })
 

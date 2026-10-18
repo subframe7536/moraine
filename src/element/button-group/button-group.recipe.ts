@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { TONE_VARS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -14,14 +15,30 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
 >('buttonGroup', {
   base: {
     root: 'inline-flex size-fit items-stretch *:focus-visible:(relative z-sticky)',
-    separator: 'bg-input self-stretch relative',
+    separator: 'bg-border self-stretch relative',
   },
   defaultVariants: {
     orientation: 'horizontal',
   },
   variants: {
-    size: {},
-    variant: {},
+    variant: {
+      outline: {
+        separator: 'bg-tone/40',
+      },
+      solid: {
+        separator: 'bg-tone-foreground/20',
+      },
+      soft: {
+        separator: 'bg-tone/24',
+      },
+      ghost: {
+        separator: 'bg-tone/20',
+      },
+      link: {
+        separator: 'bg-tone/20',
+      },
+    },
+    tone: TONE_VARS,
     orientation: {
       horizontal: {
         root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none -me-px) [&>*:not(:first-child)]:rounded-s-none',

@@ -54,6 +54,12 @@ export interface PaginationStyleVariant {
    * @default 'ghost'
    */
   controlVariant?: ButtonStyleVariant['variant']
+
+  /**
+   * Color tone for pagination buttons.
+   * @default 'neutral'
+   */
+  tone?: ButtonStyleVariant['tone']
 }
 
 export type PaginationStyleConfig = ComponentStyleConfig<

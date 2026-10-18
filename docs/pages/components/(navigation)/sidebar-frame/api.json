@@ -176,8 +176,29 @@
         "root": "SidebarFrame",
         "member": "SidebarHeader"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -200,8 +221,29 @@
         "root": "SidebarFrame",
         "member": "SidebarBody"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -224,8 +266,29 @@
         "root": "SidebarFrame",
         "member": "SidebarFooter"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -356,8 +419,29 @@
         "root": "SidebarFrame",
         "member": "Menu"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,
@@ -642,8 +726,29 @@
         "root": "SidebarFrame",
         "member": "SubmenuContent"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
         {
           "name": "class",
           "optional": true,

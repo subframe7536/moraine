@@ -29,6 +29,8 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       'onPressedChange',
       'variant',
       'activeVariant',
+      'tone',
+      'activeTone',
       'size',
       'classes',
       'styles',
@@ -79,6 +81,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       as={local.as}
       aria-pressed={pressed()}
       variant={pressed() ? variants.activeVariant : variants.variant}
+      tone={pressed() ? variants.activeTone : variants.tone}
       size={variants.size}
       activeEffect="none"
       {...overrides()}

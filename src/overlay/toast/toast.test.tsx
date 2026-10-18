@@ -107,7 +107,7 @@ describe('Toast', () => {
     })
   })
 
-  it('defaults action button variant to default and cancel button variant to secondary', async () => {
+  it('defaults action button variant to solid primary and cancel button variant to soft neutral', async () => {
     render(() => <Toast />)
 
     Toast.show({
@@ -119,8 +119,10 @@ describe('Toast', () => {
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('bg-primary')
-    expect(cancelButton.className).toContain('bg-secondary')
+    expect(actionButton.className).toContain('bg-tone')
+    expect(actionButton.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+    expect(cancelButton.className).toContain('bg-tone/12')
+    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
   })
 
   it('applies custom variant on action and cancel button configs', async () => {
@@ -134,15 +136,17 @@ describe('Toast', () => {
       },
       cancel: {
         label: 'Dismiss',
-        variant: 'danger',
+        variant: 'solid',
+        tone: 'danger',
       },
     })
 
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('border-border')
-    expect(cancelButton.className).toContain('bg-danger')
+    expect(actionButton.className).toContain('border-tone/40')
+    expect(cancelButton.className).toContain('bg-tone')
+    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
   })
 
   it('renders close button and closes on click', async () => {

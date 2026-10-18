@@ -143,7 +143,7 @@ export function HeaderFooterSlots() {
               <Icon name="i-lucide:folder-git-2" class="text-primary size-4" />
               <h3 class="text-sm font-bold">{currentProject()}</h3>
             </div>
-            <Badge size="sm" variant="subtle">
+            <Badge size="sm" variant="soft">
               Active Repository
             </Badge>
           </div>

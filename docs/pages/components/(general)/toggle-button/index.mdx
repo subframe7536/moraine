@@ -20,26 +20,54 @@ import { ToggleButton } from '@src'
       label: 'Unpressed variant',
       defaultValue: 'ghost',
       options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Secondary', value: 'secondary' },
-        { label: 'Outline', value: 'outline' },
         { label: 'Ghost', value: 'ghost' },
+        { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Outline', value: 'outline' },
         { label: 'Link', value: 'link' },
-        { label: 'Danger', value: 'danger' },
       ],
     },
     {
       kind: 'select',
       prop: 'activeVariant',
       label: 'Pressed variant',
-      defaultValue: 'secondary',
+      defaultValue: 'soft',
       options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Secondary', value: 'secondary' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Solid', value: 'solid' },
         { label: 'Outline', value: 'outline' },
         { label: 'Ghost', value: 'ghost' },
         { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Unpressed tone',
+      defaultValue: 'neutral',
+      options: [
+        { label: 'Neutral', value: 'neutral' },
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
         { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'activeTone',
+      label: 'Pressed tone',
+      defaultValue: 'neutral',
+      options: [
+        { label: 'Neutral', value: 'neutral' },
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
       ],
     },
     {
@@ -63,6 +91,8 @@ import { ToggleButton } from '@src'
     <ToggleButton
       variant={props.variant}
       activeVariant={props.activeVariant}
+      tone={props.tone}
+      activeTone={props.activeTone}
       size={props.size}
       disabled={props.disabled}
       loading={props.loading}
@@ -94,7 +124,7 @@ import { ToggleButton } from 'moraine'
 
 export function Example() {
   return (
-    <ToggleButton variant="ghost" activeVariant="secondary" leading="i-lucide:bold">
+    <ToggleButton variant="ghost" activeVariant="soft" leading="i-lucide:bold">
       Bold
     </ToggleButton>
   )
@@ -104,12 +134,12 @@ export function Example() {
 ### Off and on variants
 
 `variant` controls the unpressed appearance; `activeVariant` controls the pressed appearance. Both
-accept all Button variants. The defaults are `ghost` and `secondary`. Changing a variant does not
+accept all Button variants. The defaults are `ghost` and `soft`. Changing a variant does not
 reset the toggle state. The `link` variant is a visual treatment: ToggleButton always renders a
 button with `type="button"`, so it does not navigate or submit a form.
 
 ```tsx
-<ToggleButton variant="outline" activeVariant="default">
+<ToggleButton variant="outline" activeVariant="solid">
   Pin
 </ToggleButton>
 ```

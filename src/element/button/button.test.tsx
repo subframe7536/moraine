@@ -165,14 +165,16 @@ describe('Button', () => {
   test('applies variant and size classes', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <Button variant="danger" size="sm">
+        <Button tone="danger" size="sm">
           Delete
         </Button>
       </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Delete' })
-    expect(button.className).toContain('bg-danger')
+    expect(button.className).toContain('bg-tone')
+    expect(button.className).toContain('text-tone-foreground')
+    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
     expect(button.className).toContain('h-7')
   })
 
@@ -183,8 +185,8 @@ describe('Button', () => {
       </MoraineProvider>
     ))
     const button = screen.getByRole('button', { name: 'Press' })
-    expect(button.className).toContain('hover:bg-primary-hover')
-    expect(button.className).toContain('active:bg-primary-active')
+    expect(button.className).toContain('hover:bg-tone-hover')
+    expect(button.className).toContain('active:bg-tone-active')
     expect(button.className).toContain('[&:active:not([aria-haspopup])]:translate-y-px')
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-98')
   })
@@ -244,7 +246,7 @@ describe('Button', () => {
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
   })
 
-  test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'danger'] as const)(
+  test.each(['solid', 'soft', 'outline', 'ghost', 'link'] as const)(
     'does not apply a built-in shadow to the %s variant',
     (variant) => {
       const screen = render(() => (
@@ -299,7 +301,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: `${size} button` })
 
-    expect(button.className).toContain('text-primary-foreground')
+    expect(button.className).toContain('text-tone-foreground')
     expect(button.className).toContain(textClass)
     expect(button.className).toContain(dimensionClass)
   })
@@ -1155,14 +1157,14 @@ describe('Button', () => {
           <Button data-testid="p-btn">Plain</Button>
 
           {/* Button inside ButtonGroup */}
-          <ButtonGroup variant="secondary">
+          <ButtonGroup variant="soft" tone="neutral">
             <Button data-testid="g-btn">Grouped</Button>
           </ButtonGroup>
 
           {/* Button with instance override */}
           <Button
             data-testid="i-btn"
-            variant="danger"
+            tone="danger"
             class="instance-class"
             style={{ color: 'green' }}
           >
@@ -1172,21 +1174,22 @@ describe('Button', () => {
       ))
 
       const pBtn = screen.getByTestId('p-btn')
-      expect(pBtn.className).toContain('border-border')
+      expect(pBtn.className).toContain('border-tone/40')
       expect(pBtn.className).toContain('h-9')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.className).toContain('m-1')
       expect(pBtn.className).toContain('text-blue-500')
 
       const gBtn = screen.getByTestId('g-btn')
-      // Group variant 'secondary' overrides provider 'outline'
-      expect(gBtn.className).toContain('bg-secondary')
+      // Group variant 'soft' overrides provider 'outline'
+      expect(gBtn.className).toContain('bg-tone/12')
       // Provider buttonGroup variants 'sm' overrides provider button 'lg'
       expect(gBtn.className).toContain('h-7')
 
       const iBtn = screen.getByTestId('i-btn')
       // Instance variant overrides all
-      expect(iBtn.className).toContain('bg-danger')
+      expect(iBtn.className).toContain('bg-tone')
+      expect(iBtn.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
       expect(iBtn.className).toContain('instance-class')
       expect(iBtn.style.color).toBe('green')
     })

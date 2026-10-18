@@ -11,7 +11,7 @@ export function DismissControl() {
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
       >
-        <Popover.Trigger as={Button} variant="secondary">
+        <Popover.Trigger as={Button} variant="soft" tone="neutral">
           Try close me
         </Popover.Trigger>
         <Popover.Content>

@@ -15,23 +15,23 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 
 describe('Pagination', () => {
   test('applies button variants only to their page and control buttons', () => {
-    const [danger, setDanger] = createSignal(false)
+    const [solid, setSolid] = createSignal(false)
     const screen = render(() => (
-      <Pagination total={30} page={2} controlVariant={danger() ? 'danger' : 'ghost'} />
+      <Pagination total={30} page={2} controlVariant={solid() ? 'solid' : 'ghost'} />
     ))
     const root = screen.getByRole('navigation')
     const current = screen.container.querySelector(
       '[data-slot="pagination-item"][aria-current="page"]',
     )!
     const next = screen.container.querySelector('[data-slot="pagination-next"]')!
-    expect(root.className).not.toMatch(/bg-|hover:|border-/)
-    expect(current.className).toContain('bg-background')
-    expect(next.className).toContain('bg-accent-hover')
+    expect(root.className).not.toMatch(/border-|bg-/)
+    expect(current.className).toContain('border-tone/40')
+    expect(next.className.split(' ')).not.toContain('bg-tone')
 
-    setDanger(true)
-    expect(root.className).not.toMatch(/bg-|hover:|border-/)
-    expect(next.className).toContain('bg-danger')
-    expect(current.className).toContain('bg-background')
+    setSolid(true)
+    expect(root.className).not.toMatch(/border-|bg-/)
+    expect(next.className.split(' ')).toContain('bg-tone')
+    expect(current.className).toContain('border-tone/40')
   })
 
   test('forwards ref to root nav element', () => {

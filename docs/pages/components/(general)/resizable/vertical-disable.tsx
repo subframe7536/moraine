@@ -66,7 +66,7 @@ export function VerticalDisable() {
 
             <div class="pt-2 flex items-center justify-between">
               <span class="text-[11px] text-muted-foreground">Estimated scan: 3 rows (0.4ms)</span>
-              <Button size="xs" variant="default" leading="i-lucide:play">
+              <Button size="xs" leading="i-lucide:play">
                 Execute
               </Button>
             </div>

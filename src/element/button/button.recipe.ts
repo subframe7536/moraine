@@ -1,9 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import {
-  ARIA_DISABLED_CLASS,
-  DISABLED_CLASS,
-  FOCUS_VISIBLE_CLASS,
-} from '../../theme/recipe-common.recipe'
+import { ARIA_DISABLED_CLASS, DISABLED_CLASS, TONE_VARS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -21,14 +17,15 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
   'button',
   {
     base: {
-      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${FOCUS_VISIBLE_CLASS} aria-invalid:(border-danger ring-3 ring-danger/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`,
+      root: `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding focus-visible:(outline-none ring-3 ring-tone/20 dark:ring-tone/40) aria-invalid:(border-danger ring-3 ring-danger/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`,
       leading: '',
       label: 'min-w-0 truncate',
       trailing: '',
     },
     defaultVariants: {
       size: 'md',
-      variant: 'default',
+      variant: 'solid',
+      tone: 'primary',
       activeEffect: 'move-down',
     },
     variants: {
@@ -38,25 +35,23 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
         'zoom-in': { root: BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS },
       },
       variant: {
-        default: {
-          root: 'text-primary-foreground border-transparent bg-primary active:bg-primary-active hover:bg-primary-hover',
+        solid: {
+          root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover',
         },
-        secondary: {
-          root: 'text-secondary-foreground border-transparent bg-secondary active:bg-secondary-active hover:bg-secondary-hover',
+        soft: {
+          root: 'text-tone-ink border-transparent bg-tone/12 active:bg-tone/24 hover:bg-tone/18',
         },
         outline: {
-          root: 'border-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
+          root: 'text-tone-ink border-tone/40 bg-transparent active:bg-tone/12 hover:bg-tone/8',
         },
         ghost: {
-          root: 'border-transparent active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
+          root: 'text-tone-ink border-transparent active:bg-tone/16 hover:bg-tone/10',
         },
         link: {
-          root: 'text-primary border-transparent underline-offset-4 hover:underline',
-        },
-        danger: {
-          root: 'text-danger-foreground border-transparent bg-danger focus-visible:(border-danger/40 ring-danger/20) active:bg-danger-active hover:bg-danger-hover dark:focus-visible:ring-danger/40',
+          root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',
         },
       },
+      tone: TONE_VARS,
       size: {
         xs: { root: 'text-tiny px-1.5 rounded-xs h-6' },
         sm: { root: 'text-xs px-2 rounded-sm h-7' },

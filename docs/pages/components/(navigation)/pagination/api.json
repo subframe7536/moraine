@@ -18,7 +18,7 @@
         {
           "name": "activeVariant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Visual variant for the active page button.",
           "default": {
             "kind": "literal",
@@ -46,7 +46,7 @@
         {
           "name": "controlVariant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Visual variant for the previous/next control buttons.",
           "default": {
             "kind": "literal",
@@ -194,6 +194,16 @@
           "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
         },
         {
+          "name": "tone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Color tone for pagination buttons.",
+          "default": {
+            "kind": "literal",
+            "value": "neutral"
+          }
+        },
+        {
           "name": "total",
           "optional": true,
           "type": "number",
@@ -206,7 +216,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Visual variant for the page buttons.",
           "default": {
             "kind": "literal",

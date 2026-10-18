@@ -53,100 +53,23 @@ export const MORAINE_FONT = {
   serif: 'var(--font-serif)',
 } as const
 
-function stateColor(color: string, state: 'hover' | 'active'): string {
-  const base = `var(--${color})`
-  const hover = `var(--${color}-hover, var(--mo-auto-${color}-hover, ${base}))`
-  return state === 'hover'
-    ? hover
-    : `var(--${color}-active, var(--mo-auto-${color}-active, ${hover}))`
-}
-
-const BACKGROUND_FOREGROUND_COLORS = new Set(['danger', 'info', 'success', 'warning'])
-
-/** Status and danger colors mix toward `--background` when their foreground token is unset. */
-export function usesBackgroundForegroundFallback(color: string): boolean {
-  return BACKGROUND_FOREGROUND_COLORS.has(color)
-}
-
-/** Design-token color map shared by UnoCSS and Tailwind. */
-export const MORAINE_COLORS = {
-  background: {
-    DEFAULT: 'var(--background)',
-    hover: stateColor('background', 'hover'),
-    active: stateColor('background', 'active'),
-  },
-  foreground: 'var(--foreground)',
-  primary: {
-    DEFAULT: 'var(--primary)',
-    foreground: 'var(--primary-foreground)',
-    hover: stateColor('primary', 'hover'),
-    active: stateColor('primary', 'active'),
-  },
-  secondary: {
-    DEFAULT: 'var(--secondary)',
-    foreground: 'var(--secondary-foreground)',
-    hover: stateColor('secondary', 'hover'),
-    active: stateColor('secondary', 'active'),
-  },
-  card: {
-    DEFAULT: 'var(--card)',
-    foreground: 'var(--card-foreground)',
-    hover: stateColor('card', 'hover'),
-    active: stateColor('card', 'active'),
-  },
-  popover: {
-    DEFAULT: 'var(--popover)',
-    foreground: 'var(--popover-foreground)',
-    hover: stateColor('popover', 'hover'),
-    active: stateColor('popover', 'active'),
-  },
-  muted: {
-    DEFAULT: 'var(--muted)',
-    foreground: 'var(--muted-foreground)',
-    hover: stateColor('muted', 'hover'),
-    active: stateColor('muted', 'active'),
-  },
-  accent: {
-    DEFAULT: 'var(--accent)',
-    foreground: 'var(--accent-foreground)',
-    hover: stateColor('accent', 'hover'),
-    active: stateColor('accent', 'active'),
-  },
-  danger: {
-    DEFAULT: 'var(--danger)',
-    foreground: 'var(--danger-foreground, var(--background))',
-    hover: stateColor('danger', 'hover'),
-    active: stateColor('danger', 'active'),
-  },
-  info: {
-    DEFAULT: 'var(--info)',
-    foreground: 'var(--info-foreground, var(--background))',
-    hover: stateColor('info', 'hover'),
-    active: stateColor('info', 'active'),
-  },
-  success: {
-    DEFAULT: 'var(--success)',
-    foreground: 'var(--success-foreground, var(--background))',
-    hover: stateColor('success', 'hover'),
-    active: stateColor('success', 'active'),
-  },
-  warning: {
-    DEFAULT: 'var(--warning)',
-    foreground: 'var(--warning-foreground, var(--background))',
-    hover: stateColor('warning', 'hover'),
-    active: stateColor('warning', 'active'),
-  },
-  border: 'var(--border)',
-  input: 'var(--input)',
-  control: 'var(--control)',
-  backdrop: 'var(--backdrop, rgb(0 0 0 / 0.1))',
-  ring: 'var(--ring)',
-} as const
-
-const MORAINE_STATE_COLORS = [
-  'background',
+export const TONES = [
   'primary',
   'secondary',
+  'neutral',
+  'danger',
+  'info',
+  'success',
+  'warning',
+] as const
+export type Tone = (typeof TONES)[number]
+
+export const THEME_COLOR_ROLES = [
+  'background',
+  'foreground',
+  'primary',
+  'secondary',
+  'neutral',
   'card',
   'popover',
   'muted',
@@ -155,26 +78,137 @@ const MORAINE_STATE_COLORS = [
   'info',
   'success',
   'warning',
+  'border',
+  'input',
+  'control',
+  'backdrop',
+  'ring',
 ] as const
+export type MoraineThemeColorRole = (typeof THEME_COLOR_ROLES)[number]
+
+function surfaceStateColor(color: string, state: 'hover' | 'active'): string {
+  const base = `var(--${color})`
+  const hover = `var(--${color}-hover, var(--mo-${color}-hover, ${base}))`
+  return state === 'hover' ? hover : `var(--${color}-active, var(--mo-${color}-active, ${hover}))`
+}
+
+const BACKGROUND_FOREGROUND_COLORS = new Set(['neutral', 'danger', 'info', 'success', 'warning'])
+
+/** Status and neutral colors mix toward `--background` when their foreground token is unset. */
+export function usesBackgroundForegroundFallback(color: string): boolean {
+  return BACKGROUND_FOREGROUND_COLORS.has(color)
+}
+
+/** Design-token color map shared by UnoCSS and Tailwind. */
+export const MORAINE_COLORS = {
+  background: {
+    DEFAULT: 'var(--background)',
+    hover: surfaceStateColor('background', 'hover'),
+    active: surfaceStateColor('background', 'active'),
+  },
+  foreground: 'var(--foreground)',
+  primary: {
+    DEFAULT: 'var(--primary)',
+    foreground: 'var(--primary-foreground)',
+    ink: 'var(--primary-ink, var(--mo-primary-ink, var(--primary)))',
+  },
+  secondary: {
+    DEFAULT: 'var(--secondary)',
+    foreground: 'var(--secondary-foreground)',
+    ink: 'var(--secondary-ink, var(--mo-secondary-ink, var(--secondary)))',
+  },
+  neutral: {
+    DEFAULT: 'var(--neutral)',
+    foreground: 'var(--neutral-foreground, var(--background))',
+    ink: 'var(--neutral-ink, var(--mo-neutral-ink, var(--neutral)))',
+  },
+  card: {
+    DEFAULT: 'var(--card)',
+    foreground: 'var(--card-foreground)',
+    hover: surfaceStateColor('card', 'hover'),
+    active: surfaceStateColor('card', 'active'),
+  },
+  popover: {
+    DEFAULT: 'var(--popover)',
+    foreground: 'var(--popover-foreground)',
+    hover: surfaceStateColor('popover', 'hover'),
+    active: surfaceStateColor('popover', 'active'),
+  },
+  muted: {
+    DEFAULT: 'var(--muted)',
+    foreground: 'var(--muted-foreground)',
+    hover: surfaceStateColor('muted', 'hover'),
+    active: surfaceStateColor('muted', 'active'),
+  },
+  accent: {
+    DEFAULT: 'var(--accent)',
+    foreground: 'var(--accent-foreground)',
+    hover: surfaceStateColor('accent', 'hover'),
+    active: surfaceStateColor('accent', 'active'),
+  },
+  danger: {
+    DEFAULT: 'var(--danger)',
+    foreground: 'var(--danger-foreground, var(--background))',
+    ink: 'var(--danger-ink, var(--mo-danger-ink, var(--danger)))',
+  },
+  info: {
+    DEFAULT: 'var(--info)',
+    foreground: 'var(--info-foreground, var(--background))',
+    ink: 'var(--info-ink, var(--mo-info-ink, var(--info)))',
+  },
+  success: {
+    DEFAULT: 'var(--success)',
+    foreground: 'var(--success-foreground, var(--background))',
+    ink: 'var(--success-ink, var(--mo-success-ink, var(--success)))',
+  },
+  warning: {
+    DEFAULT: 'var(--warning)',
+    foreground: 'var(--warning-foreground, var(--background))',
+    ink: 'var(--warning-ink, var(--mo-warning-ink, var(--warning)))',
+  },
+  tone: {
+    DEFAULT: 'var(--mo-tone)',
+    foreground: 'var(--mo-tone-foreground)',
+    hover: 'var(--mo-tone-hover, var(--mo-tone))',
+    active: 'var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))',
+    ink: 'var(--mo-tone-ink)',
+  },
+  border: 'var(--border)',
+  input: 'var(--input)',
+  control: 'var(--control)',
+  backdrop: 'var(--backdrop, rgb(0 0 0 / 0.1))',
+  ring: 'var(--ring)',
+} as const
+
+const MORAINE_SURFACES = ['background', 'card', 'popover', 'muted', 'accent'] as const
 
 export const MORAINE_WIDTH = {
   sidebar: 'var(--sidebar-width,clamp(14rem,25%,20rem))',
 }
 
-export function createStateColorDeclarations(adjustments: {
-  hover: number
-  active: number
-}): Record<string, string> {
-  return Object.fromEntries(
-    MORAINE_STATE_COLORS.flatMap((color) => {
-      const foreground =
-        color === 'background'
-          ? 'var(--foreground)'
-          : `var(--${color}-foreground, var(--${usesBackgroundForegroundFallback(color) ? 'background' : 'foreground'}))`
-      return (['hover', 'active'] as const).map((state) => [
-        `--mo-auto-${color}-${state}`,
-        `color-mix(in oklch, var(--${color}), ${foreground} ${adjustments[state]}%)`,
-      ])
-    }),
-  )
+export function createGatedColorDeclarations(): Record<string, string> {
+  const declarations: Record<string, string> = {}
+
+  for (const surface of MORAINE_SURFACES) {
+    const foreground =
+      surface === 'background'
+        ? 'var(--foreground)'
+        : `var(--${surface}-foreground, var(--foreground))`
+    declarations[`--mo-${surface}-hover`] =
+      `color-mix(in oklch, var(--${surface}), ${foreground} var(--mo-mix-hover, 8%))`
+    declarations[`--mo-${surface}-active`] =
+      `color-mix(in oklch, var(--${surface}), ${foreground} var(--mo-mix-active, 12%))`
+  }
+
+  for (const tone of TONES) {
+    declarations[`--mo-${tone}-ink`] =
+      `color-mix(in oklch, var(--${tone}), var(--foreground) var(--mo-mix-ink, 25%))`
+  }
+
+  declarations['--mo-tone-hover'] =
+    'color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%))'
+  declarations['--mo-tone-active'] =
+    'color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-active, 12%))'
+
+  return declarations
 }

@@ -622,7 +622,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 </Dialog>
 
 ;<Popover>
-  <Popover.Trigger as={Button} variant="secondary" size="md">
+  <Popover.Trigger as={Button} variant="soft" tone="neutral" size="md">
     Open popover
   </Popover.Trigger>
   <Popover.Content />

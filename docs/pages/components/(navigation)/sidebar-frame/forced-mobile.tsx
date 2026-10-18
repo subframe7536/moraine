@@ -28,7 +28,7 @@ export function ForcedMobile() {
               </div>
               <span>PocketPay</span>
             </div>
-            <Badge size="sm" variant="subtle">
+            <Badge size="sm" variant="soft">
               v1.8
             </Badge>
           </SidebarFrame.SidebarHeader>
@@ -52,7 +52,7 @@ export function ForcedMobile() {
                     <span>{item.label}</span>
                   </div>
                   <Show when={item.badge}>
-                    <Badge size="sm" variant="subtle">
+                    <Badge size="sm" variant="soft">
                       {item.badge}
                     </Badge>
                   </Show>

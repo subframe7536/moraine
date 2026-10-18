@@ -62,3 +62,41 @@ export function groupAccentClass(group: string, utility = 'text-accent-foregroun
 
 export const OVERLAY_CLOSE_BUTTON_CLASS =
   'rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-50 pointer-events-none)'
+
+export const TONE_VARS = {
+  primary: {
+    '--mo-tone': 'var(--primary)',
+    '--mo-tone-foreground': 'var(--primary-foreground)',
+    '--mo-tone-ink': 'var(--primary-ink, var(--mo-primary-ink, var(--primary)))',
+  },
+  secondary: {
+    '--mo-tone': 'var(--secondary)',
+    '--mo-tone-foreground': 'var(--secondary-foreground)',
+    '--mo-tone-ink': 'var(--secondary-ink, var(--mo-secondary-ink, var(--secondary)))',
+  },
+  neutral: {
+    '--mo-tone': 'var(--neutral)',
+    '--mo-tone-foreground': 'var(--neutral-foreground, var(--background))',
+    '--mo-tone-ink': 'var(--neutral-ink, var(--mo-neutral-ink, var(--neutral)))',
+  },
+  danger: {
+    '--mo-tone': 'var(--danger)',
+    '--mo-tone-foreground': 'var(--danger-foreground, var(--background))',
+    '--mo-tone-ink': 'var(--danger-ink, var(--mo-danger-ink, var(--danger)))',
+  },
+  info: {
+    '--mo-tone': 'var(--info)',
+    '--mo-tone-foreground': 'var(--info-foreground, var(--background))',
+    '--mo-tone-ink': 'var(--info-ink, var(--mo-info-ink, var(--info)))',
+  },
+  success: {
+    '--mo-tone': 'var(--success)',
+    '--mo-tone-foreground': 'var(--success-foreground, var(--background))',
+    '--mo-tone-ink': 'var(--success-ink, var(--mo-success-ink, var(--success)))',
+  },
+  warning: {
+    '--mo-tone': 'var(--warning)',
+    '--mo-tone-foreground': 'var(--warning-foreground, var(--background))',
+    '--mo-tone-ink': 'var(--warning-ink, var(--mo-warning-ink, var(--warning)))',
+  },
+} as const

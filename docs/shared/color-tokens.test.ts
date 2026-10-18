@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
-import { MORAINE_COLORS } from '../../src/theme/tokens.ts'
+import { MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens.ts'
 
 import { formatDocsColorTokenDefault, listDocsColorTokens } from './color-tokens.ts'
 
@@ -12,12 +12,12 @@ function findToken(name: string) {
 }
 
 describe('listDocsColorTokens', () => {
-  it('lists every MORAINE_COLORS entry and variant', () => {
+  it('lists every public theme color role and variant', () => {
     const tokens = listDocsColorTokens()
-    const expectedCount = Object.values(MORAINE_COLORS).reduce(
-      (count, schema) => count + (typeof schema === 'string' ? 1 : Object.keys(schema).length),
-      0,
-    )
+    const expectedCount = THEME_COLOR_ROLES.reduce((count, color) => {
+      const schema = MORAINE_COLORS[color]
+      return count + (typeof schema === 'string' ? 1 : Object.keys(schema).length)
+    }, 0)
 
     expect(tokens).toHaveLength(expectedCount)
     expect(new Set(tokens.map((token) => token.name)).size).toBe(expectedCount)
@@ -31,8 +31,9 @@ describe('listDocsColorTokens', () => {
         'foreground',
         'primary',
         'primary-foreground',
-        'primary-hover',
-        'primary-active',
+        'primary-ink',
+        'accent-hover',
+        'accent-active',
         'warning-foreground',
         'control',
         'backdrop',
@@ -65,11 +66,12 @@ describe('listDocsColorTokens', () => {
   })
 
   it('describes derived defaults for state and status foreground rows', () => {
-    expect(findToken('primary-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
+    expect(findToken('accent-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
     expect(findToken('background-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
+    expect(findToken('primary-ink').defaults.light).toEqual({ type: 'auto', percent: 25 })
     expect(findToken('warning-foreground').defaults).toEqual({
       light: { type: 'fallback', variable: '--background' },
-      dark: { type: 'fallback', variable: '--background' },
+      dark: { type: 'value', value: 'rgb(23, 23, 23)' },
     })
     for (const token of listDocsColorTokens()) {
       expect(token.defaults.light.type, token.name).not.toBe('none')

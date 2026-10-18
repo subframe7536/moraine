@@ -60,7 +60,7 @@ describe('generateApiDoc', () => {
     )
     expect(button?.parts[0]?.props.find((prop) => prop.name === 'variant')?.default).toEqual({
       kind: 'literal',
-      value: 'default',
+      value: 'solid',
     })
 
     const empty = result.componentDocs.get('empty')!

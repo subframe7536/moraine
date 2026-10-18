@@ -58,19 +58,21 @@ lists and repeating native keyboard behavior where Moraine adds no special rule.
 Use the semantic variables configured in `docs/unocss.config.ts`; no raw documentation color
 palette is allowed.
 
-| Role           | Variables                                                                           | Use                                                                 |
-| -------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Background     | `--background`, `--foreground`                                                      | Page canvas and default readable text.                              |
-| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground`              | Examples, transient surfaces, and grouped content.                  |
-| Border         | `--border`, `--input`                                                               | Rules, field boundaries, and quiet structural separation.           |
-| Muted          | `--muted` / `--muted-foreground`                                                    | Quiet static surfaces, metadata, and secondary explanation.         |
-| Accent         | `--accent` / `--accent-foreground`, with hover and active states                    | Hover, highlight, and other interactive emphasis.                   |
-| Action         | `--primary` / `--primary-foreground`, with `--primary-hover` and `--primary-active` | Primary links, selected navigation, and deliberate calls to action. |
-| Focus          | `--ring` with `--background` offset                                                 | Keyboard focus treatment through `docs-focus-visible`.              |
-| Info           | `--info` / `--info-foreground`, with state variants                                 | Informational status.                                               |
-| Success        | `--success` / `--success-foreground`, with state variants                           | Confirmed completion and positive status.                           |
-| Warning        | `--warning` / `--warning-foreground`, with state variants                           | Caution paired with explicit text or an icon.                       |
-| Danger         | `--danger` / `--danger-foreground`, with state variants                             | Destructive actions, errors, and failure feedback.                  |
+| Role           | Variables                                                              | Use                                                                 |
+| -------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Background     | `--background`, `--foreground`, with hover/active                      | Page canvas and default readable text.                              |
+| Raised surface | `--card` / `--card-foreground` or `--popover` / `--popover-foreground` | Examples, transient surfaces, and grouped content.                  |
+| Border         | `--border`, `--input`                                                  | Rules, field boundaries, and quiet structural separation.           |
+| Muted          | `--muted` / `--muted-foreground`, with hover/active                    | Quiet static surfaces, metadata, and secondary explanation.         |
+| Accent         | `--accent` / `--accent-foreground`, with hover and active states       | Hover, highlight, and other interactive emphasis.                   |
+| Action         | `--primary` / `--primary-foreground`, with `--primary-ink`             | Primary links, selected navigation, and deliberate calls to action. |
+| Focus          | `--ring` with `--background` offset                                    | Keyboard focus treatment through `docs-focus-visible`.              |
+| Secondary      | `--secondary` / `--secondary-foreground`, with `--secondary-ink`       | Co-equal brand anchor tone (slate default).                         |
+| Neutral        | `--neutral` / `--neutral-foreground`, with `--neutral-ink`             | Monochrome anchor tone for soft badges and neutral actions.         |
+| Info           | `--info` / `--info-foreground`, with `--info-ink`                      | Informational status.                                               |
+| Success        | `--success` / `--success-foreground`, with `--success-ink`             | Confirmed completion and positive status.                           |
+| Warning        | `--warning` / `--warning-foreground`, with `--warning-ink`             | Caution paired with explicit text or an icon.                       |
+| Danger         | `--danger` / `--danger-foreground`, with `--danger-ink`                | Destructive actions, errors, and failure feedback.                  |
 
 The built-in info, success, warning, and danger values follow Obsidian's callout colors; warning is
 orange rather than yellow.

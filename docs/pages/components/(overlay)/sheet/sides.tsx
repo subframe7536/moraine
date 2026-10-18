@@ -62,9 +62,7 @@ export function Sides() {
             </div>
           </Sheet.Body>
           <Sheet.Footer>
-            <Button class="w-full" variant="default">
-              Proceed to Checkout ($248.00)
-            </Button>
+            <Button class="w-full">Proceed to Checkout ($248.00)</Button>
           </Sheet.Footer>
         </Sheet.Content>
       </Sheet>

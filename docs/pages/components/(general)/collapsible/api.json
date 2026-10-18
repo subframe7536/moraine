@@ -54,6 +54,16 @@
           }
         },
         {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Force mounting the content in the DOM even when closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -198,30 +208,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "forceMount",
-          "optional": true,
-          "type": "boolean",
-          "description": "Force mounting the content in the DOM even when closed.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "unmountOnHide",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to unmount content when closed.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
         }
       ]
     }

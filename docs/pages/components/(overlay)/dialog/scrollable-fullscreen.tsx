@@ -10,7 +10,7 @@ export function ScrollableFullscreen() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
       <Dialog scrollable>
-        <Dialog.Trigger as={Button} variant="secondary">
+        <Dialog.Trigger as={Button} variant="soft" tone="neutral">
           Overlay scroll dialog
         </Dialog.Trigger>
         <Dialog.Content title="Release Notes" description="Long content scrolls with the overlay.">
@@ -24,7 +24,7 @@ export function ScrollableFullscreen() {
         </Dialog.Content>
       </Dialog>
       <Dialog fullscreen>
-        <Dialog.Trigger as={Button} variant="secondary">
+        <Dialog.Trigger as={Button} variant="soft" tone="neutral">
           Full screen dialog
         </Dialog.Trigger>
         <Dialog.Content title="Release Notes" description="Full screen dialog content.">

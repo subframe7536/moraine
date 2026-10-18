@@ -15,6 +15,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
     'as',
     'size',
     'variant',
+    'tone',
     'classes',
     'styles',
     'class',

@@ -1,4 +1,5 @@
 import type { ComponentSize } from '../../theme/style-types'
+import type { Tone } from '../../theme/tokens'
 import type { ComponentStyleConfig } from '../../theme/types'
 export interface BadgeStyleSlot<T = unknown> {
   /**
@@ -18,9 +19,13 @@ export interface BadgeStyleSlot<T = unknown> {
 
 export interface BadgeStyleVariant {
   /** Visual treatment of the component.
-   * @default 'subtle'
+   * @default 'soft'
    */
-  variant?: 'solid' | 'subtle' | 'surface' | 'outline'
+  variant?: 'solid' | 'soft' | 'surface' | 'outline'
+  /** Color tone of the component.
+   * @default 'neutral'
+   */
+  tone?: Tone
   /** Visual size of the component.
    * @default 'md'
    */

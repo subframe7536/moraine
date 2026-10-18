@@ -44,7 +44,7 @@ export function CustomItemRender() {
                 {ctx.item.owner} · {ctx.item.description}
               </span>
             </span>
-            <Badge variant={ctx.item.status === 'ready' ? 'subtle' : 'outline'}>
+            <Badge variant={ctx.item.status === 'ready' ? 'soft' : 'outline'}>
               {ctx.item.status}
             </Badge>
           </div>

@@ -82,7 +82,8 @@ export function DeleteConfirmation() {
     <Dialog>
       <Dialog.Trigger
         as={Button}
-        variant="danger"
+        variant="solid"
+        tone="danger"
         ref={(el) => (triggerRef = el)}
         onClick={() => console.log('Opening delete modal')}
       >

@@ -71,13 +71,13 @@ describe('Badge', () => {
     expect(badge?.getAttribute('aria-label')).toBe('status')
   })
 
-  test('applies the refreshed variants and defaults to subtle', () => {
+  test('applies the refreshed variants and defaults to soft', () => {
     const screen = render(() => (
       <MoraineProvider>
         <div>
           <Badge>Default</Badge>
           <Badge variant="solid">Solid</Badge>
-          <Badge variant="subtle">Subtle</Badge>
+          <Badge variant="soft">Soft</Badge>
           <Badge variant="surface">Surface</Badge>
           <Badge variant="outline">Outline</Badge>
         </div>
@@ -86,12 +86,17 @@ describe('Badge', () => {
     const roots = screen.container.querySelectorAll('[data-slot="badge"]')
 
     expect(roots[0]?.className).toContain('border-transparent')
-    expect(roots[0]?.className).toContain('bg-accent')
-    expect(roots[1]?.className).toContain('bg-primary')
+    expect(roots[0]?.className).toContain('bg-tone/12')
+    expect(roots[0]?.className).toContain('text-tone-ink')
+    expect(roots[1]?.className).toContain('bg-tone')
+    expect(roots[1]?.className).toContain('text-tone-foreground')
     expect(roots[2]?.className).toContain('border-transparent')
-    expect(roots[3]?.className).toContain('border-border')
-    expect(roots[3]?.className).toContain('bg-accent')
-    expect(roots[4]?.className).toContain('bg-background')
+    expect(roots[2]?.className).toContain('bg-tone/12')
+    expect(roots[3]?.className).toContain('border-tone/30')
+    expect(roots[3]?.className).toContain('bg-tone/12')
+    expect(roots[4]?.className).toContain('border-tone/40')
+    expect(roots[4]?.className).toContain('bg-transparent')
+    expect(roots[4]?.className).toContain('text-tone-ink')
   })
 
   test('applies distinct size metrics and size-specific icon dimensions', () => {

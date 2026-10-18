@@ -85,6 +85,16 @@
           "description": "Accessible title shown by the browser for the badge root."
         },
         {
+          "name": "tone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Color tone of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "neutral"
+          }
+        },
+        {
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
@@ -93,11 +103,11 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'solid' | 'subtle' | 'surface' | 'outline'",
+          "type": "'solid' | 'soft' | 'surface' | 'outline'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
-            "value": "subtle"
+            "value": "soft"
           }
         }
       ]

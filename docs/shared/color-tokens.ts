@@ -1,5 +1,5 @@
-import { DEFAULT_COLOR_STATES, DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
-import { MORAINE_COLORS } from '../../src/theme/tokens.ts'
+import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
+import { MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens.ts'
 
 export type DocsColorTokenScheme = 'light' | 'dark'
 
@@ -11,9 +11,9 @@ export type DocsColorTokenDefault =
   | { type: 'none' }
 
 export interface DocsColorToken {
-  /** Token name used by utilities, such as `primary-hover` in `bg-primary-hover`. */
+  /** Token name used by utilities, such as `accent-hover` or `primary-ink`. */
   name: string
-  /** CSS variable that configures the token, such as `--primary-hover`. */
+  /** CSS variable that configures the token, such as `--accent-hover` or `--primary-ink`. */
   cssVariable: string
   /** CSS value emitted by the utility, including state and foreground fallbacks. */
   value: string
@@ -31,8 +31,14 @@ function readDefault(
   variant: string | undefined,
   value: string,
 ): DocsColorTokenDefault {
-  if (variant === 'hover' || variant === 'active') {
-    return { type: 'auto', percent: DEFAULT_COLOR_STATES[variant] }
+  if (variant === 'hover') {
+    return { type: 'auto', percent: 8 }
+  }
+  if (variant === 'active') {
+    return { type: 'auto', percent: 12 }
+  }
+  if (variant === 'ink') {
+    return { type: 'auto', percent: 25 }
   }
   const configured = (DEFAULT_THEME_COLORS[scheme] as Record<string, unknown>)[color]
   const literal =
@@ -48,9 +54,10 @@ function readDefault(
   return fallback ? { type: 'fallback', variable: fallback } : { type: 'none' }
 }
 
-/** Lists every color token in `MORAINE_COLORS`, expanding grouped colors into their variants. */
+/** Lists every public theme color role, expanding grouped colors into their variants. */
 export function listDocsColorTokens(): DocsColorToken[] {
-  return Object.entries(MORAINE_COLORS).flatMap(([color, schema]) => {
+  return THEME_COLOR_ROLES.flatMap((color) => {
+    const schema = MORAINE_COLORS[color]
     const entries: Array<[string | undefined, string]> =
       typeof schema === 'string'
         ? [[undefined, schema]]

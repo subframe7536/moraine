@@ -2,10 +2,10 @@ import { Button, ButtonGroup } from '@src'
 
 export function SeparatorExample() {
   return (
-    <ButtonGroup aria-label="Clipboard actions">
-      <Button variant="secondary">Copy</Button>
+    <ButtonGroup variant="soft" tone="neutral" aria-label="Clipboard actions">
+      <Button>Copy</Button>
       <ButtonGroup.Separator />
-      <Button variant="secondary">Paste</Button>
+      <Button>Paste</Button>
     </ButtonGroup>
   )
 }

@@ -26,7 +26,8 @@ export function DeleteConfirmation() {
                   Cancel
                 </Dialog.Close>
                 <Button
-                  variant="danger"
+                  variant="solid"
+                  tone="danger"
                   onClick={() => {
                     setExists(false)
                     setOpen(false)
