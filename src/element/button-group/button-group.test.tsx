@@ -152,6 +152,41 @@ describe('ButtonGroup', () => {
     expect(separators[1]?.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
   })
 
+  test.each(['outline', 'solid', 'soft', 'ghost', 'link'] as const)(
+    'resolves the %s separator tone without an explicit tone',
+    (variant) => {
+      const screen = render(() => (
+        <MoraineProvider>
+          <ButtonGroup variant={variant}>
+            <Button>Undo</Button>
+            <ButtonGroup.Separator />
+            <Button>Redo</Button>
+          </ButtonGroup>
+        </MoraineProvider>
+      ))
+      const separator = screen.getByRole('separator')
+      expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+      expect(separator.style.getPropertyValue('--mo-tone-foreground')).toContain(
+        'var(--primary-foreground)',
+      )
+    },
+  )
+
+  test('keeps the separator visible when only tone is set', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup tone="danger">
+          <Button>Delete</Button>
+          <ButtonGroup.Separator />
+          <Button>Archive</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const separator = screen.getByRole('separator')
+    expect(separator.className).toContain('bg-border')
+    expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+  })
+
   test('reuses resolved getter-backed children without a separator', () => {
     let reads = 0
     const screen = render(() =>

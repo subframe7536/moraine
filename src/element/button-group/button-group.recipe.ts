@@ -19,6 +19,7 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     orientation: 'horizontal',
+    tone: 'primary',
   },
   variants: {
     size: {},

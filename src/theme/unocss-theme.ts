@@ -7,16 +7,13 @@ import {
 } from './tokens.ts'
 import type { MorainePresetTheme, PresetMoraineOptions } from './unocss.ts'
 
-export const DEFAULT_THEME_SHADOWS = {
+const DEFAULT_THEME_SHADOWS = {
   surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
   overlay: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
   input: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
 } satisfies MorainePresetTheme['shadows']
 
-export function mergeTheme(
-  base: MorainePresetTheme,
-  override?: MorainePresetTheme,
-): MorainePresetTheme {
+function mergeTheme(base: MorainePresetTheme, override?: MorainePresetTheme): MorainePresetTheme {
   const colors = { ...base.colors } as Record<string, unknown>
   for (const [name, value] of Object.entries(override?.colors ?? {})) {
     const previous = colors[name]
@@ -36,7 +33,7 @@ export function mergeTheme(
   }
 }
 
-export function defaultSelector(name: string): string {
+function defaultSelector(name: string): string {
   if (name === 'light') {
     return ':root'
   }
@@ -50,7 +47,7 @@ export function defaultSelector(name: string): string {
   return `[data-theme="${escaped}"]`
 }
 
-export type ResolvedTheme = [selector: string, theme: MorainePresetTheme]
+type ResolvedTheme = [selector: string, theme: MorainePresetTheme]
 
 export function resolveThemes(options: PresetMoraineOptions): ResolvedTheme[] {
   const light = options.override?.light

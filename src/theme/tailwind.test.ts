@@ -236,6 +236,30 @@ describe('colors', () => {
     expect(css).not.toContain('-focus')
   })
 
+  test('resolves the internal tone channel utilities', async () => {
+    const css = await compileCSS([
+      'bg-tone',
+      'bg-tone/12',
+      'border-tone/40',
+      'text-tone-foreground',
+      'text-tone-ink',
+      'hover:bg-tone-hover',
+      'active:bg-tone-active',
+      'ring-tone/20',
+    ])
+
+    expect(css).toContain('background-color: var(--mo-tone);')
+    expect(css).toContain('background-color: color-mix(in oklab, var(--mo-tone) 12%, transparent);')
+    expect(css).toContain('border-color: color-mix(in oklab, var(--mo-tone) 40%, transparent);')
+    expect(css).toContain('color: var(--mo-tone-foreground);')
+    expect(css).toContain('color: var(--mo-tone-ink);')
+    expect(css).toContain('background-color: var(--mo-tone-hover, var(--mo-tone));')
+    expect(css).toContain(
+      'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
+    )
+    expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
+  })
+
   test('mixes colors in the local scope only when supported', async () => {
     const css = await compileCSS(['bg-accent-hover'], true)
     expect(css).toContain(

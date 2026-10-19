@@ -1,13 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { TONE_VARS } from './recipe-common.recipe'
-import {
-  MORAINE_COLORS,
-  THEME_COLOR_ROLES,
-  TONES,
-  createGatedColorDeclarations,
-  usesBackgroundForegroundFallback,
-} from './tokens'
+import { MORAINE_COLORS, THEME_COLOR_ROLES, TONES, createGatedColorDeclarations } from './tokens'
 import { assertMixValue, createThemeCSS, resolveThemes } from './unocss-theme'
 
 describe('assertMixValue Validation Contract', () => {
@@ -178,16 +172,5 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     // Tone channel states
     expect(decls['--mo-tone-hover']).toBeDefined()
     expect(decls['--mo-tone-active']).toBeDefined()
-  })
-
-  test('usesBackgroundForegroundFallback includes neutral and status tones', () => {
-    expect(usesBackgroundForegroundFallback('neutral')).toBe(true)
-    expect(usesBackgroundForegroundFallback('danger')).toBe(true)
-    expect(usesBackgroundForegroundFallback('info')).toBe(true)
-    expect(usesBackgroundForegroundFallback('success')).toBe(true)
-    expect(usesBackgroundForegroundFallback('warning')).toBe(true)
-    expect(usesBackgroundForegroundFallback('primary')).toBe(false)
-    expect(usesBackgroundForegroundFallback('secondary')).toBe(false)
-    expect(usesBackgroundForegroundFallback('accent')).toBe(false)
   })
 })

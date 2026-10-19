@@ -24,8 +24,8 @@ export interface AlertDialogStyleVariant {
    */
   center?: boolean
   /**
-   * Shows a caution icon when `type` is `default`, and styles the primary action as `danger`
-   * when its variant is omitted.
+   * Shows a caution icon when `type` is `default`, and gives the primary action the `danger`
+   * tone unless the action sets its own tone.
    * @default false
    */
   danger?: boolean

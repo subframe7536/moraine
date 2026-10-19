@@ -278,6 +278,35 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/opacity:(0\.64|64%)/)
   })
 
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('resolves the internal tone channel utilities with %s', async (_name, wind) => {
+    const css = await generate(
+      [
+        'bg-tone',
+        'bg-tone/12',
+        'border-tone/40',
+        'text-tone-foreground',
+        'text-tone-ink',
+        'hover:bg-tone-hover',
+        'active:bg-tone-active',
+        'ring-tone/20',
+      ],
+      false,
+      wind,
+    )
+
+    expect(css).toMatch(/\.bg-tone\{background-color:[^}]*var\(--mo-tone\)/)
+    expect(css).toContain('var(--mo-tone) 12%')
+    expect(css).toContain('var(--mo-tone) 40%')
+    expect(css).toContain('var(--mo-tone) 20%')
+    expect(css).toContain('var(--mo-tone-foreground)')
+    expect(css).toContain('var(--mo-tone-ink)')
+    expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
+    expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
+  })
+
   test('Wind4 rounded utilities read the local --radius', async () => {
     const css = await generate(['rounded-md', 'rounded-xl', 'rounded-t-lg', 'rounded-none'])
 

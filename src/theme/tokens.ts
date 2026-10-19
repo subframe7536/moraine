@@ -92,13 +92,6 @@ function surfaceStateColor(color: string, state: 'hover' | 'active'): string {
   return state === 'hover' ? hover : `var(--${color}-active, var(--mo-${color}-active, ${hover}))`
 }
 
-const BACKGROUND_FOREGROUND_COLORS = new Set(['neutral', 'danger', 'info', 'success', 'warning'])
-
-/** Status and neutral colors mix toward `--background` when their foreground token is unset. */
-export function usesBackgroundForegroundFallback(color: string): boolean {
-  return BACKGROUND_FOREGROUND_COLORS.has(color)
-}
-
 /** Design-token color map shared by UnoCSS and Tailwind. */
 export const MORAINE_COLORS = {
   background: {
