@@ -34,7 +34,7 @@ export namespace AvatarT {
     fallback?: IconT.Name
 
     /**
-     * Root `data-slot` name
+     * Root `data-slot` name, also used as the prefix for child slot names.
      */
     slotName?: string
 

@@ -72,6 +72,12 @@
           }
         },
         {
+          "name": "slotName",
+          "optional": true,
+          "type": "string",
+          "description": "Root `data-slot` name, also used as the prefix for child slot names."
+        },
+        {
           "name": "src",
           "optional": true,
           "type": "string",

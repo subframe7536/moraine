@@ -474,7 +474,7 @@ describe('Avatar', () => {
     const count = screen.container.querySelector('[data-slot="avatar-group-count"]')
     const fallbacks = Array.from(
       screen.container.querySelectorAll(
-        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
+        '[data-slot="avatar-group-item"] [data-slot="avatar-group-item-fallback"]',
       ),
     )
 
@@ -495,7 +495,7 @@ describe('Avatar', () => {
 
     const fallbacks = Array.from(
       screen.container.querySelectorAll(
-        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
+        '[data-slot="avatar-group-item"] [data-slot="avatar-group-item-fallback"]',
       ),
     )
 
@@ -618,11 +618,15 @@ describe('Avatar', () => {
         }}
       />
     ))
-    const image = screen.container.querySelector<HTMLElement>('[data-slot="avatar-image"]')
-    const content = screen.container.querySelector<HTMLElement>(
-      '[data-slot="avatar-fallback-content"]',
+    const image = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-group-item-image"]',
     )
-    const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
+    const content = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-group-item-fallback-content"]',
+    )
+    const badge = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-group-item-badge"]',
+    )
 
     expect(image?.className).toContain('group-image')
     expect(image?.style.width).toBe('21px')
@@ -643,7 +647,9 @@ describe('Avatar', () => {
 
     const root = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group"]')
     const item = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group-item"]')
-    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')
+    const fallback = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-group-item-fallback"]',
+    )
 
     expect(root?.className).toContain('group-root')
     expect(item?.className).toContain('group-item')
