@@ -70,6 +70,8 @@ function toneVars(tone: Tone) {
   return {
     '--mo-tone': MORAINE_COLORS[tone].DEFAULT,
     '--mo-tone-foreground': MORAINE_COLORS[tone].foreground,
+    '--mo-tone-hover': MORAINE_COLORS[tone].hover,
+    '--mo-tone-active': MORAINE_COLORS[tone].active,
     '--mo-tone-ink': MORAINE_COLORS[tone].ink,
   }
 }

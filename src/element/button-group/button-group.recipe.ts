@@ -24,19 +24,19 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     size: {},
     variant: {
       outline: {
-        separator: 'bg-tone/20',
+        separator: 'bg-tone-border',
       },
       solid: {
         separator: 'bg-tone-foreground/20',
       },
       soft: {
-        separator: 'bg-tone/24',
+        separator: 'bg-tone-soft-active',
       },
       ghost: {
-        separator: 'bg-tone/20',
+        separator: 'bg-tone-border',
       },
       link: {
-        separator: 'bg-tone/20',
+        separator: 'bg-tone-border',
       },
     },
     tone: TONE_VARS,

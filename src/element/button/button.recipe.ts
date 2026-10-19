@@ -39,13 +39,13 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
           root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover',
         },
         soft: {
-          root: 'text-tone-ink border-transparent bg-tone/12 active:bg-tone/24 hover:bg-tone/18',
+          root: 'text-tone-ink border-transparent bg-tone-soft active:bg-tone-soft-active hover:bg-tone-soft-hover',
         },
         outline: {
-          root: 'text-tone-ink border-tone/20 bg-background active:bg-tone/12 hover:bg-tone/8',
+          root: 'text-tone-ink border-tone-border bg-background active:bg-tone-soft-hover hover:bg-tone-soft',
         },
         ghost: {
-          root: 'text-tone-ink border-transparent active:bg-tone/16 hover:bg-tone/10',
+          root: 'text-tone-ink border-transparent active:bg-tone-soft-hover hover:bg-tone-soft',
         },
         link: {
           root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',

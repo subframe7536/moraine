@@ -122,7 +122,7 @@ describe('Toast', () => {
 
     expect(actionButton.className).toContain('bg-tone')
     expect(actionButton.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
-    expect(cancelButton.className).toContain('bg-tone/12')
+    expect(cancelButton.className).toContain('bg-tone-soft')
     expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
   })
 
@@ -145,7 +145,7 @@ describe('Toast', () => {
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('border-tone/20')
+    expect(actionButton.className).toContain('border-tone-border')
     expect(cancelButton.className).toContain('bg-tone')
     expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
   })

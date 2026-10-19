@@ -17,7 +17,7 @@ Define the base color variables listed below for both the light and the dark the
 
 ### Color Tokens
 
-Each color token maps to a CSS variable and a utility of the same name. Surfaces expand into `-hover` and `-active` variants, while tones provide an accessible `-ink` variable for soft backgrounds and indicators. The swatches below use the live token values, so they follow the docs site's light or dark theme:
+Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants, while tones additionally provide an accessible `-ink` variable for soft backgrounds and indicators. The swatches below use the live token values, so they follow the docs site's light or dark theme:
 
 <ColorTokenTable />
 
@@ -31,6 +31,7 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--backdrop`                                                                                                | Scrim behind modal overlays, used by `bg-backdrop`.                                                      | Black at 10% opacity.                                                                                                  |
 | `--shadow-surface`, `--shadow-overlay`, `--shadow-input`                                                    | Elevation by component role, used by `shadow-surface`, `shadow-overlay`, and `shadow-input`.             | UnoCSS: Tailwind `sm`, `md`, and `xs`, respectively. External themes must define them; `none` removes a role's shadow. |
 | `--<surface>-hover`, `--<surface>-active`                                                                   | Surface interaction colors for `accent`, `muted`, `card`, `popover`, and `background`.                   | Generated state color mixing surface base with foreground.                                                             |
+| `--<tone>-hover`, `--<tone>-active`                                                                         | Tone interaction colors for `primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`.   | Generated state color mixing tone base with tone foreground.                                                           |
 | `--<tone>-ink`                                                                                              | Accessible text/indicator color for tones (`primary`, `secondary`, `neutral`, etc.).                     | Explicit override, then auto-mixed ink, then base fallback.                                                            |
 | `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | White (`rgb(255, 255, 255)`).                                                                                          |
 | `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | White (`rgb(255, 255, 255)`).                                                                                          |
@@ -92,15 +93,17 @@ Define `--control` in both light and dark external themes. It controls outline f
 
 Use the UnoCSS defaults listed under [Moraine-specific Variables](#moraine-specific-variables) as a starting point, or supply your own CSS colors or variable references. `bg-control/50` supports a translucent control surface. Check text and boundary contrast against the resulting background. `control` has no dedicated foreground, hover, or active tokens.
 
-### Surface States and Tone Ink Derivation
+### State Colors and Tone Ink Derivation
 
-Moraine generates surface interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
+Moraine generates interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
 
 1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 8%) and `mix.active` (default 12%) percentages.
-2. **Tones**: Interactive components use the dynamic `--mo-tone` channel rather than role-specific state tokens. Tones also derive an accessible `--<tone>-ink` variable for soft backgrounds, links, and text badges via a 3-tier precedence:
-   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.ink` override.
-   - **Tier 2 (Auto-mixed)**: `color-mix(in oklch, var(--<tone>) <mix.ink>%, var(--<tone>-foreground))`, defaulting to 85% tone base.
+2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive an accessible `--<tone>-ink` variable for soft backgrounds, links, and text badges. State and ink variables follow a 3-tier precedence:
+   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, or `.ink` override.
+   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active) or with `var(--foreground)` (for ink).
    - **Tier 3 (Fallback)**: `var(--<tone>)` base tone color.
+
+Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`hover:bg-tone-hover`, `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
 
 See the [UnoCSS guide](/docs/unocss#surface-states-and-tone-derivation) for configuring `mix` percentages.
 

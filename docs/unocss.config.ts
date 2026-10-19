@@ -17,7 +17,7 @@ const markdownShortCuts = {
   'docs-ul': 'list-disc list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
   'docs-ol': 'list-decimal list-outside pl-5 mb-3.5 text-muted-foreground space-y-1',
   'docs-li': 'leading-relaxed',
-  'docs-a': 'text-primary underline underline-offset-3 hover:text-primary/80 transition-colors',
+  'docs-a': 'text-primary underline underline-offset-3 hover:text-primary-hover transition-colors',
   'docs-blockquote':
     'my-4 rounded-xl bg-muted/40 border border-border/60 px-4 py-3 text-muted-foreground [&>p]:m-0',
   'docs-strong': 'text-foreground font-semibold',

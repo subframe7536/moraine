@@ -23,13 +23,13 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
           root: 'text-tone-foreground border-transparent bg-tone shadow-surface',
         },
         soft: {
-          root: 'text-tone-ink border-transparent bg-tone/12',
+          root: 'text-tone-ink border-transparent bg-tone-soft',
         },
         surface: {
-          root: 'text-tone-ink border-tone/30 bg-tone/12',
+          root: 'text-tone-ink border-tone-border-subtle bg-tone-soft',
         },
         outline: {
-          root: 'text-tone-ink border-tone/20 bg-transparent',
+          root: 'text-tone-ink border-tone-border bg-background',
         },
       },
       tone: TONE_VARS,

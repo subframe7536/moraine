@@ -286,7 +286,7 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
-    expect(button('OK', dialogs()[1]).className).toContain('border-tone/20')
+    expect(button('OK', dialogs()[1]).className).toContain('border-tone-border')
 
     first.close()
     await expect(first.result()).resolves.toBe('api')

@@ -228,6 +228,8 @@ describe('presetMoraine', () => {
         'text-danger-foreground',
         'hover:bg-accent-hover',
         'active:bg-muted-active',
+        'hover:bg-primary-hover',
+        'active:bg-primary-active',
         'text-info-ink',
         'text-success-ink',
         'bg-control',
@@ -266,6 +268,10 @@ describe('presetMoraine', () => {
     expect(css).toContain(
       'var(--muted-active, var(--mo-muted-active, var(--muted-hover, var(--mo-muted-hover, var(--muted)))))',
     )
+    expect(css).toContain('var(--primary-hover, var(--mo-primary-hover, var(--primary)))')
+    expect(css).toContain(
+      'var(--primary-active, var(--mo-primary-active, var(--primary-hover, var(--mo-primary-hover, var(--primary)))))',
+    )
     expect(css).toContain('var(--info-ink, var(--mo-info-ink, var(--info)))')
     expect(css).toContain('var(--success-ink, var(--mo-success-ink, var(--success)))')
     expect(css).toContain('.bg-control')
@@ -286,6 +292,13 @@ describe('presetMoraine', () => {
       [
         'bg-tone',
         'bg-tone/12',
+        'bg-tone-soft',
+        'hover:bg-tone-soft-hover',
+        'active:bg-tone-soft-active',
+        'border-tone-border',
+        'border-tone-border-subtle',
+        'bg-tone-border',
+        'bg-danger-soft',
         'border-tone/40',
         'text-tone-foreground',
         'text-tone-ink',
@@ -305,6 +318,14 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--mo-tone-ink)')
     expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
     expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
+    expect(css).toContain('var(--mo-tone-soft, transparent)')
+    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
+    expect(css).toContain(
+      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+    )
+    expect(css).toContain('var(--mo-tone-border, transparent)')
+    expect(css).toContain('var(--mo-tone-border-subtle, var(--mo-tone-border, transparent))')
+    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
   })
 
   test('Wind4 rounded utilities read the local --radius', async () => {
@@ -563,10 +584,31 @@ describe('presetMoraine', () => {
       '--mo-primary-ink: color-mix(in oklch, var(--primary), var(--foreground) var(--mo-mix-ink, 25%));',
     )
     expect(css).toContain(
+      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
       '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
     )
     expect(css).toContain(
       '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-border: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-border-subtle: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border-subtle, 30%), transparent);',
     )
     expect(css).not.toContain('--primary-hover: color-mix(')
     expect(css).toContain('background-color: var(--background)')

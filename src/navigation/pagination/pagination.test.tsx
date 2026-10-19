@@ -25,13 +25,13 @@ describe('Pagination', () => {
     )!
     const next = screen.container.querySelector('[data-slot="pagination-next"]')!
     expect(root.className).not.toMatch(/border-|bg-/)
-    expect(current.className).toContain('border-tone/20')
+    expect(current.className).toContain('border-tone-border')
     expect(next.className.split(' ')).not.toContain('bg-tone')
 
     setSolid(true)
     expect(root.className).not.toMatch(/border-|bg-/)
     expect(next.className.split(' ')).toContain('bg-tone')
-    expect(current.className).toContain('border-tone/20')
+    expect(current.className).toContain('border-tone-border')
   })
 
   test('forwards ref to root nav element', () => {

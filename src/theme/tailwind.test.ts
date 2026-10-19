@@ -218,6 +218,8 @@ describe('colors', () => {
       'bg-popover-hover',
       'bg-muted-active',
       'bg-accent-hover',
+      'bg-primary-hover',
+      'bg-primary-active',
       'text-primary-ink',
       'text-danger-ink',
     ])
@@ -231,6 +233,10 @@ describe('colors', () => {
       'var(--muted-active, var(--mo-muted-active, var(--muted-hover, var(--mo-muted-hover, var(--muted)))))',
     )
     expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
+    expect(css).toContain('var(--primary-hover, var(--mo-primary-hover, var(--primary)))')
+    expect(css).toContain(
+      'var(--primary-active, var(--mo-primary-active, var(--primary-hover, var(--mo-primary-hover, var(--primary)))))',
+    )
     expect(css).toContain('var(--primary-ink, var(--mo-primary-ink, var(--primary)))')
     expect(css).toContain('var(--danger-ink, var(--mo-danger-ink, var(--danger)))')
     expect(css).not.toContain('-focus')
@@ -240,6 +246,13 @@ describe('colors', () => {
     const css = await compileCSS([
       'bg-tone',
       'bg-tone/12',
+      'bg-tone-soft',
+      'hover:bg-tone-soft-hover',
+      'active:bg-tone-soft-active',
+      'border-tone-border',
+      'border-tone-border-subtle',
+      'bg-tone-border',
+      'bg-danger-soft',
       'border-tone/40',
       'text-tone-foreground',
       'text-tone-ink',
@@ -257,6 +270,21 @@ describe('colors', () => {
     expect(css).toContain(
       'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
     )
+    expect(css).toContain('background-color: var(--mo-tone-soft, transparent);')
+    expect(css).toContain(
+      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent));',
+    )
+    expect(css).toContain(
+      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)));',
+    )
+    expect(css).toContain('border-color: var(--mo-tone-border, transparent);')
+    expect(css).toContain(
+      'border-color: var(--mo-tone-border-subtle, var(--mo-tone-border, transparent));',
+    )
+    expect(css).toContain('background-color: var(--mo-tone-border, transparent);')
+    expect(css).toContain(
+      'background-color: var(--danger-soft, var(--mo-danger-soft, transparent));',
+    )
     expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
   })
 
@@ -273,7 +301,28 @@ describe('colors', () => {
       '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
     )
     expect(css).toContain(
+      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
       '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-border: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-border-subtle: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border-subtle, 30%), transparent);',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })

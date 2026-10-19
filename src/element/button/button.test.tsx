@@ -178,6 +178,34 @@ describe('Button', () => {
     expect(button.className).toContain('h-7')
   })
 
+  test.each([
+    [
+      'soft',
+      ['bg-tone-soft', 'hover:bg-tone-soft-hover', 'active:bg-tone-soft-active', 'text-tone-ink'],
+    ],
+    [
+      'outline',
+      [
+        'bg-background',
+        'border-tone-border',
+        'hover:bg-tone-soft',
+        'active:bg-tone-soft-hover',
+        'text-tone-ink',
+      ],
+    ],
+    ['ghost', ['hover:bg-tone-soft', 'active:bg-tone-soft-hover', 'text-tone-ink']],
+  ] as const)('applies tone-soft state classes for %s variant', (variant, classes) => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <Button variant={variant}>{variant}</Button>
+      </MoraineProvider>
+    ))
+    const button = screen.getByRole('button', { name: variant })
+    for (const cls of classes) {
+      expect(button.className).toContain(cls)
+    }
+  })
+
   test('applies press interaction classes', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -1174,7 +1202,7 @@ describe('Button', () => {
       ))
 
       const pBtn = screen.getByTestId('p-btn')
-      expect(pBtn.className).toContain('border-tone/20')
+      expect(pBtn.className).toContain('border-tone-border')
       expect(pBtn.className).toContain('h-9')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.className).toContain('m-1')
@@ -1182,7 +1210,7 @@ describe('Button', () => {
 
       const gBtn = screen.getByTestId('g-btn')
       // Group variant 'soft' overrides provider 'outline'
-      expect(gBtn.className).toContain('bg-tone/12')
+      expect(gBtn.className).toContain('bg-tone-soft')
       // Provider buttonGroup variants 'sm' overrides provider button 'lg'
       expect(gBtn.className).toContain('h-7')
 

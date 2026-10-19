@@ -31,10 +31,14 @@ describe('listDocsColorTokens', () => {
         'foreground',
         'primary',
         'primary-foreground',
+        'primary-hover',
+        'primary-active',
         'primary-ink',
         'accent-hover',
         'accent-active',
         'warning-foreground',
+        'warning-hover',
+        'warning-active',
         'control',
         'backdrop',
         'ring',
@@ -68,7 +72,10 @@ describe('listDocsColorTokens', () => {
   it('describes derived defaults for state and status foreground rows', () => {
     expect(findToken('accent-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
     expect(findToken('background-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
+    expect(findToken('primary-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
+    expect(findToken('warning-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
     expect(findToken('primary-ink').defaults.light).toEqual({ type: 'auto', percent: 25 })
+    expect(findToken('primary-soft').defaults.light).toEqual({ type: 'auto', percent: 12 })
     expect(findToken('warning-foreground').defaults).toEqual({
       light: { type: 'fallback', variable: '--background' },
       dark: { type: 'fallback', variable: '--background' },

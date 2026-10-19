@@ -59,6 +59,8 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-highlighted:text-accent-foreground',
         'hover:bg-accent-hover',
         'active:bg-accent-active',
+        'hover:text-primary-hover',
+        'active:text-primary-active',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
         'after:h-(--s-offset)',

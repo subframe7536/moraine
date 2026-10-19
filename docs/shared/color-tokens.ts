@@ -40,6 +40,9 @@ function readDefault(
   if (variant === 'ink') {
     return { type: 'auto', percent: 25 }
   }
+  if (variant === 'soft') {
+    return { type: 'auto', percent: 12 }
+  }
   const configured = (DEFAULT_THEME_COLORS[scheme] as Record<string, unknown>)[color]
   const literal =
     variant === undefined

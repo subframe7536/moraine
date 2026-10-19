@@ -226,13 +226,13 @@ presetMoraine({
 })
 ```
 
-For tones, interactive components do not emit role-specific state classes like `hover:bg-primary-hover`. Instead, components dynamically set the internal `--mo-tone` channel, which resolves generic state formulas (`--mo-tone-hover`, `--mo-tone-active`) at the component level.
+For tones, all 7 tones export explicit `--<tone>-hover`, `--<tone>-active`, and `--<tone>-ink` tokens, generating utilities like `hover:bg-primary-hover` and `active:bg-primary-active` with full 3-tier precedence:
 
-Tones also derive an accessible text color `--<tone>-ink` used by soft variants and indicator labels. Tone ink follows a 3-tier precedence:
-
-1. Explicit theme override (`colors.<tone>.ink`)
-2. Auto-mixed ink via `color-mix(in oklch, var(--<tone>) <ink>%, var(--<tone>-foreground))`
+1. Explicit theme override (`colors.<tone>.hover`, `active`, or `ink`)
+2. Auto-mixed state via `color-mix(in oklch, ...)` with configured `mix.hover`, `mix.active`, or `mix.ink` percentages
 3. Base tone fallback (`var(--<tone>)`)
+
+Inside internal component recipes (such as `Button` and `Badge`), components bind to the universal `--mo-tone` channel (`hover:bg-tone-hover`, `active:bg-tone-active`) so recipes remain compact without compound variants across all tones. External classes, application components, and theme overrides can consume the explicit `--<tone>-hover`, `--<tone>-active`, and `--<tone>-ink` tokens and utility classes directly.
 
 ```ts
 presetMoraine({
