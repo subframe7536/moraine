@@ -7,6 +7,7 @@ import { Popover } from '../../overlay/popover'
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 import { Button } from '../button/button'
+import { ToggleButton } from '../toggle-button'
 
 import { ButtonGroup } from './button-group'
 
@@ -125,7 +126,7 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
     const separator = screen.getByRole('separator')
-    expect(separator.className).toContain('bg-tone/40')
+    expect(separator.className).toContain('bg-tone/20')
     expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
   })
 
@@ -153,7 +154,7 @@ describe('ButtonGroup', () => {
   })
 
   test.each(['outline', 'solid', 'soft', 'ghost', 'link'] as const)(
-    'resolves the %s separator tone without an explicit tone',
+    'falls back to bg-border for %s separator without an explicit tone',
     (variant) => {
       const screen = render(() => (
         <MoraineProvider>
@@ -165,12 +166,38 @@ describe('ButtonGroup', () => {
         </MoraineProvider>
       ))
       const separator = screen.getByRole('separator')
-      expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
-      expect(separator.style.getPropertyValue('--mo-tone-foreground')).toContain(
-        'var(--primary-foreground)',
-      )
+      expect(separator.className).toContain('bg-border')
+      expect(separator.className).not.toContain('bg-tone')
+      expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
     },
   )
+
+  test('inherits theme default tone on nested button and preserves toggle button tone in group without tone', () => {
+    const theme = defineTheme({
+      button: {
+        defaultVariants: { tone: 'secondary' },
+      },
+    })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <ButtonGroup>
+          <Button>Action</Button>
+          <ButtonGroup.Separator />
+          <ToggleButton>Toggle</ToggleButton>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Action' })
+    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--secondary)')
+
+    const toggle = screen.getByRole('button', { name: 'Toggle' })
+    expect(toggle.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+
+    const separator = screen.getByRole('separator')
+    expect(separator.className).toContain('bg-border')
+    expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
+  })
 
   test('keeps the separator visible when only tone is set', () => {
     const screen = render(() => (

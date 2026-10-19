@@ -66,28 +66,27 @@ Core rules:
   - Together with the surface role `accent`, users generally only need to define **`primary`**, **`secondary`**, and **`accent`** to theme an entire Moraine application.
   - All 7 tones are equal first-class citizens in the tone channel, sharing the exact same generic formulas (`--mo-tone`, `--mo-tone-foreground`, `--mo-tone-ink`) with zero special-cased class lists.
 
-- **Nuxt UI / Tailwind Semantic Palette (No WCAG 2.2 AA verification):**
-  - Built-in status colors (`danger`, `info`, `success`, `warning`) directly adopt the standard Nuxt UI / Tailwind palette (`500` shades in light mode, `400` in dark mode).
-  - Mathematical WCAG 2.2 AA contrast verification was removed per user request: status colors prioritize visual parity and aesthetic consistency with Nuxt UI and Tailwind CSS over artificially darkened status tones (such as amber-700 / green-700).
+- **Moraine Tuned Status Palette:**
+  - Built-in status colors (`danger`, `info`, `success`, `warning`) use Moraine's manually tuned custom palette, calibrated for visual balance, clarity, and harmony across light and dark modes.
 
 #### Default Theme Semantic Palette Mapping
 
-| Tone        | Theme | Base                 | Foreground Token     | Nuxt UI / Tailwind Mapping |
-| :---------- | :---- | :------------------- | :------------------- | :------------------------- |
-| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | Neutral 900                |
-| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | Neutral 200                |
-| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | Slate 700                  |
-| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | Slate 300                  |
-| `neutral`   | Light | `rgb(23, 23, 23)`    | `var(--background)`  | Neutral 900                |
-| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | Neutral 50                 |
-| `danger`    | Light | `rgb(239, 68, 68)`   | `var(--background)`  | Red 500                    |
-| `danger`    | Dark  | `rgb(248, 113, 113)` | `rgb(23, 23, 23)`    | Red 400                    |
-| `info`      | Light | `rgb(59, 130, 246)`  | `var(--background)`  | Blue 500                   |
-| `info`      | Dark  | `rgb(96, 165, 250)`  | `rgb(23, 23, 23)`    | Blue 400                   |
-| `success`   | Light | `rgb(34, 197, 94)`   | `var(--background)`  | Green 500                  |
-| `success`   | Dark  | `rgb(74, 222, 128)`  | `rgb(23, 23, 23)`    | Green 400                  |
-| `warning`   | Light | `rgb(234, 179, 8)`   | `rgb(23, 23, 23)`    | Yellow 500 (dark text)     |
-| `warning`   | Dark  | `rgb(250, 204, 21)`  | `rgb(23, 23, 23)`    | Yellow 400 (dark text)     |
+| Tone        | Theme | Base                 | Foreground Token     | Palette Notes   |
+| :---------- | :---- | :------------------- | :------------------- | :-------------- |
+| `primary`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | Neutral 900     |
+| `primary`   | Dark  | `rgb(229, 229, 229)` | `rgb(23, 23, 23)`    | Neutral 200     |
+| `secondary` | Light | `rgb(51, 65, 85)`    | `rgb(248, 250, 252)` | Slate 700       |
+| `secondary` | Dark  | `rgb(203, 213, 225)` | `rgb(15, 23, 42)`    | Slate 300       |
+| `neutral`   | Light | `rgb(23, 23, 23)`    | `rgb(250, 250, 250)` | Neutral 900     |
+| `neutral`   | Dark  | `rgb(250, 250, 250)` | `rgb(23, 23, 23)`    | Neutral 50      |
+| `danger`    | Light | `rgb(217, 89, 63)`   | `var(--background)`  | Warm red        |
+| `danger`    | Dark  | `rgb(209, 115, 97)`  | `var(--background)`  | Muted coral red |
+| `info`      | Light | `rgb(38, 122, 217)`  | `var(--background)`  | Vivid blue      |
+| `info`      | Dark  | `rgb(99, 161, 233)`  | `var(--background)`  | Soft sky blue   |
+| `success`   | Light | `rgb(25, 154, 74)`   | `var(--background)`  | Emerald green   |
+| `success`   | Dark  | `rgb(75, 155, 104)`  | `var(--background)`  | Sage green      |
+| `warning`   | Light | `rgb(174, 133, 9)`   | `var(--background)`  | Warm amber      |
+| `warning`   | Dark  | `rgb(185, 152, 70)`  | `var(--background)`  | Golden amber    |
 
 - **Tones are high-contrast anchors; Surfaces are pre-tinted backgrounds.**
   - A _Surface_ (like `muted: rgb(245, 245, 245)`) is an opaque, low-contrast background fill.
@@ -328,7 +327,7 @@ Wiring and precedence:
 ## Breaking changes & migration guide (for PR, Release Notes & Commit Message; omitted from public docs)
 
 > [!NOTE]
-> The migration guide below is published exclusively in the Pull Request description (PR #115), GitHub Release Notes / CHANGELOG, and git commit messages (`BREAKING CHANGE:` footer). Public documentation pages (`docs/`) remain clean and describe only the current system state.
+> The migration guide below is published exclusively in the Pull Request description (PR #116), GitHub Release Notes / CHANGELOG, and git commit messages (`BREAKING CHANGE:` footer). Public documentation pages (`docs/`) remain clean and describe only the current system state.
 
 This refactor introduces breaking changes for users upgrading from Moraine pre-alpha:
 
@@ -365,7 +364,7 @@ This refactor introduces breaking changes for users upgrading from Moraine pre-a
 
 - `variant`: `'solid' | 'soft' | 'outline' | 'ghost' | 'link'`
 - `tone`: `Tone` (default `solid + primary`; `secondary` is co-equal to `primary`)
-- `base.root`: replace `FOCUS_VISIBLE_CLASS` with `focus-visible:(outline-none ring-3 ring-tone/20 dark:ring-tone/40)`
+- `base.root`: replace `FOCUS_VISIBLE_CLASS` with `focus-visible:(outline-none ring-3 ring-tone/50 dark:ring-tone/40)`
 - Variant classes (same formulas for every tone, including secondary and neutral — zero compounds):
   - `solid`: `bg-tone text-tone-foreground hover:bg-tone-hover active:bg-tone-active border-transparent`
   - `soft`: `bg-tone/12 text-tone-ink hover:bg-tone/18 active:bg-tone/24 border-transparent`
@@ -476,8 +475,7 @@ Counts: 123 matching lines across 41 files (including `colorStates`): 4 `src` fi
   - Migrate `variant="danger"`, `variant="secondary"`, and `variant="subtle"` across docs, demos and `test/types-default`.
 - **Tests to add/update:**
   - **Palette & Semantic Integrity Suite:**
-    - Tone definitions match the Nuxt UI / Tailwind standard palette (500 shades in light mode, 400 in dark mode).
-    - Status tones use established design system values; WCAG 2.2 AA contrast tests were removed to prioritize visual parity and aesthetic consistency with Nuxt UI and Tailwind.
+    - Tone definitions match the tuned Moraine status palette.
   - **Mix Input Contract & Validation Tests:**
     - Verify `0` is strictly preserved as `0%` (`--mo-mix-hover: 0%;`) via nullish-coalescing and not overwritten by falsy coercion.
     - Verify `100` outputs `100%`.

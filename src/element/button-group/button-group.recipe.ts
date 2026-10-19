@@ -19,13 +19,12 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     orientation: 'horizontal',
-    tone: 'primary',
   },
   variants: {
     size: {},
     variant: {
       outline: {
-        separator: 'bg-tone/40',
+        separator: 'bg-tone/20',
       },
       solid: {
         separator: 'bg-tone-foreground/20',

@@ -74,7 +74,7 @@ palette is allowed.
 | Warning        | `--warning` / `--warning-foreground`, with `--warning-ink`             | Caution paired with explicit text or an icon.                       |
 | Danger         | `--danger` / `--danger-foreground`, with `--danger-ink`                | Destructive actions, errors, and failure feedback.                  |
 
-The built-in info, success, warning, and danger values follow Obsidian's callout colors; warning is
+The built-in info, success, warning, and danger values use Moraine's tuned status palette; warning is
 orange rather than yellow.
 
 Form surfaces use `--control`, independently of `--input` boundaries and neutral tracks/separators.
