@@ -1,10 +1,8 @@
 import type { MoraineThemeColors } from './unocss.ts'
 
-// Nuxt UI / Tailwind semantic palette in 8-bit sRGB.
-// Status colors (danger: red-500/400, info: blue-500/400, success: green-500/400, warning: yellow-500/400) matching Nuxt UI.
 export const DEFAULT_THEME_COLORS = {
   light: {
-    background: { base: 'rgb(255, 255, 255)' },
+    background: 'rgb(255, 255, 255)',
     foreground: 'rgb(10, 10, 10)',
     card: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
     popover: { base: 'rgb(255, 255, 255)', foreground: 'rgb(10, 10, 10)' },
@@ -16,15 +14,15 @@ export const DEFAULT_THEME_COLORS = {
     danger: { base: 'rgb(217, 89, 63)' },
     info: { base: 'rgb(38, 122, 217)' },
     success: { base: 'rgb(25, 154, 74)' },
-    warning: { base: 'rgb(199, 133, 0)' },
+    warning: { base: 'rgb(174, 133, 9)' },
     border: 'rgb(229, 229, 229)',
     input: 'rgb(229, 229, 229)',
     control: 'rgb(255, 255, 255)',
-    backdrop: 'rgb(0 0 0 / 0.1)',
+    backdrop: 'rgba(0, 0, 0, 0.1)',
     ring: 'rgb(161, 161, 161)',
   },
   dark: {
-    background: { base: 'rgb(10, 10, 10)' },
+    background: 'rgb(10, 10, 10)',
     foreground: 'rgb(250, 250, 250)',
     card: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
     popover: { base: 'rgb(23, 23, 23)', foreground: 'rgb(250, 250, 250)' },
@@ -40,7 +38,7 @@ export const DEFAULT_THEME_COLORS = {
     border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
-    backdrop: 'rgb(0 0 0 / 0.1)',
+    backdrop: 'rgba(0, 0, 0, 0.1)',
     ring: 'rgb(115, 115, 115)',
   },
 } satisfies Record<'light' | 'dark', MoraineThemeColors>
