@@ -23,7 +23,6 @@ export function FeedbackActionButton(props: {
   const label = () => props.action?.label ?? props.label
   return (
     <Button
-      data-slot={props.slotName}
       slotName={props.slotName}
       size={props.size}
       variant={props.action?.variant ?? props.variant}
