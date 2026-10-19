@@ -60,38 +60,27 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
   const [heights, setHeights] = createSignal<Record<string | number, number>>({})
 
-  const defaults = (): ToastHostDefaults => ({
-    type: local.type ?? undefined,
-    large: local.large ?? undefined,
-    invert: local.invert ?? undefined,
-    placement: local.placement ?? undefined,
-    align: local.align ?? undefined,
+  const hostDefaults = createMemo<ToastHostDefaults>(() => ({
+    type: local.type,
+    large: local.large,
+    invert: local.invert,
+    placement: local.placement,
+    align: local.align,
     duration: local.duration,
     close: local.close,
     progress: local.progress,
     preventDuplicate: local.preventDuplicate,
     classes: local.classes,
     styles: local.styles,
-  })
+  }))
   const controller: ToastHost = {
     id: () => local.id,
-    defaults,
+    get defaults() {
+      return hostDefaults()
+    },
   }
 
-  const { slots } = useRecipe(toastRecipe, props, {
-    slot: 'root',
-    varsSlot: 'root',
-    contextVariants: () => ({
-      placement: local.placement ?? 'bottom',
-      align: local.align ?? 'end',
-      large: local.large ?? false,
-      type: local.type ?? 'default',
-    }),
-    contextSlots: () => ({
-      classes: local.classes,
-      styles: local.styles,
-    }),
-  })
+  const { slots } = useRecipe(toastRecipe, local)
 
   createEffect(
     on(
@@ -107,8 +96,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   )
 
   const filteredToasts = createMemo(() => store.toasts.filter((toast) => toast.hostId === local.id))
-  const activeToasts = createMemo(() => filteredToasts().filter((toast) => !toast.closed))
-  const hasToasts = () => activeToasts().length > 0
+  const hasToasts = () => filteredToasts().some((toast) => !toast.closed)
 
   createEffect(
     on(hasToasts, (active) => {
@@ -129,15 +117,13 @@ function ToastRoot(props: ToastProps): JSX.Element {
     }),
   )
 
-  const defaultPlacement = () => local.placement ?? 'bottom'
-  const defaultAlign = () => local.align ?? 'end'
-  const defaultKey = () => `${defaultPlacement()}-${defaultAlign()}`
   const possiblePositions = createMemo(() => {
+    const defaultKey = `${local.placement ?? 'bottom'}-${local.align ?? 'end'}`
     const activePositions = filteredToasts().map((toast) => {
-      const options = resolveToastOptions(toast.options, defaults())
+      const options = resolveToastOptions(toast.options, hostDefaults())
       return `${options.placement}-${options.align}`
     })
-    return Array.from(new Set([defaultKey(), ...activePositions]))
+    return Array.from(new Set([defaultKey, ...activePositions]))
   })
 
   const updateHeight = (id: string | number, height: number) => {
@@ -151,8 +137,6 @@ function ToastRoot(props: ToastProps): JSX.Element {
     })
   }
 
-  const viewportAriaLabel = () => local['aria-label'] ?? messages().viewport
-
   return (
     <Portal>
       <section
@@ -163,7 +147,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
         aria-live="polite"
         aria-relevant="additions text"
         aria-atomic="false"
-        aria-label={viewportAriaLabel()}
+        aria-label={local['aria-label'] ?? messages().viewport}
         {...slots.root}
       >
         <For each={possiblePositions()}>
@@ -171,18 +155,15 @@ function ToastRoot(props: ToastProps): JSX.Element {
             <ToastList
               positionKey={positionKey}
               filteredToasts={filteredToasts()}
-              host={defaults()}
+              host={hostDefaults()}
+              store={store}
               expand={local.expand}
               hostPaused={isDocumentHidden() || !isWindowFocused()}
               heights={heights()}
-              gapSize={local.gap ?? DEFAULT_TOAST_GAP}
+              gap={local.gap ?? DEFAULT_TOAST_GAP}
               visibleToasts={local.visibleToasts ?? 3}
               itemRender={local.itemRender}
               onHeight={updateHeight}
-              requestClose={(id, reason) => store.close(id, reason)}
-              onRemove={(id) => store.remove(id)}
-              onUpdate={(id, options) => store.update(id, options)}
-              onBump={(listener) => store.onBump(listener)}
             />
           )}
         </For>
