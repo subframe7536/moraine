@@ -1,5 +1,8 @@
 ## Todo
 
+- [ ] createContextProvider should be `(name: string) => [...] | <T extends object>(defaultValue: T) => [...]`
+- [ ] `<component>T.Variant` should be `Variants`, `<component>StyleVariant` should be `<component>StyleVariants`
+
 # V1
 
 ## Components

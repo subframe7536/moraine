@@ -42,6 +42,8 @@ export interface MoraineMessages {
   progress: ComponentMessages<typeof defaultProgressMessages>
 }
 
-export type MoraineMessagesInput = {
-  [K in keyof MoraineMessages]?: Partial<MoraineMessages[K]>
-}
+type DeepPartial<T> = Partial<{
+  [K in keyof T]: DeepPartial<T[K]>
+}>
+
+export type MoraineMessagesInput = DeepPartial<MoraineMessages>

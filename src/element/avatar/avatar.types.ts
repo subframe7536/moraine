@@ -33,6 +33,11 @@ export namespace AvatarT {
     /** Icon name to show as fallback. */
     fallback?: IconT.Name
 
+    /**
+     * Root `data-slot` name
+     */
+    slotName?: string
+
     /** Callback when the loading status of the avatar changes. */
     onStatusChange?: (status: Status) => void
   }

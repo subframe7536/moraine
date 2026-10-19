@@ -11,7 +11,6 @@ import {
 } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import type { SlotClassValue } from '../../theme/style-types'
 import { Icon } from '../icon'
 
 import { AVATAR_BADGE_ICON_CLASS, avatarDataAttributes, avatarRecipe } from './avatar.recipe'
@@ -35,22 +34,13 @@ function resolveFallbackText(text: string | undefined, alt: string | undefined):
   return resolvedInitials || '\u00A0'
 }
 
-interface AvatarFaceProps extends AvatarT.Base {
-  class?: SlotClassValue
-  style?: JSX.CSSProperties
-  classes?: AvatarT.Classes
-  styles?: AvatarT.Styles
-  size?: AvatarT.Variant['size'] | null
-  rootSlot?: 'avatar' | 'avatar-group-item'
-  badgePosition?: AvatarT.Variant['badgePosition'] | null
-}
-
-export function AvatarFace(props: AvatarFaceProps): JSX.Element {
+export function Avatar(props: AvatarProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'src',
     'alt',
     'badge',
     'badgePosition',
+    'slotName',
     'text',
     'fallback',
     'onStatusChange',
@@ -59,7 +49,6 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'classes',
     'styles',
     'size',
-    'rootSlot',
   ])
   const { slots } = useRecipe(avatarRecipe, local)
 
@@ -117,14 +106,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
   return (
     <span
-      data-slot={local.rootSlot ?? 'avatar'}
+      data-slot={local.slotName ?? 'avatar'}
       {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
       {...slots.root}
     >
       <img
-        data-slot="avatar-image"
+        data-slot={`${local.slotName}-image`}
         {...avatarDataAttributes.image({ status })}
         ref={(element) => {
           imageElement = element
@@ -146,7 +135,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       />
 
       <span
-        data-slot="avatar-fallback"
+        data-slot={`${local.slotName}-fallback`}
         {...avatarDataAttributes.fallback({ status })}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
@@ -165,7 +154,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
-              slotName="avatar-fallback-content"
+              slotName={`${local.slotName}-fallback-content`}
               {...slots.fallbackContent}
             />
           )}
@@ -174,16 +163,11 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="avatar-badge" {...slots.badge}>
+          <span data-slot={`${local.slotName}-badge`} {...slots.badge}>
             <Icon name={badge()} class={AVATAR_BADGE_ICON_CLASS} />
           </span>
         )}
       </Show>
     </span>
   )
-}
-
-/** Circular user or entity avatar with fallback initials and optional indicator. */
-export function Avatar(props: AvatarProps): JSX.Element {
-  return <AvatarFace {...props} />
 }
