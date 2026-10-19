@@ -93,7 +93,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     closed: () => Boolean(props.toast.closed),
     onFinish: (kind) => props.requestClose(props.toast.id, kind),
   })
-  const presentation: ToastT.RenderProps = {
+  const presentation: ToastT.ItemRenderProps = {
     get id() {
       return props.toast.id
     },

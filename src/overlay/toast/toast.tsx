@@ -25,7 +25,7 @@ function showToast(
   return getDefaultToastStore().add(options, render)
 }
 
-function withType(type: ToastT.Type, options: ToastT.Options): ToastT.Options {
+function withType(type: ToastT.Variant['type'], options: ToastT.Options): ToastT.Options {
   return { ...options, type }
 }
 
@@ -62,8 +62,8 @@ function ToastRoot(props: ToastProps): JSX.Element {
 
   const defaults = (): ToastHostDefaults => ({
     type: local.type ?? undefined,
-    large: local.large,
-    invert: local.invert,
+    large: local.large ?? undefined,
+    invert: local.invert ?? undefined,
     placement: local.placement ?? undefined,
     align: local.align ?? undefined,
     duration: local.duration,

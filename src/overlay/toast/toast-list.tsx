@@ -31,7 +31,7 @@ export interface ToastListProps {
 export function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
-  const placement = () => props.positionKey.split('-')[0] as ToastT.Placement
+  const placement = () => props.positionKey.split('-')[0] as ToastT.Variant['placement']
   const align = () => props.positionKey.split('-')[1] as OverlayAlign
 
   const groupToasts = createMemo(() =>

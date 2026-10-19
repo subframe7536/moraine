@@ -1271,7 +1271,7 @@ describe('Toast', () => {
   })
 
   it('supports custom itemRender on <Toast>', async () => {
-    const customRender = vi.fn((props: ToastT.RenderProps) => (
+    const customRender = vi.fn((props: ToastT.ItemRenderProps) => (
       <div data-testid={`custom-item-${props.id}`}>
         <span>Custom: {props.options.title}</span>
         <button type="button" onClick={() => props.close()}>
