@@ -12,7 +12,7 @@ export const kbdRecipe = /* @__PURE__ */ defineRecipe<KbdStyleSlot, KbdStyleVari
   },
   variants: {
     size: {
-      sm: { root: 'text-[10px] h-4.5 min-w-4.5' },
+      sm: { root: 'text-tiny h-4.5 min-w-4.5' },
       md: { root: 'text-xs h-5 min-w-5' },
       lg: { root: 'text-sm h-5.5 min-w-5.5' },
     },

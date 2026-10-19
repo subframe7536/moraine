@@ -9,7 +9,7 @@ export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<KbdGroupStyleSlot, Kb
     defaultVariants: { size: 'md', variant: 'default' },
     variants: {
       size: {
-        sm: { root: 'text-[10px]' },
+        sm: { root: 'text-tiny' },
         md: { root: 'text-xs' },
         lg: { root: 'text-sm' },
       },

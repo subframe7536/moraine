@@ -9,12 +9,7 @@ import { mergeDefined, pickDefined } from '../base/feedback/merge-defined'
 
 import type { ToastT } from './toast.types'
 
-export interface ToastHostDefaults {
-  type?: ToastT.Type
-  large?: boolean | null
-  invert?: boolean | null
-  placement?: ToastT.Placement
-  align?: ToastT.Variant['align']
+export interface ToastHostDefaults extends ToastT.Variant {
   duration?: number
   close?: boolean
   progress?: boolean

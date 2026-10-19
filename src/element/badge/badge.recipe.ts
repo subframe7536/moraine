@@ -35,7 +35,7 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
       tone: TONE_VARS,
       size: {
         sm: {
-          root: 'text-[10px] px-1 rounded-xs gap-0.5 h-4',
+          root: 'text-tiny px-1 rounded-xs gap-0.5 h-4',
           leading: 'size-3',
           trailing: 'size-3',
         },

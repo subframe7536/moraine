@@ -42,6 +42,7 @@ interface AvatarFaceProps extends AvatarT.Base {
   styles?: AvatarT.Styles
   size?: AvatarT.Variant['size'] | null
   rootSlot?: 'avatar' | 'avatar-group-item'
+  badgePosition?: AvatarT.Variant['badgePosition'] | null
 }
 
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {

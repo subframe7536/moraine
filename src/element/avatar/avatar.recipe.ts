@@ -35,19 +35,19 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
           root: 'text-xs size-6',
           fallback: 'text-xs',
           fallbackContent: 'text-sm',
-          badge: 'text-[9px] size-3',
+          badge: 'text-tiny size-3',
         },
         md: {
           root: 'text-sm size-8',
           fallback: 'text-sm',
           fallbackContent: 'text-base',
-          badge: 'text-[10px] size-3.5',
+          badge: 'text-xs size-3.5',
         },
         lg: {
           root: 'text-base size-10',
           fallback: 'text-base',
           fallbackContent: 'text-lg',
-          badge: 'text-xs size-4',
+          badge: 'text-sm size-4',
         },
       },
       badgePosition: {

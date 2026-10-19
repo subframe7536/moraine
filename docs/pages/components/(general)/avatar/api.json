@@ -30,8 +30,8 @@
         {
           "name": "badgePosition",
           "optional": true,
-          "type": "NonNullable<Variant['badgePosition']>",
-          "description": "Position of the badge.",
+          "type": "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'",
+          "description": "Position of the badge relative to the avatar.",
           "default": {
             "kind": "literal",
             "value": "bottom-right"

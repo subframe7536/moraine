@@ -260,7 +260,7 @@ describe('KbdGroup', () => {
   })
 
   test.each([
-    ['sm', 'text-[10px]', 'h-4.5'],
+    ['sm', 'text-tiny', 'h-4.5'],
     ['md', 'text-xs', 'h-5'],
     ['lg', 'text-sm', 'h-5.5'],
   ] as const)(

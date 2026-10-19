@@ -27,12 +27,6 @@ export namespace AvatarT {
     /** Icon name for the badge. */
     badge?: IconT.Name
 
-    /**
-     * Position of the badge.
-     * @default 'bottom-right'
-     */
-    badgePosition?: NonNullable<Variant['badgePosition']>
-
     /** Initial text to show if image fails or is missing. */
     text?: string
 

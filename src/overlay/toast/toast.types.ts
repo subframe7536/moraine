@@ -21,25 +21,20 @@ export namespace ToastT {
 
   export type Slot<T = unknown> = ToastStyleSlot<T>
   export type Variant = ToastStyleVariant
-  export type Variants = ToastStyleVariant
-  export type Placement = NonNullable<ToastStyleVariant['placement']>
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export type Id = FeedbackId
   export type CloseReason = FeedbackCloseReason
-  export type Type = NonNullable<ToastStyleVariant['type']>
   export type Action = FeedbackAction
 
   /** Options passed to toast creation methods. */
-  export interface Options {
+  export interface Options extends Variant {
     /** Stable id used by `update` and `close`. Reusing an open id updates that toast. */
     id?: Id
     /** Targets `<Toast id="..." />`. Omit to use the host without an id. */
     host?: string
-    /** Status tone. Methods such as `success` set this for you. */
-    type?: Type
     title?: JSX.Element
     description?: JSX.Element
     /** Replaces the type icon. `null` omits the icon. */
@@ -60,10 +55,6 @@ export namespace ToastT {
     duration?: number
     /** Whether to show the remaining duration progress bar. */
     progress?: boolean
-    large?: boolean | null
-    invert?: boolean | null
-    placement?: Placement
-    align?: Variant['align']
     /**
      * When true, a toast with the same content as the front toast in this stack is not added.
      * The existing toast is bumped and its handle is returned.
@@ -88,7 +79,7 @@ export namespace ToastT {
   }
 
   /** Props for `Toast.custom` and `itemRender`. */
-  export interface RenderProps {
+  export interface ItemRenderProps {
     id: Id
     /** Host defaults merged with the call options. Reflects later `update` calls. */
     options: Options
@@ -105,8 +96,6 @@ export namespace ToastT {
     /** Whether the toast stack is expanded. */
     expanded: boolean
   }
-
-  export type ItemRenderProps = RenderProps
 
   /** Base props for the Toast host component. */
   export interface Base {
