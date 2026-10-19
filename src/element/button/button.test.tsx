@@ -1174,7 +1174,7 @@ describe('Button', () => {
       ))
 
       const pBtn = screen.getByTestId('p-btn')
-      expect(pBtn.className).toContain('border-tone/40')
+      expect(pBtn.className).toContain('border-tone/20')
       expect(pBtn.className).toContain('h-9')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.className).toContain('m-1')

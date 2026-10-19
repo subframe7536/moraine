@@ -270,7 +270,7 @@ describe('ButtonGroup', () => {
   test.each([
     ['solid', 'bg-tone'],
     ['soft', 'bg-tone/12'],
-    ['outline', 'border-tone/40'],
+    ['outline', 'border-tone/20'],
     ['ghost', 'hover:bg-tone/10'],
     ['link', 'hover:underline'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
@@ -380,7 +380,7 @@ describe('ButtonGroup', () => {
     const button = screen.getByRole('button', { name: 'Action' })
 
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('border-tone/40')
+    expect(button.className).toContain('border-tone/20')
 
     setSize('lg')
     setVariant('soft')

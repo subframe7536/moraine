@@ -71,7 +71,7 @@ describe('listDocsColorTokens', () => {
     expect(findToken('primary-ink').defaults.light).toEqual({ type: 'auto', percent: 25 })
     expect(findToken('warning-foreground').defaults).toEqual({
       light: { type: 'fallback', variable: '--background' },
-      dark: { type: 'value', value: 'rgb(23, 23, 23)' },
+      dark: { type: 'fallback', variable: '--background' },
     })
     for (const token of listDocsColorTokens()) {
       expect(token.defaults.light.type, token.name).not.toBe('none')
