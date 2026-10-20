@@ -48,7 +48,9 @@ describe('createContextProvider', () => {
     }
 
     const defaultCtx: TestContext = { value: 100 }
-    const [TestProvider, useTestContext] = createContextProvider<TestContext>('Test', defaultCtx)
+    const result = createContextProvider<TestContext>('Test', defaultCtx)
+    expect(result).toHaveLength(2)
+    const [TestProvider, useTestContext] = result
 
     function Consumer() {
       const ctx = useTestContext()
@@ -102,5 +104,28 @@ describe('createContextProvider', () => {
 
     expect(outerValue).toBe(10)
     expect(innerValue).toBe(20)
+  })
+
+  test('creates an optional context with null defaultValue', () => {
+    interface TestContext {
+      value: number
+    }
+
+    const [TestProvider, useTestContext] = createContextProvider<TestContext | null>('Test', null)
+
+    function Consumer() {
+      const ctx = useTestContext()
+      return <div data-testid="value">{ctx ? ctx.value : 'empty'}</div>
+    }
+
+    const screen1 = render(() => <Consumer />)
+    expect(screen1.getByTestId('value').textContent).toBe('empty')
+
+    const screen2 = render(() => (
+      <TestProvider value={{ value: 42 }}>
+        <Consumer />
+      </TestProvider>
+    ))
+    expect(screen2.getByTestId('value').textContent).toBe('42')
   })
 })

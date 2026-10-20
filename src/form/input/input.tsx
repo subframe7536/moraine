@@ -48,7 +48,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   const group = useInputGroupContext()
   const { slots } = useRecipe(inputRecipe, local, {
     contextVariants: () => ({
-      grouped: Boolean(group),
+      grouped: Boolean(group?.grouped),
       groupedOrientation: group?.orientation,
       size: group?.size ?? themeField?.size,
     }),

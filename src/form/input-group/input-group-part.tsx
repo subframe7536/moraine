@@ -15,7 +15,7 @@ export function createInputGroupPart(part: 'leading' | 'trailing') {
   ): JSX.Element {
     const [local, rest] = splitProps(props, ['as', 'compact', 'class', 'style'])
     const group = useInputGroupContext()
-    if (!group) {
+    if (!group.grouped) {
       const name = part === 'leading' ? 'Leading' : 'Trailing'
       throw new Error(`InputGroup.${name} must be used within InputGroup`)
     }

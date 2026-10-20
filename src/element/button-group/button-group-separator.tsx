@@ -16,7 +16,7 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
     slot: 'separator',
     varsSlot: 'separator',
     contextVariants: () => ({
-      variant: group?.tone ? group.variant : undefined,
+      variant: group?.tone ? group?.variant : undefined,
       tone: group?.tone,
       orientation:
         group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),

@@ -21,6 +21,9 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
+  if (!item) {
+    throw new Error('NavigationMenu.Content must be used within NavigationMenu.Item')
+  }
   const [local, rest] = splitProps(props, ['class', 'style'])
   const { slots } = useRecipe(navigationMenuRecipe, local, {
     slot: 'content',
@@ -56,7 +59,7 @@ export function NavigationMenuContent(props: NavigationMenuT.ContentProps): JSX.
     onSelect: () => {},
   })
 
-  function onKeyDown(event: KeyboardEvent): void {
+  const onKeyDown = (event: KeyboardEvent): void => {
     const content = item.content()
     if (!content || event.isComposing) {
       return

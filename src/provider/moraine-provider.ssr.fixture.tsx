@@ -81,8 +81,8 @@ export function renderLocaleFixture() {
 }
 
 function DefaultLocaleProbe() {
-  const locale = useLocale()
-  return <i data-locale={locale.locale()} data-dir={locale.dir() ?? ''} />
+  const { locale, dir } = useLocale()
+  return <i data-locale={locale()} data-dir={dir() ?? ''} />
 }
 
 export function renderDefaultLocaleFixture() {

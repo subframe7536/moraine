@@ -52,6 +52,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
   return (
     <InputGroupProvider
       value={{
+        grouped: true,
         get variant() {
           return variants.variant
         },

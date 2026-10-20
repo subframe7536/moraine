@@ -45,19 +45,11 @@ export interface NavigationMenuItemContextValue {
   setTriggerOptions: (options: NavigationMenuT.TriggerProps<any> | undefined) => void
 }
 
-export const [NavigationMenuItemProvider, useOptionalNavigationMenuItemContext] =
+export const [NavigationMenuItemProvider, useNavigationMenuItemContext] =
   /* @__PURE__ */ createContextProvider<NavigationMenuItemContextValue | null>(
     'NavigationMenuItem',
     null,
   )
-
-export function useNavigationMenuItemContext(): NavigationMenuItemContextValue {
-  const item = useOptionalNavigationMenuItemContext()
-  if (!item) {
-    throw new Error('NavigationMenu.Trigger and NavigationMenu.Content require NavigationMenu.Item')
-  }
-  return item
-}
 
 export function createNavigationMenuState(
   props: NavigationMenuProps,

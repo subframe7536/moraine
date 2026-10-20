@@ -7,6 +7,7 @@ import { useMoraineContext } from '../provider/moraine-context'
 import { createLazyMemo } from '../shared/create-lazy-memo'
 
 import type { Cn } from './cn'
+import { cn as defaultCn } from './cn'
 import type {
   RecipeContribution,
   RecipeDefinition,
@@ -435,8 +436,8 @@ export function useRecipe<R extends RecipeDefinition>(
   type Variants = RecipeVariant<R>
   const options = (args[0] ?? {}) as RequiredSlotOptions<Slots, Variants>
   const context = useMoraineContext()
-  const cn: Cn = (...classes) => context.cn(...classes)
-  const resolvedRecipe = createMemo(() => context.resolver.resolve(recipe))
+  const cn: Cn = context ? (...classes) => context.cn(...classes) : defaultCn
+  const resolvedRecipe = createMemo(() => (context ? context.resolver.resolve(recipe) : recipe))
   const compiled = createMemo(() => compileRecipe(resolvedRecipe()))
   const defaultVariants = createMemo(() => getRecipeDefaultVariants(resolvedRecipe()) ?? EMPTY)
 

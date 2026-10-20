@@ -27,6 +27,9 @@ export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
   const context = useNavigationMenuContext()
   const direction = useLocale().dir
   const item = useNavigationMenuItemContext()
+  if (!item) {
+    throw new Error('NavigationMenu.Trigger must be used within NavigationMenu.Item')
+  }
   item.setTriggerOptions(props)
   onCleanup(() => item.setTriggerOptions(undefined))
   const [local, rest] = splitProps(props as NavigationMenuT.TriggerProps<T> & { id?: string }, [

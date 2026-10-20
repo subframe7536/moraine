@@ -126,8 +126,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
-  const locale = useLocale()
-  const direction = locale.dir
+  const { locale, dir: direction } = useLocale()
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
@@ -278,7 +277,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       return normalizedGroups()
     }
 
-    const collator = createSearchCollator(locale.locale())
+    const collator = createSearchCollator(locale())
     return normalizedGroups()
       .map((group) =>
         Object.assign({}, group, {

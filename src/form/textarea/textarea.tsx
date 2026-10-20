@@ -67,7 +67,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   const group = useInputGroupContext()
   const { slots } = useRecipe(textareaRecipe, local, {
     contextVariants: () => ({
-      grouped: Boolean(group),
+      grouped: Boolean(group?.grouped),
       groupedOrientation: group?.orientation,
       size: group?.size ?? themeField?.size,
     }),

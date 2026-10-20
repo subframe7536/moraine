@@ -75,7 +75,7 @@ export interface UseFormFieldReturn {
 }
 
 export const [FieldProvider, useFieldContext] =
-  /* @__PURE__ */ createContextProvider<FieldContextOptions | null>('Field', null)
+  /* @__PURE__ */ createContextProvider<FieldContextOptions>('Field', {})
 
 const EMPTY_RUNTIME_STATE: FieldRuntimeState = {
   touched: false,

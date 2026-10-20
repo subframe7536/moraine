@@ -3,7 +3,7 @@ import { children as resolveChildren, createMemo, mergeProps, Show, splitProps }
 import { Dynamic } from 'solid-js/web'
 
 import { Collapsible } from '../../element/collapsible'
-import { useOptionalCollapsibleContext } from '../../element/collapsible/collapsible-context'
+import { useCollapsibleContext } from '../../element/collapsible/collapsible-context'
 import { Icon } from '../../element/icon'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
 import type { ValidComponent } from '../../shared/types'
@@ -46,7 +46,7 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.ItemProps<T>,
 ): JSX.Element {
   const context = useSidebarFrameContext()
-  const collapsible = useOptionalCollapsibleContext()
+  const collapsible = useCollapsibleContext()
   const [local, rest] = splitProps(props as SidebarFrameT.ItemProps<T> & { ref?: unknown }, [
     'actions',
     'as',
@@ -178,7 +178,8 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
             {...resolved.slots.itemTrailing}
             aria-hidden={true}
             {...sidebarFrameDataAttributes.itemTrailing({
-              expanded: () => local.as === Collapsible.Trigger && collapsible?.disclosure.open(),
+              expanded: () =>
+                Boolean(local.as === Collapsible.Trigger && collapsible?.disclosure.open()),
             })}
           />
         )}

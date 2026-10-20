@@ -11,9 +11,9 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 export function useSidebarFrameSubmenu() {
   const collapsible = useCollapsibleContext()
   return {
-    open: collapsible.disclosure.open,
-    toggle: collapsible.toggle,
-    disabled: collapsible.disclosure.disabled,
+    open: () => collapsible?.disclosure.open() ?? false,
+    toggle: () => collapsible?.toggle(),
+    disabled: () => collapsible?.disclosure.disabled() ?? false,
   }
 }
 

@@ -21,6 +21,9 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'class', 'style', 'ref' as any])
   const context = useCollapsibleContext()
+  if (!context) {
+    throw new Error('Collapsible.Content must be used within Collapsible')
+  }
   const disclosure = context.disclosure
   const { slots } = useRecipe(collapsibleRecipe, local, {
     slot: 'content',

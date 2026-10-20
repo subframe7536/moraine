@@ -5,16 +5,13 @@ import { mergePopperElementProps } from '../../overlay/base/popper'
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 
-import {
-  useNavigationMenuContext,
-  useOptionalNavigationMenuItemContext,
-} from './navigation-menu-context'
+import { useNavigationMenuContext, useNavigationMenuItemContext } from './navigation-menu-context'
 import { navigationMenuDataAttributes, navigationMenuRecipe } from './navigation-menu.recipe'
 import type { NavigationMenuT } from './navigation-menu.types'
 
 export function NavigationMenuLink(props: NavigationMenuT.LinkProps): JSX.Element {
   const context = useNavigationMenuContext()
-  const item = useOptionalNavigationMenuItemContext()
+  const item = useNavigationMenuItemContext()
   const [local, rest] = splitProps(props, [
     'id',
     'active',

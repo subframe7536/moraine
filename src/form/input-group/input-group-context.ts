@@ -2,12 +2,15 @@ import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { InputGroupT } from './input-group.types'
 
-interface InputGroupContextValue {
-  readonly variant: InputGroupT.Variant['variant'] | null
-  readonly size: InputGroupT.Variant['size'] | null
-  readonly orientation: InputGroupT.Variant['orientation'] | null
-  readonly slotOverrides: { classes?: InputGroupT.Classes; styles?: InputGroupT.Styles }
+export interface InputGroupContextValue {
+  readonly grouped?: boolean
+  readonly variant?: InputGroupT.Variant['variant']
+  readonly size?: InputGroupT.Variant['size']
+  readonly orientation?: InputGroupT.Variant['orientation']
+  readonly slotOverrides?: { classes?: InputGroupT.Classes; styles?: InputGroupT.Styles }
 }
 
 export const [InputGroupProvider, useInputGroupContext] =
-  /* @__PURE__ */ createContextProvider<InputGroupContextValue | null>('InputGroup', null)
+  /* @__PURE__ */ createContextProvider<InputGroupContextValue>('InputGroup', {
+    grouped: false,
+  })

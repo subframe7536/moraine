@@ -29,7 +29,7 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
   ])
 
   const resolved = useSidebarFrameStyles('submenuTrigger', local)
-  const disclosure = useCollapsibleContext().disclosure
+  const disclosure = useCollapsibleContext()?.disclosure
 
   const trailingIcon = () => local.trailing ?? DEFAULT_SUBMENU_TRAILING
   const children = resolveChildren(() => local.children)
@@ -61,7 +61,7 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
             {...resolved.slots.itemTrailing}
             aria-hidden={true}
             {...sidebarFrameDataAttributes.itemTrailing({
-              expanded: () => disclosure.open(),
+              expanded: () => Boolean(disclosure?.open()),
             })}
           />
         </Collapsible.Trigger>

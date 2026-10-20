@@ -17,6 +17,9 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'disabled', 'class', 'style', 'ref' as any])
   const context = useCollapsibleContext()
+  if (!context) {
+    throw new Error('Collapsible.Trigger must be used within Collapsible')
+  }
   const disclosure = context.disclosure
   const { slots } = useRecipe(collapsibleRecipe, local, {
     slot: 'trigger',

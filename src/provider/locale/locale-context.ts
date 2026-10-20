@@ -23,8 +23,8 @@ export interface MoraineLocale {
 export function useLocale(): MoraineLocale {
   const context = useMoraineContext()
   return {
-    locale: () => context.locale.locale,
-    dir: () => context.locale.dir,
+    locale: () => context?.locale ?? FALLBACK_LOCALE,
+    dir: () => context?.dir,
   }
 }
 
@@ -61,13 +61,13 @@ export function useMessages<K extends keyof MoraineMessages>(
 ): Accessor<MoraineMessages[K]> {
   const context = useMoraineContext()
   return () => {
-    const custom = context.locale.messages?.[key]
+    const custom = context?.messages?.[key]
     return mergeGroup(defaults, custom)
   }
 }
 
 export function resolveLocale(
-  parent: ResolvedLocale,
+  parent: ResolvedLocale | null | undefined,
   next: {
     locale?: string
     dir?: 'ltr' | 'rtl' | null
@@ -77,6 +77,7 @@ export function resolveLocale(
   },
 ): ResolvedLocale {
   if (
+    parent &&
     next.locale === undefined &&
     !next.detectLocale &&
     next.dir === undefined &&
@@ -90,14 +91,14 @@ export function resolveLocale(
       ? next.locale
       : next.detectLocale
         ? (next.detectedLocale ?? FALLBACK_LOCALE)
-        : parent.locale
-  const dir = next.dir === null ? undefined : next.dir === undefined ? parent.dir : next.dir
+        : (parent?.locale ?? FALLBACK_LOCALE)
+  const dir = next.dir === null ? undefined : next.dir === undefined ? parent?.dir : next.dir
   const messages =
     next.messages === undefined
-      ? parent.messages
-      : mergeMessagesInput(parent.messages, next.messages)
+      ? parent?.messages
+      : mergeMessagesInput(parent?.messages, next.messages)
 
-  if (locale === parent.locale && dir === parent.dir && messages === parent.messages) {
+  if (parent && locale === parent.locale && dir === parent.dir && messages === parent.messages) {
     return parent
   }
 

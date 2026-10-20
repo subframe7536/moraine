@@ -1,4 +1,3 @@
-import { useContext } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
@@ -14,9 +13,5 @@ export interface CollapsibleContext {
   disclosure: DisclosureState
 }
 
-export const [CollapsibleProvider, useCollapsibleContext, collapsibleContext] =
-  /* @__PURE__ */ createContextProvider<CollapsibleContext>('Collapsible')
-
-export function useOptionalCollapsibleContext(): CollapsibleContext | undefined {
-  return useContext(collapsibleContext)
-}
+export const [CollapsibleProvider, useCollapsibleContext] =
+  /* @__PURE__ */ createContextProvider<CollapsibleContext | null>('Collapsible', null)
