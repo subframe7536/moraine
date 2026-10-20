@@ -12,8 +12,6 @@ import { DocsPageHeader } from './docs-page-header'
 import { DocsPageNavigation } from './navigation'
 import { CompactOnThisPage, OnThisPage } from './toc'
 
-export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
-
 export type ExamplePageApiDoc = ComponentApi
 
 export interface DocsMdxCodeTabItem {

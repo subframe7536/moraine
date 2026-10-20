@@ -44,8 +44,6 @@ import {
   focusTrigger,
   containFocusInContainer,
 } from './utils'
-export type * from './popper.types'
-
 /** Preserve floating behavior while forwarding the surface's native ref and events. */
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,

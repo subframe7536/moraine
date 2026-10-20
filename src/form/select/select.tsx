@@ -5,7 +5,8 @@ import { Icon } from '../../element/icon/index'
 import { useRecipe } from '../../provider/index'
 import { useMessages } from '../../provider/locale/locale-context'
 import { callRef } from '../../shared/utils'
-import { BaseSelect, BaseSelectRoot, useSelectContext } from '../base-select/base-select'
+import { BaseSelect, BaseSelectRoot } from '../base-select/base-select'
+import { useSelectContext } from '../base-select/base-select-context'
 import { useFieldContext } from '../field/field-context'
 import {
   createSource,

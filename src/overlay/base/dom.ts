@@ -1,5 +1,3 @@
-import { isNativeButtonElement } from '../../shared/native-button'
-
 /** Cross-realm-safe DOM guards and composed-tree traversal for overlay internals. */
 export function isNode(value: unknown): value is Node {
   return Boolean(value) && typeof (value as Node).nodeType === 'number'
@@ -16,8 +14,6 @@ export function isHTMLElement(value: unknown): value is HTMLElement {
     typeof (value as HTMLElement).focus === 'function'
   )
 }
-
-export { isNativeButtonElement }
 
 export function isPointerEvent(value: unknown): value is PointerEvent {
   return (

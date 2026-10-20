@@ -25,10 +25,8 @@ const defaultMoraineContext: MoraineContext = /* @__PURE__ */ Object.freeze({
   locale: defaultLocale,
 })
 
-const [MoraineContextProvider, useMoraineContext, moraineContext] =
+export const [MoraineContextProvider, useMoraineContext, moraineContext] =
   /* @__PURE__ */ createContextProvider<MoraineContext>('Moraine', defaultMoraineContext)
-
-export { MoraineContextProvider, useMoraineContext }
 
 export function useMoraineParent(): { parent: MoraineContext; provided: boolean } {
   const parent = useContext(moraineContext)

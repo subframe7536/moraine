@@ -6,8 +6,6 @@ import type { DocsPageEntry } from '../../../docs-route'
 
 import { getAdjacentDocsPages } from './utils'
 
-export { getAdjacentDocsPages, type AdjacentDocsPages } from './utils'
-
 export function DocsPageNavigationCard(props: {
   direction: 'previous' | 'next'
   page: DocsPageEntry

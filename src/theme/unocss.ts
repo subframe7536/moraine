@@ -2,14 +2,7 @@ import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
 import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
 import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
-import type {
-  MoraineMixConfig,
-  MoraineMixKnob,
-  MorainePresetTheme,
-  MoraineThemeColorRole,
-  MoraineThemeColors,
-  PresetMoraineOptions,
-} from './theme-types.ts'
+import type { PresetMoraineOptions } from './theme-types.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -27,10 +20,10 @@ export type {
   MoraineMixConfig,
   MoraineMixKnob,
   MorainePresetTheme,
-  MoraineThemeColorRole,
   MoraineThemeColors,
   PresetMoraineOptions,
-}
+} from './theme-types.ts'
+export type { MoraineThemeColorRole } from './tokens.ts'
 
 /** Convert a single keyframe frames object to a UnoCSS-style string. */
 function keyframeFramesToString(frames: Record<string, Record<string, string>>): string {

@@ -14,16 +14,6 @@ import {
 
 import { CopyButton } from './copy-button'
 
-export { CopyButton, extractCodeText } from './copy-button'
-export {
-  DOCS_BLOCK_CONTAINER_CLASS,
-  DOCS_BLOCK_HEADER_CLASS,
-  DOCS_CODE_CONTENT_CLASS,
-  DOCS_CODE_EXPAND_BUTTON_CLASS,
-  DOCS_CODE_FALLBACK_PRE_CLASS,
-  DOCS_CODE_SOURCE_CLASS,
-}
-
 const COLLAPSED_HEIGHT_PX = 150
 const EXPANDED_HEIGHT_PX = 400
 

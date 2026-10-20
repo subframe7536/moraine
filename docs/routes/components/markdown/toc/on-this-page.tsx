@@ -7,8 +7,6 @@ import { useTableOfContents } from '../../../hooks/use-table-of-contents'
 import type { OnThisPageEntry } from '../../../hooks/use-table-of-contents'
 import { DOCS_INLINE_CODE_CLASS } from '../markdown.recipe'
 
-export { type OnThisPageEntry } from '../../../hooks/use-table-of-contents'
-
 function getOnThisPageIndentStyle(level: number) {
   const indentLevel = Math.max(0, level - 1)
   return { 'padding-inline-start': `${indentLevel * 0.75}rem` }

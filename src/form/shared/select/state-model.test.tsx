@@ -2,7 +2,8 @@ import { fireEvent, render, within } from '@solidjs/testing-library'
 import { For } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { BaseSelect, useSelectContext } from '../../base-select/base-select'
+import { BaseSelect } from '../../base-select/base-select'
+import { useSelectContext } from '../../base-select/base-select-context'
 import { Combobox } from '../../combobox/combobox'
 import { MultiSelect } from '../../multi-select/multi-select'
 

@@ -1,7 +1,9 @@
 import { createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { callRef, cn, createId } from './utils'
+import { cn } from '../theme/cn'
+
+import { callRef, createId } from './utils'
 
 describe('callRef', () => {
   test('ignores element-valued refs', () => {

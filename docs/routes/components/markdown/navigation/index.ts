@@ -1,6 +1,2 @@
-export {
-  DocsPageNavigation,
-  DocsPageNavigationCard,
-  getAdjacentDocsPages,
-  type AdjacentDocsPages,
-} from './navigation'
+export { DocsPageNavigation, DocsPageNavigationCard } from './navigation'
+export { getAdjacentDocsPages, type AdjacentDocsPages } from './utils'

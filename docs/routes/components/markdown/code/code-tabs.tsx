@@ -12,14 +12,6 @@ import {
 
 import { CodeBlock } from './code-block'
 
-export {
-  DOCS_TABS_CONTENT_CLASS,
-  DOCS_TABS_INDICATOR_CLASS,
-  DOCS_TABS_LIST_CLASS,
-  DOCS_TABS_ROOT_CLASS,
-  DOCS_TABS_TRIGGER_CLASS,
-}
-
 export interface CodeTabItem {
   label?: string
   title?: string

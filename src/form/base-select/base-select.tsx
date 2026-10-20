@@ -13,8 +13,6 @@ import { BaseSelectSeparator } from './base-select-separator'
 import { BaseSelectTrigger } from './base-select-trigger'
 import type { BaseSelectProps, BaseSelectT } from './base-select.types'
 
-export { useSelectContext }
-
 /** Public selection primitive for a flat navigation collection. */
 export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   props: BaseSelectProps<T>,

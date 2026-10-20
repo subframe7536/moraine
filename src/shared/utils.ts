@@ -1,8 +1,6 @@
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId, untrack } from 'solid-js'
 
-export { cn } from '../theme/cn'
-
 /**
  * Generates a unique identifier for accessibility and form association.
  *

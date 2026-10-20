@@ -483,11 +483,9 @@ export function createSelectState<T extends BaseSelectT.Item>(
 }
 
 export type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
-const [SelectProvider, readSelectContext] =
+export const [SelectProvider, readSelectContext] =
   /* @__PURE__ */ createContextProvider<SelectState<BaseSelectT.Item>>('BaseSelect')
 /** Private state shared by built-in select parts. */
 export function useSelectContext<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
   return readSelectContext() as unknown as SelectState<T>
 }
-
-export { SelectProvider }

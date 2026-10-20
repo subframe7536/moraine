@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
 
+import { isNativeButtonElement } from '../../shared/native-button'
 import type { BaseProps, ElementProps, ValidComponent } from '../../shared/types'
 import type { SlotStyleValue } from '../../theme/style-types'
 
-import { isHTMLElement, isNativeButtonElement } from './dom'
+import { isHTMLElement } from './dom'
 
 export interface OverlayTriggerBase<T extends ValidComponent = 'button'> {
   /** Element or component to render as. */

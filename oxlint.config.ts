@@ -34,5 +34,6 @@ export default subfLint({
     'moraine/no-emitted-extensions-in-imports': 'error',
     'moraine/no-string-style-prop': 'error',
     'moraine/no-direct-component-call': 'error',
+    'moraine/no-re-export': 'error',
   },
 })

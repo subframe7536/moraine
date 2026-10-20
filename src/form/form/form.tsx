@@ -8,7 +8,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
-import { FieldInternal } from '../field/field'
+import { Field as FieldInternal } from '../field/field'
 import { scheduleFormReset } from '../shared/form-reset-scheduler'
 
 import { useFormischFieldBinding } from './form-field-binding'

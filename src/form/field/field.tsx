@@ -238,5 +238,3 @@ export function Field<T extends ValidComponent = 'div'>(
     </FieldProvider>
   )
 }
-
-export { Field as FieldInternal }

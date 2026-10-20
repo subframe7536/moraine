@@ -1,4 +1,4 @@
-export { OverlayMenu } from './menu'
+export { OverlayMenu } from './menu-root'
 export {
   getOverlayMenuTextValue,
   hasOverlayMenuChildren,

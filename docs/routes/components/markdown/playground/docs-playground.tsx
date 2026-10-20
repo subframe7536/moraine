@@ -19,20 +19,6 @@ import type {
   DocsPlaygroundProps,
 } from './docs-playground-controls'
 
-export {
-  DocsPlaygroundControlField,
-  getDocsPlaygroundControlDefaults,
-  normalizeDocsPlaygroundControls,
-  type DocsPlaygroundControl,
-  type DocsPlaygroundControlValue,
-  type DocsPlaygroundControlValues,
-  type DocsPlaygroundControlsProps,
-  type DocsPlaygroundInputControl,
-  type DocsPlaygroundProps,
-  type DocsPlaygroundSelectControl,
-  type DocsPlaygroundSwitchControl,
-} from './docs-playground-controls'
-
 /** Compact, controlled primitive inputs for an interactive docs example. */
 export function DocsPlayground(props: DocsPlaygroundProps) {
   const api = useContext(ComponentDocContext)?.api

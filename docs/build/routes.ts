@@ -11,8 +11,6 @@ import type { DocsPageContext } from './core/paths.ts'
 import { readFrontmatterData } from './markdown/frontmatter.ts'
 import type { FrontmatterData } from './markdown/types.ts'
 
-export type { DocsRouteInfo, DocsRouteSection } from '../shared/docs-route.ts'
-
 export interface DocsRouteEntry {
   info: DocsRouteInfo
   sourcePath: string

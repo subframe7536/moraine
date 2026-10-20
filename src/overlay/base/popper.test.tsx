@@ -8,7 +8,7 @@ import { Popover } from '../popover/popover'
 import { Tooltip } from '../tooltip/tooltip'
 
 import { createPopper, PopperTrigger, PopperContent } from './popper'
-import type { PopperContentContext, PopperProps } from './popper'
+import type { PopperContentContext, PopperProps } from './popper.types'
 
 function PopperFixture(
   props: PopperProps & {

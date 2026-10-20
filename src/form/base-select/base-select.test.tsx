@@ -13,7 +13,8 @@ import { createForm } from '../form/index'
 import { MultiSelect } from '../multi-select/multi-select'
 import { Select } from '../select/select'
 
-import { BaseSelect, useSelectContext } from './base-select'
+import { BaseSelect } from './base-select'
+import { useSelectContext } from './base-select-context'
 import { createBaseSelectSearchInput } from './base-select-search-input'
 
 const items = [

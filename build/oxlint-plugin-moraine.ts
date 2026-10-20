@@ -37,6 +37,33 @@ function isSourceFile(filePath: string): boolean {
   return /\/src\//.test(normalized)
 }
 
+function isTestOrFixtureFile(filePath: string): boolean {
+  const normalized = normalizePath(filePath)
+  return (
+    normalized.includes('.test.') ||
+    normalized.includes('.spec.') ||
+    normalized.includes('.ssr.') ||
+    normalized.includes('.fixture.') ||
+    normalized.includes('/test/') ||
+    normalized.includes('/test-util/')
+  )
+}
+
+function isEntryOrBarrelFile(filePath: string): boolean {
+  const normalized = normalizePath(filePath)
+  if (
+    normalized.endsWith('/index.ts') ||
+    normalized.endsWith('/index.tsx') ||
+    normalized.endsWith('/index.js')
+  ) {
+    return true
+  }
+  return (
+    /\/src\/(index|utils|virtualizer|theme)\.ts$/.test(normalized) ||
+    /\/src\/theme\/(unocss|tailwind|cn|style-types)\.ts$/.test(normalized)
+  )
+}
+
 function isSlotsAccess(obj: any): boolean {
   if (!obj) {
     return false
@@ -548,6 +575,62 @@ export default {
                   },
                 })
               }
+            }
+          },
+        }
+      },
+    },
+
+    'no-re-export': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            'Disallow standalone "export { ... }" and module re-exports in component files. All exports must be declared inline.',
+        },
+        messages: {
+          mustInline:
+            'Standalone "export { {{names}} }" is disallowed. Export declarations inline (e.g. "export const", "export function", "export type").',
+          noReExport:
+            'Re-exporting from "{{source}}" is disallowed in component files. Export declarations directly where defined and import directly from source.',
+        },
+      },
+      create(context: any): Record<string, any> {
+        if (isTestOrFixtureFile(context.filename)) {
+          return {}
+        }
+        const isEntryOrBarrel = isEntryOrBarrelFile(context.filename)
+
+        return {
+          ExportNamedDeclaration(node: any) {
+            if (!node.declaration) {
+              if (!node.source) {
+                const names =
+                  node.specifiers
+                    ?.map((s: any) => s.exported?.name || s.local?.name)
+                    .filter(Boolean)
+                    .join(', ') || 'bindings'
+                context.report({
+                  node,
+                  messageId: 'mustInline',
+                  data: { names },
+                })
+              } else if (!isEntryOrBarrel) {
+                context.report({
+                  node,
+                  messageId: 'noReExport',
+                  data: { source: node.source.value },
+                })
+              }
+            }
+          },
+          ExportAllDeclaration(node: any) {
+            if (!isEntryOrBarrel) {
+              context.report({
+                node,
+                messageId: 'noReExport',
+                data: { source: node.source?.value || '' },
+              })
             }
           },
         }

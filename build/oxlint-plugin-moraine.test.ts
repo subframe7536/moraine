@@ -431,4 +431,104 @@ describe('oxlint-plugin-moraine', () => {
       expect(rule.create(testCtx)).toEqual({})
     })
   })
+
+  describe('no-re-export', () => {
+    const rule = morainePlugin.rules['no-re-export']
+
+    it('reports standalone export { x } without inline declaration', () => {
+      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.ExportNamedDeclaration({
+        declaration: null,
+        source: null,
+        specifiers: [{ local: { name: 'Button' }, exported: { name: 'Button' } }],
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('mustInline')
+      expect(ctx.reports[0]?.data?.names).toBe('Button')
+    })
+
+    it('reports standalone export type { T } without inline declaration', () => {
+      const ctx = createMockContext('/project/src/element/button/button.types.ts')
+      const visitor = rule.create(ctx)
+
+      visitor.ExportNamedDeclaration({
+        declaration: null,
+        source: null,
+        exportKind: 'type',
+        specifiers: [{ local: { name: 'ButtonT' }, exported: { name: 'ButtonT' } }],
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('mustInline')
+    })
+
+    it('reports re-export from another file in component/implementation files', () => {
+      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.ExportNamedDeclaration({
+        declaration: null,
+        source: { value: './button-part' },
+        specifiers: [{ local: { name: 'ButtonPart' }, exported: { name: 'ButtonPart' } }],
+      })
+      expect(ctx.reports).toHaveLength(1)
+      expect(ctx.reports[0]?.messageId).toBe('noReExport')
+      expect(ctx.reports[0]?.data?.source).toBe('./button-part')
+
+      visitor.ExportAllDeclaration({
+        source: { value: './button-part' },
+      })
+      expect(ctx.reports).toHaveLength(2)
+      expect(ctx.reports[1]?.messageId).toBe('noReExport')
+    })
+
+    it('allows inline export declarations', () => {
+      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const visitor = rule.create(ctx)
+
+      visitor.ExportNamedDeclaration({
+        declaration: { type: 'FunctionDeclaration', id: { name: 'Button' } },
+        source: null,
+      })
+      visitor.ExportNamedDeclaration({
+        declaration: { type: 'VariableDeclaration' },
+        source: null,
+      })
+      expect(ctx.reports).toHaveLength(0)
+    })
+
+    it('allows re-exports in index.ts and package entry files', () => {
+      const barrelCtx = createMockContext('/project/src/element/button/index.ts')
+      const barrelVisitor = rule.create(barrelCtx)
+
+      barrelVisitor.ExportNamedDeclaration({
+        declaration: null,
+        source: { value: './button' },
+        specifiers: [{ local: { name: 'Button' }, exported: { name: 'Button' } }],
+      })
+      barrelVisitor.ExportAllDeclaration({
+        source: { value: './button.types' },
+      })
+      expect(barrelCtx.reports).toHaveLength(0)
+
+      const entryCtx = createMockContext('/project/src/utils.ts')
+      const entryVisitor = rule.create(entryCtx)
+
+      entryVisitor.ExportNamedDeclaration({
+        declaration: null,
+        source: { value: './shared/utils' },
+        specifiers: [{ local: { name: 'createId' }, exported: { name: 'createId' } }],
+      })
+      expect(entryCtx.reports).toHaveLength(0)
+    })
+
+    it('ignores test files and fixtures', () => {
+      const testCtx = createMockContext('/project/src/element/button/button.test.tsx')
+      expect(rule.create(testCtx)).toEqual({})
+
+      const fixtureCtx = createMockContext('/project/src/element/button/button.ssr.fixture.tsx')
+      expect(rule.create(fixtureCtx)).toEqual({})
+    })
+  })
 })

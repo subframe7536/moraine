@@ -14,10 +14,8 @@ export interface CollapsibleContext {
   disclosure: DisclosureState
 }
 
-const [CollapsibleProvider, useCollapsibleContext, collapsibleContext] =
+export const [CollapsibleProvider, useCollapsibleContext, collapsibleContext] =
   /* @__PURE__ */ createContextProvider<CollapsibleContext>('Collapsible')
-
-export { CollapsibleProvider, useCollapsibleContext }
 
 export function useOptionalCollapsibleContext(): CollapsibleContext | undefined {
   return useContext(collapsibleContext)
