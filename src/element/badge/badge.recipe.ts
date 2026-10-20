@@ -29,7 +29,7 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
           root: 'text-tone-ink border-tone bg-tone-soft',
         },
         outline: {
-          root: 'text-tone-ink border-tone bg-background',
+          root: 'text-tone-ink border-tone-border bg-background',
         },
       },
       tone: TONE_VARS,

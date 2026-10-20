@@ -103,6 +103,7 @@ export const DEFAULT_MIX_PERCENT = {
   active: 12,
   ink: 25,
   soft: 12,
+  border: 20,
 } as const
 
 export const THEME_COLOR_CONFIG_KEYS = [
@@ -112,6 +113,7 @@ export const THEME_COLOR_CONFIG_KEYS = [
   'active',
   'ink',
   'soft',
+  'border',
 ] as const
 export type ThemeColorConfigKey = (typeof THEME_COLOR_CONFIG_KEYS)[number]
 
@@ -130,6 +132,7 @@ export const MORAINE_COLORS = {
     active: stateColor('primary', 'active'),
     ink: 'var(--primary-ink, var(--mo-primary-ink, var(--primary)))',
     soft: 'var(--primary-soft, var(--mo-primary-soft, transparent))',
+    border: 'var(--primary-border, var(--mo-primary-border, var(--border)))',
   },
   secondary: {
     DEFAULT: 'var(--secondary)',
@@ -138,6 +141,7 @@ export const MORAINE_COLORS = {
     active: stateColor('secondary', 'active'),
     ink: 'var(--secondary-ink, var(--mo-secondary-ink, var(--secondary)))',
     soft: 'var(--secondary-soft, var(--mo-secondary-soft, transparent))',
+    border: 'var(--secondary-border, var(--mo-secondary-border, var(--border)))',
   },
   neutral: {
     DEFAULT: 'var(--neutral)',
@@ -146,6 +150,7 @@ export const MORAINE_COLORS = {
     active: stateColor('neutral', 'active'),
     ink: 'var(--neutral-ink, var(--mo-neutral-ink, var(--neutral)))',
     soft: 'var(--neutral-soft, var(--mo-neutral-soft, transparent))',
+    border: 'var(--neutral-border, var(--mo-neutral-border, var(--border)))',
   },
   card: {
     DEFAULT: 'var(--card)',
@@ -178,6 +183,7 @@ export const MORAINE_COLORS = {
     active: stateColor('danger', 'active'),
     ink: 'var(--danger-ink, var(--mo-danger-ink, var(--danger)))',
     soft: 'var(--danger-soft, var(--mo-danger-soft, transparent))',
+    border: 'var(--danger-border, var(--mo-danger-border, var(--border)))',
   },
   info: {
     DEFAULT: 'var(--info)',
@@ -186,6 +192,7 @@ export const MORAINE_COLORS = {
     active: stateColor('info', 'active'),
     ink: 'var(--info-ink, var(--mo-info-ink, var(--info)))',
     soft: 'var(--info-soft, var(--mo-info-soft, transparent))',
+    border: 'var(--info-border, var(--mo-info-border, var(--border)))',
   },
   success: {
     DEFAULT: 'var(--success)',
@@ -194,6 +201,7 @@ export const MORAINE_COLORS = {
     active: stateColor('success', 'active'),
     ink: 'var(--success-ink, var(--mo-success-ink, var(--success)))',
     soft: 'var(--success-soft, var(--mo-success-soft, transparent))',
+    border: 'var(--success-border, var(--mo-success-border, var(--border)))',
   },
   warning: {
     DEFAULT: 'var(--warning)',
@@ -202,6 +210,7 @@ export const MORAINE_COLORS = {
     active: stateColor('warning', 'active'),
     ink: 'var(--warning-ink, var(--mo-warning-ink, var(--warning)))',
     soft: 'var(--warning-soft, var(--mo-warning-soft, transparent))',
+    border: 'var(--warning-border, var(--mo-warning-border, var(--border)))',
   },
   tone: {
     DEFAULT: 'var(--mo-tone)',
@@ -213,6 +222,7 @@ export const MORAINE_COLORS = {
     'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))',
     'soft-active':
       'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+    border: 'var(--mo-tone-border, var(--border))',
   },
   border: 'var(--border)',
   input: 'var(--input)',
@@ -251,12 +261,16 @@ export function createGatedColorDeclarations(): Record<string, string> {
       `color-mix(in oklch, var(--${tone}), var(--foreground) var(--mo-mix-ink, ${DEFAULT_MIX_PERCENT.ink}%))`
     declarations[`--mo-${tone}-soft`] =
       `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, ${DEFAULT_MIX_PERCENT.soft}%), transparent)`
+    declarations[`--mo-${tone}-border`] =
+      `color-mix(in oklch, var(--${tone}) var(--mo-mix-border, ${DEFAULT_MIX_PERCENT.border}%), var(--border))`
   }
 
   declarations['--mo-tone-soft-hover'] =
     `color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, ${DEFAULT_MIX_PERCENT.hover}%))`
   declarations['--mo-tone-soft-active'] =
     `color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, ${DEFAULT_MIX_PERCENT.active}%))`
+  declarations['--mo-tone-border'] =
+    `color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, ${DEFAULT_MIX_PERCENT.border}%), var(--border))`
 
   return declarations
 }

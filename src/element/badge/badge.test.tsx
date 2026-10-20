@@ -94,7 +94,7 @@ describe('Badge', () => {
     expect(roots[2]?.className).toContain('bg-tone-soft')
     expect(roots[3]?.className).toContain('border-tone')
     expect(roots[3]?.className).toContain('bg-tone-soft')
-    expect(roots[4]?.className).toContain('border-tone')
+    expect(roots[4]?.className).toContain('border-tone-border')
     expect(roots[4]?.className).toContain('bg-background')
     expect(roots[4]?.className).toContain('text-tone-ink')
   })

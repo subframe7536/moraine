@@ -74,6 +74,7 @@ function toneVars(tone: Tone) {
     '--mo-tone-active': MORAINE_COLORS[tone].active,
     '--mo-tone-ink': MORAINE_COLORS[tone].ink,
     '--mo-tone-soft': MORAINE_COLORS[tone].soft,
+    '--mo-tone-border': MORAINE_COLORS[tone].border,
   }
 }
 

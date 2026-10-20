@@ -31,7 +31,13 @@ function readDefault(
   variant: string | undefined,
   value: string,
 ): DocsColorTokenDefault {
-  if (variant === 'hover' || variant === 'active' || variant === 'ink' || variant === 'soft') {
+  if (
+    variant === 'hover' ||
+    variant === 'active' ||
+    variant === 'ink' ||
+    variant === 'soft' ||
+    variant === 'border'
+  ) {
     return { type: 'auto', percent: DEFAULT_MIX_PERCENT[variant] }
   }
   const configured = (DEFAULT_THEME_COLORS[scheme] as Record<string, unknown>)[color]

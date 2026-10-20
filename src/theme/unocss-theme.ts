@@ -151,7 +151,7 @@ export function createThemeCSS(themes: ResolvedTheme[]): string {
       emit('spacing', theme.spacing)
       emit('sidebar-width', theme.sidebarWidth)
       if (theme.mix) {
-        for (const knob of ['hover', 'active', 'ink', 'soft'] as const) {
+        for (const knob of ['hover', 'active', 'ink', 'soft', 'border'] as const) {
           const val = theme.mix[knob]
           if (val !== undefined) {
             const validated = assertMixValue(val, `mix.${knob}`)

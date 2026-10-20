@@ -24,7 +24,7 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     size: {},
     variant: {
       outline: {
-        separator: 'bg-tone',
+        separator: 'bg-tone-border',
       },
       solid: {
         separator: 'bg-tone-active',

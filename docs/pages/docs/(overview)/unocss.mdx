@@ -228,11 +228,11 @@ presetMoraine({
 
 For tones, semantic utilities (such as `hover:bg-primary-hover`, `active:bg-primary-active`, and `bg-primary-soft`) resolve through a 3-tier fallback chain:
 
-1. Explicit theme override (`colors.<tone>.hover`, `active`, `ink`, or `soft`), which emits `--<tone>-hover`, `--<tone>-active`, `--<tone>-ink`, or `--<tone>-soft`
-2. Auto-mixed state via `@supports (color: color-mix(in oklch, ...))` emitting internal `--mo-<tone>-*` tokens with configured `mix.hover`, `mix.active`, `mix.ink`, or `mix.soft` percentages (soft blends with `transparent` so the wash composites on the local surface)
-3. Base fallback: `var(--<tone>)` for hover/active/ink, or `transparent` for soft
+1. Explicit theme override (`colors.<tone>.hover`, `active`, `ink`, `soft`, or `border`), which emits `--<tone>-hover`, `--<tone>-active`, `--<tone>-ink`, `--<tone>-soft`, or `--<tone>-border`
+2. Auto-mixed state via `@supports (color: color-mix(in oklch, ...))` emitting internal `--mo-<tone>-*` tokens with configured `mix.hover`, `mix.active`, `mix.ink`, `mix.soft`, or `mix.border` percentages (soft blends with `transparent` so the wash composites on the local surface, while border blends with `var(--border)` for an opaque subtle boundary)
+3. Base fallback: `var(--<tone>)` for hover/active/ink, `transparent` for soft, or `var(--border)` for border
 
-Inside internal component recipes (such as `Button` and `Badge`), components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `hover:bg-tone-hover`, `active:bg-tone-active`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, and `active:bg-tone-soft-active`) so recipes remain compact without compound variants across all tones. External classes, application components, and theme overrides can consume the tone tokens and utility classes directly.
+Inside internal component recipes (such as `Button` and `Badge`), components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `hover:bg-tone-hover`, `active:bg-tone-active`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, and `active:bg-tone-soft-active`) so recipes remain compact without compound variants across all tones. External classes, application components, and theme overrides can consume the tone tokens and utility classes directly.
 
 ```ts
 presetMoraine({

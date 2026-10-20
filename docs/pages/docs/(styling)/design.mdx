@@ -99,12 +99,12 @@ Use the UnoCSS defaults listed under [Moraine-specific Variables](#moraine-speci
 Moraine generates interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
 
 1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 8%) and `mix.active` (default 12%) percentages.
-2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive `--<tone>-ink` for readable text on washes and `--<tone>-soft` for the wash itself. State, ink, and soft variables follow a 3-tier precedence:
-   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, `.ink`, or `.soft` override.
-   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink), or with `transparent` (for soft, so the wash composites on the local surface).
-   - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, or `transparent` for soft.
+2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive `--<tone>-ink` for readable text on washes, `--<tone>-soft` for the wash itself, and `--<tone>-border` for an opaque subtle boundary. State, ink, soft, and border variables follow a 3-tier precedence:
+   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, `.ink`, `.soft`, or `.border` override.
+   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink), with `transparent` (for soft, so the wash composites on the local surface), or with `var(--border)` (for border, default 20% tone + 80% border).
+   - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, `transparent` for soft, or `var(--border)` for border.
 
-Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
+Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
 
 See the [UnoCSS guide](/docs/unocss#surface-states-and-tone-derivation) for configuring `mix` percentages.
 

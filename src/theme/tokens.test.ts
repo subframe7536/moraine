@@ -219,6 +219,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
         '--mo-tone-active': MORAINE_COLORS[tone].active,
         '--mo-tone-ink': `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))`,
         '--mo-tone-soft': `var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`,
+        '--mo-tone-border': `var(--${tone}-border, var(--mo-${tone}-border, var(--border)))`,
       })
     }
   })
@@ -229,6 +230,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       active: 12,
       ink: 25,
       soft: 12,
+      border: 20,
     })
     expect(THEME_COLOR_CONFIG_KEYS).toEqual([
       'base',
@@ -237,6 +239,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       'active',
       'ink',
       'soft',
+      'border',
     ])
   })
 
@@ -251,6 +254,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))',
       'soft-active':
         'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+      border: 'var(--mo-tone-border, var(--border))',
     })
   })
 
@@ -262,10 +266,10 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     }
   })
 
-  test('createGatedColorDeclarations generates exactly 40 declarations', () => {
+  test('createGatedColorDeclarations generates exactly 48 declarations', () => {
     const decls = createGatedColorDeclarations()
     const keys = Object.keys(decls)
-    expect(keys).toHaveLength(40)
+    expect(keys).toHaveLength(48)
 
     // Surfaces
     expect(decls['--mo-background-hover']).toBeDefined()
@@ -287,6 +291,9 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       expect(decls[`--mo-${tone}-soft`]).toBe(
         `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), transparent)`,
       )
+      expect(decls[`--mo-${tone}-border`]).toBe(
+        `color-mix(in oklch, var(--${tone}) var(--mo-mix-border, 20%), var(--border))`,
+      )
     }
 
     expect(decls['--mo-tone-hover']).toBeUndefined()
@@ -297,6 +304,9 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     )
     expect(decls['--mo-tone-soft-active']).toBe(
       'color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%))',
+    )
+    expect(decls['--mo-tone-border']).toBe(
+      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), var(--border))',
     )
   })
 })

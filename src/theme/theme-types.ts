@@ -2,7 +2,7 @@ import type { MORAINE_SHADOW, MORAINE_SURFACES, MoraineThemeColorRole, Tone } fr
 
 export type { MoraineThemeColorRole }
 
-export type MoraineMixKnob = 'hover' | 'active' | 'ink' | 'soft'
+export type MoraineMixKnob = 'hover' | 'active' | 'ink' | 'soft' | 'border'
 export type MoraineMixConfig = Partial<Record<MoraineMixKnob, number | string>>
 
 export type MoraineToneColorConfig =
@@ -14,6 +14,7 @@ export type MoraineToneColorConfig =
       active?: string
       ink?: string
       soft?: string
+      border?: string
     }
 
 export type MoraineGroupColorConfig =

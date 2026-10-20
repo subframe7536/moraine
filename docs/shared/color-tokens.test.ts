@@ -94,6 +94,10 @@ describe('listDocsColorTokens', () => {
       type: 'auto',
       percent: DEFAULT_MIX_PERCENT.soft,
     })
+    expect(findToken('primary-border').defaults.light).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.border,
+    })
     expect(findToken('warning-foreground').defaults).toEqual({
       light: { type: 'fallback', variable: '--background' },
       dark: { type: 'fallback', variable: '--background' },
