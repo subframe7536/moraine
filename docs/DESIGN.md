@@ -67,7 +67,7 @@ palette is allowed.
 | Accent         | `--accent` / `--accent-foreground`, with hover and active states            | Hover, highlight, and other interactive emphasis.                   |
 | Action         | `--primary` / `--primary-foreground`, with hover/active and `--primary-ink` | Primary links, selected navigation, and deliberate calls to action. |
 | Focus          | `--ring` with `--background` offset                                         | Keyboard focus treatment through `docs-focus-visible`.              |
-| Secondary      | `--secondary` / `--secondary-foreground`, with hover/active and ink         | Co-equal brand anchor tone (slate default).                         |
+| Secondary      | `--secondary` / `--secondary-foreground`, with hover/active and ink         | Secondary actions (neutral default).                                |
 | Neutral        | `--neutral` / `--neutral-foreground`, with hover/active and ink             | Monochrome anchor tone for soft badges and neutral actions.         |
 | Info           | `--info` / `--info-foreground`, with hover/active and ink                   | Informational status.                                               |
 | Success        | `--success` / `--success-foreground`, with hover/active and ink             | Confirmed completion and positive status.                           |

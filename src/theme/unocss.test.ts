@@ -749,7 +749,7 @@ describe('presetMoraine', () => {
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
     expect(css).toContain('--mo-mix-hover: 6%;')
     expect(css).toContain('--primary-ink: #135;')
-    expect(css).toContain('--secondary: rgb(51, 65, 85);')
+    expect(css).toContain('--secondary: rgb(245, 245, 245);')
     expect(css).toContain('--secondary-foreground: #fff;')
     expect(css).toMatch(/:root \{[^}]*--shadow-surface: 0 2px 4px #123;/)
     expect(css).toMatch(/:root \{[^}]*--shadow-overlay: 0 8px 16px #456;/)
