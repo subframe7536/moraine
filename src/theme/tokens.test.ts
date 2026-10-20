@@ -166,11 +166,11 @@ describe('Tone Soft 3-Tier Precedence & Declarations', () => {
     expect(css).toMatch(/:root \{[^}]*--primary-soft: #F0F7FF;/)
   })
 
-  test('Tier 2: @supports declares auto-mixed tone soft using var(--background)', () => {
+  test('Tier 2: @supports declares auto-mixed tone soft using transparent', () => {
     const declarations = createGatedColorDeclarations()
     for (const tone of TONES) {
       expect(declarations[`--mo-${tone}-soft`]).toBe(
-        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), var(--background))`,
+        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), transparent)`,
       )
     }
   })
@@ -179,7 +179,7 @@ describe('Tone Soft 3-Tier Precedence & Declarations', () => {
     for (const tone of TONES) {
       const schema = MORAINE_COLORS[tone]
       expect(typeof schema).toBe('object')
-      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`)
+      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`)
     }
   })
 
@@ -218,7 +218,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
         '--mo-tone-hover': MORAINE_COLORS[tone].hover,
         '--mo-tone-active': MORAINE_COLORS[tone].active,
         '--mo-tone-ink': `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))`,
-        '--mo-tone-soft': `var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`,
+        '--mo-tone-soft': `var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`,
       })
     }
   })
@@ -247,10 +247,10 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       ink: 'var(--mo-tone-ink)',
       hover: 'var(--mo-tone-hover, var(--mo-tone))',
       active: 'var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))',
-      soft: 'var(--mo-tone-soft, var(--background))',
-      'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)))',
+      soft: 'var(--mo-tone-soft, transparent)',
+      'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))',
       'soft-active':
-        'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))))',
+        'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
     })
   })
 
@@ -258,17 +258,14 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     for (const tone of TONES) {
       const schema = MORAINE_COLORS[tone]
       expect(typeof schema).toBe('object')
-      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`)
+      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`)
     }
   })
 
-  test('createGatedColorDeclarations generates exactly 43 declarations', () => {
+  test('createGatedColorDeclarations generates exactly 40 declarations', () => {
     const decls = createGatedColorDeclarations()
     const keys = Object.keys(decls)
-    // 5 surfaces * 2 (hover, active) = 10
-    // 7 tones * 4 (hover, active, ink, soft) = 28
-    // 1 tone channel * 5 (hover, active, soft, soft-hover, soft-active) = 5
-    expect(keys).toHaveLength(43)
+    expect(keys).toHaveLength(40)
 
     // Surfaces
     expect(decls['--mo-background-hover']).toBeDefined()
@@ -288,16 +285,13 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       expect(decls[`--mo-${tone}-active`]).toBeDefined()
       expect(decls[`--mo-${tone}-ink`]).toBeDefined()
       expect(decls[`--mo-${tone}-soft`]).toBe(
-        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), var(--background))`,
+        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), transparent)`,
       )
     }
 
-    // Tone channel states
-    expect(decls['--mo-tone-hover']).toBeDefined()
-    expect(decls['--mo-tone-active']).toBeDefined()
-    expect(decls['--mo-tone-soft']).toBe(
-      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background))',
-    )
+    expect(decls['--mo-tone-hover']).toBeUndefined()
+    expect(decls['--mo-tone-active']).toBeUndefined()
+    expect(decls['--mo-tone-soft']).toBeUndefined()
     expect(decls['--mo-tone-soft-hover']).toBe(
       'color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%))',
     )

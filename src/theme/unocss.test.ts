@@ -315,12 +315,12 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--mo-tone-ink)')
     expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
     expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
-    expect(css).toContain('var(--mo-tone-soft, var(--background))')
-    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)))')
+    expect(css).toContain('var(--mo-tone-soft, transparent)')
+    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
     expect(css).toContain(
-      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))))',
+      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
     )
-    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, var(--background)))')
+    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
   })
 
   test('Wind4 rounded utilities read the local --radius', async () => {
@@ -585,16 +585,10 @@ describe('presetMoraine', () => {
       '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
     )
     expect(css).toContain(
-      '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background));',
-    )
-    expect(css).toContain(
       '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), var(--background));',
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
     )
     expect(css).toContain(
       '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',

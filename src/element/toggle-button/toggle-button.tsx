@@ -41,7 +41,25 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     ],
   )
   const { variants, overrides } = useRecipe(toggleButtonRecipe, local, {
-    contextVariants: () => group ?? undefined,
+    contextVariants: () => {
+      if (!group) {
+        return undefined
+      }
+      return {
+        get size() {
+          return group.size
+        },
+        get variant() {
+          return group.variant
+        },
+        get tone() {
+          return group.tone
+        },
+        get activeTone() {
+          return group.tone
+        },
+      }
+    },
   })
   const [pressed, setPressed] = createControllableValue<boolean>({
     value: () => local.pressed,

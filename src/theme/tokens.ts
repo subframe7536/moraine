@@ -129,7 +129,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('primary', 'hover'),
     active: stateColor('primary', 'active'),
     ink: 'var(--primary-ink, var(--mo-primary-ink, var(--primary)))',
-    soft: 'var(--primary-soft, var(--mo-primary-soft, var(--background)))',
+    soft: 'var(--primary-soft, var(--mo-primary-soft, transparent))',
   },
   secondary: {
     DEFAULT: 'var(--secondary)',
@@ -137,7 +137,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('secondary', 'hover'),
     active: stateColor('secondary', 'active'),
     ink: 'var(--secondary-ink, var(--mo-secondary-ink, var(--secondary)))',
-    soft: 'var(--secondary-soft, var(--mo-secondary-soft, var(--background)))',
+    soft: 'var(--secondary-soft, var(--mo-secondary-soft, transparent))',
   },
   neutral: {
     DEFAULT: 'var(--neutral)',
@@ -145,7 +145,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('neutral', 'hover'),
     active: stateColor('neutral', 'active'),
     ink: 'var(--neutral-ink, var(--mo-neutral-ink, var(--neutral)))',
-    soft: 'var(--neutral-soft, var(--mo-neutral-soft, var(--background)))',
+    soft: 'var(--neutral-soft, var(--mo-neutral-soft, transparent))',
   },
   card: {
     DEFAULT: 'var(--card)',
@@ -177,7 +177,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('danger', 'hover'),
     active: stateColor('danger', 'active'),
     ink: 'var(--danger-ink, var(--mo-danger-ink, var(--danger)))',
-    soft: 'var(--danger-soft, var(--mo-danger-soft, var(--background)))',
+    soft: 'var(--danger-soft, var(--mo-danger-soft, transparent))',
   },
   info: {
     DEFAULT: 'var(--info)',
@@ -185,7 +185,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('info', 'hover'),
     active: stateColor('info', 'active'),
     ink: 'var(--info-ink, var(--mo-info-ink, var(--info)))',
-    soft: 'var(--info-soft, var(--mo-info-soft, var(--background)))',
+    soft: 'var(--info-soft, var(--mo-info-soft, transparent))',
   },
   success: {
     DEFAULT: 'var(--success)',
@@ -193,7 +193,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('success', 'hover'),
     active: stateColor('success', 'active'),
     ink: 'var(--success-ink, var(--mo-success-ink, var(--success)))',
-    soft: 'var(--success-soft, var(--mo-success-soft, var(--background)))',
+    soft: 'var(--success-soft, var(--mo-success-soft, transparent))',
   },
   warning: {
     DEFAULT: 'var(--warning)',
@@ -201,7 +201,7 @@ export const MORAINE_COLORS = {
     hover: stateColor('warning', 'hover'),
     active: stateColor('warning', 'active'),
     ink: 'var(--warning-ink, var(--mo-warning-ink, var(--warning)))',
-    soft: 'var(--warning-soft, var(--mo-warning-soft, var(--background)))',
+    soft: 'var(--warning-soft, var(--mo-warning-soft, transparent))',
   },
   tone: {
     DEFAULT: 'var(--mo-tone)',
@@ -209,10 +209,10 @@ export const MORAINE_COLORS = {
     hover: 'var(--mo-tone-hover, var(--mo-tone))',
     active: 'var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))',
     ink: 'var(--mo-tone-ink)',
-    soft: 'var(--mo-tone-soft, var(--background))',
-    'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)))',
+    soft: 'var(--mo-tone-soft, transparent)',
+    'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))',
     'soft-active':
-      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))))',
+      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
   },
   border: 'var(--border)',
   input: 'var(--input)',
@@ -250,15 +250,9 @@ export function createGatedColorDeclarations(): Record<string, string> {
     declarations[`--mo-${tone}-ink`] =
       `color-mix(in oklch, var(--${tone}), var(--foreground) var(--mo-mix-ink, ${DEFAULT_MIX_PERCENT.ink}%))`
     declarations[`--mo-${tone}-soft`] =
-      `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, ${DEFAULT_MIX_PERCENT.soft}%), var(--background))`
+      `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, ${DEFAULT_MIX_PERCENT.soft}%), transparent)`
   }
 
-  declarations['--mo-tone-hover'] =
-    `color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, ${DEFAULT_MIX_PERCENT.hover}%))`
-  declarations['--mo-tone-active'] =
-    `color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-active, ${DEFAULT_MIX_PERCENT.active}%))`
-  declarations['--mo-tone-soft'] =
-    `color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, ${DEFAULT_MIX_PERCENT.soft}%), var(--background))`
   declarations['--mo-tone-soft-hover'] =
     `color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, ${DEFAULT_MIX_PERCENT.hover}%))`
   declarations['--mo-tone-soft-active'] =

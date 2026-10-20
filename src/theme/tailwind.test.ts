@@ -267,15 +267,15 @@ describe('colors', () => {
     expect(css).toContain(
       'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
     )
-    expect(css).toContain('background-color: var(--mo-tone-soft, var(--background));')
+    expect(css).toContain('background-color: var(--mo-tone-soft, transparent);')
     expect(css).toContain(
-      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)));',
+      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent));',
     )
     expect(css).toContain(
-      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))));',
+      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)));',
     )
     expect(css).toContain(
-      'background-color: var(--danger-soft, var(--mo-danger-soft, var(--background)));',
+      'background-color: var(--danger-soft, var(--mo-danger-soft, transparent));',
     )
     expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
   })
@@ -296,16 +296,10 @@ describe('colors', () => {
       '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background));',
-    )
-    expect(css).toContain(
       '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), var(--background));',
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
     )
     expect(css).toContain(
       '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',

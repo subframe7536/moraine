@@ -17,7 +17,7 @@ Define the base color variables listed below for both the light and the dark the
 
 ### Color Tokens
 
-Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants, while tones additionally provide an accessible `-ink` variable for soft backgrounds and indicators. The swatches below use the live token values, so they follow the docs site's light or dark theme:
+Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants, while tones additionally provide `-ink` and `-soft` for readable text and translucent washes. The swatches below use the live token values, so they follow the docs site's light or dark theme:
 
 <ColorTokenTable />
 
@@ -33,8 +33,9 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--<surface>-hover`, `--<surface>-active`                                                                   | Surface interaction colors for `accent`, `muted`, `card`, `popover`, and `background`.                   | Generated state color mixing surface base with foreground.                                                             |
 | `--<tone>-hover`, `--<tone>-active`                                                                         | Tone interaction colors for `primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`.   | Generated state color mixing tone base with tone foreground.                                                           |
 | `--<tone>-ink`                                                                                              | Accessible text/indicator color for tones (`primary`, `secondary`, `neutral`, etc.).                     | Explicit override, then auto-mixed ink, then base fallback.                                                            |
-| `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | White (`rgb(255, 255, 255)`).                                                                                          |
-| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | White (`rgb(255, 255, 255)`).                                                                                          |
+| `--<tone>-soft`                                                                                             | Translucent wash for tones (`primary`, `secondary`, `neutral`, etc.).                                    | Explicit override, then auto-mixed with transparent, then transparent.                                                 |
+| `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | `--background`.                                                                                                        |
+| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | `--background`.                                                                                                        |
 | `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
 | `--sidebar-width`                                                                                           | Desktop sidebar width; also used by `w-sidebar`.                                                         | No variable value is set by default; the width falls back to `clamp(14rem, 25%, 20rem)`.                               |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
@@ -98,10 +99,10 @@ Use the UnoCSS defaults listed under [Moraine-specific Variables](#moraine-speci
 Moraine generates interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
 
 1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 8%) and `mix.active` (default 12%) percentages.
-2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive an accessible `--<tone>-ink` variable for soft backgrounds, links, and text badges. State and ink variables follow a 3-tier precedence:
-   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, or `.ink` override.
-   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active) or with `var(--foreground)` (for ink).
-   - **Tier 3 (Fallback)**: `var(--<tone>)` base tone color.
+2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive `--<tone>-ink` for readable text on washes and `--<tone>-soft` for the wash itself. State, ink, and soft variables follow a 3-tier precedence:
+   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, `.ink`, or `.soft` override.
+   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink), or with `transparent` (for soft, so the wash composites on the local surface).
+   - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, or `transparent` for soft.
 
 Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`hover:bg-tone-hover`, `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
 

@@ -52,10 +52,7 @@ export function createSelectableItemHandlers(
     }
 
     if (options.disabled()) {
-      const content = layer.contentElement()
-      if (content && content.ownerDocument.activeElement !== content) {
-        layer.focusContent()
-      }
+      layer.focusContent()
       return
     }
 

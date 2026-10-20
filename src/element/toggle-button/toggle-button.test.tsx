@@ -248,7 +248,21 @@ describe('ToggleButton', () => {
     expect(grouped.className).toContain('h-7')
     fireEvent.click(grouped)
     expect(grouped.className).toContain('bg-tone')
-    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+  })
+
+  test('lets a grouped toggle override the inherited pressed tone', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup tone="danger">
+          <ToggleButton activeTone="success">Grouped</ToggleButton>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const grouped = screen.getByRole('button', { name: 'Grouped' })
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    fireEvent.click(grouped)
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--success)')
   })
 
   test('retains getter-backed JSX children across state and loading updates', () => {
