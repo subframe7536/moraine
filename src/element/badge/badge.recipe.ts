@@ -26,7 +26,7 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
           root: 'text-tone-ink border-transparent bg-tone-soft',
         },
         subtle: {
-          root: 'text-tone-ink border-tone-soft-active bg-tone-soft',
+          root: 'text-tone-ink border-tone bg-tone-soft',
         },
         outline: {
           root: 'text-tone-ink border-tone-soft-active bg-background',
