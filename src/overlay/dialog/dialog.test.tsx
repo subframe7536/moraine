@@ -195,7 +195,7 @@ describe('Dialog', () => {
 
     const trigger = document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLButtonElement
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.className).toContain('border-tone-soft-active')
+    expect(trigger.className).toContain('border-tone')
     expect(trigger.querySelector('button')).toBeNull()
   })
 

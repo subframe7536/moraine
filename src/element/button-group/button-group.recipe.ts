@@ -24,7 +24,7 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     size: {},
     variant: {
       outline: {
-        separator: 'bg-tone-soft-active',
+        separator: 'bg-tone',
       },
       solid: {
         separator: 'bg-tone-active',
@@ -42,11 +42,11 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
     tone: TONE_VARS,
     orientation: {
       horizontal: {
-        root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none -me-px) [&>*:not(:first-child)]:rounded-s-none',
+        root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none) [&>*:not(:first-child)]:rounded-s-none',
         separator: 'mx-px w-auto',
       },
       vertical: {
-        root: 'flex-col [&>*:not(:last-child)]:(border-b-0 rounded-b-none -mb-px) [&>*:not(:first-child)]:rounded-t-none',
+        root: 'flex-col [&>*:not(:last-child)]:(border-b-0 rounded-b-none) [&>*:not(:first-child)]:rounded-t-none',
         separator: 'my-px h-auto',
       },
     },

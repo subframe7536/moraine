@@ -26,7 +26,6 @@ describe('ButtonGroup', () => {
     expect(group.getAttribute('data-slot')).toBe('button-group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('size-fit')
-    expect(group.className).toContain('-me-px')
     expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
@@ -126,7 +125,7 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
     const separator = screen.getByRole('separator')
-    expect(separator.className).toContain('bg-tone-soft-active')
+    expect(separator.className).toContain('bg-tone')
     expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
   })
 
@@ -245,7 +244,6 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-me-px')
     expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
@@ -297,7 +295,7 @@ describe('ButtonGroup', () => {
   test.each([
     ['solid', 'bg-tone'],
     ['soft', 'bg-tone-soft'],
-    ['outline', 'border-tone-soft-active'],
+    ['outline', 'border-tone'],
     ['ghost', 'hover:bg-tone-soft'],
     ['link', 'hover:underline'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
@@ -344,7 +342,6 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('flex-col')
-    expect(group.className).toContain('-mb-px')
     expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
@@ -386,7 +383,6 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-mb-px')
     expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
@@ -407,7 +403,7 @@ describe('ButtonGroup', () => {
     const button = screen.getByRole('button', { name: 'Action' })
 
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('border-tone-soft-active')
+    expect(button.className).toContain('border-tone')
 
     setSize('lg')
     setVariant('soft')
