@@ -1,5 +1,5 @@
-import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
-import { MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens.ts'
+import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults'
+import { DEFAULT_MIX_PERCENT, MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens'
 
 export type DocsColorTokenScheme = 'light' | 'dark'
 
@@ -31,17 +31,8 @@ function readDefault(
   variant: string | undefined,
   value: string,
 ): DocsColorTokenDefault {
-  if (variant === 'hover') {
-    return { type: 'auto', percent: 8 }
-  }
-  if (variant === 'active') {
-    return { type: 'auto', percent: 12 }
-  }
-  if (variant === 'ink') {
-    return { type: 'auto', percent: 25 }
-  }
-  if (variant === 'soft') {
-    return { type: 'auto', percent: 12 }
+  if (variant === 'hover' || variant === 'active' || variant === 'ink' || variant === 'soft') {
+    return { type: 'auto', percent: DEFAULT_MIX_PERCENT[variant] }
   }
   const configured = (DEFAULT_THEME_COLORS[scheme] as Record<string, unknown>)[color]
   const literal =

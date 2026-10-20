@@ -42,7 +42,7 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
           root: 'text-tone-ink border-transparent bg-tone-soft active:bg-tone-soft-active hover:bg-tone-soft-hover',
         },
         outline: {
-          root: 'text-tone-ink border-tone-border bg-background active:bg-tone-soft-hover hover:bg-tone-soft',
+          root: 'text-tone-ink border-tone-soft-active bg-background active:bg-tone-soft-hover hover:bg-tone-soft',
         },
         ghost: {
           root: 'text-tone-ink border-transparent active:bg-tone-soft-hover hover:bg-tone-soft',

@@ -78,7 +78,7 @@ describe('Badge', () => {
           <Badge>Default</Badge>
           <Badge variant="solid">Solid</Badge>
           <Badge variant="soft">Soft</Badge>
-          <Badge variant="surface">Surface</Badge>
+          <Badge variant="subtle">Subtle</Badge>
           <Badge variant="outline">Outline</Badge>
         </div>
       </MoraineProvider>
@@ -92,9 +92,9 @@ describe('Badge', () => {
     expect(roots[1]?.className).toContain('text-tone-foreground')
     expect(roots[2]?.className).toContain('border-transparent')
     expect(roots[2]?.className).toContain('bg-tone-soft')
-    expect(roots[3]?.className).toContain('border-tone-border-subtle')
+    expect(roots[3]?.className).toContain('border-tone-soft-active')
     expect(roots[3]?.className).toContain('bg-tone-soft')
-    expect(roots[4]?.className).toContain('border-tone-border')
+    expect(roots[4]?.className).toContain('border-tone-soft-active')
     expect(roots[4]?.className).toContain('bg-background')
     expect(roots[4]?.className).toContain('text-tone-ink')
   })

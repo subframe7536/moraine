@@ -21,7 +21,7 @@ export interface BadgeStyleVariant {
   /** Visual treatment of the component.
    * @default 'soft'
    */
-  variant?: 'solid' | 'soft' | 'surface' | 'outline'
+  variant?: 'solid' | 'soft' | 'subtle' | 'outline'
   /** Color tone of the component.
    * @default 'neutral'
    */

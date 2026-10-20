@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
-import { MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens.ts'
+import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults'
+import { DEFAULT_MIX_PERCENT, MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens'
 
-import { formatDocsColorTokenDefault, listDocsColorTokens } from './color-tokens.ts'
+import { formatDocsColorTokenDefault, listDocsColorTokens } from './color-tokens'
 
 function findToken(name: string) {
   const token = listDocsColorTokens().find((item) => item.name === name)
@@ -70,12 +70,30 @@ describe('listDocsColorTokens', () => {
   })
 
   it('describes derived defaults for state and status foreground rows', () => {
-    expect(findToken('accent-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
-    expect(findToken('background-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
-    expect(findToken('primary-hover').defaults.light).toEqual({ type: 'auto', percent: 8 })
-    expect(findToken('warning-active').defaults.dark).toEqual({ type: 'auto', percent: 12 })
-    expect(findToken('primary-ink').defaults.light).toEqual({ type: 'auto', percent: 25 })
-    expect(findToken('primary-soft').defaults.light).toEqual({ type: 'auto', percent: 12 })
+    expect(findToken('accent-hover').defaults.light).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.hover,
+    })
+    expect(findToken('background-active').defaults.dark).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.active,
+    })
+    expect(findToken('primary-hover').defaults.light).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.hover,
+    })
+    expect(findToken('warning-active').defaults.dark).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.active,
+    })
+    expect(findToken('primary-ink').defaults.light).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.ink,
+    })
+    expect(findToken('primary-soft').defaults.light).toEqual({
+      type: 'auto',
+      percent: DEFAULT_MIX_PERCENT.soft,
+    })
     expect(findToken('warning-foreground').defaults).toEqual({
       light: { type: 'fallback', variable: '--background' },
       dark: { type: 'fallback', variable: '--background' },

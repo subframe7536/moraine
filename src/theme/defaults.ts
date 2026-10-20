@@ -1,4 +1,4 @@
-import type { MoraineThemeColors } from './unocss.ts'
+import type { MoraineThemeColors } from './theme-types'
 
 export const DEFAULT_THEME_COLORS = {
   light: {

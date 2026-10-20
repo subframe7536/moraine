@@ -1,11 +1,12 @@
-import { DEFAULT_THEME_COLORS } from './defaults.ts'
+import { DEFAULT_THEME_COLORS } from './defaults'
+import type { MorainePresetTheme, PresetMoraineOptions } from './theme-types'
 import {
   MORAINE_COLORS,
   MORAINE_SHADOW,
+  THEME_COLOR_CONFIG_KEYS,
   THEME_COLOR_ROLES,
   createGatedColorDeclarations,
-} from './tokens.ts'
-import type { MorainePresetTheme, PresetMoraineOptions } from './unocss.ts'
+} from './tokens'
 
 const DEFAULT_THEME_SHADOWS = {
   surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
@@ -135,20 +136,11 @@ export function createThemeCSS(themes: ResolvedTheme[]): string {
           continue
         }
         const group = entry as Record<string, unknown>
-        if (typeof group.base === 'string') {
-          emit(color, group.base)
-        }
-        if ('foreground' in schema && typeof group.foreground === 'string') {
-          emit(`${color}-foreground`, group.foreground)
-        }
-        if ('hover' in schema && typeof group.hover === 'string') {
-          emit(`${color}-hover`, group.hover)
-        }
-        if ('active' in schema && typeof group.active === 'string') {
-          emit(`${color}-active`, group.active)
-        }
-        if ('ink' in schema && typeof group.ink === 'string') {
-          emit(`${color}-ink`, group.ink)
+        for (const key of THEME_COLOR_CONFIG_KEYS) {
+          const schemaKey = key === 'base' ? 'DEFAULT' : key
+          if (schemaKey in schema && typeof group[key] === 'string') {
+            emit(key === 'base' ? color : `${color}-${key}`, group[key])
+          }
         }
       }
       for (const shadow of Object.keys(MORAINE_SHADOW) as Array<keyof typeof MORAINE_SHADOW>) {
@@ -159,7 +151,7 @@ export function createThemeCSS(themes: ResolvedTheme[]): string {
       emit('spacing', theme.spacing)
       emit('sidebar-width', theme.sidebarWidth)
       if (theme.mix) {
-        for (const knob of ['hover', 'active', 'ink'] as const) {
+        for (const knob of ['hover', 'active', 'ink', 'soft'] as const) {
           const val = theme.mix[knob]
           if (val !== undefined) {
             const validated = assertMixValue(val, `mix.${knob}`)

@@ -212,7 +212,7 @@ describe('ToggleButton', () => {
       </MoraineProvider>
     ))
     const button = screen.getByRole('button', { name: 'Theme' })
-    expect(button.className).toContain('border-tone-border')
+    expect(button.className).toContain('border-tone-soft-active')
     expect(button.className).toContain('h-9')
     for (const cls of ['button-theme', 'toggle-theme', 'instance-class', 'root-override']) {
       expect(button.className).toContain(cls)

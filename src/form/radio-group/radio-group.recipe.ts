@@ -80,7 +80,7 @@ export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
         item: 'border border-border rounded-md data-checked:border-primary',
       },
       table: {
-        item: 'border border-muted relative data-checked:(border-primary/50 bg-primary/10 z-base)',
+        item: 'border border-muted relative data-checked:(border-primary bg-primary-soft z-base)',
       },
       list: {
         root: 'gap-2',

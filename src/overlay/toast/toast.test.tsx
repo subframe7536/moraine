@@ -145,7 +145,7 @@ describe('Toast', () => {
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('border-tone-border')
+    expect(actionButton.className).toContain('border-tone-soft-active')
     expect(cancelButton.className).toContain('bg-tone')
     expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
   })

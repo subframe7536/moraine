@@ -164,7 +164,7 @@ presetMoraine({
 | `themeDefaults`               | `true`                                                                           | Emits neutral light/dark colors and color schemes, default shadows, and HTML background/text styles. Set `false` when your CSS defines the theme. |
 | `override`                    | omitted                                                                          | Overrides the built-in neutral light and dark colors or adds named themes.                                                                        |
 | `override.<name>.colorScheme` | `light` for the built-in light theme; `dark` for dark; omitted for custom themes | Accepts `light` or `dark` only. Emits `color-scheme` on the theme selector; explicit values still apply with `themeDefaults: false`.              |
-| `mix`                         | `{ hover: 8, active: 12, ink: 85 }`                                              | Generates color-mix percentages for surface hover/active and tone ink. Overridable per theme via `override.<name>.mix`.                           |
+| `mix`                         | `{ hover: 8, active: 12, ink: 25, soft: 12 }`                                    | Generates color-mix percentages for surface hover/active, tone ink, and tone soft. Overridable per theme via `override.<name>.mix`.               |
 | `radius`                      | `0.625rem`                                                                       | Base radius written to `--radius` at `:root`; override per theme when needed.                                                                     |
 | `fontSize`                    | `1rem`                                                                           | Base font size written to `--font-size` at `:root`; used by Wind4 typography rules.                                                               |
 | `spacing`                     | `0.25rem`                                                                        | Base spacing unit written to `--spacing` at `:root`.                                                                                              |
@@ -180,7 +180,7 @@ The built-in light and dark themes emit `color-scheme: light` and `color-scheme:
 
 See [Moraine-specific Variables](/docs/design#moraine-specific-variables) for the additional form surface, backdrop, shadow, interaction, typography, sidebar, and animation variables. `colorScheme` writes the native CSS `color-scheme` property; it does not create a custom property.
 
-Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb, …)` in supported browsers. With `wind3: true`, Wind3 also uses `color-mix(in srgb, …)`.
+Semantic color alpha modifiers, such as `bg-primary/20`, use `color-mix(in srgb, …)` in supported browsers. `presetWind4` automatically supports `color-mix` with fallback; with `wind3: true`, Wind3 also enables alpha syntax using `color-mix(in srgb, …)`.
 
 ### Wind3 compatibility
 
@@ -226,17 +226,17 @@ presetMoraine({
 })
 ```
 
-For tones, all 7 tones export explicit `--<tone>-hover`, `--<tone>-active`, and `--<tone>-ink` tokens, generating utilities like `hover:bg-primary-hover` and `active:bg-primary-active` with full 3-tier precedence:
+For tones, semantic utilities (such as `hover:bg-primary-hover`, `active:bg-primary-active`, and `bg-primary-soft`) resolve through a 3-tier fallback chain:
 
-1. Explicit theme override (`colors.<tone>.hover`, `active`, or `ink`)
-2. Auto-mixed state via `color-mix(in oklch, ...)` with configured `mix.hover`, `mix.active`, or `mix.ink` percentages
-3. Base tone fallback (`var(--<tone>)`)
+1. Explicit theme override (`colors.<tone>.hover`, `active`, `ink`, or `soft`), which emits `--<tone>-hover`, `--<tone>-active`, `--<tone>-ink`, or `--<tone>-soft`
+2. Auto-mixed state via `@supports (color: color-mix(in oklch, ...))` emitting internal `--mo-<tone>-*` tokens with configured `mix.hover`, `mix.active`, `mix.ink`, or `mix.soft` percentages (soft blends with `var(--background)`)
+3. Base fallback: `var(--<tone>)` for hover/active/ink, or `var(--background)` for soft
 
-Inside internal component recipes (such as `Button` and `Badge`), components bind to the universal `--mo-tone` channel (`hover:bg-tone-hover`, `active:bg-tone-active`) so recipes remain compact without compound variants across all tones. External classes, application components, and theme overrides can consume the explicit `--<tone>-hover`, `--<tone>-active`, and `--<tone>-ink` tokens and utility classes directly.
+Inside internal component recipes (such as `Button` and `Badge`), components bind to the universal `--mo-tone` channel (`hover:bg-tone-hover`, `active:bg-tone-active`, `bg-tone-soft`) so recipes remain compact without compound variants across all tones. External classes, application components, and theme overrides can consume the tone tokens and utility classes directly.
 
 ```ts
 presetMoraine({
-  mix: { ink: 85 }, // default 85%
+  mix: { ink: 25 }, // default 25%
   override: {
     light: {
       colors: {

@@ -295,9 +295,6 @@ describe('presetMoraine', () => {
         'bg-tone-soft',
         'hover:bg-tone-soft-hover',
         'active:bg-tone-soft-active',
-        'border-tone-border',
-        'border-tone-border-subtle',
-        'bg-tone-border',
         'bg-danger-soft',
         'border-tone/40',
         'text-tone-foreground',
@@ -318,14 +315,12 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--mo-tone-ink)')
     expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
     expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
-    expect(css).toContain('var(--mo-tone-soft, transparent)')
-    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
+    expect(css).toContain('var(--mo-tone-soft, var(--background))')
+    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)))')
     expect(css).toContain(
-      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))))',
     )
-    expect(css).toContain('var(--mo-tone-border, transparent)')
-    expect(css).toContain('var(--mo-tone-border-subtle, var(--mo-tone-border, transparent))')
-    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
+    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, var(--background)))')
   })
 
   test('Wind4 rounded utilities read the local --radius', async () => {
@@ -593,22 +588,16 @@ describe('presetMoraine', () => {
       '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), transparent);',
+      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background));',
     )
     expect(css).toContain(
       '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), var(--background));',
     )
     expect(css).toContain(
       '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-border: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), transparent);',
-    )
-    expect(css).toContain(
-      '--mo-tone-border-subtle: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border-subtle, 30%), transparent);',
     )
     expect(css).not.toContain('--primary-hover: color-mix(')
     expect(css).toContain('background-color: var(--background)')
@@ -853,6 +842,36 @@ describe('presetMoraine', () => {
       '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-ink: #369;\n}',
     )
     expect(css).not.toContain('[data-theme="brand"] {\n  --primary:')
+  })
+
+  test('emits explicit soft token when configured in theme colors', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          override: {
+            light: {
+              colors: { primary: { soft: '#F0F7FF' } },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain('--primary-soft: #F0F7FF;')
+  })
+
+  test('emits --mo-mix-soft override when mix.soft is configured', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          mix: { soft: 16 },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain('--mo-mix-soft: 16%;')
   })
 
   test('rejects invalid mix adjustments', () => {

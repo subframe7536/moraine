@@ -25,11 +25,11 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
         soft: {
           root: 'text-tone-ink border-transparent bg-tone-soft',
         },
-        surface: {
-          root: 'text-tone-ink border-tone-border-subtle bg-tone-soft',
+        subtle: {
+          root: 'text-tone-ink border-tone-soft-active bg-tone-soft',
         },
         outline: {
-          root: 'text-tone-ink border-tone-border bg-background',
+          root: 'text-tone-ink border-tone-soft-active bg-background',
         },
       },
       tone: TONE_VARS,

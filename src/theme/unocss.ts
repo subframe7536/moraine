@@ -1,7 +1,15 @@
 import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
-import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
-import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
+import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations'
+import { DEFAULT_ICON_SHORTCUTS } from './icons'
+import type {
+  MoraineMixConfig,
+  MoraineMixKnob,
+  MorainePresetTheme,
+  MoraineThemeColorRole,
+  MoraineThemeColors,
+  PresetMoraineOptions,
+} from './theme-types'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -10,54 +18,18 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from './tokens.ts'
-import type { MoraineThemeColorRole } from './tokens.ts'
-import { createThemeCSS, resolveThemes } from './unocss-theme.ts'
+} from './tokens'
+import { createThemeCSS, resolveThemes } from './unocss-theme'
 
-type MoraineColorMap = typeof MORAINE_COLORS
 type UtilityTheme = PresetWind3Theme & PresetWind4Theme
 
-export type { MoraineThemeColorRole }
-
-export type MoraineMixKnob = 'hover' | 'active' | 'ink'
-export type MoraineMixConfig = Partial<Record<MoraineMixKnob, number | string>>
-
-type MoraineColorEntry<T> = T extends string
-  ? string
-  :
-      | string
-      | {
-          [Key in keyof T as Key extends 'DEFAULT' ? 'base' : Key]?: string
-        }
-
-export type MoraineThemeColors = {
-  [Name in MoraineThemeColorRole]?: MoraineColorEntry<MoraineColorMap[Name]>
-}
-
-export interface MorainePresetTheme {
-  /** CSS color-scheme declaration for this theme's selector. */
-  colorScheme?: 'light' | 'dark'
-  colors?: MoraineThemeColors
-  shadows?: Partial<Record<keyof typeof MORAINE_SHADOW, string>>
-  radius?: string
-  fontSize?: string
-  spacing?: string
-  sidebarWidth?: string
-  mix?: MoraineMixConfig
-}
-
-export interface PresetMoraineOptions extends Omit<
+export type {
+  MoraineMixConfig,
+  MoraineMixKnob,
   MorainePresetTheme,
-  'colorScheme' | 'colors' | 'shadows'
-> {
-  /** Enable Wind3 token and utility compatibility. @default false */
-  wind3?: boolean
-  /** Emit neutral light/dark colors and color schemes, default shadows, and HTML background/foreground styles. @default true */
-  themeDefaults?: boolean
-  /** Named theme overrides; selectors default to :root, .dark, or [data-theme="name"]. */
-  override?: Partial<
-    Record<'light' | 'dark' | (string & {}), MorainePresetTheme & { selector?: string }>
-  >
+  MoraineThemeColorRole,
+  MoraineThemeColors,
+  PresetMoraineOptions,
 }
 
 /** Convert a single keyframe frames object to a UnoCSS-style string. */

@@ -126,7 +126,7 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
     const separator = screen.getByRole('separator')
-    expect(separator.className).toContain('bg-tone-border')
+    expect(separator.className).toContain('bg-tone-soft-active')
     expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
   })
 
@@ -146,7 +146,7 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
     const separators = screen.getAllByRole('separator')
-    expect(separators[0]?.className).toContain('bg-tone-foreground/20')
+    expect(separators[0]?.className).toContain('bg-tone-active')
     expect(separators[0]?.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
 
     expect(separators[1]?.className).toContain('bg-tone-soft-active')
@@ -297,7 +297,7 @@ describe('ButtonGroup', () => {
   test.each([
     ['solid', 'bg-tone'],
     ['soft', 'bg-tone-soft'],
-    ['outline', 'border-tone-border'],
+    ['outline', 'border-tone-soft-active'],
     ['ghost', 'hover:bg-tone-soft'],
     ['link', 'hover:underline'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
@@ -407,7 +407,7 @@ describe('ButtonGroup', () => {
     const button = screen.getByRole('button', { name: 'Action' })
 
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('border-tone-border')
+    expect(button.className).toContain('border-tone-soft-active')
 
     setSize('lg')
     setVariant('soft')

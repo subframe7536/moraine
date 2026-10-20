@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
 import { TONE_VARS } from './recipe-common.recipe'
-import { MORAINE_COLORS, THEME_COLOR_ROLES, TONES, createGatedColorDeclarations } from './tokens'
+import {
+  DEFAULT_MIX_PERCENT,
+  MORAINE_COLORS,
+  THEME_COLOR_CONFIG_KEYS,
+  THEME_COLOR_ROLES,
+  TONES,
+  createGatedColorDeclarations,
+} from './tokens'
 import { assertMixValue, createThemeCSS, resolveThemes } from './unocss-theme'
 
 describe('assertMixValue Validation Contract', () => {
@@ -144,6 +151,47 @@ describe('Tone State Hover & Active 3-Tier Precedence & Declarations', () => {
   })
 })
 
+describe('Tone Soft 3-Tier Precedence & Declarations', () => {
+  test('Tier 1: Explicit tone soft override is emitted directly in selector', () => {
+    const themes = resolveThemes({
+      override: {
+        light: {
+          colors: {
+            primary: { soft: '#F0F7FF' },
+          },
+        },
+      },
+    })
+    const css = createThemeCSS(themes)
+    expect(css).toMatch(/:root \{[^}]*--primary-soft: #F0F7FF;/)
+  })
+
+  test('Tier 2: @supports declares auto-mixed tone soft using var(--background)', () => {
+    const declarations = createGatedColorDeclarations()
+    for (const tone of TONES) {
+      expect(declarations[`--mo-${tone}-soft`]).toBe(
+        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), var(--background))`,
+      )
+    }
+  })
+
+  test('Tier 3: MORAINE_COLORS exposes 3-tier fallback for each tone soft', () => {
+    for (const tone of TONES) {
+      const schema = MORAINE_COLORS[tone]
+      expect(typeof schema).toBe('object')
+      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`)
+    }
+  })
+
+  test('mix.soft emits --mo-mix-soft override', () => {
+    const themes = resolveThemes({
+      mix: { soft: 16 },
+    })
+    const css = createThemeCSS(themes)
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-soft: 16%;/)
+  })
+})
+
 describe('Cross-preset Parity & Anti-drift Integrity', () => {
   test('THEME_COLOR_ROLES does NOT include "tone"', () => {
     expect(THEME_COLOR_ROLES).not.toContain('tone')
@@ -170,8 +218,26 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
         '--mo-tone-hover': MORAINE_COLORS[tone].hover,
         '--mo-tone-active': MORAINE_COLORS[tone].active,
         '--mo-tone-ink': `var(--${tone}-ink, var(--mo-${tone}-ink, var(--${tone})))`,
+        '--mo-tone-soft': `var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`,
       })
     }
+  })
+
+  test('exports DEFAULT_MIX_PERCENT and THEME_COLOR_CONFIG_KEYS contracts', () => {
+    expect(DEFAULT_MIX_PERCENT).toEqual({
+      hover: 8,
+      active: 12,
+      ink: 25,
+      soft: 12,
+    })
+    expect(THEME_COLOR_CONFIG_KEYS).toEqual([
+      'base',
+      'foreground',
+      'hover',
+      'active',
+      'ink',
+      'soft',
+    ])
   })
 
   test('MORAINE_COLORS contains internal tone channel with complete state tokens', () => {
@@ -181,12 +247,10 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       ink: 'var(--mo-tone-ink)',
       hover: 'var(--mo-tone-hover, var(--mo-tone))',
       active: 'var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))',
-      soft: 'var(--mo-tone-soft, transparent)',
-      'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))',
+      soft: 'var(--mo-tone-soft, var(--background))',
+      'soft-hover': 'var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)))',
       'soft-active':
-        'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
-      border: 'var(--mo-tone-border, transparent)',
-      'border-subtle': 'var(--mo-tone-border-subtle, var(--mo-tone-border, transparent))',
+        'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))))',
     })
   })
 
@@ -194,17 +258,17 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     for (const tone of TONES) {
       const schema = MORAINE_COLORS[tone]
       expect(typeof schema).toBe('object')
-      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, transparent))`)
+      expect(schema.soft).toBe(`var(--${tone}-soft, var(--mo-${tone}-soft, var(--background)))`)
     }
   })
 
-  test('createGatedColorDeclarations generates exactly 45 declarations', () => {
+  test('createGatedColorDeclarations generates exactly 43 declarations', () => {
     const decls = createGatedColorDeclarations()
     const keys = Object.keys(decls)
     // 5 surfaces * 2 (hover, active) = 10
     // 7 tones * 4 (hover, active, ink, soft) = 28
-    // 1 tone channel * 7 (hover, active, soft, soft-hover, soft-active, border, border-subtle) = 7
-    expect(keys).toHaveLength(45)
+    // 1 tone channel * 5 (hover, active, soft, soft-hover, soft-active) = 5
+    expect(keys).toHaveLength(43)
 
     // Surfaces
     expect(decls['--mo-background-hover']).toBeDefined()
@@ -224,7 +288,7 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
       expect(decls[`--mo-${tone}-active`]).toBeDefined()
       expect(decls[`--mo-${tone}-ink`]).toBeDefined()
       expect(decls[`--mo-${tone}-soft`]).toBe(
-        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), transparent)`,
+        `color-mix(in oklch, var(--${tone}) var(--mo-mix-soft, 12%), var(--background))`,
       )
     }
 
@@ -232,19 +296,13 @@ describe('Cross-preset Parity & Anti-drift Integrity', () => {
     expect(decls['--mo-tone-hover']).toBeDefined()
     expect(decls['--mo-tone-active']).toBeDefined()
     expect(decls['--mo-tone-soft']).toBe(
-      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), transparent)',
+      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background))',
     )
     expect(decls['--mo-tone-soft-hover']).toBe(
       'color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%))',
     )
     expect(decls['--mo-tone-soft-active']).toBe(
       'color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%))',
-    )
-    expect(decls['--mo-tone-border']).toBe(
-      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), transparent)',
-    )
-    expect(decls['--mo-tone-border-subtle']).toBe(
-      'color-mix(in oklch, var(--mo-tone) var(--mo-mix-border-subtle, 30%), transparent)',
     )
   })
 })

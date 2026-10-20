@@ -249,9 +249,6 @@ describe('colors', () => {
       'bg-tone-soft',
       'hover:bg-tone-soft-hover',
       'active:bg-tone-soft-active',
-      'border-tone-border',
-      'border-tone-border-subtle',
-      'bg-tone-border',
       'bg-danger-soft',
       'border-tone/40',
       'text-tone-foreground',
@@ -270,20 +267,15 @@ describe('colors', () => {
     expect(css).toContain(
       'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
     )
-    expect(css).toContain('background-color: var(--mo-tone-soft, transparent);')
+    expect(css).toContain('background-color: var(--mo-tone-soft, var(--background));')
     expect(css).toContain(
-      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent));',
+      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background)));',
     )
     expect(css).toContain(
-      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)));',
+      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, var(--background))));',
     )
-    expect(css).toContain('border-color: var(--mo-tone-border, transparent);')
     expect(css).toContain(
-      'border-color: var(--mo-tone-border-subtle, var(--mo-tone-border, transparent));',
-    )
-    expect(css).toContain('background-color: var(--mo-tone-border, transparent);')
-    expect(css).toContain(
-      'background-color: var(--danger-soft, var(--mo-danger-soft, transparent));',
+      'background-color: var(--danger-soft, var(--mo-danger-soft, var(--background)));',
     )
     expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
   })
@@ -307,22 +299,16 @@ describe('colors', () => {
       '--mo-tone-hover: color-mix(in oklch, var(--mo-tone), var(--mo-tone-foreground) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), transparent);',
+      '--mo-tone-soft: color-mix(in oklch, var(--mo-tone) var(--mo-mix-soft, 12%), var(--background));',
     )
     expect(css).toContain(
       '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), var(--background));',
     )
     expect(css).toContain(
       '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
-    )
-    expect(css).toContain(
-      '--mo-tone-border: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border, 20%), transparent);',
-    )
-    expect(css).toContain(
-      '--mo-tone-border-subtle: color-mix(in oklch, var(--mo-tone) var(--mo-mix-border-subtle, 30%), transparent);',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })

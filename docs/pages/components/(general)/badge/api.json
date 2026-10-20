@@ -103,7 +103,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'solid' | 'soft' | 'surface' | 'outline'",
+          "type": "'solid' | 'soft' | 'subtle' | 'outline'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
