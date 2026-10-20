@@ -385,7 +385,14 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
     const onPointerMove = (): void => {
       if (itemProps.item.disabled) {
-        layer.focusContent()
+        const content = layer.contentElement()
+        if (content && content.ownerDocument.activeElement !== content) {
+          layer.focusContent()
+        }
+        return
+      }
+
+      if (layer.highlightedItemId() === submenuId()) {
         return
       }
 
@@ -454,9 +461,16 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       onPointerEnter: (event) => {
         if (itemProps.item.disabled || event.pointerType !== 'mouse') {
           if (itemProps.item.disabled) {
-            layer.focusContent()
+            const content = layer.contentElement()
+            if (content && content.ownerDocument.activeElement !== content) {
+              layer.focusContent()
+            }
           }
 
+          return
+        }
+
+        if (layer.highlightedItemId() === submenuId()) {
           return
         }
 
@@ -471,9 +485,16 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
       onPointerMove: (event) => {
         if (itemProps.item.disabled || event.pointerType !== 'mouse') {
           if (itemProps.item.disabled) {
-            layer.focusContent()
+            const content = layer.contentElement()
+            if (content && content.ownerDocument.activeElement !== content) {
+              layer.focusContent()
+            }
           }
 
+          return
+        }
+
+        if (layer.highlightedItemId() === submenuId()) {
           return
         }
 

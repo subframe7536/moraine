@@ -37,6 +37,10 @@ export function createSelectableItemHandlers(
   | 'onPointerLeave'
 > {
   const highlight = (): void => {
+    if (layer.highlightedItemId() === options.itemId()) {
+      return
+    }
+
     layer.closeSubmenus()
     layer.setHighlightedItemId(options.itemId())
     focusElement(options.element())
@@ -48,7 +52,14 @@ export function createSelectableItemHandlers(
     }
 
     if (options.disabled()) {
-      layer.focusContent()
+      const content = layer.contentElement()
+      if (content && content.ownerDocument.activeElement !== content) {
+        layer.focusContent()
+      }
+      return
+    }
+
+    if (layer.highlightedItemId() === options.itemId()) {
       return
     }
 

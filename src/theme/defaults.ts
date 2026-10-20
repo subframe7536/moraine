@@ -1,4 +1,4 @@
-import type { MoraineThemeColors } from './theme-types'
+import type { MoraineThemeColors } from './theme-types.ts'
 
 export const DEFAULT_THEME_COLORS = {
   light: {

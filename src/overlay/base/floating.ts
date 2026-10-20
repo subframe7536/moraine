@@ -87,6 +87,11 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
           }
           ownedStyles.delete(property)
         }
+        const setStyleProperty = (element: HTMLElement, property: string, value: string): void => {
+          if (element.style.getPropertyValue(property) !== value) {
+            element.style.setProperty(property, value)
+          }
+        }
         const writeStyle = (element: HTMLElement, property: string, value: string): void => {
           if (!ownedStyles.has(property)) {
             ownedStyles.set(property, {
@@ -96,7 +101,9 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               applied: value,
             })
           }
-          element.style.setProperty(property, value)
+          if (element.style.getPropertyValue(property) !== value) {
+            element.style.setProperty(property, value)
+          }
           ownedStyles.get(property)!.applied = element.style.getPropertyValue(property)
         }
         const cancelPositioned = (): void => {
@@ -246,19 +253,23 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                       const width = Math.max(0, Math.floor(availableWidth))
                       const height = Math.max(0, Math.floor(availableHeight))
 
-                      styleElement.style.setProperty(
+                      setStyleProperty(
+                        styleElement,
                         '--mo-popper-anchor-width',
                         `${referenceWidth}px`,
                       )
-                      styleElement.style.setProperty(
+                      setStyleProperty(
+                        styleElement,
                         '--mo-popper-content-available-width',
                         `${width}px`,
                       )
-                      styleElement.style.setProperty(
+                      setStyleProperty(
+                        styleElement,
                         '--mo-popper-content-available-height',
                         `${height}px`,
                       )
-                      styleElement.style.setProperty(
+                      setStyleProperty(
+                        styleElement,
                         '--mo-popper-content-overflow-padding',
                         `${overflowPadding}px`,
                       )
@@ -313,7 +324,8 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                 if (!isCurrent()) {
                   return
                 }
-                styleElement.style.setProperty(
+                setStyleProperty(
+                  styleElement,
                   '--mo-popper-content-transform-origin',
                   position.middlewareData.moraineTransformOrigin.value,
                 )
@@ -327,19 +339,27 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   }
                   floating.style.transform = 'none'
                   const rect = floating.getBoundingClientRect()
-                  floating.style.transform = `translate3d(${round((initialPosition.x - rect.left) / scale.x)}px, ${round((initialPosition.y - rect.top) / scale.y)}px, 0)`
+                  const initialTransform = `translate3d(${round((initialPosition.x - rect.left) / scale.x)}px, ${round((initialPosition.y - rect.top) / scale.y)}px, 0)`
+                  if (floating.style.transform !== initialTransform) {
+                    floating.style.transform = initialTransform
+                  }
                   consumedInitialPosition = initialPosition
                   pendingTransform = transform
                 } else if (pendingTransform !== undefined && !positioned) {
                   pendingTransform = transform
                 } else {
-                  floating.style.transform = transform
+                  if (floating.style.transform !== transform) {
+                    floating.style.transform = transform
+                  }
                   pendingTransform = undefined
                 }
-                floating.style.visibility =
+                const targetVisibility =
                   hideWhenDetached && position.middlewareData.hide?.referenceHidden
                     ? 'hidden'
                     : 'visible'
+                if (floating.style.visibility !== targetVisibility) {
+                  floating.style.visibility = targetVisibility
+                }
                 committed = isCurrent
                 if (!positioned) {
                   if (!options.deferPositioned && pendingTransform === undefined) {

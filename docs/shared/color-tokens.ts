@@ -1,5 +1,5 @@
-import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults'
-import { DEFAULT_MIX_PERCENT, MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens'
+import { DEFAULT_THEME_COLORS } from '../../src/theme/defaults.ts'
+import { DEFAULT_MIX_PERCENT, MORAINE_COLORS, THEME_COLOR_ROLES } from '../../src/theme/tokens.ts'
 
 export type DocsColorTokenScheme = 'light' | 'dark'
 

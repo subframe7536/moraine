@@ -1,12 +1,12 @@
-import { DEFAULT_THEME_COLORS } from './defaults'
-import type { MorainePresetTheme, PresetMoraineOptions } from './theme-types'
+import { DEFAULT_THEME_COLORS } from './defaults.ts'
+import type { MorainePresetTheme, PresetMoraineOptions } from './theme-types.ts'
 import {
   MORAINE_COLORS,
   MORAINE_SHADOW,
   THEME_COLOR_CONFIG_KEYS,
   THEME_COLOR_ROLES,
   createGatedColorDeclarations,
-} from './tokens'
+} from './tokens.ts'
 
 const DEFAULT_THEME_SHADOWS = {
   surface: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',

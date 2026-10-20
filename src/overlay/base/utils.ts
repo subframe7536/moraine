@@ -556,7 +556,7 @@ function isSequentiallyFocusable(element: HTMLElement): boolean {
 }
 
 export function focusWithoutScrolling(element: HTMLElement | undefined): void {
-  if (!element) {
+  if (!element || element.ownerDocument.activeElement === element) {
     return
   }
 

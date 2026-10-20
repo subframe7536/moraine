@@ -1,7 +1,7 @@
 import type { Preset, PresetWind3Theme, PresetWind4Theme } from '@subf/unocss'
 
-import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations'
-import { DEFAULT_ICON_SHORTCUTS } from './icons'
+import { getMoraineAnimations, MORAINE_KEYFRAMES } from './animations.ts'
+import { DEFAULT_ICON_SHORTCUTS } from './icons.ts'
 import type {
   MoraineMixConfig,
   MoraineMixKnob,
@@ -9,7 +9,7 @@ import type {
   MoraineThemeColorRole,
   MoraineThemeColors,
   PresetMoraineOptions,
-} from './theme-types'
+} from './theme-types.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -18,8 +18,8 @@ import {
   MORAINE_TEXT_SIZE,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from './tokens'
-import { createThemeCSS, resolveThemes } from './unocss-theme'
+} from './tokens.ts'
+import { createThemeCSS, resolveThemes } from './unocss-theme.ts'
 
 type UtilityTheme = PresetWind3Theme & PresetWind4Theme
 
