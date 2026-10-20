@@ -195,7 +195,7 @@ Button's theme still supplies the underlying variant styles; `toggleButton.base`
 `styles` add component-specific presentation. Instance styling follows the standard root and slot
 override rules.
 
-Inside ButtonGroup, ToggleButton inherits the group's size and unpressed variant unless explicitly
+Inside ButtonGroup, ToggleButton inherits the group's size, unpressed variant, and tone (applied to both unpressed `tone` and pressed `activeTone`) unless explicitly
 supplied. Its pressed variant comes from its own configuration.
 
 The root uses `data-slot="toggle-button"` and exposes `data-pressed` while pressed. The leading,
