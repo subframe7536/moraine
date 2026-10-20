@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { TONE_VARS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -14,21 +15,38 @@ export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
 >('buttonGroup', {
   base: {
     root: 'inline-flex size-fit items-stretch *:focus-visible:(relative z-sticky)',
-    separator: 'bg-input self-stretch relative',
+    separator: 'bg-border self-stretch relative',
   },
   defaultVariants: {
     orientation: 'horizontal',
   },
   variants: {
     size: {},
-    variant: {},
+    variant: {
+      outline: {
+        separator: 'bg-tone-border',
+      },
+      solid: {
+        separator: 'bg-tone-active',
+      },
+      soft: {
+        separator: 'bg-tone-soft-active',
+      },
+      ghost: {
+        separator: 'bg-tone-soft-active',
+      },
+      link: {
+        separator: 'bg-tone-soft-active',
+      },
+    },
+    tone: TONE_VARS,
     orientation: {
       horizontal: {
-        root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none -me-px) [&>*:not(:first-child)]:rounded-s-none',
+        root: 'flex-row [&>*:not(:last-child)]:(border-e-0 rounded-e-none) [&>*:not(:first-child)]:rounded-s-none',
         separator: 'mx-px w-auto',
       },
       vertical: {
-        root: 'flex-col [&>*:not(:last-child)]:(border-b-0 rounded-b-none -mb-px) [&>*:not(:first-child)]:rounded-t-none',
+        root: 'flex-col [&>*:not(:last-child)]:(border-b-0 rounded-b-none) [&>*:not(:first-child)]:rounded-t-none',
         separator: 'my-px h-auto',
       },
     },

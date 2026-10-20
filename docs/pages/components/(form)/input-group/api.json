@@ -77,8 +77,24 @@
         "root": "InputGroup",
         "member": "Leading"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
         {
           "name": "children",
           "optional": true,
@@ -117,8 +133,24 @@
         "root": "InputGroup",
         "member": "Trailing"
       },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      ],
       "defaultElement": "div",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
         {
           "name": "children",
           "optional": true,

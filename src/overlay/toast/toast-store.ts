@@ -4,17 +4,17 @@ import { createStore, produce } from 'solid-js/store'
 import type { FeedbackCloseReason } from '../base/feedback/feedback.types'
 import { createCloseResult } from '../base/feedback/handle'
 import { createHostRegistry } from '../base/feedback/host-registry'
-import type { FeedbackHost } from '../base/feedback/host-registry'
+import type { FeedbackHost, HostRegistry } from '../base/feedback/host-registry'
 import { mergeDefined, pickDefined } from '../base/feedback/merge-defined'
 
 import type { ToastT } from './toast.types'
 
 export interface ToastHostDefaults {
-  type?: ToastT.Type
-  large?: boolean | null
-  invert?: boolean | null
-  placement?: ToastT.Placement
-  align?: ToastT.Variant['align']
+  type?: ToastT.Variant['type'] | null
+  large?: ToastT.Variant['large'] | null
+  invert?: ToastT.Variant['invert'] | null
+  placement?: ToastT.Variant['placement'] | null
+  align?: ToastT.Variant['align'] | null
   duration?: number
   close?: boolean
   progress?: boolean
@@ -26,7 +26,7 @@ export interface ToastHostDefaults {
 }
 
 export interface ToastHost extends FeedbackHost {
-  defaults: () => ToastHostDefaults
+  readonly defaults: ToastHostDefaults
 }
 
 export interface ToastRecord {
@@ -76,11 +76,11 @@ export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefault
       return call.cancel
     },
     onClose: call.onClose,
-    type: pickDefined(call.type, host.type) ?? 'default',
-    large: pickDefined(call.large, host.large),
-    invert: pickDefined(call.invert, host.invert),
-    placement: pickDefined(call.placement, host.placement) ?? 'bottom',
-    align: pickDefined(call.align, host.align) ?? 'end',
+    type: call.type ?? host.type ?? 'default',
+    large: call.large ?? host.large ?? undefined,
+    invert: call.invert ?? host.invert ?? undefined,
+    placement: call.placement ?? host.placement ?? 'bottom',
+    align: call.align ?? host.align ?? 'end',
     duration: pickDefined(call.duration, host.duration),
     close: pickDefined(call.close, host.close),
     progress: pickDefined(call.progress, host.progress),
@@ -131,7 +131,7 @@ function isSameToastContent(first: ToastT.Options, second: ToastT.Options): bool
 
 export interface ToastStore {
   readonly toasts: ToastRecord[]
-  registry: ReturnType<typeof createHostRegistry<ToastHost>>
+  registry: HostRegistry<ToastHost>
   add: (
     options: ToastT.Options,
     render?: JSX.Element | Component<ToastT.ItemRenderProps>,
@@ -254,7 +254,7 @@ export function createToastStore(): ToastStore {
   ): ToastT.Handle => {
     const host = registry.require(options.host)
     const hostId = host.id()
-    const defaults = host.defaults()
+    const defaults = host.defaults
     const id = options.id !== undefined ? options.id : nextId()
 
     if (options.id !== undefined) {

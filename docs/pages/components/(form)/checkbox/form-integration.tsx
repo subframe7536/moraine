@@ -19,7 +19,7 @@ export function FormIntegration() {
           <Checkbox label="I agree to the Terms of Service and Privacy Policy" />
         </form.Field>
         <div class="flex gap-3 items-center">
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="soft" tone="neutral" size="sm">
             Validate
           </Button>
           <p class="text-xs text-muted-foreground">

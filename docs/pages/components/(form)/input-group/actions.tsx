@@ -50,7 +50,7 @@ export function Actions() {
       <InputGroup>
         <Input aria-label="Search" placeholder="Type to search..." />
         <InputGroup.Trailing compact>
-          <Button type="button" size="xs" variant="secondary">
+          <Button type="button" size="xs" variant="soft" tone="neutral">
             Search
           </Button>
         </InputGroup.Trailing>

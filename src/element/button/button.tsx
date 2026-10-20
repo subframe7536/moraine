@@ -22,6 +22,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const [local, rest] = splitProps(props as ButtonProps<T> & { ref?: unknown }, [
     'as',
     'variant',
+    'tone',
     'size',
     'activeEffect',
     'classes',

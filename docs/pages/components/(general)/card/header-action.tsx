@@ -7,7 +7,7 @@ export function HeaderAction() {
         <Card.Title as="h3">Meeting Notes</Card.Title>
         <Card.Description>Transcript summary from the latest client sync.</Card.Description>
         <Card.Action>
-          <Button size="sm" variant="secondary">
+          <Button size="sm" variant="soft" tone="neutral">
             Transcribe
           </Button>
         </Card.Action>

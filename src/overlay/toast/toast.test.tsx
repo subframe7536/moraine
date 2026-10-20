@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { finishExitMotion } from '../../test-util/overlay-test'
@@ -107,7 +108,7 @@ describe('Toast', () => {
     })
   })
 
-  it('defaults action button variant to default and cancel button variant to secondary', async () => {
+  it('defaults action button variant to solid primary and cancel button variant to soft neutral', async () => {
     render(() => <Toast />)
 
     Toast.show({
@@ -119,8 +120,10 @@ describe('Toast', () => {
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('bg-primary')
-    expect(cancelButton.className).toContain('bg-secondary')
+    expect(actionButton.className).toContain('bg-tone')
+    expect(actionButton.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+    expect(cancelButton.className).toContain('bg-tone-soft')
+    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
   })
 
   it('applies custom variant on action and cancel button configs', async () => {
@@ -134,15 +137,17 @@ describe('Toast', () => {
       },
       cancel: {
         label: 'Dismiss',
-        variant: 'danger',
+        variant: 'solid',
+        tone: 'danger',
       },
     })
 
     const actionButton = await screen.findByRole('button', { name: 'Undo' })
     const cancelButton = await screen.findByRole('button', { name: 'Dismiss' })
 
-    expect(actionButton.className).toContain('border-border')
-    expect(cancelButton.className).toContain('bg-danger')
+    expect(actionButton.className).toContain('border-tone-border')
+    expect(cancelButton.className).toContain('bg-tone')
+    expect(cancelButton.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
   })
 
   it('renders close button and closes on click', async () => {
@@ -227,6 +232,16 @@ describe('Toast', () => {
       title: 'Boolean close',
       close: true,
     })
+
+    expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()
+  })
+
+  it('reads the latest host defaults when a toast is added', async () => {
+    const [close, setClose] = createSignal(false)
+    render(() => <Toast close={close()} />)
+
+    setClose(true)
+    Toast.show({ title: 'Latest host default' })
 
     expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()
   })
@@ -864,6 +879,20 @@ describe('Toast', () => {
     expect(toasts[1]?.hasAttribute('data-behind')).toBe(true)
   })
 
+  it('applies a custom gap between stacked toasts', async () => {
+    render(() => <Toast gap={20} />)
+
+    Toast.show({ title: 'Gap back' })
+    Toast.show({ title: 'Gap front' })
+
+    const back = (await screen.findByText('Gap back')).closest(
+      '[data-slot="toast-item"]',
+    ) as HTMLElement
+    await waitFor(() => {
+      expect(back.style.transform).toBe('translate3d(0, -20px, 0) scale(0.95)')
+    })
+  })
+
   it('expands toasts on mouse enter and collapses on mouse leave', async () => {
     render(() => <Toast />)
 
@@ -1251,6 +1280,17 @@ describe('Toast', () => {
     expect(largeClose.className).toContain('top-3.5')
   })
 
+  it('treats null host variant props as unset', async () => {
+    render(() => <Toast large={null} />)
+
+    Toast.show({ title: 'Null host variant' })
+
+    const item = (await screen.findByText('Null host variant')).closest(
+      '[data-slot="toast-item"]',
+    ) as HTMLElement
+    expect(item.className).toContain('items-center')
+  })
+
   it('inherits host-level large default variant', async () => {
     render(() => <Toast large />)
 
@@ -1267,7 +1307,7 @@ describe('Toast', () => {
   })
 
   it('supports custom itemRender on <Toast>', async () => {
-    const customRender = vi.fn((props: ToastT.RenderProps) => (
+    const customRender = vi.fn((props: ToastT.ItemRenderProps) => (
       <div data-testid={`custom-item-${props.id}`}>
         <span>Custom: {props.options.title}</span>
         <button type="button" onClick={() => props.close()}>

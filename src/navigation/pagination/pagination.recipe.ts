@@ -30,8 +30,10 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     variant: 'ghost',
     activeVariant: 'outline',
     controlVariant: 'ghost',
+    tone: 'neutral',
   },
   variants: {
+    tone: {},
     size: {
       sm: {
         listItem: 'data-ellipsis:size-7',

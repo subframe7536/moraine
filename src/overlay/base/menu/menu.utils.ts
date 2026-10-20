@@ -308,8 +308,11 @@ export function focusElement(element: HTMLElement | undefined): void {
     return
   }
 
+  const isAlreadyFocused = element.ownerDocument.activeElement === element
   focusWithoutScrolling(element)
-  element.scrollIntoView?.({ block: 'nearest' })
+  if (!isAlreadyFocused) {
+    element.scrollIntoView?.({ block: 'nearest' })
+  }
 }
 
 export function useOverlayMenuLayerState(): OverlayMenuLayerState {

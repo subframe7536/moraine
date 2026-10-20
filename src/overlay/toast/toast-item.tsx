@@ -19,13 +19,13 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { createActionRunner } from '../base/feedback/action-runner'
 import { FeedbackActionButton } from '../base/feedback/feedback-action'
 import { resolveFeedbackIcon } from '../base/feedback/feedback-icons'
-import type { FeedbackAction, FeedbackCloseReason } from '../base/feedback/feedback.types'
+import type { FeedbackAction } from '../base/feedback/feedback.types'
 
 import { resolveToastOptions } from './toast-store'
-import type { ToastHostDefaults, ToastRecord } from './toast-store'
+import type { ToastHostDefaults, ToastRecord, ToastStore } from './toast-store'
 import { defaultToastMessages } from './toast.messages'
 import { toastDataAttributes, toastRecipe, TOAST_PROGRESS_CLASS } from './toast.recipe'
-import { DEFAULT_TOAST_DURATION, DEFAULT_TOAST_GAP } from './toast.types'
+import { DEFAULT_TOAST_DURATION } from './toast.types'
 import type { ToastT } from './toast.types'
 
 const SWIPE_THRESHOLD = 45
@@ -44,13 +44,10 @@ export interface ToastItemProps {
   expanded: boolean
   paused?: boolean
   host: ToastHostDefaults
+  store: ToastStore
   itemRender?: Component<ToastT.ItemRenderProps>
-  gap?: number
+  gap: number
   onHeight: (id: ToastT.Id, height: number) => void
-  requestClose: (id: ToastT.Id, reason: FeedbackCloseReason) => void
-  onRemove: (id: ToastT.Id) => void
-  onUpdate: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
-  onBump: (listener: (id: ToastT.Id) => void) => () => void
 }
 
 function cancelAction(value: ToastT.Options['cancel']): FeedbackAction | undefined {
@@ -91,9 +88,9 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const options = createMemo(() => resolveToastOptions(props.toast.options, props.host))
   const runner = createActionRunner({
     closed: () => Boolean(props.toast.closed),
-    onFinish: (kind) => props.requestClose(props.toast.id, kind),
+    onFinish: (kind) => props.store.close(props.toast.id, kind),
   })
-  const presentation: ToastT.RenderProps = {
+  const presentation: ToastT.ItemRenderProps = {
     get id() {
       return props.toast.id
     },
@@ -103,8 +100,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     pending: runner.pending,
     action: (event) => runner.run('action', event, options().action?.onClick),
     cancel: (event) => runner.run('cancel', event, cancelAction(options().cancel)?.onClick),
-    close: (reason = 'dismiss') => props.requestClose(props.toast.id, reason),
-    update: (next) => props.onUpdate(props.toast.id, next),
+    close: (reason = 'dismiss') => props.store.close(props.toast.id, reason),
+    update: (next) => props.store.update(props.toast.id, next),
     get index() {
       return props.index
     },
@@ -141,7 +138,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
   const isFront = () => props.index === 0
   const isVisible = () => props.index < props.visibleToasts
   const isLoading = () => options().type === 'loading'
-  const showProgressBar = () => Boolean(options().progress) && !isLoading()
   const isTop = () => options().placement === 'top'
   const lift = () => (isTop() ? 1 : -1)
   const scale = () => {
@@ -154,7 +150,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     if (props.expanded) {
       return lift() * props.offsetY
     }
-    return lift() * (props.index * (props.gap ?? DEFAULT_TOAST_GAP))
+    return lift() * (props.index * props.gap)
   }
   // Closing toasts keep the pose from the last open frame. Index and z-index
   // otherwise change as soon as `closed` is set, which pulls a buried toast
@@ -173,7 +169,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
           props.offsetY,
           props.expanded,
           props.toastsCount,
-          props.gap ?? DEFAULT_TOAST_GAP,
+          props.gap,
           isTop(),
         ] as const,
       ([closed, index, offsetY, expanded, count, gap, top]) => {
@@ -190,20 +186,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       },
     ),
   )
-  const opacity = () => {
-    if (!mounted() || removed() || !isVisible()) {
-      return 0
-    }
-    return 1
-  }
-  const height = () => (measuredHeight() > 0 ? `${measuredHeight()}px` : 'auto')
-
   const finishDelete = () => {
     if (exitTimerId) {
       clearTimeout(exitTimerId)
       exitTimerId = undefined
     }
-    props.onRemove(props.toast.id)
+    props.store.remove(props.toast.id)
   }
   const deleteToast = () => {
     if (untrack(removed)) {
@@ -308,24 +296,27 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     {
       slot: 'item',
       varsSlot: 'item',
-      own: () => ({
-        item: {
-          style: {
-            transform: transform(),
-            opacity: opacity(),
-            height: height(),
-            'z-index': removed()
-              ? restFront
-                ? props.toastsCount + 10
-                : restZ
-              : Math.max(1, props.toastsCount - props.index),
+      own: () => {
+        const measured = measuredHeight()
+        return {
+          item: {
+            style: {
+              transform: transform(),
+              opacity: !mounted() || removed() || !isVisible() ? 0 : 1,
+              height: measured > 0 ? `${measured}px` : 'auto',
+              'z-index': removed()
+                ? restFront
+                  ? props.toastsCount + 10
+                  : restZ
+                : Math.max(1, props.toastsCount - props.index),
+            },
           },
-        },
-      }),
+        }
+      },
       vars: () => ({
         '--toast-index': props.index,
         '--toast-offset-y': `${props.offsetY}px`,
-        '--toast-gap': `${props.gap ?? DEFAULT_TOAST_GAP}px`,
+        '--toast-gap': `${props.gap}px`,
       }),
     },
   )
@@ -389,12 +380,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     }
     closeTimerStartTime = Date.now()
     if (remainingTime <= 0) {
-      props.requestClose(props.toast.id, 'timeout')
+      props.store.close(props.toast.id, 'timeout')
       return
     }
     timerId = setTimeout(() => {
       stopTimer()
-      props.requestClose(props.toast.id, 'timeout')
+      props.store.close(props.toast.id, 'timeout')
     }, remainingTime)
   }
   const resetCloseTimer = () => {
@@ -421,7 +412,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
 
   onMount(() => {
     // oxlint-disable-next-line subf/solid-reactivity -- The bump listener reads the latest timer state when another toast updates.
-    const unsubscribe = props.onBump((id) => {
+    const unsubscribe = props.store.onBump((id) => {
       if (id === props.toast.id) {
         handleBump()
       }
@@ -535,7 +526,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       } else {
         setSwipeOutDirection(movedY > 0 ? 'down' : 'up')
       }
-      props.requestClose(props.toast.id, 'dismiss')
+      props.store.close(props.toast.id, 'dismiss')
       return
     }
     setSwiping(false)
@@ -543,7 +534,6 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
     setSwipeOffset({ x: 0, y: 0 })
   }
 
-  const contentRender = () => props.toast.render ?? props.itemRender
   const title = createMemo(() => options().title)
   const description = createMemo(() => options().description)
   const icon = createMemo(() => resolveFeedbackIcon({ type: options().type, icon: options().icon }))
@@ -576,7 +566,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
       onAnimationEnd={handleEndTransition}
     >
       <Show
-        when={contentRender()}
+        when={props.toast.render ?? props.itemRender}
         keyed
         fallback={
           <>
@@ -605,7 +595,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   <FeedbackActionButton
                     action={cancelAction(options().cancel)}
                     label={messages().cancel}
-                    variant="secondary"
+                    variant="soft"
+                    tone="neutral"
                     size="sm"
                     loading={runner.pending() === 'cancel'}
                     disabled={runner.pending() === 'action'}
@@ -621,7 +612,8 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                   <FeedbackActionButton
                     action={options().action}
                     label={options().action?.label}
-                    variant="default"
+                    variant="solid"
+                    tone="primary"
                     size="sm"
                     loading={runner.pending() === 'action'}
                     disabled={runner.pending() === 'cancel'}
@@ -641,13 +633,14 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 slotName="toast-close"
                 size="icon-md"
                 variant="ghost"
+                tone="neutral"
                 leading="icon-close"
                 aria-label={messages().close}
                 {...slots.close}
                 onClick={() => presentation.close('dismiss')}
               />
             </Show>
-            <Show when={showProgressBar()}>
+            <Show when={options().progress && !isLoading()}>
               <div data-slot="toast-progress" {...slots.progress}>
                 <Show when={progressEpoch()} keyed>
                   {(_epoch) => (

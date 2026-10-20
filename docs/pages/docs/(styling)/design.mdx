@@ -13,11 +13,11 @@ Use semantic CSS variables to customize colors, typography, spacing, radiuses, a
 
 With UnoCSS, `presetMoraine()` supplies a neutral light and dark palette and accepts named [`override` entries](/docs/unocss#theme-tokens). Use `presetMoraine({ wind3: true })` with Wind3. When defining the palette in CSS, set `themeDefaults: false` and supply the colors and semantic shadows yourself. Tailwind users also define these values in CSS.
 
-Define the base color variables listed below for both the light and the dark theme, along with `--radius`, `--spacing`, and `--font-size`; the `-hover`, `-active`, and status `-foreground` variables are optional. The status colors `--info`, `--success`, `--warning`, and `--danger` follow Obsidian's callout colors, so `--warning` is orange rather than yellow. Add the [semantic shadows](#backdrop-and-semantic-shadows) and [font families](#typography-and-spacing) described below when using an external theme. Set `color-scheme: light` or `color-scheme: dark` in each theme scope so native browser controls follow the theme.
+Define the base color variables listed below for both the light and the dark theme, along with `--radius`, `--spacing`, and `--font-size`; the `-hover`, `-active`, and status `-foreground` variables are optional. The status colors `--info`, `--success`, `--warning`, and `--danger` use Moraine's tuned status palette (warning is amber/orange rather than bright yellow), calibrated for visual balance and consistency across themes. Add the [semantic shadows](#backdrop-and-semantic-shadows) and [font families](#typography-and-spacing) described below when using an external theme. Set `color-scheme: light` or `color-scheme: dark` in each theme scope so native browser controls follow the theme.
 
 ### Color Tokens
 
-Each color token maps to a CSS variable and a utility of the same name, such as `bg-primary-hover` or `text-muted-foreground`. Grouped colors expand into `-foreground`, `-hover`, and `-active` variants. The swatches below use the live token values, so they follow the docs site's light or dark theme, including [state](#interactive-state-cascade) and foreground fallbacks for variables a theme leaves unset:
+Each color token maps to a CSS variable and a utility of the same name. Surfaces and tones expand into `-hover` and `-active` variants, while tones additionally provide `-ink` and `-soft` for readable text and translucent washes. The swatches below use the live token values, so they follow the docs site's light or dark theme:
 
 <ColorTokenTable />
 
@@ -30,9 +30,12 @@ A [shadcn/ui palette](https://ui.shadcn.com/docs/theming#default-theme-css) supp
 | `--control`                                                                                                 | Surface for outline fields, unchecked choices, and upload controls; independent of `--input` boundaries. | UnoCSS: white in light mode, `rgb(23, 23, 23)` in dark mode. No utility fallback; external themes must define it.      |
 | `--backdrop`                                                                                                | Scrim behind modal overlays, used by `bg-backdrop`.                                                      | Black at 10% opacity.                                                                                                  |
 | `--shadow-surface`, `--shadow-overlay`, `--shadow-input`                                                    | Elevation by component role, used by `shadow-surface`, `shadow-overlay`, and `shadow-input`.             | UnoCSS: Tailwind `sm`, `md`, and `xs`, respectively. External themes must define them; `none` removes a role's shadow. |
-| `--<color>-hover`, `--<color>-active`                                                                       | Explicit interaction colors, such as `--primary-hover` and `--accent-active`.                            | Generated state color, then the documented [state cascade](#interactive-state-cascade).                                |
-| `--danger-foreground`                                                                                       | Optional text and icon color for danger surfaces.                                                        | `--background`.                                                                                                        |
-| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Optional text and icon color for status surfaces.                                                        | `--background`.                                                                                                        |
+| `--<surface>-hover`, `--<surface>-active`                                                                   | Surface interaction colors for `accent`, `muted`, `card`, `popover`, and `background`.                   | Generated state color mixing surface base with foreground.                                                             |
+| `--<tone>-hover`, `--<tone>-active`                                                                         | Tone interaction colors for `primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`.   | Generated state color mixing tone base with tone foreground.                                                           |
+| `--<tone>-ink`                                                                                              | Accessible text/indicator color for tones (`primary`, `secondary`, `neutral`, etc.).                     | Explicit override, then auto-mixed ink, then base fallback.                                                            |
+| `--<tone>-soft`                                                                                             | Translucent wash for tones (`primary`, `secondary`, `neutral`, etc.).                                    | Explicit override, then auto-mixed with transparent, then transparent.                                                 |
+| `--danger-foreground`                                                                                       | Text and icon color for danger surfaces.                                                                 | `--background`.                                                                                                        |
+| `--info-foreground`, `--success-foreground`, `--warning-foreground`                                         | Text and icon color for status surfaces.                                                                 | `--background`.                                                                                                        |
 | `--font-size`                                                                                               | Local base for Moraine's `text-xs` through `text-9xl` scale in Tailwind 4 and Wind4.                     | `1rem`.                                                                                                                |
 | `--sidebar-width`                                                                                           | Desktop sidebar width; also used by `w-sidebar`.                                                         | No variable value is set by default; the width falls back to `clamp(14rem, 25%, 20rem)`.                               |
 | `--mo-anim-duration`                                                                                        | Overrides all Moraine CSS animation durations in its scope.                                              | Type-specific durations when unset.                                                                                    |
@@ -58,24 +61,32 @@ Variables inherit through DOM ancestors. Portaled overlays need these values on 
 
 Use the [Animations guide](/docs/animations) to customize entrance and exit motion.
 
-### Surface Colors and Contrast Pairing
+### Surface Colors and Tones
 
-Grouped surface colors use corresponding `-foreground` variables for text, icons, and indicators. `control` is a single-value form surface: ordinary field text uses `foreground` and placeholders use `muted-foreground`. Check both when replacing a palette:
+Moraine distinguishes surfaces (containers and canvas) from tones (semantic intents and indicators).
 
-| Role          | Surface token  | Foreground token                  | Primary use                                                 |
-| :------------ | :------------- | :-------------------------------- | :---------------------------------------------------------- |
-| **Control**   | `--control`    | `--foreground`                    | Default outline fields, unchecked choices, upload controls. |
-| **Page**      | `--background` | `--foreground`                    | Default viewport canvas and readable body text.             |
-| **Primary**   | `--primary`    | `--primary-foreground`            | High-emphasis actions and active selections.                |
-| **Secondary** | `--secondary`  | `--secondary-foreground`          | Secondary action buttons, subtle badges.                    |
-| **Card**      | `--card`       | `--card-foreground`               | Cards and grouped surfaces.                                 |
-| **Popover**   | `--popover`    | `--popover-foreground`            | Floating overlays, menus, tooltips, dialogs.                |
-| **Muted**     | `--muted`      | `--muted-foreground`              | Subtle backgrounds, secondary descriptions, disabled state. |
-| **Accent**    | `--accent`     | `--accent-foreground`             | Hover states, tab indicators, highlighted list items.       |
-| **Danger**    | `--danger`     | `--danger-foreground` (optional)  | Destructive actions, errors, and failure feedback.          |
-| **Info**      | `--info`       | `--info-foreground` (optional)    | Informational status.                                       |
-| **Success**   | `--success`    | `--success-foreground` (optional) | Confirmed completion and positive status.                   |
-| **Warning**   | `--warning`    | `--warning-foreground` (optional) | Caution that needs attention.                               |
+#### Surfaces
+
+| Role        | Surface token  | Foreground token       | Primary use                                                 |
+| :---------- | :------------- | :--------------------- | :---------------------------------------------------------- |
+| **Control** | `--control`    | `--foreground`         | Default outline fields, unchecked choices, upload controls. |
+| **Page**    | `--background` | `--foreground`         | Default viewport canvas and readable body text.             |
+| **Card**    | `--card`       | `--card-foreground`    | Cards and grouped surfaces.                                 |
+| **Popover** | `--popover`    | `--popover-foreground` | Floating overlays, menus, tooltips, dialogs.                |
+| **Muted**   | `--muted`      | `--muted-foreground`   | Subtle backgrounds, secondary descriptions, disabled state. |
+| **Accent**  | `--accent`     | `--accent-foreground`  | Hover states, tab indicators, highlighted list items.       |
+
+#### Tones
+
+| Role          | Base token    | Foreground token         | Ink token         | Primary use                                        |
+| :------------ | :------------ | :----------------------- | :---------------- | :------------------------------------------------- |
+| **Primary**   | `--primary`   | `--primary-foreground`   | `--primary-ink`   | High-emphasis brand actions and active selections. |
+| **Secondary** | `--secondary` | `--secondary-foreground` | `--secondary-ink` | Co-equal brand anchor actions (slate default).     |
+| **Neutral**   | `--neutral`   | `--neutral-foreground`   | `--neutral-ink`   | Monochrome anchor actions and neutral soft badges. |
+| **Danger**    | `--danger`    | `--danger-foreground`    | `--danger-ink`    | Destructive actions, errors, and failure feedback. |
+| **Info**      | `--info`      | `--info-foreground`      | `--info-ink`      | Informational status and callouts.                 |
+| **Success**   | `--success`   | `--success-foreground`   | `--success-ink`   | Confirmed completion and positive status.          |
+| **Warning**   | `--warning`   | `--warning-foreground`   | `--warning-ink`   | Caution that needs attention.                      |
 
 ### Form surface migration
 
@@ -83,16 +94,19 @@ Define `--control` in both light and dark external themes. It controls outline f
 
 Use the UnoCSS defaults listed under [Moraine-specific Variables](#moraine-specific-variables) as a starting point, or supply your own CSS colors or variable references. `bg-control/50` supports a translucent control surface. Check text and boundary contrast against the resulting background. `control` has no dedicated foreground, hover, or active tokens.
 
-### Interactive State Cascade
+### State Colors and Tone Ink Derivation
 
-For the grouped colors `background`, `primary`, `secondary`, `card`, `popover`, `muted`, `accent`, `danger`, `info`, `success`, and `warning`, Moraine supports dedicated `--*-hover` and `--*-active` variables. Explicit values take priority. When omitted, supported browsers mix the current color toward its foreground in the scope where the utility is used:
+Moraine generates interaction tokens and tone ink inside an `@supports (color: color-mix(in oklch, black, white))` stylesheet block:
 
-- Hover utilities resolve `--<color>-hover` → generated hover → `--<color>`.
-- Active utilities resolve `--<color>-active` → generated active → `--<color>-hover` → generated hover → `--<color>`.
+1. **Surfaces**: `--<surface>-hover` and `--<surface>-active` are emitted for `accent`, `muted`, `card`, `popover`, and `background`. They mix the surface base with its foreground using the configured `mix.hover` (default 8%) and `mix.active` (default 12%) percentages.
+2. **Tones**: `--<tone>-hover` and `--<tone>-active` are emitted for all 7 tones (`primary`, `secondary`, `neutral`, `danger`, `info`, `success`, `warning`), mixing each tone's base with its tone foreground using `mix.hover` and `mix.active`. Tones also derive `--<tone>-ink` for readable text on washes, `--<tone>-soft` for the wash itself, and `--<tone>-border` for an opaque subtle boundary. State, ink, soft, and border variables follow a 3-tier precedence:
+   - **Tier 1 (Explicit)**: User-provided `colors.<tone>.hover`, `.active`, `.ink`, `.soft`, or `.border` override.
+   - **Tier 2 (Auto-mixed)**: Auto-mixed via `color-mix(in oklch, var(--<tone>), var(--<tone>-foreground) <mix>%)` (for hover/active), with `var(--foreground)` (for ink), with `transparent` (for soft, so the wash composites on the local surface), or with `var(--border)` (for border, default 20% tone + 80% border).
+   - **Tier 3 (Fallback)**: `var(--<tone>)` for hover/active/ink, `transparent` for soft, or `var(--border)` for border.
 
-By default, automatic hover and active colors mix 8% and 12% toward the corresponding foreground. For `background`, the foreground is `--foreground`. Other roles use their own `--<color>-foreground`, falling back to `--foreground`; `danger`, `info`, `success`, and `warning` fall back to `--background`.
+Inside component recipes like `Button` and `Badge`, components bind to the universal `--mo-tone` channel (`bg-tone`, `border-tone`, `border-tone-border`, `bg-tone-soft`, `hover:bg-tone-soft-hover`, `active:bg-tone-soft-active`, `hover:bg-tone-hover`, and `active:bg-tone-active`) to keep recipes free of compound variants, while application code and custom styles can consume `--<tone>-hover`, `--<tone>-active`, and utilities like `hover:bg-primary-hover` directly.
 
-Without `color-mix(in oklch, …)` support, set explicit state colors when hover or active must differ from the base color. See the [UnoCSS guide](/docs/unocss#hover-and-active-colors) for configuring automatic state colors and older-browser support.
+See the [UnoCSS guide](/docs/unocss#surface-states-and-tone-derivation) for configuring `mix` percentages.
 
 ## Border Radius Scale
 

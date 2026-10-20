@@ -3,36 +3,39 @@ import { createMemo, createSignal, For, Show } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import type { OverlayAlign } from '../../theme/style-types'
-import type { FeedbackCloseReason } from '../base/feedback/feedback.types'
 
 import { ToastItem } from './toast-item'
 import { resolveToastOptions } from './toast-store'
-import type { ToastHostDefaults, ToastRecord } from './toast-store'
+import type { ToastHostDefaults, ToastRecord, ToastStore } from './toast-store'
 import { toastDataAttributes, toastRecipe } from './toast.recipe'
 import type { ToastT } from './toast.types'
+
+const TOAST_FALLBACK_HEIGHT = 58
 
 export interface ToastListProps {
   positionKey: string
   filteredToasts: ToastRecord[]
   host: ToastHostDefaults
+  store: ToastStore
   expand?: boolean
   hostPaused: boolean
   heights: Record<string | number, number>
-  gapSize: number
+  gap: number
   visibleToasts: number
   itemRender?: Component<ToastT.ItemRenderProps>
   onHeight: (id: ToastT.Id, height: number) => void
-  requestClose: (id: ToastT.Id, reason: FeedbackCloseReason) => void
-  onRemove: (id: ToastT.Id) => void
-  onUpdate: (id: ToastT.Id, options: ToastT.UpdateOptions) => void
-  onBump: (listener: (id: ToastT.Id) => void) => () => void
 }
 
 export function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
-  const placement = () => props.positionKey.split('-')[0] as ToastT.Placement
-  const align = () => props.positionKey.split('-')[1] as OverlayAlign
+  const position = createMemo<Partial<ToastT.Variant>>(() => {
+    const [placement, align] = props.positionKey.split('-')
+    return {
+      placement: placement as ToastT.Variant['placement'],
+      align: align as OverlayAlign,
+    }
+  })
 
   const groupToasts = createMemo(() =>
     props.filteredToasts.filter((toast) => {
@@ -42,7 +45,6 @@ export function ToastList(props: ToastListProps): JSX.Element {
   )
 
   const layoutExpanded = () => Boolean(props.expand) || isHovered()
-  const timerPaused = () => isHovered() || isInteracting() || props.hostPaused
 
   const frontmostHeight = createMemo(() => {
     const currentHeights = props.heights
@@ -59,8 +61,6 @@ export function ToastList(props: ToastListProps): JSX.Element {
 
   const toastMeta = createMemo(() => {
     const toasts = groupToasts()
-    const currentHeights = props.heights
-    const gap = props.gapSize
     const meta = new Map<ToastT.Id, { index: number; offsetY: number }>()
     let visibleIndex = 0
     let offsetY = 0
@@ -73,8 +73,8 @@ export function ToastList(props: ToastListProps): JSX.Element {
       })
       if (!isEnding) {
         visibleIndex += 1
-        const height = currentHeights[toast.id] || frontmostHeight() || 58
-        offsetY += height + gap
+        const height = props.heights[toast.id] || frontmostHeight() || TOAST_FALLBACK_HEIGHT
+        offsetY += height + props.gap
       }
     })
     return meta
@@ -87,8 +87,8 @@ export function ToastList(props: ToastListProps): JSX.Element {
       return 0
     }
     const count = Math.min(toasts.length, props.visibleToasts)
-    const gap = props.gapSize
-    const frontHeight = frontmostHeight() || 58
+    const gap = props.gap
+    const frontHeight = frontmostHeight() || TOAST_FALLBACK_HEIGHT
     if (!layoutExpanded()) {
       return frontHeight + (count > 1 ? (count - 1) * gap : 0)
     }
@@ -106,21 +106,21 @@ export function ToastList(props: ToastListProps): JSX.Element {
     {
       slot: 'list',
       varsSlot: 'list',
-      contextVariants: () => ({
-        placement: placement(),
-        align: align(),
-      }),
+      contextVariants: position,
       contextSlots: () => ({
         classes: props.host.classes,
         styles: props.host.styles,
       }),
-      own: () => ({
-        list: {
-          style: { height: listHeight() > 0 ? `${listHeight()}px` : 'auto' },
-        },
-      }),
+      own: () => {
+        const height = listHeight()
+        return {
+          list: {
+            style: { height: height > 0 ? `${height}px` : 'auto' },
+          },
+        }
+      },
       vars: () => ({
-        '--toast-gap': `${props.gapSize}px`,
+        '--toast-gap': `${props.gap}px`,
       }),
     },
   )
@@ -153,15 +153,12 @@ export function ToastList(props: ToastListProps): JSX.Element {
                 toastsCount={activeCount()}
                 visibleToasts={props.visibleToasts}
                 expanded={layoutExpanded()}
-                paused={timerPaused()}
+                paused={isHovered() || isInteracting() || props.hostPaused}
                 host={props.host}
+                store={props.store}
                 itemRender={props.itemRender}
-                gap={props.gapSize}
+                gap={props.gap}
                 onHeight={props.onHeight}
-                requestClose={props.requestClose}
-                onRemove={props.onRemove}
-                onUpdate={props.onUpdate}
-                onBump={props.onBump}
               />
             )
           }}

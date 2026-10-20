@@ -21,13 +21,23 @@
       "defaultElement": "button",
       "props": [
         {
+          "name": "activeTone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Color tone while pressed.",
+          "default": {
+            "kind": "literal",
+            "value": "neutral"
+          }
+        },
+        {
           "name": "activeVariant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Visual treatment while pressed.",
           "default": {
             "kind": "literal",
-            "value": "secondary"
+            "value": "soft"
           }
         },
         {
@@ -145,6 +155,16 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "tone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Color tone while unpressed.",
+          "default": {
+            "kind": "literal",
+            "value": "neutral"
+          }
+        },
+        {
           "name": "trailing",
           "optional": true,
           "type": "IconT.Name",
@@ -153,7 +173,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Visual treatment while unpressed.",
           "default": {
             "kind": "literal",

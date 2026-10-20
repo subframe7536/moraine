@@ -134,7 +134,7 @@ describe('scoped cn', () => {
       expect(live.className).toContain('p-2 p-4 density-compact p-6')
       expect(factory).toHaveBeenCalledTimes(3)
       setTheme(null)
-      expect(live.className).toContain('bg-primary')
+      expect(live.className).toContain('bg-tone')
       setTheme(theme)
       expect(live.className).toContain('p-2 p-4 density-compact p-6')
       expect(factory).toHaveBeenCalledTimes(3)

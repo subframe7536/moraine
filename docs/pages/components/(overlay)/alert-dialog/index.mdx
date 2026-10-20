@@ -5,6 +5,7 @@ api:
   path: src/overlay/alert-dialog/alert-dialog
 sidebar:
   order: 4
+  badge: New
 search:
   tags: [confirm, warning, alert, alert dialog, AlertDialog, danger, prompt]
 ---
@@ -29,7 +30,8 @@ import { AlertDialog, Button } from '@src'
 >
   {(props) => (
     <Button
-      variant={props.danger ? 'danger' : 'default'}
+      variant="solid"
+      tone={props.danger ? 'danger' : 'primary'}
       onClick={() =>
         void AlertDialog.confirm({
           title: props.title,
@@ -237,7 +239,7 @@ AlertDialog.custom(
           Cancel
         </Button>
         <Button
-          variant="danger"
+          tone="danger"
           disabled={name() !== 'moraine'}
           loadingAuto
           onClick={(event) => props.action(event)}

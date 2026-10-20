@@ -146,6 +146,7 @@ function AlertDialogDefault(props: {
             action={cancelConfig()}
             label={messages().cancel}
             variant="outline"
+            tone="neutral"
             loading={props.record.pending() === 'cancel'}
             disabled={props.record.pending() === 'action'}
             slotName="alert-dialog-cancel"
@@ -159,7 +160,8 @@ function AlertDialogDefault(props: {
         <FeedbackActionButton
           action={options().action}
           label={messages().ok}
-          variant={options().danger ? 'danger' : 'default'}
+          variant="solid"
+          tone={options().danger ? 'danger' : 'primary'}
           loading={props.record.pending() === 'action'}
           disabled={props.record.pending() === 'cancel'}
           slotName="alert-dialog-action"

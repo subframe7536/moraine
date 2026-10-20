@@ -30,7 +30,7 @@ export function SideAndVariantUsage() {
                 Review Status
               </div>
               <div class="flex gap-2 items-center">
-                <Badge variant="subtle" size="sm" leading="i-lucide:git-pull-request">
+                <Badge variant="soft" size="sm" leading="i-lucide:git-pull-request">
                   In Review (2/3)
                 </Badge>
               </div>
@@ -99,7 +99,7 @@ export function SideAndVariantUsage() {
         <SidebarFrame.Main class="flex flex-col overflow-hidden">
           <div class="px-4 border-b border-border/60 flex shrink-0 h-11 items-center justify-between">
             <div class="flex gap-2 items-center">
-              <Badge variant="subtle" size="sm">
+              <Badge variant="soft" size="sm">
                 RFC-104
               </Badge>
               <span class="text-xs text-muted-foreground">Updated 14 minutes ago</span>

@@ -78,13 +78,23 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "tone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Shared button tone.",
+          "default": {
+            "kind": "literal",
+            "value": "primary"
+          }
+        },
+        {
           "name": "variant",
           "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
           "description": "Shared button treatment.",
           "default": {
             "kind": "literal",
-            "value": "default"
+            "value": "solid"
           }
         }
       ]
@@ -105,12 +115,6 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "orientation",
-          "optional": true,
-          "type": "'horizontal' | 'vertical'",
-          "description": "The orientation of the separator. Defaults to perpendicular to the group axis."
         },
         {
           "name": "style",

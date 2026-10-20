@@ -31,7 +31,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
-          "typeDetails": "({\n  /** Source URL for the avatar image. */\n  src?: string;\n  /** Accessible alt text for the avatar. */\n  alt?: string;\n  /** Icon name for the badge. */\n  badge?: IconT.Name;\n  /** Position of the badge. */\n  badgePosition?: NonNullable<Variant['badgePosition']>;\n  /** Initial text to show if image fails or is missing. */\n  text?: string;\n  /** Icon name to show as fallback. */\n  fallback?: IconT.Name;\n  /** Callback when the loading status of the avatar changes. */\n  onStatusChange?: (status: Status) => void;\n})[]",
+          "typeDetails": "({\n  /** Source URL for the avatar image. */\n  src?: string;\n  /** Accessible alt text for the avatar. */\n  alt?: string;\n  /** Icon name for the badge. */\n  badge?: IconT.Name;\n  /** Initial text to show if image fails or is missing. */\n  text?: string;\n  /** Icon name to show as fallback. */\n  fallback?: IconT.Name;\n  /** Root `data-slot` name, also used as the prefix for child slot names. */\n  slotName?: string;\n  /** Callback when the loading status of the avatar changes. */\n  onStatusChange?: (status: Status) => void;\n} & {\n  /** Visual size of the component. */\n  size?: 'sm' | 'md' | 'lg';\n  /** Position of the badge relative to the avatar. */\n  badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';\n})[]",
           "description": "Array of avatars to render in the group.",
           "default": {
             "kind": "expression",
@@ -86,8 +86,8 @@
       {
         "name": "badgePosition",
         "optional": true,
-        "type": "NonNullable<Variant['badgePosition']>",
-        "description": "Position of the badge.",
+        "type": "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'",
+        "description": "Position of the badge relative to the avatar.",
         "default": {
           "kind": "literal",
           "value": "bottom-right"
@@ -104,6 +104,22 @@
         "optional": true,
         "type": "(status: Status) => void",
         "description": "Callback when the loading status of the avatar changes."
+      },
+      {
+        "name": "size",
+        "optional": true,
+        "type": "'sm' | 'md' | 'lg'",
+        "description": "Visual size of the component.",
+        "default": {
+          "kind": "literal",
+          "value": "md"
+        }
+      },
+      {
+        "name": "slotName",
+        "optional": true,
+        "type": "string",
+        "description": "Root `data-slot` name, also used as the prefix for child slot names."
       },
       {
         "name": "src",

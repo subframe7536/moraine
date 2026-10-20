@@ -17,12 +17,27 @@ import { Badge } from '@src'
       kind: 'select',
       prop: 'variant',
       label: 'Variant',
-      defaultValue: 'subtle',
+      defaultValue: 'soft',
       options: [
         { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
         { label: 'Subtle', value: 'subtle' },
-        { label: 'Surface', value: 'surface' },
         { label: 'Outline', value: 'outline' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'neutral',
+      options: [
+        { label: 'Neutral', value: 'neutral' },
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
       ],
     },
     {
@@ -39,7 +54,7 @@ import { Badge } from '@src'
   ]}
 >
   {(props) => (
-    <Badge variant={props.variant} size={props.size} leading="i-lucide:sparkles">
+    <Badge variant={props.variant} tone={props.tone} size={props.size} leading="i-lucide:sparkles">
       New feature
     </Badge>
   )}
@@ -70,11 +85,11 @@ export function Example() {
 ### Presentational status
 
 Place Badge beside a separately labeled control or heading. It does not replace an accessible status
-announcement where one is required. Variants (`solid`, `subtle`, `surface`, `outline`) and sizes
+announcement where one is required. Variants (`solid`, `soft`, `subtle`, `outline`) and sizes
 (`sm`, `md`, `lg`) change appearance only.
 
 ```tsx
-<Badge variant="subtle">In progress</Badge>
+<Badge variant="soft">In progress</Badge>
 <Badge variant="outline" size="sm">
   v2.4.0
 </Badge>

@@ -12,7 +12,7 @@ export function LoadingUsage() {
         alt="Sarah Connor"
         onStatusChange={setStatus}
       />
-      <Badge variant={status() === 'loaded' ? 'subtle' : 'outline'}>Status: {status()}</Badge>
+      <Badge variant={status() === 'loaded' ? 'soft' : 'outline'}>Status: {status()}</Badge>
     </div>
   )
 }

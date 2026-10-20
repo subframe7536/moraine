@@ -42,6 +42,6 @@ export interface MoraineMessages {
   progress: ComponentMessages<typeof defaultProgressMessages>
 }
 
-export type MoraineMessagesInput = {
-  [K in keyof MoraineMessages]?: Partial<MoraineMessages[K]>
-}
+export type MoraineMessagesInput = Partial<{
+  [K in keyof MoraineMessages]: Partial<MoraineMessages[K]>
+}>

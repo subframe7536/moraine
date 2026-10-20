@@ -29,6 +29,8 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       'onPressedChange',
       'variant',
       'activeVariant',
+      'tone',
+      'activeTone',
       'size',
       'classes',
       'styles',
@@ -39,7 +41,25 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
     ],
   )
   const { variants, overrides } = useRecipe(toggleButtonRecipe, local, {
-    contextVariants: () => group ?? undefined,
+    contextVariants: () => {
+      if (!group) {
+        return undefined
+      }
+      return {
+        get size() {
+          return group.size
+        },
+        get variant() {
+          return group.variant
+        },
+        get tone() {
+          return group.tone
+        },
+        get activeTone() {
+          return group.tone
+        },
+      }
+    },
   })
   const [pressed, setPressed] = createControllableValue<boolean>({
     value: () => local.pressed,
@@ -79,6 +99,7 @@ export function ToggleButton<T extends ValidComponent = 'button'>(
       as={local.as}
       aria-pressed={pressed()}
       variant={pressed() ? variants.activeVariant : variants.variant}
+      tone={pressed() ? variants.activeTone : variants.tone}
       size={variants.size}
       activeEffect="none"
       {...overrides()}

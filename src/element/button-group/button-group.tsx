@@ -15,6 +15,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'role',
     'size',
     'variant',
+    'tone',
     'classes',
     'styles',
     'class',
@@ -30,6 +31,9 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         },
         get variant() {
           return variants.variant
+        },
+        get tone() {
+          return variants.tone
         },
         get orientation() {
           return variants.orientation

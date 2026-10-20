@@ -181,7 +181,6 @@ export function StylingShowcase() {
                     type="submit"
                     aria-live="polite"
                     size="sm"
-                    variant="default"
                     classes={
                       customSlotOverrides()
                         ? { label: 'tracking-widest uppercase font-mono' }

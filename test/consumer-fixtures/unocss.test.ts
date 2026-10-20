@@ -59,6 +59,8 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-highlighted:text-accent-foreground',
         'hover:bg-accent-hover',
         'active:bg-accent-active',
+        'hover:text-primary-hover',
+        'active:text-primary-active',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
         'after:h-(--s-offset)',
@@ -98,7 +100,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toMatch(/width:\s*var\(--mo-sidebar-width\)/)
       expect(css).toMatch(/opacity:(0\.64|64%)/)
       expect(css).toContain('var(--primary)')
-      expect(css).toContain('var(--mo-auto-accent-hover')
+      expect(css).toContain('var(--mo-accent-hover')
       expect(css).toContain('var(--accent-hover')
       expect(css).toContain('var(--accent-foreground)')
       expect(css).toContain('var(--accent-active')
@@ -139,18 +141,18 @@ describe('isolated built-dist UnoCSS consumer', () => {
           override: {
             brand: {
               selector: '[data-theme="brand"]',
-              colors: { primary: { base: '#369', hover: '#258' } },
+              colors: { accent: { base: '#369', hover: '#258' } },
             },
           },
         }),
       ],
     })
-    const { css } = await generator.generate(new Set(['hover:bg-primary-hover']), {
+    const { css } = await generator.generate(new Set(['hover:bg-accent-hover']), {
       preflights: true,
     })
 
-    expect(css).toContain('[data-theme="brand"] {\n  --primary: #369;\n  --primary-hover: #258;\n}')
-    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+    expect(css).toContain('[data-theme="brand"] {\n  --accent: #369;\n  --accent-hover: #258;\n}')
+    expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
     expect(css).not.toContain('--background: rgb(')
   })
 

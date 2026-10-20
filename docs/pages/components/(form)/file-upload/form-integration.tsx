@@ -31,7 +31,7 @@ export function FormIntegration() {
           <FileUpload id="demo-attachment-upload" onValueChange={updateFormAttachment} />
         </form.Field>
         <div class="flex gap-3 items-center">
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="soft" tone="neutral" size="sm">
             Validate
           </Button>
           <p class="text-xs text-muted-foreground">

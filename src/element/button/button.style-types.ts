@@ -1,3 +1,4 @@
+import type { Tone } from '../../theme/tokens'
 import type { ComponentStyleConfig } from '../../theme/types'
 
 export interface ButtonStyleSlot<T = unknown> {
@@ -18,9 +19,13 @@ export interface ButtonStyleSlot<T = unknown> {
 
 export interface ButtonStyleVariant {
   /** Visual treatment of the component.
-   * @default 'default'
+   * @default 'solid'
    */
-  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'danger'
+  variant?: 'solid' | 'soft' | 'outline' | 'ghost' | 'link'
+  /** Color tone of the component.
+   * @default 'primary'
+   */
+  tone?: Tone
   /** Visual size of the component.
    * @default 'md'
    */

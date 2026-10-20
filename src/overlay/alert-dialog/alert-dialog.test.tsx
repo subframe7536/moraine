@@ -133,7 +133,7 @@ describe('AlertDialog', () => {
     const dangerIcon = document.body.querySelector('[data-slot="icon"]')
     expect(dangerIcon?.className).toContain('icon-caution')
     expect(dangerIcon?.className).toContain('text-danger')
-    expect(button('OK').className).toContain('bg-danger')
+    expect(button('OK').style.getPropertyValue('--mo-tone')).toBe('var(--danger)')
 
     AlertDialog.close()
     await waitForDialogCount(0)
@@ -273,7 +273,7 @@ describe('AlertDialog', () => {
       width: 280,
     })
     expect(document.body.querySelector('[data-slot="dialog-title"]')?.textContent).toBe('Updated')
-    expect(button('OK').className).toContain('bg-danger')
+    expect(button('OK').style.getPropertyValue('--mo-tone')).toBe('var(--danger)')
     expect(document.body.querySelector('.icon-caution')).toBeNull()
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
     expect(dialog().style.maxWidth).toBe('12rem')
@@ -286,7 +286,7 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(dialogs()).toHaveLength(2)
     })
-    expect(button('OK', dialogs()[1]).className).not.toContain('bg-danger')
+    expect(button('OK', dialogs()[1]).className).toContain('border-tone-border')
 
     first.close()
     await expect(first.result()).resolves.toBe('api')
@@ -409,7 +409,7 @@ describe('AlertDialog', () => {
     void AlertDialog.confirm({ title: 'Defaults' })
     await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
-    expect(button('OK').className).toContain('bg-danger')
+    expect(button('OK').style.getPropertyValue('--mo-tone')).toBe('var(--danger)')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
     setWidth(240)
@@ -428,7 +428,7 @@ describe('AlertDialog', () => {
     await waitFor(() => {
       expect(button('Done')).toBeInstanceOf(HTMLButtonElement)
     })
-    expect(button('Done').className).not.toContain('bg-danger')
+    expect(button('Done').style.getPropertyValue('--mo-tone')).not.toBe('var(--danger)')
     expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
     expect(
       Array.from(document.body.querySelectorAll('button')).some(

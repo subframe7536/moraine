@@ -24,7 +24,8 @@ export function AlertCustom() {
                 Cancel
               </Button>
               <Button
-                variant="danger"
+                variant="solid"
+                tone="danger"
                 disabled={name() !== 'moraine'}
                 loadingAuto
                 onClick={(event) => props.action(event)}
@@ -49,7 +50,7 @@ export function AlertCustom() {
   }
 
   return (
-    <Button variant="danger" leading="i-lucide:trash-2" onClick={remove}>
+    <Button variant="solid" tone="danger" leading="i-lucide:trash-2" onClick={remove}>
       Delete repository
     </Button>
   )

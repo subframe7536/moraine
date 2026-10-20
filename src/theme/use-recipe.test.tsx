@@ -425,7 +425,9 @@ test.each([undefined, 'label'] as const)(
     setSize(undefined)
     expect(target.style.getPropertyValue('--size')).toBe('8px')
     setTheme(null)
-    expect(target.style.cssText).toBe('')
+    expect(target.style.getPropertyValue('--size')).toBe('')
+    expect(target.style.getPropertyValue('--shared')).toBe('')
+    expect(target.style.getPropertyValue('--large')).toBe('')
     expect(screen.getByRole('button')).toBe(button)
     expect(screen.getByText('Save')).toBe(label)
   },

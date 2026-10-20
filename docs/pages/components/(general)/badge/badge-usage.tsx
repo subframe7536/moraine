@@ -3,7 +3,7 @@ import { For } from 'solid-js'
 
 const TASKS = [
   { title: 'Review access request', status: 'Needs review', variant: 'outline' },
-  { title: 'Publish release notes', status: 'In progress', variant: 'subtle' },
+  { title: 'Publish release notes', status: 'In progress', variant: 'soft' },
   { title: 'Archive old project', status: 'Complete', variant: 'solid' },
 ] as const
 

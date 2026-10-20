@@ -3,7 +3,7 @@ import { defineTheme } from '@src/theme'
 
 const theme = defineTheme({
   toggleButton: {
-    defaultVariants: { variant: 'outline', activeVariant: 'default', size: 'sm' },
+    defaultVariants: { variant: 'outline', activeVariant: 'solid', size: 'sm' },
   },
 })
 
@@ -12,7 +12,7 @@ export function Theme() {
     <MoraineProvider theme={theme}>
       <div class="flex flex-wrap gap-4 items-center">
         <ToggleButton leading="i-lucide:bell">Notifications</ToggleButton>
-        <ToggleButton leading="i-lucide:mail" activeVariant="secondary" defaultPressed>
+        <ToggleButton leading="i-lucide:mail" activeVariant="soft" defaultPressed>
           Email updates
         </ToggleButton>
         <ButtonGroup size="sm" variant="ghost" aria-label="Text formatting">

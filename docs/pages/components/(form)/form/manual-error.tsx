@@ -33,7 +33,8 @@ export function ManualError() {
       <div class="flex gap-2">
         <Button
           size="sm"
-          variant="secondary"
+          variant="soft"
+          tone="neutral"
           onClick={() => setError('Invalid API token checksum. Please regenerate in settings.')}
         >
           Simulate Server Error

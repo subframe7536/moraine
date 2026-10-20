@@ -64,7 +64,7 @@
           "name": "danger",
           "optional": true,
           "type": "boolean",
-          "description": "Shows a caution icon when `type` is `default`, and styles the primary action as `danger`\nwhen its variant is omitted.",
+          "description": "Shows a caution icon when `type` is `default`, and gives the primary action the `danger`\ntone unless the action sets its own tone.",
           "default": {
             "kind": "literal",
             "value": false

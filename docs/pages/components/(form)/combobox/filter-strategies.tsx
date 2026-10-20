@@ -20,14 +20,14 @@ export function FilterStrategies() {
         <span class="text-xs text-muted-foreground font-medium">Filter mode:</span>
         <Button
           size="sm"
-          variant={strategy() === 'contains' ? 'default' : 'secondary'}
+          variant={strategy() === 'contains' ? 'solid' : 'outline'}
           onClick={() => setStrategy('contains')}
         >
           contains
         </Button>
         <Button
           size="sm"
-          variant={strategy() === 'startsWith' ? 'default' : 'secondary'}
+          variant={strategy() === 'startsWith' ? 'solid' : 'outline'}
           onClick={() => setStrategy('startsWith')}
         >
           startsWith

@@ -7,6 +7,7 @@ import { Popover } from '../../overlay/popover'
 import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 import { Button } from '../button/button'
+import { ToggleButton } from '../toggle-button'
 
 import { ButtonGroup } from './button-group'
 
@@ -25,7 +26,6 @@ describe('ButtonGroup', () => {
     expect(group.getAttribute('data-slot')).toBe('button-group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('size-fit')
-    expect(group.className).toContain('-me-px')
     expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
@@ -114,6 +114,105 @@ describe('ButtonGroup', () => {
     expect(separator.className).toContain('instance-separator')
   })
 
+  test('inherits variant and tone in ButtonGroup.Separator', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup variant="outline" tone="primary">
+          <Button>Undo</Button>
+          <ButtonGroup.Separator />
+          <Button>Redo</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const separator = screen.getByRole('separator')
+    expect(separator.className).toContain('bg-tone-border')
+    expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--primary)')
+  })
+
+  test('applies variant-specific separator styles across variants', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup variant="solid" tone="danger" data-testid="solid-group">
+          <Button>Action</Button>
+          <ButtonGroup.Separator />
+          <Button>More</Button>
+        </ButtonGroup>
+        <ButtonGroup variant="soft" tone="neutral" data-testid="soft-group">
+          <Button>Copy</Button>
+          <ButtonGroup.Separator />
+          <Button>Paste</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const separators = screen.getAllByRole('separator')
+    expect(separators[0]?.className).toContain('bg-tone-active')
+    expect(separators[0]?.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+
+    expect(separators[1]?.className).toContain('bg-tone-soft-active')
+    expect(separators[1]?.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+  })
+
+  test.each(['outline', 'solid', 'soft', 'ghost', 'link'] as const)(
+    'falls back to bg-border for %s separator without an explicit tone',
+    (variant) => {
+      const screen = render(() => (
+        <MoraineProvider>
+          <ButtonGroup variant={variant}>
+            <Button>Undo</Button>
+            <ButtonGroup.Separator />
+            <Button>Redo</Button>
+          </ButtonGroup>
+        </MoraineProvider>
+      ))
+      const separator = screen.getByRole('separator')
+      expect(separator.className).toContain('bg-border')
+      expect(separator.className).not.toContain('bg-tone')
+      expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
+    },
+  )
+
+  test('inherits theme default tone on nested button and preserves toggle button tone in group without tone', () => {
+    const theme = defineTheme({
+      button: {
+        defaultVariants: { tone: 'secondary' },
+      },
+    })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <ButtonGroup>
+          <Button>Action</Button>
+          <ButtonGroup.Separator />
+          <ToggleButton>Toggle</ToggleButton>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Action' })
+    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--secondary)')
+
+    const toggle = screen.getByRole('button', { name: 'Toggle' })
+    expect(toggle.style.getPropertyValue('--mo-tone')).toContain('var(--neutral)')
+
+    const separator = screen.getByRole('separator')
+    expect(separator.className).toContain('bg-border')
+    expect(separator.style.getPropertyValue('--mo-tone')).toBe('')
+  })
+
+  test('keeps the separator visible when only tone is set', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup tone="danger">
+          <Button>Delete</Button>
+          <ButtonGroup.Separator />
+          <Button>Archive</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const separator = screen.getByRole('separator')
+    expect(separator.className).toContain('bg-border')
+    expect(separator.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+  })
+
   test('reuses resolved getter-backed children without a separator', () => {
     let reads = 0
     const screen = render(() =>
@@ -145,7 +244,6 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-me-px')
     expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
@@ -195,12 +293,11 @@ describe('ButtonGroup', () => {
   })
 
   test.each([
-    ['default', 'bg-primary'],
-    ['secondary', 'bg-secondary'],
-    ['outline', 'border-border'],
-    ['ghost', 'hover:text-accent-foreground'],
+    ['solid', 'bg-tone'],
+    ['soft', 'bg-tone-soft'],
+    ['outline', 'border-tone-border'],
+    ['ghost', 'hover:bg-tone-soft'],
     ['link', 'hover:underline'],
-    ['danger', 'bg-danger'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
     const screen = render(() => (
       <MoraineProvider>
@@ -218,8 +315,8 @@ describe('ButtonGroup', () => {
   test('allows a nested button to override group size and variant defaults', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <ButtonGroup size="lg" variant="secondary">
-          <Button size="sm" variant="danger">
+        <ButtonGroup size="lg" variant="soft" tone="neutral">
+          <Button size="sm" variant="solid" tone="danger">
             Remove
           </Button>
         </ButtonGroup>
@@ -228,7 +325,8 @@ describe('ButtonGroup', () => {
 
     const button = screen.getByRole('button', { name: 'Remove' })
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('bg-danger')
+    expect(button.className).toContain('bg-tone')
+    expect(button.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
   })
 
   test('supports a cohesive vertical orientation', () => {
@@ -244,7 +342,6 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('flex-col')
-    expect(group.className).toContain('-mb-px')
     expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
@@ -286,7 +383,6 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-mb-px')
     expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
@@ -296,7 +392,7 @@ describe('ButtonGroup', () => {
 
   test('keeps inherited button defaults reactive', () => {
     const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
-    const [variant, setVariant] = createSignal<'outline' | 'secondary'>('outline')
+    const [variant, setVariant] = createSignal<'outline' | 'soft'>('outline')
     const screen = render(() => (
       <MoraineProvider>
         <ButtonGroup size={size()} variant={variant()}>
@@ -307,13 +403,13 @@ describe('ButtonGroup', () => {
     const button = screen.getByRole('button', { name: 'Action' })
 
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('border-border')
+    expect(button.className).toContain('border-tone-border')
 
     setSize('lg')
-    setVariant('secondary')
+    setVariant('soft')
 
     expect(button.className).toContain('h-9')
-    expect(button.className).toContain('bg-secondary')
+    expect(button.className).toContain('bg-tone-soft')
   })
 
   test('merges root classes and styles while forwarding div attributes', () => {

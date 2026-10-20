@@ -11,9 +11,7 @@ export function HoverMode() {
           <div class="p-4 rounded-xl bg-card max-w-xs space-y-3">
             <div class="flex items-start justify-between">
               <Avatar text="AM" alt="Alex Morgan" size="lg" />
-              <Button size="xs" variant="default">
-                Follow
-              </Button>
+              <Button size="xs">Follow</Button>
             </div>
 
             <div>

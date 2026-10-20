@@ -27,17 +27,16 @@ export namespace AvatarT {
     /** Icon name for the badge. */
     badge?: IconT.Name
 
-    /**
-     * Position of the badge.
-     * @default 'bottom-right'
-     */
-    badgePosition?: NonNullable<Variant['badgePosition']>
-
     /** Initial text to show if image fails or is missing. */
     text?: string
 
     /** Icon name to show as fallback. */
     fallback?: IconT.Name
+
+    /**
+     * Root `data-slot` name, also used as the prefix for child slot names.
+     */
+    slotName?: string
 
     /** Callback when the loading status of the avatar changes. */
     onStatusChange?: (status: Status) => void

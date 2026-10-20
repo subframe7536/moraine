@@ -14,7 +14,10 @@ export function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.El
   const group = useButtonGroupContext()
   const { slots, variants } = useRecipe(buttonGroupRecipe, local, {
     slot: 'separator',
+    varsSlot: 'separator',
     contextVariants: () => ({
+      variant: group?.tone ? group.variant : undefined,
+      tone: group?.tone,
       orientation:
         group?.orientation === 'vertical' ? ('horizontal' as const) : ('vertical' as const),
     }),

@@ -389,6 +389,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
         return
       }
 
+      if (layer.highlightedItemId() === submenuId()) {
+        return
+      }
+
       layer.closeSubmenus(submenuId())
       layer.setHighlightedItemId(submenuId())
       clearOpenTimeout()
@@ -460,6 +464,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           return
         }
 
+        if (layer.highlightedItemId() === submenuId()) {
+          return
+        }
+
         if (layer.shouldBlockPointerEnter(event)) {
           layer.queuePointerEnter(event.currentTarget, onPointerMove)
           event.preventDefault()
@@ -474,6 +482,10 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
             layer.focusContent()
           }
 
+          return
+        }
+
+        if (layer.highlightedItemId() === submenuId()) {
           return
         }
 

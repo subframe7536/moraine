@@ -1,3 +1,6 @@
+import { MORAINE_COLORS } from './tokens'
+import type { Tone } from './tokens'
+
 export const INPUT_VARIANT = {
   outline: 'border border-input bg-control shadow-input',
   subtle: 'border border-input bg-muted shadow-input',
@@ -62,3 +65,25 @@ export function groupAccentClass(group: string, utility = 'text-accent-foregroun
 
 export const OVERLAY_CLOSE_BUTTON_CLASS =
   'rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-50 pointer-events-none)'
+
+function toneVars(tone: Tone) {
+  return {
+    '--mo-tone': MORAINE_COLORS[tone].DEFAULT,
+    '--mo-tone-foreground': MORAINE_COLORS[tone].foreground,
+    '--mo-tone-hover': MORAINE_COLORS[tone].hover,
+    '--mo-tone-active': MORAINE_COLORS[tone].active,
+    '--mo-tone-ink': MORAINE_COLORS[tone].ink,
+    '--mo-tone-soft': MORAINE_COLORS[tone].soft,
+    '--mo-tone-border': MORAINE_COLORS[tone].border,
+  }
+}
+
+export const TONE_VARS = {
+  primary: toneVars('primary'),
+  secondary: toneVars('secondary'),
+  neutral: toneVars('neutral'),
+  danger: toneVars('danger'),
+  info: toneVars('info'),
+  success: toneVars('success'),
+  warning: toneVars('warning'),
+} as const

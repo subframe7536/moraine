@@ -97,6 +97,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'variant',
     'activeVariant',
     'controlVariant',
+    'tone',
     'prevIcon',
     'prevText',
     'nextIcon',
@@ -234,6 +235,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             <Button
               slotName="pagination-prev"
               variant={variants.controlVariant}
+              tone={variants.tone}
               size={getSize(variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
               {...paginationDataAttributes.prev({
@@ -280,6 +282,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     <Button
                       slotName="pagination-item"
                       variant={isActive() ? variants.activeVariant : variants.variant}
+                      tone={variants.tone}
                       size={getSize(variants.size)}
                       aria-current={isActive() ? 'page' : undefined}
                       aria-label={getPageLabel(pageNumber(), isActive())}
@@ -306,6 +309,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             <Button
               slotName="pagination-next"
               variant={variants.controlVariant}
+              tone={variants.tone}
               size={getSize(variants.size, merged.nextText)}
               aria-label={getNextLabel()}
               {...paginationDataAttributes.next({

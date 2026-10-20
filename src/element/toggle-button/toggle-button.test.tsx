@@ -48,14 +48,14 @@ describe('ToggleButton', () => {
     expect(ref).toHaveBeenCalledWith(button)
     expect(button.getAttribute('aria-pressed')).toBe('false')
     expect(button.hasAttribute('data-pressed')).toBe(false)
-    expect(button.className).not.toContain('bg-secondary')
+    expect(button.classList.contains('bg-tone-soft')).toBe(false)
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:translate-y-px')
     expect(button.className).not.toContain('[&:active:not([aria-haspopup])]:scale-95')
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true'])
     expect(button.getAttribute('aria-pressed')).toBe('true')
     expect(button.hasAttribute('data-pressed')).toBe(true)
-    expect(button.className).toContain('bg-secondary')
+    expect(button.classList.contains('bg-tone-soft')).toBe(true)
     fireEvent.click(button)
     expect(events).toEqual(['click', 'true', 'click', 'false'])
     expect(button.getAttribute('aria-pressed')).toBe('false')
@@ -173,7 +173,7 @@ describe('ToggleButton', () => {
     const theme = defineTheme({
       button: { base: { root: 'button-theme', label: 'button-label-theme' } },
       toggleButton: {
-        defaultVariants: { variant: 'outline', activeVariant: 'default', size: 'lg' },
+        defaultVariants: { variant: 'outline', activeVariant: 'solid', size: 'lg' },
         base: { root: 'toggle-theme', label: 'toggle-label-theme' },
       },
     })
@@ -206,13 +206,13 @@ describe('ToggleButton', () => {
         >
           Theme
         </ToggleButton>
-        <ButtonGroup size="sm" variant="danger">
+        <ButtonGroup size="sm" variant="solid" tone="danger">
           <ToggleButton>Grouped</ToggleButton>
         </ButtonGroup>
       </MoraineProvider>
     ))
     const button = screen.getByRole('button', { name: 'Theme' })
-    expect(button.className).toContain('border-border')
+    expect(button.className).toContain('border-tone-border')
     expect(button.className).toContain('h-9')
     for (const cls of ['button-theme', 'toggle-theme', 'instance-class', 'root-override']) {
       expect(button.className).toContain(cls)
@@ -232,21 +232,37 @@ describe('ToggleButton', () => {
     expect(label.className).toContain('label-override')
     expect(label.style.fontWeight).toBe('600')
     fireEvent.click(button)
-    expect(button.className).toContain('bg-primary')
-    setActiveVariant('secondary')
-    expect(button.className).toContain('bg-secondary')
+    expect(button.className).toContain('bg-tone')
+    setActiveVariant('soft')
+    expect(button.className).toContain('bg-tone-soft')
     fireEvent.click(button)
-    setVariant('danger')
+    setVariant('solid')
     setSize('icon-sm')
     setCustomClass('updated-class')
-    expect(button.className).toContain('bg-danger')
+    expect(button.className).toContain('bg-tone')
     expect(button.className).toContain('size-6')
     expect(button.className).toContain('updated-class')
     const grouped = screen.getByRole('button', { name: 'Grouped' })
-    expect(grouped.className).toContain('bg-danger')
+    expect(grouped.className).toContain('bg-tone')
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
     expect(grouped.className).toContain('h-7')
     fireEvent.click(grouped)
-    expect(grouped.className).toContain('bg-primary')
+    expect(grouped.className).toContain('bg-tone')
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+  })
+
+  test('lets a grouped toggle override the inherited pressed tone', () => {
+    const screen = render(() => (
+      <MoraineProvider>
+        <ButtonGroup tone="danger">
+          <ToggleButton activeTone="success">Grouped</ToggleButton>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const grouped = screen.getByRole('button', { name: 'Grouped' })
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--danger)')
+    fireEvent.click(grouped)
+    expect(grouped.style.getPropertyValue('--mo-tone')).toContain('var(--success)')
   })
 
   test('retains getter-backed JSX children across state and loading updates', () => {

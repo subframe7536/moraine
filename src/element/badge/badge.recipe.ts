@@ -1,4 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
+import { TONE_VARS } from '../../theme/recipe-common.recipe'
 
 import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types'
 
@@ -13,26 +14,28 @@ export const badgeRecipe = /* @__PURE__ */ defineRecipe<BadgeStyleSlot, BadgeRec
     },
     defaultVariants: {
       size: 'md',
-      variant: 'subtle',
+      variant: 'soft',
+      tone: 'neutral',
     },
     variants: {
       variant: {
         solid: {
-          root: 'text-primary-foreground border-transparent bg-primary shadow-surface',
+          root: 'text-tone-foreground border-transparent bg-tone shadow-surface',
+        },
+        soft: {
+          root: 'text-tone-ink border-transparent bg-tone-soft',
         },
         subtle: {
-          root: 'text-accent-foreground border-transparent bg-accent',
-        },
-        surface: {
-          root: 'text-accent-foreground border-border bg-accent',
+          root: 'text-tone-ink border-tone bg-tone-soft',
         },
         outline: {
-          root: 'text-foreground border-border bg-background',
+          root: 'text-tone-ink border-tone-border bg-background',
         },
       },
+      tone: TONE_VARS,
       size: {
         sm: {
-          root: 'text-[10px] px-1 rounded-xs gap-0.5 h-4',
+          root: 'text-tiny px-1 rounded-xs gap-0.5 h-4',
           leading: 'size-3',
           trailing: 'size-3',
         },

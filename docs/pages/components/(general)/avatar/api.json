@@ -30,8 +30,8 @@
         {
           "name": "badgePosition",
           "optional": true,
-          "type": "NonNullable<Variant['badgePosition']>",
-          "description": "Position of the badge.",
+          "type": "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'",
+          "description": "Position of the badge relative to the avatar.",
           "default": {
             "kind": "literal",
             "value": "bottom-right"
@@ -70,6 +70,12 @@
             "kind": "literal",
             "value": "md"
           }
+        },
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": "string",
+          "description": "Root `data-slot` name, also used as the prefix for child slot names."
         },
         {
           "name": "src",

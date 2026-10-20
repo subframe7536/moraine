@@ -17,14 +17,28 @@ import { Button } from '@src'
       kind: 'select',
       prop: 'variant',
       label: 'Variant',
-      defaultValue: 'default',
+      defaultValue: 'solid',
       options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Secondary', value: 'secondary' },
+        { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
         { label: 'Outline', value: 'outline' },
         { label: 'Ghost', value: 'ghost' },
         { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'primary',
+      options: [
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Neutral', value: 'neutral' },
         { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
       ],
     },
     {
@@ -59,6 +73,7 @@ import { Button } from '@src'
     return (
       <Button
         variant={props.variant}
+        tone={props.tone}
         size={props.size}
         disabled={props.disabled}
         loading={props.loading}

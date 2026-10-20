@@ -216,39 +216,93 @@ describe('colors', () => {
       'bg-background-hover',
       'bg-card-active',
       'bg-popover-hover',
-      'bg-primary-active',
-      'bg-secondary-hover',
       'bg-muted-active',
       'bg-accent-hover',
-      'bg-danger-active',
-      'bg-info-hover',
-      'bg-success-active',
-      'bg-warning-hover',
+      'bg-primary-hover',
+      'bg-primary-active',
+      'text-primary-ink',
+      'text-danger-ink',
     ])
 
-    expect(css).toContain('var(--primary-active, var(--mo-auto-primary-active,')
-    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+    expect(css).toContain('var(--background-hover, var(--mo-background-hover, var(--background)))')
     expect(css).toContain(
-      'var(--background-hover, var(--mo-auto-background-hover, var(--background)))',
+      'var(--card-active, var(--mo-card-active, var(--card-hover, var(--mo-card-hover, var(--card)))))',
     )
-    expect(css).toContain('var(--info-hover, var(--mo-auto-info-hover, var(--info)))')
-    expect(css).toContain('var(--success-active, var(--mo-auto-success-active,')
-    expect(css).toContain('var(--warning-hover, var(--mo-auto-warning-hover, var(--warning)))')
-    expect(css).toContain('var(--danger-active, var(--mo-auto-danger-active,')
+    expect(css).toContain('var(--popover-hover, var(--mo-popover-hover, var(--popover)))')
+    expect(css).toContain(
+      'var(--muted-active, var(--mo-muted-active, var(--muted-hover, var(--mo-muted-hover, var(--muted)))))',
+    )
+    expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
+    expect(css).toContain('var(--primary-hover, var(--mo-primary-hover, var(--primary)))')
+    expect(css).toContain(
+      'var(--primary-active, var(--mo-primary-active, var(--primary-hover, var(--mo-primary-hover, var(--primary)))))',
+    )
+    expect(css).toContain('var(--primary-ink, var(--mo-primary-ink, var(--primary)))')
+    expect(css).toContain('var(--danger-ink, var(--mo-danger-ink, var(--danger)))')
     expect(css).not.toContain('-focus')
   })
 
-  test('mixes colors in the local scope only when supported', async () => {
-    const css = await compileCSS(['bg-primary-hover'], true)
+  test('resolves the internal tone channel utilities', async () => {
+    const css = await compileCSS([
+      'bg-tone',
+      'bg-tone/12',
+      'bg-tone-soft',
+      'hover:bg-tone-soft-hover',
+      'active:bg-tone-soft-active',
+      'bg-danger-soft',
+      'border-tone/40',
+      'text-tone-foreground',
+      'text-tone-ink',
+      'hover:bg-tone-hover',
+      'active:bg-tone-active',
+      'ring-tone/20',
+    ])
+
+    expect(css).toContain('background-color: var(--mo-tone);')
+    expect(css).toContain('background-color: color-mix(in oklab, var(--mo-tone) 12%, transparent);')
+    expect(css).toContain('border-color: color-mix(in oklab, var(--mo-tone) 40%, transparent);')
+    expect(css).toContain('color: var(--mo-tone-foreground);')
+    expect(css).toContain('color: var(--mo-tone-ink);')
+    expect(css).toContain('background-color: var(--mo-tone-hover, var(--mo-tone));')
     expect(css).toContain(
-      'background-color: var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))',
+      'background-color: var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)));',
+    )
+    expect(css).toContain('background-color: var(--mo-tone-soft, transparent);')
+    expect(css).toContain(
+      'background-color: var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent));',
+    )
+    expect(css).toContain(
+      'background-color: var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)));',
+    )
+    expect(css).toContain(
+      'background-color: var(--danger-soft, var(--mo-danger-soft, transparent));',
+    )
+    expect(css).toContain('--tw-ring-color: color-mix(in oklab, var(--mo-tone) 20%, transparent);')
+  })
+
+  test('mixes colors in the local scope only when supported', async () => {
+    const css = await compileCSS(['bg-accent-hover'], true)
+    expect(css).toContain(
+      'background-color: var(--accent-hover, var(--mo-accent-hover, var(--accent)))',
     )
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
-      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%)',
+      '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-auto-danger-hover: color-mix(in oklch, var(--danger), var(--danger-foreground, var(--background)) 8%)',
+      '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
+    )
+    expect(css).toContain(
+      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
     )
     expect(css).not.toMatch(/--primary:\s/)
   })

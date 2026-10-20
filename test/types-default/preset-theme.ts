@@ -6,7 +6,8 @@ const theme = {
   colors: {
     background: '#fff',
     control: 'var(--palette-field)',
-    primary: { foreground: '#fff', hover: 8, active: () => '#124' },
+    accent: { foreground: '#fff', hover: '#111', active: '#222' },
+    primary: { foreground: '#fff', ink: '#b91c1c' },
   },
   shadows: { surface: '0 1px #000', overlay: '0 4px #111', input: 'none' },
   radius: '1rem',
@@ -23,7 +24,7 @@ presetMoraine({
     dark: { selector: '.night', colorScheme: 'dark', colors: { primary: '#eee' } },
     brand: { colorScheme: 'light', colors: { primary: '#369' } },
   },
-  colorStates: false,
+  mix: { hover: 8, active: 12, ink: 25 },
 } satisfies PresetMoraineOptions)
 
 presetMoraine({ wind3: false })

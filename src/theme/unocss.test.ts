@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
 import { baseSelectRecipe } from '../form/base-select/base-select.recipe'
@@ -226,8 +226,12 @@ describe('presetMoraine', () => {
         'text-warning',
         'text-danger',
         'text-danger-foreground',
-        'hover:bg-info-hover',
-        'active:bg-success-active',
+        'hover:bg-accent-hover',
+        'active:bg-muted-active',
+        'hover:bg-primary-hover',
+        'active:bg-primary-active',
+        'text-info-ink',
+        'text-success-ink',
         'bg-control',
         'bg-control/30',
         'z-floating',
@@ -260,10 +264,16 @@ describe('presetMoraine', () => {
     expect(css).toContain('var(--warning)')
     expect(css).toContain('var(--danger)')
     expect(css).toContain('var(--danger-foreground, var(--background))')
-    expect(css).toContain('var(--info-hover, var(--mo-auto-info-hover, var(--info)))')
+    expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
     expect(css).toContain(
-      'var(--success-active, var(--mo-auto-success-active, var(--success-hover, var(--mo-auto-success-hover, var(--success)))))',
+      'var(--muted-active, var(--mo-muted-active, var(--muted-hover, var(--mo-muted-hover, var(--muted)))))',
     )
+    expect(css).toContain('var(--primary-hover, var(--mo-primary-hover, var(--primary)))')
+    expect(css).toContain(
+      'var(--primary-active, var(--mo-primary-active, var(--primary-hover, var(--mo-primary-hover, var(--primary)))))',
+    )
+    expect(css).toContain('var(--info-ink, var(--mo-info-ink, var(--info)))')
+    expect(css).toContain('var(--success-ink, var(--mo-success-ink, var(--success)))')
     expect(css).toContain('.bg-control')
     expect(css).toMatch(
       /background-color:\s*(?:var\(--control\)|color-mix\(in srgb, var\(--control\))/,
@@ -272,6 +282,45 @@ describe('presetMoraine', () => {
     expect(css).toContain('.z-floating')
     expect(css).toContain('z-index:50')
     expect(css).toMatch(/opacity:(0\.64|64%)/)
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('resolves the internal tone channel utilities with %s', async (_name, wind) => {
+    const css = await generate(
+      [
+        'bg-tone',
+        'bg-tone/12',
+        'bg-tone-soft',
+        'hover:bg-tone-soft-hover',
+        'active:bg-tone-soft-active',
+        'bg-danger-soft',
+        'border-tone/40',
+        'text-tone-foreground',
+        'text-tone-ink',
+        'hover:bg-tone-hover',
+        'active:bg-tone-active',
+        'ring-tone/20',
+      ],
+      false,
+      wind,
+    )
+
+    expect(css).toMatch(/\.bg-tone\{background-color:[^}]*var\(--mo-tone\)/)
+    expect(css).toContain('var(--mo-tone) 12%')
+    expect(css).toContain('var(--mo-tone) 40%')
+    expect(css).toContain('var(--mo-tone) 20%')
+    expect(css).toContain('var(--mo-tone-foreground)')
+    expect(css).toContain('var(--mo-tone-ink)')
+    expect(css).toContain('var(--mo-tone-hover, var(--mo-tone))')
+    expect(css).toContain('var(--mo-tone-active, var(--mo-tone-hover, var(--mo-tone)))')
+    expect(css).toContain('var(--mo-tone-soft, transparent)')
+    expect(css).toContain('var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent))')
+    expect(css).toContain(
+      'var(--mo-tone-soft-active, var(--mo-tone-soft-hover, var(--mo-tone-soft, transparent)))',
+    )
+    expect(css).toContain('var(--danger-soft, var(--mo-danger-soft, transparent))')
   })
 
   test('Wind4 rounded utilities read the local --radius', async () => {
@@ -515,33 +564,34 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/:root \{[^}]*--spacing: 0.25rem;/)
     expect(css).toContain('.dark {')
     expect(css).toMatch(/\.dark \{[^}]*--muted-foreground: rgb\(161, 161, 161\);/)
-    expect(css).toContain('--background: rgb(10, 10, 10);')
-    expect(css).toContain('--primary: rgb(229, 229, 229);')
-    expect(css).toContain('--border: rgb(35, 35, 35);')
-    expect(css).toContain('--input: rgb(47, 47, 47);')
-    expect(css).toMatch(/:root \{[^}]*--control: rgb\(255, 255, 255\);/)
-    expect(css).toMatch(/\.dark \{[^}]*--control: rgb\(23, 23, 23\);/)
-    expect(css).toMatch(/:root \{[^}]*--backdrop: rgb\(0 0 0 \/ 0.1\);/)
-    expect(css).toMatch(/\.dark \{[^}]*--backdrop: rgb\(0 0 0 \/ 0.1\);/)
-    expect(css).not.toMatch(/--(?:mo-auto-)?control-(?:foreground|hover|active):/)
+    expect(css).not.toMatch(/--(?:mo-)?control-(?:foreground|hover|active):/)
     expect(css).not.toMatch(/--[\w-]+: oklch\(/)
     expect(css).not.toContain('@supports not (color: color-mix(')
-    expect(css).not.toMatch(/--mo-auto-[\w-]+: (?:rgb\(|var\()/)
+    expect(css).not.toMatch(/--mo-auto-/)
     expect(css).toContain('@supports (color: color-mix(in oklch, red, white))')
     expect(css).toContain(
-      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 8%);',
+      '--mo-background-hover: color-mix(in oklch, var(--background), var(--foreground) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-auto-danger-hover: color-mix(in oklch, var(--danger), var(--danger-foreground, var(--background)) 8%);',
+      '--mo-accent-hover: color-mix(in oklch, var(--accent), var(--accent-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-auto-info-hover: color-mix(in oklch, var(--info), var(--info-foreground, var(--background)) 8%);',
+      '--mo-primary-ink: color-mix(in oklch, var(--primary), var(--foreground) var(--mo-mix-ink, 25%));',
     )
     expect(css).toContain(
-      '--mo-auto-success-hover: color-mix(in oklch, var(--success), var(--success-foreground, var(--background)) 8%);',
+      '--mo-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) var(--mo-mix-hover, 8%));',
     )
     expect(css).toContain(
-      '--mo-auto-warning-hover: color-mix(in oklch, var(--warning), var(--warning-foreground, var(--background)) 8%);',
+      '--mo-danger-ink: color-mix(in oklch, var(--danger), var(--foreground) var(--mo-mix-ink, 25%));',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-hover: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-hover, 8%));',
+    )
+    expect(css).toContain(
+      '--mo-danger-soft: color-mix(in oklch, var(--danger) var(--mo-mix-soft, 12%), transparent);',
+    )
+    expect(css).toContain(
+      '--mo-tone-soft-active: color-mix(in oklch, var(--mo-tone-soft), var(--mo-tone-ink) var(--mo-mix-active, 12%));',
     )
     expect(css).not.toContain('--primary-hover: color-mix(')
     expect(css).toContain('background-color: var(--background)')
@@ -562,7 +612,7 @@ describe('presetMoraine', () => {
         }),
       ],
     })
-    const { css } = await generator.generate(new Set(['bg-primary-hover']), { preflights: true })
+    const { css } = await generator.generate(new Set(['bg-accent-hover']), { preflights: true })
 
     expect(css).not.toContain('--sidebar-width:')
     expect(css).toMatch(/:root \{[^}]*--radius: 0.625rem;/)
@@ -575,9 +625,9 @@ describe('presetMoraine', () => {
     expect(css).not.toContain('color-scheme:')
     expect(css).not.toMatch(/--shadow-(?:surface|overlay|input):/)
     expect(css).not.toContain('html {\n  background-color: var(--background);')
-    expect(css).not.toContain('--mo-auto-primary-hover: var(--primary);')
+    expect(css).not.toContain('--mo-accent-hover: var(--accent);')
     expect(css).toContain('*, ::before, ::after {')
-    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary)))')
+    expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent)))')
   })
 
   test.each([
@@ -610,34 +660,31 @@ describe('presetMoraine', () => {
     }
   })
 
-  test('uses configured proportions for locally scoped state colors', async () => {
+  test('uses configured proportions for locally scoped mix values', async () => {
     const generator = await createGenerator({
-      presets: [presetWind4(), presetMoraine({ colorStates: { hover: 20, active: 40 } })],
+      presets: [presetWind4(), presetMoraine({ mix: { hover: 20, active: 40, ink: 30 } })],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css).toContain(
-      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 20%);',
-    )
-    expect(css).toContain(
-      '--mo-auto-primary-active: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 40%);',
-    )
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-hover: 20%;/)
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-active: 40%;/)
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-ink: 30%;/)
+    expect(css).toMatch(/\.dark \{[^}]*--mo-mix-hover: 20%;/)
   })
 
-  test('keeps numeric state overrides before later theme declarations', async () => {
+  test('applies per-theme mix overrides and explicit tone ink', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
         presetMoraine({
+          mix: { hover: 5, active: 10 },
           override: {
-            light: { colors: { primary: { hover: 5, active: 10 } } },
+            light: {
+              colors: { primary: { ink: '#2563eb' } },
+            },
             dark: {
-              colors: {
-                primary: {
-                  hover: '#60a5fa',
-                  active: () => '#93c5fd',
-                },
-              },
+              mix: { hover: 12 },
+              colors: { primary: { ink: '#60a5fa' } },
             },
           },
         }),
@@ -645,25 +692,24 @@ describe('presetMoraine', () => {
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
 
-    expect(css.indexOf('--primary-hover: color-mix(')).toBeLessThan(
-      css.indexOf('--primary-hover: #60a5fa;'),
-    )
-    expect(css.indexOf('--primary-active: color-mix(')).toBeLessThan(
-      css.indexOf('--primary-active: #93c5fd;'),
-    )
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-hover: 5%;/)
+    expect(css).toMatch(/:root \{[^}]*--mo-mix-active: 10%;/)
+    expect(css).toMatch(/:root \{[^}]*--primary-ink: #2563eb;/)
+    expect(css).toMatch(/\.dark \{[^}]*--mo-mix-hover: 12%;/)
+    expect(css).toMatch(/\.dark \{[^}]*--mo-mix-active: 10%;/)
+    expect(css).toMatch(/\.dark \{[^}]*--primary-ink: #60a5fa;/)
   })
 
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
   ])('applies named overrides and top-level tokens with %s', async (_name, wind) => {
-    const activeResolver = vi.fn(() => '#135')
     const options: PresetMoraineOptions = {
       radius: '0.75rem',
       fontSize: '1.125rem',
       spacing: '0.5rem',
       sidebarWidth: '18rem',
-      colorStates: { hover: 6 },
+      mix: { hover: 6 },
       override: {
         light: {
           colorScheme: 'dark',
@@ -673,20 +719,20 @@ describe('presetMoraine', () => {
             input: 'none',
           },
           colors: {
-            primary: { base: '#246', active: activeResolver },
+            primary: { base: '#246', ink: '#135' },
             secondary: { foreground: '#fff' },
             backdrop: 'rgb(20 30 40 / 0.4)',
           },
         },
         dark: {
           colorScheme: 'light',
-          colors: { primary: { foreground: '#111', hover: '#369' } },
+          colors: { primary: { foreground: '#111', ink: '#369' } },
           shadows: { surface: '0 2px #111' },
         },
         brand: { colorScheme: 'light', colors: { primary: '#369' } },
         custom: {
           selector: '[data-theme="custom"]',
-          colors: { primary: { foreground: '#fff', hover: 5 } },
+          colors: { primary: { foreground: '#fff', ink: '#555' } },
         },
       },
     }
@@ -701,12 +747,9 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\[data-theme="brand"\] \{[^}]*color-scheme: light;/)
     expect(css).toContain('--primary: #246;')
     expect(css).toContain('--primary-foreground: rgb(250, 250, 250);')
-    expect(css).toContain(
-      '--mo-auto-primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 6%);',
-    )
-    expect(css).not.toContain('--mo-auto-primary-hover: var(--primary);')
-    expect(css).toContain('--primary-active: #135;')
-    expect(css).toContain('--secondary: rgb(245, 245, 245);')
+    expect(css).toContain('--mo-mix-hover: 6%;')
+    expect(css).toContain('--primary-ink: #135;')
+    expect(css).toContain('--secondary: rgb(51, 65, 85);')
     expect(css).toContain('--secondary-foreground: #fff;')
     expect(css).toMatch(/:root \{[^}]*--shadow-surface: 0 2px 4px #123;/)
     expect(css).toMatch(/:root \{[^}]*--shadow-overlay: 0 8px 16px #456;/)
@@ -718,15 +761,12 @@ describe('presetMoraine', () => {
     expect(css).toContain('--font-size: 1.125rem;')
     expect(css).toContain('--spacing: 0.5rem;')
     expect(css).toContain('--sidebar-width: 18rem;')
-    expect(css).toContain('--primary-hover: #369;')
+    expect(css).toContain('--primary-ink: #369;')
     expect(css).toContain('[data-theme="brand"] {')
     expect(css).toContain('[data-theme="custom"] {\n  --primary-foreground: #fff;')
     expect(css).not.toContain('[data-theme="custom"] {\n  --primary:')
     expect(css.indexOf(':root {')).toBeLessThan(css.indexOf('.dark {'))
     expect(css.indexOf('.dark {')).toBeLessThan(css.indexOf('[data-theme="brand"] {'))
-    expect(activeResolver).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: ':root', color: 'primary', base: '#246' }),
-    )
   })
 
   test.each([true, false])(
@@ -756,18 +796,17 @@ describe('presetMoraine', () => {
     },
   )
 
-  test('uses an explicit selector and keeps explicit states when generation is disabled', async () => {
-    const active = vi.fn(() => '#135')
+  test('uses an explicit selector with custom mix and colors', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
         presetMoraine({
-          colorStates: false,
           themeDefaults: false,
           override: {
             dark: {
               selector: '[data-mode="night"]',
-              colors: { background: { active }, primary: { hover: 5 } },
+              mix: { hover: 5 },
+              colors: { primary: { ink: '#135' } },
             },
           },
         }),
@@ -777,43 +816,65 @@ describe('presetMoraine', () => {
 
     expect(css).toContain('[data-mode="night"] {')
     expect(css).not.toContain('.dark {')
-    expect(css).toContain('--background-active: #135;')
-    expect(css).toContain(
-      '--primary-hover: color-mix(in oklch, var(--primary), var(--primary-foreground, var(--foreground)) 5%);',
-    )
-    expect(css).not.toContain('--primary-active:')
-    expect(css).not.toContain('--mo-auto-primary-hover:')
+    expect(css).toContain('--mo-mix-hover: 5%;')
+    expect(css).toContain('--primary-ink: #135;')
     expect(css).not.toContain('--background: rgb(')
     expect(css).not.toContain('background-color: var(--background)')
-    expect(active).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: '[data-mode="night"]', base: 'var(--background)' }),
-    )
   })
 
-  test('does not generate extra states for a custom theme without a base', async () => {
-    const hover = vi.fn(() => '#369')
+  test('does not emit extra colors for a custom theme without a base', async () => {
     const generator = await createGenerator({
       presets: [
         presetWind4(),
         presetMoraine({
-          override: { brand: { colors: { primary: { foreground: '#fff', hover } } } },
+          override: { brand: { colors: { primary: { foreground: '#fff', ink: '#369' } } } },
         }),
       ],
     })
     const { css } = await generator.generate(new Set(), { preflights: true })
     expect(css).toContain(
-      '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-hover: #369;\n}',
+      '[data-theme="brand"] {\n  --primary-foreground: #fff;\n  --primary-ink: #369;\n}',
     )
     expect(css).not.toContain('[data-theme="brand"] {\n  --primary:')
-    expect(hover).toHaveBeenCalledWith(
-      expect.objectContaining({ selector: '[data-theme="brand"]', base: 'var(--primary)' }),
-    )
   })
 
-  test('rejects invalid adjustments', () => {
-    expect(() => presetMoraine({ colorStates: { hover: Number.POSITIVE_INFINITY } })).toThrow(
-      'colorStates.hover',
-    )
+  test('emits explicit soft token when configured in theme colors', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          override: {
+            light: {
+              colors: { primary: { soft: '#F0F7FF' } },
+            },
+          },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain('--primary-soft: #F0F7FF;')
+  })
+
+  test('emits --mo-mix-soft override when mix.soft is configured', async () => {
+    const generator = await createGenerator({
+      presets: [
+        presetWind4(),
+        presetMoraine({
+          mix: { soft: 16 },
+        }),
+      ],
+    })
+    const { css } = await generator.generate(new Set(), { preflights: true })
+    expect(css).toContain('--mo-mix-soft: 16%;')
+  })
+
+  test('rejects invalid mix adjustments', () => {
+    expect(() => presetMoraine({ mix: { hover: Number.POSITIVE_INFINITY } })).toThrow(RangeError)
+    expect(() => presetMoraine({ mix: { hover: -1 } })).toThrow(RangeError)
+    expect(() => presetMoraine({ mix: { hover: 101 } })).toThrow(RangeError)
+    expect(() => presetMoraine({ mix: { hover: Number.NaN } })).toThrow(RangeError)
+    expect(() => presetMoraine({ mix: { hover: null as unknown as number } })).toThrow(TypeError)
+    expect(() => presetMoraine({ mix: { hover: false as unknown as number } })).toThrow(TypeError)
   })
 })
 
@@ -829,13 +890,14 @@ describe('Wind3 semantic color and layout compatibility', () => {
         'ring-ring/50',
         'bg-primary/[0.2]',
         'data-danger:data-highlighted:bg-danger/15',
-        'hover:bg-primary-hover/30',
-        'hover:bg-warning-hover/30',
+        'hover:bg-accent-hover/30',
+        'text-primary-ink/50',
       ],
       false,
       presetWind3,
     )
-    expect(css).toContain(
+    expect(css).toContain('background-color:color-mix(in srgb,var(--primary) 20%,transparent)')
+    expect(css).not.toContain(
       'background-color:var(--primary);background-color:color-mix(in srgb,var(--primary) 20%,transparent)',
     )
     expect(css).toContain('color-mix(in srgb,var(--primary) calc(0.2 * 100%),transparent)')
@@ -844,8 +906,8 @@ describe('Wind3 semantic color and layout compatibility', () => {
     expect(css).toContain('color-mix(in srgb,var(--info) 20%,transparent)')
     expect(css).toContain('color-mix(in srgb,var(--danger) 50%,transparent)')
     expect(css).toContain('color-mix(in srgb,var(--ring) 50%,transparent)')
-    expect(css).toContain('var(--primary-hover, var(--mo-auto-primary-hover, var(--primary))) 30%')
-    expect(css).toContain('var(--warning-hover, var(--mo-auto-warning-hover, var(--warning))) 30%')
+    expect(css).toContain('var(--accent-hover, var(--mo-accent-hover, var(--accent))) 30%')
+    expect(css).toContain('var(--primary-ink, var(--mo-primary-ink, var(--primary))) 50%')
     expect(css).toContain('[data-highlighted][data-danger]')
   })
 

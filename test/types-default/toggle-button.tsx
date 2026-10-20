@@ -4,7 +4,7 @@ import { defineTheme } from 'moraine/theme'
 
 const variants: ToggleButtonT.Variant = {
   variant: 'outline',
-  activeVariant: 'default',
+  activeVariant: 'solid',
   size: 'icon-sm',
 }
 ;<ToggleButton {...variants} pressed onPressedChange={(pressed: boolean) => void pressed}>
@@ -16,7 +16,7 @@ const variants: ToggleButtonT.Variant = {
 </ToggleButton>
 defineTheme({
   toggleButton: {
-    defaultVariants: { variant: 'ghost', activeVariant: 'secondary' },
+    defaultVariants: { variant: 'ghost', activeVariant: 'soft' },
   },
 })
 // @ts-expect-error ToggleButton does not support activeEffect and always uses 'none' internally.

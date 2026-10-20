@@ -22,7 +22,7 @@ describe('MoraineProvider', () => {
       </>
     ))
     expect(screen.getByRole('button', { name: 'Headless' }).className).toContain('custom')
-    expect(screen.getByRole('button', { name: 'Official' }).className).toContain('bg-primary')
+    expect(screen.getByRole('button', { name: 'Official' }).className).toContain('bg-tone')
     expect(screen.getByRole('button', { name: 'Official' }).className).toContain('h-8')
   })
 
@@ -53,9 +53,9 @@ describe('MoraineProvider', () => {
     setOuter(parent)
     expect(button.className).toContain('parent-class')
     setInner(null)
-    expect(button.className).toContain('bg-primary')
+    expect(button.className).toContain('bg-tone')
     setOuter(defineTheme({ button: { base: { root: 'latest-parent' } } }))
-    expect(button.className).toContain('bg-primary')
+    expect(button.className).toContain('bg-tone')
     setInner(undefined)
     expect(button.className).toContain('latest-parent')
     expect(screen.getByRole('button')).toBe(button)
@@ -93,7 +93,7 @@ describe('MoraineProvider', () => {
     expect(screen.getByRole('button', { name: 'Owned' }).className).toContain('first-theme')
     setTheme(defineTheme({ button: { base: { root: 'second-theme' } } }))
     expect(screen.getByRole('button', { name: 'Owned' }).className).toContain('second-theme')
-    expect(screen.getByRole('button', { name: 'Sibling' }).className).toContain('bg-primary')
+    expect(screen.getByRole('button', { name: 'Sibling' }).className).toContain('bg-tone')
     expect([reads, mounts, cleanups]).toEqual([1, 1, 0])
     screen.unmount()
     expect(cleanups).toBe(1)
@@ -105,7 +105,7 @@ describe('MoraineProvider', () => {
     const button = screen.getByRole('button')
     button.click()
     expect(clicks).toBe(1)
-    expect(button.className).toContain('bg-primary')
+    expect(button.className).toContain('bg-tone')
   })
 
   test('replaces themes without losing native input state or focus', () => {

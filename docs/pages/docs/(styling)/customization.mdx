@@ -30,8 +30,9 @@ import { Button } from 'moraine'
 export function CustomAction() {
   return (
     <Button
-      // Layer 4: direct class overrides background and adds a shadow
-      class="bg-danger hover:bg-danger-hover shadow-lg"
+      tone="danger"
+      // Layer 4: direct class adds custom shadow
+      class="shadow-lg"
       // Layer 3: instance slot classes customize inner elements
       classes={{
         label: 'font-mono uppercase tracking-widest',

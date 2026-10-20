@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { AvatarFace } from '../avatar/avatar'
+import { Avatar } from '../avatar/avatar'
 
 import { avatarGroupRecipe } from './avatar-group.recipe'
 import type { AvatarGroupProps } from './avatar-group.types'
@@ -39,10 +39,10 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
       <div data-slot="avatar-group" {...rest} {...slots.root}>
         <For each={visibleItems()}>
           {(item) => (
-            <AvatarFace
+            <Avatar
               {...item}
               size={size()}
-              rootSlot="avatar-group-item"
+              slotName="avatar-group-item"
               {...slots.item}
               {...overrides(['image', 'fallback', 'fallbackContent', 'badge'])}
             />

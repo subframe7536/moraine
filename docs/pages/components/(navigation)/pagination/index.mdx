@@ -16,6 +16,47 @@ import { createSignal } from 'solid-js'
   controls={[
     {
       kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'neutral',
+      options: [
+        { label: 'Neutral', value: 'neutral' },
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'ghost',
+      options: [
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'activeVariant',
+      label: 'Active variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select',
       prop: 'size',
       label: 'Size',
       defaultValue: 'md',
@@ -51,6 +92,9 @@ import { createSignal } from 'solid-js'
           onPageChange={setPage}
           itemsPerPage={itemsPerPage()}
           size={props.size}
+          variant={props.variant}
+          activeVariant={props.activeVariant}
+          tone={props.tone}
           showControls={props.showControls}
         />
         <span class="text-xs text-muted-foreground font-mono">
