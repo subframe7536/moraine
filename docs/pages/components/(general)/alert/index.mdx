@@ -9,7 +9,7 @@ search:
   tags: [alert, callout, notice, banner, message, warning, error, info, success]
 ---
 
-import { Alert } from '@src'
+import { Alert, Button } from '@src'
 
 <Playground
   controls={[
@@ -17,7 +17,7 @@ import { Alert } from '@src'
       kind: 'select',
       prop: 'type',
       label: 'Type',
-      defaultValue: 'primary',
+      defaultValue: 'info',
       options: [
         { label: 'Primary', value: 'primary' },
         { label: 'Secondary', value: 'secondary' },
@@ -38,6 +38,12 @@ import { Alert } from '@src'
         { label: 'Outline', value: 'outline' },
         { label: 'Solid', value: 'solid' },
       ],
+    },
+    {
+      kind: 'switch',
+      prop: 'actions',
+      label: 'Actions',
+      defaultValue: true,
     },
     {
       kind: 'switch',
@@ -68,6 +74,16 @@ import { Alert } from '@src'
       <Alert
         type={props.type}
         variant={props.variant}
+        actions={
+          props.actions ? (
+            <>
+              <Button size="sm" variant="outline">
+                Details
+              </Button>
+              <Button size="sm">Action</Button>
+            </>
+          ) : undefined
+        }
         close={Boolean(props.close)}
         closeIcon={props.closeIcon === 'default' ? undefined : props.closeIcon}
         fullWidth={Boolean(props.fullWidth)}
