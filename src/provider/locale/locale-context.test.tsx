@@ -53,7 +53,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
 
 function controlValue(element: HTMLElement): string {
   if (!(element instanceof HTMLInputElement)) {
-    throw new Error('expected an input')
+    throw new TypeError('expected an input')
   }
   return element.value
 }

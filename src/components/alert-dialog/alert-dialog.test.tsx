@@ -37,7 +37,7 @@ function button(name: string, root: ParentNode = document.body): HTMLButtonEleme
     (candidate) => candidate.textContent === name || candidate.getAttribute('aria-label') === name,
   )
   if (!(match instanceof HTMLButtonElement)) {
-    throw new Error(`expected a ${name} button`)
+    throw new TypeError(`expected a ${name} button`)
   }
   return match
 }
