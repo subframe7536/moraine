@@ -1,5 +1,6 @@
 export {
   Accordion,
+  Alert,
   Avatar,
   AvatarGroup,
   Badge,
@@ -22,6 +23,8 @@ export {
 export type {
   AccordionT,
   AccordionProps,
+  AlertT,
+  AlertProps,
   AvatarT,
   AvatarProps,
   AvatarGroupT,

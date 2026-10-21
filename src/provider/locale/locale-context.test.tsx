@@ -2,6 +2,7 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { defaultAlertMessages } from '../../element/alert/alert.messages'
 import { defaultKbdMessages } from '../../element/kbd/kbd.messages'
 import { defaultProgressMessages } from '../../element/progress/progress.messages'
 import { defaultResizableMessages } from '../../element/resizable/resizable.messages'
@@ -29,6 +30,7 @@ import { useLocale, useMessages } from './locale-context'
 import type { MoraineMessagesInput, MoraineMessages } from './messages.types'
 
 const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
+  alert: defaultAlertMessages,
   dialog: defaultDialogMessages,
   sheet: defaultSheetMessages,
   toast: defaultToastMessages,

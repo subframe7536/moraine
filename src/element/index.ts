@@ -1,5 +1,7 @@
 export { Accordion } from './accordion'
 export type { AccordionT, AccordionProps } from './accordion'
+export { Alert } from './alert'
+export type { AlertT, AlertProps } from './alert'
 export { Avatar } from './avatar'
 export type { AvatarT, AvatarProps } from './avatar'
 export { AvatarGroup } from './avatar-group'

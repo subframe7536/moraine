@@ -1,4 +1,5 @@
 import type { AccordionStyleConfig } from '../element/accordion/accordion.style-types'
+import type { AlertStyleConfig } from '../element/alert/alert.style-types'
 import type { AvatarGroupStyleConfig } from '../element/avatar-group/avatar-group.style-types'
 import type { AvatarStyleConfig } from '../element/avatar/avatar.style-types'
 import type { BadgeStyleConfig } from '../element/badge/badge.style-types'
@@ -60,6 +61,7 @@ export interface ComponentStyleConfig<Slots extends object, Variants = never> {
 /** Declarative registry of Moraine component style configurations. */
 export interface MoraineStyleSchema {
   accordion: AccordionStyleConfig
+  alert: AlertStyleConfig
   avatar: AvatarStyleConfig
   avatarGroup: AvatarGroupStyleConfig
   badge: BadgeStyleConfig
