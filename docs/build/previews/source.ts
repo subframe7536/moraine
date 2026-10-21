@@ -133,8 +133,9 @@ export async function transformPreviewSourceModule(
 ): Promise<string | null> {
   const sourceText = await resolvePreviewComponentSource(code, parsePreviewCode)
   if (!sourceText) {
-    return 'export default ""\n'
+    return 'export default { html: "", code: "" }\n'
   }
 
-  return `export default ${JSON.stringify(await toHtml(sourceText, 'tsx'))}\n`
+  const html = await toHtml(sourceText, 'tsx')
+  return `export default ${JSON.stringify({ html, code: sourceText })}\n`
 }

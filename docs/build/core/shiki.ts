@@ -2,24 +2,38 @@ import { transformerStyleToClass } from '@shikijs/transformers'
 import type { Highlighter, ShikiTransformer } from 'shiki'
 import { createHighlighter } from 'shiki'
 
-let onClassChange: (() => void) | undefined
+const GLOBAL_SHIKI_KEY = Symbol.for('moraine.docs.shikiStyleToClass')
+const GLOBAL_ON_CLASS_CHANGE_KEY = Symbol.for('moraine.docs.shikiOnClassChange')
+
+type OnClassCallback = (() => void) | undefined
+
+function getGlobalOnClassChange(): OnClassCallback {
+  return (globalThis as any)[GLOBAL_ON_CLASS_CHANGE_KEY]
+}
+
+function setGlobalOnClassChange(cb: OnClassCallback) {
+  ;(globalThis as any)[GLOBAL_ON_CLASS_CHANGE_KEY] = cb
+}
 
 export function onDocsShikiClass(cb: () => void): () => void {
-  onClassChange = cb
+  setGlobalOnClassChange(cb)
   return () => {
-    if (onClassChange === cb) {
-      onClassChange = undefined
+    if (getGlobalOnClassChange() === cb) {
+      setGlobalOnClassChange(undefined)
     }
   }
 }
 
-export const docsShikiStyleToClass = transformerStyleToClass({
-  classPrefix: '__shiki_',
-  classReplacer(className) {
-    onClassChange?.()
-    return className
-  },
-})
+export const docsShikiStyleToClass = ((globalThis as any)[GLOBAL_SHIKI_KEY] ??=
+  transformerStyleToClass({
+    classPrefix: '__shiki_',
+    classReplacer(className) {
+      if (!docsShikiStyleToClass?.getClassRegistry().has(className)) {
+        getGlobalOnClassChange()?.()
+      }
+      return className
+    },
+  }))
 
 export function getDocsShikiCss(): string {
   return docsShikiStyleToClass.getCSS()
@@ -59,6 +73,13 @@ async function getDocsHighlighter(): Promise<Highlighter> {
     })
   }
   return highlighterPromise
+}
+
+export interface CodeBlockMeta {
+  title?: string
+  groupId?: string
+  highlightedLines: number[]
+  lineNumbers: boolean
 }
 
 export function parseHighlightedLines(
@@ -135,17 +156,84 @@ export function parseCodeGroupId(meta?: string): string | undefined {
   return match?.[1] ?? match?.[2] ?? match?.[3]
 }
 
-export interface DocsCodeRenderOptions {
+export function parseCodeBlockMeta(
+  meta?: string,
+  overrides?: {
+    highlightedLines?: number[] | string | Set<number>
+    lineNumbers?: boolean
+  },
+): CodeBlockMeta {
+  const title = parseCodeTitle(meta)
+  const groupId = parseCodeGroupId(meta)
+  const highlightedLines = Array.from(
+    parseHighlightedLines(meta, overrides?.highlightedLines),
+  ).sort((a, b) => a - b)
+  const lineNumbers = overrides?.lineNumbers ?? (meta ? /\bshowLineNumbers\b/.test(meta) : false)
+
+  return {
+    title,
+    groupId,
+    highlightedLines,
+    lineNumbers,
+  }
+}
+
+export function normalizeHighlightLanguage(lang?: string): string {
+  const trimmed = lang?.trim().toLowerCase()
+  if (!trimmed) {
+    return 'text'
+  }
+
+  switch (trimmed) {
+    case 'pnpm':
+    case 'npm':
+    case 'yarn':
+    case 'bun':
+    case 'shell':
+    case 'sh':
+    case 'terminal':
+    case 'console':
+    case 'zsh':
+      return 'bash'
+    case 'jsonc':
+      return 'json'
+    case 'md':
+      return 'markdown'
+    case 'js':
+      return 'javascript'
+    case 'ts':
+      return 'typescript'
+    default:
+      return trimmed
+  }
+}
+
+export interface HighlightCodeBlockOptions {
   code: string
-  language: string
+  language?: string
   meta?: string
+  title?: string
+  groupId?: string
   highlightedLines?: number[] | string | Set<number>
   lineNumbers?: boolean
 }
 
-export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promise<string> {
+export interface HighlightedCodeResult {
+  html: string
+  code: string
+  lang: string
+  title?: string
+  groupId?: string
+  highlightedLines: number[]
+  lineNumbers: boolean
+}
+
+export async function highlightCodeBlock(
+  options: HighlightCodeBlockOptions,
+): Promise<HighlightedCodeResult> {
   const highlighter = await getDocsHighlighter()
-  let lang = options.language?.trim().toLowerCase() || 'text'
+  const rawLang = options.language?.trim().toLowerCase() || ''
+  let lang = normalizeHighlightLanguage(rawLang)
 
   const loadedLangs = highlighter.getLoadedLanguages()
   if (!loadedLangs.includes(lang)) {
@@ -156,23 +244,31 @@ export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promis
     }
   }
 
-  const highlightedLines = parseHighlightedLines(options.meta, options.highlightedLines)
-  const showLineNumbers = options.lineNumbers ?? options.meta?.includes('showLineNumbers') ?? false
+  const meta = parseCodeBlockMeta(options.meta, {
+    highlightedLines: options.highlightedLines,
+    lineNumbers: options.lineNumbers,
+  })
+
+  const title = options.title ?? meta.title
+  const groupId = options.groupId ?? meta.groupId
+  const highlightedLines = meta.highlightedLines
+  const lineNumbers = options.lineNumbers ?? meta.lineNumbers
+  const highlightedSet = new Set(highlightedLines)
 
   const transformers: ShikiTransformer[] = []
 
-  if (highlightedLines.size > 0) {
+  if (highlightedSet.size > 0) {
     transformers.push({
       name: 'moraine:highlighted-lines',
       line(node, line) {
-        if (highlightedLines.has(line)) {
+        if (highlightedSet.has(line)) {
           this.addClassToHast(node, 'highlighted')
         }
       },
     })
   }
 
-  if (showLineNumbers) {
+  if (lineNumbers) {
     transformers.push({
       name: 'moraine:line-numbers',
       pre(node) {
@@ -190,7 +286,7 @@ export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promis
 
   transformers.push(docsShikiStyleToClass)
 
-  return highlighter.codeToHtml(options.code, {
+  const html = highlighter.codeToHtml(options.code, {
     lang,
     themes: {
       light: DOCS_HIGHLIGHT_THEMES.light,
@@ -199,4 +295,27 @@ export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promis
     defaultColor: false,
     transformers,
   })
+
+  return {
+    html,
+    code: options.code,
+    lang,
+    title,
+    groupId,
+    highlightedLines,
+    lineNumbers,
+  }
+}
+
+export interface DocsCodeRenderOptions {
+  code: string
+  language: string
+  meta?: string
+  highlightedLines?: number[] | string | Set<number>
+  lineNumbers?: boolean
+}
+
+export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promise<string> {
+  const result = await highlightCodeBlock(options)
+  return result.html
 }

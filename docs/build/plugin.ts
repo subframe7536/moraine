@@ -4,12 +4,7 @@ import type { Plugin } from 'vite'
 import { generateApiDoc } from './api-doc/extract.ts'
 import { loadApiDocIndex } from './api-doc/load.ts'
 import { writeJsonFiles } from './api-doc/write.ts'
-import {
-  docsShikiStyleToClass,
-  getDocsShikiCss,
-  onDocsShikiClass,
-  renderDocsCodeHtml,
-} from './core/shiki.ts'
+import { onDocsShikiClass, renderDocsCodeHtml } from './core/shiki.ts'
 import { parsePreviewCode } from './previews/ast.ts'
 import { transformPreviewModule } from './previews/module.ts'
 import { transformPreviewSourceModule } from './previews/source.ts'
@@ -17,9 +12,6 @@ import { scanDocsPages } from './routes.ts'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
-
-const VIRTUAL_SHIKI_CSS = 'virtual:shiki.css'
-const RESOLVED_VIRTUAL_SHIKI_CSS = '\0moraine-shiki.css'
 
 const DOCS_TRANSFORM_FILTER = /(?:\?preview(?:&|$)|\?preview-source(?:&|$))/
 
@@ -119,19 +111,32 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
         return
       }
       await ensureApiDocs()
+      if (config.command === 'serve') {
+        await Promise.all([
+          renderDocsCodeHtml({
+            code: "import { createSignal } from 'solid-js'\nexport const x = 1\nconst s = 'text'\n// comment",
+            language: 'tsx',
+          }),
+          renderDocsCodeHtml({
+            code: 'pnpm add moraine\n# install packages',
+            language: 'bash',
+          }),
+          renderDocsCodeHtml({
+            code: '{\n  "name": "moraine",\n  "private": true\n}',
+            language: 'json',
+          }),
+        ]).catch(() => {})
+      }
       generatedForBuild = config.command === 'build'
     },
 
     resolveId: {
       filter: {
-        id: /^(?:virtual:api-doc|virtual:shiki\.css)$/,
+        id: /^virtual:api-doc$/,
       },
       handler(id) {
         if (id === VIRTUAL_API_DOC) {
           return RESOLVED_VIRTUAL_API_DOC
-        }
-        if (id === VIRTUAL_SHIKI_CSS) {
-          return RESOLVED_VIRTUAL_SHIKI_CSS
         }
         return null
       },
@@ -139,7 +144,7 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
     load: {
       filter: {
-        id: /(?:moraine-api-doc|moraine-shiki\.css)$/,
+        id: /moraine-api-doc$/,
       },
       async handler(id) {
         if (id === RESOLVED_VIRTUAL_API_DOC) {
@@ -151,58 +156,39 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
           console.warn('[api-doc] index.json not found, serving empty data')
           return 'export default { components: [] }'
         }
-        if (id === RESOLVED_VIRTUAL_SHIKI_CSS) {
-          return getDocsShikiCss()
-        }
         return null
       },
     },
 
     configureServer(server) {
+      let scheduled = false
       onDocsShikiClass(() => {
-        const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_SHIKI_CSS)
-        if (mod) {
-          server.moduleGraph.invalidateModule(mod)
-          server.ws.send({
-            type: 'update',
-            updates: [
-              {
-                type: 'css-update',
-                path: `/${VIRTUAL_SHIKI_CSS}`,
-                acceptedPath: `/${VIRTUAL_SHIKI_CSS}`,
+        if (scheduled) {
+          return
+        }
+        scheduled = true
+        queueMicrotask(() => {
+          scheduled = false
+          const unoMods = Array.from(server.moduleGraph.idToModuleMap.values()).filter(
+            (mod) => mod.id && /(?:^|[\\/])(?:virtual:)?uno(?:(?::|_).*)?\.css/.test(mod.id),
+          )
+          for (const mod of unoMods) {
+            server.moduleGraph.invalidateModule(mod)
+          }
+          if (unoMods.length > 0) {
+            const hot = server.hot ?? server.ws
+            hot?.send({
+              type: 'update',
+              updates: unoMods.map((mod) => ({
+                type: 'js-update',
+                path: mod.url,
+                acceptedPath: mod.url,
                 timestamp: Date.now(),
-              },
-            ],
-          })
-        }
+              })),
+            })
+          }
+        })
       })
-    },
-
-    generateBundle(_options, bundle) {
-      for (const file of Object.values(bundle)) {
-        if (
-          file.type === 'asset' &&
-          typeof file.source === 'string' &&
-          file.fileName.endsWith('.css')
-        ) {
-          const missingRules: string[] = []
-          for (const [className, style] of docsShikiStyleToClass.getClassRegistry().entries()) {
-            if (!file.source.includes(`.${className}`)) {
-              const str =
-                typeof style === 'string'
-                  ? style
-                  : Object.entries(style)
-                      .map(([k, v]) => `${k}:${v}`)
-                      .join(';')
-              missingRules.push(`.${className}{${str}}`)
-            }
-          }
-          if (missingRules.length > 0) {
-            file.source += `\n${missingRules.join('')}`
-          }
-          break
-        }
-      }
     },
 
     transform: {

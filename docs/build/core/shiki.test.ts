@@ -4,6 +4,9 @@ import { describe, expect, test } from 'vitest'
 
 import {
   getDocsShikiCss,
+  highlightCodeBlock,
+  normalizeHighlightLanguage,
+  parseCodeBlockMeta,
   parseCodeGroupId,
   parseCodeTitle,
   parseHighlightedLines,
@@ -93,5 +96,61 @@ describe('docs shiki code highlighter', () => {
     })
     expect(html).toContain('tabindex="-1"')
     expect(html).not.toContain('tabindex="0"')
+  })
+
+  test('parses unified code block metadata', () => {
+    const meta = parseCodeBlockMeta('title="example.tsx" group-id="tabs" {1,3-5} showLineNumbers')
+    expect(meta).toEqual({
+      title: 'example.tsx',
+      groupId: 'tabs',
+      highlightedLines: [1, 3, 4, 5],
+      lineNumbers: true,
+    })
+
+    const withOverrides = parseCodeBlockMeta('title="custom.ts"', {
+      highlightedLines: [2, 4],
+      lineNumbers: true,
+    })
+    expect(withOverrides).toEqual({
+      title: 'custom.ts',
+      groupId: undefined,
+      highlightedLines: [2, 4],
+      lineNumbers: true,
+    })
+  })
+
+  test('normalizes highlight languages and aliases', () => {
+    expect(normalizeHighlightLanguage('pnpm')).toBe('bash')
+    expect(normalizeHighlightLanguage('npm')).toBe('bash')
+    expect(normalizeHighlightLanguage('yarn')).toBe('bash')
+    expect(normalizeHighlightLanguage('bun')).toBe('bash')
+    expect(normalizeHighlightLanguage('shell')).toBe('bash')
+    expect(normalizeHighlightLanguage('sh')).toBe('bash')
+    expect(normalizeHighlightLanguage('zsh')).toBe('bash')
+    expect(normalizeHighlightLanguage('terminal')).toBe('bash')
+    expect(normalizeHighlightLanguage('console')).toBe('bash')
+    expect(normalizeHighlightLanguage('jsonc')).toBe('json')
+    expect(normalizeHighlightLanguage('md')).toBe('markdown')
+    expect(normalizeHighlightLanguage('js')).toBe('javascript')
+    expect(normalizeHighlightLanguage('ts')).toBe('typescript')
+    expect(normalizeHighlightLanguage('')).toBe('text')
+    expect(normalizeHighlightLanguage(undefined)).toBe('text')
+    expect(normalizeHighlightLanguage('python')).toBe('python')
+  })
+
+  test('highlights code block and returns structured result', async () => {
+    const result = await highlightCodeBlock({
+      code: 'pnpm add moraine',
+      language: 'pnpm',
+      meta: 'title="terminal" {1}',
+    })
+
+    expect(result.code).toBe('pnpm add moraine')
+    expect(result.lang).toBe('bash')
+    expect(result.title).toBe('terminal')
+    expect(result.highlightedLines).toEqual([1])
+    expect(result.lineNumbers).toBe(false)
+    expect(result.html).toContain('class="line highlighted"')
+    expect(result.html).toContain('moraine')
   })
 })

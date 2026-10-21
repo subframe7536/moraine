@@ -236,6 +236,8 @@ export const BasicExample = () => <Button>basic</Button>
     const transformed = await transformPreviewSourceModule(source, parsePreviewCode, toHtml)
 
     expect(transformed).toContain('export default ')
+    expect(transformed).toContain('"html":')
+    expect(transformed).toContain('"code":')
     expect(toHtml).toHaveBeenCalledWith(
       `import { Button } from 'moraine'
 
@@ -249,7 +251,7 @@ export const BasicExample = () => <Button>basic</Button>`,
 
     const transformed = await transformPreviewSourceModule('   \n\t  ', parsePreviewCode, toHtml)
 
-    expect(transformed).toBe('export default ""\n')
+    expect(transformed).toBe('export default { html: "", code: "" }\n')
     expect(toHtml).not.toHaveBeenCalled()
   })
 })

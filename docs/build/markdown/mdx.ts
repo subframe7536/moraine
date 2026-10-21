@@ -1,4 +1,4 @@
-import { parseCodeTitle, parseHighlightedLines } from '../core/shiki.ts'
+import { parseCodeBlockMeta } from '../core/shiki.ts'
 
 export interface MdxNode {
   type?: string
@@ -72,12 +72,13 @@ export function extractMdxNodeText(node: MdxNode): string {
 
 export function readCodeTabSource(node: MdxNode, source?: string): CodeTabSource | null {
   if (node.type === 'code') {
-    const title = parseCodeTitle(node.meta) ?? node.lang ?? 'code'
+    const meta = parseCodeBlockMeta(node.meta)
+    const title = meta.title ?? node.lang ?? 'code'
     return {
       lang: node.lang ?? '',
       title,
       code: node.value ?? '',
-      highlightedLines: [...parseHighlightedLines(node.meta)],
+      highlightedLines: meta.highlightedLines,
     }
   }
   if (node.name !== 'CodeTabs.Item') {
@@ -91,21 +92,21 @@ export function readCodeTabSource(node: MdxNode, source?: string): CodeTabSource
   let title = typeof titleAttribute === 'string' ? titleAttribute : ''
   let code = typeof codeAttribute === 'string' ? codeAttribute : ''
   const explicitHighlightedLines = getMdxAttributeValue(node, 'highlightedLines')
-  let highlightedLines = [
-    ...parseHighlightedLines(
-      undefined,
+  let highlightedLines = parseCodeBlockMeta(undefined, {
+    highlightedLines:
       Array.isArray(explicitHighlightedLines) || typeof explicitHighlightedLines === 'string'
         ? (explicitHighlightedLines as number[] | string)
         : undefined,
-    ),
-  ]
+  }).highlightedLines
+
   const codeChild = node.children?.find((child) => child.type === 'code')
   if (codeChild) {
     code = codeChild.value ?? ''
     lang ||= codeChild.lang ?? ''
-    title ||= parseCodeTitle(codeChild.meta) ?? ''
+    const childMeta = parseCodeBlockMeta(codeChild.meta)
+    title ||= childMeta.title ?? ''
     if (highlightedLines.length === 0) {
-      highlightedLines = [...parseHighlightedLines(codeChild.meta)]
+      highlightedLines = childMeta.highlightedLines
     }
   } else if (!code) {
     const expression = node.children?.find(

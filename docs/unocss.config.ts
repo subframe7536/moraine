@@ -4,6 +4,7 @@ import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from 
 
 import { presetMoraine } from '../src/theme/unocss.ts'
 
+import { getDocsShikiCss } from './build/core/shiki.ts'
 import { DOCS_MOBILE_QUERY } from './shared/docs-layout.ts'
 
 const markdownShortCuts = {
@@ -94,6 +95,9 @@ export default defineConfig<PresetWind4Theme>({
     },
   },
   preflights: [
+    {
+      getCSS: () => getDocsShikiCss(),
+    },
     {
       getCSS: () => `
 /* The server renders the desktop rail before SidebarFrame resolves the viewport. */

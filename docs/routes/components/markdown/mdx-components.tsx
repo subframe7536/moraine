@@ -28,7 +28,7 @@ interface MdxProps {
 
 export interface DocsMdxPreview {
   component?: Component
-  source?: string
+  source?: string | { html: string; code: string }
 }
 
 function toStringProp(value: unknown): string | undefined {
@@ -74,7 +74,12 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
                 </Show>
               </div>
               <Show when={descriptor.source}>
-                {(value) => <CodeBlock variant="source" lang="tsx" html={value()} />}
+                {(value) => {
+                  const src = value()
+                  const html = typeof src === 'string' ? src : src.html
+                  const code = typeof src === 'object' && src ? src.code : undefined
+                  return <CodeBlock variant="source" lang="tsx" html={html} code={code} />
+                }}
               </Show>
             </section>
           )

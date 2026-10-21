@@ -1,12 +1,7 @@
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode, MdastNode, MdastVisitorContext, MdxJsxAttributeUnion } from 'satteri'
 
-import {
-  parseCodeGroupId,
-  parseCodeTitle,
-  parseHighlightedLines,
-  renderDocsCodeHtml,
-} from '../core/shiki.ts'
+import { highlightCodeBlock, parseCodeGroupId } from '../core/shiki.ts'
 import { toKebabCase } from '../core/strings.ts'
 
 import { readCodeTabSource } from './mdx.ts'
@@ -216,14 +211,10 @@ export function createDocsCodePlugin() {
   return defineMdastPlugin({
     name: 'moraine-docs-code',
     async code(node) {
-      const meta = node.meta ?? undefined
-      const title = parseCodeTitle(meta)
-      const highlightedLines = [...parseHighlightedLines(meta)]
-      const html = await renderDocsCodeHtml({
+      const result = await highlightCodeBlock({
         code: node.value,
         language: node.lang ?? '',
-        meta,
-        highlightedLines,
+        meta: node.meta ?? undefined,
       })
 
       const attributes: MdxJsxAttributeUnion[] = [
@@ -232,7 +223,7 @@ export function createDocsCodePlugin() {
           name: 'html',
           value: {
             type: 'mdxJsxAttributeValueExpression',
-            value: JSON.stringify(html),
+            value: JSON.stringify(result.html),
           },
         },
         {
@@ -240,7 +231,7 @@ export function createDocsCodePlugin() {
           name: 'code',
           value: {
             type: 'mdxJsxAttributeValueExpression',
-            value: JSON.stringify(node.value),
+            value: JSON.stringify(result.code),
           },
         },
         {
@@ -248,29 +239,29 @@ export function createDocsCodePlugin() {
           name: 'lang',
           value: {
             type: 'mdxJsxAttributeValueExpression',
-            value: JSON.stringify(node.lang ?? ''),
+            value: JSON.stringify(result.lang),
           },
         },
       ]
 
-      if (title) {
+      if (result.title) {
         attributes.push({
           type: 'mdxJsxAttribute',
           name: 'title',
           value: {
             type: 'mdxJsxAttributeValueExpression',
-            value: JSON.stringify(title),
+            value: JSON.stringify(result.title),
           },
         })
       }
 
-      if (highlightedLines.length > 0) {
+      if (result.highlightedLines.length > 0) {
         attributes.push({
           type: 'mdxJsxAttribute',
           name: 'highlightedLines',
           value: {
             type: 'mdxJsxAttributeValueExpression',
-            value: JSON.stringify(highlightedLines),
+            value: JSON.stringify(result.highlightedLines),
           },
         })
       }
@@ -290,10 +281,11 @@ async function renderCodeTabItem(node: MdxNode, source?: string) {
   if (!item) {
     throw new Error('[docs-mdx] invalid CodeTabs item')
   }
-  const html = await renderDocsCodeHtml({
+  const result = await highlightCodeBlock({
     code: item.code,
     language: item.lang,
     highlightedLines: item.highlightedLines,
+    title: item.title,
   })
   return {
     label: item.title,
@@ -301,8 +293,8 @@ async function renderCodeTabItem(node: MdxNode, source?: string) {
     value: item.title,
     lang: item.lang,
     code: item.code,
-    html,
-    highlightedLines: item.highlightedLines,
+    html: result.html,
+    highlightedLines: result.highlightedLines,
   }
 }
 

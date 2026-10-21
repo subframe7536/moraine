@@ -8,6 +8,7 @@ import { createServer, parseSync } from 'vite'
 import type { ViteDevServer } from 'vite'
 import { describe, expect, test } from 'vitest'
 
+import { getDocsShikiCss } from './core/shiki.ts'
 import { docsBuildPlugin } from './plugin.ts'
 import { PREVIEW_PARSE_OPTIONS } from './previews/ast.ts'
 
@@ -250,12 +251,51 @@ export type ButtonProps = ButtonT.Props
       const apiCode = typeof apiModule === 'string' ? apiModule : apiModule?.code
       expect(apiCode).toContain('"button"')
 
+      // Simulate uno.css in Vite's moduleGraph
+      const unoMod = await server.moduleGraph.ensureEntryFromUrl('/uno.css')
+      unoMod.id = '/project/docs/uno.css'
+
+      const hotUpdates: unknown[] = []
+      server.hot.send = (payload: unknown) => {
+        hotUpdates.push(payload)
+      }
+
       const previewModule = await server.transformRequest(
         '/pages/components/button/basic-example.tsx?preview',
       )
       expect(previewModule?.code).toContain('export default')
       expect(previewModule?.code).toContain('source: __PreviewSource')
       expect(previewModule?.code).toContain('?preview-source')
+
+      await writeFile(
+        path.join(projectRoot, 'docs/pages/components/button/basic-example.tsx'),
+        'export const reg = /abc[0-9]+/g;\nexport const big = 999999999999999999n;\n',
+        'utf8',
+      )
+
+      const previewSourceModule = await server.transformRequest(
+        '/pages/components/button/basic-example.tsx?preview-source',
+      )
+      expect(previewSourceModule?.code).toContain('"html":')
+      expect(previewSourceModule?.code).toContain('"code":')
+
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(hotUpdates).toContainEqual({
+        type: 'update',
+        updates: [
+          expect.objectContaining({
+            type: 'js-update',
+            path: unoMod.url,
+            acceptedPath: unoMod.url,
+          }),
+        ],
+      })
+
+      const shikiCss = getDocsShikiCss()
+      expect(shikiCss).toContain('__shiki_')
+      expect(shikiCss).toContain('--shiki-light')
+      expect(shikiCss).toContain('--shiki-dark')
     } finally {
       await server?.close()
       await rm(projectRoot, { recursive: true, force: true })

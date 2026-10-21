@@ -25,7 +25,7 @@ export namespace CodeBlockT {
     code?: string
     lang?: string
     title?: string
-    highlightedLines?: number[] | string
+    highlightedLines?: number[] | string | Set<number>
     variant?: Variant
     expandable?: boolean
     class?: string
