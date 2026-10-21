@@ -4,14 +4,14 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { KbdT } from '../kbd/kbd.types'
 
-import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
+import type { KbdGroupStyleSlot, KbdGroupStyleVariants } from './kbd-group.style-types'
 
 export namespace KbdGroupT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = KbdGroupStyleSlot<T>
 
-  export type Variant = KbdGroupStyleVariant
+  export type Variants = KbdGroupStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -35,7 +35,7 @@ export namespace KbdGroupT {
   }
 
   /** Props for the KbdGroup component. */
-  export type Props = BaseProps<'kbd', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'kbd', Base, Variants, Classes, Styles>
 }
 
 /** Props for the KbdGroup component. */

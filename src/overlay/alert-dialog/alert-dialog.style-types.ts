@@ -17,7 +17,7 @@ export interface AlertDialogStyleSlot<T = unknown> {
   cancel?: T
 }
 
-export interface AlertDialogStyleVariant {
+export interface AlertDialogStyleVariants {
   /**
    * Centers the icon, title, and description, and stretches the actions into an equal row.
    * @default false
@@ -38,5 +38,5 @@ export interface AlertDialogStyleVariant {
 
 export type AlertDialogStyleConfig = ComponentStyleConfig<
   AlertDialogStyleSlot,
-  AlertDialogStyleVariant
+  AlertDialogStyleVariants
 >

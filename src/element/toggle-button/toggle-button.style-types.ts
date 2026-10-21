@@ -4,20 +4,20 @@ import type { ButtonStyleSlot } from '../button/button.style-types'
 
 export interface ToggleButtonStyleSlot<T = unknown> extends ButtonStyleSlot<T> {}
 
-export interface ToggleButtonStyleVariant {
+export interface ToggleButtonStyleVariants {
   /** Visual treatment while unpressed. @default 'ghost' */
-  variant?: ButtonT.Variant['variant']
+  variant?: ButtonT.Variants['variant']
   /** Visual treatment while pressed. @default 'soft' */
-  activeVariant?: ButtonT.Variant['variant']
+  activeVariant?: ButtonT.Variants['variant']
   /** Color tone while unpressed. @default 'neutral' */
-  tone?: ButtonT.Variant['tone']
+  tone?: ButtonT.Variants['tone']
   /** Color tone while pressed. @default 'neutral' */
-  activeTone?: ButtonT.Variant['tone']
+  activeTone?: ButtonT.Variants['tone']
   /** Button size, including icon-only sizes. @default 'md' */
-  size?: ButtonT.Variant['size']
+  size?: ButtonT.Variants['size']
 }
 
 export type ToggleButtonStyleConfig = ComponentStyleConfig<
   ToggleButtonStyleSlot,
-  ToggleButtonStyleVariant
+  ToggleButtonStyleVariants
 >

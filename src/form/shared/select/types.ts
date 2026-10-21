@@ -5,7 +5,7 @@ import type { ListT } from '../../../element/list/index'
 import type { ElementProps } from '../../../shared/types'
 import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types'
 
-import type { SelectControlStyleVariant, SelectItemStyleSlot } from './style-types'
+import type { SelectControlStyleVariants, SelectItemStyleSlot } from './style-types'
 
 export interface SelectItem<
   V extends BaseSelectValue = BaseSelectValue,
@@ -16,7 +16,7 @@ export interface SelectItem<
   description?: JSX.Element
 }
 /** Shared visual variants for the Select-family field controls. */
-export type SelectControlVariant = SelectControlStyleVariant
+export type SelectControlVariants = SelectControlStyleVariants
 /** Shared item-content slots for collection-backed Select-family controls. */
 export type SelectItemSlot<T = unknown> = SelectItemStyleSlot<T>
 export type NormalizedSelectItem<T extends string | BaseSelectT.Item> = T extends string

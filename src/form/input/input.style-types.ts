@@ -6,7 +6,7 @@ export interface InputStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface InputStyleVariant {
+export interface InputStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -17,7 +17,7 @@ export interface InputStyleVariant {
   variant?: TextControlVariant
 }
 
-export interface InputRecipeVariant extends InputStyleVariant {
+export interface InputRecipeVariant extends InputStyleVariants {
   /** Internal presentation selected when InputGroup supplies the outer frame. */
   grouped?: boolean
   /** Internal axis inherited from InputGroup. */

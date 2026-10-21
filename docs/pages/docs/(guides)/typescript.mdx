@@ -14,10 +14,10 @@ Use the component's props type for wrappers and its namespace for supporting typ
 
 Moraine uses a clear two-tier export convention for every component:
 
-| Pattern    | Purpose                                         | Example                           |
-| :--------- | :---------------------------------------------- | :-------------------------------- |
-| `XxxProps` | Full public props for a component               | `ButtonProps`, `SelectProps`      |
-| `XxxT.*`   | Supporting types (slots, variants, items, etc.) | `ButtonT.Variant`, `SelectT.Item` |
+| Pattern    | Purpose                                         | Example                            |
+| :--------- | :---------------------------------------------- | :--------------------------------- |
+| `XxxProps` | Full public props for a component               | `ButtonProps`, `SelectProps`       |
+| `XxxT.*`   | Supporting types (slots, variants, items, etc.) | `ButtonT.Variants`, `SelectT.Item` |
 
 ```tsx
 import type { ButtonProps, ButtonT, SelectProps, SelectT } from 'moraine'
@@ -55,25 +55,25 @@ const countries: SelectT.Item[] = [
 
 #### Namespace Members Reference
 
-| Member    | Description                                                                         |
-| :-------- | :---------------------------------------------------------------------------------- |
-| `Kind`    | `'single'` or `'composite'`; composite components expose attached JSX parts.        |
-| `Props`   | Complete component props type (identical to `XxxProps`).                            |
-| `Base`    | Core business props without native HTML attributes.                                 |
-| `Slot<T>` | Object shape of optional styling slots; `keyof XxxT.Slot` gives the slot names.     |
-| `Variant` | Object shape of visual variant options; component props additionally accept `null`. |
-| `Classes` | Slot shape containing `cn` class values, including strings, arrays, and objects.    |
-| `Styles`  | Slot shape containing `JSX.CSSProperties` objects; string styles are unsupported.   |
-| `Item`    | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).         |
-| `Value`   | Value domain type for form controls with value semantics.                           |
+| Member     | Description                                                                         |
+| :--------- | :---------------------------------------------------------------------------------- |
+| `Kind`     | `'single'` or `'composite'`; composite components expose attached JSX parts.        |
+| `Props`    | Complete component props type (identical to `XxxProps`).                            |
+| `Base`     | Core business props without native HTML attributes.                                 |
+| `Slot<T>`  | Object shape of optional styling slots; `keyof XxxT.Slot` gives the slot names.     |
+| `Variants` | Object shape of visual variant options; component props additionally accept `null`. |
+| `Classes`  | Slot shape containing `cn` class values, including strings, arrays, and objects.    |
+| `Styles`   | Slot shape containing `JSX.CSSProperties` objects; string styles are unsupported.   |
+| `Item`     | Data model for collection-backed components (`Select`, `Combobox`, `Tabs`).         |
+| `Value`    | Value domain type for form controls with value semantics.                           |
 
 Members are available where applicable. For example, collection components expose `Item`, while
 single-root components such as `Icon` do not accept instance slot maps. Attached parts use
 namespace types such as `DialogT.ContentProps`.
 
-## Visual Variants (`XxxT.Variant`)
+## Visual Variants (`XxxT.Variants`)
 
-Components supporting visual variants expose their options under `XxxT.Variant`. The corresponding properties on `XxxProps` accept `null` to explicitly clear defaults for that variant, while base recipe styles and other variants remain active:
+Components supporting visual variants expose their options under `XxxT.Variants`. The corresponding properties on `XxxProps` accept `null` to explicitly clear defaults for that variant, while base recipe styles and other variants remain active:
 
 ```tsx
 import type { ButtonProps } from 'moraine'

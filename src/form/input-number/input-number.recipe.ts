@@ -12,7 +12,7 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
+import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-number.style-types'
 
 const controlDataAttributes = /* @__PURE__ */ createDataAttributes('active', 'disabled')
 const CONTROL_BUTTON_CLASS = `text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none whitespace-nowrap transition-colors items-center justify-center touch-none ${DISABLED_CLASS} active:text-primary-active hover:text-primary-hover`
@@ -33,7 +33,7 @@ export const inputNumberDataAttributes = {
 
 export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   InputNumberStyleSlot,
-  InputNumberStyleVariant
+  InputNumberStyleVariants
 >('inputNumber', {
   base: {
     root: `inline-flex w-full cursor-text transition-[color,background-color,border-color,box-shadow] items-stretch overflow-hidden ${FOCUS_WITHIN_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}  ${DATA_DISABLED_CLASS}  ${FOCUS_WITHIN_INVALID_CLASS}`,

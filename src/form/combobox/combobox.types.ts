@@ -22,12 +22,12 @@ import type {
   SelectVirtualRenderProps,
 } from '../shared/select/types'
 
-import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
+import type { ComboboxStyleSlot, ComboboxStyleVariants } from './combobox.style-types'
 
 export namespace ComboboxT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ComboboxStyleSlot<T>
-  export type Variant = ComboboxStyleVariant
+  export type Variants = ComboboxStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -53,7 +53,7 @@ export namespace ComboboxT {
     /** Whether the filtered collection has matches. */
     hasMatches: boolean
     /** Currently selected value. */
-    selectedValue: NormalizedItem<TItem>['value'] | null
+    selectedValue: NormalizedItem<TItem>['value'] | undefined
     /** Close the popup. */
     close: () => void
   }
@@ -66,11 +66,11 @@ export namespace ComboboxT {
       BaseSelectResetProps,
       SearchProps<NormalizedItem<TItem>>,
       ContentProps<NormalizedItem<TItem>>,
-      FormValueOptions<NormalizedItem<TItem>['value'] | null> {
+      FormValueOptions<NormalizedItem<TItem>['value']> {
     /** String shorthand or object items, optionally grouped. Item values must be unique. */
     items?: Entry<TItem>[]
     /** Called when the committed selection changes. */
-    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | undefined) => void
     /** Content or render function for the filtered empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /** Placeholder shown when there is no selected value or query. */
@@ -109,7 +109,7 @@ export namespace ComboboxT {
   export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',
     Base<TItem>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

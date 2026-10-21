@@ -29,7 +29,7 @@ export interface FieldStyleSlot<T = unknown> {
   help?: T
 }
 
-export interface FieldStyleVariant {
+export interface FieldStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -40,7 +40,7 @@ export interface FieldStyleVariant {
   orientation?: 'vertical' | 'horizontal'
 }
 
-export interface FieldRecipeVariant extends FieldStyleVariant {
+export interface FieldRecipeVariant extends FieldStyleVariants {
   /** Internal presentation selected when the field uses a visually hidden label. */
   labelHidden?: boolean
   /** Internal presence of visible label-row content. */

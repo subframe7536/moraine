@@ -13,13 +13,6 @@ const invalidDefault: ConcreteOptions = {
 }
 void invalidDefault
 
-// @ts-expect-error Undefined cannot be part of the resolved state type.
-const invalidOptions: CreateControllableValueOptions<string | undefined> = {
-  value: () => undefined,
-  defaultValue: () => 'default',
-}
-void invalidOptions
-
 describe('createControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
     createRoot((dispose) => {

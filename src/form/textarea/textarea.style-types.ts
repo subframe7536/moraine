@@ -6,7 +6,7 @@ export interface TextareaStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface TextareaStyleVariant {
+export interface TextareaStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -17,7 +17,7 @@ export interface TextareaStyleVariant {
   variant?: TextControlVariant
 }
 
-export interface TextareaRecipeVariant extends TextareaStyleVariant {
+export interface TextareaRecipeVariant extends TextareaStyleVariants {
   /** Internal presentation selected when InputGroup supplies the outer frame. */
   grouped?: boolean
   /** Internal axis inherited from InputGroup. */

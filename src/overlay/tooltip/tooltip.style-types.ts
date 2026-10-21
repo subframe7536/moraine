@@ -14,11 +14,11 @@ export interface TooltipStyleSlot<T = unknown> {
   kbds?: T
 }
 
-export interface TooltipStyleVariant {
+export interface TooltipStyleVariants {
   /** Visual invert of the component.
    * @default false
    */
   invert?: boolean
 }
 
-export type TooltipStyleConfig = ComponentStyleConfig<TooltipStyleSlot, TooltipStyleVariant>
+export type TooltipStyleConfig = ComponentStyleConfig<TooltipStyleSlot, TooltipStyleVariants>

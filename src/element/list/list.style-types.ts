@@ -5,6 +5,6 @@ export interface ListStyleSlot<T = unknown> {
   root?: T
 }
 
-export type ListStyleVariant = never
+export type ListStyleVariants = never
 
 export type ListStyleConfig = ComponentStyleConfig<ListStyleSlot>

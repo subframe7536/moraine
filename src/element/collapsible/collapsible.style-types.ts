@@ -11,6 +11,6 @@ export interface CollapsibleStyleSlot<T = unknown> {
   content?: T
 }
 
-export type CollapsibleStyleVariant = never
+export type CollapsibleStyleVariants = never
 
 export type CollapsibleStyleConfig = ComponentStyleConfig<CollapsibleStyleSlot>

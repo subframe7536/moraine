@@ -19,7 +19,7 @@ export interface SliderStyleSlot<T = unknown> {
   thumb?: T
 }
 
-export interface SliderStyleVariant {
+export interface SliderStyleVariants {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation
 
@@ -33,4 +33,4 @@ export interface SliderStyleVariant {
   variant?: 'default' | 'bold'
 }
 
-export type SliderStyleConfig = ComponentStyleConfig<SliderStyleSlot, SliderStyleVariant>
+export type SliderStyleConfig = ComponentStyleConfig<SliderStyleSlot, SliderStyleVariants>

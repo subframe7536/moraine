@@ -10,13 +10,13 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.types'
 
-import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
+import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-number.style-types'
 
 export namespace InputNumberT {
   export type Kind = 'single'
   export type Slot<T = unknown> = InputNumberStyleSlot<T>
 
-  export type Variant = InputNumberStyleVariant
+  export type Variants = InputNumberStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -202,7 +202,7 @@ export namespace InputNumberT {
   /**
    * Props for the InputNumber component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

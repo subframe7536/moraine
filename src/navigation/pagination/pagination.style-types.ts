@@ -1,4 +1,4 @@
-import type { ButtonStyleVariant } from '../../element/button/button.style-types'
+import type { ButtonStyleVariants } from '../../element/button/button.style-types'
 import type { ComponentSize } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
 
@@ -30,7 +30,7 @@ export interface PaginationStyleSlot<T = unknown> {
   controlLabel?: T
 }
 
-export interface PaginationStyleVariant {
+export interface PaginationStyleVariants {
   /**
    * Size of the pagination buttons.
    * @default 'md'
@@ -41,28 +41,28 @@ export interface PaginationStyleVariant {
    * Visual variant for the page buttons.
    * @default 'ghost'
    */
-  variant?: ButtonStyleVariant['variant']
+  variant?: ButtonStyleVariants['variant']
 
   /**
    * Visual variant for the active page button.
    * @default 'outline'
    */
-  activeVariant?: ButtonStyleVariant['variant']
+  activeVariant?: ButtonStyleVariants['variant']
 
   /**
    * Visual variant for the previous/next control buttons.
    * @default 'ghost'
    */
-  controlVariant?: ButtonStyleVariant['variant']
+  controlVariant?: ButtonStyleVariants['variant']
 
   /**
    * Color tone for pagination buttons.
    * @default 'neutral'
    */
-  tone?: ButtonStyleVariant['tone']
+  tone?: ButtonStyleVariants['tone']
 }
 
 export type PaginationStyleConfig = ComponentStyleConfig<
   PaginationStyleSlot,
-  PaginationStyleVariant
+  PaginationStyleVariants
 >

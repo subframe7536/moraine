@@ -156,7 +156,7 @@ throws. On the server the call returns a handle whose `result()` is already `'ap
 ```ts
 interface Action {
   label?: JSX.Element
-  variant?: ButtonT.Variant['variant']
+  variant?: ButtonT.Variants['variant']
   leading?: IconT.Name
   disabled?: boolean
   onClick?: (event?: MouseEvent) => void | Promise<unknown>

@@ -4,10 +4,10 @@ import type { ButtonT } from '../button/button.types'
 import type { ButtonGroupT } from './button-group.types'
 
 export interface ButtonGroupContextValue {
-  readonly size?: ButtonT.Variant['size']
-  readonly variant?: ButtonT.Variant['variant']
-  readonly tone?: ButtonT.Variant['tone']
-  readonly orientation?: ButtonGroupT.Variant['orientation']
+  readonly size?: ButtonT.Variants['size']
+  readonly variant?: ButtonT.Variants['variant']
+  readonly tone?: ButtonT.Variants['tone']
+  readonly orientation?: ButtonGroupT.Variants['orientation']
   readonly slotOverrides?: {
     readonly classes?: ButtonGroupT.Classes
     readonly styles?: ButtonGroupT.Styles

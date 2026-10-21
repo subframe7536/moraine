@@ -11,14 +11,13 @@ import type {
   FeedbackPending,
 } from '../base/feedback/feedback.types'
 
-import type { AlertDialogStyleSlot, AlertDialogStyleVariant } from './alert-dialog.style-types'
+import type { AlertDialogStyleSlot, AlertDialogStyleVariants } from './alert-dialog.style-types'
 
 export namespace AlertDialogT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = AlertDialogStyleSlot<T>
-  export type Variant = AlertDialogStyleVariant
-  export type Variants = AlertDialogStyleVariant
+  export type Variants = AlertDialogStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -73,7 +72,7 @@ export namespace AlertDialogT {
   }
 
   /** Props for the AlertDialog host component. */
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles>
 
   /** Options passed to alert dialog creation methods. */
   export interface Options {
@@ -89,7 +88,7 @@ export namespace AlertDialogT {
     title?: JSX.Element
     description?: JSX.Element
     /** Replaces the type icon. `null` omits the icon. */
-    icon?: IconT.Name | null
+    icon?: IconT.Name
     /** Primary action. A returned promise shows loading and disables the other action. */
     action?: Action
     /**
@@ -105,9 +104,9 @@ export namespace AlertDialogT {
     style?: SlotStyleValue
     classes?: Classes
     styles?: Styles
-    danger?: boolean | null
-    center?: boolean | null
-    subtle?: boolean | null
+    danger?: Variants['danger'] | null
+    center?: Variants['center'] | null
+    subtle?: Variants['subtle'] | null
     width?: string | number
     closeOnEscape?: boolean
     closeOnOverlayClick?: boolean

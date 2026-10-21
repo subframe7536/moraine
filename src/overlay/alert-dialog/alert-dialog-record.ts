@@ -12,9 +12,9 @@ export interface AlertDialogHostDefaults {
   close?: boolean
   closeOnEscape?: boolean
   closeOnOverlayClick?: boolean
-  center?: boolean | null
-  subtle?: boolean | null
-  danger?: boolean | null
+  center?: AlertDialogT.Variants['center'] | null
+  subtle?: AlertDialogT.Variants['subtle'] | null
+  danger?: AlertDialogT.Variants['danger'] | null
   type?: AlertDialogT.Type
   width?: string | number
   class?: AlertDialogT.Options['class']

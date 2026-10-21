@@ -29,7 +29,7 @@ export interface SheetStyleSlot<T = unknown> {
   footer?: T
 }
 
-export interface SheetStyleVariant {
+export interface SheetStyleVariants {
   /** Viewport edge used by the component Recipe. */
   side?: 'top' | 'right' | 'bottom' | 'left'
 
@@ -39,4 +39,4 @@ export interface SheetStyleVariant {
   inset?: boolean
 }
 
-export type SheetStyleConfig = ComponentStyleConfig<SheetStyleSlot, SheetStyleVariant>
+export type SheetStyleConfig = ComponentStyleConfig<SheetStyleSlot, SheetStyleVariants>

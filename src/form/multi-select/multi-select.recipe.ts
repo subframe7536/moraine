@@ -14,7 +14,7 @@ import {
   selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
-import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
+import type { MultiSelectStyleSlot, MultiSelectStyleVariants } from './multi-select.style-types'
 
 export const MULTI_SELECT_PLACEHOLDER_CLASS = 'text-muted-foreground/70 py-0.5 flex-1 min-w-12'
 
@@ -44,7 +44,7 @@ export const multiSelectDataAttributes = {
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   MultiSelectStyleSlot,
-  MultiSelectStyleVariant
+  MultiSelectStyleVariants
 >('multiSelect', {
   base: {
     ...SELECT_FAMILY_SLOTS,

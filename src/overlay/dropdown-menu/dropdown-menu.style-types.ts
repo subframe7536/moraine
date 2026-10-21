@@ -1,10 +1,10 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from '../base/menu/style-types'
+import type { OverlayMenuStyleSlot, OverlayMenuStyleVariants } from '../base/menu/style-types'
 
 export type DropdownMenuStyleSlot<T = unknown> = OverlayMenuStyleSlot<T>
-export type DropdownMenuStyleVariant = OverlayMenuStyleVariant
+export type DropdownMenuStyleVariants = OverlayMenuStyleVariants
 
 export type DropdownMenuStyleConfig = ComponentStyleConfig<
   DropdownMenuStyleSlot,
-  DropdownMenuStyleVariant
+  DropdownMenuStyleVariants
 >

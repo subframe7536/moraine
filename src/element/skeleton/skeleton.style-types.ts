@@ -5,11 +5,11 @@ export interface SkeletonStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface SkeletonStyleVariant {
+export interface SkeletonStyleVariants {
   /** Loading animation displayed by the placeholder.
    * @default 'pulse'
    */
   variant?: 'pulse' | 'shimmer'
 }
 
-export type SkeletonStyleConfig = ComponentStyleConfig<SkeletonStyleSlot, SkeletonStyleVariant>
+export type SkeletonStyleConfig = ComponentStyleConfig<SkeletonStyleSlot, SkeletonStyleVariants>

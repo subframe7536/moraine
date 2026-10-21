@@ -1,18 +1,18 @@
 import { defineRecipe } from '../../theme/recipe'
 
-import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
+import type { KbdGroupStyleSlot, KbdGroupStyleVariants } from './kbd-group.style-types'
 
-export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<KbdGroupStyleSlot, KbdGroupStyleVariant>(
-  'kbdGroup',
-  {
-    base: { root: 'text-muted-foreground inline-flex gap-1 items-center', item: '' },
-    defaultVariants: { size: 'md', variant: 'default' },
-    variants: {
-      size: {
-        sm: { root: 'text-tiny' },
-        md: { root: 'text-xs' },
-        lg: { root: 'text-sm' },
-      },
+export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<
+  KbdGroupStyleSlot,
+  KbdGroupStyleVariants
+>('kbdGroup', {
+  base: { root: 'text-muted-foreground inline-flex gap-1 items-center', item: '' },
+  defaultVariants: { size: 'md', variant: 'default' },
+  variants: {
+    size: {
+      sm: { root: 'text-tiny' },
+      md: { root: 'text-xs' },
+      lg: { root: 'text-sm' },
     },
   },
-)
+})

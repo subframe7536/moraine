@@ -18,7 +18,7 @@ import type { ContentProps, SelectItem, SelectRow, SelectView } from './types'
 
 export interface SelectEmptyRenderProps<T extends SelectItem = SelectItem> {
   /** Currently selected value. */
-  selectedValue: T['value'] | null
+  selectedValue: T['value'] | undefined
   /** Close the select popup. */
   close: () => void
 }
@@ -231,7 +231,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
             {renderWithProps(empty, {
               get selectedValue() {
                 const current = state.value()
-                return current[0] ?? null
+                return current[0]
               },
               close: () => state.setOpen(false),
             })}

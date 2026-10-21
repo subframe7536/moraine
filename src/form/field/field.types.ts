@@ -3,7 +3,7 @@ import type { Component, JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
+import type { FieldStyleSlot, FieldStyleVariants } from './field.style-types'
 
 type FieldPath = readonly (string | number)[]
 
@@ -11,7 +11,7 @@ export namespace FieldT {
   export type Kind = 'single'
   export type Slot<T = unknown> = FieldStyleSlot<T>
 
-  export type Variant = FieldStyleVariant
+  export type Variants = FieldStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -68,7 +68,7 @@ export namespace FieldT {
   export type Props<T extends ValidComponent = 'div'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'div'

@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 import { MODAL_OVERLAY_CLASS, modalDataAttributes } from '../modal/modal.recipe'
 
-import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
+import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 
 export const sheetDataAttributes = {
   trigger: overlayTriggerDataAttributes,
@@ -14,7 +14,7 @@ export const sheetDataAttributes = {
   body: /* @__PURE__ */ createDataAttributes('header'),
 } satisfies DataAttributeContract<keyof SheetStyleSlot>
 
-export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariant>(
+export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariants>(
   'sheet',
   {
     base: {

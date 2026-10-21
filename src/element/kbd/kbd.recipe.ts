@@ -1,8 +1,8 @@
 import { defineRecipe } from '../../theme/recipe'
 
-import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
+import type { KbdStyleSlot, KbdStyleVariants } from './kbd.style-types'
 
-export const kbdRecipe = /* @__PURE__ */ defineRecipe<KbdStyleSlot, KbdStyleVariant>('kbd', {
+export const kbdRecipe = /* @__PURE__ */ defineRecipe<KbdStyleSlot, KbdStyleVariants>('kbd', {
   base: {
     root: 'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   },

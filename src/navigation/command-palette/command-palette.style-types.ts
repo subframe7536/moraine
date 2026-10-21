@@ -52,7 +52,7 @@ export interface CommandPaletteStyleSlot<T = unknown> {
   empty?: T
 }
 
-export interface CommandPaletteStyleVariant {
+export interface CommandPaletteStyleVariants {
   /** Where descriptions render in each command item.
    * @default 'bottom'
    */
@@ -61,5 +61,5 @@ export interface CommandPaletteStyleVariant {
 
 export type CommandPaletteStyleConfig = ComponentStyleConfig<
   CommandPaletteStyleSlot,
-  CommandPaletteStyleVariant
+  CommandPaletteStyleVariants
 >

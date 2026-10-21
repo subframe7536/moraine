@@ -40,7 +40,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   step?: number
   styles?: { marker?: JSX.CSSProperties }
   value?: TValue
-  variant?: SliderT.Variant['variant'] | null
+  variant?: SliderT.Variants['variant'] | null
 }
 
 export type CreateSliderOptions<TValue extends SliderValue = SliderValue> = {

@@ -33,8 +33,8 @@ import type { BaseSelectProps, BaseSelectT, BaseSelectValue } from './base-selec
 function selectionToFormValue<T extends BaseSelectValue>(
   values: readonly T[],
   multiple: boolean,
-): T[] | T | null {
-  return multiple ? [...values] : (values[0] ?? null)
+): T[] | T | undefined {
+  return multiple ? [...values] : values[0]
 }
 
 export function createSelectState<T extends BaseSelectT.Item>(
@@ -78,7 +78,10 @@ export function createSelectState<T extends BaseSelectT.Item>(
       if (props.multiple && Array.isArray(value)) {
         return value
       }
-      if (!props.multiple && value === null) {
+      if (
+        !props.multiple &&
+        (value === null || (field.path() !== undefined && value === undefined))
+      ) {
         return []
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {

@@ -12,8 +12,8 @@ export type FeedbackPending = 'action' | 'cancel'
 
 export interface FeedbackAction {
   label?: JSX.Element
-  variant?: ButtonT.Variant['variant']
-  tone?: ButtonT.Variant['tone']
+  variant?: ButtonT.Variants['variant']
+  tone?: ButtonT.Variants['tone']
   leading?: IconT.Name
   disabled?: boolean
   class?: SlotClassValue

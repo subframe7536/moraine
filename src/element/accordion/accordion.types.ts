@@ -4,13 +4,13 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
-import type { AccordionStyleSlot, AccordionStyleVariant } from './accordion.style-types'
+import type { AccordionStyleSlot, AccordionStyleVariants } from './accordion.style-types'
 
 export namespace AccordionT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = AccordionStyleSlot<T>
-  export type Variant = AccordionStyleVariant
+  export type Variants = AccordionStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -110,7 +110,7 @@ export namespace AccordionT {
   /**
    * Props for the Accordion component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

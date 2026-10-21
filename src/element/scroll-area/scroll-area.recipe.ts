@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ScrollAreaStyleSlot, ScrollAreaStyleVariant } from './scroll-area.style-types'
+import type { ScrollAreaStyleSlot, ScrollAreaStyleVariants } from './scroll-area.style-types'
 
 export const scrollAreaDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('orientation', 'shadow-start', 'shadow-end'),
@@ -10,7 +10,7 @@ export const scrollAreaDataAttributes = {
 
 export const scrollAreaRecipe = /* @__PURE__ */ defineRecipe<
   ScrollAreaStyleSlot,
-  ScrollAreaStyleVariant
+  ScrollAreaStyleVariants
 >('scrollArea', {
   base: {
     root: 'min-h-0 min-w-0',

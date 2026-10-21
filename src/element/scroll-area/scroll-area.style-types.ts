@@ -6,7 +6,7 @@ export interface ScrollAreaStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface ScrollAreaStyleVariant {
+export interface ScrollAreaStyleVariants {
   /** Scroll axis. @default 'vertical' */
   orientation?: Orientation
   /** Whether overflowing edges fade out. @default false */
@@ -17,5 +17,5 @@ export interface ScrollAreaStyleVariant {
 
 export type ScrollAreaStyleConfig = ComponentStyleConfig<
   ScrollAreaStyleSlot,
-  ScrollAreaStyleVariant
+  ScrollAreaStyleVariants
 >

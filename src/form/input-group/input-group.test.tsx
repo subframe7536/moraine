@@ -137,7 +137,7 @@ describe('InputGroup', () => {
 
   test('uses DOM order and root orientation for leading and trailing content', () => {
     const [orientation, setOrientation] =
-      createSignal<InputGroupT.Variant['orientation']>('horizontal')
+      createSignal<InputGroupT.Variants['orientation']>('horizontal')
     const screen = render(() => (
       <InputGroup dir="rtl" orientation={orientation()}>
         <InputGroup.Leading data-testid="leading">
@@ -390,7 +390,7 @@ describe('InputGroup', () => {
   })
 
   test('inherits sizes reactively with explicit control, group and field precedence', () => {
-    const [size, setSize] = createSignal<InputGroupT.Variant['size']>('md')
+    const [size, setSize] = createSignal<InputGroupT.Variants['size']>('md')
     const screen = render(() => (
       <Field size="sm" label="Message">
         <InputGroup size={size()}>
@@ -463,7 +463,7 @@ describe('InputGroup', () => {
       }),
     )
     const [orientation, setOrientation] =
-      createSignal<InputGroupT.Variant['orientation']>('horizontal')
+      createSignal<InputGroupT.Variants['orientation']>('horizontal')
     const screen = render(() => (
       <MoraineProvider theme={theme()}>
         <InputGroup orientation={orientation()}>

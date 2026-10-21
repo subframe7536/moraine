@@ -5,7 +5,7 @@ import { Empty } from './empty'
 import type { EmptyT } from './empty.types'
 
 export function EmptyHydrationFixture(props: {
-  size?: EmptyT.Variant['size']
+  size?: EmptyT.Variants['size']
   title?: string
   optional?: boolean
 }) {

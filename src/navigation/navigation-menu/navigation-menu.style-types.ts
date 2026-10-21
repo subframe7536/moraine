@@ -18,12 +18,12 @@ export interface NavigationMenuStyleSlot<T = unknown> {
   link?: T
 }
 
-export interface NavigationMenuStyleVariant {
+export interface NavigationMenuStyleVariants {
   /** Axis of the top-level navigation list. @default 'horizontal' */
   orientation?: Orientation
 }
 
 export type NavigationMenuStyleConfig = ComponentStyleConfig<
   NavigationMenuStyleSlot,
-  NavigationMenuStyleVariant
+  NavigationMenuStyleVariants
 >

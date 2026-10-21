@@ -4,7 +4,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { POPPER_SIDE_CLASS } from '../base/popper.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
-import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
+import type { TooltipStyleSlot, TooltipStyleVariants } from './tooltip.style-types'
 
 export const TOOLTIP_POSITIONER_CLASS =
   'motion-reduce:transition-none motion-safe:has-[[data-instant-motion]]:data-positioned:transition-transform'
@@ -26,7 +26,7 @@ export const tooltipContentDataAttributes = /* @__PURE__ */ createDataAttributes
   'align',
 )
 
-export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, TooltipStyleVariant>(
+export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, TooltipStyleVariants>(
   'tooltip',
   {
     base: {

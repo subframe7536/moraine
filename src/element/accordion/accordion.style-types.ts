@@ -31,6 +31,6 @@ export interface AccordionStyleSlot<T = unknown> {
   body?: T
 }
 
-export type AccordionStyleVariant = never
+export type AccordionStyleVariants = never
 
 export type AccordionStyleConfig = ComponentStyleConfig<AccordionStyleSlot>

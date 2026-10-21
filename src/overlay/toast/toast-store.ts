@@ -10,11 +10,11 @@ import { mergeDefined, pickDefined } from '../base/feedback/merge-defined'
 import type { ToastT } from './toast.types'
 
 export interface ToastHostDefaults {
-  type?: ToastT.Variant['type'] | null
-  large?: ToastT.Variant['large'] | null
-  invert?: ToastT.Variant['invert'] | null
-  placement?: ToastT.Variant['placement'] | null
-  align?: ToastT.Variant['align'] | null
+  type?: ToastT.Variants['type'] | null
+  large?: ToastT.Variants['large'] | null
+  invert?: ToastT.Variants['invert'] | null
+  placement?: ToastT.Variants['placement'] | null
+  align?: ToastT.Variants['align'] | null
   duration?: number
   close?: boolean
   progress?: boolean

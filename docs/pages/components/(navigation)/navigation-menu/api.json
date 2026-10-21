@@ -54,11 +54,11 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "string | null",
+          "type": "string",
           "description": "Initial open item value.",
           "default": {
-            "kind": "literal",
-            "value": null
+            "kind": "expression",
+            "text": "undefined"
           }
         },
         {
@@ -94,7 +94,7 @@
         {
           "name": "onValueChange",
           "optional": true,
-          "type": "(value: string | null) => void",
+          "type": "(value: string | undefined) => void",
           "description": "Called when an interaction requests a different open item."
         },
         {
@@ -172,8 +172,8 @@
         {
           "name": "value",
           "optional": true,
-          "type": "string | null",
-          "description": "Open item value. null closes the menu."
+          "type": "string",
+          "description": "Open item value. undefined closes the menu."
         }
       ]
     },

@@ -10,14 +10,14 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
-import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
+import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
 
 export namespace RadioGroupT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = RadioGroupStyleSlot<T>
 
-  export type Variant = RadioGroupStyleVariant
+  export type Variants = RadioGroupStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -83,7 +83,7 @@ export namespace RadioGroupT {
   /**
    * Props for the RadioGroup component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

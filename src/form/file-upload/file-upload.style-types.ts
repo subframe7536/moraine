@@ -41,7 +41,7 @@ export interface FileUploadStyleSlot<T = unknown> {
   fileRemove?: T
 }
 
-export interface FileUploadStyleVariant {
+export interface FileUploadStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -50,5 +50,5 @@ export interface FileUploadStyleVariant {
 
 export type FileUploadStyleConfig = ComponentStyleConfig<
   FileUploadStyleSlot,
-  FileUploadStyleVariant
+  FileUploadStyleVariants
 >

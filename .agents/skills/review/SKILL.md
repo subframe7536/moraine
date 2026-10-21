@@ -443,8 +443,8 @@ For composite components (`Kind = 'composite'`):
 - `<namespace>T.Base` must be the **only** type containing configuration and behavioral options (e.g. `open`, `gutter`, `overflowPadding`, `onExitComplete`, `restoreFocusOnClose`).
 - `<namespace>T.Base` must never duplicate `classes`, `styles`, or `variant` (provided by `BaseProps`).
 - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`:
-  - Headless roots (e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variant, Classes, Styles, never>` so `class` and `style` are omitted, accepting only slot maps `classes` and `styles`.
-  - Element-rendering roots use `BaseProps<Tag, Base, Variant, Classes, Styles>`.
+  - Headless roots (e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variants, Classes, Styles, never>` so `class` and `style` are omitted, accepting only slot maps `classes` and `styles`.
+  - Element-rendering roots use `BaseProps<Tag, Base, Variants, Classes, Styles>`.
 - Composed parts (`ContentProps`, `TriggerProps`, etc.) must be strictly **compose-only** (`BaseProps<Tag, PartBase, never, never, never>`).
 - Part bases must never accept `classes`, `styles`, `variant`, or root configuration options. Styling of parts from consumers is scoped at the root via `classes`/`styles` (slot-targeted) or applied directly on the part element using `class`/`style`.
 

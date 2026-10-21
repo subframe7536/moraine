@@ -25,7 +25,7 @@ function showToast(
   return getDefaultToastStore().add(options, render)
 }
 
-function withType(type: ToastT.Variant['type'], options: ToastT.Options): ToastT.Options {
+function withType(type: ToastT.Variants['type'], options: ToastT.Options): ToastT.Options {
   return { ...options, type }
 }
 

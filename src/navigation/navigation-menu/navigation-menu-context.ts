@@ -71,9 +71,9 @@ export function createNavigationMenuState(
     props,
   )
   const id = createId(() => options.id, 'navigation-menu')
-  const [value, setValue] = createControllableValue<string | null>({
+  const [value, setValue] = createControllableValue<string | undefined>({
     value: () => options.value,
-    defaultValue: () => options.defaultValue ?? null,
+    defaultValue: () => options.defaultValue,
     onChange: (next) => options.onValueChange?.(next),
   })
   const [items, setItems] = createSignal<NavigationMenuItemContextValue[]>([])
@@ -106,7 +106,7 @@ export function createNavigationMenuState(
   let backwardsTab = false
   let alive = true
 
-  function findEnabledItem(value: string | null): NavigationMenuItemContextValue | undefined {
+  function findEnabledItem(value: string | undefined): NavigationMenuItemContextValue | undefined {
     return items().find(
       (item) => item.value() === value && !item.disabled() && item.contentTrees().length > 0,
     )
@@ -124,7 +124,7 @@ export function createNavigationMenuState(
     keepOpen()
   }
 
-  function changeValue(next: string | null): void {
+  function changeValue(next: string | undefined): void {
     cancelTimers()
     setFocusRequest(undefined)
     setValue(next)
@@ -132,7 +132,7 @@ export function createNavigationMenuState(
 
   function close(restoreFocus = false): void {
     const trigger = activeTrigger()
-    changeValue(null)
+    changeValue(undefined)
     if (restoreFocus && !open()) {
       focusWithoutScrolling(trigger)
     }
@@ -287,8 +287,8 @@ export function createNavigationMenuState(
       if (!ready) {
         return
       }
-      if (value() !== null && !activeItem()) {
-        changeValue(null)
+      if (value() !== undefined && !activeItem()) {
+        changeValue(undefined)
       }
       if (disabled) {
         cancelTimers()

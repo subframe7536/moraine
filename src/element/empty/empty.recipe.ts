@@ -1,8 +1,8 @@
 import { defineRecipe } from '../../theme/recipe'
 
-import type { EmptyStyleSlot, EmptyStyleVariant } from './empty.style-types'
+import type { EmptyStyleSlot, EmptyStyleVariants } from './empty.style-types'
 
-export const emptyRecipe = /* @__PURE__ */ defineRecipe<EmptyStyleSlot, EmptyStyleVariant>(
+export const emptyRecipe = /* @__PURE__ */ defineRecipe<EmptyStyleSlot, EmptyStyleVariants>(
   'empty',
   {
     base: {

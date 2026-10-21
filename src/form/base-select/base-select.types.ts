@@ -9,7 +9,7 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.types'
 
-import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
+import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
 
 export type BaseSelectValue = string | number
 
@@ -98,7 +98,7 @@ export type BaseSelectPartProps = ElementProps<HTMLDivElement>
 export namespace BaseSelectT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = BaseSelectStyleSlot<T>
-  export type Variant = BaseSelectStyleVariant
+  export type Variants = BaseSelectStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -203,7 +203,7 @@ export namespace BaseSelectT {
   export type Props<TItem extends Item = Item> = BaseProps<
     never,
     Base<TItem>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     never

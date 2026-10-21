@@ -18,7 +18,7 @@ export interface ProgressStyleSlot<T = unknown> {
   indicator?: T
 }
 
-export interface ProgressStyleVariant {
+export interface ProgressStyleVariants {
   /** Visual layout direction.
    * @default 'horizontal'
    */
@@ -33,4 +33,4 @@ export interface ProgressStyleVariant {
   animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'
 }
 
-export type ProgressStyleConfig = ComponentStyleConfig<ProgressStyleSlot, ProgressStyleVariant>
+export type ProgressStyleConfig = ComponentStyleConfig<ProgressStyleSlot, ProgressStyleVariants>

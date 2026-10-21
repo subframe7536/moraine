@@ -3,7 +3,7 @@ import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recip
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
+import type { StepperStyleSlot, StepperStyleVariants } from './stepper.style-types'
 
 export const stepperDataAttributes = {
   item: /* @__PURE__ */ createDataAttributes('disabled', 'state'),
@@ -13,7 +13,7 @@ export const stepperDataAttributes = {
   content: /* @__PURE__ */ createDataAttributes('selected'),
 } satisfies DataAttributeContract<keyof StepperStyleSlot>
 
-export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, StepperStyleVariant>(
+export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, StepperStyleVariants>(
   'stepper',
   {
     base: {

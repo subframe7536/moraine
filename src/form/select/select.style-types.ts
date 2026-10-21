@@ -1,6 +1,6 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
-import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
+import type { SelectControlStyleVariants, SelectItemStyleSlot } from '../shared/select/style-types'
 
 export interface SelectControlStyleSlot<T = unknown> {
   /** Outer visual field and floating anchor. */
@@ -26,6 +26,6 @@ export interface SelectStyleSlot<T = unknown>
     Omit<BaseSelectStyleSlot<T>, 'empty'>,
     SelectControlStyleSlot<T>,
     Omit<SelectItemStyleSlot<T>, 'empty'> {}
-export type SelectStyleVariant = SelectControlStyleVariant
+export type SelectStyleVariants = SelectControlStyleVariants
 
-export type SelectStyleConfig = ComponentStyleConfig<SelectStyleSlot, SelectStyleVariant>
+export type SelectStyleConfig = ComponentStyleConfig<SelectStyleSlot, SelectStyleVariants>

@@ -83,7 +83,7 @@
         {
           "name": "inset",
           "optional": true,
-          "type": "boolean | null",
+          "type": "boolean",
           "description": "Whether the surface is inset from viewport edges.",
           "default": {
             "kind": "literal",
@@ -153,8 +153,8 @@
         {
           "name": "side",
           "optional": true,
-          "type": "'top' | 'right' | 'bottom' | 'left' | null",
-          "description": "Edge from which the sheet opens.",
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Viewport edge used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "right"

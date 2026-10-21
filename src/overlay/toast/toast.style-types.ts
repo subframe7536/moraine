@@ -39,7 +39,7 @@ export interface ToastStyleSlot<T = unknown> {
   progress?: T
 }
 
-export interface ToastStyleVariant {
+export interface ToastStyleVariants {
   /**
    * Visual status variant.
    * @default 'default'
@@ -71,4 +71,4 @@ export interface ToastStyleVariant {
   align?: OverlayAlign
 }
 
-export type ToastStyleConfig = ComponentStyleConfig<ToastStyleSlot, ToastStyleVariant>
+export type ToastStyleConfig = ComponentStyleConfig<ToastStyleSlot, ToastStyleVariants>

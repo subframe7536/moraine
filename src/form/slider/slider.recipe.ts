@@ -3,7 +3,7 @@ import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_BORDER_CLASS } from '../../theme/rec
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
-import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
+import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
 
 export const sliderDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
@@ -26,7 +26,7 @@ export const sliderDataAttributes = {
   ),
 } satisfies DataAttributeContract<keyof SliderStyleSlot>
 
-export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, SliderStyleVariant>(
+export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, SliderStyleVariants>(
   'slider',
   {
     base: {

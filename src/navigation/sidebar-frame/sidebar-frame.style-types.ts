@@ -50,12 +50,12 @@ export interface SidebarFrameStyleSlot<T = unknown> {
   submenuContent?: T
 }
 
-export interface SidebarFrameStyleVariant {
+export interface SidebarFrameStyleVariants {
   side?: 'left' | 'right'
   variant?: 'default' | 'floating' | 'inset'
 }
 
 export type SidebarFrameStyleConfig = ComponentStyleConfig<
   SidebarFrameStyleSlot,
-  SidebarFrameStyleVariant
+  SidebarFrameStyleVariants
 >

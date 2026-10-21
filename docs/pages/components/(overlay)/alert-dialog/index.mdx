@@ -121,7 +121,7 @@ reasons. Every instance is created with a static method that takes an options ob
 ```ts
 interface Action {
   label?: JSX.Element
-  variant?: ButtonT.Variant['variant']
+  variant?: ButtonT.Variants['variant']
   leading?: IconT.Name
   disabled?: boolean
   onClick?: (event?: MouseEvent) => void | Promise<unknown>

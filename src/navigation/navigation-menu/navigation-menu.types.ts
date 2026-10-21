@@ -11,13 +11,13 @@ import type { OverlayAlign, SlotClassValue, SlotStyleValue } from '../../theme/s
 
 import type {
   NavigationMenuStyleSlot,
-  NavigationMenuStyleVariant,
+  NavigationMenuStyleVariants,
 } from './navigation-menu.style-types'
 
 export namespace NavigationMenuT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = NavigationMenuStyleSlot<T>
-  export type Variant = NavigationMenuStyleVariant
+  export type Variants = NavigationMenuStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -29,12 +29,12 @@ export namespace NavigationMenuT {
     align?: OverlayAlign
     /** Gap between the trigger and panel, in pixels. @default 8 */
     gutter?: number
-    /** Open item value. null closes the menu. */
-    value?: string | null
-    /** Initial open item value. @default null */
-    defaultValue?: string | null
+    /** Open item value. undefined closes the menu. */
+    value?: string
+    /** Initial open item value. @default undefined */
+    defaultValue?: string
     /** Called when an interaction requests a different open item. */
-    onValueChange?: (value: string | null) => void
+    onValueChange?: (value: string | undefined) => void
     /** Disable navigation interactions. @default false */
     disabled?: boolean
     /** Hover delay before the first panel opens, in milliseconds. @default 50 */
@@ -44,7 +44,7 @@ export namespace NavigationMenuT {
     /** Composed navigation parts. */
     children?: JSX.Element
   }
-  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'nav', Base, Variants, Classes, Styles>
 
   export interface ListBase {}
   export type ListProps = BaseProps<'ul', ListBase, never, never, never, 'ul', true>

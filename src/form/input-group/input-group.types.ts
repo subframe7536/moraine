@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { InputGroupStyleSlot, InputGroupStyleVariant } from './input-group.style-types'
+import type { InputGroupStyleSlot, InputGroupStyleVariants } from './input-group.style-types'
 
 interface InputGroupPartBase<T extends ValidComponent = 'div'> {
   as?: T
@@ -21,12 +21,12 @@ export namespace InputGroupT {
 
   export type Slot<T = unknown> = InputGroupStyleSlot<T>
 
-  export type Variant = InputGroupStyleVariant
+  export type Variants = InputGroupStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export interface Base {}
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles, 'div', true>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles, 'div', true>
 
   export interface LeadingBase<T extends ValidComponent = 'div'> extends InputGroupPartBase<T> {}
   export type LeadingProps<T extends ValidComponent = 'div'> = BaseProps<

@@ -23,7 +23,7 @@ export interface AvatarGroupStyleSlot<T = unknown> {
   badge?: T
 }
 
-export interface AvatarGroupStyleVariant {
+export interface AvatarGroupStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -32,5 +32,5 @@ export interface AvatarGroupStyleVariant {
 
 export type AvatarGroupStyleConfig = ComponentStyleConfig<
   AvatarGroupStyleSlot,
-  AvatarGroupStyleVariant
+  AvatarGroupStyleVariants
 >

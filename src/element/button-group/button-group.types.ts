@@ -3,13 +3,13 @@ import type { JSX } from 'solid-js'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { ButtonGroupStyleSlot, ButtonGroupStyleVariant } from './button-group.style-types'
+import type { ButtonGroupStyleSlot, ButtonGroupStyleVariants } from './button-group.style-types'
 
 export namespace ButtonGroupT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = ButtonGroupStyleSlot<T>
-  export type Variant = ButtonGroupStyleVariant
+  export type Variants = ButtonGroupStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -25,7 +25,7 @@ export namespace ButtonGroupT {
   }
 
   /** Props for the ButtonGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   /** Base props for the ButtonGroup.Separator component. */
   export interface SeparatorBase {}

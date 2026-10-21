@@ -4,14 +4,14 @@ import type { IconT } from '../../element/icon'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
+import type { PaginationStyleSlot, PaginationStyleVariants } from './pagination.style-types'
 
 export namespace PaginationT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = PaginationStyleSlot<T>
 
-  export type Variant = PaginationStyleVariant
+  export type Variants = PaginationStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -115,7 +115,7 @@ export namespace PaginationT {
   /**
    * Props for the Pagination component.
    */
-  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'nav', Base, Variants, Classes, Styles>
 }
 
 /**

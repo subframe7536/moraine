@@ -5,14 +5,14 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
-import type { PopoverStyleSlot, PopoverStyleVariant } from './popover.style-types'
+import type { PopoverStyleSlot, PopoverStyleVariants } from './popover.style-types'
 
 export namespace PopoverT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = PopoverStyleSlot<T>
 
-  export type Variant = PopoverStyleVariant
+  export type Variants = PopoverStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -67,7 +67,7 @@ export namespace PopoverT {
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>

@@ -3,7 +3,7 @@ import { TONE_VARS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ButtonGroupStyleSlot, ButtonGroupRecipeVariant } from './button-group.style-types'
+import type { ButtonGroupStyleSlot, ButtonGroupRecipeVariants } from './button-group.style-types'
 
 export const buttonGroupDataAttributes = {
   separator: /* @__PURE__ */ createDataAttributes('orientation'),
@@ -11,7 +11,7 @@ export const buttonGroupDataAttributes = {
 
 export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   ButtonGroupStyleSlot,
-  ButtonGroupRecipeVariant
+  ButtonGroupRecipeVariants
 >('buttonGroup', {
   base: {
     root: 'inline-flex size-fit items-stretch *:focus-visible:(relative z-sticky)',

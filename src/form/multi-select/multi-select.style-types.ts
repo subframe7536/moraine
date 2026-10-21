@@ -1,6 +1,6 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
-import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
+import type { SelectControlStyleVariants, SelectItemStyleSlot } from '../shared/select/style-types'
 
 export interface MultiSelectControlStyleSlot<T = unknown> {
   /** Multi-select control that displays selected tags and opens the popup. */
@@ -35,9 +35,9 @@ export interface MultiSelectControlStyleSlot<T = unknown> {
 }
 export interface MultiSelectStyleSlot<T = unknown>
   extends BaseSelectStyleSlot<T>, MultiSelectControlStyleSlot<T>, SelectItemStyleSlot<T> {}
-export type MultiSelectStyleVariant = SelectControlStyleVariant
+export type MultiSelectStyleVariants = SelectControlStyleVariants
 
 export type MultiSelectStyleConfig = ComponentStyleConfig<
   MultiSelectStyleSlot,
-  MultiSelectStyleVariant
+  MultiSelectStyleVariants
 >

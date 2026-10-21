@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { SeparatorStyleSlot, SeparatorStyleVariant } from './separator.style-types'
+import type { SeparatorStyleSlot, SeparatorStyleVariants } from './separator.style-types'
 
 export const separatorDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('orientation'),
@@ -10,7 +10,7 @@ export const separatorDataAttributes = {
 
 export const separatorRecipe = /* @__PURE__ */ defineRecipe<
   SeparatorStyleSlot,
-  SeparatorStyleVariant
+  SeparatorStyleVariants
 >('separator', {
   base: {
     root: 'bg-border shrink-0',

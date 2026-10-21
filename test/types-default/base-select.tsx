@@ -181,7 +181,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
     return null
   }}
   onValueChange={(value) => {
-    const number: number | null = value
+    const number: number | undefined = value
     void number
   }}
 />
@@ -246,7 +246,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Select
   items={stringItems}
   onValueChange={(value) => {
-    const text: string | null = value
+    const text: string | undefined = value
     void text
   }}
   itemRender={({ item }) => item.label}
@@ -255,7 +255,7 @@ const stringItems: string[] = ['Apple', 'Banana']
   items={stringItems}
   filterItem={(query, item) => item.value.includes(query)}
   onValueChange={(value) => {
-    const text: string | null = value
+    const text: string | undefined = value
     void text
   }}
 />
@@ -263,7 +263,7 @@ const stringItems: string[] = ['Apple', 'Banana']
   items={['Apple', ...items, { type: 'group', label: 'Mixed', items: ['Banana', ...items] }]}
   itemRender={({ item }) => ('email' in item ? item.email : item.label)}
   onValueChange={(value) => {
-    const mixed: string | number | null = value
+    const mixed: string | number | undefined = value
     void mixed
   }}
 />
@@ -271,7 +271,7 @@ const stringItems: string[] = ['Apple', 'Banana']
   items={['Apple', 'Banana']}
   value="Apple"
   onValueChange={(value) => {
-    const literal: 'Apple' | 'Banana' | null = value
+    const literal: 'Apple' | 'Banana' | undefined = value
     void literal
   }}
 />
@@ -285,7 +285,7 @@ const stringItems: string[] = ['Apple', 'Banana']
 ;<Select
   items={['Apple', { value: 1, label: 'One', email: 'one@example.com' }]}
   onValueChange={(value) => {
-    const mixed: string | number | null = value
+    const mixed: string | number | undefined = value
     void mixed
   }}
   itemRender={({ item }) => ('email' in item ? item.email : item.label)}

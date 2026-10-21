@@ -13,7 +13,7 @@ import type {
   RecipeDefinition,
   RecipeLayerConfig,
   RecipeSlots,
-  RecipeVariant,
+  RecipeVariants,
   RecipeVariantSelection,
   ResolvedRecipe,
 } from './recipe'
@@ -87,7 +87,7 @@ export type SlotOverridesHelper<S extends string> = {
 
 export type UseRecipeResult<R extends RecipeDefinition> = {
   slots: SlotBindings<Extract<keyof RecipeSlots<R>, string>>
-  variants: ResolvedVariantInput<RecipeVariant<R>>
+  variants: ResolvedVariantInput<RecipeVariants<R>>
   slotWith: (
     slot: Extract<keyof RecipeSlots<R>, string>,
     extra?: () => SlotValue | undefined,
@@ -427,13 +427,13 @@ function resolveRecipeVars(
 /** Resolves one component recipe into reactive, stable slot bindings and variant selections. */
 export function useRecipe<R extends RecipeDefinition>(
   recipe: R,
-  props: StyleProps<Extract<keyof RecipeSlots<R>, string>, RecipeVariant<R>>,
+  props: StyleProps<Extract<keyof RecipeSlots<R>, string>, RecipeVariants<R>>,
   ...args: 'root' extends Extract<keyof RecipeSlots<R>, string>
-    ? [options?: RequiredSlotOptions<Extract<keyof RecipeSlots<R>, string>, RecipeVariant<R>>]
-    : [options: RequiredSlotOptions<Extract<keyof RecipeSlots<R>, string>, RecipeVariant<R>>]
+    ? [options?: RequiredSlotOptions<Extract<keyof RecipeSlots<R>, string>, RecipeVariants<R>>]
+    : [options: RequiredSlotOptions<Extract<keyof RecipeSlots<R>, string>, RecipeVariants<R>>]
 ): UseRecipeResult<R> {
   type Slots = Extract<keyof RecipeSlots<R>, string>
-  type Variants = RecipeVariant<R>
+  type Variants = RecipeVariants<R>
   const options = (args[0] ?? {}) as RequiredSlotOptions<Slots, Variants>
   const context = useMoraineContext()
   const cn: Cn = context ? (...classes) => context.cn(...classes) : defaultCn

@@ -3,7 +3,7 @@ import { DISABLED_CLASS, FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.r
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
+import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
 
 export const tabsDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled'),
@@ -11,7 +11,7 @@ export const tabsDataAttributes = {
   content: /* @__PURE__ */ createDataAttributes('selected'),
 } satisfies DataAttributeContract<keyof TabsStyleSlot>
 
-export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariant>('tabs', {
+export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariants>('tabs', {
   base: {
     root: '',
     list: 'p-1 inline-flex items-center relative',

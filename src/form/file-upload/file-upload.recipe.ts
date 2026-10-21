@@ -7,7 +7,7 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
+import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
 
 export const fileUploadDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
@@ -17,7 +17,7 @@ export const fileUploadDataAttributes = {
 
 export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
   FileUploadStyleSlot,
-  FileUploadStyleVariant
+  FileUploadStyleVariants
 >('fileUpload', {
   base: {
     root: 'flex flex-col min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',

@@ -2,19 +2,19 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { AvatarT } from '../avatar/avatar.types'
 
-import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
+import type { AvatarGroupStyleSlot, AvatarGroupStyleVariants } from './avatar-group.style-types'
 
 export namespace AvatarGroupT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = AvatarGroupStyleSlot<T>
 
-  export type Variant = AvatarGroupStyleVariant
+  export type Variants = AvatarGroupStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type Item = AvatarT.Base & AvatarT.Variant
+  export type Item = AvatarT.Base & AvatarT.Variants
 
   /** Base props for the AvatarGroup component. */
   export interface Base {
@@ -29,7 +29,7 @@ export namespace AvatarGroupT {
   }
 
   /** Props for the AvatarGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /** Props for the AvatarGroup component. */

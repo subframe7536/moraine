@@ -10,13 +10,13 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
-import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
+import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
 
 export namespace SliderT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SliderStyleSlot<T>
 
-  export type Variant = SliderStyleVariant
+  export type Variants = SliderStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -102,7 +102,7 @@ export namespace SliderT {
   export type Props<TValue = Value> = BaseProps<
     'div',
     Base<TValue>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'div',

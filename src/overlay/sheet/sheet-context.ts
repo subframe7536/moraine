@@ -5,7 +5,7 @@ import type { SheetT } from './sheet.types'
 
 export interface SheetContextValue {
   readonly slotOverrides: { classes?: SheetT.Classes; styles?: SheetT.Styles }
-  side?: SheetT.Base['side']
+  side?: SheetT.Variants['side'] | null
   inset?: boolean | null
   overlay?: boolean
   transition?: boolean
@@ -17,7 +17,7 @@ export const [SheetProvider, useSheetContext] =
   /* @__PURE__ */ createContextProvider<SheetContextValue>('Sheet')
 
 export interface SheetContentContext extends ReturnType<typeof createContentAnatomy> {
-  readonly variants: Required<SheetT.Variant>
+  readonly variants: Required<SheetT.Variants>
 }
 
 export const [SheetContentProvider, useSheetContent] =

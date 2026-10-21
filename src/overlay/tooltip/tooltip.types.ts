@@ -6,14 +6,14 @@ import type { SlotClassValue, SlotStyleValue, OverlayPlacement } from '../../the
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
-import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
+import type { TooltipStyleSlot, TooltipStyleVariants } from './tooltip.style-types'
 
 export namespace TooltipT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = TooltipStyleSlot<T>
 
-  export type Variant = TooltipStyleVariant
+  export type Variants = TooltipStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -52,7 +52,7 @@ export namespace TooltipT {
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>
@@ -69,7 +69,7 @@ export namespace TooltipT {
     kbds?: string[]
 
     /** Visual variant for the shortcut keycaps. Overrides the variant inferred from invert. */
-    kbdVariant?: KbdGroupT.Variant['variant']
+    kbdVariant?: KbdGroupT.Variants['variant']
 
     /** Text content when text is undefined. */
     children?: JSX.Element

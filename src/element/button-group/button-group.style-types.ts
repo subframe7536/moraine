@@ -1,6 +1,6 @@
 import type { ComponentSize, Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-import type { ButtonStyleVariant } from '../button/button.style-types'
+import type { ButtonStyleVariants } from '../button/button.style-types'
 
 export interface ButtonGroupStyleSlot<T = unknown> {
   /** Container that joins the edges of its direct button children. */
@@ -10,23 +10,23 @@ export interface ButtonGroupStyleSlot<T = unknown> {
   separator?: T
 }
 
-export interface ButtonGroupStyleVariant {
+export interface ButtonGroupStyleVariants {
   /** Shared button size. @default 'md' */
   size?: ComponentSize
   /** Shared button treatment. @default 'solid' */
-  variant?: ButtonStyleVariant['variant']
+  variant?: ButtonStyleVariants['variant']
   /** Shared button tone. @default 'primary' */
-  tone?: ButtonStyleVariant['tone']
+  tone?: ButtonStyleVariants['tone']
   /** Visual layout direction.
    * @default 'horizontal'
    */
   orientation?: Orientation
 }
 
-export type ButtonGroupRecipeVariant = ButtonGroupStyleVariant
-export type ButtonGroupThemeVariant = ButtonGroupStyleVariant
+export type ButtonGroupRecipeVariants = ButtonGroupStyleVariants
+export type ButtonGroupThemeVariants = ButtonGroupStyleVariants
 
 export type ButtonGroupStyleConfig = ComponentStyleConfig<
   ButtonGroupStyleSlot,
-  ButtonGroupThemeVariant
+  ButtonGroupThemeVariants
 >

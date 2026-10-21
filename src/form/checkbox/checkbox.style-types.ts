@@ -26,7 +26,7 @@ export interface CheckboxStyleSlot<T = unknown> {
   description?: T
 }
 
-export interface CheckboxStyleVariant {
+export interface CheckboxStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -40,4 +40,4 @@ export interface CheckboxStyleVariant {
   indicator?: 'start' | 'end' | 'hidden'
 }
 
-export type CheckboxStyleConfig = ComponentStyleConfig<CheckboxStyleSlot, CheckboxStyleVariant>
+export type CheckboxStyleConfig = ComponentStyleConfig<CheckboxStyleSlot, CheckboxStyleVariants>

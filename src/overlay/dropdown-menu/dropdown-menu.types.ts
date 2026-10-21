@@ -15,13 +15,13 @@ import type {
 } from '../base/menu'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
-import type { DropdownMenuStyleSlot, DropdownMenuStyleVariant } from './dropdown-menu.style-types'
+import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
 export namespace DropdownMenuT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = DropdownMenuStyleSlot<T>
-  export type Variant = DropdownMenuStyleVariant
+  export type Variants = DropdownMenuStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -60,7 +60,7 @@ export namespace DropdownMenuT {
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>

@@ -17,9 +17,9 @@ export interface ResizableStyleSlot<T = unknown> {
   intersection?: T
 }
 
-export interface ResizableStyleVariant {
+export interface ResizableStyleVariants {
   /** Layout axis used by the component Recipe. */
-  orientation?: Orientation | null
+  orientation?: Orientation
 }
 
-export type ResizableStyleConfig = ComponentStyleConfig<ResizableStyleSlot, ResizableStyleVariant>
+export type ResizableStyleConfig = ComponentStyleConfig<ResizableStyleSlot, ResizableStyleVariants>

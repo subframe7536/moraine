@@ -36,7 +36,7 @@ export function Progress(props: ProgressProps): JSX.Element {
   const labelContent = createMemo(() => local.label)
   const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(
-    () => local.value === null || local.value === undefined || !Number.isFinite(local.value),
+    () => local.value === undefined || !Number.isFinite(local.value),
   )
   const valueRender = createMemo(() => (isIndeterminate() ? undefined : local.valueRender))
   const showValueSlot = () => {

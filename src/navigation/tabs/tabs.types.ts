@@ -4,14 +4,14 @@ import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
 
-import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
+import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
 
 export namespace TabsT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = TabsStyleSlot<T>
 
-  export type Variant = TabsStyleVariant
+  export type Variants = TabsStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -105,7 +105,7 @@ export namespace TabsT {
   /**
    * Props for the Tabs component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

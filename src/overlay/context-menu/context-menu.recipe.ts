@@ -3,7 +3,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { overlayMenuDataAttributes, overlayMenuRecipeOptions } from '../base/menu/menu.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
-import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types'
+import type { ContextMenuStyleSlot, ContextMenuStyleVariants } from './context-menu.style-types'
 
 export const CONTEXT_MENU_TRIGGER_CLASS = '[-webkit-touch-callout:none]'
 
@@ -15,7 +15,7 @@ export const contextMenuDataAttributes = {
 
 export const contextMenuRecipe = /* @__PURE__ */ defineRecipe<
   ContextMenuStyleSlot,
-  ContextMenuStyleVariant
+  ContextMenuStyleVariants
 >('contextMenu', {
   ...overlayMenuRecipeOptions,
 })

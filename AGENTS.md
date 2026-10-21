@@ -169,7 +169,7 @@ Component directories normally contain implementation (`{component}.tsx` and any
 
 - Component public types must be declared in the component namespace: `<Component>T`.
 - Each public component namespace must declare `Kind` as the literal type `'single'` or `'composite'`. Use `'composite'` when the component exposes attached child components for composition; slot count and group naming do not determine the kind. `FormT.Kind` describes the bound `form.Form`, so it is `'single'`. Documentation reads this type to generate `component.kind`.
-- Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
+- Component namespaces should contain `Slot`, `Variants`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
 - **Render prop typing rules:**
   - **Reusable / Multi-instance renderers:** Multi-instance renderers evaluated across collections, loops, or multiple dynamic instances (`itemRender`, `tagRender`, `linkRender`, `separatorRender`, host `<AlertDialog dialogRender={...} />`) must be typed strictly as `Component<*RenderProps>`. Never accept `JSX.Element` here: in SolidJS, static JSX expressions create a single DOM node instance on evaluation that cannot be cloned or distributed across multiple iterations or instances.
   - **Single-usage contextual slots:** Slots mounted at most once per parent instance (`topRender`, `bottomRender`, `emptyRender`, `leadingRender`, `trailingRender`, imperative `AlertDialog.custom(...)`) accept `JSX.Element | Component<*RenderProps>`.
@@ -178,8 +178,8 @@ Component directories normally contain implementation (`{component}.tsx` and any
 - **Composite component contracts:**
   - `<namespace>T.Base` must be the only type containing configuration and behavioral options. Do not include `classes`, `styles`, or `variant` directly on `Base`; they are supplied via `BaseProps`.
   - `<namespace>T.Props` must never just be `= Base`; it must extend `BaseProps`.
-    - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variant, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
-    - Element-rendering roots use `BaseProps<Tag, Base, Variant, Classes, Styles>`.
+    - Headless roots (roots without a primary host DOM element, e.g. `Popover`, `Dialog`, `Sheet`, `Tooltip`, `Modal`, `ContextMenu`, `DropdownMenu`, `BaseSelect`) use `BaseProps<never, Base, Variants, Classes, Styles, never>`. In `BaseProps`, a `never` default element omits `class` and `style`, accepting only slot maps `classes` and `styles`.
+    - Element-rendering roots use `BaseProps<Tag, Base, Variants, Classes, Styles>`.
   - All attached child part props must be compose-only: `BaseProps<Tag, PartBase, never, never, never>`. Part bases (`ContentBase`, `TriggerBase`, `ItemBase`, etc.) must never take `classes`, `styles`, `variant`, or root configuration options (such as `restoreFocusOnClose`, `gutter`, `overflowPadding`, `onExitComplete`). Configuration belongs strictly on root `Base`/`Props`.
   - If a part or base interface has no unique configuration and would only have `children?: JSX.Element`, do not define a redundant single-member interface — use `FlowComponent` from `solid-js` for the component instead.
 - Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.

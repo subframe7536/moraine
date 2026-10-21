@@ -4,14 +4,14 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ResizableOrientation, ResizableSize } from './hook'
-import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
+import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
 
 export namespace ResizableT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = ResizableStyleSlot<T>
 
-  export type Variant = ResizableStyleVariant
+  export type Variants = ResizableStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -76,7 +76,7 @@ export namespace ResizableT {
   }
 
   /** Props for the Resizable component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface PanelBase {
     /**

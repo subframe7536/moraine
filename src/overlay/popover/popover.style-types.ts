@@ -11,6 +11,6 @@ export interface PopoverStyleSlot<T = unknown> {
   body?: T
 }
 
-export type PopoverStyleVariant = never
+export type PopoverStyleVariants = never
 
 export type PopoverStyleConfig = ComponentStyleConfig<PopoverStyleSlot>

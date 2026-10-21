@@ -11,7 +11,7 @@ const FRAMEWORKS: ComboboxT.Item[] = [
 ]
 
 export function UsageQuery() {
-  const [selected, setSelected] = createSignal<string | null>('solid')
+  const [selected, setSelected] = createSignal<string | undefined>('solid')
   const [query, setQuery] = createSignal('')
 
   return (
@@ -29,7 +29,7 @@ export function UsageQuery() {
       <div class="text-xs text-muted-foreground space-y-1">
         <p>
           Committed Value:{' '}
-          <span class="text-foreground font-medium font-mono">{selected() ?? 'null'}</span>
+          <span class="text-foreground font-medium font-mono">{selected() ?? 'undefined'}</span>
         </p>
         <p>
           Query Text:{' '}
@@ -41,9 +41,9 @@ export function UsageQuery() {
       <Button
         variant="ghost"
         size="sm"
-        disabled={selected() === null && !query()}
+        disabled={selected() === undefined && !query()}
         onClick={() => {
-          setSelected(null)
+          setSelected(undefined)
           setQuery('')
         }}
       >

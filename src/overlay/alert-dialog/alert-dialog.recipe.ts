@@ -1,6 +1,6 @@
 import { defineRecipe } from '../../theme/recipe'
 
-import type { AlertDialogStyleSlot, AlertDialogStyleVariant } from './alert-dialog.style-types'
+import type { AlertDialogStyleSlot, AlertDialogStyleVariants } from './alert-dialog.style-types'
 
 export const ALERT_DIALOG_ICON_CLASS = 'text-xl shrink-0'
 export const ALERT_DIALOG_CENTER_ICON_CLASS =
@@ -15,7 +15,7 @@ export const ALERT_DIALOG_ICON_TONE_CLASS = {
 
 export const alertDialogRecipe = /* @__PURE__ */ defineRecipe<
   AlertDialogStyleSlot,
-  AlertDialogStyleVariant
+  AlertDialogStyleVariants
 >('alertDialog', {
   base: {
     content: 'p-6 gap-2',

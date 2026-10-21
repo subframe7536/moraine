@@ -3,7 +3,7 @@ import { FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
+import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
 
 export const resizableDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('resizable-root'),
@@ -18,7 +18,7 @@ export const resizableDataAttributes = {
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   ResizableStyleSlot,
-  ResizableStyleVariant
+  ResizableStyleVariants
 >('resizable', {
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',

@@ -4,13 +4,13 @@ import type { IconT } from '../../element/icon/icon.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
 
-import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
+import type { StepperStyleSlot, StepperStyleVariants } from './stepper.style-types'
 
 export namespace StepperT {
   export type Kind = 'single'
   export type Slot<T = unknown> = StepperStyleSlot<T>
 
-  export type Variant = StepperStyleVariant
+  export type Variants = StepperStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -129,7 +129,7 @@ export namespace StepperT {
   /**
    * Props for the Stepper component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

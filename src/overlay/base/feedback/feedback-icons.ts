@@ -11,13 +11,10 @@ export const FEEDBACK_TYPE_ICONS = {
 export const FEEDBACK_CAUTION_ICON = 'icon-caution'
 
 export function resolveFeedbackIcon(options: {
-  type?: string | null
-  icon?: IconT.Name | null
+  type?: string
+  icon?: IconT.Name
   danger?: boolean | null
 }): IconT.Name | undefined {
-  if (options.icon === null) {
-    return undefined
-  }
   if (options.icon !== undefined) {
     return options.icon
   }

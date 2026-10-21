@@ -5,9 +5,9 @@ export interface SeparatorStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface SeparatorStyleVariant {
+export interface SeparatorStyleVariants {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation
 }
 
-export type SeparatorStyleConfig = ComponentStyleConfig<SeparatorStyleSlot, SeparatorStyleVariant>
+export type SeparatorStyleConfig = ComponentStyleConfig<SeparatorStyleSlot, SeparatorStyleVariants>

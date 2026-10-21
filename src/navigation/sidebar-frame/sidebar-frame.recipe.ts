@@ -3,7 +3,7 @@ import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recip
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
+import type { SidebarFrameStyleSlot, SidebarFrameStyleVariants } from './sidebar-frame.style-types'
 
 type SidebarFrameDataSlot = keyof SidebarFrameStyleSlot | 'trigger'
 
@@ -17,7 +17,7 @@ export const sidebarFrameDataAttributes = {
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   SidebarFrameStyleSlot,
-  SidebarFrameStyleVariant
+  SidebarFrameStyleVariants
 >('sidebarFrame', {
   base: {
     root: 'flex h-full min-h-0 w-full overflow-hidden',

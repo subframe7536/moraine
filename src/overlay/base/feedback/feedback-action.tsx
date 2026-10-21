@@ -9,9 +9,9 @@ import type { FeedbackAction } from './feedback.types'
 export function FeedbackActionButton(props: {
   action?: FeedbackAction
   label?: JSX.Element
-  variant: NonNullable<ButtonT.Variant['variant']>
-  tone?: ButtonT.Variant['tone']
-  size?: ButtonT.Variant['size']
+  variant: NonNullable<ButtonT.Variants['variant']>
+  tone?: ButtonT.Variants['tone']
+  size?: ButtonT.Variants['size']
   loading?: boolean
   disabled?: boolean
   slotName?: string

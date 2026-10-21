@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { createMemo, createSignal, untrack } from 'solid-js'
 
-export interface CreateControllableValueOptions<T extends {} | null> {
+export interface CreateControllableValueOptions<T> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
   onChange?: (value: T) => void
@@ -9,9 +9,7 @@ export interface CreateControllableValueOptions<T extends {} | null> {
 
 type ControllableValueUpdate<T> = T | ((previous: T) => T)
 
-export function createControllableValue<T extends {} | null>(
-  options: CreateControllableValueOptions<T>,
-) {
+export function createControllableValue<T>(options: CreateControllableValueOptions<T>) {
   const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(untrack(options.defaultValue))
   const controlledValue = createMemo(() => options.value())
   const value = createMemo<T>(() => {

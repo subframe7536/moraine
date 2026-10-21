@@ -5,7 +5,7 @@ export interface KbdStyleSlot<T = unknown> {
   root?: T
 }
 
-export interface KbdStyleVariant {
+export interface KbdStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -16,4 +16,4 @@ export interface KbdStyleVariant {
   variant?: 'default' | 'outline' | 'invert'
 }
 
-export type KbdStyleConfig = ComponentStyleConfig<KbdStyleSlot, KbdStyleVariant>
+export type KbdStyleConfig = ComponentStyleConfig<KbdStyleSlot, KbdStyleVariants>

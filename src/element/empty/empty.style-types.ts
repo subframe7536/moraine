@@ -13,9 +13,9 @@ export interface EmptyStyleSlot<T = unknown> {
   actions?: T
 }
 
-export interface EmptyStyleVariant {
+export interface EmptyStyleVariants {
   /** Density and typography of all Empty parts. @default 'md' */
   size?: 'sm' | 'md' | 'lg'
 }
 
-export type EmptyStyleConfig = ComponentStyleConfig<EmptyStyleSlot, EmptyStyleVariant>
+export type EmptyStyleConfig = ComponentStyleConfig<EmptyStyleSlot, EmptyStyleVariants>

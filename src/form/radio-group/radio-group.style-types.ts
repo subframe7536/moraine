@@ -28,7 +28,7 @@ export interface RadioGroupStyleSlot<T = unknown> {
   description?: T
 }
 
-export interface RadioGroupStyleVariant {
+export interface RadioGroupStyleVariants {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation
 
@@ -48,5 +48,5 @@ export interface RadioGroupStyleVariant {
 
 export type RadioGroupStyleConfig = ComponentStyleConfig<
   RadioGroupStyleSlot,
-  RadioGroupStyleVariant
+  RadioGroupStyleVariants
 >

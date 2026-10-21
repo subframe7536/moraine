@@ -11,12 +11,12 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
-import type { InputStyleSlot, InputStyleVariant } from './input.style-types'
+import type { InputStyleSlot, InputStyleVariants } from './input.style-types'
 
 export namespace InputT {
   export type Kind = 'single'
   export type Slot<T = unknown> = InputStyleSlot<T>
-  export type Variant = InputStyleVariant
+  export type Variants = InputStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -109,7 +109,7 @@ export namespace InputT {
   export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
     'input',
     Base<M>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

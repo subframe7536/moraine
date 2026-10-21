@@ -15,7 +15,7 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { FieldProps as StandaloneFieldProps } from '../field'
 
-import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
+import type { FormStyleSlot, FormStyleVariants } from './form.style-types'
 
 type PathKey = string | number
 // Formisch constrains its helpers to object schemas; preserve root collection types for Moraine forms.
@@ -58,7 +58,7 @@ type InferOutput<T extends Schema> = NonNullable<T['~types']>['output']
 export namespace FormT {
   export type Kind = 'single'
   export type Slot<T = unknown> = FormStyleSlot<T>
-  export type Variant = FormStyleVariant
+  export type Variants = FormStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -97,7 +97,7 @@ export namespace FormT {
   export type Props<TSchema extends Schema = FormSchema> = BaseProps<
     'form',
     Base<TSchema>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

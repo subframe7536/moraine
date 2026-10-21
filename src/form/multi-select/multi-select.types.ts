@@ -20,12 +20,12 @@ import type {
   SelectVirtualRenderProps,
 } from '../shared/select/types'
 
-import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
+import type { MultiSelectStyleSlot, MultiSelectStyleVariants } from './multi-select.style-types'
 
 export namespace MultiSelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = MultiSelectStyleSlot<T>
-  export type Variant = MultiSelectStyleVariant
+  export type Variants = MultiSelectStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -164,7 +164,7 @@ export namespace MultiSelectT {
   export type Props<TItem extends Item = Item> = BaseProps<
     'div',
     Base<TItem>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

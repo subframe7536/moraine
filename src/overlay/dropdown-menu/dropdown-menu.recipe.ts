@@ -3,7 +3,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 import { overlayMenuDataAttributes, overlayMenuRecipeOptions } from '../base/menu/menu.recipe'
 import { overlayTriggerDataAttributes } from '../base/trigger.recipe'
 
-import type { DropdownMenuStyleSlot, DropdownMenuStyleVariant } from './dropdown-menu.style-types'
+import type { DropdownMenuStyleSlot, DropdownMenuStyleVariants } from './dropdown-menu.style-types'
 
 export const dropdownMenuDataAttributes = {
   trigger: overlayTriggerDataAttributes,
@@ -13,7 +13,7 @@ export const dropdownMenuDataAttributes = {
 
 export const dropdownMenuRecipe = /* @__PURE__ */ defineRecipe<
   DropdownMenuStyleSlot,
-  DropdownMenuStyleVariant
+  DropdownMenuStyleVariants
 >('dropdownMenu', {
   ...overlayMenuRecipeOptions,
 })

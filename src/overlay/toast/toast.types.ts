@@ -11,7 +11,7 @@ import type {
   FeedbackPending,
 } from '../base/feedback/feedback.types'
 
-import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
+import type { ToastStyleSlot, ToastStyleVariants } from './toast.style-types'
 
 export const DEFAULT_TOAST_DURATION = 4000
 export const DEFAULT_TOAST_GAP = 14
@@ -20,7 +20,7 @@ export namespace ToastT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = ToastStyleSlot<T>
-  export type Variant = ToastStyleVariant
+  export type Variants = ToastStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -30,7 +30,7 @@ export namespace ToastT {
   export type Action = FeedbackAction
 
   /** Options passed to toast creation methods. */
-  export interface Options extends Variant {
+  export interface Options extends Variants {
     /** Stable id used by `update` and `close`. Reusing an open id updates that toast. */
     id?: Id
     /** Targets `<Toast id="..." />`. Omit to use the host without an id. */
@@ -38,7 +38,7 @@ export namespace ToastT {
     title?: JSX.Element
     description?: JSX.Element
     /** Replaces the type icon. `null` omits the icon. */
-    icon?: IconT.Name | null
+    icon?: IconT.Name
     /** Primary action. A returned promise pauses the timer until it settles. */
     action?: Action
     /** Secondary action. `true` uses the locale label. */
@@ -154,7 +154,7 @@ export namespace ToastT {
   }
 
   /** Props for the Toast host component. */
-  export type Props = BaseProps<'section', Base, Variant, Classes, Styles, 'section'>
+  export type Props = BaseProps<'section', Base, Variants, Classes, Styles, 'section'>
 }
 
 /** Props for the Toast host component. */

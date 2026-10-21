@@ -7,7 +7,7 @@ import { Progress } from './progress'
 
 describe('Progress SSR Hydration', () => {
   test('hydrates stable slot order through determinate, indeterminate, and complete states', () => {
-    const [value, setValue] = createSignal<number | null>(50)
+    const [value, setValue] = createSignal<number | undefined>(50)
 
     const { container } = hydrateFixture(
       '/src/element/progress/progress.ssr.fixture.tsx',
@@ -34,7 +34,7 @@ describe('Progress SSR Hydration', () => {
       (container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style.transform,
     ).toBe('')
 
-    setValue(null)
+    setValue(undefined)
     expect(root.hasAttribute('data-indeterminate')).toBe(true)
     expect((root as HTMLElement).style.getPropertyValue('--p-value')).toBe('')
     expect(container.querySelector('[data-slot="progress-label"]')?.textContent).toBe('Upload')

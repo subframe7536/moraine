@@ -38,7 +38,7 @@ export function PageSize() {
           items={PAGE_SIZES}
           value={pageSize()}
           onValueChange={(value) => {
-            if (value === null) {
+            if (value === undefined) {
               return
             }
             setPageSize(value)

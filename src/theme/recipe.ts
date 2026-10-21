@@ -15,7 +15,7 @@ export type RecipeBase<S extends object> = { [K in RecipeSlot<S>]-?: ClassValue 
   Record<`--${string}`, string | number | null | undefined>
 >
 
-export type RecipeVariants<S extends object, V> = [V] extends [never]
+export type RecipeVariantsConfig<S extends object, V> = [V] extends [never]
   ? never
   : { [K in keyof V]?: { [Value in ComponentVariantKey<V[K]>]?: RecipeContribution<S> } }
 
@@ -36,14 +36,14 @@ export type RecipeDefaultVariants<V> = [V] extends [never]
 /** Immutable declarative presentation owned by one component recipe. */
 export interface RecipeConfig<S extends object, V> {
   readonly base: RecipeBase<S>
-  readonly variants?: RecipeVariants<S, V>
+  readonly variants?: RecipeVariantsConfig<S, V>
   readonly compoundVariants?: readonly RecipeCompoundVariant<S, V>[]
   readonly defaultVariants?: RecipeDefaultVariants<V>
 }
 
 export interface RecipeLayerConfig<S extends object, V> {
   readonly base?: RecipeContribution<S>
-  readonly variants?: RecipeVariants<S, V>
+  readonly variants?: RecipeVariantsConfig<S, V>
   readonly compoundVariants?: readonly RecipeCompoundVariant<S, V>[]
   readonly defaultVariants?: RecipeDefaultVariants<V>
 }
@@ -64,7 +64,7 @@ export interface ResolvedRecipe<S extends object = any, V = any> {
 }
 
 export type RecipeSlots<T> = T extends RecipeDefinition<infer S> ? S : never
-export type RecipeVariant<T> = T extends RecipeDefinition<any, infer V> ? V : never
+export type RecipeVariants<T> = T extends RecipeDefinition<any, infer V> ? V : never
 
 export interface RecipeResult<S extends object> {
   classes: Record<RecipeSlot<S>, string | undefined>
@@ -95,8 +95,8 @@ function freezeRecipeConfig<S extends object, V>(config: RecipeConfig<S, V>): Re
 }
 
 function freezeVariants<S extends object, V>(
-  variants: RecipeVariants<S, V> | undefined,
-): RecipeVariants<S, V> | undefined {
+  variants: RecipeVariantsConfig<S, V> | undefined,
+): RecipeVariantsConfig<S, V> | undefined {
   if (!variants) {
     return undefined
   }
@@ -110,7 +110,7 @@ function freezeVariants<S extends object, V>(
     )
     Object.freeze(result[name])
   }
-  return Object.freeze(result) as RecipeVariants<S, V>
+  return Object.freeze(result) as RecipeVariantsConfig<S, V>
 }
 
 type VariantKey = string | number | boolean

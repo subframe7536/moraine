@@ -3,12 +3,12 @@ import type { Component, JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { ListStyleSlot, ListStyleVariant } from './list.style-types'
+import type { ListStyleSlot, ListStyleVariants } from './list.style-types'
 
 export namespace ListT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ListStyleSlot<T>
-  export type Variant = ListStyleVariant
+  export type Variants = ListStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -63,7 +63,7 @@ export namespace ListT {
       /** Root element or component. @default 'ul' */
       as?: T
     },
-    Variant,
+    Variants,
     Classes,
     Styles,
     'ul'

@@ -92,17 +92,17 @@ export type ComponentKinds = [
 ]
 
 export type RecipeVariants = [
-  Assert<'descriptionPosition' extends keyof CommandPaletteT.Variant ? true : false>,
+  Assert<'descriptionPosition' extends keyof CommandPaletteT.Variants ? true : false>,
   Assert<'descriptionPosition' extends keyof CommandPaletteT.Item ? false : true>,
-  Assert<'search' extends keyof SelectT.Variant ? false : true>,
-  Assert<'search' extends keyof ComboboxT.Variant ? false : true>,
-  Assert<'search' extends keyof MultiSelectT.Variant ? false : true>,
-  Assert<'square' extends keyof BadgeT.Variant ? false : true>,
-  Assert<'grouped' extends keyof InputT.Variant ? false : true>,
-  Assert<'grouped' extends keyof TextareaT.Variant ? false : true>,
-  Assert<'compact' extends keyof InputGroupT.Variant ? false : true>,
-  Assert<'labelHidden' extends keyof FieldT.Variant ? false : true>,
-  Assert<Extract<'hasText' | 'hasLabelText', keyof FieldT.Variant> extends never ? true : false>,
+  Assert<'search' extends keyof SelectT.Variants ? false : true>,
+  Assert<'search' extends keyof ComboboxT.Variants ? false : true>,
+  Assert<'search' extends keyof MultiSelectT.Variants ? false : true>,
+  Assert<'square' extends keyof BadgeT.Variants ? false : true>,
+  Assert<'grouped' extends keyof InputT.Variants ? false : true>,
+  Assert<'grouped' extends keyof TextareaT.Variants ? false : true>,
+  Assert<'compact' extends keyof InputGroupT.Variants ? false : true>,
+  Assert<'labelHidden' extends keyof FieldT.Variants ? false : true>,
+  Assert<Extract<'hasText' | 'hasLabelText', keyof FieldT.Variants> extends never ? true : false>,
   Assert<FieldT.Base['hiddenLabel'] extends string | undefined ? true : false>,
 ]
 
@@ -420,9 +420,9 @@ export type CardContracts = [
       ? true
       : false
   >,
-  Assert<'variant' extends keyof CardT.Variant ? true : false>,
-  Assert<'size' extends keyof CardT.Variant ? true : false>,
-  Assert<'compact' extends keyof CardT.Variant ? false : true>,
+  Assert<'variant' extends keyof CardT.Variants ? true : false>,
+  Assert<'size' extends keyof CardT.Variants ? true : false>,
+  Assert<'compact' extends keyof CardT.Variants ? false : true>,
   Assert<'root' extends keyof CardT.Classes ? true : false>,
   Assert<'footer' extends keyof CardT.Styles ? true : false>,
   Assert<'classes' extends keyof CardT.Props ? true : false>,
@@ -471,8 +471,8 @@ export type EmptyContracts = [
   Assert<EmptyT.Kind extends 'composite' ? true : false>,
   Assert<Exclude<keyof EmptyT.Slot, EmptySlotKeys> extends never ? true : false>,
   Assert<Exclude<EmptySlotKeys, keyof EmptyT.Slot> extends never ? true : false>,
-  Assert<Exclude<keyof EmptyT.Variant, 'size'> extends never ? true : false>,
-  Assert<'size' extends keyof EmptyT.Variant ? true : false>,
+  Assert<Exclude<keyof EmptyT.Variants, 'size'> extends never ? true : false>,
+  Assert<'size' extends keyof EmptyT.Variants ? true : false>,
   Assert<'classes' | 'styles' | 'size' extends keyof EmptyProps ? true : false>,
   Assert<
     Extract<'size' | 'classes' | 'styles', keyof EmptyT.MediaProps> extends never ? true : false
@@ -870,7 +870,7 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
   items={[{ label: 'One', value: 1 }]}
   readOnly
   onValueChange={(value) => {
-    const selected: number | null = value
+    const selected: number | undefined = value
     void selected
   }}
 />
@@ -882,7 +882,7 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 />
 
 export type NativeTextSlots = [
-  Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,
+  Assert<'orientation' extends keyof InputGroupT.Variants ? true : false>,
   Assert<'orientation' extends keyof InputGroupT.LeadingProps ? false : true>,
   Assert<'compact' extends keyof InputGroupT.LeadingProps ? true : false>,
   Assert<'align' extends keyof InputGroupT.LeadingProps ? false : true>,
@@ -967,7 +967,7 @@ const customCn: Cn = createCn(cnConfig)
 const scopedCn: Cn = useCn()
 const _mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
 const buttonRoot: keyof ButtonT.Slot = 'root'
-const sliderSize: SliderT.Variant['size'] = 'sm'
+const sliderSize: SliderT.Variants['size'] = 'sm'
 const hookSlider = createSlider({ min: 0, max: 100, value: 50 })
 void [buttonRoot, sliderSize, hookSlider.currentValues(), hookSlider.resetValues()]
 

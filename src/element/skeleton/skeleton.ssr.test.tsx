@@ -9,7 +9,7 @@ test('hydrates a styled placeholder and updates forwarded props and children in 
   const [label, setLabel] = createSignal('Loading')
   const [rounded, setRounded] = createSignal('rounded-full')
   const [width, setWidth] = createSignal('100px')
-  const [variant, setVariant] = createSignal<SkeletonT.Variant['variant']>()
+  const [variant, setVariant] = createSignal<SkeletonT.Variants['variant']>()
   const { container } = hydrateFixture(
     '/src/element/skeleton/skeleton.ssr.fixture.tsx',
     'renderSkeletonFixture',

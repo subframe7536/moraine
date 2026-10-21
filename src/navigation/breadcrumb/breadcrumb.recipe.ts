@@ -3,7 +3,7 @@ import { ARIA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-commo
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
+import type { BreadcrumbStyleSlot, BreadcrumbStyleVariants } from './breadcrumb.style-types'
 
 export const breadcrumbDataAttributes = {
   link: /* @__PURE__ */ createDataAttributes('disabled'),
@@ -18,7 +18,7 @@ export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
 export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
   BreadcrumbStyleSlot,
-  BreadcrumbStyleVariant
+  BreadcrumbStyleVariants
 >('breadcrumb', {
   base: {
     root: 'min-w-0 relative',

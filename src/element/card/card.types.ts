@@ -3,12 +3,12 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
+import type { CardStyleSlot, CardStyleVariants } from './card.style-types'
 
 export namespace CardT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = CardStyleSlot<T>
-  export type Variant = CardStyleVariant
+  export type Variants = CardStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -23,7 +23,7 @@ export namespace CardT {
   export type Props<T extends ValidComponent = 'div'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'div'

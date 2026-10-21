@@ -5,7 +5,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type {
   CommandPaletteStyleSlot,
-  CommandPaletteStyleVariant,
+  CommandPaletteStyleVariants,
 } from './command-palette.style-types'
 
 export const commandPaletteDataAttributes = {
@@ -18,7 +18,7 @@ export const commandPaletteDataAttributes = {
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   CommandPaletteStyleSlot,
-  CommandPaletteStyleVariant
+  CommandPaletteStyleVariants
 >('commandPalette', {
   base: {
     root: 'text-popover-foreground border border-border rounded-lg bg-popover flex flex-col min-h-0 shadow-overlay overflow-hidden',

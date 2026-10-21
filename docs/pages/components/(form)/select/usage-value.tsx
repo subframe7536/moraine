@@ -11,7 +11,7 @@ const COUNTRIES: SelectT.Item[] = [
 ]
 
 export function UsageValue() {
-  const [selected, setSelected] = createSignal<string | null>('de')
+  const [selected, setSelected] = createSignal<string | undefined>('de')
 
   return (
     <div class="max-w-xs w-full space-y-3">
@@ -26,13 +26,13 @@ export function UsageValue() {
       <div class="text-xs flex items-center justify-between">
         <span class="text-muted-foreground">
           Selected code:{' '}
-          <span class="text-foreground font-medium font-mono">{selected() ?? 'null'}</span>
+          <span class="text-foreground font-medium font-mono">{selected() ?? 'undefined'}</span>
         </span>
         <Button
           variant="ghost"
           size="sm"
-          disabled={selected() === null}
-          onClick={() => setSelected(null)}
+          disabled={selected() === undefined}
+          onClick={() => setSelected(undefined)}
         >
           Reset
         </Button>

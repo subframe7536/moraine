@@ -73,7 +73,7 @@ describe('Empty', () => {
   )
 
   test('updates density and family presentation without replacing nodes', () => {
-    const [size, setSize] = createSignal<EmptyT.Variant['size']>('sm')
+    const [size, setSize] = createSignal<EmptyT.Variants['size']>('sm')
     const [classes, setClasses] = createSignal<EmptyT.Classes>({
       media: 'p-8',
       title: 'text-red-500',
@@ -122,7 +122,7 @@ describe('Empty', () => {
         },
       }),
     )
-    const [size, setSize] = createSignal<EmptyT.Variant['size']>()
+    const [size, setSize] = createSignal<EmptyT.Variants['size']>()
     const { container } = render(() => (
       <MoraineProvider theme={theme()}>
         <Empty size={size()}>

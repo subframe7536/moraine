@@ -3,12 +3,12 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { EmptyStyleSlot, EmptyStyleVariant } from './empty.style-types'
+import type { EmptyStyleSlot, EmptyStyleVariants } from './empty.style-types'
 
 export namespace EmptyT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = EmptyStyleSlot<T>
-  export type Variant = EmptyStyleVariant
+  export type Variants = EmptyStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -23,7 +23,7 @@ export namespace EmptyT {
   export type Props<T extends ValidComponent = 'div'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'div'

@@ -47,7 +47,7 @@ export interface OverlayMenuStyleSlot<T = unknown> {
   itemSubIndicator?: T
 }
 
-export interface OverlayMenuStyleVariant {
+export interface OverlayMenuStyleVariants {
   /**
    * Visual size of menu items.
    * @default 'md'

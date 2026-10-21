@@ -19,7 +19,7 @@ export interface InputNumberStyleSlot<T = unknown> {
   controls?: T
 }
 
-export interface InputNumberStyleVariant {
+export interface InputNumberStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -39,5 +39,5 @@ export interface InputNumberStyleVariant {
 
 export type InputNumberStyleConfig = ComponentStyleConfig<
   InputNumberStyleSlot,
-  InputNumberStyleVariant
+  InputNumberStyleVariants
 >

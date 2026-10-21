@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ToggleButtonStyleSlot, ToggleButtonStyleVariant } from './toggle-button.style-types'
+import type { ToggleButtonStyleSlot, ToggleButtonStyleVariants } from './toggle-button.style-types'
 
 export const toggleButtonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('pressed'),
@@ -10,7 +10,7 @@ export const toggleButtonDataAttributes = {
 
 export const toggleButtonRecipe = /* @__PURE__ */ defineRecipe<
   ToggleButtonStyleSlot,
-  ToggleButtonStyleVariant
+  ToggleButtonStyleVariants
 >('toggleButton', {
   base: { root: '', leading: '', label: '', trailing: '' },
   defaultVariants: {

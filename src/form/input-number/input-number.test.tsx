@@ -1507,7 +1507,7 @@ describe('InputNumber', () => {
     const root = screen.container.querySelector('[data-slot="input-number"]')
 
     expect(root?.className).toContain('bg-control')
-    expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
+    expectTypeOf<InputNumberT.Variants['variant']>().toEqualTypeOf<
       'outline' | 'subtle' | 'ghost' | 'none' | undefined
     >()
   })

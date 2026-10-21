@@ -8,13 +8,13 @@ import type {
 } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
+import type { SidebarFrameStyleSlot, SidebarFrameStyleVariants } from './sidebar-frame.style-types'
 
 export namespace SidebarFrameT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = SidebarFrameStyleSlot<T>
 
-  export type Variant = SidebarFrameStyleVariant
+  export type Variants = SidebarFrameStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -23,7 +23,7 @@ export namespace SidebarFrameT {
 
   export interface Context {
     side: 'left' | 'right'
-    variant?: Variant['variant'] | null
+    variant?: Variants['variant'] | null
     state: Accessor<State>
     isMobile: Accessor<boolean>
     scrolled: Accessor<boolean>
@@ -66,7 +66,7 @@ export namespace SidebarFrameT {
     children?: JSX.Element
   }
 
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export interface SidebarBase<T extends ValidComponent = 'aside'> {
     children?: JSX.Element

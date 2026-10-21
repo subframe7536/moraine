@@ -8,6 +8,6 @@ export interface ModalStyleSlot<T = unknown> {
   content?: T
 }
 
-export type ModalStyleVariant = never
+export type ModalStyleVariants = never
 
 export type ModalStyleConfig = ComponentStyleConfig<ModalStyleSlot>

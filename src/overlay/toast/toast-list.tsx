@@ -29,10 +29,10 @@ export interface ToastListProps {
 export function ToastList(props: ToastListProps): JSX.Element {
   const [isHovered, setIsHovered] = createSignal(false)
   const [isInteracting, setIsInteracting] = createSignal(false)
-  const position = createMemo<Partial<ToastT.Variant>>(() => {
+  const position = createMemo<Partial<ToastT.Variants>>(() => {
     const [placement, align] = props.positionKey.split('-')
     return {
-      placement: placement as ToastT.Variant['placement'],
+      placement: placement as ToastT.Variants['placement'],
       align: align as OverlayAlign,
     }
   })

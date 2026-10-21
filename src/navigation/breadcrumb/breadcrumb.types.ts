@@ -4,13 +4,13 @@ import type { IconT } from '../../element/icon'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
+import type { BreadcrumbStyleSlot, BreadcrumbStyleVariants } from './breadcrumb.style-types'
 
 export namespace BreadcrumbT {
   export type Kind = 'single'
   export type Slot<T = unknown> = BreadcrumbStyleSlot<T>
 
-  export type Variant = BreadcrumbStyleVariant
+  export type Variants = BreadcrumbStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -106,7 +106,7 @@ export namespace BreadcrumbT {
   /**
    * Props for the Breadcrumb component.
    */
-  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'nav', Base, Variants, Classes, Styles>
 }
 
 /**

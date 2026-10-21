@@ -11,13 +11,13 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
-import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-types'
+import type { TextareaStyleSlot, TextareaStyleVariants } from './textarea.style-types'
 
 export namespace TextareaT {
   export type Kind = 'single'
   export type Slot<T = unknown> = TextareaStyleSlot<T>
 
-  export type Variant = TextareaStyleVariant
+  export type Variants = TextareaStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -122,7 +122,7 @@ export namespace TextareaT {
   export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
     'textarea',
     Base<M>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

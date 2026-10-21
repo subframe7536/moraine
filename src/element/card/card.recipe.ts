@@ -1,8 +1,8 @@
 import { defineRecipe } from '../../theme/recipe'
 
-import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
+import type { CardStyleSlot, CardStyleVariants } from './card.style-types'
 
-export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariant>('card', {
+export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariants>('card', {
   base: {
     root: 'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-surface',
     header:

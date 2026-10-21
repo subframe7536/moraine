@@ -55,7 +55,9 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     () => source(),
     () => baseSelectProps.itemToLabelString,
   )
-  const selection = createMemo(() => singleValueToSelection(local.value))
+  const selection = createMemo(() =>
+    'value' in props ? (local.value === undefined ? [] : [local.value]) : undefined,
+  )
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
@@ -235,7 +237,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
                   return state.items().length > 0
                 },
                 get selectedValue() {
-                  return state.value()[0] ?? null
+                  return state.value()[0]
                 },
                 close: () => state.setOpen(false),
               })}
@@ -256,7 +258,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
-      onValueChange={(values) => local.onValueChange?.(values[0] ?? null)}
+      onValueChange={(values) => local.onValueChange?.(values[0])}
       onReset={() => {
         search.setValue('')
         local.onReset?.()

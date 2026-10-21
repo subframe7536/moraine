@@ -5,6 +5,6 @@ export interface FormStyleSlot<T = unknown> {
   root?: T
 }
 
-export type FormStyleVariant = never
+export type FormStyleVariants = never
 
 export type FormStyleConfig = ComponentStyleConfig<FormStyleSlot>

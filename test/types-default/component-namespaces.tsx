@@ -48,204 +48,222 @@ import type {
 } from 'moraine'
 import * as v from 'valibot'
 
-type Header<Kind, Slot, Variant, Classes, Styles> = [Kind, Slot, Variant, Classes, Styles]
+type Header<Kind, Slot, Variants, Classes, Styles> = [Kind, Slot, Variants, Classes, Styles]
 
 export type ComponentNamespaceHeaders = {
   Accordion: Header<
     AccordionT.Kind,
     AccordionT.Slot,
-    AccordionT.Variant,
+    AccordionT.Variants,
     AccordionT.Classes,
     AccordionT.Styles
   >
   AlertDialog: Header<
     AlertDialogT.Kind,
     AlertDialogT.Slot,
-    AlertDialogT.Variant,
+    AlertDialogT.Variants,
     AlertDialogT.Classes,
     AlertDialogT.Styles
   >
   AvatarGroup: Header<
     AvatarGroupT.Kind,
     AvatarGroupT.Slot,
-    AvatarGroupT.Variant,
+    AvatarGroupT.Variants,
     AvatarGroupT.Classes,
     AvatarGroupT.Styles
   >
-  Avatar: Header<AvatarT.Kind, AvatarT.Slot, AvatarT.Variant, AvatarT.Classes, AvatarT.Styles>
-  Badge: Header<BadgeT.Kind, BadgeT.Slot, BadgeT.Variant, BadgeT.Classes, BadgeT.Styles>
+  Avatar: Header<AvatarT.Kind, AvatarT.Slot, AvatarT.Variants, AvatarT.Classes, AvatarT.Styles>
+  Badge: Header<BadgeT.Kind, BadgeT.Slot, BadgeT.Variants, BadgeT.Classes, BadgeT.Styles>
   BaseSelect: Header<
     BaseSelectT.Kind,
     BaseSelectT.Slot,
-    BaseSelectT.Variant,
+    BaseSelectT.Variants,
     BaseSelectT.Classes,
     BaseSelectT.Styles
   >
   Breadcrumb: Header<
     BreadcrumbT.Kind,
     BreadcrumbT.Slot,
-    BreadcrumbT.Variant,
+    BreadcrumbT.Variants,
     BreadcrumbT.Classes,
     BreadcrumbT.Styles
   >
   ButtonGroup: Header<
     ButtonGroupT.Kind,
     ButtonGroupT.Slot,
-    ButtonGroupT.Variant,
+    ButtonGroupT.Variants,
     ButtonGroupT.Classes,
     ButtonGroupT.Styles
   >
-  Button: Header<ButtonT.Kind, ButtonT.Slot, ButtonT.Variant, ButtonT.Classes, ButtonT.Styles>
-  Card: Header<CardT.Kind, CardT.Slot, CardT.Variant, CardT.Classes, CardT.Styles>
+  Button: Header<ButtonT.Kind, ButtonT.Slot, ButtonT.Variants, ButtonT.Classes, ButtonT.Styles>
+  Card: Header<CardT.Kind, CardT.Slot, CardT.Variants, CardT.Classes, CardT.Styles>
   CheckboxGroup: Header<
     CheckboxGroupT.Kind,
     CheckboxGroupT.Slot,
-    CheckboxGroupT.Variant,
+    CheckboxGroupT.Variants,
     CheckboxGroupT.Classes,
     CheckboxGroupT.Styles
   >
   Checkbox: Header<
     CheckboxT.Kind,
     CheckboxT.Slot,
-    CheckboxT.Variant,
+    CheckboxT.Variants,
     CheckboxT.Classes,
     CheckboxT.Styles
   >
   Collapsible: Header<
     CollapsibleT.Kind,
     CollapsibleT.Slot,
-    CollapsibleT.Variant,
+    CollapsibleT.Variants,
     CollapsibleT.Classes,
     CollapsibleT.Styles
   >
   Combobox: Header<
     ComboboxT.Kind,
     ComboboxT.Slot,
-    ComboboxT.Variant,
+    ComboboxT.Variants,
     ComboboxT.Classes,
     ComboboxT.Styles
   >
   CommandPalette: Header<
     CommandPaletteT.Kind,
     CommandPaletteT.Slot,
-    CommandPaletteT.Variant,
+    CommandPaletteT.Variants,
     CommandPaletteT.Classes,
     CommandPaletteT.Styles
   >
   ContextMenu: Header<
     ContextMenuT.Kind,
     ContextMenuT.Slot,
-    ContextMenuT.Variant,
+    ContextMenuT.Variants,
     ContextMenuT.Classes,
     ContextMenuT.Styles
   >
-  Dialog: Header<DialogT.Kind, DialogT.Slot, DialogT.Variant, DialogT.Classes, DialogT.Styles>
+  Dialog: Header<DialogT.Kind, DialogT.Slot, DialogT.Variants, DialogT.Classes, DialogT.Styles>
   DropdownMenu: Header<
     DropdownMenuT.Kind,
     DropdownMenuT.Slot,
-    DropdownMenuT.Variant,
+    DropdownMenuT.Variants,
     DropdownMenuT.Classes,
     DropdownMenuT.Styles
   >
-  Field: Header<FieldT.Kind, FieldT.Slot, FieldT.Variant, FieldT.Classes, FieldT.Styles>
+  Field: Header<FieldT.Kind, FieldT.Slot, FieldT.Variants, FieldT.Classes, FieldT.Styles>
   FileUpload: Header<
     FileUploadT.Kind,
     FileUploadT.Slot,
-    FileUploadT.Variant,
+    FileUploadT.Variants,
     FileUploadT.Classes,
     FileUploadT.Styles
   >
-  Form: Header<FormT.Kind, FormT.Slot, FormT.Variant, FormT.Classes, FormT.Styles>
-  Icon: Header<IconT.Kind, IconT.Slot, IconT.Variant, IconT.Classes, IconT.Styles>
+  Form: Header<FormT.Kind, FormT.Slot, FormT.Variants, FormT.Classes, FormT.Styles>
+  Icon: Header<IconT.Kind, IconT.Slot, IconT.Variants, IconT.Classes, IconT.Styles>
   InputGroup: Header<
     InputGroupT.Kind,
     InputGroupT.Slot,
-    InputGroupT.Variant,
+    InputGroupT.Variants,
     InputGroupT.Classes,
     InputGroupT.Styles
   >
   InputNumber: Header<
     InputNumberT.Kind,
     InputNumberT.Slot,
-    InputNumberT.Variant,
+    InputNumberT.Variants,
     InputNumberT.Classes,
     InputNumberT.Styles
   >
-  Input: Header<InputT.Kind, InputT.Slot, InputT.Variant, InputT.Classes, InputT.Styles>
+  Input: Header<InputT.Kind, InputT.Slot, InputT.Variants, InputT.Classes, InputT.Styles>
   KbdGroup: Header<
     KbdGroupT.Kind,
     KbdGroupT.Slot,
-    KbdGroupT.Variant,
+    KbdGroupT.Variants,
     KbdGroupT.Classes,
     KbdGroupT.Styles
   >
-  Kbd: Header<KbdT.Kind, KbdT.Slot, KbdT.Variant, KbdT.Classes, KbdT.Styles>
-  List: Header<ListT.Kind, ListT.Slot, ListT.Variant, ListT.Classes, ListT.Styles>
-  Modal: Header<ModalT.Kind, ModalT.Slot, ModalT.Variant, ModalT.Classes, ModalT.Styles>
+  Kbd: Header<KbdT.Kind, KbdT.Slot, KbdT.Variants, KbdT.Classes, KbdT.Styles>
+  List: Header<ListT.Kind, ListT.Slot, ListT.Variants, ListT.Classes, ListT.Styles>
+  Modal: Header<ModalT.Kind, ModalT.Slot, ModalT.Variants, ModalT.Classes, ModalT.Styles>
   MultiSelect: Header<
     MultiSelectT.Kind,
     MultiSelectT.Slot,
-    MultiSelectT.Variant,
+    MultiSelectT.Variants,
     MultiSelectT.Classes,
     MultiSelectT.Styles
   >
   Pagination: Header<
     PaginationT.Kind,
     PaginationT.Slot,
-    PaginationT.Variant,
+    PaginationT.Variants,
     PaginationT.Classes,
     PaginationT.Styles
   >
-  Popover: Header<PopoverT.Kind, PopoverT.Slot, PopoverT.Variant, PopoverT.Classes, PopoverT.Styles>
+  Popover: Header<
+    PopoverT.Kind,
+    PopoverT.Slot,
+    PopoverT.Variants,
+    PopoverT.Classes,
+    PopoverT.Styles
+  >
   Progress: Header<
     ProgressT.Kind,
     ProgressT.Slot,
-    ProgressT.Variant,
+    ProgressT.Variants,
     ProgressT.Classes,
     ProgressT.Styles
   >
   RadioGroup: Header<
     RadioGroupT.Kind,
     RadioGroupT.Slot,
-    RadioGroupT.Variant,
+    RadioGroupT.Variants,
     RadioGroupT.Classes,
     RadioGroupT.Styles
   >
   Resizable: Header<
     ResizableT.Kind,
     ResizableT.Slot,
-    ResizableT.Variant,
+    ResizableT.Variants,
     ResizableT.Classes,
     ResizableT.Styles
   >
-  Select: Header<SelectT.Kind, SelectT.Slot, SelectT.Variant, SelectT.Classes, SelectT.Styles>
+  Select: Header<SelectT.Kind, SelectT.Slot, SelectT.Variants, SelectT.Classes, SelectT.Styles>
   Separator: Header<
     SeparatorT.Kind,
     SeparatorT.Slot,
-    SeparatorT.Variant,
+    SeparatorT.Variants,
     SeparatorT.Classes,
     SeparatorT.Styles
   >
-  Sheet: Header<SheetT.Kind, SheetT.Slot, SheetT.Variant, SheetT.Classes, SheetT.Styles>
+  Sheet: Header<SheetT.Kind, SheetT.Slot, SheetT.Variants, SheetT.Classes, SheetT.Styles>
   SidebarFrame: Header<
     SidebarFrameT.Kind,
     SidebarFrameT.Slot,
-    SidebarFrameT.Variant,
+    SidebarFrameT.Variants,
     SidebarFrameT.Classes,
     SidebarFrameT.Styles
   >
-  Slider: Header<SliderT.Kind, SliderT.Slot, SliderT.Variant, SliderT.Classes, SliderT.Styles>
-  Stepper: Header<StepperT.Kind, StepperT.Slot, StepperT.Variant, StepperT.Classes, StepperT.Styles>
-  Switch: Header<SwitchT.Kind, SwitchT.Slot, SwitchT.Variant, SwitchT.Classes, SwitchT.Styles>
-  Tabs: Header<TabsT.Kind, TabsT.Slot, TabsT.Variant, TabsT.Classes, TabsT.Styles>
+  Slider: Header<SliderT.Kind, SliderT.Slot, SliderT.Variants, SliderT.Classes, SliderT.Styles>
+  Stepper: Header<
+    StepperT.Kind,
+    StepperT.Slot,
+    StepperT.Variants,
+    StepperT.Classes,
+    StepperT.Styles
+  >
+  Switch: Header<SwitchT.Kind, SwitchT.Slot, SwitchT.Variants, SwitchT.Classes, SwitchT.Styles>
+  Tabs: Header<TabsT.Kind, TabsT.Slot, TabsT.Variants, TabsT.Classes, TabsT.Styles>
   Textarea: Header<
     TextareaT.Kind,
     TextareaT.Slot,
-    TextareaT.Variant,
+    TextareaT.Variants,
     TextareaT.Classes,
     TextareaT.Styles
   >
-  Tooltip: Header<TooltipT.Kind, TooltipT.Slot, TooltipT.Variant, TooltipT.Classes, TooltipT.Styles>
+  Tooltip: Header<
+    TooltipT.Kind,
+    TooltipT.Slot,
+    TooltipT.Variants,
+    TooltipT.Classes,
+    TooltipT.Styles
+  >
 }
 
 type IsNever<T> = [T] extends [never] ? true : false
@@ -253,7 +271,7 @@ type Assert<T extends true> = T
 
 export type ListStyleContract = [
   Assert<'root' extends keyof ListT.Slot ? true : false>,
-  Assert<IsNever<ListT.Variant>>,
+  Assert<IsNever<ListT.Variants>>,
 ]
 
 export type SlotOwnershipContract = [

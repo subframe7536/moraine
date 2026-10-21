@@ -4,14 +4,14 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
-import type { BadgeStyleSlot, BadgeStyleVariant } from './badge.style-types'
+import type { BadgeStyleSlot, BadgeStyleVariants } from './badge.style-types'
 
 export namespace BadgeT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = BadgeStyleSlot<T>
 
-  export type Variant = BadgeStyleVariant
+  export type Variants = BadgeStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -51,7 +51,7 @@ export namespace BadgeT {
   export type Props<T extends ValidComponent = 'span'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'span'

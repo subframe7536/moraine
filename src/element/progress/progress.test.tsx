@@ -168,7 +168,7 @@ describe('Progress', () => {
   })
 
   test('indeterminate mode hides the value and keeps the label', () => {
-    const screen = render(() => <Progress value={null} label="Scanning" showValue />)
+    const screen = render(() => <Progress value={undefined} label="Scanning" showValue />)
     const progress = screen.getByRole('progressbar')
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
 
@@ -235,7 +235,7 @@ describe('Progress', () => {
   })
 
   test('keeps overall progress on root and indicator', () => {
-    const [value, setValue] = createSignal<number | null>(25)
+    const [value, setValue] = createSignal<number | undefined>(25)
     const screen = render(() => <Progress value={value()} label="Working" showValue />)
     const root = screen.container.querySelector('[data-slot="progress"]')!
     const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')!
@@ -254,7 +254,7 @@ describe('Progress', () => {
     expect(root.getAttribute('data-progress')).toBe('complete')
     expect(indicator.getAttribute('data-progress')).toBe('complete')
 
-    setValue(null)
+    setValue(undefined)
     expect(root.getAttribute('data-indeterminate')).toBe('')
     expect(indicator.getAttribute('data-indeterminate')).toBe('')
     expect(root.hasAttribute('data-progress')).toBe(false)
@@ -262,7 +262,7 @@ describe('Progress', () => {
   })
 
   test('reads valueRender only while progress is determinate', () => {
-    const [value, setValue] = createSignal<number | null>(null)
+    const [value, setValue] = createSignal<number | undefined>(undefined)
     let valueReads = 0
     const screen = render(() =>
       createComponent(Progress, {
@@ -283,7 +283,7 @@ describe('Progress', () => {
     expect(valueReads).toBe(1)
     expect(screen.getByTestId('value-render')).not.toBeNull()
 
-    setValue(null)
+    setValue(undefined)
     setValue(1)
     expect(valueReads).toBe(2)
     expect(screen.getByTestId('value-render')).not.toBeNull()
@@ -373,12 +373,12 @@ describe('Progress', () => {
   test('uses reverse animation classes without inverse utilities', () => {
     const horizontal = render(() => (
       <MoraineProvider>
-        <Progress value={null} animation="reverse" />
+        <Progress value={undefined} animation="reverse" />
       </MoraineProvider>
     ))
     const vertical = render(() => (
       <MoraineProvider>
-        <Progress value={null} orientation="vertical" animation="reverse" />
+        <Progress value={undefined} orientation="vertical" animation="reverse" />
       </MoraineProvider>
     ))
 
@@ -472,7 +472,7 @@ describe('Progress', () => {
   })
 
   test('cleans up a valueRender component when progress becomes indeterminate', () => {
-    const [value, setValue] = createSignal<number | null>(20)
+    const [value, setValue] = createSignal<number | undefined>(20)
     let cleanups = 0
     const screen = render(() =>
       createComponent(Progress, {
@@ -491,7 +491,7 @@ describe('Progress', () => {
     )
 
     expect(screen.getByText('Shown')).not.toBeNull()
-    setValue(null)
+    setValue(undefined)
     expect(screen.queryByText('Shown')).toBeNull()
     expect(cleanups).toBe(1)
     screen.unmount()

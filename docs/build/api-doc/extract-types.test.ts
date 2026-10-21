@@ -289,12 +289,12 @@ export namespace DefaultsT {
     expect(noDefault?.default).toBeUndefined()
   })
 
-  test('handles never capability for Slot, Variant, Classes, Styles without manufacturing props', async () => {
+  test('handles never capability for Slot, Variants, Classes, Styles without manufacturing props', async () => {
     const fixtureSource = `
 import type { BaseProps } from '../../shared/types'
 export namespace NeverT {
   export type Slot = never
-  export type Variant = never
+  export type Variants = never
   export type Classes = never
   export type Styles = never
 
@@ -302,7 +302,7 @@ export namespace NeverT {
     title?: string
   }
 
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 `
     const source = await import('./ast.ts').then((m) =>
@@ -363,7 +363,7 @@ export namespace NeverT {
     const itemIndeterminate = cbItem?.props.find((p) => p.name === 'indeterminate')
     expect(itemIndeterminate?.type).toBe('boolean')
 
-    // Verify Pagination variants expanded from ButtonStyleVariant['variant']
+    // Verify Pagination variants expanded from ButtonStyleVariants['variant']
     const paginationModule = await extractor.loadModule(
       'src/navigation/pagination/pagination.types.ts',
     )

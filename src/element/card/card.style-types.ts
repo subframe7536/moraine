@@ -17,11 +17,11 @@ export interface CardStyleSlot<T = unknown> {
   footer?: T
 }
 
-export interface CardStyleVariant {
+export interface CardStyleVariants {
   /** Footer border and background. The outer border is always present. @default 'outline' */
   variant?: 'outline' | 'subtle' | 'none'
   /** Density of all Card parts. @default 'md' */
   size?: 'sm' | 'md' | 'lg'
 }
 
-export type CardStyleConfig = ComponentStyleConfig<CardStyleSlot, CardStyleVariant>
+export type CardStyleConfig = ComponentStyleConfig<CardStyleSlot, CardStyleVariants>

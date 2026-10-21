@@ -17,7 +17,7 @@ export interface ButtonStyleSlot<T = unknown> {
   trailing?: T
 }
 
-export interface ButtonStyleVariant {
+export interface ButtonStyleVariants {
   /** Visual treatment of the component.
    * @default 'solid'
    */
@@ -49,4 +49,4 @@ export interface ButtonStyleVariant {
   activeEffect?: 'none' | 'move-down' | 'zoom-in' | ((element: HTMLElement) => string)
 }
 
-export type ButtonStyleConfig = ComponentStyleConfig<ButtonStyleSlot, ButtonStyleVariant>
+export type ButtonStyleConfig = ComponentStyleConfig<ButtonStyleSlot, ButtonStyleVariants>

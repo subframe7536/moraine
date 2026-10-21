@@ -9,7 +9,7 @@ import type { EmptyT } from './empty.types'
 test.each([true, false])(
   'hydrates parts and updates size and optional content (initially present=%s)',
   (initialOptional) => {
-    const [size, setSize] = createSignal<EmptyT.Variant['size']>('sm')
+    const [size, setSize] = createSignal<EmptyT.Variants['size']>('sm')
     const [title, setTitle] = createSignal('No projects')
     const [optional, setOptional] = createSignal(initialOptional)
     const { container } = hydrateFixture(

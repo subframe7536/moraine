@@ -25,11 +25,11 @@ export interface SwitchStyleSlot<T = unknown> {
   description?: T
 }
 
-export interface SwitchStyleVariant {
+export interface SwitchStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
   size?: ComponentSize
 }
 
-export type SwitchStyleConfig = ComponentStyleConfig<SwitchStyleSlot, SwitchStyleVariant>
+export type SwitchStyleConfig = ComponentStyleConfig<SwitchStyleSlot, SwitchStyleVariants>

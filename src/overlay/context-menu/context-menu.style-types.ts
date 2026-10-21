@@ -1,10 +1,10 @@
 import type { ComponentStyleConfig } from '../../theme/types'
-import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from '../base/menu/style-types'
+import type { OverlayMenuStyleSlot, OverlayMenuStyleVariants } from '../base/menu/style-types'
 
 export type ContextMenuStyleSlot<T = unknown> = OverlayMenuStyleSlot<T>
-export type ContextMenuStyleVariant = OverlayMenuStyleVariant
+export type ContextMenuStyleVariants = OverlayMenuStyleVariants
 
 export type ContextMenuStyleConfig = ComponentStyleConfig<
   ContextMenuStyleSlot,
-  ContextMenuStyleVariant
+  ContextMenuStyleVariants
 >

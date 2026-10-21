@@ -1,7 +1,7 @@
 import type { ComponentSize, TextControlVariant } from '../../../theme/style-types'
 
 /** Shared visual variants for Select-family field controls. */
-export interface SelectControlStyleVariant {
+export interface SelectControlStyleVariants {
   /**
    * Visual treatment of the component.
    * @default 'outline'

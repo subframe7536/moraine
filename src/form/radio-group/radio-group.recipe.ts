@@ -11,7 +11,7 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
+import type { RadioGroupStyleSlot, RadioGroupStyleVariants } from './radio-group.style-types'
 
 export const radioGroupDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
@@ -28,7 +28,7 @@ export const radioGroupDataAttributes = {
 
 export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   RadioGroupStyleSlot,
-  RadioGroupStyleVariant
+  RadioGroupStyleVariants
 >('radioGroup', {
   base: {
     root: 'flex relative',

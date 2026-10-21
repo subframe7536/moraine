@@ -4,7 +4,7 @@ import type { BaseProps } from '../../shared/types'
 import type { DEFAULT_ICON_SHORTCUTS } from '../../theme/icons'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { IconStyleSlot, IconStyleVariant } from './icon.style-types'
+import type { IconStyleSlot, IconStyleVariants } from './icon.style-types'
 
 type BuiltinIconName = (typeof DEFAULT_ICON_SHORTCUTS)[number][0]
 type IconStringName = BuiltinIconName | (string & {})
@@ -13,7 +13,7 @@ export namespace IconT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = IconStyleSlot<T>
-  export type Variant = IconStyleVariant
+  export type Variants = IconStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -47,7 +47,7 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /**

@@ -6,7 +6,7 @@ import { checkboxDataAttributes } from '../checkbox/checkbox.recipe'
 
 import type {
   CheckboxGroupStyleSlot,
-  CheckboxGroupStyleVariant,
+  CheckboxGroupStyleVariants,
 } from './checkbox-group.style-types'
 
 export const checkboxGroupDataAttributes = {
@@ -20,7 +20,7 @@ export const checkboxGroupDataAttributes = {
 
 export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
   CheckboxGroupStyleSlot,
-  CheckboxGroupStyleVariant
+  CheckboxGroupStyleVariants
 >('checkboxGroup', {
   base: {
     root: 'relative',

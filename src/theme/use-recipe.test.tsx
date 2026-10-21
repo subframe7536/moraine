@@ -24,8 +24,8 @@ describe('useRecipe', () => {
       },
     })
     const [theme, setTheme] = createSignal(base)
-    const [size, setSize] = createSignal<ButtonT.Variant['size']>()
-    const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
+    const [size, setSize] = createSignal<ButtonT.Variants['size']>()
+    const [inherited, setInherited] = createSignal<ButtonT.Variants['size']>()
     function Fixture() {
       const { slots } = useRecipe(
         buttonRecipe,
@@ -384,8 +384,8 @@ test.each([undefined, 'label'] as const)(
       },
     })
     const [theme, setTheme] = createSignal<MoraineTheme | null>(child)
-    const [size, setSize] = createSignal<ButtonT.Variant['size']>()
-    const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
+    const [size, setSize] = createSignal<ButtonT.Variants['size']>()
+    const [inherited, setInherited] = createSignal<ButtonT.Variants['size']>()
     function Fixture() {
       const { slots } = useRecipe(
         buttonRecipe,

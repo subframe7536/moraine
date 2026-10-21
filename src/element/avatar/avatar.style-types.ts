@@ -17,7 +17,7 @@ export interface AvatarStyleSlot<T = unknown> {
   badge?: T
 }
 
-export interface AvatarStyleVariant {
+export interface AvatarStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -28,4 +28,4 @@ export interface AvatarStyleVariant {
   badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 }
 
-export type AvatarStyleConfig = ComponentStyleConfig<AvatarStyleSlot, AvatarStyleVariant>
+export type AvatarStyleConfig = ComponentStyleConfig<AvatarStyleSlot, AvatarStyleVariants>

@@ -2,7 +2,7 @@ import { ToggleButton } from 'moraine'
 import type { ToggleButtonT } from 'moraine'
 import { defineTheme } from 'moraine/theme'
 
-const variants: ToggleButtonT.Variant = {
+const variants: ToggleButtonT.Variants = {
   variant: 'outline',
   activeVariant: 'solid',
   size: 'icon-sm',

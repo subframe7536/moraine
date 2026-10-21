@@ -8,7 +8,7 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
+import type { SwitchStyleSlot, SwitchStyleVariants } from './switch.style-types'
 
 export const switchDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes(
@@ -32,7 +32,7 @@ export const switchDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof SwitchStyleSlot>
 
-export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariant>(
+export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariants>(
   'switch',
   {
     base: {

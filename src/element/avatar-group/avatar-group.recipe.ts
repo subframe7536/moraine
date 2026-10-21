@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { avatarDataAttributes } from '../avatar/avatar.recipe'
 
-import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
+import type { AvatarGroupStyleSlot, AvatarGroupStyleVariants } from './avatar-group.style-types'
 
 export const avatarGroupDataAttributes = {
   item: avatarDataAttributes.root,
@@ -12,7 +12,7 @@ export const avatarGroupDataAttributes = {
 
 export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
   AvatarGroupStyleSlot,
-  AvatarGroupStyleVariant
+  AvatarGroupStyleVariants
 >('avatarGroup', {
   base: {
     root: 'inline-flex flex-row items-center',

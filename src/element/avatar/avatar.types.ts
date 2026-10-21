@@ -2,14 +2,14 @@ import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
-import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
+import type { AvatarStyleSlot, AvatarStyleVariants } from './avatar.style-types'
 
 export namespace AvatarT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = AvatarStyleSlot<T>
 
-  export type Variant = AvatarStyleVariant
+  export type Variants = AvatarStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -43,7 +43,7 @@ export namespace AvatarT {
   }
 
   /** Props for the Avatar component. */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'span', Base, Variants, Classes, Styles>
 }
 
 /** Props for the Avatar component. */

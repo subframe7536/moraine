@@ -11,7 +11,7 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
-import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
+import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
 
 type FileError =
   | 'TOO_MANY_FILES'
@@ -29,7 +29,7 @@ export namespace FileUploadT {
   export type Kind = 'single'
   export type Slot<T = unknown> = FileUploadStyleSlot<T>
 
-  export type Variant = FileUploadStyleVariant
+  export type Variants = FileUploadStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -116,7 +116,7 @@ export namespace FileUploadT {
   export type Props<Multiple extends boolean = false> = BaseProps<
     'div',
     Base<Multiple>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

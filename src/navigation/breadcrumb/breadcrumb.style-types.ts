@@ -28,7 +28,7 @@ export interface BreadcrumbStyleSlot<T = unknown> {
   separator?: T
 }
 
-export interface BreadcrumbStyleVariant {
+export interface BreadcrumbStyleVariants {
   /** Visual size of the component.
    * @default 'md'
    */
@@ -41,5 +41,5 @@ export interface BreadcrumbStyleVariant {
 
 export type BreadcrumbStyleConfig = ComponentStyleConfig<
   BreadcrumbStyleSlot,
-  BreadcrumbStyleVariant
+  BreadcrumbStyleVariants
 >

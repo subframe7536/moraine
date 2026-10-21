@@ -1,6 +1,6 @@
 import type { Orientation } from '../../theme/style-types'
 import type { ComponentStyleConfig } from '../../theme/types'
-import type { InputStyleVariant } from '../input/input.style-types'
+import type { InputStyleVariants } from '../input/input.style-types'
 
 export interface InputGroupStyleSlot<T = unknown> {
   /** Shared frame around one Input or Textarea and its supporting content. */
@@ -16,14 +16,14 @@ export interface InputGroupStyleSlot<T = unknown> {
   frame?: T
 }
 
-export interface InputGroupStyleVariant extends InputStyleVariant {
+export interface InputGroupStyleVariants extends InputStyleVariants {
   /** Axis shared by the group and its supporting parts.
    * @default 'horizontal'
    */
   orientation?: Orientation
 }
 
-export interface InputGroupRecipeVariant extends InputGroupStyleVariant {
+export interface InputGroupRecipeVariant extends InputGroupStyleVariants {
   /**
    * Removes the padding between this part and the adjacent control.
    * @default false

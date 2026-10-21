@@ -4,13 +4,13 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
-import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
+import type { ButtonStyleSlot, ButtonStyleVariants } from './button.style-types'
 
 export namespace ButtonT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = ButtonStyleSlot<T>
-  export type Variant = ButtonStyleVariant
+  export type Variants = ButtonStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -83,7 +83,7 @@ export namespace ButtonT {
   export type Props<T extends ValidComponent = 'button'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'button'

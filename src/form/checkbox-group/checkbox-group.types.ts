@@ -13,7 +13,7 @@ import type {
 
 import type {
   CheckboxGroupStyleSlot,
-  CheckboxGroupStyleVariant,
+  CheckboxGroupStyleVariants,
 } from './checkbox-group.style-types'
 
 export namespace CheckboxGroupT {
@@ -21,7 +21,7 @@ export namespace CheckboxGroupT {
 
   export type Slot<T = unknown> = CheckboxGroupStyleSlot<T>
 
-  export type Variant = CheckboxGroupStyleVariant
+  export type Variants = CheckboxGroupStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -74,7 +74,7 @@ export namespace CheckboxGroupT {
   export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
     'div',
     Base<TTrue, TFalse>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

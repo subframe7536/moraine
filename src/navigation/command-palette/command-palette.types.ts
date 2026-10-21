@@ -7,7 +7,7 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type {
   CommandPaletteStyleSlot,
-  CommandPaletteStyleVariant,
+  CommandPaletteStyleVariants,
 } from './command-palette.style-types'
 
 interface CommandPaletteBaseRenderProps<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
@@ -22,7 +22,7 @@ export namespace CommandPaletteT {
   export type Kind = 'single'
   export type Slot<T = unknown> = CommandPaletteStyleSlot<T>
 
-  export type Variant = CommandPaletteStyleVariant
+  export type Variants = CommandPaletteStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -194,7 +194,7 @@ export namespace CommandPaletteT {
   export type Props<TItem extends Item = Item> = BaseProps<
     'div',
     Base<TItem>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

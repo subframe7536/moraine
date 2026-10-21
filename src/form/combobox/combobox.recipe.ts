@@ -11,7 +11,7 @@ import {
   selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
-import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
+import type { ComboboxStyleSlot, ComboboxStyleVariants } from './combobox.style-types'
 
 export const comboboxDataAttributes = {
   control: /* @__PURE__ */ createDataAttributes(
@@ -29,16 +29,16 @@ export const comboboxDataAttributes = {
   trigger: /* @__PURE__ */ createDataAttributes('loading'),
 } satisfies DataAttributeContract<keyof ComboboxStyleSlot>
 
-export const comboboxRecipe = /* @__PURE__ */ defineRecipe<ComboboxStyleSlot, ComboboxStyleVariant>(
-  'combobox',
-  {
-    base: {
-      ...SELECT_FAMILY_SLOTS,
-      empty: '',
-      input: `${FIELD_INPUT_CLASS} text-start min-w-0 truncate py-1.5`,
-      trigger: SECONDARY_TRIGGER_CLASS,
-    },
-    defaultVariants: { variant: 'outline', size: 'md' },
-    variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },
-  } as const,
-)
+export const comboboxRecipe = /* @__PURE__ */ defineRecipe<
+  ComboboxStyleSlot,
+  ComboboxStyleVariants
+>('combobox', {
+  base: {
+    ...SELECT_FAMILY_SLOTS,
+    empty: '',
+    input: `${FIELD_INPUT_CLASS} text-start min-w-0 truncate py-1.5`,
+    trigger: SECONDARY_TRIGGER_CLASS,
+  },
+  defaultVariants: { variant: 'outline', size: 'md' },
+  variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },
+} as const)

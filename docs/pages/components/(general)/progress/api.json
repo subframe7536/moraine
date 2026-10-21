@@ -96,11 +96,11 @@
         {
           "name": "value",
           "optional": true,
-          "type": "number | null",
-          "description": "The current value of the progress bar. If null/undefined, it is indeterminate.",
+          "type": "number",
+          "description": "The current value of the progress bar. If undefined, it is indeterminate.",
           "default": {
-            "kind": "literal",
-            "value": null
+            "kind": "expression",
+            "text": "undefined"
           }
         },
         {

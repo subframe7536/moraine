@@ -35,7 +35,7 @@ export interface CheckboxGroupStyleSlot<T = unknown> {
   description?: T
 }
 
-export interface CheckboxGroupStyleVariant {
+export interface CheckboxGroupStyleVariants {
   /** Visual layout direction.
    * @default 'vertical'
    */
@@ -52,5 +52,5 @@ export interface CheckboxGroupStyleVariant {
 
 export type CheckboxGroupStyleConfig = ComponentStyleConfig<
   CheckboxGroupStyleSlot,
-  CheckboxGroupStyleVariant
+  CheckboxGroupStyleVariants
 >

@@ -29,7 +29,7 @@ export interface BaseSelectStyleSlot<T = unknown> {
   empty?: T
 }
 
-export interface BaseSelectStyleVariant {
+export interface BaseSelectStyleVariants {
   /**
    * Popup and item size.
    * @default 'md'
@@ -39,5 +39,5 @@ export interface BaseSelectStyleVariant {
 
 export type BaseSelectStyleConfig = ComponentStyleConfig<
   BaseSelectStyleSlot,
-  BaseSelectStyleVariant
+  BaseSelectStyleVariants
 >

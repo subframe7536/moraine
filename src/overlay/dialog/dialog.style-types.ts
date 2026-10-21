@@ -29,7 +29,7 @@ export interface DialogStyleSlot<T = unknown> {
   footer?: T
 }
 
-export interface DialogStyleVariant {
+export interface DialogStyleVariants {
   /** Whether the surface fills the viewport.
    * @default false
    */
@@ -40,4 +40,4 @@ export interface DialogStyleVariant {
   scrollable?: boolean
 }
 
-export type DialogStyleConfig = ComponentStyleConfig<DialogStyleSlot, DialogStyleVariant>
+export type DialogStyleConfig = ComponentStyleConfig<DialogStyleSlot, DialogStyleVariants>

@@ -8,7 +8,7 @@ import { DATA_DISABLED_CLASS, TEXT_SIZE_VARIANT } from '../../theme/recipe-commo
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
+import type { BaseSelectStyleSlot, BaseSelectStyleVariants } from './base-select.style-types'
 
 export const BASE_SELECT_POSITIONER_CLASS = 'z-floating'
 
@@ -30,7 +30,7 @@ export const baseSelectDataAttributes = {
 
 export const baseSelectRecipe = /* @__PURE__ */ defineRecipe<
   BaseSelectStyleSlot,
-  BaseSelectStyleVariant
+  BaseSelectStyleVariants
 >('baseSelect', {
   base: {
     control: '',

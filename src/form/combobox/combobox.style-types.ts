@@ -1,6 +1,6 @@
 import type { ComponentStyleConfig } from '../../theme/types'
 import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
-import type { SelectControlStyleVariant, SelectItemStyleSlot } from '../shared/select/style-types'
+import type { SelectControlStyleVariants, SelectItemStyleSlot } from '../shared/select/style-types'
 
 export interface ComboboxControlStyleSlot<T = unknown> {
   /** Outer visual field and floating anchor. */
@@ -20,6 +20,6 @@ export interface ComboboxControlStyleSlot<T = unknown> {
 }
 export interface ComboboxStyleSlot<T = unknown>
   extends BaseSelectStyleSlot<T>, ComboboxControlStyleSlot<T>, SelectItemStyleSlot<T> {}
-export type ComboboxStyleVariant = SelectControlStyleVariant
+export type ComboboxStyleVariants = SelectControlStyleVariants
 
-export type ComboboxStyleConfig = ComponentStyleConfig<ComboboxStyleSlot, ComboboxStyleVariant>
+export type ComboboxStyleConfig = ComponentStyleConfig<ComboboxStyleSlot, ComboboxStyleVariants>

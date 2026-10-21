@@ -15,13 +15,13 @@ import type {
 } from '../base/menu'
 import type { OverlayTriggerBase } from '../base/trigger'
 
-import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types'
+import type { ContextMenuStyleSlot, ContextMenuStyleVariants } from './context-menu.style-types'
 
 export namespace ContextMenuT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = ContextMenuStyleSlot<T>
-  export type Variant = ContextMenuStyleVariant
+  export type Variants = ContextMenuStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -60,7 +60,7 @@ export namespace ContextMenuT {
     /** Composed trigger and content primitives. */
     children?: JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'div'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'div'> = BaseProps<

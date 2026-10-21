@@ -10,7 +10,7 @@ import type { DataAttributeContract } from '../../theme/style-contract'
 
 import type {
   NavigationMenuStyleSlot,
-  NavigationMenuStyleVariant,
+  NavigationMenuStyleVariants,
 } from './navigation-menu.style-types'
 
 export const NAVIGATION_MENU_POSITIONER_CLASS = `${POPPER_CONTENT_MAX_SIZE_CLASS} transition-none z-floating data-positioned:transition-transform`
@@ -34,7 +34,7 @@ export const navigationMenuDataAttributes = {
 
 export const navigationMenuRecipe = /* @__PURE__ */ defineRecipe<
   NavigationMenuStyleSlot,
-  NavigationMenuStyleVariant
+  NavigationMenuStyleVariants
 >('navigationMenu', {
   base: {
     root: 'max-w-max relative',

@@ -177,9 +177,10 @@ describe('ToggleButton', () => {
         base: { root: 'toggle-theme', label: 'toggle-label-theme' },
       },
     })
-    const [variant, setVariant] = createSignal<ToggleButtonT.Variant['variant']>()
-    const [activeVariant, setActiveVariant] = createSignal<ToggleButtonT.Variant['activeVariant']>()
-    const [size, setSize] = createSignal<ToggleButtonT.Variant['size']>()
+    const [variant, setVariant] = createSignal<ToggleButtonT.Variants['variant']>()
+    const [activeVariant, setActiveVariant] =
+      createSignal<ToggleButtonT.Variants['activeVariant']>()
+    const [size, setSize] = createSignal<ToggleButtonT.Variants['size']>()
     const [customClass, setCustomClass] = createSignal('instance-class')
     const screen = render(() => (
       <MoraineProvider theme={theme}>

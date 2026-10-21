@@ -7,13 +7,13 @@ import type {
 } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { CollapsibleStyleSlot, CollapsibleStyleVariant } from './collapsible.style-types'
+import type { CollapsibleStyleSlot, CollapsibleStyleVariants } from './collapsible.style-types'
 
 export namespace CollapsibleT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = CollapsibleStyleSlot<T>
-  export type Variant = CollapsibleStyleVariant
+  export type Variants = CollapsibleStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   /**
@@ -74,7 +74,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
 

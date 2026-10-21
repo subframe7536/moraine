@@ -6,14 +6,14 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 
-import type { DialogStyleSlot, DialogStyleVariant } from './dialog.style-types'
+import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
 
 export namespace DialogT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = DialogStyleSlot<T>
 
-  export type Variant = DialogStyleVariant
+  export type Variants = DialogStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -28,17 +28,6 @@ export namespace DialogT {
     overlay?: boolean
 
     /**
-     * Whether the dialog should take up the full viewport.
-     * @default false
-     */
-    fullscreen?: boolean | null
-
-    /** Whether the overlay should scroll the complete dialog panel.
-     * @default false
-     */
-    scrollable?: boolean | null
-
-    /**
      * Whether to show a close button.
      * @default true
      */
@@ -50,7 +39,7 @@ export namespace DialogT {
      */
     closeIcon?: IconT.Name | JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>

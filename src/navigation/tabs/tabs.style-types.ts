@@ -25,7 +25,7 @@ export interface TabsStyleSlot<T = unknown> {
   content?: T
 }
 
-export interface TabsStyleVariant {
+export interface TabsStyleVariants {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation
 
@@ -39,4 +39,4 @@ export interface TabsStyleVariant {
   size?: ComponentSize
 }
 
-export type TabsStyleConfig = ComponentStyleConfig<TabsStyleSlot, TabsStyleVariant>
+export type TabsStyleConfig = ComponentStyleConfig<TabsStyleSlot, TabsStyleVariants>

@@ -37,7 +37,7 @@ export interface StepperStyleSlot<T = unknown> {
   content?: T
 }
 
-export interface StepperStyleVariant {
+export interface StepperStyleVariants {
   /** Layout axis used by the component Recipe. */
   orientation?: Orientation
 
@@ -47,4 +47,4 @@ export interface StepperStyleVariant {
   size?: ComponentSize
 }
 
-export type StepperStyleConfig = ComponentStyleConfig<StepperStyleSlot, StepperStyleVariant>
+export type StepperStyleConfig = ComponentStyleConfig<StepperStyleSlot, StepperStyleVariants>

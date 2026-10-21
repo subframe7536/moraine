@@ -233,7 +233,7 @@ describe('NavigationMenu', () => {
   })
 
   test('requests controlled changes without changing the supplied value', async () => {
-    const [value, setValue] = createSignal<string | null>(null)
+    const [value, setValue] = createSignal<string | undefined>(undefined)
     const changes = vi.fn()
     render(() => <TestMenu value={value()} onValueChange={changes} />)
     fireEvent.click(page.getByRole('button', { name: 'Products' }))
@@ -253,7 +253,7 @@ describe('NavigationMenu', () => {
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
     expect(changes.mock.calls).toEqual([['products'], ['guides']])
-    setValue(null)
+    setValue(undefined)
   })
 
   test.each([
@@ -582,7 +582,7 @@ describe('NavigationMenu', () => {
     await waitFor(() =>
       expect(document.querySelector('[data-slot="navigation-menu-positioner"] > div')).toBeNull(),
     )
-    expect(changes).toHaveBeenLastCalledWith(null)
+    expect(changes).toHaveBeenLastCalledWith(undefined)
     setDisabled(false)
     expect((trigger as HTMLButtonElement).disabled).toBe(false)
     fireEvent.click(trigger)
@@ -600,11 +600,11 @@ describe('NavigationMenu', () => {
     )
     expect(changes.mock.calls).toEqual([
       ['dynamic'],
-      [null],
+      [undefined],
       ['dynamic'],
-      [null],
+      [undefined],
       ['dynamic'],
-      [null],
+      [undefined],
     ])
   })
 

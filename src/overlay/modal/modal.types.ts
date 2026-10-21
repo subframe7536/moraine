@@ -4,12 +4,12 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 
-import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
+import type { ModalStyleSlot, ModalStyleVariants } from './modal.style-types'
 
 export namespace ModalT {
   export type Kind = 'composite'
   export type Slot<T = unknown> = ModalStyleSlot<T>
-  export type Variant = ModalStyleVariant
+  export type Variants = ModalStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -76,7 +76,7 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export interface PortalBase {
     /** Destination for the modal parts; defaults to the trigger document body. */

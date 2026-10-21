@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
+import type { PaginationStyleSlot, PaginationStyleVariants } from './pagination.style-types'
 
 export const paginationDataAttributes = {
   prev: /* @__PURE__ */ createDataAttributes('disabled', 'loading', 'text'),
@@ -13,7 +13,7 @@ export const paginationDataAttributes = {
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   PaginationStyleSlot,
-  PaginationStyleVariant
+  PaginationStyleVariants
 >('pagination', {
   base: {
     root: 'mx-auto flex w-full justify-center',

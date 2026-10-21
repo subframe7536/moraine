@@ -4,9 +4,9 @@ import type { InputGroupT } from './input-group.types'
 
 export interface InputGroupContextValue {
   readonly grouped?: boolean
-  readonly variant?: InputGroupT.Variant['variant']
-  readonly size?: InputGroupT.Variant['size']
-  readonly orientation?: InputGroupT.Variant['orientation']
+  readonly variant?: InputGroupT.Variants['variant']
+  readonly size?: InputGroupT.Variants['size']
+  readonly orientation?: InputGroupT.Variants['orientation']
   readonly slotOverrides?: { classes?: InputGroupT.Classes; styles?: InputGroupT.Styles }
 }
 

@@ -62,9 +62,9 @@ export function Stepper(props: StepperProps): JSX.Element {
   )
 
   const id = createId(() => merged.id, 'stepper')
-  const [requestedValue, setRequestedValue] = createControllableValue<StepperT.Value | null>({
+  const [requestedValue, setRequestedValue] = createControllableValue<StepperT.Value | undefined>({
     value: () => merged.value,
-    defaultValue: () => merged.defaultValue ?? null,
+    defaultValue: () => merged.defaultValue,
   })
   const triggerRefs = new Map<string, HTMLButtonElement>()
   const warnedDuplicateValues = new Set<StepperT.Value>()
@@ -111,7 +111,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     const items = normalizedItems()
     const value = requestedValue()
     return (
-      (value === null
+      (value === undefined
         ? undefined
         : items.find((entry) => entry.value === value && !entry.item.disabled)) ??
       items.find((entry) => !entry.item.disabled)
@@ -216,9 +216,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             const titleId = createMemo(() => `${contentId()}-step-${entry.index}-title`)
             const descriptionId = createMemo(() => `${contentId()}-step-${entry.index}-description`)
             const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
-            const panelMounted = createMemo(
-              () => selected() && entry.item.content !== undefined && entry.item.content !== null,
-            )
+            const panelMounted = createMemo(() => selected() && entry.item.content !== undefined)
 
             return (
               <div
@@ -311,9 +309,7 @@ export function Stepper(props: StepperProps): JSX.Element {
         {(entry) => (
           <Show
             when={
-              selectedItem()?.instanceKey === entry.instanceKey &&
-              entry.item.content !== undefined &&
-              entry.item.content !== null
+              selectedItem()?.instanceKey === entry.instanceKey && entry.item.content !== undefined
             }
           >
             <div

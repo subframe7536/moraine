@@ -10,14 +10,14 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.types'
 
-import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
+import type { SwitchStyleSlot, SwitchStyleVariants } from './switch.style-types'
 
 export namespace SwitchT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = SwitchStyleSlot<T>
 
-  export type Variant = SwitchStyleVariant
+  export type Variants = SwitchStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -109,7 +109,7 @@ export namespace SwitchT {
   export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
     'div',
     Base<TTrue, TFalse>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

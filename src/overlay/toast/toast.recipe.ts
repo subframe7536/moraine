@@ -3,7 +3,7 @@ import { FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ToastStyleSlot, ToastStyleVariant } from './toast.style-types'
+import type { ToastStyleSlot, ToastStyleVariants } from './toast.style-types'
 import { DEFAULT_TOAST_GAP } from './toast.types'
 
 export const TOAST_PROGRESS_CLASS =
@@ -23,7 +23,7 @@ export const toastDataAttributes = {
   list: /* @__PURE__ */ createDataAttributes('expanded'),
 } satisfies DataAttributeContract<keyof ToastStyleSlot>
 
-export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastStyleVariant>(
+export const toastRecipe = /* @__PURE__ */ defineRecipe<ToastStyleSlot, ToastStyleVariants>(
   'toast',
   {
     base: {

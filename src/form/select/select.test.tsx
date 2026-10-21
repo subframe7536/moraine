@@ -112,7 +112,7 @@ describe('Select', () => {
   })
 
   test('renders unresolved, empty-string, and numeric values', () => {
-    const [value, setValue] = createSignal<string | number | null>('missing')
+    const [value, setValue] = createSignal<string | number | undefined>('missing')
     const screen = render(() => (
       <Select
         items={[
@@ -346,7 +346,7 @@ describe('Select', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Empty' }))
     expect(getInput(form)).toEqual({ choice: '' })
     fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
-    expect(getInput(form)).toEqual({ choice: null })
+    expect(getInput(form)).toEqual({ choice: undefined })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Zero' }))
     expect(getInput(form)).toEqual({ choice: 0 })
     screen.container.querySelector('form')!.reset()
@@ -355,12 +355,12 @@ describe('Select', () => {
   })
 
   test('synchronizes controlled scalar Form.Field values without array projection', () => {
-    const [controlled, setControlled] = createSignal<string | number | null>('apple')
+    const [controlled, setControlled] = createSignal<string | number | undefined>('apple')
     const { value: form } = renderWithOwner(
       () =>
         createForm({
-          schema: v.object({ choice: v.nullable(v.union([v.string(), v.number()])) }),
-          initialInput: { choice: null as string | number | null },
+          schema: v.object({ choice: v.optional(v.union([v.string(), v.number()])) }),
+          initialInput: { choice: undefined as string | number | undefined },
         }),
       (form) => (
         <form.Form>
@@ -379,8 +379,8 @@ describe('Select', () => {
     expect(getInput(form)).toEqual({ choice: 0 })
     setControlled('')
     expect(getInput(form)).toEqual({ choice: '' })
-    setControlled(null)
-    expect(getInput(form)).toEqual({ choice: null })
+    setControlled(undefined)
+    expect(getInput(form)).toEqual({ choice: undefined })
   })
 
   test('keeps keyboard focus styling on the trigger without parent focus state', () => {
@@ -416,7 +416,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   expect(onChange).toHaveBeenLastCalledWith('Banana')
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
   fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
-  expect(onChange).toHaveBeenLastCalledWith(null)
+  expect(onChange).toHaveBeenLastCalledWith(undefined)
   form.reset()
   await Promise.resolve()
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])

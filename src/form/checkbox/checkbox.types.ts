@@ -10,14 +10,14 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.types'
 
-import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
+import type { CheckboxStyleSlot, CheckboxStyleVariants } from './checkbox.style-types'
 
 export namespace CheckboxT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = CheckboxStyleSlot<T>
 
-  export type Variant = CheckboxStyleVariant
+  export type Variants = CheckboxStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -96,7 +96,7 @@ export namespace CheckboxT {
   export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
     'div',
     Base<TTrue, TFalse>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

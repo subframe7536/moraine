@@ -3,14 +3,14 @@ import type { Component, JSX } from 'solid-js'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'
+import type { ProgressStyleSlot, ProgressStyleVariants } from './progress.style-types'
 
 export namespace ProgressT {
   export type Kind = 'single'
 
   export type Slot<T = unknown> = ProgressStyleSlot<T>
 
-  export type Variant = ProgressStyleVariant
+  export type Variants = ProgressStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -23,10 +23,10 @@ export namespace ProgressT {
   /** Base props for the Progress component. */
   export interface Base {
     /**
-     * The current value of the progress bar. If null/undefined, it is indeterminate.
-     * @default null
+     * The current value of the progress bar. If undefined, it is indeterminate.
+     * @default undefined
      */
-    value?: number | null
+    value?: number
 
     /**
      * The maximum value of the progress bar.
@@ -57,7 +57,7 @@ export namespace ProgressT {
     valueRender?: JSX.Element | Component<ValueRenderProps>
   }
 
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
 }
 
 /** Props for the Progress component. */

@@ -17,7 +17,7 @@ export interface BadgeStyleSlot<T = unknown> {
   trailing?: T
 }
 
-export interface BadgeStyleVariant {
+export interface BadgeStyleVariants {
   /** Visual treatment of the component.
    * @default 'soft'
    */
@@ -32,7 +32,7 @@ export interface BadgeStyleVariant {
   size?: ComponentSize
 }
 
-export interface BadgeRecipeVariant extends BadgeStyleVariant {
+export interface BadgeRecipeVariant extends BadgeStyleVariants {
   square?: boolean
 }
 

@@ -3,7 +3,7 @@ import { ARIA_DISABLED_CLASS, DISABLED_CLASS, TONE_VARS } from '../../theme/reci
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
+import type { ButtonStyleSlot, ButtonStyleVariants } from './button.style-types'
 
 export const BUTTON_LOADING_ICON_CLASS = 'opacity-80 cursor-wait animate-spin'
 export const BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS = '[&:active:not([aria-haspopup])]:translate-y-px'
@@ -13,7 +13,7 @@ export const buttonDataAttributes = {
   root: /* @__PURE__ */ createDataAttributes('disabled', 'loading'),
 } satisfies DataAttributeContract<keyof ButtonStyleSlot>
 
-export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariant>(
+export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariants>(
   'button',
   {
     base: {

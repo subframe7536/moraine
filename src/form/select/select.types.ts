@@ -19,12 +19,12 @@ import type {
   SelectEntry,
 } from '../shared/select/types'
 
-import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
+import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
 
 export namespace SelectT {
   export type Kind = 'single'
   export type Slot<T = unknown> = SelectStyleSlot<T>
-  export type Variant = SelectStyleVariant
+  export type Variants = SelectStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -43,7 +43,7 @@ export namespace SelectT {
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Currently selected value. */
-    selectedValue: NormalizedItem<TItem>['value'] | null
+    selectedValue: NormalizedItem<TItem>['value'] | undefined
     /** Close the select popup. */
     close: () => void
   }
@@ -56,11 +56,11 @@ export namespace SelectT {
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
       Omit<ContentProps<NormalizedItem<TItem>>, 'virtualRender' | 'scrollToItem'>,
-      FormValueOptions<NormalizedItem<TItem>['value'] | null> {
+      FormValueOptions<NormalizedItem<TItem>['value']> {
     /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
+    onValueChange?: (value: NoInfer<NormalizedItem<TItem>['value']> | undefined) => void
     /** Content or render function for the empty state. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps<TItem>>
     /**
@@ -93,7 +93,7 @@ export namespace SelectT {
   export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',
     Base<TItem>,
-    Variant,
+    Variants,
     Classes,
     Styles
   >

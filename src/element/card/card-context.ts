@@ -3,8 +3,8 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { CardT } from './card.types'
 
 interface CardContext {
-  readonly variant: CardT.Variant['variant']
-  readonly size: CardT.Variant['size']
+  readonly variant: CardT.Variants['variant']
+  readonly size: CardT.Variants['size']
   readonly slotOverrides: {
     readonly classes?: CardT.Classes
     readonly styles?: CardT.Styles

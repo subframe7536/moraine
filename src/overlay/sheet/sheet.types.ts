@@ -6,14 +6,14 @@ import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 
-import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
+import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 
 export namespace SheetT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = SheetStyleSlot<T>
 
-  export type Variant = SheetStyleVariant
+  export type Variants = SheetStyleVariants
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -22,17 +22,6 @@ export namespace SheetT {
    * Base props for the Sheet component.
    */
   export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
-    /**
-     * Edge from which the sheet opens.
-     * @default 'right'
-     */
-    side?: 'top' | 'right' | 'bottom' | 'left' | null
-
-    /** Whether the surface is inset from viewport edges.
-     * @default false
-     */
-    inset?: boolean | null
-
     /** Whether to render the overlay element.
      * @default true
      */
@@ -54,7 +43,7 @@ export namespace SheetT {
      */
     closeIcon?: IconT.Name | JSX.Element
   }
-  export type Props = BaseProps<never, Base, Variant, Classes, Styles, never>
+  export type Props = BaseProps<never, Base, Variants, Classes, Styles, never>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = OverlayTriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = OverlayTriggerComponentProps<T>

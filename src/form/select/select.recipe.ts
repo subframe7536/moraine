@@ -12,7 +12,7 @@ import {
   selectItemDataAttributes,
 } from '../shared/select/select-field.recipe'
 
-import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
+import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
 
 export const selectDataAttributes = {
   ...baseSelectDataAttributes,
@@ -21,7 +21,7 @@ export const selectDataAttributes = {
   value: /* @__PURE__ */ createDataAttributes('placeholder'),
 } satisfies DataAttributeContract<keyof SelectStyleSlot>
 
-export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, SelectStyleVariant>(
+export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, SelectStyleVariants>(
   'select',
   {
     base: {

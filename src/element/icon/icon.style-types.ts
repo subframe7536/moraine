@@ -5,6 +5,6 @@ export interface IconStyleSlot<T = unknown> {
   root?: T
 }
 
-export type IconStyleVariant = never
+export type IconStyleVariants = never
 
 export type IconStyleConfig = ComponentStyleConfig<IconStyleSlot>

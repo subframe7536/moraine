@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
-import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
+import type { AvatarStyleSlot, AvatarStyleVariants } from './avatar.style-types'
 
 export const AVATAR_BADGE_ICON_CLASS = 'text-[0.75em]'
 
@@ -12,7 +12,7 @@ export const avatarDataAttributes = {
   fallback: /* @__PURE__ */ createDataAttributes('status'),
 } satisfies DataAttributeContract<keyof AvatarStyleSlot>
 
-export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, AvatarStyleVariant>(
+export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, AvatarStyleVariants>(
   'avatar',
   {
     base: {

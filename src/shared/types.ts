@@ -59,12 +59,12 @@ type StrictedAttributes<T extends Tags> = T extends unknown
 
 type Override<A, B> = Omit<A, keyof B> & B
 
-type NullableVariantProps<Variant> = {
-  [K in keyof Variant]: Variant[K] | null
+export type NullableVariantProps<Variants> = {
+  [K in keyof Variants]: Variants[K] | null
 }
 
-type ComponentBaseProps<Base, Variant, Classes, Styles, HasElement extends boolean = true> = Base &
-  ([Variant] extends [never] ? {} : NullableVariantProps<Variant>) &
+type ComponentBaseProps<Base, Variants, Classes, Styles, HasElement extends boolean = true> = Base &
+  ([Variants] extends [never] ? {} : NullableVariantProps<Variants>) &
   ([Classes] extends [never] ? {} : { classes?: Classes }) &
   ([Styles] extends [never] ? {} : { styles?: Styles }) &
   (HasElement extends true
@@ -104,15 +104,15 @@ export type TriggerBase<T extends ValidComponent = 'button'> = {
 export type BaseProps<
   TElement extends ValidComponent,
   Base,
-  Variant,
+  Variants,
   Classes,
   Styles,
   TDefault extends ValidComponent = TElement,
   AcceptsChildren extends boolean = 'children' extends keyof Base ? true : false,
 > = [TDefault] extends [never]
-  ? ComponentBaseProps<Base, Variant, Classes, Styles, false>
+  ? ComponentBaseProps<Base, Variants, Classes, Styles, false>
   : Override<
       RootProps<DefaultTag<TElement, TDefault>>,
-      ComponentBaseProps<Base, Variant, Classes, Styles> &
+      ComponentBaseProps<Base, Variants, Classes, Styles> &
         (AcceptsChildren extends true ? {} : { children?: never })
     >

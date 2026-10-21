@@ -1,7 +1,7 @@
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
-import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
+import type { KbdStyleSlot, KbdStyleVariants } from './kbd.style-types'
 
 export const KBD_KEY_ALIASES = {
   alt: { text: 'Alt' },
@@ -35,7 +35,7 @@ export namespace KbdT {
 
   export type Slot<T = unknown> = KbdStyleSlot<T>
 
-  export type Variant = KbdStyleVariant
+  export type Variants = KbdStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type Key = BuiltinKbd | (string & {})
@@ -57,7 +57,7 @@ export namespace KbdT {
   }
 
   /** Props for the Kbd component. */
-  export type Props = BaseProps<'kbd', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'kbd', Base, Variants, Classes, Styles>
 }
 
 /** Props for the Kbd component. */

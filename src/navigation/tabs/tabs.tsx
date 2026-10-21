@@ -29,8 +29,8 @@ interface NormalizedTabItem extends TabsT.Item {
   value: string
 }
 
-function normalizeItemValue(value: string | null | undefined, index: number): string {
-  if (value === null || value === undefined) {
+function normalizeItemValue(value: string | undefined, index: number): string {
+  if (value === undefined) {
     return String(index)
   }
 
@@ -77,9 +77,9 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   const rootId = createId(() => merged.id, 'tabs')
-  const [requestedValue, setRequestedValue] = createControllableValue<string | null>({
+  const [requestedValue, setRequestedValue] = createControllableValue<string | undefined>({
     value: () => merged.value,
-    defaultValue: () => merged.defaultValue ?? null,
+    defaultValue: () => merged.defaultValue,
   })
   const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
     const occurrences = new Map<string, number>()
@@ -106,7 +106,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   const selectedItem = createMemo(() => {
     const candidate = requestedValue()
 
-    if (candidate !== null) {
+    if (candidate !== undefined) {
       const requestedItem = normalizedItems().find(
         (item) => item.value === candidate && !item.disabled,
       )

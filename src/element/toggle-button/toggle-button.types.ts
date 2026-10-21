@@ -4,12 +4,12 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { ButtonT } from '../button'
 
-import type { ToggleButtonStyleSlot, ToggleButtonStyleVariant } from './toggle-button.style-types'
+import type { ToggleButtonStyleSlot, ToggleButtonStyleVariants } from './toggle-button.style-types'
 
 export namespace ToggleButtonT {
   export type Kind = 'single'
   export type Slot<T = unknown> = ToggleButtonStyleSlot<T>
-  export type Variant = ToggleButtonStyleVariant
+  export type Variants = ToggleButtonStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -43,7 +43,7 @@ export namespace ToggleButtonT {
   export type Props<T extends ValidComponent = 'button'> = BaseProps<
     T,
     Base<T>,
-    Variant,
+    Variants,
     Classes,
     Styles,
     'button'
