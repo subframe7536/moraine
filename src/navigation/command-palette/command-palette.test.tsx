@@ -521,7 +521,7 @@ describe('CommandPalette', () => {
   test('supports overriding built-in icons', async () => {
     render(() => (
       <CommandPalette
-        showClose
+        closable
         leadingIcon="icon-hash"
         loadingIcon="icon-reload"
         closeIcon="icon-minus"
@@ -544,7 +544,7 @@ describe('CommandPalette', () => {
 
   test('close button renders and calls onClose', async () => {
     const onClose = vi.fn()
-    render(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
+    render(() => <CommandPalette groups={GROUPS} closable onClose={onClose} />)
 
     await waitFor(() => {
       const closeBtn = document.body.querySelector(
@@ -561,13 +561,13 @@ describe('CommandPalette', () => {
     const [open, setOpen] = createSignal(false)
 
     render(() => (
-      <Dialog open={open()} onOpenChange={setOpen} close={false}>
+      <Dialog open={open()} onOpenChange={setOpen} closable={false}>
         <Dialog.Trigger as="button" type="button">
           Open palette
         </Dialog.Trigger>
         <Dialog.Content>
           <Dialog.Body>
-            <CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />
+            <CommandPalette groups={GROUPS} closable onClose={() => setOpen(false)} />
           </Dialog.Body>
         </Dialog.Content>
       </Dialog>
@@ -614,7 +614,7 @@ describe('CommandPalette', () => {
   test('applies classes overrides to root and slots', async () => {
     render(() => (
       <CommandPalette
-        showClose
+        closable
         groups={GROUPS}
         classes={{
           root: 'root-override',

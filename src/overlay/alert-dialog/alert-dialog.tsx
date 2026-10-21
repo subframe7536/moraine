@@ -28,7 +28,7 @@ const registry = createHostRegistry<AlertDialogController>('AlertDialog')
 /* oxlint-disable subf/solid-reactivity -- Host defaults are read when a dialog renders so later prop changes stay live. */
 function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
   return {
-    close: props.close,
+    closable: props.closable,
     closeOnEscape: props.closeOnEscape,
     closeOnOverlayClick: props.closeOnOverlayClick,
     center: props.center,

@@ -195,7 +195,7 @@ AlertDialog.close({ host?, id? })
 ### Defaults
 
 Action and cancel labels use the `dialog` message group (`ok`, `cancel`) when `label` is omitted.
-The corner button uses `close`. `aria-label` names the dialog when `title` is omitted. With a custom
+The corner button uses `closable`. `aria-label` names the dialog when `title` is omitted. With a custom
 render, put `titleId` on the heading so `aria-labelledby` can point at it, or pass `ariaLabel`.
 
 ### Layout
@@ -219,7 +219,7 @@ AlertDialog.confirm({
 
 An outside pointer press dismisses the dialog when `closeOnOverlayClick` is set. Escape dismisses
 it when `closeOnEscape` is left on, which is the default. The corner close button is shown when
-`close` is set. Escape closes only the topmost alert dialog. All three settle with `'dismiss'`.
+`closable` is set. Escape closes only the topmost alert dialog. All three settle with `'dismiss'`.
 
 ### Custom content
 

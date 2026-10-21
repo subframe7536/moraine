@@ -12,7 +12,7 @@ export function Actions() {
             Upgrade
           </Button>
         }
-        close
+        closable
       />
     </div>
   )

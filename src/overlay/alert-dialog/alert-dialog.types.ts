@@ -47,7 +47,7 @@ export namespace AlertDialogT {
      * Whether the corner close button is shown.
      * @default false
      */
-    close?: boolean
+    closable?: boolean
 
     /**
      * Whether Escape dismisses the dialog.
@@ -97,7 +97,7 @@ export namespace AlertDialogT {
      */
     cancel?: Action | boolean
     /** Whether the corner close button is shown. */
-    close?: boolean
+    closable?: boolean
     /** Called once when the dialog closes. */
     onClose?: (reason: CloseReason) => void
     class?: SlotClassValue

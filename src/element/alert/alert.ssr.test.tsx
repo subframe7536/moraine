@@ -13,7 +13,9 @@ test('hydrates alert fixture and updates reactive props', () => {
   const { container } = hydrateFixture(
     '/src/element/alert/alert.ssr.fixture.tsx',
     'renderAlertFixture',
-    () => <AlertHydrationFixture type={type()} title={title()} description={description()} close />,
+    () => (
+      <AlertHydrationFixture type={type()} title={title()} description={description()} closable />
+    ),
   )
   const root = container.firstElementChild
   expect(root).toBeDefined()

@@ -31,7 +31,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'description',
     'actions',
     'icon',
-    'close',
+    'closable',
     'closeIcon',
     'fullWidth',
     'open',
@@ -67,7 +67,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const hasDescription = createMemo(() => hasJsxContent(description()))
   const hasActions = createMemo(() => hasJsxContent(actions()))
   const isFullWidth = () => Boolean(local.fullWidth)
-  const hasClose = () => Boolean(local.close)
+  const hasClose = () => Boolean(local.closable)
   const resolvedType = () => local.type ?? 'primary'
 
   const resolvedIcon = createMemo(() => {

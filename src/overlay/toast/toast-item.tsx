@@ -627,7 +627,7 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
                 </Show>
               </div>
             </Show>
-            <Show when={options().close && !isLoading()}>
+            <Show when={options().closable && !isLoading()}>
               <Button
                 data-slot="toast-close"
                 slotName="toast-close"

@@ -9,7 +9,7 @@ import { mergeDefined, pickDefined } from '../base/feedback/merge-defined'
 import type { AlertDialogT } from './alert-dialog.types'
 
 export interface AlertDialogHostDefaults {
-  close?: boolean
+  closable?: boolean
   closeOnEscape?: boolean
   closeOnOverlayClick?: boolean
   center?: AlertDialogT.Variants['center'] | null
@@ -101,7 +101,7 @@ export function createAlertDialogRecord(
       ariaLabel: call.ariaLabel,
       onClose: call.onClose,
       type: call.type ?? defaults.type ?? 'default',
-      close: pickDefined(call.close, defaults.close),
+      closable: pickDefined(call.closable, defaults.closable),
       closeOnEscape: pickDefined(call.closeOnEscape, defaults.closeOnEscape),
       closeOnOverlayClick: pickDefined(call.closeOnOverlayClick, defaults.closeOnOverlayClick),
       center: pickDefined(call.center, defaults.center),

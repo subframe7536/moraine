@@ -9,7 +9,7 @@ export interface SheetContextValue {
   inset?: boolean | null
   overlay?: boolean
   transition?: boolean
-  close?: boolean
+  closable?: boolean
   closeIcon?: SheetT.Base['closeIcon']
 }
 

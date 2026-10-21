@@ -42,7 +42,7 @@ export namespace AlertT {
      * Whether to show a dismiss button.
      * @default false
      */
-    close?: boolean
+    closable?: boolean
 
     /**
      * Custom icon name or element for the close button.

@@ -14,7 +14,7 @@ export function CloseExample() {
       <Alert
         open={open()}
         onOpenChange={setOpen}
-        close
+        closable
         type="info"
         title="Dismissible notice"
         description="You can close this alert by clicking the close button on the right."

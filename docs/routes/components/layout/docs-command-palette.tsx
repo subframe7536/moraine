@@ -185,7 +185,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
         props.setOpen(next)
       }}
       onExitComplete={() => setSearchTerm('')}
-      close={false}
+      closable={false}
     >
       <Dialog.Trigger as={DocsSearchTrigger} variant={props.variant} />
       <Dialog.Content>
@@ -206,7 +206,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                 onClose,
               )
             }
-            showClose
+            closable
             onClose={onClose}
             emptyRender={(ctx) => (
               <div class="flex flex-col gap-2 items-center">

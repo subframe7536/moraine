@@ -151,7 +151,7 @@ describe('Toast', () => {
   })
 
   it('renders close button and closes on click', async () => {
-    render(() => <Toast close />)
+    render(() => <Toast closable />)
 
     Toast.show({ title: 'Closable item' })
 
@@ -166,7 +166,7 @@ describe('Toast', () => {
   })
 
   it('keeps the same toast node mounted through close exit animation', async () => {
-    render(() => <Toast close />)
+    render(() => <Toast closable />)
 
     Toast.show({ title: 'Exit close anim' })
     const label = await screen.findByText('Exit close anim')
@@ -225,22 +225,22 @@ describe('Toast', () => {
     }
   })
 
-  it('shows the close button when close is set on the call or the host', async () => {
+  it('shows the close button when closable is set on the call or the host', async () => {
     render(() => <Toast />)
 
     Toast.show({
       title: 'Boolean close',
-      close: true,
+      closable: true,
     })
 
     expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()
   })
 
   it('reads the latest host defaults when a toast is added', async () => {
-    const [close, setClose] = createSignal(false)
-    render(() => <Toast close={close()} />)
+    const [closable, setClosable] = createSignal(false)
+    render(() => <Toast closable={closable()} />)
 
-    setClose(true)
+    setClosable(true)
     Toast.show({ title: 'Latest host default' })
 
     expect(await screen.findByRole('button', { name: 'Close notification' })).not.toBeNull()
@@ -1094,7 +1094,7 @@ describe('Toast', () => {
   })
 
   it('renders data-slot attributes on all toast parts', async () => {
-    render(() => <Toast close progress />)
+    render(() => <Toast closable progress />)
 
     Toast.show({
       title: 'Slot Test Title',
@@ -1242,7 +1242,7 @@ describe('Toast', () => {
       id: 'default-toast',
       title: 'Default Size',
       action: { label: 'Action Default' },
-      close: true,
+      closable: true,
     })
 
     Toast.show({
@@ -1251,7 +1251,7 @@ describe('Toast', () => {
       large: true,
       action: { label: 'Action Large' },
       cancel: { label: 'Cancel Large' },
-      close: true,
+      closable: true,
     })
 
     await screen.findByText('Default Size')
@@ -1297,7 +1297,7 @@ describe('Toast', () => {
     Toast.show({
       title: 'Inherited Large Size',
       action: { label: 'Action' },
-      close: true,
+      closable: true,
     })
 
     await screen.findByText('Inherited Large Size')

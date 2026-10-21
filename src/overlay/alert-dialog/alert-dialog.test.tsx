@@ -267,7 +267,7 @@ describe('AlertDialog', () => {
     first.update({
       title: 'Updated',
       danger: true,
-      close: true,
+      closable: true,
       icon: null,
       style: { 'max-width': '12rem' },
       width: 280,
@@ -305,7 +305,7 @@ describe('AlertDialog', () => {
     const onClose = vi.fn()
     const closed = AlertDialog.info({
       title: 'Closable',
-      close: true,
+      closable: true,
       cancel: { onClick: onCancel },
       onClose,
     })
@@ -405,7 +405,7 @@ describe('AlertDialog', () => {
 
   test('applies live host defaults and lets the call override them', async () => {
     const [width, setWidth] = createSignal(420)
-    render(() => <AlertDialog width={width()} danger close />)
+    render(() => <AlertDialog width={width()} danger closable />)
     void AlertDialog.confirm({ title: 'Defaults' })
     await waitForTitle('Defaults')
     expect(dialog().style.maxWidth).toBe('420px')
@@ -422,7 +422,7 @@ describe('AlertDialog', () => {
     void AlertDialog.info({
       title: 'Override',
       danger: false,
-      close: false,
+      closable: false,
       action: { label: 'Done' },
     })
     await waitFor(() => {

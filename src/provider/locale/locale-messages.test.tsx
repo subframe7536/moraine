@@ -61,11 +61,11 @@ describe('localized component text', () => {
           },
         }}
       >
-        <Toast close />
+        <Toast closable />
       </MoraineProvider>
     ))
 
-    Toast.show({ title: 'Bonjour', close: true })
+    Toast.show({ title: 'Bonjour', closable: true })
     const region = document.body.querySelector('[data-slot="toast"]')
     expect(region?.getAttribute('aria-label')).toBe('Notifications')
     await waitFor(() => {
@@ -117,7 +117,7 @@ describe('localized component text', () => {
           commandPalette: { placeholder: 'Chercher', close: 'Fermer', empty: 'Rien' },
         }}
       >
-        <CommandPalette groups={[]} autofocus={false} showClose placeholder="Find" />
+        <CommandPalette groups={[]} autofocus={false} closable placeholder="Find" />
         <CommandPalette groups={[]} autofocus={false} />
       </MoraineProvider>
     ))

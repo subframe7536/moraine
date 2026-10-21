@@ -53,7 +53,7 @@ export function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
         open={context.isOpen()}
         onOpenChange={context.setOpen}
         side={context.side}
-        close={false}
+        closable={false}
       >
         <Sheet.Content aria-label={mobileAriaLabel()}>
           <Sheet.Body>

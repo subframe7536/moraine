@@ -8,7 +8,7 @@ export function AlertHydrationFixture(props: {
   variant?: AlertT.Variants['variant']
   title?: string
   description?: string
-  close?: boolean
+  closable?: boolean
   fullWidth?: boolean
 }) {
   return (
@@ -17,7 +17,7 @@ export function AlertHydrationFixture(props: {
       variant={props.variant ?? 'subtle'}
       title={props.title ?? 'Alert title'}
       description={props.description}
-      close={props.close}
+      closable={props.closable}
       fullWidth={props.fullWidth}
     />
   )
@@ -25,7 +25,7 @@ export function AlertHydrationFixture(props: {
 
 export function renderAlertFixture(): string {
   return renderToString(() => (
-    <AlertHydrationFixture title="Alert title" description="Detailed alert description" close />
+    <AlertHydrationFixture title="Alert title" description="Detailed alert description" closable />
   ))
 }
 

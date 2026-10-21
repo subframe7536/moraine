@@ -126,7 +126,7 @@ describe('Alert', () => {
     const screen = render(() => (
       <Alert
         title="Dismissible alert"
-        close
+        closable
         onOpenChange={onOpenChange}
         onExitComplete={onExitComplete}
       />
@@ -146,7 +146,7 @@ describe('Alert', () => {
 
   it('supports custom closeIcon name and element', () => {
     const view1 = render(() => (
-      <Alert title="Custom close icon" close closeIcon="icon-panel-close" />
+      <Alert title="Custom close icon" closable closeIcon="icon-panel-close" />
     ))
     let closeBtn = view1.getByRole('button', { name: 'Close alert' })
     expect(closeBtn.querySelector('[data-slot="icon"]')?.className).toContain('icon-panel-close')
@@ -155,7 +155,7 @@ describe('Alert', () => {
     const view2 = render(() => (
       <Alert
         title="Custom close element"
-        close
+        closable
         closeIcon={<span data-testid="custom-close">Dismiss</span>}
       />
     ))

@@ -160,7 +160,7 @@ describe('TypeExtractor', () => {
     expect(rootPart.props.map((p) => p.name)).toContain('open')
     expect(rootPart.props.map((p) => p.name)).toContain('defaultOpen')
     expect(rootPart.props.map((p) => p.name)).toContain('onOpenChange')
-    expect(rootPart.props.map((p) => p.name)).toContain('close')
+    expect(rootPart.props.map((p) => p.name)).toContain('closable')
 
     const triggerPart = await extractor.extractPart(module!, 'DialogT', 'TriggerProps', false)
     expect(triggerPart.props.map((p) => p.name)).toContain('as')

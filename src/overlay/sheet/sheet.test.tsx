@@ -336,7 +336,7 @@ describe('Sheet', () => {
 
   test('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
-      <Sheet open close={false}>
+      <Sheet open closable={false}>
         <Sheet.Content title="" description="">
           <Sheet.Body>{''}</Sheet.Body>
           <Sheet.Footer>{''}</Sheet.Footer>
@@ -350,7 +350,7 @@ describe('Sheet', () => {
     empty.unmount()
 
     render(() => (
-      <Sheet open close={false}>
+      <Sheet open closable={false}>
         <Sheet.Content title={false} description={false} />
       </Sheet>
     ))
@@ -395,7 +395,7 @@ describe('Sheet', () => {
         classes={{ header: 'family-header', body: 'family-body' }}
         styles={{ header: { color: 'red' } }}
 
-        close={false}
+        closable={false}
       >
         <Sheet.Content title="Fallback" description="Fallback description">
           <Show when={showHeader()}>
@@ -592,9 +592,9 @@ describe('Sheet', () => {
     expect(footer.className).not.toContain('pe-14')
   })
 
-  test('hides close button when close=false', () => {
+  test('hides close button when closable=false', () => {
     render(() => (
-      <Sheet open close={false}>
+      <Sheet open closable={false}>
         <Sheet.Trigger as="button" type="button">
           Trigger
         </Sheet.Trigger>

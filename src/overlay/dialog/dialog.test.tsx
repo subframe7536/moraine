@@ -25,11 +25,11 @@ describe('Dialog', () => {
   test('keeps nested Sheet configuration and ARIA registration isolated', () => {
     const [showSheet, setShowSheet] = createSignal(true)
     render(() => (
-      <Dialog open close={false}>
+      <Dialog open closable={false}>
         <Dialog.Content title="Outer title">
           <Dialog.Body>
             <Show when={showSheet()}>
-              <Sheet open close={false} side="left">
+              <Sheet open closable={false} side="left">
                 <Sheet.Content title="Inner title">
                   <Sheet.Body>Inner body</Sheet.Body>
                 </Sheet.Content>
@@ -386,7 +386,7 @@ describe('Dialog', () => {
 
   test('distinguishes empty content from false presence', () => {
     const empty = render(() => (
-      <Dialog open close={false}>
+      <Dialog open closable={false}>
         <Dialog.Content title="" description="">
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
@@ -397,7 +397,7 @@ describe('Dialog', () => {
     empty.unmount()
 
     render(() => (
-      <Dialog open close={false}>
+      <Dialog open closable={false}>
         <Dialog.Content title={false} description={false}>
           <Dialog.Body>Body</Dialog.Body>
         </Dialog.Content>
@@ -448,7 +448,7 @@ describe('Dialog', () => {
         classes={{ header: 'family-header', body: 'family-body' }}
         styles={{ header: { color: 'red' } }}
 
-        close={false}
+        closable={false}
       >
         <Dialog.Content title="Fallback" description="Fallback description">
           <Show when={showHeader()}>
@@ -569,7 +569,7 @@ describe('Dialog', () => {
           setSearchTerm('')
           onExitComplete()
         }}
-        close={false}
+        closable={false}
       >
         <Dialog.Trigger as="button" type="button">
           Open palette
@@ -937,9 +937,9 @@ describe('Dialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('hides close button when close=false', () => {
+  test('hides close button when closable=false', () => {
     render(() => (
-      <Dialog open close={false}>
+      <Dialog open closable={false}>
         <Dialog.Trigger as="button" type="button">
           Trigger
         </Dialog.Trigger>
@@ -1235,7 +1235,7 @@ describe('Dialog', () => {
 
   test('adjusts body padding when header or footer is absent', () => {
     const { unmount } = render(() => (
-      <Dialog open close={false}>
+      <Dialog open closable={false}>
         <Dialog.Content title={false} description={false}>
           <Dialog.Body>No header body</Dialog.Body>
         </Dialog.Content>

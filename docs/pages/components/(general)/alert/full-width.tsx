@@ -8,7 +8,7 @@ export function FullWidthExample() {
         type="warning"
         title="Scheduled maintenance notice"
         description="The platform will undergo scheduled maintenance tonight between 02:00 and 04:00 UTC."
-        close
+        closable
       />
     </div>
   )

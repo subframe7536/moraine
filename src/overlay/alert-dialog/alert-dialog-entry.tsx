@@ -201,7 +201,7 @@ export function AlertDialogEntry(props: {
       id={String(props.record.id)}
       open={props.record.open()}
       modal
-      close={(options().close ?? false) && props.record.pending() === undefined}
+      closable={(options().closable ?? false) && props.record.pending() === undefined}
       closeOnOverlayClick={
         options().closeOnOverlayClick === true && props.record.pending() === undefined
       }

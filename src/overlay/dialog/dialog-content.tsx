@@ -58,7 +58,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
       rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
   const merged = mergeProps(
-    { overlay: true, close: true, closeIcon: 'icon-close' as const },
+    { overlay: true, closable: true, closeIcon: 'icon-close' as const },
     dialog,
   )
   const isOverlay = () => merged.overlay !== false
@@ -119,7 +119,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
             </Show>
           </DialogShorthandHeader>
         </Show>
-        <Show when={merged.close}>
+        <Show when={merged.closable}>
           <Modal.Close
             data-slot="dialog-content-close"
             aria-label={messages().close}

@@ -36,7 +36,7 @@ export namespace SheetT {
     /** Whether to show a close button.
      * @default true
      */
-    close?: boolean
+    closable?: boolean
 
     /** Icon name or custom content for the close button.
      * @default 'icon-close'

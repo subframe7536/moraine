@@ -16,7 +16,7 @@ export interface ToastHostDefaults {
   placement?: ToastT.Variants['placement'] | null
   align?: ToastT.Variants['align'] | null
   duration?: number
-  close?: boolean
+  closable?: boolean
   progress?: boolean
   preventDuplicate?: boolean
   class?: ToastT.Options['class']
@@ -82,7 +82,7 @@ export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefault
     placement: call.placement ?? host.placement ?? 'bottom',
     align: call.align ?? host.align ?? 'end',
     duration: pickDefined(call.duration, host.duration),
-    close: pickDefined(call.close, host.close),
+    closable: pickDefined(call.closable, host.closable),
     progress: pickDefined(call.progress, host.progress),
     preventDuplicate: pickDefined(call.preventDuplicate, host.preventDuplicate),
     class: pickDefined(call.class, host.class),

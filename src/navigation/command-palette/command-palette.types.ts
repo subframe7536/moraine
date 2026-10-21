@@ -151,7 +151,7 @@ export namespace CommandPaletteT {
      * Whether to show a close button in the header.
      * @default false
      */
-    showClose?: boolean
+    closable?: boolean
     /** Callback triggered when the close button is clicked or selection requests closing. */
     onClose?: () => void
     /**

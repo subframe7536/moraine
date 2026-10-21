@@ -43,6 +43,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "closable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to show a close button in the header.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "closeIcon",
           "optional": true,
           "type": "IconT.Name",
@@ -224,16 +234,6 @@
           "optional": true,
           "type": "string",
           "description": "Controlled search term."
-        },
-        {
-          "name": "showClose",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to show a close button in the header.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         },
         {
           "name": "style",

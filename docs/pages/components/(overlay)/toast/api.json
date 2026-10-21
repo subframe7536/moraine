@@ -38,7 +38,7 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "close",
+          "name": "closable",
           "optional": true,
           "type": "boolean",
           "description": "Whether toasts show a close button.",

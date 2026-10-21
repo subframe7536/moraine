@@ -31,7 +31,7 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "close",
+          "name": "closable",
           "optional": true,
           "type": "boolean",
           "description": "Whether the corner close button is shown.",

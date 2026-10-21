@@ -10,7 +10,7 @@ export interface DialogContextValue {
   overlay?: boolean
   fullscreen?: boolean | null
   scrollable?: boolean | null
-  close?: boolean
+  closable?: boolean
   closeIcon?: DialogT.Base['closeIcon']
 }
 

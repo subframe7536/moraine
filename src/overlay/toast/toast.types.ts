@@ -44,7 +44,7 @@ export namespace ToastT {
     /** Secondary action. `true` uses the locale label. */
     cancel?: Action | boolean
     /** Whether the corner close button is shown. */
-    close?: boolean
+    closable?: boolean
     /** Called once when the toast closes. */
     onClose?: (reason: CloseReason) => void
     class?: SlotClassValue
@@ -121,7 +121,7 @@ export namespace ToastT {
      * Whether toasts show a close button.
      * @default false
      */
-    close?: boolean
+    closable?: boolean
 
     /**
      * Whether to show the remaining duration progress bar.

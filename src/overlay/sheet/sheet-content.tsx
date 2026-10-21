@@ -58,7 +58,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
       rest.onKeyDown as JSX.EventHandlerUnion<HTMLElement, KeyboardEvent> | undefined,
   })
   const merged = mergeProps(
-    { overlay: true, transition: true, close: true, closeIcon: 'icon-close' as const },
+    { overlay: true, transition: true, closable: true, closeIcon: 'icon-close' as const },
     sheet,
   )
   const isOverlay = () => merged.overlay !== false
@@ -160,7 +160,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
             </Show>
           </SheetShorthandHeader>
         </Show>
-        <Show when={merged.close}>
+        <Show when={merged.closable}>
           <Modal.Close
             data-slot="sheet-content-close"
             aria-label={messages().close}

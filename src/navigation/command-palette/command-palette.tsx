@@ -140,7 +140,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'leadingIcon',
     'loadingIcon',
     'closeIcon',
-    'showClose',
+    'closable',
     'onClose',
     'closeOnSelect',
     'loading',
@@ -169,7 +169,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         return messages().placeholder
       },
       autofocus: true,
-      showClose: false,
+      closable: false,
       closeOnSelect: true,
       leadingIcon: 'icon-search',
       loadingIcon: 'icon-loading',
@@ -688,7 +688,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           }}
         />
 
-        <Show when={merged.showClose}>
+        <Show when={merged.closable}>
           <button
             type="button"
             data-slot="command-palette-close"

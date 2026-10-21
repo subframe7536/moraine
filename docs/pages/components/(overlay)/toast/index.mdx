@@ -12,7 +12,7 @@ search:
 
 import { Button, Toast } from '@src'
 
-<Toast close />
+<Toast closable />
 
 <Playground
   controls={[
@@ -33,7 +33,7 @@ import { Button, Toast } from '@src'
     { kind: 'switch', prop: 'large', label: 'Large', defaultValue: false },
     { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
     { kind: 'switch', prop: 'cancel', label: 'Cancel button', defaultValue: false },
-    { kind: 'switch', prop: 'close', label: 'Close button', defaultValue: true },
+    { kind: 'switch', prop: 'closable', label: 'Close button', defaultValue: true },
     { kind: 'switch', prop: 'progress', label: 'Progress bar', defaultValue: false },
     { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate', defaultValue: false },
   ]}
@@ -44,7 +44,7 @@ import { Button, Toast } from '@src'
         title: 'Preferences updated',
         description: 'Your account settings were saved.',
         large: props.large,
-        close: props.close,
+        closable: props.closable,
         progress: props.progress,
         preventDuplicate: props.preventDuplicate,
         cancel: props.cancel ? true : undefined,
@@ -226,7 +226,7 @@ Toast.show({ title: 'Draft saved' })
 ### Action and dismissal
 
 `action` is the primary button. `cancel: true` uses the locale label, and `cancel: { label }`
-sets one. The corner button is shown when `close` is set. Loading toasts hide the close button and
+sets one. The corner button is shown when `closable` is set. Loading toasts hide the close button and
 the progress bar.
 
 ```tsx
@@ -250,7 +250,7 @@ Toast.success({
   large: true,
   action: { label: 'Download', onClick: () => downloadFile() },
   cancel: { label: 'Dismiss' },
-  close: true,
+  closable: true,
 })
 ```
 

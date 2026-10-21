@@ -48,7 +48,7 @@ import { Alert, Button } from '@src'
     },
     {
       kind: 'switch',
-      prop: 'close',
+      prop: 'closable',
       label: 'Close Button',
       defaultValue: true,
     },
@@ -85,7 +85,7 @@ import { Alert, Button } from '@src'
             </>
           ) : undefined
         }
-        close={Boolean(props.close)}
+        closable={Boolean(props.closable)}
         closeIcon={props.closeIcon === 'default' ? undefined : props.closeIcon}
         fullWidth={Boolean(props.fullWidth)}
         title="Alert notification"
@@ -158,7 +158,7 @@ Attach primary and secondary action buttons alongside the message content.
 
 ### Dismissible alert
 
-Allow users to dismiss the alert by enabling `close`. Monitor or control open state via `open` and `onOpenChange`.
+Allow users to dismiss the alert by enabling `closable`. Monitor or control open state via `open` and `onOpenChange`.
 
 <Preview path="./close" />
 
