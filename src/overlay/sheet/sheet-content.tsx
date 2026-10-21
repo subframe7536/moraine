@@ -141,8 +141,8 @@ export function SheetContent<T extends ValidComponent = 'div'>(
         aria-labelledby={ariaLabelledBy()}
         aria-describedby={ariaDescribedBy()}
         {...sheetDataAttributes.content({
-          closed: undefined,
-          expanded: undefined,
+          closed: () => !family.open(),
+          expanded: family.open,
           transition: () => merged.transition,
         })}
         {...rest}

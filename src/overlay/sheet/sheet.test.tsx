@@ -39,6 +39,9 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="sheet-content"]')
 
     expect(content?.hasAttribute('data-side')).toBe(false)
+    expect(content?.hasAttribute('data-expanded')).toBe(true)
+    expect(content?.hasAttribute('data-closed')).toBe(false)
+    expect(content?.hasAttribute('data-transition')).toBe(true)
     expect(content?.className).toContain(expectedClass)
     expect(content?.className).toContain('data-transition:data-expanded:animate-mo-enter')
     expect(content?.className).toContain('data-transition:data-closed:animate-mo-exit')
@@ -1053,5 +1056,92 @@ describe('Sheet', () => {
     expect(sheet).not.toBeNull()
     expect(sheet?.tagName).toBe('ASIDE')
     expect(sheet?.getAttribute('role')).toBe('dialog')
+  })
+
+  test('reflects data-expanded when open and switches to data-closed during exit motion', async () => {
+    const [open, setOpen] = createSignal(true)
+    render(() => (
+      <Sheet open={open()}>
+        <Sheet.Content aria-label="Motion sheet">
+          <Sheet.Body>Body</Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    expect(content.hasAttribute('data-expanded')).toBe(true)
+    expect(content.hasAttribute('data-closed')).toBe(false)
+    expect(content.hasAttribute('data-transition')).toBe(true)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(content.hasAttribute('data-expanded')).toBe(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
+    expect(content.hasAttribute('data-transition')).toBe(true)
+
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    })
+  })
+
+  test('supports transition={false} by omitting data-transition while maintaining expanded and closed state', async () => {
+    const [open, setOpen] = createSignal(true)
+    render(() => (
+      <Sheet open={open()} transition={false}>
+        <Sheet.Content aria-label="Instant sheet">
+          <Sheet.Body>Body</Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(content.hasAttribute('data-expanded')).toBe(true)
+    expect(content.hasAttribute('data-closed')).toBe(false)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(content.hasAttribute('data-expanded')).toBe(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
+
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    })
+  })
+
+  test('maintains expanded and closed data attributes on sheet content when overlay={false}', async () => {
+    const [open, setOpen] = createSignal(true)
+    render(() => (
+      <Sheet open={open()} overlay={false}>
+        <Sheet.Content aria-label="No overlay sheet">
+          <Sheet.Body>Body</Sheet.Body>
+        </Sheet.Content>
+      </Sheet>
+    ))
+
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
+    expect(content.hasAttribute('data-expanded')).toBe(true)
+    expect(content.hasAttribute('data-closed')).toBe(false)
+
+    setOpen(false)
+    await Promise.resolve()
+
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
+    expect(content.hasAttribute('data-expanded')).toBe(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
+
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    })
   })
 })
