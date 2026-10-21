@@ -2,6 +2,7 @@ import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ComponentSize } from '../../theme/style-types'
 
 export type FieldPath = readonly (string | number)[]
@@ -118,10 +119,7 @@ export function useFormField(
   const disabled = createMemo(() => props?.disabled ?? fieldContext?.disabled ?? false)
   const required = createMemo(() => props?.required ?? Boolean(fieldContext?.required))
   const readOnly = createMemo(() => props?.readOnly ?? fieldContext?.readOnly ?? false)
-  const invalid = createMemo(() => {
-    const error = fieldContext?.error
-    return error !== undefined && error !== null && error !== false && error !== ''
-  })
+  const invalid = createMemo(() => hasContent(fieldContext?.error))
 
   createEffect(
     on(

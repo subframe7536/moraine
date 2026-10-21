@@ -204,8 +204,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     field.emit('input')
   }
 
-  const labelId = createMemo(() => `${field.id()}-label`)
-  const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
+  const labelId = () => `${field.id()}-label`
+  const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
   const checkboxAriaAttrs = () => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')

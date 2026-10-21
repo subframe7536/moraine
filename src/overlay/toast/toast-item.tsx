@@ -14,7 +14,7 @@ import { Button } from '../../element/button'
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createActionRunner } from '../base/feedback/action-runner'
 import { FeedbackActionButton } from '../base/feedback/feedback-action'
@@ -578,12 +578,12 @@ export function ToastItem(props: ToastItemProps): JSX.Element {
               )}
             </Show>
             <div data-slot="toast-wrapper" {...slots.wrapper}>
-              <Show when={hasJsxContent(title())}>
+              <Show when={hasContent(title())}>
                 <div data-slot="toast-title" {...slots.title}>
                   {title()}
                 </div>
               </Show>
-              <Show when={hasJsxContent(description())}>
+              <Show when={hasContent(description())}>
                 <div data-slot="toast-description" {...slots.description}>
                   {description()}
                 </div>

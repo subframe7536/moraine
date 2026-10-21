@@ -111,7 +111,7 @@ type PopperContentState = Omit<PopperContext, 'setTriggerElement'>
 /** Creates shared state for positioned overlay primitives in the current owner. */
 export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): PopperContext {
   const rootId = createId(() => props.id, 'popper')
-  const contentId = createMemo(() => `${rootId()}-content`)
+  const contentId = () => `${rootId()}-content`
   const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,

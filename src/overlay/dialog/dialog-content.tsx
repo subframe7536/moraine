@@ -15,7 +15,7 @@ import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { createShorthandContent } from '../base/shorthand-content'
@@ -111,10 +111,10 @@ export function DialogContent<T extends ValidComponent = 'div'>(
       >
         <Show when={!registration.hasExplicitHeader() && contentShorthand.hasContent()}>
           <DialogShorthandHeader>
-            <Show when={hasJsxContent(contentShorthand.title())}>
+            <Show when={hasContent(contentShorthand.title())}>
               <DialogTitle>{contentShorthand.title()}</DialogTitle>
             </Show>
-            <Show when={hasJsxContent(contentShorthand.description())}>
+            <Show when={hasContent(contentShorthand.description())}>
               <DialogDescription>{contentShorthand.description()}</DialogDescription>
             </Show>
           </DialogShorthandHeader>

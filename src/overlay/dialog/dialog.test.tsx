@@ -384,7 +384,7 @@ describe('Dialog', () => {
     },
   )
 
-  test('distinguishes empty content from false presence', () => {
+  test('treats empty content and false presence as absent content', () => {
     const empty = render(() => (
       <Dialog open closable={false}>
         <Dialog.Content title="" description="">
@@ -392,8 +392,8 @@ describe('Dialog', () => {
         </Dialog.Content>
       </Dialog>
     ))
-    expect(document.body.querySelector('[data-slot="dialog-title"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="dialog-description"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-title"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-description"]')).toBeNull()
     empty.unmount()
 
     render(() => (

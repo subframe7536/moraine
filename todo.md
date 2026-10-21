@@ -5,7 +5,7 @@
   - [x] `close` to `closible` for components that can have close icon
 - [x] try to unify or reuse focus ring classes across components
 - [x] add `translations` props for every component that has `.message.ts`
-- [ ] try to get rid of `hasJsxContent` and other memos
+- [x] try to get rid of `hasJsxContent` and other memos
 - [ ] shiki use `transformerStyleToClass` to reduce prod file size
 - [ ] move hooks to a standalone tab (same level as docs / components), add `/utils` page; add `/components` item in sidebar
 

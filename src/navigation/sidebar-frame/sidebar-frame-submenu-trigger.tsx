@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, Show, splitProps } from 'solid-js'
+import { children as resolveChildren, Show, splitProps } from 'solid-js'
 
 import { Collapsible } from '../../element/collapsible'
 import { useCollapsibleContext } from '../../element/collapsible/collapsible-context'
 import type { IconT } from '../../element/icon'
 import { Icon } from '../../element/icon'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
 
@@ -33,10 +34,7 @@ export function SidebarFrameSubmenuTrigger<T extends ValidComponent = 'button'>(
 
   const trailingIcon = () => local.trailing ?? DEFAULT_SUBMENU_TRAILING
   const children = resolveChildren(() => local.children)
-  const hasChildren = createMemo(() => {
-    const value = children()
-    return value === 0 || Boolean(value)
-  })
+  const hasChildren = () => hasContent(children())
 
   const onClick = (event: MouseEvent) => {
     callHandler(

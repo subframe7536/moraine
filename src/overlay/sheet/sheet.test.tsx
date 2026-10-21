@@ -343,8 +343,8 @@ describe('Sheet', () => {
         </Sheet.Content>
       </Sheet>
     ))
-    expect(document.body.querySelector('[data-slot="sheet-title"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="sheet-description"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-title"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-description"]')).toBeNull()
     expect(document.body.querySelector('[data-slot="sheet-body"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="sheet-footer"]')).not.toBeNull()
     empty.unmount()

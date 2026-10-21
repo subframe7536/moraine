@@ -4,7 +4,7 @@ import { DEV, Show, createEffect, createMemo, on } from 'solid-js'
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { useRegisteredContentId } from '../base/content-anatomy'
 import { FeedbackActionButton } from '../base/feedback/feedback-action'
@@ -111,8 +111,7 @@ function AlertDialogDefault(props: {
     const cancel = options().cancel
     return cancel && typeof cancel !== 'boolean' ? cancel : undefined
   }
-  const showHeader = () =>
-    hasJsxContent(icon()) || hasJsxContent(title()) || hasJsxContent(description())
+  const showHeader = () => hasContent(icon()) || hasContent(title()) || hasContent(description())
 
   return (
     <>
@@ -131,10 +130,10 @@ function AlertDialogDefault(props: {
             )}
           </Show>
           <div data-slot="alert-dialog-copy" {...props.recipe.slots.copy}>
-            <Show when={hasJsxContent(title())}>
+            <Show when={hasContent(title())}>
               <Dialog.Title>{title()}</Dialog.Title>
             </Show>
-            <Show when={hasJsxContent(description())}>
+            <Show when={hasContent(description())}>
               <Dialog.Description>{description()}</Dialog.Description>
             </Show>
           </div>
@@ -188,7 +187,7 @@ export function AlertDialogEntry(props: {
     on(
       () => [options().title, options().ariaLabel] as const,
       ([title, label]) => {
-        if (!DEV || hasJsxContent(title) || label) {
+        if (!DEV || hasContent(title) || label) {
           return
         }
         console.warn('[moraine] AlertDialog has no accessible name. Pass title or ariaLabel.')
@@ -216,7 +215,7 @@ export function AlertDialogEntry(props: {
       <Dialog.Content
         role="alertdialog"
         aria-label={
-          customRender() || !hasJsxContent(options().title) ? options().ariaLabel : undefined
+          customRender() || !hasContent(options().title) ? options().ariaLabel : undefined
         }
         {...recipe.slots.content}
       >

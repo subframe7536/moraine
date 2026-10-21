@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js'
+import { createEffect, createSignal, mergeProps, on } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
@@ -10,7 +10,7 @@ import type { DropdownMenuProps } from './dropdown-menu.types'
 
 export function createDropdownMenu(props: DropdownMenuProps) {
   const resolvedId = createId(() => props.id, 'dropdownmenu')
-  const contentId = createMemo(() => `${resolvedId()}-content`)
+  const contentId = () => `${resolvedId()}-content`
   const [isOpen, setOpenState] = createControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,

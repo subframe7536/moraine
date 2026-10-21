@@ -6,6 +6,7 @@ import { Collapsible } from '../../element/collapsible'
 import { useCollapsibleContext } from '../../element/collapsible/collapsible-context'
 import { Icon } from '../../element/icon'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler } from '../../shared/utils'
@@ -129,15 +130,9 @@ export function SidebarFrameItem<T extends ValidComponent = 'button'>(
 
   const binding = root.bind(elementProps)
   const children = resolveChildren(() => local.children)
-  const hasChildren = createMemo(() => {
-    const value = children()
-    return value === 0 || Boolean(value)
-  })
+  const hasChildren = () => hasContent(children())
   const actions = createMemo(() => local.actions)
-  const hasActions = createMemo(() => {
-    const value = actions()
-    return value !== undefined && value !== null && value !== false
-  })
+  const hasActions = () => hasContent(actions())
 
   const itemData = (withActions = false) =>
     sidebarFrameDataAttributes.item({

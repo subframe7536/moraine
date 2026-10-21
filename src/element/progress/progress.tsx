@@ -3,6 +3,7 @@ import { Show, createMemo, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 
 import { defaultProgressMessages } from './progress.messages'
@@ -19,10 +20,6 @@ function resolveMaxValue(max: number | undefined): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
-}
-
-function hasContent(content: JSX.Element): boolean {
-  return content === 0 || Boolean(content)
 }
 
 /** Determinate or indeterminate progress indicator with an optional label and value. */

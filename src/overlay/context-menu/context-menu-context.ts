@@ -1,12 +1,4 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  untrack,
-} from 'solid-js'
+import { createEffect, createSignal, mergeProps, on, onCleanup, untrack } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 import { createContextProvider } from '../../shared/create-context-provider'
@@ -72,7 +64,7 @@ export function createContextMenu(props: ContextMenuProps) {
   const ownerDocument = () => triggerElement()?.ownerDocument
   const ownerWindow = () => ownerDocument()?.defaultView
   const resolvedId = createId(() => merged.id, 'contextmenu')
-  const contentId = createMemo(() => `${resolvedId()}-content`)
+  const contentId = () => `${resolvedId()}-content`
   let longPressTimeoutId = 0
   let pointerEventGuardTimeoutId = 0
   let suppressionTimeoutId = 0

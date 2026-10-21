@@ -6,7 +6,7 @@ import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { HiddenInput } from '../../shared/hidden-input'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -68,8 +68,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
   const label = createMemo(() => merged.label)
   const description = createMemo(() => merged.description)
-  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
-  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
+  const showLabel = () => hasContent(label())
+  const showDescription = () => hasContent(description())
 
   const generatedId = createId(() => merged.id, 'switch')
   const fieldProps = mergeProps(merged, {
@@ -93,8 +93,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     },
   })
 
-  const labelId = createMemo(() => `${field.id()}-label`)
-  const descriptionId = createMemo(() => `${field.id()}-description`)
+  const labelId = () => `${field.id()}-label`
+  const descriptionId = () => `${field.id()}-description`
 
   let inputEl: HTMLInputElement | undefined
   const initialDefaultChecked = untrack(() => Boolean(merged.defaultChecked))

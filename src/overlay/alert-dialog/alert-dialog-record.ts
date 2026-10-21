@@ -77,7 +77,6 @@ export function createAlertDialogRecord(
   const title = createMemo(() => current().title)
   const description = createMemo(() => current().description)
   const icon = createMemo(() => current().icon)
-
   const options = (): AlertDialogT.Options => {
     const call = current()
     const defaults = host()

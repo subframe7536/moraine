@@ -7,6 +7,7 @@ import { useRecipe } from '../../provider/index'
 import { useLocale } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { hasContent } from '../../shared/jsx-content'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { createId } from '../../shared/utils'
 
@@ -211,10 +212,10 @@ export function Stepper(props: StepperProps): JSX.Element {
           {(entry) => {
             const state = createMemo(() => getItemState(entry.index))
             const disabled = createMemo(() => isItemDisabled(entry))
-            const triggerId = createMemo(() => getTriggerId(entry.instanceKey))
-            const contentId = createMemo(() => getContentId(entry.instanceKey))
-            const titleId = createMemo(() => `${contentId()}-step-${entry.index}-title`)
-            const descriptionId = createMemo(() => `${contentId()}-step-${entry.index}-description`)
+            const triggerId = () => getTriggerId(entry.instanceKey)
+            const contentId = () => getContentId(entry.instanceKey)
+            const titleId = () => `${contentId()}-step-${entry.index}-title`
+            const descriptionId = () => `${contentId()}-step-${entry.index}-description`
             const selected = createMemo(() => selectedItem()?.instanceKey === entry.instanceKey)
             const panelMounted = createMemo(() => selected() && entry.item.content !== undefined)
 
@@ -268,15 +269,15 @@ export function Stepper(props: StepperProps): JSX.Element {
                     />
                   </span>
 
-                  <Show when={entry.item.title || entry.item.description}>
+                  <Show when={hasContent(entry.item.title) || hasContent(entry.item.description)}>
                     <span data-slot="stepper-wrapper" {...slots.wrapper}>
-                      <Show when={entry.item.title}>
+                      <Show when={hasContent(entry.item.title)}>
                         <span data-slot="stepper-title" id={titleId()} {...slots.title}>
                           {entry.item.title}
                         </span>
                       </Show>
 
-                      <Show when={entry.item.description}>
+                      <Show when={hasContent(entry.item.description)}>
                         <span
                           data-slot="stepper-description"
                           id={descriptionId()}

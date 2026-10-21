@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { createTransitionPresence } from '../../shared/transition-presence'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
@@ -64,9 +64,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
   const title = createMemo(() => local.title)
   const description = createMemo(() => local.description)
   const actions = createMemo(() => local.actions)
-  const hasTitle = createMemo(() => hasJsxContent(title()))
-  const hasDescription = createMemo(() => hasJsxContent(description()))
-  const hasActions = createMemo(() => hasJsxContent(actions()))
+  const hasDescription = () => hasContent(description())
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.closable)
   const resolvedType = () => local.type ?? 'primary'
@@ -130,7 +128,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
           </div>
         </Show>
         <div data-slot="alert-content" {...slots.content}>
-          <Show when={hasTitle()}>
+          <Show when={hasContent(title())}>
             <div data-slot="alert-title" {...slots.title}>
               {title()}
             </div>
@@ -142,7 +140,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
           </Show>
           {local.children}
         </div>
-        <Show when={hasActions()}>
+        <Show when={hasContent(actions())}>
           <div data-slot="alert-actions" {...slots.actions}>
             {actions()}
           </div>

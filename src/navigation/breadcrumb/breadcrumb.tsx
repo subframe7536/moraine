@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../element/icon'
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 
@@ -59,10 +60,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
             const leading = createMemo(() => item.icon)
             const label = createMemo(() => item.label)
-            const hasLabel = () => {
-              const value = label()
-              return value === 0 || Boolean(value)
-            }
+            const hasLabel = () => hasContent(label())
 
             return (
               <>

@@ -311,7 +311,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
   function SubmenuItem(itemProps: { item: TItem }): JSX.Element {
     const direction = useLocale().dir
     const submenuId = createId(undefined, `${props.id}-sub`)
-    const submenuContentId = createMemo(() => `${submenuId()}-content`)
+    const submenuContentId = () => `${submenuId()}-content`
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
     const [isOpen, setOpenState] = createControllableValue<boolean>({
       value: () => ('open' in itemProps.item ? itemProps.item.open : undefined),
@@ -625,9 +625,8 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
 
   function MenuGroup(groupProps: { group: OverlayMenuGroup<TItem> }): JSX.Element {
     const groupLabel = createMemo(() => groupProps.group.label)
-    const groupLabelId = createMemo(() =>
-      groupLabel() ? `${props.id}-group-${groups().indexOf(groupProps.group)}-label` : undefined,
-    )
+    const groupLabelId = () =>
+      groupLabel() ? `${props.id}-group-${groups().indexOf(groupProps.group)}-label` : undefined
 
     return (
       <div

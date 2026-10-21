@@ -3,6 +3,7 @@ import { Show, children as resolveChildren, createMemo, mergeProps, splitProps }
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types'
 import { Icon } from '../icon'
 
@@ -27,10 +28,7 @@ export function Badge<T extends ValidComponent = 'span'>(props: BadgeProps<T>): 
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
   const resolvedChildren = resolveChildren(() => local.children)
-  const hasChildren = createMemo(() => {
-    const value = resolvedChildren()
-    return value === 0 || Boolean(value)
-  })
+  const hasChildren = () => hasContent(resolvedChildren())
   const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
   const styleProps = mergeProps(local, {
     get square() {

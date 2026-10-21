@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createPolymorphicRoot } from '../../shared/create-polymorphic-root'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -121,10 +122,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       },
     }),
   )
-  const hasResolvedChildren = createMemo(() => {
-    const value = resolvedChildren()
-    return value === 0 || Boolean(value)
-  })
+  const hasChildren = () => hasContent(resolvedChildren())
 
   return (
     <Dynamic
@@ -149,7 +147,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         )}
       </Show>
 
-      <Show when={hasResolvedChildren()}>
+      <Show when={hasChildren()}>
         <span data-slot="button-label" {...slots.label}>
           {resolvedChildren()}
         </span>

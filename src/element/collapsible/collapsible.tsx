@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
@@ -30,8 +30,8 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'style',
   ])
   const rootId = createId(() => local.id, 'collapsible')
-  const contentId = createMemo(() => `${rootId()}-content`)
-  const triggerId = createMemo(() => `${rootId()}-trigger`)
+  const contentId = () => `${rootId()}-content`
+  const triggerId = () => `${rootId()}-trigger`
   const [open, setControlledOpen] = createControllableValue<boolean>({
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),

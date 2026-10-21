@@ -396,8 +396,8 @@ export function FileUpload<Multiple extends boolean = false>(
   const [nativeInvalid, setNativeInvalid] = createSignal(false)
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
 
-  const labelId = createMemo(() => `${field.id()}-label`)
-  const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
+  const labelId = () => `${field.id()}-label`
+  const descriptionId = () => (description() ? `${field.id()}-description` : undefined)
   const invalid = createMemo(() => field.invalid() || nativeInvalid())
   const controlAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }

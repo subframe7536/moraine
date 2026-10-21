@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 
 export function createShorthandContent(props: {
   readonly title?: JSX.Element
@@ -13,6 +13,6 @@ export function createShorthandContent(props: {
   return {
     title,
     description,
-    hasContent: () => hasJsxContent(title()) || hasJsxContent(description()),
+    hasContent: () => hasContent(title()) || hasContent(description()),
   }
 }

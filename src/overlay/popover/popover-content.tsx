@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
-import { hasJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { parseFloatingPlacement } from '../base/placement'
 import { PopperContent, mergePopperElementProps } from '../base/popper'
 import { getFocusableElements } from '../base/utils'
@@ -142,7 +142,7 @@ export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             {...mergePopperElementProps(contentProps, rest)}
             {...slots.content}
           >
-            <Show when={hasJsxContent(content())}>
+            <Show when={hasContent(content())}>
               <div data-slot="popover-body" {...slots.body}>
                 {content()}
               </div>

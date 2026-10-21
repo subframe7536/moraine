@@ -176,7 +176,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }),
   )
 
-  const legendId = createMemo(() => `${groupId()}-legend`)
+  const legendId = () => `${groupId()}-legend`
   const requiredOwnerIndex = createMemo(() =>
     items().findIndex((item) => !isCheckboxGroupItemDisabled(item)),
   )

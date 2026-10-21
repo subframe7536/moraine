@@ -3,7 +3,7 @@ import { children as resolveChildren, createMemo, createSignal, Show, splitProps
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import { hasContent } from '../../shared/jsx-content'
 import { renderWithProps } from '../../shared/render-with-props'
 import type { ValidComponent } from '../../shared/types'
 import { createId } from '../../shared/utils'
@@ -39,19 +39,16 @@ export function Field<T extends ValidComponent = 'div'>(
     'style',
   ])
   const isRequired = () => Boolean(local.required)
-  const visibleLabel = createMemo(() => local.label)
-  const labelHidden = () => !hasNonEmptyJsxContent(visibleLabel()) && Boolean(local.hiddenLabel)
-  const label = createMemo(() =>
-    hasNonEmptyJsxContent(visibleLabel()) ? visibleLabel() : local.hiddenLabel,
-  )
+  const labelHidden = () => !hasContent(local.label) && Boolean(local.hiddenLabel)
+  const label = createMemo(() => (hasContent(local.label) ? local.label : local.hiddenLabel))
   const description = createMemo(() => local.description)
   const hint = createMemo(() => local.hint)
   const help = createMemo(() => local.help)
   const error = createMemo(() => local.error)
 
-  const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
-  const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
-  const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
+  const showLabel = () => hasContent(label())
+  const showHint = () => showLabel() && hasContent(hint())
+  const showDescription = () => hasContent(description())
   const hasLabelText = () => (showLabel() && !labelHidden()) || showHint()
   const hasText = () => hasLabelText() || showDescription()
   const { slots, variants } = useRecipe(fieldRecipe, local, {
@@ -105,18 +102,9 @@ export function Field<T extends ValidComponent = 'div'>(
     return local.binding?.error
   })
 
-  const shouldShowError = createMemo(() => {
-    const value = resolvedError()
-    if (value === undefined || value === null || value === false || value === true) {
-      return false
-    }
-    if (typeof value === 'string') {
-      return value !== ''
-    }
-    return true
-  })
-  const showError = createMemo(() => error() !== false && shouldShowError())
-  const showHelp = createMemo(() => !showError() && hasNonEmptyJsxContent(help()))
+  const shouldShowError = () => hasContent(resolvedError())
+  const showError = () => error() !== false && shouldShowError()
+  const showHelp = () => !showError() && hasContent(help())
   const fieldAriaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
     const describedBy = [
       ...new Set(
@@ -129,7 +117,7 @@ export function Field<T extends ValidComponent = 'div'>(
       ),
     ]
     const attrs: Record<string, string | boolean | undefined> = {}
-    if (hasNonEmptyJsxContent(resolvedError())) {
+    if (hasContent(resolvedError())) {
       attrs['aria-invalid'] = 'true'
     }
     if (showLabel()) {

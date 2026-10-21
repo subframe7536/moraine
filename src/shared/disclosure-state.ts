@@ -86,7 +86,7 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
     onExitComplete: options.onExitComplete,
   })
 
-  const closed = createMemo(() => !options.open())
+  const closed = () => !options.open()
   const dataAttrs = {
     get 'data-closed'() {
       return closed() ? '' : undefined
@@ -100,8 +100,8 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   }
   const exiting = createMemo(() => closed() && transition() && presence.present())
   const hidden = createMemo(() => closed() && !exiting())
-  const inert = createMemo(() => (closed() ? true : undefined))
-  const ariaHidden = createMemo(() => (closed() ? true : undefined))
+  const inert = () => (closed() ? (true as const) : undefined)
+  const ariaHidden = () => (closed() ? (true as const) : undefined)
 
   const [hasToggled, setHasToggled] = createSignal(false)
 
