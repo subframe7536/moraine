@@ -1,0 +1,139 @@
+---
+title: Alert
+description: Display contextual feedback, status notices, and announcement banners.
+api:
+  path: src/element/alert/alert
+sidebar:
+  order: 19
+search:
+  tags: [alert, callout, notice, banner, message, warning, error, info, success]
+---
+
+import { Alert } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'type',
+      label: 'Type',
+      defaultValue: 'info',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+        { label: 'Error', value: 'error' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'subtle',
+      options: [
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Solid', value: 'solid' },
+      ],
+    },
+    {
+      kind: 'boolean',
+      prop: 'close',
+      label: 'Close Button',
+      defaultValue: true,
+    },
+    {
+      kind: 'boolean',
+      prop: 'fullWidth',
+      label: 'Full Width',
+      defaultValue: false,
+    },
+  ]}
+>
+  {(props) => (
+    <div class="w-full max-w-xl">
+      <Alert
+        type={props.type}
+        variant={props.variant}
+        close={props.close}
+        fullWidth={props.fullWidth}
+        title="Alert notification"
+        description="Detailed contextual message providing helpful instructions."
+      />
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'icon' },
+      {
+        slot: 'content',
+        children: [{ slot: 'title' }, { slot: 'description' }],
+      },
+      { slot: 'close' },
+    ],
+  }}
+/>
+
+## Usage
+
+Use Alert to deliver static or dismissible feedback within a page or section. Unlike Toast or Modal,
+Alert sits inline in the page flow and is rendered by default with `role="status"` or `role="alert"`.
+
+```tsx
+import { Alert } from 'moraine'
+
+export function Example() {
+  return <Alert type="info" title="System update available" />
+}
+```
+
+### Semantic status feedback
+
+Use `type` to indicate the nature of the message (`default`, `info`, `success`, `warning`, `error`).
+The `'default'` type displays neutral surface styling without an icon, while status types automatically
+render their corresponding semantic icons.
+
+### Multi-line message density
+
+Pass `description` to add explanatory content below the title. Alert automatically adapts its layout
+with enlarged, top-aligned status icons and generous vertical padding.
+
+## Examples
+
+### Semantic status feedback
+
+Display contextual feedback with status icons across neutral, informational, success, warning, and error states.
+
+<Preview path="./basic" />
+
+### Multi-line message details
+
+Include additional context and explanation beneath the alert title.
+
+<Preview path="./description" />
+
+### Dismissible alert
+
+Allow users to dismiss the alert by enabling `close`. Monitor or control open state via `open` and `onOpenChange`.
+
+<Preview path="./close" />
+
+### Full-width banner
+
+Use `fullWidth` to render an edge-to-edge announcement banner with flat borders.
+
+<Preview path="./full-width" />
+
+### Custom icon indicator
+
+Provide custom icon names or JSX elements, or hide the status icon completely using `icon={false}`.
+
+<Preview path="./custom-icon" />

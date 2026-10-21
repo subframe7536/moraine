@@ -1,3 +1,4 @@
+import type { defaultAlertMessages } from '../../element/alert/alert.messages'
 import type { defaultKbdMessages } from '../../element/kbd/kbd.messages'
 import type { defaultProgressMessages } from '../../element/progress/progress.messages'
 import type { defaultResizableMessages } from '../../element/resizable/resizable.messages'
@@ -22,6 +23,7 @@ type ComponentMessages<T> = {
 }
 
 export interface MoraineMessages {
+  alert: ComponentMessages<typeof defaultAlertMessages>
   dialog: ComponentMessages<typeof defaultDialogMessages>
   sheet: ComponentMessages<typeof defaultSheetMessages>
   toast: ComponentMessages<typeof defaultToastMessages>
