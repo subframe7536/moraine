@@ -1,10 +1,12 @@
 ## Todo
 
-- [x] createContextProvider should be `(name: string) => [...] | <T extends object>(defaultValue: T) => [...]`
-- [x] `<component>T.Variant` should be `Variants`, `<component>StyleVariant` should be `<component>StyleVariants`
-- [x] unify `null` usage across all components
-- [x] add `Alert` component, ant-design like
-- [x] add `new` badge on `alert-dialog` and `toast`
+- [ ] rename props across all components
+  - [ ] `<component>T.Base["onClose"]` should be `onExitComplete`
+  - [ ] `close` to `closible` for components that can have close icon
+- [ ] tyy to unify or reuse focus ring classes across components
+- [ ] add `translations` props for every component that has `.message.ts`
+- [ ] try to get rid of `hasJsxContent` and other memos
+- [ ] shiki use `transformerStyleToClass` to reduce prod file size
 - [ ] move hooks to a standalone tab (same level as docs / components), add `/utils` page; add `/components` item in sidebar
 
 # V1
