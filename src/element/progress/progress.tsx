@@ -29,10 +29,10 @@ function hasContent(content: JSX.Element): boolean {
 export function Progress(props: ProgressProps): JSX.Element {
   const [local, style, rest] = splitProps(
     props,
-    ['value', 'max', 'label', 'showValue', 'valueLabel', 'valueRender'],
+    ['value', 'max', 'label', 'showValue', 'valueLabel', 'valueRender', 'translations'],
     ['orientation', 'animation', 'size', 'classes', 'styles', 'class', 'style'],
   )
-  const messages = useMessages('progress', defaultProgressMessages)
+  const messages = useMessages('progress', defaultProgressMessages, () => local.translations)
   const labelContent = createMemo(() => local.label)
   const hasLabel = () => hasContent(labelContent())
   const isIndeterminate = createMemo(

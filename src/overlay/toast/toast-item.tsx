@@ -84,8 +84,8 @@ function isAwaySwipe(
 }
 
 export function ToastItem(props: ToastItemProps): JSX.Element {
-  const messages = useMessages('toast', defaultToastMessages)
   const options = createMemo(() => resolveToastOptions(props.toast.options, props.host))
+  const messages = useMessages('toast', defaultToastMessages, () => options().translations)
   const runner = createActionRunner({
     closed: () => Boolean(props.toast.closed),
     onFinish: (kind) => props.store.close(props.toast.id, kind),

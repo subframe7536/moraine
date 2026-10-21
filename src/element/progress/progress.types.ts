@@ -1,8 +1,10 @@
 import type { Component, JSX } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultProgressMessages } from './progress.messages'
 import type { ProgressStyleSlot, ProgressStyleVariants } from './progress.style-types'
 
 export namespace ProgressT {
@@ -14,6 +16,8 @@ export namespace ProgressT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultProgressMessages>
+  export type Translations = Partial<Messages>
 
   export interface ValueRenderProps {
     /** Current progress percentage (0-100). */
@@ -22,6 +26,8 @@ export namespace ProgressT {
 
   /** Base props for the Progress component. */
   export interface Base {
+    /** Localized message overrides for this progress instance. */
+    translations?: Translations
     /**
      * The current value of the progress bar. If undefined, it is indeterminate.
      * @default undefined

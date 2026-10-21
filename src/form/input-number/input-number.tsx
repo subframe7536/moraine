@@ -137,9 +137,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'translations',
   ])
   const themeField = useFieldContext()
-  const messages = useMessages('inputNumber', defaultInputNumberMessages)
+  const messages = useMessages('inputNumber', defaultInputNumberMessages, () => local.translations)
   const providerLocale = useLocale().locale
   const locale = () => local.locale ?? providerLocale()
   const { slots, variants } = useRecipe(inputNumberRecipe, local, {

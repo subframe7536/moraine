@@ -53,6 +53,19 @@ Changing `messages`, `locale`, or `dir` updates the rendered text and behavior w
 
 A component prop always wins over default messages. `placeholder`, `aria-label`, `ariaLabel`, and `label` keep the caller's text, and messages fill only what the caller left unset.
 
+In addition to tree-level `MoraineProvider` configuration, every component with messages accepts an optional `translations` prop (typed as `<Component>T.Translations`) for instance-level customization without requiring a nested provider:
+
+```tsx
+<Pagination
+  total={50}
+  translations={{
+    prev: ({ page }) => (page === undefined ? 'Prev' : `Back to ${page}`),
+  }}
+/>
+```
+
+Component-level `translations` override `MoraineProvider messages`, while explicit component props (`aria-label`, `placeholder`, `label`) have final precedence over both.
+
 ## Messages
 
 Component defaults provide built-in English copy colocated with each component without bundling monolithic message packs. Pass partial overrides to `MoraineProvider` through the `messages` prop (typed as `MoraineProviderProps['messages']`). Available groups are `dialog`, `toast`, `sheet`, `breadcrumb`, `commandPalette`, `select`, `combobox`, `multiSelect`, `slider`, `pagination`, `inputNumber`, `fileUpload`, `tagsField`, `resizable`, `sidebarFrame`, `form`, `kbd`, and `progress`.

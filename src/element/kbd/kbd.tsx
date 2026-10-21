@@ -23,9 +23,10 @@ export function Kbd(props: KbdProps): JSX.Element {
     'classes',
     'styles',
     'aria-label',
+    'translations',
   ])
   const { slots } = useRecipe(kbdRecipe, local)
-  const messages = useMessages('kbd', defaultKbdMessages)
+  const messages = useMessages('kbd', defaultKbdMessages, () => local.translations)
 
   const aliasKey = createMemo(() => {
     if (local.symbol === false) {

@@ -11,6 +11,7 @@ export interface SheetContextValue {
   transition?: boolean
   closable?: boolean
   closeIcon?: SheetT.Base['closeIcon']
+  translations?: SheetT.Translations
 }
 
 export const [SheetProvider, useSheetContext] =

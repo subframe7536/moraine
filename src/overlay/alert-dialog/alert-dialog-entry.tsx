@@ -96,8 +96,8 @@ function AlertDialogDefault(props: {
   record: AlertDialogRecord
   recipe: AlertDialogRecipe
 }): JSX.Element {
-  const messages = useMessages('dialog', defaultDialogMessages)
   const options = () => props.record.options()
+  const messages = useMessages('dialog', defaultDialogMessages, () => options().translations)
   const title = createMemo(() => options().title)
   const description = createMemo(() => options().description)
   const icon = createMemo(() =>

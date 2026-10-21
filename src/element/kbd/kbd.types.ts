@@ -1,6 +1,8 @@
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultKbdMessages } from './kbd.messages'
 import type { KbdStyleSlot, KbdStyleVariants } from './kbd.style-types'
 
 export const KBD_KEY_ALIASES = {
@@ -40,9 +42,13 @@ export namespace KbdT {
   export type Styles = Slot<SlotStyleValue>
   export type Key = BuiltinKbd | (string & {})
   export type MessageKey = BuiltinKbd
+  export type Messages = ComponentMessages<typeof defaultKbdMessages>
+  export type Translations = Partial<Messages>
 
   /** Base props for the Kbd component. */
   export interface Base {
+    /** Localized key alias labels for assistive technology. */
+    translations?: Translations
     /** Value displayed by the keycap or resolved through the static key aliases. */
     value: Key
     /**

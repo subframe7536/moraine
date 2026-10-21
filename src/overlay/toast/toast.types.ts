@@ -1,6 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -11,6 +12,7 @@ import type {
   FeedbackPending,
 } from '../base/feedback/feedback.types'
 
+import type { defaultToastMessages } from './toast.messages'
 import type { ToastStyleSlot, ToastStyleVariants } from './toast.style-types'
 
 export const DEFAULT_TOAST_DURATION = 4000
@@ -24,6 +26,8 @@ export namespace ToastT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultToastMessages>
+  export type Translations = Partial<Messages>
 
   export type Id = FeedbackId
   export type CloseReason = FeedbackCloseReason
@@ -31,6 +35,8 @@ export namespace ToastT {
 
   /** Options passed to toast creation methods. */
   export interface Options extends Variants {
+    /** Localized message overrides for this toast instance. */
+    translations?: Translations
     /** Stable id used by `update` and `close`. Reusing an open id updates that toast. */
     id?: Id
     /** Targets `<Toast id="..." />`. Omit to use the host without an id. */
@@ -99,6 +105,8 @@ export namespace ToastT {
 
   /** Base props for the Toast host component. */
   export interface Base {
+    /** Localized message overrides for toasts in this viewport. */
+    translations?: Translations
     /**
      * Renders the inner content of every toast on this host that was not opened with
      * `Toast.custom`. Receives the instance context and the resolved call options.

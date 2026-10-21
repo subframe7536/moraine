@@ -18,7 +18,9 @@ export function SidebarFrameSidebar<T extends ValidComponent = 'aside'>(
   const [local, rest] = splitProps(props, ['as', 'aria-label', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
   const resolved = useSidebarFrameStyles('sidebar', local)
-  const messages = useMessages('sidebarFrame', defaultSidebarFrameMessages)
+  const messages = useMessages('sidebarFrame', defaultSidebarFrameMessages, () =>
+    context.translations?.(),
+  )
 
   const mobileAriaLabel = () => {
     const restRecord = rest as Record<string, unknown>

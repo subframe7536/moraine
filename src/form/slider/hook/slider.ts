@@ -41,6 +41,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   styles?: { marker?: JSX.CSSProperties }
   value?: TValue
   variant?: SliderT.Variants['variant'] | null
+  translations?: SliderT.Translations
 }
 
 export type CreateSliderOptions<TValue extends SliderValue = SliderValue> = {
@@ -85,7 +86,6 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   options: CreateSliderOptions<TValue> = {},
 ): CreateSliderReturn<TValue> {
   const providerDirection = useLocale().dir
-  const messages = useMessages('slider', defaultSliderMessages)
   const merged = mergeProps(
     {
       min: 0,
@@ -97,6 +97,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     },
     rawProps,
   )
+  const messages = useMessages('slider', defaultSliderMessages, () => merged.translations)
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
   const getInitialValues = () => normalizeValues(merged.defaultValue) ?? [merged.min]

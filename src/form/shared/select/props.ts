@@ -69,6 +69,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'trailingIcon',
   'closeIcon',
   'ref',
+  'translations',
 ] as const
 
 /** Local props intercepted by Combobox. */

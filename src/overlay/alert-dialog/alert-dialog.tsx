@@ -38,6 +38,7 @@ function readHostDefaults(props: AlertDialogProps): AlertDialogHostDefaults {
     width: props.width,
     classes: props.classes,
     styles: props.styles,
+    translations: props.translations,
   }
 }
 /* oxlint-enable subf/solid-reactivity */

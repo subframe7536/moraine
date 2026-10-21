@@ -35,7 +35,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages('select', defaultSelectMessages)
+  const messages = useMessages('select', defaultSelectMessages, () => local.translations)
   const { slots, variants } = useRecipe(selectRecipe, props, {
     slot: 'control',
     contextVariants: () => ({ size: field?.size }),

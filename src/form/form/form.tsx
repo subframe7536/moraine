@@ -33,9 +33,10 @@ function FormRoot<TSchema extends Schema>(props: InternalFormProps<TSchema>): JS
     'of',
     'onSubmit',
     'onReset',
+    'translations',
   ])
   const { slots } = useRecipe(formRecipe, local)
-  const messages = useMessages('form', defaultFormMessages)
+  const messages = useMessages('form', defaultFormMessages, () => local.translations)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of

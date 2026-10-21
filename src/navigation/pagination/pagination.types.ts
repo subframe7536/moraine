@@ -1,9 +1,11 @@
 import type { Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultPaginationMessages } from './pagination.messages'
 import type { PaginationStyleSlot, PaginationStyleVariants } from './pagination.style-types'
 
 export namespace PaginationT {
@@ -15,11 +17,15 @@ export namespace PaginationT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultPaginationMessages>
+  export type Translations = Partial<Messages>
 
   /**
    * Base props for the Pagination component.
    */
   export interface Base {
+    /** Localized message overrides for this pagination instance. */
+    translations?: Translations
     /**
      * Ref forwarded to the root `<nav>` element.
      */

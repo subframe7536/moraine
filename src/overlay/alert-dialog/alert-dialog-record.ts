@@ -21,6 +21,7 @@ export interface AlertDialogHostDefaults {
   classes?: AlertDialogT.Options['classes']
   style?: AlertDialogT.Options['style']
   styles?: AlertDialogT.Options['styles']
+  translations?: AlertDialogT.Options['translations']
 }
 
 export interface AlertDialogRecord {
@@ -112,6 +113,7 @@ export function createAlertDialogRecord(
       classes: mergeSlots(defaults.classes, call.classes),
       style: pickDefined(call.style, defaults.style),
       styles: mergeSlots(defaults.styles, call.styles),
+      translations: call.translations ?? defaults.translations,
     }
   }
 

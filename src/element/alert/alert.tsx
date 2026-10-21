@@ -45,9 +45,10 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'class',
     'style',
     'children',
+    'translations',
   ])
 
-  const messages = useMessages('alert', defaultAlertMessages)
+  const messages = useMessages('alert', defaultAlertMessages, () => local.translations)
 
   const [open, setOpen] = createControllableValue<boolean>({
     value: () => local.open,

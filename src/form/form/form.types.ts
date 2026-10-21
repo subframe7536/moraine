@@ -11,10 +11,12 @@ import type {
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { FieldProps as StandaloneFieldProps } from '../field'
 
+import type { defaultFormMessages } from './form.messages'
 import type { FormStyleSlot, FormStyleVariants } from './form.style-types'
 
 type PathKey = string | number
@@ -61,6 +63,8 @@ export namespace FormT {
   export type Variants = FormStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultFormMessages>
+  export type Translations = Partial<Messages>
 
   export type FieldName<TSchema extends Schema> =
     InferInput<TSchema> extends infer Input
@@ -89,6 +93,8 @@ export namespace FormT {
     FormischFormProps,
     'children' | 'class' | 'onSubmit' | 'style' | 'of'
   > {
+    /** Localized message overrides for this form instance. */
+    translations?: Translations
     children?: JSX.Element
     /** Called with validated schema output and the native submit event. */
     onSubmit?: (output: InferOutput<TSchema>, event: SubmitEvent) => unknown

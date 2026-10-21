@@ -1,11 +1,13 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 
+import type { defaultDialogMessages } from './dialog.messages'
 import type { DialogStyleSlot, DialogStyleVariants } from './dialog.style-types'
 
 export namespace DialogT {
@@ -17,11 +19,15 @@ export namespace DialogT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultDialogMessages>
+  export type Translations = Partial<Messages>
 
   /**
    * Base props for the Dialog component.
    */
   export interface Base extends ModalT.Base {
+    /** Localized message overrides for this dialog instance. */
+    translations?: Translations
     /** Whether to render the overlay element.
      * @default true
      */

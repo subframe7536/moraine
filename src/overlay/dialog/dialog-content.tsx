@@ -49,7 +49,7 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     'style',
   ])
   const dialog = useDialogContext()
-  const messages = useMessages('dialog', defaultDialogMessages)
+  const messages = useMessages('dialog', defaultDialogMessages, () => dialog.translations)
   const direction = useLocale().dir
   const family = useModalContext()
   const binding = createModalContentBinding(family, {

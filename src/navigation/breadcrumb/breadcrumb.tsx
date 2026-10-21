@@ -26,9 +26,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'class',
     'style',
     'aria-label',
+    'translations',
   ])
   const { slots } = useRecipe(breadcrumbRecipe, local)
-  const messages = useMessages('breadcrumb', defaultBreadcrumbMessages)
+  const messages = useMessages('breadcrumb', defaultBreadcrumbMessages, () => local.translations)
 
   const separator = () => local.separator ?? 'icon-chevron-right'
 

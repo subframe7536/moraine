@@ -111,9 +111,10 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'class',
     'style',
     'aria-label',
+    'translations',
   ])
   const { slots, variants, overrides } = useRecipe(paginationRecipe, local)
-  const messages = useMessages('pagination', defaultPaginationMessages)
+  const messages = useMessages('pagination', defaultPaginationMessages, () => local.translations)
 
   const merged = mergeProps(
     {

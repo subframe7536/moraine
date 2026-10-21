@@ -2,9 +2,11 @@ import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
 import type { ListT } from '../../element/list'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ElementProps, InputElementProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultCommandPaletteMessages } from './command-palette.messages'
 import type {
   CommandPaletteStyleSlot,
   CommandPaletteStyleVariants,
@@ -26,6 +28,8 @@ export namespace CommandPaletteT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultCommandPaletteMessages>
+  export type Translations = Partial<Messages>
 
   export interface Item {
     /** Unique value for the item. */
@@ -105,6 +109,8 @@ export namespace CommandPaletteT {
   export type FooterRenderProps<TItem extends Item = Item> = CommandPaletteBaseRenderProps<TItem>
 
   export interface Base<TItem extends Item = Item> {
+    /** Localized message overrides for this command palette instance. */
+    translations?: Translations
     /** Ref forwarded to the root `<div>` element. */
     ref?: Ref<HTMLDivElement>
     /** Ref forwarded to the inner search `<input>` element. */

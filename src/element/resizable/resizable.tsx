@@ -117,7 +117,6 @@ function isResizablePart(value: unknown): value is ResizablePart {
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
   const cn = useCn()
-  const messages = useMessages('resizable', defaultResizableMessages)
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',
@@ -135,7 +134,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'class',
     'style',
     'ref',
+    'translations',
   ])
+  const messages = useMessages('resizable', defaultResizableMessages, () => localProps.translations)
   const { slots, variants, slotWith } = useRecipe(resizableRecipe, localProps)
   const local = mergeProps({ keyboardDelta: '10%' as const }, localProps)
 

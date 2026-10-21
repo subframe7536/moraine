@@ -1,6 +1,7 @@
 import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -22,6 +23,7 @@ import type {
   SelectVirtualRenderProps,
 } from '../shared/select/types'
 
+import type { defaultComboboxMessages } from './combobox.messages'
 import type { ComboboxStyleSlot, ComboboxStyleVariants } from './combobox.style-types'
 
 export namespace ComboboxT {
@@ -30,6 +32,8 @@ export namespace ComboboxT {
   export type Variants = ComboboxStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultComboboxMessages>
+  export type Translations = Partial<Messages>
 
   export interface Item<
     Val extends string | number = string | number,
@@ -67,6 +71,8 @@ export namespace ComboboxT {
       SearchProps<NormalizedItem<TItem>>,
       ContentProps<NormalizedItem<TItem>>,
       FormValueOptions<NormalizedItem<TItem>['value']> {
+    /** Localized message overrides for this combobox instance. */
+    translations?: Translations
     /** String shorthand or object items, optionally grouped. Item values must be unique. */
     items?: Entry<TItem>[]
     /** Called when the committed selection changes. */

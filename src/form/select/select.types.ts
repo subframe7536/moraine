@@ -1,6 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -19,6 +20,7 @@ import type {
   SelectEntry,
 } from '../shared/select/types'
 
+import type { defaultSelectMessages } from './select.messages'
 import type { SelectStyleSlot, SelectStyleVariants } from './select.style-types'
 
 export namespace SelectT {
@@ -27,6 +29,8 @@ export namespace SelectT {
   export type Variants = SelectStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultSelectMessages>
+  export type Translations = Partial<Messages>
 
   export interface Item<
     Val extends string | number = string | number,
@@ -57,6 +61,8 @@ export namespace SelectT {
       BaseSelectResetProps,
       Omit<ContentProps<NormalizedItem<TItem>>, 'virtualRender' | 'scrollToItem'>,
       FormValueOptions<NormalizedItem<TItem>['value']> {
+    /** Localized message overrides for this select instance. */
+    translations?: Translations
     /** String shorthand or object items, optionally grouped or separated. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */

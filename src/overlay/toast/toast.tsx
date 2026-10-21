@@ -53,8 +53,9 @@ function ToastRoot(props: ToastProps): JSX.Element {
     'styles',
     'class',
     'style',
+    'translations',
   ])
-  const messages = useMessages('toast', defaultToastMessages)
+  const messages = useMessages('toast', defaultToastMessages, () => local.translations)
   const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
@@ -72,6 +73,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
     preventDuplicate: local.preventDuplicate,
     classes: local.classes,
     styles: local.styles,
+    translations: local.translations,
   }))
   const controller: ToastHost = {
     id: () => local.id,

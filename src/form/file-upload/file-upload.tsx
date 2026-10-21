@@ -260,7 +260,6 @@ function constrainSingleFile(accepted: File[]): {
 export function FileUpload<Multiple extends boolean = false>(
   props: FileUploadProps<Multiple>,
 ): JSX.Element {
-  const messages = useMessages('fileUpload', defaultFileUploadMessages)
   const [local, rest] = splitProps(props, [
     'id',
     'name',
@@ -294,7 +293,9 @@ export function FileUpload<Multiple extends boolean = false>(
     'class',
     'style',
     'aria-label',
+    'translations',
   ])
+  const messages = useMessages('fileUpload', defaultFileUploadMessages, () => local.translations)
   const themeField = useFieldContext()
   const { slots, variants } = useRecipe(fileUploadRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),

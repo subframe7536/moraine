@@ -12,6 +12,7 @@ export interface DialogContextValue {
   scrollable?: boolean | null
   closable?: boolean
   closeIcon?: DialogT.Base['closeIcon']
+  translations?: DialogT.Translations
 }
 
 export const [DialogProvider, useDialogContext] =

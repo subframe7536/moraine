@@ -10,6 +10,7 @@ import type {
   FeedbackId,
   FeedbackPending,
 } from '../base/feedback/feedback.types'
+import type { DialogT } from '../dialog/dialog.types'
 
 import type { AlertDialogStyleSlot, AlertDialogStyleVariants } from './alert-dialog.style-types'
 
@@ -29,6 +30,8 @@ export namespace AlertDialogT {
 
   /** Defaults applied to every alert dialog opened on this host. */
   export interface Base {
+    /** Localized message overrides for dialogs opened on this host. */
+    translations?: DialogT.Translations
     /**
      * Unique identifier for this host when multiple hosts are mounted.
      * A call without `host` goes to the last mounted host without an id. Pass `host` in the
@@ -112,6 +115,8 @@ export namespace AlertDialogT {
     closeOnOverlayClick?: boolean
     /** Accessible name used when `title` is absent. */
     ariaLabel?: string
+    /** Localized message overrides for this dialog instance. */
+    translations?: DialogT.Translations
   }
 
   /** Selects dialogs for `AlertDialog.close`. Omitted fields match every dialog. */

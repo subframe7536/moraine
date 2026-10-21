@@ -4,6 +4,7 @@ import { createMemo } from 'solid-js'
 import { Icon } from '../../../element/icon/index'
 import type { IconT } from '../../../element/icon/index'
 import { useMessages } from '../../../provider/locale/locale-context'
+import type { ComponentMessages } from '../../../provider/locale/messages.types'
 import type { SlotBinding } from '../../../theme/use-recipe'
 
 import { defaultTagsFieldMessages } from './tags-field.messages'
@@ -32,11 +33,12 @@ export interface TagsFieldOptions<TValue> {
   slot: (name: TagSlot) => SlotBinding
   slotName: (name: TagSlot) => string
   closeIcon: Accessor<IconT.Name | undefined>
+  translations?: Accessor<Partial<ComponentMessages<typeof defaultTagsFieldMessages>> | undefined>
 }
 
 /** Shared tag presentation, removal, focus, and tokenization behavior. */
 export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
-  const messages = useMessages('tagsField', defaultTagsFieldMessages)
+  const messages = useMessages('tagsField', defaultTagsFieldMessages, options.translations)
   const tagCache = new Map<TValue, TagsFieldEntry<TValue>>()
   const tags = createMemo<Array<TagsFieldEntry<TValue>>>(() => {
     const values = options.values()

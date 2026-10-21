@@ -1,5 +1,6 @@
 import type { Ref } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
 import type {
@@ -10,6 +11,7 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
+import type { defaultSliderMessages } from './slider.messages'
 import type { SliderStyleSlot, SliderStyleVariants } from './slider.style-types'
 
 export namespace SliderT {
@@ -20,6 +22,8 @@ export namespace SliderT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultSliderMessages>
+  export type Translations = Partial<Messages>
 
   export type Value = number | number[]
 
@@ -33,6 +37,8 @@ export namespace SliderT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
+    /** Localized message overrides for this slider instance. */
+    translations?: Translations
     /**
      * Direction of keyboard and pointer value movement.
      * @default 'horizontal'

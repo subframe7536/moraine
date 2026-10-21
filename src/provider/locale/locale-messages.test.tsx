@@ -1,8 +1,9 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { onMount } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
+import { Alert } from '../../element/alert/alert'
 import { Kbd } from '../../element/kbd/kbd'
 import { Progress } from '../../element/progress/progress'
 import { Resizable } from '../../element/resizable/resizable'
@@ -19,6 +20,7 @@ import { CommandPalette } from '../../navigation/command-palette/command-palette
 import { Pagination } from '../../navigation/pagination/pagination'
 import { SidebarFrame } from '../../navigation/sidebar-frame/sidebar-frame'
 import { useSidebarFrame } from '../../navigation/sidebar-frame/sidebar-frame-context'
+import { AlertDialog } from '../../overlay/alert-dialog/alert-dialog'
 import { Dialog } from '../../overlay/dialog/dialog'
 import { Sheet } from '../../overlay/sheet/sheet'
 import { Toast } from '../../overlay/toast/toast'
@@ -350,5 +352,210 @@ describe('localized component text', () => {
 
     expect(screen.getByRole('navigation', { name: 'Fil d’Ariane' })).toBeTruthy()
     expect(screen.getByRole('navigation', { name: 'Navigation' })).toBeTruthy()
+  })
+})
+
+describe('component translations prop', () => {
+  test('uses alert, kbd, progress, and resizable translations', () => {
+    const screen = render(() => (
+      <>
+        <Alert closable translations={{ close: 'Dismiss banner' }} />
+        <Kbd value="meta" translations={{ meta: 'Command-Key' }} />
+        <Progress aria-label="Task" translations={{ indeterminate: 'Working...' }} />
+        <Resizable translations={{ collapse: 'Fold panel' }}>
+          <Resizable.Panel collapsible>Left</Resizable.Panel>
+          <Resizable.Handle action="collapse" />
+          <Resizable.Panel>Right</Resizable.Panel>
+        </Resizable>
+      </>
+    ))
+
+    expect(
+      screen.container.querySelector('[data-slot="alert-close"]')?.getAttribute('aria-label'),
+    ).toBe('Dismiss banner')
+    expect(screen.getByLabelText('Command-Key')).toBeTruthy()
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('Working...')
+    expect(screen.getByRole('button', { name: 'Fold panel' })).toBeTruthy()
+  })
+
+  test('uses select, combobox, and multi-select translations including tag removal', () => {
+    const screen = render(() => (
+      <>
+        <Select
+          items={FRUIT}
+          defaultValue="apple"
+          allowClear
+          translations={{ clear: 'Clear fruit' }}
+        />
+        <Combobox items={[]} defaultOpen translations={{ empty: 'Nothing found' }} />
+        <MultiSelect
+          items={FRUIT}
+          defaultValue={['apple']}
+          allowClear
+          translations={{
+            clear: 'Reset all',
+            remove: ({ title }) => `Drop ${title}`,
+          }}
+        />
+      </>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Clear fruit' })).toBeTruthy()
+    expect(document.body.querySelector('[data-slot="combobox-empty"]')?.textContent).toBe(
+      'Nothing found',
+    )
+    expect(screen.getByRole('button', { name: 'Reset all' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Drop Apple' })).toBeTruthy()
+  })
+
+  test('uses file upload, input number, and slider translations', () => {
+    const screen = render(() => (
+      <>
+        <FileUpload translations={{ label: 'Upload document' }} />
+        <InputNumber aria-label="Qty" translations={{ increment: 'Up', decrement: 'Down' }} />
+        <Slider defaultValue={[40]} translations={{ thumb: ({ index }) => `Knob ${index + 1}` }} />
+      </>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Upload document' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Up' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Down' })).toBeTruthy()
+    expect(screen.getByRole('slider', { name: 'Knob 1' })).toBeTruthy()
+  })
+
+  test('uses breadcrumb, command palette, and pagination translations', () => {
+    const screen = render(() => (
+      <>
+        <Breadcrumb items={[{ label: 'Home' }]} translations={{ label: 'Path' }} />
+        <CommandPalette
+          groups={[]}
+          autofocus={false}
+          translations={{ placeholder: 'Type command...' }}
+        />
+        <Pagination
+          total={30}
+          translations={{
+            prev: () => 'Previous step',
+            next: () => 'Next step',
+          }}
+        />
+      </>
+    ))
+
+    expect(screen.getByRole('navigation', { name: 'Path' })).toBeTruthy()
+    expect(screen.getByRole('combobox', { name: 'Type command...' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Previous step' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Next step' })).toBeTruthy()
+  })
+
+  test('uses dialog, sheet, toast, and alert-dialog translations', async () => {
+    Toast.close()
+    render(() => (
+      <>
+        <Dialog open translations={{ close: 'Close popup' }}>
+          <Dialog.Content>Modal</Dialog.Content>
+        </Dialog>
+        <Sheet open translations={{ close: 'Close drawer' }}>
+          <Sheet.Content>Drawer</Sheet.Content>
+        </Sheet>
+        <Toast closable translations={{ viewport: 'Alerts', close: 'Dismiss toast' }} />
+        <AlertDialog />
+      </>
+    ))
+
+    expect(
+      document.body.querySelector('[data-slot="dialog-content-close"]')?.getAttribute('aria-label'),
+    ).toBe('Close popup')
+    expect(
+      document.body.querySelector('[data-slot="sheet-content-close"]')?.getAttribute('aria-label'),
+    ).toBe('Close drawer')
+
+    const region = document.body.querySelector('[data-slot="toast"]')
+    expect(region?.getAttribute('aria-label')).toBe('Alerts')
+
+    Toast.show({ title: 'Notice', closable: true })
+    await waitFor(() => {
+      expect(
+        document.body.querySelector('[data-slot="toast-close"]')?.getAttribute('aria-label'),
+      ).toBe('Dismiss toast')
+    })
+    Toast.close()
+
+    AlertDialog.confirm({
+      title: 'Proceed?',
+      translations: { ok: 'Yes please', cancel: 'No thanks' },
+    })
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="alert-dialog-action"]')?.textContent).toBe(
+        'Yes please',
+      )
+      expect(document.body.querySelector('[data-slot="alert-dialog-cancel"]')?.textContent).toBe(
+        'No thanks',
+      )
+    })
+    AlertDialog.close()
+  })
+
+  test('uses form translations on rejected submission', async () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ name: v.string() }),
+          initialInput: { name: 'Ada' },
+        }),
+      (form) => (
+        <form.Form
+          onSubmit={() => Promise.reject(null)}
+          translations={{ unknownError: 'Custom error' }}
+        >
+          <button type="submit">Submit</button>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    await waitFor(() => expect(form.errors).toEqual(['Custom error']))
+  })
+
+  test('component translations override MoraineProvider messages while explicit props win over both', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        messages={{
+          dialog: { close: 'Provider close' },
+          pagination: { label: 'Provider pages' },
+        }}
+      >
+        {/* Component translations override provider */}
+        <Dialog open translations={{ close: 'Component close' }}>
+          <Dialog.Content>Content</Dialog.Content>
+        </Dialog>
+        {/* Explicit prop wins over component translations */}
+        <Pagination
+          total={30}
+          aria-label="Explicit pages"
+          translations={{ label: 'Component pages' }}
+        />
+      </MoraineProvider>
+    ))
+
+    expect(
+      document.body.querySelector('[data-slot="dialog-content-close"]')?.getAttribute('aria-label'),
+    ).toBe('Component close')
+    expect(screen.getByRole('navigation', { name: 'Explicit pages' })).toBeTruthy()
+  })
+
+  test('translations prop updates reactively without remounting', () => {
+    const [messages, setMessages] = createSignal({ close: 'Close 1' })
+    render(() => (
+      <Dialog open translations={messages()}>
+        <Dialog.Content>Content</Dialog.Content>
+      </Dialog>
+    ))
+
+    const button = document.body.querySelector('[data-slot="dialog-content-close"]')
+    expect(button?.getAttribute('aria-label')).toBe('Close 1')
+
+    setMessages({ close: 'Close 2' })
+    expect(button?.getAttribute('aria-label')).toBe('Close 2')
   })
 })

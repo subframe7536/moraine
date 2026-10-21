@@ -58,11 +58,14 @@ function mergeGroup<T extends object>(defaults: T, custom: Partial<T> | undefine
 export function useMessages<K extends keyof MoraineMessages>(
   key: K,
   defaults: MoraineMessages[K],
+  translations?: Accessor<Partial<MoraineMessages[K]> | undefined>,
 ): Accessor<MoraineMessages[K]> {
   const context = useMoraineContext()
   return () => {
     const custom = context?.messages?.[key]
-    return mergeGroup(defaults, custom)
+    const merged = mergeGroup(defaults, custom)
+    const local = translations?.()
+    return mergeGroup(merged, local)
   }
 }
 

@@ -1,6 +1,7 @@
 import type { Accessor, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type {
   BaseProps,
   TriggerBase as SharedTriggerBase,
@@ -8,6 +9,7 @@ import type {
 } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultSidebarFrameMessages } from './sidebar-frame.messages'
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariants } from './sidebar-frame.style-types'
 
 export namespace SidebarFrameT {
@@ -18,6 +20,8 @@ export namespace SidebarFrameT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultSidebarFrameMessages>
+  export type Translations = Partial<Messages>
 
   export type State = 'expanded' | 'collapsed'
 
@@ -31,9 +35,12 @@ export namespace SidebarFrameT {
     setOpen: (open: boolean) => void
     toggle: () => void
     sidebarId: Accessor<string>
+    translations?: Accessor<Translations | undefined>
   }
 
   export interface Base {
+    /** Localized message overrides for this sidebar frame instance. */
+    translations?: Translations
     /**
      * Side occupied by the sidebar.
      * @default 'left'

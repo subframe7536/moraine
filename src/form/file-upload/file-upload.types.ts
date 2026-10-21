@@ -1,6 +1,7 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -11,6 +12,7 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.types'
 
+import type { defaultFileUploadMessages } from './file-upload.messages'
 import type { FileUploadStyleSlot, FileUploadStyleVariants } from './file-upload.style-types'
 
 type FileError =
@@ -33,6 +35,8 @@ export namespace FileUploadT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultFileUploadMessages>
+  export type Translations = Partial<Messages>
 
   export type Value<Multiple extends boolean = boolean> = Multiple extends true
     ? File[]
@@ -51,6 +55,8 @@ export namespace FileUploadT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
+    /** Localized message overrides for this file upload instance. */
+    translations?: Translations
     /** Native input element ref. */
     inputRef?: Ref<HTMLInputElement>
 

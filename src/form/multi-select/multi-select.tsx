@@ -46,7 +46,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages('multiSelect', defaultMultiSelectMessages)
+  const messages = useMessages('multiSelect', defaultMultiSelectMessages, () => local.translations)
   const locale = useLocale().locale
   const { slots, variants } = useRecipe(multiSelectRecipe, props, {
     slot: 'control',
@@ -153,6 +153,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       slot: (slot) => slots[slot],
       slotName: state.slotName,
       closeIcon: () => local.closeIcon,
+      translations: () =>
+        local.translations?.remove ? { remove: local.translations.remove } : undefined,
       resolve: (value) => {
         const item = source().byValue.get(value)
         const label = item?.label ?? String(value)

@@ -1,9 +1,11 @@
 import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
+import type { defaultBreadcrumbMessages } from './breadcrumb.messages'
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariants } from './breadcrumb.style-types'
 
 export namespace BreadcrumbT {
@@ -14,6 +16,8 @@ export namespace BreadcrumbT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultBreadcrumbMessages>
+  export type Translations = Partial<Messages>
 
   /**
    * An individual item in the breadcrumb trail.
@@ -81,6 +85,8 @@ export namespace BreadcrumbT {
    * Base props for the Breadcrumb component.
    */
   export interface Base {
+    /** Localized message overrides for this breadcrumb instance. */
+    translations?: Translations
     /**
      * Ref forwarded to the root `<nav>` element.
      */

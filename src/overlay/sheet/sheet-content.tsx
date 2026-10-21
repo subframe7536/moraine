@@ -49,7 +49,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
     'style',
   ])
   const sheet = useSheetContext()
-  const messages = useMessages('sheet', defaultSheetMessages)
+  const messages = useMessages('sheet', defaultSheetMessages, () => sheet.translations)
   const direction = useLocale().dir
   const family = useModalContext()
   const binding = createModalContentBinding(family, {

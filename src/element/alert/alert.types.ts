@@ -1,9 +1,11 @@
 import type { JSX } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 
+import type { defaultAlertMessages } from './alert.messages'
 import type { AlertStyleSlot, AlertStyleVariants } from './alert.style-types'
 
 export namespace AlertT {
@@ -13,8 +15,13 @@ export namespace AlertT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type Type = NonNullable<Variants['type']>
+  export type Messages = ComponentMessages<typeof defaultAlertMessages>
+  export type Translations = Partial<Messages>
 
   export interface Base<T extends ValidComponent = 'div'> {
+    /** Localized message overrides for this alert instance. */
+    translations?: Translations
+
     /**
      * Element or component to render as.
      * @default 'div'

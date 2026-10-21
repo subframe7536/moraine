@@ -44,9 +44,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
     'aria-label',
+    'translations',
   ])
   const themeField = useFieldContext()
-  const messages = useMessages('slider', defaultSliderMessages)
+  const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
   let slider!: ReturnType<typeof createSlider<TValue>>
   const { slots, variants, slotWith } = useRecipe(sliderRecipe, local, {
     contextVariants: () => ({ size: themeField?.size }),

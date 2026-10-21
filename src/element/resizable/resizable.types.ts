@@ -1,9 +1,11 @@
 import type { Component, JSX } from 'solid-js'
 
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
 import type { ResizableOrientation, ResizableSize } from './hook'
+import type { defaultResizableMessages } from './resizable.messages'
 import type { ResizableStyleSlot, ResizableStyleVariants } from './resizable.style-types'
 
 export namespace ResizableT {
@@ -15,6 +17,8 @@ export namespace ResizableT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultResizableMessages>
+  export type Translations = Partial<Messages>
 
   export interface HandleRenderProps {
     orientation: ResizableOrientation
@@ -28,6 +32,8 @@ export namespace ResizableT {
 
   /** Base props for the Resizable component. */
   export interface Base {
+    /** Localized message overrides for this resizable instance. */
+    translations?: Translations
     /**
      * Axis along which panels resize.
      * @default 'horizontal'

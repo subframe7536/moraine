@@ -39,7 +39,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const messages = useMessages('combobox', defaultComboboxMessages)
+  const messages = useMessages('combobox', defaultComboboxMessages, () => local.translations)
   const { slots, variants } = useRecipe(comboboxRecipe, props, {
     slot: 'control',
     contextVariants: () => ({ size: field?.size }),

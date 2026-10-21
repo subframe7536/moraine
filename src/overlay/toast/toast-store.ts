@@ -23,6 +23,7 @@ export interface ToastHostDefaults {
   classes?: ToastT.Classes
   style?: ToastT.Options['style']
   styles?: ToastT.Styles
+  translations?: ToastT.Translations
 }
 
 export interface ToastHost extends FeedbackHost {
@@ -89,6 +90,7 @@ export function resolveToastOptions(call: ToastT.Options, host: ToastHostDefault
     classes: mergeSlots(host.classes, call.classes),
     style: pickDefined(call.style, host.style),
     styles: mergeSlots(host.styles, call.styles),
+    translations: call.translations ?? host.translations,
   }
 }
 

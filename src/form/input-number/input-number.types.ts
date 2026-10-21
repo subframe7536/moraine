@@ -1,6 +1,7 @@
 import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -10,6 +11,7 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.types'
 
+import type { defaultInputNumberMessages } from './input-number.messages'
 import type { InputNumberStyleSlot, InputNumberStyleVariants } from './input-number.style-types'
 
 export namespace InputNumberT {
@@ -20,6 +22,8 @@ export namespace InputNumberT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultInputNumberMessages>
+  export type Translations = Partial<Messages>
 
   export type PointerType = 'mouse' | 'touch' | 'pen'
 
@@ -28,6 +32,10 @@ export namespace InputNumberT {
    */
   export interface Base
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
+    /**
+     * Localized message overrides for this input number instance.
+     */
+    translations?: Translations
     /**
      * The ID of an external form that owns the native spinbutton.
      */

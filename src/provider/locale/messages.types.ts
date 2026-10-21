@@ -18,7 +18,7 @@ import type { defaultDialogMessages } from '../../overlay/dialog/dialog.messages
 import type { defaultSheetMessages } from '../../overlay/sheet/sheet.messages'
 import type { defaultToastMessages } from '../../overlay/toast/toast.messages'
 
-type ComponentMessages<T> = {
+export type ComponentMessages<T> = {
   [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : string
 }
 

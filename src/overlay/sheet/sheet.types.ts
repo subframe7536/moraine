@@ -1,11 +1,13 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { IconT } from '../../element/icon/icon.types'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { OverlayTriggerBase, OverlayTriggerComponentProps } from '../base/trigger'
 import type { ModalT } from '../modal/modal.types'
 
+import type { defaultSheetMessages } from './sheet.messages'
 import type { SheetStyleSlot, SheetStyleVariants } from './sheet.style-types'
 
 export namespace SheetT {
@@ -17,11 +19,15 @@ export namespace SheetT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultSheetMessages>
+  export type Translations = Partial<Messages>
 
   /**
    * Base props for the Sheet component.
    */
   export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
+    /** Localized message overrides for this sheet instance. */
+    translations?: Translations
     /** Whether to render the overlay element.
      * @default true
      */

@@ -125,7 +125,6 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
-  const messages = useMessages('commandPalette', defaultCommandPaletteMessages)
   const { locale, dir: direction } = useLocale()
   const [local, rest] = splitProps(props, [
     'ref',
@@ -160,7 +159,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'styles',
     'class',
     'style',
+    'translations',
   ])
+  const messages = useMessages(
+    'commandPalette',
+    defaultCommandPaletteMessages,
+    () => local.translations,
+  )
   const { slots, variants, slotWith } = useRecipe(commandPaletteRecipe, local)
 
   const merged = mergeProps(

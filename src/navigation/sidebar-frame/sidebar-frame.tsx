@@ -42,6 +42,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'styles',
     'style',
     'variant',
+    'translations',
   ])
   const { slots, variants } = useRecipe(sidebarFrameRecipe, local)
 
@@ -110,6 +111,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     get side() {
       return variants.side
     },
+    translations: () => local.translations,
   }
 
   return (

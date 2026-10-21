@@ -1,6 +1,7 @@
 import type { Component, JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../element/icon/index'
+import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
@@ -11,6 +12,7 @@ import type {
   BaseSelectT,
 } from '../base-select/base-select.types'
 import type { FormValueOptions } from '../shared/form-options.types'
+import type { defaultTagsFieldMessages } from '../shared/select/tags-field.messages'
 import type {
   SearchProps,
   ContentProps,
@@ -20,6 +22,7 @@ import type {
   SelectVirtualRenderProps,
 } from '../shared/select/types'
 
+import type { defaultMultiSelectMessages } from './multi-select.messages'
 import type { MultiSelectStyleSlot, MultiSelectStyleVariants } from './multi-select.style-types'
 
 export namespace MultiSelectT {
@@ -28,6 +31,9 @@ export namespace MultiSelectT {
   export type Variants = MultiSelectStyleVariants
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type Messages = ComponentMessages<typeof defaultMultiSelectMessages> &
+    ComponentMessages<typeof defaultTagsFieldMessages>
+  export type Translations = Partial<Messages>
 
   export interface Item<
     Val extends string | number = string | number,
@@ -90,6 +96,8 @@ export namespace MultiSelectT {
       SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'][]> {
+    /** Localized message overrides for this multi-select instance. */
+    translations?: Translations
     /** Source items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
