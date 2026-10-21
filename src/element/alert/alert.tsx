@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, Show, splitProps } from 'solid-js'
+import { createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -29,6 +29,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'as',
     'title',
     'description',
+    'actions',
     'icon',
     'close',
     'closeIcon',
@@ -36,6 +37,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'open',
     'defaultOpen',
     'onOpenChange',
+    'onExitComplete',
     'type',
     'variant',
     'classes',
@@ -55,15 +57,18 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
 
   const presence = createTransitionPresence({
     open,
+    onExitComplete: () => local.onExitComplete?.(),
   })
 
   const title = createMemo(() => local.title)
   const description = createMemo(() => local.description)
+  const actions = createMemo(() => local.actions)
   const hasTitle = createMemo(() => hasJsxContent(title()))
   const hasDescription = createMemo(() => hasJsxContent(description()))
+  const hasActions = createMemo(() => hasJsxContent(actions()))
   const isFullWidth = () => Boolean(local.fullWidth)
   const hasClose = () => Boolean(local.close)
-  const resolvedType = () => local.type ?? 'default'
+  const resolvedType = () => local.type ?? 'primary'
 
   const resolvedIcon = createMemo(() => {
     const custom = local.icon
@@ -91,12 +96,17 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
 
   const closeIconNameOrElement = () => local.closeIcon ?? 'icon-close'
 
+  const isUrgent = () => resolvedType() === 'error' || resolvedType() === 'warning'
+  const defaultRole = () => (isUrgent() ? 'alert' : 'status')
+  const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
+
   return (
     <Show when={presence.present()}>
       <Dynamic
         component={local.as ?? 'div'}
         data-slot="alert"
-        role={resolvedType() === 'error' || resolvedType() === 'warning' ? 'alert' : 'status'}
+        role={defaultRole()}
+        aria-live={defaultAriaLive()}
         {...alertDataAttributes.root({
           close: hasClose(),
           closed: presence.dataAttrs['data-closed'] !== undefined,
@@ -108,7 +118,9 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
         {...rest}
         ref={(element: HTMLElement) => {
           callRef(props.ref, element)
-          presence.setElement(element)
+          if (element) {
+            onCleanup(presence.registerElement(element))
+          }
         }}
         {...slots.root}
       >
@@ -135,6 +147,11 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
           </Show>
           {local.children}
         </div>
+        <Show when={hasActions()}>
+          <div data-slot="alert-actions" {...slots.actions}>
+            {actions()}
+          </div>
+        </Show>
         <Show when={hasClose()}>
           <button
             type="button"

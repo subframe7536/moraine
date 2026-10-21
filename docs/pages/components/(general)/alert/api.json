@@ -23,6 +23,12 @@
       "defaultElement": "div",
       "props": [
         {
+          "name": "actions",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Action elements or controls displayed alongside the alert."
+        },
+        {
           "name": "as",
           "optional": true,
           "type": "T",
@@ -106,7 +112,13 @@
           "name": "icon",
           "optional": true,
           "type": "IconT.Name",
-          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to semantic icon for status types, or none for `default`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+          "description": "Leading icon displayed in the alert.\n- `undefined` (default): automatically resolves to semantic icon for status types, or none for `primary` / `secondary`.\n- `false` or `null`: hides the icon.\n- `IconT.Name`: displays specified icon shortcut (e.g. `'icon-tip'`) or custom JSX element."
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": "() => void",
+          "description": "Callback fired when exit animation has fully settled and element is unmounted."
         },
         {
           "name": "onOpenChange",
@@ -141,11 +153,11 @@
         {
           "name": "type",
           "optional": true,
-          "type": "'default' | 'info' | 'success' | 'warning' | 'error'",
+          "type": "'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'",
           "description": "Semantic intent of the alert.",
           "default": {
             "kind": "literal",
-            "value": "default"
+            "value": "primary"
           }
         },
         {
@@ -167,6 +179,7 @@
     "content",
     "title",
     "description",
+    "actions",
     "close"
   ],
   "dataAttributes": [

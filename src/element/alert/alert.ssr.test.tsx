@@ -36,11 +36,11 @@ test('hydrates minimal alert fixture without description or close', () => {
   const { container } = hydrateFixture(
     '/src/element/alert/alert.ssr.fixture.tsx',
     'renderMinimalAlertFixture',
-    () => <AlertHydrationFixture type="default" title={title()} />,
+    () => <AlertHydrationFixture type="primary" title={title()} />,
   )
   const root = container.firstElementChild
   expect(root).toBeDefined()
-  expect(root?.getAttribute('data-type')).toBe('default')
+  expect(root?.getAttribute('data-type')).toBe('primary')
   expect(container.querySelector('[data-slot="alert-icon"]')).toBeNull()
   expect(container.querySelector('[data-slot="alert-close"]')).toBeNull()
 

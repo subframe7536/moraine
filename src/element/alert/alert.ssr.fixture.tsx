@@ -30,5 +30,5 @@ export function renderAlertFixture(): string {
 }
 
 export function renderMinimalAlertFixture(): string {
-  return renderToString(() => <AlertHydrationFixture type="default" title="Minimal alert" />)
+  return renderToString(() => <AlertHydrationFixture type="primary" title="Minimal alert" />)
 }

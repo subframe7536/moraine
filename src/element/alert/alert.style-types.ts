@@ -16,16 +16,21 @@ export interface AlertStyleSlot<T = unknown> {
   /** Supporting alert description text. */
   description?: T
 
+  /** Action elements or buttons container. */
+  actions?: T
+
   /** Dismiss button. */
   close?: T
 }
 
+export type AlertType = 'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'
+
 export interface AlertStyleVariants {
   /**
    * Semantic intent of the alert.
-   * @default 'default'
+   * @default 'primary'
    */
-  type?: 'default' | 'info' | 'success' | 'warning' | 'error'
+  type?: AlertType
 
   /**
    * Visual surface variant.

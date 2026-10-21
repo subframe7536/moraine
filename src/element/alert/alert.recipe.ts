@@ -20,23 +20,27 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
   'alert',
   {
     base: {
-      root: 'flex gap-3 w-full transition-[opacity,transform] duration-200 ease-out data-closed:(opacity-0 pointer-events-none scale-98)',
+      root: 'flex gap-3 w-full data-closed:(pointer-events-none animate-mo-exit exit-opacity-0 exit-scale-95) motion-reduce:animate-none',
       icon: 'flex shrink-0 items-center justify-center',
       content: 'flex flex-1 flex-col min-w-0',
       title: 'leading-snug font-medium',
       description: 'text-muted-foreground leading-normal',
+      actions: 'flex shrink-0 gap-2 items-center',
       close:
         'text-muted-foreground rounded-md inline-flex shrink-0 transition-colors items-center justify-center hover:text-foreground focus-visible:(outline-none ring-2 ring-ring) hover:bg-black/5 dark:hover:bg-white/10',
     },
     defaultVariants: {
-      type: 'default',
+      type: 'primary',
       variant: 'subtle',
       fullWidth: false,
     },
     variants: {
       type: {
-        default: {
-          ...TONE_VARS.neutral,
+        primary: {
+          ...TONE_VARS.primary,
+        },
+        secondary: {
+          ...TONE_VARS.secondary,
         },
         info: {
           ...TONE_VARS.info,
@@ -70,6 +74,7 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
           title: 'text-tone-foreground',
           description: 'text-tone-foreground/80',
           icon: 'text-tone-foreground',
+          actions: 'text-tone-foreground',
           close: 'text-tone-foreground/80 hover:text-tone-foreground',
         },
       },
@@ -87,6 +92,7 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
           icon: 'text-xl mt-0.5 size-5',
           title: 'text-base font-semibold',
           description: 'text-sm mt-1',
+          actions: 'mt-0.5',
           close: 'size-6 -mr-1 -mt-1',
         },
         false: {
@@ -94,6 +100,7 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
           icon: 'text-base size-4',
           title: 'text-sm',
           description: '',
+          actions: '',
           close: 'size-5 -mr-1',
         },
       },

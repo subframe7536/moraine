@@ -5,13 +5,23 @@ import { describe, expect, it, vi } from 'vitest'
 import { Alert } from './alert'
 
 describe('Alert', () => {
-  it('renders default alert with title and no icon', () => {
-    const screen = render(() => <Alert title="Default announcement" />)
+  it('renders primary alert with title and no icon by default', () => {
+    const screen = render(() => <Alert title="Primary announcement" />)
     const alert = screen.getByRole('status')
     expect(alert).toBeDefined()
     expect(alert.getAttribute('data-slot')).toBe('alert')
-    expect(alert.getAttribute('data-type')).toBe('default')
-    expect(screen.getByText('Default announcement')).toBeDefined()
+    expect(alert.getAttribute('data-type')).toBe('primary')
+    expect(screen.getByText('Primary announcement')).toBeDefined()
+    expect(alert.querySelector('[data-slot="alert-icon"]')).toBeNull()
+  })
+
+  it('renders secondary alert with title and no icon', () => {
+    const screen = render(() => <Alert type="secondary" title="Secondary announcement" />)
+    const alert = screen.getByRole('status')
+    expect(alert).toBeDefined()
+    expect(alert.getAttribute('data-slot')).toBe('alert')
+    expect(alert.getAttribute('data-type')).toBe('secondary')
+    expect(screen.getByText('Secondary announcement')).toBeDefined()
     expect(alert.querySelector('[data-slot="alert-icon"]')).toBeNull()
   })
 
@@ -60,7 +70,7 @@ describe('Alert', () => {
   })
 
   it('supports custom icon names and custom JSX elements', () => {
-    const view1 = render(() => <Alert type="default" title="With custom icon" icon="icon-tip" />)
+    const view1 = render(() => <Alert type="primary" title="With custom icon" icon="icon-tip" />)
     const alert = view1.getByRole('status')
     expect(alert.querySelector('[data-slot="alert-icon"] [data-slot="icon"]')?.className).toContain(
       'icon-tip',
@@ -84,6 +94,16 @@ describe('Alert', () => {
     expect(alert.className).toContain('items-start')
   })
 
+  it('renders actions slot alongside alert content', () => {
+    const screen = render(() => (
+      <Alert title="Update available" actions={<button type="button">Upgrade now</button>} />
+    ))
+    const alert = screen.getByRole('status')
+    expect(screen.getByRole('button', { name: 'Upgrade now' })).toBeDefined()
+    const actionsEl = alert.querySelector('[data-slot="alert-actions"]')
+    expect(actionsEl).not.toBeNull()
+  })
+
   it('applies fullWidth styles', () => {
     const screen = render(() => <Alert title="Banner notice" fullWidth />)
     const alert = screen.getByRole('status')
@@ -100,11 +120,20 @@ describe('Alert', () => {
     expect(screen.getByRole('link', { name: 'Learn more' })).toBeDefined()
   })
 
-  it('renders close button and handles dismiss via onOpenChange', () => {
+  it('renders close button, uses exit animation classes, and handles dismiss', () => {
     const onOpenChange = vi.fn()
+    const onExitComplete = vi.fn()
     const screen = render(() => (
-      <Alert title="Dismissible alert" close onOpenChange={onOpenChange} />
+      <Alert
+        title="Dismissible alert"
+        close
+        onOpenChange={onOpenChange}
+        onExitComplete={onExitComplete}
+      />
     ))
+
+    const alert = screen.getByRole('status')
+    expect(alert.className).toContain('data-closed:animate-mo-exit')
 
     const closeBtn = screen.getByRole('button', { name: 'Close alert' })
     expect(closeBtn).toBeDefined()
@@ -135,7 +164,7 @@ describe('Alert', () => {
     view2.unmount()
   })
 
-  it('supports controlled open state', () => {
+  it('supports controlled open state and exit transition data attribute', () => {
     function ControlledTest() {
       const [open, setOpen] = createSignal(true)
       return (
