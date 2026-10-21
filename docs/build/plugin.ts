@@ -1,11 +1,15 @@
-import { exactRegex } from '@rolldown/pluginutils'
 import path from 'pathe'
 import type { Plugin } from 'vite'
 
 import { generateApiDoc } from './api-doc/extract.ts'
 import { loadApiDocIndex } from './api-doc/load.ts'
 import { writeJsonFiles } from './api-doc/write.ts'
-import { renderDocsCodeHtml } from './core/shiki.ts'
+import {
+  docsShikiStyleToClass,
+  getDocsShikiCss,
+  onDocsShikiClass,
+  renderDocsCodeHtml,
+} from './core/shiki.ts'
 import { parsePreviewCode } from './previews/ast.ts'
 import { transformPreviewModule } from './previews/module.ts'
 import { transformPreviewSourceModule } from './previews/source.ts'
@@ -13,8 +17,10 @@ import { scanDocsPages } from './routes.ts'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
-const VIRTUAL_API_DOC_FILTER = exactRegex(VIRTUAL_API_DOC)
-const RESOLVED_VIRTUAL_API_DOC_FILTER = /moraine-api-doc$/
+
+const VIRTUAL_SHIKI_CSS = 'virtual:shiki.css'
+const RESOLVED_VIRTUAL_SHIKI_CSS = '\0moraine-shiki.css'
+
 const DOCS_TRANSFORM_FILTER = /(?:\?preview(?:&|$)|\?preview-source(?:&|$))/
 
 export interface DocsBuildPluginOptions {
@@ -118,16 +124,22 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
     resolveId: {
       filter: {
-        id: VIRTUAL_API_DOC_FILTER,
+        id: /^(?:virtual:api-doc|virtual:shiki\.css)$/,
       },
       handler(id) {
-        return id === VIRTUAL_API_DOC ? RESOLVED_VIRTUAL_API_DOC : null
+        if (id === VIRTUAL_API_DOC) {
+          return RESOLVED_VIRTUAL_API_DOC
+        }
+        if (id === VIRTUAL_SHIKI_CSS) {
+          return RESOLVED_VIRTUAL_SHIKI_CSS
+        }
+        return null
       },
     },
 
     load: {
       filter: {
-        id: RESOLVED_VIRTUAL_API_DOC_FILTER,
+        id: /(?:moraine-api-doc|moraine-shiki\.css)$/,
       },
       async handler(id) {
         if (id === RESOLVED_VIRTUAL_API_DOC) {
@@ -139,8 +151,58 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
           console.warn('[api-doc] index.json not found, serving empty data')
           return 'export default { components: [] }'
         }
+        if (id === RESOLVED_VIRTUAL_SHIKI_CSS) {
+          return getDocsShikiCss()
+        }
         return null
       },
+    },
+
+    configureServer(server) {
+      onDocsShikiClass(() => {
+        const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_SHIKI_CSS)
+        if (mod) {
+          server.moduleGraph.invalidateModule(mod)
+          server.ws.send({
+            type: 'update',
+            updates: [
+              {
+                type: 'css-update',
+                path: `/${VIRTUAL_SHIKI_CSS}`,
+                acceptedPath: `/${VIRTUAL_SHIKI_CSS}`,
+                timestamp: Date.now(),
+              },
+            ],
+          })
+        }
+      })
+    },
+
+    generateBundle(_options, bundle) {
+      for (const file of Object.values(bundle)) {
+        if (
+          file.type === 'asset' &&
+          typeof file.source === 'string' &&
+          file.fileName.endsWith('.css')
+        ) {
+          const missingRules: string[] = []
+          for (const [className, style] of docsShikiStyleToClass.getClassRegistry().entries()) {
+            if (!file.source.includes(`.${className}`)) {
+              const str =
+                typeof style === 'string'
+                  ? style
+                  : Object.entries(style)
+                      .map(([k, v]) => `${k}:${v}`)
+                      .join(';')
+              missingRules.push(`.${className}{${str}}`)
+            }
+          }
+          if (missingRules.length > 0) {
+            file.source += `\n${missingRules.join('')}`
+          }
+          break
+        }
+      }
     },
 
     transform: {

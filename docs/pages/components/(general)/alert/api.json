@@ -151,6 +151,12 @@
           "description": "Primary alert title or message."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this alert instance."
+        },
+        {
           "name": "type",
           "optional": true,
           "type": "'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'",

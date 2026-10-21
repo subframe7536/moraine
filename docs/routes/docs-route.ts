@@ -25,7 +25,7 @@ function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   const route = value as Partial<DocsRouteInfo>
   return (
     typeof route.key === 'string' &&
-    (route.surface === 'docs' || route.surface === 'components') &&
+    (route.surface === 'docs' || route.surface === 'components' || route.surface === 'hooks') &&
     typeof route.section === 'string' &&
     typeof route.routePath === 'string' &&
     typeof route.markdownPath === 'string' &&
@@ -97,6 +97,30 @@ export function getDocsPages(): DocsPageEntry[] {
       }
       if (leftGroup !== rightGroup) {
         return leftGroup.localeCompare(rightGroup)
+      }
+      if (left.surface === 'hooks') {
+        if (left.path === '/hooks') {
+          return -1
+        }
+        if (right.path === '/hooks') {
+          return 1
+        }
+        return left.label.localeCompare(right.label)
+      }
+      if (left.section === 'utils') {
+        if (left.path === '/utils') {
+          return -1
+        }
+        if (right.path === '/utils') {
+          return 1
+        }
+        if (left.key === 'class-merging') {
+          return -1
+        }
+        if (right.key === 'class-merging') {
+          return 1
+        }
+        return left.label.localeCompare(right.label)
       }
       return left.order - right.order
     })

@@ -24,7 +24,10 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const frame = useSidebarFrame()
   const location = useLocation()
   const isComponents = createMemo(() => location.pathname.startsWith('/components'))
-  const isDocs = createMemo(() => location.pathname.startsWith('/docs'))
+  const isHooks = createMemo(() => location.pathname.startsWith('/hooks'))
+  const isDocs = createMemo(
+    () => location.pathname.startsWith('/docs') || location.pathname.startsWith('/utils'),
+  )
 
   return (
     <header class="font-sans bg-background shrink-0 h-13 z-sticky">
@@ -81,6 +84,21 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
                 )}
               >
                 Components
+              </ToggleButton>
+              <ToggleButton
+                as="a"
+                variant="ghost"
+                activeVariant="ghost"
+                size="sm"
+                href="/hooks"
+                pressed={isHooks()}
+                aria-current={isHooks() ? 'true' : undefined}
+                class={cn(
+                  DOCS_HEADER_CONTROL_CLASS,
+                  'text-sm px-3 h-9 data-pressed:text-foreground data-pressed:underline',
+                )}
+              >
+                Hooks
               </ToggleButton>
             </div>
           </Show>

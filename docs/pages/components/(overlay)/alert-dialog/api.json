@@ -99,6 +99,12 @@
           }
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "DialogT.Translations",
+          "description": "Localized message overrides for dialogs opened on this host."
+        },
+        {
           "name": "type",
           "optional": true,
           "type": "Type",

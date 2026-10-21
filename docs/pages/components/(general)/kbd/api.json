@@ -72,6 +72,12 @@
           }
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized key alias labels for assistive technology."
+        },
+        {
           "name": "value",
           "optional": false,
           "type": "Key",

@@ -60,6 +60,9 @@ describe('docs route metadata', () => {
       ['docs/(guides)/composition.mdx', 'docs', 'guides', '/docs/composition'],
       ['docs/(guides)/virtualization.mdx', 'docs', 'guides', '/docs/virtualization'],
       ['docs/utils/class-merging.mdx', 'docs', 'utils', '/docs/utils/class-merging'],
+      ['utils/index.mdx', 'docs', 'utils', '/utils'],
+      ['hooks/index.mdx', 'hooks', 'overview', '/hooks'],
+      ['hooks/create-slider.mdx', 'hooks', 'hooks', '/hooks/create-slider'],
       ['components/index.mdx', 'components', 'overview', '/components'],
       ['components/(general)/button/index.mdx', 'components', 'general', '/components/button'],
     ] as const
@@ -181,10 +184,15 @@ describe('docs route metadata', () => {
     }
   })
 
-  test('scans repository utils routes with class-merging first and remainder alphabetically', () => {
+  test('scans repository utils routes with /utils first and remainder alphabetically', () => {
     const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'utils')
+    expect(scanned.map((r) => r.info.key)).toEqual(['utils', 'class-merging'])
+  })
+
+  test('scans repository hooks routes with hooks index first and remainder alphabetically', () => {
+    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.surface === 'hooks')
     expect(scanned.map((r) => r.info.key)).toEqual([
-      'class-merging',
+      'hooks',
       'create-base-select-search-input',
       'create-controllable-value',
       'create-disclosure-state',

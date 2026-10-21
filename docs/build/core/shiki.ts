@@ -1,5 +1,29 @@
+import { transformerStyleToClass } from '@shikijs/transformers'
 import type { Highlighter, ShikiTransformer } from 'shiki'
 import { createHighlighter } from 'shiki'
+
+let onClassChange: (() => void) | undefined
+
+export function onDocsShikiClass(cb: () => void): () => void {
+  onClassChange = cb
+  return () => {
+    if (onClassChange === cb) {
+      onClassChange = undefined
+    }
+  }
+}
+
+export const docsShikiStyleToClass = transformerStyleToClass({
+  classPrefix: '__shiki_',
+  classReplacer(className) {
+    onClassChange?.()
+    return className
+  },
+})
+
+export function getDocsShikiCss(): string {
+  return docsShikiStyleToClass.getCSS()
+}
 
 const DOCS_HIGHLIGHT_THEMES = {
   light: 'one-light',
@@ -163,6 +187,8 @@ export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promis
       node.properties.tabindex = -1
     },
   })
+
+  transformers.push(docsShikiStyleToClass)
 
   return highlighter.codeToHtml(options.code, {
     lang,

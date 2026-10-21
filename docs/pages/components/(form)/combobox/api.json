@@ -352,6 +352,12 @@
           }
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this combobox instance."
+        },
+        {
           "name": "value",
           "optional": true,
           "type": "NormalizedItem<TItem>['value']",

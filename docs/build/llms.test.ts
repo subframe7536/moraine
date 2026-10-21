@@ -30,6 +30,9 @@ describe('agent Markdown', () => {
       'docs/accessibility.md',
       'components.md',
       'components/button.md',
+      'hooks.md',
+      'hooks/create-slider.md',
+      'utils.md',
     ]) {
       expect(names.has(name)).toBe(true)
     }
@@ -46,8 +49,10 @@ describe('agent Markdown', () => {
     const index = result.find((item) => item.fileName === 'llms.txt')!.source
     expect(index).toContain('## Docs')
     expect(index).toContain('## Components')
+    expect(index).toContain('## Hooks')
     expect(index).toContain('https://moraine.subf.dev/docs/getting-started.md')
     expect(index).toContain('https://moraine.subf.dev/docs/virtualization.md')
+    expect(index).toContain('https://moraine.subf.dev/hooks/create-slider.md')
     expect(index).not.toContain('create-list-virtualizer')
     expect(index).toContain('https://moraine.subf.dev/components/button.md')
   })

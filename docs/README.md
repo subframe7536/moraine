@@ -22,7 +22,9 @@ docs/pages/docs/(styling)/theming.mdx                → /docs/theming
 docs/pages/docs/(styling)/icons.mdx                  → /docs/icons
 docs/pages/docs/(styling)/animations.mdx             → /docs/animations
 docs/pages/docs/utils/class-merging.mdx              → /docs/utils/class-merging
-docs/pages/docs/utils/create-*.mdx                   → /docs/utils/create-*
+docs/pages/utils/index.mdx                           → /utils
+docs/pages/hooks/index.mdx                           → /hooks
+docs/pages/hooks/create-*.mdx                        → /hooks/create-*
 docs/pages/components/index.mdx                      → /components
 docs/pages/components/(general)/button/index.mdx     → /components/button
 ```

@@ -79,6 +79,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this breadcrumb instance."
+        },
+        {
           "name": "wrap",
           "optional": true,
           "type": "boolean",

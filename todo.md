@@ -6,8 +6,8 @@
 - [x] try to unify or reuse focus ring classes across components
 - [x] add `translations` props for every component that has `.message.ts`
 - [x] try to get rid of `hasJsxContent` and other memos
-- [ ] shiki use `transformerStyleToClass` to reduce prod file size
-- [ ] move hooks to a standalone tab (same level as docs / components), add `/utils` page; add `/components` item in sidebar
+- [x] shiki use `transformerStyleToClass` to reduce prod file size
+- [x] move hooks to a standalone tab (same level as docs / components), add `/utils` page; add `/components` item in sidebar
 
 # V1
 

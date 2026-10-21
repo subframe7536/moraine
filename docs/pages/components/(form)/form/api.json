@@ -55,6 +55,12 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this form instance."
         }
       ]
     },

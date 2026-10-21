@@ -12,3 +12,5 @@ declare module 'virtual:api-doc' {
   const data: IndexDoc
   export default data
 }
+
+declare module 'virtual:shiki.css' {}

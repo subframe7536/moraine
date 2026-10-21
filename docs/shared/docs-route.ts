@@ -1,4 +1,4 @@
-export type DocsSurface = 'docs' | 'components'
+export type DocsSurface = 'docs' | 'components' | 'hooks'
 
 export interface DocsRouteInfo {
   key: string
@@ -31,4 +31,6 @@ export const DOCS_SECTION_ORDER = new Map<string, number>([
   ['components:form', 6],
   ['components:navigation', 7],
   ['components:overlay', 8],
+  ['hooks:overview', 9],
+  ['hooks:hooks', 10],
 ])

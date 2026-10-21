@@ -214,6 +214,12 @@
           }
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this pagination instance."
+        },
+        {
           "name": "variant",
           "optional": true,
           "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",

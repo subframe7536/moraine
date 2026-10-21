@@ -213,6 +213,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this file upload instance."
+        },
+        {
           "name": "value",
           "optional": true,
           "type": "Value<Multiple>",

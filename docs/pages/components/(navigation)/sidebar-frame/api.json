@@ -107,6 +107,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this sidebar frame instance."
+        },
+        {
           "name": "variant",
           "optional": true,
           "type": "'default' | 'floating' | 'inset'",

@@ -16,10 +16,17 @@ export interface SidebarProps {
 const SURFACES = [
   { value: 'docs', label: 'Docs', href: '/docs/getting-started', icon: 'i-lucide:book-open' },
   { value: 'components', label: 'Components', href: '/components', icon: 'i-lucide:layout-grid' },
+  { value: 'hooks', label: 'Hooks', href: '/hooks', icon: 'i-lucide:anchor' },
 ] as const
 
 function getCurrentSurface(pathname: string) {
-  return pathname.startsWith('/component') ? 'components' : 'docs'
+  if (pathname.startsWith('/component')) {
+    return 'components'
+  }
+  if (pathname.startsWith('/hook')) {
+    return 'hooks'
+  }
+  return 'docs'
 }
 
 export const Sidebar = (props: SidebarProps) => {
@@ -31,7 +38,7 @@ export const Sidebar = (props: SidebarProps) => {
     return SURFACES.filter((surface) => surface.value === currentSurface()).map((surface) => {
       const groups = new Map<string, SidebarPage[]>()
       for (const page of props.pages) {
-        if (page.surface !== surface.value || page.path === '/components') {
+        if (page.surface !== surface.value) {
           continue
         }
         const pages = groups.get(page.section) ?? []

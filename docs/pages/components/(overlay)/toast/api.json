@@ -152,6 +152,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for toasts in this viewport."
+        },
+        {
           "name": "type",
           "optional": true,
           "type": "'default' | 'success' | 'warning' | 'error' | 'info' | 'loading'",

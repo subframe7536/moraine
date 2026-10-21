@@ -248,6 +248,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this command palette instance."
+        },
+        {
           "name": "virtualRender",
           "optional": true,
           "type": "Component<VirtualRenderProps<TItem>>",

@@ -33,7 +33,7 @@ export default defineConfig({
       ignore: [
         ...DEFAULT_IGNORES.filter((pattern) => pattern !== '**/components/**'),
         '**/components/**/*.{ts,tsx}',
-        'hooks',
+        'routes/hooks/**',
         '**/*.test.tsx',
       ],
       mdx: createDocsMdxOptions(projectRoot),
@@ -48,7 +48,7 @@ export default defineConfig({
         description: 'string',
         order: 'number',
         tags: 'string[]',
-        surface: "'docs' | 'components'",
+        surface: "'docs' | 'components' | 'hooks'",
         section: 'string',
         routePath: 'string',
         markdownPath: 'string',

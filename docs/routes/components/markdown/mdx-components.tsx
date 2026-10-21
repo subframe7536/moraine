@@ -9,6 +9,7 @@ import { Anatomy } from './anatomy'
 import { CodeBlock, CodeTabs } from './code'
 import { ColorTokenTable } from './color-token-table'
 import { ComponentsIndex } from './components-index'
+import { HooksIndex } from './hooks-index'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
 import {
@@ -51,6 +52,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   IconGallery,
   ColorTokenTable,
   ComponentsIndex,
+  HooksIndex,
 
   Preview(props: MdxProps) {
     const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)

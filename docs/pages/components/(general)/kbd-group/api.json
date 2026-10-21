@@ -31,7 +31,7 @@
           "name": "items",
           "optional": false,
           "type": "Item[]",
-          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Value displayed by the keycap or resolved through the static key aliases. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for assistive technology. */\n  label?: string;\n  /** Data slot used by the rendered keycap. */\n  slotName?: string;\n})[]",
+          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Localized key alias labels for assistive technology. */\n  translations?: Translations;\n  /** Value displayed by the keycap or resolved through the static key aliases. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for assistive technology. */\n  label?: string;\n  /** Data slot used by the rendered keycap. */\n  slotName?: string;\n})[]",
           "description": "Keyboard keys displayed as one simultaneous shortcut."
         },
         {

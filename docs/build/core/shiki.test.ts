@@ -3,6 +3,7 @@
 import { describe, expect, test } from 'vitest'
 
 import {
+  getDocsShikiCss,
   parseCodeGroupId,
   parseCodeTitle,
   parseHighlightedLines,
@@ -47,9 +48,10 @@ describe('docs shiki code highlighter', () => {
       language: 'tsx',
     })
 
-    expect(html).toContain('class="shiki shiki-themes one-light one-dark-pro"')
-    expect(html).toContain('--shiki-light')
-    expect(html).toContain('--shiki-dark')
+    expect(html).toContain('class="shiki shiki-themes one-light one-dark-pro')
+    expect(html).toContain('__shiki_')
+    expect(getDocsShikiCss()).toContain('--shiki-light')
+    expect(getDocsShikiCss()).toContain('--shiki-dark')
     expect(html).toContain('export')
     expect(html).toContain('value')
   })

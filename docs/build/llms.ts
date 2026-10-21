@@ -78,6 +78,7 @@ const SECTION_TITLES = new Map<string, string>([
   ['form', 'Form'],
   ['navigation', 'Navigation'],
   ['overlay', 'Overlay'],
+  ['hooks', 'Hooks'],
 ])
 
 function normalizeSiteUrl(siteUrl: string): string {
@@ -312,6 +313,18 @@ function renderComponentNode(
     }
     return output.join('\n')
   }
+  if (node.name === 'HooksIndex') {
+    const output: string[] = []
+    const pages = context.routes
+      .filter((route) => route.info.surface === 'hooks' && route.info.routePath !== '/hooks')
+      .sort((a, b) => a.info.title.localeCompare(b.info.title))
+    for (const page of pages) {
+      output.push(
+        `- [${page.info.title}](${markdownPageUrl(context.siteUrl, page)}): ${page.info.description}`,
+      )
+    }
+    return output.join('\n')
+  }
   if (node.name === '__esm__') {
     return ''
   }
@@ -507,7 +520,11 @@ export function buildLlmsTxt(
     if (surface !== currentSurface) {
       currentSurface = surface
       currentSection = undefined
-      output.push('', `## ${surface === 'docs' ? 'Docs' : 'Components'}`, '')
+      output.push(
+        '',
+        `## ${surface === 'docs' ? 'Docs' : surface === 'hooks' ? 'Hooks' : 'Components'}`,
+        '',
+      )
     }
     if (section !== currentSection) {
       currentSection = section

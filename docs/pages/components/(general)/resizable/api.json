@@ -112,6 +112,12 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "translations",
+          "optional": true,
+          "type": "Translations",
+          "description": "Localized message overrides for this resizable instance."
+        },
+        {
           "name": "value",
           "optional": true,
           "type": "readonly ResizableSize[]",

@@ -2,6 +2,7 @@ export * from './api-reference'
 export * from './code'
 export { ColorTokenTable } from './color-token-table'
 export { DocsPageHeader, type DocsPageHeaderProps } from './docs-page-header'
+export { HooksIndex } from './hooks-index'
 export { IconGallery } from './icon-gallery'
 export * from './markdown.recipe'
 export {
