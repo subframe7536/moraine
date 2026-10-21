@@ -2,8 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../element/button/button'
-import { Input } from '../form/input/input'
+import { Button } from '../components/button/button'
+import { Input } from '../components/input/input'
 import { defineTheme } from '../theme/create-theme'
 import type { MoraineTheme } from '../theme/types'
 

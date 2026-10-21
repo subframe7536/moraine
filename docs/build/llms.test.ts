@@ -116,7 +116,7 @@ describe('agent Markdown', () => {
   test('expands the component directory and preserves component API sections', async () => {
     const result = await documents()
     const directory = result.find((item) => item.fileName === 'components.md')!.source
-    expect(directory).toContain('## General')
+    expect(directory).toContain('## Buttons')
     expect(directory).toContain('## Overlay')
     expect(directory).toContain(
       '[Button](https://moraine.subf.dev/components/button.md): Render actions',

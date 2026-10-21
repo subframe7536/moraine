@@ -1,0 +1,285 @@
+import type { JSX } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js'
+
+import { pickSlotOverrides } from '../../provider'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createEventListenerMap } from '../../shared/event-listener'
+import { createTransitionPresence } from '../../shared/transition-presence'
+import { createId } from '../../shared/utils'
+import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../shared/overlay/dom'
+import { useOverlayInteraction } from '../shared/overlay/interaction'
+import {
+  acquireAriaHideOutside,
+  acquireBodyScrollLock,
+  focusContent,
+  focusWithoutScrolling,
+  focusTrigger,
+} from '../shared/overlay/utils'
+
+import { ModalClose } from './modal-close'
+import { ModalContent } from './modal-content'
+import { ModalProvider } from './modal-context'
+import type { ModalContext } from './modal-context'
+import { ModalOverlay } from './modal-overlay'
+import { ModalPortal } from './modal-portal'
+import { ModalTrigger } from './modal-trigger'
+import type { ModalProps } from './modal.types'
+
+/** Low-level modal primitives for composing custom dialog surfaces. */
+export function Modal(props: ModalProps): JSX.Element {
+  const rootId = createId(() => props.id, 'modal')
+  const contentId = () => `${rootId()}-content`
+  const [open, updateOpen] = createControllableValue<boolean>({
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? false,
+    onChange: (nextOpen) => props.onOpenChange?.(nextOpen),
+  })
+  const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
+  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [overlayScroll, setOverlayScroll] = createSignal(false)
+  let hadOpenContent = false
+  const presence = createTransitionPresence({
+    open,
+    onExitComplete: () => {
+      if (hadOpenContent) {
+        hadOpenContent = false
+        props.onExitComplete?.()
+      }
+    },
+  })
+  const closeOnOverlayClick = () => props.closeOnOverlayClick !== false
+  const closeOnEscape = () => props.closeOnEscape !== false
+  const isPresent = () => Boolean(contentElement() && presence.present())
+  const isModal = () => props.modal !== false
+  let capturedTrigger: HTMLElement | undefined
+  let capturedRestoreTarget: HTMLElement | undefined
+  let lastFocusedElement: HTMLElement | undefined
+  let restoreFocusOnDeactivate = false
+  let pendingOpenInteraction: 'touch' | null = null
+
+  const captureRestoreFocus = (ownerDocument: Document): void => {
+    capturedTrigger = untrack(triggerElement)
+    const activeElement = getActiveElement(ownerDocument)
+    capturedRestoreTarget =
+      capturedTrigger ??
+      (isHTMLElement(activeElement) && activeElement !== ownerDocument.body
+        ? activeElement
+        : undefined)
+  }
+
+  const requestDismiss = (event: Event, preventDefault: boolean, allowed: boolean): void => {
+    if (event.defaultPrevented) {
+      return
+    }
+    if (preventDefault) {
+      event.preventDefault()
+    }
+    if (allowed) {
+      updateOpen(false)
+      return
+    }
+    props.onClosePrevent?.()
+  }
+
+  createEffect(
+    on([open, isPresent], ([isOpen, present]) => {
+      if (isOpen && present) {
+        hadOpenContent = true
+      }
+    }),
+  )
+
+  createEffect(
+    on(
+      [isPresent, () => props.preventScroll !== false, overlayScroll],
+      ([present, preventScroll]) => {
+        if (!present || !preventScroll) {
+          return
+        }
+        const currentContent = contentElement()
+        if (!currentContent) {
+          return
+        }
+        const scrollContainer = currentContent.parentElement
+        const releaseScrollLock = acquireBodyScrollLock(
+          scrollContainer?.hasAttribute('data-overlay-scroll') ? scrollContainer : currentContent,
+        )
+        onCleanup(releaseScrollLock)
+      },
+    ),
+  )
+
+  createEffect(
+    on(triggerElement, (trigger) => {
+      if (!trigger) {
+        return
+      }
+      createEventListenerMap(trigger, {
+        pointerdown: (event) => {
+          pendingOpenInteraction = event.pointerType === 'touch' ? 'touch' : null
+        },
+        keydown: () => {
+          pendingOpenInteraction = null
+        },
+      })
+    }),
+  )
+
+  createEffect(
+    on([isPresent, isModal], ([present, modal]) => {
+      const currentContent = contentElement()
+      if (!present || !modal || !currentContent) {
+        return
+      }
+      let active = true
+      let release: (() => void) | undefined
+      const openByTouch = pendingOpenInteraction === 'touch'
+      pendingOpenInteraction = null
+      queueMicrotask(() => {
+        if (active && currentContent.isConnected) {
+          release = acquireAriaHideOutside(currentContent)
+          if (openByTouch) {
+            focusWithoutScrolling(currentContent)
+          } else {
+            focusContent(currentContent)
+          }
+        }
+      })
+
+      onCleanup(() => {
+        active = false
+        release?.()
+      })
+    }),
+  )
+
+  createEffect(
+    on(isModal, (modal) => {
+      const currentContent = contentElement()
+      if (!isPresent() || !currentContent) {
+        return
+      }
+      if (modal && !restoreFocusOnDeactivate) {
+        restoreFocusOnDeactivate = true
+        captureRestoreFocus(currentContent.ownerDocument)
+      } else if (!modal) {
+        restoreFocusOnDeactivate = false
+        capturedTrigger = undefined
+        capturedRestoreTarget = undefined
+      }
+    }),
+  )
+
+  useOverlayInteraction({
+    enabled: isPresent,
+    contentElement,
+    triggerElement,
+    onActivate: (context) => {
+      restoreFocusOnDeactivate = isModal()
+      if (restoreFocusOnDeactivate) {
+        captureRestoreFocus(context.entry.ownerDocument!)
+      } else {
+        capturedTrigger = undefined
+        capturedRestoreTarget = undefined
+      }
+      lastFocusedElement = undefined
+    },
+    onPointerDownInside: (event, context) => {
+      if (!isModal()) {
+        return
+      }
+      const target = event.target
+      const currentContent = contentElement()
+      if (
+        isNode(target) &&
+        currentContent &&
+        (containsComposed(currentContent, target) || event.composedPath().includes(currentContent))
+      ) {
+        queueMicrotask(() => {
+          untrack(() => {
+            if (!isPresent() || !context.isTop() || !currentContent.isConnected) {
+              return
+            }
+
+            const activeElement = getActiveElement(currentContent.ownerDocument)
+            if (activeElement && containsComposed(currentContent, activeElement)) {
+              return
+            }
+
+            if (lastFocusedElement?.isConnected && currentContent.contains(lastFocusedElement)) {
+              focusWithoutScrolling(lastFocusedElement)
+            } else {
+              focusContent(currentContent)
+            }
+          })
+        })
+      }
+    },
+    onPointerOutside: (event) => requestDismiss(event, isModal(), closeOnOverlayClick()),
+    onFocusInside: (event) => {
+      const target = event.target
+      const currentContent = contentElement()
+      if (isHTMLElement(target) && currentContent && containsComposed(currentContent, target)) {
+        lastFocusedElement = target
+      }
+    },
+    onFocusOutside: () => {
+      if (!isModal()) {
+        return
+      }
+      const currentContent = contentElement()
+      queueMicrotask(() => {
+        if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
+          focusWithoutScrolling(lastFocusedElement)
+        } else {
+          focusContent(currentContent)
+        }
+      })
+    },
+    onEscape: (event) => requestDismiss(event, true, closeOnEscape()),
+    onDeactivate: () => {
+      if (!restoreFocusOnDeactivate) {
+        return
+      }
+      const trigger = capturedTrigger
+      const restoreTarget = capturedRestoreTarget
+
+      queueMicrotask(() => {
+        untrack(() => {
+          if (isPresent() || focusTrigger(trigger)) {
+            return
+          }
+
+          if (restoreTarget !== trigger) {
+            focusTrigger(restoreTarget)
+          }
+        })
+      })
+    },
+  })
+
+  const context: ModalContext = {
+    get slotOverrides() {
+      return pickSlotOverrides(props)
+    },
+    open,
+    presence,
+    contentId,
+    updateOpen,
+    triggerElement,
+    setTriggerElement,
+    contentElement,
+    setContentElement,
+    setOverlayScroll,
+    isModal,
+    portalMount: () => props.portalMount,
+  }
+
+  return <ModalProvider value={context}>{props.children}</ModalProvider>
+}
+
+Modal.Content = ModalContent
+Modal.Overlay = ModalOverlay
+Modal.Portal = ModalPortal
+Modal.Trigger = ModalTrigger
+Modal.Close = ModalClose

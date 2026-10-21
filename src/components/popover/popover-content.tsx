@@ -1,0 +1,155 @@
+import type { JSX } from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, onCleanup, splitProps } from 'solid-js'
+
+import { useRecipe } from '../../provider'
+import { hasContent } from '../../shared/jsx-content'
+import { parseFloatingPlacement } from '../shared/overlay/placement'
+import { PopperContent, mergePopperElementProps } from '../shared/overlay/popper'
+import { getFocusableElements } from '../shared/overlay/utils'
+
+import { usePopoverContext } from './popover-context'
+import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'
+import type { PopoverT } from './popover.types'
+
+export function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  let hasPreventedPointerAttempt = false
+  let resetTimeout: ReturnType<typeof setTimeout> | undefined
+  onCleanup(() => clearTimeout(resetTimeout))
+  const behavior = usePopoverContext()
+  const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
+    onFocus: () => {
+      if (behavior.options.mode === 'hover') {
+        behavior.clearCloseTimer()
+      }
+    },
+    onBlur: behavior.scheduleClose,
+    onKeyDown: (event) => {
+      if (behavior.options.mode !== 'hover' || event.key !== 'Tab') {
+        return
+      }
+
+      const content = behavior.popper.contentElement()
+      const focusable = content ? getFocusableElements(content) : []
+      const firstFocusable = focusable[0]
+      const lastFocusable = focusable.at(-1)
+
+      if (event.shiftKey) {
+        if (event.target !== content && event.target !== firstFocusable) {
+          return
+        }
+
+        event.preventDefault()
+        behavior.popper.triggerElement()?.focus()
+        behavior.clearCloseTimer()
+        return
+      }
+
+      if (event.target !== lastFocusable) {
+        return
+      }
+
+      const trigger = behavior.popper.triggerElement()
+      if (!trigger) {
+        return
+      }
+      const documentOrder = getFocusableElements(trigger.ownerDocument.body)
+      const triggerIndex = documentOrder.indexOf(trigger)
+      if (triggerIndex < 0) {
+        return
+      }
+      const nextFocusable = documentOrder
+        .slice(triggerIndex + 1)
+        .find((element) => !content?.contains(element))
+      if (!nextFocusable) {
+        return
+      }
+
+      event.preventDefault()
+      nextFocusable.focus()
+      behavior.scheduleClose()
+    },
+    onPointerEnter: (event) => {
+      if (behavior.options.mode === 'hover' && event.pointerType === 'mouse') {
+        behavior.clearCloseTimer()
+      }
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse') {
+        behavior.scheduleClose()
+      }
+    },
+  }
+  const { slots } = useRecipe(popoverRecipe, local, {
+    slot: 'content',
+    contextSlots: () => behavior.slotOverrides,
+  })
+
+  return (
+    <PopperContent
+      dir={rest.dir}
+      context={behavior.popper}
+      closeOnOutsideFocus={behavior.options.mode === 'click'}
+      restoreFocusOnClose={
+        behavior.options.restoreFocusOnClose ?? behavior.options.mode === 'click'
+      }
+      modal={Boolean(behavior.options.modal && behavior.hasClose())}
+      role="dialog"
+      onPointerDownOutside={(event) => {
+        if (behavior.options.dismissible ?? true) {
+          return
+        }
+
+        event.preventDefault()
+        hasPreventedPointerAttempt = true
+        clearTimeout(resetTimeout)
+        resetTimeout = setTimeout(() => {
+          hasPreventedPointerAttempt = false
+          resetTimeout = undefined
+        }, 0)
+        behavior.options.onClosePrevent?.()
+      }}
+      onInteractOutside={(event) => {
+        if ((behavior.options.dismissible ?? true) || event.defaultPrevented) {
+          return
+        }
+
+        event.preventDefault()
+
+        if (!hasPreventedPointerAttempt) {
+          behavior.options.onClosePrevent?.()
+        }
+      }}
+      onEscapeKeyDown={(event) => {
+        if (behavior.options.dismissible ?? true) {
+          return
+        }
+
+        event.preventDefault()
+        behavior.options.onClosePrevent?.()
+      }}
+    >
+      {(context) => {
+        const contentProps = mergeProps(context.contentProps, contentEvents)
+        const content = resolveChildren(() => local.children)
+        return (
+          <div
+            data-slot="popover-content"
+            {...popoverContentDataAttributes({
+              side: () => parseFloatingPlacement(context.currentPlacement()).side,
+              align: () => parseFloatingPlacement(context.currentPlacement()).align,
+            })}
+            {...mergePopperElementProps(contentProps, rest)}
+            {...slots.content}
+          >
+            <Show when={hasContent(content())}>
+              <div data-slot="popover-body" {...slots.body}>
+                {content()}
+              </div>
+            </Show>
+          </div>
+        )
+      }}
+    </PopperContent>
+  )
+}

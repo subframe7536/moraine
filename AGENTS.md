@@ -51,66 +51,62 @@ Run workspace commands from the repository root.
 
 ## Source Structure
 
-The `src` directory is organized by component role and shared infrastructure:
+The `src` directory is organized by flattened components and shared infrastructure:
 
 ```text
-├── element/                # Basic, non-form UI elements.
+├── components/             # All UI components (flattened).
 │   ├── accordion/          # Accordion primitives.
+│   ├── alert/              # Alert banner presentation.
+│   ├── alert-dialog/       # Alert dialog overlay.
 │   ├── avatar/             # Avatar and fallback display.
 │   ├── avatar-group/       # Overlapping avatar groups.
 │   ├── badge/              # Badge styles and component.
 │   ├── button/             # Button and button-like interactions.
 │   ├── button-group/       # Joined button groups.
 │   ├── card/               # Card layout primitives.
-│   ├── collapsible/        # Collapsible content primitives.
-│   ├── empty/              # Empty-state presentation.
-│   ├── icon/               # Icon rendering helpers and component.
-│   ├── kbd/                # Keyboard shortcut display.
-│   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
-│   ├── list/               # List and list-item primitives.
-│   ├── progress/           # Progress indicators.
-│   ├── resizable/          # Resizable panels and interaction hooks.
-│   └── separator/          # Visual separators.
-│   ├── scroll-area/        # Scroll container with edge fade indicators.
-│   ├── separator/          # Visual separators.
-│   ├── skeleton/           # Skeleton loading placeholder.
-│   └── toggle-button/      # Two-state toggle button.
-├── form/                   # Form controls and form-state integration.
-│   ├── base-select/        # Low-level selection, disclosure, and listbox primitive.
 │   ├── checkbox/           # Checkbox control.
 │   ├── checkbox-group/     # Checkbox group control.
-│   ├── base-select/        # Low-level selection, disclosure, and listbox primitive.
+│   ├── collapsible/        # Collapsible content primitives.
 │   ├── combobox/           # Editable single collection selection.
+│   ├── command-palette/    # Command palette behavior and presentation.
+│   ├── context-menu/       # Context menu overlay.
+│   ├── dialog/             # Dialog primitives.
+│   ├── drawer/             # Drawer overlay.
+│   ├── dropdown-menu/      # Dropdown menu overlay.
+│   ├── empty/              # Empty-state presentation.
 │   ├── field/              # Field layout, labels, descriptions, and validation messages.
 │   ├── file-upload/        # File upload control and dropzone behavior.
 │   ├── form/               # Form root, field wrapper, submission, and context.
+│   ├── icon/               # Icon rendering helpers and component.
 │   ├── input/              # Text input control.
 │   ├── input-group/        # Compound input layout with addons and triggers.
 │   ├── input-number/       # Numeric input control.
+│   ├── kbd/                # Keyboard shortcut display.
+│   ├── kbd-group/          # Simultaneous keyboard shortcut groups.
+│   ├── list/               # List and list-item primitives.
+│   ├── modal/              # Modal composition.
 │   ├── multi-select/       # Collection-backed multiple selection.
-│   ├── radio-group/        # Radio group control.
-│   ├── select/             # Non-editable single collection selection.
-│   ├── slider/             # Slider control and slider hooks.
-│   ├── switch/             # Switch control.
-│   ├── textarea/           # Textarea control.
-│   └── shared/             # Form-specific hooks, native control helpers, and select internals.
-├── navigation/             # Navigation and page-organization components.
-│   ├── breadcrumb/         # Breadcrumb navigation.
-│   ├── command-palette/    # Command palette behavior and presentation.
 │   ├── navigation-menu/    # Navigation menu with triggers and content panels.
 │   ├── pagination/         # Pagination controls.
-│   ├── sidebar-frame/      # Responsive sidebar layout.
-│   ├── stepper/            # Step-based navigation.
-│   └── tabs/               # Tab navigation.
-├── overlay/                # Layered, floating, and dismissible UI.
-│   ├── base/               # Shared overlay and menu behavior.
-│   ├── context-menu/       # Context menu.
-│   ├── dialog/             # Dialog primitives.
-│   ├── dropdown-menu/      # Dropdown menu.
-│   ├── modal/              # Modal composition.
-│   ├── popover/            # Popover.
+│   ├── popover/            # Popover overlay.
+│   ├── progress/           # Progress indicators.
+│   ├── radio-group/        # Radio group control.
+│   ├── resizable/          # Resizable panels and interaction hooks.
+│   ├── scroll-area/        # Scroll container with edge fade indicators.
+│   ├── select/             # Non-editable single collection selection.
+│   ├── separator/          # Visual separators.
 │   ├── sheet/              # Side or bottom sheet.
-│   └── tooltip/            # Tooltip.
+│   ├── sidebar-frame/      # Responsive sidebar layout.
+│   ├── skeleton/           # Skeleton loading placeholder.
+│   ├── slider/             # Slider control and slider hooks.
+│   ├── stepper/            # Step-based navigation.
+│   ├── switch/             # Switch control.
+│   ├── tabs/               # Tab navigation.
+│   ├── textarea/           # Textarea control.
+│   ├── toast/              # Toast notification system.
+│   ├── toggle-button/      # Two-state toggle button.
+│   ├── tooltip/            # Tooltip overlay.
+│   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/).
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.
@@ -121,7 +117,7 @@ The `src` directory is organized by component role and shared infrastructure:
 │   └── tailwind.ts         # Tailwind plugin.
 ```
 
-Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.recipe.ts` file. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is used by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.
+Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.recipe.ts` file. Keep component-specific behavior inside its component directory; move logic to `components/shared/` or `src/shared/` only when it is used by multiple component families. Private primitives for higher-level components are located in `components/shared/` and are not automatically public API.
 
 ## Style Implementation Details
 

@@ -8,8 +8,8 @@ import { variantGroupPlugin } from './build/vite-plugin-variant-group.ts'
 // These tests rely on Node or window behavior that differs inside a VM context.
 const VM_INCOMPATIBLE_TESTS = [
   'docs/build/plugin.test.ts',
-  'src/form/textarea/textarea.test.tsx',
-  'src/overlay/base/menu/menu.utils.test.tsx',
+  'src/components/textarea/textarea.test.tsx',
+  'src/components/shared/overlay/menu/menu.utils.test.tsx',
 ]
 
 export default defineConfig({

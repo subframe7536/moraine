@@ -1,0 +1,114 @@
+import type { JSX } from 'solid-js'
+
+import type { BaseProps } from '../../shared/types'
+import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
+import type { IconT } from '../icon/icon.types'
+
+import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
+
+export namespace TabsT {
+  export type Kind = 'single'
+
+  export type Slot<T = unknown> = TabsStyleSlot<T>
+
+  export type Variants = TabsStyleVariants
+
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+
+  /**
+   * An individual tab in the tabs component.
+   */
+  export interface Item {
+    /**
+     * Label to display on the tab trigger.
+     */
+    label?: JSX.Element
+
+    /**
+     * Icon to display next to the label.
+     */
+    icon?: IconT.Name
+
+    /**
+     * Unique value for the tab.
+     * @default index of the item
+     */
+    value?: string
+
+    /**
+     * Content to display when the tab is active.
+     */
+    content?: JSX.Element
+
+    /**
+     * Whether the tab is disabled.
+     * @default false
+     */
+    disabled?: boolean
+  }
+
+  /**
+   * Base props for the Tabs component.
+   */
+  export interface Base {
+    /**
+     * Unique identifier for the tabs root element.
+     */
+    id?: string
+
+    /**
+     * Controlled active tab value.
+     */
+    value?: string
+
+    /**
+     * Default active tab value for uncontrolled usage.
+     */
+    defaultValue?: string
+
+    /**
+     * The orientation of the tab list.
+     * @default 'horizontal'
+     */
+    orientation?: Orientation
+
+    /**
+     * Whether keyboard navigation activates the tab immediately or waits for confirmation.
+     * @default 'automatic'
+     */
+    activationMode?: 'automatic' | 'manual'
+
+    /**
+     * Whether the tab list is disabled.
+     * @default false
+     */
+    disabled?: boolean
+
+    /**
+     * Whether arrow-key navigation wraps from the ends.
+     * @default true
+     */
+    loop?: boolean
+
+    /**
+     * Callback when the active tab changes.
+     */
+    onChange?: (value: string) => void
+
+    /**
+     * Array of tabs to display.
+     */
+    items?: Item[]
+  }
+
+  /**
+   * Props for the Tabs component.
+   */
+  export type Props = BaseProps<'div', Base, Variants, Classes, Styles>
+}
+
+/**
+ * Props for the Tabs component.
+ */
+export type TabsProps = TabsT.Props

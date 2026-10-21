@@ -71,23 +71,26 @@ function deriveRoute(relativePath: string) {
   }
 
   const surface: DocsSurface = firstSegment
+  if (surface === 'components') {
+    const routeSegments = segments.filter((segment) => !/^\([^)]+\)$/.test(segment))
+    if (routeSegments.at(-1) === 'index') {
+      routeSegments.pop()
+    }
+    const section = routeSegments.length === 0 ? 'overview' : 'components'
+    const routePath = `/${[surface, ...routeSegments].join('/')}`
+    return { surface, section, routePath, markdownPath: `${routePath}.md` }
+  }
+
   const sectionSegment = segments.find((segment) =>
-    surface === 'docs'
-      ? /^(\(overview\)|\(guides\)|\(styling\)|utils)$/.test(segment)
-      : /^(\(general\)|\(form\)|\(navigation\)|\(overlay\))$/.test(segment),
+    /^(\(overview\)|\(guides\)|\(styling\)|utils)$/.test(segment),
   )
-  const section =
-    sectionSegment?.replace(/[()]/g, '') ?? (surface === 'components' ? 'overview' : '')
+  const section = sectionSegment?.replace(/[()]/g, '') ?? ''
   if (!section) {
     throw new Error(`[docs-plugin] unknown docs section in ${relativePath}`)
   }
   const routeSegments = segments.filter((segment) => !/^\([^)]+\)$/.test(segment))
   if (routeSegments.at(-1) === 'index') {
     routeSegments.pop()
-  }
-  if (surface === 'components') {
-    // Component groups are organizational; all component URLs have one public segment.
-    routeSegments.splice(0, routeSegments.length - 1)
   }
   const routePath = `/${[surface, ...routeSegments].join('/')}`
   return { surface, section, routePath, markdownPath: `${routePath}.md` }

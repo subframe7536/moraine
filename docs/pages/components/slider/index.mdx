@@ -1,0 +1,191 @@
+---
+title: Slider
+description: Choose a number or range by moving one or more thumbs.
+group: Form
+api:
+  path: src/components/slider/slider
+sidebar:
+  order: 10
+search:
+  tags: [range, value, thumb, step, slider, volume, fader, audio, dual handle]
+---
+
+import { Slider } from '@src'
+import { createSignal } from 'solid-js'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Bold', value: 'bold' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 10, inputType: 'number' },
+    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
+    { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const [value, setValue] = createSignal(60)
+    return (
+      <div
+        class={
+          props.vertical ? 'flex flex-col items-center gap-3 h-56' : 'space-y-3 w-full max-w-sm'
+        }
+      >
+        <div
+          class={`text-xs text-muted-foreground flex items-center justify-between ${
+            props.vertical ? 'flex-col gap-1' : 'w-full'
+          }`}
+        >
+          <span>Volume</span>
+          <span class="text-foreground font-medium font-mono">{value().toFixed(2)}%</span>
+        </div>
+        <Slider
+          defaultValue={60}
+          onValueChange={(val) => {
+            if (typeof val === 'number') setValue(val)
+          }}
+          orientation={props.vertical ? 'vertical' : 'horizontal'}
+          variant={props.variant}
+          size={props.size}
+          step={props.step}
+          marker={props.marker}
+          disabled={props.disabled}
+          inverted={props.inverted}
+        />
+      </div>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'track',
+        children: [{ slot: 'range' }, { slot: 'marker' }],
+      },
+      { slot: 'thumb' },
+    ],
+  }}
+/>
+
+## Usage
+
+Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric
+field when users need precise text entry. Use [InputNumber](/components/input-number) when the value
+is typed and stepped rather than dragged.
+
+```tsx
+import { Field, Slider } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Volume">
+      <Slider defaultValue={50} />
+    </Field>
+  )
+}
+```
+
+### Single values and ranges
+
+Use a scalar value for a single thumb and an ordered pair for a range. Pair `value` with
+`onValueChange` for controlled state; `onValueChange` also reports immediate updates during drag
+when the slider owns its value.
+
+```tsx
+<Slider value={volume()} onValueChange={setVolume} />
+<Slider value={range()} onValueChange={setRange} />
+```
+
+### Step and markers
+
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to
+render visual tick marks at each step interval across the track rail.
+
+```tsx
+<Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
+```
+
+### Forms
+
+Add `name` for native form submission, or place the slider inside `form.Field` from
+[createForm](/components/form) for schema binding. Use standalone [Field](/components/field) when
+you only need a label and messages.
+
+```tsx
+<Slider name="brightness" defaultValue={75} step={5} min={0} max={100} />
+```
+
+### Keyboard interaction
+
+When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized
+movement is approximately 10% of the range and is snapped to `step` when one is defined.
+
+| Key                                         | Description                                             |
+| ------------------------------------------- | ------------------------------------------------------- |
+| <kbd>ArrowRight</kbd> / <kbd>ArrowUp</kbd>  | Moves in the increasing direction by one keyboard step. |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowDown</kbd> | Moves in the decreasing direction by one keyboard step. |
+| <kbd>Shift + Arrow</kbd>                    | Moves by the page-sized increment.                      |
+| <kbd>PageUp</kbd> / <kbd>PageDown</kbd>     | Moves by the page-sized increment.                      |
+| <kbd>Home</kbd>                             | Moves the focused thumb to its minimum permitted value. |
+| <kbd>End</kbd>                              | Moves the focused thumb to its maximum permitted value. |
+
+## Examples
+
+### Control output volume
+
+Keep a single number in local state and update it from `onValueChange`. Mute can write `0` back
+into the same signal.
+
+<Preview path="./controlled-single" />
+
+### Set a numeric range
+
+Pass an ordered pair for two thumbs. `minStepsBetweenThumbs` and `allowThumbCrossing` constrain
+whether the thumbs may overlap.
+
+<Preview path="./range-slider" />
+
+### Bind brightness to a form
+
+Place the slider in `form.Field` so the schema owns the committed number.
+
+<Preview path="./form-integration" />
+
+### Overlay a blur amount
+
+Put a label and live value inside the slider when the track itself is the readout. Keep
+`aria-label` on the slider.
+
+<Preview path="./blur-slider" />
+
+### Snap volume to ticks
+
+Set `step` so drag and keyboard land on increments. Enable `marker` to draw those ticks on the
+track.
+
+<Preview path="./step-marker" />

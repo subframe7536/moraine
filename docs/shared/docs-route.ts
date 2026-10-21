@@ -21,16 +21,21 @@ export interface DocsRouteSection {
   level: number
 }
 
-export const DOCS_SECTION_ORDER = new Map<string, number>([
-  ['docs:overview', 0],
-  ['docs:guides', 1],
-  ['docs:styling', 2],
-  ['docs:utils', 3],
-  ['components:overview', 4],
-  ['components:general', 5],
-  ['components:form', 6],
-  ['components:navigation', 7],
-  ['components:overlay', 8],
-  ['hooks:overview', 9],
-  ['hooks:hooks', 10],
-])
+export const DOCS_SECTION_ORDER = new Map<string, number>(
+  [
+    'docs:overview',
+    'docs:guides',
+    'docs:styling',
+    'docs:utils',
+    'components:overview',
+    'components:layout',
+    'components:display',
+    'components:buttons',
+    'components:form',
+    'components:select',
+    'components:overlay',
+    'components:navigation',
+    'hooks:overview',
+    'hooks:hooks',
+  ].map((t, i) => [t, i]),
+)

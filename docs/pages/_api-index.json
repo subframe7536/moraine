@@ -3,12 +3,12 @@
     {
       "key": "accordion",
       "name": "Accordion",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "alert",
       "name": "Alert",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "alert-dialog",
@@ -18,22 +18,22 @@
     {
       "key": "avatar",
       "name": "Avatar",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "avatar-group",
       "name": "AvatarGroup",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "badge",
       "name": "Badge",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "base-select",
       "name": "BaseSelect",
-      "category": "form"
+      "category": "select"
     },
     {
       "key": "breadcrumb",
@@ -43,17 +43,17 @@
     {
       "key": "button",
       "name": "Button",
-      "category": "element"
+      "category": "buttons"
     },
     {
       "key": "button-group",
       "name": "ButtonGroup",
-      "category": "element"
+      "category": "buttons"
     },
     {
       "key": "card",
       "name": "Card",
-      "category": "element"
+      "category": "layout"
     },
     {
       "key": "checkbox",
@@ -68,12 +68,12 @@
     {
       "key": "collapsible",
       "name": "Collapsible",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "combobox",
       "name": "Combobox",
-      "category": "form"
+      "category": "select"
     },
     {
       "key": "command-palette",
@@ -98,7 +98,7 @@
     {
       "key": "empty",
       "name": "Empty",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "field",
@@ -118,7 +118,7 @@
     {
       "key": "icon",
       "name": "Icon",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "input",
@@ -138,17 +138,17 @@
     {
       "key": "kbd",
       "name": "Kbd",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "kbd-group",
       "name": "KbdGroup",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "list",
       "name": "List",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "modal",
@@ -158,7 +158,7 @@
     {
       "key": "multi-select",
       "name": "MultiSelect",
-      "category": "form"
+      "category": "select"
     },
     {
       "key": "navigation-menu",
@@ -178,7 +178,7 @@
     {
       "key": "progress",
       "name": "Progress",
-      "category": "element"
+      "category": "display"
     },
     {
       "key": "radio-group",
@@ -188,22 +188,22 @@
     {
       "key": "resizable",
       "name": "Resizable",
-      "category": "element"
+      "category": "layout"
     },
     {
       "key": "scroll-area",
       "name": "ScrollArea",
-      "category": "element"
+      "category": "layout"
     },
     {
       "key": "select",
       "name": "Select",
-      "category": "form"
+      "category": "select"
     },
     {
       "key": "separator",
       "name": "Separator",
-      "category": "element"
+      "category": "layout"
     },
     {
       "key": "sheet",
@@ -218,7 +218,7 @@
     {
       "key": "skeleton",
       "name": "Skeleton",
-      "category": "element"
+      "category": "layout"
     },
     {
       "key": "slider",
@@ -253,7 +253,7 @@
     {
       "key": "toggle-button",
       "name": "ToggleButton",
-      "category": "element"
+      "category": "buttons"
     },
     {
       "key": "tooltip",

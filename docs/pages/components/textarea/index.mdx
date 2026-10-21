@@ -1,0 +1,143 @@
+---
+title: Textarea
+description: Edit multi-line text with optional auto-sizing and Field integration.
+group: Form
+api:
+  path: src/components/textarea/textarea
+sidebar:
+  order: 5
+search:
+  tags: [multiline, text field, autoresize, form control, textarea, notes, composer]
+---
+
+import { Textarea } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Write a comment or description...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'autoResize', label: 'Auto-resize', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Textarea
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      disabled={props.disabled}
+      autoResize={props.autoResize}
+      rows={3}
+      class="max-w-sm"
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'textarea',
+    },
+  }}
+/>
+
+## Usage
+
+Use Textarea for multi-line native text entry. Use [Input](/components/input) for a single line.
+Use [InputGroup](/components/input-group) to put controls around it without changing which element
+receives typing and focus.
+
+```tsx
+import { Field, Textarea } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Message">
+      <Textarea placeholder="Write a message" />
+    </Field>
+  )
+}
+```
+
+### Native text behavior
+
+`Textarea` forwards native textarea attributes and works with controlled or uncontrolled values.
+Use `readOnly` to preserve selection and focus without edits, or `disabled` to prevent interaction.
+
+```tsx
+<Textarea value={bio()} onValueChange={setBio} rows={3} />
+```
+
+### Size and composition
+
+Enable autoresize and constrain it with `rows` and `maxRows`. Use
+`InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions.
+Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+
+```tsx
+<InputGroup orientation="vertical">
+  <Textarea placeholder="Write a comment..." autoResize rows={2} maxRows={6} />
+  <InputGroup.Trailing>
+    <span>Markdown supported</span>
+    <Button size="xs">Comment</Button>
+  </InputGroup.Trailing>
+</InputGroup>
+```
+
+## Examples
+
+### Draft a release announcement
+
+Turn on `autoResize` and cap growth with `maxRows`. Keep the draft string in local state.
+
+<Preview path="./autoresize" />
+
+### Chat, message, and code panes
+
+Use a vertical InputGroup for a header, footer, or both around the textarea. The textarea still
+owns the value.
+
+<Preview path="./header-footer" />
+
+### Count remaining characters
+
+Keep the count in application state. InputGroup Trailing is a place to render it, not a built-in
+counter.
+
+<Preview path="./character-count" />
+
+### Bind a description field
+
+Place Textarea in `form.Field` so schema validation owns the error.
+
+<Preview path="./form-integration" />

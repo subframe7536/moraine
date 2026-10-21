@@ -1,0 +1,398 @@
+import type { JSX } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  onCleanup,
+  onMount,
+  splitProps,
+} from 'solid-js'
+
+import { useRecipe } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
+import { createControllableValue } from '../../shared/controllable-value'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
+import { createId } from '../../shared/utils'
+import { Icon } from '../icon'
+import { resolveDirection } from '../shared/overlay/utils'
+
+import { tabsDataAttributes, tabsRecipe } from './tabs.recipe'
+import type { TabsProps, TabsT } from './tabs.types'
+
+interface NormalizedTabItem extends TabsT.Item {
+  instanceKey: string
+  value: string
+}
+
+function normalizeItemValue(value: string | undefined, index: number): string {
+  if (value === undefined) {
+    return String(index)
+  }
+
+  return value
+}
+
+/**
+ * Tabbed navigation component with configurable orientation and variant styles.
+ */
+export function Tabs(props: TabsProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'value',
+    'defaultValue',
+    'orientation',
+    'activationMode',
+    'disabled',
+    'loop',
+    'onChange',
+    'items',
+    'variant',
+    'size',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'aria-label',
+    'aria-labelledby',
+  ])
+  let indicatorStyle!: () => JSX.CSSProperties
+  const { slots, variants } = useRecipe(tabsRecipe, local, {
+    enforced: () => ({
+      indicator: { style: indicatorStyle() },
+    }),
+  })
+  const direction = useLocale().dir
+  const merged = mergeProps(
+    {
+      get orientation() {
+        return variants.orientation
+      },
+    },
+    local,
+  )
+
+  const rootId = createId(() => merged.id, 'tabs')
+  const [requestedValue, setRequestedValue] = createControllableValue<string | undefined>({
+    value: () => merged.value,
+    defaultValue: () => merged.defaultValue,
+  })
+  const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
+    const occurrences = new Map<string, number>()
+
+    return (merged.items ?? []).map((item, index) => {
+      const value = normalizeItemValue(item.value, index)
+      const occurrence = occurrences.get(value) ?? 0
+      occurrences.set(value, occurrence + 1)
+      const content = createLazyMemo(() => item.content)
+
+      return {
+        get content() {
+          return content()
+        },
+        disabled: item.disabled,
+        icon: item.icon,
+        instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
+        label: item.label,
+        value,
+      }
+    })
+  })
+  const firstEnabledItem = createMemo(() => normalizedItems().find((item) => !item.disabled))
+  const selectedItem = createMemo(() => {
+    const candidate = requestedValue()
+
+    if (candidate !== undefined) {
+      const requestedItem = normalizedItems().find(
+        (item) => item.value === candidate && !item.disabled,
+      )
+
+      if (requestedItem) {
+        return requestedItem
+      }
+    }
+
+    return firstEnabledItem()
+  })
+  const selectedValue = createMemo(() => selectedItem()?.value)
+  const selectedKey = createMemo(() => selectedItem()?.instanceKey)
+  const triggerRefs = new Map<string, HTMLButtonElement>()
+  const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
+  const [focusRecoveryRequested, setFocusRecoveryRequested] = createSignal(false)
+  let disposed = false
+  let focusRecoveryGeneration = 0
+
+  onCleanup(() => {
+    disposed = true
+  })
+  const effectiveHighlighted = createMemo<string | undefined>(() => {
+    const focused = highlightedKey()
+
+    if (
+      focused !== undefined &&
+      normalizedItems().some((item) => item.instanceKey === focused && !item.disabled)
+    ) {
+      return focused
+    }
+
+    return selectedKey()
+  })
+  const [indicatorStyleSignal, setIndicatorStyle] = createSignal<JSX.CSSProperties>({
+    transform: undefined,
+    width: undefined,
+    height: undefined,
+  })
+  indicatorStyle = indicatorStyleSignal
+  let listRef: HTMLDivElement | undefined
+  const { onNavigationKeyDown } = createSelectableCollectionNavigation<NormalizedTabItem, string>({
+    items: normalizedItems,
+    getValue: (item) => item.instanceKey,
+    isDisabled: (item) => Boolean(merged.disabled || item.disabled),
+    loop: () => merged.loop ?? true,
+    activationMode: () => merged.activationMode ?? 'automatic',
+    getDirection: () => resolveDirection(listRef, direction()),
+    focusValue: (key) => {
+      setHighlightedKey(key)
+      triggerRefs.get(key)?.focus()
+    },
+    onSelect: (key) => {
+      const item = normalizedItems().find((candidate) => candidate.instanceKey === key)
+
+      if (item) {
+        selectValue(item.value)
+      }
+    },
+  })
+
+  function getTriggerId(key: string): string {
+    return `${rootId()}-${key}-trigger`
+  }
+
+  function getContentId(key: string): string {
+    return `${rootId()}-${key}-content`
+  }
+
+  function selectValue(nextValue: string): void {
+    if (merged.disabled || nextValue === selectedValue()) {
+      return
+    }
+
+    setRequestedValue(nextValue)
+
+    merged.onChange?.(nextValue)
+  }
+
+  function computeIndicatorStyle(
+    currentKey: ReturnType<typeof selectedKey>,
+    orientation: typeof merged.orientation,
+  ): void {
+    if (currentKey === undefined) {
+      setIndicatorStyle({
+        transform: undefined,
+        width: undefined,
+        height: undefined,
+      })
+      return
+    }
+
+    const selectedTrigger = triggerRefs.get(currentKey)
+
+    if (!selectedTrigger) {
+      return
+    }
+
+    const nextStyle: JSX.CSSProperties = {
+      transform: undefined,
+      width: undefined,
+      height: undefined,
+    }
+
+    if (orientation === 'vertical') {
+      nextStyle.transform = `translateY(${selectedTrigger.offsetTop}px)`
+      nextStyle.height = `${selectedTrigger.offsetHeight}px`
+    } else {
+      const direction = listRef ? getComputedStyle(listRef).direction : 'ltr'
+      const offset =
+        direction === 'rtl'
+          ? -1 *
+            (((selectedTrigger.offsetParent as HTMLElement | null)?.offsetWidth ?? 0) -
+              selectedTrigger.offsetWidth -
+              selectedTrigger.offsetLeft)
+          : selectedTrigger.offsetLeft
+
+      nextStyle.transform = `translateX(${offset}px)`
+      nextStyle.width = `${selectedTrigger.offsetWidth}px`
+    }
+
+    setIndicatorStyle(nextStyle)
+  }
+
+  onMount(() => {
+    computeIndicatorStyle(selectedKey(), merged.orientation)
+  })
+
+  createEffect(
+    on([normalizedItems, selectedKey, () => merged.orientation], ([, key, orientation]) => {
+      computeIndicatorStyle(key, orientation)
+    }),
+  )
+
+  createEffect(
+    on([focusRecoveryRequested, effectiveHighlighted], ([recovery, recoveryKey]) => {
+      if (!recovery) {
+        return
+      }
+      const generation = ++focusRecoveryGeneration
+
+      queueMicrotask(() => {
+        if (!disposed && generation === focusRecoveryGeneration) {
+          if (document.activeElement === document.body && recoveryKey !== undefined) {
+            triggerRefs.get(recoveryKey)?.focus()
+          }
+          setFocusRecoveryRequested(false)
+        }
+      })
+    }),
+  )
+
+  createEffect(
+    on([normalizedItems, selectedKey], ([items, currentKey]) => {
+      const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
+
+      if (
+        typeof ResizeObserver === 'undefined' ||
+        !selectedTrigger ||
+        !items.some((item) => item.instanceKey === currentKey)
+      ) {
+        return
+      }
+
+      const resizeObserver = new ResizeObserver(() => {
+        computeIndicatorStyle(selectedKey(), merged.orientation)
+      })
+
+      // Overlays may insert these nodes after the effect runs, so observe detached triggers too.
+      resizeObserver.observe(selectedTrigger)
+
+      if (listRef) {
+        resizeObserver.observe(listRef)
+      }
+
+      onCleanup(() => {
+        resizeObserver.disconnect()
+      })
+    }),
+  )
+
+  return (
+    <div
+      data-slot="tabs"
+      {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
+      {...rest}
+      id={rootId()}
+      {...slots.root}
+    >
+      <div
+        ref={(e) => (listRef = e)}
+        role="tablist"
+        aria-label={local['aria-label']}
+        aria-labelledby={local['aria-labelledby']}
+        aria-orientation={merged.orientation ?? undefined}
+        data-slot="tabs-list"
+        {...slots.list}
+      >
+        <div aria-hidden="true" data-slot="tabs-indicator" {...slots.indicator} />
+
+        <For each={normalizedItems()}>
+          {(item) => {
+            const selected = createMemo(() => selectedKey() === item.instanceKey)
+            const highlighted = createMemo(() => effectiveHighlighted() === item.instanceKey)
+            let trigger: HTMLButtonElement | undefined
+
+            onCleanup(() => {
+              const wasFocused =
+                typeof document !== 'undefined' && document.activeElement === trigger
+
+              if (triggerRefs.get(item.instanceKey) === trigger) {
+                triggerRefs.delete(item.instanceKey)
+              }
+
+              if (wasFocused) {
+                setFocusRecoveryRequested(true)
+              }
+            })
+
+            return (
+              <button
+                id={getTriggerId(item.instanceKey)}
+                ref={(element) => {
+                  trigger = element
+                  triggerRefs.set(item.instanceKey, element)
+                }}
+                type="button"
+                role="tab"
+                tabIndex={highlighted() ? 0 : -1}
+                aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
+                aria-selected={selected()}
+                {...tabsDataAttributes.trigger({
+                  selected,
+                  highlighted,
+                  disabled: () => Boolean(merged.disabled || item.disabled),
+                })}
+                disabled={Boolean(merged.disabled || item.disabled)}
+                data-slot="tabs-trigger"
+                {...slots.trigger}
+                onClick={() => {
+                  setHighlightedKey(item.instanceKey)
+                  selectValue(item.value)
+                }}
+                onFocus={() => setHighlightedKey(item.instanceKey)}
+                onKeyDown={(event) => {
+                  onNavigationKeyDown(event, item.instanceKey, merged.orientation ?? 'horizontal')
+                }}
+              >
+                <Show when={item.icon}>
+                  <span data-slot="tabs-leading" {...slots.leading}>
+                    <Icon name={item.icon} />
+                  </span>
+                </Show>
+
+                <Show when={typeof item.label === 'string'} fallback={item.label}>
+                  <span data-slot="tabs-label" {...slots.label}>
+                    {item.label}
+                  </span>
+                </Show>
+              </button>
+            )
+          }}
+        </For>
+      </div>
+
+      <For each={normalizedItems()}>
+        {(item) => {
+          const selected = createMemo(() => selectedKey() === item.instanceKey)
+
+          return (
+            <Show when={selected()}>
+              <div
+                id={getContentId(item.instanceKey)}
+                role="tabpanel"
+                tabIndex={0}
+                aria-labelledby={getTriggerId(item.instanceKey)}
+                {...tabsDataAttributes.content({ selected: true })}
+                data-slot="tabs-content"
+                {...slots.content}
+              >
+                {item.content}
+              </div>
+            </Show>
+          )
+        }}
+      </For>
+    </div>
+  )
+}

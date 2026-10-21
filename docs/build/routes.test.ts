@@ -26,7 +26,7 @@ vi.mock('virtual:routes', () => ({
     '/components/button': {
       key: 'button',
       surface: 'components',
-      section: 'general',
+      section: 'action',
       routePath: '/components/button',
       markdownPath: '/components/button.md',
       title: 'Button',
@@ -42,8 +42,8 @@ vi.mock('virtual:routes', () => ({
   },
 }))
 
-function pageSource(title: string, order: number): string {
-  return `---\ntitle: ${title}\ndescription: ${title} page description.\nsidebar:\n  order: ${order}\nsearch:\n  tags: [docs]\n---\n`
+function pageSource(title: string, order: number, group = 'Action'): string {
+  return `---\ntitle: ${title}\ndescription: ${title} page description.\ngroup: ${group}\nsidebar:\n  order: ${order}\nsearch:\n  tags: [docs]\n---\n`
 }
 
 async function writeProjectFile(projectRoot: string, relative: string, content: string) {
@@ -64,7 +64,7 @@ describe('docs route metadata', () => {
       ['hooks/index.mdx', 'hooks', 'overview', '/hooks'],
       ['hooks/create-slider.mdx', 'hooks', 'hooks', '/hooks/create-slider'],
       ['components/index.mdx', 'components', 'overview', '/components'],
-      ['components/(general)/button/index.mdx', 'components', 'general', '/components/button'],
+      ['components/button/index.mdx', 'components', 'components', '/components/button'],
     ] as const
     for (const [relative, surface, section, routePath] of cases) {
       expect(resolveDocsPageContext(`/tmp/docs/pages/${relative}`)).toMatchObject({
@@ -106,15 +106,15 @@ describe('docs route metadata', () => {
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/components/(general)/button/index.mdx',
-        pageSource('Button', 1),
+        'docs/pages/components/button/index.mdx',
+        pageSource('Button', 1, 'Action'),
       )
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
         { info: { surface: 'docs', routePath: '/docs/getting-started' } },
         {
           info: {
             surface: 'components',
-            section: 'general',
+            section: 'action',
             routePath: '/components/button',
             api: 'button',
           },
@@ -122,8 +122,8 @@ describe('docs route metadata', () => {
       ])
       await writeProjectFile(
         projectRoot,
-        'docs/pages/components/(general)/badge/index.mdx',
-        pageSource('Badge', 1),
+        'docs/pages/components/badge/index.mdx',
+        pageSource('Badge', 1, 'Action'),
       )
       expect(() => scanDocsRoutes(projectRoot)).toThrow('duplicate sidebar.order 1')
     } finally {
@@ -132,12 +132,13 @@ describe('docs route metadata', () => {
   })
 
   test('preserves sections on canonical metadata', () => {
-    const page = resolveDocsPageContext('/tmp/docs/pages/components/(general)/button/index.mdx')
+    const page = resolveDocsPageContext('/tmp/docs/pages/components/button/index.mdx')
     const info = createDocsRouteInfo(
       page,
       {
         title: 'Button',
         description: 'Actions.',
+        group: 'Action',
         sidebar: { order: 1 },
         search: { tags: ['button'] },
       },
@@ -147,7 +148,7 @@ describe('docs route metadata', () => {
     expect(info).toMatchObject({
       key: 'button',
       surface: 'components',
-      section: 'general',
+      section: 'action',
       routePath: '/components/button',
       markdownPath: '/components/button.md',
       api: 'button',

@@ -20,7 +20,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['no-slots-class-style-in-jsx']
 
     it('reports slots.<slot>.class and slots.<slot>.style in JSX attributes', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       // <div class={slots.root.class} />
@@ -63,7 +63,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports slots.<slot>.class inside conditional expressions', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       // <div class={open() ? slots.root.class : undefined} />
@@ -91,7 +91,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows valid spreads like {...slots.root}', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.JSXSpreadAttribute({
@@ -109,7 +109,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['inline-data-attributes-in-jsx']
 
     it('reports assigning *DataAttributes.* to a variable in component JSX files', () => {
-      const ctx = createMockContext('/project/src/overlay/dialog/dialog-body.tsx')
+      const ctx = createMockContext('/project/src/components/dialog/dialog-body.tsx')
       const visitor = rule.create(ctx)
 
       visitor.VariableDeclarator({
@@ -130,7 +130,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports direct *DataAttributes call assignments', () => {
-      const ctx = createMockContext('/project/src/overlay/popover/popover-content.tsx')
+      const ctx = createMockContext('/project/src/components/popover/popover-content.tsx')
       const visitor = rule.create(ctx)
 
       visitor.VariableDeclarator({
@@ -146,11 +146,11 @@ describe('oxlint-plugin-moraine', () => {
 
     it('ignores non-JSX files like context hooks and tests', () => {
       const contextCtx = createMockContext(
-        '/project/src/overlay/context-menu/context-menu-context.ts',
+        '/project/src/components/context-menu/context-menu-context.ts',
       )
       expect(rule.create(contextCtx)).toEqual({})
 
-      const testCtx = createMockContext('/project/src/overlay/dialog/dialog.test.tsx')
+      const testCtx = createMockContext('/project/src/components/dialog/dialog.test.tsx')
       expect(rule.create(testCtx)).toEqual({})
     })
   })
@@ -159,7 +159,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['require-create-effect-on']
 
     it('reports unwrapped callbacks in createEffect', () => {
-      const ctx = createMockContext('/project/src/element/accordion/accordion.tsx')
+      const ctx = createMockContext('/project/src/components/accordion/accordion.tsx')
       const visitor = rule.create(ctx)
 
       visitor.CallExpression({
@@ -183,7 +183,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows createEffect wrapped with on(...)', () => {
-      const ctx = createMockContext('/project/src/element/accordion/accordion.tsx')
+      const ctx = createMockContext('/project/src/components/accordion/accordion.tsx')
       const visitor = rule.create(ctx)
 
       visitor.CallExpression({
@@ -209,7 +209,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['no-emitted-extensions-in-imports']
 
     it('reports .js and .jsx extensions in source imports', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.ImportDeclaration({
@@ -227,7 +227,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows imports without extension or with source extensions', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.ImportDeclaration({ source: { value: './button-group' } })
@@ -241,7 +241,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['no-string-style-prop']
 
     it('reports literal and template string style props', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.JSXAttribute({
@@ -267,7 +267,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows object style props and expressions', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.JSXAttribute({
@@ -290,7 +290,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['no-direct-component-call']
 
     it('reports direct function calls to PascalCase components', () => {
-      const ctx = createMockContext('/project/src/element/card/card.tsx')
+      const ctx = createMockContext('/project/src/components/card/card.tsx')
       const visitor = rule.create(ctx)
 
       visitor.CallExpression({
@@ -311,7 +311,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows global constructors and built-in objects', () => {
-      const ctx = createMockContext('/project/src/element/card/card.tsx')
+      const ctx = createMockContext('/project/src/components/card/card.tsx')
       const visitor = rule.create(ctx)
 
       visitor.CallExpression({
@@ -334,7 +334,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports non-PascalCase function declarations returning JSX', () => {
-      const ctx = createMockContext('/project/src/overlay/sheet/sheet-content.tsx')
+      const ctx = createMockContext('/project/src/components/sheet/sheet-content.tsx')
       const visitor = rule.create(ctx)
 
       visitor.FunctionDeclaration({
@@ -356,7 +356,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports non-PascalCase arrow functions returning JSX and their direct calls', () => {
-      const ctx = createMockContext('/project/src/overlay/dialog/dialog-content.tsx')
+      const ctx = createMockContext('/project/src/components/dialog/dialog-content.tsx')
       const visitor = rule.create(ctx)
 
       visitor.VariableDeclarator({
@@ -382,7 +382,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows non-PascalCase functions returning non-JSX values', () => {
-      const ctx = createMockContext('/project/src/element/card/card.tsx')
+      const ctx = createMockContext('/project/src/components/card/card.tsx')
       const visitor = rule.create(ctx)
 
       visitor.FunctionDeclaration({
@@ -408,7 +408,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows PascalCase function declarations and components', () => {
-      const ctx = createMockContext('/project/src/overlay/sheet/sheet-content.tsx')
+      const ctx = createMockContext('/project/src/components/sheet/sheet-content.tsx')
       const visitor = rule.create(ctx)
 
       visitor.FunctionDeclaration({
@@ -427,7 +427,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('ignores test and non-component files', () => {
-      const testCtx = createMockContext('/project/src/element/card/card.test.tsx')
+      const testCtx = createMockContext('/project/src/components/card/card.test.tsx')
       expect(rule.create(testCtx)).toEqual({})
     })
   })
@@ -436,7 +436,7 @@ describe('oxlint-plugin-moraine', () => {
     const rule = morainePlugin.rules['no-re-export']
 
     it('reports standalone export { x } without inline declaration', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.ExportNamedDeclaration({
@@ -450,7 +450,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports standalone export type { T } without inline declaration', () => {
-      const ctx = createMockContext('/project/src/element/button/button.types.ts')
+      const ctx = createMockContext('/project/src/components/button/button.types.ts')
       const visitor = rule.create(ctx)
 
       visitor.ExportNamedDeclaration({
@@ -464,7 +464,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('reports re-export from another file in component/implementation files', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.ExportNamedDeclaration({
@@ -484,7 +484,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows inline export declarations', () => {
-      const ctx = createMockContext('/project/src/element/button/button.tsx')
+      const ctx = createMockContext('/project/src/components/button/button.tsx')
       const visitor = rule.create(ctx)
 
       visitor.ExportNamedDeclaration({
@@ -499,7 +499,7 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('allows re-exports in index.ts and package entry files', () => {
-      const barrelCtx = createMockContext('/project/src/element/button/index.ts')
+      const barrelCtx = createMockContext('/project/src/components/button/index.ts')
       const barrelVisitor = rule.create(barrelCtx)
 
       barrelVisitor.ExportNamedDeclaration({
@@ -524,10 +524,10 @@ describe('oxlint-plugin-moraine', () => {
     })
 
     it('ignores test files and fixtures', () => {
-      const testCtx = createMockContext('/project/src/element/button/button.test.tsx')
+      const testCtx = createMockContext('/project/src/components/button/button.test.tsx')
       expect(rule.create(testCtx)).toEqual({})
 
-      const fixtureCtx = createMockContext('/project/src/element/button/button.ssr.fixture.tsx')
+      const fixtureCtx = createMockContext('/project/src/components/button/button.ssr.fixture.tsx')
       expect(rule.create(fixtureCtx)).toEqual({})
     })
   })

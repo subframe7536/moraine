@@ -1,0 +1,193 @@
+---
+title: Popover
+description: Show anchored interactive content from click or hover.
+group: Overlay
+api:
+  path: src/components/popover/popover
+  parts: [Trigger, Content, Close]
+sidebar:
+  order: 4
+search:
+  tags: [floating panel, overlay, anchored, trigger, popover, flyout]
+---
+
+import { Button, Field, Input, Popover } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'placement',
+      label: 'Placement',
+      defaultValue: 'bottom',
+      options: [
+        { label: 'Bottom', value: 'bottom' },
+        { label: 'Top', value: 'top' },
+        { label: 'Right', value: 'right' },
+        { label: 'Left', value: 'left' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'align',
+      label: 'Align',
+      defaultValue: 'center',
+      options: [
+        { label: 'Start', value: 'start' },
+        { label: 'Center', value: 'center' },
+        { label: 'End', value: 'end' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
+  ]}
+>
+  {(props) => (
+    <Popover
+      placement={props.placement}
+      align={props.align}
+      disabled={props.disabled}
+      dismissible={props.dismissible}
+    >
+      <Popover.Trigger as={Button} variant="outline" size="sm">
+        Adjust dimensions
+      </Popover.Trigger>
+      <Popover.Content>
+        <div class="p-4 w-72 space-y-3">
+          <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
+          <div class="space-y-2">
+            <Field label="Width" orientation="horizontal">
+              <Input size="sm" defaultValue="100%" />
+            </Field>
+            <Field label="Max height" orientation="horizontal">
+              <Input size="sm" defaultValue="300px" />
+            </Field>
+          </div>
+        </div>
+      </Popover.Content>
+    </Popover>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        part: 'Popover.Trigger',
+        slot: 'trigger',
+      },
+      { part: 'Popover.Close' },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            part: 'Popover.Content',
+            slot: 'content',
+            children: [{ slot: 'body' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+Content is portaled inside an internal positioning wrapper.
+
+## Usage
+
+Use Popover for anchored interactive content that does not need a labeled modal surface. Use
+[Tooltip](/components/tooltip) for a brief, non-interactive hint. Use
+[DropdownMenu](/components/dropdown-menu) for a compact action list from a visible trigger. Use
+[Dialog](/components/dialog) or [Sheet](/components/sheet) when the task should take over the
+page. Use [Modal](/components/modal) to compose backdrop and content yourself.
+
+```tsx
+import { Button, Popover } from 'moraine'
+
+export function Example() {
+  return (
+    <Popover>
+      <Popover.Trigger as={Button}>Details</Popover.Trigger>
+      <Popover.Content>More information</Popover.Content>
+    </Popover>
+  )
+}
+```
+
+### Trigger modes and state
+
+Render the trigger with the supplied props. Click mode is the default; hover mode also responds to
+focus and blur and can use open and close delays. Use controlled `open` state only when the
+application needs to coordinate visibility.
+
+```tsx
+<Popover>
+  <Popover.Trigger as={Button}>Filter</Popover.Trigger>
+  <Popover.Content>Click stays open while you choose filters.</Popover.Content>
+</Popover>
+<Popover mode="hover" openDelay={150} closeDelay={100}>
+  <Popover.Trigger as={Button}>Profile</Popover.Trigger>
+  <Popover.Content>Hover or focus to preview.</Popover.Content>
+</Popover>
+```
+
+### Dismissal and accessibility
+
+Escape and outside interaction close a dismissible popover. Give `Popover.Content` an accessible
+name with `ariaLabel` when it has no visible label.
+
+`modal` defaults to `false`. With `modal={true}` and a composed `Popover.Close`, focus stays inside
+the content, outside content is hidden from assistive technology, and body scroll is locked.
+Without a Close, the popover stays non-modal so users retain a dismissal route.
+
+`modal={false}` does not disable Escape or outside dismissal; use `dismissible` for that.
+`preventScroll` can lock body scroll independently of `modal`.
+
+```tsx
+<Popover>
+  <Popover.Trigger as={Button}>Filter</Popover.Trigger>
+  <Popover.Content aria-label="Filter settings">Press Escape or click outside.</Popover.Content>
+</Popover>
+<Popover dismissible={false} onClosePrevent={onBlocked}>
+  <Popover.Trigger as={Button}>Keep open</Popover.Trigger>
+  <Popover.Content>Outside click and Escape are blocked.</Popover.Content>
+</Popover>
+```
+
+### Keyboard interaction
+
+Keyboard behavior depends on the trigger element and whether the popover is modal. Escape requests
+dismissal when the popover is dismissible; focusable controls inside non-modal content participate
+in normal document focus order. Modal content contains focus.
+
+## Examples
+
+### Filter deployments or preview a profile
+
+Click keeps a filter panel open during selection. Hover mode opens an author preview after a delay.
+
+<Preview path="./trigger-modes" />
+
+### Label filter settings for dismissal
+
+Give content an accessible name when it has no visible title. Escape or an outside click closes a
+dismissible popover.
+
+<Preview path="./dismissal-usage" />
+
+### Preview an author card on hover
+
+Hover or focus the trigger to follow an author. Open and close delays keep the card from flashing.
+
+<Preview path="./hover-mode" />
+
+### Keep a popover open until an explicit close
+
+`dismissible={false}` blocks Escape and outside clicks. `onClosePrevent` counts blocked attempts.
+
+<Preview path="./dismiss-control" />

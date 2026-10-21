@@ -1,0 +1,94 @@
+import { fireEvent } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
+import { expect, test } from 'vitest'
+
+import { hydrateFixture } from '../../test-util/ssr-test'
+
+import { Select } from './select'
+import type { SelectT } from './select.types'
+
+test('hydrates Select Control/Trigger/Value anatomy in place', () => {
+  const { container } = hydrateFixture(
+    '/src/components/select/select.ssr.fixture.tsx',
+    'renderSelectFixture',
+    () =>
+      createComponent(Select, {
+        id: 'fruit',
+        name: 'fruit',
+        value: 'banana',
+        allowClear: true,
+        items: [
+          { value: 'apple', label: 'Apple', description: 'Crisp' },
+          { value: 'banana', label: 'Banana', description: 'Sweet' },
+        ],
+        leadingIcon: 'icon-search',
+        trailingIcon: 'icon-chevron-down',
+        closeIcon: 'icon-close',
+      }),
+  )
+  const control = container.querySelector('[data-slot="select-control"]')!
+  const trigger = container.querySelector<HTMLElement>('[data-slot="select-trigger"]')!
+  expect(control.tagName).toBe('DIV')
+  expect(trigger.tagName).toBe('BUTTON')
+  expect(control.querySelector('[data-slot="select-value"]')?.textContent).toBe('Banana')
+  expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
+  expect(container.querySelector<HTMLInputElement>('input[name="fruit"]')?.value).toBe('banana')
+  fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+})
+
+test('hydrates and updates custom itemRender content without replacing the server item node', () => {
+  const [appleLabel, setAppleLabel] = createSignal('Apple')
+  let renders = 0
+
+  hydrateFixture(
+    '/src/components/select/select.ssr.fixture.tsx',
+    'renderSelectItemRenderFixture',
+    () =>
+      createComponent(Select, {
+        id: 'custom-render',
+        defaultOpen: true,
+        get items() {
+          return [
+            { value: 'apple', label: appleLabel() },
+            { value: 'banana', label: 'Banana' },
+          ]
+        },
+        itemRender: (state: SelectT.ItemRenderProps) => {
+          renders += 1
+          return <span data-testid="custom-item">{state.item.label}</span>
+        },
+      }),
+  )
+
+  const items = document.body.querySelectorAll<HTMLElement>('[data-testid="custom-item"]')
+  expect(items).toHaveLength(2)
+  const first = items[0]!
+  expect(first.textContent).toBe('Apple')
+  expect(renders).toBe(2)
+
+  setAppleLabel('Apricot')
+  expect(first.textContent).toBe('Apricot')
+  expect(document.body.querySelectorAll('[data-testid="custom-item"]')[0]).toBe(first)
+})
+
+test('hydrates string and grouped shorthand without replacing server elements', () => {
+  const { container } = hydrateFixture(
+    '/src/components/select/select.ssr.fixture.tsx',
+    'renderStringItemsFixture',
+    () => (
+      <Select
+        id="string-fruit"
+        name="string-fruit"
+        items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
+        defaultValue="Banana"
+      />
+    ),
+  )
+  expect(container.querySelector<HTMLInputElement>('input[name="string-fruit"]')?.value).toBe(
+    'Banana',
+  )
+  const control = container.querySelector<HTMLElement>('[role="combobox"]')!
+  fireEvent.keyDown(control, { key: 'ArrowDown' })
+  expect(control.getAttribute('aria-expanded')).toBe('true')
+})

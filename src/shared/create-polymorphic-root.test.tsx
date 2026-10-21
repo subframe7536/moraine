@@ -4,8 +4,8 @@ import { Show, createSignal, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../element/button'
-import type { ButtonProps } from '../element/button'
+import { Button } from '../components/button'
+import type { ButtonProps } from '../components/button'
 
 import { createPolymorphicRoot } from './create-polymorphic-root'
 import type { ValidComponent } from './types'

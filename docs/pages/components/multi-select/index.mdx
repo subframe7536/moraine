@@ -1,0 +1,299 @@
+---
+title: MultiSelect
+description: Choose multiple collection items in a searchable tag field.
+group: Select
+api:
+  path: src/components/multi-select/multi-select
+sidebar:
+  order: 2
+search:
+  tags: [combobox, multiple selection, items, multi-select, tags, chips]
+---
+
+import { MultiSelect } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'empty', label: 'Empty list', defaultValue: false },
+    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
+    {
+      kind: 'switch',
+      prop: 'openOnControlClick',
+      label: 'Open on control click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <MultiSelect
+      items={
+        props.empty
+          ? []
+          : [
+              {
+                type: 'group',
+                label: 'Product',
+                items: [
+                  {
+                    label: 'Design',
+                    description: 'Interface and visual design',
+                    value: 'design',
+                    icon: 'i-lucide:palette',
+                  },
+                  { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+                  { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+                ],
+              },
+              { type: 'separator' },
+              {
+                type: 'group',
+                label: 'Go-to-market',
+                items: [
+                  { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+                  { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+                ],
+              },
+            ]
+      }
+      defaultValue={['design', 'dev']}
+      leadingIcon="i-lucide:tags"
+      allowClear
+      maxTagCount={1}
+      placeholder="Select topics..."
+      variant={props.variant}
+      size={props.size}
+      open={props.open}
+      search={props.search}
+      openOnControlClick={props.openOnControlClick}
+      disabled={props.disabled}
+      class="max-w-96 min-w-40 w-60%"
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      noDom: true,
+    },
+    children: [
+      {
+        slot: 'control',
+        children: [
+          { slot: 'leading' },
+          {
+            slot: 'tagsContainer',
+            children: [
+              {
+                slot: 'tag',
+                children: [{ slot: 'tagLabel' }, { slot: 'tagRemove' }],
+              },
+              { slot: 'tagOverflow' },
+              { slot: 'input' },
+            ],
+          },
+          { slot: 'clear' },
+          { slot: 'trigger' },
+        ],
+      },
+      {
+        internal: 'positioner',
+        children: [
+          {
+            slot: 'content',
+            children: [
+              {
+                slot: 'listbox',
+                children: [
+                  {
+                    slot: 'group',
+                    children: [{ slot: 'groupLabel' }],
+                  },
+                  {
+                    slot: 'item',
+                    children: [
+                      { slot: 'itemLeading' },
+                      {
+                        slot: 'itemWrapper',
+                        children: [{ slot: 'itemLabel' }, { slot: 'itemDescription' }],
+                      },
+                      { slot: 'itemIndicator' },
+                    ],
+                  },
+                ],
+              },
+              { slot: 'empty' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+MultiSelect renders its portaled popup collection internally. Tags have a separate rendering path through `tagRender`.
+
+## Usage
+
+Use MultiSelect for several selected collection items displayed as tags. Its values resolve through
+collection items. Use [Select](/components/select) for one non-editable choice, [Combobox](/components/combobox)
+for editable single selection, or [BaseSelect](/components/base-select) to compose the listbox
+yourself.
+
+```tsx
+import { Field, MultiSelect } from 'moraine'
+
+export function Example() {
+  return (
+    <Field label="Skills">
+      <MultiSelect
+        items={[
+          { label: 'Design', value: 'design' },
+          { label: 'Code', value: 'code' },
+        ]}
+        placeholder="Choose skills"
+      />
+    </Field>
+  )
+}
+```
+
+### Values and tag lifecycle
+
+The control slot wraps the interactive tags container and floating anchor. When non-editable,
+clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking
+the control focuses the input without opening the panel so users can type immediately. Use
+`openOnControlClick` to override that default.
+
+`value` contains the selected item values as an array. An empty array means no selection; an empty
+string can be one of the item values. Pair `value` with `onValueChange` for controlled selection.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` lets users
+type in the field to filter options.
+
+```tsx
+<MultiSelect search items={frameworks} value={selected()} onValueChange={setSelected} allowClear />
+```
+
+### Item creation and delimiters
+
+Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
+separator is encountered. Separator characters and pasted strings go through the same creation path.
+
+```tsx
+<MultiSelect
+  value={tags()}
+  onValueChange={setTags}
+  createItem={(input) => ({ label: input.trim(), value: input.trim().toLowerCase() })}
+  tokenSeparators={[',', ' ']}
+/>
+```
+
+### Keyboard interaction
+
+| Key                 | Behavior                                                                   |
+| ------------------- | -------------------------------------------------------------------------- |
+| Backspace           | When input is empty, deletes the immediately preceding tag                 |
+| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
+| Enter               | Commit the highlighted item (or create an item when input text is present) |
+| Escape              | Close the dropdown or clear active query text                              |
+
+### Virtualization
+
+Add `createListVirtualizer` when rendering the full collection makes opening or scrolling slow.
+Read the [Virtualization guide](/docs/virtualization) for setup, row measurements, stable keys, and
+keyboard navigation.
+
+```tsx
+<MultiSelect
+  items={items}
+  virtualRender={virtualizer.virtualRender}
+  scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+/>
+```
+
+## Examples
+
+### Color issue labels
+
+Use `tagRender` to paint chips from item data such as a color class. Selected values still come
+from the collection.
+
+<Preview path="./custom-tags" />
+
+### Assign project members
+
+Search teammates and keep each selection as a chip. Include email or role on `description`.
+
+<Preview path="./user-chips" />
+
+### Cap selection and visible tags
+
+`maxCount` blocks additional selections. `maxTagCount` is visual: surplus selections stay committed
+and collapse into a `+N` badge. Use `tagOverflowRender` to render hidden tags in a tooltip.
+
+<Preview path="./max-count-max-tag-count" />
+
+### Create a missing topic
+
+Pass `createItem` and an `emptyRender` action so unmatched text can become a collection item.
+
+<Preview path="./create-new-tags" />
+
+### Enter free-form tags
+
+With no predefined items, combine `createItem` and `tokenSeparators` for a tag input. Comma, space,
+and paste all create tokens.
+
+<Preview path="./free-form-tags" />
+
+### Grant grouped permissions
+
+Organize a large permission set with `type: 'group'`. Group labels are not selectable.
+
+<Preview path="./grouped-items" />
+
+### Lock required modules
+
+Disable an option to keep it in the list without allowing toggle. `disabled` and `readOnly` on the
+root freeze the whole control.
+
+<Preview path="./clear-and-disabled" />
+
+### Search a large collection
+
+Pass `createListVirtualizer` when opening or scrolling the full list is slow.
+
+<Preview path="./virtualization" />
+
+### Require a minimum number of tags
+
+Validate the selected array with `createForm`. Empty selections should fail a `minLength` schema
+rule.
+
+<Preview path="./form-integration" />

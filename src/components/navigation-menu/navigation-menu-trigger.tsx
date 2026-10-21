@@ -1,0 +1,138 @@
+import type { JSX } from 'solid-js'
+import { Show, onCleanup, splitProps } from 'solid-js'
+
+import { pickSlotOverrides, useRecipe } from '../../provider'
+import { useLocale } from '../../provider/locale/locale-context'
+import type { ValidComponent } from '../../shared/types'
+import { createId } from '../../shared/utils'
+import { Icon } from '../icon'
+import { PopperTrigger, mergePopperElementProps } from '../shared/overlay/popper'
+import { resolveDirection } from '../shared/overlay/utils'
+
+import {
+  isMousePointer,
+  useNavigationMenuContext,
+  useNavigationMenuItemContext,
+} from './navigation-menu-context'
+import {
+  NAVIGATION_MENU_FOCUS_GUARD_CLASS,
+  navigationMenuDataAttributes,
+  navigationMenuRecipe,
+} from './navigation-menu.recipe'
+import type { NavigationMenuT } from './navigation-menu.types'
+
+export function NavigationMenuTrigger<T extends ValidComponent = 'button'>(
+  props: NavigationMenuT.TriggerProps<T>,
+): JSX.Element {
+  const context = useNavigationMenuContext()
+  const direction = useLocale().dir
+  const item = useNavigationMenuItemContext()
+  if (!item) {
+    throw new Error('NavigationMenu.Trigger must be used within NavigationMenu.Item')
+  }
+  item.setTriggerOptions(props)
+  onCleanup(() => item.setTriggerOptions(undefined))
+  const [local, rest] = splitProps(props as NavigationMenuT.TriggerProps<T> & { id?: string }, [
+    'as',
+    'id',
+    'disabled',
+    'children',
+    'class',
+    'style',
+  ])
+  const { slots } = useRecipe(navigationMenuRecipe, local, {
+    slot: 'trigger',
+    contextSlots: () => pickSlotOverrides(context.options),
+    contextVariants: () => ({ orientation: context.orientation() }),
+  })
+  const triggerId = createId(() => local.id, 'navigation-menu-trigger')
+  const disabled = item.disabled
+  const expanded = () => context.open() && context.activeItem() === item
+  const attributes = mergePopperElementProps<HTMLButtonElement>(
+    {
+      onPointerEnter: (event) => {
+        if (isMousePointer(event) && !disabled()) {
+          context.scheduleOpen(item.value())
+        }
+      },
+      onPointerLeave: (event) => {
+        if (isMousePointer(event)) {
+          context.scheduleClose(event)
+        }
+      },
+      onPointerDown: context.cancelTimers,
+      onKeyDown: (event) => {
+        if (disabled() || event.isComposing) {
+          return
+        }
+        const openKey =
+          context.orientation() === 'horizontal'
+            ? 'ArrowDown'
+            : resolveDirection(event.currentTarget, direction()) === 'rtl'
+              ? 'ArrowLeft'
+              : 'ArrowRight'
+        if (event.key === openKey) {
+          event.preventDefault()
+          context.openItem(item.value(), true)
+        } else if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+          event.preventDefault()
+          if (expanded()) {
+            context.close()
+          } else {
+            context.openItem(item.value(), true)
+          }
+        } else {
+          context.onListKeyDown(event, event.currentTarget)
+        }
+      },
+    },
+    rest,
+  )
+  return (
+    <>
+      <PopperTrigger
+        as={local.as}
+        {...attributes}
+        context={{
+          options: context.options,
+          slotName: (slot) => `navigation-menu-${slot}`,
+          contentId: () => `${context.id()}-${item.value()}-content`,
+          isOpen: expanded,
+          setOpen: (open) => {
+            if (open) {
+              context.openItem(item.value())
+            } else {
+              context.close()
+            }
+          },
+          triggerElement: item.trigger,
+          setTriggerElement: (element) => item.setTrigger(element as HTMLButtonElement | undefined),
+          contentPresence: { present: expanded },
+        }}
+        type="button"
+        id={triggerId()}
+        disabled={disabled()}
+        aria-haspopup={false}
+        data-moraine-navigation-menu-control=""
+        {...slots.trigger}
+      >
+        {local.children}
+        <Icon
+          name="icon-chevron-down"
+          data-slot="navigation-menu-trigger-icon"
+          {...navigationMenuDataAttributes.triggerIcon({ expanded })}
+          {...slots.triggerIcon}
+        />
+      </PopperTrigger>
+      <Show when={expanded()}>
+        <span
+          tabIndex={0}
+          data-moraine-navigation-menu-focus-guard=""
+          aria-hidden="true"
+          class={NAVIGATION_MENU_FOCUS_GUARD_CLASS}
+          onFocus={context.onFocusGuard}
+        />
+      </Show>
+    </>
+  )
+}

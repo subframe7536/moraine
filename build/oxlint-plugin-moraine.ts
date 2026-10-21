@@ -21,7 +21,7 @@ function isComponentFile(filePath: string): boolean {
   ) {
     return false
   }
-  return /\/src\/(element|form|navigation|overlay)\//.test(normalized)
+  return /\/src\/components\//.test(normalized)
 }
 
 function isSourceFile(filePath: string): boolean {

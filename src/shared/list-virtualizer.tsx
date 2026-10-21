@@ -18,7 +18,7 @@ import {
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
-import type { ListT } from '../element/list/list.types'
+import type { ListT } from '../components/list/list.types'
 
 function scrollElementWithRtl<TScrollElement extends HTMLElement, TItemElement extends HTMLElement>(
   offset: number,

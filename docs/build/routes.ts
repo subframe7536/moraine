@@ -127,10 +127,15 @@ export function createDocsRouteInfo(
   componentKeys: ReadonlySet<string>,
   sections: readonly DocsRouteSection[] = [],
 ): DocsRouteInfo {
+  const section =
+    page.surface === 'components' && page.routePath !== '/components' && frontmatter.group
+      ? frontmatter.group.toLowerCase()
+      : page.section
+
   return {
     key: page.pageKey,
     surface: page.surface,
-    section: page.section,
+    section,
     routePath: page.routePath,
     markdownPath: page.markdownPath,
     title: frontmatter.title,

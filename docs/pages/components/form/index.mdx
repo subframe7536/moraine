@@ -1,0 +1,467 @@
+---
+title: Form
+description: Bind schema fields, validation, submission, and reset through createForm.
+group: Form
+api:
+  path: src/components/form/form
+sidebar:
+  order: 0
+search:
+  tags:
+    [
+      Formisch,
+      validation,
+      submit,
+      store,
+      Valibot,
+      form container,
+      schemas,
+      Field,
+      field,
+      label,
+      error,
+    ]
+---
+
+import { Button, createForm, Input, Select, Slider, Switch, Textarea, InputGroup, Icon } from '@src'
+import { Show, createSignal, createComponent } from 'solid-js'
+import * as v from 'valibot'
+
+The slot controls below apply only to the `form.Form` root. To explore label, description,
+help, and error slots, use the [Field playground](/components/field).
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'vertical',
+      options: [
+        { label: 'Vertical', value: 'vertical' },
+        { label: 'Horizontal', value: 'horizontal' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'required', label: 'Required', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'showDescription', label: 'Description', defaultValue: true },
+    { kind: 'switch', prop: 'showHint', label: 'Hint', defaultValue: true },
+    { kind: 'switch', prop: 'showHelp', label: 'Help text', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const ProfileSchema = v.object({
+      username: v.pipe(v.string(), v.minLength(3, 'Username must be at least 3 characters.')),
+      role: v.pipe(v.string(), v.nonEmpty('Please select a role.')),
+      experience: v.number(),
+      bio: v.optional(v.string()),
+      notifications: v.boolean(),
+    })
+
+    const [submitted, setSubmitted] = createSignal(null)
+    const form = createForm({
+      schema: ProfileSchema,
+      initialInput: { username: '', role: '', experience: 3, bio: '', notifications: true },
+    })
+
+    const ROLE_OPTIONS = [
+      { label: 'Developer', value: 'dev' },
+      { label: 'Designer', value: 'designer' },
+      { label: 'Product Manager', value: 'pm' },
+      { label: 'Other', value: 'other' },
+    ]
+
+    const handleSubmit = (values) => {
+      setSubmitted(values)
+    }
+
+    return (
+      <div class="max-w-lg w-full">
+        {createComponent(form.Form, {
+          onSubmit: handleSubmit,
+          onReset: () => setSubmitted(null),
+          class: 'w-full',
+          get children() {
+            return [
+              createComponent(form.Field, {
+                name: 'username',
+                label: 'Username',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? (props.required ? 'Required' : undefined) : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your unique public handle.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Visible to all members in workspace.' : undefined
+                },
+                get children() {
+                  return (
+                    <InputGroup>
+                      <InputGroup.Leading><Icon name="i-lucide:user" /></InputGroup.Leading>
+                      <Input placeholder="alex_dev" disabled={props.disabled} />
+                    </InputGroup>
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'role',
+                label: 'Role',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get required() {
+                  return Boolean(props.required)
+                },
+                get hint() {
+                  return props.showHint ? 'Team' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Your primary function on the team.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Used to configure team permissions.' : undefined
+                },
+                get children() {
+                  return (
+                    <Select
+                      items={ROLE_OPTIONS}
+                      placeholder="Select a role"
+                      disabled={props.disabled}
+                      allowClear
+                    />
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'experience',
+                label: 'Experience',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? '0–10 years' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Years of experience in your role.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Choose a whole number of years.' : undefined
+                },
+                get children() {
+                  return <Slider defaultValue={3} min={0} max={10} step={1} size={props.size} disabled={props.disabled} />
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'bio',
+                label: 'About',
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get hint() {
+                  return props.showHint ? 'Optional' : undefined
+                },
+                get description() {
+                  return props.showDescription ? 'Brief introduction for your profile.' : undefined
+                },
+                get help() {
+                  return props.showHelp ? 'Markdown is supported.' : undefined
+                },
+                get children() {
+                  return (
+                    <Textarea
+                      placeholder="Tell us about yourself..."
+                      rows={2}
+                      disabled={props.disabled}
+                    />
+                  )
+                },
+              }),
+              createComponent(form.Field, {
+                name: 'notifications',
+                label: props.orientation === 'horizontal' ? 'Alerts' : undefined,
+                get orientation() {
+                  return props.orientation
+                },
+                get size() {
+                  return props.size
+                },
+                get children() {
+                  return (
+                    <Switch
+                      label="Email notifications"
+                      description={
+                        props.showDescription
+                          ? 'Receive periodic digests and security updates'
+                          : undefined
+                      }
+                      disabled={props.disabled}
+                    />
+                  )
+                },
+              }),
+              <div class="flex gap-2 justify-end pt-2">
+                <Button
+                  type="reset"
+                  variant="outline"
+                  size={props.size}
+                  disabled={props.disabled || form.isSubmitting}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  size={props.size}
+                  loading={form.isSubmitting}
+                  disabled={props.disabled || form.isSubmitting}
+                >
+                  Save Profile
+                </Button>
+              </div>,
+              <Show when={submitted()}>
+                {(data) => (
+                  <div class="mt-4 p-3 border border-border/80 rounded-lg bg-muted/40 text-xs font-mono">
+                    <p class="text-primary font-medium mb-1">Form Submitted:</p>
+                    <pre class="overflow-x-auto text-foreground whitespace-pre-wrap">
+                      {JSON.stringify(data(), null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </Show>,
+            ]
+          },
+        })}
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'form',
+    },
+    children: [{ part: 'form.Field' }],
+  }}
+/>
+
+Each `form.Field` uses the Field layout; the bound `form.Form` owns only its native form root.
+
+## Usage
+
+Use `createForm` for schema validation, submission, and reset. It returns a reactive Formisch store
+with bound `form.Form` and `form.Field` components. Use standalone [Field](/components/field)
+when you only need labels and messages.
+
+```tsx
+import { createForm, Input, Button, Switch, InputGroup, Icon } from 'moraine'
+import * as v from 'valibot'
+
+const schema = v.object({
+  email: v.pipe(v.string(), v.email('Enter a valid email address')),
+  enabled: v.boolean(),
+})
+
+export function NotificationForm() {
+  const form = createForm({
+    schema,
+    initialInput: { email: '', enabled: false },
+  })
+
+  return (
+    <form.Form onSubmit={(output) => console.log(output)}>
+      <form.Field name="email" label="Email Address">
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="i-lucide:mail" />
+          </InputGroup.Leading>
+          <Input />
+        </InputGroup>
+      </form.Field>
+      <form.Field name="enabled" label="Enable Notifications">
+        <Switch />
+      </form.Field>
+      <Button type="submit">Save Changes</Button>
+    </form.Form>
+  )
+}
+```
+
+### Submission
+
+`form.Form` prevents native navigation, validates the schema, and calls `onSubmit` with the
+validated output. Native `action` and `method` attributes do not enable a browser navigation
+submit. The returned store also supports Formisch's public methods and helpers, including
+programmatic field focus.
+
+`form.Form` does not automatically disable child controls during submission. Read
+`form.isSubmitting` to derive button loading or disabled state while an async submit is in flight.
+
+```tsx
+<Button type="submit" loading={form.isSubmitting} disabled={form.isSubmitting}>
+  Save draft
+</Button>
+```
+
+### Root styling
+
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an
+individual form, or configure `form.base.root` in your Theme. Slot maps remain available on
+`form.Field`, but the bound Form component does not accept `classes` or `styles`.
+
+### Bound field outside the form root
+
+`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering
+`form.Form`. Use the standalone [`Field`](/components/field) when schema binding is not needed.
+
+```tsx
+const form = createForm({ schema })
+
+<form.Field name="email" label="Email">
+  <Input />
+</form.Field>
+```
+
+### Field labels and messages
+
+Configure `label`, `hint`, `description`, `help`, and `required` on `<form.Field>`. Supported
+Moraine controls link helper descriptions and error messages through ARIA attributes.
+
+```tsx
+<form.Field
+  name="repoName"
+  label="Repository name"
+  description="Must be URL-friendly and unique within your organization."
+  required
+>
+  <Input placeholder="moraine-app" />
+</form.Field>
+```
+
+### Nested and array paths
+
+Target nested object and array fields with path tuples such as `['profile', 'email']`. Path types
+are validated and autocompleted from the schema.
+
+```tsx
+<form.Field name={['profile', 'email']} label="Profile Email">
+  <Input type="email" />
+</form.Field>
+```
+
+### Reset
+
+A `type="reset"` button restores the initial store input snapshot and clears validation metadata.
+Handle `onReset` on `form.Form` when the page needs to react to that restore.
+
+```tsx
+<form.Form onReset={() => setResetCount((count) => count + 1)}>
+  <form.Field name="name" label="Name">
+    <Input />
+  </form.Field>
+  <Button type="reset" variant="outline">
+    Reset
+  </Button>
+</form.Form>
+```
+
+## Examples
+
+### Save a username
+
+Define a schema and `initialInput`, then render the bound `form.Form` and `form.Field`. Submit
+receives the validated output.
+
+<Preview path="./basic-form" />
+
+### Configure field copy
+
+Set `label`, `hint`, `description`, `help`, and `required` on `form.Field`. Pass `error` only when
+the page or server supplies a message outside the schema.
+
+<Preview path="./labels-messages" />
+
+### Lay out a settings panel
+
+Set `orientation="horizontal"` so the label sits beside the control.
+
+<Preview path="./horizontal-layout" />
+
+### Edit nested profile fields
+
+Pass a path tuple such as `['profile', 'email']` when the schema nests objects.
+
+<Preview path="./nested-path" />
+
+### Save a draft with loading
+
+Read `form.isSubmitting` for the submit button. The form does not disable nested controls on its
+own.
+
+<Preview path="./async-submit" />
+
+### Restore the initial snapshot
+
+A `type="reset"` button restores `initialInput` and clears validation metadata.
+
+<Preview path="./reset" />
+
+### Validate name and email
+
+Schema messages surface on the bound field after submit or configured input validation.
+
+<Preview path="./validation" />
+
+### Show a server error on a token
+
+Pass an application or server string to `form.Field error={...}` to force an error outside the
+schema.
+
+<Preview path="./manual-error" />
+
+### Change the control from field error
+
+Give `form.Field` a child render function to read `{ error }` while the control still inherits the
+bound field state.
+
+<Preview path="./render-context" />
+
+### Create a project with mixed controls
+
+Compose `Input`, `Textarea`, `Select`, and `Checkbox` in one schema-validated form.
+
+<Preview path="./mixed-fields" />

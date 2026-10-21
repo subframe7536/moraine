@@ -1,0 +1,200 @@
+---
+title: Card
+description: Group related content and actions on a neutral surface.
+group: Layout
+api:
+  path: src/components/card/card
+  root: Root
+  parts: [Header, Title, Description, Action, Body, Footer]
+sidebar:
+  order: 0
+search:
+  tags: [container, panel, content, surface, card, box, section]
+---
+
+import { Badge, Button, Card } from '@src'
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'Team Subscription' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Manage billing and team seat limits.',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <Card variant={props.variant} size={props.size} class="max-w-full w-96">
+      <Card.Header>
+        <Card.Title>{props.title}</Card.Title>
+        <Card.Description>{props.description}</Card.Description>
+        <Card.Action>
+          <Badge variant="outline">Pro Plan</Badge>
+        </Card.Action>
+      </Card.Header>
+      <Card.Body>
+        <p class="leading-relaxed">
+          Your team has 8 active seats out of 10 available. Upgrade to Enterprise for unlimited
+          seats and SSO integration.
+        </p>
+      </Card.Body>
+      <Card.Footer class="justify-between">
+        <span class="text-xs text-muted-foreground">$49 / month</span>
+        <Button size="sm">Manage billing</Button>
+      </Card.Footer>
+    </Card>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        part: 'Card.Header',
+        slot: 'header',
+        children: [
+          {
+            part: 'Card.Title',
+            slot: 'title',
+          },
+          {
+            part: 'Card.Description',
+            slot: 'description',
+          },
+          {
+            part: 'Card.Action',
+            slot: 'action',
+          },
+        ],
+      },
+      {
+        part: 'Card.Body',
+        slot: 'body',
+      },
+      {
+        part: 'Card.Footer',
+        slot: 'footer',
+      },
+    ],
+  }}
+/>
+
+## Usage
+
+Use Card to group related content and actions on a neutral surface. Its parts are structural and add
+no interactive behavior or ARIA relationships. `Card.Title` renders a `div` by default; choose a
+heading with `as` when the page needs one.
+
+```tsx
+import { Card } from 'moraine'
+
+export function Example() {
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Title>Project</Card.Title>
+      </Card.Header>
+      <Card.Body>Project details</Card.Body>
+    </Card>
+  )
+}
+```
+
+### Variants and sizes
+
+Every variant has an outer border, and the header keeps the same appearance as the body. `outline`
+adds a top border to the footer. `subtle` adds the footer divider and a muted footer background.
+`none` keeps only the outer border and the anatomy spacing. The `sm`, `md`, and `lg` sizes change the
+density of the header, body, footer, title, and description together.
+
+```tsx
+<Card variant="subtle" size="sm">
+  <Card.Header>
+    <Card.Title as="h2">Seats</Card.Title>
+    <Card.Description>8 of 10 used</Card.Description>
+  </Card.Header>
+</Card>
+```
+
+### Parts
+
+Compose the parts you need inside `Card`. Header and body provide horizontal insets, while the root
+spaces the sections. Direct children can still span the card's full width. Place actions in
+`Card.Action` or `Card.Footer`.
+
+```tsx
+<Card>
+  <Card.Header>
+    <Card.Title as="h2">Invoice</Card.Title>
+    <Card.Action>
+      <Button size="sm">Download</Button>
+    </Card.Action>
+  </Card.Header>
+  <Card.Body>Due 12 May</Card.Body>
+  <Card.Footer>
+    <Button>Pay</Button>
+  </Card.Footer>
+</Card>
+```
+
+## Examples
+
+### Deploy a project from a summary card
+
+Pair a heading, description, and footer actions when the card is the decision surface.
+
+<Preview path="./card-structure" />
+
+### Publish a release announcement
+
+Card does not choose a heading level. Use `as="h2"` or another appropriate level, and `as="article"`
+when the card is a standalone story.
+
+<Preview path="./card-semantics" />
+
+### Open a gallery item
+
+Place media directly inside `Card` to span its width. Clip overflow on the root only if the image
+must follow the card radius.
+
+<Preview path="./with-image" />
+
+### Save meeting notes
+
+Put a header action next to the title when the command belongs to the whole record, not the footer.
+
+<Preview path="./header-action" />
+
+### Warn about storage usage
+
+Replace Title and Description with custom header markup when the headline is a metric rather than a
+label.
+
+<Preview path="./custom-header" />

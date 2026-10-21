@@ -74,10 +74,13 @@ const SECTION_TITLES = new Map<string, string>([
   ['utils', 'Utilities'],
   ['composition', 'Composition'],
   ['reference', 'Reference'],
-  ['general', 'General'],
+  ['buttons', 'Buttons'],
   ['form', 'Form'],
-  ['navigation', 'Navigation'],
+  ['select', 'Select'],
   ['overlay', 'Overlay'],
+  ['navigation', 'Navigation'],
+  ['layout', 'Layout'],
+  ['display', 'Display'],
   ['hooks', 'Hooks'],
 ])
 
@@ -299,7 +302,15 @@ function renderComponentNode(
   }
   if (node.name === 'ComponentsIndex') {
     const output: string[] = []
-    for (const section of ['general', 'form', 'navigation', 'overlay']) {
+    for (const section of [
+      'layout',
+      'display',
+      'buttons',
+      'form',
+      'select',
+      'overlay',
+      'navigation',
+    ]) {
       output.push(`## ${SECTION_TITLES.get(section)}`, '')
       const pages = context.routes
         .filter((route) => route.info.surface === 'components' && route.info.section === section)

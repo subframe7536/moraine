@@ -1,28 +1,38 @@
-import { For, Show } from 'solid-js'
+import { createMemo, For, Show } from 'solid-js'
 
 import { Badge } from '../../../../src'
 import { DOCS_FOCUS_RING_CLASS } from '../../../shared/docs-focus.recipe'
+import type { DocsPageEntry } from '../../docs-route'
 import { getDocsPages } from '../../docs-route'
 
-const SECTIONS = ['general', 'form', 'navigation', 'overlay'] as const
-
 export function ComponentsIndex() {
-  const pages = getDocsPages().filter(
-    (page) => page.surface === 'components' && page.path !== '/components',
-  )
+  const sections = createMemo(() => {
+    const pages = getDocsPages().filter(
+      (page) => page.surface === 'components' && page.path !== '/components',
+    )
+    const map = new Map<string, DocsPageEntry[]>()
+    for (const page of pages) {
+      const list = map.get(page.section)
+      if (list) {
+        list.push(page)
+      } else {
+        map.set(page.section, [page])
+      }
+    }
+    return Array.from(map.entries(), ([name, items]) => ({
+      name,
+      items: items.sort((a, b) => a.label.localeCompare(b.label)),
+    }))
+  })
 
   return (
     <div class="mt-9 space-y-9">
-      <For each={SECTIONS}>
+      <For each={sections()}>
         {(section) => (
-          <section aria-label={section}>
-            <h2 class="text-xl font-semibold mb-4 capitalize">{section}</h2>
+          <section aria-label={section.name}>
+            <h2 class="text-xl font-semibold mb-4 capitalize">{section.name}</h2>
             <ul class="gap-x-6 gap-y-1 grid grid-cols-1 lg:grid-cols-3 sm:grid-cols-2 xl:grid-cols-4">
-              <For
-                each={pages
-                  .filter((page) => page.section === section)
-                  .sort((a, b) => a.label.localeCompare(b.label))}
-              >
+              <For each={section.items}>
                 {(page) => (
                   <li>
                     <a

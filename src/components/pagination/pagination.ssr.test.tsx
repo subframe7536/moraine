@@ -1,0 +1,51 @@
+import { fireEvent } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
+import { describe, expect, test } from 'vitest'
+
+import { hydrateFixture, renderSsrFixture } from '../../test-util/ssr-test'
+
+import { Pagination } from './pagination'
+
+describe('Pagination SSR Hydration', () => {
+  test('renders deterministic single-page SSR markup', () => {
+    const markup = renderSsrFixture(
+      '/src/components/pagination/pagination.ssr.fixture.tsx',
+      'renderSinglePagePaginationFixture',
+    )
+
+    expect(markup.match(/data-slot="pagination-item"/g)).toHaveLength(1)
+    expect(markup).toContain('Page 1 of 1')
+    expect(markup).not.toContain('data-slot="pagination-ellipsis"')
+  })
+
+  test('hydrates ellipsis link mode without replacing nodes and handles first navigation', () => {
+    const [page, setPage] = createSignal(5)
+
+    const { container } = hydrateFixture(
+      '/src/components/pagination/pagination.ssr.fixture.tsx',
+      'renderPaginationFixture',
+      () => (
+        <Pagination
+          page={page()}
+          onPageChange={setPage}
+          total={100}
+          itemsPerPage={10}
+          siblingCount={1}
+          to={(target) => `#page-${target}`}
+        />
+      ),
+    )
+
+    const root = container.querySelector('[data-slot="pagination"]')
+    const list = container.querySelector('[data-slot="pagination-list"]')
+    const status = container.querySelector('[data-slot="pagination-status"]')
+
+    expect(root).not.toBeNull()
+    expect(list).not.toBeNull()
+    expect(status).not.toBeNull()
+    expect(container.querySelectorAll('[data-slot="pagination-ellipsis"]')).toHaveLength(2)
+
+    fireEvent.click(container.querySelector('[data-slot="pagination-next"]')!)
+    expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
+  })
+})

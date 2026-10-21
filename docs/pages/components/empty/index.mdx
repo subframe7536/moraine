@@ -1,0 +1,155 @@
+---
+title: Empty
+description: Present an empty or unavailable application state with optional media and actions.
+group: Display
+api:
+  path: src/components/empty/empty
+  root: Root
+  parts: [Media, Title, Description, Actions]
+sidebar:
+  order: 3
+  badge: New
+search:
+  tags: [empty, state, no-results, placeholder]
+---
+
+import { Button, Empty, Icon } from '@src'
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'No projects yet' },
+    {
+      kind: 'input',
+      prop: 'description',
+      label: 'Description',
+      defaultValue: 'Create a project to organize your work.',
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <Empty size={props.size}>
+      <Empty.Media>
+        <Icon name="i-lucide-folder-open" class="size-8 text-muted-foreground" />
+      </Empty.Media>
+      <Empty.Title>{props.title}</Empty.Title>
+      <Empty.Description>{props.description}</Empty.Description>
+      <Empty.Actions>
+        <Button>Create project</Button>
+        <Button as="a" href="#usage" variant="outline">
+          Learn more
+        </Button>
+      </Empty.Actions>
+    </Empty>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { part: 'Empty.Media', slot: 'media' },
+      { part: 'Empty.Title', slot: 'title' },
+      { part: 'Empty.Description', slot: 'description' },
+      { part: 'Empty.Actions', slot: 'actions' },
+    ],
+  }}
+/>
+
+## Usage
+
+Use Empty when a collection or search result is genuinely empty and the next action should be
+visible. It does not inspect data; the page decides when to render it. Use
+[Skeleton](/components/skeleton) while content is still loading.
+
+```tsx
+import { Empty } from 'moraine'
+
+export function Example() {
+  return (
+    <Empty>
+      <Empty.Title>No projects yet</Empty.Title>
+      <Empty.Description>Create a project to organize your work.</Empty.Description>
+    </Empty>
+  )
+}
+```
+
+### Parts
+
+Compose only the parts you need. All parts belong inside `Empty`. `Media` accepts arbitrary JSX,
+including Icon, Avatar, AvatarGroup, and images; it does not impose a fixed media size or background.
+
+`Empty.Title` renders a `div` by default. Choose an explicit heading such as `as="h2"` when the
+surrounding page needs one. Empty adds no role or ARIA relationships automatically.
+
+```tsx
+<Empty>
+  <Empty.Media>
+    <Icon name="i-lucide:inbox" />
+  </Empty.Media>
+  <Empty.Title as="h2">Inbox is empty</Empty.Title>
+  <Empty.Actions>
+    <Button>New message</Button>
+  </Empty.Actions>
+</Empty>
+```
+
+### Sizes
+
+The `sm`, `md`, and `lg` sizes change padding, spacing, typography, and action gaps together. Use
+`sm` within a Card or table, `md` for ordinary content, and `lg` for a page-level empty state.
+Vertical padding is more generous than horizontal insets. Title and description stay grouped, with
+more space around media and actions. Size does not resize the content placed inside `Media`.
+
+```tsx
+<Empty size="sm">
+  <Empty.Title>No rows</Empty.Title>
+</Empty>
+```
+
+## Examples
+
+### Prompt a first project
+
+Show Empty when the collection is genuinely empty, not while it is still loading.
+
+<Preview path="./basic" />
+
+### Start a conversation from an empty inbox
+
+Put the next useful command in `Empty.Actions`. Wire those buttons to application handlers.
+
+<Preview path="./actions" />
+
+### Recover from an empty search
+
+Your search logic decides when to render this message. Offer a way to clear the query.
+
+<Preview path="./no-results" />
+
+### Invite the first team members
+
+Compose avatars or an illustration in `Media` without changing Empty's layout API.
+
+<Preview path="./rich-media" />
+
+### Frame a missing reports section
+
+Empty has no default border, background, shadow, or fixed height. Apply container styling through
+`class` and `style`. A part's own `class` and `style` take precedence over root `classes` and
+`styles`.
+
+<Preview path="./custom-container" />

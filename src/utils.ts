@@ -12,11 +12,11 @@ export type {
   CreateTransitionPresenceOptions,
   TransitionPresenceState,
 } from './shared/transition-presence'
-export { createBaseSelectSearchInput } from './form/base-select/base-select-search-input'
-export type { BaseSelectSearchInputOptions } from './form/base-select/base-select-search-input'
-export { createSlider } from './form/slider/hook/slider'
+export { createBaseSelectSearchInput } from './components/base-select/base-select-search-input'
+export type { BaseSelectSearchInputOptions } from './components/base-select/base-select-search-input'
+export { createSlider } from './components/slider/hook/slider'
 export type {
   CreateSliderProps,
   CreateSliderOptions,
   CreateSliderReturn,
-} from './form/slider/hook/slider'
+} from './components/slider/hook/slider'

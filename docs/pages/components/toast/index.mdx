@@ -1,0 +1,355 @@
+---
+title: Toast
+description: Show temporary status messages through stacked, accessible notifications.
+group: Overlay
+api:
+  path: src/components/toast/toast
+sidebar:
+  order: 8
+  badge: New
+search:
+  tags: [notification, message, feedback, promise, toast, alert]
+---
+
+import { Button, Toast } from '@src'
+
+<Toast closable />
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'success',
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Success', value: 'success' },
+        { label: 'Info', value: 'info' },
+        { label: 'Warning', value: 'warning' },
+        { label: 'Error', value: 'error' },
+        { label: 'Loading', value: 'loading' },
+      ],
+    },
+    { kind: 'switch', prop: 'large', label: 'Large', defaultValue: false },
+    { kind: 'switch', prop: 'action', label: 'Action button', defaultValue: true },
+    { kind: 'switch', prop: 'cancel', label: 'Cancel button', defaultValue: false },
+    { kind: 'switch', prop: 'closable', label: 'Close button', defaultValue: true },
+    { kind: 'switch', prop: 'progress', label: 'Progress bar', defaultValue: false },
+    { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const showToast = () => {
+      const options = {
+        title: 'Preferences updated',
+        description: 'Your account settings were saved.',
+        large: props.large,
+        closable: props.closable,
+        progress: props.progress,
+        preventDuplicate: props.preventDuplicate,
+        cancel: props.cancel ? true : undefined,
+        action: props.action
+          ? {
+              label: 'Undo',
+              onClick: () => {},
+            }
+          : undefined,
+      }
+
+      switch (props.tone) {
+        case 'default':
+          Toast.show(options)
+          break
+        case 'info':
+          Toast.info(options)
+          break
+        case 'warning':
+          Toast.warning(options)
+          break
+        case 'error':
+          Toast.error(options)
+          break
+        case 'loading':
+          Toast.loading(options)
+          break
+        default:
+          Toast.success(options)
+      }
+    }
+
+    return (
+      <div class="p-6 flex items-center justify-center">
+        <Button onClick={showToast} variant="outline" leading="i-lucide:bell">
+          Trigger notification
+        </Button>
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: {
+      slot: 'root',
+      element: 'section',
+    },
+    children: [
+      {
+        slot: 'list',
+        children: [
+          {
+            slot: 'item',
+            children: [
+              { slot: 'icon' },
+              {
+                slot: 'wrapper',
+                children: [{ slot: 'title' }, { slot: 'description' }],
+              },
+              { slot: 'action' },
+              { slot: 'cancel' },
+              { slot: 'close' },
+              { slot: 'progress' },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+`<Toast />` renders an accessible, portaled root live region and list stack. Individual toast
+notifications render as list items with status icon, wrapper with title and description, action and
+cancel buttons, close control, and duration progress bar.
+
+## Usage
+
+Use Toast for temporary feedback that stays in the page. Use [Alert Dialog](/components/alert-dialog)
+when the next step should wait for an explicit choice.
+
+Mount `<Toast />` once. It holds no open state. Trigger notifications from event handlers with the
+static methods.
+
+```tsx
+import { Button, Toast } from 'moraine'
+
+export function Example() {
+  return (
+    <>
+      <Button onClick={() => Toast.success({ title: 'Preferences saved' })}>Save</Button>
+      <Toast />
+    </>
+  )
+}
+```
+
+### Shared model
+
+Toast and [Alert Dialog](/components/alert-dialog) use the same options, actions, handle, and close
+reasons. Every instance is created with a static method that takes an options object. Call options
+override the host defaults, including `false`, `0`, and `null`. A call before the host is mounted
+throws. On the server the call returns a handle whose `result()` is already `'api'`.
+
+```ts
+interface Action {
+  label?: JSX.Element
+  variant?: ButtonT.Variants['variant']
+  leading?: IconT.Name
+  disabled?: boolean
+  onClick?: (event?: MouseEvent) => void | Promise<unknown>
+}
+
+type CloseReason = 'action' | 'cancel' | 'dismiss' | 'timeout' | 'api'
+
+interface Handle {
+  id: string | number
+  update: (options: UpdateOptions) => void
+  close: () => void
+  result: () => Promise<CloseReason>
+}
+```
+
+`action.onClick` and `cancel.onClick` run before the instance closes. A returned promise shows
+loading on that button, disables the other one, and pauses the toast timer. A dialog also blocks
+Escape, the overlay, and the corner close button. Calling `event.preventDefault()`, rejecting, or
+throwing leaves the instance open. A throw or rejection is reported with `console.error`.
+Otherwise the instance closes with `'action'` or `'cancel'`.
+
+`handle.close()` and `close(id)` close with `'api'`. Escape, the overlay, the corner close button,
+and a swipe close with `'dismiss'` and do not run the cancel handler. The timer closes with
+`'timeout'`. `result()` resolves once with that reason, and calling it again returns the same
+promise. The handle itself is not a promise.
+
+`update` merges the next options into an open instance. An update after close does not reopen it.
+Reusing an open `id` updates that instance in place and replays its entrance. `update` replaces
+`action` and `cancel` as a whole, so include `onClick` again when the label changes.
+
+Custom content has two entry points. `Toast.custom(render, options?)` supplies a render for that
+call. `<Toast itemRender={render} />` supplies one for every other call on that host. A `.custom()`
+render wins, then the host render, then the built-in layout. The render receives the id, the
+resolved options, `pending()`, `action()`, `cancel()`, `close()`, `update()`, `index`, and
+`expanded`. It replaces the inner content. The toast keeps its stack, swipe, timer, and live region.
+
+A call without `host` goes to the host without an id and throws if only hosts with an id are
+mounted. Pass `host` to target `<Toast id="alerts" />`.
+
+### Methods
+
+`show` is the neutral notice. `info`, `success`, `warning`, and `error` set the type. `loading` is
+`show` with `type: 'loading'`. A loading toast stays open because of that type. After `update`
+changes the type, the normal duration applies again.
+
+```ts
+Toast.show(options)
+Toast.info(options)
+Toast.success(options)
+Toast.warning(options)
+Toast.error(options)
+Toast.loading(options)
+Toast.promise(promise, { loading, success, error })
+Toast.custom(render, options?)
+Toast.update(id, options)
+Toast.close(id?)
+```
+
+```tsx
+Toast.success({ title: 'Project published', description: 'Your changes are now live.' })
+Toast.error({ title: 'Upload failed', description: 'File size exceeds the 10 MB limit.' })
+Toast.warning({ title: 'Low disk space', description: 'Volume is at 92% capacity.' })
+Toast.info({ title: 'Update available', description: 'Version 2.4 is ready to install.' })
+Toast.show({ title: 'Draft saved' })
+```
+
+### Action and dismissal
+
+`action` is the primary button. `cancel: true` uses the locale label, and `cancel: { label }`
+sets one. The corner button is shown when `closable` is set. Loading toasts hide the close button and
+the progress bar.
+
+```tsx
+Toast.show({
+  title: 'Conversation archived',
+  action: {
+    label: 'Undo',
+    onClick: () => restoreConversation(),
+  },
+})
+```
+
+### Large layout
+
+`large` moves the actions onto their own row and the close control to the top corner.
+
+```tsx
+Toast.success({
+  title: 'Export finished',
+  description: 'Your dataset is packaged and ready to download.',
+  large: true,
+  action: { label: 'Download', onClick: () => downloadFile() },
+  cancel: { label: 'Dismiss' },
+  closable: true,
+})
+```
+
+`<Toast large />` applies that layout to every toast on the host.
+
+### Promises
+
+`promise` opens a loading toast and updates it when the promise settles. `loading`, `success`, and
+`error` are the same options object used everywhere else. `success` and `error` may also be
+functions of the settled value. When either is omitted, that outcome closes the toast with `'api'`.
+The method returns the ordinary handle. Keep the original promise when you need the value.
+
+```tsx
+const task = deployProject()
+Toast.promise(task, {
+  loading: { title: 'Deploying project...' },
+  success: { title: 'Deployment live!' },
+  error: (err) => ({ title: `Deploy failed: ${String(err)}` }),
+})
+```
+
+### Updates
+
+```tsx
+const handle = Toast.loading({ title: 'Exporting report...' })
+
+Toast.update(handle.id, { title: 'Report ready', type: 'success' })
+
+handle.close()
+Toast.close()
+```
+
+### Duplicates
+
+`preventDuplicate` compares the new toast with the front toast in the same host and corner. A match
+bumps that toast and returns its handle. The option is a boolean on the host or on the call.
+
+```tsx
+Toast.info({
+  title: 'Link copied to clipboard',
+  preventDuplicate: true,
+})
+```
+
+### Duration and progress
+
+`duration` defaults to 4000 milliseconds. `progress` shows the remaining-time bar. Hovering the
+list, leaving the window, or a pending action pauses the timer.
+
+### Custom content
+
+```tsx
+Toast.custom((props) => (
+  <div class="flex gap-4 items-center justify-between">
+    <span class="text-sm">Maintenance scheduled in 10 minutes</span>
+    <Button size="sm" variant="ghost" onClick={() => props.close()}>
+      Dismiss
+    </Button>
+  </div>
+))
+```
+
+## Examples
+
+### Archive an item with undo
+
+The action button restores the conversation with another toast.
+
+<Preview path="./archive-item" />
+
+### Track an asynchronous deployment
+
+`promise` swaps the loading toast for the success or error options.
+
+<Preview path="./track-deployment" />
+
+### Report distinct task outcomes
+
+Tone methods set the icon and the live-region role. An error toast uses `alert`. The others use
+`status`.
+
+<Preview path="./status-outcomes" />
+
+### Deduplicate rapid user actions
+
+`preventDuplicate` keeps a repeated click on the front toast.
+
+<Preview path="./prevent-duplicate" />
+
+### Route notifications to a custom viewport corner
+
+`host` sends the toast to `<Toast id="bottom-dock" />`. `Toast.close()` dismisses every toast.
+
+<Preview path="./custom-placement" />
+
+### Show upload progress
+
+`.custom()` draws the progress row. The toast shell still owns stacking, swipe, and the timer.
+`duration: Infinity` keeps this one open until it is dismissed.
+
+<Preview path="./upload-progress" />

@@ -27,18 +27,24 @@ describe('parseFrontmatterData', () => {
   test('validates an explicit API source registration', () => {
     expect(
       parseFrontmatterData(
-        `${VALID_FRONTMATTER}\napi:\n  path: src/overlay/dialog/dialog\n  parts:\n    - Trigger\n    - name: Content\n      path: src/overlay/shared/content\n`,
+        `${VALID_FRONTMATTER}\ngroup: Overlay\napi:\n  path: src/components/dialog/dialog\n  parts:\n    - Trigger\n    - name: Content\n      path: src/components/dialog/dialog-content\n`,
         '/docs/dialog.mdx',
-      ).api,
-    ).toEqual({
-      path: 'src/overlay/dialog/dialog',
-      parts: ['Trigger', { name: 'Content', path: 'src/overlay/shared/content' }],
+      ),
+    ).toMatchObject({
+      group: 'Overlay',
+      api: {
+        path: 'src/components/dialog/dialog',
+        parts: ['Trigger', { name: 'Content', path: 'src/components/dialog/dialog-content' }],
+      },
     })
   })
 
   test.each([
-    ['src/element/button/button.tsx', 'api.path must be an extensionless component path under'],
-    ['../button', 'api.path must be an extensionless component path under'],
+    [
+      'src/components/button/button.tsx',
+      'api.path must be an extensionless component path under src/components',
+    ],
+    ['../button', 'api.path must be an extensionless component path under src/components'],
   ])('rejects invalid API paths', (apiPath, message) => {
     expect(() =>
       parseFrontmatterData(`${VALID_FRONTMATTER}\napi:\n  path: ${apiPath}\n`, '/docs/button.mdx'),
@@ -48,7 +54,7 @@ describe('parseFrontmatterData', () => {
   test('rejects duplicate composite parts', () => {
     expect(() =>
       parseFrontmatterData(
-        `${VALID_FRONTMATTER}\napi:\n  path: src/overlay/dialog/dialog\n  parts: [Trigger, Trigger]\n`,
+        `${VALID_FRONTMATTER}\napi:\n  path: src/components/dialog/dialog\n  parts: [Trigger, Trigger]\n`,
         '/docs/dialog.mdx',
       ),
     ).toThrow('api.parts[1] duplicates part "Trigger"')

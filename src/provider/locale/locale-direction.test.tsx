@@ -1,11 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Slider } from '../../form/slider/slider'
-import { Dialog } from '../../overlay/dialog/dialog'
-import { DropdownMenu } from '../../overlay/dropdown-menu/dropdown-menu'
-import { Popover } from '../../overlay/popover/popover'
-import { Sheet } from '../../overlay/sheet/sheet'
+import { Dialog } from '../../components/dialog/dialog'
+import { DropdownMenu } from '../../components/dropdown-menu/dropdown-menu'
+import { Popover } from '../../components/popover/popover'
+import { Sheet } from '../../components/sheet/sheet'
+import { Slider } from '../../components/slider/slider'
 import { MoraineProvider } from '../moraine-provider'
 
 describe('Moraine direction', () => {

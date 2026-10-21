@@ -21,6 +21,7 @@ export interface FrontmatterApi {
 export interface FrontmatterData {
   title: string
   description: string
+  group?: string
   sidebar?: FrontmatterSidebar
   search: FrontmatterSearch
   api?: FrontmatterApi

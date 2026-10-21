@@ -53,7 +53,8 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
       }
     }
   }
-  checkKeys(data, ['title', 'description', 'sidebar', 'search', 'api', 'upstreamHref'])
+  checkKeys(data, ['title', 'description', 'group', 'sidebar', 'search', 'api', 'upstreamHref'])
+  const group = data.group === undefined ? undefined : readString(data, 'group')
   const sidebarValue = data.sidebar
   let sidebar: FrontmatterRecord | undefined
   if (sidebarValue !== undefined) {
@@ -100,14 +101,11 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     checkKeys(apiValue, ['path', 'parts', 'root'], 'api.')
     const apiPath = readString(apiValue, 'path')
     if (
-      !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(apiPath) ||
+      !/^src\/components\/[a-z0-9/-]+$/.test(apiPath) ||
       apiPath.includes('..') ||
       /\.[cm]?[jt]sx?$/.test(apiPath)
     ) {
-      return fail(
-        'api.path',
-        'must be an extensionless component path under src/element, src/form, src/navigation, or src/overlay',
-      )
+      return fail('api.path', 'must be an extensionless component path under src/components')
     }
 
     let parts: NonNullable<FrontmatterData['api']>['parts']
@@ -140,11 +138,14 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
         seenParts.add(name)
         const partPath = readString(partValue, 'path')
         if (
-          !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(partPath) ||
+          !/^src\/components\/[a-z0-9/-]+$/.test(partPath) ||
           partPath.includes('..') ||
           /\.[cm]?[jt]sx?$/.test(partPath)
         ) {
-          return fail(`api.parts[${index}].path`, 'must be an extensionless component path')
+          return fail(
+            `api.parts[${index}].path`,
+            'must be an extensionless component path under src/components',
+          )
         }
         return { name, path: partPath }
       })
@@ -156,6 +157,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
   return {
     title: readString(data, 'title'),
     description: readString(data, 'description'),
+    ...(group ? { group } : {}),
     ...(sidebar
       ? {
           sidebar: {

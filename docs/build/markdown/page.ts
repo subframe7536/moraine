@@ -116,7 +116,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
         mdxContent: createMarkdownContent(
           page.pageKey,
           page.surface,
-          page.section,
+          info.section,
           page.routePath,
           page.markdownPath,
           frontmatter,

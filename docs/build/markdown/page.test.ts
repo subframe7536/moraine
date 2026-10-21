@@ -34,7 +34,7 @@ vi.mock('../api-doc/load.ts', () => ({
       {
         key: BUTTON_API_DOC.key,
         name: BUTTON_API_DOC.name,
-        category: 'element',
+        category: 'buttons',
       },
     ],
   }),
@@ -45,8 +45,9 @@ vi.mock('../api-doc/load.ts', () => ({
 const FRONTMATTER = {
   title: 'Button',
   description: 'Button description.',
+  group: 'Buttons',
   sidebar: { order: 10 },
-  search: { tags: ['action'] },
+  search: { tags: ['buttons'] },
 }
 
 describe('createDocsMdxOptions', () => {
@@ -70,9 +71,9 @@ describe('createDocsMdxOptions', () => {
         data: { __moraineOnThisPageEntries: [{ id: 'button', label: 'Button', level: 1 }] },
       },
       {
-        path: 'components/(general)/button/index.tsx',
+        path: 'components/button/index.tsx',
         routeId: '/components/button',
-        sourcePath: 'pages/components/(general)/button/index.mdx',
+        sourcePath: 'pages/components/button/index.mdx',
         moduleId: '/tmp/button.mdx.solid-file-router.tsx',
       },
     )
@@ -82,7 +83,7 @@ describe('createDocsMdxOptions', () => {
       title: 'Button',
       order: 10,
       surface: 'components',
-      section: 'general',
+      section: 'buttons',
       markdownPath: '/components/button.md',
       sections: [
         { id: 'button', label: 'Button', level: 1 },

@@ -5,8 +5,8 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe'
-import { sliderRecipe } from '../form/slider/slider.recipe'
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
+import { sliderRecipe } from '../components/slider/slider.recipe'
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'

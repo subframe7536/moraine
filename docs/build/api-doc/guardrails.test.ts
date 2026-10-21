@@ -28,9 +28,7 @@ describe('API documentation architecture guardrails', () => {
   })
 
   test('component implementations do not declare public data attributes', () => {
-    const sourceRoots = ['element', 'form', 'navigation', 'overlay'].map((domain) =>
-      path.join(projectRoot, 'src', domain),
-    )
+    const sourceRoots = [path.join(projectRoot, 'src/components')]
     const violations: string[] = []
     for (const root of sourceRoots) {
       for (const file of collectFiles(root)) {

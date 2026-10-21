@@ -96,23 +96,8 @@ export default defineConfig({
               includeDependenciesRecursively: true,
             },
             {
-              name: 'moraine-elements',
-              test: /[\\/]src[\\/]element[\\/]/,
-              includeDependenciesRecursively: false,
-            },
-            {
-              name: 'moraine-forms',
-              test: /[\\/]src[\\/]form[\\/]/,
-              includeDependenciesRecursively: false,
-            },
-            {
-              name: 'moraine-navigation',
-              test: /[\\/]src[\\/]navigation[\\/]/,
-              includeDependenciesRecursively: false,
-            },
-            {
-              name: 'moraine-overlays',
-              test: /[\\/]src[\\/]overlay[\\/]/,
+              name: 'moraine-components',
+              test: /[\\/]src[\\/]components[\\/]/,
               includeDependenciesRecursively: false,
             },
             {

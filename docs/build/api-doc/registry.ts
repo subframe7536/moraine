@@ -23,7 +23,7 @@ export interface RegisteredPart {
 export interface RegisteredComponent {
   key: string
   name: string
-  category: 'element' | 'form' | 'navigation' | 'overlay'
+  category: string
   typesPath: string
   recipePath?: string
   namespaceName: string
@@ -128,12 +128,12 @@ async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
   return candidates[0]!
 }
 
-function categoryFromPath(sourcePath: string): RegisteredComponent['category'] {
-  const match = sourcePath.match(/^src\/(element|form|navigation|overlay)\//)
+function categoryFromPath(sourcePath: string): string {
+  const match = sourcePath.match(/^src\/components\//)
   if (!match) {
     throw new Error(`[api-doc] Unsupported component source path "${sourcePath}".`)
   }
-  return match[1] as RegisteredComponent['category']
+  return 'general'
 }
 
 function partRegistration(part: string | FrontmatterApiPart): FrontmatterApiPart {
@@ -242,7 +242,7 @@ export async function loadApiRegistry(
     registered.push({
       key,
       name: header.componentName,
-      category: categoryFromPath(basePath),
+      category: frontmatter.group?.toLowerCase() ?? categoryFromPath(basePath),
       typesPath: path.normalize(typesPath),
       ...(recipePath ? { recipePath: path.normalize(recipePath) } : {}),
       namespaceName: header.namespaceName,
