@@ -5,10 +5,10 @@ export function CloseExample() {
   const [open, setOpen] = createSignal(true)
 
   return (
-    <div class="flex flex-col gap-3 max-w-xl w-full">
+    <div class="flex flex-col gap-3 h-30 max-w-xl w-full">
       <div>
         <Button variant="outline" size="sm" disabled={open()} onClick={() => setOpen(true)}>
-          Reopen Alert
+          {open() ? 'Click Icon to Close' : 'Reopen Alert'}
         </Button>
       </div>
       <Alert

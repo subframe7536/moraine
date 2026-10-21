@@ -90,12 +90,6 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     }),
   })
 
-  const handleClose: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = () => {
-    setOpen(false)
-  }
-
-  const closeIconNameOrElement = () => local.closeIcon ?? 'icon-close'
-
   const isUrgent = () => resolvedType() === 'error' || resolvedType() === 'warning'
   const defaultRole = () => (isUrgent() ? 'alert' : 'status')
   const defaultAriaLive = () => (isUrgent() ? 'assertive' : 'polite')
@@ -154,18 +148,12 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
         </Show>
         <Show when={hasClose()}>
           <button
-            type="button"
             data-slot="alert-close"
             aria-label={messages().close}
-            onClick={handleClose}
+            onClick={() => setOpen(false)}
             {...slots.close}
           >
-            <Show
-              when={typeof closeIconNameOrElement() === 'string'}
-              fallback={closeIconNameOrElement()}
-            >
-              <Icon name={closeIconNameOrElement()} />
-            </Show>
+            <Icon name={local.closeIcon ?? 'icon-close'} />
           </button>
         </Show>
       </Dynamic>

@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { TONE_VARS } from '../../theme/recipe-common.recipe'
+import { TONE_VARS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
@@ -20,14 +20,13 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
   'alert',
   {
     base: {
-      root: 'flex gap-3 w-full items-start data-closed:(pointer-events-none animate-mo-exit exit-opacity-0 exit-scale-95) motion-reduce:animate-none',
+      root: 'border flex gap-2 w-full items-start data-closed:(pointer-events-none animate-mo-exit exit-opacity-0 exit-scale-95) motion-reduce:animate-none',
       icon: 'text-base flex shrink-0 size-5 items-center justify-center',
       content: 'flex flex-1 flex-col min-w-0',
       title: 'text-sm leading-5',
       description: 'text-sm text-muted-foreground leading-normal',
       actions: 'flex shrink-0 gap-2 items-center',
-      close:
-        'text-muted-foreground rounded-md inline-flex shrink-0 size-5 transition-colors items-center justify-center hover:text-foreground focus-visible:(outline-none ring-2 ring-ring) hover:bg-black/5 dark:hover:bg-white/10',
+      close: `text-muted-foreground rounded-sm inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS}`,
     },
     defaultVariants: {
       type: 'primary',
@@ -36,12 +35,8 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
     },
     variants: {
       type: {
-        primary: {
-          ...TONE_VARS.primary,
-        },
-        secondary: {
-          ...TONE_VARS.secondary,
-        },
+        primary: TONE_VARS.primary,
+        secondary: TONE_VARS.secondary,
         info: {
           ...TONE_VARS.info,
           icon: 'text-info',
@@ -61,21 +56,21 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
       },
       variant: {
         subtle: {
-          root: 'text-foreground border border-tone-border bg-tone-soft',
+          root: 'text-tone border-tone-border bg-tone-soft',
         },
         soft: {
-          root: 'text-foreground border border-transparent bg-tone-soft',
+          root: 'text-tone border-transparent bg-tone-soft',
         },
         outline: {
-          root: 'text-foreground border border-tone-border bg-background',
+          root: 'text-foreground border-tone-border bg-background',
         },
         solid: {
-          root: 'text-tone-foreground border border-transparent bg-tone',
+          root: 'text-tone-foreground border-transparent bg-tone',
           title: 'text-tone-foreground',
-          description: 'text-tone-foreground/80',
+          description: 'text-tone-foreground opacity-85',
           icon: 'text-tone-foreground',
           actions: 'text-tone-foreground',
-          close: 'text-tone-foreground/80 hover:text-tone-foreground',
+          close: 'text-tone-foreground hover:text-tone-foreground',
         },
       },
       fullWidth: {
@@ -88,20 +83,12 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
       },
       hasDescription: {
         true: {
-          root: 'p-4 items-start',
-          title: 'font-semibold',
+          root: 'p-4',
+          title: 'font-bold',
           description: 'mt-1',
-          actions: '',
-          close: '',
-          icon: '',
         },
         false: {
-          root: 'px-4 py-3 items-start',
-          title: 'font-medium',
-          description: '',
-          actions: '',
-          close: '',
-          icon: '',
+          root: 'px-4 py-3',
         },
       },
     },
