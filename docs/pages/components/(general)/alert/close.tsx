@@ -1,18 +1,16 @@
 import { Alert, Button } from '@src'
-import { createSignal, Show } from 'solid-js'
+import { createSignal } from 'solid-js'
 
 export function CloseExample() {
   const [open, setOpen] = createSignal(true)
 
   return (
     <div class="flex flex-col gap-3 max-w-xl w-full">
-      <Show when={!open()}>
-        <div>
-          <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-            Reset Alert
-          </Button>
-        </div>
-      </Show>
+      <div>
+        <Button variant="outline" size="sm" disabled={open()} onClick={() => setOpen(true)}>
+          Reopen Alert
+        </Button>
+      </div>
       <Alert
         open={open()}
         onOpenChange={setOpen}
