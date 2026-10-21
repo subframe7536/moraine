@@ -21,13 +21,13 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
   {
     base: {
       root: 'flex gap-3 w-full items-start data-closed:(pointer-events-none animate-mo-exit exit-opacity-0 exit-scale-95) motion-reduce:animate-none',
-      icon: 'flex shrink-0 items-center justify-center',
+      icon: 'text-base flex shrink-0 size-5 items-center justify-center',
       content: 'flex flex-1 flex-col min-w-0',
-      title: 'leading-snug font-medium',
-      description: 'text-muted-foreground leading-normal',
+      title: 'text-sm leading-5',
+      description: 'text-sm text-muted-foreground leading-normal',
       actions: 'flex shrink-0 gap-2 items-center',
       close:
-        'text-muted-foreground rounded-md inline-flex shrink-0 transition-colors items-center justify-center hover:text-foreground focus-visible:(outline-none ring-2 ring-ring) hover:bg-black/5 dark:hover:bg-white/10',
+        'text-muted-foreground rounded-md inline-flex shrink-0 size-5 transition-colors items-center justify-center hover:text-foreground focus-visible:(outline-none ring-2 ring-ring) hover:bg-black/5 dark:hover:bg-white/10',
     },
     defaultVariants: {
       type: 'primary',
@@ -88,20 +88,20 @@ export const alertRecipe = /* @__PURE__ */ defineRecipe<AlertStyleSlot, AlertSty
       },
       hasDescription: {
         true: {
-          root: 'px-4 py-3.5 items-start',
-          icon: 'text-lg mt-0.5 size-5',
-          title: 'text-base leading-6 font-semibold',
-          description: 'text-sm leading-normal mt-1',
-          actions: 'mt-0.5',
-          close: 'mt-0.5 size-6',
+          root: 'p-4 items-start',
+          title: 'font-semibold',
+          description: 'mt-1',
+          actions: '',
+          close: '',
+          icon: '',
         },
         false: {
           root: 'px-4 py-3 items-start',
-          icon: 'text-base mt-0.5 size-4',
-          title: 'text-sm leading-5 font-medium',
+          title: 'font-medium',
           description: '',
-          actions: 'mt-0.5',
-          close: 'mt-0.5 size-5',
+          actions: '',
+          close: '',
+          icon: '',
         },
       },
     },
