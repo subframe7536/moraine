@@ -1,5 +1,9 @@
 import { defineRecipe } from '../../theme/recipe'
-import { DISABLED_CLASS, HIGHLIGHTED_MUTED_TEXT_CLASS } from '../../theme/recipe-common.recipe'
+import {
+  DISABLED_CLASS,
+  FOCUS_VISIBLE_RING_CLASS,
+  HIGHLIGHTED_MUTED_TEXT_CLASS,
+} from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -37,8 +41,7 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
     itemTrailing: `text-xs ${HIGHLIGHTED_MUTED_TEXT_CLASS} tracking-widest ml-auto flex shrink-0 gap-2 items-center [&_[data-slot=kbd-group]]:text-inherit`,
     inputLeading:
       'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:animate-spin',
-    close:
-      'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover)',
+    close: `text-muted-foreground border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) ${FOCUS_VISIBLE_RING_CLASS}`,
     empty: 'text-sm text-muted-foreground py-6 text-center',
   },
   defaultVariants: {

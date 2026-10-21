@@ -81,7 +81,7 @@ export function FileActions() {
       >
         <ContextMenu>
           <ContextMenu.Trigger
-            class="p-4 outline-none border border-border rounded-lg bg-card flex gap-3 select-none items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="p-4 outline-none border border-border rounded-lg bg-card flex gap-3 select-none items-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             aria-label="Actions for Project brief.pdf"
           >
             <Icon name="i-lucide:file-text" class="text-muted-foreground shrink-0 size-8" />

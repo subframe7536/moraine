@@ -158,6 +158,7 @@ describe('Breadcrumb', () => {
     expect(home?.getAttribute('role')).toBeNull()
     expect(home?.className).toContain('transition-colors')
     expect(home?.className).toContain('hover:text-foreground')
+    expect(home?.className).toContain('focus-visible:ring-ring/50')
     expect(home?.className).toContain('inline-flex')
     expect(home?.className).toContain('items-center')
     expect(home?.className).toContain('gap-1')

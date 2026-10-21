@@ -928,6 +928,7 @@ describe('Dialog', () => {
     )!
     const explicit = screen.getByTestId('explicit-dialog-close')
     expect(automatic.className).toContain('automatic-close')
+    expect(automatic.className).toContain('focus-visible:ring-ring/50')
     expect(automatic.className).toContain('absolute')
     expect(explicit.className).toContain('explicit-close')
     expect(explicit.className).not.toContain('automatic-close')

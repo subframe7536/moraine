@@ -561,6 +561,7 @@ describe('Sheet', () => {
     const automatic = document.body.querySelector<HTMLElement>('[data-slot="sheet-content-close"]')!
     const explicit = screen.getByTestId('explicit-sheet-close')
     expect(automatic.className).toContain('automatic-close')
+    expect(automatic.className).toContain('focus-visible:ring-ring/50')
     expect(automatic.className).toContain('absolute')
     expect(explicit.className).toContain('explicit-close')
     expect(explicit.className).not.toContain('automatic-close')

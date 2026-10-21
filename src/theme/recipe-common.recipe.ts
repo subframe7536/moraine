@@ -22,8 +22,8 @@ export const VISUALLY_HIDDEN_CLASS = 'sr-only'
 export const FOCUS_CLASS = 'focus:(border-ring ring-3 ring-ring/50)'
 export const FOCUS_VISIBLE_CLASS = 'focus-visible:(outline-none border-ring ring-3 ring-ring/50)'
 export const FOCUS_VISIBLE_RING_CLASS = 'focus-visible:(outline-none ring-3 ring-ring/50)'
-export const FOCUS_VISIBLE_BORDER_CLASS =
-  'focus-visible:(outline-none border border-ring ring-3 ring-ring/50)'
+export const BUTTON_FOCUS_VISIBLE_CLASS =
+  'focus-visible:(outline-none ring-3 ring-tone/50 dark:ring-tone/40)'
 export const FOCUS_WITHIN_CLASS = 'focus-within:(outline-none border-ring ring-3 ring-ring/50)'
 export const PEER_FOCUS_CLASS = 'peer-focus:(border-ring ring-3 ring-ring/50)'
 export const PEER_FOCUS_VISIBLE_CLASS =
@@ -63,8 +63,7 @@ export function groupAccentClass(group: string, utility = 'text-accent-foregroun
   return `group-hover/${group}:${utility} group-focus-within/${group}:${utility}`
 }
 
-export const OVERLAY_CLOSE_BUTTON_CLASS =
-  'rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-50 pointer-events-none)'
+export const OVERLAY_CLOSE_BUTTON_CLASS = `rounded-md inline-flex size-8 items-center justify-center active:(text-accent-foreground bg-accent-active) hover:(text-accent-foreground bg-accent-hover) ${FOCUS_VISIBLE_RING_CLASS} disabled:(opacity-50 pointer-events-none)`
 
 function toneVars(tone: Tone) {
   return {

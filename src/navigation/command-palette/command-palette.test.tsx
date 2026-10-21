@@ -551,6 +551,7 @@ describe('CommandPalette', () => {
         '[data-slot="command-palette-close"]',
       ) as HTMLElement
       expect(closeBtn).not.toBeNull()
+      expect(closeBtn.className).toContain('focus-visible:ring-ring/50')
       fireEvent.click(closeBtn)
     })
 

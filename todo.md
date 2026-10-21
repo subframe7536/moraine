@@ -3,7 +3,7 @@
 - [x] rename props across all components
   - [x] `<component>T.Base["onClose"]` should be `onExitComplete`
   - [x] `close` to `closible` for components that can have close icon
-- [ ] tyy to unify or reuse focus ring classes across components
+- [x] try to unify or reuse focus ring classes across components
 - [ ] add `translations` props for every component that has `.message.ts`
 - [ ] try to get rid of `hasJsxContent` and other memos
 - [ ] shiki use `transformerStyleToClass` to reduce prod file size

@@ -1,5 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_BORDER_CLASS } from '../../theme/recipe-common.recipe'
+import { DATA_DISABLED_CLASS, FOCUS_VISIBLE_CLASS } from '../../theme/recipe-common.recipe'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import { createDataAttributes } from '../../theme/style-contract'
 
@@ -68,7 +68,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           track: 'rounded-full',
           range: 'rounded-full',
           marker: 'bg-background',
-          thumb: `outline-none border border-border rounded-full bg-background size-(--s-thumb-size) cursor-pointer transition-[box-shadow,transform] ${FOCUS_VISIBLE_BORDER_CLASS} bg-clip-padding hover:(border border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
+          thumb: `outline-none border border-border rounded-full bg-background size-(--s-thumb-size) cursor-pointer transition-[box-shadow,transform] ${FOCUS_VISIBLE_CLASS} bg-clip-padding hover:(border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
         },
         bold: {
           '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
