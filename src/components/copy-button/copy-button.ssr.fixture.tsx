@@ -12,7 +12,7 @@ export function renderCopyButtonFixture(): string {
       <CopyButton value="render-prop-server">
         {(state) => (
           <span>
-            {state.copied ? 'Copied' : 'Idle'} / {state.isSupported ? 'Supported' : 'Unsupported'}
+            {state.isCopied ? 'Copied' : 'Idle'} / {state.isSupported ? 'Supported' : 'Unsupported'}
           </span>
         )}
       </CopyButton>

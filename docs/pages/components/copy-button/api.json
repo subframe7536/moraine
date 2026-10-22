@@ -71,18 +71,6 @@
           }
         },
         {
-          "name": "copiedTone",
-          "optional": true,
-          "type": "Tone",
-          "description": "Color tone while copied."
-        },
-        {
-          "name": "copiedVariant",
-          "optional": true,
-          "type": "'solid' | 'soft' | 'outline' | 'ghost'",
-          "description": "Visual treatment while copied."
-        },
-        {
           "name": "disabled",
           "optional": true,
           "type": "boolean",
@@ -91,8 +79,8 @@
         {
           "name": "icon",
           "optional": true,
-          "type": "IconT.Name",
-          "description": "Icon displayed in the idle state.",
+          "type": "IconT.Name | boolean",
+          "description": "Icon displayed in the idle state. Pass `false` to disable icon display.",
           "default": {
             "kind": "literal",
             "value": "icon-copy"
@@ -133,7 +121,7 @@
         {
           "name": "onStatusChange",
           "optional": true,
-          "type": "(details: { copied: boolean; state: CopyState; data?: CopyData }) => void",
+          "type": "(details: { isCopied: boolean; state: CopyState }) => void",
           "description": "Callback fired when copy status changes."
         },
         {
@@ -143,7 +131,7 @@
           "description": "Button size, including icon-only sizes.",
           "default": {
             "kind": "literal",
-            "value": "icon-md"
+            "value": "md"
           }
         },
         {

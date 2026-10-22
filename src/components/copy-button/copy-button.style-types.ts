@@ -23,13 +23,9 @@ export type CopyButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost'
 export interface CopyButtonStyleVariants {
   /** Visual treatment while uncopied. @default 'ghost' */
   variant?: CopyButtonVariant
-  /** Visual treatment while copied. */
-  copiedVariant?: CopyButtonVariant
   /** Color tone while uncopied. @default 'neutral' */
   tone?: ButtonStyleVariants['tone']
-  /** Color tone while copied. */
-  copiedTone?: ButtonStyleVariants['tone']
-  /** Button size, including icon-only sizes. @default 'icon-md' */
+  /** Button size, including icon-only sizes. @default 'md' */
   size?: ButtonStyleVariants['size']
 }
 

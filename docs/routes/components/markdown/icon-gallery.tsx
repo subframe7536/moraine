@@ -2,15 +2,15 @@ import { For } from 'solid-js'
 
 import { Icon } from '../../../../src/index'
 import { DEFAULT_ICON_SHORTCUTS } from '../../../../src/theme/icons'
+import { createCopy } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
-import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 export function IconGallery() {
   return (
     <div class="gap-2 grid grid-cols-3 lg:grid-cols-6 sm:grid-cols-4">
       <For each={DEFAULT_ICON_SHORTCUTS}>
         {([name]) => {
-          const clipboard = createClipboardCopy({ resetAfter: 1800 })
+          const clipboard = createCopy({ copiedDuration: 1800 })
           const message = () =>
             clipboard.state() === 'copied'
               ? 'Copied'

@@ -37,18 +37,20 @@ describe('createCopy', () => {
   test('copies strings and resets feedback after copiedDuration', async () => {
     const clipboard = setup()
     expect(clipboard.state()).toBe('idle')
-    expect(clipboard.copied()).toBe(false)
+    expect(clipboard.isCopied()).toBe(false)
+    expect(clipboard.isError()).toBe(false)
 
     const success = await clipboard.copy('hello world')
     expect(success).toBe(true)
     expect(writeText).toHaveBeenCalledWith('hello world')
     expect(clipboard.state()).toBe('copied')
-    expect(clipboard.copied()).toBe(true)
-    expect(clipboard.data()).toBe('hello world')
+    expect(clipboard.isCopied()).toBe(true)
+    expect(clipboard.isError()).toBe(false)
 
     vi.advanceTimersByTime(1000)
     expect(clipboard.state()).toBe('idle')
-    expect(clipboard.copied()).toBe(false)
+    expect(clipboard.isCopied()).toBe(false)
+    expect(clipboard.isError()).toBe(false)
   })
 
   test('copies ClipboardItem using modern navigator.clipboard.write', async () => {
@@ -140,11 +142,14 @@ describe('createCopy', () => {
     const success = await clipboard.copy('will fail')
     expect(success).toBe(false)
     expect(clipboard.state()).toBe('failed')
-    expect(clipboard.copied()).toBe(false)
+    expect(clipboard.isCopied()).toBe(false)
+    expect(clipboard.isError()).toBe(true)
     expect(onError).toHaveBeenCalled()
 
     vi.advanceTimersByTime(1000)
     expect(clipboard.state()).toBe('idle')
+    expect(clipboard.isCopied()).toBe(false)
+    expect(clipboard.isError()).toBe(false)
   })
 
   test('fires onStatusChange for transitions', async () => {
@@ -153,16 +158,14 @@ describe('createCopy', () => {
 
     await clipboard.copy('status check')
     expect(onStatusChange).toHaveBeenCalledWith({
-      copied: true,
+      isCopied: true,
       state: 'copied',
-      data: 'status check',
     })
 
     vi.advanceTimersByTime(1000)
     expect(onStatusChange).toHaveBeenCalledWith({
-      copied: false,
+      isCopied: false,
       state: 'idle',
-      data: 'status check',
     })
   })
 

@@ -24,7 +24,12 @@ export namespace CopyButtonT {
     /**
      * Whether the button is currently in copied state.
      */
-    copied: boolean
+    isCopied: boolean
+
+    /**
+     * Whether the button is currently in error state.
+     */
+    isError: boolean
 
     /**
      * Current copy state: 'idle' | 'copied' | 'failed'.
@@ -80,7 +85,7 @@ export namespace CopyButtonT {
     slotName?: string
 
     /**
-     * Icon displayed in the idle state.
+     * Icon displayed in the idle state. Pass `false` to disable icon display.
      * @default 'icon-copy'
      */
     icon?: IconT.Name
@@ -116,7 +121,7 @@ export namespace CopyButtonT {
     /**
      * Callback fired when copy status changes.
      */
-    onStatusChange?: (details: { copied: boolean; state: CopyState; data?: CopyData }) => void
+    onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
 
     /**
      * Content or render function receiving the copy state.

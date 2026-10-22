@@ -20,3 +20,11 @@ export type {
   CreateSliderOptions,
   CreateSliderReturn,
 } from './components/slider/hook/slider'
+export { createCopy } from './components/copy-button/create-copy'
+export type {
+  CreateCopyOptions,
+  CreateCopyReturn,
+  CopyData,
+  CopySource,
+  CopyState,
+} from './components/copy-button/create-copy'

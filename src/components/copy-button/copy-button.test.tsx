@@ -80,7 +80,7 @@ describe('CopyButton', () => {
   test('supports render-prop children receiving reactive copy state', async () => {
     const screen = render(() => (
       <CopyButton value="render-prop-data">
-        {(state) => <span>{state.copied ? 'Copied URL' : 'Copy URL'}</span>}
+        {(state) => <span>{state.isCopied ? 'Copied URL' : 'Copy URL'}</span>}
       </CopyButton>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
@@ -172,37 +172,41 @@ describe('CopyButton', () => {
 
     expect(onCopy).toHaveBeenCalledWith('callback-test')
     expect(onStatusChange).toHaveBeenCalledWith({
-      copied: true,
+      isCopied: true,
       state: 'copied',
-      data: 'callback-test',
     })
 
     vi.advanceTimersByTime(1500)
     expect(onStatusChange).toHaveBeenCalledWith({
-      copied: false,
+      isCopied: false,
       state: 'idle',
-      data: 'callback-test',
     })
   })
 
-  test('switches variant and tone when copiedVariant and copiedTone are specified', async () => {
+  test('omits icon when icon={false}', () => {
     const screen = render(() => (
-      <CopyButton
-        value="tone-test"
-        variant="ghost"
-        copiedVariant="solid"
-        tone="neutral"
-        copiedTone="success"
-      />
+      <CopyButton value="no-icon" icon={false}>
+        <span>Text only</span>
+      </CopyButton>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    expect(button.classList.contains('bg-tone')).toBe(false)
+    expect(button.querySelector('[data-slot="copy-button-icon"]')).toBeNull()
+    expect(button.querySelector('[data-slot="copy-button-label"]')).not.toBeNull()
+  })
 
-    fireEvent.click(button)
-    await flushMicrotasks()
+  test('auto-prepends icon- to size when icon exists without label, and uses standard size with label', () => {
+    const iconOnly = render(() => <CopyButton value="test" size="sm" />)
+    const iconBtn = iconOnly.getByRole('button', { name: 'Copy to clipboard' })
+    expect(iconBtn.classList.contains('size-6')).toBe(true)
 
-    expect(button.getAttribute('data-copied')).toBe('')
-    expect(button.classList.contains('bg-tone')).toBe(true)
+    const labeled = render(() => (
+      <CopyButton value="test" size="sm">
+        <span>Copy</span>
+      </CopyButton>
+    ))
+    const labeledBtn = labeled.getByRole('button', { name: 'Copy to clipboard' })
+    expect(labeledBtn.classList.contains('h-7')).toBe(true)
+    expect(labeledBtn.classList.contains('px-2')).toBe(true)
   })
 
   test('inherits variants from button group context', () => {
@@ -212,6 +216,7 @@ describe('CopyButton', () => {
       </ButtonGroup>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    expect(button.classList.contains('h-7')).toBe(true)
+    expect(button.classList.contains('size-6')).toBe(true)
+    expect(button.classList.contains('border-tone-border')).toBe(true)
   })
 })

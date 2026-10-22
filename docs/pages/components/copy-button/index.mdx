@@ -66,7 +66,7 @@ import { CopyButton } from '@src'
         { label: 'Trailing', value: 'trailing' },
       ],
     },
-    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Copy snippet' },
+    { kind: 'switch', prop: 'label', label: 'Label', defaultValue: true },
   ]}
 >
   {(props) => (
@@ -78,7 +78,7 @@ import { CopyButton } from '@src'
       disabled={props.disabled}
       iconPosition={props.iconPosition}
     >
-      {props.label || undefined}
+      {props.label ? 'Copy snippet' : undefined}
     </CopyButton>
   )}
 </Playground>
@@ -106,24 +106,10 @@ export function Example() {
 
 ### With text and icons
 
-CopyButton renders an icon by default when sized to icon sizes (`icon-md`), or can include a label and custom icons.
+CopyButton renders an icon by default and automatically scales to square icon button dimensions when rendered without children, or to standard button dimensions when children are present.
 
 ```tsx
 <CopyButton value="npm i moraine">Copy Install Command</CopyButton>
-```
-
-### Copied variants and tones
-
-Customize the appearance specifically for the copied state using `copiedVariant` and `copiedTone`.
-
-```tsx
-<CopyButton
-  value="secret_key"
-  variant="outline"
-  tone="neutral"
-  copiedVariant="solid"
-  copiedTone="success"
-/>
 ```
 
 ### Custom feedback duration and icons
@@ -141,10 +127,10 @@ Configure the feedback display duration with `copiedDuration` in milliseconds (d
 
 ### Headless hook: `createCopy`
 
-Use `createCopy` for custom clipboard interactions without UI constraints:
+Use `createCopy` from `moraine/utils` for custom clipboard interactions without UI constraints:
 
 ```tsx
-import { createCopy } from 'moraine'
+import { createCopy } from 'moraine/utils'
 
 const copy = createCopy({
   copiedDuration: 2500,

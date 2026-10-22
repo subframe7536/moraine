@@ -120,6 +120,7 @@ const utils = await import('moraine/utils')
 const utilityNames = [
   'createBaseSelectSearchInput',
   'createControllableValue',
+  'createCopy',
   'createDisclosureState',
   'createEventListener',
   'createEventListenerMap',

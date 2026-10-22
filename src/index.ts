@@ -17,7 +17,6 @@ export {
   CommandPalette,
   ContextMenu,
   CopyButton,
-  createCopy,
   Dialog,
   DropdownMenu,
   Empty,

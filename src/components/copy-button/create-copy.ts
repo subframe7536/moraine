@@ -4,7 +4,7 @@ import { isServer } from 'solid-js/web'
 
 export type CopyData = string | ClipboardItem | ClipboardItem[]
 
-export type CopySource = CopyData | (() => CopyData)
+export type CopySource = CopyData | Promise<CopyData> | (() => CopyData | Promise<CopyData>)
 
 export type CopyState = 'idle' | 'copied' | 'failed'
 
@@ -33,14 +33,19 @@ export interface CreateCopyOptions {
   /**
    * Callback invoked when the copy status changes.
    */
-  onStatusChange?: (details: { copied: boolean; state: CopyState; data?: CopyData }) => void
+  onStatusChange?: (details: { isCopied: boolean; state: CopyState }) => void
 }
 
 export interface CreateCopyReturn {
   /**
    * Whether the last copy was successful and the duration is still active.
    */
-  copied: Accessor<boolean>
+  isCopied: Accessor<boolean>
+
+  /**
+   * Whether the last copy failed and the duration is still active.
+   */
+  isError: Accessor<boolean>
 
   /**
    * Current copy state: 'idle' | 'copied' | 'failed'.
@@ -66,11 +71,6 @@ export interface CreateCopyReturn {
    * Whether clipboard operations are supported in the current environment.
    */
   isSupported: Accessor<boolean>
-
-  /**
-   * The last copied data.
-   */
-  data: Accessor<CopyData | undefined>
 }
 
 export function isClipboardItem(item: unknown): item is ClipboardItem {
@@ -187,7 +187,6 @@ export async function writeClipboardWithFallback(data: CopyData): Promise<boolea
 export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   const [state, setState] = createSignal<CopyState>('idle')
   const [error, setError] = createSignal<unknown>(undefined)
-  const [data, setData] = createSignal<CopyData | undefined>(undefined)
 
   let timer: ReturnType<typeof setTimeout> | undefined
   let attempt = 0
@@ -198,22 +197,22 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     clearTimeout(timer)
   })
 
-  function notifyStatus(nextState: CopyState, currentData?: CopyData) {
+  function notifyStatus(nextState: CopyState) {
     setState(nextState)
     options.onStatusChange?.({
-      copied: nextState === 'copied',
+      isCopied: nextState === 'copied',
       state: nextState,
-      data: currentData,
     })
   }
 
   function reset() {
     clearTimeout(timer)
-    notifyStatus('idle', data())
+    notifyStatus('idle')
     setError(undefined)
   }
 
-  const copied = createMemo(() => state() === 'copied')
+  const isCopied = createMemo(() => state() === 'copied')
+  const isError = createMemo(() => state() === 'failed')
 
   function resolveDuration(): number {
     const val =
@@ -249,11 +248,17 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
     const currentAttempt = ++attempt
     clearTimeout(timer)
     setError(undefined)
-    notifyStatus('idle', undefined)
+    notifyStatus('idle')
 
     let resolvedData: CopyData
     try {
-      resolvedData = typeof targetSource === 'function' ? targetSource() : targetSource
+      const maybePromise = typeof targetSource === 'function' ? targetSource() : targetSource
+      resolvedData =
+        maybePromise instanceof Promise ||
+        (Boolean(maybePromise) &&
+          typeof (maybePromise as unknown as { then?: unknown }).then === 'function')
+          ? await maybePromise
+          : maybePromise
       if (disposed || currentAttempt !== attempt) {
         return false
       }
@@ -267,14 +272,13 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
         throw new Error('Copy operation failed')
       }
 
-      setData(resolvedData)
-      notifyStatus('copied', resolvedData)
+      notifyStatus('copied')
       options.onCopy?.(resolvedData)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {
         if (!disposed && currentAttempt === attempt) {
-          notifyStatus('idle', resolvedData)
+          notifyStatus('idle')
         }
       }, duration)
 
@@ -285,13 +289,13 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
       }
 
       setError(err)
-      notifyStatus('failed', undefined)
+      notifyStatus('failed')
       options.onError?.(err)
 
       const duration = resolveDuration()
       timer = setTimeout(() => {
         if (!disposed && currentAttempt === attempt) {
-          notifyStatus('idle', undefined)
+          notifyStatus('idle')
         }
       }, duration)
 
@@ -300,12 +304,12 @@ export function createCopy(options: CreateCopyOptions = {}): CreateCopyReturn {
   }
 
   return {
-    copied,
+    isCopied,
+    isError,
     state,
     copy,
     reset,
     error,
     isSupported,
-    data,
   }
 }

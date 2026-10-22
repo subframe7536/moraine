@@ -12,6 +12,7 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
+import type { IconT } from '../icon'
 
 import { defaultCopyButtonMessages } from './copy-button.messages'
 import {
@@ -20,6 +21,7 @@ import {
   copyButtonDataAttributes,
   copyButtonRecipe,
 } from './copy-button.recipe'
+import type { CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
 
@@ -30,7 +32,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const group = useButtonGroupContext()
   const messages = useMessages('copyButton', defaultCopyButtonMessages)
 
-  const [local, rest] = splitProps(
+  const [local, variantProps, rest] = splitProps(
     props as CopyButtonProps<T> & {
       ref?: unknown
       onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
@@ -51,10 +53,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'onError',
       'onStatusChange',
       'variant',
-      'copiedVariant',
       'tone',
-      'copiedTone',
-      'size',
       'classes',
       'styles',
       'class',
@@ -63,6 +62,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'children',
       'aria-label',
     ],
+    ['size'],
   )
 
   const clipboard = createCopy({
@@ -76,44 +76,55 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
   const root = createPolymorphicRoot({ tag, ref: () => local.ref })
 
-  const recipeProps = {
-    get variant() {
-      return clipboard.copied() ? (local.copiedVariant ?? local.variant) : local.variant
-    },
-    get tone() {
-      return clipboard.copied() ? (local.copiedTone ?? local.tone) : local.tone
-    },
-    get size() {
-      return local.size
-    },
-    get class() {
-      return local.class
-    },
-    get style() {
-      return local.style
-    },
-    get classes() {
-      return local.classes
-    },
-    get styles() {
-      return local.styles
-    },
-  }
+  const child = resolveChildren(() => local.children)
+  const resolvedChildren = createMemo(() => {
+    const value = child() as CopyButtonT.Base['children']
+    if (typeof value !== 'function') {
+      return value
+    }
+    return renderWithProps(value, {
+      get isCopied() {
+        return clipboard.isCopied()
+      },
+      get isError() {
+        return clipboard.isError()
+      },
+      get state() {
+        return clipboard.state()
+      },
+      get copy() {
+        return clipboard.copy
+      },
+      get isSupported() {
+        return clipboard.isSupported()
+      },
+      get loading() {
+        return false
+      },
+    })
+  })
 
-  const { slots } = useRecipe(copyButtonRecipe, recipeProps, {
+  const hasIcon = () => local.icon !== false && local.icon !== null
+
+  const { slots } = useRecipe(copyButtonRecipe, local, {
     contextVariants: () => {
-      if (!group) {
-        return undefined
-      }
+      const s = String(variantProps.size ?? group?.size ?? 'md')
+      const resolvedSize =
+        hasIcon() && !hasContent(resolvedChildren())
+          ? s.startsWith('icon-')
+            ? s
+            : `icon-${s}`
+          : s.replace(/^icon-/, '')
+
       return {
         get size() {
-          return group.size
+          return resolvedSize as CopyButtonStyleVariants['size']
         },
         get variant() {
-          return group.variant !== 'link' ? group.variant : undefined
+          return group?.variant !== 'link' ? group?.variant : undefined
         },
         get tone() {
-          return group.tone
+          return group?.tone
         },
       }
     },
@@ -141,65 +152,32 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 
   const binding = root.bind(interactionProps)
 
-  const child = resolveChildren(() => local.children)
-  const resolvedChildren = createMemo(() => {
-    const value = child() as CopyButtonT.Base['children']
-    if (typeof value !== 'function') {
-      return value
-    }
-    return renderWithProps(value, {
-      get copied() {
-        return clipboard.copied()
-      },
-      get state() {
-        return clipboard.state()
-      },
-      get copy() {
-        return clipboard.copy
-      },
-      get isSupported() {
-        return clipboard.isSupported()
-      },
-      get loading() {
-        return false
-      },
-    })
-  })
-  const hasChildren = () => hasContent(resolvedChildren())
-
-  const defaultAriaLabel = () => (clipboard.copied() ? messages().copied : messages().copy)
-  const isError = () => clipboard.state() === 'failed'
-
   function Indicator(): JSX.Element {
+    const idleIcon = (): IconT.Name =>
+      local.icon === true || local.icon === undefined ? 'icon-copy' : local.icon
+    const copiedIcon = (): IconT.Name => local.copiedIcon ?? 'icon-check'
+
     return (
       <span
         data-slot="copy-button-icon"
         {...copyButtonDataAttributes.icon({
-          copied: clipboard.copied,
+          copied: clipboard.isCopied,
         })}
         {...slots.icon}
       >
         <Show
           when={local.indicatorTransition !== false}
-          fallback={
-            <Icon
-              name={
-                clipboard.copied()
-                  ? (local.copiedIcon ?? 'icon-check')
-                  : (local.icon ?? 'icon-copy')
-              }
-            />
-          }
+          fallback={<Icon name={clipboard.isCopied() ? copiedIcon() : idleIcon()} />}
         >
           <Icon
-            name={local.icon ?? 'icon-copy'}
+            name={idleIcon()}
             class={COPY_BUTTON_ICON_IDLE_CLASS}
-            aria-hidden={clipboard.copied() ? true : undefined}
+            aria-hidden={clipboard.isCopied() ? true : undefined}
           />
           <Icon
-            name={local.copiedIcon ?? 'icon-check'}
+            name={copiedIcon()}
             class={COPY_BUTTON_ICON_COPIED_CLASS}
-            aria-hidden={!clipboard.copied() ? true : undefined}
+            aria-hidden={!clipboard.isCopied() ? true : undefined}
           />
         </Show>
       </span>
@@ -211,26 +189,28 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       component={tag()}
       data-slot={local.slotName || 'copy-button'}
       {...copyButtonDataAttributes.root({
-        copied: clipboard.copied,
-        error: isError,
+        copied: clipboard.isCopied,
+        error: clipboard.isError,
         disabled: () => local.disabled,
       })}
       {...binding}
       {...slots.root}
-      aria-invalid={isError() ? true : undefined}
-      aria-label={local['aria-label'] ?? defaultAriaLabel()}
+      aria-invalid={clipboard.isError() ? true : undefined}
+      aria-label={
+        local['aria-label'] ?? (clipboard.isCopied() ? messages().copied : messages().copy)
+      }
     >
-      <Show when={local.iconPosition !== 'trailing'}>
+      <Show when={hasIcon() && local.iconPosition !== 'trailing'}>
         <Indicator />
       </Show>
 
-      <Show when={hasChildren()}>
+      <Show when={hasContent(resolvedChildren())}>
         <span data-slot="copy-button-label" {...slots.label}>
           {resolvedChildren()}
         </span>
       </Show>
 
-      <Show when={local.iconPosition === 'trailing'}>
+      <Show when={hasIcon() && local.iconPosition === 'trailing'}>
         <Indicator />
       </Show>
     </Dynamic>

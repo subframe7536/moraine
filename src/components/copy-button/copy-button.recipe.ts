@@ -30,15 +30,13 @@ export const copyButtonRecipe = /* @__PURE__ */ defineRecipe<
     label: COPY_BUTTON_LABEL_CLASS,
   },
   defaultVariants: {
-    size: 'icon-md',
+    size: 'md',
     variant: 'ghost',
     tone: 'neutral',
   },
   variants: {
     variant: BUTTON_ACTION_VARIANT,
-    copiedVariant: BUTTON_ACTION_VARIANT,
     tone: TONE_VARS,
-    copiedTone: TONE_VARS,
     size: BUTTON_SIZE,
   },
 })
