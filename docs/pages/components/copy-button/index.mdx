@@ -1,0 +1,166 @@
+---
+title: CopyButton
+description: Trigger clipboard write interactions with state, status transitions, and fallback support.
+group: Buttons
+api:
+  path: src/components/copy-button/copy-button
+sidebar:
+  order: 3
+  badge: New
+search:
+  tags: [copy, clipboard, button, copy-button, snippet, command]
+---
+
+import { CopyButton } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'ghost',
+      options: [
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'Solid', value: 'solid' },
+        { label: 'Soft', value: 'soft' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Outline', value: 'outline' },
+        { label: 'Link', value: 'link' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'tone',
+      label: 'Tone',
+      defaultValue: 'neutral',
+      options: [
+        { label: 'Neutral', value: 'neutral' },
+        { label: 'Primary', value: 'primary' },
+        { label: 'Secondary', value: 'secondary' },
+        { label: 'Danger', value: 'danger' },
+        { label: 'Info', value: 'info' },
+        { label: 'Success', value: 'success' },
+        { label: 'Warning', value: 'warning' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'icon-md',
+      options: [
+        { label: 'Icon XS', value: 'icon-xs' },
+        { label: 'Icon SM', value: 'icon-sm' },
+        { label: 'Icon MD', value: 'icon-md' },
+        { label: 'Icon LG', value: 'icon-lg' },
+        { label: 'XS', value: 'xs' },
+        { label: 'SM', value: 'sm' },
+        { label: 'MD', value: 'md' },
+        { label: 'LG', value: 'lg' },
+      ],
+    },
+  ]}
+>
+  {(props) => (
+    <CopyButton
+      value="pnpm add moraine"
+      variant={props.variant}
+      tone={props.tone}
+      size={props.size}
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'indicator',
+        children: [{ slot: 'icon' }, { slot: 'copiedIcon' }],
+      },
+      { slot: 'label' },
+      { slot: 'trailing' },
+    ],
+  }}
+/>
+
+## Usage
+
+Use CopyButton to let users copy text snippets, tokens, or clipboard items to their clipboard with built-in feedback states and automatic fallback from modern Clipboard API to legacy execCommand.
+
+```tsx
+import { CopyButton } from 'moraine'
+
+export function Example() {
+  return <CopyButton value="https://moraine.subf.dev" />
+}
+```
+
+### With text and icons
+
+CopyButton renders an icon by default when sized to icon sizes (`icon-md`), or can include a label and custom icons.
+
+```tsx
+<CopyButton value="npm i moraine">Copy Install Command</CopyButton>
+```
+
+### Copied variants and tones
+
+Customize the appearance specifically for the copied state using `copiedVariant` and `copiedTone`.
+
+```tsx
+<CopyButton
+  value="secret_key"
+  variant="outline"
+  tone="neutral"
+  copiedVariant="solid"
+  copiedTone="success"
+/>
+```
+
+### Custom feedback duration and icons
+
+Configure the feedback display duration with `copiedDuration` in milliseconds (defaults to 2000ms), and customize the idle and copied icons.
+
+```tsx
+<CopyButton
+  value="https://example.com"
+  copiedDuration={3000}
+  icon="i-lucide:clipboard"
+  copiedIcon="i-lucide:check-check"
+/>
+```
+
+### Headless hook: `createCopy`
+
+Use `createCopy` for custom clipboard interactions without UI constraints:
+
+```tsx
+import { createCopy } from 'moraine'
+
+const copy = createCopy({
+  copiedDuration: 2500,
+  onCopy: (value) => console.log('Copied:', value),
+})
+
+// Trigger programmatically:
+copy.copy('Hello world')
+```
+
+## Examples
+
+### Code snippet copy
+
+<Preview path="./copy-button-usage" />
+
+### Custom icons and extended duration
+
+<Preview path="./custom-icons" />
+
+### Text label with render-prop feedback
+
+<Preview path="./with-label" />

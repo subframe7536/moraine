@@ -16,6 +16,7 @@ import type {
   ComboboxT,
   CommandPaletteT,
   ContextMenuT,
+  CopyButtonT,
   DialogT,
   DropdownMenuT,
   FieldT,
@@ -138,6 +139,13 @@ export type ComponentNamespaceHeaders = {
     ContextMenuT.Variants,
     ContextMenuT.Classes,
     ContextMenuT.Styles
+  >
+  CopyButton: Header<
+    CopyButtonT.Kind,
+    CopyButtonT.Slot,
+    CopyButtonT.Variants,
+    CopyButtonT.Classes,
+    CopyButtonT.Styles
   >
   Dialog: Header<DialogT.Kind, DialogT.Slot, DialogT.Variants, DialogT.Classes, DialogT.Styles>
   DropdownMenu: Header<

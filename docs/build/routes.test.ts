@@ -196,6 +196,7 @@ describe('docs route metadata', () => {
       'hooks',
       'create-base-select-search-input',
       'create-controllable-value',
+      'create-copy',
       'create-disclosure-state',
       'create-event-listener',
       'create-id',

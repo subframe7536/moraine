@@ -14,6 +14,8 @@ import {
   Collapsible,
   Combobox,
   ContextMenu,
+  CopyButton,
+  createCopy,
   Dialog,
   DropdownMenu,
   Empty,
@@ -50,6 +52,7 @@ import type {
   CnConfig,
   CommandPaletteT,
   ComboboxT,
+  CopyButtonT,
   DialogT,
   DropdownMenuT,
   EmptyT,
@@ -78,6 +81,7 @@ export type UtilityExports = Assert<
 >
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
+  Assert<CopyButtonT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
@@ -310,6 +314,15 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <ButtonGroup.Separator class="bg-input" style={{ opacity: 0.8 }} />
   <Button>Paste</Button>
 </ButtonGroup>
+;<CopyButton value="code snippet" />
+;<CopyButton value="code snippet" copiedDuration={1500} icon="icon-copy" copiedIcon="icon-check" />
+;<CopyButton value="code snippet">{(state) => (state.copied ? 'Copied' : 'Copy')}</CopyButton>
+// @ts-expect-error value is required
+;<CopyButton />
+{
+  const copyHook = createCopy({ value: 'snippet', copiedDuration: 1000 })
+  void copyHook.copy()
+}
 ;<Button
   as="a"
   href="/docs"
