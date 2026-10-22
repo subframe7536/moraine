@@ -343,13 +343,13 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitem"
-        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
           danger: () => itemProps.item.variant === 'danger',
           disabled: () => itemProps.item.disabled,
           expanded: undefined,
-          highlighted: () => layer.highlightedItemId() === itemId(),
+          highlighted: () => layer.isHighlighted(itemId()),
           selected: undefined,
         })}
         ref={(itemElement) => {
@@ -411,7 +411,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemcheckbox"
-        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
@@ -419,7 +419,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
           selected: checked,
           disabled: () => itemProps.item.disabled,
           expanded: undefined,
-          highlighted: () => layer.highlightedItemId() === itemId(),
+          highlighted: () => layer.isHighlighted(itemId()),
         })}
         ref={(itemElement) => {
           setElement(itemElement)
@@ -505,7 +505,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         id={itemId()}
         data-slot={slotName('item')}
         role="menuitemradio"
-        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        tabIndex={layer.isHighlighted(itemId()) ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
         {...overlayMenuDataAttributes.item({
@@ -513,7 +513,7 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
           selected: checked,
           disabled: () => itemProps.item.disabled,
           expanded: undefined,
-          highlighted: () => layer.highlightedItemId() === itemId(),
+          highlighted: () => layer.isHighlighted(itemId()),
         })}
         ref={(itemElement) => {
           setElement(itemElement)

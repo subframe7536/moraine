@@ -534,7 +534,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           id={submenuId()}
           data-slot={slotName('item')}
           role="menuitem"
-          tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
+          tabIndex={layer.isHighlighted(submenuId()) ? 0 : -1}
           aria-haspopup="menu"
           aria-controls={isOpen() ? submenuContentId() : undefined}
           aria-expanded={isOpen() ? 'true' : 'false'}
@@ -542,7 +542,7 @@ export function OverlayMenuLayer<TItem extends OverlayMenuItem = OverlayMenuItem
           {...overlayMenuDataAttributes.item({
             danger: () => itemProps.item.variant === 'danger',
             disabled: () => itemProps.item.disabled,
-            highlighted: () => layer.highlightedItemId() === submenuId(),
+            highlighted: () => layer.isHighlighted(submenuId()),
             expanded: isOpen,
             selected: undefined,
           })}

@@ -1,6 +1,6 @@
 import type { Placement, VirtualElement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
-import { createSignal, onCleanup, untrack } from 'solid-js'
+import { createSelector, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { createSelectableCollectionNavigation } from '../../../../shared/selectable-collection-navigation'
 import { createTypeahead } from '../../../../shared/typeahead'
@@ -141,6 +141,8 @@ export interface OverlayMenuLayerState {
   focusLastItem: () => void
   handleTypeaheadKeyDown: (event: KeyboardEvent) => boolean
   highlightedItemId: Accessor<string | undefined>
+  /** Per-item highlight read that only notifies the previous and next highlighted items. */
+  isHighlighted: (id: string) => boolean
   queuePointerEnter: (element: HTMLElement, callback: () => void) => void
   registerItem: (item: OverlayMenuRegisteredItem) => () => void
   registerSubmenu: (submenu: OverlayMenuRegisteredSubmenu) => () => void
@@ -319,6 +321,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [currentPlacement, setCurrentPlacement] = createSignal<Placement>('bottom-start')
   const [highlightedItemId, setHighlightedItemId] = createSignal<string | undefined>(undefined)
+  const isHighlighted = createSelector<string | undefined, string>(highlightedItemId)
   const [items, setItems] = createSignal<OverlayMenuRegisteredItem[]>([])
   const [submenus, setSubmenus] = createSignal<OverlayMenuRegisteredSubmenu[]>([])
   let pointerGraceIntent: OverlayMenuPointerGraceIntent | null = null
@@ -504,6 +507,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
     focusLastItem,
     handleTypeaheadKeyDown,
     highlightedItemId,
+    isHighlighted,
     queuePointerEnter,
     registerItem,
     registerSubmenu,
