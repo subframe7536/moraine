@@ -79,7 +79,7 @@
         {
           "name": "copiedVariant",
           "optional": true,
-          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost'",
           "description": "Visual treatment while copied."
         },
         {
@@ -193,7 +193,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'solid' | 'soft' | 'outline' | 'ghost' | 'link'",
+          "type": "'solid' | 'soft' | 'outline' | 'ghost'",
           "description": "Visual treatment while uncopied.",
           "default": {
             "kind": "literal",

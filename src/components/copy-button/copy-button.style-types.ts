@@ -33,11 +33,13 @@ export interface CopyButtonStyleSlot<T = unknown> {
   trailing?: T
 }
 
+export type CopyButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost'
+
 export interface CopyButtonStyleVariants {
   /** Visual treatment while uncopied. @default 'ghost' */
-  variant?: ButtonStyleVariants['variant']
+  variant?: CopyButtonVariant
   /** Visual treatment while copied. */
-  copiedVariant?: ButtonStyleVariants['variant']
+  copiedVariant?: CopyButtonVariant
   /** Color tone while uncopied. @default 'neutral' */
   tone?: ButtonStyleVariants['tone']
   /** Color tone while copied. */

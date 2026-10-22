@@ -20,7 +20,7 @@ export const buttonDataAttributes = {
 
 export const BUTTON_BASE_ROOT_CLASS = `border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] items-center justify-center bg-clip-padding ${BUTTON_FOCUS_VISIBLE_CLASS} aria-invalid:(border-danger ring-3 ring-danger/20) ${ARIA_DISABLED_CLASS}  ${DISABLED_CLASS}`
 
-export const BUTTON_VARIANT = {
+export const BUTTON_ACTION_VARIANT = {
   solid: {
     root: 'text-tone-foreground border-transparent bg-tone active:bg-tone-active hover:bg-tone-hover',
   },
@@ -33,6 +33,10 @@ export const BUTTON_VARIANT = {
   ghost: {
     root: 'text-tone-ink border-transparent active:bg-tone-soft-hover hover:bg-tone-soft',
   },
+} as const
+
+export const BUTTON_VARIANT = {
+  ...BUTTON_ACTION_VARIANT,
   link: {
     root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',
   },

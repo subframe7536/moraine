@@ -106,7 +106,7 @@ export function CopyButton<T extends ValidComponent = 'button'>(
           return group.size
         },
         get variant() {
-          return group.variant
+          return group.variant !== 'link' ? group.variant : undefined
         },
         get tone() {
           return group.tone

@@ -21,12 +21,10 @@ import { CopyButton } from '@src'
       label: 'Variant',
       defaultValue: 'ghost',
       options: [
-        { label: 'Ghost', value: 'ghost' },
         { label: 'Solid', value: 'solid' },
         { label: 'Soft', value: 'soft' },
-        { label: 'Subtle', value: 'subtle' },
         { label: 'Outline', value: 'outline' },
-        { label: 'Link', value: 'link' },
+        { label: 'Ghost', value: 'ghost' },
       ],
     },
     {
@@ -35,9 +33,9 @@ import { CopyButton } from '@src'
       label: 'Tone',
       defaultValue: 'neutral',
       options: [
-        { label: 'Neutral', value: 'neutral' },
         { label: 'Primary', value: 'primary' },
         { label: 'Secondary', value: 'secondary' },
+        { label: 'Neutral', value: 'neutral' },
         { label: 'Danger', value: 'danger' },
         { label: 'Info', value: 'info' },
         { label: 'Success', value: 'success' },
@@ -48,18 +46,23 @@ import { CopyButton } from '@src'
       kind: 'select',
       prop: 'size',
       label: 'Size',
-      defaultValue: 'icon-md',
+      defaultValue: 'md',
       options: [
+        { label: 'Extra Small', value: 'xs' },
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+        { label: 'Extra Large', value: 'xl' },
         { label: 'Icon XS', value: 'icon-xs' },
-        { label: 'Icon SM', value: 'icon-sm' },
-        { label: 'Icon MD', value: 'icon-md' },
-        { label: 'Icon LG', value: 'icon-lg' },
-        { label: 'XS', value: 'xs' },
-        { label: 'SM', value: 'sm' },
-        { label: 'MD', value: 'md' },
-        { label: 'LG', value: 'lg' },
+        { label: 'Icon Small', value: 'icon-sm' },
+        { label: 'Icon Medium', value: 'icon-md' },
+        { label: 'Icon Large', value: 'icon-lg' },
+        { label: 'Icon XL', value: 'icon-xl' },
       ],
     },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Copy snippet' },
+    { kind: 'input', prop: 'trailing', label: 'Trailing', defaultValue: 'icon-arrow-right' },
   ]}
 >
   {(props) => (
@@ -68,7 +71,11 @@ import { CopyButton } from '@src'
       variant={props.variant}
       tone={props.tone}
       size={props.size}
-    />
+      disabled={props.disabled}
+      trailing={props.trailing || undefined}
+    >
+      {props.label || undefined}
+    </CopyButton>
   )}
 </Playground>
 

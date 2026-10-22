@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { TONE_VARS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import { BUTTON_BASE_ROOT_CLASS, BUTTON_SIZE, BUTTON_VARIANT } from '../button/button.recipe'
+import { BUTTON_ACTION_VARIANT, BUTTON_BASE_ROOT_CLASS, BUTTON_SIZE } from '../button/button.recipe'
 
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
 
@@ -28,8 +28,8 @@ export const copyButtonRecipe = /* @__PURE__ */ defineRecipe<
     tone: 'neutral',
   },
   variants: {
-    variant: BUTTON_VARIANT,
-    copiedVariant: BUTTON_VARIANT,
+    variant: BUTTON_ACTION_VARIANT,
+    copiedVariant: BUTTON_ACTION_VARIANT,
     tone: TONE_VARS,
     copiedTone: TONE_VARS,
     size: BUTTON_SIZE,
