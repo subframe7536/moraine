@@ -5,7 +5,7 @@ export function CustomIcons() {
 
   return (
     <div class="flex gap-2 max-w-sm w-full items-center">
-      <Input value={token} readOnly type="password" class="text-xs font-mono" />
+      <Input value={token} readOnly type="password" class="font-mono" />
       <CopyButton
         value={token}
         icon="i-lucide:clipboard"

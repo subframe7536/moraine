@@ -103,12 +103,6 @@ export namespace CopyButtonT {
     iconPosition?: 'leading' | 'trailing'
 
     /**
-     * Whether to use opacity and scale cross-fade transitions during icon swaps.
-     * @default true
-     */
-    indicatorTransition?: boolean
-
-    /**
      * Callback fired when copy succeeds.
      */
     onCopy?: (data: CopyData) => void

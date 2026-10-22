@@ -317,8 +317,8 @@ describe('Button', () => {
   test.each([
     ['xs', 'text-tiny', 'h-6'],
     ['xl', 'text-lg', 'h-10'],
-    ['icon-xs', 'text-tiny', 'size-5'],
-    ['icon-xl', 'text-lg', 'size-9'],
+    ['icon-xs', 'text-tiny', 'size-6'],
+    ['icon-xl', 'text-lg', 'size-10'],
   ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
       <MoraineProvider>

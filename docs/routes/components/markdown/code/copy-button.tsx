@@ -10,6 +10,6 @@ export function extractCodeText(element?: HTMLElement): string {
 
 export function CopyButton(props: { code?: string; getTarget?: () => HTMLElement | undefined }) {
   return (
-    <MoraineCopyButton value={() => props.code ?? extractCodeText(props.getTarget?.())} size="xs" />
+    <MoraineCopyButton value={() => props.code ?? extractCodeText(props.getTarget?.())} />
   )
 }

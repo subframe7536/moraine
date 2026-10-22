@@ -12,15 +12,9 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callHandler } from '../../shared/utils'
 import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
-import type { IconT } from '../icon'
 
 import { defaultCopyButtonMessages } from './copy-button.messages'
-import {
-  COPY_BUTTON_ICON_COPIED_CLASS,
-  COPY_BUTTON_ICON_IDLE_CLASS,
-  copyButtonDataAttributes,
-  copyButtonRecipe,
-} from './copy-button.recipe'
+import { copyButtonDataAttributes, copyButtonRecipe } from './copy-button.recipe'
 import type { CopyButtonStyleVariants } from './copy-button.style-types'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
@@ -48,7 +42,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'icon',
       'copiedIcon',
       'iconPosition',
-      'indicatorTransition',
       'onCopy',
       'onError',
       'onStatusChange',
@@ -153,34 +146,23 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const binding = root.bind(interactionProps)
 
   function Indicator(): JSX.Element {
-    const idleIcon = (): IconT.Name =>
-      local.icon === true || local.icon === undefined ? 'icon-copy' : local.icon
-    const copiedIcon = (): IconT.Name => local.copiedIcon ?? 'icon-check'
+    const icon = createMemo(() =>
+      clipboard.isCopied()
+        ? (local.copiedIcon ?? 'icon-check')
+        : local.icon === true || local.icon === undefined
+          ? 'icon-copy'
+          : local.icon,
+    )
 
     return (
-      <span
+      <Icon
+        name={icon()}
         data-slot="copy-button-icon"
         {...copyButtonDataAttributes.icon({
           copied: clipboard.isCopied,
         })}
         {...slots.icon}
-      >
-        <Show
-          when={local.indicatorTransition !== false}
-          fallback={<Icon name={clipboard.isCopied() ? copiedIcon() : idleIcon()} />}
-        >
-          <Icon
-            name={idleIcon()}
-            class={COPY_BUTTON_ICON_IDLE_CLASS}
-            aria-hidden={clipboard.isCopied() ? true : undefined}
-          />
-          <Icon
-            name={copiedIcon()}
-            class={COPY_BUTTON_ICON_COPIED_CLASS}
-            aria-hidden={!clipboard.isCopied() ? true : undefined}
-          />
-        </Show>
-      </span>
+      />
     )
   }
 

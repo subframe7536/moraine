@@ -35,24 +35,17 @@ export const BUTTON_ACTION_VARIANT = {
   },
 } as const
 
-export const BUTTON_VARIANT = {
-  ...BUTTON_ACTION_VARIANT,
-  link: {
-    root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',
-  },
-} as const
-
 export const BUTTON_SIZE = {
   xs: { root: 'text-tiny px-1.5 rounded-xs h-6' },
   sm: { root: 'text-xs px-2 rounded-sm h-7' },
   md: { root: 'text-sm px-2.5 rounded-md h-8' },
   lg: { root: 'text-base px-3 rounded-lg h-9' },
   xl: { root: 'text-lg px-4 rounded-lg h-10' },
-  'icon-xs': { root: 'text-tiny rounded-xs size-5' },
-  'icon-sm': { root: 'text-xs rounded-sm size-6' },
-  'icon-md': { root: 'text-sm rounded-md size-7' },
-  'icon-lg': { root: 'text-base rounded-lg size-8' },
-  'icon-xl': { root: 'text-lg rounded-lg size-9' },
+  'icon-xs': { root: 'text-tiny rounded-xs size-6' },
+  'icon-sm': { root: 'text-xs rounded-sm size-7' },
+  'icon-md': { root: 'text-sm rounded-md size-8' },
+  'icon-lg': { root: 'text-base rounded-lg size-9' },
+  'icon-xl': { root: 'text-lg rounded-lg size-10' },
 } as const
 
 export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, ButtonStyleVariants>(
@@ -76,7 +69,12 @@ export const buttonRecipe = /* @__PURE__ */ defineRecipe<ButtonStyleSlot, Button
         'move-down': { root: BUTTON_MOVE_DOWN_ACTIVE_EFFECT_CLASS },
         'zoom-in': { root: BUTTON_ZOOM_IN_ACTIVE_EFFECT_CLASS },
       },
-      variant: BUTTON_VARIANT,
+      variant: {
+        ...BUTTON_ACTION_VARIANT,
+        link: {
+          root: 'text-tone-ink border-transparent underline-offset-4 hover:underline',
+        },
+      },
       tone: TONE_VARS,
       size: BUTTON_SIZE,
     },
