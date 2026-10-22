@@ -1,5 +1,6 @@
 import type { Component, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, For, on, onCleanup, splitProps } from 'solid-js'
+import { createStore, produce } from 'solid-js/store'
 import { Portal, isServer } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -59,7 +60,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
   const store = getDefaultToastStore()
   const [isWindowFocused, setIsWindowFocused] = createSignal(true)
   const [isDocumentHidden, setIsDocumentHidden] = createSignal(false)
-  const [heights, setHeights] = createSignal<Record<string | number, number>>({})
+  const [heights, setHeights] = createStore<Record<string | number, number>>({})
 
   const hostDefaults = createMemo<ToastHostDefaults>(() => ({
     type: local.type,
@@ -129,14 +130,15 @@ function ToastRoot(props: ToastProps): JSX.Element {
   })
 
   const updateHeight = (id: string | number, height: number) => {
-    setHeights((prev) => {
-      if (height <= 0) {
-        const next = { ...prev }
-        delete next[id]
-        return next
+    if (height <= 0) {
+      if (heights[id] !== undefined) {
+        setHeights(produce((draft) => delete draft[id]))
       }
-      return { ...prev, [id]: height }
-    })
+      return
+    }
+    if (heights[id] !== height) {
+      setHeights(produce((draft) => (draft[id] = height)))
+    }
   }
 
   return (
@@ -161,7 +163,7 @@ function ToastRoot(props: ToastProps): JSX.Element {
               store={store}
               expand={local.expand}
               hostPaused={isDocumentHidden() || !isWindowFocused()}
-              heights={heights()}
+              heights={heights}
               gap={local.gap ?? DEFAULT_TOAST_GAP}
               visibleToasts={local.visibleToasts ?? 3}
               itemRender={local.itemRender}

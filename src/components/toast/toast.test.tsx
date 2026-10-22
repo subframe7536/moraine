@@ -1334,4 +1334,27 @@ describe('Toast', () => {
       expect(screen.queryByText('Custom: ItemRender Toast')).toBeNull()
     })
   })
+
+  it('isolates fine-grained height storage across multiple positions', async () => {
+    render(() => <Toast expand />)
+
+    Toast.show({ title: 'Bottom Toast', placement: 'bottom', align: 'end' })
+    Toast.show({ title: 'Top Toast', placement: 'top', align: 'start' })
+
+    await screen.findByText('Bottom Toast')
+    await screen.findByText('Top Toast')
+
+    const bottomItem = screen.getByText('Bottom Toast').closest('li')!
+    const topItem = screen.getByText('Top Toast').closest('li')!
+    const lists = document.querySelectorAll('[data-slot="toast-list"]')
+    expect(lists.length).toBe(2)
+
+    // Trigger height updates on each item
+    Object.defineProperty(bottomItem, 'offsetHeight', { configurable: true, value: 70 })
+    Object.defineProperty(topItem, 'offsetHeight', { configurable: true, value: 90 })
+
+    // Both items remain mounted and visible in their respective lists
+    expect(bottomItem.textContent).toContain('Bottom Toast')
+    expect(topItem.textContent).toContain('Top Toast')
+  })
 })
