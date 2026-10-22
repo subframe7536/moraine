@@ -36,7 +36,7 @@ describe('CopyButton', () => {
     expect(button.getAttribute('data-slot')).toBe('copy-button')
     expect(button.hasAttribute('data-state')).toBe(false)
     expect(button.hasAttribute('data-copied')).toBe(false)
-    expect(button.hasAttribute('data-error')).toBe(false)
+    expect(button.hasAttribute('aria-invalid')).toBe(false)
 
     const iconSlot = button.querySelector('[data-slot="copy-button-icon"]')!
     expect(iconSlot).toBeDefined()
@@ -106,27 +106,24 @@ describe('CopyButton', () => {
     expect(labelIdx).toBeLessThan(iconIdx)
   })
 
-  test('sets data-error and aria-invalid on copy failure, including invalid styling', async () => {
+  test('sets aria-invalid on copy failure, including invalid styling', async () => {
     writeText.mockRejectedValueOnce(new Error('Clipboard write error'))
     const onError = vi.fn()
     const screen = render(() => <CopyButton value="failed-copy" onError={onError} />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
 
-    expect(button.hasAttribute('data-error')).toBe(false)
     expect(button.hasAttribute('aria-invalid')).toBe(false)
-    expect(button.className).toContain('data-error:border-danger')
+    expect(button.className).toContain('aria-invalid:border-danger')
 
     fireEvent.click(button)
     await flushMicrotasks()
 
     expect(onError).toHaveBeenCalled()
-    expect(button.getAttribute('data-error')).toBe('')
     expect(button.getAttribute('aria-invalid')).toBe('true')
     expect(button.hasAttribute('data-copied')).toBe(false)
 
     // Resets after timeout
     vi.advanceTimersByTime(2000)
-    expect(button.hasAttribute('data-error')).toBe(false)
     expect(button.hasAttribute('aria-invalid')).toBe(false)
   })
 

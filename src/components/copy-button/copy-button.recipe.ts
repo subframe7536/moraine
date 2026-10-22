@@ -7,7 +7,7 @@ import { BUTTON_ACTION_VARIANT, BUTTON_BASE_ROOT_CLASS, BUTTON_SIZE } from '../b
 import type { CopyButtonStyleSlot, CopyButtonStyleVariants } from './copy-button.style-types'
 
 export const copyButtonDataAttributes = {
-  root: /* @__PURE__ */ createDataAttributes('copied', 'error', 'disabled'),
+  root: /* @__PURE__ */ createDataAttributes('copied', 'disabled'),
   icon: /* @__PURE__ */ createDataAttributes('copied'),
 } satisfies DataAttributeContract<keyof CopyButtonStyleSlot>
 
@@ -16,7 +16,7 @@ export const copyButtonRecipe = /* @__PURE__ */ defineRecipe<
   CopyButtonStyleVariants
 >('copyButton', {
   base: {
-    root: `${BUTTON_BASE_ROOT_CLASS} data-error:(border-danger ring-3 ring-danger/20)`,
+    root: BUTTON_BASE_ROOT_CLASS,
     icon: '',
     label: 'min-w-0 truncate',
   },

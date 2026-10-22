@@ -185,8 +185,7 @@
       "target": "root",
       "attributes": [
         "data-copied",
-        "data-disabled",
-        "data-error"
+        "data-disabled"
       ]
     },
     {

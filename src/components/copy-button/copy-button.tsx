@@ -172,7 +172,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       data-slot={local.slotName || 'copy-button'}
       {...copyButtonDataAttributes.root({
         copied: clipboard.isCopied,
-        error: clipboard.isError,
         disabled: () => local.disabled,
       })}
       {...binding}
