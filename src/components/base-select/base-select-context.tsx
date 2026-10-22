@@ -4,6 +4,7 @@ import {
   batch,
   createEffect,
   createMemo,
+  createSelector,
   createSignal,
   on,
   onCleanup,
@@ -186,17 +187,23 @@ export function createSelectState<T extends BaseSelectT.Item>(
     }
   }
   const enabled = createMemo(() => items().filter((item) => !itemDisabled(item)))
+  const enabledValues = createMemo(() => new Set(enabled().map((item) => item.value)))
+  const selectedValues = createMemo(() => new Set(value()))
+  const isHighlighted = createSelector<T['value'] | undefined, T['value']>(
+    highlightedValue,
+    sameValue,
+  )
+  const isSelected = createSelector<ReadonlySet<T['value']>, T['value']>(
+    selectedValues,
+    (item, selected) => selected.has(item),
+  )
   createEffect(
     on([open, enabled, highlightedValue, value], ([isOpen, items, current, selected]) => {
-      if (!isOpen) {
+      if (!isOpen || (current !== undefined && enabledValues().has(current))) {
         return
       }
-      if (!items.some((item) => sameValue(item.value, current) && !itemDisabled(item))) {
-        const next =
-          items.find((item) => !itemDisabled(item) && selected.includes(item.value)) ??
-          items.find((item) => !itemDisabled(item))
-        setHighlightedValue(next ? next.value : undefined)
-      }
+      const next = items.find((item) => selected.includes(item.value)) ?? items[0]
+      setHighlightedValue(next ? next.value : undefined)
     }),
   )
   const typeahead = createTypeahead({
@@ -402,6 +409,8 @@ export function createSelectState<T extends BaseSelectT.Item>(
     setOpen,
     highlightedValue,
     setHighlightedValue,
+    isHighlighted,
+    isSelected,
     anchor,
     setAnchor,
     focusOwner,

@@ -4,7 +4,6 @@ import { children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
-import { sameValue } from '../shared/form/select/collection'
 
 import { useSelectContext } from './base-select-context'
 import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
@@ -31,8 +30,8 @@ export function BaseSelectItem<T extends BaseSelectT.Item>(
     contextVariants: () => ({ size: state.styleSize }),
   })
   const item = () => local.item
-  const selected = () => state.value().includes(item().value)
-  const highlighted = () => sameValue(state.highlightedValue(), item().value)
+  const selected = () => state.isSelected(item().value)
+  const highlighted = () => state.isHighlighted(item().value)
   const disabled = () => state.itemDisabled(item())
   const presentation: BaseSelectT.ItemRenderProps<T> = {
     get item() {

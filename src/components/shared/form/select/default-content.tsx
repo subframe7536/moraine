@@ -51,12 +51,12 @@ function DefaultSelectContentBody<T extends SelectItem>(
         () => props.virtualRender,
       ],
       ([key, open, listbox, rows, virtual]) => {
-        if (key === undefined || !open || !listbox) {
+        if (key === undefined || !open || !listbox || !virtual || !props.scrollToItem) {
           return
         }
         const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
         const row = rows[index]
-        if (virtual && row?.type === 'item' && props.scrollToItem) {
+        if (row?.type === 'item') {
           props.scrollToItem(row.item, index)
         }
       },
@@ -70,10 +70,10 @@ function DefaultSelectContentBody<T extends SelectItem>(
         return item()
       },
       get selected() {
-        return state.value().includes(item().value)
+        return state.isSelected(item().value)
       },
       get highlighted() {
-        return sameValue(state.highlightedValue(), item().value)
+        return state.isHighlighted(item().value)
       },
       get disabled() {
         return state.itemDisabled(item())
