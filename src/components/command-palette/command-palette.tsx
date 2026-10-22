@@ -5,6 +5,7 @@ import {
   Show,
   createEffect,
   createMemo,
+  createSelector,
   createSignal,
   mergeProps,
   on,
@@ -16,6 +17,7 @@ import { useRecipe } from '../../provider'
 import { collatorIncludes, createSearchCollator } from '../../provider/locale/collator'
 import { useLocale, useMessages } from '../../provider/locale/locale-context'
 import { createControllableValue } from '../../shared/controllable-value'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { renderWithProps } from '../../shared/render-with-props'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
@@ -189,6 +191,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     defaultValue: () => '',
   })
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
+  const isActive = createSelector(activeKey)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
   const listboxId = createId(undefined, 'command-palette-listbox')
@@ -326,48 +329,52 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     return entries
   })
 
-  const visibleItemSnapshot = () =>
-    visibleItems().map((item) => ({ key: item.key, disabled: item.disabled }))
-
-  createEffect(
-    on([visibleItemSnapshot, activeKey], ([visibleItems, highlighted]) => {
-      const items = visibleItems.filter((item) => !item.disabled)
-      if (highlighted && items.some((item) => item.key === highlighted)) {
-        return
-      }
-      setActiveKey(items[0]?.key)
-    }),
+  const enabledKeys = createMemo(
+    () => new Set(visibleItems().flatMap((item) => (item.disabled ? [] : [item.key]))),
   )
 
   createEffect(
-    on(
-      [activeKey, visibleItemByKey, () => merged.virtualRender, virtualEntries],
-      ([key, items, virtual, virtualItems]) => {
-        if (!key) {
-          return
+    on([enabledKeys, activeKey], ([keys, highlighted]) => {
+      if (highlighted && keys.has(highlighted)) {
+        return
+      }
+      setActiveKey(keys.values().next().value)
+    }),
+  )
+
+  const virtualEntryIndexByKey = createLazyMemo(() => {
+    const indexes = new Map<string, number>()
+    virtualEntries().forEach((entry, index) => {
+      if (entry.type === 'item') {
+        indexes.set(entry.key, index)
+      }
+    })
+    return indexes
+  })
+
+  createEffect(
+    on([activeKey, visibleItemByKey, () => merged.virtualRender], ([key, items, virtual]) => {
+      if (!key) {
+        return
+      }
+      const item = items.get(key)
+      if (!item) {
+        return
+      }
+      const scrollToItem = merged.scrollToItem
+      const entryIndex = virtual && scrollToItem ? virtualEntryIndexByKey().get(key) : undefined
+      if (scrollToItem && entryIndex !== undefined) {
+        scrollToItem(item.item, entryIndex)
+        return
+      }
+      const id = activeDescendantId()
+      queueMicrotask(() => {
+        const element = id ? listboxElement?.ownerDocument.getElementById(id) : undefined
+        if (element && listboxElement?.contains(element)) {
+          element.scrollIntoView?.({ block: 'nearest' })
         }
-        const item = items.get(key)
-        if (!item) {
-          return
-        }
-        const entries = virtual ? virtualItems : undefined
-        const scrollToItem = merged.scrollToItem
-        if (entries && scrollToItem) {
-          const entryIndex = entries.findIndex(
-            (entry) => entry.type === 'item' && entry.key === key,
-          )
-          if (entryIndex >= 0) {
-            scrollToItem(item.item, entryIndex)
-            return
-          }
-        }
-        queueMicrotask(() => {
-          listboxElement
-            ?.querySelector<HTMLElement>('[data-slot="command-palette-item"][data-highlighted]')
-            ?.scrollIntoView?.({ block: 'nearest' })
-        })
-      },
-    ),
+      })
+    }),
   )
 
   const { onNavigationKeyDown } = createSelectableCollectionNavigation<
@@ -559,7 +566,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         return itemProps.item.group
       },
       get highlighted() {
-        return activeKey() === itemProps.item.key
+        return isActive(itemProps.item.key)
       },
       get disabled() {
         return itemProps.item.disabled
@@ -578,9 +585,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         data-slot="command-palette-item"
         {...commandPaletteDataAttributes.item({
           disabled: () => itemProps.item.disabled,
-          highlighted: () => activeKey() === itemProps.item.key,
+          highlighted: () => isActive(itemProps.item.key),
         })}
-        aria-selected={activeKey() === itemProps.item.key}
+        aria-selected={isActive(itemProps.item.key)}
         aria-disabled={itemProps.item.disabled || undefined}
         aria-posinset={
           merged.virtualRender ? visibleItemPositionByKey().get(itemProps.item.key) : undefined
