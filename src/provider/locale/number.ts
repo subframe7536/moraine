@@ -174,12 +174,20 @@ export function parseLocaleNumber(value: string, locale?: string): number | unde
   return Number.isFinite(parsed) ? parsed : undefined
 }
 
+const plainFormatCache = new Map<string, Intl.NumberFormat>()
+
 /** Formats a number using locale digits without grouping. */
 export function formatLocaleNumber(value: number, locale?: string): string {
-  return createNumberFormat(locale, {
-    useGrouping: false,
-    maximumFractionDigits: 20,
-  }).format(value)
+  const key = locale || ''
+  let formatter = plainFormatCache.get(key)
+  if (!formatter) {
+    formatter = createNumberFormat(locale, {
+      useGrouping: false,
+      maximumFractionDigits: 20,
+    })
+    plainFormatCache.set(key, formatter)
+  }
+  return formatter.format(value)
 }
 
 export function toNumber(
