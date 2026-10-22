@@ -98,26 +98,20 @@ export function getDocsPages(): DocsPageEntry[] {
       if (leftGroup !== rightGroup) {
         return leftGroup.localeCompare(rightGroup)
       }
+      if (left.surface === 'components') {
+        if (left.path === '/components') {
+          return -1
+        }
+        if (right.path === '/components') {
+          return 1
+        }
+        return left.label.localeCompare(right.label)
+      }
       if (left.surface === 'hooks') {
         if (left.path === '/hooks') {
           return -1
         }
         if (right.path === '/hooks') {
-          return 1
-        }
-        return left.label.localeCompare(right.label)
-      }
-      if (left.section === 'utils') {
-        if (left.path === '/utils') {
-          return -1
-        }
-        if (right.path === '/utils') {
-          return 1
-        }
-        if (left.key === 'class-merging') {
-          return -1
-        }
-        if (right.key === 'class-merging') {
           return 1
         }
         return left.label.localeCompare(right.label)

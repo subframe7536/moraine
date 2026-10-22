@@ -42,8 +42,9 @@ vi.mock('virtual:routes', () => ({
   },
 }))
 
-function pageSource(title: string, order: number, group = 'Action'): string {
-  return `---\ntitle: ${title}\ndescription: ${title} page description.\ngroup: ${group}\nsidebar:\n  order: ${order}\nsearch:\n  tags: [docs]\n---\n`
+function pageSource(title: string, order?: number, group = 'Action'): string {
+  const sidebar = order !== undefined ? `sidebar:\n  order: ${order}\n` : ''
+  return `---\ntitle: ${title}\ndescription: ${title} page description.\ngroup: ${group}\n${sidebar}search:\n  tags: [docs]\n---\n`
 }
 
 async function writeProjectFile(projectRoot: string, relative: string, content: string) {
@@ -57,10 +58,9 @@ describe('docs route metadata', () => {
     const cases = [
       ['docs/(overview)/getting-started.mdx', 'docs', 'overview', '/docs/getting-started'],
       ['docs/(styling)/design.mdx', 'docs', 'styling', '/docs/design'],
+      ['docs/(styling)/class-merging.mdx', 'docs', 'styling', '/docs/class-merging'],
       ['docs/(guides)/composition.mdx', 'docs', 'guides', '/docs/composition'],
       ['docs/(guides)/virtualization.mdx', 'docs', 'guides', '/docs/virtualization'],
-      ['docs/utils/class-merging.mdx', 'docs', 'utils', '/docs/utils/class-merging'],
-      ['utils/index.mdx', 'docs', 'utils', '/utils'],
       ['hooks/index.mdx', 'hooks', 'overview', '/hooks'],
       ['hooks/create-slider.mdx', 'hooks', 'hooks', '/hooks/create-slider'],
       ['components/index.mdx', 'components', 'overview', '/components'],
@@ -107,7 +107,7 @@ describe('docs route metadata', () => {
       await writeProjectFile(
         projectRoot,
         'docs/pages/components/button/index.mdx',
-        pageSource('Button', 1, 'Action'),
+        pageSource('Button', undefined, 'Action'),
       )
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
         { info: { surface: 'docs', routePath: '/docs/getting-started' } },
@@ -122,8 +122,8 @@ describe('docs route metadata', () => {
       ])
       await writeProjectFile(
         projectRoot,
-        'docs/pages/components/badge/index.mdx',
-        pageSource('Badge', 1, 'Action'),
+        'docs/pages/docs/(overview)/installation.mdx',
+        pageSource('Installation', 1),
       )
       expect(() => scanDocsRoutes(projectRoot)).toThrow('duplicate sidebar.order 1')
     } finally {
@@ -156,38 +156,16 @@ describe('docs route metadata', () => {
     })
   })
 
-  test('sorts utils section alphabetically with class-merging first when order is omitted', async () => {
-    const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-docs-utils-'))
-    try {
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/docs/utils/create-slider.mdx',
-        '---\ntitle: createSlider\ndescription: d\nsearch:\n  tags: [t]\n---\n',
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/docs/utils/class-merging.mdx',
-        '---\ntitle: Class Merging\ndescription: d\nsearch:\n  tags: [t]\n---\n',
-      )
-      await writeProjectFile(
-        projectRoot,
-        'docs/pages/docs/utils/create-media-query.mdx',
-        '---\ntitle: createMediaQuery\ndescription: d\nsearch:\n  tags: [t]\n---\n',
-      )
-      const scanned = scanDocsRoutes(projectRoot)
-      expect(scanned.map((r) => r.info.key)).toEqual([
-        'class-merging',
-        'create-media-query',
-        'create-slider',
-      ])
-    } finally {
-      await rm(projectRoot, { recursive: true, force: true })
-    }
-  })
-
-  test('scans repository utils routes with /utils first and remainder alphabetically', () => {
-    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'utils')
-    expect(scanned.map((r) => r.info.key)).toEqual(['utils', 'class-merging'])
+  test('scans repository styling routes preserving sidebar order with class-merging included', () => {
+    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.section === 'styling')
+    expect(scanned.map((r) => r.info.key)).toEqual([
+      'design',
+      'customization',
+      'theming',
+      'icons',
+      'animations',
+      'class-merging',
+    ])
   })
 
   test('scans repository hooks routes with hooks index first and remainder alphabetically', () => {
@@ -221,5 +199,18 @@ describe('docs route metadata', () => {
       },
     ])
     expect(routes.some((route) => route.info.key === 'create-list-virtualizer')).toBe(false)
+  })
+
+  test('scans repository components routes with components index first and remainder alphabetically within sections', () => {
+    const scanned = scanDocsRoutes(process.cwd()).filter((r) => r.info.surface === 'components')
+    expect(scanned[0]?.info.routePath).toBe('/components')
+    const buttons = scanned.filter((r) => r.info.section === 'buttons')
+    expect(buttons.map((r) => r.info.title)).toEqual([
+      'Button',
+      'ButtonGroup',
+      'CopyButton',
+      'ToggleButton',
+    ])
+    expect(buttons.map((r) => r.info.order)).toEqual([0, 1, 2, 3])
   })
 })

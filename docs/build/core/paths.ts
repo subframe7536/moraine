@@ -35,23 +35,8 @@ function deriveRoute(relativePath: string) {
     .replace(/\.mdx$/, '')
     .split('/')
   const firstSegment = segments.shift()
-  if (
-    firstSegment !== 'docs' &&
-    firstSegment !== 'components' &&
-    firstSegment !== 'hooks' &&
-    firstSegment !== 'utils'
-  ) {
+  if (firstSegment !== 'docs' && firstSegment !== 'components' && firstSegment !== 'hooks') {
     throw new Error(`[docs-plugin] unknown docs surface in ${relativePath}`)
-  }
-
-  if (firstSegment === 'utils') {
-    const routePath = '/utils'
-    return {
-      surface: 'docs' as DocsSurface,
-      section: 'utils',
-      routePath,
-      markdownPath: `${routePath}.md`,
-    }
   }
 
   if (firstSegment === 'hooks') {
@@ -82,7 +67,7 @@ function deriveRoute(relativePath: string) {
   }
 
   const sectionSegment = segments.find((segment) =>
-    /^(\(overview\)|\(guides\)|\(styling\)|utils)$/.test(segment),
+    /^(\(overview\)|\(guides\)|\(styling\))$/.test(segment),
   )
   const section = sectionSegment?.replace(/[()]/g, '') ?? ''
   if (!section) {

@@ -26,7 +26,6 @@ export const DOCS_SECTION_ORDER = new Map<string, number>(
     'docs:overview',
     'docs:guides',
     'docs:styling',
-    'docs:utils',
     'components:overview',
     'components:buttons',
     'components:display',

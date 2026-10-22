@@ -21,15 +21,14 @@ docs/pages/docs/(styling)/customization.mdx          → /docs/customization
 docs/pages/docs/(styling)/theming.mdx                → /docs/theming
 docs/pages/docs/(styling)/icons.mdx                  → /docs/icons
 docs/pages/docs/(styling)/animations.mdx             → /docs/animations
-docs/pages/docs/utils/class-merging.mdx              → /docs/utils/class-merging
-docs/pages/utils/index.mdx                           → /utils
+docs/pages/docs/(styling)/class-merging.mdx          → /docs/class-merging
 docs/pages/hooks/index.mdx                           → /hooks
 docs/pages/hooks/create-*.mdx                        → /hooks/create-*
 docs/pages/components/index.mdx                      → /components
 docs/pages/components/(general)/button/index.mdx     → /components/button
 ```
 
-Docs sections run Overview → Guides → Styling → Utils. Components run Overview → General → Form → Navigation → Overlay. `sidebar.order` controls ordering within each section. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
+Docs sections run Overview → Guides → Styling. Components run Overview → Buttons → Display → Form → Select → Layout → Overlay → Navigation. For docs sections, `sidebar.order` controls ordering within each section, while components and hooks are sorted alphabetically with their index page first. Group directories in parentheses are pathless. Component source, previews, and generated `api.json` stay colocated.
 
 `docs/build/core/paths.ts` derives `surface`, `section`, `routePath`, and `markdownPath` from the source path. The canonical route path is used for metadata and page links; Markdown mirrors it with `.md`. The root landing has no Markdown page. Old root-level URLs have no redirect.
 
@@ -37,7 +36,7 @@ Docs sections run Overview → Guides → Styling → Utils. Components run Over
 
 ## Content contract
 
-All pages have validated frontmatter with `title`, `description`, `sidebar.order`, and nonempty `search.tags`. A component can additionally register `api.path`, optional API parts, and `upstreamHref`. Unknown fields fail the build. Surface and section come from the path rather than frontmatter.
+All pages have validated frontmatter with `title`, `description`, optional `sidebar` (`order` for docs sections, optional `badge`), and nonempty `search.tags`. A component can additionally register `api.path`, optional API parts, and `upstreamHref`. Unknown fields fail the build. Surface and section come from the path rather than frontmatter.
 
 A component page uses this order:
 

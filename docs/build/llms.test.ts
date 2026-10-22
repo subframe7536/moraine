@@ -32,13 +32,14 @@ describe('agent Markdown', () => {
       'components/button.md',
       'hooks.md',
       'hooks/create-slider.md',
-      'utils.md',
+      'docs/class-merging.md',
     ]) {
       expect(names.has(name)).toBe(true)
     }
     for (const old of [
       'start.md',
       'button.md',
+      'utils.md',
       'styling/design.md',
       'docs/styling/design.md',
       'docs/create-list-virtualizer.md',

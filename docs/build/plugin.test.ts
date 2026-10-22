@@ -67,8 +67,6 @@ export type ButtonProps = ButtonT.Props
 title: Button
 description: Test button page.
 group: Action
-sidebar:
-  order: 10
 search:
   tags: [action]
 api:

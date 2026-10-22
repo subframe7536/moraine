@@ -4,7 +4,33 @@ description: Headless interaction engines, reactive primitives, and utilities fo
 sidebar:
   order: 0
 search:
-  tags: [hooks, primitives, state, interaction, collection, headless]
+  tags: [hooks, primitives, state, interaction, collection, headless, utils, helpers, moraine/utils]
 ---
+
+Moraine exports a suite of headless interaction engines, reactive primitives, and low-level utilities from the dedicated `moraine/utils` entry point. These helpers power Moraine's internal components and are available for building custom primitives and bespoke UI controls.
+
+## Import
+
+Import headless helpers directly from the dedicated subpath:
+
+```tsx
+import {
+  createBaseSelectSearchInput,
+  createControllableValue,
+  createCopy,
+  createDisclosureState,
+  createEventListener,
+  createEventListenerMap,
+  createId,
+  createMediaQuery,
+  createSelectableCollectionNavigation,
+  createSlider,
+  createTransitionPresence,
+} from 'moraine/utils'
+```
+
+Styling helpers such as `cn`, `createCn`, and `useCn` are exported from both `moraine` and `moraine/utils`. For class merging documentation, see [Class Merging](/docs/class-merging).
+
+## Headless Hooks
 
 <HooksIndex />

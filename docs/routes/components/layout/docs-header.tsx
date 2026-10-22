@@ -25,9 +25,7 @@ export function DocsHeader(props: DocsHeaderProps): JSX.Element {
   const location = useLocation()
   const isComponents = createMemo(() => location.pathname.startsWith('/components'))
   const isHooks = createMemo(() => location.pathname.startsWith('/hooks'))
-  const isDocs = createMemo(
-    () => location.pathname.startsWith('/docs') || location.pathname.startsWith('/utils'),
-  )
+  const isDocs = createMemo(() => location.pathname.startsWith('/docs'))
 
   return (
     <header class="font-sans bg-background shrink-0 h-13 z-sticky">

@@ -53,26 +53,20 @@ function compareRoutes(left: DocsRouteEntry, right: DocsRouteEntry): number {
   if (leftGroup !== rightGroup) {
     return leftGroup.localeCompare(rightGroup)
   }
-  if (left.info.section === 'utils') {
-    if (left.info.routePath === '/utils') {
-      return -1
-    }
-    if (right.info.routePath === '/utils') {
-      return 1
-    }
-    if (left.info.key === 'class-merging') {
-      return -1
-    }
-    if (right.info.key === 'class-merging') {
-      return 1
-    }
-    return left.info.title.localeCompare(right.info.title)
-  }
   if (left.info.surface === 'hooks') {
     if (left.info.routePath === '/hooks') {
       return -1
     }
     if (right.info.routePath === '/hooks') {
+      return 1
+    }
+    return left.info.title.localeCompare(right.info.title)
+  }
+  if (left.info.surface === 'components') {
+    if (left.info.routePath === '/components') {
+      return -1
+    }
+    if (right.info.routePath === '/components') {
       return 1
     }
     return left.info.title.localeCompare(right.info.title)
@@ -100,7 +94,7 @@ export function scanDocsRoutes(
   const ordersByGroup = new Map<string, Map<number, string>>()
   for (const route of routes) {
     const group = `${route.info.surface}:${route.info.section}`
-    if (route.info.section === 'utils' || route.info.section === 'hooks') {
+    if (route.info.surface === 'components' || route.info.surface === 'hooks') {
       const orders = ordersByGroup.get(group) ?? new Map<number, string>()
       route.info.order = orders.size
       orders.set(route.info.order, route.sourcePath)
