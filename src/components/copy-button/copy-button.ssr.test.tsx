@@ -59,7 +59,7 @@ describe('CopyButton SSR hydration', () => {
     const renderProp = buttons[2]!
 
     expect(iconOnly.getAttribute('data-slot')).toBe('copy-button')
-    expect(iconOnly.getAttribute('data-state')).toBe('idle')
+    expect(iconOnly.hasAttribute('data-copied')).toBe(false)
     expect(iconOnly.getAttribute('aria-label')).toBe('Copy to clipboard')
 
     const labelChild = withChildren.querySelector('span[data-slot="copy-button-label"] > span')!
@@ -70,7 +70,7 @@ describe('CopyButton SSR hydration', () => {
     fireEvent.click(iconOnly)
     expect(writeText).toHaveBeenCalledWith('server-value')
     await flushMicrotasks()
-    expect(iconOnly.getAttribute('data-state')).toBe('copied')
+    expect(iconOnly.hasAttribute('data-copied')).toBe(true)
     expect(iconOnly.getAttribute('aria-label')).toBe('Copied to clipboard')
 
     const renderPropChild = renderProp.querySelector('span[data-slot="copy-button-label"] > span')!

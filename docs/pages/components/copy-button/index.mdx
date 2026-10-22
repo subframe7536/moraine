@@ -53,16 +53,20 @@ import { CopyButton } from '@src'
         { label: 'Medium', value: 'md' },
         { label: 'Large', value: 'lg' },
         { label: 'Extra Large', value: 'xl' },
-        { label: 'Icon XS', value: 'icon-xs' },
-        { label: 'Icon Small', value: 'icon-sm' },
-        { label: 'Icon Medium', value: 'icon-md' },
-        { label: 'Icon Large', value: 'icon-lg' },
-        { label: 'Icon XL', value: 'icon-xl' },
       ],
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'iconPosition',
+      label: 'Icon Position',
+      defaultValue: 'leading',
+      options: [
+        { label: 'Leading', value: 'leading' },
+        { label: 'Trailing', value: 'trailing' },
+      ],
+    },
     { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Copy snippet' },
-    { kind: 'input', prop: 'trailing', label: 'Trailing', defaultValue: 'icon-arrow-right' },
   ]}
 >
   {(props) => (
@@ -72,7 +76,7 @@ import { CopyButton } from '@src'
       tone={props.tone}
       size={props.size}
       disabled={props.disabled}
-      trailing={props.trailing || undefined}
+      iconPosition={props.iconPosition}
     >
       {props.label || undefined}
     </CopyButton>
@@ -84,14 +88,7 @@ import { CopyButton } from '@src'
 <Anatomy
   value={{
     root: { slot: 'root' },
-    children: [
-      {
-        slot: 'indicator',
-        children: [{ slot: 'icon' }, { slot: 'copiedIcon' }],
-      },
-      { slot: 'label' },
-      { slot: 'trailing' },
-    ],
+    children: [{ slot: 'icon' }, { slot: 'label' }],
   }}
 />
 

@@ -14,7 +14,12 @@ import { useButtonGroupContext } from '../button-group/button-group-context'
 import { Icon } from '../icon'
 
 import { defaultCopyButtonMessages } from './copy-button.messages'
-import { copyButtonDataAttributes, copyButtonRecipe } from './copy-button.recipe'
+import {
+  COPY_BUTTON_ICON_COPIED_CLASS,
+  COPY_BUTTON_ICON_IDLE_CLASS,
+  copyButtonDataAttributes,
+  copyButtonRecipe,
+} from './copy-button.recipe'
 import type { CopyButtonProps, CopyButtonT } from './copy-button.types'
 import { createCopy } from './create-copy'
 
@@ -56,7 +61,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       'style',
       'onClick',
       'children',
-      'trailing',
       'aria-label',
     ],
   )
@@ -113,24 +117,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
         },
       }
     },
-    own: {
-      icon: () => ({
-        class:
-          local.indicatorTransition !== false
-            ? clipboard.copied()
-              ? 'opacity-0 scale-75 pointer-events-none'
-              : 'opacity-100 scale-100'
-            : undefined,
-      }),
-      copiedIcon: () => ({
-        class:
-          local.indicatorTransition !== false
-            ? clipboard.copied()
-              ? 'opacity-100 scale-100'
-              : 'opacity-0 scale-75 pointer-events-none'
-            : undefined,
-      }),
-    },
   })
 
   async function handleClick(event: MouseEvent & { currentTarget: HTMLElement }): Promise<unknown> {
@@ -182,10 +168,17 @@ export function CopyButton<T extends ValidComponent = 'button'>(
   const hasChildren = () => hasContent(resolvedChildren())
 
   const defaultAriaLabel = () => (clipboard.copied() ? messages().copied : messages().copy)
+  const isError = () => clipboard.state() === 'failed'
 
   function Indicator(): JSX.Element {
     return (
-      <span data-slot="copy-button-indicator" {...slots.indicator}>
+      <span
+        data-slot="copy-button-icon"
+        {...copyButtonDataAttributes.icon({
+          copied: clipboard.copied,
+        })}
+        {...slots.icon}
+      >
         <Show
           when={local.indicatorTransition !== false}
           fallback={
@@ -195,22 +188,18 @@ export function CopyButton<T extends ValidComponent = 'button'>(
                   ? (local.copiedIcon ?? 'icon-check')
                   : (local.icon ?? 'icon-copy')
               }
-              slotName="copy-button-icon"
-              {...slots.icon}
             />
           }
         >
           <Icon
             name={local.icon ?? 'icon-copy'}
-            slotName="copy-button-icon"
+            class={COPY_BUTTON_ICON_IDLE_CLASS}
             aria-hidden={clipboard.copied() ? true : undefined}
-            {...slots.icon}
           />
           <Icon
             name={local.copiedIcon ?? 'icon-check'}
-            slotName="copy-button-copied-icon"
+            class={COPY_BUTTON_ICON_COPIED_CLASS}
             aria-hidden={!clipboard.copied() ? true : undefined}
-            {...slots.copiedIcon}
           />
         </Show>
       </span>
@@ -223,11 +212,12 @@ export function CopyButton<T extends ValidComponent = 'button'>(
       data-slot={local.slotName || 'copy-button'}
       {...copyButtonDataAttributes.root({
         copied: clipboard.copied,
-        state: clipboard.state,
+        error: isError,
         disabled: () => local.disabled,
       })}
       {...binding}
       {...slots.root}
+      aria-invalid={isError() ? true : undefined}
       aria-label={local['aria-label'] ?? defaultAriaLabel()}
     >
       <Show when={local.iconPosition !== 'trailing'}>
@@ -242,10 +232,6 @@ export function CopyButton<T extends ValidComponent = 'button'>(
 
       <Show when={local.iconPosition === 'trailing'}>
         <Indicator />
-      </Show>
-
-      <Show when={local.trailing}>
-        <Icon name={local.trailing!} slotName="copy-button-trailing" {...slots.trailing} />
       </Show>
     </Dynamic>
   )

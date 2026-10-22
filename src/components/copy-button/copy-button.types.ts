@@ -119,11 +119,6 @@ export namespace CopyButtonT {
     onStatusChange?: (details: { copied: boolean; state: CopyState; data?: CopyData }) => void
 
     /**
-     * Trailing visual content, usually an icon.
-     */
-    trailing?: IconT.Name
-
-    /**
      * Content or render function receiving the copy state.
      * A render function must declare its parameter, even when unused.
      */

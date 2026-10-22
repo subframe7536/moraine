@@ -179,12 +179,6 @@
           }
         },
         {
-          "name": "trailing",
-          "optional": true,
-          "type": "IconT.Name",
-          "description": "Trailing visual content, usually an icon."
-        },
-        {
           "name": "value",
           "optional": false,
           "type": "CopySource",
@@ -205,11 +199,8 @@
   ],
   "slots": [
     "root",
-    "indicator",
     "icon",
-    "copiedIcon",
-    "label",
-    "trailing"
+    "label"
   ],
   "dataAttributes": [
     {
@@ -217,7 +208,13 @@
       "attributes": [
         "data-copied",
         "data-disabled",
-        "data-state"
+        "data-error"
+      ]
+    },
+    {
+      "target": "icon",
+      "attributes": [
+        "data-copied"
       ]
     }
   ]

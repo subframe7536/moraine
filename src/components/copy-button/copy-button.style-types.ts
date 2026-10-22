@@ -8,29 +8,14 @@ export interface CopyButtonStyleSlot<T = unknown> {
   root?: T
 
   /**
-   * Relative container holding the copy and check icons with opacity transitions.
-   */
-  indicator?: T
-
-  /**
-   * Idle copy icon element.
+   * Copy icon element or container holding the copy and check icons.
    */
   icon?: T
-
-  /**
-   * Copied check icon element.
-   */
-  copiedIcon?: T
 
   /**
    * Button content region after render-prop resolution.
    */
   label?: T
-
-  /**
-   * Trailing content region.
-   */
-  trailing?: T
 }
 
 export type CopyButtonVariant = 'solid' | 'soft' | 'outline' | 'ghost'
