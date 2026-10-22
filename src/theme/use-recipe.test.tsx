@@ -212,38 +212,25 @@ describe('useRecipe', () => {
     expect(ownReads).toBe(0)
 
     const rootClass = slots.root.class
-    const afterRootClass = ownReads
-    expect(afterRootClass).toBe(1)
+    expect(ownReads).toBe(1)
     expect(rootClass).toContain('size-sm')
     expect(slots.root.class).toBe(rootClass)
-    expect(ownReads).toBe(afterRootClass)
 
+    // One own evaluation serves every slot's class and style.
     void slots.root.style
-    const afterRootStyle = ownReads
-    expect(afterRootStyle).toBe(afterRootClass + 1)
-
     const labelClass = slots.label.class
-    const afterLabelClass = ownReads
-    expect(afterLabelClass).toBe(afterRootStyle + 1)
     expect(labelClass).toContain('tone-a')
     expect(slots.label.class).toBe(labelClass)
-    expect(ownReads).toBe(afterLabelClass)
-
-    // idle unread → no additional own reads
-    expect(ownReads).toBe(afterLabelClass)
+    expect(ownReads).toBe(1)
 
     setSize('lg')
     expect(slots.root.class).toContain('size-lg')
-    // Because own is isolated in its own memo and own did not change, own is NOT re-read on variant changes
-    expect(ownReads).toBe(afterLabelClass)
     expect(slots.label.class).toBe(labelClass)
-    expect(ownReads).toBe(afterLabelClass)
 
     setTone('b')
     expect(slots.label.class).toContain('tone-b')
-    expect(ownReads).toBe(afterLabelClass)
     expect(slots.root.class).toContain('size-lg')
-    expect(ownReads).toBe(afterLabelClass)
+    expect(ownReads).toBe(1)
   })
 
   test('updating own for one slot does not recompute other slot memos', () => {
