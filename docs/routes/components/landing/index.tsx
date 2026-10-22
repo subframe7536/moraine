@@ -1,13 +1,13 @@
 import packageMetadata from '../../../../package.json' with { type: 'json' }
 import { Badge, Button, Icon, cn } from '../../../../src'
+import { createCopy } from '../../../../src/utils'
+import type { CopyState } from '../../../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
-import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
-import type { ClipboardCopyState } from '../../hooks/create-clipboard-copy'
 
 import { ComponentRadar } from './component-radar'
 import { StylingShowcase } from './styling-showcase'
 
-function InstallCommand(props: { state: ClipboardCopyState; onClick: () => void; class?: string }) {
+function InstallCommand(props: { state: CopyState; onClick: () => void; class?: string }) {
   return (
     <button
       type="button"
@@ -42,7 +42,7 @@ export { ComponentRadar } from './component-radar'
 export { StylingShowcase } from './styling-showcase'
 
 export function LandingPage() {
-  const clipboard = createClipboardCopy()
+  const clipboard = createCopy()
   const handleCopy = () => clipboard.copy('npm i moraine')
 
   return (

@@ -10,6 +10,7 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-collapse': 'Present when the handle performs a collapse action.',
   'data-collapsed': 'Present when the panel or section is collapsed.',
   'data-compact': 'Present when the component uses its compact presentation.',
+  'data-copied': 'Present while the copied state is active.',
   'data-cross': 'Present while a resizable handle cross-target is active.',
   'data-current': 'Present when the item represents the current location or step.',
   'data-danger': 'Present when the action has danger semantics.',

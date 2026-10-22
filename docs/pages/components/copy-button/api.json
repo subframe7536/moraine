@@ -1,0 +1,198 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "copy-button",
+  "name": "CopyButton",
+  "description": "Props for the CopyButton component.",
+  "kind": "single",
+  "parts": [
+    {
+      "id": "copy-button",
+      "name": "CopyButton",
+      "access": {
+        "kind": "export",
+        "name": "CopyButton"
+      },
+      "description": "Props for the CopyButton component.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "defaultElement": "button",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element | Component<ChildrenRenderProps>",
+          "description": "Content or render function receiving the copy state.\nA render function must declare its parameter, even when unused."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "copiedDuration",
+          "optional": true,
+          "type": "number",
+          "description": "Duration in milliseconds to hold the 'copied' state before returning to 'idle'.",
+          "default": {
+            "kind": "literal",
+            "value": 2000
+          }
+        },
+        {
+          "name": "copiedIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon displayed when copied.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-check"
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disabled state, including for non-button polymorphic roots."
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon displayed in the idle state. Pass `false` to disable icon display.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-copy"
+          }
+        },
+        {
+          "name": "iconPosition",
+          "optional": true,
+          "type": "'leading' | 'trailing'",
+          "description": "Position of the copy indicator icon relative to the label.",
+          "default": {
+            "kind": "literal",
+            "value": "leading"
+          }
+        },
+        {
+          "name": "onCopy",
+          "optional": true,
+          "type": "(data: CopyData) => void",
+          "description": "Callback fired when copy succeeds."
+        },
+        {
+          "name": "onError",
+          "optional": true,
+          "type": "(error: unknown) => void",
+          "description": "Callback fired when copy fails."
+        },
+        {
+          "name": "onStatusChange",
+          "optional": true,
+          "type": "(details: { isCopied: boolean; state: CopyState }) => void",
+          "description": "Callback fired when copy status changes."
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
+          "description": "Button size, including icon-only sizes.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": "string",
+          "description": "Root `data-slot` name",
+          "default": {
+            "kind": "literal",
+            "value": "copy-button"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "tone",
+          "optional": true,
+          "type": "Tone",
+          "description": "Color tone while uncopied.",
+          "default": {
+            "kind": "literal",
+            "value": "neutral"
+          }
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "type": "CopySource",
+          "description": "Value to copy to the clipboard. Accepts a string, ClipboardItem, ClipboardItem[], or an accessor returning either."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'solid' | 'soft' | 'outline' | 'ghost'",
+          "description": "Visual treatment while uncopied.",
+          "default": {
+            "kind": "literal",
+            "value": "ghost"
+          }
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "icon",
+    "label"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-copied",
+        "data-disabled"
+      ]
+    },
+    {
+      "target": "icon",
+      "attributes": [
+        "data-copied"
+      ]
+    }
+  ]
+}

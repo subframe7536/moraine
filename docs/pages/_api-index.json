@@ -86,6 +86,11 @@
       "category": "overlay"
     },
     {
+      "key": "copy-button",
+      "name": "CopyButton",
+      "category": "buttons"
+    },
+    {
       "key": "dialog",
       "name": "Dialog",
       "category": "overlay"

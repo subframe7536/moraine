@@ -14,6 +14,7 @@ import {
   Collapsible,
   Combobox,
   ContextMenu,
+  CopyButton,
   Dialog,
   DropdownMenu,
   Empty,
@@ -50,6 +51,7 @@ import type {
   CnConfig,
   CommandPaletteT,
   ComboboxT,
+  CopyButtonT,
   DialogT,
   DropdownMenuT,
   EmptyT,
@@ -68,7 +70,7 @@ import type {
   ValidComponent,
 } from 'moraine'
 import { defineTheme } from 'moraine/theme'
-import { createSlider } from 'moraine/utils'
+import { createCopy, createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -78,6 +80,7 @@ export type UtilityExports = Assert<
 >
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
+  Assert<CopyButtonT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
@@ -209,6 +212,8 @@ type UtilsCn = typeof import('moraine/utils').cn
 type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
 // @ts-expect-error Slider hook is only public from the utils entry.
 type RootUseSlider = typeof import('moraine').createSlider
+// @ts-expect-error createCopy is only public from the utils entry.
+type RootCreateCopy = typeof import('moraine').createCopy
 type RootAlertDialog = typeof import('moraine').AlertDialog
 type RootAlertDialogOptions = import('moraine').AlertDialogT.Options
 type RootAlertDialogHandle = import('moraine').AlertDialogT.Handle
@@ -220,11 +225,15 @@ type UtilsSliderHook = typeof import('moraine/utils').createSlider
 type UtilsUseSliderProps = import('moraine/utils').CreateSliderProps
 type UtilsUseSliderOptions = import('moraine/utils').CreateSliderOptions
 type UtilsUseSliderReturn = import('moraine/utils').CreateSliderReturn
+type UtilsCreateCopyHook = typeof import('moraine/utils').createCopy
+type UtilsCreateCopyOptions = import('moraine/utils').CreateCopyOptions
+type UtilsCreateCopyReturn = import('moraine/utils').CreateCopyReturn
 
 export type PublicEntryIsolation = [
   RecipeEntry,
   RootRecipe,
   RootUseSlider,
+  RootCreateCopy,
   RootAlertDialog,
   Assert<
     RootAlertDialog extends ((props: import('moraine').AlertDialogProps) => unknown) & {
@@ -257,6 +266,10 @@ export type PublicEntryIsolation = [
   Assert<'onValueReset' extends keyof UtilsUseSliderOptions ? false : true>,
   Assert<UtilsUseSliderReturn extends {} ? true : false>,
   Assert<'resetValues' extends keyof UtilsUseSliderReturn ? true : false>,
+  Assert<UtilsCreateCopyHook extends (...args: any[]) => any ? true : false>,
+  Assert<UtilsCreateCopyOptions extends {} ? true : false>,
+  Assert<UtilsCreateCopyReturn extends {} ? true : false>,
+  Assert<'isCopied' extends keyof UtilsCreateCopyReturn ? true : false>,
 ]
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
@@ -310,6 +323,15 @@ const divRef = (element: HTMLDivElement) => element.focus()
   <ButtonGroup.Separator class="bg-input" style={{ opacity: 0.8 }} />
   <Button>Paste</Button>
 </ButtonGroup>
+;<CopyButton value="code snippet" />
+;<CopyButton value="code snippet" copiedDuration={1500} icon="icon-copy" copiedIcon="icon-check" />
+;<CopyButton value="code snippet">{(state) => (state.isCopied ? 'Copied' : 'Copy')}</CopyButton>
+// @ts-expect-error value is required
+;<CopyButton />
+{
+  const copyHook = createCopy({ value: 'snippet', copiedDuration: 1000 })
+  void copyHook.copy()
+}
 ;<Button
   as="a"
   href="/docs"

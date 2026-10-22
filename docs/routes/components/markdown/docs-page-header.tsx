@@ -1,10 +1,9 @@
 import { Show } from 'solid-js'
 
-import { Badge, Button } from '../../../../src'
+import { Badge, Button, CopyButton } from '../../../../src'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import type { FrontmatterData } from '../../../build/markdown/types'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
-import { createClipboardCopy } from '../../hooks/create-clipboard-copy'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
@@ -22,16 +21,13 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
     const sourcePath = props.frontmatter.api?.path
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined
   }
-  const clipboard = createClipboardCopy({ resetAfter: 1600 })
-  const copyMarkdownSource = () => {
-    const markdownPath = props.markdownPath
-    return clipboard.copy(async () => {
-      const response = await fetch(markdownPath)
-      if (!response.ok) {
-        throw new Error(`Markdown request failed: ${response.status}`)
-      }
-      return response.text()
-    })
+
+  async function fetchMarkdownSource(): Promise<string> {
+    const response = await fetch(props.markdownPath)
+    if (!response.ok) {
+      throw new Error(`Markdown request failed: ${response.status}`)
+    }
+    return response.text()
   }
 
   return (
@@ -91,20 +87,16 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
         >
           View as Markdown
         </Button>
-        <Button
+        <CopyButton
+          value={fetchMarkdownSource}
+          copiedDuration={1600}
           aria-label="Copy markdown source"
           variant="outline"
           size="sm"
-          leading={clipboard.state() === 'copied' ? 'i-lucide:check' : 'i-lucide:copy'}
-          onClick={copyMarkdownSource}
           class={`h-8 ${DOCS_FOCUS_RING_OFFSET_CLASS}`}
         >
-          {clipboard.state() === 'copied'
-            ? 'Copied Markdown'
-            : clipboard.state() === 'failed'
-              ? 'Copy Failed'
-              : 'Copy as Markdown'}
-        </Button>
+          {(state) => (state.isCopied ? 'Copied Markdown' : 'Copy as Markdown')}
+        </CopyButton>
         <Show when={githubSourceHref()}>
           {(href) => (
             <Button
