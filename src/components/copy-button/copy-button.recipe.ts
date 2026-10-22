@@ -17,7 +17,7 @@ export const copyButtonRecipe = /* @__PURE__ */ defineRecipe<
 >('copyButton', {
   base: {
     root: `${BUTTON_BASE_ROOT_CLASS} data-error:(border-danger ring-3 ring-danger/20)`,
-    icon: 'group relative',
+    icon: '',
     label: 'min-w-0 truncate',
   },
   defaultVariants: {

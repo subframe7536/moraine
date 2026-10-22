@@ -29,7 +29,7 @@ async function flushMicrotasks() {
 }
 
 describe('CopyButton', () => {
-  test('renders default icon-button with accessible label, data-slot, and CSS-driven transitions', async () => {
+  test('renders default icon-button with accessible label, data-slot, and status transitions', async () => {
     const screen = render(() => <CopyButton value="moraine-package" />)
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
     expect(button).toBeDefined()
@@ -41,15 +41,9 @@ describe('CopyButton', () => {
     const iconSlot = button.querySelector('[data-slot="copy-button-icon"]')!
     expect(iconSlot).toBeDefined()
     expect(iconSlot.hasAttribute('data-copied')).toBe(false)
+    expect(iconSlot.getAttribute('class')).toContain('icon-copy')
 
-    const icons = iconSlot.querySelectorAll('[data-slot="icon"]')
-    expect(icons.length).toBe(2)
-    const idleIcon = icons[0]!
-    const copiedIcon = icons[1]!
-    expect(idleIcon.getAttribute('class')).toContain('group-data-[copied]:opacity-0')
-    expect(copiedIcon.getAttribute('class')).toContain('group-data-[copied]:opacity-100')
-
-    // Click triggers copy and animates transition via data-copied
+    // Click triggers copy and switches icon
     fireEvent.click(button)
     expect(writeText).toHaveBeenCalledWith('moraine-package')
     await flushMicrotasks()
@@ -57,12 +51,14 @@ describe('CopyButton', () => {
     expect(button.hasAttribute('data-state')).toBe(false)
     expect(button.getAttribute('data-copied')).toBe('')
     expect(iconSlot.getAttribute('data-copied')).toBe('')
+    expect(iconSlot.getAttribute('class')).toContain('icon-check')
     expect(button.getAttribute('aria-label')).toBe('Copied to clipboard')
 
     // Timeout resets state
     vi.advanceTimersByTime(2000)
     expect(button.hasAttribute('data-copied')).toBe(false)
     expect(iconSlot.hasAttribute('data-copied')).toBe(false)
+    expect(iconSlot.getAttribute('class')).toContain('icon-copy')
     expect(button.getAttribute('aria-label')).toBe('Copy to clipboard')
   })
 
@@ -93,18 +89,6 @@ describe('CopyButton', () => {
     expect(label.textContent).toBe('Copied URL')
     vi.advanceTimersByTime(2000)
     expect(label.textContent).toBe('Copy URL')
-  })
-
-  test('supports indicatorTransition=false to render a single icon without transitions', async () => {
-    const screen = render(() => <CopyButton value="no-transition" indicatorTransition={false} />)
-    const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    const iconSlot = button.querySelector('[data-slot="copy-button-icon"]')!
-    expect(iconSlot.querySelectorAll('[data-slot="icon"]').length).toBe(1)
-
-    fireEvent.click(button)
-    await flushMicrotasks()
-
-    expect(button.getAttribute('data-copied')).toBe('')
   })
 
   test('supports iconPosition="trailing"', () => {
@@ -197,7 +181,7 @@ describe('CopyButton', () => {
   test('auto-prepends icon- to size when icon exists without label, and uses standard size with label', () => {
     const iconOnly = render(() => <CopyButton value="test" size="sm" />)
     const iconBtn = iconOnly.getByRole('button', { name: 'Copy to clipboard' })
-    expect(iconBtn.classList.contains('size-6')).toBe(true)
+    expect(iconBtn.classList.contains('size-7')).toBe(true)
 
     const labeled = render(() => (
       <CopyButton value="test" size="sm">
@@ -216,7 +200,7 @@ describe('CopyButton', () => {
       </ButtonGroup>
     ))
     const button = screen.getByRole('button', { name: 'Copy to clipboard' })
-    expect(button.classList.contains('size-6')).toBe(true)
+    expect(button.classList.contains('size-7')).toBe(true)
     expect(button.classList.contains('border-tone-border')).toBe(true)
   })
 })

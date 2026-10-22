@@ -79,7 +79,7 @@
         {
           "name": "icon",
           "optional": true,
-          "type": "IconT.Name | boolean",
+          "type": "IconT.Name",
           "description": "Icon displayed in the idle state. Pass `false` to disable icon display.",
           "default": {
             "kind": "literal",
@@ -94,16 +94,6 @@
           "default": {
             "kind": "literal",
             "value": "leading"
-          }
-        },
-        {
-          "name": "indicatorTransition",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to use opacity and scale cross-fade transitions during icon swaps.",
-          "default": {
-            "kind": "literal",
-            "value": true
           }
         },
         {
