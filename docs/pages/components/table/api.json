@@ -67,6 +67,16 @@
           "description": "Ref forwarded to the scroll container element."
         },
         {
+          "name": "showColumnBorder",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether vertical divider borders are added between table columns.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
@@ -97,16 +107,6 @@
           "optional": true,
           "type": "Styles",
           "description": "Family slot style defaults for this instance."
-        },
-        {
-          "name": "verticalBorder",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether vertical divider borders are added between table columns.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         }
       ]
     },

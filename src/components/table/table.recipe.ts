@@ -26,7 +26,7 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       size: 'md',
       striped: false,
       borderless: false,
-      verticalBorder: false,
+      showColumnBorder: false,
     },
     variants: {
       size: {
@@ -61,7 +61,7 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
           footer: 'border-t',
         },
       },
-      verticalBorder: {
+      showColumnBorder: {
         true: {
           head: '[&:not(:last-child)]:border-r',
           cell: '[&:not(:last-child)]:border-r',

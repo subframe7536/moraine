@@ -27,7 +27,7 @@ import { Badge, Table } from '@src'
     },
     { kind: 'boolean', prop: 'striped', label: 'Striped', defaultValue: false },
     { kind: 'boolean', prop: 'borderless', label: 'Borderless', defaultValue: false },
-    { kind: 'boolean', prop: 'verticalBorder', label: 'Vertical Border', defaultValue: false },
+    { kind: 'boolean', prop: 'showColumnBorder', label: 'Show Column Border', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -35,7 +35,7 @@ import { Badge, Table } from '@src'
       size={props.size}
       striped={props.striped}
       borderless={props.borderless}
-      verticalBorder={props.verticalBorder}
+      showColumnBorder={props.showColumnBorder}
     >
       <Table.Caption>A list of recent transactions.</Table.Caption>
       <Table.Header>
@@ -167,12 +167,12 @@ export function InvoiceTable() {
 }
 ```
 
-### Vertical Borders
+### Column Borders
 
-Use `verticalBorder` to add vertical divider borders between columns in header and data cells.
+Use `showColumnBorder` to add vertical divider borders between columns in header and data cells.
 
 ```tsx
-<Table verticalBorder>
+<Table showColumnBorder>
   <Table.Header>
     <Table.Row>
       <Table.Head>Invoice</Table.Head>

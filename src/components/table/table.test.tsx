@@ -41,9 +41,9 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.tagName).toBe('TD')
   })
 
-  test('verticalBorder variant applies dividing border to head and cell', () => {
+  test('showColumnBorder variant applies dividing border to head and cell', () => {
     const { container } = render(() => (
-      <Table verticalBorder>
+      <Table showColumnBorder>
         <Table.Header>
           <Table.Row>
             <Table.Head>Head 1</Table.Head>

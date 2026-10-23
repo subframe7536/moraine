@@ -28,7 +28,7 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
       'size',
       'striped',
       'borderless',
-      'verticalBorder',
+      'showColumnBorder',
       'containerRef',
       'classes',
       'styles',
@@ -52,8 +52,8 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
         get borderless() {
           return variants.borderless
         },
-        get verticalBorder() {
-          return variants.verticalBorder
+        get showColumnBorder() {
+          return variants.showColumnBorder
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }

@@ -23,7 +23,7 @@ export function TableRow<T extends ValidComponent = 'tr'>(props: TableT.RowProps
       size: context.size,
       striped: context.striped,
       borderless: context.borderless,
-      verticalBorder: context.verticalBorder,
+      showColumnBorder: context.showColumnBorder,
     }),
     contextSlots: () => context.slotOverrides,
   })
