@@ -705,6 +705,8 @@ export function FileUpload<Multiple extends boolean = false>(
         invalid,
       })}
       {...rest}
+      {...slots.root}
+      id={`${field.id()}-root`}
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
       aria-label={
         field.ariaAttrs()['aria-labelledby'] || label()
@@ -712,24 +714,22 @@ export function FileUpload<Multiple extends boolean = false>(
           : (local['aria-label'] ?? messages().label)
       }
       aria-disabled={field.disabled() ? true : undefined}
-      id={`${field.id()}-root`}
-      {...slots.root}
     >
       <Show
         when={dropzone()}
         fallback={
           <button
-            ref={setControlElement}
             type="button"
             data-slot="file-upload-control"
-            {...slots.control}
+            {...controlAriaAttrs()}
             {...fileUploadDataAttributes.control({
               dragging: undefined,
               dropzone,
               invalid,
             })}
+            {...slots.control}
+            ref={setControlElement}
             disabled={field.disabled()}
-            {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
             onBlur={(event) => field.emit('blur', event)}
             onClick={onControlClick}
@@ -739,17 +739,17 @@ export function FileUpload<Multiple extends boolean = false>(
         }
       >
         <div
-          ref={setControlElement}
           role="button"
-          tabIndex={field.disabled() ? undefined : 0}
-          {...controlAriaAttrs()}
           data-slot="file-upload-control"
-          {...slots.control}
+          {...controlAriaAttrs()}
           {...fileUploadDataAttributes.control({
             dropzone,
             dragging,
             invalid,
           })}
+          {...slots.control}
+          ref={setControlElement}
+          tabIndex={field.disabled() ? undefined : 0}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
