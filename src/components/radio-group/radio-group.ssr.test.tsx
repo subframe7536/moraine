@@ -87,7 +87,7 @@ describe('RadioGroup SSR Hydration', () => {
     expect(inputs.map((input) => input.getAttribute('tabindex'))).toEqual(['-1', '0', '-1'])
     expect(reads).toEqual({
       items: 1,
-      orientation: 2,
+      orientation: 1,
       variant: 1,
       indicator: 1,
       label: 3,

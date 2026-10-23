@@ -18,6 +18,7 @@ import { HiddenInput } from '../../shared/hidden-input'
 import { createSelectableCollectionNavigation } from '../../shared/selectable-collection-navigation'
 import { callHandler, callRef, createId } from '../../shared/utils'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
+import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 import { useFormValue } from '../shared/form/use-form-value'
@@ -68,12 +69,14 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   })
   const merged = mergeProps(
     {
-      get orientation() {
-        return variants.orientation
-      },
       loop: true,
     },
     local,
+    {
+      get orientation(): Orientation {
+        return variants.orientation ?? 'vertical'
+      },
+    },
   )
 
   const items = createMemo(() => merged.items ?? [])
@@ -296,8 +299,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   return (
     <div
       role="radiogroup"
-      aria-orientation={merged.orientation}
       data-slot="radio-group"
+      aria-orientation={merged.orientation}
       {...radioGroupDataAttributes.root({
         invalid: field.invalid,
         disabled: field.disabled,
@@ -305,13 +308,13 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         required: field.required,
       })}
       {...rest}
+      {...slots.root}
+      id={groupId()}
+      {...field.ariaAttrs()}
       ref={(element) => {
         groupEl = element
         callRef(local.ref, element)
       }}
-      id={groupId()}
-      {...field.ariaAttrs()}
-      {...slots.root}
       onFocusIn={onGroupFocusIn}
       onFocusOut={onGroupFocusOut}
     >

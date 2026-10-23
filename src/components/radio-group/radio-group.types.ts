@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -57,12 +57,6 @@ export namespace RadioGroupT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
-    /**
-     * The orientation of the radio group.
-     * @default 'vertical'
-     */
-    orientation?: Orientation
-
     /**
      * Array of items to render in the group.
      */

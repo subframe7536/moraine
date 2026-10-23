@@ -92,7 +92,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "The orientation of the radio group.",
+          "description": "Layout axis used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "vertical"
