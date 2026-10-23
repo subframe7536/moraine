@@ -1,19 +1,24 @@
 import { Badge, Button, Checkbox, DropdownMenu, Icon, Input, Table } from '@src'
 import type { BadgeT, DropdownMenuT } from '@src'
 import {
-  createSolidTable,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  createTable,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  tableFeatures,
 } from '@tanstack/solid-table'
 import type {
   ColumnDef,
   ColumnFiltersState,
+  ColumnVisibilityState,
+  PaginationState,
   RowSelectionState,
   SortingState,
-  VisibilityState,
 } from '@tanstack/solid-table'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
@@ -90,14 +95,29 @@ function getStatusBadgeTone(status: Payment['status']): BadgeT.Variants['tone'] 
   }
 }
 
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  columnFilteringFeature,
+  filteredRowModel: createFilteredRowModel(),
+  rowPaginationFeature,
+  paginatedRowModel: createPaginatedRowModel(),
+  columnVisibilityFeature,
+  rowSelectionFeature,
+})
+
 export function DataTable() {
   const [data] = createSignal<Payment[]>(INITIAL_DATA)
   const [sorting, setSorting] = createSignal<SortingState>([])
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = createSignal<ColumnVisibilityState>({})
   const [rowSelection, setRowSelection] = createSignal<RowSelectionState>({})
+  const [pagination, setPagination] = createSignal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 4,
+  })
 
-  const columns: ColumnDef<Payment>[] = [
+  const columns: ColumnDef<typeof features, Payment>[] = [
     {
       id: 'select',
       header: (props) => (
@@ -246,11 +266,12 @@ export function DataTable() {
     },
   ]
 
-  const table = createSolidTable({
+  const table = createTable({
+    features,
+    columns,
     get data() {
       return data()
     },
-    columns,
     state: {
       get sorting() {
         return sorting()
@@ -264,20 +285,15 @@ export function DataTable() {
       get rowSelection() {
         return rowSelection()
       },
-    },
-    initialState: {
-      pagination: {
-        pageSize: 4,
+      get pagination() {
+        return pagination()
       },
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
   })
 
   const visibilityItems = createMemo<DropdownMenuT.Item[]>(() =>
@@ -320,9 +336,7 @@ export function DataTable() {
                 <For each={headerGroup.headers}>
                   {(header) => (
                     <Table.Head colSpan={header.colSpan}>
-                      <Show when={!header.isPlaceholder}>
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                      </Show>
+                      <table.FlexRender header={header} />
                     </Table.Head>
                   )}
                 </For>
@@ -347,7 +361,7 @@ export function DataTable() {
                   <For each={row.getVisibleCells()}>
                     {(cell) => (
                       <Table.Cell>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        <table.FlexRender cell={cell} />
                       </Table.Cell>
                     )}
                   </For>

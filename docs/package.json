@@ -27,6 +27,6 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@tanstack/solid-table": "^8.21.3"
+    "@tanstack/solid-table": "^9.3.1"
   }
 }
