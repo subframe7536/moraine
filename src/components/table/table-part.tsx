@@ -40,6 +40,7 @@ export function createTablePart<S extends TablePartSlot>(slot: S, fallback: Vali
         size: context.size,
         striped: context.striped,
         borderless: context.borderless,
+        verticalBorder: context.verticalBorder,
       }),
       contextSlots: () => context.slotOverrides,
     })

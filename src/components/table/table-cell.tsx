@@ -26,6 +26,7 @@ export function TableCell<T extends ValidComponent = 'td'>(
       size: context.size,
       striped: context.striped,
       borderless: context.borderless,
+      verticalBorder: context.verticalBorder,
     }),
     contextSlots: () => context.slotOverrides,
     own: {

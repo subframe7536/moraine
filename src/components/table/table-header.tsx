@@ -23,6 +23,7 @@ export function TableHeader<T extends ValidComponent = 'thead'>(
       size: context.size,
       striped: context.striped,
       borderless: context.borderless,
+      verticalBorder: context.verticalBorder,
     }),
     contextSlots: () => context.slotOverrides,
     own: {

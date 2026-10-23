@@ -181,7 +181,7 @@ defineTheme({
   size="sm"
   striped
   borderless
-  container={false}
+  verticalBorder
   class="root"
   style={{ width: '100%' }}
   classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}

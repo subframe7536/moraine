@@ -213,33 +213,29 @@ To enable column sorting:
 
 ```tsx
 import type { SortingState } from '@tanstack/solid-table'
-import { createSignal, Show } from 'solid-js'
-import { Button, Icon } from 'moraine'
+import { createSignal } from 'solid-js'
+import { Button } from 'moraine'
 
 // In column definitions:
 {
   accessorKey: 'email',
   header: (props) => {
     const isSorted = () => props.column.getIsSorted()
+    const sortIcon = () =>
+      isSorted() === 'asc'
+        ? 'i-lucide:arrow-up'
+        : isSorted() === 'desc'
+          ? 'i-lucide:arrow-down'
+          : 'i-lucide:arrow-up-down'
     return (
       <Button
         variant="ghost"
         size="sm"
         onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
         class="-ml-3 h-8"
+        trailing={sortIcon()}
       >
         Email
-        <Show
-          when={isSorted()}
-          fallback={<Icon name="i-lucide:arrow-up-down" class="ml-2 h-4 w-4 text-muted-foreground" />}
-        >
-          {(direction) => (
-            <Icon
-              name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
-              class="ml-2 h-4 w-4"
-            />
-          )}
-        </Show>
       </Button>
     )
   },
@@ -380,9 +376,13 @@ const visibilityItems = createMemo<DropdownMenuT.Item[]>(() =>
 
 // In your toolbar:
 <DropdownMenu>
-  <DropdownMenu.Trigger as={Button} variant="outline" size="sm">
+  <DropdownMenu.Trigger
+    as={Button}
+    variant="outline"
+    size="sm"
+    trailing="i-lucide:chevron-down"
+  >
     Columns
-    <Icon name="i-lucide:chevron-down" class="ml-2 h-4 w-4" />
   </DropdownMenu.Trigger>
   <DropdownMenu.Content items={visibilityItems()} />
 </DropdownMenu>
@@ -457,9 +457,8 @@ A column header that includes title, sort ascending, sort descending, and hide c
 
 ```tsx
 import type { Column, TableFeatures } from '@tanstack/solid-table'
-import { Button, DropdownMenu, Icon } from 'moraine'
+import { Button, DropdownMenu } from 'moraine'
 import type { DropdownMenuT } from 'moraine'
-import { Show } from 'solid-js'
 
 interface DataTableColumnHeaderProps<TFeatures extends TableFeatures, TData, TValue> {
   column: Column<TFeatures, TData, TValue>
@@ -494,6 +493,12 @@ export function DataTableColumnHeader<TFeatures extends TableFeatures, TData, TV
   ]
 
   const isSorted = () => props.column.getIsSorted()
+  const sortIcon = () =>
+    isSorted() === 'asc'
+      ? 'i-lucide:arrow-up'
+      : isSorted() === 'desc'
+        ? 'i-lucide:arrow-down'
+        : 'i-lucide:arrow-up-down'
 
   return (
     <div class="flex items-center space-x-2">
@@ -503,21 +508,9 @@ export function DataTableColumnHeader<TFeatures extends TableFeatures, TData, TV
           variant="ghost"
           size="sm"
           class="-ml-3 h-8 data-[state=open]:bg-accent"
+          trailing={sortIcon()}
         >
-          <span>{props.title}</span>
-          <Show
-            when={isSorted()}
-            fallback={
-              <Icon name="i-lucide:arrow-up-down" class="ml-2 h-4 w-4 text-muted-foreground" />
-            }
-          >
-            {(direction) => (
-              <Icon
-                name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
-                class="ml-2 h-4 w-4"
-              />
-            )}
-          </Show>
+          {props.title}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content items={items} />
       </DropdownMenu>
@@ -532,7 +525,7 @@ A comprehensive pagination bar with selected count, page indicator, and navigati
 
 ```tsx
 import type { SolidTable, TableFeatures } from '@tanstack/solid-table'
-import { Button, Icon } from 'moraine'
+import { Button } from 'moraine'
 
 export function DataTablePagination<TFeatures extends TableFeatures, TData>(props: {
   table: SolidTable<TFeatures, TData>
@@ -550,44 +543,38 @@ export function DataTablePagination<TFeatures extends TableFeatures, TData>(prop
         <div class="flex items-center space-x-2">
           <Button
             variant="outline"
-            size="sm"
-            class="hidden h-8 w-8 p-0 lg:flex"
+            size="icon-sm"
+            class="hidden lg:flex"
             onClick={() => props.table.setPageIndex(0)}
             disabled={!props.table.getCanPreviousPage()}
-          >
-            <span class="sr-only">First page</span>
-            <Icon name="i-lucide:chevrons-left" class="h-4 w-4" />
-          </Button>
+            leading="i-lucide:chevrons-left"
+            aria-label="First page"
+          />
           <Button
             variant="outline"
-            size="sm"
-            class="h-8 w-8 p-0"
+            size="icon-sm"
             onClick={() => props.table.previousPage()}
             disabled={!props.table.getCanPreviousPage()}
-          >
-            <span class="sr-only">Previous page</span>
-            <Icon name="i-lucide:chevron-left" class="h-4 w-4" />
-          </Button>
+            leading="i-lucide:chevron-left"
+            aria-label="Previous page"
+          />
           <Button
             variant="outline"
-            size="sm"
-            class="h-8 w-8 p-0"
+            size="icon-sm"
             onClick={() => props.table.nextPage()}
             disabled={!props.table.getCanNextPage()}
-          >
-            <span class="sr-only">Next page</span>
-            <Icon name="i-lucide:chevron-right" class="h-4 w-4" />
-          </Button>
+            leading="i-lucide:chevron-right"
+            aria-label="Next page"
+          />
           <Button
             variant="outline"
-            size="sm"
-            class="hidden h-8 w-8 p-0 lg:flex"
+            size="icon-sm"
+            class="hidden lg:flex"
             onClick={() => props.table.setPageIndex(props.table.getPageCount() - 1)}
             disabled={!props.table.getCanNextPage()}
-          >
-            <span class="sr-only">Last page</span>
-            <Icon name="i-lucide:chevrons-right" class="h-4 w-4" />
-          </Button>
+            leading="i-lucide:chevrons-right"
+            aria-label="Last page"
+          />
         </div>
       </div>
     </div>

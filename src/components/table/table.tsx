@@ -1,5 +1,5 @@
 import type { JSX, Ref } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -20,7 +20,6 @@ import type { TableT } from './table.types'
 export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>): JSX.Element {
   const [local, rest] = splitProps(
     props as TableT.Props<T> & {
-      container?: boolean
       containerRef?: Ref<HTMLDivElement>
       ref?: unknown
     },
@@ -29,7 +28,7 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
       'size',
       'striped',
       'borderless',
-      'container',
+      'verticalBorder',
       'containerRef',
       'classes',
       'styles',
@@ -53,37 +52,25 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
         get borderless() {
           return variants.borderless
         },
+        get verticalBorder() {
+          return variants.verticalBorder
+        },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }
         },
       }}
     >
-      <Show
-        when={local.container ?? true}
-        fallback={
-          <Dynamic
-            component={local.as ?? 'table'}
-            data-slot="table"
-            {...rest}
-            {...slots.root}
-            ref={local.ref}
-          >
-            {local.children}
-          </Dynamic>
-        }
-      >
-        <div ref={local.containerRef} data-slot="table-container" {...slots.container}>
-          <Dynamic
-            component={local.as ?? 'table'}
-            data-slot="table"
-            {...rest}
-            {...slots.root}
-            ref={local.ref}
-          >
-            {local.children}
-          </Dynamic>
-        </div>
-      </Show>
+      <div ref={local.containerRef} data-slot="table-container" {...slots.container}>
+        <Dynamic
+          component={local.as ?? 'table'}
+          data-slot="table"
+          {...rest}
+          {...slots.root}
+          ref={local.ref}
+        >
+          {local.children}
+        </Dynamic>
+      </div>
     </TableProvider>
   )
 }

@@ -18,14 +18,15 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       body: '[&_tr:last-child]:border-0',
       footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
       row: 'border-border transition-colors data-selected:bg-muted hover:bg-muted/50',
-      head: 'text-muted-foreground font-medium px-2 text-left align-middle h-10 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
-      cell: 'p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+      head: 'text-muted-foreground font-medium px-2 text-left align-middle border-border h-10 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+      cell: 'p-2 align-middle border-border [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       caption: 'text-sm text-muted-foreground mt-4',
     },
     defaultVariants: {
       size: 'md',
       striped: false,
       borderless: false,
+      verticalBorder: false,
     },
     variants: {
       size: {
@@ -58,6 +59,12 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
           header: '[&_tr]:border-b',
           row: 'border-b',
           footer: 'border-t',
+        },
+      },
+      verticalBorder: {
+        true: {
+          head: '[&:not(:last-child)]:border-r',
+          cell: '[&:not(:last-child)]:border-r',
         },
       },
     },

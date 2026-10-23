@@ -27,10 +27,16 @@ import { Badge, Table } from '@src'
     },
     { kind: 'boolean', prop: 'striped', label: 'Striped', defaultValue: false },
     { kind: 'boolean', prop: 'borderless', label: 'Borderless', defaultValue: false },
+    { kind: 'boolean', prop: 'verticalBorder', label: 'Vertical Border', defaultValue: false },
   ]}
 >
   {(props) => (
-    <Table size={props.size} striped={props.striped} borderless={props.borderless}>
+    <Table
+      size={props.size}
+      striped={props.striped}
+      borderless={props.borderless}
+      verticalBorder={props.verticalBorder}
+    >
       <Table.Caption>A list of recent transactions.</Table.Caption>
       <Table.Header>
         <Table.Row>
@@ -161,16 +167,22 @@ export function InvoiceTable() {
 }
 ```
 
-### Opting out of the Container
+### Vertical Borders
 
-When embedding the table in an existing scroll container or when printing, pass `container={false}`
-to render `<table data-slot="table">` directly without the outer wrapper.
+Use `verticalBorder` to add vertical divider borders between columns in header and data cells.
 
 ```tsx
-<Table container={false}>
+<Table verticalBorder>
+  <Table.Header>
+    <Table.Row>
+      <Table.Head>Invoice</Table.Head>
+      <Table.Head>Status</Table.Head>
+    </Table.Row>
+  </Table.Header>
   <Table.Body>
     <Table.Row>
-      <Table.Cell>Direct table element</Table.Cell>
+      <Table.Cell>INV-001</Table.Cell>
+      <Table.Cell>Paid</Table.Cell>
     </Table.Row>
   </Table.Body>
 </Table>

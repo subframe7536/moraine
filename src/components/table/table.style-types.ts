@@ -28,6 +28,8 @@ export interface TableStyleVariants {
   striped?: boolean
   /** Whether row and section dividing borders are removed. @default false */
   borderless?: boolean
+  /** Whether vertical divider borders are added between table columns. @default false */
+  verticalBorder?: boolean
 }
 
 export type TableStyleConfig = ComponentStyleConfig<TableStyleSlot, TableStyleVariants>

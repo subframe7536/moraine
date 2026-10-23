@@ -6,6 +6,7 @@ interface TableContext {
   readonly size: TableT.Variants['size']
   readonly striped: TableT.Variants['striped']
   readonly borderless: TableT.Variants['borderless']
+  readonly verticalBorder: TableT.Variants['verticalBorder']
   readonly slotOverrides: {
     readonly classes?: TableT.Classes
     readonly styles?: TableT.Styles

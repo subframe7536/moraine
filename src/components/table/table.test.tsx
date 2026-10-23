@@ -41,19 +41,28 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.tagName).toBe('TD')
   })
 
-  test('container={false} omits the wrapper div', () => {
+  test('verticalBorder variant applies dividing border to head and cell', () => {
     const { container } = render(() => (
-      <Table container={false}>
+      <Table verticalBorder>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head>Head 1</Table.Head>
+            <Table.Head>Head 2</Table.Head>
+          </Table.Row>
+        </Table.Header>
         <Table.Body>
           <Table.Row>
-            <Table.Cell>Cell</Table.Cell>
+            <Table.Cell>Cell 1</Table.Cell>
+            <Table.Cell>Cell 2</Table.Cell>
           </Table.Row>
         </Table.Body>
       </Table>
     ))
 
-    expect(slot(container, 'container')).toBeNull()
-    expect(container.firstElementChild?.tagName).toBe('TABLE')
+    const heads = container.querySelectorAll('th')
+    const cells = container.querySelectorAll('td')
+    expect(heads[0]?.className).toContain('[&:not(:last-child)]:border-r')
+    expect(cells[0]?.className).toContain('[&:not(:last-child)]:border-r')
   })
 
   test('forwards containerRef to the outer wrapper element', () => {
@@ -120,7 +129,18 @@ describe('Table', () => {
     },
   )
 
-  test('striped variant applies alternating background to rows', () => {
+  test('striped variant applies alternating background to rows (false by default)', () => {
+    const { container: defaultTable } = render(() => (
+      <Table>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Row 1</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    ))
+    expect(slot(defaultTable, 'row')?.className).not.toContain('even:bg-muted/30')
+
     const { container } = render(() => (
       <Table striped>
         <Table.Body>

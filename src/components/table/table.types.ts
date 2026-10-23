@@ -15,9 +15,7 @@ export namespace TableT {
   export interface Base<T extends ValidComponent = 'table'> {
     /** Element or component to render as. @default 'table' */
     as?: T
-    /** Whether to wrap the table in a responsive scroll container. @default true */
-    container?: boolean
-    /** Ref forwarded to the scroll container element when `container` is enabled. */
+    /** Ref forwarded to the scroll container element. */
     containerRef?: Ref<HTMLDivElement>
     /** Table parts and direct content. */
     children?: JSX.Element

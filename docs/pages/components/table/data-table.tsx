@@ -1,4 +1,4 @@
-import { Badge, Button, Checkbox, DropdownMenu, Icon, Input, Table } from '@src'
+import { Badge, Button, Checkbox, DropdownMenu, Input, Table } from '@src'
 import type { BadgeT, DropdownMenuT } from '@src'
 import {
   columnFilteringFeature,
@@ -152,27 +152,21 @@ export function DataTable() {
       accessorKey: 'email',
       header: (props) => {
         const isSorted = () => props.column.getIsSorted()
+        const sortIcon = () =>
+          isSorted() === 'asc'
+            ? 'i-lucide:arrow-up'
+            : isSorted() === 'desc'
+              ? 'i-lucide:arrow-down'
+              : 'i-lucide:arrow-up-down'
         return (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
             class="h-8 -ml-3"
+            trailing={sortIcon()}
           >
             Email
-            <Show
-              when={isSorted()}
-              fallback={
-                <Icon name="i-lucide:arrow-up-down" class="text-muted-foreground ml-2 h-4 w-4" />
-              }
-            >
-              {(direction) => (
-                <Icon
-                  name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
-                  class="ml-2 h-4 w-4"
-                />
-              )}
-            </Show>
           </Button>
         )
       },
@@ -196,6 +190,12 @@ export function DataTable() {
       accessorKey: 'amount',
       header: (props) => {
         const isSorted = () => props.column.getIsSorted()
+        const sortIcon = () =>
+          isSorted() === 'asc'
+            ? 'i-lucide:arrow-up'
+            : isSorted() === 'desc'
+              ? 'i-lucide:arrow-down'
+              : 'i-lucide:arrow-up-down'
         return (
           <div class="text-right">
             <Button
@@ -203,21 +203,9 @@ export function DataTable() {
               size="sm"
               onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
               class="h-8 -mr-3"
+              trailing={sortIcon()}
             >
               Amount
-              <Show
-                when={isSorted()}
-                fallback={
-                  <Icon name="i-lucide:arrow-up-down" class="text-muted-foreground ml-2 h-4 w-4" />
-                }
-              >
-                {(direction) => (
-                  <Icon
-                    name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
-                    class="ml-2 h-4 w-4"
-                  />
-                )}
-              </Show>
             </Button>
           </div>
         )
@@ -253,12 +241,10 @@ export function DataTable() {
             <DropdownMenu.Trigger
               as={Button}
               variant="ghost"
-              size="sm"
-              class="p-0 h-8 w-8"
+              size="icon-sm"
+              leading="i-lucide:more-horizontal"
               aria-label="Open menu"
-            >
-              <Icon name="i-lucide:more-horizontal" class="h-4 w-4" />
-            </DropdownMenu.Trigger>
+            />
             <DropdownMenu.Content items={actionItems} />
           </DropdownMenu>
         )
@@ -320,9 +306,14 @@ export function DataTable() {
           class="max-w-xs"
         />
         <DropdownMenu>
-          <DropdownMenu.Trigger as={Button} variant="outline" size="sm" class="ml-auto">
+          <DropdownMenu.Trigger
+            as={Button}
+            variant="outline"
+            size="sm"
+            class="ml-auto"
+            trailing="i-lucide:chevron-down"
+          >
             Columns
-            <Icon name="i-lucide:chevron-down" class="ml-2 h-4 w-4" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content items={visibilityItems()} />
         </DropdownMenu>
