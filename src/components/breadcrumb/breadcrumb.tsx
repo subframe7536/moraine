@@ -46,8 +46,8 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     <nav
       data-slot="breadcrumb"
       {...rest}
-      ref={(el) => callRef(local.ref, el)}
       {...slots.root}
+      ref={(el) => callRef(local.ref, el)}
       aria-label={local['aria-label'] ?? messages().label}
     >
       <ol data-slot="breadcrumb-list" {...slots.list}>
