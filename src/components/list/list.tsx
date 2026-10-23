@@ -36,11 +36,11 @@ export function List<
       role="list"
       data-slot="list"
       {...rest}
+      {...slots.root}
       ref={(element: HTMLElement) => {
         setScrollElement(() => element)
         callRef(local.ref, element)
       }}
-      {...slots.root}
     >
       <Show
         when={'fallback' in props && !local.items?.length}
