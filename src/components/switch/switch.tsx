@@ -275,8 +275,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         loading: () => merged.loading,
       })}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
       {...slots.root}
+      ref={(element) => callRef(local.ref, element)}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -310,18 +310,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       />
 
       <button
-        ref={field.setControlRef}
-        id={field.id()}
+        data-slot="switch-track"
         type="button"
         role="switch"
-        disabled={field.disabled()}
-        data-slot="switch-track"
-        aria-checked={checked()}
         {...switchAriaAttrs()}
-        {...slots.track}
-        onPointerDown={onPointerDown}
-        onFocus={onTrackFocus}
-        onBlur={onTrackBlur}
         {...switchDataAttributes.track({
           checked,
           unchecked: () => !checked(),
@@ -329,6 +321,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           readonly: field.readOnly,
           invalid: field.invalid,
         })}
+        {...slots.track}
+        ref={field.setControlRef}
+        id={field.id()}
+        disabled={field.disabled()}
+        aria-checked={checked()}
+        onPointerDown={onPointerDown}
+        onFocus={onTrackFocus}
+        onBlur={onTrackBlur}
       >
         <span
           data-slot="switch-thumb"
