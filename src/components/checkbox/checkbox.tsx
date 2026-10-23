@@ -387,20 +387,9 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         />
 
         <button
-          ref={field.setControlRef}
-          id={field.id()}
+          data-slot="checkbox-control"
           type="button"
           role="checkbox"
-          disabled={field.disabled()}
-          data-slot="checkbox-control"
-          aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
-          {...slots.control}
-          onPointerDown={onPointerDown}
-          onClick={onControlClick}
-          onKeyDown={onControlKeyDown}
-          onKeyUp={onControlKeyUp}
-          onFocus={onControlFocus}
-          onBlur={onControlBlur}
           {...checkboxAriaAttrs()}
           {...checkboxDataAttributes.control({
             checked: resolvedChecked,
@@ -411,6 +400,17 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             required: field.required,
             invalid: field.invalid,
           })}
+          {...slots.control}
+          ref={field.setControlRef}
+          id={field.id()}
+          disabled={field.disabled()}
+          aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
+          onPointerDown={onPointerDown}
+          onClick={onControlClick}
+          onKeyDown={onControlKeyDown}
+          onKeyUp={onControlKeyUp}
+          onFocus={onControlFocus}
+          onBlur={onControlBlur}
         >
           <Show when={resolvedChecked() || indeterminate()}>
             <span
