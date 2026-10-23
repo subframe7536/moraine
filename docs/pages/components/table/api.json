@@ -13,25 +13,8 @@
         "name": "Table"
       },
       "description": "Props for Table.",
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'table'"
-        }
-      ],
       "defaultElement": "table",
       "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "description": "Element or component to render as.",
-          "default": {
-            "kind": "literal",
-            "value": "table"
-          }
-        },
         {
           "name": "borderless",
           "optional": true,
@@ -118,13 +101,6 @@
         "root": "Table",
         "member": "Header"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'thead'"
-        }
-      ],
       "defaultElement": "thead",
       "props": [
         {
@@ -132,15 +108,6 @@
           "optional": true,
           "type": "'left' | 'center' | 'right'",
           "description": "Text alignment for all header cells in this section."
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "thead"
-          }
         },
         {
           "name": "children",
@@ -169,24 +136,8 @@
         "root": "Table",
         "member": "Body"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'tbody'"
-        }
-      ],
       "defaultElement": "tbody",
       "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "tbody"
-          }
-        },
         {
           "name": "children",
           "optional": true,
@@ -214,24 +165,8 @@
         "root": "Table",
         "member": "Footer"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'tfoot'"
-        }
-      ],
       "defaultElement": "tfoot",
       "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "tfoot"
-          }
-        },
         {
           "name": "children",
           "optional": true,
@@ -259,24 +194,8 @@
         "root": "Table",
         "member": "Row"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'tr'"
-        }
-      ],
       "defaultElement": "tr",
       "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "tr"
-          }
-        },
         {
           "name": "children",
           "optional": true,
@@ -310,13 +229,6 @@
         "root": "Table",
         "member": "Head"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'th'"
-        }
-      ],
       "defaultElement": "th",
       "props": [
         {
@@ -327,15 +239,6 @@
           "default": {
             "kind": "literal",
             "value": "left"
-          }
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "th"
           }
         },
         {
@@ -375,13 +278,6 @@
         "root": "Table",
         "member": "Cell"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'td'"
-        }
-      ],
       "defaultElement": "td",
       "props": [
         {
@@ -392,15 +288,6 @@
           "default": {
             "kind": "literal",
             "value": "left"
-          }
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "td"
           }
         },
         {
@@ -440,24 +327,8 @@
         "root": "Table",
         "member": "Caption"
       },
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'caption'"
-        }
-      ],
       "defaultElement": "caption",
       "props": [
-        {
-          "name": "as",
-          "optional": true,
-          "type": "T",
-          "default": {
-            "kind": "literal",
-            "value": "caption"
-          }
-        },
         {
           "name": "children",
           "optional": true,
@@ -468,16 +339,6 @@
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
-        },
-        {
-          "name": "side",
-          "optional": true,
-          "type": "'top' | 'bottom'",
-          "description": "Position of the caption relative to the table.",
-          "default": {
-            "kind": "literal",
-            "value": "bottom"
-          }
         },
         {
           "name": "style",
@@ -504,12 +365,6 @@
       "target": "row",
       "attributes": [
         "data-selected"
-      ]
-    },
-    {
-      "target": "caption",
-      "attributes": [
-        "data-side"
       ]
     }
   ]

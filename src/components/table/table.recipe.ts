@@ -6,7 +6,6 @@ import type { TableStyleSlot, TableStyleVariants } from './table.style-types'
 
 export const tableDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('selected'),
-  caption: /* @__PURE__ */ createDataAttributes('side'),
 } satisfies DataAttributeContract<keyof TableStyleSlot>
 
 export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableStyleVariants>(
@@ -14,15 +13,14 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
   {
     base: {
       container: 'w-full relative overflow-x-auto',
-      root: 'text-sm border-border w-full',
+      root: 'text-sm border-border w-full caption-bottom',
       header: '[&_tr]:border-border',
       body: '[&_tr:last-child]:border-0',
       footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
       row: 'border-border transition-colors data-selected:bg-muted hover:bg-muted/50',
       head: 'text-muted-foreground font-medium px-2 text-left align-middle border-border h-10 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       cell: 'p-2 align-middle border-border [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
-      caption:
-        'text-sm text-muted-foreground mt-4 caption-bottom data-[side=bottom]:mb-0 data-[side=bottom]:mt-4 data-[side=top]:mb-4 data-[side=top]:mt-0 first:mb-4 first:mt-0 data-[side=top]:caption-top first:caption-top data-[side=bottom]:caption-bottom',
+      caption: 'text-sm text-muted-foreground mt-4',
     },
     defaultVariants: {
       size: 'md',

@@ -188,17 +188,6 @@ Use `showColumnBorder` to add vertical divider borders between columns in header
 </Table>
 ```
 
-### Caption Placement
-
-`Table.Caption` automatically adjusts its margins and alignment based on where it is positioned within the table (placed as the first child before `<Table.Header>`, it aligns to the top with bottom margin; placed at the end, it aligns to the bottom with top margin). You can also explicitly set `side="top"` or `side="bottom"`.
-
-```tsx
-<Table>
-  <Table.Caption side="top">Top Caption</Table.Caption>
-  <Table.Header>...</Table.Header>
-</Table>
-```
-
 ### Column Alignment and Truncation
 
 Use `align="left" | "center" | "right"` on `Table.Head` and `Table.Cell` to control text alignment.

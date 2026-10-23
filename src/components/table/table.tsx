@@ -1,9 +1,7 @@
 import type { JSX, Ref } from 'solid-js'
 import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import type { ValidComponent } from '../../shared/types'
 
 import { TableBody } from './table-body'
 import { TableCaption } from './table-caption'
@@ -17,14 +15,13 @@ import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
 /** Table root and shared styling context for its parts. */
-export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>): JSX.Element {
+export function Table(props: TableT.Props): JSX.Element {
   const [local, rest] = splitProps(
-    props as TableT.Props<T> & {
+    props as TableT.Props & {
       containerRef?: Ref<HTMLDivElement>
-      ref?: unknown
+      ref?: HTMLTableElement | ((el: HTMLTableElement) => void)
     },
     [
-      'as',
       'size',
       'striped',
       'borderless',
@@ -61,15 +58,9 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
       }}
     >
       <div ref={local.containerRef} data-slot="table-container" {...slots.container}>
-        <Dynamic
-          component={local.as ?? 'table'}
-          data-slot="table"
-          {...rest}
-          {...slots.root}
-          ref={local.ref}
-        >
+        <table data-slot="table" {...rest} {...slots.root} ref={local.ref}>
           {local.children}
-        </Dynamic>
+        </table>
       </div>
     </TableProvider>
   )

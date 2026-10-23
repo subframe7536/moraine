@@ -1,10 +1,25 @@
 import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-import type { ValidComponent } from '../../shared/types'
+import { useRecipe } from '../../provider'
 
-import { createTablePart } from './table-part'
+import { useTableContext } from './table-context'
+import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
-export const TableBody: <T extends ValidComponent = 'tbody'>(
-  props: TableT.BodyProps<T>,
-) => JSX.Element = /* @__PURE__ */ createTablePart('body', 'tbody')
+export function TableBody(props: TableT.BodyProps): JSX.Element {
+  const [local, rest] = splitProps(props, ['class', 'style'])
+  const context = useTableContext()
+  const { slots } = useRecipe(tableRecipe, local, {
+    slot: 'body',
+    contextVariants: () => ({
+      size: context.size,
+      striped: context.striped,
+      borderless: context.borderless,
+      showColumnBorder: context.showColumnBorder,
+    }),
+    contextSlots: () => context.slotOverrides,
+  })
+
+  return <tbody data-slot="table-body" {...rest} {...slots.body} />
+}

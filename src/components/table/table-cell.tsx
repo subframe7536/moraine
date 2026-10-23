@@ -1,23 +1,19 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import type { ValidComponent } from '../../shared/types'
 
 import { useTableContext } from './table-context'
 import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
-export function TableCell<T extends ValidComponent = 'td'>(
-  props: TableT.CellProps<T>,
-): JSX.Element {
+export function TableCell(props: TableT.CellProps): JSX.Element {
   const [local, rest] = splitProps(
-    props as TableT.CellProps<T> & {
+    props as TableT.CellProps & {
       align?: 'left' | 'center' | 'right'
       truncated?: boolean
     },
-    ['as', 'align', 'truncated', 'class', 'style'],
+    ['align', 'truncated', 'class', 'style'],
   )
   const context = useTableContext()
   const { slots } = useRecipe(tableRecipe, local, {
@@ -49,5 +45,5 @@ export function TableCell<T extends ValidComponent = 'td'>(
     },
   })
 
-  return <Dynamic component={local.as ?? 'td'} data-slot="table-cell" {...rest} {...slots.cell} />
+  return <td data-slot="table-cell" {...rest} {...slots.cell} />
 }

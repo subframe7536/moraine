@@ -1,10 +1,25 @@
 import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-import type { ValidComponent } from '../../shared/types'
+import { useRecipe } from '../../provider'
 
-import { createTablePart } from './table-part'
+import { useTableContext } from './table-context'
+import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
-export const TableFooter: <T extends ValidComponent = 'tfoot'>(
-  props: TableT.FooterProps<T>,
-) => JSX.Element = /* @__PURE__ */ createTablePart('footer', 'tfoot')
+export function TableFooter(props: TableT.FooterProps): JSX.Element {
+  const [local, rest] = splitProps(props, ['class', 'style'])
+  const context = useTableContext()
+  const { slots } = useRecipe(tableRecipe, local, {
+    slot: 'footer',
+    contextVariants: () => ({
+      size: context.size,
+      striped: context.striped,
+      borderless: context.borderless,
+      showColumnBorder: context.showColumnBorder,
+    }),
+    contextSlots: () => context.slotOverrides,
+  })
+
+  return <tfoot data-slot="table-footer" {...rest} {...slots.footer} />
+}

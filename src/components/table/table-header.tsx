@@ -1,20 +1,16 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import type { ValidComponent } from '../../shared/types'
 
 import { useTableContext } from './table-context'
 import { tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
-export function TableHeader<T extends ValidComponent = 'thead'>(
-  props: TableT.HeaderProps<T>,
-): JSX.Element {
+export function TableHeader(props: TableT.HeaderProps): JSX.Element {
   const [local, rest] = splitProps(
-    props as TableT.HeaderProps<T> & { align?: 'left' | 'center' | 'right' },
-    ['as', 'align', 'class', 'style'],
+    props as TableT.HeaderProps & { align?: 'left' | 'center' | 'right' },
+    ['align', 'class', 'style'],
   )
   const context = useTableContext()
   const { slots } = useRecipe(tableRecipe, local, {
@@ -40,7 +36,5 @@ export function TableHeader<T extends ValidComponent = 'thead'>(
     },
   })
 
-  return (
-    <Dynamic component={local.as ?? 'thead'} data-slot="table-header" {...rest} {...slots.header} />
-  )
+  return <thead data-slot="table-header" {...rest} {...slots.header} />
 }
