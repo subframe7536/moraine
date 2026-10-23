@@ -7,6 +7,7 @@ import {
   Modal,
   Popover,
   Sheet,
+  Table,
   Tooltip,
 } from 'moraine'
 import { defineTheme } from 'moraine/theme'
@@ -172,6 +173,31 @@ defineTheme({ sheet: { base: { contentClose: 'close' } } })
 defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: true } } })
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
+defineTheme({
+  table: { base: { head: 'font-bold' }, defaultVariants: { size: 'lg', showBorder: 'col' } },
+})
+
+;<Table
+  size="sm"
+  striped
+  showBorder="both"
+  class="root"
+  style={{ width: '100%' }}
+  classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}
+  styles={{ root: { color: 'red' } }}
+/>
+;<Table.Header align="right" class="header" />
+// @ts-expect-error Table.Header is a compose-only part and does not accept classes.
+;<Table.Header classes={{ header: 'header' }} />
+;<Table.Head align="center" truncated class="head" />
+// @ts-expect-error Table.Head is a compose-only part and does not accept classes.
+;<Table.Head classes={{ head: 'head' }} />
+;<Table.Row selected class="row" />
+// @ts-expect-error Table.Row is a compose-only part and does not accept classes.
+;<Table.Row classes={{ row: 'row' }} />
+;<Table.Cell align="left" truncated class="cell" />
+// @ts-expect-error Table.Cell is a compose-only part and does not accept classes.
+;<Table.Cell classes={{ cell: 'cell' }} />
 
 // @ts-expect-error Tooltip.positioner is internal implementation styling.
 defineTheme({ tooltip: { base: { positioner: 'positioner' } } })

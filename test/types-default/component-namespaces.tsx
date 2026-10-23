@@ -43,6 +43,7 @@ import type {
   SliderT,
   StepperT,
   SwitchT,
+  TableT,
   TabsT,
   TextareaT,
   TooltipT,
@@ -257,6 +258,7 @@ export type ComponentNamespaceHeaders = {
     StepperT.Styles
   >
   Switch: Header<SwitchT.Kind, SwitchT.Slot, SwitchT.Variants, SwitchT.Classes, SwitchT.Styles>
+  Table: Header<TableT.Kind, TableT.Slot, TableT.Variants, TableT.Classes, TableT.Styles>
   Tabs: Header<TabsT.Kind, TabsT.Slot, TabsT.Variants, TabsT.Classes, TabsT.Styles>
   Textarea: Header<
     TextareaT.Kind,
@@ -433,4 +435,18 @@ export type CompositePartContracts = [
   BaseSelectT.ContentProps,
   BaseSelectT.ItemBase,
   BaseSelectT.ItemProps,
+  TableT.HeaderBase,
+  TableT.HeaderProps,
+  TableT.BodyBase,
+  TableT.BodyProps,
+  TableT.FooterBase,
+  TableT.FooterProps,
+  TableT.RowBase,
+  TableT.RowProps,
+  TableT.HeadBase,
+  TableT.HeadProps,
+  TableT.CellBase,
+  TableT.CellProps,
+  TableT.CaptionBase,
+  TableT.CaptionProps,
 ]

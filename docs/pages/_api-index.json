@@ -241,6 +241,11 @@
       "category": "form"
     },
     {
+      "key": "table",
+      "name": "Table",
+      "category": "display"
+    },
+    {
       "key": "tabs",
       "name": "Tabs",
       "category": "navigation"

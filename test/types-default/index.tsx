@@ -35,6 +35,7 @@ import {
   Separator,
   Sheet,
   SidebarFrame,
+  Table,
   Textarea,
   Tooltip,
   cn,
@@ -65,6 +66,8 @@ import type {
   SelectT,
   SidebarFrameT,
   SliderT,
+  TableT,
+  TableProps,
   Tags,
   TextareaT,
   ValidComponent,
@@ -83,6 +86,7 @@ export type ComponentKinds = [
   Assert<CopyButtonT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
+  Assert<TableT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
   Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
@@ -454,6 +458,67 @@ export type CardContracts = [
   Assert<'children' extends keyof CardT.ActionProps ? true : false>,
   Assert<'children' extends keyof CardT.BodyProps ? true : false>,
   Assert<'children' extends keyof CardT.FooterProps ? true : false>,
+]
+
+;<Table
+  size="md"
+  striped
+  showBorder="both"
+  classes={{ row: 'px-4' }}
+  styles={{ footer: { color: 'red' } }}
+>
+  <Table.Caption>Caption</Table.Caption>
+  <Table.Header align="right">
+    <Table.Row>
+      <Table.Head align="center" truncated>
+        H
+      </Table.Head>
+    </Table.Row>
+  </Table.Header>
+  <Table.Body>
+    <Table.Row selected>
+      <Table.Cell align="left" truncated>
+        C
+      </Table.Cell>
+    </Table.Row>
+  </Table.Body>
+  <Table.Footer>
+    <Table.Row>
+      <Table.Cell>F</Table.Cell>
+    </Table.Row>
+  </Table.Footer>
+</Table>
+
+export type TableContracts = [
+  Assert<
+    keyof TableT.Slot extends
+      | 'container'
+      | 'root'
+      | 'header'
+      | 'body'
+      | 'footer'
+      | 'row'
+      | 'head'
+      | 'cell'
+      | 'caption'
+      ? true
+      : false
+  >,
+  Assert<'size' extends keyof TableT.Variants ? true : false>,
+  Assert<'striped' extends keyof TableT.Variants ? true : false>,
+  Assert<'showBorder' extends keyof TableT.Variants ? true : false>,
+  Assert<'container' extends keyof TableT.Classes ? true : false>,
+  Assert<'root' extends keyof TableT.Classes ? true : false>,
+  Assert<'footer' extends keyof TableT.Styles ? true : false>,
+  Assert<'classes' extends keyof TableT.Props ? true : false>,
+  Assert<TableProps extends TableT.Props ? true : false>,
+  Assert<'children' extends keyof TableT.HeaderProps ? true : false>,
+  Assert<'children' extends keyof TableT.BodyProps ? true : false>,
+  Assert<'children' extends keyof TableT.FooterProps ? true : false>,
+  Assert<'children' extends keyof TableT.RowProps ? true : false>,
+  Assert<'children' extends keyof TableT.HeadProps ? true : false>,
+  Assert<'children' extends keyof TableT.CellProps ? true : false>,
+  Assert<'children' extends keyof TableT.CaptionProps ? true : false>,
 ]
 
 ;<Empty
