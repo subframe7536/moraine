@@ -470,6 +470,16 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
+          "name": "side",
+          "optional": true,
+          "type": "'top' | 'bottom'",
+          "description": "Position of the caption relative to the table.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -494,6 +504,12 @@
       "target": "row",
       "attributes": [
         "data-selected"
+      ]
+    },
+    {
+      "target": "caption",
+      "attributes": [
+        "data-side"
       ]
     }
   ]

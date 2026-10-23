@@ -349,4 +349,45 @@ describe('Table', () => {
     expect(slot(container, 'row')?.tagName).toBe('DIV')
     expect(slot(container, 'head')?.tagName).toBe('SPAN')
   })
+
+  test('Table.Caption position awareness and side prop', () => {
+    let captionRef: HTMLElement | undefined
+    const { container } = render(() => (
+      <Table>
+        <Table.Caption ref={(el) => (captionRef = el)} side="top">
+          Top Caption
+        </Table.Caption>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Cell</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+        <Table.Caption side="bottom">Bottom Caption</Table.Caption>
+      </Table>
+    ))
+
+    const captions = container.querySelectorAll('caption')
+    expect(captions.length).toBe(2)
+
+    expect(captions[0]!.getAttribute('data-side')).toBe('top')
+    expect(captionRef).toBe(captions[0])
+
+    expect(captions[1]!.getAttribute('data-side')).toBe('bottom')
+
+    expect(captions[0]!.className).toContain('caption-bottom')
+    expect(captions[0]!.className).toContain('first:caption-top')
+    expect(captions[0]!.className).toContain('data-[side=top]:caption-top')
+    expect(captions[0]!.className).toContain('data-[side=bottom]:caption-bottom')
+  })
+
+  test('Table.Caption without explicit side does not set data-side', () => {
+    const { container } = render(() => (
+      <Table>
+        <Table.Caption>Default Caption</Table.Caption>
+      </Table>
+    ))
+
+    const caption = slot(container, 'caption')!
+    expect(caption.hasAttribute('data-side')).toBe(false)
+  })
 })

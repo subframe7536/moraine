@@ -12,7 +12,7 @@ import type { TableStyleSlot } from './table.style-types'
 
 export type TablePartSlot = Exclude<
   keyof TableStyleSlot,
-  'root' | 'container' | 'row' | 'head' | 'cell' | 'header'
+  'root' | 'container' | 'row' | 'head' | 'cell' | 'header' | 'caption'
 >
 
 export type TablePartProps<T extends ValidComponent = 'div'> = Omit<

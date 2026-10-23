@@ -123,6 +123,8 @@ export namespace TableT {
 
   export interface CaptionBase<T extends ValidComponent = 'caption'> {
     as?: T
+    /** Position of the caption relative to the table. @default 'bottom' */
+    side?: 'top' | 'bottom'
     children?: JSX.Element
   }
   export type CaptionProps<T extends ValidComponent = 'caption'> = BaseProps<

@@ -23,7 +23,7 @@ export function Basic() {
           <Table.Cell>Credit Card</Table.Cell>
           <Table.Cell align="right">$250.00</Table.Cell>
         </Table.Row>
-        <Table.Row selected>
+        <Table.Row>
           <Table.Cell class="font-medium">INV-002</Table.Cell>
           <Table.Cell>
             <Badge tone="warning" variant="subtle">

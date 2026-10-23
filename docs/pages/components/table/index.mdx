@@ -57,7 +57,7 @@ import { Badge, Table } from '@src'
           <Table.Cell>Credit Card</Table.Cell>
           <Table.Cell align="right">$250.00</Table.Cell>
         </Table.Row>
-        <Table.Row selected>
+        <Table.Row>
           <Table.Cell class="font-medium">INV-002</Table.Cell>
           <Table.Cell>
             <Badge tone="warning" variant="subtle">
@@ -185,6 +185,17 @@ Use `showColumnBorder` to add vertical divider borders between columns in header
       <Table.Cell>Paid</Table.Cell>
     </Table.Row>
   </Table.Body>
+</Table>
+```
+
+### Caption Placement
+
+`Table.Caption` automatically adjusts its margins and alignment based on where it is positioned within the table (placed as the first child before `<Table.Header>`, it aligns to the top with bottom margin; placed at the end, it aligns to the bottom with top margin). You can also explicitly set `side="top"` or `side="bottom"`.
+
+```tsx
+<Table>
+  <Table.Caption side="top">Top Caption</Table.Caption>
+  <Table.Header>...</Table.Header>
 </Table>
 ```
 
