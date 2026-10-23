@@ -529,9 +529,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       data-slot="input-number"
       {...inputNumberDataAttributes.root(fieldDataState)}
       {...rest}
-      ref={(element) => callRef(local.ref, element)}
-      id={`${field.id()}-root`}
       {...slots.root}
+      id={`${field.id()}-root`}
+      ref={(element) => callRef(local.ref, element)}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
@@ -540,16 +540,23 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       </Show>
 
       <input
+        data-slot="input-number-input"
         type="text"
         // iOS decimal/numeric keyboards omit the minus key.
         inputMode={isIOSUserAgent() && minValue() < 0 ? 'text' : 'decimal'}
         role="spinbutton"
-        id={field.id()}
+        placeholder={merged.placeholder}
+        {...inputNumberDataAttributes.input({
+          ...fieldDataState,
+          autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
+        })}
+        {...slots.input}
         ref={(e) => {
           inputEl = e
           field.setControlRef(e)
           callRef(local.inputRef, e)
         }}
+        id={field.id()}
         name={field.name()}
         form={merged.form}
         value={draftText() ?? formattedValue()}
@@ -560,13 +567,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuemax={maxValue()}
         aria-valuenow={currentValue()}
         aria-valuetext={formattedValue()}
-        placeholder={merged.placeholder}
-        data-slot="input-number-input"
-        {...inputNumberDataAttributes.input({
-          ...fieldDataState,
-          autoAlign: () => variants.align === undefined && !isVertical() && !showDecrement(),
-        })}
-        {...slots.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = draftText() ?? formattedValue()
