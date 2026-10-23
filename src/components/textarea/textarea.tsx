@@ -278,6 +278,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         autoresize: () => merged.autoResize,
       })}
       {...rest}
+      {...slots.root}
       id={field.id()}
       name={field.name()}
       rows={merged.rows ?? 3}
@@ -291,7 +292,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}
