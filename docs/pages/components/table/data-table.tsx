@@ -326,7 +326,10 @@ export function DataTable() {
               <Table.Row>
                 <For each={headerGroup.headers}>
                   {(header) => (
-                    <Table.Head colSpan={header.colSpan}>
+                    <Table.Head
+                      colSpan={header.colSpan}
+                      class={header.column.id === 'select' && 'w-5'}
+                    >
                       <table.FlexRender header={header} />
                     </Table.Head>
                   )}
@@ -351,7 +354,7 @@ export function DataTable() {
                 <Table.Row selected={row.getIsSelected()}>
                   <For each={row.getVisibleCells()}>
                     {(cell) => (
-                      <Table.Cell>
+                      <Table.Cell class={cell.column.id === 'select' && 'w-5'}>
                         <table.FlexRender cell={cell} />
                       </Table.Cell>
                     )}

@@ -18,8 +18,8 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       body: '[&_tr:last-child]:border-0',
       footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
       row: 'border-border transition-colors data-selected:bg-accent hover:bg-accent/50',
-      head: 'text-muted-foreground font-medium px-2 text-left align-middle border-border h-10 [&:has([role=checkbox])]:pr-0',
-      cell: 'align-middle border-border [&:has([role=checkbox])]:pr-0',
+      head: 'text-muted-foreground font-medium px-2 text-left align-middle border-border h-10',
+      cell: 'align-middle border-border',
       caption: 'text-sm text-muted-foreground my-4',
     },
     defaultVariants: {
