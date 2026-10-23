@@ -102,6 +102,15 @@ export namespace BaseSelectT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
+  export type Value = BaseSelectValue
+  export type FieldProps = BaseSelectFieldProps
+  export type DisclosureProps = BaseSelectDisclosureProps
+  export type ItemBehaviorProps<TItem extends Item> = BaseSelectItemBehaviorProps<TItem>
+  export type CloseOnSelectOption = BaseSelectCloseOnSelectOption
+  export type ResetProps = BaseSelectResetProps
+  export type Selection<TValue extends Value> = BaseSelectSelection<TValue>
+  export type PartProps = BaseSelectPartProps
+
   export interface Item<TValue extends string | number = string | number> {
     /** Unique selection and form value. */
     value: TValue
