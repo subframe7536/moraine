@@ -40,7 +40,7 @@ export function SelectionUsage() {
 
   return (
     <div class="max-w-md w-full space-y-3">
-      <Tabs items={TAB_ITEMS} value={tab()} onChange={setTab} />
+      <Tabs items={TAB_ITEMS} value={tab()} onValueChange={setTab} />
       <p class="text-xs text-muted-foreground">
         Active tab: <span class="text-foreground font-medium font-mono">{tab()}</span>
       </p>

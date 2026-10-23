@@ -94,7 +94,7 @@ export function Example() {
 
 ### Selected value
 
-Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection.
+Use `value` with `onValueChange` for controlled tabs, or `defaultValue` for an initial local selection.
 Disabled items are skipped during selection and keyboard navigation.
 
 For JSX panel content, use an item `content` getter so inactive panels are not constructed before
@@ -104,7 +104,7 @@ component can consume hydration keys that have no matching HTML.
 ```tsx
 <Tabs
   value={tab()}
-  onChange={setTab}
+  onValueChange={setTab}
   items={[
     {
       value: 'overview',

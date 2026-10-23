@@ -49,7 +49,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     'activationMode',
     'disabled',
     'loop',
-    'onChange',
+    'onValueChange',
     'items',
     'variant',
     'size',
@@ -183,7 +183,7 @@ export function Tabs(props: TabsProps): JSX.Element {
 
     setRequestedValue(nextValue)
 
-    merged.onChange?.(nextValue)
+    merged.onValueChange?.(nextValue)
   }
 
   function computeIndicatorStyle(

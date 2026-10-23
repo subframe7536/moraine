@@ -124,7 +124,7 @@ export function CodeTabs(props: CodeTabsProps) {
   return (
     <Tabs
       value={activeValue()}
-      onChange={handleValueChange}
+      onValueChange={handleValueChange}
       defaultValue={fallbackDefault()}
       size="sm"
       class={cn(DOCS_TABS_ROOT_CLASS, props.class)}

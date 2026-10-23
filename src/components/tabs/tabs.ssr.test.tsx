@@ -68,7 +68,9 @@ describe('Tabs SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/components/tabs/tabs.ssr.fixture.tsx',
       'renderTabsFixture',
-      () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={createTabItems()} />,
+      () => (
+        <Tabs id="ssr-tabs" value={value()} onValueChange={setValue} items={createTabItems()} />
+      ),
     )
 
     const root = container.querySelector('[data-slot="tabs"]')

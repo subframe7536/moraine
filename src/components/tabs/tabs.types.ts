@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon/icon.types'
 
 import type { TabsStyleSlot, TabsStyleVariants } from './tabs.style-types'
@@ -68,12 +68,6 @@ export namespace TabsT {
     defaultValue?: string
 
     /**
-     * The orientation of the tab list.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation
-
-    /**
      * Whether keyboard navigation activates the tab immediately or waits for confirmation.
      * @default 'automatic'
      */
@@ -94,7 +88,7 @@ export namespace TabsT {
     /**
      * Callback when the active tab changes.
      */
-    onChange?: (value: string) => void
+    onValueChange?: (value: string) => void
 
     /**
      * Array of tabs to display.

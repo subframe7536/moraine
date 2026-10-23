@@ -77,7 +77,7 @@
           }
         },
         {
-          "name": "onChange",
+          "name": "onValueChange",
           "optional": true,
           "type": "(value: string) => void",
           "description": "Callback when the active tab changes."
@@ -86,7 +86,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "The orientation of the tab list.",
+          "description": "Layout axis used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "horizontal"

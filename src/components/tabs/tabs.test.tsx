@@ -83,13 +83,13 @@ describe('Tabs', () => {
     expect(screen.getByText('Overview content')).not.toBeNull()
   })
 
-  test('supports controlled value and emits onChange', async () => {
-    const onChange = vi.fn()
+  test('supports controlled value and emits onValueChange', async () => {
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
       <Tabs
         value="one"
-        onChange={onChange}
+        onValueChange={onValueChange}
         items={[
           { label: 'One', value: 'one', content: 'Panel one' },
           { label: 'Two', value: 'two', content: 'Panel two' },
@@ -99,7 +99,7 @@ describe('Tabs', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
 
-    expect(onChange).toHaveBeenCalledWith('two')
+    expect(onValueChange).toHaveBeenCalledWith('two')
 
     const selected = screen.getByRole('tab', { name: 'One' })
     expect(selected.getAttribute('aria-selected')).toBe('true')
@@ -127,12 +127,12 @@ describe('Tabs', () => {
   })
 
   test('gives duplicate values unique ARIA identity and selects the first enabled occurrence', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <Tabs
         id="duplicate-tabs"
         defaultValue="duplicate"
-        onChange={onChange}
+        onValueChange={onValueChange}
         items={[
           { label: 'First duplicate', value: 'duplicate', content: 'First panel' },
           { label: 'Second duplicate', value: 'duplicate', content: 'Second panel' },
@@ -155,7 +155,7 @@ describe('Tabs', () => {
     fireEvent.click(second)
     expect(first.getAttribute('aria-selected')).toBe('true')
     expect(second.getAttribute('aria-selected')).toBe('false')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('only links controls to mounted panels as selection changes', () => {
@@ -282,12 +282,12 @@ describe('Tabs', () => {
   })
 
   test('supports manual activation mode via Enter and Space', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <Tabs
         activationMode="manual"
         defaultValue="one"
-        onChange={onChange}
+        onValueChange={onValueChange}
         items={[
           { label: 'One', value: 'one', content: 'Panel one' },
           { label: 'Two', value: 'two', content: 'Panel two' },
@@ -314,7 +314,7 @@ describe('Tabs', () => {
     expect(three.getAttribute('aria-selected')).toBe('true')
 
     fireEvent.keyDown(three, { key: ' ' })
-    expect(onChange).toHaveBeenCalledWith('three')
+    expect(onValueChange).toHaveBeenCalledWith('three')
   })
 
   test('respects loop=false at boundaries', async () => {
@@ -725,11 +725,11 @@ describe('Tabs', () => {
 
   test('derives a fallback when the selected tab is disabled and restores the request later', async () => {
     const [disabled, setDisabled] = createSignal(false)
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <Tabs
         defaultValue="two"
-        onChange={onChange}
+        onValueChange={onValueChange}
         items={[
           { label: 'One', value: 'one', content: 'Panel one' },
           { label: 'Two', value: 'two', content: 'Panel two', disabled: disabled() },
@@ -749,7 +749,7 @@ describe('Tabs', () => {
     await Promise.resolve()
     expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByRole('tabpanel').textContent).toBe('Panel two')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('keeps manual focus on the same tab across reordering', async () => {
@@ -759,9 +759,14 @@ describe('Tabs', () => {
       { label: 'Three', value: 'three', content: 'Panel three' },
     ]
     const [items, setItems] = createSignal(initialItems)
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Tabs activationMode="manual" defaultValue="one" items={items()} onChange={onChange} />
+      <Tabs
+        activationMode="manual"
+        defaultValue="one"
+        items={items()}
+        onValueChange={onValueChange}
+      />
     ))
     const one = screen.getByRole('tab', { name: 'One' })
 
@@ -776,18 +781,18 @@ describe('Tabs', () => {
     expect(document.activeElement).toBe(reorderedTwo)
     expect(reorderedTwo.getAttribute('tabindex')).toBe('0')
     expect(screen.getByRole('tab', { name: 'One' }).getAttribute('aria-selected')).toBe('true')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('applies controlled updates without moving focus or emitting changes', () => {
     const [value, setValue] = createSignal('one')
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <>
         <button type="button">Outside</button>
         <Tabs
           value={value()}
-          onChange={onChange}
+          onValueChange={onValueChange}
           items={[
             { label: 'One', value: 'one', content: 'Panel one' },
             { label: 'Two', value: 'two', content: 'Panel two' },
@@ -807,7 +812,7 @@ describe('Tabs', () => {
     setValue('one')
     expect(document.activeElement).toBe(outside)
     expect(one.getAttribute('aria-selected')).toBe('true')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('reads the item collection and JSX-capable item fields once', () => {
