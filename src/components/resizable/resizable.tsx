@@ -122,7 +122,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'children',
     'value',
     'defaultValue',
-    'onChange',
+    'onValueChange',
     'onResizeStart',
     'onResizeEnd',
     'onHandleKeyDown',
@@ -537,7 +537,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       )
     }
 
-    local.onChange?.(resolvePixelSizes(normalizedSizes))
+    local.onValueChange?.(resolvePixelSizes(normalizedSizes))
   }
 
   let drag: DragState | null = null

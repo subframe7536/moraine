@@ -36,7 +36,7 @@ function ResizableFixture(props: ResizableFixtureProps): JSX.Element {
     'onResize',
     'value',
     'defaultValue',
-    'onChange',
+    'onValueChange',
   ])
 
   const controlled = () => local.items.some((panel) => panel.size !== undefined)
@@ -51,7 +51,7 @@ function ResizableFixture(props: ResizableFixtureProps): JSX.Element {
       {...rest}
       value={value()}
       defaultValue={defaultValue()}
-      onChange={local.onResize ?? local.onChange}
+      onValueChange={local.onResize ?? local.onValueChange}
     >
       <For each={local.items}>
         {(panel, index) => (
@@ -1668,14 +1668,14 @@ describe('Resizable', () => {
 
   describe('compound API', () => {
     test('uses root defaultValue and reports pixel sizes at every callback boundary', () => {
-      const onChange = vi.fn()
+      const onValueChange = vi.fn()
       const onResizeStart = vi.fn()
       const onResizeEnd = vi.fn()
       const onCollapse = vi.fn()
       const screen = render(() => (
         <Resizable
           defaultValue={['30%', '70%']}
-          onChange={onChange}
+          onValueChange={onValueChange}
           onResizeStart={onResizeStart}
           onResizeEnd={onResizeEnd}
         >
@@ -1696,7 +1696,7 @@ describe('Resizable', () => {
       fireEvent.keyDown(handle, { key: 'ArrowRight' })
       expectPanelGrow(panels[0], 40)
       expect(onResizeStart).toHaveBeenCalledWith([300, 700])
-      expect(onChange).toHaveBeenCalledWith([400, 600])
+      expect(onValueChange).toHaveBeenCalledWith([400, 600])
       expect(onResizeEnd).toHaveBeenCalledWith([400, 600])
       expect(onCollapse).not.toHaveBeenCalled()
     })
@@ -1735,9 +1735,9 @@ describe('Resizable', () => {
     })
 
     test('keeps root value controlled until the owner writes the reported sizes', () => {
-      const onChange = vi.fn()
+      const onValueChange = vi.fn()
       const screen = render(() => (
-        <Resizable value={[300, 700]} onChange={onChange}>
+        <Resizable value={[300, 700]} onValueChange={onValueChange}>
           <Resizable.Panel>Left</Resizable.Panel>
           <Resizable.Handle />
           <Resizable.Panel>Right</Resizable.Panel>
@@ -1745,7 +1745,7 @@ describe('Resizable', () => {
       ))
       const handle = screen.container.querySelector<HTMLElement>('[data-slot="resizable-handle"]')!
       fireEvent.keyDown(handle, { key: 'ArrowRight' })
-      expect(onChange).toHaveBeenCalledWith([400, 600])
+      expect(onValueChange).toHaveBeenCalledWith([400, 600])
       expectPanelGrow(
         screen.container.querySelector<HTMLDivElement>('[data-slot="resizable-panel"]'),
         30,

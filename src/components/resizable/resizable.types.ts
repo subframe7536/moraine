@@ -34,11 +34,6 @@ export namespace ResizableT {
   export interface Base {
     /** Localized message overrides for this resizable instance. */
     translations?: Translations
-    /**
-     * Axis along which panels resize.
-     * @default 'horizontal'
-     */
-    orientation?: ResizableOrientation
 
     /** Unique identifier for the resizable root. */
     id?: string
@@ -53,7 +48,7 @@ export namespace ResizableT {
     defaultValue?: readonly ResizableSize[]
 
     /** Callback when panel sizes change. Values are in pixels. */
-    onChange?: (sizes: number[]) => void
+    onValueChange?: (sizes: number[]) => void
 
     /** Callback when a resize operation starts. Values are in pixels. */
     onResizeStart?: (sizes: number[]) => void

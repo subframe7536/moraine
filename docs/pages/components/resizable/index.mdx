@@ -147,12 +147,12 @@ pixel size when toggled.
 
 ### Controlled state and persistence
 
-Use `value` with `onChange` when the surrounding application coordinates layout presets, resets, or
-persists splits to storage. `onChange` receives exact pixel sizes. Numbers outside the panel count or
+Use `value` with `onValueChange` when the surrounding application coordinates layout presets, resets, or
+persists splits to storage. `onValueChange` receives exact pixel sizes. Numbers outside the panel count or
 exceeding bounds are automatically normalized to fit available space.
 
 ```tsx
-<Resizable value={sizes()} onChange={setSizes}>
+<Resizable value={sizes()} onValueChange={setSizes}>
   <Resizable.Panel min={150}>Logs</Resizable.Panel>
   <Resizable.Handle />
   <Resizable.Panel min={150}>Output</Resizable.Panel>

@@ -66,12 +66,6 @@
           }
         },
         {
-          "name": "onChange",
-          "optional": true,
-          "type": "(sizes: number[]) => void",
-          "description": "Callback when panel sizes change. Values are in pixels."
-        },
-        {
           "name": "onHandleKeyDown",
           "optional": true,
           "type": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void",
@@ -90,10 +84,16 @@
           "description": "Callback when a resize operation starts. Values are in pixels."
         },
         {
+          "name": "onValueChange",
+          "optional": true,
+          "type": "(sizes: number[]) => void",
+          "description": "Callback when panel sizes change. Values are in pixels."
+        },
+        {
           "name": "orientation",
           "optional": true,
-          "type": "ResizableOrientation",
-          "description": "Axis along which panels resize.",
+          "type": "'horizontal' | 'vertical'",
+          "description": "Layout axis used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
