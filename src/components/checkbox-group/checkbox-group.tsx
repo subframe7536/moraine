@@ -284,23 +284,23 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         invalid: field.invalid,
       })}
       {...rest}
-      id={`${groupId()}-root`}
       {...slots.root}
+      id={`${groupId()}-root`}
     >
       <fieldset
-        ref={(element) => {
-          fieldsetEl = element
-        }}
-        id={groupId()}
         data-slot="checkbox-group-fieldset"
+        {...slots.fieldset}
+        id={groupId()}
         disabled={field.disabled()}
-        onFocusIn={onFieldsetFocusIn}
-        onFocusOut={onFieldsetFocusOut}
         aria-labelledby={
           field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
-        {...slots.fieldset}
         {...field.ariaAttrs()}
+        ref={(element) => {
+          fieldsetEl = element
+        }}
+        onFocusIn={onFieldsetFocusIn}
+        onFocusOut={onFieldsetFocusOut}
       >
         <Show when={legend()}>
           <legend
