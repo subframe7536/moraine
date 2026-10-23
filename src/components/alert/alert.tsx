@@ -25,7 +25,7 @@ const ALERT_TYPE_ICONS: Record<string, IconT.Name> = {
 
 /** Non-floating contextual feedback and status banner. */
 export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as AlertT.Props<T> & { ref?: unknown }, [
     'as',
     'title',
     'description',
@@ -45,6 +45,7 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
     'class',
     'style',
     'children',
+    'ref',
     'translations',
   ])
 
@@ -109,13 +110,13 @@ export function Alert<T extends ValidComponent = 'div'>(props: AlertT.Props<T>):
           type: resolvedType(),
         })}
         {...rest}
+        {...slots.root}
         ref={(element: HTMLElement) => {
-          callRef(props.ref, element)
+          callRef(local.ref, element)
           if (element) {
             onCleanup(presence.registerElement(element))
           }
         }}
-        {...slots.root}
       >
         <Show when={hasIcon()}>
           <div data-slot="alert-icon" {...slots.icon}>
