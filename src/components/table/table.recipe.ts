@@ -50,7 +50,7 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       },
       striped: {
         true: {
-          row: 'even:bg-muted/30',
+          row: 'even:bg-muted',
         },
       },
       showBorder: {

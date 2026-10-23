@@ -208,7 +208,7 @@ describe('Table', () => {
         </Table.Body>
       </Table>
     ))
-    expect(slot(defaultTable, 'row')?.className).not.toContain('even:bg-muted/30')
+    expect(slot(defaultTable, 'row')?.className).not.toContain('even:bg-muted')
 
     const { container } = render(() => (
       <Table striped>
@@ -220,7 +220,7 @@ describe('Table', () => {
       </Table>
     ))
 
-    expect(slot(container, 'row')?.className).toContain('even:bg-muted/30')
+    expect(slot(container, 'row')?.className).toContain('even:bg-muted')
   })
 
   test('base table rows and root include border-border', () => {
