@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon/icon.types'
 
 import type { StepperStyleSlot, StepperStyleVariants } from './stepper.style-types'
@@ -82,13 +82,7 @@ export namespace StepperT {
     /**
      * Callback when the active step changes.
      */
-    onChange?: (value: Value) => void
-
-    /**
-     * The orientation of the stepper.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation
+    onValueChange?: (value: Value) => void
 
     /**
      * Whether keyboard activation happens immediately or only after confirmation.

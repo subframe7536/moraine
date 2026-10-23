@@ -29,7 +29,7 @@ export function LinearUsage() {
 
   return (
     <div class="max-w-xl w-full space-y-4">
-      <Stepper items={STEPS} value={step()} onChange={setStep} linear />
+      <Stepper items={STEPS} value={step()} onValueChange={setStep} linear />
       <div class="flex gap-2">
         <Button size="xs" variant="outline" disabled={currentIndex() === 0} onClick={goPrev}>
           Previous

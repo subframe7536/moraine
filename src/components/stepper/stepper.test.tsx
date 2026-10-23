@@ -237,82 +237,71 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Dynamic' }).hasAttribute('aria-controls')).toBe(false)
   })
 
-  test('supports controlled value and emits onChange with item value', () => {
-    const onChange = vi.fn()
+  test('supports controlled value and emits onValueChange with item value', () => {
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
-      <Stepper items={ITEMS} value="address" onChange={onChange} clickable />
+      <Stepper items={ITEMS} value="address" onValueChange={onValueChange} clickable />
     ))
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
 
-    expect(onChange).toHaveBeenCalledWith('shipping')
+    expect(onValueChange).toHaveBeenCalledWith('shipping')
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
   test('does not change step on click by default', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="address" onChange={onChange} />
+      <Stepper items={ITEMS} defaultValue="address" onValueChange={onValueChange} />
     ))
 
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
 
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
   test('blocks skipping ahead when linear is enabled', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="address" onChange={onChange} clickable />
+      <Stepper items={ITEMS} defaultValue="address" onValueChange={onValueChange} clickable />
     ))
 
     const checkout = screen.getByRole('tab', { name: 'Checkout' })
     fireEvent.click(checkout)
 
     expect(checkout.getAttribute('disabled')).toBe('')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
     expect(screen.getByText('Address content')).not.toBeNull()
   })
 
   test('allows jumping ahead when linear is disabled', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="address" linear={false} onChange={onChange} clickable />
+      <Stepper
+        items={ITEMS}
+        defaultValue="address"
+        linear={false}
+        onValueChange={onValueChange}
+        clickable
+      />
     ))
 
     fireEvent.click(screen.getByRole('tab', { name: 'Checkout' }))
 
-    expect(onChange).toHaveBeenCalledWith('checkout')
+    expect(onValueChange).toHaveBeenCalledWith('checkout')
   })
 
   test('does not wrap from the last step to the first on ArrowRight', () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="checkout" linear={false} onChange={onChange} clickable />
-    ))
-
-    const checkout = screen.getByRole('tab', { name: 'Checkout' })
-    checkout.focus()
-
-    fireEvent.keyDown(checkout, { key: 'ArrowRight' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(checkout.getAttribute('aria-selected')).toBe('true')
-    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('false')
-  })
-
-  test('wraps from the last step to the first on ArrowRight when loop=true', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
         defaultValue="checkout"
         linear={false}
-        loop
+        onValueChange={onValueChange}
         clickable
-        onChange={onChange}
       />
     ))
 
@@ -321,14 +310,37 @@ describe('Stepper', () => {
 
     fireEvent.keyDown(checkout, { key: 'ArrowRight' })
 
-    expect(onChange).toHaveBeenCalledWith('address')
+    expect(onValueChange).not.toHaveBeenCalled()
+    expect(checkout.getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('false')
+  })
+
+  test('wraps from the last step to the first on ArrowRight when loop=true', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Stepper
+        items={ITEMS}
+        defaultValue="checkout"
+        linear={false}
+        loop
+        clickable
+        onValueChange={onValueChange}
+      />
+    ))
+
+    const checkout = screen.getByRole('tab', { name: 'Checkout' })
+    checkout.focus()
+
+    fireEvent.keyDown(checkout, { key: 'ArrowRight' })
+
+    expect(onValueChange).toHaveBeenCalledWith('address')
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
   })
 
   test('flips horizontal arrows from the provider without a dir attribute', () => {
     const previousDirection = document.documentElement.getAttribute('dir')
     document.documentElement.removeAttribute('dir')
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     try {
       const screen = render(() => (
         <MoraineProvider dir="rtl">
@@ -337,7 +349,7 @@ describe('Stepper', () => {
             defaultValue="shipping"
             linear={false}
             clickable
-            onChange={onChange}
+            onValueChange={onValueChange}
           />
         </MoraineProvider>
       ))
@@ -345,7 +357,7 @@ describe('Stepper', () => {
       const shipping = screen.getByRole('tab', { name: 'Shipping' })
       shipping.focus()
       fireEvent.keyDown(shipping, { key: 'ArrowLeft' })
-      expect(onChange).toHaveBeenCalledWith('checkout')
+      expect(onValueChange).toHaveBeenCalledWith('checkout')
       expect(shipping.closest('[dir]')).toBeNull()
     } finally {
       if (previousDirection === null) {
@@ -357,9 +369,15 @@ describe('Stepper', () => {
   })
 
   test('supports Home and End keyboard navigation when clickable', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Stepper items={ITEMS} defaultValue="shipping" linear={false} clickable onChange={onChange} />
+      <Stepper
+        items={ITEMS}
+        defaultValue="shipping"
+        linear={false}
+        clickable
+        onValueChange={onValueChange}
+      />
     ))
 
     const shipping = screen.getByRole('tab', { name: 'Shipping' })
@@ -372,12 +390,12 @@ describe('Stepper', () => {
 
     fireEvent.keyDown(checkout, { key: 'Home' })
     expect(address.getAttribute('aria-selected')).toBe('true')
-    expect(onChange).toHaveBeenCalledWith('checkout')
-    expect(onChange).toHaveBeenCalledWith('address')
+    expect(onValueChange).toHaveBeenCalledWith('checkout')
+    expect(onValueChange).toHaveBeenCalledWith('address')
   })
 
   test('supports manual activation mode via Enter', () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
       <Stepper
         items={ITEMS}
@@ -385,7 +403,7 @@ describe('Stepper', () => {
         linear={false}
         clickable
         activationMode="manual"
-        onChange={onChange}
+        onValueChange={onValueChange}
       />
     ))
 
@@ -401,7 +419,7 @@ describe('Stepper', () => {
     fireEvent.keyDown(shipping, { key: 'Enter' })
 
     expect(shipping.getAttribute('aria-selected')).toBe('true')
-    expect(onChange).toHaveBeenCalledWith('shipping')
+    expect(onValueChange).toHaveBeenCalledWith('shipping')
   })
 
   test('applies orientation classes and slot overrides', () => {

@@ -31,7 +31,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     'id',
     'value',
     'defaultValue',
-    'onChange',
+    'onValueChange',
     'orientation',
     'activationMode',
     'items',
@@ -183,7 +183,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     setRequestedValue(nextValue)
 
     if (merged.clickable) {
-      merged.onChange?.(nextValue)
+      merged.onValueChange?.(nextValue)
     }
   }
 

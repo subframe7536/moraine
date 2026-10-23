@@ -27,7 +27,7 @@ export function ControlledNonLinear() {
       <Stepper
         items={RELEASE_STEPS()}
         value={releaseStep()}
-        onChange={setReleaseStep}
+        onValueChange={setReleaseStep}
         linear={false}
       />
       <div class="flex flex-wrap gap-2 items-center">

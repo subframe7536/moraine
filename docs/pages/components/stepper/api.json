@@ -97,7 +97,7 @@
           }
         },
         {
-          "name": "onChange",
+          "name": "onValueChange",
           "optional": true,
           "type": "(value: Value) => void",
           "description": "Callback when the active step changes."
@@ -106,7 +106,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
-          "description": "The orientation of the stepper.",
+          "description": "Layout axis used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "horizontal"

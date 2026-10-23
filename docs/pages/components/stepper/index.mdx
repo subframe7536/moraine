@@ -109,11 +109,11 @@ export function Example() {
 ### Linear and clickable steps
 
 `linear` (default `true`) locks later steps until earlier ones are reached. `clickable` (default
-`false`) lets users activate a step from its trigger. Pair `value` with `onChange` when completion
+`false`) lets users activate a step from its trigger. Pair `value` with `onValueChange` when completion
 or navigation decisions come from application state.
 
 ```tsx
-<Stepper items={STEPS} value={step()} onChange={setStep} linear clickable={false} />
+<Stepper items={STEPS} value={step()} onValueChange={setStep} linear clickable={false} />
 ```
 
 ### Panels and orientation
