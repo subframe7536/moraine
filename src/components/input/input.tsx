@@ -173,6 +173,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         readonly: field.readOnly,
       })}
       {...rest}
+      {...slots.root}
       id={field.id()}
       type={merged.type}
       name={field.name()}
@@ -187,7 +188,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         field.setControlRef(element)
         callRef(local.ref, element)
       }}
-      {...slots.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}
