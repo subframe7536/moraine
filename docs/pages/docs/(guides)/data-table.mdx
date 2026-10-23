@@ -1,0 +1,574 @@
+---
+title: Data Table
+description: Build powerful, interactive data tables with sorting, filtering, pagination, column visibility, and row selection using TanStack Solid Table and Moraine.
+sidebar:
+  order: 8
+search:
+  tags:
+    [table, data-table, tanstack, solid-table, sorting, filtering, pagination, selection, columns]
+---
+
+Data tables are essential for dashboards, reporting tools, and administrative applications. While standard tables display static rows, real-world data tables frequently require client-side sorting, text search filtering, pagination, column toggling, and row selection.
+
+Moraine pairs with **[TanStack Table](https://tanstack.com/table)** (`@tanstack/solid-table`) to provide a headless, fully customizable data table solution. TanStack Table manages the underlying table state, math, and algorithms, while Moraine provides the markup, accessibility, and theme styling.
+
+## Installation
+
+Install TanStack Table for Solid alongside Moraine:
+
+<CodeTabs package="@tanstack/solid-table" />
+
+Ensure you also have Moraine's core components installed: `Table`, `Button`, `Checkbox`, `DropdownMenu`, `Input`, and `Badge`.
+
+## Architecture & Core Concepts
+
+In the headless UI architecture:
+
+- **TanStack Table** handles table logic: sorting rules, filtering predicates, pagination calculations, column visibility models, and row selection maps.
+- **Moraine** handles rendering and presentation: accessible `<table>` markup, responsive horizontal scroll containers (`container`), row selection highlights (`selected`), density options (`size`), and UI controls (`Input`, `Button`, `DropdownMenu`, `Checkbox`).
+
+In SolidJS, TanStack Table uses **reactive property getters** inside `createSolidTable` to track signals cleanly without unnecessary re-renders.
+
+## Step 1: Define the Data Model & Columns
+
+Start by defining your row data interface and columns configuration using TanStack's `ColumnDef`:
+
+```tsx
+import type { ColumnDef } from '@tanstack/solid-table'
+import { Badge } from 'moraine'
+
+export interface Payment {
+  id: string
+  amount: number
+  status: 'pending' | 'processing' | 'success' | 'failed'
+  email: string
+  client: string
+}
+
+export const columns: ColumnDef<Payment>[] = [
+  {
+    accessorKey: 'client',
+    header: 'Client',
+    cell: (props) => <span class="font-medium">{props.row.getValue('client')}</span>,
+  },
+  {
+    accessorKey: 'email',
+    header: 'Email',
+    cell: (props) => <span class="text-muted-foreground">{props.row.getValue('email')}</span>,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: (props) => {
+      const status = () => props.row.getValue('status') as Payment['status']
+      const tone = () => {
+        switch (status()) {
+          case 'success':
+            return 'success'
+          case 'processing':
+            return 'info'
+          case 'pending':
+            return 'warning'
+          default:
+            return 'danger'
+        }
+      }
+      return (
+        <Badge tone={tone()} variant="subtle" class="capitalize">
+          {status()}
+        </Badge>
+      )
+    },
+  },
+  {
+    accessorKey: 'amount',
+    header: () => <div class="text-right">Amount</div>,
+    cell: (props) => {
+      const formatted = () => {
+        const amount = Number.parseFloat(props.row.getValue('amount'))
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }).format(amount)
+      }
+      return <div class="font-medium text-right">{formatted()}</div>
+    },
+  },
+]
+```
+
+## Step 2: Render the Table
+
+Initialize the table using `createSolidTable` with `getCoreRowModel`. Pass your data via a getter `get data() { return data() }` so TanStack Table re-evaluates reactively when data updates.
+
+Render the rows and headers using Moraine's composite `Table` parts and `flexRender`:
+
+```tsx
+import { createSolidTable, flexRender, getCoreRowModel } from '@tanstack/solid-table'
+import { createSignal, For, Show } from 'solid-js'
+import { Table } from 'moraine'
+import { columns, type Payment } from './columns'
+
+export function BasicDataTable(props: { data: Payment[] }) {
+  const [data] = createSignal(props.data)
+
+  const table = createSolidTable({
+    get data() {
+      return data()
+    },
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  return (
+    <Table bordered>
+      <Table.Header>
+        <For each={table.getHeaderGroups()}>
+          {(headerGroup) => (
+            <Table.Row>
+              <For each={headerGroup.headers}>
+                {(header) => (
+                  <Table.Head colSpan={header.colSpan}>
+                    <Show when={!header.isPlaceholder}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </Show>
+                  </Table.Head>
+                )}
+              </For>
+            </Table.Row>
+          )}
+        </For>
+      </Table.Header>
+      <Table.Body>
+        <Show
+          when={table.getRowModel().rows.length > 0}
+          fallback={
+            <Table.Row>
+              <Table.Cell colSpan={columns.length} class="h-24 text-center text-muted-foreground">
+                No results.
+              </Table.Cell>
+            </Table.Row>
+          }
+        >
+          <For each={table.getRowModel().rows}>
+            {(row) => (
+              <Table.Row>
+                <For each={row.getVisibleCells()}>
+                  {(cell) => (
+                    <Table.Cell>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </Table.Cell>
+                  )}
+                </For>
+              </Table.Row>
+            )}
+          </For>
+        </Show>
+      </Table.Body>
+    </Table>
+  )
+}
+```
+
+## Step 3: Add Sorting
+
+To enable column sorting:
+
+1. Provide a `sorting` state signal and pass `getSortedRowModel: getSortedRowModel()`.
+2. Wrap sortable column header labels in a Moraine `Button` with sort indicator icons.
+
+```tsx
+import {
+  createSolidTable,
+  getCoreRowModel,
+  getSortedRowModel,
+} from '@tanstack/solid-table'
+import type { SortingState } from '@tanstack/solid-table'
+import { createSignal, Show } from 'solid-js'
+import { Button, Icon } from 'moraine'
+
+// In column definitions:
+{
+  accessorKey: 'email',
+  header: (props) => {
+    const isSorted = () => props.column.getIsSorted()
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => props.column.toggleSorting(isSorted() === 'asc')}
+        class="-ml-3 h-8"
+      >
+        Email
+        <Show
+          when={isSorted()}
+          fallback={<Icon name="i-lucide:arrow-up-down" class="ml-2 h-4 w-4 text-muted-foreground" />}
+        >
+          {(direction) => (
+            <Icon
+              name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
+              class="ml-2 h-4 w-4"
+            />
+          )}
+        </Show>
+      </Button>
+    )
+  },
+}
+
+// In table initialization:
+const [sorting, setSorting] = createSignal<SortingState>([])
+
+const table = createSolidTable({
+  get data() { return data() },
+  columns,
+  state: {
+    get sorting() { return sorting() },
+  },
+  onSortingChange: setSorting,
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+})
+```
+
+## Step 4: Add Filtering
+
+To filter rows by input text (for example, searching by email):
+
+1. Provide a `columnFilters` state signal and pass `getFilteredRowModel: getFilteredRowModel()`.
+2. Connect a Moraine `Input` to the target column's filter value.
+
+```tsx
+import {
+  createSolidTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+} from '@tanstack/solid-table'
+import type { ColumnFiltersState } from '@tanstack/solid-table'
+import { createSignal } from 'solid-js'
+import { Input } from 'moraine'
+
+const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([])
+
+const table = createSolidTable({
+  get data() { return data() },
+  columns,
+  state: {
+    get columnFilters() { return columnFilters() },
+  },
+  onColumnFiltersChange: setColumnFilters,
+  getCoreRowModel: getCoreRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+})
+
+// In your toolbar:
+const emailFilter = () => (table.getColumn('email')?.getFilterValue() as string) ?? ''
+
+<Input
+  placeholder="Filter emails..."
+  value={emailFilter()}
+  onInput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
+  class="max-w-sm"
+/>
+```
+
+## Step 5: Add Pagination
+
+Enable client-side pagination with `getPaginationRowModel`:
+
+```tsx
+import {
+  createSolidTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+} from '@tanstack/solid-table'
+import { Button } from 'moraine'
+
+const table = createSolidTable({
+  get data() { return data() },
+  columns,
+  initialState: {
+    pagination: { pageSize: 5 },
+  },
+  getCoreRowModel: getCoreRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+})
+
+// Navigation controls:
+<div class="flex items-center justify-between text-sm text-muted-foreground">
+  <div>
+    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+  </div>
+  <div class="flex items-center gap-2">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => table.previousPage()}
+      disabled={!table.getCanPreviousPage()}
+    >
+      Previous
+    </Button>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => table.nextPage()}
+      disabled={!table.getCanNextPage()}
+    >
+      Next
+    </Button>
+  </div>
+</div>
+```
+
+## Step 6: Column Visibility
+
+Allow users to toggle which columns are shown or hidden using Moraine's `DropdownMenu` with checkbox items:
+
+```tsx
+import { createSolidTable } from '@tanstack/solid-table'
+import type { VisibilityState } from '@tanstack/solid-table'
+import { createMemo, createSignal } from 'solid-js'
+import { Button, DropdownMenu, Icon } from 'moraine'
+import type { DropdownMenuT } from 'moraine'
+
+const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({})
+
+const table = createSolidTable({
+  get data() { return data() },
+  columns,
+  state: {
+    get columnVisibility() { return columnVisibility() },
+  },
+  onColumnVisibilityChange: setColumnVisibility,
+  getCoreRowModel: getCoreRowModel(),
+})
+
+const visibilityItems = createMemo<DropdownMenuT.Item[]>(() =>
+  table
+    .getAllColumns()
+    .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
+    .map((column) => ({
+      type: 'checkbox',
+      label: column.id,
+      checked: column.getIsVisible(),
+      onCheckedChange: (checked) => column.toggleVisibility(checked),
+    })),
+)
+
+// In your toolbar:
+<DropdownMenu>
+  <DropdownMenu.Trigger as={Button} variant="outline" size="sm">
+    Columns
+    <Icon name="i-lucide:chevron-down" class="ml-2 h-4 w-4" />
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content items={visibilityItems()} />
+</DropdownMenu>
+```
+
+## Step 7: Row Selection
+
+Add a selection column with Moraine's `Checkbox`. Pass `selected={row.getIsSelected()}` to `Table.Row` to apply the active selection background and ARIA state:
+
+```tsx
+import type { ColumnDef, RowSelectionState } from '@tanstack/solid-table'
+import { createSignal } from 'solid-js'
+import { Checkbox, Table } from 'moraine'
+
+// Add select column to columns array:
+const selectColumn: ColumnDef<Payment> = {
+  id: 'select',
+  header: (props) => (
+    <Checkbox
+      checked={
+        props.table.getIsAllPageRowsSelected()
+          ? true
+          : props.table.getIsSomePageRowsSelected()
+            ? 'indeterminate'
+            : false
+      }
+      onCheckedChange={(value) => props.table.toggleAllPageRowsSelected(value)}
+      aria-label="Select all rows"
+    />
+  ),
+  cell: (props) => (
+    <Checkbox
+      checked={props.row.getIsSelected()}
+      onCheckedChange={(value) => props.row.toggleSelected(value)}
+      aria-label="Select row"
+    />
+  ),
+  enableSorting: false,
+  enableHiding: false,
+}
+
+const [rowSelection, setRowSelection] = createSignal<RowSelectionState>({})
+
+const table = createSolidTable({
+  get data() { return data() },
+  columns: [selectColumn, ...columns],
+  state: {
+    get rowSelection() { return rowSelection() },
+  },
+  onRowSelectionChange: setRowSelection,
+  getCoreRowModel: getCoreRowModel(),
+})
+
+// In the row renderer:
+<Table.Row selected={row.getIsSelected()}>
+  <For each={row.getVisibleCells()}>
+    {(cell) => (
+      <Table.Cell>
+        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+      </Table.Cell>
+    )}
+  </For>
+</Table.Row>
+```
+
+## Reusable Component Recipes
+
+Following the Shadcn UI pattern, you can extract reusable data table building blocks for your application.
+
+### Reusable Column Header
+
+A column header that includes title, sort ascending, sort descending, and hide column actions:
+
+```tsx
+import type { Column } from '@tanstack/solid-table'
+import { Button, DropdownMenu, Icon } from 'moraine'
+import type { DropdownMenuT } from 'moraine'
+import { Show } from 'solid-js'
+
+interface DataTableColumnHeaderProps<TData, TValue> {
+  column: Column<TData, TValue>
+  title: string
+  class?: string
+}
+
+export function DataTableColumnHeader<TData, TValue>(
+  props: DataTableColumnHeaderProps<TData, TValue>,
+) {
+  if (!props.column.getCanSort()) {
+    return <div class={props.class}>{props.title}</div>
+  }
+
+  const items: DropdownMenuT.Item[] = [
+    {
+      label: 'Ascending',
+      leading: 'i-lucide:arrow-up',
+      onSelect: () => props.column.toggleSorting(false),
+    },
+    {
+      label: 'Descending',
+      leading: 'i-lucide:arrow-down',
+      onSelect: () => props.column.toggleSorting(true),
+    },
+    { type: 'separator' },
+    {
+      label: 'Hide',
+      leading: 'i-lucide:eye-off',
+      onSelect: () => props.column.toggleVisibility(false),
+    },
+  ]
+
+  const isSorted = () => props.column.getIsSorted()
+
+  return (
+    <div class="flex items-center space-x-2">
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as={Button}
+          variant="ghost"
+          size="sm"
+          class="-ml-3 h-8 data-[state=open]:bg-accent"
+        >
+          <span>{props.title}</span>
+          <Show
+            when={isSorted()}
+            fallback={
+              <Icon name="i-lucide:arrow-up-down" class="ml-2 h-4 w-4 text-muted-foreground" />
+            }
+          >
+            {(direction) => (
+              <Icon
+                name={direction() === 'asc' ? 'i-lucide:arrow-up' : 'i-lucide:arrow-down'}
+                class="ml-2 h-4 w-4"
+              />
+            )}
+          </Show>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={items} />
+      </DropdownMenu>
+    </div>
+  )
+}
+```
+
+### Reusable Pagination Toolbar
+
+A comprehensive pagination bar with selected count, page size selector, page indicator, and navigation buttons:
+
+```tsx
+import type { Table as TanStackTable } from '@tanstack/solid-table'
+import { Button, Icon } from 'moraine'
+
+export function DataTablePagination<TData>(props: { table: TanStackTable<TData> }) {
+  return (
+    <div class="flex items-center justify-between px-2 text-sm text-muted-foreground">
+      <div class="flex-1">
+        {props.table.getFilteredSelectedRowModel().rows.length} of{' '}
+        {props.table.getFilteredRowModel().rows.length} row(s) selected.
+      </div>
+      <div class="flex items-center space-x-6 lg:space-x-8">
+        <div class="flex items-center justify-center font-medium">
+          Page {props.table.getState().pagination.pageIndex + 1} of {props.table.getPageCount()}
+        </div>
+        <div class="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            class="hidden h-8 w-8 p-0 lg:flex"
+            onClick={() => props.table.setPageIndex(0)}
+            disabled={!props.table.getCanPreviousPage()}
+          >
+            <span class="sr-only">First page</span>
+            <Icon name="i-lucide:chevrons-left" class="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-8 w-8 p-0"
+            onClick={() => props.table.previousPage()}
+            disabled={!props.table.getCanPreviousPage()}
+          >
+            <span class="sr-only">Previous page</span>
+            <Icon name="i-lucide:chevron-left" class="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="h-8 w-8 p-0"
+            onClick={() => props.table.nextPage()}
+            disabled={!props.table.getCanNextPage()}
+          >
+            <span class="sr-only">Next page</span>
+            <Icon name="i-lucide:chevron-right" class="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            class="hidden h-8 w-8 p-0 lg:flex"
+            onClick={() => props.table.setPageIndex(props.table.getPageCount() - 1)}
+            disabled={!props.table.getCanNextPage()}
+          >
+            <span class="sr-only">Last page</span>
+            <Icon name="i-lucide:chevrons-right" class="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+See the interactive [Table examples](/components/table#interactive-data-table-with-tanstack-table) for the complete running demonstration.
