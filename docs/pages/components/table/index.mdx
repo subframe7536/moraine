@@ -1,0 +1,225 @@
+---
+title: Table
+description: Display structured tabular data with responsive scrolling, density options, and row states.
+group: Display
+api:
+  path: src/components/table/table
+  root: Root
+  parts: [Header, Body, Footer, Row, Head, Cell, Caption]
+search:
+  tags: [table, data, grid, rows, columns, tabular, data-table]
+---
+
+import { Badge, Table } from '@src'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'boolean', prop: 'striped', label: 'Striped', defaultValue: false },
+    { kind: 'boolean', prop: 'bordered', label: 'Bordered', defaultValue: false },
+    { kind: 'boolean', prop: 'borderless', label: 'Borderless', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Table
+      size={props.size}
+      striped={props.striped}
+      bordered={props.bordered}
+      borderless={props.borderless}
+    >
+      <Table.Caption>A list of recent transactions.</Table.Caption>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Invoice</Table.Head>
+          <Table.Head>Status</Table.Head>
+          <Table.Head>Method</Table.Head>
+          <Table.Head align="right">Amount</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-001</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Credit Card</Table.Cell>
+          <Table.Cell align="right">$250.00</Table.Cell>
+        </Table.Row>
+        <Table.Row selected>
+          <Table.Cell class="font-medium">INV-002</Table.Cell>
+          <Table.Cell>
+            <Badge tone="warning" variant="subtle">
+              Pending
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>PayPal</Table.Cell>
+          <Table.Cell align="right">$150.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-003</Table.Cell>
+          <Table.Cell>
+            <Badge tone="danger" variant="subtle">
+              Unpaid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Bank Transfer</Table.Cell>
+          <Table.Cell align="right">$350.00</Table.Cell>
+        </Table.Row>
+      </Table.Body>
+      <Table.Footer>
+        <Table.Row>
+          <Table.Cell colSpan={3}>Total</Table.Cell>
+          <Table.Cell align="right" class="font-semibold">
+            $750.00
+          </Table.Cell>
+        </Table.Row>
+      </Table.Footer>
+    </Table>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      { slot: 'container' },
+      { part: 'Table.Caption', slot: 'caption' },
+      {
+        part: 'Table.Header',
+        slot: 'header',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            children: [{ part: 'Table.Head', slot: 'head' }],
+          },
+        ],
+      },
+      {
+        part: 'Table.Body',
+        slot: 'body',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            children: [{ part: 'Table.Cell', slot: 'cell' }],
+          },
+        ],
+      },
+      {
+        part: 'Table.Footer',
+        slot: 'footer',
+        children: [
+          {
+            part: 'Table.Row',
+            slot: 'row',
+            children: [{ part: 'Table.Cell', slot: 'cell' }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+## Usage
+
+Use `Table` to present tabular data with rows and columns. By default, `Table` wraps the native
+`<table>` element in a scrollable `<div>` (`data-slot="table-container"`) to ensure horizontal
+scrollability on smaller screens without breaking page layout.
+
+```tsx
+import { Table } from 'moraine'
+
+export function InvoiceTable() {
+  return (
+    <Table>
+      <Table.Caption>Recent invoices</Table.Caption>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Invoice</Table.Head>
+          <Table.Head>Status</Table.Head>
+          <Table.Head align="right">Amount</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell>INV-001</Table.Cell>
+          <Table.Cell>Paid</Table.Cell>
+          <Table.Cell align="right">$250.00</Table.Cell>
+        </Table.Row>
+      </Table.Body>
+    </Table>
+  )
+}
+```
+
+### Opting out of the Container
+
+When embedding the table in an existing scroll container or when printing, pass `container={false}`
+to render `<table data-slot="table">` directly without the outer wrapper.
+
+```tsx
+<Table container={false}>
+  <Table.Body>
+    <Table.Row>
+      <Table.Cell>Direct table element</Table.Cell>
+    </Table.Row>
+  </Table.Body>
+</Table>
+```
+
+### Column Alignment and Truncation
+
+Use `align="left" | "center" | "right"` on `Table.Head` and `Table.Cell` to control text alignment.
+Use `truncated` to prevent long text from wrapping and add an ellipsis.
+
+```tsx
+<Table.Header>
+  <Table.Row>
+    <Table.Head truncated class="max-w-[150px]">
+      Very Long Column Header
+    </Table.Head>
+    <Table.Head align="center">Status</Table.Head>
+    <Table.Head align="right">Amount</Table.Head>
+  </Table.Row>
+</Table.Header>
+```
+
+### Selected Rows
+
+Pass `selected` to `Table.Row` to apply the theme's active background highlight, `data-selected`,
+and `aria-selected="true"`.
+
+```tsx
+<Table.Row selected={isSelected()}>
+  <Table.Cell>Selected Row</Table.Cell>
+</Table.Row>
+```
+
+## Examples
+
+### Review transaction invoices
+
+Compose a summary table with status badges and column alignment.
+
+<Preview path="./basic" />
+
+### Truncate long header and cell values
+
+Combine column alignment with truncated text to prevent table overflowing.
+
+<Preview path="./custom-columns" />

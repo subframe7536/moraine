@@ -46,6 +46,7 @@ import type { SkeletonStyleConfig } from '../components/skeleton/skeleton.style-
 import type { SliderStyleConfig } from '../components/slider/slider.style-types'
 import type { StepperStyleConfig } from '../components/stepper/stepper.style-types'
 import type { SwitchStyleConfig } from '../components/switch/switch.style-types'
+import type { TableStyleConfig } from '../components/table/table.style-types'
 import type { TabsStyleConfig } from '../components/tabs/tabs.style-types'
 import type { TextareaStyleConfig } from '../components/textarea/textarea.style-types'
 import type { ToastStyleConfig } from '../components/toast/toast.style-types'
@@ -103,6 +104,7 @@ export interface MoraineStyleSchema {
   pagination: PaginationStyleConfig
   sidebarFrame: SidebarFrameStyleConfig
   stepper: StepperStyleConfig
+  table: TableStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig
   alertDialog: AlertDialogStyleConfig
