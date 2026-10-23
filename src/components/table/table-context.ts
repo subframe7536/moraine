@@ -5,8 +5,7 @@ import type { TableT } from './table.types'
 interface TableContext {
   readonly size: TableT.Variants['size']
   readonly striped: TableT.Variants['striped']
-  readonly borderless: TableT.Variants['borderless']
-  readonly showColumnBorder: TableT.Variants['showColumnBorder']
+  readonly showBorder: TableT.Variants['showBorder']
   readonly slotOverrides: {
     readonly classes?: TableT.Classes
     readonly styles?: TableT.Styles

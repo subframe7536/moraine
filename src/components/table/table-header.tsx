@@ -18,8 +18,7 @@ export function TableHeader(props: TableT.HeaderProps): JSX.Element {
     contextVariants: () => ({
       size: context.size,
       striped: context.striped,
-      borderless: context.borderless,
-      showColumnBorder: context.showColumnBorder,
+      showBorder: context.showBorder,
     }),
     contextSlots: () => context.slotOverrides,
     own: {

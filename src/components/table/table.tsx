@@ -24,8 +24,7 @@ export function Table(props: TableT.Props): JSX.Element {
     [
       'size',
       'striped',
-      'borderless',
-      'showColumnBorder',
+      'showBorder',
       'containerRef',
       'classes',
       'styles',
@@ -46,11 +45,8 @@ export function Table(props: TableT.Props): JSX.Element {
         get striped() {
           return variants.striped
         },
-        get borderless() {
-          return variants.borderless
-        },
-        get showColumnBorder() {
-          return variants.showColumnBorder
+        get showBorder() {
+          return variants.showBorder
         },
         get slotOverrides() {
           return { classes: local.classes, styles: local.styles }

@@ -26,17 +26,21 @@ import { Badge, Table } from '@src'
       ],
     },
     { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
-    { kind: 'switch', prop: 'borderless', label: 'Borderless', defaultValue: false },
-    { kind: 'switch', prop: 'showColumnBorder', label: 'Show Column Border', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'showBorder',
+      label: 'Show Border',
+      defaultValue: 'row',
+      options: [
+        { label: 'Row', value: 'row' },
+        { label: 'Column', value: 'col' },
+        { label: 'Both', value: 'both' },
+      ],
+    },
   ]}
 >
   {(props) => (
-    <Table
-      size={props.size}
-      striped={props.striped}
-      borderless={props.borderless}
-      showColumnBorder={props.showColumnBorder}
-    >
+    <Table size={props.size} striped={props.striped} showBorder={props.showBorder}>
       <Table.Caption>A list of recent transactions.</Table.Caption>
       <Table.Header>
         <Table.Row>
@@ -77,12 +81,42 @@ import { Badge, Table } from '@src'
           <Table.Cell>Bank Transfer</Table.Cell>
           <Table.Cell align="right">$350.00</Table.Cell>
         </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-004</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Credit Card</Table.Cell>
+          <Table.Cell align="right">$450.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-005</Table.Cell>
+          <Table.Cell>
+            <Badge tone="success" variant="subtle">
+              Paid
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>PayPal</Table.Cell>
+          <Table.Cell align="right">$550.00</Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell class="font-medium">INV-006</Table.Cell>
+          <Table.Cell>
+            <Badge tone="warning" variant="subtle">
+              Pending
+            </Badge>
+          </Table.Cell>
+          <Table.Cell>Bank Transfer</Table.Cell>
+          <Table.Cell align="right">$200.00</Table.Cell>
+        </Table.Row>
       </Table.Body>
       <Table.Footer>
         <Table.Row>
           <Table.Cell colSpan={3}>Total</Table.Cell>
           <Table.Cell align="right" class="font-semibold">
-            $750.00
+            $1,950.00
           </Table.Cell>
         </Table.Row>
       </Table.Footer>
@@ -167,12 +201,16 @@ export function InvoiceTable() {
 }
 ```
 
-### Column Borders
+### Divider Borders
 
-Use `showColumnBorder` to add vertical divider borders between columns in header and data cells.
+Use `showBorder` to control divider borders on rows and columns:
+
+- `'row'` (default): Displays horizontal borders separating rows and sections.
+- `'col'`: Displays vertical dividing borders between columns.
+- `'both'`: Displays both horizontal row dividers and vertical column dividers.
 
 ```tsx
-<Table showColumnBorder>
+<Table showBorder="both">
   <Table.Header>
     <Table.Row>
       <Table.Head>Invoice</Table.Head>

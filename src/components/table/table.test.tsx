@@ -41,9 +41,10 @@ describe('Table', () => {
     expect(slot(container, 'cell')?.tagName).toBe('TD')
   })
 
-  test('showColumnBorder variant applies dividing border to head and cell', () => {
-    const { container } = render(() => (
-      <Table showColumnBorder>
+  test('showBorder variant controls row, column, and combined divider borders', () => {
+    // Default showBorder="row"
+    const { container: rowTable } = render(() => (
+      <Table>
         <Table.Header>
           <Table.Row>
             <Table.Head>Head 1</Table.Head>
@@ -56,13 +57,81 @@ describe('Table', () => {
             <Table.Cell>Cell 2</Table.Cell>
           </Table.Row>
         </Table.Body>
+        <Table.Footer>
+          <Table.Row>
+            <Table.Cell>Foot 1</Table.Cell>
+          </Table.Row>
+        </Table.Footer>
       </Table>
     ))
 
-    const heads = container.querySelectorAll('th')
-    const cells = container.querySelectorAll('td')
-    expect(heads[0]?.className).toContain('[&:not(:last-child)]:border-r')
-    expect(cells[0]?.className).toContain('[&:not(:last-child)]:border-r')
+    expect(slot(rowTable, 'header')?.className).toContain('[&_tr]:border-b')
+    expect(slot(rowTable, 'row')?.className).toContain('border-b')
+    expect(slot(rowTable, 'footer')?.className).toContain('border-t')
+    const rowHeads = rowTable.querySelectorAll('th')
+    expect(rowHeads[0]?.className).not.toContain('[&:not(:last-child)]:border-r')
+
+    // showBorder="col"
+    const { container: colTable } = render(() => (
+      <Table showBorder="col">
+        <Table.Header>
+          <Table.Row>
+            <Table.Head>Head 1</Table.Head>
+            <Table.Head>Head 2</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Cell 1</Table.Cell>
+            <Table.Cell>Cell 2</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+        <Table.Footer>
+          <Table.Row>
+            <Table.Cell>Foot 1</Table.Cell>
+          </Table.Row>
+        </Table.Footer>
+      </Table>
+    ))
+
+    expect(slot(colTable, 'header')?.className.split(/\s+/)).not.toContain('[&_tr]:border-b')
+    expect(slot(colTable, 'row')?.className.split(/\s+/)).not.toContain('border-b')
+    expect(slot(colTable, 'footer')?.className.split(/\s+/)).not.toContain('border-t')
+    const colHeads = colTable.querySelectorAll('th')
+    const colCells = colTable.querySelectorAll('td')
+    expect(colHeads[0]?.className).toContain('[&:not(:last-child)]:border-r')
+    expect(colCells[0]?.className).toContain('[&:not(:last-child)]:border-r')
+
+    // showBorder="both"
+    const { container: bothTable } = render(() => (
+      <Table showBorder="both">
+        <Table.Header>
+          <Table.Row>
+            <Table.Head>Head 1</Table.Head>
+            <Table.Head>Head 2</Table.Head>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Cell 1</Table.Cell>
+            <Table.Cell>Cell 2</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+        <Table.Footer>
+          <Table.Row>
+            <Table.Cell>Foot 1</Table.Cell>
+          </Table.Row>
+        </Table.Footer>
+      </Table>
+    ))
+
+    expect(slot(bothTable, 'header')?.className).toContain('[&_tr]:border-b')
+    expect(slot(bothTable, 'row')?.className).toContain('border-b')
+    expect(slot(bothTable, 'footer')?.className).toContain('border-t')
+    const bothHeads = bothTable.querySelectorAll('th')
+    const bothCells = bothTable.querySelectorAll('td')
+    expect(bothHeads[0]?.className).toContain('[&:not(:last-child)]:border-r')
+    expect(bothCells[0]?.className).toContain('[&:not(:last-child)]:border-r')
   })
 
   test('forwards containerRef to the outer wrapper element', () => {
@@ -167,56 +236,6 @@ describe('Table', () => {
 
     expect(slot(container, 'row')?.className).toContain('border-border')
     expect(slot(container, '')?.className).toContain('border-border')
-  })
-
-  test('borderless variant toggles divider borders', () => {
-    const { container: defaultTable } = render(() => (
-      <Table>
-        <Table.Header>
-          <Table.Row>
-            <Table.Head>Head</Table.Head>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>Cell</Table.Cell>
-          </Table.Row>
-        </Table.Body>
-        <Table.Footer>
-          <Table.Row>
-            <Table.Cell>Foot</Table.Cell>
-          </Table.Row>
-        </Table.Footer>
-      </Table>
-    ))
-
-    expect(slot(defaultTable, 'header')?.className).toContain('[&_tr]:border-b')
-    expect(slot(defaultTable, 'row')?.className).toContain('border-b')
-    expect(slot(defaultTable, 'footer')?.className).toContain('border-t')
-
-    const { container: borderlessTable } = render(() => (
-      <Table borderless>
-        <Table.Header>
-          <Table.Row>
-            <Table.Head>Head</Table.Head>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>Cell</Table.Cell>
-          </Table.Row>
-        </Table.Body>
-        <Table.Footer>
-          <Table.Row>
-            <Table.Cell>Foot</Table.Cell>
-          </Table.Row>
-        </Table.Footer>
-      </Table>
-    ))
-
-    expect(slot(borderlessTable, 'header')?.className.split(/\s+/)).not.toContain('[&_tr]:border-b')
-    expect(slot(borderlessTable, 'row')?.className.split(/\s+/)).not.toContain('border-b')
-    expect(slot(borderlessTable, 'footer')?.className.split(/\s+/)).not.toContain('border-t')
   })
 
   test('align and truncated props on Table.Head and Table.Cell', () => {

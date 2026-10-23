@@ -26,10 +26,8 @@ export interface TableStyleVariants {
   size?: 'sm' | 'md' | 'lg'
   /** Whether rows display alternating background colors. @default false */
   striped?: boolean
-  /** Whether row and section dividing borders are removed. @default false */
-  borderless?: boolean
-  /** Whether vertical divider borders are added between table columns. @default false */
-  showColumnBorder?: boolean
+  /** Which divider borders are displayed. @default 'row' */
+  showBorder?: 'row' | 'col' | 'both'
 }
 
 export type TableStyleConfig = ComponentStyleConfig<TableStyleSlot, TableStyleVariants>

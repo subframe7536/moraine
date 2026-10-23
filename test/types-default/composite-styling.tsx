@@ -174,14 +174,13 @@ defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: 
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({
-  table: { base: { head: 'font-bold' }, defaultVariants: { size: 'lg', borderless: true } },
+  table: { base: { head: 'font-bold' }, defaultVariants: { size: 'lg', showBorder: 'col' } },
 })
 
 ;<Table
   size="sm"
   striped
-  borderless
-  showColumnBorder
+  showBorder="both"
   class="root"
   style={{ width: '100%' }}
   classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}

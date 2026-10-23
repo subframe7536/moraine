@@ -19,8 +19,7 @@ export function TableRow(props: TableT.RowProps): JSX.Element {
     contextVariants: () => ({
       size: context.size,
       striped: context.striped,
-      borderless: context.borderless,
-      showColumnBorder: context.showColumnBorder,
+      showBorder: context.showBorder,
     }),
     contextSlots: () => context.slotOverrides,
   })

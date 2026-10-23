@@ -16,16 +16,6 @@
       "defaultElement": "table",
       "props": [
         {
-          "name": "borderless",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether row and section dividing borders are removed.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -50,13 +40,13 @@
           "description": "Ref forwarded to the scroll container element."
         },
         {
-          "name": "showColumnBorder",
+          "name": "showBorder",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether vertical divider borders are added between table columns.",
+          "type": "'row' | 'col' | 'both'",
+          "description": "Which divider borders are displayed.",
           "default": {
             "kind": "literal",
-            "value": false
+            "value": "row"
           }
         },
         {

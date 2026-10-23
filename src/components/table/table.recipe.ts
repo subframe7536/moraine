@@ -25,8 +25,7 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
     defaultVariants: {
       size: 'md',
       striped: false,
-      borderless: false,
-      showColumnBorder: false,
+      showBorder: 'row',
     },
     variants: {
       size: {
@@ -54,15 +53,20 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
           row: 'even:bg-muted/30',
         },
       },
-      borderless: {
-        false: {
+      showBorder: {
+        row: {
           header: '[&_tr]:border-b',
           row: 'border-b',
           footer: 'border-t',
         },
-      },
-      showColumnBorder: {
-        true: {
+        col: {
+          head: '[&:not(:last-child)]:border-r',
+          cell: '[&:not(:last-child)]:border-r',
+        },
+        both: {
+          header: '[&_tr]:border-b',
+          row: 'border-b',
+          footer: 'border-t',
           head: '[&:not(:last-child)]:border-r',
           cell: '[&:not(:last-child)]:border-r',
         },
