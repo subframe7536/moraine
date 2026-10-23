@@ -47,10 +47,15 @@ describe('Accordion', () => {
   })
 
   test('single mode toggles same item and emits [] when collapsible=true', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} collapsible defaultValue={['one']} onChange={onChange} />
+      <Accordion
+        items={BASE_ITEMS}
+        collapsible
+        defaultValue={['one']}
+        onValueChange={onValueChange}
+      />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -61,13 +66,13 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
-    expect(onChange).toHaveBeenCalledWith([])
+    expect(onValueChange).toHaveBeenCalledWith([])
 
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
-    expect(onChange).toHaveBeenLastCalledWith(['one'])
+    expect(onValueChange).toHaveBeenLastCalledWith(['one'])
   })
 
   test('single mode does not close same item when collapsible=false', async () => {
@@ -116,9 +121,9 @@ describe('Accordion', () => {
   })
 
   test('multiple mode toggles with Space on the focused trigger', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} multiple defaultValue={['one']} onChange={onChange} />
+      <Accordion items={BASE_ITEMS} multiple defaultValue={['one']} onValueChange={onValueChange} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -127,22 +132,22 @@ describe('Accordion', () => {
 
     fireEvent.keyDown(triggerOne, { key: ' ' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
 
     fireEvent.keyUp(triggerOne, { key: ' ' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
-    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledTimes(1)
 
     fireEvent.keyUp(triggerOne, { key: ' ' })
-    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledTimes(1)
 
     fireEvent.keyDown(triggerOne, { key: 'Enter' })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
-    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onValueChange).toHaveBeenCalledTimes(2)
 
     fireEvent.keyDown(triggerOne, { key: 'Enter', repeat: true })
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
-    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onValueChange).toHaveBeenCalledTimes(2)
   })
 
   test('keeps generated item values and focused triggers stable through reorder', async () => {
@@ -419,11 +424,11 @@ describe('Accordion', () => {
     expect(triggerOne.getAttribute('aria-controls')).toBe(contentId)
   })
 
-  test('single controlled mode emits onChange and keeps controlled UI state', async () => {
-    const onChange = vi.fn()
+  test('single controlled mode emits onValueChange and keeps controlled UI state', async () => {
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} value={['one']} onChange={onChange} />
+      <Accordion items={BASE_ITEMS} value={['one']} onValueChange={onValueChange} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -432,17 +437,17 @@ describe('Accordion', () => {
     fireEvent.click(triggerTwo)
     await Promise.resolve()
 
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenCalledWith(['two'])
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledWith(['two'])
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('multiple controlled mode emits onChange and keeps controlled UI state', async () => {
-    const onChange = vi.fn()
+  test('multiple controlled mode emits onValueChange and keeps controlled UI state', async () => {
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
-      <Accordion items={BASE_ITEMS} multiple value={['one']} onChange={onChange} />
+      <Accordion items={BASE_ITEMS} multiple value={['one']} onValueChange={onValueChange} />
     ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
@@ -451,16 +456,18 @@ describe('Accordion', () => {
     fireEvent.click(triggerTwo)
     await Promise.resolve()
 
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenCalledWith(['one', 'two'])
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledWith(['one', 'two'])
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
   })
 
   test('root disabled prevents toggling', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
 
-    const screen = render(() => <Accordion items={BASE_ITEMS} disabled onChange={onChange} />)
+    const screen = render(() => (
+      <Accordion items={BASE_ITEMS} disabled onValueChange={onValueChange} />
+    ))
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
 
@@ -468,7 +475,7 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(triggerOne.getAttribute('aria-expanded')).toBe('false')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 
   test('disabled state stays on root, item, and trigger owners', () => {
@@ -519,7 +526,7 @@ describe('Accordion', () => {
   })
 
   test('disabled item cannot be toggled while other items still work', async () => {
-    const onChange = vi.fn()
+    const onValueChange = vi.fn()
 
     const screen = render(() => (
       <Accordion
@@ -530,7 +537,7 @@ describe('Accordion', () => {
             disabled: true,
           },
         ]}
-        onChange={onChange}
+        onValueChange={onValueChange}
       />
     ))
 
@@ -541,12 +548,12 @@ describe('Accordion', () => {
     await Promise.resolve()
 
     expect(triggerTwo.getAttribute('aria-expanded')).toBe('false')
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
 
     fireEvent.click(triggerOne)
     await Promise.resolve()
 
-    expect(onChange).toHaveBeenCalledWith(['one'])
+    expect(onValueChange).toHaveBeenCalledWith(['one'])
   })
 
   test('respects unmountOnHide=true/false', () => {
@@ -638,7 +645,7 @@ describe('Accordion', () => {
             },
           ]}
           value={value()}
-          onChange={setControlledValue}
+          onValueChange={setControlledValue}
           unmountOnHide={false}
         />
       )
@@ -744,7 +751,7 @@ describe('Accordion', () => {
               id="settings"
               items={BASE_ITEMS}
               value={openValue()}
-              onChange={setOpenValue}
+              onValueChange={setOpenValue}
             />
             <span data-testid="open-value">{openValue()[0] ?? 'none'}</span>
           </>

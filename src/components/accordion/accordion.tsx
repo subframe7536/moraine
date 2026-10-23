@@ -82,7 +82,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'multiple',
     'collapsible',
     'loop',
-    'onChange',
+    'onValueChange',
     'items',
     'disabled',
     'unmountOnHide',
@@ -136,7 +136,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   function setValue(nextValue: string[]): void {
     setSelectedValues(nextValue)
-    merged.onChange?.(nextValue)
+    merged.onValueChange?.(nextValue)
   }
 
   function toggleValue(itemValue: string): void {

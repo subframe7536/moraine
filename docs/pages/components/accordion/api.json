@@ -91,7 +91,7 @@
           }
         },
         {
-          "name": "onChange",
+          "name": "onValueChange",
           "optional": true,
           "type": "(value: string[]) => void",
           "description": "Callback when the expanded item values change."

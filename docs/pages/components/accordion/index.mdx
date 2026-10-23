@@ -98,14 +98,14 @@ export function Example() {
 
 ### Open items
 
-`value`, `defaultValue`, and `onChange` always use an array of item values. Single mode opens at most
-one item. Set `multiple` to allow several. Pair `value` with `onChange` when the page owns the open
+`value`, `defaultValue`, and `onValueChange` always use an array of item values. Single mode opens at most
+one item. Set `multiple` to allow several. Pair `value` with `onValueChange` when the page owns the open
 set. `collapsible` controls whether the currently open item may close.
 
 ```tsx
 const [open, setOpen] = createSignal<string[]>(['shipping'])
 
-<Accordion items={items} value={open()} onChange={setOpen} collapsible />
+<Accordion items={items} value={open()} onValueChange={setOpen} collapsible />
 <Accordion multiple defaultValue={['general', 'security']} items={items} />
 ```
 
@@ -158,7 +158,7 @@ Set `unmountOnHide={false}` so inputs inside a panel keep their values across to
 
 ### Drive the open FAQ from page state
 
-Pair `value` with `onChange`. The array always holds item values, even in single mode. Surrounding
+Pair `value` with `onValueChange`. The array always holds item values, even in single mode. Surrounding
 copy can read the same signal to name the active topic.
 
 <Preview path="./open-items" />

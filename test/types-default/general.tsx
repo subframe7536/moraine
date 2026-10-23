@@ -4,17 +4,17 @@ import type { AccordionT } from 'moraine'
 ;<Accordion
   items={[{ value: 'billing plan / 中文?', label: 'Billing' }]}
   value={[]}
-  onChange={(value: string[]) => void value}
+  onValueChange={(value: string[]) => void value}
 />
 ;<Accordion
   multiple
   items={[{ value: 'a' }]}
   value={['a']}
-  onChange={(value: string[]) => void value}
+  onValueChange={(value: string[]) => void value}
 />
 ;<Accordion
   items={[{ value: 'a' }]}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const single: string[] = value
     void single
   }}
@@ -22,7 +22,7 @@ import type { AccordionT } from 'moraine'
 ;<Accordion
   multiple
   items={[{ value: 'a' }]}
-  onChange={(value) => {
+  onValueChange={(value) => {
     const many: string[] = value
     void many
   }}

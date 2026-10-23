@@ -8,7 +8,7 @@ export function Single() {
     <div class="max-w-xl w-full space-y-3">
       <Accordion
         value={openValue()}
-        onChange={setOpenValue}
+        onValueChange={setOpenValue}
         items={[
           {
             value: 'invite',

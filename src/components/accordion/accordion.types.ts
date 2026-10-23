@@ -75,7 +75,7 @@ export namespace AccordionT {
     collapsible?: boolean
 
     /** Callback when the expanded item values change. */
-    onChange?: (value: string[]) => void
+    onValueChange?: (value: string[]) => void
 
     /**
      * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
