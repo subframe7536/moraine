@@ -369,6 +369,6 @@ describe('Table', () => {
     expect(caption.tagName).toBe('CAPTION')
     expect(captionRef).toBe(caption)
     expect(caption.className).toContain('text-muted-foreground')
-    expect(caption.className).toContain('mt-4')
+    expect(caption.className).toContain('my-4')
   })
 })
