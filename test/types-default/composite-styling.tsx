@@ -180,7 +180,6 @@ defineTheme({
 ;<Table
   size="sm"
   striped
-  bordered
   borderless
   container={false}
   class="root"

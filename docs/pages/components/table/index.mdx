@@ -26,17 +26,11 @@ import { Badge, Table } from '@src'
       ],
     },
     { kind: 'boolean', prop: 'striped', label: 'Striped', defaultValue: false },
-    { kind: 'boolean', prop: 'bordered', label: 'Bordered', defaultValue: false },
     { kind: 'boolean', prop: 'borderless', label: 'Borderless', defaultValue: false },
   ]}
 >
   {(props) => (
-    <Table
-      size={props.size}
-      striped={props.striped}
-      bordered={props.bordered}
-      borderless={props.borderless}
-    >
+    <Table size={props.size} striped={props.striped} borderless={props.borderless}>
       <Table.Caption>A list of recent transactions.</Table.Caption>
       <Table.Header>
         <Table.Row>

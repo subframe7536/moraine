@@ -26,8 +26,6 @@ export interface TableStyleVariants {
   size?: 'sm' | 'md' | 'lg'
   /** Whether rows display alternating background colors. @default false */
   striped?: boolean
-  /** Whether the table container has an outer border and rounded corners. @default false */
-  bordered?: boolean
   /** Whether row and section dividing borders are removed. @default false */
   borderless?: boolean
 }

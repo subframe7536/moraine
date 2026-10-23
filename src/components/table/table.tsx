@@ -28,7 +28,6 @@ export function Table<T extends ValidComponent = 'table'>(props: TableT.Props<T>
       'as',
       'size',
       'striped',
-      'bordered',
       'borderless',
       'container',
       'containerRef',

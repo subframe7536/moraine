@@ -134,9 +134,9 @@ describe('Table', () => {
     expect(slot(container, 'row')?.className).toContain('even:bg-muted/30')
   })
 
-  test('bordered variant applies outer container border', () => {
+  test('base table rows and root include border-border', () => {
     const { container } = render(() => (
-      <Table bordered>
+      <Table>
         <Table.Body>
           <Table.Row>
             <Table.Cell>Cell</Table.Cell>
@@ -145,8 +145,8 @@ describe('Table', () => {
       </Table>
     ))
 
-    expect(slot(container, 'container')?.className).toContain('border-border')
-    expect(slot(container, 'container')?.className).toContain('rounded-md')
+    expect(slot(container, 'row')?.className).toContain('border-border')
+    expect(slot(container, '')?.className).toContain('border-border')
   })
 
   test('borderless variant toggles divider borders', () => {
@@ -194,9 +194,9 @@ describe('Table', () => {
       </Table>
     ))
 
-    expect(slot(borderlessTable, 'header')?.className).not.toContain('[&_tr]:border-b')
-    expect(slot(borderlessTable, 'row')?.className).not.toContain('border-b')
-    expect(slot(borderlessTable, 'footer')?.className).not.toContain('border-t')
+    expect(slot(borderlessTable, 'header')?.className.split(/\s+/)).not.toContain('[&_tr]:border-b')
+    expect(slot(borderlessTable, 'row')?.className.split(/\s+/)).not.toContain('border-b')
+    expect(slot(borderlessTable, 'footer')?.className.split(/\s+/)).not.toContain('border-t')
   })
 
   test('align and truncated props on Table.Head and Table.Cell', () => {

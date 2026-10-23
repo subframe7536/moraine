@@ -33,16 +33,6 @@
           }
         },
         {
-          "name": "bordered",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether the table container has an outer border and rounded corners.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "borderless",
           "optional": true,
           "type": "boolean",

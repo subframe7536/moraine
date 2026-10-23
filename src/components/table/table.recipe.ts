@@ -13,11 +13,11 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
   {
     base: {
       container: 'w-full relative overflow-x-auto',
-      root: 'text-sm w-full caption-bottom',
-      header: '',
+      root: 'text-sm border-border w-full caption-bottom',
+      header: '[&_tr]:border-border',
       body: '[&_tr:last-child]:border-0',
-      footer: 'font-medium bg-muted/50 [&>tr]:last:border-b-0',
-      row: 'transition-colors data-selected:bg-muted hover:bg-muted/50',
+      footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
+      row: 'border-border transition-colors data-selected:bg-muted hover:bg-muted/50',
       head: 'text-muted-foreground font-medium px-2 text-left align-middle h-10 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       cell: 'p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       caption: 'text-sm text-muted-foreground mt-4',
@@ -25,7 +25,6 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
     defaultVariants: {
       size: 'md',
       striped: false,
-      bordered: false,
       borderless: false,
     },
     variants: {
@@ -44,19 +43,14 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
         },
         lg: {
           root: 'text-base',
-          head: 'text-sm px-4 h-12',
-          cell: 'text-sm p-4',
+          head: 'text-base px-4 h-12',
+          cell: 'text-base p-4',
           caption: 'text-base',
         },
       },
       striped: {
         true: {
           row: 'even:bg-muted/30',
-        },
-      },
-      bordered: {
-        true: {
-          container: 'border border-border rounded-md',
         },
       },
       borderless: {

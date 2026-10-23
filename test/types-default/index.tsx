@@ -463,7 +463,6 @@ export type CardContracts = [
 ;<Table
   size="md"
   striped
-  bordered
   borderless
   classes={{ row: 'px-4' }}
   styles={{ footer: { color: 'red' } }}
@@ -507,7 +506,6 @@ export type TableContracts = [
   >,
   Assert<'size' extends keyof TableT.Variants ? true : false>,
   Assert<'striped' extends keyof TableT.Variants ? true : false>,
-  Assert<'bordered' extends keyof TableT.Variants ? true : false>,
   Assert<'borderless' extends keyof TableT.Variants ? true : false>,
   Assert<'container' extends keyof TableT.Classes ? true : false>,
   Assert<'root' extends keyof TableT.Classes ? true : false>,

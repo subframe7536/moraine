@@ -328,7 +328,7 @@ export function DataTable() {
         </DropdownMenu>
       </div>
 
-      <Table bordered>
+      <Table>
         <Table.Header>
           <For each={table.getHeaderGroups()}>
             {(headerGroup) => (

@@ -1,6 +1,6 @@
 ---
 title: Data Table
-description: Build powerful, interactive data tables with sorting, filtering, pagination, column visibility, and row selection using TanStack Solid Table (v9) and Moraine.
+description: Build powerful, interactive data tables with sorting, filtering, pagination, column visibility, and row selection using TanStack Solid Table and Moraine.
 sidebar:
   order: 8
 search:
@@ -16,7 +16,21 @@ Moraine pairs with **[TanStack Table v9](https://tanstack.com/table)** (`@tansta
 
 Install TanStack Table for Solid alongside Moraine:
 
-<CodeTabs package="@tanstack/solid-table" />
+```shell title="pnpm" group-id="install"
+pnpm add @tanstack/solid-table
+```
+
+```shell title="bun" group-id="install"
+bun add @tanstack/solid-table
+```
+
+```shell title="npm" group-id="install"
+npm install @tanstack/solid-table
+```
+
+```shell title="yarn" group-id="install"
+yarn add @tanstack/solid-table
+```
 
 Ensure you also have Moraine's core components installed: `Table`, `Button`, `Checkbox`, `DropdownMenu`, `Input`, and `Badge`.
 
@@ -24,14 +38,14 @@ Ensure you also have Moraine's core components installed: `Table`, `Button`, `Ch
 
 In the headless UI architecture:
 
-- **TanStack Table v9** handles table logic through modular features: `rowSortingFeature`, `columnFilteringFeature`, `rowPaginationFeature`, `columnVisibilityFeature`, and `rowSelectionFeature`.
+- **TanStack Table** handles table logic through modular features: `rowSortingFeature`, `columnFilteringFeature`, `rowPaginationFeature`, `columnVisibilityFeature`, and `rowSelectionFeature`.
 - **Moraine** handles rendering and presentation: accessible `<table>` markup, responsive horizontal scroll containers (`container`), row selection highlights (`selected`), density options (`size`), and UI controls (`Input`, `Button`, `DropdownMenu`, `Checkbox`).
 
-In TanStack Table v9, table state is backed by fine-grained **atoms** (`table.atoms.<slice>.get()`). These atoms integrate natively with SolidJS dependency tracking, allowing targeted UI updates without invalidating unrelated parts of the table.
+Table state is backed by fine-grained **atoms** (`table.atoms.<slice>.get()`). These atoms integrate natively with SolidJS dependency tracking, allowing targeted UI updates without invalidating unrelated parts of the table.
 
 ## Step 1: Define Table Features & Columns
 
-In v9, you configure modular features using `tableFeatures()` to ensure only the features and row models you need are bundled:
+Configure modular features using `tableFeatures()` to ensure only the features and row models you need are bundled:
 
 ```tsx
 import {
@@ -143,7 +157,7 @@ export function BasicDataTable(props: { data: Payment[] }) {
   })
 
   return (
-    <Table bordered>
+    <Table>
       <Table.Header>
         <For each={table.getHeaderGroups()}>
           {(headerGroup) => (
