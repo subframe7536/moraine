@@ -41,11 +41,6 @@ export namespace SidebarFrameT {
   export interface Base {
     /** Localized message overrides for this sidebar frame instance. */
     translations?: Translations
-    /**
-     * Side occupied by the sidebar.
-     * @default 'left'
-     */
-    side?: 'left' | 'right'
     /** Controlled open state on desktop. */
     open?: boolean
     /**

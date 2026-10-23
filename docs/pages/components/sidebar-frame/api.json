@@ -82,7 +82,6 @@
           "name": "side",
           "optional": true,
           "type": "'left' | 'right'",
-          "description": "Side occupied by the sidebar.",
           "default": {
             "kind": "literal",
             "value": "left"
