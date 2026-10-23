@@ -5,6 +5,7 @@ import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, createId } from '../../shared/utils'
+import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/form/use-form-reset'
 
@@ -61,13 +62,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       max: 100,
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
-      get orientation() {
-        return variants.orientation
-      },
       inverted: false,
     },
-
     local,
+    {
+      get orientation(): Orientation {
+        return variants.orientation ?? 'horizontal'
+      },
+    },
   )
 
   const generatedId = createId(() => merged.id, 'slider')

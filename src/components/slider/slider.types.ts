@@ -2,7 +2,7 @@ import type { Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue, Orientation } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -39,11 +39,6 @@ export namespace SliderT {
       FormReadOnlyOption {
     /** Localized message overrides for this slider instance. */
     translations?: Translations
-    /**
-     * Direction of keyboard and pointer value movement.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation
     /**
      * Reverses value movement along the track.
      * @default false
