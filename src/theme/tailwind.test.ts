@@ -827,6 +827,13 @@ describe('attribute variants', () => {
     `)
   })
 
+  test('data-entering and data-leaf variants compile tree item utilities', async () => {
+    const css = await compileCSS(['data-entering:animate-tree-item-in', 'data-leaf:invisible'])
+    expect(css).toContain('.data-entering\\:animate-tree-item-in[data-entering]')
+    expect(css).toContain('@keyframes tree-item-in')
+    expect(css).toContain('.data-leaf\\:invisible[data-leaf]')
+  })
+
   test('data-disabled variant works with opacity', async () => {
     const css = await compileCSS(['data-disabled:opacity-50'])
     expect(css).toMatchInlineSnapshot(`

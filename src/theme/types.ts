@@ -51,6 +51,7 @@ import type { TextareaStyleConfig } from '../components/textarea/textarea.style-
 import type { ToastStyleConfig } from '../components/toast/toast.style-types'
 import type { ToggleButtonStyleConfig } from '../components/toggle-button/toggle-button.style-types'
 import type { TooltipStyleConfig } from '../components/tooltip/tooltip.style-types'
+import type { TreeStyleConfig } from '../components/tree/tree.style-types'
 
 import type { RecipeLayerConfig } from './recipe'
 
@@ -114,6 +115,7 @@ export interface MoraineStyleSchema {
   sheet: SheetStyleConfig
   toast: ToastStyleConfig
   tooltip: TooltipStyleConfig
+  tree: TreeStyleConfig
 }
 
 export type ThemeRecipeOverride<C extends ComponentStyleConfig<object, unknown>> =
