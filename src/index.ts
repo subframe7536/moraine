@@ -23,6 +23,7 @@ export {
   Field,
   FileUpload,
   createForm,
+  createTree,
   Icon,
   Input,
   InputGroup,
@@ -162,6 +163,8 @@ export type {
   ToggleButtonProps,
   TooltipProps,
   TooltipT,
+  TreeProps,
+  TreeT,
 } from './components'
 export { MoraineProvider, useCn, useLocale } from './provider'
 export type { MoraineProviderProps } from './provider'
