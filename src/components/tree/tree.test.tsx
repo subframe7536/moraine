@@ -80,6 +80,18 @@ function press(element: HTMLElement, key: string, init: KeyboardEventInit = {}):
   fireEvent.keyDown(element, { key, ...init })
 }
 
+function triggerOf(element: HTMLElement): HTMLElement {
+  const trigger = element.querySelector<HTMLElement>('[data-slot="tree-trigger"]')
+  if (!trigger) {
+    throw new Error(`No trigger in ${element.getAttribute('aria-label') ?? 'item'}`)
+  }
+  return trigger
+}
+
+function clickTrigger(element: HTMLElement): void {
+  fireEvent.click(triggerOf(element))
+}
+
 describe('createTree', () => {
   describe('structure and aria', () => {
     test('renders a tree with levels, positions, and expansion state', () => {
@@ -157,10 +169,28 @@ describe('createTree', () => {
   })
 
   describe('expansion', () => {
-    test('toggles on row click and unmounts collapsed children', () => {
-      const { container } = render(() => <Harness />)
+    test('selects on row click and toggles only from the trigger', () => {
+      const { container } = render(() => <Harness treeProps={{ transition: false }} />)
+      const src = item(container, 'src')
 
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(src.getAttribute('aria-selected')).toBe('true')
       expect(labels(container)).not.toContain('components')
+
+      clickTrigger(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(src.getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).toContain('components')
+
+      clickTrigger(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(labels(container)).not.toContain('components')
+    })
+
+    test('toggles on row click when expandOnClick is true', () => {
+      const { container } = render(() => <Harness options={{ expandOnClick: true }} />)
+
       fireEvent.click(item(container, 'src'))
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
       expect(labels(container)).toContain('components')
@@ -169,25 +199,33 @@ describe('createTree', () => {
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
     })
 
-    test('does not toggle on row click when expandOnClick is false', () => {
-      const { container } = render(() => <Harness options={{ expandOnClick: false }} />)
+    test('nested trigger clicks do not toggle their ancestors', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
-
-      const trigger = item(container, 'src').querySelector<HTMLElement>(
-        '[data-slot="tree-trigger"]',
-      )!
-      fireEvent.click(trigger)
+      clickTrigger(item(container, 'components'))
+      expect(item(container, 'components').getAttribute('aria-expanded')).toBe('true')
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
     })
 
-    test('nested row clicks do not toggle their ancestors', () => {
-      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+    test('keeps a child mounted and selected after a row click', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
 
-      fireEvent.click(item(container, 'components'))
-      expect(item(container, 'components').getAttribute('aria-expanded')).toBe('true')
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
+      fireEvent.click(item(container, 'guide.md'))
+      expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
+      expect(item(container, 'guide.md').getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).toContain('guide.md')
+    })
+
+    test('keeps the trigger visible while a branch expands', () => {
+      const { container } = render(() => <Harness />)
+      const src = item(container, 'src')
+      const trigger = triggerOf(src)
+
+      expect(trigger.hasAttribute('data-leaf')).toBe(false)
+      clickTrigger(src)
+      expect(trigger.isConnected).toBe(true)
+      expect(trigger.hasAttribute('data-leaf')).toBe(false)
+      expect(trigger.querySelector('[data-slot="tree-trigger-icon"]')).not.toBeNull()
     })
 
     test('supports controlled expanded keys', () => {
@@ -204,7 +242,7 @@ describe('createTree', () => {
         />
       ))
 
-      fireEvent.click(item(container, 'docs'))
+      clickTrigger(item(container, 'docs'))
       expect(onExpandedChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
@@ -245,7 +283,7 @@ describe('createTree', () => {
         />
       ))
 
-      fireEvent.click(item(container, 'docs'))
+      clickTrigger(item(container, 'docs'))
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
@@ -271,7 +309,7 @@ describe('createTree', () => {
     test('uses auto height until nested content has been measured', () => {
       const { container } = render(() => <Harness />)
 
-      fireEvent.click(item(container, 'src'))
+      clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
       expect(group.style.height).toBe('auto')
       expect(group.style.animation).toBe('none')
@@ -358,7 +396,7 @@ describe('createTree', () => {
       const { container } = setup()
       item(container, 'button.tsx').focus()
 
-      fireEvent.click(item(container, 'src'))
+      clickTrigger(item(container, 'src'))
       expect(document.activeElement).toBe(item(container, 'src'))
       expect(item(container, 'src').getAttribute('tabindex')).toBe('0')
     })
@@ -690,12 +728,12 @@ describe('createTree', () => {
       expect(remote.getAttribute('aria-expanded')).toBe('false')
       expect(item(container, 'file.txt').hasAttribute('aria-expanded')).toBe(false)
 
-      fireEvent.click(remote)
+      clickTrigger(remote)
       expect(loadChildren).toHaveBeenCalledTimes(1)
       expect(item(container, 'remote').getAttribute('aria-busy')).toBe('true')
       expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false')
 
-      fireEvent.click(item(container, 'remote'))
+      clickTrigger(item(container, 'remote'))
       expect(loadChildren).toHaveBeenCalledTimes(1)
 
       resolve([{ id: 'child', name: 'child.txt' }])
@@ -714,7 +752,7 @@ describe('createTree', () => {
         <LazyHarness loadChildren={() => Promise.reject(error)} options={{ onLoadChildrenError }} />
       ))
 
-      fireEvent.click(item(container, 'remote'))
+      clickTrigger(item(container, 'remote'))
       await waitFor(() => expect(onLoadChildrenError).toHaveBeenCalledTimes(1))
       expect(onLoadChildrenError.mock.calls[0]?.[0].error).toBe(error)
       expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false')
@@ -807,6 +845,8 @@ describe('createTree', () => {
       expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
+      expect(row?.className).toContain('data-entering:animate-tree-item-in')
+      expect(item(container, 'docs').className).not.toContain('animate-tree-item-in')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
@@ -916,6 +956,28 @@ describe('createTree', () => {
       await waitFor(() => expect(labels(container)).toContain('components'))
       expect(item(container, 'components').getAttribute('aria-level')).toBe('2')
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(item(container, 'components').className).not.toContain('animate-tree-item-in')
+    })
+
+    test('does not mark virtual rows as entering after a branch expands', async () => {
+      const treeProps = createVirtualTreeProps()
+      const { container } = render(() => <Harness treeProps={treeProps} />)
+      await waitFor(() => expect(labels(container)).toContain('src'))
+
+      clickTrigger(item(container, 'src'))
+      await waitFor(() => expect(labels(container)).toContain('components'))
+
+      expect(item(container, 'src').hasAttribute('data-entering')).toBe(false)
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(
+        item(container, 'components').querySelector('[data-slot="tree-row"]')?.className,
+      ).toContain('data-entering:animate-tree-item-in')
+      expect(
+        item(container, 'components')
+          .querySelector('[data-slot="tree-row"]')
+          ?.hasAttribute('data-entering'),
+      ).toBe(false)
     })
 
     test('collapses a flattened branch back out of the virtual list', async () => {
@@ -925,7 +987,7 @@ describe('createTree', () => {
       ))
       await waitFor(() => expect(labels(container)).toContain('components'))
 
-      fireEvent.click(item(container, 'src'))
+      clickTrigger(item(container, 'src'))
       await waitFor(() => {
         expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
         expect(labels(container)).not.toContain('components')

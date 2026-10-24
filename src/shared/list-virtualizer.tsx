@@ -144,16 +144,7 @@ export function createListVirtualizer<
       virtualizer.setOptions(virtualizerOptions)
 
       if (layoutChanged) {
-        const measuredElements = [...virtualizer.elementsCache.values()]
         virtualizer.measure()
-        queueMicrotask(() => {
-          virtualizer.measureElement(null)
-          for (const element of measuredElements) {
-            if (element.isConnected) {
-              virtualizer.measureElement(element)
-            }
-          }
-        })
       }
 
       if (mounted()) {

@@ -67,16 +67,18 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       vars: () => ({
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
-      enforced: () => ({
-        content: {
-          style: {
-            animation:
-              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'none' : undefined,
-            height:
-              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'auto' : undefined,
+      enforced: () => {
+        const skipMotion = disclosure.initialOpen() || (disclosure.open() && unmeasured())
+        return {
+          content: {
+            style: {
+              animation: skipMotion ? 'none' : undefined,
+              height: skipMotion ? 'auto' : undefined,
+              overflow: skipMotion ? 'visible' : undefined,
+            },
           },
-        },
-      }),
+        }
+      },
     },
   )
 
@@ -163,7 +165,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         {...treeDataAttributes.item({
           checked: () => local.item.checkedState === 'checked',
           disabled: () => local.item.isDisabled,
-          entering: () => local.item.isEntering,
+          entering: () => !context.isVirtual && local.item.isEntering,
           expanded: () => local.item.isExpanded,
           indeterminate: () => local.item.checkedState === 'indeterminate',
           leaf,
@@ -200,6 +202,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           {...slots.row}
           {...treeDataAttributes.row({
             disabled: () => local.item.isDisabled,
+            entering: () => !context.isVirtual && local.item.isEntering,
             expanded: () => local.item.isExpanded,
             leaf,
             selected: () => local.item.isSelected,

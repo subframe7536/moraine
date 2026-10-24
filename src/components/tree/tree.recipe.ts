@@ -16,7 +16,7 @@ export const treeDataAttributes = {
     'loading',
     'selected',
   ),
-  row: /* @__PURE__ */ createDataAttributes('disabled', 'expanded', 'leaf', 'selected'),
+  row: /* @__PURE__ */ createDataAttributes('disabled', 'entering', 'expanded', 'leaf', 'selected'),
   trigger: /* @__PURE__ */ createDataAttributes('expanded', 'leaf', 'loading'),
   icon: /* @__PURE__ */ createDataAttributes('expanded', 'leaf'),
   content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transition'),
@@ -34,10 +34,10 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-level': 0,
     '--mo-tree-guide-offset': '1rem',
     root: 'text-foreground min-h-0 w-full relative',
-    item: `outline-none relative data-entering:animate-tree-item-in motion-reduce:animate-none ${TREE_INDENT_GUIDE_CLASS}`,
-    row: `pe-2 ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))] rounded-md flex cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,
+    item: `outline-none relative ${TREE_INDENT_GUIDE_CLASS}`,
+    row: `pe-2 ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))] rounded-md flex cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 data-entering:animate-tree-item-in motion-reduce:animate-none hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,
     trigger:
-      'opacity-70 inline-flex shrink-0 transition-transform items-center justify-center data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
+      'opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
     icon: 'opacity-70 shrink-0',
     label: 'flex-1 min-w-0 truncate',
     content:
