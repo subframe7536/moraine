@@ -53,6 +53,8 @@ import type {
   CommandPaletteT,
   ComboboxT,
   CopyButtonT,
+  DataTableT,
+  DataTableProps,
   DialogT,
   DropdownMenuT,
   EmptyT,
@@ -84,6 +86,7 @@ export type UtilityExports = Assert<
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
   Assert<CopyButtonT.Kind extends 'single' ? true : false>,
+  Assert<DataTableT.Kind extends 'single' ? true : false>,
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
   Assert<TableT.Kind extends 'composite' ? true : false>,
@@ -521,6 +524,15 @@ export type TableContracts = [
   Assert<'children' extends keyof TableT.HeadProps ? true : false>,
   Assert<'children' extends keyof TableT.CellProps ? true : false>,
   Assert<'children' extends keyof TableT.CaptionProps ? true : false>,
+]
+
+export type DataTableContracts = [
+  Assert<DataTableProps extends DataTableT.Props ? true : false>,
+  Assert<'container' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'empty' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'loading' extends keyof DataTableT.Slot ? true : false>,
+  Assert<'size' extends keyof DataTableT.Variants ? true : false>,
+  Assert<'striped' extends keyof DataTableT.Variants ? true : false>,
 ]
 
 ;<Empty

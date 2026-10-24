@@ -91,6 +91,11 @@
       "category": "buttons"
     },
     {
+      "key": "data-table",
+      "name": "DataTable",
+      "category": "display"
+    },
+    {
       "key": "dialog",
       "name": "Dialog",
       "category": "overlay"

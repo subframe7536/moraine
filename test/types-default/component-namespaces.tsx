@@ -17,6 +17,7 @@ import type {
   CommandPaletteT,
   ContextMenuT,
   CopyButtonT,
+  DataTableT,
   DialogT,
   DropdownMenuT,
   FieldT,
@@ -147,6 +148,13 @@ export type ComponentNamespaceHeaders = {
     CopyButtonT.Variants,
     CopyButtonT.Classes,
     CopyButtonT.Styles
+  >
+  DataTable: Header<
+    DataTableT.Kind,
+    DataTableT.Slot,
+    DataTableT.Variants,
+    DataTableT.Classes,
+    DataTableT.Styles
   >
   Dialog: Header<DialogT.Kind, DialogT.Slot, DialogT.Variants, DialogT.Classes, DialogT.Styles>
   DropdownMenu: Header<

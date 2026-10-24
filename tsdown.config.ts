@@ -56,7 +56,12 @@ export default defineConfig([
     unbundle: true,
     clean: true,
     deps: {
-      neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
+      neverBundle: [
+        '@subf/unocss',
+        '@tanstack/solid-table',
+        '@tanstack/virtual-core',
+        'tailwindcss',
+      ],
     },
     dts: {
       parallel: true,
@@ -95,7 +100,7 @@ export default defineConfig([
       }),
     ],
     deps: {
-      neverBundle: ['@tanstack/virtual-core'],
+      neverBundle: ['@tanstack/solid-table', '@tanstack/virtual-core'],
     },
     outExtensions: () => ({ js: '.jsx' }),
     dts: false,

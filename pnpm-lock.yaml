@@ -224,6 +224,9 @@ importers:
       '@subf/unocss':
         specifier: 'catalog:'
         version: 0.4.0(@jridgewell/remapping@2.3.5)(magic-string@1.4.3)(vite@8.3.4(@types/node@24.19.0)(jiti@2.7.0)(yaml@2.9.1))
+      '@tanstack/solid-table':
+        specifier: ^9.3.1
+        version: 9.3.1(solid-js@1.9.15)
       '@tanstack/virtual-core':
         specifier: ^3.19.6
         version: 3.19.6

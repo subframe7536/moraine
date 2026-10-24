@@ -1,0 +1,309 @@
+---
+title: DataTable
+description: Data-driven table component powered by TanStack Table v9 with sorting, row selection, and pagination.
+group: Display
+api:
+  path: src/components/data-table/data-table
+search:
+  tags: [table, data, grid, rows, columns, data-table, tanstack]
+---
+
+import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { Button, DataTable, Input, Select } from '@src'
+
+export const ALL_EMPLOYEES = [
+  { id: '1', name: 'Alice Johnson', role: 'Engineer', department: 'Platform' },
+  { id: '2', name: 'Bob Smith', role: 'Designer', department: 'Product' },
+  { id: '3', name: 'Charlie Brown', role: 'Intern', department: 'Platform' },
+  { id: '4', name: 'Diana Prince', role: 'Director', department: 'Operations' },
+  { id: '5', name: 'Evan Wright', role: 'Developer', department: 'Mobile' },
+  { id: '6', name: 'Fiona Gallagher', role: 'Engineer', department: 'Infrastructure' },
+  { id: '7', name: 'George Clark', role: 'Product Manager', department: 'Product' },
+  { id: '8', name: 'Hannah Abbott', role: 'Designer', department: 'Design System' },
+  { id: '9', name: 'Ian Malcolm', role: 'DevOps', department: 'Infrastructure' },
+  { id: '10', name: 'Julia Roberts', role: 'Director', department: 'Mobile' },
+  { id: '11', name: 'Kevin Bacon', role: 'Developer', department: 'Platform' },
+  { id: '12', name: 'Laura Croft', role: 'Engineer', department: 'Security' },
+  { id: '13', name: 'Michael Scott', role: 'Director', department: 'Management' },
+  { id: '14', name: 'Nora Valkyrie', role: 'DevOps', department: 'Infrastructure' },
+  { id: '15', name: 'Oscar Martinez', role: 'Analyst', department: 'Finance' },
+  { id: '16', name: 'Pam Beesly', role: 'Designer', department: 'Product' },
+  { id: '17', name: 'Quentin Coldwater', role: 'Developer', department: 'Platform' },
+  { id: '18', name: 'Rachel Green', role: 'Product Manager', department: 'Product' },
+  { id: '19', name: 'Steve Rogers', role: 'Director', department: 'Security' },
+  { id: '20', name: 'Tony Stark', role: 'Engineer', department: 'Platform' },
+  { id: '21', name: 'Ursula Corbero', role: 'Developer', department: 'Mobile' },
+  { id: '22', name: 'Victor Stone', role: 'Engineer', department: 'Infrastructure' },
+  { id: '23', name: 'Wanda Maximoff', role: 'Developer', department: 'Platform' },
+  { id: '24', name: 'Xavier Charles', role: 'Director', department: 'Research' },
+  { id: '25', name: 'Yvonne Strahovski', role: 'DevOps', department: 'Security' },
+]
+
+export const ROLE_OPTIONS = [
+  { label: 'All Roles', value: '' },
+  { label: 'Engineer', value: 'Engineer' },
+  { label: 'Designer', value: 'Designer' },
+  { label: 'Developer', value: 'Developer' },
+  { label: 'Director', value: 'Director' },
+  { label: 'Intern', value: 'Intern' },
+  { label: 'Product Manager', value: 'Product Manager' },
+  { label: 'DevOps', value: 'DevOps' },
+  { label: 'Analyst', value: 'Analyst' },
+]
+
+export const COLUMNS = [
+  { accessorKey: 'name', header: 'Name', footer: 'Total' },
+  { accessorKey: 'role', header: 'Role' },
+  { accessorKey: 'department', header: 'Department', footer: '25 members' },
+]
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
+    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
+    {
+      kind: 'select',
+      prop: 'showBorder',
+      label: 'Show Border',
+      defaultValue: 'row',
+      options: [
+        { label: 'Row', value: 'row' },
+        { label: 'Column', value: 'col' },
+        { label: 'Both', value: 'both' },
+      ],
+    },
+    { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
+    { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
+    { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+    { kind: 'switch', prop: 'remote', label: 'Remote Mode', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const [nameQuery, setNameQuery] = createSignal('')
+    const [roleFilter, setRoleFilter] = createSignal(undefined)
+    const [remoteSorting, setRemoteSorting] = createSignal([], {
+      equals: (a, b) =>
+        a.length === b.length && a.every((s, i) => s.id === b[i]?.id && s.desc === b[i]?.desc),
+    })
+    const [remotePagination, setRemotePagination] = createSignal(
+      { pageIndex: 0, pageSize: 5 },
+      {
+        equals: (a, b) => a.pageIndex === b.pageIndex && a.pageSize === b.pageSize,
+      },
+    )
+    const [remoteLoading, setRemoteLoading] = createSignal(false)
+    const [serverRows, setServerRows] = createSignal(ALL_EMPLOYEES.slice(0, 5))
+    const [serverTotal, setServerTotal] = createSignal(ALL_EMPLOYEES.length)
+
+    const filteredLocalData = createMemo(() => {
+      const q = nameQuery().trim().toLowerCase()
+      const role = roleFilter()
+      return ALL_EMPLOYEES.filter((emp) => {
+        if (q && !emp.name.toLowerCase().includes(q)) return false
+        if (role && role !== '' && emp.role !== role) return false
+        return true
+      })
+    })
+
+    createEffect(
+      on(
+        () => [props.remote, nameQuery(), roleFilter(), remoteSorting(), remotePagination()],
+        () => {
+          if (!props.remote) {
+            setRemoteLoading(false)
+            return
+          }
+          setRemoteLoading(true)
+          const timer = setTimeout(() => {
+            const q = nameQuery().trim().toLowerCase()
+            const role = roleFilter()
+            let filtered = ALL_EMPLOYEES.filter((emp) => {
+              if (q && !emp.name.toLowerCase().includes(q)) return false
+              if (role && role !== '' && emp.role !== role) return false
+              return true
+            })
+
+            const sorting = remoteSorting()
+            if (sorting.length > 0) {
+              const sort = sorting[0]
+              const key = sort.id
+              filtered = [...filtered].sort((a, b) => {
+                const va = String(a[key] ?? '')
+                const vb = String(b[key] ?? '')
+                const cmp = va.localeCompare(vb)
+                return sort.desc ? -cmp : cmp
+              })
+            }
+
+            const total = filtered.length
+            setServerTotal(total)
+
+            const { pageIndex, pageSize } = remotePagination()
+            const start = pageIndex * pageSize
+            const sliced = filtered.slice(start, start + pageSize)
+            setServerRows(sliced)
+            setRemoteLoading(false)
+          }, 300)
+
+          onCleanup(() => clearTimeout(timer))
+        },
+      ),
+    )
+
+    const hasFilter = () => Boolean(nameQuery()) || Boolean(roleFilter() && roleFilter() !== '')
+
+    const handleReset = () => {
+      setNameQuery('')
+      setRoleFilter(undefined)
+      if (props.remote) {
+        setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
+      }
+    }
+
+    return (
+      <div class="flex flex-col gap-3 w-full">
+        <div class="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Filter by name..."
+            value={nameQuery()}
+            onValueChange={(val) => {
+              setNameQuery(String(val ?? ''))
+              if (props.remote) {
+                setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
+              }
+            }}
+            class="max-w-xs"
+          />
+          <Select
+            placeholder="Filter role"
+            items={ROLE_OPTIONS}
+            value={roleFilter()}
+            onValueChange={(val) => {
+              setRoleFilter(val)
+              if (props.remote) {
+                setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
+              }
+            }}
+            allowClear
+            class="w-44"
+          />
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            disabled={!hasFilter()}
+          >
+            Reset
+          </Button>
+        </div>
+
+        <DataTable
+          size={props.size}
+          striped={props.striped}
+          hoverEffect={props.hoverEffect}
+          showBorder={props.showBorder}
+          sorting={props.sorting}
+          selectable={props.selectable}
+          pagination={props.pagination}
+          loading={props.loading || (props.remote && remoteLoading())}
+          data={props.remote ? serverRows : filteredLocalData}
+          columns={COLUMNS}
+          rowCount={props.remote ? serverTotal() : undefined}
+          manualPagination={props.remote}
+          manualSorting={props.remote}
+          currentPagination={props.remote ? remotePagination() : undefined}
+          onPaginationChange={props.remote ? setRemotePagination : undefined}
+          currentSorting={props.remote ? remoteSorting() : undefined}
+          onSortingChange={props.remote ? setRemoteSorting : undefined}
+          pageSizeOptions={[5, 10, 20]}
+        />
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'table' },
+    children: [
+      {
+        slot: 'header',
+        children: [
+          {
+            slot: 'row',
+            children: [{ slot: 'head' }],
+          },
+        ],
+      },
+      {
+        slot: 'body',
+        children: [
+          {
+            slot: 'row',
+            children: [{ slot: 'cell' }],
+          },
+        ],
+      },
+      {
+        slot: 'footer',
+        children: [
+          {
+            slot: 'row',
+            children: [{ slot: 'cell' }],
+          },
+        ],
+      },
+      { slot: 'loading' },
+      { slot: 'empty' },
+      { slot: 'pagination' },
+    ],
+  }}
+/>
+
+## Usage
+
+Use `DataTable` when rendering structured, data-driven collections powered by TanStack Table.
+It supports convenience mode (`data` and `columns`) for rapid development and instance mode (`table`)
+for power-user headless configurations.
+
+```tsx
+import type { ColumnDef } from '@tanstack/solid-table'
+import { DataTable } from 'moraine'
+
+const data = [
+  { id: '1', name: 'Alice', role: 'Engineer' },
+  { id: '2', name: 'Bob', role: 'Designer' },
+]
+
+const columns: ColumnDef<any, (typeof data)[number]>[] = [
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'role', header: 'Role' },
+]
+
+export function Example() {
+  return <DataTable data={data} columns={columns} sorting selectable />
+}
+```
+
+## Examples
+
+### Basic data table with sorting and selection
+
+Render rows with built-in sorting and row selection checkboxes.
+
+<Preview path="./basic" />

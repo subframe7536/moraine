@@ -90,6 +90,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.5.0",
     "@subf/unocss": "catalog:",
+    "@tanstack/solid-table": "^9.3.1",
     "@tanstack/virtual-core": "^3.19.6",
     "@types/node": "^24.19.0",
     "bumpp": "^11.1.0",
@@ -110,6 +111,7 @@
   "peerDependencies": {
     "@iconify/tailwind": "1.2.0",
     "@subf/unocss": "catalog:peers",
+    "@tanstack/solid-table": "^9.0.0",
     "@tanstack/virtual-core": "^3.17.4",
     "solid-js": "catalog:",
     "tailwindcss": "catalog:peers"
@@ -119,6 +121,9 @@
       "optional": true
     },
     "@subf/unocss": {
+      "optional": true
+    },
+    "@tanstack/solid-table": {
       "optional": true
     },
     "@tanstack/virtual-core": {
