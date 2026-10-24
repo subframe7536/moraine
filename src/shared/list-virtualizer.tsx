@@ -1,56 +1,17 @@
-import {
-  Virtualizer,
-  elementScroll,
-  observeElementOffset,
-  observeElementRect,
-} from '@tanstack/virtual-core'
-import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
+import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component, JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  createMemo,
-  createRenderEffect,
-  createSignal,
-  mergeProps,
-  onCleanup,
-  onMount,
-} from 'solid-js'
-import { createStore, reconcile } from 'solid-js/store'
+import { For, Show, createMemo } from 'solid-js'
 
 import type { ListT } from '../components/list/list.types'
 
-function scrollElementWithRtl<TScrollElement extends HTMLElement, TItemElement extends HTMLElement>(
-  offset: number,
-  { adjustments = 0, behavior }: { adjustments?: number; behavior?: ScrollBehavior },
-  instance: Virtualizer<TScrollElement, TItemElement>,
-): void {
-  if (instance.options.horizontal && instance.options.isRtl) {
-    instance.scrollElement?.scrollTo?.({
-      behavior,
-      left: -(offset + adjustments),
-    })
-    return
-  }
-
-  elementScroll(offset, { adjustments, behavior }, instance)
-}
+import { attachRowMeasurement, createVirtualizerController } from './virtualizer-core'
+import type { VirtualizerAdapterOptions } from './virtualizer-core'
 
 export type ListVirtualizerOptions<
   TItem,
   TScrollElement extends HTMLElement = HTMLElement,
   TItemElement extends HTMLElement = HTMLElement,
-> = Omit<
-  PartialKeys<
-    VirtualizerOptions<TScrollElement, TItemElement>,
-    'observeElementRect' | 'observeElementOffset' | 'scrollToFn'
-  >,
-  'count' | 'estimateSize' | 'getItemKey' | 'getScrollElement' | 'indexAttribute' | 'isRtl'
-> & {
-  /** Estimated row size before its element has been measured. */
-  estimateSize: (item: TItem, index: number) => number
-  /** Stable row key. The item index is used by default. */
-  getItemKey?: (item: TItem, index: number) => string | number | bigint
+> = VirtualizerAdapterOptions<TItem, TScrollElement, TItemElement> & {
   /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */
   isRtl?: boolean
 }
@@ -83,103 +44,15 @@ export function createListVirtualizer<
 >(
   options: ListVirtualizerOptions<TItem, TScrollElement, TItemElement>,
 ): ListVirtualizerReturn<TItem, TScrollElement, TItemElement> {
-  const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
+  const controller = createVirtualizerController<TItem, TScrollElement, TItemElement>(options)
 
   const virtualRender: Component<VirtualRenderProps<TItem, TScrollElement, TItemElement>> = (
     props,
   ) => {
     const renderRow = createMemo(() => props.render)
-    const [mounted, setMounted] = createSignal(false)
-    const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
-    const [totalSize, setTotalSize] = createSignal(0)
-    const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
-      setVirtualItems(reconcile(source.getVirtualItems(), { key: 'index' }))
-      setTotalSize(source.getTotalSize())
-    }
-    let currentEntries: readonly TItem[] = []
-    let currentKeys: VirtualItem['key'][] = []
-    let currentEstimates: number[] = []
-    let initialized = false
-    const virtualizerOptions = mergeProps(
-      {
-        observeElementRect,
-        observeElementOffset,
-        scrollToFn: scrollElementWithRtl,
-      },
-      options,
-      {
-        get count() {
-          return currentEntries.length
-        },
-        getScrollElement: () => (mounted() ? (props.scrollElement ?? null) : null),
-        estimateSize: (index: number) => currentEstimates[index]!,
-        getItemKey: (index: number) => currentKeys[index] ?? index,
-        indexAttribute: 'data-index',
-        onChange: (source: Virtualizer<TScrollElement, TItemElement>, synchronous: boolean) => {
-          sync(source)
-          options.onChange?.(source, synchronous)
-        },
-      },
-    ) satisfies VirtualizerOptions<TScrollElement, TItemElement>
-    const virtualizer = new Virtualizer<TScrollElement, TItemElement>(virtualizerOptions)
-
-    createRenderEffect(() => {
-      const entries = props.entries
-      const nextKeys = entries.map((item, index) => options.getItemKey?.(item, index) ?? index)
-      const nextEstimates = entries.map((item, index) => options.estimateSize(item, index))
-      const sharedLength = Math.min(currentKeys.length, nextKeys.length)
-      const layoutChanged =
-        initialized &&
-        (nextKeys.some((key, index) => index < sharedLength && key !== currentKeys[index]) ||
-          nextEstimates.some(
-            (estimate, index) =>
-              index < sharedLength && !Object.is(estimate, currentEstimates[index]),
-          ))
-
-      currentEntries = entries
-      currentKeys = nextKeys
-      currentEstimates = nextEstimates
-      initialized = true
-      virtualizerOptions.getScrollElement()
-      virtualizer.setOptions(virtualizerOptions)
-
-      if (layoutChanged) {
-        const measuredElements = [...virtualizer.elementsCache.values()]
-        virtualizer.measure()
-        queueMicrotask(() => {
-          virtualizer.measureElement(null)
-          for (const element of measuredElements) {
-            if (element.isConnected) {
-              virtualizer.measureElement(element)
-            }
-          }
-        })
-      }
-
-      if (mounted()) {
-        virtualizer._willUpdate()
-      }
-      sync(virtualizer)
-    })
-
-    onMount(() => {
-      const cleanupVirtualizer = virtualizer._didMount()
-      let active = true
-
-      queueMicrotask(() => {
-        if (!active) {
-          return
-        }
-
-        setInstance(virtualizer)
-        setMounted(true)
-      })
-
-      onCleanup(() => {
-        active = false
-        cleanupVirtualizer()
-        setInstance((current) => (current === virtualizer ? undefined : current))
-      })
+    const { virtualizer, virtualItems, totalSize } = controller.attach({
+      entries: () => props.entries,
+      scrollElement: () => props.scrollElement,
     })
 
     const contentStyle = (): JSX.CSSProperties =>
@@ -240,21 +113,11 @@ export function createListVirtualizer<
             return (
               <Show keyed when={row()}>
                 {(current) => {
-                  onCleanup(() => {
-                    queueMicrotask(() => virtualizer.measureElement(null))
-                  })
+                  const measure = attachRowMeasurement(virtualizer)
 
                   return renderRow()(current.item, current.index, {
                     'data-index': current.index,
-                    ref: (element) => {
-                      // Solid invokes spread refs before all following attributes are applied.
-                      // Defer measurement so data attributes, styles, and children affect its size.
-                      queueMicrotask(() => {
-                        if (element.isConnected) {
-                          virtualizer.measureElement(element)
-                        }
-                      })
-                    },
+                    ref: measure,
                     style: rowStyle(virtualItem),
                   })
                 }}
@@ -267,8 +130,9 @@ export function createListVirtualizer<
   }
 
   return {
-    instance,
+    instance: controller.instance,
     virtualRender,
-    scrollToIndex: (index, scrollOptions) => instance()?.scrollToIndex(index, scrollOptions),
+    scrollToIndex: (index, scrollOptions) =>
+      controller.instance()?.scrollToIndex(index, scrollOptions),
   }
 }

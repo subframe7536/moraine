@@ -7,7 +7,7 @@ search:
   tags: [createListVirtualizer, virtualizer, virtual scrolling, list, combobox, tanstack]
 ---
 
-Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, or `MultiSelect`.
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, or `MultiSelect`, and `createTableVirtualizer` composed inside `Table.Body` for tables.
 
 ## When to virtualize
 
@@ -106,6 +106,73 @@ export function VirtualizedCombobox() {
 ```
 
 Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
+
+## Table
+
+Tables virtualize through composition: mount the adapter from `createTableVirtualizer` inside `Table.Body` and pass the entries plus a `render` callback that spreads the row props onto `Table.Row`. The adapter observes its host `tbody` as the scroll container — apply the fixed-header layout from the example below so the body becomes the scroller while the header stays fixed naturally. Rows remain in normal table flow: the adapter pads the body with two hidden spacer rows instead of absolutely positioned elements.
+
+```tsx
+import { Table } from 'moraine'
+import { createTableVirtualizer } from 'moraine/virtualizer'
+
+type Row = { id: number; invoice: string; amount: number }
+const rows: Row[] = Array.from({ length: 10_000 }, (_, index) => ({
+  id: index + 1,
+  invoice: `INV-${index + 1}`,
+  amount: index * 25,
+}))
+
+const virtualizer = createTableVirtualizer<Row>({
+  estimateSize: () => 41,
+  getItemKey: (row) => row.id,
+  overscan: 8,
+})
+
+export function VirtualizedTable() {
+  return (
+    <Table
+      classes={{
+        root: 'block',
+        header: 'table w-full table-fixed',
+        body: 'block max-h-96 overflow-y-auto [&_tr]:table [&_tr]:w-full [&_tr]:table-fixed',
+      }}
+    >
+      <Table.Header>
+        <Table.Row>
+          <Table.Head class="w-1/2">Invoice</Table.Head>
+          <Table.Head class="w-1/2" align="right">
+            Amount
+          </Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        <Dynamic
+          component={virtualizer.virtualRender}
+          entries={rows}
+          render={(row, _index, props) => (
+            <Table.Row {...props}>
+              <Table.Cell class="w-1/2">{row.invoice}</Table.Cell>
+              <Table.Cell class="w-1/2" align="right">
+                ${row.amount}.00
+              </Table.Cell>
+            </Table.Row>
+          )}
+        />
+      </Table.Body>
+    </Table>
+  )
+}
+```
+
+Table-specific notes:
+
+- Always spread the virtual row props onto `Table.Row`. They carry `data-index`, the measurement ref, and `aria-rowindex`; discarding them breaks sizing, scrolling, and announcements.
+- Screen-reader semantics are automatic: the adapter sets `aria-rowcount` on the nearest table (data rows plus header and footer rows) and `aria-rowindex` on every rendered row, so assistive technology hears the full dataset size and each row's absolute position. An explicit `aria-rowcount` on the table wins over the automatic value.
+- A block `tbody` no longer shares automatic column layout with the header. Use the fixed-header layout from the example above (block root, `table w-full table-fixed` header, block body with `[&_tr]:table [&_tr]:w-full [&_tr]:table-fixed` rows) and pin the same column widths on `Table.Head` and `Table.Cell`.
+- Scrolling an ancestor container instead? Pass it as the adapter's `scrollElement` together with an explicit `scrollMargin` option covering the distance from the container top to the table body.
+- The `striped` variant stripes rows by DOM position, and the spacer rows shift that parity. Prefer explicit striping classes in the row render when striping a virtualized table.
+- `estimateSize` should be close to the rendered row height for your `size` variant (about `41` for `md` density). Rows are measured dynamically once mounted.
+- `virtualizer.scrollToIndex(index)` scrolls the body to a row and works with the same options as the list virtualizer.
 
 ## How it works
 

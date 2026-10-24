@@ -273,6 +273,17 @@ and `aria-selected="true"`.
 </Table.Row>
 ```
 
+### Virtualized Rows
+
+Render long datasets by composing `createTableVirtualizer` from `moraine/virtualizer` inside
+`Table.Body`. The adapter observes its host `tbody` as the scroll container, so the header stays
+fixed naturally; spread the virtual row props onto `Table.Row` so rows are measured and keyed
+correctly. Screen-reader semantics are automatic — the adapter sets `aria-rowcount` on the table
+and `aria-rowindex` on every rendered row.
+
+Read the [Virtualization guide](/docs/virtualization) for the fixed-header layout recipe, sizing,
+keys, and overscan guidance.
+
 ### Data Table with TanStack Table
 
 For advanced features such as sorting, filtering, pagination, column toggling, and row selection, combine Moraine's `Table` with [`@tanstack/solid-table`](https://tanstack.com/table/latest).
@@ -292,6 +303,13 @@ Compose a summary table with status badges and column alignment.
 Combine column alignment with truncated text to prevent table overflowing.
 
 <Preview path="./custom-columns" />
+
+### Virtualize 10000 rows
+
+Compose `createTableVirtualizer` from `moraine/virtualizer` inside `Table.Body` with a bounded,
+scrollable container and a sticky header.
+
+<Preview path="./virtualization" />
 
 ### Interactive data table with TanStack Table
 
