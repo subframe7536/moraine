@@ -324,6 +324,7 @@
       "target": "row",
       "attributes": [
         "data-disabled",
+        "data-entering",
         "data-expanded",
         "data-leaf",
         "data-selected"

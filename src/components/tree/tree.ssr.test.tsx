@@ -24,7 +24,7 @@ test('hydrates expanded nested items and keeps the server DOM', () => {
     'true',
   )
 
-  fireEvent.click(container.querySelector('[aria-label="docs"]')!)
+  fireEvent.click(container.querySelector('[aria-label="docs"] [data-slot="tree-trigger"]')!)
   expect(container.querySelector('[aria-label="docs"]')?.getAttribute('aria-expanded')).toBe('true')
   expect(labels(container)).toContain('guide.md')
   expect(container.querySelector('[role="tree"]')).toBe(tree)
