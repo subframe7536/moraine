@@ -1,10 +1,10 @@
-import type { JSX } from 'solid-js'
-import { Show, createSignal, onCleanup, onMount, splitProps, untrack } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
+import { Show, createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
-import { createListVirtualizer } from '../../shared/list-virtualizer'
 import { callRef } from '../../shared/utils'
+import type { ListT } from '../list/list.types'
 
 import { TreeProvider, TreeRowProvider } from './tree-context'
 import type { TreeContext } from './tree-context'
@@ -12,8 +12,6 @@ import { TreeDefaultItem, TreeItemList } from './tree-item'
 import type { TreeNavigation } from './tree-navigation'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
-
-const DEFAULT_OVERSCAN = 8
 
 export interface TreeInternals<T> {
   rootItems: () => readonly TreeT.ItemInstance<T>[]
@@ -29,9 +27,11 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
   const [local, rest] = splitProps(props, [
     'internals',
     'itemRender',
-    'virtual',
-    'icons',
-    'animate',
+    'virtualRender',
+    'scrollToItem',
+    'triggerIcon',
+    'loadingIcon',
+    'transition',
     'unmountOnHide',
     'size',
     'variant',
@@ -42,39 +42,32 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
     'ref',
   ])
   const { slots, variants } = useRecipe(treeRecipe, local, {
-    enforced: () => ({
-      virtualContainer: {
-        style: {
-          height:
-            typeof local.virtual?.height === 'number'
-              ? `${local.virtual.height}px`
-              : local.virtual?.height,
-        },
-      },
+    vars: () => ({
+      '--mo-tree-indent': '1.25rem',
+      '--mo-tree-indent-guide': 'var(--border)',
     }),
   })
   const internals = untrack(() => local.internals)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
-  const virtualizer = createListVirtualizer<TreeT.ItemInstance<T>>({
-    estimateSize: (item) => {
-      const estimate = local.virtual?.estimateSize ?? 32
-      return typeof estimate === 'function' ? estimate(item) : estimate
-    },
-    getItemKey: (item) => item.key,
-    get overscan() {
-      return local.virtual?.overscan ?? DEFAULT_OVERSCAN
-    },
-  })
-  const VirtualRender = virtualizer.virtualRender
 
-  onMount(() => {
-    internals.navigation.registerScroller((key) => {
-      const index = internals.flattenedKeys().indexOf(key)
-      if (index >= 0) {
-        virtualizer.scrollToIndex(index)
-      }
-    })
-  })
+  createEffect(
+    on(
+      () => local.scrollToItem,
+      (scrollToItem) => {
+        internals.navigation.registerScroller(
+          scrollToItem
+            ? (key) => {
+                const index = internals.flattenedKeys().indexOf(key)
+                const item = internals.flattenedItems()[index]
+                if (item) {
+                  scrollToItem(item, index)
+                }
+              }
+            : undefined,
+        )
+      },
+    ),
+  )
   onCleanup(() => {
     internals.navigation.registerScroller(undefined)
     internals.navigation.registerRoot(undefined)
@@ -97,33 +90,22 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
       return { classes: local.classes, styles: local.styles }
     },
     get isVirtual() {
-      return Boolean(local.virtual)
+      return Boolean(local.virtualRender)
     },
     get checkable() {
       return internals.checkable()
     },
-    get animate() {
-      return local.animate ?? true
+    get transition() {
+      return local.transition ?? true
     },
     get unmountOnHide() {
       return local.unmountOnHide ?? true
     },
-    icons: {
-      get trigger() {
-        return local.icons?.trigger ?? 'icon-chevron-right'
-      },
-      get folder() {
-        return local.icons?.folder ?? 'icon-folder'
-      },
-      get folderOpen() {
-        return local.icons?.folderOpen ?? 'icon-folder-open'
-      },
-      get file() {
-        return local.icons?.file ?? 'icon-file'
-      },
-      get loading() {
-        return local.icons?.loading ?? 'icon-loading'
-      },
+    get triggerIcon() {
+      return local.triggerIcon ?? 'icon-chevron-right'
+    },
+    get loadingIcon() {
+      return local.loadingIcon ?? 'icon-loading'
     },
     RenderItem,
   }
@@ -137,17 +119,15 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
         {...rest}
         {...slots.root}
         ref={(element: HTMLElement) => {
+          setScrollElement(element)
           internals.navigation.registerRoot(element)
           callRef(local.ref, element)
         }}
       >
-        <Show when={local.virtual} fallback={<TreeItemList items={internals.rootItems()} />}>
-          <div
-            ref={setScrollElement}
-            data-slot="tree-virtual-container"
-            {...slots.virtualContainer}
-          >
-            <VirtualRender
+        <Show when={local.virtualRender} fallback={<TreeItemList items={internals.rootItems()} />}>
+          {(virtualRender) => (
+            <Dynamic<Component<ListT.VirtualRenderProps<TreeT.ItemInstance<T>>>>
+              component={virtualRender()}
               entries={internals.flattenedItems()}
               scrollElement={scrollElement()}
               render={(item, _index, rowProps) => (
@@ -156,7 +136,7 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
                 </TreeRowProvider>
               )}
             />
-          </div>
+          )}
         </Show>
       </div>
     </TreeProvider>

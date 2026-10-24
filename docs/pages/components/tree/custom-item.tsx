@@ -33,16 +33,12 @@ export function CustomItem() {
     <div class="max-w-sm w-full">
       <tree.Tree
         aria-label="Workspaces"
-        icons={{
-          trigger: 'i-lucide:chevron-right',
-          folder: 'i-lucide:building-2',
-          folderOpen: 'i-lucide:building-2',
-          file: 'i-lucide:layout-dashboard',
-        }}
         itemRender={(context) => (
           <tree.Item item={context.item}>
             <tree.ItemTrigger />
-            <tree.ItemIcon />
+            <tree.ItemIcon
+              icon={context.item.hasChildren ? 'i-lucide:building-2' : 'i-lucide:layout-dashboard'}
+            />
             <tree.ItemLabel />
             <Show when={context.item.raw.count}>
               {(count) => (

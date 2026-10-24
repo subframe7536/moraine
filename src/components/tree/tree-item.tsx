@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, onCleanup, splitProps } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
@@ -35,9 +44,18 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const context = useTreeContext()
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
-    transition: () => context.animate,
+    transition: () => context.transition,
     unmountOnHide: () => context.unmountOnHide,
   })
+  const [lastHeight, setLastHeight] = createSignal(0)
+  createEffect(
+    on(disclosure.contentHeight, (height) => {
+      if (height > 0) {
+        setLastHeight(height)
+      }
+    }),
+  )
+  const unmeasured = () => lastHeight() === 0
   const { slots } = useRecipe(
     treeRecipe,
     {},
@@ -46,12 +64,16 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       varsSlot: 'content',
       contextVariants: () => context.variants,
       contextSlots: () => context.slotOverrides,
-      vars: () => ({ '--mo-collapsible-content-height': `${disclosure.contentHeight()}px` }),
+      vars: () => ({
+        '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
+      }),
       enforced: () => ({
         content: {
           style: {
-            animation: disclosure.initialOpen() ? 'none' : undefined,
-            height: disclosure.initialOpen() ? 'auto' : undefined,
+            animation:
+              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'none' : undefined,
+            height:
+              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'auto' : undefined,
           },
         },
       }),
@@ -69,7 +91,11 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       inert={disclosure.inert()}
       data-slot="tree-content"
       {...slots.content}
-      {...treeDataAttributes.content({ closed: disclosure.closed, expanded: disclosure.open })}
+      {...treeDataAttributes.content({
+        closed: disclosure.closed,
+        expanded: disclosure.open,
+        transition: disclosure.transition,
+      })}
     >
       <Show when={disclosure.shouldMount()}>
         <div
@@ -222,9 +248,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         fallback={
           <Icon
             name={
-              itemContext.item.isLoading
-                ? context.icons.loading
-                : (local.icon ?? context.icons.trigger)
+              itemContext.item.isLoading ? context.loadingIcon : (local.icon ?? context.triggerIcon)
             }
             slotName="tree-trigger-icon"
             class={TREE_TRIGGER_ICON_CLASS}
@@ -237,25 +261,15 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   )
 }
 
-/** Folder, folder-open, or file icon of the item. */
+/** Prefix icon of the item. */
 export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
   const [local, rest] = splitProps(props, ['icon', 'class', 'style'])
-  const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const { slots } = useTreePart('icon', local)
-  const name = () => {
-    if (local.icon) {
-      return local.icon
-    }
-    if (!itemContext.item.hasChildren) {
-      return context.icons.file
-    }
-    return itemContext.item.isExpanded ? context.icons.folderOpen : context.icons.folder
-  }
 
   return (
     <Icon
-      name={name()}
+      name={local.icon}
       slotName="tree-icon"
       {...rest}
       {...slots.icon}
@@ -289,7 +303,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
   )
 }
 
-/** Default item content: trigger, check box when checkable, icon, and label. */
+/** Default item content: trigger, check box when checkable, and label. */
 export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Element {
   const context = useTreeContext()
 
@@ -299,7 +313,6 @@ export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Elem
       <Show when={context.checkable}>
         <Checkbox {...props.item.getCheckboxProps()} size={context.variants.size} />
       </Show>
-      <TreeItemIcon />
       <TreeItemLabel />
     </TreeItem>
   )

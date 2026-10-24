@@ -21,16 +21,6 @@
       "defaultElement": "div",
       "props": [
         {
-          "name": "animate",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether expanding and collapsing nested content animates its height.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          }
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -43,16 +33,26 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "icons",
-          "optional": true,
-          "type": "Icons",
-          "description": "Icon overrides shared by all items."
-        },
-        {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders one visible item. Defaults to trigger, check box when checkable, icon, and label.\nUse `tree.Item` as the root of the rendered content."
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, and label.\nUse `tree.Item` as the root of the rendered content."
+        },
+        {
+          "name": "loadingIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon shown in the trigger while children load.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-loading"
+          }
+        },
+        {
+          "name": "scrollToItem",
+          "optional": true,
+          "type": "(item: ItemInstance<T>, entryIndex: number) => void",
+          "description": "Scrolls a focused item into view using its flattened index."
         },
         {
           "name": "size",
@@ -77,6 +77,26 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether expanding and collapsing nested content animates its height.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "triggerIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Expand affordance icon.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
+        },
+        {
           "name": "unmountOnHide",
           "optional": true,
           "type": "boolean",
@@ -97,10 +117,10 @@
           }
         },
         {
-          "name": "virtual",
+          "name": "virtualRender",
           "optional": true,
-          "type": "VirtualOptions<T>",
-          "description": "Virtualizes the flattened items inside a scroll container."
+          "type": "Component<VirtualRenderProps<T>>",
+          "description": "Replaces nested rendering with caller-controlled virtual rendering of flattened items."
         }
       ]
     },
@@ -124,7 +144,7 @@
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
-          "description": "Row content, usually trigger, icon, and label."
+          "description": "Row content, usually trigger and label."
         },
         {
           "name": "class",
@@ -217,9 +237,9 @@
         },
         {
           "name": "icon",
-          "optional": true,
+          "optional": false,
           "type": "IconT.Name",
-          "description": "Overrides the folder, folder-open, or file icon."
+          "description": "Icon to render."
         },
         {
           "name": "style",
@@ -279,7 +299,6 @@
   ],
   "slots": [
     "root",
-    "virtualContainer",
     "item",
     "row",
     "trigger",
@@ -329,7 +348,8 @@
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded"
+        "data-expanded",
+        "data-transition"
       ]
     }
   ]

@@ -4,6 +4,7 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { CheckboxProps } from '../checkbox'
 import type { IconT } from '../icon'
+import type { ListT } from '../list/list.types'
 
 import type { TreeStyleSlot, TreeStyleVariants } from './tree.style-types'
 
@@ -216,64 +217,38 @@ export namespace TreeT {
     readonly item: ItemInstance<T>
   }
 
-  export interface VirtualOptions<T> {
-    /** Estimated row height in pixels before measurement. */
-    estimateSize: number | ((item: ItemInstance<T>) => number)
-    /**
-     * Number of rows rendered beyond the viewport.
-     * @default 8
-     */
-    overscan?: number
-    /** Height of the scroll container. Numbers are interpreted as px. */
-    height?: number | string
-  }
-
-  export interface Icons {
-    /**
-     * Expand affordance.
-     * @default 'icon-chevron-right'
-     */
-    trigger?: IconT.Name
-    /**
-     * Icon of a collapsed branch.
-     * @default 'icon-folder'
-     */
-    folder?: IconT.Name
-    /**
-     * Icon of an expanded branch.
-     * @default 'icon-folder-open'
-     */
-    folderOpen?: IconT.Name
-    /**
-     * Icon of a leaf.
-     * @default 'icon-file'
-     */
-    file?: IconT.Name
-    /**
-     * Icon shown in the trigger while children load.
-     * @default 'icon-loading'
-     */
-    loading?: IconT.Name
-  }
+  export type VirtualRenderProps<T = unknown> = ListT.VirtualRenderProps<ItemInstance<T>>
 
   export interface Base<T = unknown> {
     /**
-     * Renders one visible item. Defaults to trigger, check box when checkable, icon, and label.
+     * Renders one visible item. Defaults to trigger, check box when checkable, and label.
      * Use `tree.Item` as the root of the rendered content.
      */
     itemRender?: Component<ItemRenderProps<T>>
 
-    /** Virtualizes the flattened items inside a scroll container. */
-    virtual?: VirtualOptions<T>
+    /** Replaces nested rendering with caller-controlled virtual rendering of flattened items. */
+    virtualRender?: Component<VirtualRenderProps<T>>
 
-    /** Icon overrides shared by all items. */
-    icons?: Icons
+    /** Scrolls a focused item into view using its flattened index. */
+    scrollToItem?: (item: ItemInstance<T>, entryIndex: number) => void
+
+    /**
+     * Expand affordance icon.
+     * @default 'icon-chevron-right'
+     */
+    triggerIcon?: IconT.Name
+
+    /**
+     * Icon shown in the trigger while children load.
+     * @default 'icon-loading'
+     */
+    loadingIcon?: IconT.Name
 
     /**
      * Whether expanding and collapsing nested content animates its height.
      * @default true
      */
-    animate?: boolean
+    transition?: boolean
 
     /**
      * Whether collapsed branches unmount their children.
@@ -287,7 +262,7 @@ export namespace TreeT {
   export interface ItemBase<T = unknown> {
     /** Item this node renders. */
     item: ItemInstance<T>
-    /** Row content, usually trigger, icon, and label. */
+    /** Row content, usually trigger and label. */
     children?: JSX.Element
   }
 
@@ -315,8 +290,8 @@ export namespace TreeT {
   >
 
   export interface ItemIconBase {
-    /** Overrides the folder, folder-open, or file icon. */
-    icon?: IconT.Name
+    /** Icon to render. */
+    icon: IconT.Name
   }
 
   export type ItemIconProps = BaseProps<'div', ItemIconBase, never, never, never>
@@ -341,7 +316,7 @@ export namespace TreeT {
   >
 
   export interface Parts<T> {
-    /** Tree root. Renders the visible items, virtualized or nested. */
+    /** Tree root. Renders the visible items, nested or through `virtualRender`. */
     Tree: (props: Props<T>) => JSX.Element
     Item: (props: ItemProps<T>) => JSX.Element
     ItemTrigger: <As extends ValidComponent = 'span'>(props: ItemTriggerProps<As>) => JSX.Element

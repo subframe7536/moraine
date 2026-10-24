@@ -1,4 +1,6 @@
 import { createTree } from '@src'
+import type { TreeT } from '@src'
+import { createListVirtualizer } from '@src/virtualizer'
 
 interface Row {
   id: string
@@ -23,13 +25,18 @@ export function Virtual() {
     getTextValue: (node) => node.name,
     defaultExpandedKeys: ['group-0'],
   })
+  const virtualizer = createListVirtualizer<TreeT.ItemInstance<Row>>({
+    estimateSize: () => 32,
+    getItemKey: (entry) => entry.key,
+  })
 
   return (
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Ten thousand rows"
-        virtual={{ estimateSize: 32, height: 280 }}
-        class="p-1 border border-border rounded-lg"
+        virtualRender={virtualizer.virtualRender}
+        scrollToItem={(_entry, index) => virtualizer.scrollToIndex(index)}
+        class="p-1 border border-border rounded-lg h-[280px] overflow-auto"
       />
       <p class="text-xs text-muted-foreground">
         Expand a group to flatten its 50 items into the same virtualized list.

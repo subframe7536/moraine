@@ -5,9 +5,6 @@ export interface TreeStyleSlot<T = unknown> {
   /** Tree container that owns the `tree` role and the item collection. */
   root?: T
 
-  /** Scroll container that hosts virtualized rows. */
-  virtualContainer?: T
-
   /** `treeitem` host for one node. In nested mode it also contains the node's child group. */
   item?: T
 
@@ -17,7 +14,7 @@ export interface TreeStyleSlot<T = unknown> {
   /** Expand and collapse affordance at the start of a row. */
   trigger?: T
 
-  /** Node icon, such as a folder or file. */
+  /** Optional node icon, such as a folder or file. */
   icon?: T
 
   /** Node text. */

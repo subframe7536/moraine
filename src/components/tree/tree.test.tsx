@@ -3,6 +3,7 @@ import { For, createSignal, mergeProps } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { createListVirtualizer } from '../../virtualizer'
 import { Checkbox } from '../checkbox'
 
 import { createTree } from './create-tree'
@@ -240,7 +241,7 @@ describe('createTree', () => {
       const { container } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['docs'] }}
-          treeProps={{ unmountOnHide: false, animate: false }}
+          treeProps={{ unmountOnHide: false, transition: false }}
         />
       ))
 
@@ -248,6 +249,32 @@ describe('createTree', () => {
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
+      expect(group.hasAttribute('data-transition')).toBe(false)
+    })
+
+    test('omits data-transition when transition is false', () => {
+      const { container } = render(() => (
+        <Harness options={{ defaultExpandedKeys: ['docs'] }} treeProps={{ transition: false }} />
+      ))
+      const group = item(container, 'docs').querySelector('[role="group"]')!
+      expect(group.hasAttribute('data-expanded')).toBe(true)
+      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
+    })
+
+    test('keeps data-transition on nested content by default', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
+      const group = item(container, 'docs').querySelector('[role="group"]')!
+      expect(group.hasAttribute('data-transition')).toBe(true)
+    })
+
+    test('uses auto height until nested content has been measured', () => {
+      const { container } = render(() => <Harness />)
+
+      fireEvent.click(item(container, 'src'))
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.style.height).toBe('auto')
+      expect(group.style.animation).toBe('none')
     })
   })
 
@@ -743,29 +770,54 @@ describe('createTree', () => {
       expect(labels(container)).toContain('guide.md')
     })
 
-    test('applies icons, variants, and slot classes', () => {
+    test('renders a trigger without a prefix icon by default', () => {
+      const { container } = render(() => <Harness />)
+
+      expect(container.querySelector('[data-slot="tree-trigger"]')).not.toBeNull()
+      expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
+    })
+
+    test('applies trigger icons, variants, and slot classes', () => {
+      let tree!: TreeT.Instance<Node>
       const { container, getByRole } = render(() => (
         <Harness
+          onTree={(value) => (tree = value)}
           options={{ defaultExpandedKeys: ['docs'] }}
           treeProps={{
             size: 'lg',
+            variant: 'solid',
+            triggerIcon: 'icon-search',
             classes: { row: 'custom-row' },
-            icons: { folder: 'icon-search', folderOpen: 'icon-search', file: 'icon-check' },
             class: 'custom-root',
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemTrigger />
+                <tree.ItemIcon icon={context.item.hasChildren ? 'icon-folder' : 'icon-file'} />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
           }}
         />
       ))
 
       expect(getByRole('tree').className).toContain('custom-root')
-      expect(item(container, 'docs').querySelector('[data-slot="tree-row"]')?.className).toContain(
-        'custom-row',
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
+        'var(--border)',
       )
+      expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
+      const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
+      expect(row?.className).toContain('custom-row')
+      expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
+      expect(row?.className).toContain('data-selected:active:bg-primary-active')
+      expect(
+        item(container, 'docs').querySelector('[data-slot="tree-trigger-icon"]')?.className,
+      ).toContain('icon-search')
       expect(item(container, 'docs').querySelector('[data-slot="tree-icon"]')?.className).toContain(
-        'icon-search',
+        'icon-folder',
       )
       expect(
         item(container, 'README.md').querySelector('[data-slot="tree-icon"]')?.className,
-      ).toContain('icon-check')
+      ).toContain('icon-file')
     })
 
     test('sets the nesting level variable on every item', () => {
@@ -812,6 +864,20 @@ describe('createTree', () => {
       name: `file-${index}`,
     }))
 
+    function createVirtualTreeProps(overscan = 8): Partial<TreeT.Props<Node>> {
+      const virtualizer = createListVirtualizer<TreeT.ItemInstance<Node>>({
+        estimateSize: () => 32,
+        getItemKey: (entry) => entry.key,
+        overscan,
+      })
+      return {
+        virtualRender: virtualizer.virtualRender,
+        scrollToItem: (_entry, index) => virtualizer.scrollToIndex(index),
+        class: 'h-[320px] overflow-auto',
+        style: { height: '320px' },
+      }
+    }
+
     beforeEach(() => {
       vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(320)
       vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(240)
@@ -823,11 +889,9 @@ describe('createTree', () => {
     })
 
     test('renders a windowed flat list with aria positions', async () => {
-      const { container } = render(() => (
-        <Harness
-          items={() => MANY}
-          treeProps={{ virtual: { estimateSize: 32, height: 320, overscan: 2 } }}
-        />
+      const treeProps = createVirtualTreeProps(2)
+      const { container, getByRole } = render(() => (
+        <Harness items={() => MANY} treeProps={treeProps} />
       ))
 
       await waitFor(() =>
@@ -839,17 +903,14 @@ describe('createTree', () => {
       expect(rendered[0]?.getAttribute('aria-posinset')).toBe('1')
       expect(rendered[0]?.getAttribute('data-index')).toBe('0')
       expect(container.querySelector('[role="group"]')).toBeNull()
-      expect(
-        container.querySelector<HTMLElement>('[data-slot="tree-virtual-container"]')?.style.height,
-      ).toBe('320px')
+      expect(container.querySelector('[data-slot="tree-virtual-container"]')).toBeNull()
+      expect(getByRole('tree').className).toContain('overflow-auto')
     })
 
     test('flattens expanded branches into the virtual list', async () => {
+      const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
-        <Harness
-          options={{ defaultExpandedKeys: ['src'] }}
-          treeProps={{ virtual: { estimateSize: 32, height: 320 } }}
-        />
+        <Harness options={{ defaultExpandedKeys: ['src'] }} treeProps={treeProps} />
       ))
 
       await waitFor(() => expect(labels(container)).toContain('components'))
@@ -857,10 +918,23 @@ describe('createTree', () => {
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
     })
 
-    test('keeps keyboard navigation and selection working', async () => {
+    test('collapses a flattened branch back out of the virtual list', async () => {
+      const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
-        <Harness items={() => MANY} treeProps={{ virtual: { estimateSize: 32, height: 320 } }} />
+        <Harness options={{ defaultExpandedKeys: ['src'] }} treeProps={treeProps} />
       ))
+      await waitFor(() => expect(labels(container)).toContain('components'))
+
+      fireEvent.click(item(container, 'src'))
+      await waitFor(() => {
+        expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
+        expect(labels(container)).not.toContain('components')
+      })
+    })
+
+    test('keeps keyboard navigation and selection working', async () => {
+      const treeProps = createVirtualTreeProps()
+      const { container } = render(() => <Harness items={() => MANY} treeProps={treeProps} />)
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
       const first = item(container, 'file-0')
@@ -874,12 +948,9 @@ describe('createTree', () => {
 
     test('focusing an item outside the window moves the tab stop to it', async () => {
       let tree!: TreeT.Instance<Node>
+      const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
-        <Harness
-          items={() => MANY}
-          onTree={(value) => (tree = value)}
-          treeProps={{ virtual: { estimateSize: 32, height: 320 } }}
-        />
+        <Harness items={() => MANY} onTree={(value) => (tree = value)} treeProps={treeProps} />
       ))
       await waitFor(() => expect(labels(container)).toContain('file-0'))
 
@@ -890,12 +961,9 @@ describe('createTree', () => {
 
     test('lists every item in the instance while rendering a subset', async () => {
       let tree!: TreeT.Instance<Node>
+      const treeProps = createVirtualTreeProps()
       const { container } = render(() => (
-        <Harness
-          items={() => MANY}
-          onTree={(value) => (tree = value)}
-          treeProps={{ virtual: { estimateSize: 32, height: 320 } }}
-        />
+        <Harness items={() => MANY} onTree={(value) => (tree = value)} treeProps={treeProps} />
       ))
       await waitFor(() =>
         expect(container.querySelectorAll('[role="treeitem"]').length).toBeGreaterThan(0),
