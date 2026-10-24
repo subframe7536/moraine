@@ -167,7 +167,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     if (
       !modifier &&
       !event.shiftKey &&
-      options.expandOnClick === true &&
+      options.expandOnClick !== false &&
       registry().nodes.get(key)?.hasChildren
     ) {
       expansion.toggle(key)

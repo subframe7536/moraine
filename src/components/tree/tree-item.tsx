@@ -42,12 +42,15 @@ function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) 
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
+  const [lastHeight, setLastHeight] = createSignal(0)
+  const [hasClosed, setHasClosed] = createSignal(false)
+  const allowHeightMotion = () =>
+    context.transition && lastHeight() > 0 && (hasClosed() || !props.item.isExpanded)
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
-    transition: () => context.transition,
+    transition: allowHeightMotion,
     unmountOnHide: () => context.unmountOnHide,
   })
-  const [lastHeight, setLastHeight] = createSignal(0)
   createEffect(
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
@@ -55,7 +58,14 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }
     }),
   )
-  const unmeasured = () => lastHeight() === 0
+  createEffect(
+    on(disclosure.open, (isOpen, wasOpen) => {
+      if (wasOpen && !isOpen) {
+        setHasClosed(true)
+      }
+    }),
+  )
+  const skipMotion = () => !allowHeightMotion()
   const { slots } = useRecipe(
     treeRecipe,
     {},
@@ -67,18 +77,15 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       vars: () => ({
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
-      enforced: () => {
-        const skipMotion = disclosure.initialOpen() || (disclosure.open() && unmeasured())
-        return {
-          content: {
-            style: {
-              animation: skipMotion ? 'none' : undefined,
-              height: skipMotion ? 'auto' : undefined,
-              overflow: skipMotion ? 'visible' : undefined,
-            },
+      enforced: () => ({
+        content: {
+          style: {
+            animation: skipMotion() ? 'none' : undefined,
+            height: skipMotion() && disclosure.open() ? 'auto' : undefined,
+            overflow: skipMotion() ? 'visible' : undefined,
           },
-        }
-      },
+        },
+      }),
     },
   )
 
@@ -96,7 +103,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       {...treeDataAttributes.content({
         closed: disclosure.closed,
         expanded: disclosure.open,
-        transition: disclosure.transition,
+        transition: allowHeightMotion,
       })}
     >
       <Show when={disclosure.shouldMount()}>

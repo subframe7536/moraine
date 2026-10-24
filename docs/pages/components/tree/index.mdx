@@ -173,9 +173,8 @@ items.
 ### Expansion
 
 Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `onExpandedChange` to own
-it. Options are read reactively, so pass controlled values with getters. Clicking a row selects it;
-only the prefix chevron toggles a branch. Set `expandOnClick` to also toggle from the row. The trigger
-always toggles and does not change the selection.
+it. Options are read reactively, so pass controlled values with getters. Row clicks toggle branches
+unless `expandOnClick` is `false`; the trigger always toggles.
 
 ```tsx
 const [expanded, setExpanded] = createSignal(['src'])
@@ -288,8 +287,8 @@ The horizontal arrows swap in right-to-left layouts. Only one item is in the tab
 
 ### Browse project files
 
-Describe nested data with `getKey` and `getChildren`, then render `tree.Tree`. Click a row to select
-it, or the chevron to expand and collapse a folder.
+Describe nested data with `getKey` and `getChildren`, then render `tree.Tree`. Branches toggle from
+the row or the trigger.
 
 <Preview path="./basic" />
 
@@ -302,14 +301,14 @@ instance.
 
 ### Expand only from the chevron
 
-Row clicks select; only the prefix chevron expands or collapses children. This is the default. Set
-`expandOnClick` if the whole row should toggle a branch.
+Set `expandOnClick={false}` so clicking a row selects it, and only the prefix chevron expands or
+collapses children.
 
 <Preview path="./trigger-expand" />
 
 ### Select several folders
 
-Set `selectionMode="multiple"` so row clicks change the selection without toggling a branch.
+Set `selectionMode="multiple"` and turn off `expandOnClick` so row clicks only change the selection.
 
 <Preview path="./selection" />
 

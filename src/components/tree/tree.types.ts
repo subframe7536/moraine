@@ -76,7 +76,7 @@ export namespace TreeT {
 
     /**
      * Whether clicking a branch row also toggles it. When `false`, only the trigger toggles.
-     * @default false
+     * @default true
      */
     expandOnClick?: boolean
 

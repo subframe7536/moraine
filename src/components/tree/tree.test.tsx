@@ -169,8 +169,28 @@ describe('createTree', () => {
   })
 
   describe('expansion', () => {
-    test('selects on row click and toggles only from the trigger', () => {
-      const { container } = render(() => <Harness treeProps={{ transition: false }} />)
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    test('toggles on row click by default', () => {
+      const { container } = render(() => <Harness />)
+      const src = item(container, 'src')
+
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(src.getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).toContain('components')
+
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(labels(container)).not.toContain('components')
+    })
+
+    test('selects on row click and toggles only from the trigger when expandOnClick is false', () => {
+      const { container } = render(() => (
+        <Harness options={{ expandOnClick: false }} treeProps={{ transition: false }} />
+      ))
       const src = item(container, 'src')
 
       fireEvent.click(src)
@@ -186,17 +206,6 @@ describe('createTree', () => {
       clickTrigger(src)
       expect(src.getAttribute('aria-expanded')).toBe('false')
       expect(labels(container)).not.toContain('components')
-    })
-
-    test('toggles on row click when expandOnClick is true', () => {
-      const { container } = render(() => <Harness options={{ expandOnClick: true }} />)
-
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
-      expect(labels(container)).toContain('components')
-
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
     })
 
     test('nested trigger clicks do not toggle their ancestors', () => {
@@ -300,10 +309,59 @@ describe('createTree', () => {
       expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
     })
 
-    test('keeps data-transition on nested content by default', () => {
+    test('omits data-transition on first-open nested content', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
-      const group = item(container, 'docs').querySelector('[role="group"]')!
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      await Promise.resolve()
+      const group = item(container, 'docs').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.hasAttribute('data-expanded')).toBe(true)
+      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.style.height).toBe('auto')
+      expect(group.style.animation).toBe('none')
+    })
+
+    test('keeps sibling items mounted when a nested branch expands', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      await Promise.resolve()
+      const index = item(container, 'index.ts')
+      const srcGroup = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+
+      expect(labels(container)).toEqual([
+        'src',
+        'components',
+        'index.ts',
+        'docs',
+        'README.md',
+        'LICENSE',
+      ])
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.style.height).toBe('auto')
+
+      fireEvent.click(item(container, 'components'))
+      await Promise.resolve()
+
+      expect(item(container, 'components').getAttribute('aria-expanded')).toBe('true')
+      expect(item(container, 'index.ts')).toBe(index)
+      expect(index.isConnected).toBe(true)
+      expect(labels(container)).toEqual([
+        'src',
+        'components',
+        'button.tsx',
+        'checkbox.tsx',
+        'index.ts',
+        'docs',
+        'README.md',
+        'LICENSE',
+      ])
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.style.height).toBe('auto')
+      const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
+        '[role="group"]',
+      )!
+      expect(nestedGroup.hasAttribute('data-transition')).toBe(false)
+      expect(nestedGroup.style.height).toBe('auto')
+      expect(nestedGroup.style.animation).toBe('none')
     })
 
     test('uses auto height until nested content has been measured', () => {
