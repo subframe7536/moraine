@@ -50,7 +50,7 @@ import { createComponent } from 'solid-js'
       ],
     },
     { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
-    { kind: 'switch', prop: 'animate', label: 'Animate', defaultValue: true },
+    { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
   ]}
 >
   {(props) => {
@@ -99,8 +99,8 @@ import { createComponent } from 'solid-js'
           get variant() {
             return props.variant
           },
-          get animate() {
-            return props.animate
+          get transition() {
+            return props.transition
           },
         })}
       </div>
@@ -131,8 +131,8 @@ import { createComponent } from 'solid-js'
 />
 
 `createTree` returns a reactive store that carries the tree state and the components bound to it.
-`tree.Tree` renders the visible items. With `virtual`, rows are flat inside a scroll container
-(`virtualContainer`); otherwise a branch's `content` nests its child items.
+`tree.Tree` renders the visible items. With `virtualRender`, flattened rows live in the tree root
+(the scroll container); otherwise a branch's `content` nests its child items.
 
 ## Usage
 
@@ -228,27 +228,42 @@ the user can retry.
 
 ### Virtualization
 
-Pass `virtual` to render only the rows near the viewport. Expanded branches are flattened into one
-list, and each row keeps `aria-level`, `aria-posinset`, and `aria-setsize` so assistive technology
-still reads the full hierarchy. Moving focus to a row outside the window scrolls it into view first.
+Pass `virtualRender` from `createListVirtualizer` to render only the rows near the viewport. The tree
+root is the scroll container, so give it a bounded height and `overflow-auto`. Expanded branches are
+flattened into one list, and each row keeps `aria-level`, `aria-posinset`, and `aria-setsize` so
+assistive technology still reads the full hierarchy. Pass `scrollToItem` so moving focus to a row
+outside the window scrolls it into view first.
 
 ```tsx
-<tree.Tree aria-label="Files" virtual={{ estimateSize: 32, height: 320 }} />
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+const virtualizer = createListVirtualizer({
+  estimateSize: () => 32,
+  getItemKey: (item) => item.key,
+})
+
+<tree.Tree
+  aria-label="Files"
+  virtualRender={virtualizer.virtualRender}
+  scrollToItem={(_item, index) => virtualizer.scrollToIndex(index)}
+  class="h-80 overflow-auto"
+/>
 ```
 
 ### Custom items
 
 `itemRender` renders one visible item. Use `tree.Item` as its root and compose `tree.ItemTrigger`,
 `tree.ItemIcon`, and `tree.ItemLabel`. Without `itemRender`, the default item renders the trigger, a
-checkbox when `checkable`, the icon, and the label.
+checkbox when `checkable`, and the label. There is no prefix icon unless you render `tree.ItemIcon`.
 
 ### Indentation
 
 Every item sets `--mo-tree-level` (zero for roots). Rows indent by that level times `--mo-tree-indent`,
-which defaults to `1.25rem`. Override it on `tree.Tree` with `style` or on an ancestor.
+which defaults to `1.25rem`. Indent guides use `--mo-tree-indent-guide`, which defaults to
+`var(--border)`. Override either on `tree.Tree` with `style` or on an ancestor.
 
 ```tsx
-<tree.Tree style={{ '--mo-tree-indent': '2rem' }} />
+<tree.Tree style={{ '--mo-tree-indent': '1.5rem', '--mo-tree-indent-guide': 'var(--primary)' }} />
 ```
 
 ### Keyboard interaction
@@ -284,6 +299,13 @@ instance.
 
 <Preview path="./expanded" />
 
+### Expand only from the chevron
+
+Set `expandOnClick={false}` so clicking a row selects it, and only the prefix chevron expands or
+collapses children.
+
+<Preview path="./trigger-expand" />
+
 ### Select several folders
 
 Set `selectionMode="multiple"` and turn off `expandOnClick` so row clicks only change the selection.
@@ -305,12 +327,13 @@ Provide `loadChildren` and mark files with `isLeaf`. Each folder loads the first
 
 ### Render ten thousand rows
 
-Pass `virtual` to keep the DOM small. Expanded branches join the same virtual list.
+Pass `virtualRender` to keep the DOM small. Expanded branches join the same virtual list.
 
 <Preview path="./virtual" />
 
 ### Add counts and custom icons
 
-Compose `tree.Item` with the bound parts and your own content, and override icons with `icons`.
+Compose `tree.Item` with the bound parts and your own content. Pass `icon` to `tree.ItemIcon` for a
+prefix glyph; the default item has only the chevron trigger.
 
 <Preview path="./custom-item" />

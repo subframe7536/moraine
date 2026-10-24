@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
+import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
 import type { TreeT } from './tree.types'
@@ -14,9 +15,10 @@ export interface TreeContext {
   /** Whether items render flat inside a virtualizer instead of nested. */
   readonly isVirtual: boolean
   readonly checkable: boolean
-  readonly animate: boolean
+  readonly transition: boolean
   readonly unmountOnHide: boolean
-  readonly icons: Required<TreeT.Icons>
+  readonly triggerIcon: IconT.Name
+  readonly loadingIcon: IconT.Name
   /** Renders one item through the caller's `itemRender` or the default item. */
   readonly RenderItem: Component<TreeT.ItemRenderProps<unknown>>
 }

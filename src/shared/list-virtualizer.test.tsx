@@ -553,4 +553,43 @@ describe('createListVirtualizer', () => {
     screen.unmount()
     scrollElement.remove()
   })
+
+  test('unmounts rows whose entries vanished before the virtualizer window shrinks', async () => {
+    const scrollElement = document.createElement('div')
+    document.body.append(scrollElement)
+    const [entries, setEntries] = createSignal(['one', 'two', 'three', 'four', 'five'])
+    const renderRow = vi.fn((item: string, _index: number, props?: RowProps) => (
+      <div {...props}>{item}</div>
+    ))
+
+    const screen = render(() => {
+      const virtualizer = createListVirtualizer<string>({
+        estimateSize: () => 20,
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        get entries() {
+          return entries()
+        },
+        scrollElement,
+        render: renderRow,
+      })
+    })
+
+    await Promise.resolve()
+    expect(screen.getByText('five')).toBeTruthy()
+
+    setEntries(['one', 'two'])
+    await Promise.resolve()
+
+    expect(screen.getByText('one')).toBeTruthy()
+    expect(screen.getByText('two')).toBeTruthy()
+    expect(screen.queryByText('five')).toBeNull()
+    expect(screen.queryByText('three')).toBeNull()
+    screen.unmount()
+    scrollElement.remove()
+  })
 })

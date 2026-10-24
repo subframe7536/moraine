@@ -227,13 +227,13 @@ export function createListVirtualizer<
         <For each={virtualItems}>
           {(virtualItem) => {
             const row = createMemo(
-              () => ({
-                index: virtualItem.index,
-                item: props.entries[virtualItem.index]!,
-              }),
+              () => {
+                const entry = props.entries[virtualItem.index]
+                return entry === undefined ? undefined : { index: virtualItem.index, item: entry }
+              },
               undefined,
               {
-                equals: (prev, next) => prev?.index === next.index && prev?.item === next.item,
+                equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
               },
             )
 
