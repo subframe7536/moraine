@@ -264,6 +264,11 @@
       "key": "tooltip",
       "name": "Tooltip",
       "category": "overlay"
+    },
+    {
+      "key": "tree",
+      "name": "Tree",
+      "category": "navigation"
     }
   ]
 }

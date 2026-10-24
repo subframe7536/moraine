@@ -1,0 +1,336 @@
+{
+  "$schema": "https://moraine.subf.dev/component-api.schema.json",
+  "key": "tree",
+  "name": "Tree",
+  "kind": "composite",
+  "parts": [
+    {
+      "id": "tree-tree",
+      "name": "tree.Tree",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "Tree"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "default": "unknown"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "animate",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether expanding and collapsing nested content animates its height.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "icons",
+          "optional": true,
+          "type": "Icons",
+          "description": "Icon overrides shared by all items."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "Component<ItemRenderProps<T>>",
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, icon, and label.\nUse `tree.Item` as the root of the rendered content."
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "unmountOnHide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether collapsed branches unmount their children.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'subtle' | 'solid'",
+          "description": "How the selected row is highlighted.",
+          "default": {
+            "kind": "literal",
+            "value": "subtle"
+          }
+        },
+        {
+          "name": "virtual",
+          "optional": true,
+          "type": "VirtualOptions<T>",
+          "description": "Virtualizes the flattened items inside a scroll container."
+        }
+      ]
+    },
+    {
+      "id": "tree-item",
+      "name": "tree.Item",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "Item"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "default": "unknown"
+        }
+      ],
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Row content, usually trigger, icon, and label."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "item",
+          "optional": false,
+          "type": "ItemInstance<T>",
+          "description": "Item this node renders."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "tree-item-trigger",
+      "name": "tree.ItemTrigger",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "ItemTrigger"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'span'"
+        }
+      ],
+      "defaultElement": "span",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "span"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Replaces the icon."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Overrides the expand icon."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "tree-item-icon",
+      "name": "tree.ItemIcon",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "ItemIcon"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Overrides the folder, folder-open, or file icon."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "tree-item-label",
+      "name": "tree.ItemLabel",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "ItemLabel"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'span'"
+        }
+      ],
+      "defaultElement": "span",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "span"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Replaces the item's text value."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "virtualContainer",
+    "item",
+    "row",
+    "trigger",
+    "icon",
+    "label",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "item",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-entering",
+        "data-expanded",
+        "data-indeterminate",
+        "data-leaf",
+        "data-loading",
+        "data-selected"
+      ]
+    },
+    {
+      "target": "row",
+      "attributes": [
+        "data-disabled",
+        "data-expanded",
+        "data-leaf",
+        "data-selected"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-expanded",
+        "data-leaf",
+        "data-loading"
+      ]
+    },
+    {
+      "target": "icon",
+      "attributes": [
+        "data-expanded",
+        "data-leaf"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    }
+  ]
+}

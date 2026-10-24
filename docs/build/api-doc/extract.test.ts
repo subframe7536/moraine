@@ -33,7 +33,7 @@ describe('generateApiDoc', () => {
       publicNames,
     )
     for (const component of result.componentDocs.values()) {
-      if (component.name === 'Form') {
+      if (component.name === 'Form' || component.name === 'Tree') {
         continue
       }
       const exported = (Moraine as Record<string, unknown>)[component.name]
@@ -234,6 +234,16 @@ describe('generateApiDoc', () => {
       expect.arrayContaining(['name', 'label', 'description', 'required']),
     )
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
+
+    const tree = result.componentDocs.get('tree')
+    expect(tree?.parts.map((part) => part.name)).toEqual([
+      'tree.Tree',
+      'tree.Item',
+      'tree.ItemTrigger',
+      'tree.ItemIcon',
+      'tree.ItemLabel',
+    ])
+    expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
   })
 
   test('is deterministic', async () => {
