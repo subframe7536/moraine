@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
@@ -16,24 +16,19 @@ import type { TableT } from './table.types'
 
 /** Table root and shared styling context for its parts. */
 export function Table(props: TableT.Props): JSX.Element {
-  const [local, rest] = splitProps(
-    props as TableT.Props & {
-      containerRef?: Ref<HTMLDivElement>
-      ref?: HTMLTableElement | ((el: HTMLTableElement) => void)
-    },
-    [
-      'size',
-      'striped',
-      'showBorder',
-      'containerRef',
-      'classes',
-      'styles',
-      'class',
-      'style',
-      'ref',
-      'children',
-    ],
-  )
+  const [local, rest] = splitProps(props, [
+    'size',
+    'striped',
+    'hoverEffect',
+    'showBorder',
+    'containerRef',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'ref',
+    'children',
+  ])
   const { slots, variants } = useRecipe(tableRecipe, local)
 
   return (
@@ -44,6 +39,9 @@ export function Table(props: TableT.Props): JSX.Element {
         },
         get striped() {
           return variants.striped
+        },
+        get hoverEffect() {
+          return variants.hoverEffect
         },
         get showBorder() {
           return variants.showBorder

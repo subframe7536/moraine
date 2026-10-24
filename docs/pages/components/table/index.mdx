@@ -26,6 +26,7 @@ import { Badge, Table } from '@src'
       ],
     },
     { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
+    { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: false },
     {
       kind: 'select',
       prop: 'showBorder',
@@ -40,7 +41,12 @@ import { Badge, Table } from '@src'
   ]}
 >
   {(props) => (
-    <Table size={props.size} striped={props.striped} showBorder={props.showBorder}>
+    <Table
+      size={props.size}
+      striped={props.striped}
+      hoverEffect={props.hoverEffect}
+      showBorder={props.showBorder}
+    >
       <Table.Caption>A list of recent transactions.</Table.Caption>
       <Table.Header>
         <Table.Row>
@@ -128,9 +134,8 @@ import { Badge, Table } from '@src'
 
 <Anatomy
   value={{
-    root: { slot: 'root' },
+    root: { slot: 'root', element: 'table' },
     children: [
-      { slot: 'container' },
       { part: 'Table.Caption', slot: 'caption' },
       {
         part: 'Table.Header',
@@ -241,6 +246,20 @@ Use `truncated` to prevent long text from wrapping and add an ellipsis.
     <Table.Head align="right">Amount</Table.Head>
   </Table.Row>
 </Table.Header>
+```
+
+### Row Hover
+
+Pass `hoverEffect` to highlight rows on hover. It is disabled by default.
+
+```tsx
+<Table hoverEffect>
+  <Table.Body>
+    <Table.Row>
+      <Table.Cell>Hoverable row</Table.Cell>
+    </Table.Row>
+  </Table.Body>
+</Table>
 ```
 
 ### Selected Rows

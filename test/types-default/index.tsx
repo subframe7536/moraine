@@ -463,12 +463,13 @@ export type CardContracts = [
 ;<Table
   size="md"
   striped
+  hoverEffect
   showBorder="both"
   classes={{ row: 'px-4' }}
   styles={{ footer: { color: 'red' } }}
 >
   <Table.Caption>Caption</Table.Caption>
-  <Table.Header align="right">
+  <Table.Header>
     <Table.Row>
       <Table.Head align="center" truncated>
         H
@@ -506,6 +507,7 @@ export type TableContracts = [
   >,
   Assert<'size' extends keyof TableT.Variants ? true : false>,
   Assert<'striped' extends keyof TableT.Variants ? true : false>,
+  Assert<'hoverEffect' extends keyof TableT.Variants ? true : false>,
   Assert<'showBorder' extends keyof TableT.Variants ? true : false>,
   Assert<'container' extends keyof TableT.Classes ? true : false>,
   Assert<'root' extends keyof TableT.Classes ? true : false>,

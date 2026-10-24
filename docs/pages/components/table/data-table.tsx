@@ -20,6 +20,7 @@ import type {
   RowSelectionState,
   SortingState,
 } from '@tanstack/solid-table'
+import { Pagination } from 'moraine'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 export interface Payment {
@@ -319,76 +320,75 @@ export function DataTable() {
         </DropdownMenu>
       </div>
 
-      <Table>
-        <Table.Header>
-          <For each={table.getHeaderGroups()}>
-            {(headerGroup) => (
-              <Table.Row>
-                <For each={headerGroup.headers}>
-                  {(header) => (
-                    <Table.Head
-                      colSpan={header.colSpan}
-                      class={header.column.id === 'select' && 'w-5'}
+      {/* Fixed height */}
+      <div class="h-56">
+        {/* Table outer border with border radius */}
+        <div class="border-1 border-border rounded-md overflow-hidden">
+          <Table>
+            <Table.Header>
+              <For each={table.getHeaderGroups()}>
+                {(headerGroup) => (
+                  <Table.Row>
+                    <For each={headerGroup.headers}>
+                      {(header) => (
+                        <Table.Head
+                          colSpan={header.colSpan}
+                          class={header.column.id === 'select' && 'w-5'}
+                        >
+                          <table.FlexRender header={header} />
+                        </Table.Head>
+                      )}
+                    </For>
+                  </Table.Row>
+                )}
+              </For>
+            </Table.Header>
+            <Table.Body>
+              <Show
+                when={table.getRowModel().rows.length > 0}
+                fallback={
+                  <Table.Row>
+                    <Table.Cell
+                      colSpan={columns.length}
+                      class="text-muted-foreground text-center h-24"
                     >
-                      <table.FlexRender header={header} />
-                    </Table.Head>
+                      No results.
+                    </Table.Cell>
+                  </Table.Row>
+                }
+              >
+                <For each={table.getRowModel().rows}>
+                  {(row) => (
+                    <Table.Row selected={row.getIsSelected()}>
+                      <For each={row.getVisibleCells()}>
+                        {(cell) => (
+                          <Table.Cell class={cell.column.id === 'select' && 'w-5'}>
+                            <table.FlexRender cell={cell} />
+                          </Table.Cell>
+                        )}
+                      </For>
+                    </Table.Row>
                   )}
                 </For>
-              </Table.Row>
-            )}
-          </For>
-        </Table.Header>
-        <Table.Body>
-          <Show
-            when={table.getRowModel().rows.length > 0}
-            fallback={
-              <Table.Row>
-                <Table.Cell colSpan={columns.length} class="text-muted-foreground text-center h-24">
-                  No results.
-                </Table.Cell>
-              </Table.Row>
-            }
-          >
-            <For each={table.getRowModel().rows}>
-              {(row) => (
-                <Table.Row selected={row.getIsSelected()}>
-                  <For each={row.getVisibleCells()}>
-                    {(cell) => (
-                      <Table.Cell class={cell.column.id === 'select' && 'w-5'}>
-                        <table.FlexRender cell={cell} />
-                      </Table.Cell>
-                    )}
-                  </For>
-                </Table.Row>
-              )}
-            </For>
-          </Show>
-        </Table.Body>
-      </Table>
+              </Show>
+            </Table.Body>
+          </Table>
+        </div>
+      </div>
 
       <div class="text-sm text-muted-foreground flex items-center justify-between">
-        <div>
+        <div class="w-full">
           {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div class="flex gap-2 items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
+        <Pagination
+          class="justify-end"
+          size="sm"
+          page={pagination().pageIndex + 1}
+          itemsPerPage={pagination().pageSize}
+          total={table.getFilteredRowModel().rows.length}
+          onPageChange={(page) => table.setPageIndex(page - 1)}
+        />
       </div>
     </div>
   )

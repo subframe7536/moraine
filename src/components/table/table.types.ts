@@ -23,8 +23,6 @@ export namespace TableT {
   export type Props = BaseProps<'table', Base, Variants, Classes, Styles>
 
   export interface HeaderBase {
-    /** Text alignment for all header cells in this section. */
-    align?: 'left' | 'center' | 'right'
     children?: JSX.Element
   }
   export type HeaderProps = BaseProps<'thead', HeaderBase, never, never, never>

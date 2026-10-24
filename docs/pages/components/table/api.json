@@ -40,6 +40,16 @@
           "description": "Ref forwarded to the scroll container element."
         },
         {
+          "name": "hoverEffect",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether rows highlight on hover.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "showBorder",
           "optional": true,
           "type": "'row' | 'col' | 'both'",
@@ -93,12 +103,6 @@
       },
       "defaultElement": "thead",
       "props": [
-        {
-          "name": "align",
-          "optional": true,
-          "type": "'left' | 'center' | 'right'",
-          "description": "Text alignment for all header cells in this section."
-        },
         {
           "name": "children",
           "optional": true,

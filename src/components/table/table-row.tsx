@@ -8,17 +8,14 @@ import { tableDataAttributes, tableRecipe } from './table.recipe'
 import type { TableT } from './table.types'
 
 export function TableRow(props: TableT.RowProps): JSX.Element {
-  const [local, rest] = splitProps(props as TableT.RowProps & { selected?: boolean }, [
-    'selected',
-    'class',
-    'style',
-  ])
+  const [local, rest] = splitProps(props, ['selected', 'class', 'style'])
   const context = useTableContext()
   const { slots } = useRecipe(tableRecipe, local, {
     slot: 'row',
     contextVariants: () => ({
       size: context.size,
       striped: context.striped,
+      hoverEffect: context.hoverEffect,
       showBorder: context.showBorder,
     }),
     contextSlots: () => context.slotOverrides,

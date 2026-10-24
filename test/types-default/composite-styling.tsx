@@ -174,19 +174,23 @@ defineTheme({ toast: { base: { root: 'rounded-xl' }, defaultVariants: { invert: 
 defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
 defineTheme({
-  table: { base: { head: 'font-bold' }, defaultVariants: { size: 'lg', showBorder: 'col' } },
+  table: {
+    base: { head: 'font-bold' },
+    defaultVariants: { size: 'lg', showBorder: 'col', hoverEffect: true },
+  },
 })
 
 ;<Table
   size="sm"
   striped
+  hoverEffect
   showBorder="both"
   class="root"
   style={{ width: '100%' }}
   classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}
   styles={{ root: { color: 'red' } }}
 />
-;<Table.Header align="right" class="header" />
+;<Table.Header class="header" />
 // @ts-expect-error Table.Header is a compose-only part and does not accept classes.
 ;<Table.Header classes={{ header: 'header' }} />
 ;<Table.Head align="center" truncated class="head" />

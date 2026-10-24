@@ -26,6 +26,8 @@ export interface TableStyleVariants {
   size?: 'sm' | 'md' | 'lg'
   /** Whether rows display alternating background colors. @default false */
   striped?: boolean
+  /** Whether rows highlight on hover. @default false */
+  hoverEffect?: boolean
   /** Which divider borders are displayed. @default 'row' */
   showBorder?: 'row' | 'col' | 'both'
 }

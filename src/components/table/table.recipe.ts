@@ -8,23 +8,30 @@ export const tableDataAttributes = {
   row: /* @__PURE__ */ createDataAttributes('selected'),
 } satisfies DataAttributeContract<keyof TableStyleSlot>
 
+export const TABLE_TEXT_ALIGN_CLASS = {
+  left: 'text-left',
+  center: 'text-center',
+  right: 'text-right',
+} as const
+
 export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableStyleVariants>(
   'table',
   {
     base: {
       container: 'w-full relative overflow-x-auto',
-      root: 'text-sm border-border w-full caption-bottom',
-      header: '[&_tr]:border-border',
+      root: 'border-border w-full caption-bottom',
+      header: 'text-left [&_tr]:border-border',
       body: '[&_tr:last-child]:border-0',
       footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
-      row: 'border-border transition-colors data-selected:bg-accent hover:bg-accent/50',
-      head: 'text-muted-foreground font-medium px-2 text-left align-middle border-border h-10',
+      row: 'border-border transition-colors data-selected:bg-accent',
+      head: 'text-muted-foreground font-medium px-2 align-middle border-border h-10',
       cell: 'align-middle border-border',
-      caption: 'text-sm text-muted-foreground my-4',
+      caption: 'text-muted-foreground my-4',
     },
     defaultVariants: {
       size: 'md',
       striped: false,
+      hoverEffect: false,
       showBorder: 'row',
     },
     variants: {
@@ -51,6 +58,11 @@ export const tableRecipe = /* @__PURE__ */ defineRecipe<TableStyleSlot, TableSty
       striped: {
         true: {
           row: 'even:bg-muted',
+        },
+      },
+      hoverEffect: {
+        true: {
+          row: 'hover:bg-accent/50',
         },
       },
       showBorder: {

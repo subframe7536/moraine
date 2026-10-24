@@ -34,6 +34,7 @@ describe('Table', () => {
     expect(slot(container, '')?.tagName).toBe('TABLE')
     expect(slot(container, 'caption')?.tagName).toBe('CAPTION')
     expect(slot(container, 'header')?.tagName).toBe('THEAD')
+    expect(slot(container, 'header')?.className).toContain('text-left')
     expect(slot(container, 'body')?.tagName).toBe('TBODY')
     expect(slot(container, 'footer')?.tagName).toBe('TFOOT')
     expect(slot(container, 'row')?.tagName).toBe('TR')
@@ -157,17 +158,23 @@ describe('Table', () => {
           <Table.Row selected={selected()}>
             <Table.Cell>Item</Table.Cell>
           </Table.Row>
+          <Table.Row>
+            <Table.Cell>Other</Table.Cell>
+          </Table.Row>
         </Table.Body>
       </Table>
     ))
 
     const row = slot(container, 'row')!
+    const unselectedRow = container.querySelectorAll('[data-slot="table-row"]')[1]!
     expect(row.hasAttribute('data-selected')).toBe(false)
     expect(row.getAttribute('aria-selected')).toBe('false')
+    expect(unselectedRow.hasAttribute('aria-selected')).toBe(false)
 
     setSelected(true)
     expect(row.hasAttribute('data-selected')).toBe(true)
     expect(row.getAttribute('aria-selected')).toBe('true')
+    expect(unselectedRow.hasAttribute('aria-selected')).toBe(false)
   })
 
   test.each([
@@ -223,6 +230,30 @@ describe('Table', () => {
     expect(slot(container, 'row')?.className).toContain('even:bg-muted')
   })
 
+  test('hoverEffect variant adds row hover background only when enabled (false by default)', () => {
+    const { container: defaultTable } = render(() => (
+      <Table>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Row 1</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    ))
+    expect(slot(defaultTable, 'row')?.className).not.toContain('hover:bg-accent/50')
+
+    const { container } = render(() => (
+      <Table hoverEffect>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell>Row 1</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    ))
+    expect(slot(container, 'row')?.className).toContain('hover:bg-accent/50')
+  })
+
   test('base table rows and root include border-border', () => {
     const { container } = render(() => (
       <Table>
@@ -273,20 +304,6 @@ describe('Table', () => {
     expect(cells[0]!.className).toContain('truncate')
     expect(cells[1]!.className).toContain('text-right')
     expect(cells[2]!.className).toContain('text-left')
-  })
-
-  test('TableHeader supports align prop', () => {
-    const { container } = render(() => (
-      <Table>
-        <Table.Header align="right">
-          <Table.Row>
-            <Table.Head>Head</Table.Head>
-          </Table.Row>
-        </Table.Header>
-      </Table>
-    ))
-
-    expect(slot(container, 'header')?.className).toContain('text-right')
   })
 
   test('classes and styles overrides from Table root', () => {
