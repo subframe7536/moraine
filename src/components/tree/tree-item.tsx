@@ -8,6 +8,7 @@ import {
   on,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -42,13 +43,14 @@ function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) 
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
+  const startedOpen = untrack(() => props.item.isExpanded)
   const [lastHeight, setLastHeight] = createSignal(0)
   const [hasClosed, setHasClosed] = createSignal(false)
-  const allowHeightMotion = () =>
-    context.transition && lastHeight() > 0 && (hasClosed() || !props.item.isExpanded)
+  const skipEnter = () => startedOpen && !hasClosed()
+  const allowHeightMotion = () => context.transition && lastHeight() > 0 && !skipEnter()
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
-    transition: allowHeightMotion,
+    transition: () => context.transition,
     unmountOnHide: () => context.unmountOnHide,
   })
   createEffect(
@@ -65,7 +67,6 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }
     }),
   )
-  const skipMotion = () => !allowHeightMotion()
   const { slots } = useRecipe(
     treeRecipe,
     {},
@@ -77,15 +78,31 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       vars: () => ({
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
-      enforced: () => ({
-        content: {
-          style: {
-            animation: skipMotion() ? 'none' : undefined,
-            height: skipMotion() && disclosure.open() ? 'auto' : undefined,
-            overflow: skipMotion() ? 'visible' : undefined,
-          },
-        },
-      }),
+      enforced: () => {
+        if (!context.transition || skipEnter()) {
+          return {
+            content: {
+              style: {
+                animation: 'none',
+                height: disclosure.open() ? 'auto' : undefined,
+                overflow: 'visible',
+              },
+            },
+          }
+        }
+        if (disclosure.open() && lastHeight() === 0) {
+          return {
+            content: {
+              style: {
+                animation: 'none',
+                height: '0px',
+                overflow: 'hidden',
+              },
+            },
+          }
+        }
+        return {}
+      },
     },
   )
 

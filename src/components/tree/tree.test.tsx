@@ -174,7 +174,7 @@ describe('createTree', () => {
     })
 
     test('toggles on row click by default', () => {
-      const { container } = render(() => <Harness />)
+      const { container } = render(() => <Harness treeProps={{ transition: false }} />)
       const src = item(container, 'src')
 
       fireEvent.click(src)
@@ -309,7 +309,7 @@ describe('createTree', () => {
       expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
     })
 
-    test('omits data-transition on first-open nested content', async () => {
+    test('omits data-transition on default-expanded nested content', async () => {
       vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
@@ -359,18 +359,31 @@ describe('createTree', () => {
       const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
         '[role="group"]',
       )!
-      expect(nestedGroup.hasAttribute('data-transition')).toBe(false)
-      expect(nestedGroup.style.height).toBe('auto')
-      expect(nestedGroup.style.animation).toBe('none')
+      expect(nestedGroup.hasAttribute('data-transition')).toBe(true)
+      expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
+      expect(nestedGroup.style.height).not.toBe('auto')
     })
 
-    test('uses auto height until nested content has been measured', () => {
+    test('holds collapsed height until nested content has been measured', () => {
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.style.height).toBe('auto')
+      expect(group.style.height).toBe('0px')
       expect(group.style.animation).toBe('none')
+    })
+
+    test('enables height motion after a collapsed branch is measured', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.hasAttribute('data-expanded')).toBe(true)
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.style.height).not.toBe('auto')
+      expect(group.style.animation).not.toBe('none')
     })
   })
 
