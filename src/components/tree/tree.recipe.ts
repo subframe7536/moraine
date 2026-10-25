@@ -26,7 +26,7 @@ export const treeDataAttributes = {
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
 const TREE_INDENT_GUIDE_CLASS =
-  '[background-image:repeating-linear-gradient(to_right,var(--mo-tree-indent-guide,var(--border))_0_1px,transparent_1px_var(--mo-tree-indent,1.25rem))] [background-position:var(--mo-tree-guide-offset,1rem)_0] [background-size:calc(var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))_100%] bg-no-repeat'
+  '[background-image:repeating-linear-gradient(to_right,var(--mo-tree-indent-guide,var(--border))_0_1px,transparent_1px_var(--mo-tree-indent,1.25rem))] [background-position:calc(0.25rem_+_var(--mo-tree-guide-offset,1rem))_0] [background-size:calc(var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))_100%] bg-no-repeat'
 
 export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleVariants>('tree', {
   base: {

@@ -971,6 +971,9 @@ describe('createTree', () => {
         'var(--border)',
       )
       expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
+      expect(item(container, 'docs').className).toContain(
+        '[background-position:calc(0.25rem_+_var(--mo-tree-guide-offset,1rem))_0]',
+      )
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
       expect(row?.className).toContain('data-entering:animate-tree-item-in')
