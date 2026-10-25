@@ -43,6 +43,13 @@ const AUDIT_EVENTS: AuditEvent[] = Array.from({ length: 30 }, (_, i) => {
   }
 })
 
+const SEVERITY = {
+  low: { label: 'Low', tone: 'neutral' },
+  medium: { label: 'Medium', tone: 'info' },
+  high: { label: 'High', tone: 'warning' },
+  critical: { label: 'Critical', tone: 'danger' },
+} as const
+
 const COLUMNS: ColumnDef<any, AuditEvent>[] = [
   {
     accessorKey: 'timestamp',
@@ -56,14 +63,14 @@ const COLUMNS: ColumnDef<any, AuditEvent>[] = [
     accessorKey: 'actor',
     header: 'Principal / Actor',
     size: 200,
-    cell: (props) => <span class="text-xs font-medium">{props.row.original.actor}</span>,
+    cell: (props) => <span class="font-medium">{props.row.original.actor}</span>,
   },
   {
     accessorKey: 'action',
     header: 'Action',
     size: 180,
     cell: (props) => (
-      <span class="text-xs font-mono px-1.5 py-0.5 border border-border rounded bg-muted/60">
+      <span class="text-xs font-mono px-1.5 py-0.5 border border-border rounded bg-muted">
         {props.row.original.action}
       </span>
     ),
@@ -73,9 +80,7 @@ const COLUMNS: ColumnDef<any, AuditEvent>[] = [
     header: 'Target Resource',
     size: 240,
     cell: (props) => (
-      <span class="text-xs text-muted-foreground font-mono max-w-xs block truncate">
-        {props.row.original.resource}
-      </span>
+      <span class="text-xs text-muted-foreground font-mono">{props.row.original.resource}</span>
     ),
   },
   {
@@ -91,22 +96,10 @@ const COLUMNS: ColumnDef<any, AuditEvent>[] = [
     header: 'Severity',
     size: 110,
     cell: (props) => {
-      const s = () => props.row.original.severity
+      const severity = () => SEVERITY[props.row.original.severity]
       return (
-        <Badge
-          tone={
-            s() === 'critical'
-              ? 'danger'
-              : s() === 'high'
-                ? 'warning'
-                : s() === 'medium'
-                  ? 'info'
-                  : 'neutral'
-          }
-          variant="subtle"
-          size="sm"
-        >
-          {s().toUpperCase()}
+        <Badge tone={severity().tone} variant="subtle" size="sm">
+          {severity().label}
         </Badge>
       )
     },
@@ -117,7 +110,7 @@ export default function StickyHeaderExample() {
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
-        Scroll vertically through 30 events; the table header remains pinned cleanly at the top.
+        Scroll through 30 audit events; the header stays pinned to the top of the container.
       </div>
       <DataTable
         data={AUDIT_EVENTS}

@@ -19,5 +19,13 @@ const columns: ColumnDef<any, User>[] = [
 ]
 
 export default function BasicExample() {
-  return <DataTable data={data} columns={columns} sorting selectable />
+  return (
+    <DataTable
+      data={data}
+      columns={columns}
+      sorting
+      selectable
+      classes={{ container: 'border border-border rounded-lg' }}
+    />
+  )
 }
