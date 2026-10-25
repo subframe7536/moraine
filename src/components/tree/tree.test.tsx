@@ -978,6 +978,8 @@ describe('createTree', () => {
       expect(row?.className).toContain('custom-row')
       expect(row?.className).toContain('data-entering:animate-tree-item-in')
       expect(row?.className).toContain('mx-1')
+      expect(row?.className).toContain('[[role=treeitem]:focus-visible>&]:z-10')
+      expect(item(container, 'docs').className).toContain('focus-visible:z-10')
       expect(row?.className).toContain(
         'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
       )
