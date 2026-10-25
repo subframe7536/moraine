@@ -264,6 +264,12 @@
           "optional": true,
           "type": "SolidTable<TFeatures, TData>",
           "description": "Existing TanStack Solid Table instance."
+        },
+        {
+          "name": "virtualRender",
+          "optional": true,
+          "type": "Component<VirtualRenderProps<TData, TFeatures>>",
+          "description": "Component mounted inside `tbody` to render virtualized rows."
         }
       ]
     }

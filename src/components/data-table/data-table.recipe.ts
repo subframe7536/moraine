@@ -24,7 +24,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     header: 'text-left [&_tr]:border-border',
     body: '[&_tr:last-child]:border-0',
     footer: 'font-medium border-border bg-muted/50 [&>tr]:last:border-b-0',
-    row: 'border-border transition-colors data-selected:bg-accent',
+    row: 'group/row border-border transition-colors data-selected:bg-accent',
     head: 'text-muted-foreground font-medium px-2 align-middle border-border h-10',
     cell: 'align-middle border-border',
     empty: 'text-muted-foreground py-8 text-center',

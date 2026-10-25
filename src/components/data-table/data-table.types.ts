@@ -10,6 +10,7 @@ import type {
 } from '@tanstack/solid-table'
 import type { Accessor, Component, JSX, Ref } from 'solid-js'
 
+import type { TableVirtualRenderProps } from '../../shared/table-virtualizer'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -29,6 +30,11 @@ export namespace DataTableT {
   export interface LoadingRenderProps {
     readonly colSpan: number
   }
+
+  export type VirtualRenderProps<
+    TData extends RowData = RowData,
+    _TFeatures extends TableFeatures = TableFeatures,
+  > = TableVirtualRenderProps<Row<any, TData>>
 
   export interface ColumnMeta {
     align?: 'left' | 'center' | 'right'
@@ -96,6 +102,8 @@ export namespace DataTableT {
     manualSorting?: boolean
     /** Whether filtering is handled externally (remote / server-side). */
     manualFiltering?: boolean
+    /** Component mounted inside `tbody` to render virtualized rows. */
+    virtualRender?: Component<VirtualRenderProps<TData, TFeatures>>
   }
 
   export type Props<

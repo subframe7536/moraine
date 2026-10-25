@@ -2,6 +2,7 @@ import { FlexRender, createTable } from '@tanstack/solid-table'
 import type {
   ColumnDef,
   PaginationState,
+  Row,
   RowData,
   RowSelectionState,
   SolidTable,
@@ -9,11 +10,13 @@ import type {
   TableFeatures,
 } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import { For, Show, createMemo, createSignal, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
+import { callRef } from '../../shared/utils'
 import { Button } from '../button'
 import { DropdownMenu } from '../dropdown-menu'
 import { Icon } from '../icon'
@@ -64,6 +67,7 @@ export function DataTable<
     'manualPagination',
     'manualSorting',
     'manualFiltering',
+    'virtualRender',
     'size',
     'striped',
     'hoverEffect',
@@ -75,6 +79,7 @@ export function DataTable<
   ])
 
   const { slots, slotWith } = useRecipe(dataTableRecipe, local)
+  const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
 
   const [sorting, setSorting] = createControllableValue<SortingState>({
     value: () => local.currentSorting,
@@ -232,8 +237,60 @@ export function DataTable<
     )
   }
 
+  function RenderRow(rowContext: {
+    row: Row<any, TData>
+    rowProps?: Record<string, any>
+  }): JSX.Element {
+    const isSelected = () => (rowContext.row as any).getIsSelected?.() ?? false
+
+    return (
+      <tr
+        {...rowContext.rowProps}
+        data-slot="data-table-row"
+        aria-selected={isSelected()}
+        {...dataTableDataAttributes.row({ selected: isSelected })}
+        {...slotWith('row', () => ({
+          class:
+            typeof local.rowClass === 'function'
+              ? local.rowClass(rowContext.row as any)
+              : local.rowClass,
+        }))}
+      >
+        <For each={(rowContext.row as any).getVisibleCells()}>
+          {(cell) => {
+            const meta = () => cell.column.columnDef.meta as DataTableT.ColumnMeta | undefined
+            const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
+            const truncated = () => meta()?.truncated ?? false
+
+            return (
+              <td
+                data-slot="data-table-cell"
+                {...slotWith('cell', () => ({
+                  class: [
+                    DATA_TABLE_TEXT_ALIGN_CLASS[align()],
+                    truncated() && 'truncate',
+                    meta()?.class,
+                  ],
+                }))}
+              >
+                <FlexRender cell={cell} />
+              </td>
+            )
+          }}
+        </For>
+      </tr>
+    )
+  }
+
   return (
-    <div ref={local.containerRef} data-slot="data-table-container" {...slots.container}>
+    <div
+      ref={(el) => {
+        setScrollContainer(() => el)
+        callRef(local.containerRef, el)
+      }}
+      data-slot="data-table-container"
+      {...slots.container}
+    >
       <Show when={local.loading}>
         <div data-slot="data-table-loading" {...slots.loading}>
           <RenderLoading />
@@ -318,49 +375,25 @@ export function DataTable<
               </tr>
             }
           >
-            <For each={activeTable().getRowModel().rows}>
-              {(row) => {
-                const isSelected = () => row.getIsSelected?.() ?? false
-
-                return (
-                  <tr
-                    data-slot="data-table-row"
-                    aria-selected={isSelected()}
-                    {...dataTableDataAttributes.row({ selected: isSelected })}
-                    {...slotWith('row', () => ({
-                      class:
-                        typeof local.rowClass === 'function'
-                          ? local.rowClass(row as any)
-                          : local.rowClass,
-                    }))}
-                  >
-                    <For each={row.getVisibleCells()}>
-                      {(cell) => {
-                        const meta = () =>
-                          cell.column.columnDef.meta as DataTableT.ColumnMeta | undefined
-                        const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
-                        const truncated = () => meta()?.truncated ?? false
-
-                        return (
-                          <td
-                            data-slot="data-table-cell"
-                            {...slotWith('cell', () => ({
-                              class: [
-                                DATA_TABLE_TEXT_ALIGN_CLASS[align()],
-                                truncated() && 'truncate',
-                                meta()?.class,
-                              ],
-                            }))}
-                          >
-                            <FlexRender cell={cell} />
-                          </td>
-                        )
-                      }}
-                    </For>
-                  </tr>
-                )
-              }}
-            </For>
+            <Show
+              when={local.virtualRender}
+              fallback={
+                <For each={activeTable().getRowModel().rows}>
+                  {(row) => <RenderRow row={row} />}
+                </For>
+              }
+            >
+              {(virtualRender) => (
+                <Dynamic
+                  component={virtualRender()}
+                  entries={activeTable().getRowModel().rows}
+                  scrollElement={scrollContainer()}
+                  render={(row: Row<any, TData>, _index: number, rowProps?: any) => (
+                    <RenderRow row={row} rowProps={rowProps} />
+                  )}
+                />
+              )}
+            </Show>
           </Show>
         </tbody>
 
@@ -379,7 +412,6 @@ export function DataTable<
                         header.column.columnDef.meta as DataTableT.ColumnMeta | undefined
                       const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
                       const truncated = () => meta()?.truncated ?? false
-
                       return (
                         <td
                           data-slot="data-table-cell"

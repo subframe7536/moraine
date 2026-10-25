@@ -7,9 +7,12 @@ import {
   createPaginatedRowModel,
   createSortedRowModel,
   createTable,
+  filterFn_includesString,
   rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_text,
   tableFeatures,
 } from '@tanstack/solid-table'
 import type {
@@ -99,15 +102,22 @@ function getStatusBadgeTone(status: Payment['status']): BadgeT.Variants['tone'] 
 const features = tableFeatures({
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    text: sortFn_text,
+  },
   columnFilteringFeature,
   filteredRowModel: createFilteredRowModel(),
+  filterFns: {
+    includesString: filterFn_includesString,
+  },
   rowPaginationFeature,
   paginatedRowModel: createPaginatedRowModel(),
   columnVisibilityFeature,
   rowSelectionFeature,
 })
 
-export function DataTable() {
+export function TanStackTable() {
   const [data] = createSignal<Payment[]>(INITIAL_DATA)
   const [sorting, setSorting] = createSignal<SortingState>([])
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([])
@@ -303,7 +313,7 @@ export function DataTable() {
         <Input
           placeholder="Filter emails..."
           value={emailFilter()}
-          onInput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
+          onValueChange={(v) => table.getColumn('email')?.setFilterValue(v)}
           class="max-w-xs"
         />
         <DropdownMenu>

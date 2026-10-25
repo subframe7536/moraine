@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
-import { createSignal } from 'solid-js'
+import type { ColumnDef, Row } from '@tanstack/solid-table'
+import { createRoot, createSignal } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
+
+import { createTableVirtualizer } from '../../virtualizer'
 
 import { DataTable } from './data-table'
 import { getDefaultDataTableFeatures } from './data-table-helpers'
@@ -65,6 +67,25 @@ describe('DataTable', () => {
 
     expect(screen.getByText('Alice')).toBeDefined()
     expect(screen.getByText('Bob')).toBeDefined()
+  })
+
+  it('supports column filtering with getDefaultDataTableFeatures without unregistered filterFn warning', () => {
+    createRoot((dispose) => {
+      const warnSpy = vi.spyOn(console, 'warn')
+      const table = createTable({
+        features: getDefaultDataTableFeatures(),
+        columns: TEST_COLUMNS,
+        get data() {
+          return TEST_DATA
+        },
+      })
+      table.getColumn('name')?.setFilterValue('Alice')
+      expect(table.getFilteredRowModel().rows.length).toBe(1)
+      expect(table.getFilteredRowModel().rows[0]?.getValue('name')).toBe('Alice')
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('filterFn'))
+      warnSpy.mockRestore()
+      dispose()
+    })
   })
 
   it('handles client-side sorting when sorting={true}', () => {
@@ -250,5 +271,35 @@ describe('DataTable', () => {
 
     expect(screen.getAllByRole('row').length).toBe(5)
     expect(screen.getByText('Diana')).toBeDefined()
+  })
+
+  it('renders virtualized rows with virtualRender adapter', async () => {
+    const virtualizer = createTableVirtualizer<Row<any, Person>>({
+      estimateSize: () => 30,
+      measureElement: () => 30,
+      observeElementRect: (_instance, callback) => callback({ width: 300, height: 60 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 0,
+    })
+
+    const manyRows = Array.from({ length: 50 }, (_, i) => ({
+      id: String(i + 1),
+      name: `Person ${i + 1}`,
+      age: 20 + (i % 30),
+      role: 'Staff',
+    }))
+
+    const { container } = render(() => (
+      <DataTable data={manyRows} columns={TEST_COLUMNS} virtualRender={virtualizer.virtualRender} />
+    ))
+    await Promise.resolve()
+
+    const tbody = container.querySelector('[data-slot="data-table-body"]')!
+    const spacers = tbody.querySelectorAll<HTMLTableRowElement>('tr[aria-hidden="true"]')
+    expect(spacers.length).toBe(2)
+
+    const renderedRows = tbody.querySelectorAll('tr[data-index]')
+    expect(renderedRows.length).toBeLessThan(50)
+    expect(renderedRows.length).toBeGreaterThan(0)
   })
 })

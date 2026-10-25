@@ -300,6 +300,10 @@ export function Example() {
 }
 ```
 
+### Virtualization
+
+Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment.
+
 ## Examples
 
 ### Basic data table with sorting and selection
@@ -307,3 +311,9 @@ export function Example() {
 Render rows with built-in sorting and row selection checkboxes.
 
 <Preview path="./basic" />
+
+### Virtualize 10000 rows
+
+Render 10,000 rows efficiently with `createTableVirtualizer` from `moraine/virtualizer`. Only rows visible in the viewport are mounted in the DOM.
+
+<Preview path="./virtualization" />

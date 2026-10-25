@@ -1,30 +1,30 @@
-export type DataTableStyleSlot<T = string> = {
+export interface DataTableStyleSlot<T = unknown> {
   /** Outer scrollable container. */
-  container: T
+  container?: T
   /** Host `table` element. */
-  root: T
+  root?: T
   /** Table header container (`thead`). */
-  header: T
+  header?: T
   /** Table body container (`tbody`). */
-  body: T
+  body?: T
   /** Table footer container (`tfoot`). */
-  footer: T
+  footer?: T
   /** Table row (`tr`). */
-  row: T
+  row?: T
   /** Header cell (`th`). */
-  head: T
+  head?: T
   /** Body or footer cell (`td`). */
-  cell: T
+  cell?: T
   /** Empty state content area. */
-  empty: T
+  empty?: T
   /** Loading overlay or indicator. */
-  loading: T
+  loading?: T
   /** Button used in sortable column headers. */
-  sortButton: T
+  sortButton?: T
   /** Icon indicating sort direction. */
-  sortIcon: T
+  sortIcon?: T
   /** Pagination toolbar container. */
-  pagination: T
+  pagination?: T
 }
 
 export type DataTableStyleVariants = {
