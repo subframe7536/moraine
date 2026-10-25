@@ -14,6 +14,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
+import { createEventListenerMap } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
@@ -46,6 +47,8 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const startedOpen = untrack(() => props.item.isExpanded)
   const [lastHeight, setLastHeight] = createSignal(0)
   const [hasClosed, setHasClosed] = createSignal(false)
+  const [groupEl, setGroupEl] = createSignal<HTMLElement>()
+  const [motionSettled, setMotionSettled] = createSignal(startedOpen)
   const skipEnter = () => startedOpen && !hasClosed()
   const allowHeightMotion = () => context.transition && !skipEnter()
   const disclosure = createDisclosureState({
@@ -66,6 +69,34 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     on(disclosure.open, (isOpen, wasOpen) => {
       if (wasOpen && !isOpen) {
         setHasClosed(true)
+        setMotionSettled(false)
+      }
+    }),
+  )
+  createEffect(
+    on(groupEl, (element) => {
+      if (!element) {
+        return
+      }
+      const settle = (event: AnimationEvent) => {
+        if (event.target !== element || !disclosure.open()) {
+          return
+        }
+        setMotionSettled(true)
+      }
+      createEventListenerMap(element, {
+        animationend: settle,
+        animationcancel: settle,
+      })
+    }),
+  )
+  createEffect(
+    on(visualExpanded, (expanded) => {
+      if (!expanded || untrack(() => !allowHeightMotion() || skipEnter())) {
+        return
+      }
+      if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+        setMotionSettled(true)
       }
     }),
   )
@@ -81,7 +112,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
       enforced: () => {
-        if (!context.transition || skipEnter()) {
+        if (!context.transition || skipEnter() || motionSettled()) {
           return {
             content: {
               style: {
@@ -100,11 +131,13 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   return (
     <div
       ref={(element) => {
+        setGroupEl(element)
         onCleanup(disclosure.registerPresenceElement(element))
+        onCleanup(() => setGroupEl((current) => (current === element ? undefined : current)))
       }}
       role="group"
       aria-hidden={disclosure.ariaHidden()}
-      hidden={disclosure.hidden()}
+      hidden={disclosure.hidden() && !allowHeightMotion()}
       inert={disclosure.inert()}
       data-slot="tree-content"
       {...slots.content}

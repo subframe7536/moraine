@@ -371,6 +371,7 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transition')).toBe(true)
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
+      expect(group.hasAttribute('hidden')).toBe(false)
     })
 
     test('keeps the group visually closed until nested content has been measured', () => {
@@ -394,6 +395,52 @@ describe('createTree', () => {
       expect(group.hasAttribute('data-transition')).toBe(true)
       expect(group.hasAttribute('data-closed')).toBe(false)
       expect(group.style.height).not.toBe('auto')
+    })
+
+    test('does not fade accordion-revealed children in', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(
+        item(container, 'components')
+          .querySelector('[data-slot="tree-row"]')
+          ?.hasAttribute('data-entering'),
+      ).toBe(false)
+    })
+
+    test('releases overflow clipping after height motion settles', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.style.overflow).not.toBe('visible')
+
+      fireEvent.animationEnd(group)
+      expect(group.style.overflow).toBe('visible')
+      expect(group.style.height).toBe('auto')
+    })
+
+    test('releases overflow after a default-expanded group is toggled', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.style.overflow).toBe('visible')
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      expect(group.style.overflow).not.toBe('visible')
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      fireEvent.animationEnd(group)
+      expect(group.style.overflow).toBe('visible')
     })
   })
 
@@ -927,7 +974,7 @@ describe('createTree', () => {
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
       expect(row?.className).toContain('data-entering:animate-tree-item-in')
-      expect(row?.className).toContain('ring-inset')
+      expect(row?.className).toContain('mx-1')
       expect(row?.className).toContain(
         'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
       )
