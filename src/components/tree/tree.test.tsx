@@ -364,13 +364,23 @@ describe('createTree', () => {
       expect(nestedGroup.style.height).not.toBe('auto')
     })
 
-    test('holds collapsed height until nested content has been measured', () => {
+    test('keeps a collapsed group ready for height motion', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      const group = item(container, 'components').querySelector<HTMLElement>('[role="group"]')!
+
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-expanded')).toBe(false)
+      expect(group.hasAttribute('data-closed')).toBe(true)
+    })
+
+    test('keeps the group visually closed until nested content has been measured', () => {
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.style.height).toBe('0px')
-      expect(group.style.animation).toBe('none')
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-expanded')).toBe(false)
+      expect(group.hasAttribute('data-closed')).toBe(true)
     })
 
     test('enables height motion after a collapsed branch is measured', async () => {
@@ -382,8 +392,8 @@ describe('createTree', () => {
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
       expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-closed')).toBe(false)
       expect(group.style.height).not.toBe('auto')
-      expect(group.style.animation).not.toBe('none')
     })
   })
 

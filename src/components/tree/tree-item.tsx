@@ -47,12 +47,14 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const [lastHeight, setLastHeight] = createSignal(0)
   const [hasClosed, setHasClosed] = createSignal(false)
   const skipEnter = () => startedOpen && !hasClosed()
-  const allowHeightMotion = () => context.transition && lastHeight() > 0 && !skipEnter()
+  const allowHeightMotion = () => context.transition && !skipEnter()
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition: () => context.transition,
     unmountOnHide: () => context.unmountOnHide,
   })
+  const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
+  const visualExpanded = () => disclosure.open() && (skipEnter() || hasMeasuredHeight())
   createEffect(
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
@@ -90,17 +92,6 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
             },
           }
         }
-        if (disclosure.open() && lastHeight() === 0) {
-          return {
-            content: {
-              style: {
-                animation: 'none',
-                height: '0px',
-                overflow: 'hidden',
-              },
-            },
-          }
-        }
         return {}
       },
     },
@@ -118,8 +109,8 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       data-slot="tree-content"
       {...slots.content}
       {...treeDataAttributes.content({
-        closed: disclosure.closed,
-        expanded: disclosure.open,
+        closed: () => !visualExpanded(),
+        expanded: visualExpanded,
         transition: allowHeightMotion,
       })}
     >
