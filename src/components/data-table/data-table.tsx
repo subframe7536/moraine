@@ -28,6 +28,10 @@ import {
   getDefaultDataTableFeatures,
 } from './data-table-helpers'
 import {
+  DATA_TABLE_PAGINATION_CONTROLS_CLASS,
+  DATA_TABLE_PAGINATION_INFO_CLASS,
+  DATA_TABLE_RESIZABLE_CELL_CLASS,
+  DATA_TABLE_SORT_BUTTON_ALIGN_CLASS,
   DATA_TABLE_TEXT_ALIGN_CLASS,
   dataTableDataAttributes,
   dataTableRecipe,
@@ -137,7 +141,9 @@ export function DataTable<
       local.expandColumn !== false &&
       !cols.some((c) => c.id === 'expand')
     ) {
-      const expandCol = createExpandColumn<TableFeatures, TData>()
+      const expandCol = createExpandColumn<TableFeatures, TData>({
+        expandButton: slots.expandButton,
+      })
       if (hasLeftPinning) {
         expandCol.meta = { ...(expandCol.meta as any), pinned: 'left' }
       }
@@ -345,14 +351,17 @@ export function DataTable<
     return cols.length > 0 ? cols.length : 1
   }
 
-  const isLastPinnedStart = (col: any): boolean => {
-    const startCols = activeTable().getPinnedLeafColumns?.('start') ?? []
-    return startCols.length > 0 && startCols[startCols.length - 1]?.id === col.id
-  }
-
-  const isFirstPinnedEnd = (col: any): boolean => {
-    const endCols = activeTable().getPinnedLeafColumns?.('end') ?? []
-    return endCols.length > 0 && endCols[0]?.id === col.id
+  const pinnedEdge = (col: any): 'start' | 'end' | undefined => {
+    const pin = col.getIsPinned?.()
+    if (pin === 'start') {
+      const startCols = activeTable().getPinnedLeafColumns?.('start') ?? []
+      return startCols[startCols.length - 1]?.id === col.id ? 'start' : undefined
+    }
+    if (pin === 'end') {
+      const endCols = activeTable().getPinnedLeafColumns?.('end') ?? []
+      return endCols[0]?.id === col.id ? 'end' : undefined
+    }
+    return undefined
   }
 
   const currentPageIndex = () =>
@@ -438,10 +447,12 @@ export function DataTable<
 
   function RenderRow(rowContext: {
     row: Row<any, TData>
+    index: number
     rowProps?: Record<string, any>
   }): JSX.Element {
     const isSelected = () => (rowContext.row as any).getIsSelected?.() ?? false
     const isExpanded = () => (rowContext.row as any).getIsExpanded?.() ?? false
+    const showsDetail = () => Boolean(local.expandedRowRender) && isExpanded()
 
     return (
       <>
@@ -449,7 +460,12 @@ export function DataTable<
           {...rowContext.rowProps}
           data-slot="data-table-row"
           aria-selected={isSelected()}
-          {...dataTableDataAttributes.row({ selected: isSelected })}
+          {...dataTableDataAttributes.row({
+            selected: isSelected,
+            expanded: showsDetail,
+            even: () => rowContext.index % 2 === 1,
+            empty: false,
+          })}
           onClick={(e) => local.onRowClick?.(rowContext.row as any, e)}
           onDblClick={(e) => local.onRowDoubleClick?.(rowContext.row as any, e)}
           {...slotWith('row', () => ({
@@ -475,17 +491,15 @@ export function DataTable<
               return (
                 <td
                   data-slot="data-table-cell"
+                  {...dataTableDataAttributes.cell({
+                    pinned: pin,
+                    pinnedEdge: () => pinnedEdge(cell.column),
+                  })}
                   {...slotWith('cell', () => ({
                     class: [
                       DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                       truncated() && 'truncate',
-                      Boolean(pin()) && 'bg-background',
-                      isStart() &&
-                        isLastPinnedStart(cell.column) &&
-                        'shadow-[inset_-1px_0_0_var(--color-border)]',
-                      isEnd() &&
-                        isFirstPinnedEnd(cell.column) &&
-                        'shadow-[inset_1px_0_0_var(--color-border)]',
+                      local.resizable && DATA_TABLE_RESIZABLE_CELL_CLASS,
                       meta()?.class,
                     ],
                     style: {
@@ -509,7 +523,7 @@ export function DataTable<
             }}
           </For>
         </tr>
-        <Show when={local.expandedRowRender && isExpanded()}>
+        <Show when={showsDetail()}>
           <tr data-slot="data-table-expanded-row" {...slots.expandedRow}>
             <td
               data-slot="data-table-expanded-cell"
@@ -598,17 +612,14 @@ export function DataTable<
                                 ? 'none'
                                 : undefined
                         }
+                        {...dataTableDataAttributes.head({
+                          pinned: pin,
+                          pinnedEdge: () => pinnedEdge(header.column),
+                        })}
                         {...slotWith('head', () => ({
                           class: [
                             DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                             truncated() && 'truncate',
-                            isSticky() && 'bg-background',
-                            isStart() &&
-                              isLastPinnedStart(header.column) &&
-                              'shadow-[inset_-1px_0_0_var(--color-border)]',
-                            isEnd() &&
-                              isFirstPinnedEnd(header.column) &&
-                              'shadow-[inset_1px_0_0_var(--color-border)]',
                             meta()?.class,
                           ],
                           style: {
@@ -624,9 +635,7 @@ export function DataTable<
                               ? { right: `${header.column.getAfter?.('end') ?? 0}px` }
                               : {}),
                             ...(isSticky()
-                              ? {
-                                  'z-index': pin() && local.stickyHeader ? 25 : pin() ? 20 : 10,
-                                }
+                              ? { 'z-index': pin() && local.stickyHeader ? 30 : 20 }
                               : {}),
                           },
                         }))}
@@ -636,12 +645,15 @@ export function DataTable<
                             <button
                               type="button"
                               data-slot="data-table-sort-button"
-                              {...slots.sortButton}
+                              {...slotWith('sortButton', () => ({
+                                class: DATA_TABLE_SORT_BUTTON_ALIGN_CLASS[align()],
+                              }))}
                               onClick={(e) => header.column.getToggleSortingHandler?.()?.(e)}
                             >
                               <FlexRender header={header} />
                               <span
                                 data-slot="data-table-sort-icon"
+                                {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
                                 {...slots.sortIcon}
                                 aria-hidden="true"
                               >
@@ -682,7 +694,16 @@ export function DataTable<
           <Show
             when={activeRows().length > 0}
             fallback={
-              <tr data-slot="data-table-row" {...slots.row}>
+              <tr
+                data-slot="data-table-row"
+                {...dataTableDataAttributes.row({
+                  selected: false,
+                  expanded: false,
+                  even: false,
+                  empty: true,
+                })}
+                {...slots.row}
+              >
                 <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
                   <RenderEmpty />
                 </td>
@@ -691,15 +712,19 @@ export function DataTable<
           >
             <Show
               when={local.virtualRender}
-              fallback={<For each={activeRows()}>{(row) => <RenderRow row={row} />}</For>}
+              fallback={
+                <For each={activeRows()}>
+                  {(row, index) => <RenderRow row={row} index={index()} />}
+                </For>
+              }
             >
               {(virtualRender) => (
                 <Dynamic
                   component={virtualRender()}
                   entries={activeRows()}
                   scrollElement={scrollContainer()}
-                  render={(row: Row<any, TData>, _index: number, rowProps?: any) => (
-                    <RenderRow row={row} rowProps={rowProps} />
+                  render={(row: Row<any, TData>, index: number, rowProps?: any) => (
+                    <RenderRow row={row} index={index} rowProps={rowProps} />
                   )}
                 />
               )}
@@ -734,17 +759,14 @@ export function DataTable<
                         <td
                           data-slot="data-table-cell"
                           colSpan={header.colSpan}
+                          {...dataTableDataAttributes.cell({
+                            pinned: pin,
+                            pinnedEdge: () => pinnedEdge(header.column),
+                          })}
                           {...slotWith('cell', () => ({
                             class: [
                               DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                               truncated() && 'truncate',
-                              Boolean(pin()) && 'bg-background',
-                              isStart() &&
-                                isLastPinnedStart(header.column) &&
-                                'shadow-[inset_-1px_0_0_var(--color-border)]',
-                              isEnd() &&
-                                isFirstPinnedEnd(header.column) &&
-                                'shadow-[inset_1px_0_0_var(--color-border)]',
                               meta()?.class,
                             ],
                             style: {
@@ -782,14 +804,15 @@ export function DataTable<
 
       <Show when={!isVirtualized() && local.pagination}>
         <div data-slot="data-table-pagination" {...slots.pagination}>
-          <div class="text-sm text-muted-foreground">
+          <div class={DATA_TABLE_PAGINATION_INFO_CLASS}>
             <Show when={local.selectable}>
               {activeTable().getFilteredSelectedRowModel().rows.length} of {totalRowCount()} row(s)
               selected.
             </Show>
           </div>
-          <div class="flex gap-2 items-center">
+          <div class={DATA_TABLE_PAGINATION_CONTROLS_CLASS}>
             <Pagination
+              size={local.size}
               page={currentPageIndex() + 1}
               total={totalRowCount()}
               itemsPerPage={currentPageSize()}

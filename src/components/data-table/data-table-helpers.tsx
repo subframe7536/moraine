@@ -30,7 +30,14 @@ import { Show } from 'solid-js'
 import { Checkbox } from '../checkbox'
 import { Icon } from '../icon'
 
-import { dataTableDataAttributes } from './data-table.recipe'
+import {
+  DATA_TABLE_EXPAND_BUTTON_CLASS,
+  DATA_TABLE_EXPAND_PLACEHOLDER_CLASS,
+  DATA_TABLE_RADIO_CLASS,
+  DATA_TABLE_RADIO_INDICATOR_CLASS,
+  DATA_TABLE_RADIO_WRAPPER_CLASS,
+  dataTableDataAttributes,
+} from './data-table.recipe'
 
 function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) {
   const { pagination = true } = options
@@ -151,11 +158,12 @@ export function createSelectColumn<
             />
           }
         >
-          <div class="flex items-center justify-center">
+          <div class={DATA_TABLE_RADIO_WRAPPER_CLASS}>
             <div
               role="radio"
               aria-checked={isSelected()}
               aria-disabled={!canSelect()}
+              aria-label="Select row"
               tabIndex={canSelect() ? 0 : -1}
               onClick={(e) => {
                 e.stopPropagation()
@@ -172,12 +180,9 @@ export function createSelectColumn<
                   }
                 }
               }}
-              class="outline-none border border-input rounded-full bg-control inline-flex size-4 cursor-pointer transition-colors items-center justify-center aria-checked:text-primary-foreground aria-checked:border-primary aria-checked:bg-primary aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
-              aria-label="Select row"
+              class={DATA_TABLE_RADIO_CLASS}
             >
-              <span
-                class={`rounded-full bg-primary-foreground size-1.5 transition-transform ${isSelected() ? 'scale-100' : 'scale-0'}`}
-              />
+              <span class={DATA_TABLE_RADIO_INDICATOR_CLASS} />
             </div>
           </div>
         </Show>
@@ -200,7 +205,9 @@ export function createSelectColumn<
 export function createExpandColumn<
   TFeatures extends TableFeatures = TableFeatures,
   TData extends RowData = RowData,
->(): ColumnDef<TFeatures, TData> {
+>(options?: {
+  expandButton?: { readonly class?: string; readonly style?: JSX.CSSProperties }
+}): ColumnDef<TFeatures, TData> {
   return {
     id: 'expand',
     header: (): JSX.Element => null,
@@ -209,7 +216,7 @@ export function createExpandColumn<
       const isExpanded = () => props.row.getIsExpanded?.() ?? false
 
       return (
-        <Show when={canExpand()} fallback={<div class="w-6" />}>
+        <Show when={canExpand()} fallback={<div class={DATA_TABLE_EXPAND_PLACEHOLDER_CLASS} />}>
           <button
             type="button"
             data-slot="data-table-expand-button"
@@ -220,7 +227,7 @@ export function createExpandColumn<
               e.stopPropagation()
               props.row.toggleExpanded?.()
             }}
-            class="text-muted-foreground p-0 rounded inline-flex size-6 cursor-pointer transition-transform items-center justify-center hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-expanded:rotate-90"
+            {...(options?.expandButton ?? { class: DATA_TABLE_EXPAND_BUTTON_CLASS })}
           >
             <Icon name="icon-chevron-right" class="size-4" />
           </button>
