@@ -1,6 +1,6 @@
+import { Badge, DataTable } from '@src'
+import { createTableVirtualizer } from '@src/virtualizer'
 import type { ColumnDef, Row } from '@tanstack/solid-table'
-import { Badge, DataTable } from 'moraine'
-import { createTableVirtualizer } from 'moraine/virtualizer'
 
 interface TaskRecord {
   id: number

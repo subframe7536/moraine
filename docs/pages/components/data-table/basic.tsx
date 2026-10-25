@@ -1,5 +1,5 @@
+import { DataTable } from '@src'
 import type { ColumnDef } from '@tanstack/solid-table'
-import { DataTable } from 'moraine'
 
 interface User {
   id: string

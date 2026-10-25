@@ -1,4 +1,4 @@
-import { Badge, Button, Checkbox, DropdownMenu, Input, Table } from '@src'
+import { Badge, Button, Checkbox, DropdownMenu, Input, Table, Pagination } from '@src'
 import type { BadgeT, DropdownMenuT } from '@src'
 import {
   columnFilteringFeature,
@@ -23,7 +23,6 @@ import type {
   RowSelectionState,
   SortingState,
 } from '@tanstack/solid-table'
-import { Pagination } from 'moraine'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 
 export interface Payment {
