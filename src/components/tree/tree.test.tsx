@@ -927,6 +927,10 @@ describe('createTree', () => {
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
       expect(row?.className).toContain('data-entering:animate-tree-item-in')
+      expect(row?.className).toContain('ring-inset')
+      expect(row?.className).toContain(
+        'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
+      )
       expect(item(container, 'docs').className).not.toContain('animate-tree-item-in')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
