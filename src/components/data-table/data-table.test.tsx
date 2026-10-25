@@ -273,6 +273,20 @@ describe('DataTable', () => {
     expect(screen.getByText('Diana')).toBeDefined()
   })
 
+  it('renders all rows when pagination is not enabled even with more than 10 rows', () => {
+    const twentyRows = Array.from({ length: 20 }, (_, i) => ({
+      id: String(i + 1),
+      name: `Person ${i + 1}`,
+      age: 20 + i,
+      role: 'Staff',
+    }))
+
+    render(() => <DataTable data={twentyRows} columns={TEST_COLUMNS} />)
+
+    // 20 data rows + 1 header row = 21 rows
+    expect(screen.getAllByRole('row').length).toBe(21)
+  })
+
   it('renders virtualized rows with virtualRender adapter', async () => {
     const virtualizer = createTableVirtualizer<Row<any, Person>>({
       estimateSize: () => 30,
@@ -301,5 +315,36 @@ describe('DataTable', () => {
     const renderedRows = tbody.querySelectorAll('tr[data-index]')
     expect(renderedRows.length).toBeLessThan(50)
     expect(renderedRows.length).toBeGreaterThan(0)
+
+    const table = container.querySelector('table')!
+    expect(table.getAttribute('aria-rowcount')).toBe('51')
+  })
+
+  it('excludes pagination feature in getDefaultDataTableFeatures when pagination: false', () => {
+    const defaultFeatures = getDefaultDataTableFeatures()
+    expect('rowPaginationFeature' in defaultFeatures).toBe(true)
+    expect('paginatedRowModel' in defaultFeatures).toBe(true)
+
+    const unpaginatedFeatures = getDefaultDataTableFeatures({ pagination: false })
+    expect('rowPaginationFeature' in unpaginatedFeatures).toBe(false)
+    expect('paginatedRowModel' in unpaginatedFeatures).toBe(false)
+  })
+
+  it('does not render pagination toolbar when virtualRender is setup even if pagination is true', () => {
+    const virtualizer = createTableVirtualizer<Row<any, Person>>({
+      estimateSize: () => 30,
+      measureElement: () => 30,
+    })
+
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        virtualRender={virtualizer.virtualRender}
+        pagination
+      />
+    ))
+
+    expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
   })
 })

@@ -24,9 +24,34 @@ import type { JSX } from 'solid-js'
 
 import { Checkbox } from '../checkbox'
 
-let _defaultFeatures: ReturnType<typeof createDefaultDataTableFeatures> | undefined
+function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) {
+  const { pagination = true } = options
 
-function createDefaultDataTableFeatures() {
+  if (!pagination) {
+    return tableFeatures({
+      rowSortingFeature,
+      sortedRowModel: createSortedRowModel(),
+      sortFns: {
+        alphanumeric: sortFn_alphanumeric,
+        text: sortFn_text,
+        datetime: sortFn_datetime,
+      },
+      columnFilteringFeature,
+      filteredRowModel: createFilteredRowModel(),
+      filterFns: {
+        includesString: filterFn_includesString,
+        inNumberRange: filterFn_inNumberRange,
+        equals: filterFn_equals,
+        arrIncludes: filterFn_arrIncludes,
+        inDateRange: filterFn_inDateRange,
+        weakEquals: filterFn_weakEquals,
+      },
+      columnVisibilityFeature,
+      columnSizingFeature,
+      rowSelectionFeature,
+    })
+  }
+
   return tableFeatures({
     rowSortingFeature,
     sortedRowModel: createSortedRowModel(),
@@ -53,9 +78,17 @@ function createDefaultDataTableFeatures() {
   })
 }
 
+let _defaultFeatures: ReturnType<typeof createDefaultDataTableFeatures> | undefined
+let _unpaginatedFeatures: ReturnType<typeof createDefaultDataTableFeatures> | undefined
+
 /** Returns the lazily-initialized standard table features for convenience mode. */
-export function getDefaultDataTableFeatures(): ReturnType<typeof createDefaultDataTableFeatures> {
-  return (_defaultFeatures ??= createDefaultDataTableFeatures())
+export function getDefaultDataTableFeatures(options?: {
+  pagination?: boolean
+}): ReturnType<typeof createDefaultDataTableFeatures> {
+  if (options?.pagination === false) {
+    return (_unpaginatedFeatures ??= createDefaultDataTableFeatures({ pagination: false }))
+  }
+  return (_defaultFeatures ??= createDefaultDataTableFeatures({ pagination: true }))
 }
 
 export type DefaultDataTableFeatures = ReturnType<typeof getDefaultDataTableFeatures>

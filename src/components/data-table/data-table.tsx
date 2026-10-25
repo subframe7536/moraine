@@ -116,8 +116,10 @@ export function DataTable<
     return raw ?? []
   }
 
+  const isVirtualized = () => local.virtualRender !== undefined
+
   const internalTable = createTable({
-    features: getDefaultDataTableFeatures(),
+    features: getDefaultDataTableFeatures({ pagination: !isVirtualized() }),
     get columns() {
       return resolvedColumns()
     },
@@ -128,7 +130,7 @@ export function DataTable<
       return local.rowCount
     },
     get manualPagination() {
-      return local.manualPagination
+      return isVirtualized() ? undefined : local.manualPagination
     },
     get manualSorting() {
       return local.manualSorting
@@ -145,7 +147,7 @@ export function DataTable<
         return local.selectable ? rowSelection() : undefined
       },
       get pagination() {
-        return local.pagination ? pagination() : undefined
+        return !isVirtualized() && local.pagination ? pagination() : undefined
       },
     },
     onSortingChange: (updater) => {
@@ -164,6 +166,9 @@ export function DataTable<
       setRowSelection(next)
     },
     onPaginationChange: (updater) => {
+      if (isVirtualized()) {
+        return
+      }
       const current = pagination()
       const next = typeof updater === 'function' ? updater(current) : updater
       if (next.pageIndex === current.pageIndex && next.pageSize === current.pageSize) {
@@ -175,6 +180,18 @@ export function DataTable<
 
   const activeTable = (): SolidTable<any, TData> =>
     (local.table as unknown as SolidTable<any, TData>) ?? internalTable
+
+  const activeRows = (): Row<any, TData>[] => {
+    const table = activeTable()
+    if (
+      !isVirtualized() &&
+      !local.pagination &&
+      typeof table.getPrePaginatedRowModel === 'function'
+    ) {
+      return table.getPrePaginatedRowModel().rows
+    }
+    return table.getRowModel().rows
+  }
 
   const leafColCount = (): number => {
     const cols = activeTable().getVisibleLeafColumns()
@@ -201,14 +218,15 @@ export function DataTable<
   })
 
   const handlePageSizeChange = (size: number) => {
-    activeTable().setPagination((prev) => ({ ...prev, pageSize: size, pageIndex: 0 }))
+    activeTable().setPagination?.((prev) => ({ ...prev, pageSize: size, pageIndex: 0 }))
   }
 
   const handlePageChange = (page: number) => {
-    activeTable().setPageIndex(page - 1)
+    activeTable().setPageIndex?.(page - 1)
   }
 
-  const totalRowCount = () => local.rowCount ?? activeTable().getRowCount()
+  const totalRowCount = () =>
+    local.rowCount ?? activeTable().getRowCount?.() ?? activeTable().getRowModel().rows.length
 
   function RenderEmpty(): JSX.Element {
     return (
@@ -366,7 +384,7 @@ export function DataTable<
 
         <tbody data-slot="data-table-body" {...slots.body}>
           <Show
-            when={activeTable().getRowModel().rows.length > 0}
+            when={activeRows().length > 0}
             fallback={
               <tr data-slot="data-table-row" {...slots.row}>
                 <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
@@ -377,16 +395,12 @@ export function DataTable<
           >
             <Show
               when={local.virtualRender}
-              fallback={
-                <For each={activeTable().getRowModel().rows}>
-                  {(row) => <RenderRow row={row} />}
-                </For>
-              }
+              fallback={<For each={activeRows()}>{(row) => <RenderRow row={row} />}</For>}
             >
               {(virtualRender) => (
                 <Dynamic
                   component={virtualRender()}
-                  entries={activeTable().getRowModel().rows}
+                  entries={activeRows()}
                   scrollElement={scrollContainer()}
                   render={(row: Row<any, TData>, _index: number, rowProps?: any) => (
                     <RenderRow row={row} rowProps={rowProps} />
@@ -438,7 +452,7 @@ export function DataTable<
         </Show>
       </table>
 
-      <Show when={local.pagination}>
+      <Show when={!isVirtualized() && local.pagination}>
         <div data-slot="data-table-pagination" {...slots.pagination}>
           <div class="text-sm text-muted-foreground">
             <Show when={local.selectable}>
