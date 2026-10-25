@@ -38,7 +38,16 @@ export function TriggerExpand() {
 
   return (
     <div class="max-w-sm w-full space-y-2">
-      <tree.Tree aria-label="Project files" />
+      <tree.Tree
+        aria-label="Project files"
+        itemRender={(context) => (
+          <tree.Item item={context.item}>
+            <tree.ItemTrigger />
+            <tree.ItemIcon icon={context.item.hasChildren ? 'icon-folder' : 'icon-file'} />
+            <tree.ItemLabel />
+          </tree.Item>
+        )}
+      />
       <p class="text-xs text-muted-foreground">
         Click the chevron to expand or collapse a folder. Clicking the row only selects it.
       </p>

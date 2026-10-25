@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, on } from 'solid-js'
 import { createStore, unwrap } from 'solid-js/store'
 
 import { createTreeRoot } from './tree'
@@ -15,8 +15,6 @@ import { buildRegistry, flattenKeys, getAncestorKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
 import { createTreeSelection } from './tree-selection'
 import type { TreeT } from './tree.types'
-
-const ENTERING_DURATION = 600
 
 function sameKeys(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((key, index) => key === right[index])
@@ -123,25 +121,6 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
 
   const loadingSet = createMemo(() => new Set(store.loadingKeys))
 
-  const [enteringKeys, setEnteringKeys] = createSignal<ReadonlySet<string>>(new Set())
-  let enteringTimer: ReturnType<typeof setTimeout> | undefined
-  createEffect(
-    on(flattenedKeys, (keys, previous) => {
-      if (!previous || previous.length === 0) {
-        return
-      }
-      const known = new Set(previous)
-      const added = keys.filter((key) => !known.has(key))
-      if (added.length === 0) {
-        return
-      }
-      setEnteringKeys(new Set(added))
-      clearTimeout(enteringTimer)
-      enteringTimer = setTimeout(() => setEnteringKeys(new Set()), ENTERING_DURATION)
-    }),
-  )
-  onCleanup(() => clearTimeout(enteringTimer))
-
   createEffect(
     on([registry, expansion.expandedKeys], ([current, keys]) => {
       for (const key of keys) {
@@ -185,7 +164,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     isSelected: selection.isSelected,
     isLoading: (key) => loadingSet().has(key),
     isFocused: (key) => navigation.tabStopKey() === key && store.focusedKey === key,
-    isEntering: (key) => enteringKeys().has(key),
+    isEntering: () => false,
     isTabStop: (key) => navigation.tabStopKey() === key,
     getCheckedState: checked.getState,
     setChecked: checked.setChecked,

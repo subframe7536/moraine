@@ -80,6 +80,18 @@ function press(element: HTMLElement, key: string, init: KeyboardEventInit = {}):
   fireEvent.keyDown(element, { key, ...init })
 }
 
+function triggerOf(element: HTMLElement): HTMLElement {
+  const trigger = element.querySelector<HTMLElement>('[data-slot="tree-trigger"]')
+  if (!trigger) {
+    throw new Error(`No trigger in ${element.getAttribute('aria-label') ?? 'item'}`)
+  }
+  return trigger
+}
+
+function clickTrigger(element: HTMLElement): void {
+  fireEvent.click(triggerOf(element))
+}
+
 describe('createTree', () => {
   describe('structure and aria', () => {
     test('renders a tree with levels, positions, and expansion state', () => {
@@ -157,37 +169,72 @@ describe('createTree', () => {
   })
 
   describe('expansion', () => {
-    test('toggles on row click and unmounts collapsed children', () => {
-      const { container } = render(() => <Harness />)
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
 
-      expect(labels(container)).not.toContain('components')
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
+    test('toggles on row click by default', () => {
+      const { container } = render(() => <Harness treeProps={{ transition: false }} />)
+      const src = item(container, 'src')
+
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(src.getAttribute('aria-selected')).toBe('true')
       expect(labels(container)).toContain('components')
 
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(labels(container)).not.toContain('components')
     })
 
-    test('does not toggle on row click when expandOnClick is false', () => {
-      const { container } = render(() => <Harness options={{ expandOnClick: false }} />)
+    test('selects on row click and toggles only from the trigger when expandOnClick is false', () => {
+      const { container } = render(() => (
+        <Harness options={{ expandOnClick: false }} treeProps={{ transition: false }} />
+      ))
+      const src = item(container, 'src')
 
-      fireEvent.click(item(container, 'src'))
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(src.getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).not.toContain('components')
 
-      const trigger = item(container, 'src').querySelector<HTMLElement>(
-        '[data-slot="tree-trigger"]',
-      )!
-      fireEvent.click(trigger)
-      expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
+      clickTrigger(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(src.getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).toContain('components')
+
+      clickTrigger(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+      expect(labels(container)).not.toContain('components')
     })
 
-    test('nested row clicks do not toggle their ancestors', () => {
+    test('nested trigger clicks do not toggle their ancestors', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
-      fireEvent.click(item(container, 'components'))
+      clickTrigger(item(container, 'components'))
       expect(item(container, 'components').getAttribute('aria-expanded')).toBe('true')
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
+    })
+
+    test('keeps a child mounted and selected after a row click', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
+
+      fireEvent.click(item(container, 'guide.md'))
+      expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
+      expect(item(container, 'guide.md').getAttribute('aria-selected')).toBe('true')
+      expect(labels(container)).toContain('guide.md')
+    })
+
+    test('keeps the trigger visible while a branch expands', () => {
+      const { container } = render(() => <Harness />)
+      const src = item(container, 'src')
+      const trigger = triggerOf(src)
+
+      expect(trigger.hasAttribute('data-leaf')).toBe(false)
+      clickTrigger(src)
+      expect(trigger.isConnected).toBe(true)
+      expect(trigger.hasAttribute('data-leaf')).toBe(false)
+      expect(trigger.querySelector('[data-slot="tree-trigger-icon"]')).not.toBeNull()
     })
 
     test('supports controlled expanded keys', () => {
@@ -204,7 +251,7 @@ describe('createTree', () => {
         />
       ))
 
-      fireEvent.click(item(container, 'docs'))
+      clickTrigger(item(container, 'docs'))
       expect(onExpandedChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
@@ -245,7 +292,7 @@ describe('createTree', () => {
         />
       ))
 
-      fireEvent.click(item(container, 'docs'))
+      clickTrigger(item(container, 'docs'))
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
@@ -262,19 +309,138 @@ describe('createTree', () => {
       expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
     })
 
-    test('keeps data-transition on nested content by default', () => {
+    test('omits data-transition on default-expanded nested content', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
-      const group = item(container, 'docs').querySelector('[role="group"]')!
-      expect(group.hasAttribute('data-transition')).toBe(true)
-    })
-
-    test('uses auto height until nested content has been measured', () => {
-      const { container } = render(() => <Harness />)
-
-      fireEvent.click(item(container, 'src'))
-      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      await Promise.resolve()
+      const group = item(container, 'docs').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.hasAttribute('data-expanded')).toBe(true)
+      expect(group.hasAttribute('data-transition')).toBe(false)
       expect(group.style.height).toBe('auto')
       expect(group.style.animation).toBe('none')
+    })
+
+    test('keeps sibling items mounted when a nested branch expands', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      await Promise.resolve()
+      const index = item(container, 'index.ts')
+      const srcGroup = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+
+      expect(labels(container)).toEqual([
+        'src',
+        'components',
+        'index.ts',
+        'docs',
+        'README.md',
+        'LICENSE',
+      ])
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.style.height).toBe('auto')
+
+      fireEvent.click(item(container, 'components'))
+      await Promise.resolve()
+
+      expect(item(container, 'components').getAttribute('aria-expanded')).toBe('true')
+      expect(item(container, 'index.ts')).toBe(index)
+      expect(index.isConnected).toBe(true)
+      expect(labels(container)).toEqual([
+        'src',
+        'components',
+        'button.tsx',
+        'checkbox.tsx',
+        'index.ts',
+        'docs',
+        'README.md',
+        'LICENSE',
+      ])
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.style.height).toBe('auto')
+      const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
+        '[role="group"]',
+      )!
+      expect(nestedGroup.hasAttribute('data-transition')).toBe(true)
+      expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
+      expect(nestedGroup.style.height).not.toBe('auto')
+    })
+
+    test('keeps a collapsed group ready for height motion', () => {
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      const group = item(container, 'components').querySelector<HTMLElement>('[role="group"]')!
+
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-expanded')).toBe(false)
+      expect(group.hasAttribute('data-closed')).toBe(true)
+      expect(group.hasAttribute('hidden')).toBe(false)
+    })
+
+    test('keeps the group visually closed until nested content has been measured', () => {
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-expanded')).toBe(false)
+      expect(group.hasAttribute('data-closed')).toBe(true)
+    })
+
+    test('enables height motion after a collapsed branch is measured', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.hasAttribute('data-expanded')).toBe(true)
+      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.hasAttribute('data-closed')).toBe(false)
+      expect(group.style.height).not.toBe('auto')
+    })
+
+    test('does not fade accordion-revealed children in', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(
+        item(container, 'components')
+          .querySelector('[data-slot="tree-row"]')
+          ?.hasAttribute('data-entering'),
+      ).toBe(false)
+    })
+
+    test('releases overflow clipping after height motion settles', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.style.overflow).not.toBe('visible')
+
+      fireEvent.animationEnd(group)
+      expect(group.style.overflow).toBe('visible')
+      expect(group.style.height).toBe('auto')
+    })
+
+    test('releases overflow after a default-expanded group is toggled', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      expect(group.style.overflow).toBe('visible')
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      expect(group.style.overflow).not.toBe('visible')
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      fireEvent.animationEnd(group)
+      expect(group.style.overflow).toBe('visible')
     })
   })
 
@@ -358,7 +524,7 @@ describe('createTree', () => {
       const { container } = setup()
       item(container, 'button.tsx').focus()
 
-      fireEvent.click(item(container, 'src'))
+      clickTrigger(item(container, 'src'))
       expect(document.activeElement).toBe(item(container, 'src'))
       expect(item(container, 'src').getAttribute('tabindex')).toBe('0')
     })
@@ -690,12 +856,12 @@ describe('createTree', () => {
       expect(remote.getAttribute('aria-expanded')).toBe('false')
       expect(item(container, 'file.txt').hasAttribute('aria-expanded')).toBe(false)
 
-      fireEvent.click(remote)
+      clickTrigger(remote)
       expect(loadChildren).toHaveBeenCalledTimes(1)
       expect(item(container, 'remote').getAttribute('aria-busy')).toBe('true')
       expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false')
 
-      fireEvent.click(item(container, 'remote'))
+      clickTrigger(item(container, 'remote'))
       expect(loadChildren).toHaveBeenCalledTimes(1)
 
       resolve([{ id: 'child', name: 'child.txt' }])
@@ -714,7 +880,7 @@ describe('createTree', () => {
         <LazyHarness loadChildren={() => Promise.reject(error)} options={{ onLoadChildrenError }} />
       ))
 
-      fireEvent.click(item(container, 'remote'))
+      clickTrigger(item(container, 'remote'))
       await waitFor(() => expect(onLoadChildrenError).toHaveBeenCalledTimes(1))
       expect(onLoadChildrenError.mock.calls[0]?.[0].error).toBe(error)
       expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false')
@@ -805,8 +971,19 @@ describe('createTree', () => {
         'var(--border)',
       )
       expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
+      expect(item(container, 'docs').className).toContain(
+        '[background-position:calc(0.25rem_+_var(--mo-tree-guide-offset,1rem))_0]',
+      )
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
+      expect(row?.className).toContain('data-entering:animate-tree-item-in')
+      expect(row?.className).toContain('mx-1')
+      expect(row?.className).toContain('[[role=treeitem]:focus-visible>&]:z-10')
+      expect(item(container, 'docs').className).toContain('focus-visible:z-10')
+      expect(row?.className).toContain(
+        'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
+      )
+      expect(item(container, 'docs').className).not.toContain('animate-tree-item-in')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
@@ -916,6 +1093,28 @@ describe('createTree', () => {
       await waitFor(() => expect(labels(container)).toContain('components'))
       expect(item(container, 'components').getAttribute('aria-level')).toBe('2')
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(item(container, 'components').className).not.toContain('animate-tree-item-in')
+    })
+
+    test('does not mark virtual rows as entering after a branch expands', async () => {
+      const treeProps = createVirtualTreeProps()
+      const { container } = render(() => <Harness treeProps={treeProps} />)
+      await waitFor(() => expect(labels(container)).toContain('src'))
+
+      clickTrigger(item(container, 'src'))
+      await waitFor(() => expect(labels(container)).toContain('components'))
+
+      expect(item(container, 'src').hasAttribute('data-entering')).toBe(false)
+      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
+      expect(
+        item(container, 'components').querySelector('[data-slot="tree-row"]')?.className,
+      ).toContain('data-entering:animate-tree-item-in')
+      expect(
+        item(container, 'components')
+          .querySelector('[data-slot="tree-row"]')
+          ?.hasAttribute('data-entering'),
+      ).toBe(false)
     })
 
     test('collapses a flattened branch back out of the virtual list', async () => {
@@ -925,7 +1124,7 @@ describe('createTree', () => {
       ))
       await waitFor(() => expect(labels(container)).toContain('components'))
 
-      fireEvent.click(item(container, 'src'))
+      clickTrigger(item(container, 'src'))
       await waitFor(() => {
         expect(item(container, 'src').getAttribute('aria-expanded')).toBe('false')
         expect(labels(container)).not.toContain('components')

@@ -8,11 +8,13 @@ import {
   on,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
+import { createEventListenerMap } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
@@ -42,12 +44,20 @@ function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) 
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
+  const startedOpen = untrack(() => props.item.isExpanded)
+  const [lastHeight, setLastHeight] = createSignal(0)
+  const [hasClosed, setHasClosed] = createSignal(false)
+  const [groupEl, setGroupEl] = createSignal<HTMLElement>()
+  const [motionSettled, setMotionSettled] = createSignal(startedOpen)
+  const skipEnter = () => startedOpen && !hasClosed()
+  const allowHeightMotion = () => context.transition && !skipEnter()
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition: () => context.transition,
     unmountOnHide: () => context.unmountOnHide,
   })
-  const [lastHeight, setLastHeight] = createSignal(0)
+  const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
+  const visualExpanded = () => disclosure.open() && (skipEnter() || hasMeasuredHeight())
   createEffect(
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
@@ -55,7 +65,41 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       }
     }),
   )
-  const unmeasured = () => lastHeight() === 0
+  createEffect(
+    on(disclosure.open, (isOpen, wasOpen) => {
+      if (wasOpen && !isOpen) {
+        setHasClosed(true)
+        setMotionSettled(false)
+      }
+    }),
+  )
+  createEffect(
+    on(groupEl, (element) => {
+      if (!element) {
+        return
+      }
+      const settle = (event: AnimationEvent) => {
+        if (event.target !== element || !disclosure.open()) {
+          return
+        }
+        setMotionSettled(true)
+      }
+      createEventListenerMap(element, {
+        animationend: settle,
+        animationcancel: settle,
+      })
+    }),
+  )
+  createEffect(
+    on(visualExpanded, (expanded) => {
+      if (!expanded || untrack(() => !allowHeightMotion() || skipEnter())) {
+        return
+      }
+      if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+        setMotionSettled(true)
+      }
+    }),
+  )
   const { slots } = useRecipe(
     treeRecipe,
     {},
@@ -67,34 +111,40 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       vars: () => ({
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
-      enforced: () => ({
-        content: {
-          style: {
-            animation:
-              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'none' : undefined,
-            height:
-              disclosure.initialOpen() || (disclosure.open() && unmeasured()) ? 'auto' : undefined,
-          },
-        },
-      }),
+      enforced: () => {
+        if (!context.transition || skipEnter() || motionSettled()) {
+          return {
+            content: {
+              style: {
+                animation: 'none',
+                height: disclosure.open() ? 'auto' : undefined,
+                overflow: 'visible',
+              },
+            },
+          }
+        }
+        return {}
+      },
     },
   )
 
   return (
     <div
       ref={(element) => {
+        setGroupEl(element)
         onCleanup(disclosure.registerPresenceElement(element))
+        onCleanup(() => setGroupEl((current) => (current === element ? undefined : current)))
       }}
       role="group"
       aria-hidden={disclosure.ariaHidden()}
-      hidden={disclosure.hidden()}
+      hidden={disclosure.hidden() && !allowHeightMotion()}
       inert={disclosure.inert()}
       data-slot="tree-content"
       {...slots.content}
       {...treeDataAttributes.content({
-        closed: disclosure.closed,
-        expanded: disclosure.open,
-        transition: disclosure.transition,
+        closed: () => !visualExpanded(),
+        expanded: visualExpanded,
+        transition: allowHeightMotion,
       })}
     >
       <Show when={disclosure.shouldMount()}>
@@ -163,7 +213,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         {...treeDataAttributes.item({
           checked: () => local.item.checkedState === 'checked',
           disabled: () => local.item.isDisabled,
-          entering: () => local.item.isEntering,
+          entering: () => !context.isVirtual && local.item.isEntering,
           expanded: () => local.item.isExpanded,
           indeterminate: () => local.item.checkedState === 'indeterminate',
           leaf,
@@ -200,6 +250,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           {...slots.row}
           {...treeDataAttributes.row({
             disabled: () => local.item.isDisabled,
+            entering: () => !context.isVirtual && local.item.isEntering,
             expanded: () => local.item.isExpanded,
             leaf,
             selected: () => local.item.isSelected,
