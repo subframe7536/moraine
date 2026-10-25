@@ -133,6 +133,7 @@ export const moraineTailwind = plugin(
           'required',
           'resizable-handle-end-target',
           'resizable-handle-start-target',
+          'resizing',
           'selected',
           'scroll',
           'shadow-end',

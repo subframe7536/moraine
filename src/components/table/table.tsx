@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import { createMemo, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 
@@ -30,6 +30,7 @@ export function Table(props: TableT.Props): JSX.Element {
     'children',
   ])
   const { slots, variants } = useRecipe(tableRecipe, local)
+  const slotOverrides = createMemo(() => ({ classes: local.classes, styles: local.styles }))
 
   return (
     <TableProvider
@@ -47,7 +48,7 @@ export function Table(props: TableT.Props): JSX.Element {
           return variants.showBorder
         },
         get slotOverrides() {
-          return { classes: local.classes, styles: local.styles }
+          return slotOverrides()
         },
       }}
     >

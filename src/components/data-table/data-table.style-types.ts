@@ -25,6 +25,14 @@ export interface DataTableStyleSlot<T = unknown> {
   sortIcon?: T
   /** Pagination toolbar container. */
   pagination?: T
+  /** Drag resize handle on column headers. */
+  resizer?: T
+  /** Expanded detail row (`tr`). */
+  expandedRow?: T
+  /** Expanded detail cell container (`td`). */
+  expandedCell?: T
+  /** Expand/collapse chevron toggle button. */
+  expandButton?: T
 }
 
 export type DataTableStyleVariants = {
@@ -36,4 +44,6 @@ export type DataTableStyleVariants = {
   hoverEffect?: boolean
   /** Border divider layout. @default 'row' */
   showBorder?: 'row' | 'col' | 'both'
+  /** Whether the table header sticks to the top of the container during scrolling. @default false */
+  stickyHeader?: boolean
 }

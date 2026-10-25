@@ -36,10 +36,18 @@ export namespace DataTableT {
     _TFeatures extends TableFeatures = TableFeatures,
   > = TableVirtualRenderProps<Row<any, TData>>
 
+  export type ColumnPinningPosition = 'left' | 'right'
+
+  export interface ColumnPinningState {
+    left?: string[]
+    right?: string[]
+  }
+
   export interface ColumnMeta {
     align?: 'left' | 'center' | 'right'
     truncated?: boolean
     class?: SlotClassValue
+    pinned?: ColumnPinningPosition
   }
 
   export interface Base<
@@ -56,6 +64,44 @@ export namespace DataTableT {
     loadingRender?: JSX.Element | Component<LoadingRenderProps>
     /** Custom empty state content rendered when there are no rows. */
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
+
+    /** Whether the table header sticks to the top of the container during scrolling. @default false */
+    stickyHeader?: boolean
+    /** Maximum height for the table scroll container (e.g. `400` or `'400px'`). */
+    maxHeight?: number | string
+
+    /** Enable column width resizing with drag handles. @default false */
+    resizable?: boolean
+    /** Resize mode for columns: live on drag ('onChange') or on release ('onEnd'). @default 'onEnd' */
+    columnResizeMode?: 'onChange' | 'onEnd'
+
+    /** Initial column pinning state in convenience mode. */
+    defaultColumnPinning?: ColumnPinningState
+    /** Controlled column pinning state in convenience mode. */
+    currentColumnPinning?: ColumnPinningState
+    /** Callback fired when column pinning changes in convenience mode. */
+    onColumnPinningChange?: (pinning: ColumnPinningState) => void
+
+    /** Callback to determine if a specific row can be selected. When false, the row checkbox/radio is disabled. */
+    isRowSelectable?: (row: Row<TFeatures, TData>) => boolean
+
+    /** Enable expandable rows in convenience mode. @default false */
+    expandable?: boolean
+    /** Custom content rendered inside the expanded sub-row. */
+    expandedRowRender?: (row: Row<TFeatures, TData>) => JSX.Element
+    /** Whether to automatically prepend an expand chevron toggle column. @default true when expandable or expandedRowRender is provided */
+    expandColumn?: boolean
+    /** Initial expanded rows state in convenience mode. */
+    defaultExpanded?: Record<string, boolean> | boolean
+    /** Controlled expanded rows state in convenience mode. */
+    currentExpanded?: Record<string, boolean> | boolean
+    /** Callback fired when expanded rows change in convenience mode. */
+    onExpandedChange?: (expanded: Record<string, boolean> | boolean) => void
+
+    /** Callback fired when a table body row is clicked. */
+    onRowClick?: (row: Row<TFeatures, TData>, event: MouseEvent) => void
+    /** Callback fired when a table body row is double-clicked. */
+    onRowDoubleClick?: (row: Row<TFeatures, TData>, event: MouseEvent) => void
 
     // --- Instance Mode ---
     /** Existing TanStack Solid Table instance. */

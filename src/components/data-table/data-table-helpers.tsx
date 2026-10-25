@@ -1,7 +1,10 @@
 import {
   columnFilteringFeature,
+  columnPinningFeature,
+  columnResizingFeature,
   columnSizingFeature,
   columnVisibilityFeature,
+  createExpandedRowModel,
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
@@ -11,6 +14,7 @@ import {
   filterFn_inNumberRange,
   filterFn_includesString,
   filterFn_weakEquals,
+  rowExpandingFeature,
   rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
@@ -21,8 +25,12 @@ import {
 } from '@tanstack/solid-table'
 import type { ColumnDef, RowData, TableFeatures } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
+import { Show } from 'solid-js'
 
 import { Checkbox } from '../checkbox'
+import { Icon } from '../icon'
+
+import { dataTableDataAttributes } from './data-table.recipe'
 
 function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) {
   const { pagination = true } = options
@@ -48,6 +56,10 @@ function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) 
       },
       columnVisibilityFeature,
       columnSizingFeature,
+      columnPinningFeature,
+      columnResizingFeature,
+      rowExpandingFeature,
+      expandedRowModel: createExpandedRowModel(),
       rowSelectionFeature,
     })
   }
@@ -74,6 +86,10 @@ function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) 
     paginatedRowModel: createPaginatedRowModel(),
     columnVisibilityFeature,
     columnSizingFeature,
+    columnPinningFeature,
+    columnResizingFeature,
+    rowExpandingFeature,
+    expandedRowModel: createExpandedRowModel(),
     rowSelectionFeature,
   })
 }
@@ -94,36 +110,127 @@ export function getDefaultDataTableFeatures(options?: {
 export type DefaultDataTableFeatures = ReturnType<typeof getDefaultDataTableFeatures>
 
 /**
- * Creates a column definition for row selection checkboxes with indeterminate select-all header.
+ * Creates a column definition for row selection checkboxes or radio buttons with select-all header.
  */
 export function createSelectColumn<
   TFeatures extends TableFeatures = TableFeatures,
   TData extends RowData = RowData,
->(): ColumnDef<TFeatures, TData> {
+>(options?: { mode?: 'single' | 'multiple' }): ColumnDef<TFeatures, TData> {
+  const isSingle = options?.mode === 'single'
+
   return {
     id: 'select',
     header: (props: any): JSX.Element => (
-      <Checkbox
-        checked={
-          props.table.getIsAllPageRowsSelected?.()
-            ? true
-            : props.table.getIsSomePageRowsSelected?.()
-              ? 'indeterminate'
-              : false
-        }
-        onCheckedChange={(val) => props.table.toggleAllPageRowsSelected?.(val === true)}
-        aria-label="Select all rows"
-      />
+      <Show when={!isSingle}>
+        <Checkbox
+          checked={
+            props.table.getIsAllPageRowsSelected?.()
+              ? true
+              : props.table.getIsSomePageRowsSelected?.()
+                ? 'indeterminate'
+                : false
+          }
+          onCheckedChange={(val) => props.table.toggleAllPageRowsSelected?.(val === true)}
+          aria-label="Select all rows"
+        />
+      </Show>
     ),
-    cell: (props: any): JSX.Element => (
-      <Checkbox
-        checked={props.row.getIsSelected?.() ?? false}
-        onCheckedChange={(val) => props.row.toggleSelected?.(val === true)}
-        aria-label="Select row"
-      />
-    ),
+    cell: (props: any): JSX.Element => {
+      const canSelect = () => props.row.getCanSelect?.() ?? true
+      const isSelected = () => props.row.getIsSelected?.() ?? false
+
+      return (
+        <Show
+          when={isSingle}
+          fallback={
+            <Checkbox
+              checked={isSelected()}
+              disabled={!canSelect()}
+              onCheckedChange={(val) => props.row.toggleSelected?.(val === true)}
+              aria-label="Select row"
+            />
+          }
+        >
+          <div class="flex items-center justify-center">
+            <div
+              role="radio"
+              aria-checked={isSelected()}
+              aria-disabled={!canSelect()}
+              tabIndex={canSelect() ? 0 : -1}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (canSelect()) {
+                  props.row.toggleSelected?.(true)
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (canSelect()) {
+                    props.row.toggleSelected?.(true)
+                  }
+                }
+              }}
+              class="outline-none border border-input rounded-full bg-control inline-flex size-4 cursor-pointer transition-colors items-center justify-center aria-checked:text-primary-foreground aria-checked:border-primary aria-checked:bg-primary aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
+              aria-label="Select row"
+            >
+              <span
+                class={`rounded-full bg-primary-foreground size-1.5 transition-transform ${isSelected() ? 'scale-100' : 'scale-0'}`}
+              />
+            </div>
+          </div>
+        </Show>
+      )
+    },
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
+    size: 40,
+    meta: {
+      align: 'center',
+      class: 'w-10 px-2',
+    },
+  } as unknown as ColumnDef<TFeatures, TData>
+}
+
+/**
+ * Creates a column definition for row expansion chevron toggle buttons.
+ */
+export function createExpandColumn<
+  TFeatures extends TableFeatures = TableFeatures,
+  TData extends RowData = RowData,
+>(): ColumnDef<TFeatures, TData> {
+  return {
+    id: 'expand',
+    header: (): JSX.Element => null,
+    cell: (props: any): JSX.Element => {
+      const canExpand = () => props.row.getCanExpand?.() ?? true
+      const isExpanded = () => props.row.getIsExpanded?.() ?? false
+
+      return (
+        <Show when={canExpand()} fallback={<div class="w-6" />}>
+          <button
+            type="button"
+            data-slot="data-table-expand-button"
+            aria-label={isExpanded() ? 'Collapse row' : 'Expand row'}
+            aria-expanded={isExpanded()}
+            {...dataTableDataAttributes.expandButton({ expanded: isExpanded })}
+            onClick={(e) => {
+              e.stopPropagation()
+              props.row.toggleExpanded?.()
+            }}
+            class="text-muted-foreground p-0 rounded inline-flex size-6 cursor-pointer transition-transform items-center justify-center hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring data-expanded:rotate-90"
+          >
+            <Icon name="icon-chevron-right" class="size-4" />
+          </button>
+        </Show>
+      )
+    },
+    enableSorting: false,
+    enableHiding: false,
+    enableResizing: false,
+    size: 40,
     meta: {
       align: 'center',
       class: 'w-10 px-2',

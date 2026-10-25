@@ -38,6 +38,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "columnResizeMode",
+          "optional": true,
+          "type": "'onChange' | 'onEnd'",
+          "description": "Resize mode for columns: live on drag ('onChange') or on release ('onEnd').",
+          "default": {
+            "kind": "literal",
+            "value": "onEnd"
+          }
+        },
+        {
           "name": "columns",
           "optional": true,
           "type": "readonly ColumnDef<TFeatures, TData>[]",
@@ -48,6 +58,18 @@
           "optional": true,
           "type": "Ref<HTMLDivElement>",
           "description": "Ref forwarded to the outer scroll container element."
+        },
+        {
+          "name": "currentColumnPinning",
+          "optional": true,
+          "type": "ColumnPinningState",
+          "description": "Controlled column pinning state in convenience mode."
+        },
+        {
+          "name": "currentExpanded",
+          "optional": true,
+          "type": "Record<string, boolean> | boolean",
+          "description": "Controlled expanded rows state in convenience mode."
         },
         {
           "name": "currentPagination",
@@ -74,6 +96,18 @@
           "description": "Reactive dataset or accessor rendered when no external table instance is provided."
         },
         {
+          "name": "defaultColumnPinning",
+          "optional": true,
+          "type": "ColumnPinningState",
+          "description": "Initial column pinning state in convenience mode."
+        },
+        {
+          "name": "defaultExpanded",
+          "optional": true,
+          "type": "Record<string, boolean> | boolean",
+          "description": "Initial expanded rows state in convenience mode."
+        },
+        {
           "name": "defaultPagination",
           "optional": true,
           "type": "PaginationState",
@@ -98,6 +132,32 @@
           "description": "Custom empty state content rendered when there are no rows."
         },
         {
+          "name": "expandable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Enable expandable rows in convenience mode.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "expandColumn",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to automatically prepend an expand chevron toggle column.",
+          "default": {
+            "kind": "expression",
+            "text": "true when expandable or expandedRowRender is provided"
+          }
+        },
+        {
+          "name": "expandedRowRender",
+          "optional": true,
+          "type": "(row: Row<TFeatures, TData>) => JSX.Element",
+          "description": "Custom content rendered inside the expanded sub-row."
+        },
+        {
           "name": "hoverEffect",
           "optional": true,
           "type": "boolean",
@@ -106,6 +166,12 @@
             "kind": "literal",
             "value": false
           }
+        },
+        {
+          "name": "isRowSelectable",
+          "optional": true,
+          "type": "(row: Row<TFeatures, TData>) => boolean",
+          "description": "Callback to determine if a specific row can be selected. When false, the row checkbox/radio is disabled."
         },
         {
           "name": "loading",
@@ -138,10 +204,40 @@
           "description": "Whether sorting is handled externally (remote / server-side)."
         },
         {
+          "name": "maxHeight",
+          "optional": true,
+          "type": "number | string",
+          "description": "Maximum height for the table scroll container (e.g. `400` or `'400px'`)."
+        },
+        {
+          "name": "onColumnPinningChange",
+          "optional": true,
+          "type": "(pinning: ColumnPinningState) => void",
+          "description": "Callback fired when column pinning changes in convenience mode."
+        },
+        {
+          "name": "onExpandedChange",
+          "optional": true,
+          "type": "(expanded: Record<string, boolean> | boolean) => void",
+          "description": "Callback fired when expanded rows change in convenience mode."
+        },
+        {
           "name": "onPaginationChange",
           "optional": true,
           "type": "(pagination: PaginationState) => void",
           "description": "Callback fired when pagination changes in convenience mode."
+        },
+        {
+          "name": "onRowClick",
+          "optional": true,
+          "type": "(row: Row<TFeatures, TData>, event: MouseEvent) => void",
+          "description": "Callback fired when a table body row is clicked."
+        },
+        {
+          "name": "onRowDoubleClick",
+          "optional": true,
+          "type": "(row: Row<TFeatures, TData>, event: MouseEvent) => void",
+          "description": "Callback fired when a table body row is double-clicked."
         },
         {
           "name": "onRowSelectionChange",
@@ -170,6 +266,16 @@
           "optional": true,
           "type": "boolean",
           "description": "Enable bottom pagination controls in convenience mode.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "resizable",
+          "optional": true,
+          "type": "boolean",
+          "description": "Enable column width resizing with drag handles.",
           "default": {
             "kind": "literal",
             "value": false
@@ -238,6 +344,16 @@
           }
         },
         {
+          "name": "stickyHeader",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the table header sticks to the top of the container during scrolling.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "striped",
           "optional": true,
           "type": "boolean",
@@ -287,13 +403,29 @@
     "loading",
     "sortButton",
     "sortIcon",
-    "pagination"
+    "pagination",
+    "resizer",
+    "expandedRow",
+    "expandedCell",
+    "expandButton"
   ],
   "dataAttributes": [
     {
       "target": "row",
       "attributes": [
         "data-selected"
+      ]
+    },
+    {
+      "target": "resizer",
+      "attributes": [
+        "data-resizing"
+      ]
+    },
+    {
+      "target": "expandButton",
+      "attributes": [
+        "data-expanded"
       ]
     }
   ]

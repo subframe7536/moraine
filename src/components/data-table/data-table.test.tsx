@@ -347,4 +347,235 @@ describe('DataTable', () => {
 
     expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
   })
+
+  it('handles single row selection when selectable="single"', () => {
+    render(() => <DataTable data={TEST_DATA} columns={TEST_COLUMNS} selectable="single" />)
+
+    const radios = screen.getAllByRole('radio')
+    expect(radios.length).toBe(3)
+    // In single selection mode, no checkbox is in the header
+    expect(screen.queryByRole('checkbox')).toBeNull()
+
+    // Select first row
+    fireEvent.click(radios[0]!)
+    expect(radios[0]?.getAttribute('aria-checked')).toBe('true')
+    expect(radios[1]?.getAttribute('aria-checked')).toBe('false')
+
+    // Select second row (should automatically deselect first row)
+    fireEvent.click(radios[1]!)
+    expect(radios[0]?.getAttribute('aria-checked')).toBe('false')
+    expect(radios[1]?.getAttribute('aria-checked')).toBe('true')
+  })
+
+  it('respects isRowSelectable to disable selection on specific rows', () => {
+    render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        selectable
+        isRowSelectable={(row) => row.original.role !== 'Intern'}
+      />
+    ))
+
+    const checkboxes = screen.getAllByRole('checkbox')
+    // checkboxes[0] = select-all, checkboxes[1] = Alice, checkboxes[2] = Bob, checkboxes[3] = Charlie (Intern)
+    expect(checkboxes[1]?.getAttribute('disabled')).toBeNull()
+    expect(checkboxes[2]?.getAttribute('disabled')).toBeNull()
+    expect(checkboxes[3]?.getAttribute('disabled')).not.toBeNull()
+
+    // Clicking disabled row checkbox does not select it
+    fireEvent.click(checkboxes[3]!)
+    const bodyRows = screen.getAllByRole('row').slice(1)
+    expect(bodyRows[2]?.getAttribute('aria-selected')).toBe('false')
+  })
+
+  it('applies stickyHeader styles to th and supports maxHeight', () => {
+    const { container } = render(() => (
+      <DataTable data={TEST_DATA} columns={TEST_COLUMNS} stickyHeader maxHeight={300} />
+    ))
+
+    const scrollDiv = container.querySelector('[data-slot="data-table-container"]') as HTMLElement
+    expect(scrollDiv.style.maxHeight).toBe('300px')
+    expect(scrollDiv.style.overflowY).toBe('auto')
+
+    const table = container.querySelector('table') as HTMLElement
+    expect(table.className).toContain('border-separate')
+
+    const ths = container.querySelectorAll('thead th')
+    expect(ths.length).toBeGreaterThan(0)
+    for (const th of ths) {
+      expect((th as HTMLElement).style.position).toBe('sticky')
+      expect((th as HTMLElement).style.top).toBe('0px')
+      expect(th.className).toContain('bg-background')
+    }
+  })
+
+  it('supports columnPinning with sticky position and pixel offsets', () => {
+    const pinnedCols: ColumnDef<any, Person>[] = [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        meta: { pinned: 'left' },
+      },
+      {
+        accessorKey: 'age',
+        header: 'Age',
+      },
+      {
+        accessorKey: 'role',
+        header: 'Role',
+        meta: { pinned: 'right' },
+      },
+    ]
+
+    const { container } = render(() => <DataTable data={TEST_DATA} columns={pinnedCols} />)
+
+    const nameTh = container.querySelector('th[data-slot="data-table-head"]') as HTMLElement
+    expect(nameTh.style.position).toBe('sticky')
+    expect(nameTh.style.left).toBe('0px')
+    expect(nameTh.className).toContain('bg-background')
+
+    const nameTd = container.querySelector('tbody td[data-slot="data-table-cell"]') as HTMLElement
+    expect(nameTd.style.position).toBe('sticky')
+    expect(nameTd.style.left).toBe('0px')
+    expect(nameTd.className).toContain('bg-background')
+  })
+
+  it('renders column resize handles when resizable={true}', () => {
+    const { container } = render(() => (
+      <DataTable data={TEST_DATA} columns={TEST_COLUMNS} resizable />
+    ))
+
+    const resizers = container.querySelectorAll('[data-slot="data-table-resizer"]')
+    expect(resizers.length).toBe(TEST_COLUMNS.length)
+  })
+
+  it('supports expandable rows with expandedRowRender', () => {
+    render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        expandable
+        expandedRowRender={(row) => (
+          <div data-testid="detail-content">{row.original.name} details</div>
+        )}
+      />
+    ))
+
+    const expandButtons = screen.getAllByRole('button', { name: /expand row/i })
+    expect(expandButtons.length).toBe(3)
+
+    // Initially no detail content is rendered
+    expect(screen.queryByTestId('detail-content')).toBeNull()
+
+    // Click to expand first row
+    fireEvent.click(expandButtons[0]!)
+    expect(screen.getByTestId('detail-content')).toBeDefined()
+    expect(screen.getByTestId('detail-content').textContent).toBe('Alice details')
+
+    // Click again to collapse
+    fireEvent.click(expandButtons[0]!)
+    expect(screen.queryByTestId('detail-content')).toBeNull()
+  })
+
+  it('emits onRowClick and onRowDoubleClick events', () => {
+    const onRowClick = vi.fn()
+    const onRowDoubleClick = vi.fn()
+
+    render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        onRowClick={onRowClick}
+        onRowDoubleClick={onRowDoubleClick}
+      />
+    ))
+
+    const bodyRows = screen.getAllByRole('row').slice(1)
+    fireEvent.click(bodyRows[0]!)
+    expect(onRowClick).toHaveBeenCalledTimes(1)
+    expect(onRowClick.mock.calls[0]?.[0].original.name).toBe('Alice')
+
+    fireEvent.dblClick(bodyRows[1]!)
+    expect(onRowDoubleClick).toHaveBeenCalledTimes(1)
+    expect(onRowDoubleClick.mock.calls[0]?.[0].original.name).toBe('Bob')
+  })
+
+  it('sets aria-sort on th headers according to sort state', () => {
+    render(() => <DataTable data={TEST_DATA} columns={TEST_COLUMNS} sorting />)
+
+    const nameTh = screen.getByText('Name').closest('th')!
+    expect(nameTh.getAttribute('aria-sort')).toBe('none')
+
+    const sortButton = nameTh.querySelector('button')!
+    fireEvent.click(sortButton)
+    expect(nameTh.getAttribute('aria-sort')).toBe('ascending')
+
+    fireEvent.click(sortButton)
+    expect(nameTh.getAttribute('aria-sort')).toBe('descending')
+  })
+
+  it('does not display "No results." while loading is true', () => {
+    render(() => <DataTable data={[]} columns={TEST_COLUMNS} loading />)
+
+    expect(screen.queryByText('No results.')).toBeNull()
+  })
+
+  it('updates column width when dragging resize handle', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={[
+          { accessorKey: 'name', header: 'Name', size: 100 },
+          { accessorKey: 'age', header: 'Age', size: 150 },
+        ]}
+        resizable
+      />
+    ))
+
+    const ths = container.querySelectorAll('thead th')
+    expect((ths[0] as HTMLElement).style.width).toBe('100px')
+    const tds = container.querySelectorAll('tbody tr:first-child td')
+    expect((tds[0] as HTMLElement).style.width).toBe('100px')
+
+    const resizer = ths[0]?.querySelector('[data-slot="data-table-resizer"]') as HTMLElement
+    expect(resizer).not.toBeNull()
+
+    resizer.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX: 100 }),
+    )
+    document.dispatchEvent(
+      new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: 160 }),
+    )
+    document.dispatchEvent(
+      new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: 160 }),
+    )
+
+    expect((ths[0] as HTMLElement).style.width).toBe('160px')
+    expect((tds[0] as HTMLElement).style.width).toBe('160px')
+  })
+
+  it('automatically pins select column to left when left pinned columns exist', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={[
+          { accessorKey: 'name', header: 'Name', size: 120, meta: { pinned: 'left' } },
+          { accessorKey: 'age', header: 'Age', size: 80 },
+        ]}
+        selectable
+      />
+    ))
+
+    const ths = container.querySelectorAll('thead th')
+    // First th should be select column pinned left at 0px
+    expect((ths[0] as HTMLElement).style.position).toBe('sticky')
+    expect((ths[0] as HTMLElement).style.left).toBe('0px')
+    expect((ths[0] as HTMLElement).style.width).toBe('40px')
+
+    // Second th should be Name pinned left at 40px
+    expect((ths[1] as HTMLElement).style.position).toBe('sticky')
+    expect((ths[1] as HTMLElement).style.left).toBe('40px')
+    expect((ths[1] as HTMLElement).style.width).toBe('120px')
+  })
 })

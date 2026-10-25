@@ -86,6 +86,9 @@ export const COLUMNS = [
     { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
     { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
     { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
+    { kind: 'switch', prop: 'stickyHeader', label: 'Sticky Header', defaultValue: false },
+    { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
+    { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
     { kind: 'switch', prop: 'remote', label: 'Remote Mode', defaultValue: false },
   ]}
@@ -216,6 +219,21 @@ export const COLUMNS = [
           sorting={props.sorting}
           selectable={props.selectable}
           pagination={props.pagination}
+          stickyHeader={props.stickyHeader}
+          maxHeight={props.stickyHeader ? 280 : undefined}
+          resizable={props.resizable}
+          expandable={props.expandable}
+          expandedRowRender={
+            props.expandable
+              ? (row) => (
+                  <div class="text-xs p-3 bg-muted/30 rounded border border-border">
+                    <span class="font-medium text-foreground">Employee Detail:</span>{' '}
+                    {row.original.name} is a {row.original.role} in the{' '}
+                    {row.original.department} department.
+                  </div>
+                )
+              : undefined
+          }
           loading={props.loading || (props.remote && remoteLoading())}
           data={props.remote ? serverRows : filteredLocalData}
           columns={COLUMNS}
@@ -271,6 +289,10 @@ export const COLUMNS = [
       { slot: 'loading' },
       { slot: 'empty' },
       { slot: 'pagination' },
+      { slot: 'resizer' },
+      { slot: 'expandedRow' },
+      { slot: 'expandedCell' },
+      { slot: 'expandButton' },
     ],
   }}
 />
@@ -300,6 +322,77 @@ export function Example() {
 }
 ```
 
+### Column Pinning
+
+Freeze critical identifier columns on the left or action buttons on the right during horizontal scrolling.
+Set `meta: { pinned: 'left' | 'right' }` on column definitions:
+
+```tsx
+const columns: ColumnDef<any, Customer>[] = [
+  {
+    accessorKey: 'id',
+    header: 'ID',
+    meta: { pinned: 'left' },
+  },
+  {
+    accessorKey: 'name',
+    header: 'Name',
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    meta: { pinned: 'right' },
+  },
+]
+```
+
+### Sticky Header
+
+Pin the table header to the top of a scrollable container with `stickyHeader` and `maxHeight`:
+
+```tsx
+<DataTable data={logs} columns={columns} stickyHeader maxHeight={360} />
+```
+
+### Column Resizing
+
+Enable drag handles on column borders by passing `resizable`:
+
+```tsx
+<DataTable data={metrics} columns={columns} resizable />
+```
+
+### Expandable Rows
+
+Display nested breakdowns or order line items using `expandable` and `expandedRowRender`:
+
+```tsx
+<DataTable
+  data={orders}
+  columns={columns}
+  expandable
+  expandedRowRender={(row) => (
+    <div class="p-3 bg-muted/30">
+      Order #{row.original.id} contains {row.original.items.length} items.
+    </div>
+  )}
+/>
+```
+
+### Selection Modes and Disabled Rows
+
+Control row selection with `selectable="multiple"` (checkboxes) or `selectable="single"` (radio buttons).
+Use `isRowSelectable` to prevent selection on locked or inactive records:
+
+```tsx
+<DataTable
+  data={nodes}
+  columns={columns}
+  selectable="single"
+  isRowSelectable={(row) => row.original.status !== 'terminated'}
+/>
+```
+
 ### Virtualization
 
 Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment.
@@ -311,6 +404,36 @@ Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` 
 Render rows with built-in sorting and row selection checkboxes.
 
 <Preview path="./basic" />
+
+### Pinned columns and horizontal scrolling
+
+Freeze customer ID on the left and quick action menus on the right with horizontal scroll divider shadows.
+
+<Preview path="./pinned-columns" />
+
+### Sticky header with bounded scroll
+
+Fix table headers cleanly at the top of a scroll container across 30+ audit events.
+
+<Preview path="./sticky-header" />
+
+### Interactive column resizing
+
+Drag column borders to dynamically adjust widths with visual resize feedback.
+
+<Preview path="./resizable-columns" />
+
+### Expandable row details
+
+Inspect nested line items, shipping addresses, and tracking codes inside expandable sub-rows.
+
+<Preview path="./expandable-rows" />
+
+### Single selection and disabled rows
+
+Toggle between multiple and single selection modes, disabling archived records with `isRowSelectable`.
+
+<Preview path="./selection-modes" />
 
 ### Virtualize 10000 rows
 

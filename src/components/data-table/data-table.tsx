@@ -22,7 +22,11 @@ import { DropdownMenu } from '../dropdown-menu'
 import { Icon } from '../icon'
 import { Pagination } from '../pagination'
 
-import { createSelectColumn, getDefaultDataTableFeatures } from './data-table-helpers'
+import {
+  createExpandColumn,
+  createSelectColumn,
+  getDefaultDataTableFeatures,
+} from './data-table-helpers'
 import {
   DATA_TABLE_TEXT_ALIGN_CLASS,
   dataTableDataAttributes,
@@ -46,6 +50,22 @@ export function DataTable<
     'loading',
     'loadingRender',
     'emptyRender',
+    'stickyHeader',
+    'maxHeight',
+    'resizable',
+    'columnResizeMode',
+    'defaultColumnPinning',
+    'currentColumnPinning',
+    'onColumnPinningChange',
+    'isRowSelectable',
+    'expandable',
+    'expandedRowRender',
+    'expandColumn',
+    'defaultExpanded',
+    'currentExpanded',
+    'onExpandedChange',
+    'onRowClick',
+    'onRowDoubleClick',
     'table',
     'data',
     'columns',
@@ -99,13 +119,105 @@ export function DataTable<
     onChange: (val) => local.onPaginationChange?.(val),
   })
 
+  const [expanded, setExpanded] = createControllableValue<Record<string, boolean> | boolean>({
+    value: () => local.currentExpanded,
+    defaultValue: () => local.defaultExpanded ?? {},
+    onChange: (val) => local.onExpandedChange?.(val),
+  })
+
   const resolvedColumns = createMemo((): ColumnDef<TableFeatures, TData>[] => {
-    const cols = [...(local.columns ?? [])] as ColumnDef<TableFeatures, TData>[]
+    let cols = [...(local.columns ?? [])] as ColumnDef<TableFeatures, TData>[]
+    const hasLeftPinning =
+      (local.currentColumnPinning?.left?.length ?? 0) > 0 ||
+      (local.defaultColumnPinning?.left?.length ?? 0) > 0 ||
+      cols.some((c) => (c as { meta?: DataTableT.ColumnMeta }).meta?.pinned === 'left')
+
+    if (
+      (local.expandable || local.expandedRowRender) &&
+      local.expandColumn !== false &&
+      !cols.some((c) => c.id === 'expand')
+    ) {
+      const expandCol = createExpandColumn<TableFeatures, TData>()
+      if (hasLeftPinning) {
+        expandCol.meta = { ...(expandCol.meta as any), pinned: 'left' }
+      }
+      cols = [expandCol, ...cols]
+    }
     if (local.selectable && !cols.some((c) => c.id === 'select')) {
-      const selectCol = createSelectColumn<TableFeatures, TData>()
-      return [selectCol, ...cols]
+      const selectCol = createSelectColumn<TableFeatures, TData>({
+        mode: local.selectable === 'single' ? 'single' : 'multiple',
+      })
+      if (hasLeftPinning) {
+        selectCol.meta = { ...(selectCol.meta as any), pinned: 'left' }
+      }
+      cols = [selectCol, ...cols]
     }
     return cols
+  })
+
+  const metaPinning = createMemo((): DataTableT.ColumnPinningState => {
+    const left: string[] = []
+    const right: string[] = []
+    for (const col of resolvedColumns()) {
+      const meta = (col as { meta?: DataTableT.ColumnMeta }).meta
+      if (meta?.pinned === 'left') {
+        left.push((col.id ?? (col as any).accessorKey) as string)
+      } else if (meta?.pinned === 'right') {
+        right.push((col.id ?? (col as any).accessorKey) as string)
+      }
+    }
+    return { left, right }
+  })
+
+  const [columnPinning, setColumnPinning] = createControllableValue<DataTableT.ColumnPinningState>({
+    value: () => local.currentColumnPinning,
+    defaultValue: () => local.defaultColumnPinning ?? metaPinning(),
+    onChange: (val) => local.onColumnPinningChange?.(val),
+  })
+
+  const toTanstackPinning = (p?: DataTableT.ColumnPinningState) => ({
+    start: p?.left ?? [],
+    end: p?.right ?? [],
+  })
+
+  const tanstackPinning = createMemo(() => {
+    const pin = columnPinning()
+    const leftList = [...(pin?.left ?? [])]
+    const rightList = [...(pin?.right ?? [])]
+
+    if (leftList.length > 0) {
+      if (
+        (local.expandable || local.expandedRowRender) &&
+        local.expandColumn !== false &&
+        !leftList.includes('expand')
+      ) {
+        leftList.unshift('expand')
+      }
+      if (local.selectable && !leftList.includes('select')) {
+        const expandIdx = leftList.indexOf('expand')
+        if (expandIdx !== -1) {
+          leftList.splice(expandIdx + 1, 0, 'select')
+        } else {
+          leftList.unshift('select')
+        }
+      }
+    }
+
+    if (!leftList.length && !rightList.length) {
+      return undefined
+    }
+    return {
+      start: leftList,
+      end: rightList,
+    }
+  })
+
+  const toMorainePinning = (p?: {
+    start?: string[]
+    end?: string[]
+  }): DataTableT.ColumnPinningState => ({
+    left: p?.start ?? [],
+    right: p?.end ?? [],
   })
 
   const resolvedData = (): readonly TData[] => {
@@ -117,6 +229,11 @@ export function DataTable<
   }
 
   const isVirtualized = () => local.virtualRender !== undefined
+
+  const rowSelectableFn = createMemo(() => {
+    const fn = local.isRowSelectable
+    return fn ? (row: any) => fn(row) : undefined
+  })
 
   const internalTable = createTable({
     features: getDefaultDataTableFeatures({ pagination: !isVirtualized() }),
@@ -139,6 +256,19 @@ export function DataTable<
       return local.manualFiltering
     },
     autoResetPageIndex: false,
+    get enableMultiRowSelection() {
+      return local.selectable !== 'single'
+    },
+    get enableRowSelection() {
+      return rowSelectableFn()
+    },
+    get enableColumnResizing() {
+      return Boolean(local.resizable)
+    },
+    get columnResizeMode() {
+      return local.columnResizeMode ?? 'onChange'
+    },
+    getRowCanExpand: () => Boolean(local.expandable || local.expandedRowRender),
     state: {
       get sorting() {
         return local.sorting ? sorting() : undefined
@@ -148,6 +278,12 @@ export function DataTable<
       },
       get pagination() {
         return !isVirtualized() && local.pagination ? pagination() : undefined
+      },
+      get columnPinning() {
+        return tanstackPinning()
+      },
+      get expanded() {
+        return local.expandable || local.expandedRowRender ? (expanded() as any) : undefined
       },
     },
     onSortingChange: (updater) => {
@@ -176,6 +312,16 @@ export function DataTable<
       }
       setPagination(next)
     },
+    onColumnPinningChange: (updater) => {
+      const current = toTanstackPinning(columnPinning())
+      const next = typeof updater === 'function' ? updater(current) : updater
+      setColumnPinning(toMorainePinning(next))
+    },
+    onExpandedChange: (updater) => {
+      const current = expanded()
+      const next = typeof updater === 'function' ? updater(current as any) : updater
+      setExpanded(next)
+    },
   })
 
   const activeTable = (): SolidTable<any, TData> =>
@@ -183,9 +329,10 @@ export function DataTable<
 
   const activeRows = (): Row<any, TData>[] => {
     const table = activeTable()
+    const shouldBypassPagination = local.table ? local.pagination === false : !local.pagination
     if (
       !isVirtualized() &&
-      !local.pagination &&
+      shouldBypassPagination &&
       typeof table.getPrePaginatedRowModel === 'function'
     ) {
       return table.getPrePaginatedRowModel().rows
@@ -198,14 +345,24 @@ export function DataTable<
     return cols.length > 0 ? cols.length : 1
   }
 
+  const isLastPinnedStart = (col: any): boolean => {
+    const startCols = activeTable().getPinnedLeafColumns?.('start') ?? []
+    return startCols.length > 0 && startCols[startCols.length - 1]?.id === col.id
+  }
+
+  const isFirstPinnedEnd = (col: any): boolean => {
+    const endCols = activeTable().getPinnedLeafColumns?.('end') ?? []
+    return endCols.length > 0 && endCols[0]?.id === col.id
+  }
+
   const currentPageIndex = () =>
     local.table
-      ? (((local.table as any).atoms?.pagination?.get()?.pageIndex as number | undefined) ?? 0)
+      ? (((activeTable() as any).atoms?.pagination?.get()?.pageIndex as number | undefined) ?? 0)
       : pagination().pageIndex
 
   const currentPageSize = () =>
     local.table
-      ? (((local.table as any).atoms?.pagination?.get()?.pageSize as number | undefined) ?? 10)
+      ? (((activeTable() as any).atoms?.pagination?.get()?.pageSize as number | undefined) ?? 10)
       : pagination().pageSize
 
   const pageSizeOptions = createMemo((): readonly number[] => {
@@ -230,12 +387,14 @@ export function DataTable<
 
   function RenderEmpty(): JSX.Element {
     return (
-      <Show when={local.emptyRender !== undefined} fallback="No results.">
-        {renderWithProps(local.emptyRender, {
-          get colSpan() {
-            return leafColCount()
-          },
-        })}
+      <Show when={!local.loading}>
+        <Show when={local.emptyRender !== undefined} fallback="No results.">
+          {renderWithProps(local.emptyRender, {
+            get colSpan() {
+              return leafColCount()
+            },
+          })}
+        </Show>
       </Show>
     )
   }
@@ -255,49 +414,125 @@ export function DataTable<
     )
   }
 
+  const hasPinning = createMemo(() => {
+    const pin = tanstackPinning()
+    return Boolean(pin?.start?.length || pin?.end?.length)
+  })
+
+  const tableStyle = (): JSX.CSSProperties => {
+    if (local.resizable || hasPinning()) {
+      return {
+        'table-layout': 'fixed',
+        width: `${activeTable().getTotalSize()}px`,
+        'min-width': '100%',
+        ...(hasPinning()
+          ? {
+              'border-collapse': 'separate',
+              'border-spacing': '0',
+            }
+          : {}),
+      }
+    }
+    return {}
+  }
+
   function RenderRow(rowContext: {
     row: Row<any, TData>
     rowProps?: Record<string, any>
   }): JSX.Element {
     const isSelected = () => (rowContext.row as any).getIsSelected?.() ?? false
+    const isExpanded = () => (rowContext.row as any).getIsExpanded?.() ?? false
 
     return (
-      <tr
-        {...rowContext.rowProps}
-        data-slot="data-table-row"
-        aria-selected={isSelected()}
-        {...dataTableDataAttributes.row({ selected: isSelected })}
-        {...slotWith('row', () => ({
-          class:
-            typeof local.rowClass === 'function'
-              ? local.rowClass(rowContext.row as any)
-              : local.rowClass,
-        }))}
-      >
-        <For each={(rowContext.row as any).getVisibleCells()}>
-          {(cell) => {
-            const meta = () => cell.column.columnDef.meta as DataTableT.ColumnMeta | undefined
-            const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
-            const truncated = () => meta()?.truncated ?? false
+      <>
+        <tr
+          {...rowContext.rowProps}
+          data-slot="data-table-row"
+          aria-selected={isSelected()}
+          {...dataTableDataAttributes.row({ selected: isSelected })}
+          onClick={(e) => local.onRowClick?.(rowContext.row as any, e)}
+          onDblClick={(e) => local.onRowDoubleClick?.(rowContext.row as any, e)}
+          {...slotWith('row', () => ({
+            class: [
+              typeof local.rowClass === 'function'
+                ? local.rowClass(rowContext.row as any)
+                : local.rowClass,
+              Boolean(local.onRowClick || local.onRowDoubleClick) && 'cursor-pointer',
+            ],
+          }))}
+        >
+          <For each={(rowContext.row as any).getVisibleCells()}>
+            {(cell) => {
+              const meta = () => cell.column.columnDef.meta as DataTableT.ColumnMeta | undefined
+              const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
+              const truncated = () => meta()?.truncated ?? false
+              const pin = () => cell.column.getIsPinned?.()
+              const isStart = () => pin() === 'start'
+              const isEnd = () => pin() === 'end'
+              const shouldSetWidth = () =>
+                local.resizable || hasPinning() || cell.column.columnDef.size !== undefined
 
-            return (
-              <td
-                data-slot="data-table-cell"
-                {...slotWith('cell', () => ({
-                  class: [
-                    DATA_TABLE_TEXT_ALIGN_CLASS[align()],
-                    truncated() && 'truncate',
-                    meta()?.class,
-                  ],
-                }))}
-              >
-                <FlexRender cell={cell} />
-              </td>
-            )
-          }}
-        </For>
-      </tr>
+              return (
+                <td
+                  data-slot="data-table-cell"
+                  {...slotWith('cell', () => ({
+                    class: [
+                      DATA_TABLE_TEXT_ALIGN_CLASS[align()],
+                      truncated() && 'truncate',
+                      Boolean(pin()) && 'bg-background',
+                      isStart() &&
+                        isLastPinnedStart(cell.column) &&
+                        'shadow-[inset_-1px_0_0_var(--color-border)]',
+                      isEnd() &&
+                        isFirstPinnedEnd(cell.column) &&
+                        'shadow-[inset_1px_0_0_var(--color-border)]',
+                      meta()?.class,
+                    ],
+                    style: {
+                      ...(shouldSetWidth() ? { width: `${cell.column.getSize()}px` } : {}),
+                      ...(pin()
+                        ? {
+                            position: 'sticky',
+                            left: isStart()
+                              ? `${cell.column.getStart?.('start') ?? 0}px`
+                              : undefined,
+                            right: isEnd() ? `${cell.column.getAfter?.('end') ?? 0}px` : undefined,
+                            'z-index': 10,
+                          }
+                        : {}),
+                    },
+                  }))}
+                >
+                  <FlexRender cell={cell} />
+                </td>
+              )
+            }}
+          </For>
+        </tr>
+        <Show when={local.expandedRowRender && isExpanded()}>
+          <tr data-slot="data-table-expanded-row" {...slots.expandedRow}>
+            <td
+              data-slot="data-table-expanded-cell"
+              colSpan={leafColCount()}
+              {...slots.expandedCell}
+            >
+              {local.expandedRowRender!(rowContext.row as any)}
+            </td>
+          </tr>
+        </Show>
+      </>
     )
+  }
+
+  const containerStyle = (): JSX.CSSProperties => {
+    if (!local.maxHeight) {
+      return {}
+    }
+    const heightVal = typeof local.maxHeight === 'number' ? `${local.maxHeight}px` : local.maxHeight
+    return {
+      'max-height': heightVal,
+      'overflow-y': 'auto',
+    }
   }
 
   return (
@@ -307,7 +542,7 @@ export function DataTable<
         callRef(local.containerRef, el)
       }}
       data-slot="data-table-container"
-      {...slots.container}
+      {...slotWith('container', () => ({ style: containerStyle() }))}
     >
       <Show when={local.loading}>
         <div data-slot="data-table-loading" {...slots.loading}>
@@ -315,7 +550,12 @@ export function DataTable<
         </div>
       </Show>
 
-      <table data-slot="data-table" {...rest} {...slots.root} ref={local.ref}>
+      <table
+        data-slot="data-table"
+        {...rest}
+        {...slotWith('root', () => ({ style: tableStyle() }))}
+        ref={local.ref}
+      >
         <thead data-slot="data-table-header" {...slots.header}>
           <For each={activeTable().getHeaderGroups()}>
             {(headerGroup) => (
@@ -338,20 +578,57 @@ export function DataTable<
                           ? 'icon-arrow-down'
                           : 'i-lucide:arrow-up-down'
 
+                    const pin = () => header.column.getIsPinned?.()
+                    const isStart = () => pin() === 'start'
+                    const isEnd = () => pin() === 'end'
+                    const isSticky = () => Boolean(local.stickyHeader || pin())
+                    const shouldSetWidth = () =>
+                      local.resizable || hasPinning() || header.column.columnDef.size !== undefined
+
                     return (
                       <th
                         data-slot="data-table-head"
                         colSpan={header.colSpan}
+                        aria-sort={
+                          isSorted() === 'asc'
+                            ? 'ascending'
+                            : isSorted() === 'desc'
+                              ? 'descending'
+                              : canSort()
+                                ? 'none'
+                                : undefined
+                        }
                         {...slotWith('head', () => ({
                           class: [
                             DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                             truncated() && 'truncate',
+                            isSticky() && 'bg-background',
+                            isStart() &&
+                              isLastPinnedStart(header.column) &&
+                              'shadow-[inset_-1px_0_0_var(--color-border)]',
+                            isEnd() &&
+                              isFirstPinnedEnd(header.column) &&
+                              'shadow-[inset_1px_0_0_var(--color-border)]',
                             meta()?.class,
                           ],
-                          style:
-                            typeof header.getSize === 'function' && header.getSize() !== 150
+                          style: {
+                            ...(shouldSetWidth() && typeof header.getSize === 'function'
                               ? { width: `${header.getSize()}px` }
-                              : undefined,
+                              : {}),
+                            ...(isSticky() ? { position: 'sticky' } : {}),
+                            ...(local.stickyHeader ? { top: 0 } : {}),
+                            ...(isStart()
+                              ? { left: `${header.column.getStart?.('start') ?? 0}px` }
+                              : {}),
+                            ...(isEnd()
+                              ? { right: `${header.column.getAfter?.('end') ?? 0}px` }
+                              : {}),
+                            ...(isSticky()
+                              ? {
+                                  'z-index': pin() && local.stickyHeader ? 25 : pin() ? 20 : 10,
+                                }
+                              : {}),
+                          },
                         }))}
                       >
                         <Show when={!header.isPlaceholder}>
@@ -371,6 +648,25 @@ export function DataTable<
                                 <Icon name={sortIcon()} />
                               </span>
                             </button>
+                          </Show>
+                          <Show when={local.resizable && (header.column.getCanResize?.() ?? false)}>
+                            <div
+                              data-slot="data-table-resizer"
+                              {...dataTableDataAttributes.resizer({
+                                resizing: () => header.column.getIsResizing?.(),
+                              })}
+                              onMouseDown={(e) => header.getResizeHandler?.()?.(e)}
+                              onTouchStart={(e) => header.getResizeHandler?.()?.(e)}
+                              {...slotWith('resizer', () => ({
+                                style:
+                                  local.columnResizeMode === 'onEnd' &&
+                                  header.column.getIsResizing?.()
+                                    ? {
+                                        transform: `translateX(${((activeTable().options as any).columnResizeDirection === 'rtl' ? -1 : 1) * ((activeTable() as any).getState?.().columnResizing?.deltaOffset ?? 0)}px)`,
+                                      }
+                                    : undefined,
+                              }))}
+                            />
                           </Show>
                         </Show>
                       </th>
@@ -426,6 +722,14 @@ export function DataTable<
                         header.column.columnDef.meta as DataTableT.ColumnMeta | undefined
                       const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
                       const truncated = () => meta()?.truncated ?? false
+                      const pin = () => header.column.getIsPinned?.()
+                      const isStart = () => pin() === 'start'
+                      const isEnd = () => pin() === 'end'
+                      const shouldSetWidth = () =>
+                        local.resizable ||
+                        hasPinning() ||
+                        header.column.columnDef.size !== undefined
+
                       return (
                         <td
                           data-slot="data-table-cell"
@@ -434,8 +738,32 @@ export function DataTable<
                             class: [
                               DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                               truncated() && 'truncate',
+                              Boolean(pin()) && 'bg-background',
+                              isStart() &&
+                                isLastPinnedStart(header.column) &&
+                                'shadow-[inset_-1px_0_0_var(--color-border)]',
+                              isEnd() &&
+                                isFirstPinnedEnd(header.column) &&
+                                'shadow-[inset_1px_0_0_var(--color-border)]',
                               meta()?.class,
                             ],
+                            style: {
+                              ...(shouldSetWidth() && typeof header.getSize === 'function'
+                                ? { width: `${header.getSize()}px` }
+                                : {}),
+                              ...(pin()
+                                ? {
+                                    position: 'sticky',
+                                    left: isStart()
+                                      ? `${header.column.getStart?.('start') ?? 0}px`
+                                      : undefined,
+                                    right: isEnd()
+                                      ? `${header.column.getAfter?.('end') ?? 0}px`
+                                      : undefined,
+                                    'z-index': 10,
+                                  }
+                                : {}),
+                            },
                           }))}
                         >
                           <Show when={!header.isPlaceholder}>
