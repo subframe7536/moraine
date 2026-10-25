@@ -413,7 +413,30 @@
     {
       "target": "row",
       "attributes": [
+        "data-empty",
+        "data-even",
+        "data-expanded",
         "data-selected"
+      ]
+    },
+    {
+      "target": "head",
+      "attributes": [
+        "data-pinned",
+        "data-pinned-edge"
+      ]
+    },
+    {
+      "target": "cell",
+      "attributes": [
+        "data-pinned",
+        "data-pinned-edge"
+      ]
+    },
+    {
+      "target": "sortIcon",
+      "attributes": [
+        "data-sorted"
       ]
     },
     {
