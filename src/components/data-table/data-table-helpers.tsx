@@ -28,6 +28,7 @@ import type { ColumnDef, RowData, TableFeatures } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
+import { createContextProvider } from '../../shared/create-context-provider'
 import { Checkbox } from '../checkbox'
 import { Icon } from '../icon'
 
@@ -107,7 +108,16 @@ function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) 
 let _defaultFeatures: ReturnType<typeof createDefaultDataTableFeatures> | undefined
 let _unpaginatedFeatures: ReturnType<typeof createDefaultDataTableFeatures> | undefined
 
-/** Returns the lazily-initialized standard table features for convenience mode. */
+export interface DataTableSlots {
+  expandButton?: { readonly class?: string; readonly style?: JSX.CSSProperties }
+}
+
+export const [DataTableSlotsProvider, useDataTableSlots] = createContextProvider<DataTableSlots>(
+  'DataTableSlots',
+  {},
+)
+
+/** Returns the lazily-initialized standard table features for `createTable`. */
 export function getDefaultDataTableFeatures(options?: {
   pagination?: boolean
 }): ReturnType<typeof createDefaultDataTableFeatures> {
@@ -217,6 +227,8 @@ export function createExpandColumn<
     cell: (props: any): JSX.Element => {
       const canExpand = () => props.row.getCanExpand?.() ?? true
       const isExpanded = () => props.row.getIsExpanded?.() ?? false
+      const expandButton = options?.expandButton ??
+        useDataTableSlots().expandButton ?? { class: DATA_TABLE_EXPAND_BUTTON_CLASS }
 
       return (
         <Show when={canExpand()} fallback={<div class={DATA_TABLE_EXPAND_PLACEHOLDER_CLASS} />}>
@@ -230,7 +242,7 @@ export function createExpandColumn<
               e.stopPropagation()
               props.row.toggleExpanded?.()
             }}
-            {...(options?.expandButton ?? { class: DATA_TABLE_EXPAND_BUTTON_CLASS })}
+            {...expandButton}
           >
             <Icon name="icon-chevron-right" class="size-4" />
           </button>

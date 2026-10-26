@@ -1,20 +1,10 @@
 import { FlexRender, createTable } from '@tanstack/solid-table'
-import type {
-  ColumnDef,
-  PaginationState,
-  Row,
-  RowData,
-  RowSelectionState,
-  SolidTable,
-  SortingState,
-  TableFeatures,
-} from '@tanstack/solid-table'
+import type { Row, RowData, SolidTable, TableFeatures } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
-import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import { Button } from '../button'
@@ -23,11 +13,7 @@ import { Icon } from '../icon'
 import { Pagination } from '../pagination'
 
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
-import {
-  createExpandColumn,
-  createSelectColumn,
-  getDefaultDataTableFeatures,
-} from './data-table-helpers'
+import { DataTableSlotsProvider, getDefaultDataTableFeatures } from './data-table-helpers'
 import {
   DATA_TABLE_HEAD_INNER_CLASS,
   DATA_TABLE_HEAD_LABEL_CLASS,
@@ -40,10 +26,14 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
+type AnyTable = SolidTable<any, any>
+
 /**
- * Data-driven table component powered by TanStack Table v9.
+ * Data-driven table presenter powered by TanStack Table v9.
  *
- * Supports both convenience mode (`data` + `columns`) and power-user mode (`table`).
+ * Table behavior lives on a `createTable()` instance passed via `table`.
+ * When `table` is omitted, an empty table with default features is used.
+ * DataTable props are presentation, slots, and render parts only.
  */
 export function DataTable<
   TData extends RowData = RowData,
@@ -58,45 +48,13 @@ export function DataTable<
     'emptyRender',
     'stickyHeader',
     'maxHeight',
-    'resizable',
-    'columnResizeMode',
-    'defaultColumnPinning',
-    'currentColumnPinning',
-    'onColumnPinningChange',
-    'defaultColumnOrder',
-    'currentColumnOrder',
-    'onColumnOrderChange',
-    'isRowSelectable',
-    'expandable',
     'expandedRowRender',
-    'expandColumn',
-    'defaultExpanded',
-    'currentExpanded',
-    'onExpandedChange',
     'onRowClick',
     'onRowDoubleClick',
     'table',
-    'data',
-    'columns',
-    'sorting',
-    'defaultSorting',
-    'currentSorting',
-    'onSortingChange',
-    'selectable',
-    'defaultRowSelection',
-    'currentRowSelection',
-    'onRowSelectionChange',
-    'pagination',
-    'defaultPagination',
-    'currentPagination',
-    'onPaginationChange',
+    'virtualRender',
     'pageSizeOptions',
     'showPageSize',
-    'rowCount',
-    'manualPagination',
-    'manualSorting',
-    'manualFiltering',
-    'virtualRender',
     'size',
     'striped',
     'hoverEffect',
@@ -111,301 +69,34 @@ export function DataTable<
   const slotOverrides = pickSlotOverrides(local)
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
 
-  const [sorting, setSorting] = createControllableValue<SortingState>({
-    value: () => local.currentSorting,
-    defaultValue: () => local.defaultSorting ?? [],
-    onChange: (val) => local.onSortingChange?.(val),
+  const fallbackTable = createTable({
+    features: getDefaultDataTableFeatures(),
+    columns: [],
+    data: [],
   })
 
-  const [rowSelection, setRowSelection] = createControllableValue<RowSelectionState>({
-    value: () => local.currentRowSelection,
-    defaultValue: () => local.defaultRowSelection ?? {},
-    onChange: (val) => local.onRowSelectionChange?.(val),
-  })
-
-  const [pagination, setPagination] = createControllableValue<PaginationState>({
-    value: () => local.currentPagination,
-    defaultValue: () => local.defaultPagination ?? { pageIndex: 0, pageSize: 10 },
-    onChange: (val) => local.onPaginationChange?.(val),
-  })
-
-  const [expanded, setExpanded] = createControllableValue<Record<string, boolean> | boolean>({
-    value: () => local.currentExpanded,
-    defaultValue: () => local.defaultExpanded ?? {},
-    onChange: (val) => local.onExpandedChange?.(val),
-  })
-
-  const resolvedColumns = createMemo((): ColumnDef<TableFeatures, TData>[] => {
-    let cols = [...(local.columns ?? [])] as ColumnDef<TableFeatures, TData>[]
-    const hasLeftPinning =
-      (local.currentColumnPinning?.left?.length ?? 0) > 0 ||
-      (local.defaultColumnPinning?.left?.length ?? 0) > 0 ||
-      cols.some((c) => (c as { meta?: DataTableT.ColumnMeta }).meta?.pinned === 'left')
-
-    if (
-      (local.expandable || local.expandedRowRender) &&
-      local.expandColumn !== false &&
-      !cols.some((c) => c.id === 'expand')
-    ) {
-      const expandCol = createExpandColumn<TableFeatures, TData>({
-        expandButton: slots.expandButton,
-      })
-      if (hasLeftPinning) {
-        expandCol.meta = { ...(expandCol.meta as any), pinned: 'left' }
-      }
-      cols = [expandCol, ...cols]
-    }
-    if (local.selectable && !cols.some((c) => c.id === 'select')) {
-      const selectCol = createSelectColumn<TableFeatures, TData>({
-        mode: local.selectable === 'single' ? 'single' : 'multiple',
-      })
-      if (hasLeftPinning) {
-        selectCol.meta = { ...(selectCol.meta as any), pinned: 'left' }
-      }
-      cols = [selectCol, ...cols]
-    }
-    return cols
-  })
-
-  const metaPinning = createMemo((): DataTableT.ColumnPinningState => {
-    const left: string[] = []
-    const right: string[] = []
-    for (const col of resolvedColumns()) {
-      const meta = (col as { meta?: DataTableT.ColumnMeta }).meta
-      if (meta?.pinned === 'left') {
-        left.push((col.id ?? (col as any).accessorKey) as string)
-      } else if (meta?.pinned === 'right') {
-        right.push((col.id ?? (col as any).accessorKey) as string)
-      }
-    }
-    return { left, right }
-  })
-
-  const [columnPinning, setColumnPinning] = createControllableValue<DataTableT.ColumnPinningState>({
-    value: () => local.currentColumnPinning,
-    defaultValue: () => local.defaultColumnPinning ?? metaPinning(),
-    onChange: (val) => local.onColumnPinningChange?.(val),
-  })
-
-  const [columnOrder, setColumnOrder] = createControllableValue<DataTableT.ColumnOrderState>({
-    value: () => local.currentColumnOrder,
-    defaultValue: () => local.defaultColumnOrder ?? [],
-    onChange: (val) => local.onColumnOrderChange?.(val),
-  })
-
-  const resolvedColumnOrder = createMemo((): DataTableT.ColumnOrderState | undefined => {
-    const order = [...columnOrder()]
-    if (order.length === 0) {
-      return undefined
-    }
-    if (
-      (local.expandable || local.expandedRowRender) &&
-      local.expandColumn !== false &&
-      !order.includes('expand')
-    ) {
-      order.unshift('expand')
-    }
-    if (local.selectable && !order.includes('select')) {
-      const expandIdx = order.indexOf('expand')
-      if (expandIdx !== -1) {
-        order.splice(expandIdx + 1, 0, 'select')
-      } else {
-        order.unshift('select')
-      }
-    }
-    return order
-  })
-
-  const toTanstackPinning = (p?: DataTableT.ColumnPinningState) => ({
-    start: p?.left ?? [],
-    end: p?.right ?? [],
-  })
-
-  const tanstackPinning = createMemo(() => {
-    const pin = columnPinning()
-    const leftList = [...(pin?.left ?? [])]
-    const rightList = [...(pin?.right ?? [])]
-
-    if (leftList.length > 0) {
-      if (
-        (local.expandable || local.expandedRowRender) &&
-        local.expandColumn !== false &&
-        !leftList.includes('expand')
-      ) {
-        leftList.unshift('expand')
-      }
-      if (local.selectable && !leftList.includes('select')) {
-        const expandIdx = leftList.indexOf('expand')
-        if (expandIdx !== -1) {
-          leftList.splice(expandIdx + 1, 0, 'select')
-        } else {
-          leftList.unshift('select')
-        }
-      }
-    }
-
-    if (!leftList.length && !rightList.length) {
-      return undefined
-    }
-    return {
-      start: leftList,
-      end: rightList,
-    }
-  })
-
-  const toMorainePinning = (p?: {
-    start?: string[]
-    end?: string[]
-  }): DataTableT.ColumnPinningState => ({
-    left: p?.start ?? [],
-    right: p?.end ?? [],
-  })
-
-  const resolvedData = (): readonly TData[] => {
-    const raw = local.data
-    if (typeof raw === 'function') {
-      return (raw as () => readonly TData[])()
-    }
-    return raw ?? []
-  }
+  const activeTable = (): AnyTable => (local.table as unknown as AnyTable) ?? fallbackTable
 
   const isVirtualized = () => local.virtualRender !== undefined
 
-  const rowSelectableFn = createMemo(() => {
-    const fn = local.isRowSelectable
-    return fn ? (row: any) => fn(row) : undefined
-  })
-
-  const internalTable = createTable({
-    features: getDefaultDataTableFeatures({ pagination: !isVirtualized() }),
-    get columns() {
-      return resolvedColumns()
-    },
-    get data() {
-      return resolvedData()
-    },
-    get rowCount() {
-      return local.rowCount
-    },
-    get manualPagination() {
-      return isVirtualized() ? undefined : local.manualPagination
-    },
-    get manualSorting() {
-      return local.manualSorting
-    },
-    get manualFiltering() {
-      return local.manualFiltering
-    },
-    autoResetPageIndex: false,
-    get enableMultiRowSelection() {
-      return local.selectable !== 'single'
-    },
-    get enableRowSelection() {
-      return rowSelectableFn()
-    },
-    get enableColumnResizing() {
-      return Boolean(local.resizable)
-    },
-    get columnResizeMode() {
-      return local.columnResizeMode ?? 'onChange'
-    },
-    getRowCanExpand: () => Boolean(local.expandable || local.expandedRowRender),
-    state: {
-      get sorting() {
-        return local.sorting ? sorting() : undefined
-      },
-      get rowSelection() {
-        return local.selectable ? rowSelection() : undefined
-      },
-      get pagination() {
-        return !isVirtualized() && local.pagination ? pagination() : undefined
-      },
-      get columnPinning() {
-        return tanstackPinning()
-      },
-      get columnOrder() {
-        return resolvedColumnOrder()
-      },
-      get expanded() {
-        return local.expandable || local.expandedRowRender ? (expanded() as any) : undefined
-      },
-    },
-    onSortingChange: (updater) => {
-      const current = sorting()
-      const next = typeof updater === 'function' ? updater(current) : updater
-      if (
-        next.length === current.length &&
-        next.every((s, i) => s.id === current[i]?.id && s.desc === current[i]?.desc)
-      ) {
-        return
-      }
-      setSorting(next)
-    },
-    onRowSelectionChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(rowSelection()) : updater
-      setRowSelection(next)
-    },
-    onPaginationChange: (updater) => {
-      if (isVirtualized()) {
-        return
-      }
-      const current = pagination()
-      const next = typeof updater === 'function' ? updater(current) : updater
-      if (next.pageIndex === current.pageIndex && next.pageSize === current.pageSize) {
-        return
-      }
-      setPagination(next)
-    },
-    onColumnPinningChange: (updater) => {
-      const current = toTanstackPinning(columnPinning())
-      const next = typeof updater === 'function' ? updater(current) : updater
-      setColumnPinning(toMorainePinning(next))
-    },
-    onColumnOrderChange: (updater) => {
-      const current = resolvedColumnOrder() ?? columnOrder()
-      const next = typeof updater === 'function' ? updater(current) : updater
-      const autoIds = new Set<string>()
-      if (
-        (local.expandable || local.expandedRowRender) &&
-        local.expandColumn !== false &&
-        !columnOrder().includes('expand')
-      ) {
-        autoIds.add('expand')
-      }
-      if (local.selectable && !columnOrder().includes('select')) {
-        autoIds.add('select')
-      }
-      const nextUser = next.filter((id) => !autoIds.has(id))
-      if (
-        nextUser.length === columnOrder().length &&
-        nextUser.every((id, i) => id === columnOrder()[i])
-      ) {
-        return
-      }
-      setColumnOrder(nextUser)
-    },
-    onExpandedChange: (updater) => {
-      const current = expanded()
-      const next = typeof updater === 'function' ? updater(current as any) : updater
-      setExpanded(next)
-    },
-  })
-
-  const activeTable = (): SolidTable<any, TData> =>
-    (local.table as unknown as SolidTable<any, TData>) ?? internalTable
-
-  const activeRows = (): Row<any, TData>[] => {
-    const table = activeTable()
-    const shouldBypassPagination = local.table ? local.pagination === false : !local.pagination
-    if (
-      !isVirtualized() &&
-      shouldBypassPagination &&
-      typeof table.getPrePaginatedRowModel === 'function'
-    ) {
-      return table.getPrePaginatedRowModel().rows
+  const tableOptions = () =>
+    activeTable().options as {
+      enableColumnResizing?: boolean
+      columnResizeMode?: 'onChange' | 'onEnd'
+      columnResizeDirection?: 'ltr' | 'rtl'
     }
-    return table.getRowModel().rows
-  }
+
+  const isResizable = () => tableOptions().enableColumnResizing === true
+
+  const hasPagination = () => !isVirtualized() && typeof activeTable().setPageIndex === 'function'
+
+  const hasPinning = createMemo(() =>
+    activeTable()
+      .getAllLeafColumns()
+      .some((column) => Boolean(column.getIsPinned?.())),
+  )
+
+  const activeRows = (): Row<any, TData>[] => activeTable().getRowModel().rows as Row<any, TData>[]
 
   const leafColCount = (): number => {
     const cols = activeTable().getVisibleLeafColumns()
@@ -425,15 +116,13 @@ export function DataTable<
     return undefined
   }
 
-  const currentPageIndex = () =>
-    local.table
-      ? (((activeTable() as any).atoms?.pagination?.get()?.pageIndex as number | undefined) ?? 0)
-      : pagination().pageIndex
+  const paginationState = () => {
+    const table = activeTable() as any
+    return table.atoms?.pagination?.get?.() ?? table.getState?.()?.pagination
+  }
 
-  const currentPageSize = () =>
-    local.table
-      ? (((activeTable() as any).atoms?.pagination?.get()?.pageSize as number | undefined) ?? 10)
-      : pagination().pageSize
+  const currentPageIndex = () => (paginationState()?.pageIndex as number | undefined) ?? 0
+  const currentPageSize = () => (paginationState()?.pageSize as number | undefined) ?? 10
 
   const pageSizeOptions = createMemo((): readonly number[] => {
     const raw = local.pageSizeOptions ?? [5, 10, 20, 50]
@@ -453,7 +142,12 @@ export function DataTable<
   }
 
   const totalRowCount = () =>
-    local.rowCount ?? activeTable().getRowCount?.() ?? activeTable().getRowModel().rows.length
+    activeTable().getRowCount?.() ?? activeTable().getRowModel().rows.length
+
+  const hasSelectionColumn = () =>
+    activeTable()
+      .getAllColumns()
+      .some((column) => column.id === 'select')
 
   function RenderEmpty(): JSX.Element {
     return (
@@ -484,13 +178,8 @@ export function DataTable<
     )
   }
 
-  const hasPinning = createMemo(() => {
-    const pin = tanstackPinning()
-    return Boolean(pin?.start?.length || pin?.end?.length)
-  })
-
   const tableStyle = (): JSX.CSSProperties => {
-    if (local.resizable || hasPinning()) {
+    if (isResizable() || hasPinning()) {
       return {
         'table-layout': 'fixed',
         width: `${activeTable().getTotalSize()}px`,
@@ -551,7 +240,7 @@ export function DataTable<
               const isStart = () => pin() === 'start'
               const isEnd = () => pin() === 'end'
               const shouldSetWidth = () =>
-                local.resizable || hasPinning() || cell.column.columnDef.size !== undefined
+                isResizable() || hasPinning() || cell.column.columnDef.size !== undefined
 
               return (
                 <td
@@ -564,7 +253,7 @@ export function DataTable<
                     class: [
                       DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                       truncated() && 'truncate',
-                      local.resizable && DATA_TABLE_RESIZABLE_CELL_CLASS,
+                      isResizable() && DATA_TABLE_RESIZABLE_CELL_CLASS,
                       meta()?.class,
                     ],
                     style: {
@@ -614,234 +303,71 @@ export function DataTable<
   }
 
   return (
-    <div
-      ref={(el) => {
-        setScrollContainer(() => el)
-        callRef(local.containerRef, el)
-      }}
-      data-slot="data-table-container"
-      {...slotWith('container', () => ({ style: containerStyle() }))}
-    >
-      <Show when={local.loading}>
-        <div data-slot="data-table-loading" {...slots.loading}>
-          <RenderLoading />
-        </div>
-      </Show>
-
-      <table
-        data-slot="data-table"
-        {...rest}
-        {...slotWith('root', () => ({ style: tableStyle() }))}
-        ref={local.ref}
+    <DataTableSlotsProvider value={{ expandButton: slots.expandButton }}>
+      <div
+        ref={(el) => {
+          setScrollContainer(() => el)
+          callRef(local.containerRef, el)
+        }}
+        data-slot="data-table-container"
+        {...slotWith('container', () => ({ style: containerStyle() }))}
       >
-        <thead data-slot="data-table-header" {...slots.header}>
-          <For each={activeTable().getHeaderGroups()}>
-            {(headerGroup) => (
-              <tr data-slot="data-table-row" {...slots.row}>
-                <For each={headerGroup.headers}>
-                  {(header) => {
-                    const meta = () =>
-                      header.column.columnDef.meta as DataTableT.ColumnMeta | undefined
-                    const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
-                    const truncated = () => meta()?.truncated ?? false
-                    const canSort = () =>
-                      local.table
-                        ? (header.column.getCanSort?.() ?? false)
-                        : Boolean(local.sorting) && (header.column.getCanSort?.() ?? false)
-                    const isSorted = () => header.column.getIsSorted?.()
-                    const sortIcon = () =>
-                      isSorted() === 'asc'
-                        ? 'icon-arrow-up'
-                        : isSorted() === 'desc'
-                          ? 'icon-arrow-down'
-                          : 'i-lucide:arrow-up-down'
+        <Show when={local.loading}>
+          <div data-slot="data-table-loading" {...slots.loading}>
+            <RenderLoading />
+          </div>
+        </Show>
 
-                    const pin = () => header.column.getIsPinned?.()
-                    const isStart = () => pin() === 'start'
-                    const isEnd = () => pin() === 'end'
-                    const isSticky = () => Boolean(local.stickyHeader || pin())
-                    const shouldSetWidth = () =>
-                      local.resizable || hasPinning() || header.column.columnDef.size !== undefined
-
-                    return (
-                      <th
-                        data-slot="data-table-head"
-                        colSpan={header.colSpan}
-                        aria-sort={
-                          isSorted() === 'asc'
-                            ? 'ascending'
-                            : isSorted() === 'desc'
-                              ? 'descending'
-                              : canSort()
-                                ? 'none'
-                                : undefined
-                        }
-                        {...dataTableDataAttributes.head({
-                          pinned: pin,
-                          pinnedEdge: () => pinnedEdge(header.column),
-                        })}
-                        {...slotWith('head', () => ({
-                          class: [
-                            DATA_TABLE_TEXT_ALIGN_CLASS[align()],
-                            truncated() && 'truncate',
-                            meta()?.class,
-                          ],
-                          style: {
-                            ...(shouldSetWidth() && typeof header.getSize === 'function'
-                              ? { width: `${header.getSize()}px` }
-                              : {}),
-                            ...(isSticky() ? { position: 'sticky' } : {}),
-                            ...(local.stickyHeader ? { top: 0 } : {}),
-                            ...(isStart()
-                              ? { left: `${header.column.getStart?.('start') ?? 0}px` }
-                              : {}),
-                            ...(isEnd()
-                              ? { right: `${header.column.getAfter?.('end') ?? 0}px` }
-                              : {}),
-                            ...(isSticky()
-                              ? { 'z-index': pin() && local.stickyHeader ? 30 : 20 }
-                              : {}),
-                          },
-                        }))}
-                      >
-                        <Show when={!header.isPlaceholder}>
-                          <div class={DATA_TABLE_HEAD_INNER_CLASS}>
-                            <span
-                              class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
-                            >
-                              <FlexRender header={header} />
-                            </span>
-                            <Show when={canSort()}>
-                              <button
-                                type="button"
-                                data-slot="data-table-sort-button"
-                                aria-label={
-                                  isSorted() === 'asc'
-                                    ? 'Sorted ascending'
-                                    : isSorted() === 'desc'
-                                      ? 'Sorted descending'
-                                      : 'Sort'
-                                }
-                                {...slots.sortButton}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  header.column.getToggleSortingHandler?.()?.(e)
-                                }}
-                              >
-                                <span
-                                  data-slot="data-table-sort-icon"
-                                  {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
-                                  {...slots.sortIcon}
-                                  aria-hidden="true"
-                                >
-                                  <Icon name={sortIcon()} />
-                                </span>
-                              </button>
-                            </Show>
-                          </div>
-                          <Show when={local.resizable && (header.column.getCanResize?.() ?? false)}>
-                            <div
-                              data-slot="data-table-resizer"
-                              {...dataTableDataAttributes.resizer({
-                                resizing: () => header.column.getIsResizing?.(),
-                              })}
-                              onMouseDown={(e) => header.getResizeHandler?.()?.(e)}
-                              onTouchStart={(e) => header.getResizeHandler?.()?.(e)}
-                              {...slotWith('resizer', () => ({
-                                style:
-                                  local.columnResizeMode === 'onEnd' &&
-                                  header.column.getIsResizing?.()
-                                    ? {
-                                        transform: `translateX(${((activeTable().options as any).columnResizeDirection === 'rtl' ? -1 : 1) * ((activeTable() as any).getState?.().columnResizing?.deltaOffset ?? 0)}px)`,
-                                      }
-                                    : undefined,
-                              }))}
-                            />
-                          </Show>
-                        </Show>
-                      </th>
-                    )
-                  }}
-                </For>
-              </tr>
-            )}
-          </For>
-        </thead>
-
-        <tbody data-slot="data-table-body" {...slots.body}>
-          <Show
-            when={activeRows().length > 0}
-            fallback={
-              <tr
-                data-slot="data-table-row"
-                {...dataTableDataAttributes.row({
-                  selected: false,
-                  expanded: false,
-                  even: false,
-                  empty: true,
-                })}
-                {...slots.row}
-              >
-                <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
-                  <RenderEmpty />
-                </td>
-              </tr>
-            }
-          >
-            <Show
-              when={local.virtualRender}
-              fallback={
-                <For each={activeRows()}>
-                  {(row, index) => <RenderRow row={row} index={index()} />}
-                </For>
-              }
-            >
-              {(virtualRender) => (
-                <Dynamic
-                  component={virtualRender()}
-                  entries={activeRows()}
-                  scrollElement={scrollContainer()}
-                  render={(row: Row<any, TData>, index: number, rowProps?: any) => (
-                    <RenderRow row={row} index={index} rowProps={rowProps} />
-                  )}
-                />
-              )}
-            </Show>
-          </Show>
-        </tbody>
-
-        <Show
-          when={activeTable()
-            .getFooterGroups()
-            .some((g) => g.headers.some((h) => !h.isPlaceholder && h.column.columnDef.footer))}
+        <table
+          data-slot="data-table"
+          {...rest}
+          {...slotWith('root', () => ({ style: tableStyle() }))}
+          ref={local.ref}
         >
-          <tfoot data-slot="data-table-footer" {...slots.footer}>
-            <For each={activeTable().getFooterGroups()}>
-              {(footerGroup) => (
+          <thead data-slot="data-table-header" {...slots.header}>
+            <For each={activeTable().getHeaderGroups()}>
+              {(headerGroup) => (
                 <tr data-slot="data-table-row" {...slots.row}>
-                  <For each={footerGroup.headers}>
+                  <For each={headerGroup.headers}>
                     {(header) => {
                       const meta = () =>
                         header.column.columnDef.meta as DataTableT.ColumnMeta | undefined
                       const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
                       const truncated = () => meta()?.truncated ?? false
+                      const canSort = () => header.column.getCanSort?.() ?? false
+                      const isSorted = () => header.column.getIsSorted?.()
+                      const sortIcon = () =>
+                        isSorted() === 'asc'
+                          ? 'icon-arrow-up'
+                          : isSorted() === 'desc'
+                            ? 'icon-arrow-down'
+                            : 'i-lucide:arrow-up-down'
+
                       const pin = () => header.column.getIsPinned?.()
                       const isStart = () => pin() === 'start'
                       const isEnd = () => pin() === 'end'
+                      const isSticky = () => Boolean(local.stickyHeader || pin())
                       const shouldSetWidth = () =>
-                        local.resizable ||
-                        hasPinning() ||
-                        header.column.columnDef.size !== undefined
+                        isResizable() || hasPinning() || header.column.columnDef.size !== undefined
 
                       return (
-                        <td
-                          data-slot="data-table-cell"
+                        <th
+                          data-slot="data-table-head"
                           colSpan={header.colSpan}
-                          {...dataTableDataAttributes.cell({
+                          aria-sort={
+                            isSorted() === 'asc'
+                              ? 'ascending'
+                              : isSorted() === 'desc'
+                                ? 'descending'
+                                : canSort()
+                                  ? 'none'
+                                  : undefined
+                          }
+                          {...dataTableDataAttributes.head({
                             pinned: pin,
                             pinnedEdge: () => pinnedEdge(header.column),
                           })}
-                          {...slotWith('cell', () => ({
+                          {...slotWith('head', () => ({
                             class: [
                               DATA_TABLE_TEXT_ALIGN_CLASS[align()],
                               truncated() && 'truncate',
@@ -851,72 +377,234 @@ export function DataTable<
                               ...(shouldSetWidth() && typeof header.getSize === 'function'
                                 ? { width: `${header.getSize()}px` }
                                 : {}),
-                              ...(pin()
-                                ? {
-                                    position: 'sticky',
-                                    left: isStart()
-                                      ? `${header.column.getStart?.('start') ?? 0}px`
-                                      : undefined,
-                                    right: isEnd()
-                                      ? `${header.column.getAfter?.('end') ?? 0}px`
-                                      : undefined,
-                                    'z-index': 10,
-                                  }
+                              ...(isSticky() ? { position: 'sticky' } : {}),
+                              ...(local.stickyHeader ? { top: 0 } : {}),
+                              ...(isStart()
+                                ? { left: `${header.column.getStart?.('start') ?? 0}px` }
+                                : {}),
+                              ...(isEnd()
+                                ? { right: `${header.column.getAfter?.('end') ?? 0}px` }
+                                : {}),
+                              ...(isSticky()
+                                ? { 'z-index': pin() && local.stickyHeader ? 30 : 20 }
                                 : {}),
                             },
                           }))}
                         >
                           <Show when={!header.isPlaceholder}>
-                            <FlexRender footer={header} />
+                            <div class={DATA_TABLE_HEAD_INNER_CLASS}>
+                              <span
+                                class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
+                              >
+                                <FlexRender header={header} />
+                              </span>
+                              <Show when={canSort()}>
+                                <button
+                                  type="button"
+                                  data-slot="data-table-sort-button"
+                                  aria-label={
+                                    isSorted() === 'asc'
+                                      ? 'Sorted ascending'
+                                      : isSorted() === 'desc'
+                                        ? 'Sorted descending'
+                                        : 'Sort'
+                                  }
+                                  {...slots.sortButton}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    header.column.getToggleSortingHandler?.()?.(e)
+                                  }}
+                                >
+                                  <span
+                                    data-slot="data-table-sort-icon"
+                                    {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
+                                    {...slots.sortIcon}
+                                    aria-hidden="true"
+                                  >
+                                    <Icon name={sortIcon()} />
+                                  </span>
+                                </button>
+                              </Show>
+                            </div>
+                            <Show when={isResizable() && (header.column.getCanResize?.() ?? false)}>
+                              <div
+                                data-slot="data-table-resizer"
+                                {...dataTableDataAttributes.resizer({
+                                  resizing: () => header.column.getIsResizing?.(),
+                                })}
+                                onMouseDown={(e) => header.getResizeHandler?.()?.(e)}
+                                onTouchStart={(e) => header.getResizeHandler?.()?.(e)}
+                                {...slotWith('resizer', () => ({
+                                  style:
+                                    tableOptions().columnResizeMode === 'onEnd' &&
+                                    header.column.getIsResizing?.()
+                                      ? {
+                                          transform: `translateX(${(tableOptions().columnResizeDirection === 'rtl' ? -1 : 1) * ((activeTable() as any).getState?.().columnResizing?.deltaOffset ?? 0)}px)`,
+                                        }
+                                      : undefined,
+                                }))}
+                              />
+                            </Show>
                           </Show>
-                        </td>
+                        </th>
                       )
                     }}
                   </For>
                 </tr>
               )}
             </For>
-          </tfoot>
-        </Show>
-      </table>
+          </thead>
 
-      <Show when={!isVirtualized() && local.pagination}>
-        <div data-slot="data-table-pagination" {...slots.pagination}>
-          <div class={DATA_TABLE_PAGINATION_INFO_CLASS}>
-            <Show when={local.selectable}>
-              {activeTable().getFilteredSelectedRowModel().rows.length} of {totalRowCount()} row(s)
-              selected.
-            </Show>
-          </div>
-          <div class={DATA_TABLE_PAGINATION_CONTROLS_CLASS}>
-            <Pagination
-              size={local.size}
-              page={currentPageIndex() + 1}
-              total={totalRowCount()}
-              itemsPerPage={currentPageSize()}
-              onPageChange={(page) => handlePageChange(page)}
-            />
-            <Show when={local.showPageSize !== false}>
-              <DropdownMenu>
-                <DropdownMenu.Trigger
-                  as={Button}
-                  variant="outline"
-                  size={local.size}
-                  trailing="icon-chevron-down"
+          <tbody data-slot="data-table-body" {...slots.body}>
+            <Show
+              when={activeRows().length > 0}
+              fallback={
+                <tr
+                  data-slot="data-table-row"
+                  {...dataTableDataAttributes.row({
+                    selected: false,
+                    expanded: false,
+                    even: false,
+                    empty: true,
+                  })}
+                  {...slots.row}
                 >
-                  {currentPageSize()} / page
-                </DropdownMenu.Trigger>
-                <DropdownMenu.Content
-                  items={pageSizeOptions().map((size) => ({
-                    label: `${size} / page`,
-                    onSelect: () => handlePageSizeChange(size),
-                  }))}
-                />
-              </DropdownMenu>
+                  <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
+                    <RenderEmpty />
+                  </td>
+                </tr>
+              }
+            >
+              <Show
+                when={local.virtualRender}
+                fallback={
+                  <For each={activeRows()}>
+                    {(row, index) => <RenderRow row={row} index={index()} />}
+                  </For>
+                }
+              >
+                {(virtualRender) => (
+                  <Dynamic
+                    component={virtualRender()}
+                    entries={activeRows()}
+                    scrollElement={scrollContainer()}
+                    render={(row: Row<any, TData>, index: number, rowProps?: any) => (
+                      <RenderRow row={row} index={index} rowProps={rowProps} />
+                    )}
+                  />
+                )}
+              </Show>
             </Show>
+          </tbody>
+
+          <Show
+            when={activeTable()
+              .getFooterGroups()
+              .some((g) => g.headers.some((h) => !h.isPlaceholder && h.column.columnDef.footer))}
+          >
+            <tfoot data-slot="data-table-footer" {...slots.footer}>
+              <For each={activeTable().getFooterGroups()}>
+                {(footerGroup) => (
+                  <tr data-slot="data-table-row" {...slots.row}>
+                    <For each={footerGroup.headers}>
+                      {(header) => {
+                        const meta = () =>
+                          header.column.columnDef.meta as DataTableT.ColumnMeta | undefined
+                        const align = (): 'left' | 'center' | 'right' => meta()?.align ?? 'left'
+                        const truncated = () => meta()?.truncated ?? false
+                        const pin = () => header.column.getIsPinned?.()
+                        const isStart = () => pin() === 'start'
+                        const isEnd = () => pin() === 'end'
+                        const shouldSetWidth = () =>
+                          isResizable() ||
+                          hasPinning() ||
+                          header.column.columnDef.size !== undefined
+
+                        return (
+                          <td
+                            data-slot="data-table-cell"
+                            colSpan={header.colSpan}
+                            {...dataTableDataAttributes.cell({
+                              pinned: pin,
+                              pinnedEdge: () => pinnedEdge(header.column),
+                            })}
+                            {...slotWith('cell', () => ({
+                              class: [
+                                DATA_TABLE_TEXT_ALIGN_CLASS[align()],
+                                truncated() && 'truncate',
+                                meta()?.class,
+                              ],
+                              style: {
+                                ...(shouldSetWidth() && typeof header.getSize === 'function'
+                                  ? { width: `${header.getSize()}px` }
+                                  : {}),
+                                ...(pin()
+                                  ? {
+                                      position: 'sticky',
+                                      left: isStart()
+                                        ? `${header.column.getStart?.('start') ?? 0}px`
+                                        : undefined,
+                                      right: isEnd()
+                                        ? `${header.column.getAfter?.('end') ?? 0}px`
+                                        : undefined,
+                                      'z-index': 10,
+                                    }
+                                  : {}),
+                              },
+                            }))}
+                          >
+                            <Show when={!header.isPlaceholder}>
+                              <FlexRender footer={header} />
+                            </Show>
+                          </td>
+                        )
+                      }}
+                    </For>
+                  </tr>
+                )}
+              </For>
+            </tfoot>
+          </Show>
+        </table>
+
+        <Show when={hasPagination()}>
+          <div data-slot="data-table-pagination" {...slots.pagination}>
+            <div class={DATA_TABLE_PAGINATION_INFO_CLASS}>
+              <Show when={hasSelectionColumn()}>
+                {activeTable().getFilteredSelectedRowModel().rows.length} of {totalRowCount()}{' '}
+                row(s) selected.
+              </Show>
+            </div>
+            <div class={DATA_TABLE_PAGINATION_CONTROLS_CLASS}>
+              <Pagination
+                size={local.size}
+                page={currentPageIndex() + 1}
+                total={totalRowCount()}
+                itemsPerPage={currentPageSize()}
+                onPageChange={(page) => handlePageChange(page)}
+              />
+              <Show when={local.showPageSize !== false}>
+                <DropdownMenu>
+                  <DropdownMenu.Trigger
+                    as={Button}
+                    variant="outline"
+                    size={local.size}
+                    trailing="icon-chevron-down"
+                  >
+                    {currentPageSize()} / page
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content
+                    items={pageSizeOptions().map((size) => ({
+                      label: `${size} / page`,
+                      onSelect: () => handlePageSizeChange(size),
+                    }))}
+                  />
+                </DropdownMenu>
+              </Show>
+            </div>
           </div>
-        </div>
-      </Show>
-    </div>
+        </Show>
+      </div>
+    </DataTableSlotsProvider>
   )
 }

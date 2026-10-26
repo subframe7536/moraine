@@ -1,5 +1,6 @@
-import { Badge, DataTable } from '@src'
+import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
 import { createTableVirtualizer } from '@src/virtualizer'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef, Row } from '@tanstack/solid-table'
 
 interface TaskRecord {
@@ -69,10 +70,15 @@ export default function VirtualizationExample() {
     overscan: 10,
   })
 
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: ROWS,
+  })
+
   return (
     <DataTable
-      data={ROWS}
-      columns={COLUMNS}
+      table={table}
       virtualRender={virtualizer.virtualRender}
       stickyHeader
       maxHeight={320}

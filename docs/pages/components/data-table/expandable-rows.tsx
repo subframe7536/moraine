@@ -1,4 +1,5 @@
-import { Badge, DataTable } from '@src'
+import { Badge, DataTable, createExpandColumn, getDefaultDataTableFeatures } from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 import { For } from 'solid-js'
 
@@ -113,6 +114,7 @@ const FULFILLMENT = {
 } as const
 
 const COLUMNS: ColumnDef<any, Order>[] = [
+  createExpandColumn(),
   {
     accessorKey: 'id',
     header: 'Order #',
@@ -154,15 +156,20 @@ const COLUMNS: ColumnDef<any, Order>[] = [
 ]
 
 export default function ExpandableRowsExample() {
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: ORDERS,
+    getRowCanExpand: () => true,
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
         Click the chevron on any row to inspect its line items and shipping details.
       </div>
       <DataTable
-        data={ORDERS}
-        columns={COLUMNS}
-        expandable
+        table={table}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
         expandedRowRender={(row) => (

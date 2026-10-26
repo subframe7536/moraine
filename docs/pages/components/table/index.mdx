@@ -288,7 +288,7 @@ keys, and overscan guidance.
 
 For advanced headless control over state, column toggling, and complex custom cells, combine Moraine's low-level `Table` primitives with [`@tanstack/solid-table`](https://tanstack.com/table/latest) as shown in the [interactive template below](#interactive-data-table-with-tanstack-table).
 
-If you are looking for an all-in-one data grid without managing TanStack state yourself, use Moraine's dedicated [DataTable component](/components/data-table). It provides a high-level, data-driven API with built-in client/remote pagination, sorting, row selection checkboxes, loading overlays, and virtualization out of the box.
+If you want a styled data grid around a TanStack Table instance, use Moraine's dedicated [DataTable component](/components/data-table). Pass `createTable()` as `table`; DataTable renders sorting, selection, pagination, loading overlays, and virtualization from that instance.
 
 ## Examples
 
@@ -315,6 +315,6 @@ scrollable container and a sticky header.
 
 Build an interactive data grid template with column sorting, email search filtering, row selection, column visibility toggles, and pagination using `@tanstack/solid-table` and `Table` primitives.
 
-For a turnkey component with zero boilerplate, consider [DataTable](/components/data-table).
+For a styled presenter over `createTable()`, consider [DataTable](/components/data-table).
 
 <Preview path="./tanstack-table" />
