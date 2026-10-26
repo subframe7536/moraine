@@ -34,12 +34,7 @@ export { ContextMenu } from './context-menu'
 export type { ContextMenuProps, ContextMenuT } from './context-menu'
 export { CopyButton } from './copy-button'
 export type { CopyButtonProps, CopyButtonT } from './copy-button'
-export {
-  DataTable,
-  createExpandColumn,
-  createSelectColumn,
-  getDefaultDataTableFeatures,
-} from './data-table'
+export { DataTable, createDataTable } from './data-table'
 export type { DataTableProps, DataTableT } from './data-table'
 export { Dialog } from './dialog'
 export type { DialogProps, DialogT } from './dialog'

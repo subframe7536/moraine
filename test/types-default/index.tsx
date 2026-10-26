@@ -15,6 +15,7 @@ import {
   Combobox,
   ContextMenu,
   CopyButton,
+  DataTable,
   Dialog,
   DropdownMenu,
   Empty,
@@ -40,6 +41,7 @@ import {
   Tooltip,
   cn,
   createCn,
+  createDataTable,
   createForm,
   useCn,
 } from 'moraine'
@@ -534,6 +536,34 @@ export type DataTableContracts = [
   Assert<'size' extends keyof DataTableT.Variants ? true : false>,
   Assert<'striped' extends keyof DataTableT.Variants ? true : false>,
 ]
+
+const dataTableRows = [{ id: '1', name: 'Alice', spend: 100 }]
+const dataTableCols: DataTableT.Column<(typeof dataTableRows)[number]>[] = [
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'spend', header: 'Spend', meta: { align: 'right', truncated: true } },
+]
+const invalidDataTableCol: DataTableT.Column<(typeof dataTableRows)[number]> = {
+  accessorKey: 'name',
+  header: 'Name',
+  // @ts-expect-error Invalid column alignment value on meta.
+  meta: { align: 'middle' },
+}
+void invalidDataTableCol
+
+const dataTableInstance = createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  selection: 'multiple',
+  expandable: true,
+  pagination: { pageSize: 10, pageSizes: [10, 20] },
+})
+;<DataTable
+  table={dataTableInstance}
+  striped
+  expandedRowRender={(props) => <div>{props.row.original.name}</div>}
+/>
+// @ts-expect-error DataTable requires a table instance.
+;<DataTable />
 
 ;<Empty
   as="section"

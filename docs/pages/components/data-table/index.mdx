@@ -1,6 +1,6 @@
 ---
 title: DataTable
-description: Data-driven table presenter powered by TanStack Table v9. Pass a createTable instance; DataTable owns style, slots, and render parts.
+description: Data-driven table presenter powered by createDataTable. Configure data, columns, and table behavior on the instance; DataTable owns style, slots, and render parts.
 group: Display
 api:
   path: src/components/data-table/data-table
@@ -95,51 +95,103 @@ import DataTablePlayground from './playground'
 
 ## Usage
 
-Use `DataTable` as the styled presenter for a TanStack Table instance. Create the table with
-`createTable` and `getDefaultDataTableFeatures()`, then pass it as `table`. DataTable props are
-style, slots, and render parts only — sorting, selection, pagination, pinning, and resizing are
-configured on the table instance. When `table` is omitted, DataTable renders an empty table with
-default features.
+Create a reactive table instance with `createDataTable({ data, columns, ... })` and pass it to `DataTable` via `table`. `createDataTable` configures sorting, selection, expansion, pagination, pinning, resizing, and controlled state on a TanStack Solid Table instance; `DataTable` handles styling, slots, and render parts.
 
 ```tsx
-import type { ColumnDef } from '@tanstack/solid-table'
-import { createTable } from '@tanstack/solid-table'
-import { DataTable, createSelectColumn, getDefaultDataTableFeatures } from 'moraine'
+import { DataTable, createDataTable } from 'moraine'
+import type { DataTableT } from 'moraine'
 
 const data = [
   { id: '1', name: 'Alice', role: 'Engineer' },
   { id: '2', name: 'Bob', role: 'Designer' },
 ]
 
-const columns: ColumnDef<any, (typeof data)[number]>[] = [
-  createSelectColumn(),
+const columns: DataTableT.Column<(typeof data)[number]>[] = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'role', header: 'Role' },
 ]
 
 export function Example() {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns,
+  const table = createDataTable({
     data,
+    columns,
+    selection: 'multiple',
   })
 
   return <DataTable table={table} />
 }
 ```
 
-### Column Pinning
+### Selection Modes and Disabled Rows
 
-Freeze critical identifier columns on the start edge or action buttons on the end edge during
-horizontal scrolling. Set `state.columnPinning` on `createTable` using TanStack's `start` / `end`
-regions:
+Set `selection: 'multiple'` to prepend a checkbox column (id `'select'`) with a select-all header, or `selection: 'single'` for radio buttons. Lock specific rows with `canSelectRow`:
 
 ```tsx
-const table = createTable({
-  features: getDefaultDataTableFeatures({ pagination: false }),
-  columns,
+const table = createDataTable({
   data,
-  state: {
+  columns,
+  selection: 'single',
+  canSelectRow: (row) => row.original.status !== 'terminated',
+})
+
+return <DataTable table={table} />
+```
+
+### Expandable Rows
+
+Set `expandable: true` (or a `(row) => boolean` predicate) to prepend a chevron toggle column (id `'expand'`), and pass `expandedRowRender` on `DataTable`:
+
+```tsx
+const table = createDataTable({
+  data,
+  columns,
+  expandable: true,
+})
+
+return (
+  <DataTable
+    table={table}
+    expandedRowRender={(props) => (
+      <div>
+        Order #{props.row.original.id} contains {props.row.original.items.length} items.
+      </div>
+    )}
+  />
+)
+```
+
+### Pagination and Server Mode
+
+Pagination is off by default. Pass `pagination: true` or `pagination: { pageSize, pageSizes }` to slice rows and show the pagination toolbar (`pageSizes: false` hides the page-size dropdown). For server-driven sorting, filtering, and paging, set `manual: true` and `rowCount`, pass signals to `state`, and handle resolved values in `onSortingChange` / `onPaginationChange`:
+
+```tsx
+const [sorting, setSorting] = createSignal<DataTableT.State['sorting']>([])
+const [pagination, setPagination] = createSignal({ pageIndex: 0, pageSize: 20 })
+
+const table = createDataTable({
+  data: serverRows,
+  columns,
+  manual: true,
+  rowCount: totalCount,
+  pagination: { pageSizes: [10, 20, 50] },
+  state: { sorting, pagination },
+  onSortingChange: setSorting,
+  onPaginationChange: setPagination,
+})
+
+return <DataTable table={table} loading={isFetching()} />
+```
+
+### Column Pinning
+
+Freeze identifier columns on the start edge or action buttons on the end edge during horizontal scrolling with `initialState.columnPinning` or `state.columnPinning` (injected utility columns use `'select'` and `'expand'`):
+
+```tsx
+const table = createDataTable({
+  data,
+  columns,
+  selection: 'multiple',
+  initialState: {
     columnPinning: { start: ['select', 'id'], end: ['actions'] },
   },
 })
@@ -157,14 +209,13 @@ Pin the table header to the top of a scrollable container with `stickyHeader` an
 
 ### Column Resizing
 
-Enable drag handles by setting `enableColumnResizing` on the table instance:
+Enable drag handles on column headers with `resizable: true`:
 
 ```tsx
-const table = createTable({
-  features: getDefaultDataTableFeatures({ pagination: false }),
-  columns,
+const table = createDataTable({
   data,
-  enableColumnResizing: true,
+  columns,
+  resizable: true,
 })
 
 return <DataTable table={table} />
@@ -172,62 +223,16 @@ return <DataTable table={table} />
 
 ### Column Order
 
-Control visible column order with `state.columnOrder` on `createTable`. Values are column ids,
-matching `accessorKey` unless a column sets `id`.
+Control visible column order with `state.columnOrder` and `onColumnOrderChange`. Values are column ids, matching `accessorKey` unless a column sets `id`:
 
 ```tsx
-const table = createTable({
-  features: getDefaultDataTableFeatures({ pagination: false }),
+const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'])
+
+const table = createDataTable({
+  data,
   columns,
-  data,
-  state: {
-    get columnOrder() {
-      return columnOrder()
-    },
-  },
+  state: { columnOrder },
   onColumnOrderChange: setColumnOrder,
-})
-
-return <DataTable table={table} />
-```
-
-### Expandable Rows
-
-Add `createExpandColumn()` to the column list, allow rows to expand on the table instance, and pass
-`expandedRowRender` as a DataTable part:
-
-```tsx
-const table = createTable({
-  features: getDefaultDataTableFeatures({ pagination: false }),
-  columns: [createExpandColumn(), ...columns],
-  data,
-  getRowCanExpand: () => true,
-})
-
-return (
-  <DataTable
-    table={table}
-    expandedRowRender={(row) => (
-      <div>
-        Order #{row.original.id} contains {row.original.items.length} items.
-      </div>
-    )}
-  />
-)
-```
-
-### Selection Modes and Disabled Rows
-
-Add `createSelectColumn()` for checkboxes or `createSelectColumn({ mode: 'single' })` for radios.
-Disable rows with `enableRowSelection` on `createTable`:
-
-```tsx
-const table = createTable({
-  features: getDefaultDataTableFeatures({ pagination: false }),
-  columns: [createSelectColumn({ mode: 'single' }), ...columns],
-  data,
-  enableMultiRowSelection: false,
-  enableRowSelection: (row) => row.original.status !== 'terminated',
 })
 
 return <DataTable table={table} />
@@ -235,7 +240,7 @@ return <DataTable table={table} />
 
 ### Virtualization
 
-Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. Use `getDefaultDataTableFeatures({ pagination: false })` so row virtualization is not sliced by paging.
+Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. Leave `pagination` off when virtualizing.
 
 ## Examples
 
@@ -277,7 +282,7 @@ Inspect nested line items, shipping addresses, and tracking codes inside expanda
 
 ### Single selection and disabled rows
 
-Toggle between multiple and single selection modes, and lock terminated nodes with `enableRowSelection`.
+Toggle between multiple and single selection modes, and lock terminated nodes with `canSelectRow`.
 
 <Preview path="./selection-modes" />
 

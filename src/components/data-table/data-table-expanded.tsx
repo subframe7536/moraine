@@ -1,6 +1,7 @@
-import type { Row, RowData } from '@tanstack/solid-table'
-import type { JSX } from 'solid-js'
+import type { RowData } from '@tanstack/solid-table'
+import type { Component, JSX } from 'solid-js'
 import { Show, onCleanup } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import type { SlotOverrides } from '../../provider'
@@ -14,6 +15,7 @@ import {
   dataTableExpandedWrapperDataAttributes,
   dataTableRecipe,
 } from './data-table.recipe'
+import type { DataTableT } from './data-table.types'
 
 export function createDataTableRowDisclosure(open: () => boolean): DisclosureState {
   return createDisclosureState({
@@ -26,8 +28,8 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
   disclosure: DisclosureState
   initiallyExpanded: boolean
   colSpan: number
-  row: Row<any, TData>
-  render: (row: Row<any, TData>) => JSX.Element
+  row: DataTableT.Row<TData>
+  render: Component<DataTableT.ExpandedRowRenderProps<TData>>
   slotOverrides: SlotOverrides
 }): JSX.Element {
   const { slots } = useRecipe(
@@ -89,7 +91,7 @@ export function DataTableExpandedRow<TData extends RowData>(props: {
               }}
               class={DATA_TABLE_EXPANDED_BODY_CLASS}
             >
-              {props.render(props.row)}
+              <Dynamic component={props.render} row={props.row} />
             </div>
           </div>
         </td>

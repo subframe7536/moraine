@@ -1,14 +1,5 @@
-import {
-  Badge,
-  Button,
-  ButtonGroup,
-  DataTable,
-  ToggleButton,
-  createSelectColumn,
-  getDefaultDataTableFeatures,
-} from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef, RowSelectionState } from '@tanstack/solid-table'
+import { Badge, Button, ButtonGroup, DataTable, ToggleButton, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 import { Show, createSignal } from 'solid-js'
 
 interface ServerNode {
@@ -77,7 +68,7 @@ const NODE_STATUS = {
   terminated: { label: 'Terminated', tone: 'neutral' },
 } as const
 
-const COLUMNS: ColumnDef<any, ServerNode>[] = [
+const COLUMNS: DataTableT.Column<ServerNode>[] = [
   {
     accessorKey: 'id',
     header: 'Node ID',
@@ -127,7 +118,7 @@ const COLUMNS: ColumnDef<any, ServerNode>[] = [
 
 export default function SelectionModesExample() {
   const [mode, setMode] = createSignal<'multiple' | 'single'>('multiple')
-  const [selectedRows, setSelectedRows] = createSignal<RowSelectionState>({})
+  const [selectedRows, setSelectedRows] = createSignal<DataTableT.State['rowSelection']>({})
 
   const selectedCount = () => Object.keys(selectedRows()).length
 
@@ -136,20 +127,13 @@ export default function SelectionModesExample() {
     setSelectedRows({})
   }
 
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    get columns(): ColumnDef<any, ServerNode>[] {
-      return [createSelectColumn<any, ServerNode>({ mode: mode() }), ...COLUMNS]
-    },
+  const table = createDataTable({
     data: NODES,
-    get enableMultiRowSelection() {
-      return mode() === 'multiple'
-    },
-    enableRowSelection: (row: { original: ServerNode }) => row.original.status !== 'terminated',
+    columns: COLUMNS,
+    selection: mode,
+    canSelectRow: (row) => row.original.status !== 'terminated',
     state: {
-      get rowSelection() {
-        return selectedRows()
-      },
+      rowSelection: selectedRows,
     },
     onRowSelectionChange: setSelectedRows,
   })
@@ -190,8 +174,8 @@ export default function SelectionModesExample() {
       />
 
       <div class="text-xs text-muted-foreground">
-        Terminated nodes are locked by <code class="font-mono">enableRowSelection</code> and cannot
-        be selected.
+        Terminated nodes are locked by <code class="font-mono">canSelectRow</code> and cannot be
+        selected.
       </div>
     </div>
   )

@@ -1,9 +1,8 @@
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
 import { renderToString } from 'solid-js/web'
 
+import { createDataTable } from './create-data-table'
 import { DataTable } from './data-table'
-import { getDefaultDataTableFeatures } from './data-table-helpers'
+import type { DataTableT } from './data-table.types'
 
 interface RowItem {
   id: string
@@ -11,7 +10,7 @@ interface RowItem {
   count: number
 }
 
-const FIXTURE_COLUMNS: ColumnDef<any, RowItem>[] = [
+const FIXTURE_COLUMNS: DataTableT.Column<RowItem>[] = [
   {
     accessorKey: 'title',
     header: 'Title',
@@ -32,15 +31,19 @@ const EXTRA_ROWS: RowItem[] = [
 ]
 
 export function DataTableHydrationFixture(props: { extraRow?: boolean }) {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
+  const table = createDataTable({
     columns: FIXTURE_COLUMNS,
-    get data() {
-      return props.extraRow ? EXTRA_ROWS : BASE_ROWS
-    },
+    data: () => (props.extraRow ? EXTRA_ROWS : BASE_ROWS),
+    expandable: true,
+    initialState: { expanded: { '0': true } },
   })
 
-  return <DataTable table={table} />
+  return (
+    <DataTable
+      table={table}
+      expandedRowRender={(props) => <div>{props.row.original.title} details</div>}
+    />
+  )
 }
 
 export function renderDataTableFixture(): string {

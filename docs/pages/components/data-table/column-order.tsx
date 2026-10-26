@@ -1,6 +1,5 @@
-import { Button, DataTable, getDefaultDataTableFeatures } from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
+import { Button, DataTable, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 import { For, createSignal } from 'solid-js'
 
 interface Employee {
@@ -20,7 +19,7 @@ const DATA: Employee[] = [
 
 const COLUMN_IDS = ['name', 'role', 'department', 'location'] as const
 
-const COLUMNS: ColumnDef<any, Employee>[] = [
+const COLUMNS: DataTableT.Column<Employee>[] = [
   { accessorKey: 'name', header: 'Name', size: 180 },
   { accessorKey: 'role', header: 'Role', size: 140 },
   { accessorKey: 'department', header: 'Department', size: 160 },
@@ -52,14 +51,11 @@ export default function ColumnOrderExample() {
     })
   }
 
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: DATA,
+    columns: COLUMNS,
     state: {
-      get columnOrder() {
-        return columnOrder()
-      },
+      columnOrder,
     },
     onColumnOrderChange: setColumnOrder,
   })

@@ -1,13 +1,5 @@
-import {
-  Badge,
-  Button,
-  DataTable,
-  DropdownMenu,
-  createSelectColumn,
-  getDefaultDataTableFeatures,
-} from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
+import { Badge, Button, DataTable, DropdownMenu, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 
 interface Customer {
   id: string
@@ -109,8 +101,7 @@ const STATUS = {
   canceled: { label: 'Canceled', tone: 'danger' },
 } as const
 
-const COLUMNS: ColumnDef<any, Customer>[] = [
-  createSelectColumn(),
+const COLUMNS: DataTableT.Column<Customer>[] = [
   {
     accessorKey: 'id',
     header: 'Customer ID',
@@ -217,11 +208,11 @@ const COLUMNS: ColumnDef<any, Customer>[] = [
 ]
 
 export default function PinnedColumnsExample() {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: CUSTOMERS,
-    state: {
+    columns: COLUMNS,
+    selection: 'multiple',
+    initialState: {
       columnPinning: { start: ['select', 'id'], end: ['actions'] },
     },
   })

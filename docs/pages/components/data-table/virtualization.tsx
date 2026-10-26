@@ -1,7 +1,6 @@
-import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
+import { Badge, DataTable, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 import { createTableVirtualizer } from '@src/virtualizer'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef, Row } from '@tanstack/solid-table'
 
 interface TaskRecord {
   id: number
@@ -30,7 +29,7 @@ const PRIORITY_TONE = {
   Critical: 'danger',
 } as const
 
-const COLUMNS: ColumnDef<any, TaskRecord>[] = [
+const COLUMNS: DataTableT.Column<TaskRecord>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
@@ -64,16 +63,15 @@ const COLUMNS: ColumnDef<any, TaskRecord>[] = [
 ]
 
 export default function VirtualizationExample() {
-  const virtualizer = createTableVirtualizer<Row<any, TaskRecord>>({
+  const virtualizer = createTableVirtualizer<DataTableT.Row<TaskRecord>>({
     estimateSize: () => ROW_HEIGHT,
     getItemKey: (row) => row.id,
     overscan: 10,
   })
 
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: ROWS,
+    columns: COLUMNS,
   })
 
   return (

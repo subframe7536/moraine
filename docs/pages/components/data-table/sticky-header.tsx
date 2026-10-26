@@ -1,6 +1,5 @@
-import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
+import { Badge, DataTable, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 
 interface AuditEvent {
   id: string
@@ -51,7 +50,7 @@ const SEVERITY = {
   critical: { label: 'Critical', tone: 'danger' },
 } as const
 
-const COLUMNS: ColumnDef<any, AuditEvent>[] = [
+const COLUMNS: DataTableT.Column<AuditEvent>[] = [
   {
     accessorKey: 'timestamp',
     header: 'Timestamp',
@@ -108,10 +107,9 @@ const COLUMNS: ColumnDef<any, AuditEvent>[] = [
 ]
 
 export default function StickyHeaderExample() {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: AUDIT_EVENTS,
+    columns: COLUMNS,
   })
 
   return (

@@ -1,6 +1,5 @@
-import { Badge, DataTable, createExpandColumn, getDefaultDataTableFeatures } from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
+import { Badge, DataTable, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 import { For } from 'solid-js'
 
 interface OrderItem {
@@ -113,8 +112,7 @@ const FULFILLMENT = {
   processing: { label: 'Processing', tone: 'warning' },
 } as const
 
-const COLUMNS: ColumnDef<any, Order>[] = [
-  createExpandColumn(),
+const COLUMNS: DataTableT.Column<Order>[] = [
   {
     accessorKey: 'id',
     header: 'Order #',
@@ -156,11 +154,10 @@ const COLUMNS: ColumnDef<any, Order>[] = [
 ]
 
 export default function ExpandableRowsExample() {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: ORDERS,
-    getRowCanExpand: () => true,
+    columns: COLUMNS,
+    expandable: true,
   })
 
   return (
@@ -172,20 +169,20 @@ export default function ExpandableRowsExample() {
         table={table}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
-        expandedRowRender={(row) => (
+        expandedRowRender={(props) => (
           <div class="flex flex-col gap-3">
             <div class="text-xs flex flex-wrap gap-x-6 gap-y-1">
               <div class="text-muted-foreground">
                 <span class="text-foreground font-medium">Ship to:</span>{' '}
-                {row.original.shippingAddress}
+                {props.row.original.shippingAddress}
               </div>
               <div class="text-muted-foreground">
                 <span class="text-foreground font-medium">Tracking:</span>{' '}
-                <span class="font-mono">{row.original.tracking}</span>
+                <span class="font-mono">{props.row.original.tracking}</span>
               </div>
             </div>
             <div class="border border-border rounded-md bg-background divide-border divide-y">
-              <For each={row.original.items}>
+              <For each={props.row.original.items}>
                 {(item) => (
                   <div class="text-xs px-3 py-2 flex gap-4 items-center justify-between">
                     <div class="flex flex-col min-w-0">

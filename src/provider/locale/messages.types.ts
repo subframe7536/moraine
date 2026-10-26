@@ -3,6 +3,7 @@ import type { defaultBreadcrumbMessages } from '../../components/breadcrumb/brea
 import type { defaultComboboxMessages } from '../../components/combobox/combobox.messages'
 import type { defaultCommandPaletteMessages } from '../../components/command-palette/command-palette.messages'
 import type { defaultCopyButtonMessages } from '../../components/copy-button/copy-button.messages'
+import type { defaultDataTableMessages } from '../../components/data-table/data-table.messages'
 import type { defaultDialogMessages } from '../../components/dialog/dialog.messages'
 import type { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
 import type { defaultFormMessages } from '../../components/form/form.messages'
@@ -31,6 +32,7 @@ export interface MoraineMessages {
   breadcrumb: ComponentMessages<typeof defaultBreadcrumbMessages>
   commandPalette: ComponentMessages<typeof defaultCommandPaletteMessages>
   copyButton: ComponentMessages<typeof defaultCopyButtonMessages>
+  dataTable: ComponentMessages<typeof defaultDataTableMessages>
   select: ComponentMessages<typeof defaultSelectMessages>
   combobox: ComponentMessages<typeof defaultComboboxMessages>
   multiSelect: ComponentMessages<typeof defaultMultiSelectMessages>

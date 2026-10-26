@@ -1,14 +1,5 @@
-import {
-  Button,
-  DataTable,
-  Input,
-  Select,
-  createExpandColumn,
-  createSelectColumn,
-  getDefaultDataTableFeatures,
-} from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef, PaginationState, SortingState } from '@tanstack/solid-table'
+import { Button, DataTable, Input, Select, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 import { Show, createEffect, createSignal, on, onCleanup } from 'solid-js'
 
 const ALL_EMPLOYEES = [
@@ -53,7 +44,7 @@ const ROLE_OPTIONS = [
   { label: 'Director', value: 'Director' },
 ]
 
-const COLUMNS: ColumnDef<any, Employee>[] = [
+const COLUMNS: DataTableT.Column<Employee>[] = [
   { accessorKey: 'name', header: 'Name', footer: 'Total' },
   { accessorKey: 'role', header: 'Role' },
   { accessorKey: 'department', header: 'Department', footer: '25 members' },
@@ -75,10 +66,10 @@ interface PlaygroundProps {
 }
 
 interface PlaygroundTableProps extends PlaygroundProps {
-  remoteSorting: () => SortingState
-  setRemoteSorting: (value: SortingState) => void
-  remotePagination: () => PaginationState
-  setRemotePagination: (value: PaginationState) => void
+  remoteSorting: () => DataTableT.State['sorting']
+  setRemoteSorting: (value: DataTableT.State['sorting']) => void
+  remotePagination: () => DataTableT.State['pagination']
+  setRemotePagination: (value: DataTableT.State['pagination']) => void
   remoteLoading: () => boolean
   serverRows: () => Employee[]
   serverTotal: () => number
@@ -88,61 +79,29 @@ interface PlaygroundTableProps extends PlaygroundProps {
 function PlaygroundTable(props: PlaygroundTableProps) {
   // oxlint-disable-next-line subf/solid-reactivity -- Instance remounts when pagination changes.
   const paginated = props.pagination !== false
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: paginated }),
-    get columns() {
-      let cols: ColumnDef<any, Employee>[] = [...COLUMNS]
-      if (props.sorting === false) {
-        cols = cols.map((column) => ({ ...column, enableSorting: false }))
-      }
-      if (props.expandable) {
-        cols = [createExpandColumn(), ...cols]
-      }
-      if (props.selectable !== false) {
-        cols = [createSelectColumn(), ...cols]
-      }
-      return cols
-    },
-    get data() {
-      return props.remote ? props.serverRows() : props.filteredLocalData()
-    },
-    get rowCount() {
-      return props.remote ? props.serverTotal() : undefined
-    },
-    get manualPagination() {
-      return props.remote ? true : undefined
-    },
-    get manualSorting() {
-      return props.remote ? true : undefined
-    },
-    get enableColumnResizing() {
-      return props.resizable === true
-    },
-    getRowCanExpand: () => Boolean(props.expandable),
-    autoResetPageIndex: false,
+  const table = createDataTable({
+    data: () => (props.remote ? props.serverRows() : props.filteredLocalData()),
+    columns: COLUMNS,
+    sorting: () => props.sorting !== false,
+    selection: () => (props.selectable !== false ? 'multiple' : undefined),
+    expandable: () => Boolean(props.expandable),
+    pagination: paginated ? { pageSizes: [5, 10, 20] } : false,
+    resizable: () => props.resizable === true,
+    manual: () => props.remote === true,
+    rowCount: () => (props.remote ? props.serverTotal() : undefined),
     state: {
-      get sorting() {
-        return props.remote ? props.remoteSorting() : undefined
-      },
-      get pagination() {
-        return props.remote ? props.remotePagination() : undefined
-      },
+      sorting: () => (props.remote ? props.remoteSorting() : undefined),
+      pagination: () => (props.remote ? props.remotePagination() : undefined),
     },
-    onSortingChange: (updater: SortingState | ((old: SortingState) => SortingState)) => {
-      if (!props.remote) {
-        return
+    onSortingChange: (next) => {
+      if (props.remote) {
+        props.setRemoteSorting(next)
       }
-      const next = typeof updater === 'function' ? updater(props.remoteSorting()) : updater
-      props.setRemoteSorting(next)
     },
-    onPaginationChange: (
-      updater: PaginationState | ((old: PaginationState) => PaginationState),
-    ) => {
-      if (!props.remote) {
-        return
+    onPaginationChange: (next) => {
+      if (props.remote) {
+        props.setRemotePagination(next)
       }
-      const next = typeof updater === 'function' ? updater(props.remotePagination()) : updater
-      props.setRemotePagination(next)
     },
   })
 
@@ -157,16 +116,15 @@ function PlaygroundTable(props: PlaygroundTableProps) {
       maxHeight={props.stickyHeader ? 280 : undefined}
       expandedRowRender={
         props.expandable
-          ? (row) => (
+          ? (rowProps) => (
               <div class="text-muted-foreground">
-                <span class="text-foreground font-medium">{row.original.name}</span> is a{' '}
-                {row.original.role} in the {row.original.department} department.
+                <span class="text-foreground font-medium">{rowProps.row.original.name}</span> is a{' '}
+                {rowProps.row.original.role} in the {rowProps.row.original.department} department.
               </div>
             )
           : undefined
       }
       loading={props.loading || (props.remote && props.remoteLoading())}
-      pageSizeOptions={[5, 10, 20]}
       classes={{ container: 'border border-border rounded-lg' }}
     />
   )
@@ -175,11 +133,11 @@ function PlaygroundTable(props: PlaygroundTableProps) {
 export default function DataTablePlayground(props: PlaygroundProps) {
   const [nameQuery, setNameQuery] = createSignal('')
   const [roleFilter, setRoleFilter] = createSignal<string | undefined>(undefined)
-  const [remoteSorting, setRemoteSorting] = createSignal<SortingState>([], {
+  const [remoteSorting, setRemoteSorting] = createSignal<DataTableT.State['sorting']>([], {
     equals: (a, b) =>
       a.length === b.length && a.every((s, i) => s.id === b[i]?.id && s.desc === b[i]?.desc),
   })
-  const [remotePagination, setRemotePagination] = createSignal<PaginationState>(
+  const [remotePagination, setRemotePagination] = createSignal<DataTableT.State['pagination']>(
     { pageIndex: 0, pageSize: 5 },
     {
       equals: (a, b) => a.pageIndex === b.pageIndex && a.pageSize === b.pageSize,

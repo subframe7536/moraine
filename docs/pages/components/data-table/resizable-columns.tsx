@@ -1,6 +1,5 @@
-import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
-import { createTable } from '@tanstack/solid-table'
-import type { ColumnDef } from '@tanstack/solid-table'
+import { Badge, DataTable, createDataTable } from '@src'
+import type { DataTableT } from '@src'
 
 interface ServiceMetric {
   id: string
@@ -72,7 +71,7 @@ const HEALTH = {
   critical: { label: 'Critical', tone: 'danger' },
 } as const
 
-const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
+const COLUMNS: DataTableT.Column<ServiceMetric>[] = [
   {
     accessorKey: 'service',
     header: 'Service Name',
@@ -156,11 +155,10 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
 ]
 
 export default function ResizableColumnsExample() {
-  const table = createTable({
-    features: getDefaultDataTableFeatures({ pagination: false }),
-    columns: COLUMNS,
+  const table = createDataTable({
     data: METRICS,
-    enableColumnResizing: true,
+    columns: COLUMNS,
+    resizable: true,
   })
 
   return (

@@ -7,6 +7,7 @@ import { defaultBreadcrumbMessages } from '../../components/breadcrumb/breadcrum
 import { defaultComboboxMessages } from '../../components/combobox/combobox.messages'
 import { defaultCommandPaletteMessages } from '../../components/command-palette/command-palette.messages'
 import { defaultCopyButtonMessages } from '../../components/copy-button/copy-button.messages'
+import { defaultDataTableMessages } from '../../components/data-table/data-table.messages'
 import { Dialog } from '../../components/dialog/dialog'
 import { defaultDialogMessages } from '../../components/dialog/dialog.messages'
 import { defaultFileUploadMessages } from '../../components/file-upload/file-upload.messages'
@@ -38,6 +39,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   breadcrumb: defaultBreadcrumbMessages,
   commandPalette: defaultCommandPaletteMessages,
   copyButton: defaultCopyButtonMessages,
+  dataTable: defaultDataTableMessages,
   select: defaultSelectMessages,
   combobox: defaultComboboxMessages,
   multiSelect: defaultMultiSelectMessages,
