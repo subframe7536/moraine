@@ -125,8 +125,13 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function expandSiblings(key: string): void {
+    if (deps.isDisabled(key)) {
+      return
+    }
     for (const siblingKey of getSiblingKeys(deps.registry(), key)) {
-      deps.expansion.expand(siblingKey)
+      if (!deps.isDisabled(siblingKey)) {
+        deps.expansion.expand(siblingKey)
+      }
     }
   }
 
@@ -160,7 +165,14 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
 
   function onKeyDown(event: KeyboardEvent, key: string): void {
     const element = event.currentTarget
-    if (event.target !== element || event.altKey || !(element instanceof Element)) {
+    if (
+      event.defaultPrevented ||
+      event.isComposing ||
+      event.keyCode === 229 ||
+      event.target !== element ||
+      event.altKey ||
+      !(element instanceof Element)
+    ) {
       return
     }
     const node = deps.registry().nodes.get(key)
@@ -226,12 +238,18 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
           return
         }
         if (event.key === (rtl ? 'ArrowRight' : 'ArrowLeft')) {
-          if (node.hasChildren && deps.expansion.isExpanded(key)) {
+          if (node.hasChildren && deps.expansion.isExpanded(key) && !deps.isDisabled(key)) {
             event.preventDefault()
             deps.expansion.collapse(key)
-          } else if (node.parentKey !== undefined) {
-            event.preventDefault()
-            focus(node.parentKey)
+          } else {
+            let ancestorKey = node.parentKey
+            while (ancestorKey !== undefined && deps.isDisabled(ancestorKey)) {
+              ancestorKey = deps.registry().nodes.get(ancestorKey)?.parentKey
+            }
+            if (ancestorKey !== undefined) {
+              event.preventDefault()
+              focus(ancestorKey)
+            }
           }
           return
         }

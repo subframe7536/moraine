@@ -139,13 +139,21 @@ export function createListVirtualizer<
       currentEntries = entries
       currentKeys = nextKeys
       currentEstimates = nextEstimates
+      if (initialized) {
+        const nextKeySet = new Set(nextKeys)
+        for (const key of virtualizer.itemSizeCache.keys()) {
+          if (!nextKeySet.has(key)) {
+            virtualizer.itemSizeCache.delete(key)
+          }
+        }
+      }
       initialized = true
       virtualizerOptions.getScrollElement()
-      virtualizer.setOptions(virtualizerOptions)
-
-      if (layoutChanged) {
-        virtualizer.measure()
-      }
+      virtualizer.setOptions(
+        layoutChanged
+          ? { ...virtualizerOptions, getItemKey: (index: number) => currentKeys[index] ?? index }
+          : virtualizerOptions,
+      )
 
       if (mounted()) {
         virtualizer._willUpdate()

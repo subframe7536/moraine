@@ -592,4 +592,75 @@ describe('createListVirtualizer', () => {
     screen.unmount()
     scrollElement.remove()
   })
+
+  test('keeps measured sizes for remaining keys on middle insert and delete while pruning absent keys', async () => {
+    const scrollElement = document.createElement('div')
+    document.body.append(scrollElement)
+    const [entries, setEntries] = createSignal([
+      { id: 'a', label: 'Item A' },
+      { id: 'b', label: 'Item B' },
+      { id: 'c', label: 'Item C' },
+    ])
+    let virtualizer:
+      | ReturnType<typeof createListVirtualizer<{ id: string; label: string }>>
+      | undefined
+
+    const screen = render(() => {
+      virtualizer = createListVirtualizer<{ id: string; label: string }>({
+        estimateSize: () => 20,
+        getItemKey: (item) => item.id,
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        get entries() {
+          return entries()
+        },
+        scrollElement,
+        render: (item, _index, props) => (
+          <div {...props} data-key={item.id}>
+            {item.label}
+          </div>
+        ),
+      })
+    })
+
+    await Promise.resolve()
+    const instance = virtualizer?.instance()
+    expect(instance).toBeDefined()
+
+    // Manually record measured size for 'c'
+    instance!.itemSizeCache.set('c', 60)
+    expect(instance!.itemSizeCache.get('c')).toBe(60)
+
+    // Insert item 'x' between 'a' and 'b'
+    setEntries([
+      { id: 'a', label: 'Item A' },
+      { id: 'x', label: 'Item X' },
+      { id: 'b', label: 'Item B' },
+      { id: 'c', label: 'Item C' },
+    ])
+    await Promise.resolve()
+
+    // 'c' measured size should NOT be cleared by layoutChanged
+    expect(instance!.itemSizeCache.get('c')).toBe(60)
+
+    // Delete item 'b'
+    setEntries([
+      { id: 'a', label: 'Item A' },
+      { id: 'x', label: 'Item X' },
+      { id: 'c', label: 'Item C' },
+    ])
+    await Promise.resolve()
+
+    // Absent key 'b' should be pruned from itemSizeCache
+    expect(instance!.itemSizeCache.has('b')).toBe(false)
+    // 'c' measured size should still be retained
+    expect(instance!.itemSizeCache.get('c')).toBe(60)
+
+    screen.unmount()
+    scrollElement.remove()
+  })
 })

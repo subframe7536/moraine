@@ -442,6 +442,60 @@ describe('createTree', () => {
       fireEvent.animationEnd(group)
       expect(group.style.overflow).toBe('visible')
     })
+
+    test('expandAll and * do not expand disabled branches and collapseAll preserves them', () => {
+      let tree!: TreeT.Instance<Node>
+      const nodes: Node[] = [
+        {
+          id: 'enabled-branch',
+          name: 'enabled-branch',
+          children: [{ id: 'e1', name: 'e1' }],
+        },
+        {
+          id: 'disabled-branch',
+          name: 'disabled-branch',
+          disabled: true,
+          children: [{ id: 'd1', name: 'd1' }],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness items={() => nodes} onTree={(val) => (tree = val)} />
+      ))
+
+      tree.expandAll()
+      expect(tree.expandedKeys).toEqual(['enabled-branch'])
+
+      const eb = item(container, 'enabled-branch')
+      eb.focus()
+      press(eb, '*')
+      expect(tree.expandedKeys).toEqual(['enabled-branch'])
+
+      tree.expandTo('d1')
+      expect(tree.expandedKeys).toContain('disabled-branch')
+      tree.collapseAll()
+      expect(tree.expandedKeys).toEqual(['disabled-branch'])
+    })
+
+    test('trigger click prevents default and does not stop propagation', () => {
+      let tree!: TreeT.Instance<Node>
+      let parentClickReceived = false
+      const { container } = render(() => (
+        <div onClick={() => (parentClickReceived = true)}>
+          <Harness
+            onTree={(val) => (tree = val)}
+            options={{ selectionMode: 'single', expandOnClick: false }}
+          />
+        </div>
+      ))
+
+      const src = item(container, 'src')
+      const srcTrigger = triggerOf(src)
+      fireEvent.click(srcTrigger)
+
+      expect(tree.expandedKeys).toContain('src')
+      expect(tree.selectedKeys).toEqual([])
+      expect(parentClickReceived).toBe(true)
+    })
   })
 
   describe('keyboard', () => {
@@ -583,6 +637,62 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(item(container, 'components'))
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
     })
+
+    test('ignores keyboard navigation during IME composition and keyCode 229', () => {
+      const { container } = setup()
+      const src = item(container, 'src')
+      src.focus()
+
+      fireEvent.keyDown(src, { key: 'ArrowDown', isComposing: true })
+      expect(document.activeElement).toBe(src)
+
+      fireEvent.keyDown(src, { key: 'ArrowDown', keyCode: 229 })
+      expect(document.activeElement).toBe(src)
+    })
+
+    test('skips disabled ancestors on Left arrow', () => {
+      const nodes: Node[] = [
+        {
+          id: 'root',
+          name: 'root',
+          children: [
+            {
+              id: 'parent',
+              name: 'parent',
+              disabled: true,
+              children: [{ id: 'child', name: 'child' }],
+            },
+          ],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness items={() => nodes} options={{ defaultExpandedKeys: ['root', 'parent'] }} />
+      ))
+      const child = item(container, 'child')
+      child.focus()
+
+      press(child, 'ArrowLeft')
+      expect(document.activeElement).toBe(item(container, 'root'))
+    })
+
+    test('does not collapse disabled branch on Left arrow', () => {
+      const nodes: Node[] = [
+        {
+          id: 'branch',
+          name: 'branch',
+          disabled: true,
+          children: [{ id: 'leaf', name: 'leaf' }],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness items={() => nodes} options={{ defaultExpandedKeys: ['branch'] }} />
+      ))
+      const branch = item(container, 'branch')
+      branch.focus()
+
+      press(branch, 'ArrowLeft')
+      expect(branch.getAttribute('aria-expanded')).toBe('true')
+    })
   })
 
   describe('selection', () => {
@@ -681,6 +791,48 @@ describe('createTree', () => {
 
       fireEvent.click(item(container, 'README.md'))
       expect(tree.selectedKeys).toEqual([])
+    })
+
+    test('shrinks the range toward anchor with Shift+ArrowUp and preserves rangeSnapshot', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{
+            selectionMode: 'multiple',
+            defaultExpandedKeys: ['src'],
+            expandOnClick: false,
+          }}
+        />
+      ))
+
+      fireEvent.click(item(container, 'docs'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs'])
+
+      fireEvent.click(item(container, 'components'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components'])
+
+      press(item(container, 'components'), 'ArrowDown', { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components', 'index'])
+
+      press(item(container, 'index.ts'), 'ArrowUp', { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components'])
+      expect(tree.selectedKeys).not.toContain('index')
+    })
+
+    test('skips disabled nodes in range selection', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ selectionMode: 'multiple', expandOnClick: false }}
+        />
+      ))
+
+      fireEvent.click(item(container, 'README.md'))
+      fireEvent.click(item(container, 'LICENSE'), { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['readme'])
+      expect(tree.selectedKeys).not.toContain('license')
     })
   })
 

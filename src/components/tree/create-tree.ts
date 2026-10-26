@@ -70,6 +70,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     registry,
     load: (key) => loader.load(registry().nodes.get(key)),
     beforeCollapse: retainFocus,
+    isDisabled,
   })
   const flattenedKeys = createMemo(() => flattenKeys(registry(), expansion.isExpanded), undefined, {
     equals: sameKeys,

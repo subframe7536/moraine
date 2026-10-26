@@ -159,7 +159,12 @@ export class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
         return item().textValue
       },
       onClick: (event: MouseEvent) => {
-        if (belongsToItem(event) && !isFromInteractiveDescendant(event) && !item().isDisabled) {
+        if (
+          !event.defaultPrevented &&
+          belongsToItem(event) &&
+          !isFromInteractiveDescendant(event) &&
+          !item().isDisabled
+        ) {
           engine.handleClick(event, key)
         }
       },
@@ -188,7 +193,7 @@ export class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     return {
       'aria-hidden': true,
       onClick: (event: MouseEvent) => {
-        event.stopPropagation()
+        event.preventDefault()
         if (!engine.isDisabled(key)) {
           engine.toggle(key)
         }

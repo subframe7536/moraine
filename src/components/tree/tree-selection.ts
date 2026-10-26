@@ -39,6 +39,7 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
   })
   const selectedSet = createMemo(() => new Set(selectedKeys()))
   let anchorKey: string | undefined
+  let rangeSnapshot = new Set<string>()
 
   const canSelect = (key: string): boolean =>
     mode() !== 'none' && deps.registry().nodes.has(key) && !deps.isDisabled(key)
@@ -48,6 +49,7 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
       return
     }
     anchorKey = key
+    rangeSnapshot = new Set([...selectedKeys(), key])
     if (mode() === 'multiple') {
       setSelectedKeys((previous) => (previous.includes(key) ? previous : [...previous, key]))
     } else {
@@ -60,6 +62,7 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
       return
     }
     anchorKey = key
+    rangeSnapshot = new Set()
     setSelectedKeys([key])
   }
 
@@ -72,7 +75,6 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
   function toggleSelect(key: string): void {
     if (selectedSet().has(key)) {
       deselect(key)
-      anchorKey = key
     } else {
       select(key)
     }
@@ -89,27 +91,62 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
       }
     }
     setSelectedKeys(keys)
+    rangeSnapshot = new Set(keys)
   }
 
   function clearSelection(): void {
+    anchorKey = undefined
+    rangeSnapshot = new Set()
     setSelectedKeys([])
   }
 
-  function selectRange(key: string, anchor = anchorKey ?? key): void {
+  function selectRange(key: string, explicitAnchor?: string): void {
     if (mode() !== 'multiple') {
       return
     }
     const visible = deps.flattenedKeys()
+    let anchor = explicitAnchor ?? anchorKey
+    if (anchor === undefined || !visible.includes(anchor) || deps.isDisabled(anchor)) {
+      anchor = visible.includes(key) && !deps.isDisabled(key) ? key : undefined
+      if (anchor === undefined) {
+        return
+      }
+      anchorKey = anchor
+      rangeSnapshot = new Set(selectedKeys())
+    } else if (explicitAnchor !== undefined && explicitAnchor !== anchorKey) {
+      anchorKey = explicitAnchor
+      rangeSnapshot = new Set(selectedKeys())
+    }
     const from = visible.indexOf(anchor)
     const to = visible.indexOf(key)
     if (from === -1 || to === -1) {
       return
     }
-    anchorKey = anchor
-    const range = visible
-      .slice(Math.min(from, to), Math.max(from, to) + 1)
-      .filter((rangeKey) => !deps.isDisabled(rangeKey))
-    setSelectedKeys(range)
+    const min = Math.min(from, to)
+    const max = Math.max(from, to)
+    const activeSpan = new Set<string>()
+    for (let i = min; i <= max; i++) {
+      const k = visible[i]!
+      if (!deps.isDisabled(k)) {
+        activeSpan.add(k)
+      }
+    }
+    const nextSet = new Set(rangeSnapshot)
+    for (const k of activeSpan) {
+      nextSet.add(k)
+    }
+    const nextKeys = selectedKeys().filter((k) => nextSet.has(k))
+    for (const k of activeSpan) {
+      if (!nextKeys.includes(k)) {
+        nextKeys.push(k)
+      }
+    }
+    for (const k of rangeSnapshot) {
+      if (!nextKeys.includes(k)) {
+        nextKeys.push(k)
+      }
+    }
+    setSelectedKeys(nextKeys)
   }
 
   return {
