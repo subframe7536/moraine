@@ -1,4 +1,5 @@
-import { DataTable } from '@src'
+import { DataTable, createSelectColumn, getDefaultDataTableFeatures } from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 interface User {
@@ -14,18 +15,17 @@ const data: User[] = [
 ]
 
 const columns: ColumnDef<any, User>[] = [
+  createSelectColumn(),
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'role', header: 'Role' },
 ]
 
 export default function BasicExample() {
-  return (
-    <DataTable
-      data={data}
-      columns={columns}
-      sorting
-      selectable
-      classes={{ container: 'border border-border rounded-lg' }}
-    />
-  )
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns,
+    data,
+  })
+
+  return <DataTable table={table} classes={{ container: 'border border-border rounded-lg' }} />
 }

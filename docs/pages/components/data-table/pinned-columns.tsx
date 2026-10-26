@@ -1,4 +1,12 @@
-import { Badge, Button, DropdownMenu, DataTable } from '@src'
+import {
+  Badge,
+  Button,
+  DataTable,
+  DropdownMenu,
+  createSelectColumn,
+  getDefaultDataTableFeatures,
+} from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 interface Customer {
@@ -102,11 +110,11 @@ const STATUS = {
 } as const
 
 const COLUMNS: ColumnDef<any, Customer>[] = [
+  createSelectColumn(),
   {
     accessorKey: 'id',
     header: 'Customer ID',
     size: 130,
-    meta: { pinned: 'left' },
     cell: (props) => <span class="text-xs font-medium font-mono">{props.row.original.id}</span>,
   },
   {
@@ -177,7 +185,7 @@ const COLUMNS: ColumnDef<any, Customer>[] = [
     id: 'actions',
     header: () => <span class="sr-only">Actions</span>,
     size: 56,
-    meta: { pinned: 'right', align: 'center' },
+    meta: { align: 'center' },
     cell: (props) => (
       <DropdownMenu>
         <DropdownMenu.Trigger
@@ -209,6 +217,15 @@ const COLUMNS: ColumnDef<any, Customer>[] = [
 ]
 
 export default function PinnedColumnsExample() {
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: CUSTOMERS,
+    state: {
+      columnPinning: { start: ['select', 'id'], end: ['actions'] },
+    },
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
@@ -216,9 +233,7 @@ export default function PinnedColumnsExample() {
         actions column stays pinned on the right.
       </div>
       <DataTable
-        data={CUSTOMERS}
-        columns={COLUMNS}
-        selectable
+        table={table}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
       />

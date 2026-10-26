@@ -18,6 +18,7 @@ export {
   ContextMenu,
   CopyButton,
   DataTable,
+  createExpandColumn,
   createSelectColumn,
   getDefaultDataTableFeatures,
   Dialog,

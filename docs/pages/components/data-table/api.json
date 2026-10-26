@@ -38,130 +38,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "columnResizeMode",
-          "optional": true,
-          "type": "'onChange' | 'onEnd'",
-          "description": "Resize mode for columns: live on drag ('onChange') or on release ('onEnd').",
-          "default": {
-            "kind": "literal",
-            "value": "onEnd"
-          }
-        },
-        {
-          "name": "columns",
-          "optional": true,
-          "type": "readonly ColumnDef<TFeatures, TData>[]",
-          "description": "Column definitions rendered when no external table instance is provided."
-        },
-        {
           "name": "containerRef",
           "optional": true,
           "type": "Ref<HTMLDivElement>",
           "description": "Ref forwarded to the outer scroll container element."
         },
         {
-          "name": "currentColumnOrder",
-          "optional": true,
-          "type": "ColumnOrderState",
-          "description": "Controlled column order (list of column ids) in convenience mode."
-        },
-        {
-          "name": "currentColumnPinning",
-          "optional": true,
-          "type": "ColumnPinningState",
-          "description": "Controlled column pinning state in convenience mode."
-        },
-        {
-          "name": "currentExpanded",
-          "optional": true,
-          "type": "Record<string, boolean> | boolean",
-          "description": "Controlled expanded rows state in convenience mode."
-        },
-        {
-          "name": "currentPagination",
-          "optional": true,
-          "type": "PaginationState",
-          "description": "Controlled pagination state in convenience mode."
-        },
-        {
-          "name": "currentRowSelection",
-          "optional": true,
-          "type": "RowSelectionState",
-          "description": "Controlled row selection state in convenience mode."
-        },
-        {
-          "name": "currentSorting",
-          "optional": true,
-          "type": "SortingState",
-          "description": "Controlled sorting state in convenience mode."
-        },
-        {
-          "name": "data",
-          "optional": true,
-          "type": "Accessor<readonly TData[]> | readonly TData[]",
-          "description": "Reactive dataset or accessor rendered when no external table instance is provided."
-        },
-        {
-          "name": "defaultColumnOrder",
-          "optional": true,
-          "type": "ColumnOrderState",
-          "description": "Initial column order (list of column ids) in convenience mode."
-        },
-        {
-          "name": "defaultColumnPinning",
-          "optional": true,
-          "type": "ColumnPinningState",
-          "description": "Initial column pinning state in convenience mode."
-        },
-        {
-          "name": "defaultExpanded",
-          "optional": true,
-          "type": "Record<string, boolean> | boolean",
-          "description": "Initial expanded rows state in convenience mode."
-        },
-        {
-          "name": "defaultPagination",
-          "optional": true,
-          "type": "PaginationState",
-          "description": "Initial pagination state (pageIndex, pageSize) in convenience mode."
-        },
-        {
-          "name": "defaultRowSelection",
-          "optional": true,
-          "type": "RowSelectionState",
-          "description": "Initial row selection state when uncontrolled in convenience mode."
-        },
-        {
-          "name": "defaultSorting",
-          "optional": true,
-          "type": "SortingState",
-          "description": "Initial sorting state when uncontrolled in convenience mode."
-        },
-        {
           "name": "emptyRender",
           "optional": true,
           "type": "JSX.Element | Component<EmptyRenderProps>",
           "description": "Custom empty state content rendered when there are no rows."
-        },
-        {
-          "name": "expandable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Enable expandable rows in convenience mode.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "expandColumn",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether to automatically prepend an expand chevron toggle column.",
-          "default": {
-            "kind": "expression",
-            "text": "true when expandable or expandedRowRender is provided"
-          }
         },
         {
           "name": "expandedRowRender",
@@ -180,12 +66,6 @@
           }
         },
         {
-          "name": "isRowSelectable",
-          "optional": true,
-          "type": "(row: Row<TFeatures, TData>) => boolean",
-          "description": "Callback to determine if a specific row can be selected. When false, the row checkbox/radio is disabled."
-        },
-        {
           "name": "loading",
           "optional": true,
           "type": "boolean",
@@ -198,52 +78,10 @@
           "description": "Custom loading state content."
         },
         {
-          "name": "manualFiltering",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether filtering is handled externally (remote / server-side)."
-        },
-        {
-          "name": "manualPagination",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether pagination is handled externally (remote / server-side)."
-        },
-        {
-          "name": "manualSorting",
-          "optional": true,
-          "type": "boolean",
-          "description": "Whether sorting is handled externally (remote / server-side)."
-        },
-        {
           "name": "maxHeight",
           "optional": true,
           "type": "number | string",
           "description": "Maximum height for the table scroll container (e.g. `400` or `'400px'`)."
-        },
-        {
-          "name": "onColumnOrderChange",
-          "optional": true,
-          "type": "(order: ColumnOrderState) => void",
-          "description": "Callback fired when column order changes in convenience mode."
-        },
-        {
-          "name": "onColumnPinningChange",
-          "optional": true,
-          "type": "(pinning: ColumnPinningState) => void",
-          "description": "Callback fired when column pinning changes in convenience mode."
-        },
-        {
-          "name": "onExpandedChange",
-          "optional": true,
-          "type": "(expanded: Record<string, boolean> | boolean) => void",
-          "description": "Callback fired when expanded rows change in convenience mode."
-        },
-        {
-          "name": "onPaginationChange",
-          "optional": true,
-          "type": "(pagination: PaginationState) => void",
-          "description": "Callback fired when pagination changes in convenience mode."
         },
         {
           "name": "onRowClick",
@@ -258,18 +96,6 @@
           "description": "Callback fired when a table body row is double-clicked."
         },
         {
-          "name": "onRowSelectionChange",
-          "optional": true,
-          "type": "(rowSelection: RowSelectionState) => void",
-          "description": "Callback fired when row selection changes in convenience mode."
-        },
-        {
-          "name": "onSortingChange",
-          "optional": true,
-          "type": "(sorting: SortingState) => void",
-          "description": "Callback fired when sorting changes in convenience mode."
-        },
-        {
           "name": "pageSizeOptions",
           "optional": true,
           "type": "readonly number[]",
@@ -280,46 +106,10 @@
           }
         },
         {
-          "name": "pagination",
-          "optional": true,
-          "type": "boolean",
-          "description": "Enable bottom pagination controls in convenience mode.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "resizable",
-          "optional": true,
-          "type": "boolean",
-          "description": "Enable column width resizing with drag handles.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "rowClass",
           "optional": true,
           "type": "SlotClassValue | ((row: Row<TFeatures, TData>) => SlotClassValue)",
           "description": "Custom class or class getter applied to each row (`<tr>`)."
-        },
-        {
-          "name": "rowCount",
-          "optional": true,
-          "type": "number",
-          "description": "Total row count for remote pagination."
-        },
-        {
-          "name": "selectable",
-          "optional": true,
-          "type": "boolean | 'single' | 'multiple'",
-          "description": "Enable row selection checkboxes in convenience mode.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
         },
         {
           "name": "showBorder",
@@ -349,16 +139,6 @@
           "default": {
             "kind": "literal",
             "value": "md"
-          }
-        },
-        {
-          "name": "sorting",
-          "optional": true,
-          "type": "boolean",
-          "description": "Enable client-side column sorting in convenience mode.",
-          "default": {
-            "kind": "literal",
-            "value": false
           }
         },
         {
@@ -397,7 +177,7 @@
           "name": "table",
           "optional": true,
           "type": "SolidTable<TFeatures, TData>",
-          "description": "Existing TanStack Solid Table instance."
+          "description": "TanStack Solid Table instance from `createTable`. When omitted, an empty table with default features is used."
         },
         {
           "name": "virtualRender",

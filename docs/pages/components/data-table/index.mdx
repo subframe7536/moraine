@@ -1,6 +1,6 @@
 ---
 title: DataTable
-description: Data-driven table component powered by TanStack Table v9 with sorting, row selection, and pagination.
+description: Data-driven table presenter powered by TanStack Table v9. Pass a createTable instance; DataTable owns style, slots, and render parts.
 group: Display
 api:
   path: src/components/data-table/data-table
@@ -8,54 +8,7 @@ search:
   tags: [table, data, grid, rows, columns, data-table, tanstack]
 ---
 
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
-import { Button, DataTable, Input, Select } from '@src'
-
-export const ALL_EMPLOYEES = [
-  { id: '1', name: 'Alice Johnson', role: 'Engineer', department: 'Platform' },
-  { id: '2', name: 'Bob Smith', role: 'Designer', department: 'Product' },
-  { id: '3', name: 'Charlie Brown', role: 'Intern', department: 'Platform' },
-  { id: '4', name: 'Diana Prince', role: 'Director', department: 'Operations' },
-  { id: '5', name: 'Evan Wright', role: 'Developer', department: 'Mobile' },
-  { id: '6', name: 'Fiona Gallagher', role: 'Engineer', department: 'Infrastructure' },
-  { id: '7', name: 'George Clark', role: 'Product Manager', department: 'Product' },
-  { id: '8', name: 'Hannah Abbott', role: 'Designer', department: 'Design System' },
-  { id: '9', name: 'Ian Malcolm', role: 'DevOps', department: 'Infrastructure' },
-  { id: '10', name: 'Julia Roberts', role: 'Director', department: 'Mobile' },
-  { id: '11', name: 'Kevin Bacon', role: 'Developer', department: 'Platform' },
-  { id: '12', name: 'Laura Croft', role: 'Engineer', department: 'Security' },
-  { id: '13', name: 'Michael Scott', role: 'Director', department: 'Management' },
-  { id: '14', name: 'Nora Valkyrie', role: 'DevOps', department: 'Infrastructure' },
-  { id: '15', name: 'Oscar Martinez', role: 'Analyst', department: 'Finance' },
-  { id: '16', name: 'Pam Beesly', role: 'Designer', department: 'Product' },
-  { id: '17', name: 'Quentin Coldwater', role: 'Developer', department: 'Platform' },
-  { id: '18', name: 'Rachel Green', role: 'Product Manager', department: 'Product' },
-  { id: '19', name: 'Steve Rogers', role: 'Director', department: 'Security' },
-  { id: '20', name: 'Tony Stark', role: 'Engineer', department: 'Platform' },
-  { id: '21', name: 'Ursula Corbero', role: 'Developer', department: 'Mobile' },
-  { id: '22', name: 'Victor Stone', role: 'Engineer', department: 'Infrastructure' },
-  { id: '23', name: 'Wanda Maximoff', role: 'Developer', department: 'Platform' },
-  { id: '24', name: 'Xavier Charles', role: 'Director', department: 'Research' },
-  { id: '25', name: 'Yvonne Strahovski', role: 'DevOps', department: 'Security' },
-]
-
-export const ROLE_OPTIONS = [
-  { label: 'All Roles', value: '' },
-  { label: 'Engineer', value: 'Engineer' },
-  { label: 'Designer', value: 'Designer' },
-  { label: 'Developer', value: 'Developer' },
-  { label: 'Director', value: 'Director' },
-  { label: 'Intern', value: 'Intern' },
-  { label: 'Product Manager', value: 'Product Manager' },
-  { label: 'DevOps', value: 'DevOps' },
-  { label: 'Analyst', value: 'Analyst' },
-]
-
-export const COLUMNS = [
-  { accessorKey: 'name', header: 'Name', footer: 'Total' },
-  { accessorKey: 'role', header: 'Role' },
-  { accessorKey: 'department', header: 'Department', footer: '25 members' },
-]
+import DataTablePlayground from './playground'
 
 <Playground
   controls={[
@@ -93,164 +46,7 @@ export const COLUMNS = [
     { kind: 'switch', prop: 'remote', label: 'Remote Mode', defaultValue: false },
   ]}
 >
-  {(props) => {
-    const [nameQuery, setNameQuery] = createSignal('')
-    const [roleFilter, setRoleFilter] = createSignal(undefined)
-    const [remoteSorting, setRemoteSorting] = createSignal([], {
-      equals: (a, b) =>
-        a.length === b.length && a.every((s, i) => s.id === b[i]?.id && s.desc === b[i]?.desc),
-    })
-    const [remotePagination, setRemotePagination] = createSignal(
-      { pageIndex: 0, pageSize: 5 },
-      {
-        equals: (a, b) => a.pageIndex === b.pageIndex && a.pageSize === b.pageSize,
-      },
-    )
-    const [remoteLoading, setRemoteLoading] = createSignal(false)
-    const [serverRows, setServerRows] = createSignal(ALL_EMPLOYEES.slice(0, 5))
-    const [serverTotal, setServerTotal] = createSignal(ALL_EMPLOYEES.length)
-
-    const filteredLocalData = createMemo(() => {
-      const q = nameQuery().trim().toLowerCase()
-      const role = roleFilter()
-      return ALL_EMPLOYEES.filter((emp) => {
-        if (q && !emp.name.toLowerCase().includes(q)) return false
-        if (role && role !== '' && emp.role !== role) return false
-        return true
-      })
-    })
-
-    createEffect(
-      on(
-        () => [props.remote, nameQuery(), roleFilter(), remoteSorting(), remotePagination()],
-        () => {
-          if (!props.remote) {
-            setRemoteLoading(false)
-            return
-          }
-          setRemoteLoading(true)
-          const timer = setTimeout(() => {
-            const q = nameQuery().trim().toLowerCase()
-            const role = roleFilter()
-            let filtered = ALL_EMPLOYEES.filter((emp) => {
-              if (q && !emp.name.toLowerCase().includes(q)) return false
-              if (role && role !== '' && emp.role !== role) return false
-              return true
-            })
-
-            const sorting = remoteSorting()
-            if (sorting.length > 0) {
-              const sort = sorting[0]
-              const key = sort.id
-              filtered = [...filtered].sort((a, b) => {
-                const va = String(a[key] ?? '')
-                const vb = String(b[key] ?? '')
-                const cmp = va.localeCompare(vb)
-                return sort.desc ? -cmp : cmp
-              })
-            }
-
-            const total = filtered.length
-            setServerTotal(total)
-
-            const { pageIndex, pageSize } = remotePagination()
-            const start = pageIndex * pageSize
-            const sliced = filtered.slice(start, start + pageSize)
-            setServerRows(sliced)
-            setRemoteLoading(false)
-          }, 300)
-
-          onCleanup(() => clearTimeout(timer))
-        },
-      ),
-    )
-
-    const hasFilter = () => Boolean(nameQuery()) || Boolean(roleFilter() && roleFilter() !== '')
-
-    const handleReset = () => {
-      setNameQuery('')
-      setRoleFilter(undefined)
-      if (props.remote) {
-        setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
-      }
-    }
-
-    return (
-      <div class="flex flex-col gap-3 w-full">
-        <div class="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Filter by name..."
-            value={nameQuery()}
-            onValueChange={(val) => {
-              setNameQuery(String(val ?? ''))
-              if (props.remote) {
-                setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
-              }
-            }}
-            class="max-w-xs"
-          />
-          <Select
-            placeholder="Filter role"
-            items={ROLE_OPTIONS}
-            value={roleFilter()}
-            onValueChange={(val) => {
-              setRoleFilter(val)
-              if (props.remote) {
-                setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
-              }
-            }}
-            allowClear
-            class="w-44"
-          />
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={!hasFilter()}
-          >
-            Reset
-          </Button>
-        </div>
-
-        <DataTable
-          size={props.size}
-          striped={props.striped}
-          hoverEffect={props.hoverEffect}
-          showBorder={props.showBorder}
-          sorting={props.sorting}
-          selectable={props.selectable}
-          pagination={props.pagination}
-          stickyHeader={props.stickyHeader}
-          maxHeight={props.stickyHeader ? 280 : undefined}
-          resizable={props.resizable}
-          expandable={props.expandable}
-          expandedRowRender={
-            props.expandable
-              ? (row) => (
-                  <div class="text-muted-foreground">
-                    <span class="font-medium text-foreground">{row.original.name}</span> is a{' '}
-                    {row.original.role} in the {row.original.department} department.
-                  </div>
-                )
-              : undefined
-          }
-          loading={props.loading || (props.remote && remoteLoading())}
-          data={props.remote ? serverRows : filteredLocalData}
-          columns={COLUMNS}
-          rowCount={props.remote ? serverTotal() : undefined}
-          manualPagination={props.remote}
-          manualSorting={props.remote}
-          currentPagination={props.remote ? remotePagination() : undefined}
-          onPaginationChange={props.remote ? setRemotePagination : undefined}
-          currentSorting={props.remote ? remoteSorting() : undefined}
-          onSortingChange={props.remote ? setRemoteSorting : undefined}
-          pageSizeOptions={[5, 10, 20]}
-          classes={{ container: 'border border-border rounded-lg' }}
-        />
-      </div>
-    )
-
-}}
-
+  {(props) => <DataTablePlayground {...props} />}
 </Playground>
 
 ## Anatomy
@@ -299,13 +95,16 @@ export const COLUMNS = [
 
 ## Usage
 
-Use `DataTable` when rendering structured, data-driven collections powered by TanStack Table.
-It supports convenience mode (`data` and `columns`) for rapid development and instance mode (`table`)
-for power-user headless configurations.
+Use `DataTable` as the styled presenter for a TanStack Table instance. Create the table with
+`createTable` and `getDefaultDataTableFeatures()`, then pass it as `table`. DataTable props are
+style, slots, and render parts only — sorting, selection, pagination, pinning, and resizing are
+configured on the table instance. When `table` is omitted, DataTable renders an empty table with
+default features.
 
 ```tsx
 import type { ColumnDef } from '@tanstack/solid-table'
-import { DataTable } from 'moraine'
+import { createTable } from '@tanstack/solid-table'
+import { DataTable, createSelectColumn, getDefaultDataTableFeatures } from 'moraine'
 
 const data = [
   { id: '1', name: 'Alice', role: 'Engineer' },
@@ -313,37 +112,39 @@ const data = [
 ]
 
 const columns: ColumnDef<any, (typeof data)[number]>[] = [
+  createSelectColumn(),
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'role', header: 'Role' },
 ]
 
 export function Example() {
-  return <DataTable data={data} columns={columns} sorting selectable />
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns,
+    data,
+  })
+
+  return <DataTable table={table} />
 }
 ```
 
 ### Column Pinning
 
-Freeze critical identifier columns on the left or action buttons on the right during horizontal scrolling.
-Set `meta: { pinned: 'left' | 'right' }` on column definitions:
+Freeze critical identifier columns on the start edge or action buttons on the end edge during
+horizontal scrolling. Set `state.columnPinning` on `createTable` using TanStack's `start` / `end`
+regions:
 
 ```tsx
-const columns: ColumnDef<any, Customer>[] = [
-  {
-    accessorKey: 'id',
-    header: 'ID',
-    meta: { pinned: 'left' },
+const table = createTable({
+  features: getDefaultDataTableFeatures({ pagination: false }),
+  columns,
+  data,
+  state: {
+    columnPinning: { start: ['select', 'id'], end: ['actions'] },
   },
-  {
-    accessorKey: 'name',
-    header: 'Name',
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    meta: { pinned: 'right' },
-  },
-]
+})
+
+return <DataTable table={table} />
 ```
 
 ### Sticky Header
@@ -351,64 +152,90 @@ const columns: ColumnDef<any, Customer>[] = [
 Pin the table header to the top of a scrollable container with `stickyHeader` and `maxHeight`:
 
 ```tsx
-<DataTable data={logs} columns={columns} stickyHeader maxHeight={360} />
+<DataTable table={table} stickyHeader maxHeight={360} />
 ```
 
 ### Column Resizing
 
-Enable drag handles on column borders by passing `resizable`:
+Enable drag handles by setting `enableColumnResizing` on the table instance:
 
 ```tsx
-<DataTable data={metrics} columns={columns} resizable />
+const table = createTable({
+  features: getDefaultDataTableFeatures({ pagination: false }),
+  columns,
+  data,
+  enableColumnResizing: true,
+})
+
+return <DataTable table={table} />
 ```
 
 ### Column Order
 
-Control visible column order with `defaultColumnOrder` or `currentColumnOrder`. Values are column ids, matching `accessorKey` unless a column sets `id`. Auto-injected `select` and `expand` columns stay at the start unless you include them in the list.
+Control visible column order with `state.columnOrder` on `createTable`. Values are column ids,
+matching `accessorKey` unless a column sets `id`.
 
 ```tsx
-<DataTable
-  data={employees}
-  columns={columns}
-  currentColumnOrder={['role', 'name', 'department']}
-  onColumnOrderChange={setColumnOrder}
-/>
+const table = createTable({
+  features: getDefaultDataTableFeatures({ pagination: false }),
+  columns,
+  data,
+  state: {
+    get columnOrder() {
+      return columnOrder()
+    },
+  },
+  onColumnOrderChange: setColumnOrder,
+})
+
+return <DataTable table={table} />
 ```
 
 ### Expandable Rows
 
-Display nested breakdowns or order line items using `expandable` and `expandedRowRender`:
+Add `createExpandColumn()` to the column list, allow rows to expand on the table instance, and pass
+`expandedRowRender` as a DataTable part:
 
 ```tsx
-<DataTable
-  data={orders}
-  columns={columns}
-  expandable
-  expandedRowRender={(row) => (
-    <div>
-      Order #{row.original.id} contains {row.original.items.length} items.
-    </div>
-  )}
-/>
+const table = createTable({
+  features: getDefaultDataTableFeatures({ pagination: false }),
+  columns: [createExpandColumn(), ...columns],
+  data,
+  getRowCanExpand: () => true,
+})
+
+return (
+  <DataTable
+    table={table}
+    expandedRowRender={(row) => (
+      <div>
+        Order #{row.original.id} contains {row.original.items.length} items.
+      </div>
+    )}
+  />
+)
 ```
 
 ### Selection Modes and Disabled Rows
 
-Control row selection with `selectable="multiple"` (checkboxes) or `selectable="single"` (radio buttons).
-Use `isRowSelectable` to prevent selection on locked or inactive records:
+Add `createSelectColumn()` for checkboxes or `createSelectColumn({ mode: 'single' })` for radios.
+Disable rows with `enableRowSelection` on `createTable`:
 
 ```tsx
-<DataTable
-  data={nodes}
-  columns={columns}
-  selectable="single"
-  isRowSelectable={(row) => row.original.status !== 'terminated'}
-/>
+const table = createTable({
+  features: getDefaultDataTableFeatures({ pagination: false }),
+  columns: [createSelectColumn({ mode: 'single' }), ...columns],
+  data,
+  enableMultiRowSelection: false,
+  enableRowSelection: (row) => row.original.status !== 'terminated',
+})
+
+return <DataTable table={table} />
 ```
 
 ### Virtualization
 
-Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment.
+Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. Use `getDefaultDataTableFeatures({ pagination: false })` so row virtualization is not sliced by paging.
 
 ## Examples
 
@@ -438,7 +265,7 @@ Drag a column boundary to adjust its width. The handle highlights on hover and w
 
 ### Custom column order
 
-Reorder columns through `currentColumnOrder` without changing the column definitions.
+Reorder columns through `state.columnOrder` without changing the column definitions.
 
 <Preview path="./column-order" />
 
@@ -450,7 +277,7 @@ Inspect nested line items, shipping addresses, and tracking codes inside expanda
 
 ### Single selection and disabled rows
 
-Toggle between multiple and single selection modes, and lock terminated nodes with `isRowSelectable`.
+Toggle between multiple and single selection modes, and lock terminated nodes with `enableRowSelection`.
 
 <Preview path="./selection-modes" />
 

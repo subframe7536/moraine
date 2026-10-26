@@ -1,4 +1,5 @@
-import { Badge, DataTable } from '@src'
+import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 interface AuditEvent {
@@ -107,14 +108,19 @@ const COLUMNS: ColumnDef<any, AuditEvent>[] = [
 ]
 
 export default function StickyHeaderExample() {
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: AUDIT_EVENTS,
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
         Scroll through 30 audit events; the header stays pinned to the top of the container.
       </div>
       <DataTable
-        data={AUDIT_EVENTS}
-        columns={COLUMNS}
+        table={table}
         stickyHeader
         maxHeight={360}
         hoverEffect

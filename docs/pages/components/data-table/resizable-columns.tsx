@@ -1,4 +1,5 @@
-import { Badge, DataTable } from '@src'
+import { Badge, DataTable, getDefaultDataTableFeatures } from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 
 interface ServiceMetric {
@@ -155,15 +156,20 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
 ]
 
 export default function ResizableColumnsExample() {
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: METRICS,
+    enableColumnResizing: true,
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
         Drag the boundary between two column headers to resize a column.
       </div>
       <DataTable
-        data={METRICS}
-        columns={COLUMNS}
-        resizable
+        table={table}
         showBorder="both"
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}

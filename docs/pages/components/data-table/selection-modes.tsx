@@ -1,4 +1,13 @@
-import { Badge, Button, ButtonGroup, DataTable, ToggleButton } from '@src'
+import {
+  Badge,
+  Button,
+  ButtonGroup,
+  DataTable,
+  ToggleButton,
+  createSelectColumn,
+  getDefaultDataTableFeatures,
+} from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef, RowSelectionState } from '@tanstack/solid-table'
 import { Show, createSignal } from 'solid-js'
 
@@ -127,6 +136,24 @@ export default function SelectionModesExample() {
     setSelectedRows({})
   }
 
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    get columns(): ColumnDef<any, ServerNode>[] {
+      return [createSelectColumn<any, ServerNode>({ mode: mode() }), ...COLUMNS]
+    },
+    data: NODES,
+    get enableMultiRowSelection() {
+      return mode() === 'multiple'
+    },
+    enableRowSelection: (row: { original: ServerNode }) => row.original.status !== 'terminated',
+    state: {
+      get rowSelection() {
+        return selectedRows()
+      },
+    },
+    onRowSelectionChange: setSelectedRows,
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="flex flex-wrap gap-2 min-h-8 items-center justify-between">
@@ -156,20 +183,15 @@ export default function SelectionModesExample() {
       </div>
 
       <DataTable
-        data={NODES}
-        columns={COLUMNS}
-        selectable={mode()}
-        currentRowSelection={selectedRows()}
-        onRowSelectionChange={setSelectedRows}
-        isRowSelectable={(row) => row.original.status !== 'terminated'}
+        table={table}
         rowClass={(row) => row.original.status === 'terminated' && 'text-muted-foreground'}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
       />
 
       <div class="text-xs text-muted-foreground">
-        Terminated nodes are locked by <code class="font-mono">isRowSelectable</code> and cannot be
-        selected.
+        Terminated nodes are locked by <code class="font-mono">enableRowSelection</code> and cannot
+        be selected.
       </div>
     </div>
   )

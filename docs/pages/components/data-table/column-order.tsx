@@ -1,4 +1,5 @@
-import { Button, DataTable } from '@src'
+import { Button, DataTable, getDefaultDataTableFeatures } from '@src'
+import { createTable } from '@tanstack/solid-table'
 import type { ColumnDef } from '@tanstack/solid-table'
 import { For, createSignal } from 'solid-js'
 
@@ -51,6 +52,18 @@ export default function ColumnOrderExample() {
     })
   }
 
+  const table = createTable({
+    features: getDefaultDataTableFeatures({ pagination: false }),
+    columns: COLUMNS,
+    data: DATA,
+    state: {
+      get columnOrder() {
+        return columnOrder()
+      },
+    },
+    onColumnOrderChange: setColumnOrder,
+  })
+
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="flex flex-wrap gap-2 items-center">
@@ -87,10 +100,7 @@ export default function ColumnOrderExample() {
         </Button>
       </div>
       <DataTable
-        data={DATA}
-        columns={COLUMNS}
-        currentColumnOrder={columnOrder()}
-        onColumnOrderChange={setColumnOrder}
+        table={table}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
       />
