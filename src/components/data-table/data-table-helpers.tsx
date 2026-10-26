@@ -1,5 +1,6 @@
 import {
   columnFilteringFeature,
+  columnOrderingFeature,
   columnPinningFeature,
   columnResizingFeature,
   columnSizingFeature,
@@ -63,6 +64,7 @@ function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) 
       },
       columnVisibilityFeature,
       columnSizingFeature,
+      columnOrderingFeature,
       columnPinningFeature,
       columnResizingFeature,
       rowExpandingFeature,
@@ -93,6 +95,7 @@ function createDefaultDataTableFeatures(options: { pagination?: boolean } = {}) 
     paginatedRowModel: createPaginatedRowModel(),
     columnVisibilityFeature,
     columnSizingFeature,
+    columnOrderingFeature,
     columnPinningFeature,
     columnResizingFeature,
     rowExpandingFeature,

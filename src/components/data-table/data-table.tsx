@@ -13,7 +13,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useRecipe } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import { createControllableValue } from '../../shared/controllable-value'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
@@ -22,16 +22,18 @@ import { DropdownMenu } from '../dropdown-menu'
 import { Icon } from '../icon'
 import { Pagination } from '../pagination'
 
+import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
 import {
   createExpandColumn,
   createSelectColumn,
   getDefaultDataTableFeatures,
 } from './data-table-helpers'
 import {
+  DATA_TABLE_HEAD_INNER_CLASS,
+  DATA_TABLE_HEAD_LABEL_CLASS,
   DATA_TABLE_PAGINATION_CONTROLS_CLASS,
   DATA_TABLE_PAGINATION_INFO_CLASS,
   DATA_TABLE_RESIZABLE_CELL_CLASS,
-  DATA_TABLE_SORT_BUTTON_ALIGN_CLASS,
   DATA_TABLE_TEXT_ALIGN_CLASS,
   dataTableDataAttributes,
   dataTableRecipe,
@@ -61,6 +63,9 @@ export function DataTable<
     'defaultColumnPinning',
     'currentColumnPinning',
     'onColumnPinningChange',
+    'defaultColumnOrder',
+    'currentColumnOrder',
+    'onColumnOrderChange',
     'isRowSelectable',
     'expandable',
     'expandedRowRender',
@@ -103,6 +108,7 @@ export function DataTable<
   ])
 
   const { slots, slotWith } = useRecipe(dataTableRecipe, local)
+  const slotOverrides = pickSlotOverrides(local)
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
 
   const [sorting, setSorting] = createControllableValue<SortingState>({
@@ -179,6 +185,35 @@ export function DataTable<
     value: () => local.currentColumnPinning,
     defaultValue: () => local.defaultColumnPinning ?? metaPinning(),
     onChange: (val) => local.onColumnPinningChange?.(val),
+  })
+
+  const [columnOrder, setColumnOrder] = createControllableValue<DataTableT.ColumnOrderState>({
+    value: () => local.currentColumnOrder,
+    defaultValue: () => local.defaultColumnOrder ?? [],
+    onChange: (val) => local.onColumnOrderChange?.(val),
+  })
+
+  const resolvedColumnOrder = createMemo((): DataTableT.ColumnOrderState | undefined => {
+    const order = [...columnOrder()]
+    if (order.length === 0) {
+      return undefined
+    }
+    if (
+      (local.expandable || local.expandedRowRender) &&
+      local.expandColumn !== false &&
+      !order.includes('expand')
+    ) {
+      order.unshift('expand')
+    }
+    if (local.selectable && !order.includes('select')) {
+      const expandIdx = order.indexOf('expand')
+      if (expandIdx !== -1) {
+        order.splice(expandIdx + 1, 0, 'select')
+      } else {
+        order.unshift('select')
+      }
+    }
+    return order
   })
 
   const toTanstackPinning = (p?: DataTableT.ColumnPinningState) => ({
@@ -288,6 +323,9 @@ export function DataTable<
       get columnPinning() {
         return tanstackPinning()
       },
+      get columnOrder() {
+        return resolvedColumnOrder()
+      },
       get expanded() {
         return local.expandable || local.expandedRowRender ? (expanded() as any) : undefined
       },
@@ -322,6 +360,29 @@ export function DataTable<
       const current = toTanstackPinning(columnPinning())
       const next = typeof updater === 'function' ? updater(current) : updater
       setColumnPinning(toMorainePinning(next))
+    },
+    onColumnOrderChange: (updater) => {
+      const current = resolvedColumnOrder() ?? columnOrder()
+      const next = typeof updater === 'function' ? updater(current) : updater
+      const autoIds = new Set<string>()
+      if (
+        (local.expandable || local.expandedRowRender) &&
+        local.expandColumn !== false &&
+        !columnOrder().includes('expand')
+      ) {
+        autoIds.add('expand')
+      }
+      if (local.selectable && !columnOrder().includes('select')) {
+        autoIds.add('select')
+      }
+      const nextUser = next.filter((id) => !autoIds.has(id))
+      if (
+        nextUser.length === columnOrder().length &&
+        nextUser.every((id, i) => id === columnOrder()[i])
+      ) {
+        return
+      }
+      setColumnOrder(nextUser)
     },
     onExpandedChange: (updater) => {
       const current = expanded()
@@ -452,7 +513,11 @@ export function DataTable<
   }): JSX.Element {
     const isSelected = () => (rowContext.row as any).getIsSelected?.() ?? false
     const isExpanded = () => (rowContext.row as any).getIsExpanded?.() ?? false
-    const showsDetail = () => Boolean(local.expandedRowRender) && isExpanded()
+    const initiallyExpanded = isExpanded()
+    const disclosure = createDataTableRowDisclosure(
+      () => Boolean(local.expandedRowRender) && isExpanded(),
+    )
+    const showsDetail = () => Boolean(local.expandedRowRender) && disclosure.shouldMount()
 
     return (
       <>
@@ -523,16 +588,15 @@ export function DataTable<
             }}
           </For>
         </tr>
-        <Show when={showsDetail()}>
-          <tr data-slot="data-table-expanded-row" {...slots.expandedRow}>
-            <td
-              data-slot="data-table-expanded-cell"
-              colSpan={leafColCount()}
-              {...slots.expandedCell}
-            >
-              {local.expandedRowRender!(rowContext.row as any)}
-            </td>
-          </tr>
+        <Show when={Boolean(local.expandedRowRender)}>
+          <DataTableExpandedRow
+            disclosure={disclosure}
+            initiallyExpanded={initiallyExpanded}
+            colSpan={leafColCount()}
+            row={rowContext.row}
+            render={(row) => local.expandedRowRender!(row as any)}
+            slotOverrides={slotOverrides}
+          />
         </Show>
       </>
     )
@@ -641,26 +705,40 @@ export function DataTable<
                         }))}
                       >
                         <Show when={!header.isPlaceholder}>
-                          <Show when={canSort()} fallback={<FlexRender header={header} />}>
-                            <button
-                              type="button"
-                              data-slot="data-table-sort-button"
-                              {...slotWith('sortButton', () => ({
-                                class: DATA_TABLE_SORT_BUTTON_ALIGN_CLASS[align()],
-                              }))}
-                              onClick={(e) => header.column.getToggleSortingHandler?.()?.(e)}
+                          <div class={DATA_TABLE_HEAD_INNER_CLASS}>
+                            <span
+                              class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
                             >
                               <FlexRender header={header} />
-                              <span
-                                data-slot="data-table-sort-icon"
-                                {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
-                                {...slots.sortIcon}
-                                aria-hidden="true"
+                            </span>
+                            <Show when={canSort()}>
+                              <button
+                                type="button"
+                                data-slot="data-table-sort-button"
+                                aria-label={
+                                  isSorted() === 'asc'
+                                    ? 'Sorted ascending'
+                                    : isSorted() === 'desc'
+                                      ? 'Sorted descending'
+                                      : 'Sort'
+                                }
+                                {...slots.sortButton}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  header.column.getToggleSortingHandler?.()?.(e)
+                                }}
                               >
-                                <Icon name={sortIcon()} />
-                              </span>
-                            </button>
-                          </Show>
+                                <span
+                                  data-slot="data-table-sort-icon"
+                                  {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
+                                  {...slots.sortIcon}
+                                  aria-hidden="true"
+                                >
+                                  <Icon name={sortIcon()} />
+                                </span>
+                              </button>
+                            </Show>
+                          </div>
                           <Show when={local.resizable && (header.column.getCanResize?.() ?? false)}>
                             <div
                               data-slot="data-table-resizer"

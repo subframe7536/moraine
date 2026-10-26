@@ -60,6 +60,12 @@
           "description": "Ref forwarded to the outer scroll container element."
         },
         {
+          "name": "currentColumnOrder",
+          "optional": true,
+          "type": "ColumnOrderState",
+          "description": "Controlled column order (list of column ids) in convenience mode."
+        },
+        {
           "name": "currentColumnPinning",
           "optional": true,
           "type": "ColumnPinningState",
@@ -94,6 +100,12 @@
           "optional": true,
           "type": "Accessor<readonly TData[]> | readonly TData[]",
           "description": "Reactive dataset or accessor rendered when no external table instance is provided."
+        },
+        {
+          "name": "defaultColumnOrder",
+          "optional": true,
+          "type": "ColumnOrderState",
+          "description": "Initial column order (list of column ids) in convenience mode."
         },
         {
           "name": "defaultColumnPinning",
@@ -208,6 +220,12 @@
           "optional": true,
           "type": "number | string",
           "description": "Maximum height for the table scroll container (e.g. `400` or `'400px'`)."
+        },
+        {
+          "name": "onColumnOrderChange",
+          "optional": true,
+          "type": "(order: ColumnOrderState) => void",
+          "description": "Callback fired when column order changes in convenience mode."
         },
         {
           "name": "onColumnPinningChange",
@@ -448,6 +466,20 @@
     {
       "target": "expandButton",
       "attributes": [
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "expandedRow",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "expandedCell",
+      "attributes": [
+        "data-closed",
         "data-expanded"
       ]
     }

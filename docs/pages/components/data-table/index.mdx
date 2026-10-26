@@ -362,6 +362,19 @@ Enable drag handles on column borders by passing `resizable`:
 <DataTable data={metrics} columns={columns} resizable />
 ```
 
+### Column Order
+
+Control visible column order with `defaultColumnOrder` or `currentColumnOrder`. Values are column ids, matching `accessorKey` unless a column sets `id`. Auto-injected `select` and `expand` columns stay at the start unless you include them in the list.
+
+```tsx
+<DataTable
+  data={employees}
+  columns={columns}
+  currentColumnOrder={['role', 'name', 'department']}
+  onColumnOrderChange={setColumnOrder}
+/>
+```
+
 ### Expandable Rows
 
 Display nested breakdowns or order line items using `expandable` and `expandedRowRender`:
@@ -422,6 +435,12 @@ Keep the header at the top of a bounded scroll container while browsing 30 audit
 Drag a column boundary to adjust its width. The handle highlights on hover and while resizing.
 
 <Preview path="./resizable-columns" />
+
+### Custom column order
+
+Reorder columns through `currentColumnOrder` without changing the column definitions.
+
+<Preview path="./column-order" />
 
 ### Expandable row details
 

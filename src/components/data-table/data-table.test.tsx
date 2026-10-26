@@ -92,7 +92,10 @@ describe('DataTable', () => {
     render(() => <DataTable data={TEST_DATA} columns={TEST_COLUMNS} sorting />)
 
     const nameHeader = screen.getByText('Name')
-    const sortButton = nameHeader.closest('button')!
+    expect(nameHeader.closest('button')).toBeNull()
+    const sortButton = nameHeader
+      .closest('th')!
+      .querySelector('[data-slot="data-table-sort-button"]')!
     expect(sortButton).toBeDefined()
 
     // Click to sort ascending (Alice, Bob, Charlie)
@@ -291,23 +294,21 @@ describe('DataTable', () => {
     expect(emptyRow.hasAttribute('data-empty')).toBe(true)
   })
 
-  it('aligns sort buttons with the column and flags the sorted icon', () => {
+  it('keeps sort controls detached at the end of the header cell', () => {
     const columns: ColumnDef<any, Person>[] = [
       { accessorKey: 'name', header: 'Name' },
       { accessorKey: 'age', header: 'Age', meta: { align: 'right' } },
     ]
-    const { container } = render(() => <DataTable data={TEST_DATA} columns={columns} sorting />)
+    render(() => <DataTable data={TEST_DATA} columns={columns} sorting />)
 
-    const [nameButton, ageButton] = container.querySelectorAll(
-      '[data-slot="data-table-sort-button"]',
-    )
-    expect(nameButton!.className).toContain('-ml-2')
-    expect(ageButton!.className).toContain('-mr-2')
-    expect(ageButton!.className).toContain('flex-row-reverse')
+    const ageTh = screen.getByText('Age').closest('th')!
+    const ageButton = ageTh.querySelector('[data-slot="data-table-sort-button"]')!
+    expect(ageButton.contains(screen.getByText('Age'))).toBe(false)
+    expect(ageButton.parentElement?.lastElementChild).toBe(ageButton)
 
-    const ageIcon = ageButton!.querySelector('[data-slot="data-table-sort-icon"]')!
+    const ageIcon = ageButton.querySelector('[data-slot="data-table-sort-icon"]')!
     expect(ageIcon.hasAttribute('data-sorted')).toBe(false)
-    fireEvent.click(ageButton!)
+    fireEvent.click(ageButton)
     expect(ageIcon.hasAttribute('data-sorted')).toBe(true)
   })
 
@@ -547,7 +548,7 @@ describe('DataTable', () => {
     expect(resizers.length).toBe(TEST_COLUMNS.length)
   })
 
-  it('supports expandable rows with expandedRowRender', () => {
+  it('supports expandable rows with expandedRowRender', async () => {
     render(() => (
       <DataTable
         data={TEST_DATA}
@@ -570,9 +571,56 @@ describe('DataTable', () => {
     expect(screen.getByTestId('detail-content')).toBeDefined()
     expect(screen.getByTestId('detail-content').textContent).toBe('Alice details')
 
-    // Click again to collapse
+    const wrapper = document.querySelector(
+      '[data-slot="data-table-expanded-content"]',
+    ) as HTMLElement
+    expect(wrapper.className).toContain('data-expanded:animate-accordion-down')
+    expect(wrapper.className).toContain('data-closed:animate-accordion-up')
+    expect(wrapper.style.animation).not.toBe('none')
+    expect(wrapper.style.height).not.toBe('auto')
+
+    // Click again to collapse — content stays mounted until the height animation ends
     fireEvent.click(expandButtons[0]!)
+    await Promise.resolve()
+    expect(screen.queryByTestId('detail-content')).not.toBeNull()
+    expect(wrapper.hasAttribute('data-closed')).toBe(true)
+
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
     expect(screen.queryByTestId('detail-content')).toBeNull()
+  })
+
+  it('reorders columns from currentColumnOrder', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        currentColumnOrder={['role', 'name', 'age']}
+      />
+    ))
+
+    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent)
+    expect(headers).toEqual(['Role', 'Name', 'Age'])
+
+    const firstRowCells = [...container.querySelectorAll('tbody tr:first-child td')].map(
+      (td) => td.textContent,
+    )
+    expect(firstRowCells).toEqual(['Engineer', 'Alice', '28'])
+  })
+
+  it('keeps auto-injected select columns first when column order is customized', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        selectable
+        currentColumnOrder={['role', 'name']}
+      />
+    ))
+
+    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent?.trim())
+    expect(headers[0]).toBe('')
+    expect(headers.slice(1)).toEqual(['Role', 'Name', 'Age'])
   })
 
   it('applies the expandButton slot to expand toggles', () => {

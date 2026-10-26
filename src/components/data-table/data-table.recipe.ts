@@ -12,7 +12,15 @@ export const dataTableDataAttributes = {
   sortIcon: /* @__PURE__ */ createDataAttributes('sorted'),
   resizer: /* @__PURE__ */ createDataAttributes('resizing'),
   expandButton: /* @__PURE__ */ createDataAttributes('expanded'),
+  expandedRow: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
+  expandedCell: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof DataTableStyleSlot>
+
+export const dataTableExpandedWrapperDataAttributes = /* @__PURE__ */ createDataAttributes(
+  'closed',
+  'expanded',
+  'transition',
+)
 
 export const DATA_TABLE_TEXT_ALIGN_CLASS = {
   left: 'text-left',
@@ -20,11 +28,9 @@ export const DATA_TABLE_TEXT_ALIGN_CLASS = {
   right: 'text-right',
 } as const
 
-export const DATA_TABLE_SORT_BUTTON_ALIGN_CLASS = {
-  left: '-ml-2',
-  center: '',
-  right: 'flex-row-reverse -mr-2',
-} as const
+export const DATA_TABLE_HEAD_INNER_CLASS = 'flex gap-1 min-w-0 w-full items-center'
+
+export const DATA_TABLE_HEAD_LABEL_CLASS = 'flex-1 min-w-0'
 
 /** Resized columns keep their width, so overflowing cell text is clipped instead of spilling. */
 export const DATA_TABLE_RESIZABLE_CELL_CLASS = 'text-ellipsis overflow-hidden'
@@ -36,6 +42,11 @@ export const DATA_TABLE_PAGINATION_CONTROLS_CLASS = 'flex gap-2 items-center'
 export const DATA_TABLE_EXPAND_BUTTON_CLASS = `text-muted-foreground p-0 rounded inline-flex size-6 cursor-pointer transition-transform items-center justify-center hover:text-foreground ${FOCUS_VISIBLE_RING_CLASS} data-expanded:rotate-90`
 
 export const DATA_TABLE_EXPAND_PLACEHOLDER_CLASS = 'w-6'
+
+export const DATA_TABLE_EXPANDED_WRAPPER_CLASS =
+  'h-(--mo-collapsible-content-height) overflow-hidden data-closed:(h-0 animate-accordion-up) data-expanded:animate-accordion-down motion-reduce:animate-none'
+
+export const DATA_TABLE_EXPANDED_BODY_CLASS = 'px-4 py-3'
 
 export const DATA_TABLE_RADIO_WRAPPER_CLASS = 'flex items-center justify-center'
 
@@ -53,6 +64,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   DataTableStyleVariants
 >('data-table', {
   base: {
+    '--mo-collapsible-content-height': '0px',
     container: 'w-full relative overflow-x-auto',
     root: 'border-border w-full',
     header: 'text-left [&_tr]:border-border',
@@ -64,7 +76,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     empty: 'text-muted-foreground py-8 text-center',
     loading:
       'bg-background/50 flex items-center inset-0 justify-center absolute z-40 backdrop-blur-sm',
-    sortButton: `text-inherit font-medium px-2 py-1 rounded inline-flex gap-1 cursor-pointer select-none transition-colors items-center hover:bg-accent/60 ${FOCUS_VISIBLE_RING_CLASS}`,
+    sortButton: `text-muted-foreground p-0 rounded inline-flex shrink-0 size-6 cursor-pointer transition-colors items-center justify-center hover:(text-foreground bg-accent/60) ${FOCUS_VISIBLE_RING_CLASS}`,
     sortIcon:
       'text-xs text-muted-foreground opacity-50 inline-flex shrink-0 transition-opacity items-center data-sorted:(text-foreground opacity-100)',
     pagination:
@@ -72,7 +84,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     resizer:
       "h-full w-3 cursor-col-resize select-none top-0 absolute z-20 touch-none after:(bg-transparent w-0.5 content-[''] transition-colors inset-y-0 left-1/2 absolute -translate-x-1/2) -right-1.5 [th:last-child>&]:right-0 data-resizing:after:bg-primary hover:after:bg-primary/60",
     expandedRow: 'border-b border-border bg-muted/30',
-    expandedCell: 'px-4 py-3 align-top',
+    expandedCell: 'p-0 align-top',
     expandButton: DATA_TABLE_EXPAND_BUTTON_CLASS,
   },
   defaultVariants: {
@@ -88,21 +100,21 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         root: 'text-xs',
         head: 'text-xs px-2 h-8',
         cell: 'text-xs px-2 py-1.5',
-        sortButton: 'text-xs py-0.5',
+        sortButton: 'size-5',
         pagination: 'text-xs',
       },
       md: {
         root: 'text-sm',
         head: 'text-sm px-2 h-10',
         cell: 'text-sm p-2',
-        sortButton: 'text-sm py-1',
+        sortButton: 'size-6',
         pagination: 'text-sm',
       },
       lg: {
         root: 'text-base',
         head: 'text-base px-4 h-12',
         cell: 'text-base p-4',
-        sortButton: 'text-base py-1.5',
+        sortButton: 'size-7',
         pagination: 'text-base px-4',
       },
     },
