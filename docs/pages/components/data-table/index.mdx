@@ -226,10 +226,9 @@ export const COLUMNS = [
           expandedRowRender={
             props.expandable
               ? (row) => (
-                  <div class="text-xs p-3 bg-muted/30 rounded border border-border">
-                    <span class="font-medium text-foreground">Employee Detail:</span>{' '}
-                    {row.original.name} is a {row.original.role} in the{' '}
-                    {row.original.department} department.
+                  <div class="text-muted-foreground">
+                    <span class="font-medium text-foreground">{row.original.name}</span> is a{' '}
+                    {row.original.role} in the {row.original.department} department.
                   </div>
                 )
               : undefined
@@ -245,6 +244,7 @@ export const COLUMNS = [
           currentSorting={props.remote ? remoteSorting() : undefined}
           onSortingChange={props.remote ? setRemoteSorting : undefined}
           pageSizeOptions={[5, 10, 20]}
+          classes={{ container: 'border border-border rounded-lg' }}
         />
       </div>
     )
@@ -362,6 +362,19 @@ Enable drag handles on column borders by passing `resizable`:
 <DataTable data={metrics} columns={columns} resizable />
 ```
 
+### Column Order
+
+Control visible column order with `defaultColumnOrder` or `currentColumnOrder`. Values are column ids, matching `accessorKey` unless a column sets `id`. Auto-injected `select` and `expand` columns stay at the start unless you include them in the list.
+
+```tsx
+<DataTable
+  data={employees}
+  columns={columns}
+  currentColumnOrder={['role', 'name', 'department']}
+  onColumnOrderChange={setColumnOrder}
+/>
+```
+
 ### Expandable Rows
 
 Display nested breakdowns or order line items using `expandable` and `expandedRowRender`:
@@ -372,7 +385,7 @@ Display nested breakdowns or order line items using `expandable` and `expandedRo
   columns={columns}
   expandable
   expandedRowRender={(row) => (
-    <div class="p-3 bg-muted/30">
+    <div>
       Order #{row.original.id} contains {row.original.items.length} items.
     </div>
   )}
@@ -407,21 +420,27 @@ Render rows with built-in sorting and row selection checkboxes.
 
 ### Pinned columns and horizontal scrolling
 
-Freeze customer ID on the left and quick action menus on the right with horizontal scroll divider shadows.
+Freeze the customer ID on the left and the action menu on the right. A divider marks the edge of each pinned group while the remaining columns scroll horizontally.
 
 <Preview path="./pinned-columns" />
 
 ### Sticky header with bounded scroll
 
-Fix table headers cleanly at the top of a scroll container across 30+ audit events.
+Keep the header at the top of a bounded scroll container while browsing 30 audit events.
 
 <Preview path="./sticky-header" />
 
 ### Interactive column resizing
 
-Drag column borders to dynamically adjust widths with visual resize feedback.
+Drag a column boundary to adjust its width. The handle highlights on hover and while resizing.
 
 <Preview path="./resizable-columns" />
+
+### Custom column order
+
+Reorder columns through `currentColumnOrder` without changing the column definitions.
+
+<Preview path="./column-order" />
 
 ### Expandable row details
 
@@ -431,7 +450,7 @@ Inspect nested line items, shipping addresses, and tracking codes inside expanda
 
 ### Single selection and disabled rows
 
-Toggle between multiple and single selection modes, disabling archived records with `isRowSelectable`.
+Toggle between multiple and single selection modes, and lock terminated nodes with `isRowSelectable`.
 
 <Preview path="./selection-modes" />
 

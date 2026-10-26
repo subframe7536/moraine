@@ -92,7 +92,10 @@ describe('DataTable', () => {
     render(() => <DataTable data={TEST_DATA} columns={TEST_COLUMNS} sorting />)
 
     const nameHeader = screen.getByText('Name')
-    const sortButton = nameHeader.closest('button')!
+    expect(nameHeader.closest('button')).toBeNull()
+    const sortButton = nameHeader
+      .closest('th')!
+      .querySelector('[data-slot="data-table-sort-button"]')!
     expect(sortButton).toBeDefined()
 
     // Click to sort ascending (Alice, Bob, Charlie)
@@ -257,7 +260,56 @@ describe('DataTable', () => {
     const row = container.querySelector(
       '[data-slot="data-table-body"] [data-slot="data-table-row"]',
     )!
-    expect(row.className).toContain('hover:bg-accent/50')
+    expect(row.className).toContain(
+      '[tbody>&:not([data-selected],[data-empty]):hover]:bg-accent/50',
+    )
+  })
+
+  it('marks even display rows for striping and keeps header rows unmarked', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        striped
+        expandable
+        defaultExpanded={{ '0': true }}
+        expandedRowRender={(row) => <div>{row.original.name} details</div>}
+      />
+    ))
+
+    const bodyRows = container.querySelectorAll('tbody > tr[data-slot="data-table-row"]')
+    expect([...bodyRows].map((row) => row.hasAttribute('data-even'))).toEqual([false, true, false])
+    expect(bodyRows[0]!.hasAttribute('data-expanded')).toBe(true)
+    expect(bodyRows[1]!.hasAttribute('data-expanded')).toBe(false)
+
+    const headerRow = container.querySelector('thead tr')!
+    expect(headerRow.hasAttribute('data-even')).toBe(false)
+    expect(headerRow.hasAttribute('aria-selected')).toBe(false)
+  })
+
+  it('marks the empty-state row so row hover styles skip it', () => {
+    const { container } = render(() => <DataTable data={[]} columns={TEST_COLUMNS} hoverEffect />)
+
+    const emptyRow = container.querySelector('tbody > tr')!
+    expect(emptyRow.hasAttribute('data-empty')).toBe(true)
+  })
+
+  it('keeps sort controls detached at the end of the header cell', () => {
+    const columns: ColumnDef<any, Person>[] = [
+      { accessorKey: 'name', header: 'Name' },
+      { accessorKey: 'age', header: 'Age', meta: { align: 'right' } },
+    ]
+    render(() => <DataTable data={TEST_DATA} columns={columns} sorting />)
+
+    const ageTh = screen.getByText('Age').closest('th')!
+    const ageButton = ageTh.querySelector('[data-slot="data-table-sort-button"]')!
+    expect(ageButton.contains(screen.getByText('Age'))).toBe(false)
+    expect(ageButton.parentElement?.lastElementChild).toBe(ageButton)
+
+    const ageIcon = ageButton.querySelector('[data-slot="data-table-sort-icon"]')!
+    expect(ageIcon.hasAttribute('data-sorted')).toBe(false)
+    fireEvent.click(ageButton)
+    expect(ageIcon.hasAttribute('data-sorted')).toBe(true)
   })
 
   it('reacts dynamically to reactive data signals', () => {
@@ -430,15 +482,61 @@ describe('DataTable', () => {
 
     const { container } = render(() => <DataTable data={TEST_DATA} columns={pinnedCols} />)
 
-    const nameTh = container.querySelector('th[data-slot="data-table-head"]') as HTMLElement
-    expect(nameTh.style.position).toBe('sticky')
-    expect(nameTh.style.left).toBe('0px')
-    expect(nameTh.className).toContain('bg-background')
+    const [nameTh, ageTh, roleTh] = container.querySelectorAll<HTMLElement>(
+      'th[data-slot="data-table-head"]',
+    )
+    expect(nameTh!.style.position).toBe('sticky')
+    expect(nameTh!.style.left).toBe('0px')
+    expect(nameTh!.getAttribute('data-pinned')).toBe('start')
+    expect(nameTh!.getAttribute('data-pinned-edge')).toBe('start')
+    expect(ageTh!.hasAttribute('data-pinned')).toBe(false)
+    expect(roleTh!.getAttribute('data-pinned')).toBe('end')
+    expect(roleTh!.getAttribute('data-pinned-edge')).toBe('end')
 
-    const nameTd = container.querySelector('tbody td[data-slot="data-table-cell"]') as HTMLElement
-    expect(nameTd.style.position).toBe('sticky')
-    expect(nameTd.style.left).toBe('0px')
-    expect(nameTd.className).toContain('bg-background')
+    const [nameTd, ageTd] = container.querySelectorAll<HTMLElement>(
+      'tbody td[data-slot="data-table-cell"]',
+    )
+    expect(nameTd!.style.position).toBe('sticky')
+    expect(nameTd!.style.left).toBe('0px')
+    expect(nameTd!.getAttribute('data-pinned')).toBe('start')
+    expect(nameTd!.className).toContain('data-pinned:bg-background')
+    expect(nameTd!.className).toContain(
+      'data-[pinned-edge=start]:shadow-[inset_-1px_0_0_var(--border)]',
+    )
+    expect(ageTd!.hasAttribute('data-pinned-edge')).toBe(false)
+  })
+
+  it('only marks the innermost pinned column as the pinned edge', () => {
+    const columns: ColumnDef<any, Person>[] = [
+      { accessorKey: 'name', header: 'Name', meta: { pinned: 'left' } },
+      { accessorKey: 'age', header: 'Age', meta: { pinned: 'left' } },
+      { accessorKey: 'role', header: 'Role' },
+    ]
+    const { container } = render(() => <DataTable data={TEST_DATA} columns={columns} />)
+
+    const [nameTh, ageTh] = container.querySelectorAll('th[data-slot="data-table-head"]')
+    expect(nameTh!.hasAttribute('data-pinned-edge')).toBe(false)
+    expect(ageTh!.getAttribute('data-pinned-edge')).toBe('start')
+  })
+
+  it('stacks sticky header cells above pinned body cells', () => {
+    const columns: ColumnDef<any, Person>[] = [
+      { accessorKey: 'name', header: 'Name', meta: { pinned: 'left' } },
+      { accessorKey: 'age', header: 'Age' },
+      { accessorKey: 'role', header: 'Role' },
+    ]
+    const { container } = render(() => (
+      <DataTable data={TEST_DATA} columns={columns} stickyHeader maxHeight={200} loading />
+    ))
+
+    const [pinnedTh, plainTh] = container.querySelectorAll<HTMLElement>('thead th')
+    const pinnedTd = container.querySelector<HTMLElement>('tbody td[data-pinned]')!
+    const pinnedBodyZ = Number(pinnedTd.style.zIndex)
+    expect(Number(plainTh!.style.zIndex)).toBeGreaterThan(pinnedBodyZ)
+    expect(Number(pinnedTh!.style.zIndex)).toBeGreaterThan(Number(plainTh!.style.zIndex))
+
+    const loading = container.querySelector('[data-slot="data-table-loading"]')!
+    expect(loading.className).toContain('z-40')
   })
 
   it('renders column resize handles when resizable={true}', () => {
@@ -450,7 +548,7 @@ describe('DataTable', () => {
     expect(resizers.length).toBe(TEST_COLUMNS.length)
   })
 
-  it('supports expandable rows with expandedRowRender', () => {
+  it('supports expandable rows with expandedRowRender', async () => {
     render(() => (
       <DataTable
         data={TEST_DATA}
@@ -473,9 +571,72 @@ describe('DataTable', () => {
     expect(screen.getByTestId('detail-content')).toBeDefined()
     expect(screen.getByTestId('detail-content').textContent).toBe('Alice details')
 
-    // Click again to collapse
+    const wrapper = document.querySelector(
+      '[data-slot="data-table-expanded-content"]',
+    ) as HTMLElement
+    expect(wrapper.className).toContain('data-expanded:animate-accordion-down')
+    expect(wrapper.className).toContain('data-closed:animate-accordion-up')
+    expect(wrapper.style.animation).not.toBe('none')
+    expect(wrapper.style.height).not.toBe('auto')
+
+    // Click again to collapse — content stays mounted until the height animation ends
     fireEvent.click(expandButtons[0]!)
+    await Promise.resolve()
+    expect(screen.queryByTestId('detail-content')).not.toBeNull()
+    expect(wrapper.hasAttribute('data-closed')).toBe(true)
+
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
     expect(screen.queryByTestId('detail-content')).toBeNull()
+  })
+
+  it('reorders columns from currentColumnOrder', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        currentColumnOrder={['role', 'name', 'age']}
+      />
+    ))
+
+    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent)
+    expect(headers).toEqual(['Role', 'Name', 'Age'])
+
+    const firstRowCells = [...container.querySelectorAll('tbody tr:first-child td')].map(
+      (td) => td.textContent,
+    )
+    expect(firstRowCells).toEqual(['Engineer', 'Alice', '28'])
+  })
+
+  it('keeps auto-injected select columns first when column order is customized', () => {
+    const { container } = render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        selectable
+        currentColumnOrder={['role', 'name']}
+      />
+    ))
+
+    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent?.trim())
+    expect(headers[0]).toBe('')
+    expect(headers.slice(1)).toEqual(['Role', 'Name', 'Age'])
+  })
+
+  it('applies the expandButton slot to expand toggles', () => {
+    render(() => (
+      <DataTable
+        data={TEST_DATA}
+        columns={TEST_COLUMNS}
+        expandable
+        expandedRowRender={(row) => <div>{row.original.name}</div>}
+        classes={{ expandButton: 'custom-expand' }}
+      />
+    ))
+
+    const [button] = screen.getAllByRole('button', { name: /expand row/i })
+    expect(button!.className).toContain('custom-expand')
+    expect(button!.className).toContain('data-expanded:rotate-90')
   })
 
   it('emits onRowClick and onRowDoubleClick events', () => {

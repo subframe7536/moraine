@@ -89,20 +89,30 @@ const CUSTOMERS: Customer[] = [
   },
 ]
 
+const PLAN_TONE = {
+  Enterprise: 'primary',
+  Pro: 'info',
+  Starter: 'neutral',
+} as const
+
+const STATUS = {
+  active: { label: 'Active', tone: 'success' },
+  past_due: { label: 'Past Due', tone: 'warning' },
+  canceled: { label: 'Canceled', tone: 'danger' },
+} as const
+
 const COLUMNS: ColumnDef<any, Customer>[] = [
   {
     accessorKey: 'id',
     header: 'Customer ID',
     size: 130,
-    meta: {
-      pinned: 'left',
-      class: 'font-mono text-xs font-medium text-foreground',
-    },
+    meta: { pinned: 'left' },
+    cell: (props) => <span class="text-xs font-medium font-mono">{props.row.original.id}</span>,
   },
   {
     accessorKey: 'name',
     header: 'Customer',
-    size: 240,
+    size: 260,
     cell: (props) => (
       <div class="flex gap-3 items-center">
         <div class="text-xs text-primary font-medium rounded-full bg-primary/10 flex shrink-0 size-8 items-center justify-center">
@@ -120,17 +130,7 @@ const COLUMNS: ColumnDef<any, Customer>[] = [
     header: 'Plan',
     size: 120,
     cell: (props) => (
-      <Badge
-        tone={
-          props.row.original.plan === 'Enterprise'
-            ? 'primary'
-            : props.row.original.plan === 'Pro'
-              ? 'info'
-              : 'neutral'
-        }
-        variant="subtle"
-        size="sm"
-      >
+      <Badge tone={PLAN_TONE[props.row.original.plan]} variant="subtle" size="sm">
         {props.row.original.plan}
       </Badge>
     ),
@@ -146,58 +146,47 @@ const COLUMNS: ColumnDef<any, Customer>[] = [
     accessorKey: 'invoices',
     header: 'Invoices',
     size: 100,
-    meta: { align: 'center' },
+    meta: { align: 'right' },
+    cell: (props) => <span class="tabular-nums">{props.row.original.invoices}</span>,
   },
   {
     accessorKey: 'lastPayment',
     header: 'Last Payment',
     size: 140,
-    cell: (props) => (
-      <span class="text-xs text-muted-foreground">{props.row.original.lastPayment}</span>
-    ),
+    cell: (props) => <span class="text-muted-foreground">{props.row.original.lastPayment}</span>,
   },
   {
     accessorKey: 'method',
     header: 'Billing Method',
     size: 180,
-    cell: (props) => <span class="text-xs">{props.row.original.method}</span>,
   },
   {
     accessorKey: 'status',
     header: 'Status',
     size: 120,
     cell: (props) => {
-      const status = () => props.row.original.status
+      const status = () => STATUS[props.row.original.status]
       return (
-        <Badge
-          tone={status() === 'active' ? 'success' : status() === 'past_due' ? 'warning' : 'danger'}
-          variant="subtle"
-          size="sm"
-        >
-          {status() === 'active' ? 'Active' : status() === 'past_due' ? 'Past Due' : 'Canceled'}
+        <Badge tone={status().tone} variant="subtle" size="sm">
+          {status().label}
         </Badge>
       )
     },
   },
   {
     id: 'actions',
-    header: 'Actions',
-    size: 90,
-    meta: {
-      pinned: 'right',
-      align: 'center',
-    },
+    header: () => <span class="sr-only">Actions</span>,
+    size: 56,
+    meta: { pinned: 'right', align: 'center' },
     cell: (props) => (
       <DropdownMenu>
         <DropdownMenu.Trigger
           as={Button}
           variant="ghost"
-          size="sm"
-          class="p-0 size-8"
-          aria-label="Open customer actions"
-        >
-          <span class="i-lucide:more-horizontal text-base" />
-        </DropdownMenu.Trigger>
+          size="icon-sm"
+          leading="i-lucide:ellipsis"
+          aria-label={`Open actions for ${props.row.original.name}`}
+        />
         <DropdownMenu.Content
           items={[
             {
@@ -223,14 +212,14 @@ export default function PinnedColumnsExample() {
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
-        Scroll horizontally to observe pinned Customer ID on the left and Actions on the right.
+        Scroll horizontally: the selection and Customer ID columns stay pinned on the left, and the
+        actions column stays pinned on the right.
       </div>
       <DataTable
         data={CUSTOMERS}
         columns={COLUMNS}
         selectable
         hoverEffect
-        showBorder="both"
         classes={{ container: 'border border-border rounded-lg' }}
       />
     </div>

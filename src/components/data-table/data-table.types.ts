@@ -1,5 +1,6 @@
 import type {
   ColumnDef,
+  ColumnOrderState as TanstackColumnOrderState,
   PaginationState,
   Row,
   RowData,
@@ -43,6 +44,8 @@ export namespace DataTableT {
     right?: string[]
   }
 
+  export type ColumnOrderState = TanstackColumnOrderState
+
   export interface ColumnMeta {
     align?: 'left' | 'center' | 'right'
     truncated?: boolean
@@ -81,6 +84,13 @@ export namespace DataTableT {
     currentColumnPinning?: ColumnPinningState
     /** Callback fired when column pinning changes in convenience mode. */
     onColumnPinningChange?: (pinning: ColumnPinningState) => void
+
+    /** Initial column order (list of column ids) in convenience mode. */
+    defaultColumnOrder?: ColumnOrderState
+    /** Controlled column order (list of column ids) in convenience mode. */
+    currentColumnOrder?: ColumnOrderState
+    /** Callback fired when column order changes in convenience mode. */
+    onColumnOrderChange?: (order: ColumnOrderState) => void
 
     /** Callback to determine if a specific row can be selected. When false, the row checkbox/radio is disabled. */
     isRowSelectable?: (row: Row<TFeatures, TData>) => boolean

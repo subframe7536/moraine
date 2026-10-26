@@ -65,6 +65,12 @@ const METRICS: ServiceMetric[] = [
   },
 ]
 
+const HEALTH = {
+  healthy: { label: 'Healthy', tone: 'success' },
+  degraded: { label: 'Degraded', tone: 'warning' },
+  critical: { label: 'Critical', tone: 'danger' },
+} as const
+
 const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
   {
     accessorKey: 'service',
@@ -80,7 +86,7 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     size: 220,
     minSize: 160,
     maxSize: 360,
-    cell: (props) => <span class="text-xs text-muted-foreground">{props.row.original.region}</span>,
+    cell: (props) => <span class="text-muted-foreground">{props.row.original.region}</span>,
   },
   {
     accessorKey: 'rps',
@@ -89,9 +95,7 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     minSize: 110,
     maxSize: 220,
     meta: { align: 'right' },
-    cell: (props) => (
-      <span class="font-mono tabular-nums">{props.row.original.rps.toLocaleString()}</span>
-    ),
+    cell: (props) => <span class="tabular-nums">{props.row.original.rps.toLocaleString()}</span>,
   },
   {
     accessorKey: 'p95Latency',
@@ -100,9 +104,7 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     minSize: 100,
     maxSize: 200,
     meta: { align: 'right' },
-    cell: (props) => (
-      <span class="text-xs font-mono tabular-nums">{props.row.original.p95Latency}</span>
-    ),
+    cell: (props) => <span class="tabular-nums">{props.row.original.p95Latency}</span>,
   },
   {
     accessorKey: 'errorRate',
@@ -111,17 +113,20 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     minSize: 100,
     maxSize: 180,
     meta: { align: 'right' },
-    cell: (props) => (
-      <span
-        class={`text-xs font-mono tabular-nums ${
-          Number.parseFloat(props.row.original.errorRate) > 1
-            ? 'text-danger font-semibold'
-            : 'text-muted-foreground'
-        }`}
-      >
-        {props.row.original.errorRate}
-      </span>
-    ),
+    cell: (props) => {
+      const elevated = () => Number.parseFloat(props.row.original.errorRate) > 1
+      return (
+        <span
+          class="tabular-nums"
+          classList={{
+            'text-danger font-medium': elevated(),
+            'text-muted-foreground': !elevated(),
+          }}
+        >
+          {props.row.original.errorRate}
+        </span>
+      )
+    },
   },
   {
     accessorKey: 'cpu',
@@ -130,7 +135,7 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     minSize: 90,
     maxSize: 180,
     meta: { align: 'right' },
-    cell: (props) => <span class="text-xs font-mono tabular-nums">{props.row.original.cpu}</span>,
+    cell: (props) => <span class="tabular-nums">{props.row.original.cpu}</span>,
   },
   {
     accessorKey: 'status',
@@ -139,14 +144,10 @@ const COLUMNS: ColumnDef<any, ServiceMetric>[] = [
     minSize: 100,
     maxSize: 180,
     cell: (props) => {
-      const st = () => props.row.original.status
+      const health = () => HEALTH[props.row.original.status]
       return (
-        <Badge
-          tone={st() === 'healthy' ? 'success' : st() === 'degraded' ? 'warning' : 'danger'}
-          variant="subtle"
-          size="sm"
-        >
-          {st().toUpperCase()}
+        <Badge tone={health().tone} variant="subtle" size="sm">
+          {health().label}
         </Badge>
       )
     },
@@ -157,8 +158,7 @@ export default function ResizableColumnsExample() {
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
-        Hover over the boundary between any two column headers and drag horizontally to resize
-        column widths.
+        Drag the boundary between two column headers to resize a column.
       </div>
       <DataTable
         data={METRICS}

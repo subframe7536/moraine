@@ -1,4 +1,4 @@
-import { Badge, Button, DataTable } from '@src'
+import { Badge, Button, ButtonGroup, DataTable, ToggleButton } from '@src'
 import type { ColumnDef, RowSelectionState } from '@tanstack/solid-table'
 import { Show, createSignal } from 'solid-js'
 
@@ -62,6 +62,12 @@ const NODES: ServerNode[] = [
   },
 ]
 
+const NODE_STATUS = {
+  running: { label: 'Running', tone: 'success' },
+  stopped: { label: 'Stopped', tone: 'warning' },
+  terminated: { label: 'Terminated', tone: 'neutral' },
+} as const
+
 const COLUMNS: ColumnDef<any, ServerNode>[] = [
   {
     accessorKey: 'id',
@@ -79,37 +85,31 @@ const COLUMNS: ColumnDef<any, ServerNode>[] = [
     accessorKey: 'cluster',
     header: 'Cluster',
     size: 180,
-    cell: (props) => (
-      <span class="text-xs text-muted-foreground">{props.row.original.cluster}</span>
-    ),
+    cell: (props) => <span class="text-muted-foreground">{props.row.original.cluster}</span>,
   },
   {
     accessorKey: 'vcpu',
     header: 'vCPU',
-    size: 100,
-    meta: { align: 'center' },
-    cell: (props) => <span class="font-mono tabular-nums">{props.row.original.vcpu}</span>,
+    size: 80,
+    meta: { align: 'right' },
+    cell: (props) => <span class="tabular-nums">{props.row.original.vcpu}</span>,
   },
   {
     accessorKey: 'ram',
     header: 'RAM',
-    size: 100,
-    meta: { align: 'center' },
-    cell: (props) => <span class="font-mono tabular-nums">{props.row.original.ram}</span>,
+    size: 90,
+    meta: { align: 'right' },
+    cell: (props) => <span class="tabular-nums">{props.row.original.ram}</span>,
   },
   {
     accessorKey: 'status',
-    header: 'Node Status',
-    size: 130,
+    header: 'Status',
+    size: 120,
     cell: (props) => {
-      const s = () => props.row.original.status
+      const status = () => NODE_STATUS[props.row.original.status]
       return (
-        <Badge
-          tone={s() === 'running' ? 'success' : s() === 'stopped' ? 'warning' : 'neutral'}
-          variant="subtle"
-          size="sm"
-        >
-          {s() === 'terminated' ? 'Terminated (Disabled)' : s().toUpperCase()}
+        <Badge tone={status().tone} variant="subtle" size="sm">
+          {status().label}
         </Badge>
       )
     },
@@ -122,48 +122,29 @@ export default function SelectionModesExample() {
 
   const selectedCount = () => Object.keys(selectedRows()).length
 
+  const changeMode = (next: 'multiple' | 'single') => {
+    setMode(next)
+    setSelectedRows({})
+  }
+
   return (
     <div class="flex flex-col gap-3 w-full">
-      <div class="p-3 border border-border rounded-lg bg-muted/40 flex flex-wrap gap-2 items-center justify-between">
-        <div class="flex gap-2 items-center">
-          <span class="text-xs text-muted-foreground font-semibold uppercase">Selection Mode:</span>
-          <div class="p-0.5 border border-border rounded-md bg-background inline-flex">
-            <button
-              type="button"
-              class={`text-xs font-medium px-2.5 py-1 rounded transition-colors ${
-                mode() === 'multiple'
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              onClick={() => {
-                setMode('multiple')
-                setSelectedRows({})
-              }}
-            >
-              Multiple (Checkbox)
-            </button>
-            <button
-              type="button"
-              class={`text-xs font-medium px-2.5 py-1 rounded transition-colors ${
-                mode() === 'single'
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              onClick={() => {
-                setMode('single')
-                setSelectedRows({})
-              }}
-            >
-              Single (Radio)
-            </button>
-          </div>
-        </div>
+      <div class="flex flex-wrap gap-2 min-h-8 items-center justify-between">
+        <ButtonGroup size="sm" variant="outline" aria-label="Selection mode">
+          <ToggleButton
+            pressed={mode() === 'multiple'}
+            onPressedChange={() => changeMode('multiple')}
+          >
+            Multiple
+          </ToggleButton>
+          <ToggleButton pressed={mode() === 'single'} onPressedChange={() => changeMode('single')}>
+            Single
+          </ToggleButton>
+        </ButtonGroup>
 
         <Show when={selectedCount() > 0}>
           <div class="flex gap-2 items-center">
-            <span class="text-xs text-foreground font-medium">
-              {selectedCount()} node(s) selected
-            </span>
+            <span class="text-sm text-muted-foreground">{selectedCount()} selected</span>
             <Button size="sm" variant="outline" onClick={() => setSelectedRows({})}>
               Clear
             </Button>
@@ -174,14 +155,6 @@ export default function SelectionModesExample() {
         </Show>
       </div>
 
-      <div class="text-xs text-muted-foreground">
-        Note: Nodes with status{' '}
-        <Badge tone="neutral" size="sm" variant="subtle">
-          TERMINATED
-        </Badge>{' '}
-        are locked and cannot be selected (<code class="text-xs">isRowSelectable</code> check).
-      </div>
-
       <DataTable
         data={NODES}
         columns={COLUMNS}
@@ -189,9 +162,15 @@ export default function SelectionModesExample() {
         currentRowSelection={selectedRows()}
         onRowSelectionChange={setSelectedRows}
         isRowSelectable={(row) => row.original.status !== 'terminated'}
+        rowClass={(row) => row.original.status === 'terminated' && 'text-muted-foreground'}
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
       />
+
+      <div class="text-xs text-muted-foreground">
+        Terminated nodes are locked by <code class="font-mono">isRowSelectable</code> and cannot be
+        selected.
+      </div>
     </div>
   )
 }

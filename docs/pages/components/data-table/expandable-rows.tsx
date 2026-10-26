@@ -106,12 +106,18 @@ const ORDERS: Order[] = [
   },
 ]
 
+const FULFILLMENT = {
+  delivered: { label: 'Delivered', tone: 'success' },
+  in_transit: { label: 'In Transit', tone: 'info' },
+  processing: { label: 'Processing', tone: 'warning' },
+} as const
+
 const COLUMNS: ColumnDef<any, Order>[] = [
   {
     accessorKey: 'id',
     header: 'Order #',
     size: 150,
-    cell: (props) => <span class="text-xs font-mono font-semibold">{props.row.original.id}</span>,
+    cell: (props) => <span class="text-xs font-medium font-mono">{props.row.original.id}</span>,
   },
   {
     accessorKey: 'customer',
@@ -123,33 +129,27 @@ const COLUMNS: ColumnDef<any, Order>[] = [
     accessorKey: 'date',
     header: 'Order Date',
     size: 140,
-    cell: (props) => <span class="text-xs text-muted-foreground">{props.row.original.date}</span>,
+    cell: (props) => <span class="text-muted-foreground">{props.row.original.date}</span>,
   },
   {
     accessorKey: 'fulfillment',
     header: 'Fulfillment',
     size: 130,
     cell: (props) => {
-      const f = () => props.row.original.fulfillment
+      const fulfillment = () => FULFILLMENT[props.row.original.fulfillment]
       return (
-        <Badge
-          tone={f() === 'delivered' ? 'success' : f() === 'in_transit' ? 'info' : 'warning'}
-          variant="subtle"
-          size="sm"
-        >
-          {f() === 'delivered' ? 'Delivered' : f() === 'in_transit' ? 'In Transit' : 'Processing'}
+        <Badge tone={fulfillment().tone} variant="subtle" size="sm">
+          {fulfillment().label}
         </Badge>
       )
     },
   },
   {
     accessorKey: 'total',
-    header: 'Total Amount',
-    size: 140,
+    header: 'Total',
+    size: 120,
     meta: { align: 'right' },
-    cell: (props) => (
-      <span class="text-foreground font-medium font-mono">{props.row.original.total}</span>
-    ),
+    cell: (props) => <span class="font-medium tabular-nums">{props.row.original.total}</span>,
   },
 ]
 
@@ -157,8 +157,7 @@ export default function ExpandableRowsExample() {
   return (
     <div class="flex flex-col gap-3 w-full">
       <div class="text-sm text-muted-foreground">
-        Click the chevron icon on any row to expand and inspect its detailed line items and shipping
-        info.
+        Click the chevron on any row to inspect its line items and shipping details.
       </div>
       <DataTable
         data={ORDERS}
@@ -167,43 +166,34 @@ export default function ExpandableRowsExample() {
         hoverEffect
         classes={{ container: 'border border-border rounded-lg' }}
         expandedRowRender={(row) => (
-          <div class="p-4 border border-border/60 rounded-lg bg-muted/30 flex flex-col gap-3">
-            <div class="pb-2 border-b border-border/50 flex flex-wrap gap-2 items-center justify-between">
-              <div class="text-xs text-muted-foreground">
-                <span class="text-foreground font-medium">Shipping To:</span>{' '}
+          <div class="flex flex-col gap-3">
+            <div class="text-xs flex flex-wrap gap-x-6 gap-y-1">
+              <div class="text-muted-foreground">
+                <span class="text-foreground font-medium">Ship to:</span>{' '}
                 {row.original.shippingAddress}
               </div>
-              <div class="text-xs font-mono px-2 py-1 border border-border rounded bg-background">
-                Tracking: {row.original.tracking}
+              <div class="text-muted-foreground">
+                <span class="text-foreground font-medium">Tracking:</span>{' '}
+                <span class="font-mono">{row.original.tracking}</span>
               </div>
             </div>
-
-            <div class="flex flex-col gap-1.5">
-              <span class="text-xs text-muted-foreground tracking-wide font-semibold uppercase">
-                Ordered Items ({row.original.items.length})
-              </span>
-              <div class="border border-border rounded-md bg-background divide-border/50 divide-y">
-                <For each={row.original.items}>
-                  {(item) => (
-                    <div class="text-xs p-2.5 flex items-center justify-between">
-                      <div class="flex flex-col">
-                        <span class="text-foreground font-medium">{item.name}</span>
-                        <span class="text-[11px] text-muted-foreground font-mono">
-                          SKU: {item.sku}
-                        </span>
-                      </div>
-                      <div class="flex gap-6 items-center tabular-nums">
-                        <span class="text-muted-foreground">
-                          {item.qty} × {item.price}
-                        </span>
-                        <span class="text-foreground font-medium text-right w-16">
-                          {item.total}
-                        </span>
-                      </div>
+            <div class="border border-border rounded-md bg-background divide-border divide-y">
+              <For each={row.original.items}>
+                {(item) => (
+                  <div class="text-xs px-3 py-2 flex gap-4 items-center justify-between">
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-foreground font-medium truncate">{item.name}</span>
+                      <span class="text-muted-foreground font-mono">{item.sku}</span>
                     </div>
-                  )}
-                </For>
-              </div>
+                    <div class="flex shrink-0 gap-6 items-center tabular-nums">
+                      <span class="text-muted-foreground">
+                        {item.qty} × {item.price}
+                      </span>
+                      <span class="text-foreground font-medium text-right w-16">{item.total}</span>
+                    </div>
+                  </div>
+                )}
+              </For>
             </div>
           </div>
         )}
