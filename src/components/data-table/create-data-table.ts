@@ -1,5 +1,6 @@
-import { createTable, functionalUpdate } from '@tanstack/solid-table'
+import { createTable, functionalUpdate, stateSlicesEqual } from '@tanstack/solid-table'
 import type { Row, RowData, TableOptions, TableState, Updater } from '@tanstack/solid-table'
+import { createMemo } from 'solid-js'
 
 import { buildExpandColumn, buildSelectColumn } from './data-table-columns'
 import { getDataTableFeatures } from './data-table-features'
@@ -106,6 +107,12 @@ export function createDataTable<TData extends RowData = RowData>(
     return prefix.length > 0 ? [...prefix, ...userColumns] : [...userColumns]
   }
 
+  // Row-model memos treat `data`/`columns` by reference. Accessors that rebuild
+  // arrays on every read would churn them into spurious auto-resets, so cache
+  // resolution behind memos that only recompute when tracked inputs change.
+  const memoizedData = createMemo(() => resolveMaybeAccessor(options.data) as TData[])
+  const memoizedColumns = createMemo(resolveColumns)
+
   const stateObject: Record<string, unknown> = {}
   if (options.state) {
     for (const key of STATE_SLICE_KEYS) {
@@ -114,7 +121,11 @@ export function createDataTable<TData extends RowData = RowData>(
           enumerable: true,
           configurable: true,
           get() {
-            return resolveMaybeAccessor(options.state?.[key])
+            const value = resolveMaybeAccessor(options.state?.[key])
+            // An accessor resolving to `undefined` means the slice is
+            // uncontrolled: mirror the base atom instead of freezing the
+            // slice at its initial value.
+            return value === undefined ? table?.baseAtoms[key]?.get() : value
           },
         })
       }
@@ -140,7 +151,10 @@ export function createDataTable<TData extends RowData = RowData>(
     getCallback: () => ((next: DataTableT.State[K]) => void) | undefined,
   ) {
     return (updater: Updater<DataTableT.State[K]>) => {
-      const controlled = options.state !== undefined && key in options.state
+      const controlled =
+        options.state !== undefined &&
+        key in options.state &&
+        resolveMaybeAccessor(options.state[key]) !== undefined
       let nextValue!: DataTableT.State[K]
       const writeAtom = (table.options.atoms?.[key] ?? table.baseAtoms[key]) as
         | { set: (fn: (prev: DataTableT.State[K]) => DataTableT.State[K]) => void }
@@ -153,7 +167,7 @@ export function createDataTable<TData extends RowData = RowData>(
       } else {
         writeAtom.set((prev) => {
           nextValue = functionalUpdate(updater, prev)
-          return nextValue
+          return stateSlicesEqual(prev, nextValue) ? prev : nextValue
         })
       }
       getCallback()?.(nextValue)
@@ -163,10 +177,10 @@ export function createDataTable<TData extends RowData = RowData>(
   const resolvedTableOptions: TableOptions<DataTableFeatures, TData> = {
     features: getDataTableFeatures({ pagination: paginated }),
     get data() {
-      return resolveMaybeAccessor(options.data) as TData[]
+      return memoizedData()
     },
     get columns() {
-      return resolveColumns()
+      return memoizedColumns()
     },
     getRowId: options.getRowId
       ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {

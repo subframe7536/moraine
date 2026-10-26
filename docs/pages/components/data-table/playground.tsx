@@ -58,7 +58,7 @@ interface PlaygroundProps {
   sorting?: boolean
   selectable?: boolean
   pagination?: boolean
-  stickyHeader?: boolean
+  sticky?: boolean
   resizable?: boolean
   expandable?: boolean
   loading?: boolean
@@ -93,16 +93,8 @@ function PlaygroundTable(props: PlaygroundTableProps) {
       sorting: () => (props.remote ? props.remoteSorting() : undefined),
       pagination: () => (props.remote ? props.remotePagination() : undefined),
     },
-    onSortingChange: (next) => {
-      if (props.remote) {
-        props.setRemoteSorting(next)
-      }
-    },
-    onPaginationChange: (next) => {
-      if (props.remote) {
-        props.setRemotePagination(next)
-      }
-    },
+    onSortingChange: (next) => props.remote && props.setRemoteSorting(next),
+    onPaginationChange: (next) => props.remote && props.setRemotePagination(next),
   })
 
   return (
@@ -112,8 +104,8 @@ function PlaygroundTable(props: PlaygroundTableProps) {
       striped={props.striped}
       hoverEffect={props.hoverEffect}
       showBorder={props.showBorder}
-      stickyHeader={props.stickyHeader}
-      maxHeight={props.stickyHeader ? 280 : undefined}
+      sticky={props.sticky}
+      maxHeight={props.sticky ? 280 : undefined}
       expandedRowRender={
         props.expandable
           ? (rowProps) => (
@@ -124,6 +116,11 @@ function PlaygroundTable(props: PlaygroundTableProps) {
             )
           : undefined
       }
+      onRowClick={(row) => {
+        if (props.expandable && row.getCanExpand()) {
+          row.toggleExpanded()
+        }
+      }}
       loading={props.loading || (props.remote && props.remoteLoading())}
       classes={{ container: 'border border-border rounded-lg' }}
     />
@@ -144,21 +141,39 @@ export default function DataTablePlayground(props: PlaygroundProps) {
     },
   )
   const [remoteLoading, setRemoteLoading] = createSignal(false)
-  const [serverRows, setServerRows] = createSignal(ALL_EMPLOYEES.slice(0, 5))
-  const [serverTotal, setServerTotal] = createSignal(ALL_EMPLOYEES.length)
+
+  const fetchRemoteRows = (): { rows: Employee[]; total: number } => {
+    const q = nameQuery().trim().toLowerCase()
+    const role = roleFilter()
+    let rows = ALL_EMPLOYEES.filter(
+      (emp) => (!q || emp.name.toLowerCase().includes(q)) && (!role || emp.role === role),
+    )
+
+    const [sort] = remoteSorting()
+    if (sort) {
+      const key = sort.id as keyof Employee
+      rows = [...rows].sort(
+        (a, b) => `${a[key] ?? ''}`.localeCompare(`${b[key] ?? ''}`) * (sort.desc ? -1 : 1),
+      )
+    }
+
+    const total = rows.length
+    if (props.pagination !== false) {
+      const { pageIndex, pageSize } = remotePagination()
+      rows = rows.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
+    }
+    return { rows, total }
+  }
+
+  const [serverRows, setServerRows] = createSignal(fetchRemoteRows().rows)
+  const [serverTotal, setServerTotal] = createSignal(fetchRemoteRows().total)
 
   const filteredLocalData = () => {
     const q = nameQuery().trim().toLowerCase()
     const role = roleFilter()
-    return ALL_EMPLOYEES.filter((emp) => {
-      if (q && !emp.name.toLowerCase().includes(q)) {
-        return false
-      }
-      if (role && role !== '' && emp.role !== role) {
-        return false
-      }
-      return true
-    })
+    return ALL_EMPLOYEES.filter(
+      (emp) => (!q || emp.name.toLowerCase().includes(q)) && (!role || emp.role === role),
+    )
   }
 
   createEffect(
@@ -171,37 +186,9 @@ export default function DataTablePlayground(props: PlaygroundProps) {
         }
         setRemoteLoading(true)
         const timer = setTimeout(() => {
-          const q = nameQuery().trim().toLowerCase()
-          const role = roleFilter()
-          let filtered = ALL_EMPLOYEES.filter((emp) => {
-            if (q && !emp.name.toLowerCase().includes(q)) {
-              return false
-            }
-            if (role && role !== '' && emp.role !== role) {
-              return false
-            }
-            return true
-          })
-
-          const sorting = remoteSorting()
-          if (sorting.length > 0) {
-            const sort = sorting[0]!
-            const key = sort.id as keyof Employee
-            filtered = [...filtered].sort((a, b) => {
-              const va = `${a[key] ?? ''}`
-              const vb = `${b[key] ?? ''}`
-              const cmp = va.localeCompare(vb)
-              return sort.desc ? -cmp : cmp
-            })
-          }
-
-          const total = filtered.length
+          const { rows, total } = fetchRemoteRows()
           setServerTotal(total)
-
-          const { pageIndex, pageSize } = remotePagination()
-          const start = pageIndex * pageSize
-          const sliced = filtered.slice(start, start + pageSize)
-          setServerRows(sliced)
+          setServerRows(rows)
           setRemoteLoading(false)
         }, 300)
 
@@ -210,18 +197,24 @@ export default function DataTablePlayground(props: PlaygroundProps) {
     ),
   )
 
-  const hasFilter = () => Boolean(nameQuery()) || Boolean(roleFilter() && roleFilter() !== '')
+  const hasFilter = () => Boolean(nameQuery()) || Boolean(roleFilter())
+
+  const handleRemoteSorting = (next: DataTableT.State['sorting']) => {
+    setRemoteSorting(next)
+    setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
 
   const handleReset = () => {
     setNameQuery('')
     setRoleFilter(undefined)
     if (props.remote) {
+      setRemoteSorting([])
       setRemotePagination((prev) => ({ ...prev, pageIndex: 0 }))
     }
   }
 
   const instanceKey = () =>
-    `${props.pagination}-${props.selectable}-${props.expandable}-${props.sorting}-${props.resizable}-${props.remote}`
+    `${props.pagination}-${props.selectable}-${props.expandable}-${props.sorting}-${props.resizable}`
 
   return (
     <div class="flex flex-col gap-3 w-full">
@@ -264,13 +257,13 @@ export default function DataTablePlayground(props: PlaygroundProps) {
           sorting={props.sorting}
           selectable={props.selectable}
           pagination={props.pagination}
-          stickyHeader={props.stickyHeader}
+          sticky={props.sticky}
           resizable={props.resizable}
           expandable={props.expandable}
           loading={props.loading}
           remote={props.remote}
           remoteSorting={remoteSorting}
-          setRemoteSorting={setRemoteSorting}
+          setRemoteSorting={handleRemoteSorting}
           remotePagination={remotePagination}
           setRemotePagination={setRemotePagination}
           remoteLoading={remoteLoading}

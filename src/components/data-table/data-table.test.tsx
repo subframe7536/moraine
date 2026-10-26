@@ -462,13 +462,13 @@ describe('DataTable', () => {
     expect(bodyRows[2]?.getAttribute('aria-selected')).toBe('false')
   })
 
-  it('applies stickyHeader styles to th and supports maxHeight', () => {
+  it('applies sticky styles to th and supports maxHeight', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} stickyHeader maxHeight={300} />
+      return <DataTable table={table} sticky maxHeight={300} />
     })
 
-    const scrollDiv = container.querySelector('[data-slot="data-table-container"]') as HTMLElement
+    const scrollDiv = container.querySelector('[data-slot="data-table-scroll"]') as HTMLElement
     expect(scrollDiv.style.maxHeight).toBe('300px')
     expect(scrollDiv.style.overflowY).toBe('auto')
 
@@ -482,6 +482,56 @@ describe('DataTable', () => {
       expect((th as HTMLElement).style.top).toBe('0px')
       expect(th.className).toContain('bg-background')
     }
+  })
+
+  it('keeps the pagination toolbar outside the scroll viewport', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({ pagination: true })
+      return <DataTable table={table} sticky maxHeight={200} />
+    })
+
+    const scrollDiv = container.querySelector('[data-slot="data-table-scroll"]')!
+    const pagination = container.querySelector('[data-slot="data-table-pagination"]')!
+    expect(scrollDiv.contains(pagination)).toBe(false)
+    expect(
+      container.querySelector('[data-slot="data-table-container"]')!.contains(pagination),
+    ).toBe(true)
+  })
+
+  it('sticks footer cells to the bottom when sticky includes footer', () => {
+    const footerColumns: DataTableT.Column<Person>[] = [
+      { accessorKey: 'name', header: 'Name', footer: 'Total' },
+      { accessorKey: 'age', header: 'Age' },
+    ]
+
+    const { container, unmount } = render(() => {
+      const table = createPersonTable({ columns: footerColumns })
+      return <DataTable table={table} sticky maxHeight={200} />
+    })
+
+    const footerCells = container.querySelectorAll<HTMLElement>(
+      'tfoot td[data-slot="data-table-cell"]',
+    )
+    expect(footerCells.length).toBe(2)
+    for (const td of footerCells) {
+      expect(td.style.position).toBe('sticky')
+      expect(td.style.bottom).toBe('0px')
+    }
+    unmount()
+
+    const { container: footerOnly } = render(() => {
+      const table = createPersonTable({ columns: footerColumns })
+      return <DataTable table={table} sticky="footer" maxHeight={200} />
+    })
+
+    const footerCell = footerOnly.querySelector<HTMLElement>(
+      'tfoot td[data-slot="data-table-cell"]',
+    )!
+    expect(footerCell.style.position).toBe('sticky')
+    expect(footerCell.style.bottom).toBe('0px')
+
+    const head = footerOnly.querySelector<HTMLElement>('thead th')!
+    expect(head.style.position).not.toBe('sticky')
   })
 
   it('supports columnPinning with sticky position and pixel offsets', () => {
@@ -562,7 +612,7 @@ describe('DataTable', () => {
         columns,
         state: { columnPinning: { start: ['name'], end: [] } },
       })
-      return <DataTable table={table} stickyHeader maxHeight={200} loading />
+      return <DataTable table={table} sticky maxHeight={200} loading />
     })
 
     const [pinnedTh, plainTh] = container.querySelectorAll<HTMLElement>('thead th')
@@ -675,6 +725,22 @@ describe('DataTable', () => {
     const [button] = screen.getAllByRole('button', { name: /expand row/i })
     expect(button!.className).toContain('custom-expand')
     expect(button!.className).toContain('data-expanded:rotate-90')
+  })
+
+  it('does not emit onRowClick when a selection checkbox is clicked', () => {
+    const onRowClick = vi.fn()
+
+    render(() => {
+      const table = createPersonTable({ selection: 'multiple' })
+      return <DataTable table={table} onRowClick={onRowClick} />
+    })
+
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[1]!)
+
+    expect(onRowClick).not.toHaveBeenCalled()
+    const bodyRows = screen.getAllByRole('row').slice(1)
+    expect(bodyRows[0]?.getAttribute('aria-selected')).toBe('true')
   })
 
   it('emits onRowClick and onRowDoubleClick events', () => {

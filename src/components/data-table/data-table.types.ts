@@ -160,7 +160,7 @@ export namespace DataTableT {
     table: Instance<TData>
     /** Localized message overrides for this data table instance. */
     translations?: Translations
-    /** Ref forwarded to the outer scroll container element. */
+    /** Ref forwarded to the outer container element. */
     containerRef?: Ref<HTMLDivElement>
     /** Custom class or class getter applied to each row (`<tr>`). */
     rowClass?: SlotClassValue | ((row: Row<TData>) => SlotClassValue)

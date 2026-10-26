@@ -36,7 +36,7 @@
           "name": "containerRef",
           "optional": true,
           "type": "Ref<HTMLDivElement>",
-          "description": "Ref forwarded to the outer scroll container element."
+          "description": "Ref forwarded to the outer container element."
         },
         {
           "name": "emptyRender",
@@ -117,10 +117,10 @@
           }
         },
         {
-          "name": "stickyHeader",
+          "name": "sticky",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether the table header sticks to the top of the container during scrolling.",
+          "type": "boolean | 'header' | 'footer'",
+          "description": "Whether the header and/or footer stick to the edges of the scroll container (`true` sticks both).",
           "default": {
             "kind": "literal",
             "value": false

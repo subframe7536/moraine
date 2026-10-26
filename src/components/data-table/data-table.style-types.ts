@@ -44,6 +44,6 @@ export type DataTableStyleVariants = {
   hoverEffect?: boolean
   /** Border divider layout. @default 'row' */
   showBorder?: 'row' | 'col' | 'both'
-  /** Whether the table header sticks to the top of the container during scrolling. @default false */
-  stickyHeader?: boolean
+  /** Whether the header and/or footer stick to the edges of the scroll container (`true` sticks both). @default false */
+  sticky?: boolean | 'header' | 'footer'
 }

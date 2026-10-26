@@ -78,7 +78,7 @@ export default function VirtualizationExample() {
     <DataTable
       table={table}
       virtualRender={virtualizer.virtualRender}
-      stickyHeader
+      sticky
       maxHeight={320}
       classes={{ container: 'border border-border rounded-lg' }}
     />

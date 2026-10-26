@@ -119,7 +119,7 @@ export default function StickyHeaderExample() {
       </div>
       <DataTable
         table={table}
-        stickyHeader
+        sticky
         maxHeight={360}
         hoverEffect
         size="sm"

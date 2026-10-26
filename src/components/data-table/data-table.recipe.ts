@@ -55,6 +55,13 @@ export const DATA_TABLE_RADIO_CLASS = `border border-input rounded-full bg-contr
 export const DATA_TABLE_RADIO_INDICATOR_CLASS =
   'rounded-full bg-primary-foreground size-1.5 scale-0 transition-transform [[aria-checked=true]>&]:scale-100'
 
+/** Scroll viewport wrapping the table so only the body scrolls under a sticky header/footer. */
+export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
+
+/** Sticky footer cells paint an opaque surface matching `bg-muted/50` over `bg-background`. */
+export const DATA_TABLE_STICKY_FOOTER_CELL_CLASS =
+  'bg-[color-mix(in_oklch,var(--muted)_50%,var(--background))]'
+
 /** Pinned cells paint an opaque surface so scrolled columns never show through them. */
 const PINNED_CELL_CLASS =
   'data-pinned:bg-background data-[pinned-edge=end]:shadow-[inset_1px_0_0_var(--border)] data-[pinned-edge=start]:shadow-[inset_-1px_0_0_var(--border)] [tr[data-selected]>&]:data-pinned:bg-accent'
@@ -65,7 +72,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
 >('data-table', {
   base: {
     '--mo-collapsible-content-height': '0px',
-    container: 'w-full relative overflow-x-auto',
+    container: 'w-full relative',
     root: 'border-border w-full',
     header: 'text-left [&_tr]:border-border',
     body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0',
@@ -92,7 +99,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     striped: false,
     hoverEffect: false,
     showBorder: 'row',
-    stickyHeader: false,
+    sticky: false,
   },
   variants: {
     size: {
@@ -150,11 +157,15 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         footer: 'border-t',
       },
     },
-    stickyHeader: {
-      true: {
-        root: 'border-separate border-spacing-0',
-        head: 'border-b bg-background',
-      },
-    },
   },
+  compoundVariants: [
+    {
+      variants: { sticky: [true, 'header', 'footer'] },
+      root: 'border-separate border-spacing-0',
+    },
+    {
+      variants: { sticky: [true, 'header'] },
+      head: 'border-b bg-background',
+    },
+  ],
 })

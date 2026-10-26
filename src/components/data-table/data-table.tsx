@@ -25,6 +25,8 @@ import {
   DATA_TABLE_PAGINATION_CONTROLS_CLASS,
   DATA_TABLE_PAGINATION_INFO_CLASS,
   DATA_TABLE_RESIZABLE_CELL_CLASS,
+  DATA_TABLE_SCROLL_CLASS,
+  DATA_TABLE_STICKY_FOOTER_CELL_CLASS,
   DATA_TABLE_TEXT_ALIGN_CLASS,
   dataTableDataAttributes,
   dataTableRecipe,
@@ -49,7 +51,7 @@ export function DataTable<TData extends RowData = RowData>(
     'loading',
     'loadingRender',
     'emptyRender',
-    'stickyHeader',
+    'sticky',
     'maxHeight',
     'expandedRowRender',
     'onRowClick',
@@ -75,6 +77,8 @@ export function DataTable<TData extends RowData = RowData>(
   const tableOptions = () => activeTable().options
 
   const isResizable = () => tableOptions().enableColumnResizing === true
+  const isStickyHeader = () => local.sticky === true || local.sticky === 'header'
+  const isStickyFooter = () => local.sticky === true || local.sticky === 'footer'
   const hasPagination = () => !local.virtualRender && tableConfig().paginated
 
   if (DEV) {
@@ -150,7 +154,7 @@ export function DataTable<TData extends RowData = RowData>(
   function buildCellPresentation(
     col: Column<DataTableFeatures, TData>,
     getWidth: () => number,
-    options?: { isHeader?: boolean; isResizableCell?: boolean },
+    options?: { isHeader?: boolean; isFooter?: boolean; isResizableCell?: boolean },
   ): { class: unknown[]; style: JSX.CSSProperties } {
     const meta = col.columnDef.meta
     const align = meta?.align ?? 'left'
@@ -158,7 +162,9 @@ export function DataTable<TData extends RowData = RowData>(
     const isStart = pin === 'start'
     const isEnd = pin === 'end'
     const isHeader = options?.isHeader === true
-    const isSticky = Boolean((isHeader && local.stickyHeader) || pin)
+    const isFooter = options?.isFooter === true
+    const sticksToEdge = (isHeader && isStickyHeader()) || (isFooter && isStickyFooter())
+    const isSticky = Boolean(sticksToEdge || pin)
     const shouldSetWidth = isResizable() || hasPinning() || col.columnDef.size !== undefined
 
     return {
@@ -166,17 +172,19 @@ export function DataTable<TData extends RowData = RowData>(
         DATA_TABLE_TEXT_ALIGN_CLASS[align],
         meta?.truncated && 'truncate',
         options?.isResizableCell && isResizable() && DATA_TABLE_RESIZABLE_CELL_CLASS,
+        isFooter && isStickyFooter() && DATA_TABLE_STICKY_FOOTER_CELL_CLASS,
         meta?.class,
       ],
       style: {
         ...(shouldSetWidth ? { width: `${getWidth()}px` } : {}),
         ...(isSticky ? { position: 'sticky' } : {}),
-        ...(isHeader && local.stickyHeader ? { top: 0 } : {}),
+        ...(isHeader && isStickyHeader() ? { top: 0 } : {}),
+        ...(isFooter && isStickyFooter() ? { bottom: 0 } : {}),
         ...(isStart ? { left: `${col.getStart('start')}px` } : {}),
         ...(isEnd ? { right: `${col.getAfter('end')}px` } : {}),
         ...(isSticky
           ? {
-              'z-index': isHeader ? (pin && local.stickyHeader ? 30 : 20) : 10,
+              'z-index': isHeader || isFooter ? (pin && sticksToEdge ? 30 : 20) : 10,
             }
           : {}),
       },
@@ -300,7 +308,7 @@ export function DataTable<TData extends RowData = RowData>(
     )
   }
 
-  const containerStyle = (): JSX.CSSProperties => {
+  const scrollStyle = (): JSX.CSSProperties => {
     if (!local.maxHeight) {
       return {}
     }
@@ -314,12 +322,9 @@ export function DataTable<TData extends RowData = RowData>(
   return (
     <DataTableInternalProvider value={{ expandButton: slots.expandButton, messages }}>
       <div
-        ref={(el) => {
-          setScrollContainer(() => el)
-          callRef(local.containerRef, el)
-        }}
+        ref={(el) => callRef(local.containerRef, el)}
         data-slot="data-table-container"
-        {...slotWith('container', () => ({ style: containerStyle() }))}
+        {...slots.container}
       >
         <Show when={local.loading}>
           <div data-slot="data-table-loading" {...slots.loading}>
@@ -327,194 +332,203 @@ export function DataTable<TData extends RowData = RowData>(
           </div>
         </Show>
 
-        <table
-          data-slot="data-table"
-          {...rest}
-          {...slotWith('root', () => ({ style: tableStyle() }))}
-          ref={local.ref}
+        <div
+          ref={(el) => setScrollContainer(() => el)}
+          data-slot="data-table-scroll"
+          class={DATA_TABLE_SCROLL_CLASS}
+          style={scrollStyle()}
         >
-          <thead data-slot="data-table-header" {...slots.header}>
-            <For each={activeTable().getHeaderGroups()}>
-              {(headerGroup) => (
-                <tr data-slot="data-table-row" {...slots.row}>
-                  <For each={headerGroup.headers}>
-                    {(header) => {
-                      const align = (): 'left' | 'center' | 'right' =>
-                        header.column.columnDef.meta?.align ?? 'left'
-                      const canSort = () => header.column.getCanSort()
-                      const isSorted = () => header.column.getIsSorted()
-                      const sortIcon = () =>
-                        isSorted() === 'asc'
-                          ? 'icon-arrow-up'
-                          : isSorted() === 'desc'
-                            ? 'icon-arrow-down'
-                            : 'i-lucide:arrow-up-down'
-
-                      return (
-                        <th
-                          data-slot="data-table-head"
-                          colSpan={header.colSpan}
-                          aria-sort={
-                            isSorted() === 'asc'
-                              ? 'ascending'
-                              : isSorted() === 'desc'
-                                ? 'descending'
-                                : canSort()
-                                  ? 'none'
-                                  : undefined
-                          }
-                          {...dataTableDataAttributes.head({
-                            pinned: () => header.column.getIsPinned(),
-                            pinnedEdge: () => pinnedEdge(header.column),
-                          })}
-                          {...slotWith('head', () =>
-                            buildCellPresentation(header.column, () => header.getSize(), {
-                              isHeader: true,
-                            }),
-                          )}
-                        >
-                          <Show when={!header.isPlaceholder}>
-                            <div class={DATA_TABLE_HEAD_INNER_CLASS}>
-                              <span
-                                class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
-                              >
-                                <FlexRender header={header} />
-                              </span>
-                              <Show when={canSort()}>
-                                <button
-                                  type="button"
-                                  data-slot="data-table-sort-button"
-                                  aria-label={
-                                    isSorted() === 'asc'
-                                      ? messages().sortedAscending
-                                      : isSorted() === 'desc'
-                                        ? messages().sortedDescending
-                                        : messages().sort
-                                  }
-                                  {...slots.sortButton}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    header.column.getToggleSortingHandler()?.(e)
-                                  }}
-                                >
-                                  <span
-                                    data-slot="data-table-sort-icon"
-                                    {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
-                                    {...slots.sortIcon}
-                                    aria-hidden="true"
-                                  >
-                                    <Icon name={sortIcon()} />
-                                  </span>
-                                </button>
-                              </Show>
-                            </div>
-                            <Show when={isResizable() && header.column.getCanResize()}>
-                              <div
-                                data-slot="data-table-resizer"
-                                {...dataTableDataAttributes.resizer({
-                                  resizing: () => header.column.getIsResizing(),
-                                })}
-                                onMouseDown={(e) => header.getResizeHandler()(e)}
-                                onTouchStart={(e) => header.getResizeHandler()(e)}
-                                {...slotWith('resizer', () => ({
-                                  style:
-                                    tableOptions().columnResizeMode === 'onEnd' &&
-                                    header.column.getIsResizing()
-                                      ? {
-                                          transform: `translateX(${(tableOptions().columnResizeDirection === 'rtl' ? -1 : 1) * (activeTable().atoms.columnResizing?.get()?.deltaOffset ?? 0)}px)`,
-                                        }
-                                      : undefined,
-                                }))}
-                              />
-                            </Show>
-                          </Show>
-                        </th>
-                      )
-                    }}
-                  </For>
-                </tr>
-              )}
-            </For>
-          </thead>
-
-          <tbody data-slot="data-table-body" {...slots.body}>
-            <Show
-              when={activeRows().length > 0}
-              fallback={
-                <tr
-                  data-slot="data-table-row"
-                  {...dataTableDataAttributes.row({
-                    selected: false,
-                    expanded: false,
-                    even: false,
-                    empty: true,
-                  })}
-                  {...slots.row}
-                >
-                  <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
-                    <RenderEmpty />
-                  </td>
-                </tr>
-              }
-            >
-              <Show
-                when={local.virtualRender}
-                fallback={
-                  <For each={activeRows()}>
-                    {(row, index) => <RenderRow row={row} index={index()} />}
-                  </For>
-                }
-              >
-                {(virtualRender) => (
-                  <Dynamic
-                    component={virtualRender()}
-                    entries={activeRows()}
-                    scrollElement={scrollContainer()}
-                    render={(
-                      row: DataTableT.Row<TData>,
-                      index: number,
-                      rowProps?: ListT.RowProps<HTMLTableRowElement>,
-                    ) => <RenderRow row={row} index={index} rowProps={rowProps} />}
-                  />
-                )}
-              </Show>
-            </Show>
-          </tbody>
-
-          <Show
-            when={activeTable()
-              .getFooterGroups()
-              .some((g) => g.headers.some((h) => !h.isPlaceholder && h.column.columnDef.footer))}
+          <table
+            data-slot="data-table"
+            {...rest}
+            {...slotWith('root', () => ({ style: tableStyle() }))}
+            ref={local.ref}
           >
-            <tfoot data-slot="data-table-footer" {...slots.footer}>
-              <For each={activeTable().getFooterGroups()}>
-                {(footerGroup) => (
+            <thead data-slot="data-table-header" {...slots.header}>
+              <For each={activeTable().getHeaderGroups()}>
+                {(headerGroup) => (
                   <tr data-slot="data-table-row" {...slots.row}>
-                    <For each={footerGroup.headers}>
-                      {(header) => (
-                        <td
-                          data-slot="data-table-cell"
-                          colSpan={header.colSpan}
-                          {...dataTableDataAttributes.cell({
-                            pinned: () => header.column.getIsPinned(),
-                            pinnedEdge: () => pinnedEdge(header.column),
-                          })}
-                          {...slotWith('cell', () =>
-                            buildCellPresentation(header.column, () => header.getSize()),
-                          )}
-                        >
-                          <Show when={!header.isPlaceholder}>
-                            <FlexRender footer={header} />
-                          </Show>
-                        </td>
-                      )}
+                    <For each={headerGroup.headers}>
+                      {(header) => {
+                        const align = (): 'left' | 'center' | 'right' =>
+                          header.column.columnDef.meta?.align ?? 'left'
+                        const canSort = () => header.column.getCanSort()
+                        const isSorted = () => header.column.getIsSorted()
+                        const sortIcon = () =>
+                          isSorted() === 'asc'
+                            ? 'icon-arrow-up'
+                            : isSorted() === 'desc'
+                              ? 'icon-arrow-down'
+                              : 'i-lucide:arrow-up-down'
+
+                        return (
+                          <th
+                            data-slot="data-table-head"
+                            colSpan={header.colSpan}
+                            aria-sort={
+                              isSorted() === 'asc'
+                                ? 'ascending'
+                                : isSorted() === 'desc'
+                                  ? 'descending'
+                                  : canSort()
+                                    ? 'none'
+                                    : undefined
+                            }
+                            {...dataTableDataAttributes.head({
+                              pinned: () => header.column.getIsPinned(),
+                              pinnedEdge: () => pinnedEdge(header.column),
+                            })}
+                            {...slotWith('head', () =>
+                              buildCellPresentation(header.column, () => header.getSize(), {
+                                isHeader: true,
+                              }),
+                            )}
+                          >
+                            <Show when={!header.isPlaceholder}>
+                              <div class={DATA_TABLE_HEAD_INNER_CLASS}>
+                                <span
+                                  class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
+                                >
+                                  <FlexRender header={header} />
+                                </span>
+                                <Show when={canSort()}>
+                                  <button
+                                    type="button"
+                                    data-slot="data-table-sort-button"
+                                    aria-label={
+                                      isSorted() === 'asc'
+                                        ? messages().sortedAscending
+                                        : isSorted() === 'desc'
+                                          ? messages().sortedDescending
+                                          : messages().sort
+                                    }
+                                    {...slots.sortButton}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      header.column.getToggleSortingHandler()?.(e)
+                                    }}
+                                  >
+                                    <span
+                                      data-slot="data-table-sort-icon"
+                                      {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
+                                      {...slots.sortIcon}
+                                      aria-hidden="true"
+                                    >
+                                      <Icon name={sortIcon()} />
+                                    </span>
+                                  </button>
+                                </Show>
+                              </div>
+                              <Show when={isResizable() && header.column.getCanResize()}>
+                                <div
+                                  data-slot="data-table-resizer"
+                                  {...dataTableDataAttributes.resizer({
+                                    resizing: () => header.column.getIsResizing(),
+                                  })}
+                                  onMouseDown={(e) => header.getResizeHandler()(e)}
+                                  onTouchStart={(e) => header.getResizeHandler()(e)}
+                                  {...slotWith('resizer', () => ({
+                                    style:
+                                      tableOptions().columnResizeMode === 'onEnd' &&
+                                      header.column.getIsResizing()
+                                        ? {
+                                            transform: `translateX(${(tableOptions().columnResizeDirection === 'rtl' ? -1 : 1) * (activeTable().atoms.columnResizing?.get()?.deltaOffset ?? 0)}px)`,
+                                          }
+                                        : undefined,
+                                  }))}
+                                />
+                              </Show>
+                            </Show>
+                          </th>
+                        )
+                      }}
                     </For>
                   </tr>
                 )}
               </For>
-            </tfoot>
-          </Show>
-        </table>
+            </thead>
+
+            <tbody data-slot="data-table-body" {...slots.body}>
+              <Show
+                when={activeRows().length > 0}
+                fallback={
+                  <tr
+                    data-slot="data-table-row"
+                    {...dataTableDataAttributes.row({
+                      selected: false,
+                      expanded: false,
+                      even: false,
+                      empty: true,
+                    })}
+                    {...slots.row}
+                  >
+                    <td data-slot="data-table-empty" colSpan={leafColCount()} {...slots.empty}>
+                      <RenderEmpty />
+                    </td>
+                  </tr>
+                }
+              >
+                <Show
+                  when={local.virtualRender}
+                  fallback={
+                    <For each={activeRows()}>
+                      {(row, index) => <RenderRow row={row} index={index()} />}
+                    </For>
+                  }
+                >
+                  {(virtualRender) => (
+                    <Dynamic
+                      component={virtualRender()}
+                      entries={activeRows()}
+                      scrollElement={scrollContainer()}
+                      render={(
+                        row: DataTableT.Row<TData>,
+                        index: number,
+                        rowProps?: ListT.RowProps<HTMLTableRowElement>,
+                      ) => <RenderRow row={row} index={index} rowProps={rowProps} />}
+                    />
+                  )}
+                </Show>
+              </Show>
+            </tbody>
+
+            <Show
+              when={activeTable()
+                .getFooterGroups()
+                .some((g) => g.headers.some((h) => !h.isPlaceholder && h.column.columnDef.footer))}
+            >
+              <tfoot data-slot="data-table-footer" {...slots.footer}>
+                <For each={activeTable().getFooterGroups()}>
+                  {(footerGroup) => (
+                    <tr data-slot="data-table-row" {...slots.row}>
+                      <For each={footerGroup.headers}>
+                        {(header) => (
+                          <td
+                            data-slot="data-table-cell"
+                            colSpan={header.colSpan}
+                            {...dataTableDataAttributes.cell({
+                              pinned: () => header.column.getIsPinned(),
+                              pinnedEdge: () => pinnedEdge(header.column),
+                            })}
+                            {...slotWith('cell', () =>
+                              buildCellPresentation(header.column, () => header.getSize(), {
+                                isFooter: true,
+                              }),
+                            )}
+                          >
+                            <Show when={!header.isPlaceholder}>
+                              <FlexRender footer={header} />
+                            </Show>
+                          </td>
+                        )}
+                      </For>
+                    </tr>
+                  )}
+                </For>
+              </tfoot>
+            </Show>
+          </table>
+        </div>
 
         <Show when={hasPagination()}>
           <div data-slot="data-table-pagination" {...slots.pagination}>

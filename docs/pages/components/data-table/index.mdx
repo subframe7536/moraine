@@ -39,7 +39,7 @@ import DataTablePlayground from './playground'
     { kind: 'switch', prop: 'sorting', label: 'Sorting', defaultValue: true },
     { kind: 'switch', prop: 'selectable', label: 'Selectable', defaultValue: true },
     { kind: 'switch', prop: 'pagination', label: 'Pagination', defaultValue: true },
-    { kind: 'switch', prop: 'stickyHeader', label: 'Sticky Header', defaultValue: false },
+    { kind: 'switch', prop: 'sticky', label: 'Sticky', defaultValue: false },
     { kind: 'switch', prop: 'resizable', label: 'Resizable', defaultValue: false },
     { kind: 'switch', prop: 'expandable', label: 'Expandable', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
@@ -199,12 +199,12 @@ const table = createDataTable({
 return <DataTable table={table} />
 ```
 
-### Sticky Header
+### Sticky Header and Footer
 
-Pin the table header to the top of a scrollable container with `stickyHeader` and `maxHeight`:
+Pin the header to the top — and the footer to the bottom — of a scrollable container with `sticky` (`true`, `'header'`, or `'footer'`) and `maxHeight`:
 
 ```tsx
-<DataTable table={table} stickyHeader maxHeight={360} />
+<DataTable table={table} sticky maxHeight={360} />
 ```
 
 ### Column Resizing

@@ -62,16 +62,18 @@ export function buildSelectColumn<TData extends RowData = RowData>(
         <Show
           when={isSingle}
           fallback={
-            <Checkbox
-              checked={isSelected()}
-              disabled={!canSelect()}
-              onCheckedChange={(val) => {
-                if (canSelect()) {
-                  props.row.toggleSelected(val === true)
-                }
-              }}
-              aria-label={ctx.messages().selectRow}
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={isSelected()}
+                disabled={!canSelect()}
+                onCheckedChange={(val) => {
+                  if (canSelect()) {
+                    props.row.toggleSelected(val === true)
+                  }
+                }}
+                aria-label={ctx.messages().selectRow}
+              />
+            </div>
           }
         >
           <div class={DATA_TABLE_RADIO_WRAPPER_CLASS}>
