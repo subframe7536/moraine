@@ -78,6 +78,8 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
   const selection = createTreeSelection<T>({ options, registry, flattenedKeys, isDisabled })
   const checked = createTreeChecked<T>({ options, registry })
   const checkable = () => Boolean(options.checkable)
+  const trigger = () => options.trigger !== false
+  const getIcon = (item: TreeT.ItemInstance<T>) => options.getIcon?.(item)
 
   const navigation = createTreeNavigation<T>({
     options,
@@ -147,7 +149,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     if (
       !modifier &&
       !event.shiftKey &&
-      options.expandOnClick !== false &&
+      (options.expandOnClick !== false || options.trigger === false) &&
       registry().nodes.get(key)?.hasChildren
     ) {
       expansion.toggle(key)
@@ -191,6 +193,8 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     flattenedKeys,
     selectionMode: selection.mode,
     checkable,
+    trigger,
+    getIcon,
     navigation,
   }
 

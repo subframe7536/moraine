@@ -49,6 +49,8 @@ import { createComponent } from 'solid-js'
         { label: 'Solid', value: 'solid' },
       ],
     },
+    { kind: 'switch', prop: 'trigger', label: 'Trigger', defaultValue: true },
+    { kind: 'switch', prop: 'icon', label: 'Icon', defaultValue: true },
     { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
     { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
   ]}
@@ -86,6 +88,18 @@ import { createComponent } from 'solid-js'
       defaultSelectedKeys: ['tree'],
       get checkable() {
         return Boolean(props.checkable)
+      },
+      get trigger() {
+        return Boolean(props.trigger)
+      },
+      getIcon(item) {
+        if (!props.icon) {
+          return undefined
+        }
+        if (!item.hasChildren) {
+          return 'i-lucide:file'
+        }
+        return item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
       },
     })
 
@@ -174,7 +188,8 @@ items.
 
 Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `onExpandedChange` to own
 it. Options are read reactively, so pass controlled values with getters. Row clicks toggle branches
-unless `expandOnClick` is `false`; the trigger always toggles.
+unless `expandOnClick` is `false`; the trigger always toggles. Set `trigger={false}` to render no
+chevron at all — rows then always toggle, whatever `expandOnClick` says.
 
 ```tsx
 const [expanded, setExpanded] = createSignal(['src'])
@@ -186,6 +201,21 @@ const tree = createTree({
     return expanded()
   },
   onExpandedChange: setExpanded,
+})
+```
+
+### Icons
+
+Set `getIcon` to render a prefix icon in the default item. It receives the item instance, so the
+icon can react to `hasChildren`, `isExpanded`, or `isLoading`. Returning `undefined` renders no
+icon; use `tree.ItemIcon` directly when composing a custom `itemRender`.
+
+```tsx
+const tree = createTree({
+  items,
+  getKey,
+  getChildren,
+  getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file'),
 })
 ```
 
@@ -254,7 +284,7 @@ const virtualizer = createListVirtualizer({
 
 `itemRender` renders one visible item. Use `tree.Item` as its root and compose `tree.ItemTrigger`,
 `tree.ItemIcon`, and `tree.ItemLabel`. Without `itemRender`, the default item renders the trigger, a
-checkbox when `checkable`, and the label. There is no prefix icon unless you render `tree.ItemIcon`.
+checkbox when `checkable`, the icon returned by `getIcon`, and the label.
 
 ### Indentation
 
@@ -334,6 +364,6 @@ Pass `virtualRender` to keep the DOM small. Expanded branches join the same virt
 ### Add counts and custom icons
 
 Compose `tree.Item` with the bound parts and your own content. Pass `icon` to `tree.ItemIcon` for a
-prefix glyph; the default item has only the chevron trigger.
+prefix glyph, or set `getIcon` in `createTree` to render one in the default item.
 
 <Preview path="./custom-item" />

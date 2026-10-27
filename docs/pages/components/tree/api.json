@@ -36,7 +36,7 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders one visible item. Defaults to trigger, check box when checkable, and label.\nUse `tree.Item` as the root of the rendered content."
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, and label.\nUse `tree.Item` as the root of the rendered content."
         },
         {
           "name": "loadingIcon",
@@ -349,8 +349,7 @@
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded",
-        "data-transition"
+        "data-expanded"
       ]
     }
   ]

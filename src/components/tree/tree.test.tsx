@@ -208,6 +208,82 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
+    test('renders no trigger and toggles on row click when trigger is false', () => {
+      const { container } = render(() => (
+        <Harness options={{ trigger: false, expandOnClick: false }} />
+      ))
+      const src = item(container, 'src')
+
+      expect(src.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(labels(container)).toContain('components')
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+    })
+
+    test('custom items also render no trigger when trigger is false', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ trigger: false }}
+          treeProps={{
+            transition: false,
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemTrigger />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+
+      expect(container.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+    })
+
+    test('renders the getIcon icon in the default item', () => {
+      const { container } = render(() => (
+        <Harness
+          options={{
+            getIcon: (item) => (item.hasChildren ? 'icon-folder' : 'icon-file'),
+          }}
+        />
+      ))
+
+      expect(item(container, 'src').querySelector('[data-slot="tree-icon"]')?.className).toContain(
+        'icon-folder',
+      )
+      expect(
+        item(container, 'README.md').querySelector('[data-slot="tree-icon"]')?.className,
+      ).toContain('icon-file')
+    })
+
+    test('getIcon can react to expansion state', () => {
+      const { container } = render(() => (
+        <Harness
+          options={{
+            getIcon: (item) =>
+              item.hasChildren ? (item.isExpanded ? 'icon-open' : 'icon-closed') : 'icon-file',
+          }}
+          treeProps={{ transition: false }}
+        />
+      ))
+      const src = item(container, 'src')
+      const icon = () => src.querySelector('[data-slot="tree-icon"]')
+
+      expect(icon()?.className).toContain('icon-closed')
+      fireEvent.click(src)
+      expect(icon()?.className).toContain('icon-open')
+    })
+
+    test('renders no icon without getIcon', () => {
+      const { container } = render(() => <Harness />)
+
+      expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
+    })
+
     test('nested trigger clicks do not toggle their ancestors', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
@@ -296,26 +372,26 @@ describe('createTree', () => {
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
-      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
     })
 
-    test('omits data-transition when transition is false', () => {
+    test('omits height transition styles when transition is false', () => {
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['docs'] }} treeProps={{ transition: false }} />
       ))
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(false)
-      expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(group.className).not.toContain('animate-accordion-down')
     })
 
-    test('omits data-transition on default-expanded nested content', async () => {
+    test('omits height transition styles on default-expanded nested content', async () => {
       vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
       const group = item(container, 'docs').querySelector<HTMLElement>('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(group.style.height).toBe('auto')
       expect(group.style.animation).toBe('none')
     })
@@ -335,7 +411,7 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(srcGroup.style.height).toBe('auto')
 
       fireEvent.click(item(container, 'components'))
@@ -354,12 +430,12 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(srcGroup.style.height).toBe('auto')
       const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
         '[role="group"]',
       )!
-      expect(nestedGroup.hasAttribute('data-transition')).toBe(true)
+      expect(nestedGroup.className).toContain('h-(--mo-collapsible-content-height)')
       expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
       expect(nestedGroup.style.height).not.toBe('auto')
     })
@@ -368,7 +444,7 @@ describe('createTree', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       const group = item(container, 'components').querySelector<HTMLElement>('[role="group"]')!
 
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
       expect(group.hasAttribute('hidden')).toBe(false)
@@ -379,7 +455,7 @@ describe('createTree', () => {
 
       clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
     })
@@ -392,7 +468,7 @@ describe('createTree', () => {
       await Promise.resolve()
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-closed')).toBe(false)
       expect(group.style.height).not.toBe('auto')
     })
@@ -1122,14 +1198,12 @@ describe('createTree', () => {
       expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
         'var(--border)',
       )
-      expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
+      expect(item(container, 'docs').style.backgroundImage).toContain('--mo-tree-indent-guide')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
       expect(row?.className).toContain('data-entering:animate-tree-item-in')
-      expect(row?.className).toContain('mx-1')
-      expect(row?.className).toContain(
-        'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
-      )
+      expect(row?.className).toContain('mx-(--mo-tree-gutter)')
+      expect(row?.className).toContain('ps-(--mo-tree-inset)')
       expect(item(container, 'docs').className).not.toContain('animate-tree-item-in')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')

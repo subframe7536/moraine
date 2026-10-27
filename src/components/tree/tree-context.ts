@@ -15,6 +15,9 @@ export interface TreeContext {
   /** Whether items render flat inside a virtualizer instead of nested. */
   readonly isVirtual: boolean
   readonly checkable: boolean
+  readonly trigger: boolean
+  /** Prefix icon of the given item, or `undefined` for none. */
+  readonly itemIcon: (item: TreeT.ItemInstance<unknown>) => IconT.Name | undefined
   readonly transition: boolean
   readonly unmountOnHide: boolean
   readonly triggerIcon: IconT.Name

@@ -4,6 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
+import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
 import { TreeProvider, TreeRowProvider } from './tree-context'
@@ -19,6 +20,8 @@ export interface TreeInternals<T> {
   flattenedKeys: () => readonly string[]
   selectionMode: () => TreeT.SelectionMode
   checkable: () => boolean
+  trigger: () => boolean
+  getIcon: (item: TreeT.ItemInstance<T>) => IconT.Name | undefined
   navigation: TreeNavigation
 }
 
@@ -94,6 +97,12 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
     },
     get checkable() {
       return internals.checkable()
+    },
+    get trigger() {
+      return internals.trigger()
+    },
+    get itemIcon() {
+      return (item: TreeT.ItemInstance<unknown>) => internals.getIcon(item as TreeT.ItemInstance<T>)
     },
     get transition() {
       return local.transition ?? true
