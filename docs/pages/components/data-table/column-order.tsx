@@ -55,7 +55,9 @@ export default function ColumnOrderExample() {
     data: DATA,
     columns: COLUMNS,
     state: {
-      columnOrder,
+      get columnOrder() {
+        return columnOrder()
+      },
     },
     onColumnOrderChange: setColumnOrder,
   })

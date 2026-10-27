@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
-import { createRoot, createSignal } from 'solid-js'
+import { createRoot, createSignal, mergeProps } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createTableVirtualizer } from '../../virtualizer'
@@ -40,11 +40,8 @@ const TEST_COLUMNS: DataTableT.Column<Person>[] = [
 ]
 
 function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
-  return createDataTable<Person>({
-    data: TEST_DATA,
-    columns: TEST_COLUMNS,
-    ...options,
-  })
+  const merged = mergeProps({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
+  return createDataTable<Person>(merged)
 }
 
 describe('DataTable', () => {
@@ -220,12 +217,16 @@ describe('DataTable', () => {
 
     render(() => {
       const table = createPersonTable({
-        data,
+        get data() {
+          return data()
+        },
         pagination: { pageSizes: [5, 10, 20] },
         manual: true,
         rowCount: 100,
         state: {
-          pagination,
+          get pagination() {
+            return pagination()
+          },
         },
         onPaginationChange: (next) => {
           setPagination(next)
@@ -245,6 +246,76 @@ describe('DataTable', () => {
     onPaginationChange.mockClear()
     setData([{ id: '99', name: 'Zoe', age: 28, role: 'Engineer' }])
     expect(onPaginationChange).not.toHaveBeenCalled()
+  })
+
+  it('toggles pagination reactively without recreating the table instance', async () => {
+    const [paginated, setPaginated] = createSignal(false)
+    const { container } = render(() => {
+      const table = createPersonTable({
+        get pagination() {
+          return paginated() ? ({ pageSizes: false } as const) : false
+        },
+        initialState: { pagination: { pageIndex: 0, pageSize: 2 } },
+      })
+      return <DataTable table={table} />
+    })
+
+    expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull()
+    expect(screen.getAllByRole('row').length).toBe(4)
+
+    setPaginated(true)
+
+    await waitFor(() =>
+      expect(container.querySelector('[data-slot="data-table-pagination"]')).not.toBeNull(),
+    )
+    expect(screen.getAllByRole('row').length).toBe(3)
+
+    setPaginated(false)
+
+    await waitFor(() =>
+      expect(container.querySelector('[data-slot="data-table-pagination"]')).toBeNull(),
+    )
+    expect(screen.getAllByRole('row').length).toBe(4)
+  })
+
+  it('adds and removes the selection column reactively', () => {
+    const [mode, setMode] = createSignal<'multiple' | undefined>(undefined)
+    render(() => {
+      const table = createPersonTable({
+        get selection() {
+          return mode()
+        },
+      })
+      return <DataTable table={table} />
+    })
+
+    expect(screen.queryAllByRole('checkbox').length).toBe(0)
+
+    setMode('multiple')
+    expect(screen.getAllByRole('checkbox').length).toBe(4)
+
+    setMode(undefined)
+    expect(screen.queryAllByRole('checkbox').length).toBe(0)
+  })
+
+  it('keeps uncontrolled state when only an onSortingChange listener is provided', () => {
+    const onSortingChange = vi.fn()
+    render(() => {
+      const table = createPersonTable({ onSortingChange })
+      return <DataTable table={table} />
+    })
+
+    const sortButton = screen
+      .getByText('Name')
+      .closest('th')!
+      .querySelector('[data-slot="data-table-sort-button"]')!
+
+    fireEvent.click(sortButton)
+    expect(onSortingChange).toHaveBeenLastCalledWith([{ id: 'name', desc: false }])
+
+    fireEvent.click(sortButton)
+    expect(onSortingChange).toHaveBeenLastCalledWith([{ id: 'name', desc: true }])
+    expect(screen.getAllByRole('row')[1]?.textContent).toContain('Charlie')
   })
 
   it('applies custom rowClass function', () => {
@@ -343,7 +414,11 @@ describe('DataTable', () => {
     const [data, setData] = createSignal(TEST_DATA)
 
     render(() => {
-      const table = createPersonTable({ data })
+      const table = createPersonTable({
+        get data() {
+          return data()
+        },
+      })
       return <DataTable table={table} />
     })
 

@@ -130,10 +130,14 @@ export default function SelectionModesExample() {
   const table = createDataTable({
     data: NODES,
     columns: COLUMNS,
-    selection: mode,
+    get selection() {
+      return mode()
+    },
     canSelectRow: (row) => row.original.status !== 'terminated',
     state: {
-      rowSelection: selectedRows,
+      get rowSelection() {
+        return selectedRows()
+      },
     },
     onRowSelectionChange: setSelectedRows,
   })

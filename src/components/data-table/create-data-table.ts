@@ -1,6 +1,6 @@
 import { createTable, functionalUpdate, stateSlicesEqual } from '@tanstack/solid-table'
-import type { Row, RowData, TableOptions, TableState, Updater } from '@tanstack/solid-table'
-import { createMemo } from 'solid-js'
+import type { Row, RowData, TableOptions, Updater } from '@tanstack/solid-table'
+import { createMemo, mergeProps, untrack } from 'solid-js'
 
 import { buildExpandColumn, buildSelectColumn } from './data-table-columns'
 import { getDataTableFeatures } from './data-table-features'
@@ -27,38 +27,20 @@ export function getDataTableConfig(table: object): DataTableInternalConfig {
   )
 }
 
-function resolveMaybeAccessor<T>(value: T | (() => T)): T {
-  return typeof value === 'function' ? (value as () => T)() : value
-}
-
-const STATE_SLICE_KEYS = [
-  'sorting',
-  'pagination',
-  'rowSelection',
-  'expanded',
-  'columnOrder',
-  'columnPinning',
-  'columnVisibility',
-  'columnSizing',
-  'columnFilters',
-  'globalFilter',
-] as const
-
-type StateSliceKey = (typeof STATE_SLICE_KEYS)[number]
-
 /**
  * Creates a reactive TanStack Solid Table instance configured for `DataTable`.
+ *
+ * Options read through the table options object, so declare getters for
+ * values that change over time (`get data() { return rows() }`). Controlled
+ * state slices live under `state` (`get sorting() { return sorting() }`) and
+ * report resolved values through `on[Slice]Change` callbacks.
  */
 export function createDataTable<TData extends RowData = RowData>(
   options: DataTableT.Options<TData>,
 ): DataTableT.Instance<TData> {
-  const paginationOpt = options.pagination
-  const paginated = Boolean(paginationOpt)
   const initialPageSize =
-    typeof paginationOpt === 'object' && paginationOpt !== null ? paginationOpt.pageSize : undefined
-  const pageSizesOpt =
-    typeof paginationOpt === 'object' && paginationOpt !== null
-      ? paginationOpt.pageSizes
+    typeof options.pagination === 'object' && options.pagination !== null
+      ? options.pagination.pageSize
       : undefined
 
   const initialState: Partial<DataTableT.State> = {
@@ -75,197 +57,151 @@ export function createDataTable<TData extends RowData = RowData>(
 
   let table!: DataTableT.Instance<TData>
 
-  const selectCol = () => {
-    const sel = resolveMaybeAccessor(options.selection)
-    return sel ? buildSelectColumn<TData>(sel) : undefined
-  }
   const expandCol = buildExpandColumn<TData>()
 
-  // `expandable` accepts a row predicate; accessors are distinguished by arity.
-  type ExpandableValue = boolean | ((row: DataTableT.Row<TData>) => boolean) | undefined
-  const resolveExpandable = (): ExpandableValue => {
-    const exp = options.expandable
-    if (typeof exp !== 'function') {
-      return exp
-    }
-    return exp.length === 0
-      ? (exp as () => ExpandableValue)()
-      : (exp as (row: DataTableT.Row<TData>) => boolean)
-  }
-
-  const resolveColumns = (): DataTableT.Column<TData>[] => {
-    const userColumns = resolveMaybeAccessor(options.columns)
-    const exp = resolveExpandable()
-    const sel = selectCol()
+  // Row-model memos treat `data`/`columns` by reference. Getters that rebuild
+  // arrays on every read would churn them into spurious auto-resets, so cache
+  // resolution behind memos that only recompute when tracked inputs change.
+  const memoizedData = createMemo(() => options.data as TData[])
+  const memoizedColumns = createMemo(() => {
+    const userColumns = options.columns
     const prefix: DataTableT.Column<TData>[] = []
-    if (sel && !userColumns.some((col) => col.id === 'select')) {
-      prefix.push(sel)
+    if (options.selection && !userColumns.some((col) => col.id === 'select')) {
+      prefix.push(buildSelectColumn<TData>(options.selection))
     }
-    if (exp && !userColumns.some((col) => col.id === 'expand')) {
+    if (options.expandable && !userColumns.some((col) => col.id === 'expand')) {
       prefix.push(expandCol)
     }
     return prefix.length > 0 ? [...prefix, ...userColumns] : [...userColumns]
-  }
+  })
 
-  // Row-model memos treat `data`/`columns` by reference. Accessors that rebuild
-  // arrays on every read would churn them into spurious auto-resets, so cache
-  // resolution behind memos that only recompute when tracked inputs change.
-  const memoizedData = createMemo(() => resolveMaybeAccessor(options.data) as TData[])
-  const memoizedColumns = createMemo(resolveColumns)
-
-  const stateObject: Record<string, unknown> = {}
-  if (options.state) {
-    for (const key of STATE_SLICE_KEYS) {
-      if (key in options.state) {
-        Object.defineProperty(stateObject, key, {
-          enumerable: true,
-          configurable: true,
-          get() {
-            const value = resolveMaybeAccessor(options.state?.[key])
-            // An accessor resolving to `undefined` means the slice is
-            // uncontrolled: mirror the base atom instead of freezing the
-            // slice at its initial value.
-            return value === undefined ? table?.baseAtoms[key]?.get() : value
-          },
-        })
-      }
+  const paginationConfig = createMemo(() => {
+    const opt = options.pagination
+    return {
+      enabled: Boolean(opt),
+      pageSizes:
+        typeof opt === 'object' && opt !== null
+          ? (opt.pageSizes ?? DEFAULT_DATA_TABLE_PAGE_SIZES)
+          : DEFAULT_DATA_TABLE_PAGE_SIZES,
     }
-  }
-  if (options.tableOptions?.state) {
-    for (const key of Object.keys(options.tableOptions.state)) {
-      if (!(key in stateObject)) {
-        Object.defineProperty(stateObject, key, {
-          enumerable: true,
-          configurable: true,
-          get() {
-            const externalState = options.tableOptions?.state
-            return externalState?.[key as keyof TableState<DataTableFeatures>]
-          },
-        })
-      }
-    }
-  }
+  })
 
-  function makeChangeHandler<K extends StateSliceKey>(
+  const tableState = options.tableOptions?.state
+  const ownState = options.state
+  const mergedState = mergeProps(tableState ?? {}, ownState ?? {})
+  const hasState = tableState !== undefined || ownState !== undefined
+
+  function makeChangeHandler<K extends keyof DataTableT.State>(
     key: K,
     getCallback: () => ((next: DataTableT.State[K]) => void) | undefined,
   ) {
     return (updater: Updater<DataTableT.State[K]>) => {
-      const controlled =
-        options.state !== undefined &&
-        key in options.state &&
-        resolveMaybeAccessor(options.state[key]) !== undefined
-      let nextValue!: DataTableT.State[K]
-      const writeAtom = (table.options.atoms?.[key] ?? table.baseAtoms[key]) as
-        | { set: (fn: (prev: DataTableT.State[K]) => DataTableT.State[K]) => void }
+      // TanStack write path: external atoms first, base atoms otherwise. When
+      // the slice is controlled through `state`, the base-atom write stays
+      // shadowed by `atoms[key]` but keeps the internal snapshot consistent.
+      const atom = (table.options.atoms?.[key] ?? table.baseAtoms[key]) as
+        | { get: () => DataTableT.State[K]; set: (updater: Updater<DataTableT.State[K]>) => void }
         | undefined
-      if (controlled || !writeAtom) {
-        const current = (table.atoms[key]?.get() ?? resolveMaybeAccessor(options.state?.[key])) as
-          | DataTableT.State[K]
-          | undefined
-        nextValue = functionalUpdate(updater, current as DataTableT.State[K])
-      } else {
-        writeAtom.set((prev) => {
-          nextValue = functionalUpdate(updater, prev)
-          return stateSlicesEqual(prev, nextValue) ? prev : nextValue
-        })
+      const prev = untrack(() => (table.atoms[key]?.get() ?? atom?.get()) as DataTableT.State[K])
+      const next = functionalUpdate(updater, prev)
+      if (stateSlicesEqual(prev, next)) {
+        return
       }
-      getCallback()?.(nextValue)
+      atom?.set(() => next)
+      getCallback()?.(next)
     }
   }
 
-  const resolvedTableOptions: TableOptions<DataTableFeatures, TData> = {
-    features: getDataTableFeatures({ pagination: paginated }),
-    get data() {
-      return memoizedData()
+  const features = getDataTableFeatures()
+  // `mergeProps` treats `undefined` as "fall back to a previous source". The
+  // initial options snapshot is captured once by `constructTable`, so a getter
+  // returning `undefined` would keep resurrecting stale values on later
+  // merges. Volatile options return `false`/`null` — `null` stays defined for
+  // mergeProps but nullish for TanStack `??` defaults.
+  const resolvedTableOptions = mergeProps(
+    {
+      get data() {
+        return memoizedData()
+      },
+      get columns() {
+        return memoizedColumns()
+      },
+      getRowId: options.getRowId
+        ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {
+            const leafId = options.getRowId!(originalRow, index, parent)
+            return parent ? `${parent.id}.${leafId}` : leafId
+          }
+        : undefined,
+      get enableSorting() {
+        return options.sorting ?? true
+      },
+      get enableMultiRowSelection() {
+        return options.selection !== 'single'
+      },
+      get enableRowSelection() {
+        return options.canSelectRow ?? (options.selection !== undefined ? true : null)
+      },
+      get enableColumnResizing() {
+        return options.resizable ?? false
+      },
+      get manualSorting() {
+        return options.manual || null
+      },
+      get manualFiltering() {
+        return options.manual || null
+      },
+      get manualPagination() {
+        return options.manual === true || !paginationConfig().enabled
+      },
+      get rowCount() {
+        return options.rowCount ?? null
+      },
+      get autoResetPageIndex() {
+        return options.manual ? false : null
+      },
+      getRowCanExpand: (row: Row<DataTableFeatures, TData>) => {
+        const expandable = options.expandable
+        return typeof expandable === 'function' ? expandable(row) : Boolean(expandable)
+      },
+      initialState,
+      onSortingChange: makeChangeHandler('sorting', () => options.onSortingChange),
+      onPaginationChange: makeChangeHandler('pagination', () => options.onPaginationChange),
+      onRowSelectionChange: makeChangeHandler('rowSelection', () => options.onRowSelectionChange),
+      onExpandedChange: makeChangeHandler('expanded', () => options.onExpandedChange),
+      onColumnOrderChange: makeChangeHandler('columnOrder', () => options.onColumnOrderChange),
+      onColumnPinningChange: makeChangeHandler(
+        'columnPinning',
+        () => options.onColumnPinningChange,
+      ),
+      onColumnVisibilityChange: makeChangeHandler(
+        'columnVisibility',
+        () => options.onColumnVisibilityChange,
+      ),
+      onColumnSizingChange: makeChangeHandler('columnSizing', () => options.onColumnSizingChange),
+      onColumnFiltersChange: makeChangeHandler(
+        'columnFilters',
+        () => options.onColumnFiltersChange,
+      ),
+      onGlobalFilterChange: makeChangeHandler('globalFilter', () => options.onGlobalFilterChange),
     },
-    get columns() {
-      return memoizedColumns()
+    options.tableOptions ?? {},
+    {
+      features,
+      ...(hasState ? { state: mergedState } : {}),
     },
-    getRowId: options.getRowId
-      ? (originalRow: TData, index: number, parent?: Row<DataTableFeatures, TData>): string => {
-          const leafId = options.getRowId!(originalRow, index, parent)
-          return parent ? `${parent.id}.${leafId}` : leafId
-        }
-      : undefined,
-    get enableSorting() {
-      const sorting = resolveMaybeAccessor(options.sorting)
-      return sorting ?? true
-    },
-    get enableMultiRowSelection() {
-      const sel = resolveMaybeAccessor(options.selection)
-      return sel !== 'single'
-    },
-    get enableRowSelection() {
-      if (options.canSelectRow) {
-        return options.canSelectRow
-      }
-      const sel = resolveMaybeAccessor(options.selection)
-      return sel !== undefined ? true : undefined
-    },
-    get enableColumnResizing() {
-      return resolveMaybeAccessor(options.resizable) ?? false
-    },
-    get manualSorting() {
-      return resolveMaybeAccessor(options.manual) ? true : undefined
-    },
-    get manualFiltering() {
-      return resolveMaybeAccessor(options.manual) ? true : undefined
-    },
-    get manualPagination() {
-      return resolveMaybeAccessor(options.manual) ? true : undefined
-    },
-    get rowCount() {
-      return resolveMaybeAccessor(options.rowCount)
-    },
-    get autoResetPageIndex() {
-      if (resolveMaybeAccessor(options.manual)) {
-        return false
-      }
-      return undefined
-    },
-    getRowCanExpand: (row: Row<DataTableFeatures, TData>) => {
-      const exp = resolveExpandable()
-      return typeof exp === 'function' ? exp(row) : Boolean(exp)
-    },
-    initialState,
-    ...(Object.keys(stateObject).length > 0 ? { state: stateObject } : {}),
-    onSortingChange: makeChangeHandler('sorting', () => options.onSortingChange),
-    onPaginationChange: makeChangeHandler('pagination', () => options.onPaginationChange),
-    onRowSelectionChange: makeChangeHandler('rowSelection', () => options.onRowSelectionChange),
-    onExpandedChange: makeChangeHandler('expanded', () => options.onExpandedChange),
-    onColumnOrderChange: makeChangeHandler('columnOrder', () => options.onColumnOrderChange),
-    onColumnPinningChange: makeChangeHandler('columnPinning', () => options.onColumnPinningChange),
-    onColumnVisibilityChange: makeChangeHandler(
-      'columnVisibility',
-      () => options.onColumnVisibilityChange,
-    ),
-    onColumnSizingChange: makeChangeHandler('columnSizing', () => options.onColumnSizingChange),
-    onColumnFiltersChange: makeChangeHandler('columnFilters', () => options.onColumnFiltersChange),
-    onGlobalFilterChange: makeChangeHandler('globalFilter', () => options.onGlobalFilterChange),
-  }
-
-  if (options.tableOptions) {
-    const descriptors = Object.getOwnPropertyDescriptors(options.tableOptions)
-    for (const [key, desc] of Object.entries(descriptors)) {
-      if (key === 'state' || key === 'features') {
-        continue
-      }
-      Object.defineProperty(resolvedTableOptions, key, desc)
-    }
-  }
+  ) as TableOptions<DataTableFeatures, TData>
 
   table = createTable(resolvedTableOptions)
 
   const config: DataTableInternalConfig = {
     get paginated() {
-      return paginated
+      return paginationConfig().enabled
     },
     get pageSizes() {
-      return pageSizesOpt === false ? false : (pageSizesOpt ?? DEFAULT_DATA_TABLE_PAGE_SIZES)
+      return paginationConfig().pageSizes
     },
     get hasSelection() {
-      return Boolean(resolveMaybeAccessor(options.selection))
+      return Boolean(options.selection)
     },
   }
   _tableConfigMap.set(table, config)

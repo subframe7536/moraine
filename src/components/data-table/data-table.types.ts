@@ -16,7 +16,7 @@ import type {
   TableFeatures,
   TableOptions,
 } from '@tanstack/solid-table'
-import type { Accessor, Component, JSX, Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { TableVirtualRenderProps } from '../../shared/table-virtualizer'
@@ -35,8 +35,6 @@ declare module '@tanstack/solid-table' {
   >
     extends DataTableT.ColumnMeta {}
 }
-
-type MaybeAccessor<T> = T | Accessor<T>
 
 export namespace DataTableT {
   export type Kind = 'single'
@@ -84,37 +82,42 @@ export namespace DataTableT {
     globalFilter: unknown
   }
 
-  export type ControlledState = {
-    [K in keyof State]?: MaybeAccessor<State[K] | undefined>
-  }
-
+  /**
+   * Options for `createDataTable`. Options are read through the reactive
+   * table options object: declare getters (`get data() { return rows() }`)
+   * on the options object or on `state` for values that change over time.
+   */
   export interface Options<TData extends RowData = RowData> {
-    /** Row records to display, or a reactive accessor returning them. */
-    data: MaybeAccessor<readonly TData[]>
-    /** Column definitions, or a reactive accessor returning them. */
-    columns: MaybeAccessor<readonly Column<TData>[]>
+    /** Row records to display. Declare a getter for reactive data. */
+    data: readonly TData[]
+    /** Column definitions. Declare a getter for reactive columns. */
+    columns: readonly Column<TData>[]
     /** Derives a stable unique ID for each row. Nested rows are automatically prefixed with their parent row's ID. */
     getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string
     /** Whether column sorting is enabled by default. @default true */
-    sorting?: MaybeAccessor<boolean | undefined>
+    sorting?: boolean
     /** Prepends a selection column (`'multiple'` checkboxes or `'single'` radio buttons) with id `'select'`. */
-    selection?: MaybeAccessor<'single' | 'multiple' | undefined>
+    selection?: 'single' | 'multiple'
     /** Predicate controlling whether a given row can be selected. */
     canSelectRow?: (row: Row<TData>) => boolean
     /** Prepends an expand/collapse chevron column with id `'expand'` and enables row expansion. @default false */
-    expandable?: MaybeAccessor<boolean | ((row: Row<TData>) => boolean) | undefined>
+    expandable?: boolean | ((row: Row<TData>) => boolean)
     /** Enables client-side or server-side pagination and renders the pagination toolbar. @default false */
     pagination?: boolean | PaginationConfig
     /** Enables interactive column width resizing. @default false */
-    resizable?: MaybeAccessor<boolean | undefined>
+    resizable?: boolean
     /** Enables server-driven manual sorting, filtering, and pagination. @default false */
-    manual?: MaybeAccessor<boolean | undefined>
+    manual?: boolean
     /** Total row count across all pages when `manual` is enabled. */
-    rowCount?: MaybeAccessor<number | undefined>
+    rowCount?: number
     /** Uncontrolled initial table state slices. */
     initialState?: Partial<State>
-    /** Controlled table state slices (values or accessors). */
-    state?: ControlledState
+    /**
+     * Controlled table state slices. A key that is present takes ownership of
+     * that slice; when its value resolves to `undefined`, the slice falls back
+     * to `initialState`. Pair each slice with its `on[Slice]Change` callback.
+     */
+    state?: Partial<State>
     /** Called with the resolved sorting state when sorting changes. */
     onSortingChange?: (sorting: SortingState) => void
     /** Called with the resolved pagination state when page index or size changes. */

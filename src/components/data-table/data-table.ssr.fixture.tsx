@@ -33,7 +33,9 @@ const EXTRA_ROWS: RowItem[] = [
 export function DataTableHydrationFixture(props: { extraRow?: boolean }) {
   const table = createDataTable({
     columns: FIXTURE_COLUMNS,
-    data: () => (props.extraRow ? EXTRA_ROWS : BASE_ROWS),
+    get data() {
+      return props.extraRow ? EXTRA_ROWS : BASE_ROWS
+    },
     expandable: true,
     initialState: { expanded: { '0': true } },
   })

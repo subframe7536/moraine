@@ -1,8 +1,18 @@
 import { FlexRender } from '@tanstack/solid-table'
 import type { Column, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { DEV, For, Show, createEffect, createMemo, createSignal, on, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
+import {
+  DEV,
+  For,
+  Show,
+  createDeferred,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  splitProps,
+} from 'solid-js'
+import { Dynamic, isServer } from 'solid-js/web'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
@@ -79,7 +89,10 @@ export function DataTable<TData extends RowData = RowData>(
   const isResizable = () => tableOptions().enableColumnResizing === true
   const isStickyHeader = () => local.sticky === true || local.sticky === 'header'
   const isStickyFooter = () => local.sticky === true || local.sticky === 'footer'
-  const hasPagination = () => !local.virtualRender && tableConfig().paginated
+  const shouldPaginate = () => !local.virtualRender && tableConfig().paginated
+  // Deferring keeps unmount/remount of the pagination subtree out of the same
+  // synchronous batch as table internals, avoiding reentrant disposal.
+  const hasPagination = isServer ? shouldPaginate : createDeferred(shouldPaginate)
 
   if (DEV) {
     let warnedVirtualPagination = false

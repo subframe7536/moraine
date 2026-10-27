@@ -79,6 +79,7 @@ import type {
 import { defineTheme } from 'moraine/theme'
 import { createCopy, createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 type Assert<T extends true> = T
@@ -550,18 +551,29 @@ const invalidDataTableCol: DataTableT.Column<(typeof dataTableRows)[number]> = {
 }
 void invalidDataTableCol
 
+const [dataTableSorting, setDataTableSorting] = createSignal<DataTableT.State['sorting']>([])
 const dataTableInstance = createDataTable({
-  data: dataTableRows,
+  get data() {
+    return dataTableRows
+  },
   columns: dataTableCols,
   selection: 'multiple',
   expandable: true,
   pagination: { pageSize: 10, pageSizes: [10, 20] },
+  state: {
+    get sorting() {
+      return dataTableSorting()
+    },
+  },
+  onSortingChange: setDataTableSorting,
 })
 ;<DataTable
   table={dataTableInstance}
   striped
   expandedRowRender={(props) => <div>{props.row.original.name}</div>}
 />
+// @ts-expect-error Accessor-style options are not accepted; use getters.
+createDataTable({ data: () => dataTableRows, columns: dataTableCols })
 // @ts-expect-error DataTable requires a table instance.
 ;<DataTable />
 

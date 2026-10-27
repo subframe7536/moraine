@@ -28,10 +28,11 @@ import {
 
 import type { DataTableT } from './data-table.types'
 
-function createDataTableFeatureSet(options: { pagination?: boolean } = {}) {
-  const { pagination = false } = options
-  const shared = {
-    columnMeta: {} as DataTableT.ColumnMeta,
+const columnMeta: DataTableT.ColumnMeta = {}
+
+function createDataTableFeatureSet() {
+  return tableFeatures({
+    columnMeta,
     rowSortingFeature,
     sortedRowModel: createSortedRowModel(),
     sortFns: {
@@ -58,32 +59,16 @@ function createDataTableFeatureSet(options: { pagination?: boolean } = {}) {
     rowExpandingFeature,
     expandedRowModel: createExpandedRowModel(),
     rowSelectionFeature,
-  } as const
-
-  if (!pagination) {
-    return tableFeatures({
-      ...shared,
-      rowPaginationFeature,
-    })
-  }
-
-  return tableFeatures({
-    ...shared,
     rowPaginationFeature,
+    // Pagination stays registered; `manualPagination` gates row slicing.
     paginatedRowModel: createPaginatedRowModel(),
   })
 }
 
-let _paginatedFeatures: ReturnType<typeof createDataTableFeatureSet> | undefined
-let _unpaginatedFeatures: ReturnType<typeof createDataTableFeatureSet> | undefined
+let _features: ReturnType<typeof createDataTableFeatureSet> | undefined
 
-export function getDataTableFeatures(options?: {
-  pagination?: boolean
-}): ReturnType<typeof createDataTableFeatureSet> {
-  if (options?.pagination) {
-    return (_paginatedFeatures ??= createDataTableFeatureSet({ pagination: true }))
-  }
-  return (_unpaginatedFeatures ??= createDataTableFeatureSet({ pagination: false }))
+export function getDataTableFeatures(): ReturnType<typeof createDataTableFeatureSet> {
+  return (_features ??= createDataTableFeatureSet())
 }
 
 export type DataTableFeatures = ReturnType<typeof getDataTableFeatures>

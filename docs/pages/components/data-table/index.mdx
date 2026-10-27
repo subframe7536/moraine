@@ -95,7 +95,7 @@ import DataTablePlayground from './playground'
 
 ## Usage
 
-Create a reactive table instance with `createDataTable({ data, columns, ... })` and pass it to `DataTable` via `table`. `createDataTable` configures sorting, selection, expansion, pagination, pinning, resizing, and controlled state on a TanStack Solid Table instance; `DataTable` handles styling, slots, and render parts.
+Create a reactive table instance with `createDataTable({ data, columns, ... })` and pass it to `DataTable` via `table`. `createDataTable` configures sorting, selection, expansion, pagination, pinning, resizing, and controlled state on a TanStack Solid Table instance; `DataTable` handles styling, slots, and render parts. Options are plain values — for values that change over time, declare getters on the options object or on `state` (for example `get data() { return rows() }`); they are tracked reactively.
 
 ```tsx
 import { DataTable, createDataTable } from 'moraine'
@@ -169,12 +169,23 @@ const [sorting, setSorting] = createSignal<DataTableT.State['sorting']>([])
 const [pagination, setPagination] = createSignal({ pageIndex: 0, pageSize: 20 })
 
 const table = createDataTable({
-  data: serverRows,
+  get data() {
+    return serverRows()
+  },
   columns,
   manual: true,
-  rowCount: totalCount,
+  get rowCount() {
+    return totalCount()
+  },
   pagination: { pageSizes: [10, 20, 50] },
-  state: { sorting, pagination },
+  state: {
+    get sorting() {
+      return sorting()
+    },
+    get pagination() {
+      return pagination()
+    },
+  },
   onSortingChange: setSorting,
   onPaginationChange: setPagination,
 })
@@ -231,7 +242,11 @@ const [columnOrder, setColumnOrder] = createSignal(['name', 'role', 'department'
 const table = createDataTable({
   data,
   columns,
-  state: { columnOrder },
+  state: {
+    get columnOrder() {
+      return columnOrder()
+    },
+  },
   onColumnOrderChange: setColumnOrder,
 })
 
