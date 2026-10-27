@@ -4,6 +4,7 @@ export const DEFAULT_ICON_SHORTCUTS = [
   ['icon-arrow-left', 'i-lucide-arrow-left'],
   ['icon-arrow-right', 'i-lucide-arrow-right'],
   ['icon-arrow-up', 'i-lucide-arrow-up'],
+  ['icon-arrow-up-down', 'i-lucide-arrow-up-down'],
   ['icon-caution', 'i-lucide-circle-alert'],
   ['icon-check', 'i-lucide-check'],
   ['icon-chevron-double-left', 'i-lucide-chevrons-left'],

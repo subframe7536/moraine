@@ -350,30 +350,34 @@ export function DataTable<TData extends RowData = RowData>(
                   <tr data-slot="data-table-row" {...slots.row}>
                     <For each={headerGroup.headers}>
                       {(header) => {
-                        const align = (): 'left' | 'center' | 'right' =>
-                          header.column.columnDef.meta?.align ?? 'left'
-                        const canSort = () => header.column.getCanSort()
-                        const isSorted = () => header.column.getIsSorted()
-                        const sortIcon = () =>
-                          isSorted() === 'asc'
-                            ? 'icon-arrow-up'
-                            : isSorted() === 'desc'
-                              ? 'icon-arrow-down'
-                              : 'i-lucide:arrow-up-down'
+                        const sortConfig = createMemo(() => {
+                          switch (header.column.getIsSorted()) {
+                            case 'asc':
+                              return {
+                                icon: 'icon-arrow-up',
+                                label: messages().sortedAscending,
+                                sort: 'ascending' as const,
+                              }
+                            case 'desc':
+                              return {
+                                icon: 'icon-arrow-down',
+                                label: messages().sortedDescending,
+                                sort: 'descending' as const,
+                              }
+                            default:
+                              return {
+                                icon: 'icon-arrow-up-down',
+                                label: messages().sort,
+                                sort: header.column.getCanSort() ? ('none' as const) : undefined,
+                              }
+                          }
+                        })
 
                         return (
                           <th
                             data-slot="data-table-head"
                             colSpan={header.colSpan}
-                            aria-sort={
-                              isSorted() === 'asc'
-                                ? 'ascending'
-                                : isSorted() === 'desc'
-                                  ? 'descending'
-                                  : canSort()
-                                    ? 'none'
-                                    : undefined
-                            }
+                            aria-sort={sortConfig().sort}
                             {...dataTableDataAttributes.head({
                               pinned: () => header.column.getIsPinned(),
                               pinnedEdge: () => pinnedEdge(header.column),
@@ -387,35 +391,28 @@ export function DataTable<TData extends RowData = RowData>(
                             <Show when={!header.isPlaceholder}>
                               <div class={DATA_TABLE_HEAD_INNER_CLASS}>
                                 <span
-                                  class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[align()]}`}
+                                  class={`${DATA_TABLE_HEAD_LABEL_CLASS}  ${DATA_TABLE_TEXT_ALIGN_CLASS[header.column.columnDef.meta?.align ?? 'left']}`}
                                 >
                                   <FlexRender header={header} />
                                 </span>
-                                <Show when={canSort()}>
+                                <Show when={header.column.getCanSort()}>
                                   <button
                                     type="button"
                                     data-slot="data-table-sort-button"
-                                    aria-label={
-                                      isSorted() === 'asc'
-                                        ? messages().sortedAscending
-                                        : isSorted() === 'desc'
-                                          ? messages().sortedDescending
-                                          : messages().sort
-                                    }
+                                    aria-label={sortConfig().label}
                                     {...slots.sortButton}
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       header.column.getToggleSortingHandler()?.(e)
                                     }}
                                   >
-                                    <span
-                                      data-slot="data-table-sort-icon"
-                                      {...dataTableDataAttributes.sortIcon({ sorted: isSorted })}
+                                    <Icon
+                                      name={sortConfig().icon}
+                                      slotName="data-table-sort-icon"
+                                      {...dataTableDataAttributes.sortIcon({ sorted: header.column.getIsSorted() })}
                                       {...slots.sortIcon}
                                       aria-hidden="true"
-                                    >
-                                      <Icon name={sortIcon()} />
-                                    </span>
+                                    />
                                   </button>
                                 </Show>
                               </div>
@@ -425,8 +422,8 @@ export function DataTable<TData extends RowData = RowData>(
                                   {...dataTableDataAttributes.resizer({
                                     resizing: () => header.column.getIsResizing(),
                                   })}
-                                  onMouseDown={(e) => header.getResizeHandler()(e)}
-                                  onTouchStart={(e) => header.getResizeHandler()(e)}
+                                  onMouseDown={header.getResizeHandler()}
+                                  onTouchStart={header.getResizeHandler()}
                                   {...slotWith('resizer', () => ({
                                     style:
                                       tableOptions().columnResizeMode === 'onEnd' &&
