@@ -409,7 +409,9 @@ export function DataTable<TData extends RowData = RowData>(
                                     <Icon
                                       name={sortConfig().icon}
                                       slotName="data-table-sort-icon"
-                                      {...dataTableDataAttributes.sortIcon({ sorted: header.column.getIsSorted() })}
+                                      {...dataTableDataAttributes.sortIcon({
+                                        sorted: header.column.getIsSorted(),
+                                      })}
                                       {...slots.sortIcon}
                                       aria-hidden="true"
                                     />
