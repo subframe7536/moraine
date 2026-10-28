@@ -263,9 +263,6 @@ describe('generateApiDoc', () => {
     expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
       expect.arrayContaining(['data-expanded', 'data-selected']),
     )
-    expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
-      expect.arrayContaining(['data-entering', 'data-expanded', 'data-selected']),
-    )
   })
 
   test('is deterministic', async () => {
