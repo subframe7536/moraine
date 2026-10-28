@@ -477,37 +477,6 @@ describe('createTree', () => {
       expect(group.style.height).not.toBe('auto')
     })
 
-    test('releases overflow clipping after height motion settles', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
-      const { container } = render(() => <Harness />)
-
-      clickTrigger(item(container, 'src'))
-      await Promise.resolve()
-      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.style.overflow).not.toBe('visible')
-
-      fireEvent.animationEnd(group)
-      expect(group.style.overflow).toBe('visible')
-      expect(group.style.height).toBe('auto')
-    })
-
-    test('releases overflow after a default-expanded group is toggled', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
-      const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
-      await Promise.resolve()
-      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.style.overflow).toBe('visible')
-
-      clickTrigger(item(container, 'src'))
-      await Promise.resolve()
-      expect(group.style.overflow).not.toBe('visible')
-
-      clickTrigger(item(container, 'src'))
-      await Promise.resolve()
-      fireEvent.animationEnd(group)
-      expect(group.style.overflow).toBe('visible')
-    })
-
     test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
       let tree!: TreeT.Instance<Node>
       const nodes: Node[] = [

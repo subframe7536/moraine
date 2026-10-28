@@ -8,13 +8,11 @@ import {
   on,
   onCleanup,
   splitProps,
-  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import { createEventListenerMap } from '../../shared/event-listener'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
@@ -50,8 +48,6 @@ function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
   const [lastHeight, setLastHeight] = createSignal(0)
-  const [groupEl, setGroupEl] = createSignal<HTMLElement>()
-  const [motionSettled, setMotionSettled] = createSignal(untrack(() => props.item.isExpanded))
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition: () => context.transition,
@@ -65,44 +61,6 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
         setLastHeight(height)
-      }
-    }),
-  )
-  createEffect(
-    on(
-      disclosure.open,
-      (isOpen) => {
-        if (!isOpen) {
-          setMotionSettled(false)
-        }
-      },
-      { defer: true },
-    ),
-  )
-  createEffect(
-    on(groupEl, (element) => {
-      if (!element) {
-        return
-      }
-      const settle = (event: AnimationEvent) => {
-        if (event.target !== element || !disclosure.open()) {
-          return
-        }
-        setMotionSettled(true)
-      }
-      createEventListenerMap(element, {
-        animationend: settle,
-        animationcancel: settle,
-      })
-    }),
-  )
-  createEffect(
-    on(visualExpanded, (expanded) => {
-      if (!expanded || untrack(() => !allowHeightMotion())) {
-        return
-      }
-      if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-        setMotionSettled(true)
       }
     }),
   )
@@ -122,7 +80,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
       enforced: () => {
-        if (!allowHeightMotion() || motionSettled()) {
+        if (!allowHeightMotion()) {
           return {
             content: {
               style: {
@@ -141,9 +99,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   return (
     <div
       ref={(element) => {
-        setGroupEl(element)
         onCleanup(disclosure.registerPresenceElement(element))
-        onCleanup(() => setGroupEl((current) => (current === element ? undefined : current)))
       }}
       role="group"
       aria-hidden={disclosure.ariaHidden()}
