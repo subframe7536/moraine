@@ -1348,9 +1348,6 @@ describe('createTree', () => {
         />
       ))
 
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
-        'var(--border)',
-      )
       expect(item(container, 'docs').className).toContain('[background:var(--mo-tree-guide)]')
 
       setIndentGuide(false)

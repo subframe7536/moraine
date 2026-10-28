@@ -63,9 +63,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     },
     indentGuide: {
       true: {
-        '--mo-tree-indent-guide': 'var(--border)',
         '--mo-tree-guide':
-          'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
+          'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
         item: '[background:var(--mo-tree-guide)]',
       },
     },
