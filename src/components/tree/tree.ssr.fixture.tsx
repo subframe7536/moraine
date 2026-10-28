@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { createTree } from './create-tree'
+import { createTree } from './tree'
 
 interface Node {
   id: string

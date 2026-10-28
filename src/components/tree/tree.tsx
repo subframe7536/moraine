@@ -2,33 +2,24 @@ import type { Component, JSX } from 'solid-js'
 import { Show, createEffect, createSignal, on, onCleanup, splitProps, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useRecipe } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 import { callRef } from '../../shared/utils'
-import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
-import { TreeProvider, TreeRowProvider } from './tree-context'
-import type { TreeContext } from './tree-context'
-import { TreeDefaultItem, TreeItemList } from './tree-item'
-import type { TreeNavigation } from './tree-navigation'
+import { TreeItemProvider, TreeProvider } from './tree-context'
+import type { TreeContext, TreeItemContext } from './tree-context'
+import { TreeDefaultItem, TreeItem, TreeItemList } from './tree-item'
+import { TreeItemIcon } from './tree-item-icon'
+import { TreeItemLabel } from './tree-item-label'
+import { TreeItemTrigger } from './tree-item-trigger'
+import { createTreeState } from './tree-state'
+import type { TreeState } from './tree-state'
 import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
-export interface TreeInternals<T> {
-  rootItems: () => readonly TreeT.ItemInstance<T>[]
-  flattenedItems: () => readonly TreeT.ItemInstance<T>[]
-  flattenedKeys: () => readonly string[]
-  selectionMode: () => TreeT.SelectionMode
-  checkable: () => boolean
-  trigger: () => boolean
-  getIcon: (item: TreeT.ItemInstance<T>) => IconT.Name | undefined
-  navigation: TreeNavigation
-}
-
-/** Tree root bound to a `createTree` instance through `internals`. */
-export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T> }): JSX.Element {
+function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'internals',
+    'state',
     'itemRender',
     'virtualRender',
     'scrollToItem',
@@ -50,18 +41,18 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
       '--mo-tree-indent-guide': 'var(--border)',
     }),
   })
-  const internals = untrack(() => local.internals)
+  const state = untrack(() => local.state)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
   createEffect(
     on(
       () => local.scrollToItem,
       (scrollToItem) => {
-        internals.navigation.registerScroller(
+        state.navigation.registerScroller(
           scrollToItem
             ? (key) => {
-                const index = internals.flattenedKeys().indexOf(key)
-                const item = internals.flattenedItems()[index]
+                const index = state.flattenedKeys().indexOf(key)
+                const item = state.flattenedItems()[index]
                 if (item) {
                   scrollToItem(item, index)
                 }
@@ -72,50 +63,28 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
     ),
   )
   onCleanup(() => {
-    internals.navigation.registerScroller(undefined)
-    internals.navigation.registerRoot(undefined)
+    state.navigation.registerScroller(undefined)
+    state.navigation.registerRoot(undefined)
   })
 
-  function RenderItem(itemProps: TreeT.ItemRenderProps<unknown>): JSX.Element {
+  function RenderItem(itemProps: TreeItemContext): JSX.Element {
     return (
-      <Dynamic
-        component={local.itemRender ?? TreeDefaultItem}
-        item={itemProps.item as TreeT.ItemInstance<T>}
-      />
+      <TreeItemProvider value={itemProps}>
+        <Dynamic
+          component={local.itemRender ?? TreeDefaultItem}
+          item={itemProps.item as TreeT.ItemInstance<T>}
+        />
+      </TreeItemProvider>
     )
   }
 
   const context: TreeContext = {
+    options: state.options,
+    props: local,
     get variants() {
       return { size: variants.size, variant: variants.variant }
     },
-    get slotOverrides() {
-      return { classes: local.classes, styles: local.styles }
-    },
-    get isVirtual() {
-      return Boolean(local.virtualRender)
-    },
-    get checkable() {
-      return internals.checkable()
-    },
-    get trigger() {
-      return internals.trigger()
-    },
-    get itemIcon() {
-      return (item: TreeT.ItemInstance<unknown>) => internals.getIcon(item as TreeT.ItemInstance<T>)
-    },
-    get transition() {
-      return local.transition ?? true
-    },
-    get unmountOnHide() {
-      return local.unmountOnHide ?? true
-    },
-    get triggerIcon() {
-      return local.triggerIcon ?? 'icon-chevron-right'
-    },
-    get loadingIcon() {
-      return local.loadingIcon ?? 'icon-loading'
-    },
+    slotOverrides: pickSlotOverrides(local),
     RenderItem,
   }
 
@@ -124,26 +93,22 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
       <div
         data-slot="tree"
         role="tree"
-        aria-multiselectable={internals.selectionMode() === 'multiple' ? true : undefined}
+        aria-multiselectable={state.selectionMode() === 'multiple' ? true : undefined}
         {...rest}
         {...slots.root}
         ref={(element: HTMLElement) => {
           setScrollElement(element)
-          internals.navigation.registerRoot(element)
+          state.navigation.registerRoot(element)
           callRef(local.ref, element)
         }}
       >
-        <Show when={local.virtualRender} fallback={<TreeItemList items={internals.rootItems()} />}>
+        <Show when={local.virtualRender} fallback={<TreeItemList items={state.rootItems()} />}>
           {(virtualRender) => (
             <Dynamic<Component<ListT.VirtualRenderProps<TreeT.ItemInstance<T>>>>
               component={virtualRender()}
-              entries={internals.flattenedItems()}
+              entries={state.flattenedItems()}
               scrollElement={scrollElement()}
-              render={(item, _index, rowProps) => (
-                <TreeRowProvider value={rowProps ?? null}>
-                  <RenderItem item={item} />
-                </TreeRowProvider>
-              )}
+              render={(item, _index, rowProps) => <RenderItem item={item} row={rowProps} />}
             />
           )}
         </Show>
@@ -152,11 +117,53 @@ export function TreeRoot<T>(props: TreeT.Props<T> & { internals: TreeInternals<T
   )
 }
 
-/** Binds `TreeRoot` to one tree instance. */
-export function createTreeRoot<T>(
-  internals: TreeInternals<T>,
-): (props: TreeT.Props<T>) => JSX.Element {
-  return function Tree(props) {
-    return <TreeRoot<T> {...props} internals={internals} />
+/**
+ * Creates a headless tree instance that carries reactive state, imperative methods, and the
+ * components bound to it. Call it inside a reactive owner.
+ */
+export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
+  const state = createTreeState(options)
+
+  return {
+    get expandedKeys() {
+      return state.expandedKeys()
+    },
+    get selectedKeys() {
+      return state.selectedKeys()
+    },
+    get checkedKeys() {
+      return state.checkedKeys()
+    },
+    get focusedKey() {
+      return state.navigation.focusedKey()
+    },
+    get loadingKeys() {
+      return state.loadingKeys()
+    },
+    get flattenedItems() {
+      return state.flattenedItems()
+    },
+    expand: state.expand,
+    collapse: state.collapse,
+    toggle: state.toggle,
+    expandAll: state.expandAll,
+    collapseAll: state.collapseAll,
+    expandTo: state.expandTo,
+    select: state.select,
+    deselect: state.deselect,
+    toggleSelect: state.toggleSelect,
+    selectAll: state.selectAll,
+    clearSelection: state.clearSelection,
+    check: state.check,
+    uncheck: state.uncheck,
+    toggleCheck: state.toggleCheck,
+    focus: state.focus,
+    getItem: state.getItem,
+    isLoading: state.isLoading,
+    Tree: (props: TreeT.Props<T>) => <TreeRoot<T> {...props} state={state} />,
+    Item: TreeItem,
+    ItemTrigger: TreeItemTrigger,
+    ItemIcon: TreeItemIcon,
+    ItemLabel: TreeItemLabel,
   }
 }

@@ -6,7 +6,7 @@ import { MoraineProvider } from '../../provider'
 import { createListVirtualizer } from '../../virtualizer'
 import { Checkbox } from '../checkbox'
 
-import { createTree } from './create-tree'
+import { createTree } from './tree'
 import type { TreeT } from './tree.types'
 
 interface Node {

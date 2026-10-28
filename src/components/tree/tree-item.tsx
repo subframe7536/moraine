@@ -9,51 +9,31 @@ import {
   onCleanup,
   splitProps,
 } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
-import type { ValidComponent } from '../../shared/types'
 import { callHandler, callRef } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
-import { Icon } from '../icon'
 
-import {
-  TreeItemProvider,
-  useTreeContext,
-  useTreeItemContext,
-  useTreeRowContext,
-} from './tree-context'
-import { getVirtualRowAttributes } from './tree-dom'
-import {
-  TREE_INDENT_GUIDE_STYLE,
-  TREE_TRIGGER_ICON_CLASS,
-  treeDataAttributes,
-  treeRecipe,
-} from './tree.recipe'
-import type { TreeStyleSlot } from './tree.style-types'
+import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
+import { TreeItemIcon } from './tree-item-icon'
+import { TreeItemLabel } from './tree-item-label'
+import { TreeItemTrigger } from './tree-item-trigger'
+import { TREE_INDENT_GUIDE_STYLE, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 const WIRING_KEYS = ['ref', 'onClick', 'onKeyDown', 'onFocusIn', 'onMouseDown'] as const
 
-function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) {
-  const context = useTreeContext()
-  return useRecipe(treeRecipe, props, {
-    slot,
-    contextVariants: () => context.variants,
-    contextSlots: () => context.slotOverrides,
-  })
-}
-
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
   const [lastHeight, setLastHeight] = createSignal(0)
+  const transition = () => context.props.transition ?? true
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
-    transition: () => context.transition,
-    unmountOnHide: () => context.unmountOnHide,
+    transition,
+    unmountOnHide: () => context.props.unmountOnHide ?? true,
   })
-  const allowHeightMotion = () => context.transition && !disclosure.initialOpen()
+  const allowHeightMotion = () => transition() && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   const visualExpanded = () =>
     disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
@@ -150,7 +130,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     'onMouseDown',
   ])
   const context = useTreeContext()
-  const row = useTreeRowContext()
+  const itemContext = useTreeItemContext()
+  const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
   const itemProps = createMemo(() => splitProps(local.item.getItemProps(), WIRING_KEYS))
   const wiring = () => itemProps()[0]
   const attributes = () => itemProps()[1]
@@ -163,7 +144,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         style: { ...TREE_INDENT_GUIDE_STYLE, '--mo-tree-level': local.item.level - 1 },
       },
     }),
-    enforced: () => ({ item: { style: row?.style } }),
+    enforced: () => ({ item: { style: row()?.style } }),
   })
   const leaf = () => !local.item.hasChildren
 
@@ -173,11 +154,14 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         get item() {
           return local.item
         },
+        get row() {
+          return row()
+        },
       }}
     >
       <div
         data-slot="tree-item"
-        {...getVirtualRowAttributes(row)}
+        {...row()}
         {...attributes()}
         {...rest}
         {...slots.item}
@@ -192,7 +176,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         })}
         ref={(element: HTMLElement) => {
           callRef(wiring().ref, element)
-          callRef(row?.ref, element)
+          callRef(row()?.ref, element)
           callRef(local.ref, element)
         }}
         onClick={(event: MouseEvent) => {
@@ -227,7 +211,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         >
           {local.children}
         </div>
-        <Show when={!context.isVirtual && local.item.hasChildren}>
+        <Show when={!context.props.virtualRender && local.item.hasChildren}>
           <TreeItemGroup item={local.item} />
         </Show>
       </div>
@@ -235,109 +219,19 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   )
 }
 
-/** Expand affordance. Shows the loading icon while the branch loads its children. */
-export function TreeItemTrigger<T extends ValidComponent = 'span'>(
-  props: TreeT.ItemTriggerProps<T>,
-): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemTriggerProps, [
-    'as',
-    'icon',
-    'children',
-    'class',
-    'style',
-  ])
-  const context = useTreeContext()
-  const itemContext = useTreeItemContext()
-  const { slots } = useTreePart('trigger', local)
-
-  return (
-    <Show when={context.trigger}>
-      <Dynamic
-        component={local.as ?? 'span'}
-        data-slot="tree-trigger"
-        {...itemContext.item.getTriggerProps()}
-        {...rest}
-        {...slots.trigger}
-        {...treeDataAttributes.trigger({
-          expanded: () => itemContext.item.isExpanded,
-          leaf: () => !itemContext.item.hasChildren,
-          loading: () => itemContext.item.isLoading,
-        })}
-      >
-        <Show
-          when={local.children}
-          fallback={
-            <Icon
-              name={
-                itemContext.item.isLoading
-                  ? context.loadingIcon
-                  : (local.icon ?? context.triggerIcon)
-              }
-              slotName="tree-trigger-icon"
-              class={TREE_TRIGGER_ICON_CLASS}
-            />
-          }
-        >
-          {local.children}
-        </Show>
-      </Dynamic>
-    </Show>
-  )
-}
-
-/** Prefix icon of the item. */
-export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['icon', 'class', 'style'])
-  const itemContext = useTreeItemContext()
-  const { slots } = useTreePart('icon', local)
-
-  return (
-    <Icon
-      name={local.icon}
-      slotName="tree-icon"
-      {...rest}
-      {...slots.icon}
-      {...treeDataAttributes.icon({
-        expanded: () => itemContext.item.isExpanded,
-        leaf: () => !itemContext.item.hasChildren,
-      })}
-    />
-  )
-}
-
-/** Text of the item. */
-export function TreeItemLabel<T extends ValidComponent = 'span'>(
-  props: TreeT.ItemLabelProps<T>,
-): JSX.Element {
-  const [local, rest] = splitProps(props as TreeT.ItemLabelProps, [
-    'as',
-    'children',
-    'class',
-    'style',
-  ])
-  const itemContext = useTreeItemContext()
-  const { slots } = useTreePart('label', local)
-
-  return (
-    <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...rest} {...slots.label}>
-      <Show when={local.children} fallback={itemContext.item.textValue}>
-        {local.children}
-      </Show>
-    </Dynamic>
-  )
-}
-
-/** Default item content: trigger, check box when checkable, and label. */
+/** Default item content: trigger, check box when checkable, prefix icon, and label. */
 export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Element {
   const context = useTreeContext()
 
   return (
     <TreeItem item={props.item}>
       <TreeItemTrigger />
-      <Show when={context.checkable}>
+      <Show when={context.options.checkable}>
         <Checkbox {...props.item.getCheckboxProps()} size={context.variants.size} />
       </Show>
-      <Show when={context.itemIcon(props.item)}>{(icon) => <TreeItemIcon icon={icon()} />}</Show>
+      <Show when={context.options.getIcon?.(props.item)}>
+        {(icon) => <TreeItemIcon icon={icon()} />}
+      </Show>
       <TreeItemLabel />
     </TreeItem>
   )

@@ -1,41 +1,50 @@
-import type { Component } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
+import { useRecipe } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { IconT } from '../icon'
+import type { SlotClassValue } from '../../theme/style-types'
+import type { SlotOverrides } from '../../theme/use-recipe'
 import type { ListT } from '../list/list.types'
 
+import { treeRecipe } from './tree.recipe'
+import type { TreeStyleSlot } from './tree.style-types'
 import type { TreeT } from './tree.types'
 
 export interface TreeContext {
-  readonly variants: TreeT.Variants
-  readonly slotOverrides: {
-    readonly classes?: TreeT.Classes
-    readonly styles?: TreeT.Styles
-  }
-  /** Whether items render flat inside a virtualizer instead of nested. */
-  readonly isVirtual: boolean
-  readonly checkable: boolean
-  readonly trigger: boolean
-  /** Prefix icon of the given item, or `undefined` for none. */
-  readonly itemIcon: (item: TreeT.ItemInstance<unknown>) => IconT.Name | undefined
-  readonly transition: boolean
-  readonly unmountOnHide: boolean
-  readonly triggerIcon: IconT.Name
-  readonly loadingIcon: IconT.Name
-  /** Renders one item through the caller's `itemRender` or the default item. */
-  readonly RenderItem: Component<TreeT.ItemRenderProps<unknown>>
+  readonly options: TreeT.Options<any>
+  readonly props: TreeT.Base<any>
+  readonly variants: Pick<TreeT.Variants, 'size' | 'variant'>
+  readonly slotOverrides: SlotOverrides<keyof TreeStyleSlot>
+  readonly RenderItem: Component<TreeItemContext>
 }
 
-interface TreeItemContext {
+export interface TreeItemContext {
   readonly item: TreeT.ItemInstance<unknown>
+  readonly row?: ListT.RowProps
 }
 
 export const [TreeProvider, useTreeContext] =
   /* @__PURE__ */ createContextProvider<TreeContext>('Tree')
 
 export const [TreeItemProvider, useTreeItemContext] =
-  /* @__PURE__ */ createContextProvider<TreeItemContext>('TreeItem')
+  /* @__PURE__ */ createContextProvider<TreeItemContext | null>('TreeItem', null)
 
-/** Row attributes supplied by the virtualizer for the item currently rendered. */
-export const [TreeRowProvider, useTreeRowContext] =
-  /* @__PURE__ */ createContextProvider<ListT.RowProps | null>('TreeRow', null)
+export function useTreeItem(): TreeT.ItemInstance<unknown> {
+  const context = useTreeItemContext()
+  if (!context) {
+    throw new Error('useTreeItem must be used within a TreeItemProvider')
+  }
+  return context.item
+}
+
+export function useTreePart(
+  slot: Extract<keyof TreeStyleSlot, string>,
+  local: { class?: SlotClassValue; style?: JSX.CSSProperties },
+) {
+  const context = useTreeContext()
+  return useRecipe(treeRecipe, local, {
+    slot,
+    contextVariants: () => context.variants,
+    contextSlots: () => context.slotOverrides,
+  })
+}

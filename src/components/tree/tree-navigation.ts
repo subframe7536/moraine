@@ -5,11 +5,8 @@ import { useLocale } from '../../provider'
 import { attachEventListenerMap } from '../../shared/event-listener'
 import { createTypeahead } from '../../shared/typeahead'
 
-import type { TreeChecked } from './tree-checked'
-import type { TreeExpansion } from './tree-expansion'
 import { getSiblingKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
-import type { TreeSelection } from './tree-selection'
 import type { TreeT } from './tree.types'
 
 const PENDING_FOCUS_TIMEOUT = 1000
@@ -18,14 +15,19 @@ export interface TreeNavigationDeps<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
   flattenedKeys: Accessor<readonly string[]>
-  isDisabled: (key: string) => boolean
-  getTextValue: (key: string) => string
+  selectedKeys: Accessor<readonly string[]>
   getFocusedKey: () => string | undefined
   setFocusedKey: (key: string | undefined) => void
-  expansion: Pick<TreeExpansion, 'isExpanded' | 'expand' | 'collapse' | 'toggle'>
-  selection: TreeSelection
-  checked: Pick<TreeChecked, 'toggleCheck'>
-  checkable: () => boolean
+  isExpanded: (key: string) => boolean
+  expand: (key: string) => void
+  collapse: (key: string) => void
+  toggle: (key: string) => void
+  select: (key: string) => void
+  selectOnly: (key: string) => void
+  toggleSelect: (key: string) => void
+  selectAll: () => void
+  selectRange: (key: string, from: string) => void
+  toggleCheck: (key: string) => void
   getItem: (key: string) => TreeT.ItemInstance<T> | undefined
 }
 
@@ -50,24 +52,20 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   let scrollToKey: ((key: string) => void) | undefined
   let pendingFocus: { key: string; expires: number } | undefined
 
+  const isDisabled = (key: string): boolean => Boolean(deps.registry().nodes.get(key)?.disabled)
   const visibleKeys = createMemo(() => new Set(deps.flattenedKeys()))
-  const navigableKeys = createMemo(() =>
-    deps.flattenedKeys().filter((key) => !deps.isDisabled(key)),
-  )
+  const navigableKeys = createMemo(() => deps.flattenedKeys().filter((key) => !isDisabled(key)))
 
   const tabStopKey = createMemo<string | undefined>(() => {
     let candidate = deps.getFocusedKey()
-    while (
-      candidate !== undefined &&
-      (!visibleKeys().has(candidate) || deps.isDisabled(candidate))
-    ) {
+    while (candidate !== undefined && (!visibleKeys().has(candidate) || isDisabled(candidate))) {
       candidate = deps.registry().nodes.get(candidate)?.parentKey
     }
     if (candidate !== undefined) {
       return candidate
     }
     const keys = navigableKeys()
-    const selected = new Set(deps.selection.selectedKeys())
+    const selected = new Set(deps.selectedKeys())
     return keys.find((key) => selected.has(key)) ?? keys[0]
   })
 
@@ -89,7 +87,8 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function focus(key: string, focusOptions?: { dom?: boolean }): void {
-    if (!deps.registry().nodes.has(key) || deps.isDisabled(key)) {
+    const node = deps.registry().nodes.get(key)
+    if (!node || node.disabled) {
       return
     }
     deps.setFocusedKey(key)
@@ -131,7 +130,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
 
   function moveTo(key: string, extend: boolean, from: string): void {
     if (extend) {
-      deps.selection.selectRange(key, deps.selection.getAnchor() ?? from)
+      deps.selectRange(key, from)
     }
     focus(key)
   }
@@ -139,7 +138,7 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   function moveRelative(from: string, offset: 1 | -1, extend: boolean): void {
     const keys = deps.flattenedKeys()
     let index = keys.indexOf(from) + offset
-    while (index >= 0 && index < keys.length && deps.isDisabled(keys[index]!)) {
+    while (index >= 0 && index < keys.length && isDisabled(keys[index]!)) {
       index += offset
     }
     const target = keys[index]
@@ -149,47 +148,48 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
   }
 
   function expandSiblings(key: string): void {
-    if (deps.isDisabled(key)) {
+    if (isDisabled(key)) {
       return
     }
     for (const siblingKey of getSiblingKeys(deps.registry(), key)) {
-      if (!deps.isDisabled(siblingKey)) {
-        deps.expansion.expand(siblingKey)
+      if (!isDisabled(siblingKey)) {
+        deps.expand(siblingKey)
       }
     }
   }
 
   function activate(key: string): void {
-    if (deps.isDisabled(key)) {
+    const node = deps.registry().nodes.get(key)
+    if (!node || node.disabled) {
       return
     }
     const item = deps.getItem(key)
     if (item && deps.options.onAction) {
       deps.options.onAction(item)
-    } else if (deps.selection.mode() !== 'none') {
-      deps.selection.selectOnly(key)
-    } else if (deps.registry().nodes.get(key)?.hasChildren) {
-      deps.expansion.toggle(key)
+    } else if ((deps.options.selectionMode ?? 'single') !== 'none') {
+      deps.selectOnly(key)
+    } else if (node.hasChildren) {
+      deps.toggle(key)
     }
   }
 
   function toggleCurrent(key: string): void {
-    if (deps.isDisabled(key)) {
+    if (isDisabled(key)) {
       return
     }
-    if (deps.checkable()) {
-      deps.checked.toggleCheck(key)
-    } else if (deps.selection.mode() === 'multiple') {
-      deps.selection.toggleSelect(key)
+    if (deps.options.checkable) {
+      deps.toggleCheck(key)
+    } else if (deps.options.selectionMode === 'multiple') {
+      deps.toggleSelect(key)
     } else {
-      deps.selection.select(key)
+      deps.select(key)
     }
   }
 
   const typeahead = createTypeahead<string>({
     getItems: navigableKeys,
     getStartIndex: () => navigableKeys().indexOf(tabStopKey() ?? ''),
-    getText: (key) => deps.getTextValue(key),
+    getText: (key) => deps.registry().nodes.get(key)?.textValue ?? key,
     onMatch: (key) => focus(key),
   })
 
@@ -246,9 +246,9 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
         return
       case 'a':
       case 'A':
-        if (modifier && deps.selection.mode() === 'multiple') {
+        if (modifier && deps.options.selectionMode === 'multiple') {
           event.preventDefault()
-          deps.selection.selectAll()
+          deps.selectAll()
           return
         }
         break
@@ -256,10 +256,10 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
         if (event.key === forwardKey) {
           if (node.hasChildren) {
             event.preventDefault()
-            if (!deps.expansion.isExpanded(key)) {
-              deps.expansion.expand(key)
+            if (!deps.isExpanded(key)) {
+              deps.expand(key)
             } else {
-              const child = node.childrenKeys.find((childKey) => !deps.isDisabled(childKey))
+              const child = node.childrenKeys.find((childKey) => !isDisabled(childKey))
               if (child !== undefined) {
                 focus(child)
               }
@@ -268,12 +268,12 @@ export function createTreeNavigation<T>(deps: TreeNavigationDeps<T>): TreeNaviga
           return
         }
         if (event.key === (rtl ? 'ArrowRight' : 'ArrowLeft')) {
-          if (node.hasChildren && deps.expansion.isExpanded(key) && !deps.isDisabled(key)) {
+          if (node.hasChildren && deps.isExpanded(key) && !node.disabled) {
             event.preventDefault()
-            deps.expansion.collapse(key)
+            deps.collapse(key)
           } else {
             let ancestorKey = node.parentKey
-            while (ancestorKey !== undefined && deps.isDisabled(ancestorKey)) {
+            while (ancestorKey !== undefined && isDisabled(ancestorKey)) {
               ancestorKey = deps.registry().nodes.get(ancestorKey)?.parentKey
             }
             if (ancestorKey !== undefined) {
