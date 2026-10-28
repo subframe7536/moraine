@@ -1,6 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, on } from 'solid-js'
-import { createStore, unwrap } from 'solid-js/store'
+import { createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
 import { createTreeRoot } from './tree'
 import type { TreeInternals } from './tree'
@@ -11,30 +10,24 @@ import { TreeItemHandle } from './tree-item-instance'
 import type { TreeEngine } from './tree-item-instance'
 import { createTreeLoader } from './tree-loader'
 import { createTreeNavigation } from './tree-navigation'
-import { buildRegistry, flattenKeys, getAncestorKeys } from './tree-registry'
+import { buildRegistry, flattenKeys, sameKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
 import { createTreeSelection } from './tree-selection'
 import type { TreeT } from './tree.types'
 
-function sameKeys(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((key, index) => key === right[index])
-}
-
 /**
- * Creates a headless tree instance. The instance is a Solid store that carries state,
- * imperative methods, and the components bound to it. Call it inside a reactive owner.
+ * Creates a headless tree instance that carries reactive state, imperative methods, and the
+ * components bound to it. Call it inside a reactive owner.
  */
 export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
-  const [store, setStore] = createStore<{
-    focusedKey: string | undefined
-    loadingKeys: string[]
-  }>({ focusedKey: undefined, loadingKeys: [] })
+  const [focusedKey, setFocusedKey] = createSignal<string | undefined>()
+  const [loadingKeys, setLoadingKeys] = createSignal<readonly string[]>([])
   const handles = new Map<string, TreeItemHandle<T>>()
   let engine!: TreeEngine<T>
 
   const loader = createTreeLoader<T>({
     options,
-    setLoadingKeys: (update) => setStore('loadingKeys', (keys) => [...update(keys)]),
+    setLoadingKeys: (update) => setLoadingKeys((keys) => [...update(keys)]),
   })
 
   const registry: Accessor<TreeRegistry<T>> = createMemo(() => {
@@ -69,14 +62,22 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     options,
     registry,
     load: (key) => loader.load(registry().nodes.get(key)),
-    beforeCollapse: retainFocus,
+    isDisabled,
   })
-  const flattenedKeys = createMemo(() => flattenKeys(registry(), expansion.isExpanded), undefined, {
-    equals: sameKeys,
-  })
+  const flattenedKeys = createMemo(
+    () => {
+      const current = registry()
+      const expanded = new Set(expansion.expandedKeys())
+      return flattenKeys(current, (key) => expanded.has(key))
+    },
+    undefined,
+    { equals: sameKeys },
+  )
   const selection = createTreeSelection<T>({ options, registry, flattenedKeys, isDisabled })
-  const checked = createTreeChecked<T>({ options, registry })
+  const checked = createTreeChecked<T>({ options, registry, isDisabled })
   const checkable = () => Boolean(options.checkable)
+  const trigger = () => options.trigger !== false
+  const getIcon = (item: TreeT.ItemInstance<T>) => options.getIcon?.(item)
 
   const navigation = createTreeNavigation<T>({
     options,
@@ -84,8 +85,8 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     flattenedKeys,
     isDisabled,
     getTextValue,
-    getFocusedKey: () => store.focusedKey,
-    setFocusedKey: (key) => setStore('focusedKey', key),
+    getFocusedKey: focusedKey,
+    setFocusedKey,
     expansion,
     selection,
     checked,
@@ -106,20 +107,24 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     return handle
   }
 
-  function retainFocus(collapsing: readonly string[]): void {
-    const focused = store.focusedKey
-    if (focused === undefined) {
-      return
-    }
-    const target = getAncestorKeys(registry(), focused)
-      .reverse()
-      .find((key) => collapsing.includes(key))
-    if (target !== undefined) {
-      navigation.focus(target, { dom: navigation.isFocusWithin() })
-    }
-  }
+  createEffect(
+    on(
+      flattenedKeys,
+      (visible) => {
+        const current = untrack(focusedKey)
+        if (current === undefined || visible.includes(current)) {
+          return
+        }
+        const fallback = untrack(navigation.tabStopKey)
+        if (fallback !== undefined && fallback !== current) {
+          navigation.focus(fallback, { dom: untrack(navigation.isFocusWithin) })
+        }
+      },
+      { defer: true },
+    ),
+  )
 
-  const loadingSet = createMemo(() => new Set(store.loadingKeys))
+  const loadingSet = createMemo(() => new Set(loadingKeys()))
 
   createEffect(
     on([registry, expansion.expandedKeys], ([current, keys]) => {
@@ -146,7 +151,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     if (
       !modifier &&
       !event.shiftKey &&
-      options.expandOnClick !== false &&
+      (options.expandOnClick !== false || options.trigger === false) &&
       registry().nodes.get(key)?.hasChildren
     ) {
       expansion.toggle(key)
@@ -163,8 +168,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     isExpanded: expansion.isExpanded,
     isSelected: selection.isSelected,
     isLoading: (key) => loadingSet().has(key),
-    isFocused: (key) => navigation.tabStopKey() === key && store.focusedKey === key,
-    isEntering: () => false,
+    isFocused: (key) => navigation.focusedKey() === key,
     isTabStop: (key) => navigation.tabStopKey() === key,
     getCheckedState: checked.getState,
     setChecked: checked.setChecked,
@@ -175,7 +179,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     toggleSelect: selection.toggleSelect,
     toggleCheck: checked.toggleCheck,
     focus: (key) => navigation.focus(key),
-    setFocusedKey: (key) => setStore('focusedKey', key),
+    setFocusedKey,
     handleClick,
     handleKeyDown: navigation.onKeyDown,
     registerElement: navigation.registerElement,
@@ -190,10 +194,12 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     flattenedKeys,
     selectionMode: selection.mode,
     checkable,
+    trigger,
+    getIcon,
     navigation,
   }
 
-  const members = {
+  return {
     get expandedKeys() {
       return expansion.expandedKeys()
     },
@@ -202,6 +208,12 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     },
     get checkedKeys() {
       return checked.checkedKeys()
+    },
+    get focusedKey() {
+      return navigation.focusedKey()
+    },
+    get loadingKeys() {
+      return loadingKeys()
     },
     get flattenedItems() {
       return flattenedItems()
@@ -229,9 +241,4 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     ItemIcon: TreeItemIcon,
     ItemLabel: TreeItemLabel,
   }
-
-  // Reactive fields live in the store; getters and members that never change are attached to
-  // its raw object, so reading them tracks the signals behind them.
-  Object.defineProperties(unwrap(store), Object.getOwnPropertyDescriptors(members))
-  return store as unknown as TreeT.Instance<T>
 }

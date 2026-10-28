@@ -208,6 +208,82 @@ describe('createTree', () => {
       expect(labels(container)).not.toContain('components')
     })
 
+    test('renders no trigger and toggles on row click when trigger is false', () => {
+      const { container } = render(() => (
+        <Harness options={{ trigger: false, expandOnClick: false }} />
+      ))
+      const src = item(container, 'src')
+
+      expect(src.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('true')
+      expect(labels(container)).toContain('components')
+      fireEvent.click(src)
+      expect(src.getAttribute('aria-expanded')).toBe('false')
+    })
+
+    test('custom items also render no trigger when trigger is false', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ trigger: false }}
+          treeProps={{
+            transition: false,
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemTrigger />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+
+      expect(container.querySelector('[data-slot="tree-trigger"]')).toBeNull()
+    })
+
+    test('renders the getIcon icon in the default item', () => {
+      const { container } = render(() => (
+        <Harness
+          options={{
+            getIcon: (item) => (item.hasChildren ? 'icon-folder' : 'icon-file'),
+          }}
+        />
+      ))
+
+      expect(item(container, 'src').querySelector('[data-slot="tree-icon"]')?.className).toContain(
+        'icon-folder',
+      )
+      expect(
+        item(container, 'README.md').querySelector('[data-slot="tree-icon"]')?.className,
+      ).toContain('icon-file')
+    })
+
+    test('getIcon can react to expansion state', () => {
+      const { container } = render(() => (
+        <Harness
+          options={{
+            getIcon: (item) =>
+              item.hasChildren ? (item.isExpanded ? 'icon-open' : 'icon-closed') : 'icon-file',
+          }}
+          treeProps={{ transition: false }}
+        />
+      ))
+      const src = item(container, 'src')
+      const icon = () => src.querySelector('[data-slot="tree-icon"]')
+
+      expect(icon()?.className).toContain('icon-closed')
+      fireEvent.click(src)
+      expect(icon()?.className).toContain('icon-open')
+    })
+
+    test('renders no icon without getIcon', () => {
+      const { container } = render(() => <Harness />)
+
+      expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
+    })
+
     test('nested trigger clicks do not toggle their ancestors', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
@@ -237,7 +313,7 @@ describe('createTree', () => {
       expect(trigger.querySelector('[data-slot="tree-trigger-icon"]')).not.toBeNull()
     })
 
-    test('supports controlled expanded keys', () => {
+    test('supports controlled expanded keys and retains focus when a subtree collapses', () => {
       const [keys, setKeys] = createSignal<string[]>([])
       const onExpandedChange = vi.fn((next: string[]) => setKeys(next))
       const { container } = render(() => (
@@ -255,8 +331,12 @@ describe('createTree', () => {
       expect(onExpandedChange).toHaveBeenCalledWith(['docs'])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('true')
 
+      item(container, 'guide.md').focus()
+      expect(document.activeElement).toBe(item(container, 'guide.md'))
+
       setKeys([])
       expect(item(container, 'docs').getAttribute('aria-expanded')).toBe('false')
+      expect(document.activeElement).toBe(item(container, 'docs'))
     })
 
     test('expandAll, collapseAll, and expandTo update visible items', () => {
@@ -296,26 +376,26 @@ describe('createTree', () => {
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
-      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
     })
 
-    test('omits data-transition when transition is false', () => {
+    test('omits height transition styles when transition is false', () => {
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['docs'] }} treeProps={{ transition: false }} />
       ))
       const group = item(container, 'docs').querySelector('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(false)
-      expect(group.className).toContain('data-transition:data-expanded:animate-accordion-down')
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(group.className).not.toContain('animate-accordion-down')
     })
 
-    test('omits data-transition on default-expanded nested content', async () => {
+    test('omits height transition styles on default-expanded nested content', async () => {
       vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
       const group = item(container, 'docs').querySelector<HTMLElement>('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(false)
+      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(group.style.height).toBe('auto')
       expect(group.style.animation).toBe('none')
     })
@@ -335,7 +415,7 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(srcGroup.style.height).toBe('auto')
 
       fireEvent.click(item(container, 'components'))
@@ -354,12 +434,12 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
+      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(srcGroup.style.height).toBe('auto')
       const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
         '[role="group"]',
       )!
-      expect(nestedGroup.hasAttribute('data-transition')).toBe(true)
+      expect(nestedGroup.className).toContain('h-(--mo-collapsible-content-height)')
       expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
       expect(nestedGroup.style.height).not.toBe('auto')
     })
@@ -368,7 +448,7 @@ describe('createTree', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       const group = item(container, 'components').querySelector<HTMLElement>('[role="group"]')!
 
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
       expect(group.hasAttribute('hidden')).toBe(false)
@@ -379,7 +459,7 @@ describe('createTree', () => {
 
       clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
     })
@@ -392,24 +472,9 @@ describe('createTree', () => {
       await Promise.resolve()
       const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.hasAttribute('data-transition')).toBe(true)
+      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-closed')).toBe(false)
       expect(group.style.height).not.toBe('auto')
-    })
-
-    test('does not fade accordion-revealed children in', async () => {
-      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
-      const { container } = render(() => <Harness />)
-
-      clickTrigger(item(container, 'src'))
-      await Promise.resolve()
-
-      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
-      expect(
-        item(container, 'components')
-          .querySelector('[data-slot="tree-row"]')
-          ?.hasAttribute('data-entering'),
-      ).toBe(false)
     })
 
     test('releases overflow clipping after height motion settles', async () => {
@@ -441,6 +506,66 @@ describe('createTree', () => {
       await Promise.resolve()
       fireEvent.animationEnd(group)
       expect(group.style.overflow).toBe('visible')
+    })
+
+    test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
+      let tree!: TreeT.Instance<Node>
+      const nodes: Node[] = [
+        {
+          id: 'enabled-branch',
+          name: 'enabled-branch',
+          children: [{ id: 'e1', name: 'e1' }],
+        },
+        {
+          id: 'disabled-branch',
+          name: 'disabled-branch',
+          disabled: true,
+          children: [{ id: 'd1', name: 'd1' }],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness
+          items={() => nodes}
+          onTree={(val) => (tree = val)}
+          options={{ defaultExpandedKeys: ['disabled-branch'] }}
+        />
+      ))
+
+      tree.expandAll()
+      expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
+
+      tree.collapseAll()
+      expect(tree.expandedKeys).toEqual(['disabled-branch'])
+
+      const eb = item(container, 'enabled-branch')
+      eb.focus()
+      press(eb, '*')
+      expect(tree.expandedKeys).toEqual(['disabled-branch', 'enabled-branch'])
+
+      tree.collapseAll()
+      tree.expandTo('d1')
+      expect(tree.expandedKeys).toEqual(['disabled-branch'])
+    })
+
+    test('trigger click prevents default and does not stop propagation', () => {
+      let tree!: TreeT.Instance<Node>
+      let parentClickReceived = false
+      const { container } = render(() => (
+        <div onClick={() => (parentClickReceived = true)}>
+          <Harness
+            onTree={(val) => (tree = val)}
+            options={{ selectionMode: 'single', expandOnClick: false }}
+          />
+        </div>
+      ))
+
+      const src = item(container, 'src')
+      const srcTrigger = triggerOf(src)
+      fireEvent.click(srcTrigger)
+
+      expect(tree.expandedKeys).toContain('src')
+      expect(tree.selectedKeys).toEqual([])
+      expect(parentClickReceived).toBe(true)
     })
   })
 
@@ -583,6 +708,97 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(item(container, 'components'))
       expect(item(container, 'src').getAttribute('aria-expanded')).toBe('true')
     })
+
+    test('ignores keyboard navigation during IME composition and keyCode 229', () => {
+      const { container } = setup()
+      const src = item(container, 'src')
+      src.focus()
+
+      fireEvent.keyDown(src, { key: 'ArrowDown', isComposing: true })
+      expect(document.activeElement).toBe(src)
+
+      fireEvent.keyDown(src, { key: 'ArrowDown', keyCode: 229 })
+      expect(document.activeElement).toBe(src)
+    })
+
+    test('skips disabled ancestors on Left arrow', () => {
+      const nodes: Node[] = [
+        {
+          id: 'root',
+          name: 'root',
+          children: [
+            {
+              id: 'parent',
+              name: 'parent',
+              disabled: true,
+              children: [{ id: 'child', name: 'child' }],
+            },
+          ],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness items={() => nodes} options={{ defaultExpandedKeys: ['root', 'parent'] }} />
+      ))
+      const child = item(container, 'child')
+      child.focus()
+
+      press(child, 'ArrowLeft')
+      expect(document.activeElement).toBe(item(container, 'root'))
+    })
+
+    test('does not collapse, check, or activate disabled items from keyboard or focus', () => {
+      let tree!: TreeT.Instance<Node>
+      const onAction = vi.fn()
+      const nodes: Node[] = [
+        {
+          id: 'branch',
+          name: 'branch',
+          disabled: true,
+          children: [{ id: 'leaf', name: 'leaf' }],
+        },
+      ]
+      const { container } = render(() => (
+        <Harness
+          items={() => nodes}
+          onTree={(value) => (tree = value)}
+          options={{ defaultExpandedKeys: ['branch'], checkable: true, onAction }}
+        />
+      ))
+      const branch = item(container, 'branch')
+      expect(branch.hasAttribute('tabindex')).toBe(false)
+
+      fireEvent.mouseDown(branch.querySelector('[data-slot="tree-label"]')!)
+      fireEvent.focusIn(branch)
+      expect(tree.focusedKey).toBeUndefined()
+
+      press(branch, 'ArrowLeft')
+      press(branch, ' ')
+      press(branch, 'Enter')
+      expect(branch.getAttribute('aria-expanded')).toBe('true')
+      expect(tree.checkedKeys).toEqual([])
+      expect(onAction).not.toHaveBeenCalled()
+    })
+
+    test('clears focusedKey and isFocused when focus leaves the tree', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <>
+          <Harness onTree={(value) => (tree = value)} />
+          <button type="button">Outside</button>
+        </>
+      ))
+      const src = item(container, 'src')
+      src.focus()
+      expect(tree.focusedKey).toBe('src')
+      expect(tree.getItem('src')?.isFocused).toBe(true)
+
+      const outside = container.querySelector('button')!
+      outside.focus()
+      fireEvent.focusOut(src, { relatedTarget: outside })
+      expect(tree.focusedKey).toBeUndefined()
+      expect(tree.getItem('src')?.isFocused).toBe(false)
+      expect(src.getAttribute('tabindex')).toBe('0')
+    })
   })
 
   describe('selection', () => {
@@ -681,6 +897,77 @@ describe('createTree', () => {
 
       fireEvent.click(item(container, 'README.md'))
       expect(tree.selectedKeys).toEqual([])
+    })
+
+    test('shrinks the range toward anchor with Shift+ArrowUp and preserves rangeSnapshot', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{
+            selectionMode: 'multiple',
+            defaultExpandedKeys: ['src'],
+            expandOnClick: false,
+          }}
+        />
+      ))
+
+      fireEvent.click(item(container, 'docs'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs'])
+
+      fireEvent.click(item(container, 'components'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components'])
+
+      press(item(container, 'components'), 'ArrowDown', { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components', 'index'])
+
+      press(item(container, 'index.ts'), 'ArrowUp', { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'components'])
+      expect(tree.selectedKeys).not.toContain('index')
+    })
+
+    test('skips disabled nodes in range selection and does not resurrect ctrl-deselected items', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{
+            selectionMode: 'multiple',
+            defaultExpandedKeys: ['docs'],
+            expandOnClick: false,
+          }}
+        />
+      ))
+
+      fireEvent.click(item(container, 'src'))
+      fireEvent.click(item(container, 'docs'), { ctrlKey: true })
+      fireEvent.click(item(container, 'src'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs'])
+
+      fireEvent.click(item(container, 'README.md'), { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'src', 'guide', 'readme'])
+
+      fireEvent.click(item(container, 'README.md'))
+      fireEvent.click(item(container, 'docs'), { ctrlKey: true })
+      fireEvent.click(item(container, 'README.md'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['docs'])
+
+      fireEvent.click(item(container, 'guide.md'), { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['docs', 'guide', 'readme'])
+
+      fireEvent.click(item(container, 'src'))
+      fireEvent.click(item(container, 'README.md'), { ctrlKey: true })
+      fireEvent.click(item(container, 'src'), { ctrlKey: true })
+      expect(tree.selectedKeys).toEqual(['readme'])
+
+      fireEvent.click(item(container, 'docs'), { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['readme', 'src', 'docs'])
+      expect(tree.selectedKeys).not.toContain('guide')
+
+      fireEvent.click(item(container, 'README.md'))
+      fireEvent.click(item(container, 'LICENSE'), { shiftKey: true })
+      expect(tree.selectedKeys).toEqual(['readme'])
+      expect(tree.selectedKeys).not.toContain('license')
     })
   })
 
@@ -791,18 +1078,40 @@ describe('createTree', () => {
       expect(tree.getItem('guide')?.checkedState).toBe('unchecked')
     })
 
-    test('reports checked keys changes', () => {
+    test('reports checked keys changes and ignores disabled items in check and cascade', () => {
       const onCheckedChange = vi.fn()
       let tree!: TreeT.Instance<Node>
+      const nodes: Node[] = [
+        {
+          id: 'folder',
+          name: 'folder',
+          children: [
+            { id: 'active', name: 'active' },
+            { id: 'locked', name: 'locked', disabled: true },
+          ],
+        },
+        { id: 'readme', name: 'README.md' },
+        { id: 'license', name: 'LICENSE', disabled: true },
+      ]
       render(() => (
         <Harness
+          items={() => nodes}
           onTree={(value) => (tree = value)}
           options={{ checkable: true, onCheckedChange }}
         />
       ))
 
+      tree.check('license')
+      expect(tree.checkedKeys).toEqual([])
+      expect(onCheckedChange).not.toHaveBeenCalled()
+
+      tree.check('folder')
+      expect(tree.checkedKeys).toEqual(['folder', 'active'])
+      expect(tree.getItem('locked')?.checkedState).toBe('unchecked')
+      expect(tree.getItem('folder')?.checkedState).toBe('checked')
+
       tree.check('readme')
-      expect(onCheckedChange).toHaveBeenLastCalledWith(['readme'])
+      expect(onCheckedChange).toHaveBeenLastCalledWith(['folder', 'active', 'readme'])
     })
   })
 
@@ -912,6 +1221,23 @@ describe('createTree', () => {
       await waitFor(() => expect(item(container, 'child.txt')).toBeTruthy())
       expect(tree.getItem('child')?.checkedState).toBe('checked')
     })
+
+    test('prefers getChildren over cached lazy children when items update', async () => {
+      const [items, setItems] = createSignal<readonly LazyNode[]>([
+        { id: 'remote', name: 'remote', lazy: true },
+      ])
+      const loadChildren = () => Promise.resolve([{ id: 'loaded', name: 'loaded.txt' }])
+      const { container } = render(() => (
+        <LazyHarness
+          loadChildren={loadChildren}
+          options={{ items, defaultExpandedKeys: ['remote'] }}
+        />
+      ))
+
+      await waitFor(() => expect(labels(container)).toEqual(['remote', 'loaded.txt']))
+      setItems([{ id: 'remote', name: 'remote', children: [{ id: 'fresh', name: 'fresh.txt' }] }])
+      expect(labels(container)).toEqual(['remote', 'fresh.txt'])
+    })
   })
 
   describe('rendering', () => {
@@ -970,20 +1296,11 @@ describe('createTree', () => {
       expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
         'var(--border)',
       )
-      expect(item(container, 'docs').className).toContain('--mo-tree-indent-guide')
-      expect(item(container, 'docs').className).toContain(
-        '[background-position:calc(0.25rem_+_var(--mo-tree-guide-offset,1rem))_0]',
-      )
+      expect(item(container, 'docs').style.backgroundImage).toContain('--mo-tree-indent-guide')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
-      expect(row?.className).toContain('data-entering:animate-tree-item-in')
-      expect(row?.className).toContain('mx-1')
-      expect(row?.className).toContain('[[role=treeitem]:focus-visible>&]:z-10')
-      expect(item(container, 'docs').className).toContain('focus-visible:z-10')
-      expect(row?.className).toContain(
-        'ps-[calc(0.5rem_+_var(--mo-tree-level)*var(--mo-tree-indent,1.25rem))]',
-      )
-      expect(item(container, 'docs').className).not.toContain('animate-tree-item-in')
+      expect(row?.className).toContain('mx-(--mo-tree-gutter)')
+      expect(row?.className).toContain('ps-(--mo-tree-inset)')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
@@ -1093,28 +1410,6 @@ describe('createTree', () => {
       await waitFor(() => expect(labels(container)).toContain('components'))
       expect(item(container, 'components').getAttribute('aria-level')).toBe('2')
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
-      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
-      expect(item(container, 'components').className).not.toContain('animate-tree-item-in')
-    })
-
-    test('does not mark virtual rows as entering after a branch expands', async () => {
-      const treeProps = createVirtualTreeProps()
-      const { container } = render(() => <Harness treeProps={treeProps} />)
-      await waitFor(() => expect(labels(container)).toContain('src'))
-
-      clickTrigger(item(container, 'src'))
-      await waitFor(() => expect(labels(container)).toContain('components'))
-
-      expect(item(container, 'src').hasAttribute('data-entering')).toBe(false)
-      expect(item(container, 'components').hasAttribute('data-entering')).toBe(false)
-      expect(
-        item(container, 'components').querySelector('[data-slot="tree-row"]')?.className,
-      ).toContain('data-entering:animate-tree-item-in')
-      expect(
-        item(container, 'components')
-          .querySelector('[data-slot="tree-row"]')
-          ?.hasAttribute('data-entering'),
-      ).toBe(false)
     })
 
     test('collapses a flattened branch back out of the virtual list', async () => {

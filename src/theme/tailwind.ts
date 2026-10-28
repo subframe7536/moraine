@@ -109,7 +109,6 @@ export const moraineTailwind = plugin(
           'duplicate',
           'editable',
           'ellipsis',
-          'entering',
           'error',
           'expanded',
           'focused',

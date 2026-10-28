@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo } from 'solid-js'
+import { createMemo, createSelector } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 
@@ -11,8 +11,7 @@ export interface TreeExpansionDeps<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
   load: (key: string) => Promise<boolean>
-  /** Runs before keys collapse, so focus can leave a subtree that is about to disappear. */
-  beforeCollapse: (keys: readonly string[]) => void
+  isDisabled: (key: string) => boolean
 }
 
 export interface TreeExpansion {
@@ -35,18 +34,21 @@ export function createTreeExpansion<T>(deps: TreeExpansionDeps<T>): TreeExpansio
     onChange: (keys) => deps.options.onExpandedChange?.([...keys]),
   })
   const expandedSet = createMemo(() => new Set(expandedKeys()))
-  const isExpanded = (key: string): boolean => expandedSet().has(key)
+  const isExpanded = createSelector<ReadonlySet<string>, string>(expandedSet, (key, current) =>
+    current.has(key),
+  )
 
   function addExpanded(keys: readonly string[]): void {
     setExpandedKeys((previous) => {
-      const added = keys.filter((key) => !previous.includes(key))
+      const existing = new Set(previous)
+      const added = keys.filter((key) => !existing.has(key))
       return added.length > 0 ? [...previous, ...added] : previous
     })
   }
 
   function expand(key: string): void {
     const node = deps.registry().nodes.get(key)
-    if (!node?.hasChildren || isExpanded(key)) {
+    if (!node?.hasChildren || isExpanded(key) || deps.isDisabled(key)) {
       return
     }
     if (node.needsLoad) {
@@ -61,10 +63,9 @@ export function createTreeExpansion<T>(deps: TreeExpansionDeps<T>): TreeExpansio
   }
 
   function collapse(key: string): void {
-    if (!isExpanded(key)) {
+    if (!isExpanded(key) || deps.isDisabled(key)) {
       return
     }
-    deps.beforeCollapse([key])
     setExpandedKeys((previous) => previous.filter((expandedKey) => expandedKey !== key))
   }
 
@@ -79,7 +80,7 @@ export function createTreeExpansion<T>(deps: TreeExpansionDeps<T>): TreeExpansio
   function expandAll(): void {
     const branches: string[] = []
     for (const node of deps.registry().nodes.values()) {
-      if (node.hasChildren) {
+      if (node.hasChildren && !deps.isDisabled(node.key)) {
         branches.push(node.key)
       }
     }
@@ -88,15 +89,17 @@ export function createTreeExpansion<T>(deps: TreeExpansionDeps<T>): TreeExpansio
 
   function collapseAll(): void {
     const current = expandedKeys()
-    if (current.length === 0) {
+    const enabled = current.filter((key) => !deps.isDisabled(key))
+    if (enabled.length === 0) {
       return
     }
-    deps.beforeCollapse(current)
-    setExpandedKeys([])
+    setExpandedKeys((previous) => previous.filter((key) => deps.isDisabled(key)))
   }
 
   function expandTo(key: string): void {
-    addExpanded(getAncestorKeys(deps.registry(), key))
+    addExpanded(
+      getAncestorKeys(deps.registry(), key).filter((ancestorKey) => !deps.isDisabled(ancestorKey)),
+    )
   }
 
   return {

@@ -3,18 +3,19 @@ import { createMemo } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 
-import { getAncestorKeys, getDescendantKeys } from './tree-registry'
+import { getAncestorKeys, getDescendantKeys, sameKeys } from './tree-registry'
 import type { TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
 
 /**
- * Derives every node's check state. With cascading, a key checks its whole subtree and a
- * branch with children derives its state from them.
+ * Derives every node's check state. With cascading, a key checks its enabled subtree and a
+ * branch with enabled children derives its state from them.
  */
 export function resolveCheckedStates<T>(
   registry: TreeRegistry<T>,
   keys: ReadonlySet<string>,
   cascade: boolean,
+  isDisabled: (key: string) => boolean = () => false,
 ): Map<string, TreeT.CheckedState> {
   const states = new Map<string, TreeT.CheckedState>()
 
@@ -27,15 +28,21 @@ export function resolveCheckedStates<T>(
       }
       return
     }
-    const selfChecked = forced || keys.has(key)
+    const disabled = isDisabled(key)
+    const selfChecked = (!disabled && forced) || keys.has(key)
     if (node.childrenKeys.length === 0) {
       states.set(key, selfChecked ? 'checked' : 'unchecked')
       return
     }
     let checked = 0
     let unchecked = 0
+    let enabledCount = 0
     for (const childKey of node.childrenKeys) {
       visit(childKey, selfChecked)
+      if (isDisabled(childKey)) {
+        continue
+      }
+      enabledCount += 1
       const state = states.get(childKey)
       if (state === 'checked') {
         checked += 1
@@ -43,10 +50,17 @@ export function resolveCheckedStates<T>(
         unchecked += 1
       }
     }
-    const count = node.childrenKeys.length
+    if (enabledCount === 0) {
+      states.set(key, selfChecked ? 'checked' : 'unchecked')
+      return
+    }
     states.set(
       key,
-      checked === count ? 'checked' : unchecked === count ? 'unchecked' : 'indeterminate',
+      checked === enabledCount
+        ? 'checked'
+        : unchecked === enabledCount
+          ? 'unchecked'
+          : 'indeterminate',
     )
   }
 
@@ -73,13 +87,10 @@ function collectCheckedKeys<T>(
   return result
 }
 
-function sameKeys(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((key, index) => key === right[index])
-}
-
 export interface TreeCheckedDeps<T> {
   options: TreeT.Options<T>
   registry: Accessor<TreeRegistry<T>>
+  isDisabled: (key: string) => boolean
 }
 
 export interface TreeChecked {
@@ -97,7 +108,7 @@ export function createTreeChecked<T>(deps: TreeCheckedDeps<T>): TreeChecked {
   })
   const cascade = () => deps.options.checkCascade !== false
   const states = createMemo(() =>
-    resolveCheckedStates(deps.registry(), new Set(storedKeys()), cascade()),
+    resolveCheckedStates(deps.registry(), new Set(storedKeys()), cascade(), deps.isDisabled),
   )
   const checkedKeys = createMemo(() => collectCheckedKeys(deps.registry(), states()), undefined, {
     equals: sameKeys,
@@ -105,7 +116,7 @@ export function createTreeChecked<T>(deps: TreeCheckedDeps<T>): TreeChecked {
 
   function setChecked(key: string, checked: boolean): void {
     const registry = deps.registry()
-    if (!registry.nodes.has(key)) {
+    if (!registry.nodes.has(key) || deps.isDisabled(key)) {
       return
     }
 
@@ -128,7 +139,10 @@ export function createTreeChecked<T>(deps: TreeCheckedDeps<T>): TreeChecked {
         working.add(stateKey)
       }
     }
-    const subtree = [key, ...getDescendantKeys(registry, key)]
+    const subtree = [
+      key,
+      ...getDescendantKeys(registry, key).filter((childKey) => !deps.isDisabled(childKey)),
+    ]
     if (checked) {
       for (const subtreeKey of subtree) {
         working.add(subtreeKey)
@@ -138,7 +152,7 @@ export function createTreeChecked<T>(deps: TreeCheckedDeps<T>): TreeChecked {
         working.delete(subtreeKey)
       }
     }
-    const next = resolveCheckedStates(registry, working, true)
+    const next = resolveCheckedStates(registry, working, true, deps.isDisabled)
     setStoredKeys([...collectCheckedKeys(registry, next), ...unknownKeys])
   }
 

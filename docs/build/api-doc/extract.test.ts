@@ -258,7 +258,10 @@ describe('generateApiDoc', () => {
     expect(treeRootProps).not.toContain('icons')
     expect(treeRootProps).not.toContain('virtual')
     expect(tree?.dataAttributes.find((target) => target.target === 'content')?.attributes).toEqual(
-      expect.arrayContaining(['data-closed', 'data-expanded', 'data-transition']),
+      expect.arrayContaining(['data-closed', 'data-expanded']),
+    )
+    expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
+      expect.arrayContaining(['data-expanded', 'data-selected']),
     )
     expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
       expect.arrayContaining(['data-entering', 'data-expanded', 'data-selected']),

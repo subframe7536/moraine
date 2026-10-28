@@ -41,6 +41,13 @@ export namespace TreeT {
      */
     getTextValue?: (item: T) => string | undefined
 
+    /**
+     * Returns the prefix icon of an item, shown before the label of the default item.
+     * Receives the item instance so the icon can react to expansion or loading state.
+     * `undefined` renders no icon.
+     */
+    getIcon?: (item: ItemInstance<T>) => IconT.Name | undefined
+
     /** Whether an item is disabled. Disabled items are skipped by keyboard navigation. */
     isDisabled?: (item: T) => boolean
 
@@ -79,6 +86,13 @@ export namespace TreeT {
      * @default true
      */
     expandOnClick?: boolean
+
+    /**
+     * Whether items render the expand chevron. When `false`, `tree.ItemTrigger` renders
+     * nothing and clicking a branch row toggles it even when `expandOnClick` is `false`.
+     * @default true
+     */
+    trigger?: boolean
 
     /**
      * How many items can be selected.
@@ -140,7 +154,7 @@ export namespace TreeT {
     readonly selectedKeys: readonly string[]
     /** Keys whose check state is `checked`. */
     readonly checkedKeys: readonly string[]
-    /** Key of the item that owns the roving tab stop. */
+    /** Key of the item that currently holds focus. */
     readonly focusedKey: string | undefined
     /** Keys of branches that are loading their children. */
     readonly loadingKeys: readonly string[]
@@ -194,8 +208,6 @@ export namespace TreeT {
     readonly isLoading: boolean
     readonly isFocused: boolean
     readonly isDisabled: boolean
-    /** Whether the item became visible after an expansion and should play its entrance. */
-    readonly isEntering: boolean
     readonly checkedState: CheckedState
     expand: () => void
     collapse: () => void
@@ -221,7 +233,8 @@ export namespace TreeT {
 
   export interface Base<T = unknown> {
     /**
-     * Renders one visible item. Defaults to trigger, check box when checkable, and label.
+     * Renders one visible item. Defaults to trigger, check box when checkable, the icon
+     * returned by `getIcon`, and label.
      * Use `tree.Item` as the root of the rendered content.
      */
     itemRender?: Component<ItemRenderProps<T>>

@@ -33,6 +33,10 @@ export interface TreeStyleVariants {
    * @default 'subtle'
    */
   variant?: 'subtle' | 'solid'
+  /** Whether the content group animates its height while expanding or collapsing.
+   * @default false
+   */
+  transition?: boolean
 }
 
 export type TreeStyleConfig = ComponentStyleConfig<TreeStyleSlot, TreeStyleVariants>
