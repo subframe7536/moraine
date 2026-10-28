@@ -26,7 +26,14 @@ export const treeDataAttributes = {
 /** Keeps the chevron pointing toward the content direction in right-to-left layouts. */
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
+/**
+ * Per-item geometry derived from the root-level constants and `--mo-tree-level`. Declared on the
+ * item element so `var()` resolves against the item's inherited (possibly overridden) constants.
+ */
 export const TREE_INDENT_GUIDE_STYLE = /* @__PURE__ */ {
+  '--mo-tree-guide-offset':
+    'calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px)',
+  '--mo-tree-inset': 'calc(var(--mo-tree-pad) + var(--mo-tree-level) * var(--mo-tree-indent))',
   'background-image':
     'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent))',
   'background-position': 'var(--mo-tree-guide-offset) 0',
@@ -40,9 +47,6 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-level': 0,
     '--mo-tree-gutter': '0.25rem',
     '--mo-tree-pad': '0.5rem',
-    '--mo-tree-guide-offset':
-      'calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px)',
-    '--mo-tree-inset': 'calc(var(--mo-tree-pad) + var(--mo-tree-level) * var(--mo-tree-indent))',
     root: 'text-foreground min-h-0 w-full relative',
     item: 'outline-none relative',
     row: `mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-inset) rounded-md flex min-w-0 cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,

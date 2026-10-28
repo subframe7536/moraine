@@ -1290,6 +1290,27 @@ describe('createTree', () => {
       expect(item(container, 'components').style.getPropertyValue('--mo-tree-level')).toBe('1')
     })
 
+    test('inherits root geometry variables instead of redeclaring them on items', () => {
+      const { container, getByRole } = render(() => (
+        <Harness
+          options={{ defaultExpandedKeys: ['src'] }}
+          treeProps={{ style: { '--mo-tree-pad': '2rem' } }}
+        />
+      ))
+
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-pad')).toBe('2rem')
+      const element = item(container, 'components')
+      expect(element.style.getPropertyValue('--mo-tree-pad')).toBe('')
+      expect(element.style.getPropertyValue('--mo-tree-gutter')).toBe('')
+      expect(element.style.getPropertyValue('--mo-tree-trigger')).toBe('')
+      expect(element.style.getPropertyValue('--mo-tree-level')).toBe('1')
+      expect(element.style.getPropertyValue('--mo-tree-inset')).toContain('--mo-tree-level')
+      expect(element.style.getPropertyValue('--mo-tree-guide-offset')).toContain('--mo-tree-pad')
+      const group = element.querySelector<HTMLElement>('[data-slot="tree-content"]')
+      expect(group?.style.getPropertyValue('--mo-collapsible-content-height')).not.toBe('')
+      expect(group?.style.getPropertyValue('--mo-tree-pad')).toBe('')
+    })
+
     test('renders item data attributes for state', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
 

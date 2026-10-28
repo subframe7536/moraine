@@ -73,11 +73,14 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     },
     {
       slot: 'content',
-      varsSlot: 'content',
       contextVariants: () => context.variants,
       contextSlots: () => context.slotOverrides,
-      vars: () => ({
-        '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
+      own: () => ({
+        content: {
+          style: {
+            '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
+          },
+        },
       }),
       enforced: () => {
         if (!allowHeightMotion()) {
@@ -153,11 +156,13 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const attributes = () => itemProps()[1]
   const { slots } = useRecipe(treeRecipe, local, {
     slot: 'item',
-    varsSlot: 'item',
     contextVariants: () => context.variants,
     contextSlots: () => context.slotOverrides,
-    vars: () => ({ '--mo-tree-level': local.item.level - 1 }),
-    own: () => ({ item: { style: TREE_INDENT_GUIDE_STYLE } }),
+    own: () => ({
+      item: {
+        style: { ...TREE_INDENT_GUIDE_STYLE, '--mo-tree-level': local.item.level - 1 },
+      },
+    }),
     enforced: () => ({ item: { style: row?.style } }),
   })
   const leaf = () => !local.item.hasChildren
