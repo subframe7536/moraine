@@ -6,11 +6,13 @@ import type { SlotClassValue } from '../../theme/style-types'
 import type { SlotOverrides } from '../../theme/use-recipe'
 import type { ListT } from '../list/list.types'
 
+import type { TreeState } from './tree-state'
 import { treeRecipe } from './tree.recipe'
 import type { TreeStyleSlot } from './tree.style-types'
 import type { TreeT } from './tree.types'
 
 export interface TreeContext {
+  readonly state: TreeState<any>
   readonly options: TreeT.Options<any>
   readonly props: TreeT.Base<any>
   readonly variants: Pick<TreeT.Variants, 'size' | 'variant' | 'indentGuide'>

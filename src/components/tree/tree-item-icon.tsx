@@ -19,7 +19,7 @@ export function TreeItemIcon(props: TreeT.ItemIconProps): JSX.Element {
       slotName="tree-icon"
       {...treeDataAttributes.icon({
         expanded: () => item.isExpanded,
-        leaf: () => !item.hasChildren,
+        leaf: () => item.isLeaf,
       })}
       {...rest}
       {...slots.icon}

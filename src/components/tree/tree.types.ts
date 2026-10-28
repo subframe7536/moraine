@@ -183,13 +183,7 @@ export namespace TreeT {
     isLoading: (key: string) => boolean
   }
 
-  /** Check props that can be spread onto `Checkbox`. */
-  export type CheckboxBinding = Pick<
-    CheckboxProps,
-    'checked' | 'indeterminate' | 'onCheckedChange' | 'disabled' | 'fieldBind' | 'tabIndex'
-  > & { 'aria-hidden': true }
-
-  /** Stable per-key handle that carries item data, reactive state, actions, and prop getters. */
+  /** Stable per-key handle that carries item data, reactive state, and actions. */
   export interface ItemInstance<T> {
     readonly key: string
     readonly raw: T
@@ -198,6 +192,8 @@ export namespace TreeT {
     readonly posInSet: number
     readonly setSize: number
     readonly hasChildren: boolean
+    /** Whether the item has no children. */
+    readonly isLeaf: boolean
     readonly isLastChild: boolean
     readonly parentKey: string | undefined
     /** Direct children, whether or not the item is expanded. */
@@ -216,12 +212,6 @@ export namespace TreeT {
     toggleSelect: () => void
     toggleCheck: () => void
     focus: () => void
-    /** Semantics, roving tabindex, keyboard, focus, and pointer handling for the `treeitem` host. */
-    getItemProps: () => JSX.HTMLAttributes<HTMLElement>
-    /** Presentational expand affordance props. */
-    getTriggerProps: () => JSX.HTMLAttributes<HTMLElement>
-    /** Props that bind a `Checkbox` to the item's check state. */
-    getCheckboxProps: () => CheckboxBinding
   }
 
   export interface ItemRenderProps<T> {
@@ -328,11 +318,14 @@ export namespace TreeT {
     'span'
   >
 
+  export type ItemCheckboxProps = CheckboxProps
+
   export interface Parts<T> {
     /** Tree root. Renders the visible items, nested or through `virtualRender`. */
     Tree: (props: Props<T>) => JSX.Element
     Item: (props: ItemProps<T>) => JSX.Element
     ItemTrigger: <As extends ValidComponent = 'span'>(props: ItemTriggerProps<As>) => JSX.Element
+    ItemCheckbox: (props?: ItemCheckboxProps) => JSX.Element
     ItemIcon: (props: ItemIconProps) => JSX.Element
     ItemLabel: <As extends ValidComponent = 'span'>(props: ItemLabelProps<As>) => JSX.Element
   }

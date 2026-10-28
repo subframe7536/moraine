@@ -185,8 +185,7 @@ Always give the tree an accessible name with `aria-label` or `aria-labelledby`.
 The store exposes reactive `expandedKeys`, `selectedKeys`, `checkedKeys`, and `focusedKey`,
 the visible `flattenedItems`, and imperative methods such as `expand`, `collapse`, `expandAll`,
 `expandTo`, `select`, `check`, and `focus`. `tree.getItem(key)` returns a stable item handle with
-`level`, `isExpanded`, `isSelected`, `checkedState`, actions, and the prop getters used to build custom
-items.
+`level`, `isExpanded`, `isSelected`, `checkedState`, and actions.
 
 ### Expansion
 
@@ -237,7 +236,7 @@ in each row. By default, checking a branch checks its descendants and a branch w
 descendants is indeterminate; set `checkCascade={false}` to treat every item independently. Checked
 branches pass their state to children that load later.
 
-To place the checkbox in a custom item, spread `item.getCheckboxProps()` onto `Checkbox`. The binding is
+To place the checkbox in a custom item, compose `tree.ItemCheckbox`. The binding is
 hidden from assistive technology and removed from the tab order because the `treeitem` itself carries
 `aria-checked`.
 
@@ -246,7 +245,7 @@ hidden from assistive technology and removed from the tab order because the `tre
   itemRender={(context) => (
     <tree.Item item={context.item}>
       <tree.ItemTrigger />
-      <Checkbox {...context.item.getCheckboxProps()} />
+      <tree.ItemCheckbox />
       <tree.ItemLabel />
     </tree.Item>
   )}

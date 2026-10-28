@@ -3,6 +3,7 @@ import { Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import type { ValidComponent } from '../../shared/types'
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useTreeContext, useTreeItem, useTreePart } from './tree-context'
@@ -19,6 +20,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     'children',
     'class',
     'style',
+    'onClick',
   ])
   const context = useTreeContext()
   const item = useTreeItem()
@@ -29,14 +31,21 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
       <Dynamic
         component={local.as ?? 'span'}
         data-slot="tree-trigger"
+        aria-hidden={true}
         {...treeDataAttributes.trigger({
           expanded: () => item.isExpanded,
-          leaf: () => !item.hasChildren,
+          leaf: () => item.isLeaf,
           loading: () => item.isLoading,
         })}
-        {...item.getTriggerProps()}
         {...rest}
         {...slots.trigger}
+        onClick={(event: MouseEvent) => {
+          const custom = callHandler(event, local.onClick)
+          event.preventDefault()
+          if (!custom.defaultPrevented) {
+            item.toggle()
+          }
+        }}
       >
         <Show
           when={local.children}

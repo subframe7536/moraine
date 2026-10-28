@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { createListVirtualizer } from '../../virtualizer'
-import { Checkbox } from '../checkbox'
 
 import { createTree } from './tree'
 import type { TreeT } from './tree.types'
@@ -952,20 +951,7 @@ describe('createTree', () => {
         <Harness
           onTree={props.onTree}
           options={{ checkable: true, defaultExpandedKeys: ['src', 'components'] }}
-          treeProps={{
-            itemRender: (context) => {
-              return <TreeItemWithCheckbox item={context.item} />
-            },
-          }}
         />
-      )
-    }
-
-    function TreeItemWithCheckbox(props: { item: TreeT.ItemInstance<Node> }) {
-      return (
-        <div role="none">
-          <Checkbox {...props.item.getCheckboxProps()} />
-        </div>
       )
     }
 
@@ -1006,9 +992,22 @@ describe('createTree', () => {
       expect(tree.getItem('components')?.checkedState).toBe('unchecked')
     })
 
-    test('binds Checkbox through getCheckboxProps and keeps it out of the tab order', () => {
+    test('binds Checkbox through ItemCheckbox and keeps it out of the tab order', () => {
       let tree!: TreeT.Instance<Node>
-      const { container } = render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ checkable: true, defaultExpandedKeys: ['src', 'components'] }}
+          treeProps={{
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemCheckbox />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
 
       const control = container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')!
       expect(control.getAttribute('tabindex')).toBe('-1')

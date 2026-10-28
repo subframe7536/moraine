@@ -1,28 +1,37 @@
 import type { JSX } from 'solid-js'
-import {
-  For,
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  splitProps,
-} from 'solid-js'
+import { For, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { callHandler, callRef } from '../../shared/utils'
-import { Checkbox } from '../checkbox'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
+import { TreeItemCheckbox } from './tree-item-checkbox'
 import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
 import { TreeItemTrigger } from './tree-item-trigger'
 import { TREE_LIST_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
-const WIRING_KEYS = ['ref', 'onClick', 'onKeyDown', 'onFocusIn', 'onMouseDown'] as const
+const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, label, [role="checkbox"]'
+const POINTER_FOCUS_SELECTOR =
+  'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"]'
+
+function belongsToItem(event: Event): boolean {
+  const host = event.currentTarget
+  const target = event.target instanceof Element ? event.target : null
+  if (!(host instanceof Element) || !target || target.closest('[role="treeitem"]') !== host) {
+    return false
+  }
+  const group = target.closest('[role="group"]')
+  return !group || !host.contains(group)
+}
+
+function isFromDescendant(event: Event, selector: string): boolean {
+  const host = event.currentTarget
+  const target = event.target instanceof Element ? event.target.closest(selector) : null
+  return host instanceof Element && !!target && target !== host && host.contains(target)
+}
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
@@ -133,9 +142,6 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
-  const itemProps = createMemo(() => splitProps(local.item.getItemProps(), WIRING_KEYS))
-  const wiring = () => itemProps()[0]
-  const attributes = () => itemProps()[1]
   const { slots } = useRecipe(treeRecipe, local, {
     slot: 'item',
     contextVariants: () => context.variants,
@@ -147,7 +153,6 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     }),
     enforced: () => ({ item: { style: row()?.style } }),
   })
-  const leaf = () => !local.item.hasChildren
 
   return (
     <TreeItemProvider
@@ -162,43 +167,78 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     >
       <li
         data-slot="tree-item"
+        role="treeitem"
+        aria-label={local.item.textValue}
         {...treeDataAttributes.item({
           checked: () => local.item.checkedState === 'checked',
           disabled: () => local.item.isDisabled,
           expanded: () => local.item.isExpanded,
           indeterminate: () => local.item.checkedState === 'indeterminate',
-          leaf,
+          leaf: () => local.item.isLeaf,
           loading: () => local.item.isLoading,
           selected: () => local.item.isSelected,
         })}
-        {...attributes()}
         {...row()}
         {...rest}
         {...slots.item}
-        tabIndex={attributes().tabIndex}
-        aria-checked={attributes()['aria-checked']}
+        tabIndex={
+          local.item.isDisabled
+            ? undefined
+            : context.state.navigation.tabStopKey() === local.item.key
+              ? 0
+              : -1
+        }
+        aria-level={local.item.level}
+        aria-posinset={local.item.posInSet}
+        aria-setsize={local.item.setSize}
+        aria-expanded={local.item.hasChildren ? local.item.isExpanded : undefined}
+        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.isSelected}
+        aria-checked={
+          context.options.checkable
+            ? local.item.checkedState === 'indeterminate'
+              ? 'mixed'
+              : local.item.checkedState === 'checked'
+            : undefined
+        }
+        aria-disabled={local.item.isDisabled ? true : undefined}
+        aria-busy={local.item.isLoading ? true : undefined}
         ref={(element: HTMLElement) => {
-          callRef(wiring().ref, element)
+          onCleanup(context.state.navigation.registerElement(local.item.key, element))
           callRef(row()?.ref, element)
           callRef(local.ref, element)
         }}
         onClick={(event: MouseEvent) => {
-          if (!callHandler(event, local.onClick).defaultPrevented) {
-            callHandler(event, wiring().onClick)
+          if (
+            !callHandler(event, local.onClick).defaultPrevented &&
+            belongsToItem(event) &&
+            !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
+            !local.item.isDisabled
+          ) {
+            context.state.handleClick(event, local.item.key)
           }
         }}
         onKeyDown={(event: KeyboardEvent) => {
           if (!callHandler(event, local.onKeyDown).defaultPrevented) {
-            callHandler(event, wiring().onKeyDown)
+            context.state.navigation.onKeyDown(event, local.item.key)
           }
         }}
         onFocusIn={(event: FocusEvent) => {
           callHandler(event, local.onFocusIn)
-          callHandler(event, wiring().onFocusIn)
+          if (belongsToItem(event) && !local.item.isDisabled) {
+            context.state.setFocusedKey(local.item.key)
+          }
         }}
         onMouseDown={(event: MouseEvent) => {
-          if (!callHandler(event, local.onMouseDown).defaultPrevented) {
-            callHandler(event, wiring().onMouseDown)
+          if (
+            !callHandler(event, local.onMouseDown).defaultPrevented &&
+            belongsToItem(event) &&
+            !local.item.isDisabled &&
+            isFromDescendant(event, POINTER_FOCUS_SELECTOR)
+          ) {
+            event.preventDefault()
+            if (event.currentTarget instanceof HTMLElement) {
+              event.currentTarget.focus()
+            }
           }
         }}
       >
@@ -207,7 +247,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           {...treeDataAttributes.row({
             disabled: () => local.item.isDisabled,
             expanded: () => local.item.isExpanded,
-            leaf,
+            leaf: () => local.item.isLeaf,
             selected: () => local.item.isSelected,
           })}
           {...slots.row}
@@ -229,9 +269,7 @@ export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Elem
   return (
     <TreeItem item={props.item}>
       <TreeItemTrigger />
-      <Show when={context.options.checkable}>
-        <Checkbox {...props.item.getCheckboxProps()} size={context.variants.size} />
-      </Show>
+      <TreeItemCheckbox />
       <Show when={context.options.getIcon?.(props.item)}>
         {(icon) => <TreeItemIcon icon={icon()} />}
       </Show>

@@ -1,4 +1,4 @@
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
 import {
   batch,
   createEffect,
@@ -6,7 +6,6 @@ import {
   createSelector,
   createSignal,
   on,
-  onCleanup,
   untrack,
 } from 'solid-js'
 
@@ -26,29 +25,8 @@ import {
 import type { TreeNode, TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
 
-const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, label, [role="checkbox"]'
-const POINTER_FOCUS_SELECTOR =
-  'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"]'
-
-function belongsToItem(event: Event): boolean {
-  const host = event.currentTarget
-  const target = event.target instanceof Element ? event.target : null
-  if (!(host instanceof Element) || !target || target.closest('[role="treeitem"]') !== host) {
-    return false
-  }
-  const group = target.closest('[role="group"]')
-  return !group || !host.contains(group)
-}
-
-function isFromDescendant(event: Event, selector: string): boolean {
-  const host = event.currentTarget
-  const target = event.target instanceof Element ? event.target.closest(selector) : null
-  return host instanceof Element && !!target && target !== host && host.contains(target)
-}
-
 /**
- * Stable per-key item handle. Kept as a class instance so Solid stores never wrap it in a proxy,
- * with arrow methods that can be destructured safely.
+ * Stable per-key item handle. Kept as a class instance so Solid stores never wrap it in a proxy.
  */
 class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   readonly key: string
@@ -88,6 +66,9 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get hasChildren(): boolean {
     return this.node.hasChildren
   }
+  get isLeaf(): boolean {
+    return !this.node.hasChildren
+  }
   get isLastChild(): boolean {
     const node = this.node
     return node.posInSet === node.setSize
@@ -120,116 +101,26 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     return this.state.getCheckedState(this.key)
   }
 
-  expand = (): void => this.state.expand(this.key)
-  collapse = (): void => this.state.collapse(this.key)
-  toggle = (): void => this.state.toggle(this.key)
-  select = (): void => this.state.select(this.key)
-  toggleSelect = (): void => this.state.toggleSelect(this.key)
-  toggleCheck = (): void => this.state.toggleCheck(this.key)
-  focus = (): void => this.state.navigation.focus(this.key)
-
-  getItemProps = (): JSX.HTMLAttributes<HTMLElement> => {
-    const { state, key } = this
-    const node = (): TreeNode<T> => this.node
-    return {
-      role: 'treeitem',
-      get tabIndex() {
-        return node().disabled ? undefined : state.navigation.tabStopKey() === key ? 0 : -1
-      },
-      get 'aria-level'() {
-        return node().level
-      },
-      get 'aria-posinset'() {
-        return node().posInSet
-      },
-      get 'aria-setsize'() {
-        return node().setSize
-      },
-      get 'aria-expanded'() {
-        return node().hasChildren ? state.isExpanded(key) : undefined
-      },
-      get 'aria-selected'() {
-        return state.selectionMode() === 'none' ? undefined : state.isSelected(key)
-      },
-      get 'aria-checked'() {
-        if (!state.options.checkable) {
-          return undefined
-        }
-        const checked = state.getCheckedState(key)
-        return checked === 'indeterminate' ? 'mixed' : checked === 'checked'
-      },
-      get 'aria-disabled'() {
-        return node().disabled ? true : undefined
-      },
-      get 'aria-busy'() {
-        return state.isLoading(key) ? true : undefined
-      },
-      get 'aria-label'() {
-        return node().textValue
-      },
-      onClick: (event: MouseEvent) => {
-        if (
-          !event.defaultPrevented &&
-          belongsToItem(event) &&
-          !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
-          !node().disabled
-        ) {
-          state.handleClick(event, key)
-        }
-      },
-      onKeyDown: (event: KeyboardEvent) => state.navigation.onKeyDown(event, key),
-      onFocusIn: (event: FocusEvent) => {
-        if (belongsToItem(event) && !node().disabled) {
-          state.setFocusedKey(key)
-        }
-      },
-      onMouseDown: (event: MouseEvent) => {
-        if (
-          belongsToItem(event) &&
-          !node().disabled &&
-          isFromDescendant(event, POINTER_FOCUS_SELECTOR)
-        ) {
-          event.preventDefault()
-          if (event.currentTarget instanceof HTMLElement) {
-            event.currentTarget.focus()
-          }
-        }
-      },
-      ref: (element: HTMLElement) => {
-        onCleanup(state.navigation.registerElement(key, element))
-      },
-    }
+  expand(): void {
+    this.state.expand(this.key)
   }
-
-  getTriggerProps = (): JSX.HTMLAttributes<HTMLElement> => {
-    const { state, key } = this
-    return {
-      'aria-hidden': true,
-      onClick: (event: MouseEvent) => {
-        event.preventDefault()
-        state.toggle(key)
-      },
-    }
+  collapse(): void {
+    this.state.collapse(this.key)
   }
-
-  getCheckboxProps = (): TreeT.CheckboxBinding => {
-    const { state, key } = this
-    const node = (): TreeNode<T> => this.node
-    return {
-      get checked() {
-        return state.getCheckedState(key) === 'checked'
-      },
-      get indeterminate() {
-        return state.getCheckedState(key) === 'indeterminate'
-      },
-      get disabled() {
-        return node().disabled
-      },
-      onCheckedChange: (checked: boolean) => state.setChecked(key, checked),
-      fieldBind: false,
-      tabIndex: -1,
-      'aria-hidden': true,
-    }
+  toggle(): void {
+    this.state.toggle(this.key)
+  }
+  select(): void {
+    this.state.select(this.key)
+  }
+  toggleSelect(): void {
+    this.state.toggleSelect(this.key)
+  }
+  toggleCheck(): void {
+    this.state.toggleCheck(this.key)
+  }
+  focus(): void {
+    this.state.navigation.focus(this.key)
   }
 }
 
@@ -561,6 +452,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     setStoredCheckedKeys([...collectCheckedKeys(next), ...unknownKeys])
   }
 
+  const getState = (): TreeState<T> => state
+
   function getItem(key: string): TreeItemHandle<T> | undefined {
     const node = registry().nodes.get(key)
     if (!node) {
@@ -568,7 +461,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
     let handle = handles.get(key)
     if (!handle) {
-      handle = new TreeItemHandle(() => state, node)
+      handle = new TreeItemHandle(getState, node)
       handles.set(key, handle)
     }
     return handle

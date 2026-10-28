@@ -9,6 +9,7 @@ import type { ListT } from '../list/list.types'
 import { TreeItemProvider, TreeProvider } from './tree-context'
 import type { TreeContext, TreeItemContext } from './tree-context'
 import { TreeDefaultItem, TreeItem, TreeItemList } from './tree-item'
+import { TreeItemCheckbox } from './tree-item-checkbox'
 import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
 import { TreeItemTrigger } from './tree-item-trigger'
@@ -75,6 +76,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   }
 
   const context: TreeContext = {
+    state,
     options: state.options,
     props: local,
     get variants() {
@@ -163,6 +165,7 @@ export function createTree<T>(options: TreeT.Options<T>): TreeT.Instance<T> {
     Tree: (props: TreeT.Props<T>) => <TreeRoot<T> {...props} state={state} />,
     Item: TreeItem,
     ItemTrigger: TreeItemTrigger,
+    ItemCheckbox: TreeItemCheckbox,
     ItemIcon: TreeItemIcon,
     ItemLabel: TreeItemLabel,
   }
