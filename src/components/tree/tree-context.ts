@@ -13,7 +13,7 @@ import type { TreeT } from './tree.types'
 export interface TreeContext {
   readonly options: TreeT.Options<any>
   readonly props: TreeT.Base<any>
-  readonly variants: Pick<TreeT.Variants, 'size' | 'variant'>
+  readonly variants: Pick<TreeT.Variants, 'size' | 'variant' | 'indentGuide'>
   readonly slotOverrides: SlotOverrides<keyof TreeStyleSlot>
   readonly RenderItem: Component<TreeItemContext>
 }

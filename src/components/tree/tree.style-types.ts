@@ -33,6 +33,10 @@ export interface TreeStyleVariants {
    * @default 'subtle'
    */
   variant?: 'subtle' | 'solid'
+  /** Whether nested items draw vertical guide lines for their ancestor levels.
+   * @default true
+   */
+  indentGuide?: boolean
   /** Whether the content group animates its height while expanding or collapsing.
    * @default false
    */

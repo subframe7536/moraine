@@ -19,7 +19,7 @@ import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-con
 import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
 import { TreeItemTrigger } from './tree-item-trigger'
-import { TREE_INDENT_GUIDE_STYLE, treeDataAttributes, treeRecipe } from './tree.recipe'
+import { treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 const WIRING_KEYS = ['ref', 'onClick', 'onKeyDown', 'onFocusIn', 'onMouseDown'] as const
@@ -139,11 +139,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     slot: 'item',
     contextVariants: () => context.variants,
     contextSlots: () => context.slotOverrides,
-    own: () => ({
-      item: {
-        style: { ...TREE_INDENT_GUIDE_STYLE, '--mo-tree-level': local.item.level - 1 },
-      },
-    }),
+    own: () => ({ item: { style: { '--mo-tree-level': local.item.level - 1 } } }),
     enforced: () => ({ item: { style: row()?.style } }),
   })
   const leaf = () => !local.item.hasChildren

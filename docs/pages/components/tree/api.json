@@ -33,6 +33,16 @@
           "description": "Family slot class defaults for this instance."
         },
         {
+          "name": "indentGuide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether nested items draw vertical guide lines for their ancestor levels.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",

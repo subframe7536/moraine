@@ -53,6 +53,7 @@ import { createComponent } from 'solid-js'
     { kind: 'switch', prop: 'icon', label: 'Icon', defaultValue: true },
     { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
     { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
+    { kind: 'switch', prop: 'indentGuide', label: 'Indent guide', defaultValue: true },
   ]}
 >
   {(props) => {
@@ -115,6 +116,9 @@ import { createComponent } from 'solid-js'
           },
           get transition() {
             return props.transition
+          },
+          get indentGuide() {
+            return props.indentGuide
           },
         })}
       </div>
@@ -288,12 +292,27 @@ checkbox when `checkable`, the icon returned by `getIcon`, and the label.
 
 ### Indentation
 
-Every item sets `--mo-tree-level` (zero for roots). Rows indent by that level times `--mo-tree-indent`,
-which defaults to `1.25rem`. Indent guides use `--mo-tree-indent-guide`, which defaults to
-`var(--border)`. Override either on `tree.Tree` with `style` or on an ancestor.
+Every item sets `--mo-tree-level` (zero for roots), and rows indent by that level times
+`--mo-tree-indent`. Indent guides are drawn for each ancestor level; set `indentGuide={false}` to hide
+them. The tree root declares the geometry variables, so overriding them in the `tree.Tree` `style`
+applies to every item:
+
+| Variable                 | Default         | Description                                       |
+| ------------------------ | --------------- | ------------------------------------------------- |
+| `--mo-tree-indent`       | `1.25rem`       | Indentation added per nesting level.              |
+| `--mo-tree-gap`          | Size dependent  | Gap between the trigger, icon, and label.         |
+| `--mo-tree-gutter`       | `0.25rem`       | Horizontal margin between rows and the tree edge. |
+| `--mo-tree-pad`          | `0.5rem`        | Row start padding before indentation.             |
+| `--mo-tree-indent-guide` | `var(--border)` | Indent guide color.                               |
 
 ```tsx
-<tree.Tree style={{ '--mo-tree-indent': '1.5rem', '--mo-tree-indent-guide': 'var(--primary)' }} />
+<tree.Tree
+  style={{
+    '--mo-tree-indent': '1.5rem',
+    '--mo-tree-gap': '0.25rem',
+    '--mo-tree-indent-guide': 'var(--primary)',
+  }}
+/>
 ```
 
 ### Keyboard interaction

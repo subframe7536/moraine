@@ -29,18 +29,14 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     'unmountOnHide',
     'size',
     'variant',
+    'indentGuide',
     'classes',
     'styles',
     'class',
     'style',
     'ref',
   ])
-  const { slots, variants } = useRecipe(treeRecipe, local, {
-    vars: () => ({
-      '--mo-tree-indent': '1.25rem',
-      '--mo-tree-indent-guide': 'var(--border)',
-    }),
-  })
+  const { slots, variants } = useRecipe(treeRecipe, local)
   const state = untrack(() => local.state)
   const [scrollElement, setScrollElement] = createSignal<HTMLElement>()
 
@@ -82,7 +78,11 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     options: state.options,
     props: local,
     get variants() {
-      return { size: variants.size, variant: variants.variant }
+      return {
+        size: variants.size,
+        variant: variants.variant,
+        indentGuide: variants.indentGuide,
+      }
     },
     slotOverrides: pickSlotOverrides(local),
     RenderItem,

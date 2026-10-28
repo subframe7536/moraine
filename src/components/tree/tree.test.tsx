@@ -1262,14 +1262,8 @@ describe('createTree', () => {
       ))
 
       expect(getByRole('tree').className).toContain('custom-root')
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
-        'var(--border)',
-      )
-      expect(item(container, 'docs').style.backgroundImage).toContain('--mo-tree-indent-guide')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
-      expect(row?.className).toContain('mx-(--mo-tree-gutter)')
-      expect(row?.className).toContain('ps-(--mo-tree-inset)')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
@@ -1290,25 +1284,60 @@ describe('createTree', () => {
       expect(item(container, 'components').style.getPropertyValue('--mo-tree-level')).toBe('1')
     })
 
-    test('inherits root geometry variables instead of redeclaring them on items', () => {
+    test('lets tree.Tree style override geometry for every item', () => {
       const { container, getByRole } = render(() => (
         <Harness
           options={{ defaultExpandedKeys: ['src'] }}
-          treeProps={{ style: { '--mo-tree-pad': '2rem' } }}
+          treeProps={{
+            size: 'sm',
+            style: {
+              '--mo-tree-indent': '2rem',
+              '--mo-tree-gap': '1rem',
+              '--mo-tree-gutter': '0px',
+              '--mo-tree-indent-guide': 'red',
+            },
+          }}
         />
       ))
 
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-pad')).toBe('2rem')
+      const root = getByRole('tree').style
+      expect(root.getPropertyValue('--mo-tree-indent')).toBe('2rem')
+      expect(root.getPropertyValue('--mo-tree-gap')).toBe('1rem')
+      expect(root.getPropertyValue('--mo-tree-gutter')).toBe('0px')
+      expect(root.getPropertyValue('--mo-tree-indent-guide')).toBe('red')
+      expect(root.getPropertyValue('--mo-tree-trigger')).toBe('0.875rem')
       const element = item(container, 'components')
-      expect(element.style.getPropertyValue('--mo-tree-pad')).toBe('')
-      expect(element.style.getPropertyValue('--mo-tree-gutter')).toBe('')
-      expect(element.style.getPropertyValue('--mo-tree-trigger')).toBe('')
       expect(element.style.getPropertyValue('--mo-tree-level')).toBe('1')
-      expect(element.style.getPropertyValue('--mo-tree-inset')).toContain('--mo-tree-level')
-      expect(element.style.getPropertyValue('--mo-tree-guide-offset')).toContain('--mo-tree-pad')
-      const group = element.querySelector<HTMLElement>('[data-slot="tree-content"]')
-      expect(group?.style.getPropertyValue('--mo-collapsible-content-height')).not.toBe('')
-      expect(group?.style.getPropertyValue('--mo-tree-pad')).toBe('')
+      for (const name of ['indent', 'gap', 'gutter', 'pad', 'trigger', 'indent-guide', 'guide']) {
+        expect(element.style.getPropertyValue(`--mo-tree-${name}`)).toBe('')
+        expect(
+          element
+            .querySelector<HTMLElement>('[data-slot="tree-content"]')
+            ?.style.getPropertyValue(`--mo-tree-${name}`),
+        ).toBe('')
+      }
+    })
+
+    test('toggles indent guides with the indentGuide variant', () => {
+      const [indentGuide, setIndentGuide] = createSignal<boolean | undefined>(undefined)
+      const { container, getByRole } = render(() => (
+        <Harness
+          treeProps={{
+            get indentGuide() {
+              return indentGuide()
+            },
+          }}
+        />
+      ))
+
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-guide')).toContain(
+        '--mo-tree-indent-guide',
+      )
+      expect(item(container, 'docs').className).toContain('bg-(image:--mo-tree-guide)')
+
+      setIndentGuide(false)
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-guide')).toBe('')
+      expect(item(container, 'docs').className).not.toContain('bg-(image:--mo-tree-guide)')
     })
 
     test('renders item data attributes for state', () => {

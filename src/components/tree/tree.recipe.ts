@@ -1,5 +1,3 @@
-import type { JSX } from 'solid-js'
-
 import { defineRecipe } from '../../theme/recipe'
 import { DATA_DISABLED_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
@@ -27,29 +25,17 @@ export const treeDataAttributes = {
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
 /**
- * Per-item geometry derived from the root-level constants and `--mo-tree-level`. Declared on the
- * item element so `var()` resolves against the item's inherited (possibly overridden) constants.
+ * Geometry variables live on the root so `tree.Tree` `style` overrides reach every item. Items
+ * only declare `--mo-tree-level`, which per-item classes combine with the inherited values.
  */
-export const TREE_INDENT_GUIDE_STYLE = /* @__PURE__ */ {
-  '--mo-tree-guide-offset':
-    'calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px)',
-  '--mo-tree-inset': 'calc(var(--mo-tree-pad) + var(--mo-tree-level) * var(--mo-tree-indent))',
-  'background-image':
-    'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent))',
-  'background-position': 'var(--mo-tree-guide-offset) 0',
-  'background-size': 'calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100%',
-  'background-repeat': 'no-repeat',
-} satisfies JSX.CSSProperties
-
 export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleVariants>('tree', {
   base: {
-    '--mo-collapsible-content-height': '0px',
-    '--mo-tree-level': 0,
+    '--mo-tree-indent': '1.25rem',
     '--mo-tree-gutter': '0.25rem',
     '--mo-tree-pad': '0.5rem',
     root: 'text-foreground min-h-0 w-full relative',
     item: 'outline-none relative',
-    row: `mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-inset) rounded-md flex min-w-0 cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,
+    row: `mx-(--mo-tree-gutter) pe-2 ps-[calc(var(--mo-tree-pad)+var(--mo-tree-level)*var(--mo-tree-indent))] rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,
     trigger:
       'opacity-70 inline-flex shrink-0 size-(--mo-tree-trigger) transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
     icon: 'opacity-70 shrink-0 size-(--mo-tree-trigger)',
@@ -60,12 +46,27 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     size: 'md',
     variant: 'subtle',
     transition: false,
+    indentGuide: true,
   },
   variants: {
     size: {
-      sm: { row: 'text-xs gap-1.5 min-h-7', '--mo-tree-trigger': '0.875rem' },
-      md: { row: 'text-sm gap-2 min-h-8', '--mo-tree-trigger': '1rem' },
-      lg: { row: 'text-base gap-2.5 min-h-10', '--mo-tree-trigger': '1.25rem' },
+      sm: { row: 'text-xs min-h-7', '--mo-tree-gap': '0.375rem', '--mo-tree-trigger': '0.875rem' },
+      md: { row: 'text-sm min-h-8', '--mo-tree-gap': '0.5rem', '--mo-tree-trigger': '1rem' },
+      lg: {
+        row: 'text-base min-h-10',
+        '--mo-tree-gap': '0.625rem',
+        '--mo-tree-trigger': '1.25rem',
+      },
+    },
+    indentGuide: {
+      true: {
+        '--mo-tree-indent-guide': 'var(--border)',
+        '--mo-tree-guide':
+          'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent))',
+        '--mo-tree-guide-x':
+          'calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px)',
+        item: 'bg-(image:--mo-tree-guide) bg-(position:--mo-tree-guide-x) bg-[size:calc(var(--mo-tree-level)*var(--mo-tree-indent))_100%] bg-no-repeat',
+      },
     },
     transition: {
       true: {
