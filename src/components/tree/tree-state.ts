@@ -27,7 +27,8 @@ import type { TreeNode, TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
 
 const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, label, [role="checkbox"]'
-const POINTER_FOCUS_SELECTOR = 'button, input, [role="checkbox"]'
+const POINTER_FOCUS_SELECTOR =
+  'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"]'
 
 function belongsToItem(event: Event): boolean {
   const host = event.currentTarget
@@ -51,13 +52,17 @@ function isFromDescendant(event: Event, selector: string): boolean {
  */
 class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   readonly key: string
-  private readonly state: TreeState<T>
+  private readonly getState: () => TreeState<T>
   private lastNode: TreeNode<T>
 
-  constructor(state: TreeState<T>, node: TreeNode<T>) {
-    this.state = state
+  constructor(getState: () => TreeState<T>, node: TreeNode<T>) {
+    this.getState = getState
     this.key = node.key
     this.lastNode = node
+  }
+
+  private get state(): TreeState<T> {
+    return this.getState()
   }
 
   private get node(): TreeNode<T> {
@@ -563,7 +568,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
     let handle = handles.get(key)
     if (!handle) {
-      handle = new TreeItemHandle(state, node)
+      handle = new TreeItemHandle(() => state, node)
       handles.set(key, handle)
     }
     return handle
@@ -639,8 +644,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
   }
 
-  const rootItems = () => registry().rootKeys.flatMap((key) => getItem(key) ?? [])
-  const flattenedItems = () => flattenedKeys().flatMap((key) => getItem(key) ?? [])
+  const rootItems = createMemo(() => registry().rootKeys.flatMap((key) => getItem(key) ?? []))
+  const flattenedItems = createMemo(() => flattenedKeys().flatMap((key) => getItem(key) ?? []))
 
   state = {
     options,

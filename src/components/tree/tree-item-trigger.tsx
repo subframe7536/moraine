@@ -29,14 +29,14 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
       <Dynamic
         component={local.as ?? 'span'}
         data-slot="tree-trigger"
-        {...item.getTriggerProps()}
-        {...rest}
-        {...slots.trigger}
         {...treeDataAttributes.trigger({
           expanded: () => item.isExpanded,
           leaf: () => !item.hasChildren,
           loading: () => item.isLoading,
         })}
+        {...item.getTriggerProps()}
+        {...rest}
+        {...slots.trigger}
       >
         <Show
           when={local.children}

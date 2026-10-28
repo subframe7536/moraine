@@ -1519,5 +1519,74 @@ describe('createTree', () => {
 
       expect(container.querySelectorAll('[data-testid="outside"] li')).toHaveLength(4)
     })
+
+    test('maintains stable memoized reference for flattenedItems', () => {
+      let tree!: TreeT.Instance<Node>
+      render(() => <Harness onTree={(value) => (tree = value)} />)
+
+      const initial = tree.flattenedItems
+      expect(tree.flattenedItems).toBe(initial)
+
+      tree.expand('docs')
+      const updated = tree.flattenedItems
+      expect(updated).not.toBe(initial)
+      expect(tree.flattenedItems).toBe(updated)
+    })
+
+    test('allows clicking and focusing text inputs inside tree items without suppressing mousedown', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          treeProps={{
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemTrigger />
+                <tree.ItemLabel />
+                <input type="text" data-testid={`input-${context.item.key}`} />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+
+      const textInput = container.querySelector<HTMLInputElement>('[data-testid="input-readme"]')!
+      const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+      textInput.dispatchEvent(mousedownEvent)
+
+      expect(mousedownEvent.defaultPrevented).toBe(false)
+      expect(tree.selectedKeys).toEqual([])
+    })
+
+    test('applies data attributes before rest and retains roving tabstop and checked state', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          options={{ checkable: true, defaultCheckedKeys: ['readme'] }}
+          onTree={(value) => (tree = value)}
+          treeProps={{
+            itemRender: (context) => (
+              <tree.Item
+                item={context.item}
+                data-testid={`custom-${context.item.key}`}
+                tabIndex={99}
+                aria-checked={false}
+              >
+                <tree.ItemTrigger data-testid={`trigger-${context.item.key}`} />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+
+      const readme = container.querySelector<HTMLElement>('[data-testid="custom-readme"]')!
+      expect(readme.getAttribute('data-slot')).toBe('tree-item')
+      expect(readme.hasAttribute('data-leaf')).toBe(true)
+      expect(readme.getAttribute('data-checked')).toBe('')
+      // tabIndex and aria-checked from rest do not overwrite roving tabstop or checked state
+      expect(readme.getAttribute('tabindex')).toBe('-1')
+      expect(readme.getAttribute('aria-checked')).toBe('true')
+    })
   })
 })

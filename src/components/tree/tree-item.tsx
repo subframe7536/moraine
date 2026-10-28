@@ -88,11 +88,11 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       hidden={disclosure.hidden() && !allowHeightMotion()}
       inert={disclosure.inert()}
       data-slot="tree-content"
-      {...slots.content}
       {...treeDataAttributes.content({
         closed: () => !visualExpanded(),
         expanded: visualExpanded,
       })}
+      {...slots.content}
     >
       <Show when={disclosure.shouldMount()}>
         <ul
@@ -162,10 +162,6 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     >
       <li
         data-slot="tree-item"
-        {...row()}
-        {...attributes()}
-        {...rest}
-        {...slots.item}
         {...treeDataAttributes.item({
           checked: () => local.item.checkedState === 'checked',
           disabled: () => local.item.isDisabled,
@@ -175,6 +171,12 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           loading: () => local.item.isLoading,
           selected: () => local.item.isSelected,
         })}
+        {...attributes()}
+        {...row()}
+        {...rest}
+        {...slots.item}
+        tabIndex={attributes().tabIndex}
+        aria-checked={attributes()['aria-checked']}
         ref={(element: HTMLElement) => {
           callRef(wiring().ref, element)
           callRef(row()?.ref, element)
@@ -202,13 +204,13 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
       >
         <div
           data-slot="tree-row"
-          {...slots.row}
           {...treeDataAttributes.row({
             disabled: () => local.item.isDisabled,
             expanded: () => local.item.isExpanded,
             leaf,
             selected: () => local.item.isSelected,
           })}
+          {...slots.row}
         >
           {local.children}
         </div>
