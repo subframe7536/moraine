@@ -49,20 +49,18 @@ function useTreePart(slot: Extract<keyof TreeStyleSlot, string>, props: object) 
 
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
-  const startedOpen = untrack(() => props.item.isExpanded)
   const [lastHeight, setLastHeight] = createSignal(0)
-  const [hasClosed, setHasClosed] = createSignal(false)
   const [groupEl, setGroupEl] = createSignal<HTMLElement>()
-  const [motionSettled, setMotionSettled] = createSignal(startedOpen)
-  const skipEnter = () => startedOpen && !hasClosed()
-  const allowHeightMotion = () => context.transition && !skipEnter()
+  const [motionSettled, setMotionSettled] = createSignal(untrack(() => props.item.isExpanded))
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition: () => context.transition,
     unmountOnHide: () => context.unmountOnHide,
   })
+  const allowHeightMotion = () => context.transition && !disclosure.initialOpen()
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
-  const visualExpanded = () => disclosure.open() && (skipEnter() || hasMeasuredHeight())
+  const visualExpanded = () =>
+    disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
   createEffect(
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
@@ -71,12 +69,15 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     }),
   )
   createEffect(
-    on(disclosure.open, (isOpen, wasOpen) => {
-      if (wasOpen && !isOpen) {
-        setHasClosed(true)
-        setMotionSettled(false)
-      }
-    }),
+    on(
+      disclosure.open,
+      (isOpen) => {
+        if (!isOpen) {
+          setMotionSettled(false)
+        }
+      },
+      { defer: true },
+    ),
   )
   createEffect(
     on(groupEl, (element) => {
@@ -97,7 +98,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
   createEffect(
     on(visualExpanded, (expanded) => {
-      if (!expanded || untrack(() => !allowHeightMotion() || skipEnter())) {
+      if (!expanded || untrack(() => !allowHeightMotion())) {
         return
       }
       if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
@@ -121,7 +122,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
         '--mo-collapsible-content-height': `${disclosure.contentHeight() || lastHeight()}px`,
       }),
       enforced: () => {
-        if (!context.transition || skipEnter() || motionSettled()) {
+        if (!allowHeightMotion() || motionSettled()) {
           return {
             content: {
               style: {
@@ -222,7 +223,6 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         {...treeDataAttributes.item({
           checked: () => local.item.checkedState === 'checked',
           disabled: () => local.item.isDisabled,
-          entering: () => !context.isVirtual && local.item.isEntering,
           expanded: () => local.item.isExpanded,
           indeterminate: () => local.item.checkedState === 'indeterminate',
           leaf,
@@ -259,7 +259,6 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           {...slots.row}
           {...treeDataAttributes.row({
             disabled: () => local.item.isDisabled,
-            entering: () => !context.isVirtual && local.item.isEntering,
             expanded: () => local.item.isExpanded,
             leaf,
             selected: () => local.item.isSelected,

@@ -154,7 +154,7 @@ export namespace TreeT {
     readonly selectedKeys: readonly string[]
     /** Keys whose check state is `checked`. */
     readonly checkedKeys: readonly string[]
-    /** Key of the item that owns the roving tab stop. */
+    /** Key of the item that currently holds focus. */
     readonly focusedKey: string | undefined
     /** Keys of branches that are loading their children. */
     readonly loadingKeys: readonly string[]
@@ -208,8 +208,6 @@ export namespace TreeT {
     readonly isLoading: boolean
     readonly isFocused: boolean
     readonly isDisabled: boolean
-    /** Whether the item became visible after an expansion and should play its entrance. */
-    readonly isEntering: boolean
     readonly checkedState: CheckedState
     expand: () => void
     collapse: () => void

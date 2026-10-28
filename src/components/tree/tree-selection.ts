@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo } from 'solid-js'
+import { createMemo, createSelector } from 'solid-js'
 
 import { createControllableValue } from '../../shared/controllable-value'
 
@@ -38,6 +38,9 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
     onChange: (keys) => deps.options.onSelectionChange?.([...keys]),
   })
   const selectedSet = createMemo(() => new Set(selectedKeys()))
+  const isSelected = createSelector<ReadonlySet<string>, string>(selectedSet, (key, current) =>
+    current.has(key),
+  )
   let anchorKey: string | undefined
   let rangeSnapshot = new Set<string>()
 
@@ -67,6 +70,11 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
   }
 
   function deselect(key: string): void {
+    if (deps.isDisabled(key)) {
+      return
+    }
+    anchorKey = key
+    rangeSnapshot.delete(key)
     setSelectedKeys((previous) =>
       previous.includes(key) ? previous.filter((selectedKey) => selectedKey !== key) : previous,
     )
@@ -135,24 +143,20 @@ export function createTreeSelection<T>(deps: TreeSelectionDeps<T>): TreeSelectio
     for (const k of activeSpan) {
       nextSet.add(k)
     }
-    const nextKeys = selectedKeys().filter((k) => nextSet.has(k))
+    const nextKeys = new Set(selectedKeys().filter((k) => nextSet.has(k)))
     for (const k of activeSpan) {
-      if (!nextKeys.includes(k)) {
-        nextKeys.push(k)
-      }
+      nextKeys.add(k)
     }
     for (const k of rangeSnapshot) {
-      if (!nextKeys.includes(k)) {
-        nextKeys.push(k)
-      }
+      nextKeys.add(k)
     }
-    setSelectedKeys(nextKeys)
+    setSelectedKeys([...nextKeys])
   }
 
   return {
     mode,
     selectedKeys,
-    isSelected: (key) => selectedSet().has(key),
+    isSelected,
     select,
     selectOnly,
     deselect,

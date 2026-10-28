@@ -21,7 +21,6 @@ export interface TreeEngine<T> {
   isSelected: (key: string) => boolean
   isLoading: (key: string) => boolean
   isFocused: (key: string) => boolean
-  isEntering: (key: string) => boolean
   isTabStop: (key: string) => boolean
   getCheckedState: (key: string) => TreeT.CheckedState
   setChecked: (key: string, checked: boolean) => void
@@ -104,9 +103,6 @@ export class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
   get isDisabled(): boolean {
     return this.engine.isDisabled(this.key)
   }
-  get isEntering(): boolean {
-    return this.engine.isEntering(this.key)
-  }
   get checkedState(): TreeT.CheckedState {
     return this.engine.getCheckedState(this.key)
   }
@@ -125,7 +121,7 @@ export class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     return {
       role: 'treeitem',
       get tabIndex() {
-        return engine.isTabStop(key) ? 0 : -1
+        return item().isDisabled ? undefined : engine.isTabStop(key) ? 0 : -1
       },
       get 'aria-level'() {
         return item().level
@@ -170,12 +166,12 @@ export class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
       },
       onKeyDown: (event: KeyboardEvent) => engine.handleKeyDown(event, key),
       onFocusIn: (event: FocusEvent) => {
-        if (belongsToItem(event)) {
+        if (belongsToItem(event) && !item().isDisabled) {
           engine.setFocusedKey(key)
         }
       },
       onMouseDown: (event: MouseEvent) => {
-        if (belongsToItem(event) && isFromPointerFocusableDescendant(event)) {
+        if (belongsToItem(event) && !item().isDisabled && isFromPointerFocusableDescendant(event)) {
           event.preventDefault()
           if (event.currentTarget instanceof HTMLElement) {
             event.currentTarget.focus()

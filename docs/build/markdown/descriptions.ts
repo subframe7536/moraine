@@ -19,7 +19,6 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-dropzone': 'Present when the target is an active file dropzone.',
   'data-duplicate': 'Present when the entered value duplicates an existing value.',
   'data-editable': 'Present when the value can be edited as text.',
-  'data-entering': 'Present while a newly visible tree item plays its entrance animation.',
   'data-expanded': 'Present when the panel, accordion, or menu is expanded.',
   'data-focused': 'Present when the element holds keyboard focus.',
   'data-footer': 'Present when the component renders footer content.',

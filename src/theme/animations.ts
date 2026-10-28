@@ -78,10 +78,6 @@ export const MORAINE_KEYFRAMES: Record<string, KeyframeFrames> = {
     from: { height: 'var(--mo-collapsible-content-height)', opacity: '1' },
     to: { height: '0', opacity: '0' },
   },
-  'tree-item-in': {
-    from: { opacity: '0', transform: 'translateY(-0.25rem)' },
-    to: { opacity: '1', transform: 'translateY(0)' },
-  },
   spin: {
     to: { transform: 'rotate(360deg)' },
   },

@@ -48,7 +48,7 @@ export function buildRegistry<T>(
         return
       }
       const loadedChildren = options.loaded[key]
-      const children = loadedChildren ?? options.getChildren?.(raw)
+      const children = options.getChildren?.(raw) ?? loadedChildren
       const needsLoad = children === undefined && options.canLoad && !options.isLeaf?.(raw)
       const node: TreeNode<T> = {
         key,
@@ -122,4 +122,8 @@ export function getSiblingKeys<T>(registry: TreeRegistry<T>, key: string): reado
   return parentKey === undefined
     ? registry.rootKeys
     : (registry.nodes.get(parentKey)?.childrenKeys ?? [])
+}
+
+export function sameKeys(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((key, index) => key === right[index])
 }

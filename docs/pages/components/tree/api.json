@@ -312,7 +312,6 @@
       "attributes": [
         "data-checked",
         "data-disabled",
-        "data-entering",
         "data-expanded",
         "data-indeterminate",
         "data-leaf",
@@ -324,7 +323,6 @@
       "target": "row",
       "attributes": [
         "data-disabled",
-        "data-entering",
         "data-expanded",
         "data-leaf",
         "data-selected"

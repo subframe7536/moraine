@@ -108,8 +108,10 @@ export function createDisclosureState(options: CreateDisclosureStateOptions): Di
   createEffect(
     on(
       options.open,
-      () => {
-        setHasToggled(true)
+      (isOpen, wasOpen) => {
+        if (isOpen !== wasOpen) {
+          setHasToggled(true)
+        }
       },
       { defer: true },
     ),
