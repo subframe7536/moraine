@@ -18,7 +18,7 @@
           "default": "unknown"
         }
       ],
-      "defaultElement": "div",
+      "defaultElement": "ul",
       "props": [
         {
           "name": "class",
@@ -148,7 +148,7 @@
           "default": "unknown"
         }
       ],
-      "defaultElement": "div",
+      "defaultElement": "li",
       "props": [
         {
           "name": "children",

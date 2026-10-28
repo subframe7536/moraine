@@ -90,7 +90,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
 
   return (
     <TreeProvider value={context}>
-      <div
+      <ul
         data-slot="tree"
         role="tree"
         aria-multiselectable={state.selectionMode() === 'multiple' ? true : undefined}
@@ -112,7 +112,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
             />
           )}
         </Show>
-      </div>
+      </ul>
     </TreeProvider>
   )
 }

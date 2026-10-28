@@ -21,6 +21,9 @@ export const treeDataAttributes = {
   content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof TreeStyleSlot>
 
+/** Resets list styling on the `tree` root and nested `group` lists. */
+export const TREE_LIST_CLASS = 'm-0 p-0 list-none'
+
 /** Keeps the chevron pointing toward the content direction in right-to-left layouts. */
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
@@ -33,7 +36,7 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-indent': '1.25rem',
     '--mo-tree-gutter': '0.25rem',
     '--mo-tree-pad': '0.5rem',
-    root: 'text-foreground min-h-0 w-full relative',
+    root: `text-foreground min-h-0 w-full relative ${TREE_LIST_CLASS}`,
     item: 'outline-none relative',
     row: `mx-(--mo-tree-gutter) pe-2 ps-[calc(var(--mo-tree-pad)+var(--mo-tree-level)*var(--mo-tree-indent))] rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 hover:not-[[data-selected]]:bg-accent-hover ${DATA_DISABLED_CLASS}`,
     trigger:
@@ -62,10 +65,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
       true: {
         '--mo-tree-indent-guide': 'var(--border)',
         '--mo-tree-guide':
-          'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent))',
-        '--mo-tree-guide-x':
-          'calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px)',
-        item: 'bg-(image:--mo-tree-guide) bg-(position:--mo-tree-guide-x) bg-[size:calc(var(--mo-tree-level)*var(--mo-tree-indent))_100%] bg-no-repeat',
+          'repeating-linear-gradient(to right, var(--mo-tree-indent-guide) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
+        item: '[background:var(--mo-tree-guide)]',
       },
     },
     transition: {

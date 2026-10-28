@@ -270,7 +270,7 @@ export namespace TreeT {
     unmountOnHide?: boolean
   }
 
-  export type Props<T = unknown> = BaseProps<'div', Base<T>, Variants, Classes, Styles>
+  export type Props<T = unknown> = BaseProps<'ul', Base<T>, Variants, Classes, Styles>
 
   export interface ItemBase<T = unknown> {
     /** Item this node renders. */
@@ -279,7 +279,7 @@ export namespace TreeT {
     children?: JSX.Element
   }
 
-  export type ItemProps<T = unknown> = BaseProps<'div', ItemBase<T>, never, never, never>
+  export type ItemProps<T = unknown> = BaseProps<'li', ItemBase<T>, never, never, never>
 
   export interface ItemTriggerBase<T extends ValidComponent = 'span'> {
     /**

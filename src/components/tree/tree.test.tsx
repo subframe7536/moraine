@@ -373,7 +373,7 @@ describe('createTree', () => {
       ))
 
       clickTrigger(item(container, 'docs'))
-      const group = item(container, 'docs').querySelector('[role="group"]')!
+      const group = item(container, 'docs').querySelector('[data-slot="tree-content"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
       expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
@@ -383,7 +383,7 @@ describe('createTree', () => {
       const { container } = render(() => (
         <Harness options={{ defaultExpandedKeys: ['docs'] }} treeProps={{ transition: false }} />
       ))
-      const group = item(container, 'docs').querySelector('[role="group"]')!
+      const group = item(container, 'docs').querySelector('[data-slot="tree-content"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
       expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(group.className).not.toContain('animate-accordion-down')
@@ -393,7 +393,9 @@ describe('createTree', () => {
       vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['docs'] }} />)
       await Promise.resolve()
-      const group = item(container, 'docs').querySelector<HTMLElement>('[role="group"]')!
+      const group = item(container, 'docs').querySelector<HTMLElement>(
+        '[data-slot="tree-content"]',
+      )!
       expect(group.hasAttribute('data-expanded')).toBe(true)
       expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(group.style.height).toBe('auto')
@@ -405,7 +407,9 @@ describe('createTree', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
       await Promise.resolve()
       const index = item(container, 'index.ts')
-      const srcGroup = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      const srcGroup = item(container, 'src').querySelector<HTMLElement>(
+        '[data-slot="tree-content"]',
+      )!
 
       expect(labels(container)).toEqual([
         'src',
@@ -437,7 +441,7 @@ describe('createTree', () => {
       expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
       expect(srcGroup.style.height).toBe('auto')
       const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
-        '[role="group"]',
+        '[data-slot="tree-content"]',
       )!
       expect(nestedGroup.className).toContain('h-(--mo-collapsible-content-height)')
       expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
@@ -446,7 +450,9 @@ describe('createTree', () => {
 
     test('keeps a collapsed group ready for height motion', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
-      const group = item(container, 'components').querySelector<HTMLElement>('[role="group"]')!
+      const group = item(container, 'components').querySelector<HTMLElement>(
+        '[data-slot="tree-content"]',
+      )!
 
       expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
@@ -458,7 +464,7 @@ describe('createTree', () => {
       const { container } = render(() => <Harness />)
 
       clickTrigger(item(container, 'src'))
-      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
       expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
@@ -470,7 +476,7 @@ describe('createTree', () => {
 
       clickTrigger(item(container, 'src'))
       await Promise.resolve()
-      const group = item(container, 'src').querySelector<HTMLElement>('[role="group"]')!
+      const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
       expect(group.className).toContain('h-(--mo-collapsible-content-height)')
       expect(group.hasAttribute('data-closed')).toBe(false)
@@ -1277,6 +1283,19 @@ describe('createTree', () => {
       ).toContain('icon-file')
     })
 
+    test('renders trees as lists', () => {
+      const { container, getByRole } = render(() => (
+        <Harness options={{ defaultExpandedKeys: ['src'] }} />
+      ))
+
+      expect(getByRole('tree').tagName).toBe('UL')
+      expect(item(container, 'src').tagName).toBe('LI')
+      const group = item(container, 'src').querySelector('[role="group"]')!
+      expect(group.tagName).toBe('UL')
+      expect(group.parentElement?.getAttribute('data-slot')).toBe('tree-content')
+      expect(item(container, 'components').parentElement).toBe(group)
+    })
+
     test('sets the nesting level variable on every item', () => {
       const { container } = render(() => <Harness options={{ defaultExpandedKeys: ['src'] }} />)
 
@@ -1330,14 +1349,14 @@ describe('createTree', () => {
         />
       ))
 
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-guide')).toContain(
-        '--mo-tree-indent-guide',
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe(
+        'var(--border)',
       )
-      expect(item(container, 'docs').className).toContain('bg-(image:--mo-tree-guide)')
+      expect(item(container, 'docs').className).toContain('[background:var(--mo-tree-guide)]')
 
       setIndentGuide(false)
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-guide')).toBe('')
-      expect(item(container, 'docs').className).not.toContain('bg-(image:--mo-tree-guide)')
+      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe('')
+      expect(item(container, 'docs').className).not.toContain('--mo-tree-guide')
     })
 
     test('renders item data attributes for state', () => {
