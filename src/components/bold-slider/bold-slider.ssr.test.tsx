@@ -6,7 +6,7 @@ import { hydrateFixture } from '../../test-util/ssr-test'
 import { BoldSlider } from './bold-slider'
 
 describe('BoldSlider SSR hydration', () => {
-  test('hydrates the label, value, and indicator copies without replacing server nodes', () => {
+  test('hydrates the label and value copies and the indicator without replacing server nodes', () => {
     const { container } = hydrateFixture(
       '/src/components/bold-slider/bold-slider.ssr.fixture.tsx',
       'renderBoldSliderFixture',
@@ -23,7 +23,7 @@ describe('BoldSlider SSR hydration', () => {
 
     expect(thumb.getAttribute('aria-valuenow')).toBe('0.5')
     expect(root.querySelectorAll('[data-slot="bold-slider-label"]')).toHaveLength(2)
-    expect(root.querySelectorAll('[data-slot="bold-slider-indicator"]')).toHaveLength(2)
+    expect(root.querySelectorAll('[data-slot="bold-slider-indicator"]')).toHaveLength(1)
     expect(values.map((value) => value.textContent)).toEqual(['0.5', '0.5'])
 
     fireEvent.keyDown(thumb, { key: 'ArrowRight' })

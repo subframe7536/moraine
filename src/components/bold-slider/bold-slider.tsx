@@ -9,6 +9,7 @@ import type { SliderT } from '../slider'
 import {
   BOLD_SLIDER_FILL_CLASS,
   BOLD_SLIDER_FILL_LAYER_CLASS,
+  BOLD_SLIDER_INDICATOR_CAPSULE_CLASS,
   BOLD_SLIDER_LAYER_CLASS,
   boldSliderDataAttributes,
   boldSliderRecipe,
@@ -53,58 +54,60 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     return String(Number(value.toFixed(decimals)))
   }
 
-  function Content(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
-    const percent = () => (state.percentages[0] ?? 0) * 100
+  // Rendered as Slider root children after the track and thumb, so each part can read their
+  // state through `peer-*` selectors.
+  function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
+    const fillWidth = () => `${(state.percentages[0] ?? 0) * 100}%`
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
-    const indicatorPosition = () => {
-      // Near the minimum the indicator slides past the start edge and is clipped by the content box.
-      const offset = `calc(${percent()}% - var(--bs-indicator-gap) - var(--bs-indicator-width))`
-      return {
-        style: props.inverted ? { 'inset-inline-end': offset } : { 'inset-inline-start': offset },
-      }
-    }
 
     function Layer(layerProps: { fill?: boolean }): JSX.Element {
       return (
-        <>
-          <div class={BOLD_SLIDER_LAYER_CLASS}>
-            <Show when={local.label}>
-              <span
-                data-slot="bold-slider-label"
-                {...boldSliderDataAttributes.label({ fill: () => layerProps.fill })}
-                {...slots.label}
-              >
-                {local.label}
-              </span>
-            </Show>
-            <Show when={local.showValue ?? true}>
-              <span
-                data-slot="bold-slider-value"
-                {...boldSliderDataAttributes.value({ fill: () => layerProps.fill })}
-                {...slots.value}
-              >
-                {formatted()}
-              </span>
-            </Show>
-          </div>
-          <div
-            data-slot="bold-slider-indicator"
-            {...boldSliderDataAttributes.indicator({ fill: () => layerProps.fill })}
-            {...slotWith('indicator', undefined, indicatorPosition)}
-          />
-        </>
+        <div class={BOLD_SLIDER_LAYER_CLASS}>
+          <Show when={local.label}>
+            <span
+              data-slot="bold-slider-label"
+              {...boldSliderDataAttributes.label({ fill: () => layerProps.fill })}
+              {...slots.label}
+            >
+              {local.label}
+            </span>
+          </Show>
+          <Show when={local.showValue ?? true}>
+            <span
+              data-slot="bold-slider-value"
+              {...boldSliderDataAttributes.value({ fill: () => layerProps.fill })}
+              {...slots.value}
+            >
+              {formatted()}
+            </span>
+          </Show>
+        </div>
       )
     }
 
     return (
-      <div data-slot="bold-slider-content" aria-hidden="true" {...slots.content}>
-        <Layer />
-        <div class={BOLD_SLIDER_FILL_CLASS} style={{ width: `${percent()}%` }}>
+      <>
+        <div data-slot="bold-slider-content" aria-hidden="true" {...slots.content}>
+          <Layer />
+        </div>
+        <div
+          data-slot="bold-slider-fill"
+          aria-hidden="true"
+          class={BOLD_SLIDER_FILL_CLASS}
+          style={{ width: fillWidth() }}
+        >
           <div class={BOLD_SLIDER_FILL_LAYER_CLASS}>
             <Layer fill />
           </div>
         </div>
-      </div>
+        <div
+          data-slot="bold-slider-indicator"
+          aria-hidden="true"
+          {...slotWith('indicator', undefined, () => ({ style: { width: fillWidth() } }))}
+        >
+          <span class={BOLD_SLIDER_INDICATOR_CAPSULE_CLASS} />
+        </div>
+      </>
     )
   }
 
@@ -116,7 +119,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
       aria-label={local['aria-label'] ?? local.label}
       {...overrides(['root', 'track', 'range', 'marker', 'thumb'])}
     >
-      {(state: SliderT.ChildrenRenderProps<number>) => <Content {...state} />}
+      {(state: SliderT.ChildrenRenderProps<number>) => <Overlay {...state} />}
     </Slider>
   )
 }

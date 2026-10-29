@@ -231,12 +231,6 @@
       "attributes": [
         "data-fill"
       ]
-    },
-    {
-      "target": "indicator",
-      "attributes": [
-        "data-fill"
-      ]
     }
   ]
 }

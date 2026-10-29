@@ -42,12 +42,14 @@ const CANDIDATES = [
   'size-(--s-thumb-size)',
   'size-(--st-size)',
   'start-[calc(50%+var(--st-sep-x))]',
-  'group-data-[inverted]:start-auto',
+  'peer-data-[inverted]:start-auto',
+  'peer-data-[dragging]:opacity-90',
+  'peer-hover:opacity-90',
   'w-(--bs-indicator-width)',
   'w-[100cqw]',
   '@container',
-  'group-has-[:focus-visible]:ring-3',
-  '[transition-property:opacity,scale,inset-inline-start,inset-inline-end]',
+  'peer-focus-visible:ring-3',
+  'px-(--bs-indicator-gap)',
 ]
 
 describe('isolated built-dist Tailwind v4 consumer', () => {
@@ -155,7 +157,7 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('width: var(--bs-indicator-width)')
     expect(css).toContain('width: 100cqw')
     expect(css).toContain('container-type: inline-size')
-    expect(css).toContain('transition-property: opacity,scale,inset-inline-start,inset-inline-end')
+    expect(css).toContain('padding-inline: var(--bs-indicator-gap)')
     expect(css).not.toMatch(/html\s*\{\s*background-color: var\(--background\)/)
     expect(css).not.toMatch(/--primary:\s/)
     expect(css).not.toContain('.icon-check')

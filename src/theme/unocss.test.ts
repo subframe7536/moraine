@@ -82,23 +82,28 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('compiles disclosure child state and slider group state with %s', async (_name, wind) => {
+  ])('compiles disclosure child state and slider peer state with %s', async (_name, wind) => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[boldSliderRecipe.config.base.range, boldSliderRecipe.config.base.indicator]
+      ...[
+        boldSliderRecipe.config.base.root,
+        boldSliderRecipe.config.base.content,
+        boldSliderRecipe.config.base.indicator,
+      ]
         .flatMap((value) => cn(value)!.split(' '))
-        .filter((token) => token.includes('dragging') || token.includes('has-')),
-      ...cn(boldSliderRecipe.config.base.content)!.split(' '),
+        .filter((token) => token.startsWith('peer-') || token === '@container'),
     ]
     const css = await generate(tokens, false, wind)
     expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
     expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
-    expect(css).toContain(':focus-visible')
+    expect(css).toMatch(/\.peer\)?:focus-visible ?~/)
+    expect(css).toMatch(/\.peer\)?:hover ?~/)
+    expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
+    expect(css).toMatch(/\.peer\)?\[data-inverted\] ?~/)
     expect(css).toContain('container-type:')
-    expect(css).toMatch(/transition(?:-property)?:\s*none/)
-    expect(css).toMatch(/(?:\.group|:where\(\.group\))\[data-dragging\]/)
+    expect(css).not.toContain(':has(')
   })
   test.each([
     ['Wind3', presetWind3],

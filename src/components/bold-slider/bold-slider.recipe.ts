@@ -4,22 +4,30 @@ import { createDataAttributes } from '../../theme/style-contract'
 
 import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider.style-types'
 
-/** Row that places the label at the range origin and the value at the far end. */
+/*
+ * State selectors use `peer-*` only. Slider renders the track, then the thumb, then BoldSlider's
+ * overlay parts as root children, so every part that reacts to hover (track), keyboard focus,
+ * dragging, or inversion (thumb) is a later sibling of its peer and never sees another slider.
+ */
+
+/** Row that places the label at the start of the track and the value at the end. */
 export const BOLD_SLIDER_LAYER_CLASS =
-  'px-(--bs-pad) flex gap-2 items-center inset-0 justify-between absolute group-data-[inverted]:flex-row-reverse'
+  'px-(--bs-pad) flex gap-2 items-center inset-0 justify-between absolute'
 
 /** Clip box that matches the filled range, so the copy inside it uses the fill colors. */
 export const BOLD_SLIDER_FILL_CLASS =
-  'transition-[width] duration-150 ease-out start-0 inset-y-0 absolute overflow-hidden group-data-[dragging]:transition-none group-data-[inverted]:(end-0 start-auto)'
+  'rounded-[inherit] flex pointer-events-none start-0 inset-y-0 justify-start absolute overflow-hidden peer-data-[inverted]:end-0 peer-data-[inverted]:start-auto peer-data-[inverted]:justify-end'
 
-/** Full-width copy inside the clip box, anchored to the same edge as the fill. */
-export const BOLD_SLIDER_FILL_LAYER_CLASS =
-  'w-[100cqw] start-0 inset-y-0 absolute group-data-[inverted]:(end-0 start-auto)'
+/** Full-width copy inside the clip box, aligned to the same edge as the fill. */
+export const BOLD_SLIDER_FILL_LAYER_CLASS = 'shrink-0 h-full w-[100cqw] relative'
+
+/** Capsule drawn in the indicator box; its color comes from the indicator text color. */
+export const BOLD_SLIDER_INDICATOR_CAPSULE_CLASS =
+  'rounded-full bg-current shrink-0 h-(--bs-indicator-height) w-(--bs-indicator-width)'
 
 export const boldSliderDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('fill'),
   value: /* @__PURE__ */ createDataAttributes('fill'),
-  indicator: /* @__PURE__ */ createDataAttributes('fill'),
 } satisfies DataAttributeContract<keyof BoldSliderStyleSlot>
 
 export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
@@ -28,20 +36,19 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
 >('boldSlider', {
   base: {
     '--bs-indicator-width': '5px',
-    root: '',
-    track:
-      'bg-muted cursor-pointer transition-shadow group-has-[:focus-visible]:(ring-3 ring-ring/50)',
-    range:
-      'rounded-[inherit] transition-[left,right] duration-150 ease-out group-data-[dragging]:transition-none',
+    root: '@container',
+    track: 'peer rounded-[inherit] bg-muted cursor-pointer',
+    range: 'rounded-[inherit]',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
-    thumb: 'opacity-0 size-px pointer-events-none',
-    content: '@container pointer-events-none inset-0 absolute overflow-hidden',
+    thumb: 'peer opacity-0 size-px pointer-events-none',
+    content:
+      'rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50',
     label:
       'text-muted-foreground font-medium min-w-0 truncate data-fill:text-primary-foreground/80',
     value:
-      'text-foreground font-medium ms-auto shrink-0 tabular-nums data-fill:text-primary-foreground group-data-[inverted]:(me-auto ms-0)',
+      'text-foreground font-medium ms-auto shrink-0 tabular-nums data-fill:text-primary-foreground',
     indicator:
-      'rounded-full bg-primary opacity-40 h-(--bs-indicator-height) w-(--bs-indicator-width) scale-y-75 duration-150 ease-out [transition-property:opacity,scale,inset-inline-start,inset-inline-end] top-1/2 absolute data-fill:bg-primary-foreground group-data-[dragging]:(opacity-90 scale-y-100 [transition-property:opacity,scale]) group-has-[:focus-visible]:(opacity-90 scale-y-100) group-hover:(opacity-90 scale-y-100) -translate-y-1/2',
+      'text-primary-foreground px-(--bs-indicator-gap) rounded-[inherit] opacity-40 flex pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out items-center start-0 inset-y-0 justify-end absolute overflow-hidden peer-data-[dragging]:opacity-90 peer-focus-visible:opacity-90 peer-hover:opacity-90 peer-data-[dragging]:scale-y-100 peer-focus-visible:scale-y-100 peer-hover:scale-y-100 peer-data-[inverted]:(end-0 start-auto justify-start)',
   },
   defaultVariants: {
     size: 'md',
@@ -53,22 +60,22 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
         '--bs-pad': '13px',
         '--bs-indicator-gap': '5px',
         '--bs-indicator-height': '18px',
-        track: 'rounded-md h-8',
-        content: 'text-xs rounded-md',
+        root: 'text-xs rounded-md',
+        track: 'h-8',
       },
       md: {
         '--bs-pad': '15px',
         '--bs-indicator-gap': '6px',
         '--bs-indicator-height': '20px',
-        track: 'rounded-md h-9',
-        content: 'text-sm rounded-md',
+        root: 'text-sm rounded-md',
+        track: 'h-9',
       },
       lg: {
         '--bs-pad': '17px',
         '--bs-indicator-gap': '7px',
         '--bs-indicator-height': '22px',
-        track: 'rounded-lg h-10',
-        content: 'text-sm rounded-lg',
+        root: 'text-sm rounded-lg',
+        track: 'h-10',
       },
     },
     subtle: {
@@ -76,7 +83,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
         range: 'bg-muted-active',
         label: 'data-fill:text-muted-foreground',
         value: 'data-fill:text-foreground',
-        indicator: 'bg-foreground data-fill:bg-foreground',
+        indicator: 'text-foreground',
       },
     },
   },

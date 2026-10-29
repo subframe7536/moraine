@@ -41,37 +41,69 @@ describe('BoldSlider', () => {
     )
   })
 
-  test('clips the fill copy and positions both indicators at the value edge', () => {
+  test('renders overlay parts as root children after the track and thumb', () => {
+    const screen = render(() => <BoldSlider label="Bounce" defaultValue={30} />)
+    const root = query(screen.container, '[data-slot="slider"]')
+    const slots = Array.from(root.children).map((child) => child.getAttribute('data-slot'))
+
+    // `peer-*` selectors only reach later siblings of the track and thumb.
+    expect(slots).toEqual([
+      'slider-track',
+      'slider-thumb',
+      'bold-slider-content',
+      'bold-slider-fill',
+      'bold-slider-indicator',
+    ])
+    expect(query(screen.container, '[data-slot="slider-track"]').classList).toContain('peer')
+    expect(query(screen.container, '[data-slot="slider-thumb"]').classList).toContain('peer')
+  })
+
+  test('sizes the fill copy and the indicator box to the value', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => <BoldSlider value={value()} />)
-    const content = query(screen.container, '[data-slot="bold-slider-content"]')
-    // Base layer, base indicator, then the clip box that holds the fill copy.
-    const fill = content.children[2] as HTMLElement
+    const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
     const indicators = queryAll(screen.container, '[data-slot="bold-slider-indicator"]')
     const range = query(screen.container, '[data-slot="slider-range"]')
 
+    expect(indicators).toHaveLength(1)
     expect(fill.style.width).toBe('25%')
+    expect(indicators[0]?.style.width).toBe('25%')
     expect(range.style.right).toBe('75%')
-    expect(indicators).toHaveLength(2)
-    expect(indicators[1]?.hasAttribute('data-fill')).toBe(true)
-    for (const indicator of indicators) {
-      expect(indicator.style.getPropertyValue('inset-inline-start')).toBe(
-        'calc(25% - var(--bs-indicator-gap) - var(--bs-indicator-width))',
-      )
-    }
 
     setValue(80)
     expect(fill.style.width).toBe('80%')
-    expect(indicators[0]?.style.getPropertyValue('inset-inline-start')).toContain('80%')
+    expect(indicators[0]?.style.width).toBe('80%')
   })
 
-  test('anchors the indicator to the end edge when inverted', () => {
+  test('uses only peer selectors for interaction state', () => {
+    const screen = render(() => <BoldSlider label="Bounce" marker step={10} />)
+    const classNames = queryAll(screen.container, '[class]')
+      .flatMap((element) => Array.from(element.classList))
+      .filter((token) => token !== 'group')
+
+    expect(
+      classNames.filter((token) => token.startsWith('group-') || token.includes('has-')),
+    ).toEqual([])
+    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
+    expect(indicator.classList).toContain('peer-hover:opacity-90')
+    expect(indicator.classList).toContain('peer-focus-visible:opacity-90')
+    expect(indicator.classList).toContain('peer-data-[dragging]:opacity-90')
+    expect(query(screen.container, '[data-slot="bold-slider-content"]').classList).toContain(
+      'peer-focus-visible:ring-3',
+    )
+  })
+
+  test('anchors the fill copy and indicator to the end edge when inverted', () => {
     const screen = render(() => <BoldSlider inverted defaultValue={40} />)
+    const thumb = query(screen.container, '[data-slot="slider-thumb"]')
+    const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
     const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
 
-    expect(indicator.style.getPropertyValue('inset-inline-start')).toBe('')
-    expect(indicator.style.getPropertyValue('inset-inline-end')).toContain('40%')
-    expect(query(screen.container, '[data-slot="slider"]').hasAttribute('data-inverted')).toBe(true)
+    expect(thumb.hasAttribute('data-inverted')).toBe(true)
+    expect(fill.style.width).toBe('40%')
+    expect(fill.classList).toContain('peer-data-[inverted]:end-0')
+    expect(indicator.classList).toContain('peer-data-[inverted]:end-0')
+    expect(indicator.classList).toContain('peer-data-[inverted]:justify-start')
   })
 
   test('formats the value from step decimals or a custom formatter', () => {
@@ -97,7 +129,7 @@ describe('BoldSlider', () => {
 
     expect(screen.container.querySelector('[data-slot="bold-slider-label"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="bold-slider-value"]')).toBeNull()
-    expect(queryAll(screen.container, '[data-slot="bold-slider-indicator"]')).toHaveLength(2)
+    expect(queryAll(screen.container, '[data-slot="bold-slider-indicator"]')).toHaveLength(1)
   })
 
   test('updates the displayed value from keyboard input and reports changes', () => {
@@ -180,12 +212,12 @@ describe('BoldSlider', () => {
     const range = query(screen.container, '[data-slot="slider-range"]')
     const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
     const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
-    const fillIndicator = query(screen.container, '[data-slot="bold-slider-indicator"][data-fill]')
+    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
 
     expect(range.classList).toContain('bg-primary')
     expect(fillLabel.classList).toContain('data-fill:text-primary-foreground/80')
     expect(fillValue.classList).toContain('data-fill:text-primary-foreground')
-    expect(fillIndicator.classList).toContain('data-fill:bg-primary-foreground')
+    expect(indicator.classList).toContain('text-primary-foreground')
 
     setSubtle(true)
     expect(range.classList).toContain('bg-muted-active')
@@ -193,9 +225,8 @@ describe('BoldSlider', () => {
     expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
     expect(fillLabel.classList).not.toContain('data-fill:text-primary-foreground/80')
     expect(fillValue.classList).toContain('data-fill:text-foreground')
-    expect(fillIndicator.classList).toContain('bg-foreground')
-    expect(fillIndicator.classList).toContain('data-fill:bg-foreground')
-    expect(fillIndicator.classList).not.toContain('data-fill:bg-primary-foreground')
+    expect(indicator.classList).toContain('text-foreground')
+    expect(indicator.classList).not.toContain('text-primary-foreground')
   })
 
   test('submits its value with a native form', () => {
