@@ -376,13 +376,13 @@
         "factory": "createTree",
         "member": "ItemAction"
       },
+      "description": "Host props of the action container; children are the action controls.",
       "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": "JSX.Element",
-          "description": "Action controls, such as icon buttons or a dropdown menu trigger."
+          "type": "JSX.Element"
         },
         {
           "name": "class",

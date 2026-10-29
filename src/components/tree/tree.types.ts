@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { Component, FlowComponent, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { ComponentSize, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
@@ -346,12 +346,8 @@ export namespace TreeT {
 
   export type ItemCheckboxProps = BaseProps<'button', ItemCheckboxBase, never, never, never>
 
-  export interface ItemActionBase {
-    /** Action controls, such as icon buttons or a dropdown menu trigger. */
-    children?: JSX.Element
-  }
-
-  export type ItemActionProps = BaseProps<'div', ItemActionBase, never, never, never>
+  /** Host props of the action container; children are the action controls. */
+  export type ItemActionProps = BaseProps<'div', { children?: JSX.Element }, never, never, never>
 
   export interface Parts<T> {
     /** Tree root. Renders the visible items, nested or through `virtualRender`. */
@@ -361,7 +357,7 @@ export namespace TreeT {
     ItemCheckbox: (props?: ItemCheckboxProps) => JSX.Element
     ItemIcon: (props: ItemIconProps) => JSX.Element
     ItemLabel: <As extends ValidComponent = 'span'>(props: ItemLabelProps<As>) => JSX.Element
-    ItemAction: (props: ItemActionProps) => JSX.Element
+    ItemAction: FlowComponent<ItemActionProps>
   }
 
   /** Tree store returned by `createTree`. */

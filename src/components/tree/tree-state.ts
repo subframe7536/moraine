@@ -579,6 +579,10 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     uncheck: (key) => setChecked(key, false),
     toggleCheck: (key) => setChecked(key, getCheckedState(key) !== 'checked'),
     focus: (key) => {
+      const item = getItem(key)
+      if (!item || item.isDisabled) {
+        return
+      }
       expandTo(key)
       if (flattenedKeys().includes(key)) {
         navigation.focus(key)

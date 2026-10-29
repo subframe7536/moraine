@@ -43,6 +43,10 @@ export function ItemAction() {
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Files"
+        classes={{
+          action:
+            'opacity-0 transition-opacity group-hover/tree-row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100',
+        }}
         actionRender={(item) => (
           <>
             <Show when={item.hasChildren}>

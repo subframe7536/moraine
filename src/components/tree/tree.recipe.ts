@@ -61,8 +61,7 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     checkbox: `${CHECKBOX_CONTROL_CLASS} data-indeterminate:(border-primary bg-primary)`,
     checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
     label: 'flex-1 min-w-0 truncate',
-    action:
-      'opacity-0 flex shrink-0 gap-1 transition-opacity items-center [[role=treeitem]:focus-visible>*>&]:opacity-100 [@media(hover:none)]:opacity-100 focus-within:opacity-100 group-hover/tree-row:opacity-100 has-[[aria-expanded=true]]:opacity-100',
+    action: 'flex shrink-0 gap-1 items-center',
     content: '',
   },
   defaultVariants: {

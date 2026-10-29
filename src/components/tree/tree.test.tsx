@@ -1326,7 +1326,6 @@ describe('createTree', () => {
       const row = readme.querySelector<HTMLElement>('[data-slot="tree-row"]')!
       const action = row.lastElementChild as HTMLElement
       expect(action.dataset.slot).toBe('tree-action')
-      expect(action.className).toContain('group-hover/tree-row:opacity-100')
       expect(row.className).toContain('group/tree-row')
 
       const button = action.querySelector('button')!
