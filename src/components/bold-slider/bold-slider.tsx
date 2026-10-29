@@ -8,9 +8,7 @@ import type { SliderT } from '../slider'
 
 import {
   BOLD_SLIDER_FILL_CLASS,
-  BOLD_SLIDER_FILL_LAYER_CLASS,
-  BOLD_SLIDER_INDICATOR_CAPSULE_CLASS,
-  BOLD_SLIDER_LAYER_CLASS,
+  BOLD_SLIDER_FILL_ROW_CLASS,
   boldSliderDataAttributes,
   boldSliderRecipe,
 } from './bold-slider.recipe'
@@ -64,13 +62,13 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     const fillLayerWidth = () => (fraction() > 0 ? `${100 / fraction()}%` : '100%')
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
 
-    function Layer(layerProps: { fill?: boolean }): JSX.Element {
+    function Texts(textProps: { fill?: boolean }): JSX.Element {
       return (
-        <div class={BOLD_SLIDER_LAYER_CLASS}>
+        <>
           <Show when={local.label}>
             <span
               data-slot="bold-slider-label"
-              {...boldSliderDataAttributes.label({ fill: () => layerProps.fill })}
+              {...boldSliderDataAttributes.label({ fill: () => textProps.fill })}
               {...slots.label}
             >
               {local.label}
@@ -79,20 +77,20 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
           <Show when={local.showValue ?? true}>
             <span
               data-slot="bold-slider-value"
-              {...boldSliderDataAttributes.value({ fill: () => layerProps.fill })}
+              {...boldSliderDataAttributes.value({ fill: () => textProps.fill })}
               {...slots.value}
             >
               {formatted()}
             </span>
           </Show>
-        </div>
+        </>
       )
     }
 
     return (
       <>
         <div data-slot="bold-slider-content" aria-hidden="true" {...slots.content}>
-          <Layer />
+          <Texts />
         </div>
         <div
           data-slot="bold-slider-fill"
@@ -100,17 +98,15 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
           class={BOLD_SLIDER_FILL_CLASS}
           style={{ width: fillWidth() }}
         >
-          <div class={BOLD_SLIDER_FILL_LAYER_CLASS} style={{ width: fillLayerWidth() }}>
-            <Layer fill />
+          <div class={BOLD_SLIDER_FILL_ROW_CLASS} style={{ width: fillLayerWidth() }}>
+            <Texts fill />
           </div>
         </div>
         <div
           data-slot="bold-slider-indicator"
           aria-hidden="true"
           {...slotWith('indicator', undefined, () => ({ style: { width: fillWidth() } }))}
-        >
-          <span class={BOLD_SLIDER_INDICATOR_CAPSULE_CLASS} />
-        </div>
+        />
       </>
     )
   }

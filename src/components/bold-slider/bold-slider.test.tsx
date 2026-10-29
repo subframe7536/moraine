@@ -192,7 +192,9 @@ describe('BoldSlider', () => {
     )
     expect(root.style.getPropertyValue('--bs-pad')).toBe('13px')
     expect(root.style.getPropertyValue('--bs-indicator-gap')).toBe('5px')
-    expect(root.style.getPropertyValue('--bs-indicator-height')).toBe('18px')
+    expect(query(screen.container, '[data-slot="bold-slider-indicator"]').classList).toContain(
+      'before:h-4.5',
+    )
 
     setSize('lg')
     expect(track.classList).toContain('h-10')

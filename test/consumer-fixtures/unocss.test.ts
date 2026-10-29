@@ -68,7 +68,8 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'peer-data-[inverted]:start-auto',
         'peer-data-[dragging]:opacity-90',
         'peer-hover:opacity-90',
-        'w-(--bs-indicator-width)',
+        "before:content-['']",
+        'before:w-1.25',
         'peer-focus-visible:ring-3',
         'px-(--bs-indicator-gap)',
         '-translate-x-1/2',
@@ -122,7 +123,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
         expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
         expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
       }
-      expect(css).toContain('width:var(--bs-indicator-width)')
+      expect(css).toContain('::before')
       expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
       expect(css).toContain('height:var(--s-thumb-size)')

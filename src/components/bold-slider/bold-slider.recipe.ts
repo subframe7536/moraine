@@ -11,19 +11,14 @@ import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider
  */
 
 /** Row that places the label at the start of the track and the value at the end. */
-export const BOLD_SLIDER_LAYER_CLASS =
-  'px-(--bs-pad) flex gap-2 items-center inset-0 justify-between absolute'
+const ROW_CLASS = 'px-(--bs-pad) flex gap-2 items-center justify-between'
 
 /** Clip box that matches the filled range, so the copy inside it uses the fill colors. */
 export const BOLD_SLIDER_FILL_CLASS =
   'rounded-[inherit] flex pointer-events-none start-0 inset-y-0 justify-start absolute overflow-hidden peer-data-[inverted]:end-0 peer-data-[inverted]:start-auto peer-data-[inverted]:justify-end'
 
-/** Track-wide copy inside the clip box (width set inline), aligned to the same edge as the fill. */
-export const BOLD_SLIDER_FILL_LAYER_CLASS = 'shrink-0 h-full relative'
-
-/** Capsule drawn in the indicator box; its color comes from the indicator text color. */
-export const BOLD_SLIDER_INDICATOR_CAPSULE_CLASS =
-  'rounded-full bg-current shrink-0 h-(--bs-indicator-height) w-(--bs-indicator-width)'
+/** Track-wide row inside the clip box (width set inline), aligned to the same edge as the fill. */
+export const BOLD_SLIDER_FILL_ROW_CLASS = `shrink-0 h-full ${ROW_CLASS}`
 
 export const boldSliderDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('fill'),
@@ -35,20 +30,18 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
   BoldSliderStyleVariants
 >('boldSlider', {
   base: {
-    '--bs-indicator-width': '5px',
     root: '',
     track: 'peer rounded-[inherit] bg-muted cursor-pointer',
     range: 'rounded-[inherit]',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'peer opacity-0 size-px pointer-events-none',
-    content:
-      'rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50',
+    content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-focus-visible:(ring-3 ring-ring/50)`,
     label:
       'text-muted-foreground font-medium min-w-0 truncate data-fill:text-primary-foreground/80',
     value:
       'text-foreground font-medium ms-auto shrink-0 tabular-nums data-fill:text-primary-foreground',
     indicator:
-      'text-primary-foreground px-(--bs-indicator-gap) rounded-[inherit] opacity-40 flex pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out items-center start-0 inset-y-0 justify-end absolute overflow-hidden peer-data-[dragging]:opacity-90 peer-focus-visible:opacity-90 peer-hover:opacity-90 peer-data-[dragging]:scale-y-100 peer-focus-visible:scale-y-100 peer-hover:scale-y-100 peer-data-[inverted]:(end-0 start-auto justify-start)',
+      "text-primary-foreground px-(--bs-indicator-gap) rounded-[inherit] opacity-40 flex pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out items-center start-0 inset-y-0 justify-end absolute overflow-hidden before:(rounded-full bg-current shrink-0 w-1.25 content-['']) peer-data-[dragging]:opacity-90 peer-focus-visible:opacity-90 peer-hover:opacity-90 peer-data-[dragging]:scale-y-100 peer-focus-visible:scale-y-100 peer-hover:scale-y-100 peer-data-[inverted]:(end-0 start-auto justify-start)",
   },
   defaultVariants: {
     size: 'md',
@@ -59,23 +52,23 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
       sm: {
         '--bs-pad': '13px',
         '--bs-indicator-gap': '5px',
-        '--bs-indicator-height': '18px',
         root: 'text-xs rounded-md',
         track: 'h-8',
+        indicator: 'before:h-4.5',
       },
       md: {
         '--bs-pad': '15px',
         '--bs-indicator-gap': '6px',
-        '--bs-indicator-height': '20px',
         root: 'text-sm rounded-md',
         track: 'h-9',
+        indicator: 'before:h-5',
       },
       lg: {
         '--bs-pad': '17px',
         '--bs-indicator-gap': '7px',
-        '--bs-indicator-height': '22px',
         root: 'text-sm rounded-lg',
         track: 'h-10',
+        indicator: 'before:h-5.5',
       },
     },
     variant: {
