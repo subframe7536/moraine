@@ -23,8 +23,8 @@ export interface BoldSliderStyleVariants {
   size?: ComponentSize
 
   /**
-   * Uses a translucent neutral fill instead of the primary color, so the label, value, and
-   * indicator keep the same colors over the fill and the track.
+   * Uses a solid neutral fill (`muted-active`) instead of the primary color, so the label, value,
+   * and indicator keep the same colors over the fill and the track.
    * @default false
    */
   subtle?: boolean

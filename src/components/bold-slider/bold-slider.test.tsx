@@ -177,7 +177,7 @@ describe('BoldSlider', () => {
     expect(fillIndicator.classList).toContain('data-fill:bg-primary-foreground')
 
     setSubtle(true)
-    expect(range.classList).toContain('bg-foreground/10')
+    expect(range.classList).toContain('bg-muted-active')
     expect(range.classList).not.toContain('bg-primary')
     expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
     expect(fillLabel.classList).not.toContain('data-fill:text-primary-foreground/80')

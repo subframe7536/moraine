@@ -187,7 +187,7 @@
           "name": "subtle",
           "optional": true,
           "type": "boolean",
-          "description": "Uses a translucent neutral fill instead of the primary color, so the label, value, and\nindicator keep the same colors over the fill and the track.",
+          "description": "Uses a solid neutral fill (`muted-active`) instead of the primary color, so the label, value,\nand indicator keep the same colors over the fill and the track.",
           "default": {
             "kind": "literal",
             "value": false

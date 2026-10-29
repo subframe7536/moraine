@@ -56,7 +56,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
     },
     subtle: {
       true: {
-        range: 'bg-foreground/10',
+        range: 'bg-muted-active',
         label: 'data-fill:text-muted-foreground',
         value: 'data-fill:text-foreground',
         indicator: 'bg-foreground data-fill:bg-foreground',
