@@ -36,7 +36,7 @@ export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
 export const TREE_ITEM_INDENT_GUIDE_STYLE = {
   '--mo-tree-guide':
-    'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + 0.5rem - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
+    'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + 0.5rem) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
 }
 
 export const TREE_ROW_PADDING_STYLE = {
