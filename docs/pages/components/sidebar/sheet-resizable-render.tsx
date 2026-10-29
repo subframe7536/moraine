@@ -30,7 +30,7 @@ function FileExplorerContent() {
 
   return (
     <>
-      <Sidebar.Header class="px-3 border-b border-border/60 flex h-9 items-center justify-between">
+      <Sidebar.Header class="px-4 border-b border-border/60 h-9 justify-between">
         <span class="text-[11px] text-muted-foreground tracking-wider font-bold uppercase">
           Explorer: Moraine
         </span>
@@ -44,7 +44,7 @@ function FileExplorerContent() {
         </div>
       </Sidebar.Header>
 
-      <Sidebar.Content class="p-1 space-y-0.5">
+      <Sidebar.Content class="p-2 space-y-0.5">
         <For each={files}>
           {(file) => (
             <div

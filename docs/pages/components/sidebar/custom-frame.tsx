@@ -68,7 +68,7 @@ export function FrameRender() {
             </Sidebar.Group>
           </Sidebar.Content>
 
-          <Sidebar.Footer class="text-[11px] text-muted-foreground p-2 border-t border-border/60 flex items-center justify-between">
+          <Sidebar.Footer class="text-[11px] text-muted-foreground px-4 py-2 border-t border-border/60 justify-between">
             <span>Region: us-east-1</span>
             <span class="rounded-full bg-emerald-500 size-2" />
           </Sidebar.Footer>

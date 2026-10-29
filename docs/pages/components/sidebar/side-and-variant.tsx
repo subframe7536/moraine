@@ -14,7 +14,7 @@ export function SideAndVariantUsage() {
     <div class="border border-border rounded-xl bg-muted/20 h-96 w-full shadow-xs overflow-hidden">
       <Sidebar isMobile={false} side="right" variant="inset">
         <Sidebar.Panel class="bg-card/60 w-64">
-          <Sidebar.Header class="px-3 border-b border-border/60 flex h-11 items-center justify-between">
+          <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="flex gap-2 items-center">
               <Icon name="i-lucide:sliders-horizontal" class="text-muted-foreground size-3.5" />
               <span class="text-xs font-semibold">Document Inspector</span>
@@ -24,7 +24,7 @@ export function SideAndVariantUsage() {
             </Button>
           </Sidebar.Header>
 
-          <Sidebar.Content class="p-3 space-y-4">
+          <Sidebar.Content class="px-4 py-3 space-y-4">
             <div class="space-y-1.5">
               <div class="text-[10px] text-muted-foreground tracking-wider font-semibold uppercase">
                 Review Status
@@ -87,7 +87,7 @@ export function SideAndVariantUsage() {
             </div>
           </Sidebar.Content>
 
-          <Sidebar.Footer class="p-3 border-t border-border/60 flex gap-2">
+          <Sidebar.Footer class="px-4 py-3 border-t border-border/60">
             <Button size="xs" variant="outline" class="flex-1">
               Changes
             </Button>

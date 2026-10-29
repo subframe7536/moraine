@@ -64,7 +64,7 @@ export function HeaderFooterSlots() {
       <Sidebar isMobile={false}>
         <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-60">
           {/* Header slot: Team Switcher Dropdown */}
-          <Sidebar.Header class="p-1.5 border-b border-border/60 flex h-12 items-center">
+          <Sidebar.Header class="border-b border-border/60 h-12">
             <DropdownMenu>
               <DropdownMenu.Trigger
                 as={Button}
@@ -116,7 +116,7 @@ export function HeaderFooterSlots() {
           </Sidebar.Content>
 
           {/* Footer slot: User Profile Dropdown */}
-          <Sidebar.Footer class="p-2 border-t border-border/60">
+          <Sidebar.Footer class="border-t border-border/60">
             <DropdownMenu>
               <DropdownMenu.Trigger
                 as={Button}

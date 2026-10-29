@@ -22,9 +22,9 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
       root: 'flex h-full min-h-0 w-full overflow-hidden',
       panel:
         'opacity-100 flex shrink-0 flex-col h-full max-w-[45%] min-h-0 min-w-0 w-(--mo-sidebar-width) translate-x-0 transition-all overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) data-mobile:(shrink max-w-none w-full) motion-reduce:transition-none',
-      header: 'p-2 flex shrink-0 flex-col gap-2',
+      header: 'p-2 flex shrink-0 gap-2 min-w-0 items-center',
       content: 'flex flex-1 flex-col min-h-0 overflow-y-auto',
-      footer: 'mt-auto p-2 flex shrink-0 flex-col gap-2',
+      footer: 'mt-auto p-2 flex shrink-0 gap-2 min-w-0 items-center',
       inset: 'bg-background flex-1 h-full min-h-0 min-w-0 relative overflow-y-auto',
       group: 'p-2 flex flex-col min-w-0 w-full relative',
       groupLabel:

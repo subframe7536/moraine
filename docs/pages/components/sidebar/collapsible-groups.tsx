@@ -14,7 +14,7 @@ export function CollapsibleGroups() {
     <div class="border border-border rounded-xl bg-background h-[420px] w-full shadow-xs overflow-hidden">
       <Sidebar isMobile={false}>
         <Sidebar.Panel class="border-r border-border/60 bg-card/40 w-64">
-          <Sidebar.Header class="px-3 border-b border-border/60 flex h-11 items-center justify-between">
+          <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="text-xs font-bold flex gap-2 items-center">
               <div class="text-white rounded-md bg-emerald-600 flex size-6 items-center justify-center">
                 <Icon name="i-lucide:book-open" class="size-3.5" />
@@ -93,7 +93,7 @@ export function CollapsibleGroups() {
             </Sidebar.Group>
           </Sidebar.Content>
 
-          <Sidebar.Footer class="text-xs text-muted-foreground p-2.5 border-t border-border/60 flex items-center justify-between">
+          <Sidebar.Footer class="text-xs text-muted-foreground px-4 py-2.5 border-t border-border/60 justify-between">
             <span class="text-[11px]">SolidJS v1.9 Ecosystem</span>
             <Icon name="i-lucide:external-link" class="opacity-60 size-3" />
           </Sidebar.Footer>

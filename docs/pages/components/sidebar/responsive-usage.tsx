@@ -31,7 +31,7 @@ export function ResponsiveUsage() {
     <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
       <Sidebar>
         <Sidebar.Panel class="border-r border-border/60 bg-card/40">
-          <Sidebar.Header class="px-3 border-b border-border/60 flex h-11 items-center justify-between">
+          <Sidebar.Header class="px-4 border-b border-border/60 h-11 justify-between">
             <div class="flex gap-2.5 min-w-0 items-center">
               <div class="text-xs text-primary-foreground font-bold rounded-md bg-primary flex shrink-0 size-7 items-center justify-center">
                 <Icon name="i-lucide:command" class="size-4" />
@@ -49,7 +49,7 @@ export function ResponsiveUsage() {
           </Sidebar.Header>
 
           <Sidebar.Content>
-            <div class="text-xs text-muted-foreground mx-2 mt-2 px-2.5 py-1.5 border border-border/60 rounded-md bg-muted/30 flex items-center justify-between">
+            <div class="text-xs text-muted-foreground mx-2 mt-2 px-2 py-1.5 border border-border/60 rounded-md bg-muted/30 flex items-center justify-between">
               <div class="flex gap-1.5 items-center">
                 <Icon name="i-lucide:search" class="opacity-70 size-3.5" />
                 <span>Search...</span>
@@ -92,7 +92,7 @@ export function ResponsiveUsage() {
             </Sidebar.Group>
           </Sidebar.Content>
 
-          <Sidebar.Footer class="p-2 border-t border-border/60 flex items-center justify-between">
+          <Sidebar.Footer class="px-4 py-2 border-t border-border/60 justify-between">
             <div class="flex gap-2 min-w-0 items-center">
               <Avatar text="AR" size="sm" />
               <div class="flex flex-col min-w-0">

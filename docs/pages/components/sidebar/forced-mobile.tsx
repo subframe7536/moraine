@@ -21,7 +21,7 @@ export function ForcedMobile() {
     <div class="mx-auto b b-border flex flex-col h-150 max-w-xs w-full overflow-hidden">
       <Sidebar isMobile>
         <Sidebar.Panel class="bg-card">
-          <Sidebar.Header class="px-4 py-3 border-b border-border/60 flex items-center justify-between">
+          <Sidebar.Header class="px-4 py-3 border-b border-border/60 justify-between">
             <div class="text-sm font-bold flex gap-2 items-center">
               <div class="text-white rounded-lg bg-emerald-600 flex size-7 items-center justify-center">
                 <Icon name="i-lucide:wallet" class="size-4" />
@@ -33,7 +33,7 @@ export function ForcedMobile() {
             </Badge>
           </Sidebar.Header>
 
-          <Sidebar.Content class="p-3 space-y-1">
+          <Sidebar.Content class="p-2 space-y-1">
             <div class="text-[10px] text-muted-foreground tracking-wider font-semibold px-2 py-1 uppercase">
               Navigation
             </div>
@@ -41,7 +41,7 @@ export function ForcedMobile() {
               {(item) => (
                 <a
                   href="#"
-                  class={`text-xs font-medium px-3 py-2 rounded-lg flex transition-colors items-center justify-between ${
+                  class={`text-xs font-medium px-2 py-2 rounded-lg flex transition-colors items-center justify-between ${
                     item.active
                       ? 'bg-accent text-accent-foreground font-semibold'
                       : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
@@ -61,7 +61,7 @@ export function ForcedMobile() {
             </For>
           </Sidebar.Content>
 
-          <Sidebar.Footer class="p-3 border-t border-border/60 flex items-center justify-between">
+          <Sidebar.Footer class="px-4 py-3 border-t border-border/60 justify-between">
             <div class="flex gap-2 items-center">
               <Avatar text="ML" size="sm" />
               <div class="flex flex-col">
