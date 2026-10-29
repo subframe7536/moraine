@@ -136,17 +136,18 @@ export function createListVirtualizer<
               index < sharedLength && !Object.is(estimate, currentEstimates[index]),
           ))
 
+      if (initialized) {
+        const nextEstimateByKey = new Map(nextKeys.map((key, index) => [key, nextEstimates[index]]))
+        currentKeys.forEach((key, index) => {
+          const nextEstimate = nextEstimateByKey.get(key)
+          if (nextEstimate === undefined || !Object.is(nextEstimate, currentEstimates[index])) {
+            virtualizer.itemSizeCache.delete(key)
+          }
+        })
+      }
       currentEntries = entries
       currentKeys = nextKeys
       currentEstimates = nextEstimates
-      if (initialized) {
-        const nextKeySet = new Set(nextKeys)
-        for (const key of virtualizer.itemSizeCache.keys()) {
-          if (!nextKeySet.has(key)) {
-            virtualizer.itemSizeCache.delete(key)
-          }
-        }
-      }
       initialized = true
       virtualizerOptions.getScrollElement()
       virtualizer.setOptions(

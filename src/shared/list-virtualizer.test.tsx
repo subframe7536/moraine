@@ -206,6 +206,50 @@ describe('createListVirtualizer', () => {
     scrollElement.remove()
   })
 
+  test('drops measured sizes for keys whose estimate changes', async () => {
+    const scrollElement = document.createElement('div')
+    document.body.append(scrollElement)
+    const [entries, setEntries] = createSignal([
+      { id: 'a', size: 20 },
+      { id: 'b', size: 20 },
+    ])
+    let virtualizer: ReturnType<typeof createListVirtualizer<{ id: string; size: number }>>
+
+    const screen = render(() => {
+      virtualizer = createListVirtualizer<{ id: string; size: number }>({
+        estimateSize: (item) => item.size,
+        getItemKey: (item) => item.id,
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        get entries() {
+          return entries()
+        },
+        scrollElement,
+        render: (item, _index, props) => <div {...props}>{item.id}</div>,
+      })
+    })
+
+    await Promise.resolve()
+    const instance = virtualizer!.instance()!
+    instance.itemSizeCache.set('a', 30)
+    instance.itemSizeCache.set('b', 30)
+
+    setEntries([
+      { id: 'a', size: 20 },
+      { id: 'b', size: 60 },
+    ])
+    await Promise.resolve()
+
+    expect(instance.itemSizeCache.get('a')).toBe(30)
+    expect(instance.itemSizeCache.get('b')).not.toBe(30)
+    screen.unmount()
+    scrollElement.remove()
+  })
+
   test('retargets delayed and replaced scroll elements without retaining observers', async () => {
     const firstElement = document.createElement('div')
     const secondElement = document.createElement('div')
