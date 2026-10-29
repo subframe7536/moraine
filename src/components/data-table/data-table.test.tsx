@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library'
 import { createRoot, createSignal, mergeProps } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 import { createTableVirtualizer } from '../../virtualizer'
 
 import { createDataTable } from './create-data-table'
@@ -38,6 +40,15 @@ const TEST_COLUMNS: DataTableT.Column<Person>[] = [
     cell: (props) => <span>{props.row.getValue('role')}</span>,
   },
 ]
+
+function manyPeople(count: number): Person[] {
+  return Array.from({ length: count }, (_, index) => ({
+    id: String(index + 1),
+    name: `Person ${index + 1}`,
+    age: 20 + (index % 30),
+    role: 'Staff',
+  }))
+}
 
 function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
   const merged = mergeProps({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
@@ -122,14 +133,13 @@ describe('DataTable', () => {
 
     const bodyRows = screen.getAllByRole('row').slice(1)
     for (const row of bodyRows) {
-      expect(row.getAttribute('aria-selected')).toBe('true')
       expect(row.hasAttribute('data-selected')).toBe(true)
+      // `aria-selected` is only valid on rows of a grid or treegrid, not a static table.
+      expect(row.hasAttribute('aria-selected')).toBe(false)
     }
 
     fireEvent.click(checkboxes[1]!)
-    expect(bodyRows[0]?.getAttribute('aria-selected')).toBe('false')
     expect(bodyRows[0]?.hasAttribute('data-selected')).toBe(false)
-    expect(bodyRows[1]?.getAttribute('aria-selected')).toBe('true')
     expect(bodyRows[1]?.hasAttribute('data-selected')).toBe(true)
   })
 
@@ -376,7 +386,7 @@ describe('DataTable', () => {
 
     const headerRow = container.querySelector('thead tr')!
     expect(headerRow.hasAttribute('data-even')).toBe(false)
-    expect(headerRow.hasAttribute('aria-selected')).toBe(false)
+    expect(headerRow.hasAttribute('data-selected')).toBe(false)
   })
 
   it('marks the empty-state row so row hover styles skip it', () => {
@@ -497,6 +507,93 @@ describe('DataTable', () => {
     warnSpy.mockRestore()
   })
 
+  it('shows every row and selects every row when virtualRender is combined with pagination', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
+      estimateSize: () => 30,
+      measureElement: () => 30,
+      observeElementRect: (_instance, callback) => callback({ width: 300, height: 3000 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 0,
+    })
+    let table!: DataTableT.Instance<Person>
+
+    const { container } = render(() => {
+      table = createPersonTable({ data: manyPeople(25), pagination: true, selection: 'multiple' })
+      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+    })
+    await Promise.resolve()
+
+    // Pagination would otherwise slice to the first 10 rows with no toolbar to reach the rest.
+    expect(container.querySelectorAll('tbody tr[data-index]').length).toBe(25)
+
+    // The first checkbox is the select-all header.
+    fireEvent.click(screen.getAllByRole('checkbox')[0]!)
+    expect(Object.keys(table.atoms.rowSelection?.get() ?? {}).length).toBe(25)
+    warnSpy.mockRestore()
+  })
+
+  it('keeps rendering when filtering shrinks virtualized rows', async () => {
+    const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
+      estimateSize: () => 10,
+      measureElement: () => 10,
+      observeElementRect: (_instance, callback) => callback({ width: 300, height: 100 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 2,
+    })
+    let table!: DataTableT.Instance<Person>
+
+    const { container } = render(() => {
+      table = createPersonTable({ data: manyPeople(50) })
+      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+    })
+    await Promise.resolve()
+
+    expect(() => table.setGlobalFilter('Person 49')).not.toThrow()
+    await Promise.resolve()
+
+    const rows = [...container.querySelectorAll('tbody tr[data-index]')]
+    expect(rows.map((row) => row.textContent)).toEqual([expect.stringContaining('Person 49')])
+    expect(container.querySelector('table')!.getAttribute('aria-rowcount')).toBe('2')
+  })
+
+  it('lets rows with sub-rows expand without the expandable option', () => {
+    interface Node {
+      id: string
+      name: string
+      children?: Node[]
+    }
+    let table!: DataTableT.Instance<Node>
+    render(() => {
+      table = createDataTable<Node>({
+        data: [{ id: 'a', name: 'Parent', children: [{ id: 'b', name: 'Child' }] }],
+        columns: [{ accessorKey: 'name', header: 'Name' }],
+        tableOptions: { getSubRows: (row) => row.children },
+      })
+      return <DataTable table={table} />
+    })
+
+    const [parent] = table.getRowModel().rows
+    expect(parent!.getCanExpand()).toBe(true)
+    expect(parent!.subRows[0]!.getCanExpand()).toBe(false)
+
+    parent!.toggleExpanded()
+    expect(screen.getByText('Child')).toBeDefined()
+  })
+
+  it('applies provider theme overrides through the dataTable theme key', () => {
+    render(() => {
+      const table = createPersonTable()
+      return (
+        <MoraineProvider theme={defineTheme({ dataTable: { base: { root: 'p-theme-root' } } })}>
+          <DataTable table={table} />
+        </MoraineProvider>
+      )
+    })
+
+    expect(document.querySelector('[data-slot="data-table"]')!.className).toContain('p-theme-root')
+  })
+
   it('handles single row selection when selection="single"', () => {
     render(() => {
       const table = createPersonTable({
@@ -534,7 +631,7 @@ describe('DataTable', () => {
 
     fireEvent.click(checkboxes[3]!)
     const bodyRows = screen.getAllByRole('row').slice(1)
-    expect(bodyRows[2]?.getAttribute('aria-selected')).toBe('false')
+    expect(bodyRows[2]?.hasAttribute('data-selected')).toBe(false)
   })
 
   it('applies sticky styles to th and supports maxHeight', () => {
@@ -815,7 +912,7 @@ describe('DataTable', () => {
 
     expect(onRowClick).not.toHaveBeenCalled()
     const bodyRows = screen.getAllByRole('row').slice(1)
-    expect(bodyRows[0]?.getAttribute('aria-selected')).toBe('true')
+    expect(bodyRows[0]?.hasAttribute('data-selected')).toBe(true)
   })
 
   it('emits onRowClick and onRowDoubleClick events', () => {

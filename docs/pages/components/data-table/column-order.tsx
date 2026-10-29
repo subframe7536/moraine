@@ -1,5 +1,6 @@
-import { Button, DataTable, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { Button } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 import { For, createSignal } from 'solid-js'
 
 interface Employee {

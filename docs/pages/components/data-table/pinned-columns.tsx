@@ -1,5 +1,6 @@
-import { Badge, Button, DataTable, DropdownMenu, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { Badge, Button, DropdownMenu } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 
 interface Customer {
   id: string

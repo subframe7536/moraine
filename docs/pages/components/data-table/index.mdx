@@ -95,11 +95,15 @@ import DataTablePlayground from './playground'
 
 ## Usage
 
+`DataTable` and `createDataTable` ship from the `moraine/data-table` entry so the main `moraine` entry never imports TanStack Table. Install the optional TanStack Solid Table dependency alongside Moraine:
+
+<CodeTabs package="@tanstack/solid-table" />
+
 Create a reactive table instance with `createDataTable({ data, columns, ... })` and pass it to `DataTable` via `table`. `createDataTable` configures sorting, selection, expansion, pagination, pinning, resizing, and controlled state on a TanStack Solid Table instance; `DataTable` handles styling, slots, and render parts. Options are plain values — for values that change over time, declare getters on the options object or on `state` (for example `get data() { return rows() }`); they are tracked reactively.
 
 ```tsx
-import { DataTable, createDataTable } from 'moraine'
-import type { DataTableT } from 'moraine'
+import { DataTable, createDataTable } from 'moraine/data-table'
+import type { DataTableT } from 'moraine/data-table'
 
 const data = [
   { id: '1', name: 'Alice', role: 'Engineer' },
@@ -139,7 +143,7 @@ return <DataTable table={table} />
 
 ### Expandable Rows
 
-Set `expandable: true` (or a `(row) => boolean` predicate) to prepend a chevron toggle column (id `'expand'`), and pass `expandedRowRender` on `DataTable`:
+Set `expandable: true` (or a `(row) => boolean` predicate) to prepend a chevron toggle column (id `'expand'`), and pass `expandedRowRender` on `DataTable`. Without `expandable`, rows with sub-rows from `tableOptions.getSubRows` can still expand; pass `expandable: (row) => row.subRows.length > 0` to show the chevron only on parent rows:
 
 ```tsx
 const table = createDataTable({
@@ -255,7 +259,7 @@ return <DataTable table={table} />
 
 ### Virtualization
 
-Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. Leave `pagination` off when virtualizing.
+Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. A virtualized table shows every row in one scroll: `pagination` is ignored (with a development warning), and the select-all checkbox covers all rows instead of the current page.
 
 ## Examples
 

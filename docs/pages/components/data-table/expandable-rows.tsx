@@ -1,5 +1,6 @@
-import { Badge, DataTable, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { Badge } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 import { For } from 'solid-js'
 
 interface OrderItem {

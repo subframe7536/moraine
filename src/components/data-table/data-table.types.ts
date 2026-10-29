@@ -100,7 +100,13 @@ export namespace DataTableT {
     selection?: 'single' | 'multiple'
     /** Predicate controlling whether a given row can be selected. */
     canSelectRow?: (row: Row<TData>) => boolean
-    /** Prepends an expand/collapse chevron column with id `'expand'` and enables row expansion. @default false */
+    /**
+     * Prepends an expand/collapse chevron column with id `'expand'`. `true` lets every row
+     * expand; a predicate decides per row. When omitted, only rows with sub-rows
+     * (`tableOptions.getSubRows`) can expand. For tree data, pass
+     * `(row) => row.subRows.length > 0` to show the chevron only on parent rows.
+     * @default false
+     */
     expandable?: boolean | ((row: Row<TData>) => boolean)
     /** Enables client-side or server-side pagination and renders the pagination toolbar. @default false */
     pagination?: boolean | PaginationConfig

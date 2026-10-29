@@ -22,20 +22,11 @@ export namespace TableT {
   /** Props for Table. */
   export type Props = BaseProps<'table', Base, Variants, Classes, Styles>
 
-  export interface HeaderBase {
-    children?: JSX.Element
-  }
-  export type HeaderProps = BaseProps<'thead', HeaderBase, never, never, never>
-
-  export interface BodyBase {
-    children?: JSX.Element
-  }
-  export type BodyProps = BaseProps<'tbody', BodyBase, never, never, never>
-
-  export interface FooterBase {
-    children?: JSX.Element
-  }
-  export type FooterProps = BaseProps<'tfoot', FooterBase, never, never, never>
+  // Header, Body, Footer, and Caption have no configuration of their own. They are
+  // `FlowComponent`s, which supply `children`, so their props accept native attributes only.
+  export type HeaderProps = BaseProps<'thead', object, never, never, never, 'thead', true>
+  export type BodyProps = BaseProps<'tbody', object, never, never, never, 'tbody', true>
+  export type FooterProps = BaseProps<'tfoot', object, never, never, never, 'tfoot', true>
 
   export interface RowBase {
     /** Whether this row is selected. */
@@ -62,10 +53,7 @@ export namespace TableT {
   }
   export type CellProps = BaseProps<'td', CellBase, never, never, never>
 
-  export interface CaptionBase {
-    children?: JSX.Element
-  }
-  export type CaptionProps = BaseProps<'caption', CaptionBase, never, never, never>
+  export type CaptionProps = BaseProps<'caption', object, never, never, never, 'caption', true>
 }
 
 /** Props for Table. */

@@ -104,11 +104,6 @@
       "defaultElement": "thead",
       "props": [
         {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element"
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -133,11 +128,6 @@
       "defaultElement": "tbody",
       "props": [
         {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element"
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -161,11 +151,6 @@
       },
       "defaultElement": "tfoot",
       "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element"
-        },
         {
           "name": "class",
           "optional": true,
@@ -323,11 +308,6 @@
       },
       "defaultElement": "caption",
       "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": "JSX.Element"
-        },
         {
           "name": "class",
           "optional": true,

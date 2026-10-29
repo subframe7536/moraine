@@ -1,5 +1,5 @@
-import { DataTable, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 
 interface User {
   id: string

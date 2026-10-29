@@ -6,7 +6,14 @@ import {
 } from '@tanstack/virtual-core'
 import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
-import { createRenderEffect, createSignal, mergeProps, onCleanup, onMount } from 'solid-js'
+import {
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  mergeProps,
+  onCleanup,
+  onMount,
+} from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
 export function scrollElementWithRtl<
@@ -186,6 +193,33 @@ export function createVirtualizerController<
       }
     },
   }
+}
+
+export interface VirtualRowEntry<TItem> {
+  readonly index: number
+  readonly item: TItem
+}
+
+/**
+ * Pairs a virtual item with its entry. Returns `undefined` while the virtual window still points
+ * past the end of shrunken entries, so callers never render a row for a missing item.
+ */
+export function createVirtualRow<TItem>(
+  virtualItem: VirtualItem,
+  entries: () => readonly TItem[],
+): Accessor<VirtualRowEntry<TItem> | undefined> {
+  const row = createMemo(
+    () => {
+      const current = entries()
+      const index = virtualItem.index
+      return index < current.length ? { index, item: current[index]! } : undefined
+    },
+    undefined,
+    {
+      equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
+    },
+  )
+  return row
 }
 
 /** Registers row unmeasurement on cleanup and returns a deferred measurement ref. */

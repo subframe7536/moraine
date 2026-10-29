@@ -1,5 +1,6 @@
-import { Button, DataTable, Input, Select, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { Button, Input, Select } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 import { createResource, createSignal } from 'solid-js'
 
 const ALL_EMPLOYEES = [

@@ -1,5 +1,6 @@
-import { Badge, Button, ButtonGroup, DataTable, ToggleButton, createDataTable } from '@src'
-import type { DataTableT } from '@src'
+import { Badge, Button, ButtonGroup, ToggleButton } from '@src'
+import { DataTable, createDataTable } from '@src/data-table'
+import type { DataTableT } from '@src/data-table'
 import { Show, createSignal } from 'solid-js'
 
 interface ServerNode {

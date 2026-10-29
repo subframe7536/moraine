@@ -1,0 +1,86 @@
+import { FlexRender } from '@tanstack/solid-table'
+import type { RowData } from '@tanstack/solid-table'
+import type { JSX } from 'solid-js'
+import { For, Show, untrack } from 'solid-js'
+
+import type { ListT } from '../list'
+
+import { useDataTableContext } from './data-table-context'
+import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
+import { dataTableDataAttributes } from './data-table.recipe'
+import type { DataTableT } from './data-table.types'
+
+export type DataTableRowProps<TData extends RowData> = Pick<
+  DataTableT.Base<TData>,
+  'rowClass' | 'onRowClick' | 'onRowDoubleClick' | 'expandedRowRender'
+> & {
+  row: DataTableT.Row<TData>
+  index: number
+  /** Virtual row wiring (`data-index`, measurement ref, `aria-rowindex`). */
+  rowProps?: ListT.RowProps<HTMLTableRowElement>
+}
+
+/** Body row plus its optional expanded detail row. */
+export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TData>): JSX.Element {
+  const ctx = useDataTableContext()
+  const isSelected = () => props.row.getIsSelected()
+  const isExpanded = () => props.row.getIsExpanded()
+  // Rows mounted already expanded skip the opening animation.
+  const initiallyExpanded = untrack(isExpanded)
+  const disclosure = createDataTableRowDisclosure(
+    () => Boolean(props.expandedRowRender) && isExpanded(),
+  )
+  const showsDetail = () => Boolean(props.expandedRowRender) && disclosure.shouldMount()
+  const clickable = () => Boolean(props.onRowClick || props.onRowDoubleClick)
+
+  // Selection is presentation only: `aria-selected` is not valid on rows of a static table.
+  return (
+    <>
+      <tr
+        {...props.rowProps}
+        data-slot="data-table-row"
+        {...dataTableDataAttributes.row({
+          selected: isSelected,
+          expanded: showsDetail,
+          even: () => props.index % 2 === 1,
+          empty: false,
+        })}
+        onClick={(event) => props.onRowClick?.(props.row, event)}
+        onDblClick={(event) => props.onRowDoubleClick?.(props.row, event)}
+        {...ctx.slotWith('row', () => ({
+          class: [
+            typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
+            clickable() && 'cursor-pointer',
+          ],
+        }))}
+      >
+        <For each={props.row.getVisibleCells()}>
+          {(cell) => (
+            <td
+              data-slot="data-table-cell"
+              {...dataTableDataAttributes.cell({
+                pinned: () => cell.column.getIsPinned(),
+                pinnedEdge: () => ctx.pinnedEdge(cell.column),
+              })}
+              {...ctx.cellSlot('cell', cell.column, () => cell.column.getSize(), 'body')}
+            >
+              <FlexRender cell={cell} />
+            </td>
+          )}
+        </For>
+      </tr>
+      <Show when={props.expandedRowRender}>
+        {(expandedRowRender) => (
+          <DataTableExpandedRow
+            disclosure={disclosure}
+            initiallyExpanded={initiallyExpanded}
+            colSpan={ctx.colSpan()}
+            row={props.row}
+            render={expandedRowRender()}
+            slotOverrides={ctx.slotOverrides}
+          />
+        )}
+      </Show>
+    </>
+  )
+}

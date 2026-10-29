@@ -150,7 +150,7 @@ describe('Table', () => {
     expect(refEl?.getAttribute('data-slot')).toBe('table-container')
   })
 
-  test('selected prop on Table.Row sets aria-selected, data-state, and data-selected', () => {
+  test('selected prop on Table.Row sets data-selected without aria-selected', () => {
     const [selected, setSelected] = createSignal(false)
     const { container } = render(() => (
       <Table>
@@ -158,27 +158,22 @@ describe('Table', () => {
           <Table.Row selected={selected()}>
             <Table.Cell>Item</Table.Cell>
           </Table.Row>
-          <Table.Row>
-            <Table.Cell>Other</Table.Cell>
-          </Table.Row>
         </Table.Body>
       </Table>
     ))
 
+    // `aria-selected` is only valid on rows of a grid or treegrid, not a static table.
     const row = slot(container, 'row')!
-    const unselectedRow = container.querySelectorAll('[data-slot="table-row"]')[1]!
     expect(row.hasAttribute('data-selected')).toBe(false)
-    expect(row.getAttribute('aria-selected')).toBe('false')
-    expect(unselectedRow.hasAttribute('aria-selected')).toBe(false)
+    expect(row.hasAttribute('aria-selected')).toBe(false)
 
     setSelected(true)
     expect(row.hasAttribute('data-selected')).toBe(true)
-    expect(row.getAttribute('aria-selected')).toBe('true')
-    expect(unselectedRow.hasAttribute('aria-selected')).toBe(false)
+    expect(row.hasAttribute('aria-selected')).toBe(false)
   })
 
   test.each([
-    ['sm', 'h-8', 'p-1.5', 'text-xs'],
+    ['sm', 'h-8', 'py-1.5', 'text-xs'],
     ['md', 'h-10', 'p-2', 'text-sm'],
     ['lg', 'h-12', 'p-4', 'text-base'],
   ] as const)(
@@ -215,7 +210,7 @@ describe('Table', () => {
         </Table.Body>
       </Table>
     ))
-    expect(slot(defaultTable, 'row')?.className).not.toContain('even:bg-muted')
+    expect(slot(defaultTable, 'row')?.className).not.toContain('bg-muted/50')
 
     const { container } = render(() => (
       <Table striped>
@@ -227,7 +222,9 @@ describe('Table', () => {
       </Table>
     ))
 
-    expect(slot(container, 'row')?.className).toContain('even:bg-muted')
+    expect(slot(container, 'row')?.className).toContain(
+      '[&:nth-child(even):not([data-selected])]:bg-muted/50',
+    )
   })
 
   test('hoverEffect variant adds row hover background only when enabled (false by default)', () => {
@@ -251,7 +248,9 @@ describe('Table', () => {
         </Table.Body>
       </Table>
     ))
-    expect(slot(container, 'row')?.className).toContain('hover:bg-accent/50')
+    expect(slot(container, 'row')?.className).toContain(
+      '[tbody>&:not([data-selected]):hover]:bg-accent/50',
+    )
   })
 
   test('base table rows and root include border-border', () => {
@@ -304,6 +303,21 @@ describe('Table', () => {
     expect(cells[0]!.className).toContain('truncate')
     expect(cells[1]!.className).toContain('text-right')
     expect(cells[2]!.className).toContain('text-left')
+  })
+
+  test('Table.Head aligns left by default, including row headers outside thead', () => {
+    const { container } = render(() => (
+      <Table>
+        <Table.Body>
+          <Table.Row>
+            <Table.Head scope="row">Row header</Table.Head>
+            <Table.Cell>Cell</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
+    ))
+
+    expect(container.querySelector('th')!.className).toContain('text-left')
   })
 
   test('classes and styles overrides from Table root', () => {
