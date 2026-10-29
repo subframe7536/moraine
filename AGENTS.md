@@ -97,7 +97,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── select/             # Non-editable single collection selection.
 │   ├── separator/          # Visual separators.
 │   ├── sheet/              # Side or bottom sheet.
-│   ├── sidebar-frame/      # Responsive sidebar layout.
+│   ├── sidebar/            # Responsive sidebar layout.
 │   ├── skeleton/           # Skeleton loading placeholder.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── stepper/            # Step-based navigation.

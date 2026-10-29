@@ -1,0 +1,180 @@
+import { Button, Icon, Resizable, Sidebar, useSidebar } from '@src'
+import { For, Show } from 'solid-js'
+
+function FileExplorerContent() {
+  const files = [
+    { name: 'src', type: 'folder-open', level: 0 },
+    { name: 'components', type: 'folder', level: 1 },
+    { name: 'navigation', type: 'folder-open', level: 1 },
+    { name: 'sidebar.tsx', type: 'file-code', level: 2, active: true },
+    { name: 'sidebar.recipe.ts', type: 'file-code', level: 2 },
+    { name: 'index.ts', type: 'file-code', level: 1 },
+    { name: 'package.json', type: 'file-json', level: 0 },
+    { name: 'README.md', type: 'file-text', level: 0 },
+  ]
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'folder':
+        return 'i-lucide:folder'
+      case 'folder-open':
+        return 'i-lucide:folder-open'
+      case 'file-json':
+        return 'i-lucide:file-json'
+      case 'file-text':
+        return 'i-lucide:file-text'
+      default:
+        return 'i-lucide:file-code'
+    }
+  }
+
+  return (
+    <>
+      <Sidebar.Header class="px-4 border-b border-border/60 h-9 justify-between">
+        <span class="text-[11px] text-muted-foreground tracking-wider font-bold uppercase">
+          Explorer: Moraine
+        </span>
+        <div class="flex gap-0.5 items-center">
+          <Button variant="ghost" size="icon-xs" aria-label="New file">
+            <Icon name="i-lucide:file-plus" class="text-muted-foreground size-3" />
+          </Button>
+          <Button variant="ghost" size="icon-xs" aria-label="Refresh explorer">
+            <Icon name="i-lucide:refresh-cw" class="text-muted-foreground size-3" />
+          </Button>
+        </div>
+      </Sidebar.Header>
+
+      <Sidebar.Content class="p-2 space-y-0.5">
+        <For each={files}>
+          {(file) => (
+            <div
+              class={`text-xs px-2 py-1 rounded flex gap-2 cursor-pointer transition-colors items-center ${
+                file.active
+                  ? 'bg-accent text-accent-foreground font-medium'
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+              }`}
+              style={{ 'padding-left': `${(file.level + 1) * 8}px` }}
+            >
+              <Icon
+                name={getIcon(file.type)}
+                class={`shrink-0 size-3.5 ${file.type.startsWith('folder') ? 'text-amber-500' : 'text-blue-500'}`}
+              />
+              <span class="truncate">{file.name}</span>
+            </div>
+          )}
+        </For>
+      </Sidebar.Content>
+    </>
+  )
+}
+
+function EditorContent() {
+  return (
+    <Sidebar.Inset class="bg-card/30 flex flex-col h-full">
+      {/* Tab bar */}
+      <div class="text-xs border-b border-border/60 bg-muted/40 flex shrink-0 h-9 items-center">
+        <div class="font-medium px-3 border-r border-border/60 border-t-2 border-t-primary bg-background flex gap-2 h-full items-center">
+          <Icon name="i-lucide:file-code" class="text-blue-500 size-3.5" />
+          <span>sidebar.tsx</span>
+          <Icon name="i-lucide:x" class="opacity-60 size-3 cursor-pointer hover:opacity-100" />
+        </div>
+        <div class="text-muted-foreground px-3 py-1.5 border-r border-border/60 flex gap-2 items-center">
+          <Icon name="i-lucide:file-code" class="opacity-60 size-3.5" />
+          <span>index.ts</span>
+        </div>
+      </div>
+
+      {/* Editor code area */}
+      <div class="text-xs font-mono p-4 bg-background/50 flex-1 overflow-auto space-y-1">
+        <div class="text-muted-foreground/60">// Moraine Responsive Sidebar Primitive</div>
+        <div>
+          <span class="text-purple-500">export function</span>{' '}
+          <span class="text-blue-500 font-semibold">Sidebar</span>
+          <span class="text-muted-foreground">(props: SidebarProps)</span> {'{'}
+        </div>
+        <div class="pl-4">
+          <span class="text-purple-500">const</span> [local, rest] ={' '}
+          <span class="text-blue-500">splitProps</span>
+          (props, ['variant', 'side', 'isMobile'])
+        </div>
+        <div class="pl-4">
+          <span class="text-purple-500">const</span> {'{ slots }'} ={' '}
+          <span class="text-blue-500">useRecipe</span>
+          (sidebarRecipe, local)
+        </div>
+        <div class="pl-4">
+          <span class="text-purple-500">return</span> (
+        </div>
+        <div class="text-emerald-600 pl-8 dark:text-emerald-400">
+          {'<SidebarProvider value={context}>'}
+        </div>
+        <div class="pl-12">{'<div data-slot="sidebar" {...rest}>'}</div>
+        <div class="pl-16">{'{local.children}'}</div>
+        <div class="pl-12">{'</div>'}</div>
+        <div class="text-emerald-600 pl-8 dark:text-emerald-400">{'</SidebarProvider>'}</div>
+        <div class="pl-4">)</div>
+        <div>{'}'}</div>
+      </div>
+
+      {/* Status Bar */}
+      <div class="text-[11px] text-muted-foreground px-3 py-1 border-t border-border/60 bg-muted/40 flex shrink-0 items-center justify-between">
+        <div class="flex gap-3 items-center">
+          <span class="text-foreground font-medium flex gap-1 items-center">
+            <Icon name="i-lucide:git-branch" class="size-3" />
+            main*
+          </span>
+          <span>0 errors, 0 warnings</span>
+        </div>
+        <div class="flex gap-3 items-center">
+          <span>TypeScript 5.8</span>
+          <span>UTF-8</span>
+          <span>Ln 12, Col 24</span>
+        </div>
+      </div>
+    </Sidebar.Inset>
+  )
+}
+
+function ResizableLayout() {
+  const frame = useSidebar()
+
+  return (
+    <Show
+      when={frame.isMobile()}
+      fallback={
+        <Resizable class="flex-1 h-full" defaultValue={['32%', '68%']}>
+          <Resizable.Panel min={180} max={360} collapsible collapsibleMin={56}>
+            <Sidebar.Panel class="border-0 bg-card/30 max-w-none! w-full!">
+              <FileExplorerContent />
+            </Sidebar.Panel>
+          </Resizable.Panel>
+          <Resizable.Handle action="collapse">
+            {(state) => (
+              <Icon
+                name={state.collapsed ? 'i-lucide:panel-left-open' : 'i-lucide:panel-left-close'}
+              />
+            )}
+          </Resizable.Handle>
+          <Resizable.Panel>
+            <EditorContent />
+          </Resizable.Panel>
+        </Resizable>
+      }
+    >
+      <Sidebar.Panel class="bg-card/40">
+        <FileExplorerContent />
+      </Sidebar.Panel>
+      <EditorContent />
+    </Show>
+  )
+}
+
+export function SheetResizableRender() {
+  return (
+    <div class="border border-border rounded-xl bg-background h-96 w-full shadow-xs overflow-hidden">
+      <Sidebar>
+        <ResizableLayout />
+      </Sidebar>
+    </div>
+  )
+}

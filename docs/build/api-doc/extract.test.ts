@@ -172,7 +172,7 @@ describe('generateApiDoc', () => {
         expect(props.map((prop) => prop.name)).not.toContain('scrollToItem')
       }
     }
-    for (const key of ['collapsible', 'sidebar-frame']) {
+    for (const key of ['collapsible', 'sidebar']) {
       const trigger = result.componentDocs
         .get(key)!
         .parts.find((part) => part.name.endsWith('.Trigger'))!

@@ -6,7 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { Button } from '../components/button/button'
 import { Input } from '../components/input/input'
 import { Modal } from '../components/modal/modal'
-import { SidebarFrame } from '../components/sidebar-frame/sidebar-frame'
+import { Sidebar } from '../components/sidebar/sidebar'
 import type { Cn, CnConfig } from '../theme/cn'
 import * as cnModule from '../theme/cn'
 import { defineTheme } from '../theme/create-theme'
@@ -202,11 +202,11 @@ describe('scoped cn', () => {
 test('keeps independent part merging bound to its own Provider', () => {
   const screen = render(() => (
     <MoraineProvider cnConfig={densityConfig}>
-      <SidebarFrame>
+      <Sidebar>
         <MoraineProvider cnConfig={keepPadding}>
-          <SidebarFrame.Main class={classes}>Main</SidebarFrame.Main>
+          <Sidebar.Inset class={classes}>Main</Sidebar.Inset>
         </MoraineProvider>
-      </SidebarFrame>
+      </Sidebar>
     </MoraineProvider>
   ))
   expect(screen.getByText('Main').className).toContain(classes)

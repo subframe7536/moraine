@@ -100,7 +100,7 @@ export default defineConfig<PresetWind4Theme>({
     },
     {
       getCSS: () => `
-/* The server renders the desktop rail before SidebarFrame resolves the viewport. */
+/* The server renders the desktop rail before Sidebar resolves the viewport. */
 @media ${DOCS_MOBILE_QUERY} {
   [data-docs-sidebar]:not([data-mobile]) {
     display: none;

@@ -10,7 +10,7 @@ import { DropdownMenu } from '../components/dropdown-menu'
 import { Modal } from '../components/modal'
 import { Popover } from '../components/popover'
 import { Sheet } from '../components/sheet'
-import { SidebarFrame } from '../components/sidebar-frame'
+import { Sidebar } from '../components/sidebar'
 import { Tooltip } from '../components/tooltip'
 import { defineTheme } from '../theme'
 import type { CnConfig } from '../theme/cn'
@@ -185,13 +185,13 @@ describe('composite family presentation', () => {
             <Collapsible.Trigger data-testid="collapsible-inner">Inner</Collapsible.Trigger>
           </Collapsible>
         </Collapsible>
-        <SidebarFrame isMobile={false} classes={{ main: 'sidebar-outer' }}>
-          <SidebarFrame.Main data-testid="sidebar-outer">
-            <SidebarFrame isMobile={false} classes={{ main: 'sidebar-inner' }}>
-              <SidebarFrame.Main data-testid="sidebar-inner" />
-            </SidebarFrame>
-          </SidebarFrame.Main>
-        </SidebarFrame>
+        <Sidebar isMobile={false} classes={{ inset: 'sidebar-outer' }}>
+          <Sidebar.Inset data-testid="sidebar-outer">
+            <Sidebar isMobile={false} classes={{ inset: 'sidebar-inner' }}>
+              <Sidebar.Inset data-testid="sidebar-inner" />
+            </Sidebar>
+          </Sidebar.Inset>
+        </Sidebar>
         <BaseSelect classes={{ trigger: 'select-outer' }}>
           <BaseSelect.Trigger data-testid="select-outer">Outer</BaseSelect.Trigger>
           <BaseSelect classes={{ trigger: 'select-inner' }}>
@@ -222,22 +222,22 @@ describe('composite family presentation', () => {
     }
   })
 
-  test('SidebarFrame and BaseSelect parts resolve nested Provider themes locally', () => {
+  test('Sidebar and BaseSelect parts resolve nested Provider themes locally', () => {
     const outer = defineTheme({
-      sidebarFrame: { base: { main: 'sidebar-theme-outer' } },
+      sidebar: { base: { inset: 'sidebar-theme-outer' } },
       baseSelect: { base: { trigger: 'select-theme-outer' } },
     })
     const inner = defineTheme({
-      sidebarFrame: { base: { main: 'sidebar-theme-inner' } },
+      sidebar: { base: { inset: 'sidebar-theme-inner' } },
       baseSelect: { base: { trigger: 'select-theme-inner' } },
     })
     render(() => (
       <MoraineProvider theme={outer}>
-        <SidebarFrame isMobile={false} classes={{ main: 'sidebar-instance' }}>
+        <Sidebar isMobile={false} classes={{ inset: 'sidebar-instance' }}>
           <MoraineProvider theme={inner}>
-            <SidebarFrame.Main data-testid="scoped-sidebar" />
+            <Sidebar.Inset data-testid="scoped-sidebar" />
           </MoraineProvider>
-        </SidebarFrame>
+        </Sidebar>
         <BaseSelect classes={{ trigger: 'select-instance' }}>
           <MoraineProvider theme={inner}>
             <BaseSelect.Trigger data-testid="scoped-select">Select</BaseSelect.Trigger>

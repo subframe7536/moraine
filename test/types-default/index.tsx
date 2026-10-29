@@ -34,7 +34,7 @@ import {
   Select,
   Separator,
   Sheet,
-  SidebarFrame,
+  Sidebar,
   Textarea,
   Tooltip,
   cn,
@@ -63,7 +63,7 @@ import type {
   ModalT,
   MultiSelectT,
   SelectT,
-  SidebarFrameT,
+  SidebarT,
   SliderT,
   Tags,
   TextareaT,
@@ -84,7 +84,7 @@ export type ComponentKinds = [
   Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<CardT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
-  Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
+  Assert<SidebarT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
   Assert<ComboboxT.Kind extends 'single' ? true : false>,
   Assert<FormT.Kind extends 'single' ? true : false>,
@@ -665,28 +665,37 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   <Resizable.Panel>Main</Resizable.Panel>
 </Resizable>
 
-;<SidebarFrame isMobile={false}>
-  <SidebarFrame.Sidebar aria-label="Sidebar navigation">
-    <SidebarFrame.SidebarHeader>Header</SidebarFrame.SidebarHeader>
-    <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
-    <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>
-  </SidebarFrame.Sidebar>
-  <SidebarFrame.Main>
-    <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+;<Sidebar isMobile={false}>
+  <Sidebar.Panel aria-label="Sidebar navigation">
+    <Sidebar.Header>Header</Sidebar.Header>
+    <Sidebar.Content>
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem href="/home" leading="i-lucide-house" isActive>
+            Home
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.Group>
+    </Sidebar.Content>
+    <Sidebar.Footer>Footer</Sidebar.Footer>
+  </Sidebar.Panel>
+  <Sidebar.Inset>
+    <Sidebar.Trigger>Toggle</Sidebar.Trigger>
     Main
-  </SidebarFrame.Main>
-</SidebarFrame>
-;<SidebarFrame.Trigger as={Button} variant="ghost" size="sm" leading="i-lucide-menu">
+  </Sidebar.Inset>
+</Sidebar>
+;<Sidebar.Trigger as={Button} variant="ghost" size="sm" leading="i-lucide-menu">
   Toggle
-</SidebarFrame.Trigger>
-;<SidebarFrame.Trigger as={CustomRoot} required="sidebar">
+</Sidebar.Trigger>
+;<Sidebar.Trigger as={CustomRoot} required="sidebar">
   Toggle
-</SidebarFrame.Trigger>
+</Sidebar.Trigger>
 // @ts-expect-error Required custom component props remain required through `as`.
-;<SidebarFrame.Trigger as={CustomRoot} />
+;<Sidebar.Trigger as={CustomRoot} />
 // @ts-expect-error Invalid Button props remain rejected.
-;<SidebarFrame.Trigger as={Button} variant="invalid" />
-;<SidebarFrame.Trigger
+;<Sidebar.Trigger as={Button} variant="invalid" />
+;<Sidebar.Trigger
   ref={(element) => {
     const button: HTMLButtonElement = element
     void button
@@ -697,8 +706,8 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   }}
 >
   Toggle
-</SidebarFrame.Trigger>
-;<SidebarFrame.Trigger
+</Sidebar.Trigger>
+;<Sidebar.Trigger
   as="a"
   ref={(element) => {
     const anchor: HTMLAnchorElement = element
@@ -706,7 +715,7 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
   }}
 >
   Toggle
-</SidebarFrame.Trigger>
+</Sidebar.Trigger>
 
 ;<Modal.Trigger
   ref={(element) => {
