@@ -482,6 +482,7 @@ export class TypeExtractor {
     const classesNode = args[3]
     const stylesNode = args[4]
     const tDefaultNode = args[5]
+    const acceptsChildrenNode = args[6]
 
     let defaultElement: string | undefined
 
@@ -518,6 +519,16 @@ export class TypeExtractor {
         substitutions,
       )
       props.push(...baseProps)
+    }
+
+    // `AcceptsChildren = true` enables children that `Base` does not declare (for example on
+    // `FlowComponent` parts), so document them explicitly.
+    if (
+      acceptsChildrenNode?.type === 'TSLiteralType' &&
+      (acceptsChildrenNode.literal as { value?: unknown }).value === true &&
+      !props.some((prop) => prop.name === 'children')
+    ) {
+      props.push({ name: 'children', optional: true, type: 'JSX.Element' })
     }
 
     // Public types define the variants; recipes only supply missing defaults.

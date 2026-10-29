@@ -226,6 +226,13 @@ describe('generateApiDoc', () => {
     )
     expect(baseSelectItem.defaultElement).toBe('div')
 
+    // FlowComponent parts accept children through BaseProps' `AcceptsChildren` flag.
+    const table = result.componentDocs.get('table')!
+    for (const name of ['Table.Header', 'Table.Body', 'Table.Footer', 'Table.Caption']) {
+      const part = table.parts.find((entry) => entry.name === name)!
+      expect(part.props.map((prop) => prop.name)).toEqual(['children', 'class', 'style'])
+    }
+
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
       expect.arrayContaining(['root', 'control', 'indicator']),

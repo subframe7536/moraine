@@ -264,8 +264,10 @@ Pass `hoverEffect` to highlight rows on hover. It is disabled by default.
 
 ### Selected Rows
 
-Pass `selected` to `Table.Row` to apply the theme's active background highlight, `data-selected`,
-and `aria-selected="true"`.
+Pass `selected` to `Table.Row` to apply the theme's active background highlight through
+`data-selected`. The prop is visual only: `aria-selected` is not valid on rows of a static table,
+so it is not set. Tables with interactive row selection need a grid interaction model, or a
+labelled control such as a checkbox in each row.
 
 ```tsx
 <Table.Row selected={isSelected()}>

@@ -32,6 +32,11 @@
           }
         },
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element"
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
