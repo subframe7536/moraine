@@ -184,16 +184,6 @@
           "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "subtle",
-          "optional": true,
-          "type": "boolean",
-          "description": "Uses a solid neutral fill (`muted-active`) instead of the primary color, so the label, value,\nand indicator keep the same colors over the fill and the track.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "translations",
           "optional": true,
           "type": "Translations",
@@ -204,6 +194,16 @@
           "optional": true,
           "type": "number",
           "description": "The current value of the input (controlled)."
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": "'solid' | 'subtle'",
+          "description": "Fill treatment. `subtle` uses a solid neutral fill (`muted-active`), so the label, value, and\nindicator keep the same colors over the fill and the track. `solid` uses the primary color\nand switches the label, value, and indicator to `primary-foreground` over the fill.",
+          "default": {
+            "kind": "literal",
+            "value": "subtle"
+          }
         }
       ]
     }

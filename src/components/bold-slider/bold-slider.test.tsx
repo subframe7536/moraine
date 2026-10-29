@@ -217,27 +217,30 @@ describe('BoldSlider', () => {
     expect(markers[0]?.classList).toContain('data-active:opacity-0')
   })
 
-  test('switches to a neutral fill with matching content colors when subtle', () => {
-    const [subtle, setSubtle] = createSignal(false)
-    const screen = render(() => <BoldSlider label="Bounce" subtle={subtle()} />)
+  test('defaults to the subtle variant and switches fill colors for solid', () => {
+    const [variant, setVariant] = createSignal<'solid' | 'subtle' | undefined>(undefined)
+    const screen = render(() => <BoldSlider label="Bounce" variant={variant()} />)
     const range = query(screen.container, '[data-slot="slider-range"]')
     const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
     const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
     const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
 
+    expect(range.classList).toContain('bg-muted-active')
+    expect(range.classList).not.toContain('bg-primary')
+    expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
+    expect(fillValue.classList).toContain('data-fill:text-foreground')
+    expect(indicator.classList).toContain('text-foreground')
+    expect(indicator.classList).not.toContain('text-primary-foreground')
+
+    setVariant('solid')
     expect(range.classList).toContain('bg-primary')
+    expect(range.classList).not.toContain('bg-muted-active')
     expect(fillLabel.classList).toContain('data-fill:text-primary-foreground/80')
     expect(fillValue.classList).toContain('data-fill:text-primary-foreground')
     expect(indicator.classList).toContain('text-primary-foreground')
 
-    setSubtle(true)
+    setVariant('subtle')
     expect(range.classList).toContain('bg-muted-active')
-    expect(range.classList).not.toContain('bg-primary')
-    expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
-    expect(fillLabel.classList).not.toContain('data-fill:text-primary-foreground/80')
-    expect(fillValue.classList).toContain('data-fill:text-foreground')
-    expect(indicator.classList).toContain('text-foreground')
-    expect(indicator.classList).not.toContain('text-primary-foreground')
   })
 
   test('submits its value with a native form', () => {

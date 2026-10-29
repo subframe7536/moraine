@@ -23,11 +23,12 @@ export interface BoldSliderStyleVariants {
   size?: ComponentSize
 
   /**
-   * Uses a solid neutral fill (`muted-active`) instead of the primary color, so the label, value,
-   * and indicator keep the same colors over the fill and the track.
-   * @default false
+   * Fill treatment. `subtle` uses a solid neutral fill (`muted-active`), so the label, value, and
+   * indicator keep the same colors over the fill and the track. `solid` uses the primary color
+   * and switches the label, value, and indicator to `primary-foreground` over the fill.
+   * @default 'subtle'
    */
-  subtle?: boolean
+  variant?: 'solid' | 'subtle'
 }
 
 export type BoldSliderStyleConfig = ComponentStyleConfig<

@@ -52,7 +52,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
-    subtle: false,
+    variant: 'subtle',
   },
   variants: {
     size: {
@@ -78,8 +78,9 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
         track: 'h-10',
       },
     },
-    subtle: {
-      true: {
+    variant: {
+      solid: {},
+      subtle: {
         range: 'bg-muted-active',
         label: 'data-fill:text-muted-foreground',
         value: 'data-fill:text-foreground',

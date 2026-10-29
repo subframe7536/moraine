@@ -26,7 +26,16 @@ import { BoldSlider } from '@src'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'subtle',
+      options: [
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Solid', value: 'solid' },
+      ],
+    },
     { kind: 'switch', prop: 'stepper', label: 'Stepper', defaultValue: true },
     { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0.1, inputType: 'number' },
     { kind: 'switch', prop: 'showValue', label: 'Show value', defaultValue: true },
@@ -43,7 +52,7 @@ import { BoldSlider } from '@src'
         max={1}
         label={props.label}
         size={props.size}
-        subtle={props.subtle}
+        variant={props.variant}
         step={props.stepper ? props.step : undefined}
         showValue={props.showValue}
         marker={props.marker}
@@ -101,14 +110,15 @@ Both texts are drawn twice: once over the track and once clipped to the filled r
 the text uses the colors of the surface behind it, so it stays readable while the fill passes
 through it.
 
-### Subtle fill
+### Variants
 
-Set `subtle` for a solid neutral fill instead of the primary color, like the controls in an
-inspector panel. The label, value, and indicator then keep the same colors over the fill and the
-track.
+The default `variant="subtle"` uses a solid neutral fill, like the controls in an inspector panel.
+The label, value, and indicator keep the same colors over the fill and the track. Set
+`variant="solid"` for a primary-colored fill; the label, value, and indicator then switch to
+`primary-foreground` where the fill passes under them.
 
 ```tsx
-<BoldSlider subtle label="Bounce" defaultValue={0.5} max={1} step={0.1} />
+<BoldSlider variant="solid" label="Bounce" defaultValue={0.5} max={1} step={0.1} />
 ```
 
 ### Step and markers
@@ -131,7 +141,7 @@ interaction, even inside a parent with a `group` class.
 
 ### Tune animation settings
 
-Stack several `subtle` sliders to build a compact control panel.
+Stack several sliders to build a compact control panel.
 
 <Preview path="./control-panel" />
 

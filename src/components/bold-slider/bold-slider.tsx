@@ -33,7 +33,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     'showValue',
     'formatValue',
     'size',
-    'subtle',
+    'variant',
     'classes',
     'styles',
     'class',
