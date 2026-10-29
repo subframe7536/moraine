@@ -36,6 +36,8 @@ export namespace SliderT {
     percentages: number[]
     /** Whether a pointer drag is in progress. */
     dragging: boolean
+    /** Physical edge where the filled range starts, after `orientation`, `inverted`, and direction. */
+    startEdge: 'left' | 'right' | 'top' | 'bottom'
   }
 
   /**

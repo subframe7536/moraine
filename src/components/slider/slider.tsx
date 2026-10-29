@@ -157,6 +157,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       get dragging() {
         return slider.dragging()
       },
+      get startEdge() {
+        return slider.startEdge()
+      },
     })
   })
 
@@ -235,6 +238,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {...sliderDataAttributes.thumb({
               inverted: () => merged.inverted,
               dragging: () => slider.dragging() && slider.activeThumbIndexState() === thumbIndex,
+              focusVisible: () => slider.focusVisibleThumbIndex() === thumbIndex,
               disabled: field.disabled,
               invalid: field.invalid,
               readonly: () => merged.readOnly,

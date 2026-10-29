@@ -45,10 +45,7 @@ const CANDIDATES = [
   'peer-data-[inverted]:start-auto',
   'peer-data-[dragging]:opacity-90',
   'peer-hover:opacity-90',
-  "before:content-['']",
-  'before:w-1.25',
-  'peer-focus-visible:ring-3',
-  'px-(--bs-indicator-gap)',
+  'peer-data-[focus-visible]:ring-3',
 ]
 
 describe('isolated built-dist Tailwind v4 consumer', () => {
@@ -153,8 +150,6 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('var(--st-sep-x)')
     expect(css).toContain('width: var(--s-thumb-size)')
     expect(css).toContain('height: var(--s-thumb-size)')
-    expect(css).toContain('width: calc(var(--spacing) * 1.25)')
-    expect(css).toContain('padding-inline: var(--bs-indicator-gap)')
     expect(css).not.toMatch(/html\s*\{\s*background-color: var\(--background\)/)
     expect(css).not.toMatch(/--primary:\s/)
     expect(css).not.toContain('.icon-check')

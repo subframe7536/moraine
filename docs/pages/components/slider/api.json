@@ -256,6 +256,7 @@
       "attributes": [
         "data-disabled",
         "data-dragging",
+        "data-focus-visible",
         "data-invalid",
         "data-inverted",
         "data-readonly",

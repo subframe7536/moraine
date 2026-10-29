@@ -67,23 +67,33 @@ describe('BoldSlider', () => {
 
     const fillLayer = fill.firstElementChild as HTMLElement
 
+    const indicatorStyle = () => indicators[0]!.style
+
     expect(indicators).toHaveLength(1)
     expect(fill.style.width).toBe('25%')
     // 400% of a box that is 25% of the track spans the full track.
     expect(fillLayer.style.width).toBe('400%')
-    expect(indicators[0]?.style.width).toBe('25%')
+    // The capsule keeps the start gap at low values and switches color at the fill edge.
+    expect(indicatorStyle().getPropertyValue('clip-path')).toContain(
+      'max(var(--bs-indicator-gap), calc(25% - var(--bs-indicator-gap) - var(--bs-indicator-width)))',
+    )
+    expect(indicatorStyle().getPropertyValue('background-image')).toBe(
+      'linear-gradient(to right, var(--bs-indicator-fill) 25%, var(--bs-indicator-track) 25%)',
+    )
     expect(range.style.right).toBe('75%')
 
     setValue(80)
     expect(fill.style.width).toBe('80%')
     expect(fillLayer.style.width).toBe('125%')
 
+    expect(indicatorStyle().getPropertyValue('background-image')).toContain('80%')
+
     setValue(0)
     expect(fill.style.width).toBe('0%')
     expect(fillLayer.style.width).toBe('100%')
-
-    setValue(80)
-    expect(indicators[0]?.style.width).toBe('80%')
+    expect(indicatorStyle().getPropertyValue('clip-path')).toContain(
+      'max(var(--bs-indicator-gap), calc(0% - var(--bs-indicator-gap) - var(--bs-indicator-width)))',
+    )
   })
 
   test('uses only peer selectors for interaction state', () => {
@@ -97,10 +107,10 @@ describe('BoldSlider', () => {
     ).toEqual([])
     const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
     expect(indicator.classList).toContain('peer-hover:opacity-90')
-    expect(indicator.classList).toContain('peer-focus-visible:opacity-90')
+    expect(indicator.classList).toContain('peer-data-[focus-visible]:opacity-90')
     expect(indicator.classList).toContain('peer-data-[dragging]:opacity-90')
     expect(query(screen.container, '[data-slot="bold-slider-content"]').classList).toContain(
-      'peer-focus-visible:ring-3',
+      'peer-data-[focus-visible]:ring-3',
     )
   })
 
@@ -113,8 +123,11 @@ describe('BoldSlider', () => {
     expect(thumb.hasAttribute('data-inverted')).toBe(true)
     expect(fill.style.width).toBe('40%')
     expect(fill.classList).toContain('peer-data-[inverted]:end-0')
-    expect(indicator.classList).toContain('peer-data-[inverted]:end-0')
-    expect(indicator.classList).toContain('peer-data-[inverted]:justify-start')
+    // Inverted fills start at the right edge, so the capsule geometry mirrors.
+    expect(indicator.style.getPropertyValue('background-image')).toBe(
+      'linear-gradient(to left, var(--bs-indicator-fill) 40%, var(--bs-indicator-track) 40%)',
+    )
+    expect(indicator.style.getPropertyValue('clip-path')).toMatch(/ max\(.*40%.*\) round /)
   })
 
   test('formats the value from step decimals or a custom formatter', () => {
@@ -192,9 +205,7 @@ describe('BoldSlider', () => {
     )
     expect(root.style.getPropertyValue('--bs-pad')).toBe('13px')
     expect(root.style.getPropertyValue('--bs-indicator-gap')).toBe('5px')
-    expect(query(screen.container, '[data-slot="bold-slider-indicator"]').classList).toContain(
-      'before:h-4.5',
-    )
+    expect(root.style.getPropertyValue('--bs-indicator-height')).toBe('18px')
 
     setSize('lg')
     expect(track.classList).toContain('h-10')
@@ -222,27 +233,67 @@ describe('BoldSlider', () => {
   test('defaults to the subtle variant and switches fill colors for solid', () => {
     const [variant, setVariant] = createSignal<'solid' | 'subtle' | undefined>(undefined)
     const screen = render(() => <BoldSlider label="Bounce" variant={variant()} />)
+    const root = query(screen.container, '[data-slot="slider"]')
     const range = query(screen.container, '[data-slot="slider-range"]')
     const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
     const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
-    const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
+    const indicatorColors = () => [
+      root.style.getPropertyValue('--bs-indicator-fill'),
+      root.style.getPropertyValue('--bs-indicator-track'),
+    ]
 
     expect(range.classList).toContain('bg-muted-active')
     expect(range.classList).not.toContain('bg-primary')
     expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
     expect(fillValue.classList).toContain('data-fill:text-foreground')
-    expect(indicator.classList).toContain('text-foreground')
-    expect(indicator.classList).not.toContain('text-primary-foreground')
+    expect(indicatorColors()).toEqual(['var(--foreground)', 'var(--foreground)'])
 
     setVariant('solid')
     expect(range.classList).toContain('bg-primary')
     expect(range.classList).not.toContain('bg-muted-active')
     expect(fillLabel.classList).toContain('data-fill:text-primary-foreground/80')
     expect(fillValue.classList).toContain('data-fill:text-primary-foreground')
-    expect(indicator.classList).toContain('text-primary-foreground')
+    expect(indicatorColors()).toEqual(['var(--primary-foreground)', 'var(--primary)'])
 
     setVariant('subtle')
     expect(range.classList).toContain('bg-muted-active')
+  })
+
+  test('shows keyboard focus state only for keyboard focus', () => {
+    const screen = render(() => <BoldSlider label="Bounce" defaultValue={50} step={10} />)
+    const track = query(screen.container, '[data-slot="slider-track"]')
+    const thumb = query(screen.container, '[data-slot="slider-thumb"]')
+    for (const element of [track, thumb]) {
+      const captured = new Set<number>()
+      Object.assign(element, {
+        setPointerCapture: (id: number) => captured.add(id),
+        hasPointerCapture: (id: number) => captured.has(id),
+        releasePointerCapture: (id: number) => captured.delete(id),
+      })
+    }
+    Object.defineProperty(track, 'getBoundingClientRect', {
+      configurable: true,
+      value: () => ({ left: 0, top: 0, right: 100, bottom: 36, width: 100, height: 36 }),
+    })
+
+    fireEvent.pointerDown(track, { button: 0, clientX: 30, pointerId: 1 })
+    fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
+    expect(document.activeElement).toBe(thumb)
+    expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
+
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(thumb.hasAttribute('data-focus-visible')).toBe(true)
+
+    // Pointer interaction on an already focused thumb clears the keyboard state.
+    fireEvent.pointerDown(track, { button: 0, clientX: 60, pointerId: 2 })
+    fireEvent.pointerUp(track, { button: 0, pointerId: 2 })
+    expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
+
+    thumb.blur()
+    thumb.focus()
+    expect(thumb.hasAttribute('data-focus-visible')).toBe(true)
+    thumb.blur()
+    expect(thumb.hasAttribute('data-focus-visible')).toBe(false)
   })
 
   test('submits its value with a native form', () => {

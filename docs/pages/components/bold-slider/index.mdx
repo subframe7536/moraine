@@ -129,11 +129,12 @@ visible in light and dark themes.
 
 ### Indicator
 
-The indicator is a capsule just inside the edge of the fill. Its slot is a box clipped to the
-fill, so the capsule always sits on the fill and slides out of view near the minimum. It stays dim
-and shorter at rest, and brightens to full size while the track is hovered, the slider is dragged,
-or the thumb has keyboard focus. The capsule is the slot's `::before`; set its color with a text color on the `indicator` slot and
-its size with `before:` utilities.
+The indicator is a capsule just inside the edge of the fill. Near the minimum it stops at a small
+gap from the start of the track instead of touching the edge. Where it sits on the fill it uses
+`--bs-indicator-fill`, and where it sits on the track it uses `--bs-indicator-track`, so its color
+follows the surface behind it. It stays dim and shorter at rest, and brightens to full size while
+the track is hovered, the slider is dragged, or the thumb has keyboard focus. Clicking the track
+focuses the thumb without the keyboard focus ring.
 
 These states use `peer-*` selectors on the track and thumb, so each slider reacts only to its own
 interaction, even inside a parent with a `group` class.

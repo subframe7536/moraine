@@ -60,6 +60,23 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     // The clip box is `fraction` of the track wide, so `100% / fraction` of it spans the whole
     // track. This keeps the copy aligned with the base layer without a container query.
     const fillLayerWidth = () => (fraction() > 0 ? `${100 / fraction()}%` : '100%')
+    // The indicator is a track-wide layer clipped to the capsule. Its gradient switches from the
+    // fill color to the track color at the fill edge, so the capsule keeps a gap from the start
+    // edge at low values and each part of it still matches the surface behind it.
+    const indicatorStyle = (): { style: JSX.CSSProperties } => {
+      const percent = `${fraction() * 100}%`
+      const start = `max(var(--bs-indicator-gap), calc(${percent} - var(--bs-indicator-gap) - var(--bs-indicator-width)))`
+      const far = `calc(100% - ${start} - var(--bs-indicator-width))`
+      const block = 'calc(50% - var(--bs-indicator-height) / 2)'
+      const fromLeft = state.startEdge !== 'right'
+      const [left, right] = fromLeft ? [start, far] : [far, start]
+      return {
+        style: {
+          'clip-path': `inset(${block} ${right} ${block} ${left} round var(--bs-indicator-width))`,
+          'background-image': `linear-gradient(to ${fromLeft ? 'right' : 'left'}, var(--bs-indicator-fill) ${percent}, var(--bs-indicator-track) ${percent})`,
+        },
+      }
+    }
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
 
     function Texts(textProps: { fill?: boolean }): JSX.Element {
@@ -105,7 +122,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
         <div
           data-slot="bold-slider-indicator"
           aria-hidden="true"
-          {...slotWith('indicator', undefined, () => ({ style: { width: fillWidth() } }))}
+          {...slotWith('indicator', undefined, indicatorStyle)}
         />
       </>
     )

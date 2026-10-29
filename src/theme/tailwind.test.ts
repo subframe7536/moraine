@@ -5,7 +5,10 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
+import {
+  BOLD_SLIDER_FILL_CLASS,
+  boldSliderRecipe,
+} from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
 
 import { cn } from './cn'
@@ -463,7 +466,11 @@ describe('animations', () => {
   test('compiles disclosure child state and slider peer state', async () => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
+      ...[
+        boldSliderRecipe.config.base.content,
+        boldSliderRecipe.config.base.indicator,
+        BOLD_SLIDER_FILL_CLASS,
+      ]
         .flatMap((value) => cn(value)!.split(' '))
         .filter((token) => token.startsWith('peer-')),
     ]
@@ -472,7 +479,7 @@ describe('animations', () => {
     expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
-    expect(css).toMatch(/\.peer\)?:focus-visible ?~/)
+    expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
     expect(css).toMatch(/\.peer\)?:hover ?~/)
     expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
     expect(css).toMatch(/\.peer\)?\[data-inverted\] ?~/)

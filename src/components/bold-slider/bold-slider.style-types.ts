@@ -12,7 +12,7 @@ export interface BoldSliderStyleSlot<T = unknown> extends SliderStyleSlot<T> {
   /** Formatted current value shown at the end of the track. */
   value?: T
 
-  /** Clip box matching the filled range; its `::before` capsule sits at the fill edge and uses its text color. */
+  /** Track-wide layer clipped to the capsule at the fill edge, colored by `--bs-indicator-fill` and `--bs-indicator-track`. */
   indicator?: T
 }
 

@@ -20,6 +20,7 @@ export const sliderDataAttributes = {
   thumb: /* @__PURE__ */ createDataAttributes(
     'disabled',
     'dragging',
+    'focus-visible',
     'invalid',
     'inverted',
     'readonly',

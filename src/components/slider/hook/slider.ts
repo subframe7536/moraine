@@ -59,6 +59,7 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   currentValues: () => number[]
   definedStep: () => number | undefined
   dragging: () => boolean
+  focusVisibleThumbIndex: () => number | undefined
   getMarkerStyle: (index: number) => JSX.CSSProperties
   isMarkerInRange: (index: number) => boolean
   getPublicValue: (values: number[]) => TValue
@@ -82,6 +83,7 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   resetValues: (values?: number[]) => void
   setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
   setTrackRef: (element: HTMLDivElement | undefined) => void
+  startEdge: () => 'left' | 'right' | 'top' | 'bottom'
   thumbStyles: () => JSX.CSSProperties[]
 }
 
@@ -131,6 +133,12 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   const [thumbRefs, setThumbRefs] = createSignal<Array<HTMLDivElement | undefined>>([])
   const [trackElement, setTrackElement] = createSignal<HTMLDivElement | undefined>(undefined)
   const [direction, setDirection] = createSignal<'ltr' | 'rtl'>('ltr')
+  // Thumb focused by keyboard. Pointer focus never sets it, regardless of browser :focus-visible
+  // heuristics or support for `focusVisible: false`.
+  const [focusVisibleThumbIndex, setFocusVisibleThumbIndex] = createSignal<number | undefined>(
+    undefined,
+  )
+  let pointerFocusPending = false
   const [activeThumbIndexState, setActiveThumbIndexState] = createSignal<number | undefined>(
     undefined,
   )
@@ -378,6 +386,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
     activePointerId = event.pointerId
     activePointerTarget = target
+    setFocusVisibleThumbIndex(undefined)
     setActiveThumbIndex(index)
     lastPointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     pendingValues = undefined
@@ -477,14 +486,27 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     return nextIndex
   }
 
-  function focusThumb(index: number, focusOptions?: FocusOptions): void {
+  function focusFromPointer(element: HTMLElement): void {
+    pointerFocusPending = true
+    try {
+      element.focus(POINTER_FOCUS_OPTIONS)
+    } finally {
+      pointerFocusPending = false
+    }
+  }
+
+  function focusThumb(index: number, source: 'keyboard' | 'pointer'): void {
     const thumb = thumbRefs()[index]
     if (!thumb || thumb.ownerDocument.activeElement === thumb) {
       return
     }
 
     suppressNextBlurCommit = true
-    thumb.focus(focusOptions)
+    if (source === 'pointer') {
+      focusFromPointer(thumb)
+    } else {
+      thumb.focus()
+    }
   }
 
   function moveThumb(index: number, pointerValue: number): void {
@@ -492,7 +514,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
     if (nextIndex !== undefined && nextIndex !== index) {
       setActiveThumbIndex(nextIndex)
-      focusThumb(nextIndex, POINTER_FOCUS_OPTIONS)
+      focusThumb(nextIndex, 'pointer')
     }
   }
 
@@ -543,7 +565,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       return
     }
     applyThumbValue(nextActiveThumbIndex, pointerValue)
-    focusThumb(nextActiveThumbIndex, POINTER_FOCUS_OPTIONS)
+    focusThumb(nextActiveThumbIndex, 'pointer')
   }
 
   function onTrackPointerMove(event: PointerEvent): void {
@@ -571,7 +593,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const target = event.currentTarget as HTMLDivElement
     const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     grabOffset = getThumbGrabOffset(target, pointerPosition, merged.orientation === 'vertical')
-    target.focus(POINTER_FOCUS_OPTIONS)
+    focusFromPointer(target)
   }
 
   function onThumbPointerMove(event: PointerEvent): void {
@@ -584,6 +606,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function onThumbKeyDown(index: number, event: KeyboardEvent): void {
+    setFocusVisibleThumbIndex(index)
     if (isActionDisabled()) {
       return
     }
@@ -655,7 +678,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       if (!atGlobalBoundary) {
         const adjacentIndex = movementDirection > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
-          focusThumb(adjacentIndex)
+          focusThumb(adjacentIndex, 'keyboard')
         }
       }
     }
@@ -670,6 +693,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
   function onThumbFocus(index: number, event: FocusEvent): void {
     lastUsedThumbIndex = index
+    setFocusVisibleThumbIndex(pointerFocusPending ? undefined : index)
     if (!isThumbTarget(event.relatedTarget)) {
       options.onFocus?.(event)
     }
@@ -703,6 +727,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function onThumbBlur(event: FocusEvent): void {
+    setFocusVisibleThumbIndex(undefined)
     if (isThumbTarget(event.relatedTarget)) {
       suppressNextBlurCommit = false
       return
@@ -740,6 +765,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     currentValues,
     definedStep,
     dragging,
+    focusVisibleThumbIndex,
     getMarkerStyle,
     isMarkerInRange,
     getPublicValue,
@@ -763,6 +789,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     resetValues,
     setThumbRefs,
     setTrackRef,
+    startEdge: () => getSliderEdges().startEdge,
     thumbStyles,
   }
 }

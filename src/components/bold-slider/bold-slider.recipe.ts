@@ -30,18 +30,19 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
   BoldSliderStyleVariants
 >('boldSlider', {
   base: {
+    '--bs-indicator-width': '5px',
     root: '',
     track: 'peer rounded-[inherit] bg-muted cursor-pointer',
     range: 'rounded-[inherit]',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'peer opacity-0 size-px pointer-events-none',
-    content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-focus-visible:(ring-3 ring-ring/50)`,
+    content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-data-[focus-visible]:(ring-3 ring-ring/50)`,
     label:
       'text-muted-foreground font-medium min-w-0 truncate data-fill:text-primary-foreground/80',
     value:
       'text-foreground font-medium ms-auto shrink-0 tabular-nums data-fill:text-primary-foreground',
     indicator:
-      "text-primary-foreground px-(--bs-indicator-gap) rounded-[inherit] opacity-40 flex pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out items-center start-0 inset-y-0 justify-end absolute overflow-hidden before:(rounded-full bg-current shrink-0 w-1.25 content-['']) peer-data-[dragging]:opacity-90 peer-focus-visible:opacity-90 peer-hover:opacity-90 peer-data-[dragging]:scale-y-100 peer-focus-visible:scale-y-100 peer-hover:scale-y-100 peer-data-[inverted]:(end-0 start-auto justify-start)",
+      'opacity-40 pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out inset-0 absolute peer-data-[dragging]:(opacity-90 scale-y-100) peer-data-[focus-visible]:(opacity-90 scale-y-100) peer-hover:(opacity-90 scale-y-100)',
   },
   defaultVariants: {
     size: 'md',
@@ -52,32 +53,36 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
       sm: {
         '--bs-pad': '13px',
         '--bs-indicator-gap': '5px',
+        '--bs-indicator-height': '18px',
         root: 'text-xs rounded-md',
         track: 'h-8',
-        indicator: 'before:h-4.5',
       },
       md: {
         '--bs-pad': '15px',
         '--bs-indicator-gap': '6px',
+        '--bs-indicator-height': '20px',
         root: 'text-sm rounded-md',
         track: 'h-9',
-        indicator: 'before:h-5',
       },
       lg: {
         '--bs-pad': '17px',
         '--bs-indicator-gap': '7px',
+        '--bs-indicator-height': '22px',
         root: 'text-sm rounded-lg',
         track: 'h-10',
-        indicator: 'before:h-5.5',
       },
     },
     variant: {
-      solid: {},
+      solid: {
+        '--bs-indicator-fill': 'var(--primary-foreground)',
+        '--bs-indicator-track': 'var(--primary)',
+      },
       subtle: {
+        '--bs-indicator-fill': 'var(--foreground)',
+        '--bs-indicator-track': 'var(--foreground)',
         range: 'bg-muted-active',
         label: 'data-fill:text-muted-foreground',
         value: 'data-fill:text-foreground',
-        indicator: 'text-foreground',
       },
     },
   },

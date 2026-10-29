@@ -112,6 +112,7 @@ export const moraineTailwind = plugin(
           'error',
           'expanded',
           'fill',
+          'focus-visible',
           'focused',
           'footer',
           'has-text',
