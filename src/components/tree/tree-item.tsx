@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import { For, Index, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
@@ -13,8 +13,8 @@ import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
 import { TreeItemTrigger } from './tree-item-trigger'
 import {
+  TREE_GUIDES_CLASS,
   TREE_LIST_CLASS,
-  TREE_ITEM_INDENT_GUIDE_STYLE,
   TREE_ROW_PADDING_STYLE,
   treeDataAttributes,
   treeRecipe,
@@ -178,13 +178,13 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
-  const { slots } = useRecipe(treeRecipe, local, {
+  const { slots, variants } = useRecipe(treeRecipe, local, {
     slot: 'item',
     contextVariants: () => context.variants,
     contextSlots: () => context.slotOverrides,
     own: () => ({
       item: {
-        style: { '--mo-tree-level': local.item.level - 1, ...TREE_ITEM_INDENT_GUIDE_STYLE },
+        style: { '--mo-tree-level': local.item.level - 1 },
       },
       row: {
         style: TREE_ROW_PADDING_STYLE,
@@ -292,6 +292,13 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           })}
           {...slots.row}
         >
+          <Show when={variants.indentGuide && local.item.level > 1}>
+            <span data-slot="tree-guides" aria-hidden="true" class={TREE_GUIDES_CLASS}>
+              <Index each={Array.from({ length: local.item.level - 1 })}>
+                {() => <span data-slot="tree-guide" {...slots.guide} />}
+              </Index>
+            </span>
+          </Show>
           {local.children}
         </div>
         <Show when={!context.props.virtualRender && local.item.hasChildren}>

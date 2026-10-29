@@ -61,6 +61,16 @@ function Harness(props: HarnessProps) {
   return <tree.Tree aria-label="Files" {...props.treeProps} />
 }
 
+function guideList(element: HTMLElement): HTMLElement | null {
+  return element.querySelector<HTMLElement>(
+    ':scope > [data-slot="tree-row"] > [data-slot="tree-guides"]',
+  )
+}
+
+function guides(element: HTMLElement): HTMLElement[] {
+  return [...(guideList(element)?.querySelectorAll<HTMLElement>('[data-slot="tree-guide"]') ?? [])]
+}
+
 function item(container: HTMLElement, label: string): HTMLElement {
   const element = container.querySelector<HTMLElement>(`[role="treeitem"][aria-label="${label}"]`)
   if (!element) {
@@ -1487,7 +1497,6 @@ describe('createTree', () => {
       expect(root.getPropertyValue('--mo-tree-pad')).toBe('1rem')
       const element = item(container, 'components')
       expect(element.style.getPropertyValue('--mo-tree-level')).toBe('1')
-      expect(element.style.getPropertyValue('--mo-tree-guide')).not.toBe('')
       expect(
         element
           .querySelector<HTMLElement>('[data-slot="tree-row"]')
@@ -1503,10 +1512,27 @@ describe('createTree', () => {
       }
     })
 
+    test('renders one hidden guide per ancestor level inside the row', () => {
+      const { container } = render(() => (
+        <Harness options={{ defaultExpandedKeys: ['src', 'components'] }} />
+      ))
+
+      expect(guides(item(container, 'src'))).toHaveLength(0)
+      expect(guides(item(container, 'components'))).toHaveLength(1)
+      expect(guides(item(container, 'button.tsx'))).toHaveLength(2)
+
+      const list = guideList(item(container, 'button.tsx'))!
+      expect(list.getAttribute('aria-hidden')).toBe('true')
+      expect(list.parentElement?.getAttribute('data-slot')).toBe('tree-row')
+      expect(guides(item(container, 'button.tsx'))[0]?.className).toContain('border-s')
+      expect(item(container, 'button.tsx').getAttribute('aria-label')).toBe('button.tsx')
+    })
+
     test('toggles indent guides with the indentGuide variant', () => {
       const [indentGuide, setIndentGuide] = createSignal<boolean | undefined>(undefined)
-      const { container, getByRole } = render(() => (
+      const { container } = render(() => (
         <Harness
+          options={{ defaultExpandedKeys: ['docs'] }}
           treeProps={{
             get indentGuide() {
               return indentGuide()
@@ -1515,11 +1541,28 @@ describe('createTree', () => {
         />
       ))
 
-      expect(item(container, 'docs').className).toContain('[background:var(--mo-tree-guide)]')
+      expect(guides(item(container, 'guide.md'))).toHaveLength(1)
 
       setIndentGuide(false)
-      expect(getByRole('tree').style.getPropertyValue('--mo-tree-indent-guide')).toBe('')
-      expect(item(container, 'docs').className).not.toContain('--mo-tree-guide')
+      expect(container.querySelector('[data-slot="tree-guides"]')).toBeNull()
+
+      setIndentGuide(true)
+      expect(guides(item(container, 'guide.md'))).toHaveLength(1)
+    })
+
+    test('applies classes.guide to every guide', () => {
+      const { container } = render(() => (
+        <Harness
+          options={{ defaultExpandedKeys: ['src', 'components'] }}
+          treeProps={{ classes: { guide: 'border-red-500' } }}
+        />
+      ))
+
+      const rendered = container.querySelectorAll('[data-slot="tree-guide"]')
+      expect(rendered.length).toBeGreaterThan(0)
+      for (const guide of rendered) {
+        expect(guide.className).toContain('border-red-500')
+      }
     })
 
     test('renders item data attributes for state', () => {
@@ -1611,6 +1654,18 @@ describe('createTree', () => {
       await waitFor(() => expect(labels(container)).toContain('components'))
       expect(item(container, 'components').getAttribute('aria-level')).toBe('2')
       expect(item(container, 'components').parentElement?.closest('[role="group"]')).toBeNull()
+    })
+
+    test('renders indent guides on flattened rows', async () => {
+      const treeProps = createVirtualTreeProps()
+      const { container } = render(() => (
+        <Harness options={{ defaultExpandedKeys: ['src', 'components'] }} treeProps={treeProps} />
+      ))
+
+      await waitFor(() => expect(labels(container)).toContain('button.tsx'))
+      expect(guides(item(container, 'src'))).toHaveLength(0)
+      expect(guides(item(container, 'components'))).toHaveLength(1)
+      expect(guides(item(container, 'button.tsx'))).toHaveLength(2)
     })
 
     test('collapses a flattened branch back out of the virtual list', async () => {

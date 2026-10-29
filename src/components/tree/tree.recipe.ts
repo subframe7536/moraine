@@ -39,10 +39,12 @@ export const TREE_LIST_CLASS = 'm-0 p-0 list-none'
 /** Keeps the chevron pointing toward the content direction in right-to-left layouts. */
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
-export const TREE_ITEM_INDENT_GUIDE_STYLE = {
-  '--mo-tree-guide':
-    'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + 0.5rem) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
-}
+/**
+ * Positions the decorative guide list inside a row. The `0.5rem` start padding centers each guide
+ * under its ancestor's trigger; logical insets mirror it in right-to-left layouts.
+ */
+export const TREE_GUIDES_CLASS =
+  'ps-2 flex pointer-events-none start-(--mo-tree-pad) inset-y-0 absolute'
 
 export const TREE_ROW_PADDING_STYLE = {
   '--mo-tree-pad-start': 'calc(var(--mo-tree-pad) + var(--mo-tree-level) * var(--mo-tree-indent))',
@@ -67,6 +69,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
     label: 'flex-1 min-w-0 truncate',
     action: 'flex shrink-0 gap-1 items-center',
+    // A border, unlike a background image, stays visible under `forced-colors: active`.
+    guide: 'border-s border-border shrink-0 h-full w-(--mo-tree-indent)',
     content: '',
   },
   defaultVariants: {
@@ -85,10 +89,9 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
         '--mo-tree-gap': '0.625rem',
       },
     },
+    // Decides whether `tree.Item` renders guide elements; it adds no classes.
     indentGuide: {
-      true: {
-        item: '[background:var(--mo-tree-guide)]',
-      },
+      true: {},
     },
     // `data-transition` marks groups whose height may animate now; default-expanded groups skip it.
     transition: {

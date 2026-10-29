@@ -29,6 +29,9 @@ export interface TreeStyleSlot<T = unknown> {
   /** Trailing actions at the end of a row, shown while the row is hovered or focused. */
   action?: T
 
+  /** Vertical guide line for one ancestor level, drawn inside the row when `indentGuide` is on. */
+  guide?: T
+
   /** Collapsible wrapper around the `group` list that contains the child items of an expanded node. */
   content?: T
 }
