@@ -162,11 +162,9 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               })
             }}
           >
-            <div class="min-w-0">
-              <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
-                {props.children}
-              </Suspense>
-            </div>
+            <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
+              {props.children}
+            </Suspense>
           </Sidebar.Inset>
         </div>
       </>
