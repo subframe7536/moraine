@@ -1722,3 +1722,27 @@ test('draws markers at a numeric interval without changing snapping', () => {
   fireEvent.keyDown(thumb, { key: 'ArrowRight' })
   expect(thumb.getAttribute('aria-valuenow')).toBe('50')
 })
+
+test('maps pointer positions onto the track padding box', () => {
+  const onValueChange = vi.fn()
+  const screen = render(() => (
+    <Slider
+      defaultValue={0}
+      onValueChange={onValueChange}
+      styles={{ track: { 'border-left': '20px solid transparent' } }}
+    />
+  ))
+  const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+  mockPointerCapture(track)
+  Object.defineProperty(track, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => ({ left: 0, top: 0, right: 120, bottom: 10, width: 120, height: 10, x: 0, y: 0 }),
+  })
+
+  // The 20px border is excluded, so the remaining 100px span 0 to 100.
+  fireEvent.pointerDown(track, { button: 0, clientX: 70, pointerId: 1 })
+  expect(onValueChange).toHaveBeenLastCalledWith(50)
+  fireEvent.pointerMove(track, { clientX: 10, pointerId: 1 })
+  expect(onValueChange).toHaveBeenLastCalledWith(0)
+  fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
+})

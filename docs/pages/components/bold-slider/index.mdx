@@ -129,8 +129,9 @@ visible in light and dark themes.
 
 ### Indicator
 
-The indicator is a capsule just inside the edge of the fill. Near the minimum it stops at a small
-gap from the start of the track instead of touching the edge. Where it sits on the fill it uses
+The indicator is a capsule just inside the edge of the fill. At the minimum a short piece of fill
+stays visible to hold it, and the fill, ticks, and pointer map values onto the rest of the track,
+so every step moves the fill and the indicator the same distance. Where it sits on the fill it uses
 `--bs-indicator-fill`, and where it sits on the track it uses `--bs-indicator-track`, so its color
 follows the surface behind it. It stays dim and shorter at rest, and brightens to full size while
 the track is hovered, the slider is dragged, or the thumb has keyboard focus. Clicking the track

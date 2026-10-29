@@ -42,7 +42,6 @@ const CANDIDATES = [
   'size-(--s-thumb-size)',
   'size-(--st-size)',
   'start-[calc(50%+var(--st-sep-x))]',
-  'peer-data-[inverted]:start-auto',
   'peer-data-[dragging]:opacity-90',
   'peer-hover:opacity-90',
   'peer-data-[focus-visible]:ring-3',

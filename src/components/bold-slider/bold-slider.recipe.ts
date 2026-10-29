@@ -13,12 +13,8 @@ import type { BoldSliderStyleSlot, BoldSliderStyleVariants } from './bold-slider
 /** Row that places the label at the start of the track and the value at the end. */
 const ROW_CLASS = 'px-(--bs-pad) flex gap-2 items-center justify-between'
 
-/** Clip box that matches the filled range, so the copy inside it uses the fill colors. */
-export const BOLD_SLIDER_FILL_CLASS =
-  'rounded-[inherit] flex pointer-events-none start-0 inset-y-0 justify-start absolute overflow-hidden peer-data-[inverted]:end-0 peer-data-[inverted]:start-auto peer-data-[inverted]:justify-end'
-
-/** Track-wide row inside the clip box (width set inline), aligned to the same edge as the fill. */
-export const BOLD_SLIDER_FILL_ROW_CLASS = `shrink-0 h-full ${ROW_CLASS}`
+/** Track-wide copy of the row, clipped inline to the filled range so it uses the fill colors. */
+export const BOLD_SLIDER_FILL_ROW_CLASS = `pointer-events-none inset-0 absolute ${ROW_CLASS}`
 
 export const boldSliderDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('fill'),
@@ -31,8 +27,10 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
 >('boldSlider', {
   base: {
     '--bs-indicator-width': '5px',
+    // Minimum fill: room for the indicator and its gap on both sides.
+    '--bs-inset': 'calc(var(--bs-indicator-gap) * 2 + var(--bs-indicator-width))',
     root: '',
-    track: 'peer rounded-[inherit] bg-muted cursor-pointer',
+    track: 'peer rounded-[inherit] bg-muted cursor-pointer overflow-visible',
     range: 'rounded-[inherit]',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'peer opacity-0 size-px pointer-events-none',

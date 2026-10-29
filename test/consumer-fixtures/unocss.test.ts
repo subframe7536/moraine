@@ -65,7 +65,6 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'origin-(--mo-popper-content-transform-origin)',
         'px-(--bs-pad)',
         'size-(--s-thumb-size)',
-        'peer-data-[inverted]:start-auto',
         'peer-data-[dragging]:opacity-90',
         'peer-hover:opacity-90',
         'peer-data-[focus-visible]:ring-3',

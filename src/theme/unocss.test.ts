@@ -5,10 +5,7 @@ import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test } from 'vitest'
 
 import { baseSelectRecipe } from '../components/base-select/base-select.recipe'
-import {
-  BOLD_SLIDER_FILL_CLASS,
-  boldSliderRecipe,
-} from '../components/bold-slider/bold-slider.recipe'
+import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
 import { commandPaletteRecipe } from '../components/command-palette/command-palette.recipe'
 import { inputGroupRecipe } from '../components/input-group/input-group.recipe'
@@ -88,11 +85,7 @@ describe('presetMoraine', () => {
   ])('compiles disclosure child state and slider peer state with %s', async (_name, wind) => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[
-        boldSliderRecipe.config.base.content,
-        boldSliderRecipe.config.base.indicator,
-        BOLD_SLIDER_FILL_CLASS,
-      ]
+      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
         .flatMap((value) => cn(value)!.split(' '))
         .filter((token) => token.startsWith('peer-')),
     ]
@@ -104,7 +97,6 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
     expect(css).toMatch(/\.peer\)?:hover ?~/)
     expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
-    expect(css).toMatch(/\.peer\)?\[data-inverted\] ?~/)
     expect(css).not.toContain(':has(')
   })
   test.each([

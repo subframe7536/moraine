@@ -347,14 +347,28 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     return getThumbMaxValueFor(currentValues(), index)
   }
 
+  // Values map onto the track's padding box, where the range and markers are positioned, so a
+  // track border (such as BoldSlider's start inset) moves pointer mapping with the visuals.
+  function getTrackBorders(track: HTMLElement): { start: number; end: number } {
+    const style = track.ownerDocument.defaultView?.getComputedStyle(track)
+    const read = (value: string | undefined) => Number.parseFloat(value ?? '') || 0
+    return merged.orientation === 'vertical'
+      ? { start: read(style?.borderTopWidth), end: read(style?.borderBottomWidth) }
+      : { start: read(style?.borderLeftWidth), end: read(style?.borderRightWidth) }
+  }
+
   function getValueFromPointer(pointerPosition: number): number {
-    const rect = trackElement()?.getBoundingClientRect()
-    if (!rect) {
+    const track = trackElement()
+    const rect = track?.getBoundingClientRect()
+    if (!track || !rect) {
       return merged.min
     }
 
     const orientation = merged.orientation
-    const input: [number, number] = [0, orientation === 'vertical' ? rect.height : rect.width]
+    const borders = getTrackBorders(track)
+    const size =
+      (orientation === 'vertical' ? rect.height : rect.width) - borders.start - borders.end
+    const input: [number, number] = [0, Math.max(size, 0)]
 
     let output: [number, number] =
       orientation === 'vertical'
@@ -366,7 +380,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
           : [merged.max, merged.min]
 
     const value = linearScale(input, output)
-    const offset = orientation === 'vertical' ? rect.top : rect.left
+    const offset = (orientation === 'vertical' ? rect.top : rect.left) + borders.start
 
     return clamp(value(pointerPosition - grabOffset - offset), merged.min, merged.max)
   }

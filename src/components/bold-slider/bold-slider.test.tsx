@@ -58,42 +58,34 @@ describe('BoldSlider', () => {
     expect(query(screen.container, '[data-slot="slider-thumb"]').classList).toContain('peer')
   })
 
-  test('sizes the fill copy and the indicator box to the value', () => {
+  test('maps the fill, fill copy, and indicator past a minimum fill', () => {
     const [value, setValue] = createSignal(25)
     const screen = render(() => <BoldSlider value={value()} />)
+    const track = query(screen.container, '[data-slot="slider-track"]')
+    const range = query(screen.container, '[data-slot="slider-range"]')
     const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
     const indicators = queryAll(screen.container, '[data-slot="bold-slider-indicator"]')
-    const range = query(screen.container, '[data-slot="slider-range"]')
-
-    const fillLayer = fill.firstElementChild as HTMLElement
-
-    const indicatorStyle = () => indicators[0]!.style
+    const edge = (fraction: number) =>
+      `calc(var(--bs-inset) + (100% - var(--bs-inset)) * ${fraction})`
 
     expect(indicators).toHaveLength(1)
-    expect(fill.style.width).toBe('25%')
-    // 400% of a box that is 25% of the track spans the full track.
-    expect(fillLayer.style.width).toBe('400%')
-    // The capsule keeps the start gap at low values and switches color at the fill edge.
-    expect(indicatorStyle().getPropertyValue('clip-path')).toContain(
-      'max(var(--bs-indicator-gap), calc(25% - var(--bs-indicator-gap) - var(--bs-indicator-width)))',
+    // The track's start border holds the minimum fill; the range reaches back over it.
+    expect(track.style.getPropertyValue('border-inline-start')).toBe(
+      'var(--bs-inset) solid transparent',
     )
-    expect(indicatorStyle().getPropertyValue('background-image')).toBe(
-      'linear-gradient(to right, var(--bs-indicator-fill) 25%, var(--bs-indicator-track) 25%)',
-    )
+    expect(range.style.getPropertyValue('margin-inline-start')).toBe('calc(var(--bs-inset) * -1)')
     expect(range.style.right).toBe('75%')
-
-    setValue(80)
-    expect(fill.style.width).toBe('80%')
-    expect(fillLayer.style.width).toBe('125%')
-
-    expect(indicatorStyle().getPropertyValue('background-image')).toContain('80%')
+    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0.25)}) 0 0)`)
+    expect(indicators[0]!.style.getPropertyValue('background-image')).toBe(
+      `linear-gradient(to right, var(--bs-indicator-fill) ${edge(0.25)}, var(--bs-indicator-track) ${edge(0.25)})`,
+    )
+    expect(indicators[0]!.style.getPropertyValue('clip-path')).toContain(
+      `calc(${edge(0.25)} - var(--bs-indicator-gap) - var(--bs-indicator-width))`,
+    )
 
     setValue(0)
-    expect(fill.style.width).toBe('0%')
-    expect(fillLayer.style.width).toBe('100%')
-    expect(indicatorStyle().getPropertyValue('clip-path')).toContain(
-      'max(var(--bs-indicator-gap), calc(0% - var(--bs-indicator-gap) - var(--bs-indicator-width)))',
-    )
+    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 calc(100% - ${edge(0)}) 0 0)`)
+    expect(indicators[0]!.style.getPropertyValue('clip-path')).not.toContain('max(')
   })
 
   test('uses only peer selectors for interaction state', () => {
@@ -114,20 +106,25 @@ describe('BoldSlider', () => {
     )
   })
 
-  test('anchors the fill copy and indicator to the end edge when inverted', () => {
+  test('mirrors the minimum fill and clipping when inverted', () => {
     const screen = render(() => <BoldSlider inverted defaultValue={40} />)
     const thumb = query(screen.container, '[data-slot="slider-thumb"]')
+    const track = query(screen.container, '[data-slot="slider-track"]')
+    const range = query(screen.container, '[data-slot="slider-range"]')
     const fill = query(screen.container, '[data-slot="bold-slider-fill"]')
     const indicator = query(screen.container, '[data-slot="bold-slider-indicator"]')
+    const edge = 'calc(var(--bs-inset) + (100% - var(--bs-inset)) * 0.4)'
 
     expect(thumb.hasAttribute('data-inverted')).toBe(true)
-    expect(fill.style.width).toBe('40%')
-    expect(fill.classList).toContain('peer-data-[inverted]:end-0')
-    // Inverted fills start at the right edge, so the capsule geometry mirrors.
-    expect(indicator.style.getPropertyValue('background-image')).toBe(
-      'linear-gradient(to left, var(--bs-indicator-fill) 40%, var(--bs-indicator-track) 40%)',
+    expect(track.style.getPropertyValue('border-inline-end')).toBe(
+      'var(--bs-inset) solid transparent',
     )
-    expect(indicator.style.getPropertyValue('clip-path')).toMatch(/ max\(.*40%.*\) round /)
+    expect(track.style.getPropertyValue('border-inline-start')).toBe('')
+    expect(range.style.getPropertyValue('margin-inline-end')).toBe('calc(var(--bs-inset) * -1)')
+    expect(fill.style.getPropertyValue('clip-path')).toBe(`inset(0 0 0 calc(100% - ${edge}))`)
+    expect(indicator.style.getPropertyValue('background-image')).toBe(
+      `linear-gradient(to left, var(--bs-indicator-fill) ${edge}, var(--bs-indicator-track) ${edge})`,
+    )
   })
 
   test('formats the value from step decimals or a custom formatter', () => {
