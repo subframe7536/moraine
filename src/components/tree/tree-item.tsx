@@ -10,7 +10,13 @@ import { TreeItemCheckbox } from './tree-item-checkbox'
 import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
 import { TreeItemTrigger } from './tree-item-trigger'
-import { TREE_LIST_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
+import {
+  TREE_LIST_CLASS,
+  TREE_ITEM_INDENT_GUIDE_STYLE,
+  TREE_ROW_PADDING_STYLE,
+  treeDataAttributes,
+  treeRecipe,
+} from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, label, [role="checkbox"]'
@@ -148,7 +154,10 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     contextSlots: () => context.slotOverrides,
     own: () => ({
       item: {
-        style: { '--mo-tree-level': local.item.level - 1 },
+        style: { '--mo-tree-level': local.item.level - 1, ...TREE_ITEM_INDENT_GUIDE_STYLE },
+      },
+      row: {
+        style: TREE_ROW_PADDING_STYLE,
       },
     }),
     enforced: () => ({ item: { style: row()?.style } }),

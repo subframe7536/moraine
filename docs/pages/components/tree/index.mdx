@@ -296,20 +296,18 @@ Every item sets `--mo-tree-level` (zero for roots), and rows indent by that leve
 them. The tree root declares the geometry variables, so overriding them in the `tree.Tree` `style`
 applies to every item:
 
-| Variable                 | Default         | Description                                       |
-| ------------------------ | --------------- | ------------------------------------------------- |
-| `--mo-tree-indent`       | `1.25rem`       | Indentation added per nesting level.              |
-| `--mo-tree-gap`          | Size dependent  | Gap between the trigger, icon, and label.         |
-| `--mo-tree-gutter`       | `0.25rem`       | Horizontal margin between rows and the tree edge. |
-| `--mo-tree-pad`          | `0.5rem`        | Row start padding before indentation.             |
-| `--mo-tree-indent-guide` | `var(--border)` | Indent guide color.                               |
+| Variable           | Default        | Description                                       |
+| ------------------ | -------------- | ------------------------------------------------- |
+| `--mo-tree-indent` | `1.25rem`      | Indentation added per nesting level.              |
+| `--mo-tree-gap`    | Size dependent | Gap between the trigger, icon, and label.         |
+| `--mo-tree-gutter` | `0.25rem`      | Horizontal margin between rows and the tree edge. |
+| `--mo-tree-pad`    | `0.5rem`       | Row start padding before indentation.             |
 
 ```tsx
 <tree.Tree
   style={{
     '--mo-tree-indent': '1.5rem',
     '--mo-tree-gap': '0.25rem',
-    '--mo-tree-indent-guide': 'var(--primary)',
   }}
 />
 ```

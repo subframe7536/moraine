@@ -27,6 +27,15 @@ export const TREE_LIST_CLASS = 'm-0 p-0 list-none'
 /** Keeps the chevron pointing toward the content direction in right-to-left layouts. */
 export const TREE_TRIGGER_ICON_CLASS = 'rtl:-scale-x-100'
 
+export const TREE_ITEM_INDENT_GUIDE_STYLE = {
+  '--mo-tree-guide':
+    'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + 0.5rem - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
+}
+
+export const TREE_ROW_PADDING_STYLE = {
+  '--mo-tree-pad-start': 'calc(var(--mo-tree-pad) + var(--mo-tree-level) * var(--mo-tree-indent))',
+}
+
 /**
  * Geometry variables live on the root so `tree.Tree` `style` overrides reach every item. Items
  * only declare `--mo-tree-level`, which per-item classes combine with the inherited values.
@@ -38,10 +47,10 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-pad': '0.5rem',
     root: `text-foreground min-h-0 w-full relative ${TREE_LIST_CLASS}`,
     item: 'outline-none relative',
-    row: `mx-(--mo-tree-gutter) pe-2 ps-[calc(var(--mo-tree-pad)+var(--mo-tree-level)*var(--mo-tree-indent))] rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none transition-colors items-center hover:bg-accent [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 ${DATA_DISABLED_CLASS}`,
+    row: `mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-pad-start) rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center hover:bg-muted [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 ${DATA_DISABLED_CLASS}`,
     trigger:
-      'opacity-70 inline-flex shrink-0 size-(--mo-tree-trigger) transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
-    icon: 'opacity-70 shrink-0 size-(--mo-tree-trigger)',
+      'text-inherit opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
+    icon: 'text-inherit opacity-70 shrink-0',
     label: 'flex-1 min-w-0 truncate',
     content: '',
   },
@@ -53,18 +62,15 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
   },
   variants: {
     size: {
-      sm: { row: 'text-xs min-h-7', '--mo-tree-gap': '0.375rem', '--mo-tree-trigger': '0.875rem' },
-      md: { row: 'text-sm min-h-8', '--mo-tree-gap': '0.5rem', '--mo-tree-trigger': '1rem' },
+      sm: { row: 'text-xs py-1', '--mo-tree-gap': '0.375rem' },
+      md: { row: 'text-sm py-1.5', '--mo-tree-gap': '0.5rem' },
       lg: {
-        row: 'text-base min-h-10',
+        row: 'text-base py-2',
         '--mo-tree-gap': '0.625rem',
-        '--mo-tree-trigger': '1.25rem',
       },
     },
     indentGuide: {
       true: {
-        '--mo-tree-guide':
-          'repeating-linear-gradient(to right, var(--border) 0 1px, transparent 1px var(--mo-tree-indent)) calc(var(--mo-tree-gutter) + var(--mo-tree-pad) + var(--mo-tree-trigger) / 2 - 0.5px) 0 / calc(var(--mo-tree-level) * var(--mo-tree-indent)) 100% no-repeat',
         item: '[background:var(--mo-tree-guide)]',
       },
     },
