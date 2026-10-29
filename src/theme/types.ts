@@ -5,6 +5,7 @@ import type { AvatarGroupStyleConfig } from '../components/avatar-group/avatar-g
 import type { AvatarStyleConfig } from '../components/avatar/avatar.style-types'
 import type { BadgeStyleConfig } from '../components/badge/badge.style-types'
 import type { BaseSelectStyleConfig } from '../components/base-select/base-select.style-types'
+import type { BoldSliderStyleConfig } from '../components/bold-slider/bold-slider.style-types'
 import type { BreadcrumbStyleConfig } from '../components/breadcrumb/breadcrumb.style-types'
 import type { ButtonGroupStyleConfig } from '../components/button-group/button-group.style-types'
 import type { ButtonStyleConfig } from '../components/button/button.style-types'
@@ -96,6 +97,7 @@ export interface MoraineStyleSchema {
   radioGroup: RadioGroupStyleConfig
   select: SelectStyleConfig
   slider: SliderStyleConfig
+  boldSlider: BoldSliderStyleConfig
   switch: SwitchStyleConfig
   textarea: TextareaStyleConfig
   breadcrumb: BreadcrumbStyleConfig

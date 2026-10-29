@@ -931,52 +931,6 @@ describe('Slider', () => {
     expect(markers[0]?.className).toContain('w-px')
   })
 
-  test('uses a solid track and inset marker shape for bold variant', () => {
-    const screen = render(() => <Slider marker variant="bold" min={0} max={4} step={1} />)
-
-    const track = screen.container.querySelector('[data-slot="slider-track"]')
-    const range = screen.container.querySelector('[data-slot="slider-range"]')
-    const marker = screen.container.querySelector('[data-slot="slider-marker"]')
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]')
-
-    expect(track?.className).toContain('w-full')
-    expect(track?.className).toContain('h-(--s-size)')
-    expect(track?.className).toContain('rounded-sm')
-    expect(track?.className).toContain('bg-input')
-    expect(range?.className).toContain('rounded-[inherit]')
-    expect(range?.className).toContain('bg-primary')
-    expect(range?.className).toContain('z-raised')
-    expect(marker?.className).toContain('w-px')
-    expect(marker?.className).toContain('h-1/3')
-    expect(range?.className).toContain('after:')
-    expect(thumb?.className).toContain('opacity-0')
-    expect(thumb?.className).toContain('w-(--s-size)')
-    expect(thumb?.className).toContain('h-full')
-    expect(thumb?.className).toContain('top-0')
-    expect(thumb?.className).toContain('z-control')
-    expect(thumb?.className).toContain('cursor-grab')
-    expect(thumb?.classList).toContain('-translate-x-1/2')
-  })
-
-  test('applies distinct border radius and heights across bold sizes', () => {
-    const sm = render(() => <Slider variant="bold" size="sm" />)
-    const md = render(() => <Slider variant="bold" size="md" />)
-    const lg = render(() => <Slider variant="bold" size="lg" />)
-
-    const smTrack = sm.container.querySelector('[data-slot="slider-track"]')
-    const mdTrack = md.container.querySelector('[data-slot="slider-track"]')
-    const lgTrack = lg.container.querySelector('[data-slot="slider-track"]')
-
-    expect(smTrack?.className).toContain('h-(--s-size)')
-    expect(smTrack?.className).toContain('rounded-xs')
-
-    expect(mdTrack?.className).toContain('h-(--s-size)')
-    expect(mdTrack?.className).toContain('rounded-sm')
-
-    expect(lgTrack?.className).toContain('h-(--s-size)')
-    expect(lgTrack?.className).toContain('rounded-md')
-  })
-
   test('markerIndexes is reactive when step, marker, or bounds change', async () => {
     const [step, setStep] = createSignal<number | undefined>(2)
     const [marker, setMarker] = createSignal(true)
@@ -1045,53 +999,8 @@ describe('Slider', () => {
     })
   })
 
-  test('centers bold range thumbs on their target values', () => {
-    const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
-    const thumbs = getThumbs(screen.container)
-
-    expect(thumbs[0]?.classList).toContain('-translate-x-1/2')
-    expect(thumbs[1]?.classList).toContain('-translate-x-1/2')
-    expect(thumbs[0]?.className).not.toContain('translate-x-1 -translate-y-1/2')
-    expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
-  })
-
-  test('renders both thumb indicators on bold range slider', () => {
-    const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
-    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
-
-    expect(range.className).toContain('before:')
-    expect(range.className).toContain('after:')
-  })
-
-  test('renders only one thumb indicator on bold single slider', () => {
-    const screen = render(() => <Slider variant="bold" defaultValue={40} />)
-    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
-
-    expect(range.hasAttribute('data-multiple')).toBe(false)
-    expect(range.className).toContain('data-multiple:before:')
-    expect(range.className).toContain('after:')
-  })
-
-  test('clears pointer focus from bold thumb on pointer down', async () => {
-    const screen = render(() => <Slider variant="bold" defaultValue={40} />)
-    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement
-    mockPointerCapture(thumb)
-
-    thumb.focus()
-
-    expect(document.activeElement).toBe(thumb)
-
-    fireEvent.pointerDown(thumb, {
-      button: 0,
-      clientX: 0,
-      pointerId: 1,
-    })
-
-    expect(document.activeElement).not.toBe(thumb)
-  })
-
   test('keeps dragging state on the root and active thumb', () => {
-    const screen = render(() => <Slider defaultValue={20} variant="bold" />)
+    const screen = render(() => <Slider defaultValue={20} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
     const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
@@ -1669,32 +1578,17 @@ describe('Slider', () => {
 })
 
 test.each([
-  ['sm', '4px', '20px', '14px', '3px', '12px'],
-  ['md', '5px', '24px', '16px', '4px', '15px'],
-  ['lg', '6px', '28px', '18px', '5px', '18px'],
-] as const)(
-  'outputs theme dimensions on the root for %s',
-  (size, thickness, boldThickness, length, offset, thumbSize) => {
-    const [bold, setBold] = createSignal(false)
-    const screen = render(() => <Slider size={size} variant={bold() ? 'bold' : 'default'} />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
-    const track = screen.container.querySelector<HTMLElement>('[data-slot="slider-track"]')!
-    expect(root.style.getPropertyValue('--s-size')).toBe(thickness)
-    expect(root.style.getPropertyValue('--s-thumb-size')).toBe(thumbSize)
-    expect(track.style.getPropertyValue('--s-size')).toBe('')
-    setBold(true)
-    expect(root.style.getPropertyValue('--s-size')).toBe(boldThickness)
-    expect(root.style.getPropertyValue('--s-len')).toBe(length)
-    expect(root.style.getPropertyValue('--s-offset')).toBe(offset)
-    expect(root.style.getPropertyValue('--s-marker-position')).toBe(
-      'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
-    )
-    setBold(false)
-    expect(root.style.getPropertyValue('--s-len')).toBe('')
-    expect(root.style.getPropertyValue('--s-offset')).toBe('')
-    expect(root.style.getPropertyValue('--s-marker-position')).toBe('')
-  },
-)
+  ['sm', '4px', '12px'],
+  ['md', '5px', '15px'],
+  ['lg', '6px', '18px'],
+] as const)('outputs theme dimensions on the root for %s', (size, thickness, thumbSize) => {
+  const screen = render(() => <Slider size={size} />)
+  const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
+  const track = screen.container.querySelector<HTMLElement>('[data-slot="slider-track"]')!
+  expect(root.style.getPropertyValue('--s-size')).toBe(thickness)
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe(thumbSize)
+  expect(track.style.getPropertyValue('--s-size')).toBe('')
+})
 
 test('updates thumb dimensions with size and accepts an independent override', () => {
   const [size, setSize] = createSignal<'sm' | 'md' | 'lg'>('sm')
@@ -1729,4 +1623,32 @@ test('createSlider works standalone with minimal options', () => {
     expect(slider.getThumbMaxValue(0)).toBe(100)
     dispose()
   })
+})
+
+test('renders static children and live state children inside the root', () => {
+  const screen = render(() => (
+    <>
+      <Slider defaultValue={30}>
+        <span data-testid="static">Static</span>
+      </Slider>
+      <Slider min={0} max={200} defaultValue={[50, 150]}>
+        {(state) => (
+          <output data-testid="state">
+            {state.value.join('-')}|{state.values.join(',')}|{state.percentages.join(',')}|
+            {String(state.dragging)}
+          </output>
+        )}
+      </Slider>
+    </>
+  ))
+  const roots = screen.container.querySelectorAll('[data-slot="slider"]')
+  expect(roots[0]?.contains(screen.getByTestId('static'))).toBe(true)
+
+  const output = screen.getByTestId('state')
+  expect(roots[1]?.contains(output)).toBe(true)
+  expect(output.textContent).toBe('50-150|50,150|0.25,0.75|false')
+
+  const thumb = getThumbs(roots[1] as HTMLElement)[0]!
+  fireEvent.keyDown(thumb, { key: 'End' })
+  expect(output.textContent).toBe('150-150|150,150|0.75,0.75|false')
 })

@@ -1,0 +1,124 @@
+---
+title: BoldSlider
+description: Pick a single value on a filled track that shows its label and value inline.
+group: Form
+api:
+  path: src/components/bold-slider/bold-slider
+sidebar:
+  badge: New
+search:
+  tags: [slider, scrubber, range, value, label, control panel, inspector, bold]
+---
+
+import { BoldSlider } from '@src'
+
+<Playground
+  controls={[
+    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Bounce' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0.1, inputType: 'number' },
+    { kind: 'switch', prop: 'showValue', label: 'Show value', defaultValue: true },
+    { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'inverted', label: 'Inverted', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <div class="max-w-sm w-full">
+      <BoldSlider
+        defaultValue={0.5}
+        min={0}
+        max={1}
+        label={props.label}
+        size={props.size}
+        step={props.step}
+        showValue={props.showValue}
+        marker={props.marker}
+        disabled={props.disabled}
+        inverted={props.inverted}
+      />
+    </div>
+  )}
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root' },
+    children: [
+      {
+        slot: 'track',
+        children: [{ slot: 'range' }, { slot: 'marker' }],
+      },
+      { slot: 'thumb' },
+      {
+        slot: 'content',
+        children: [{ slot: 'label' }, { slot: 'value' }, { slot: 'indicator' }],
+      },
+    ],
+  }}
+/>
+
+## Usage
+
+Use BoldSlider for dense settings such as inspector panels and animation controls, where each row
+holds one number and the track doubles as its readout. Use [Slider](/components/slider) for
+ranges, vertical layouts, or a thin track with a visible thumb.
+
+```tsx
+import { BoldSlider } from 'moraine'
+
+export function Example() {
+  return <BoldSlider label="Opacity" defaultValue={80} formatValue={(value) => `${value}%`} />
+}
+```
+
+BoldSlider is built on Slider, so `value`, `defaultValue`, `min`, `max`, `step`, `marker`,
+`inverted`, form props, keyboard interaction, and `translations` behave the same way.
+
+### Label and value
+
+`label` is drawn at the start of the track and is also the default `aria-label`. The value is
+drawn at the end; set `showValue={false}` to hide it. By default the value is rounded to the
+decimal places of `step`. Pass `formatValue` to add units or other formatting.
+
+Both texts are drawn twice: once over the track and once clipped to the filled range. Each part of
+the text uses the colors of the surface behind it, so it stays readable while the fill passes
+through it.
+
+### Indicator
+
+The indicator is a capsule just inside the edge of the fill. It stays dim and smaller at rest,
+and brightens to full size while the slider is hovered, dragged, or focused with the keyboard.
+Like the label, it is drawn over both surfaces, so its color follows the background it sits on.
+
+## Examples
+
+### Tune animation settings
+
+Stack several sliders to build a compact control panel.
+
+<Preview path="./control-panel" />
+
+### Show a unit with the value
+
+Use `formatValue` to append a unit.
+
+<Preview path="./blur-slider" />
+
+### Bind brightness to a form
+
+Place the slider in `form.Field` so the schema owns the committed number.
+
+<Preview path="./form-integration" />

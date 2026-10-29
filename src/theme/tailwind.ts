@@ -111,6 +111,7 @@ export const moraineTailwind = plugin(
           'ellipsis',
           'error',
           'expanded',
+          'fill',
           'focused',
           'footer',
           'has-text',

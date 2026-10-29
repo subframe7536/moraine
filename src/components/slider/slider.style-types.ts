@@ -27,10 +27,6 @@ export interface SliderStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual treatment of the component.
-   * @default 'default'
-   */
-  variant?: 'default' | 'bold'
 }
 
 export type SliderStyleConfig = ComponentStyleConfig<SliderStyleSlot, SliderStyleVariants>

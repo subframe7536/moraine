@@ -61,6 +61,7 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── avatar/             # Avatar and fallback display.
 │   ├── avatar-group/       # Overlapping avatar groups.
 │   ├── badge/              # Badge styles and component.
+│   ├── bold-slider/        # Single-value slider with inline label, value, and indicator.
 │   ├── button/             # Button and button-like interactions.
 │   ├── button-group/       # Joined button groups.
 │   ├── card/               # Card layout primitives.

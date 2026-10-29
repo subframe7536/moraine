@@ -63,10 +63,14 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'active:text-primary-active',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
-        'after:h-(--s-offset)',
+        'px-(--bs-pad)',
         'size-(--s-thumb-size)',
-        'data-inverted:after:left-auto',
-        'after:left-(--s-marker-position)',
+        'group-data-[inverted]:start-auto',
+        'w-(--bs-indicator-width)',
+        'w-[100cqw]',
+        '@container',
+        'group-has-[:focus-visible]:ring-3',
+        '[transition-property:opacity,scale,inset-inline-start,inset-inline-end]',
         '-translate-x-1/2',
         'data-transition:h-(--mo-collapsible-content-height)',
         'data-[side=bottom]:mt-(--mo-popper-content-overflow-padding)',
@@ -109,7 +113,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('width:var(--mo-popper-anchor-width)')
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
-      expect(css).toContain('height:var(--s-offset)')
+      expect(css).toContain('var(--bs-pad)')
       if (wind === presetWind3) {
         expect(css).not.toContain('--mo-leading')
         expect(css).not.toContain('font-size:calc(var(--font-size')
@@ -118,7 +122,8 @@ describe('isolated built-dist UnoCSS consumer', () => {
         expect(css).toContain('font-size:calc(var(--font-size, 1rem) * 0.875)')
         expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
       }
-      expect(css).toContain('left:var(--s-marker-position)')
+      expect(css).toContain('width:var(--bs-indicator-width)')
+      expect(css).toContain('container-type:inline-size')
       expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
       expect(css).toContain('height:var(--s-thumb-size)')

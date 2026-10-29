@@ -40,7 +40,6 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   step?: number
   styles?: { marker?: JSX.CSSProperties }
   value?: TValue
-  variant?: SliderT.Variants['variant'] | null
   translations?: SliderT.Translations
 }
 
@@ -62,6 +61,7 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   getThumbMaxValue: (index: number) => number
   getThumbMinValue: (index: number) => number
   getThumbValueText: (index: number) => string
+  getValuePercent: (value: number) => number
   markerIndexes: () => number[]
   onPointerCancel: (event: PointerEvent) => void
   onThumbBlur: (event: FocusEvent) => void
@@ -552,11 +552,6 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const target = event.currentTarget as HTMLDivElement
     const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     grabOffset = getThumbGrabOffset(target, pointerPosition, merged.orientation === 'vertical')
-    if (merged.variant === 'bold') {
-      target.blur()
-      return
-    }
-
     target.focus()
   }
 
@@ -731,6 +726,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     getThumbMaxValue,
     getThumbMinValue,
     getThumbValueText,
+    getValuePercent,
     markerIndexes,
     onThumbBlur,
     onThumbFocus,

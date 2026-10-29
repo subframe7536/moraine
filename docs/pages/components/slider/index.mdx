@@ -15,16 +15,6 @@ import { createSignal } from 'solid-js'
   controls={[
     {
       kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Bold', value: 'bold' },
-      ],
-    },
-    {
-      kind: 'select',
       prop: 'size',
       label: 'Size',
       defaultValue: 'md',
@@ -63,7 +53,6 @@ import { createSignal } from 'solid-js'
             if (typeof val === 'number') setValue(val)
           }}
           orientation={props.vertical ? 'vertical' : 'horizontal'}
-          variant={props.variant}
           size={props.size}
           step={props.step}
           marker={props.marker}
@@ -95,6 +84,8 @@ import { createSignal } from 'solid-js'
 Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric
 field when users need precise text entry. Use [InputNumber](/components/input-number) when the value
 is typed and stepped rather than dragged.
+Use [BoldSlider](/components/bold-slider) for a compact single value with the label and value
+shown inside the track.
 
 ```tsx
 import { Field, Slider } from 'moraine'
@@ -138,6 +129,15 @@ you only need a label and messages.
 <Slider name="brightness" defaultValue={75} step={5} min={0} max={100} />
 ```
 
+### Custom content
+
+Pass `children` to render extra content inside the root after the thumbs. A render function
+receives the live `value`, sorted `values`, `percentages` from `0` to `1`, and `dragging` state.
+
+```tsx
+<Slider defaultValue={40}>{(state) => <output>{state.value}</output>}</Slider>
+```
+
 ### Keyboard interaction
 
 When `step` is omitted, keyboard stepping defaults to 1% of the configured range. Page-sized
@@ -173,13 +173,6 @@ whether the thumbs may overlap.
 Place the slider in `form.Field` so the schema owns the committed number.
 
 <Preview path="./form-integration" />
-
-### Overlay a blur amount
-
-Put a label and live value inside the slider when the track itself is the readout. Keep
-`aria-label` on the slider.
-
-<Preview path="./blur-slider" />
 
 ### Snap volume to ticks
 

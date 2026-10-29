@@ -1,4 +1,4 @@
-import type { Ref } from 'solid-js'
+import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
 import type { BaseProps } from '../../shared/types'
@@ -26,6 +26,17 @@ export namespace SliderT {
   export type Translations = Partial<Messages>
 
   export type Value = number | number[]
+
+  export interface ChildrenRenderProps<TValue = Value> {
+    /** Current public value: a number for one thumb, or an array for a range. */
+    value: TValue
+    /** Current thumb values in ascending order. */
+    values: number[]
+    /** Position of each thumb along the track, from `0` to `1`. */
+    percentages: number[]
+    /** Whether a pointer drag is in progress. */
+    dragging: boolean
+  }
 
   /**
    * Base props for the Slider component.
@@ -95,6 +106,13 @@ export namespace SliderT {
      * Callback when the slider selection change is committed.
      */
     onValueCommit?: (value: TValue) => void
+
+    /**
+     * Content rendered inside the root after the thumbs, or a render function receiving the live slider state.
+     * A render function must declare its parameter, even when unused. A zero-argument
+     * function is called as an accessor and is not mounted as a component.
+     */
+    children?: JSX.Element | Component<ChildrenRenderProps<TValue>>
   }
 
   /**

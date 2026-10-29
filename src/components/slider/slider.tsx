@@ -1,9 +1,18 @@
 import type { JSX } from 'solid-js'
-import { createMemo, For, mergeProps, onMount, Show, splitProps } from 'solid-js'
+import {
+  children as resolveChildren,
+  createMemo,
+  For,
+  mergeProps,
+  onMount,
+  Show,
+  splitProps,
+} from 'solid-js'
 
 import { useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { HiddenInput } from '../../shared/hidden-input'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callRef, createId } from '../../shared/utils'
 import type { Orientation } from '../../theme/style-types'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -38,7 +47,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'onValueCommit',
     'orientation',
     'inverted',
-    'variant',
     'size',
     'classes',
     'styles',
@@ -46,6 +54,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
     'aria-label',
     'translations',
+    'children',
   ])
   const themeField = useFieldContext()
   const messages = useMessages('slider', defaultSliderMessages, () => local.translations)
@@ -129,6 +138,27 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   const thumbCount = createMemo(() => slider.currentValues().length)
   const isMultiple = createMemo(() => thumbCount() > 1)
   const thumbIndexes = createMemo(() => Array.from({ length: thumbCount() }, (_, index) => index))
+  const child = resolveChildren(() => local.children as JSX.Element)
+  const resolvedChildren = createMemo(() => {
+    const value = child() as SliderT.Base<TValue>['children']
+    if (typeof value !== 'function') {
+      return value
+    }
+    return renderWithProps<SliderT.ChildrenRenderProps<TValue>>(value, {
+      get value() {
+        return slider.getPublicValue(slider.currentValues())
+      },
+      get values() {
+        return slider.currentValues()
+      },
+      get percentages() {
+        return slider.currentValues().map(slider.getValuePercent)
+      },
+      get dragging() {
+        return slider.dragging()
+      },
+    })
+  })
 
   return (
     <div
@@ -273,7 +303,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         )}
       </For>
 
-      {rest.children}
+      {resolvedChildren()}
     </div>
   )
 }
