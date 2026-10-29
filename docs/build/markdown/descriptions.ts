@@ -29,6 +29,7 @@ export const DATA_ATTRIBUTE_DESCRIPTIONS: Record<string, string> = {
   'data-input-group': 'Identifies a control rendered within an input group.',
   'data-instant-motion': 'Present when enter and exit motion should complete immediately.',
   'data-invalid': 'Present when the field or form has a validation error.',
+  'data-leaf': 'Present when the tree item has no children.',
   'data-inverted': 'Present when the component direction or range is inverted.',
   'data-loading': 'Present when the component or async operation is loading.',
   'data-mobile': 'Present on the mobile rendering path.',

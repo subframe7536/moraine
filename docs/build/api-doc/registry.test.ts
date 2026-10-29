@@ -82,6 +82,41 @@ describe('loadApiRegistry', () => {
     })
   })
 
+  test('registers factory members declared in frontmatter for createTree', async () => {
+    const root = await createFileFixture({
+      'docs/pages/components/tree/index.mdx': page(
+        'src/components/tree/tree',
+        '[Item, ItemTrigger]',
+      ),
+      'src/components/tree/tree.types.ts': types(
+        'Tree',
+        'composite',
+        'export interface ItemProps {}\nexport interface ItemTriggerProps {}',
+      ),
+      'src/components/tree/tree.recipe.ts': `export const treeRecipe = defineRecipe('tree', { base: { root: '' } })`,
+    })
+    const [tree] = await loadRegistry(root)
+    expect(tree?.parts.map((part) => [part.id, part.name])).toEqual([
+      ['tree-tree', 'tree.Tree'],
+      ['tree-item', 'tree.Item'],
+      ['tree-item-trigger', 'tree.ItemTrigger'],
+    ])
+    expect(tree?.parts.map((part) => part.access)).toEqual([
+      { kind: 'factory-member', factory: 'createTree', member: 'Tree' },
+      { kind: 'factory-member', factory: 'createTree', member: 'Item' },
+      { kind: 'factory-member', factory: 'createTree', member: 'ItemTrigger' },
+    ])
+  })
+
+  test('requires declared parts for the createTree composite', async () => {
+    const root = await createFileFixture({
+      'docs/pages/components/tree/index.mdx': page('src/components/tree/tree'),
+      'src/components/tree/tree.types.ts': types('Tree', 'composite'),
+      'src/components/tree/tree.recipe.ts': `export const treeRecipe = defineRecipe('tree', { base: { root: '' } })`,
+    })
+    await expect(loadRegistry(root)).rejects.toThrow('must declare frontmatter.api.parts')
+  })
+
   test.each([
     {
       name: 'missing types',

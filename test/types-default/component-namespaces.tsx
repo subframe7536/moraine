@@ -1,4 +1,4 @@
-import { Button, Icon, Kbd, Select, createForm } from 'moraine'
+import { Button, Icon, Kbd, Select, createForm, createTree } from 'moraine'
 import type {
   AccordionT,
   AlertDialogT,
@@ -47,6 +47,7 @@ import type {
   TabsT,
   TextareaT,
   TooltipT,
+  TreeT,
 } from 'moraine'
 import type { DataTableT } from 'moraine/data-table'
 import * as v from 'valibot'
@@ -282,6 +283,7 @@ export type ComponentNamespaceHeaders = {
     TooltipT.Classes,
     TooltipT.Styles
   >
+  Tree: Header<TreeT.Kind, TreeT.Slot, TreeT.Variants, TreeT.Classes, TreeT.Styles>
 }
 
 type IsNever<T> = [T] extends [never] ? true : false
@@ -349,6 +351,13 @@ const Schema = v.object({ name: v.string() })
 const form = createForm({ schema: Schema })
 ;<form.Form classes={{ root: 'space-y-2' }} styles={{ root: { color: 'red' } }} />
 
+const tree = createTree({
+  items: () => [{ id: 'root', name: 'Root' }],
+  getKey: (node: { id: string; name: string }) => node.id,
+  getTextValue: (node: { id: string; name: string }) => node.name,
+})
+;<tree.Tree classes={{ root: 'w-full' }} styles={{ root: { color: 'red' } }} />
+
 export type RetainedNamespaceMembers = [
   IconT.Name,
   KbdT.Key,
@@ -357,6 +366,9 @@ export type RetainedNamespaceMembers = [
   FileUploadT.Value,
   FormT.FieldName<typeof Schema>,
   FormT.Instance<typeof Schema>,
+  TreeT.Instance<{ id: string; name: string }>,
+  TreeT.ItemInstance<{ id: string; name: string }>,
+  TreeT.ItemRenderProps<{ id: string; name: string }>,
   InputNumberT.PointerType,
   StepperT.Value,
   SelectT.Entry,
@@ -427,6 +439,14 @@ export type CompositePartContracts = [
   TooltipT.TriggerProps,
   TooltipT.ContentBase,
   TooltipT.ContentProps,
+  TreeT.ItemBase,
+  TreeT.ItemProps,
+  TreeT.ItemTriggerBase,
+  TreeT.ItemTriggerProps,
+  TreeT.ItemIconBase,
+  TreeT.ItemIconProps,
+  TreeT.ItemLabelBase,
+  TreeT.ItemLabelProps,
   DropdownMenuT.TriggerBase,
   DropdownMenuT.TriggerProps,
   DropdownMenuT.ContentBase,

@@ -43,7 +43,7 @@ describe('generateApiDoc', () => {
       publicNames,
     )
     for (const component of result.componentDocs.values()) {
-      if (component.name === 'Form') {
+      if (component.name === 'Form' || component.name === 'Tree') {
         continue
       }
       const exported = (Moraine as Record<string, unknown>)[component.name]
@@ -244,6 +244,37 @@ describe('generateApiDoc', () => {
       expect.arrayContaining(['name', 'label', 'description', 'required']),
     )
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
+
+    const tree = result.componentDocs.get('tree')
+    expect(tree?.parts.map((part) => part.name)).toEqual([
+      'tree.Tree',
+      'tree.Item',
+      'tree.ItemTrigger',
+      'tree.ItemCheckbox',
+      'tree.ItemIcon',
+      'tree.ItemLabel',
+      'tree.ItemAction',
+    ])
+    expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
+    const treeRootProps = tree?.parts[0]?.props.map((prop) => prop.name) ?? []
+    expect(treeRootProps).toEqual(
+      expect.arrayContaining([
+        'loadingIcon',
+        'scrollToItem',
+        'transition',
+        'triggerIcon',
+        'virtualRender',
+      ]),
+    )
+    expect(treeRootProps).not.toContain('animate')
+    expect(treeRootProps).not.toContain('icons')
+    expect(treeRootProps).not.toContain('virtual')
+    expect(tree?.dataAttributes.find((target) => target.target === 'content')?.attributes).toEqual(
+      expect.arrayContaining(['data-closed', 'data-expanded']),
+    )
+    expect(tree?.dataAttributes.find((target) => target.target === 'row')?.attributes).toEqual(
+      expect.arrayContaining(['data-expanded', 'data-selected']),
+    )
   })
 
   test('is deterministic', async () => {
