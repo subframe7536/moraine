@@ -36,6 +36,11 @@
       "category": "select"
     },
     {
+      "key": "bold-slider",
+      "name": "BoldSlider",
+      "category": "form"
+    },
+    {
       "key": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation"

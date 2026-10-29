@@ -15,16 +15,6 @@ import { createSignal } from 'solid-js'
   controls={[
     {
       kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Bold', value: 'bold' },
-      ],
-    },
-    {
-      kind: 'select',
       prop: 'size',
       label: 'Size',
       defaultValue: 'md',
@@ -34,7 +24,7 @@ import { createSignal } from 'solid-js'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 10, inputType: 'number' },
+    { kind: 'switch', prop: 'step', label: 'Step', defaultValue: true },
     { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
     { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -63,10 +53,9 @@ import { createSignal } from 'solid-js'
             if (typeof val === 'number') setValue(val)
           }}
           orientation={props.vertical ? 'vertical' : 'horizontal'}
-          variant={props.variant}
           size={props.size}
-          step={props.step}
-          marker={props.marker}
+          step={props.step ? 10 : undefined}
+          marker={props.marker ? 10 : false}
           disabled={props.disabled}
           inverted={props.inverted}
         />
@@ -95,6 +84,8 @@ import { createSignal } from 'solid-js'
 Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric
 field when users need precise text entry. Use [InputNumber](/components/input-number) when the value
 is typed and stepped rather than dragged.
+Use [BoldSlider](/components/bold-slider) for a compact single value with the label and value
+shown inside the track.
 
 ```tsx
 import { Field, Slider } from 'moraine'
@@ -121,11 +112,13 @@ when the slider owns its value.
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to
-render visual tick marks at each step interval across the track rail.
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Set `marker` to
+`true` to draw a tick at each step, or to a number to draw a tick every that many units without
+changing how the value snaps.
 
 ```tsx
 <Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
+<Slider value={value()} min={0} max={100} marker={25} onValueChange={setValue} />
 ```
 
 ### Forms
@@ -136,6 +129,15 @@ you only need a label and messages.
 
 ```tsx
 <Slider name="brightness" defaultValue={75} step={5} min={0} max={100} />
+```
+
+### Custom content
+
+Pass `children` to render extra content inside the root after the thumbs. A render function
+receives the live `value`, sorted `values`, `percentages` from `0` to `1`, and `dragging` state.
+
+```tsx
+<Slider defaultValue={40}>{(state) => <output>{state.value}</output>}</Slider>
 ```
 
 ### Keyboard interaction
@@ -173,13 +175,6 @@ whether the thumbs may overlap.
 Place the slider in `form.Field` so the schema owns the committed number.
 
 <Preview path="./form-integration" />
-
-### Overlay a blur amount
-
-Put a label and live value inside the slider when the track itself is the readout. Keep
-`aria-label` on the slider.
-
-<Preview path="./blur-slider" />
 
 ### Snap volume to ticks
 

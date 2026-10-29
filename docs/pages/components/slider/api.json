@@ -32,6 +32,12 @@
           }
         },
         {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element | Component<ChildrenRenderProps<TValue>>",
+          "description": "Content rendered inside the root after the thumbs, or a render function receiving the live slider state.\nA render function must declare its parameter, even when unused. A zero-argument\nfunction is called as an accessor and is not mounted as a component."
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -84,8 +90,8 @@
         {
           "name": "marker",
           "optional": true,
-          "type": "boolean",
-          "description": "Whether to show visual step markers on the track, only applicable when `step` is defined and greater than 0.",
+          "type": "boolean | number",
+          "description": "Visual markers on the track. `true` marks every `step` and needs a `step` greater than 0.\nA number marks every that many units without affecting snapping.",
           "default": {
             "kind": "literal",
             "value": false
@@ -208,16 +214,6 @@
           "optional": true,
           "type": "TValue",
           "description": "The current value of the input (controlled)."
-        },
-        {
-          "name": "variant",
-          "optional": true,
-          "type": "'default' | 'bold'",
-          "description": "Visual treatment of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "default"
-          }
         }
       ]
     }
@@ -250,10 +246,17 @@
       ]
     },
     {
+      "target": "marker",
+      "attributes": [
+        "data-active"
+      ]
+    },
+    {
       "target": "thumb",
       "attributes": [
         "data-disabled",
         "data-dragging",
+        "data-focus-visible",
         "data-invalid",
         "data-inverted",
         "data-readonly",
