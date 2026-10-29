@@ -1,11 +1,12 @@
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
+import { useRecipe } from '../../provider'
 import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext, useTreePart } from './tree-context'
-import { treeDataAttributes } from './tree.recipe'
+import { useTreeContext, useTreeItemContext } from './tree-context'
+import { treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 /** Checkbox bound to the item's check state. */
@@ -25,7 +26,11 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
     { checkedIcon: 'icon-check' as const, indeterminateIcon: 'icon-minus' as const },
     local,
   )
-  const { slots } = useTreePart('checkbox', local)
+  const { slots } = useRecipe(treeRecipe, local, {
+    slot: 'checkbox',
+    contextVariants: () => context.variants,
+    contextSlots: () => context.slotOverrides,
+  })
 
   const checked = () => item.checkedState === 'checked'
   const unchecked = () => item.checkedState === 'unchecked'

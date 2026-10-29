@@ -2,9 +2,11 @@ import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
-import { useTreeItemContext, useTreePart } from './tree-context'
+import { useTreeContext, useTreeItemContext } from './tree-context'
+import { treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 /** Text of the item. */
@@ -18,7 +20,12 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
     'style',
   ])
   const item = useTreeItemContext()!.item
-  const { slots } = useTreePart('label', local)
+  const context = useTreeContext()
+  const { slots } = useRecipe(treeRecipe, local, {
+    slot: 'label',
+    contextVariants: () => context.variants,
+    contextSlots: () => context.slotOverrides,
+  })
 
   return (
     <Dynamic component={local.as ?? 'span'} data-slot="tree-label" {...rest} {...slots.label}>

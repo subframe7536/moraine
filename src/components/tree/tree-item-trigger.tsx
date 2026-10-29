@@ -2,12 +2,13 @@ import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext, useTreePart } from './tree-context'
-import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes } from './tree.recipe'
+import { useTreeContext, useTreeItemContext } from './tree-context'
+import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes, treeRecipe } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 /** Expand affordance. Shows the loading icon while the branch loads its children. */
@@ -24,7 +25,11 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   ])
   const context = useTreeContext()
   const item = useTreeItemContext()!.item
-  const { slots } = useTreePart('trigger', local)
+  const { slots } = useRecipe(treeRecipe, local, {
+    slot: 'trigger',
+    contextVariants: () => context.variants,
+    contextSlots: () => context.slotOverrides,
+  })
 
   return (
     <Show when={context.options.trigger !== false}>
