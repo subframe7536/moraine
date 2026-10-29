@@ -36,8 +36,7 @@ import { BoldSlider } from '@src'
         { label: 'Solid', value: 'solid' },
       ],
     },
-    { kind: 'switch', prop: 'stepper', label: 'Stepper', defaultValue: true },
-    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0.1, inputType: 'number' },
+    { kind: 'switch', prop: 'step', label: 'Step', defaultValue: true },
     { kind: 'switch', prop: 'showValue', label: 'Show value', defaultValue: true },
     { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -53,9 +52,9 @@ import { BoldSlider } from '@src'
         label={props.label}
         size={props.size}
         variant={props.variant}
-        step={props.stepper ? props.step : undefined}
+        step={props.step ? 0.1 : undefined}
         showValue={props.showValue}
-        marker={props.marker}
+        marker={props.marker ? 0.1 : false}
         disabled={props.disabled}
         inverted={props.inverted}
       />
@@ -124,7 +123,8 @@ The label, value, and indicator keep the same colors over the fill and the track
 ### Step and markers
 
 Set `step` to snap pointer and keyboard input to increments. Without `step`, pointer movement is
-continuous. Enable `marker` to draw a tick at each step. Ticks use `muted-foreground`, so they stay
+continuous. Set `marker` to `true` to draw a tick at each step, or to a number to draw a tick every
+that many units without changing how the value snaps. Ticks use `muted-foreground`, so they stay
 visible in light and dark themes.
 
 ### Indicator

@@ -24,7 +24,7 @@ import { createSignal } from 'solid-js'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'input', prop: 'step', label: 'Step', defaultValue: 10, inputType: 'number' },
+    { kind: 'switch', prop: 'step', label: 'Step', defaultValue: true },
     { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
     { kind: 'switch', prop: 'vertical', label: 'Vertical', defaultValue: false },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
@@ -54,8 +54,8 @@ import { createSignal } from 'solid-js'
           }}
           orientation={props.vertical ? 'vertical' : 'horizontal'}
           size={props.size}
-          step={props.step}
-          marker={props.marker}
+          step={props.step ? 10 : undefined}
+          marker={props.marker ? 10 : false}
           disabled={props.disabled}
           inverted={props.inverted}
         />
@@ -112,11 +112,13 @@ when the slider owns its value.
 
 ### Step and markers
 
-Set `step` to snap pointer drag and keyboard navigation to fixed increments. Enable `marker` to
-render visual tick marks at each step interval across the track rail.
+Set `step` to snap pointer drag and keyboard navigation to fixed increments. Set `marker` to
+`true` to draw a tick at each step, or to a number to draw a tick every that many units without
+changing how the value snaps.
 
 ```tsx
 <Slider value={value()} min={0} max={100} step={10} marker onValueChange={setValue} />
+<Slider value={value()} min={0} max={100} marker={25} onValueChange={setValue} />
 ```
 
 ### Forms

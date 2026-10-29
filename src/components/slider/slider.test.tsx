@@ -1697,3 +1697,28 @@ test('focuses thumbs without the keyboard focus ring for pointer input', () => {
 
   focus.mockRestore()
 })
+
+test('draws markers at a numeric interval without changing snapping', () => {
+  const screen = render(() => (
+    <>
+      <Slider data-testid="no-step" defaultValue={40} marker={25} />
+      <Slider data-testid="with-step" defaultValue={40} step={10} marker={25} />
+      <Slider data-testid="uneven" defaultValue={0} max={105} marker={10} />
+      <Slider data-testid="float" defaultValue={0} max={0.3} marker={0.1} />
+    </>
+  ))
+  const positions = (testId: string) =>
+    Array.from(
+      screen.getByTestId(testId).querySelectorAll<HTMLElement>('[data-slot="slider-marker"]'),
+    ).map((marker) => marker.style.left)
+
+  expect(positions('no-step')).toEqual(['25%', '50%', '75%'])
+  expect(positions('with-step')).toEqual(['25%', '50%', '75%'])
+  // The last marker before max is kept when the range is not a multiple of the interval.
+  expect(positions('uneven')).toHaveLength(10)
+  expect(positions('float')).toHaveLength(2)
+
+  const thumb = getThumbs(screen.getByTestId('with-step'))[0]!
+  fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+  expect(thumb.getAttribute('aria-valuenow')).toBe('50')
+})

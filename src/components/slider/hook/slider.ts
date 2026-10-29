@@ -34,7 +34,7 @@ export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
   inverted?: boolean
-  marker?: boolean
+  marker?: boolean | number
   max?: number
   min?: number
   minStepsBetweenThumbs?: number
@@ -213,16 +213,25 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       [startEdge]: `${getValuePercent(value) * 100}%`,
     }))
   })
+  // A numeric `marker` sets a visual-only interval; otherwise markers follow `step`.
+  const markerInterval = createMemo(() => {
+    const marker = merged.marker
+    if (typeof marker === 'number') {
+      return marker > 0 ? marker : undefined
+    }
+    return definedStep()
+  })
   const markerIndexes = createMemo(() => {
-    const step = definedStep()
-    if (!step || merged.max <= merged.min) {
+    const interval = markerInterval()
+    if (!interval || merged.max <= merged.min) {
       return []
     }
 
-    const markerCount = Math.floor((merged.max - merged.min) / step)
-    return Array.from({ length: Math.max(markerCount - 1, 0) }, (_, index) => index + 1)
+    // Markers sit strictly between min and max; the epsilon absorbs float error such as 0.3 / 0.1.
+    const markerCount = Math.ceil((merged.max - merged.min) / interval - 1e-9) - 1
+    return Array.from({ length: Math.max(markerCount, 0) }, (_, index) => index + 1)
   })
-  const getMarkerValue = (index: number): number => merged.min + keyboardStep() * index
+  const getMarkerValue = (index: number): number => merged.min + (markerInterval() ?? 0) * index
   const getMarkerStyle = (index: number): JSX.CSSProperties => {
     const { startEdge } = getSliderEdges()
     const value = getMarkerValue(index)
