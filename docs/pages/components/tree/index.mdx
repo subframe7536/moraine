@@ -132,16 +132,33 @@ import { createComponent } from 'solid-js'
 
 <Anatomy
   value={{
-    root: { slot: 'root' },
+    root: { slot: 'root', element: 'ul' },
     children: [
       {
+        part: 'tree.Item',
         slot: 'item',
+        element: 'li',
         children: [
           {
             slot: 'row',
-            children: [{ slot: 'trigger' }, { slot: 'icon' }, { slot: 'label' }],
+            element: 'div',
+            children: [
+              { part: 'tree.ItemTrigger', slot: 'trigger', element: 'span' },
+              {
+                part: 'tree.ItemCheckbox',
+                slot: 'checkbox',
+                element: 'button',
+                children: [{ slot: 'checkboxIcon' }],
+              },
+              { part: 'tree.ItemIcon', slot: 'icon' },
+              { part: 'tree.ItemLabel', slot: 'label', element: 'span' },
+            ],
           },
-          { slot: 'content' },
+          {
+            slot: 'content',
+            element: 'div',
+            children: [{ internal: 'group', element: 'ul', children: [{ part: 'tree.Item' }] }],
+          },
         ],
       },
     ],
