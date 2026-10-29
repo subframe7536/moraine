@@ -11,6 +11,7 @@ import {
   createRenderEffect,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
 } from 'solid-js'
@@ -66,6 +67,13 @@ export interface VirtualizerState<
   update: () => void
 }
 
+/** Scroll geometry an adapter measures from its DOM. */
+export type VirtualizerLayout = Readonly<
+  Partial<Pick<VirtualizerOptions<HTMLElement, HTMLElement>, LayoutOption>>
+>
+
+type LayoutOption = 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd'
+
 /** Shared virtualizer lifecycle for adapter components such as lists and tables. */
 export function createVirtualizerController<
   TItem,
@@ -80,6 +88,8 @@ export function createVirtualizerController<
   attach: (props: {
     entries: () => readonly TItem[]
     scrollElement: () => TScrollElement | undefined
+    /** Layout measured by the adapter. Explicit options take precedence over these values. */
+    layout?: () => VirtualizerLayout
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
   const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
@@ -108,6 +118,16 @@ export function createVirtualizerController<
         {
           get count() {
             return currentEntries.length
+          },
+          // `undefined` falls back to TanStack defaults inside `setOptions`.
+          get scrollMargin() {
+            return options.scrollMargin ?? adapterProps.layout?.().scrollMargin
+          },
+          get scrollPaddingStart() {
+            return options.scrollPaddingStart ?? adapterProps.layout?.().scrollPaddingStart
+          },
+          get scrollPaddingEnd() {
+            return options.scrollPaddingEnd ?? adapterProps.layout?.().scrollPaddingEnd
           },
           getScrollElement: () => (mounted() ? (adapterProps.scrollElement() ?? null) : null),
           estimateSize: (index: number) => currentEstimates[index]!,
@@ -164,6 +184,21 @@ export function createVirtualizerController<
         }
         sync(virtualizer)
       })
+
+      // `setOptions` snapshots getters, so re-apply options when measured layout changes.
+      createRenderEffect(
+        on(
+          () => adapterProps.layout?.(),
+          () => {
+            virtualizer.setOptions(virtualizerOptions)
+            if (mounted()) {
+              virtualizer._willUpdate()
+            }
+            sync(virtualizer)
+          },
+          { defer: true },
+        ),
+      )
 
       onMount(() => {
         const cleanupVirtualizer = virtualizer._didMount()

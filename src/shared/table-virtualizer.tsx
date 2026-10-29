@@ -1,6 +1,15 @@
 import type { Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component } from 'solid-js'
-import { For, Show, createMemo, createRenderEffect, on, onCleanup } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  on,
+  onCleanup,
+} from 'solid-js'
 
 import type { ListT } from '../components/list/list.types'
 
@@ -9,7 +18,7 @@ import {
   createVirtualRow,
   createVirtualizerController,
 } from './virtualizer-core'
-import type { VirtualizerAdapterOptions } from './virtualizer-core'
+import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
 
 export type TableVirtualizerOptions<TItem> = Omit<
   VirtualizerAdapterOptions<TItem, HTMLElement, HTMLTableRowElement>,
@@ -22,8 +31,9 @@ export type TableVirtualRenderProps<TItem> = Omit<
 > & {
   /**
    * Scroll container for the rows; defaults to the adapter's host `tbody`. Pass an ancestor
-   * element only when scrolling happens outside the table body, and pair it with an explicit
-   * `scrollMargin` option.
+   * element only when scrolling happens outside the table body. The adapter then measures the
+   * body offset inside it (`scrollMargin`) and the height of a sticky header or footer
+   * (`scrollPaddingStart` / `scrollPaddingEnd`), unless those options are set explicitly.
    */
   readonly scrollElement?: HTMLElement
 }
@@ -34,6 +44,41 @@ export type TableVirtualizerReturn<TItem> = {
   /** Component mounted inside `Table.Body` to render virtualized rows. */
   readonly virtualRender: Component<TableVirtualRenderProps<TItem>>
   scrollToIndex: Virtualizer<HTMLElement, HTMLTableRowElement>['scrollToIndex']
+}
+
+/** Table structure outside the virtualized body, measured from the DOM. */
+interface TableSections {
+  readonly headerRows: number
+  readonly footerRows: number
+  readonly layout: Required<VirtualizerLayout>
+}
+
+const EMPTY_SECTIONS: TableSections = {
+  headerRows: 0,
+  footerRows: 0,
+  layout: { scrollMargin: 0, scrollPaddingStart: 0, scrollPaddingEnd: 0 },
+}
+
+function sameSections(a: TableSections, b: TableSections): boolean {
+  return (
+    a.headerRows === b.headerRows &&
+    a.footerRows === b.footerRows &&
+    a.layout.scrollMargin === b.layout.scrollMargin &&
+    a.layout.scrollPaddingStart === b.layout.scrollPaddingStart &&
+    a.layout.scrollPaddingEnd === b.layout.scrollPaddingEnd
+  )
+}
+
+/** Sticky sections stay in the viewport, so scrolling to a row must clear their height. */
+function stickyHeight(section: HTMLTableSectionElement | null): number {
+  if (!section) {
+    return 0
+  }
+  const cell = section.rows[0]?.cells[0]
+  const sticky = [section, cell].some(
+    (element) => element !== undefined && getComputedStyle(element).position === 'sticky',
+  )
+  return sticky ? section.getBoundingClientRect().height : 0
 }
 
 /**
@@ -58,49 +103,162 @@ export function createTableVirtualizer<TItem>(
       }
       return tableElement ?? null
     }
+    const resolveHost = (): HTMLTableSectionElement | undefined => {
+      // Solid fires refs before the fragment reaches the tbody, so resolve the host lazily.
+      if (hostElement === undefined && spacerElement !== undefined) {
+        const host = spacerElement.closest('tbody')
+        hostElement = host instanceof HTMLTableSectionElement ? host : null
+      }
+      return hostElement ?? undefined
+    }
+
+    const [sections, setSections] = createSignal(EMPTY_SECTIONS, { equals: sameSections })
+    const measureSections = (table: HTMLTableElement) => {
+      const host = resolveHost()
+      const scroll = props.scrollElement
+      // An ancestor scroller also scrolls the caption and header above the body.
+      const ancestor =
+        scroll !== undefined && host !== undefined && scroll !== host && scroll.contains(host)
+      setSections({
+        headerRows: table.tHead?.rows.length ?? 0,
+        footerRows: table.tFoot?.rows.length ?? 0,
+        layout: ancestor
+          ? {
+              scrollMargin:
+                host.getBoundingClientRect().top -
+                scroll.getBoundingClientRect().top +
+                scroll.scrollTop -
+                scroll.clientTop,
+              scrollPaddingStart: stickyHeight(table.tHead),
+              scrollPaddingEnd: stickyHeight(table.tFoot),
+            }
+          : EMPTY_SECTIONS.layout,
+      })
+    }
+
     const { virtualizer, virtualItems, totalSize } = controller.attach({
       entries: () => props.entries,
-      scrollElement: () => {
-        // Solid fires refs before the fragment reaches the tbody, so resolve the host lazily.
-        if (hostElement === undefined && spacerElement !== undefined) {
-          const host = spacerElement.closest('tbody')
-          hostElement = host instanceof HTMLTableSectionElement ? host : null
-        }
-        return props.scrollElement ?? hostElement ?? undefined
-      },
+      scrollElement: () => props.scrollElement ?? resolveHost(),
+      layout: () => sections().layout,
     })
 
-    // Announce the virtualized dataset: the table declares its total row count and every
-    // rendered row carries its absolute position (1-based, header rows included).
-    let ownsAriaRowCount = false
-    createRenderEffect(
+    // Announce the virtualized dataset: the table declares its total row count and every row
+    // carries its absolute position (1-based). Values a caller set are never overwritten: the
+    // adapter only updates or removes an attribute that still holds the value it wrote.
+    let writtenRowCount: string | undefined
+    const writtenRowIndexes = new Map<HTMLTableRowElement, string>()
+    const syncAria = (table: HTMLTableElement) => {
+      const { headerRows, footerRows } = sections()
+      const bodyRows = props.entries.length
+
+      const liveCount = table.getAttribute('aria-rowcount')
+      if (liveCount === null || liveCount === writtenRowCount) {
+        const count = bodyRows + headerRows + footerRows
+        writtenRowCount = count > 0 ? String(count) : undefined
+        if (writtenRowCount) {
+          table.setAttribute('aria-rowcount', writtenRowCount)
+        } else {
+          table.removeAttribute('aria-rowcount')
+        }
+      } else {
+        writtenRowCount = undefined
+      }
+
+      // Header rows precede the virtual gap and footer rows follow it, so both need explicit
+      // indices once body rows are missing from the DOM.
+      const sectionRows = [
+        ...[...(table.tHead?.rows ?? [])].map((row, index) => [row, index + 1] as const),
+        ...[...(table.tFoot?.rows ?? [])].map(
+          (row, index) => [row, headerRows + bodyRows + index + 1] as const,
+        ),
+      ]
+      // Forget rows that left the table or whose index the caller has since replaced.
+      const current = new Set(sectionRows.map(([row]) => row))
+      for (const [row, value] of writtenRowIndexes) {
+        if (!current.has(row) || row.getAttribute('aria-rowindex') !== value) {
+          writtenRowIndexes.delete(row)
+        }
+      }
+      for (const [row, index] of sectionRows) {
+        const live = row.getAttribute('aria-rowindex')
+        const written = writtenRowIndexes.get(row)
+        if (live !== null && live !== written) {
+          continue
+        }
+        const value = String(index)
+        row.setAttribute('aria-rowindex', value)
+        writtenRowIndexes.set(row, value)
+      }
+    }
+
+    // Header and footer rows can change without new entries (grouped columns, conditional
+    // footers), so the table structure is observed directly.
+    createEffect(
       on(
-        () => [controller.instance(), props.entries] as const,
+        () => [controller.instance(), props.scrollElement] as const,
         ([instance]) => {
           const table = instance ? resolveTable() : null
-          // A caller-provided `aria-rowcount` wins; only the value this adapter wrote is updated.
-          if (!table || (!ownsAriaRowCount && table.hasAttribute('aria-rowcount'))) {
+          if (!table) {
             return
           }
-          const count =
-            props.entries.length + (table.tHead?.rows.length ?? 0) + (table.tFoot?.rows.length ?? 0)
-          if (count > 0) {
-            table.setAttribute('aria-rowcount', String(count))
-            ownsAriaRowCount = true
-          } else if (ownsAriaRowCount) {
-            table.removeAttribute('aria-rowcount')
-            ownsAriaRowCount = false
+          const resizeObserver =
+            typeof ResizeObserver === 'undefined'
+              ? undefined
+              : new ResizeObserver(() => measureSections(table))
+          // Sections can be replaced, so re-observe them whenever the table's children change.
+          const observeSections = (mutationObserver: MutationObserver) => {
+            resizeObserver?.disconnect()
+            for (const element of [table.caption, table.tHead, table.tFoot]) {
+              if (element) {
+                resizeObserver?.observe(element)
+                mutationObserver.observe(element, { childList: true })
+              }
+            }
+          }
+          const mutationObserver = new MutationObserver((records, observer) => {
+            if (records.some((record) => record.target === table)) {
+              observeSections(observer)
+            }
+            measureSections(table)
+            syncAria(table)
+          })
+          mutationObserver.observe(table, { childList: true })
+          observeSections(mutationObserver)
+          measureSections(table)
+
+          onCleanup(() => {
+            mutationObserver.disconnect()
+            resizeObserver?.disconnect()
+          })
+        },
+      ),
+    )
+
+    createRenderEffect(
+      on(
+        () => [controller.instance(), props.entries.length, sections()] as const,
+        ([instance]) => {
+          const table = instance ? resolveTable() : null
+          if (table) {
+            syncAria(table)
           }
         },
       ),
     )
     onCleanup(() => {
-      if (ownsAriaRowCount) {
-        tableElement?.removeAttribute('aria-rowcount')
+      if (
+        writtenRowCount !== undefined &&
+        tableElement?.getAttribute('aria-rowcount') === writtenRowCount
+      ) {
+        tableElement.removeAttribute('aria-rowcount')
       }
+      for (const [row, value] of writtenRowIndexes) {
+        if (row.getAttribute('aria-rowindex') === value) {
+          row.removeAttribute('aria-rowindex')
+        }
+      }
+      writtenRowIndexes.clear()
     })
-
-    const headerRowCount = () => resolveTable()?.tHead?.rows.length ?? 0
 
     // Virtual item offsets include `scrollMargin`; `totalSize()` does not. Spacers live inside
     // the body, so both are measured from the first row.
@@ -133,7 +291,9 @@ export function createTableVirtualizer<TItem>(
                   const measure = attachRowMeasurement(virtualizer)
 
                   return renderRow()(current.item, current.index, {
-                    'aria-rowindex': current.index + headerRowCount() + 1,
+                    get 'aria-rowindex'() {
+                      return current.index + sections().headerRows + 1
+                    },
                     'data-index': current.index,
                     ref: measure,
                   })

@@ -1,6 +1,6 @@
 import { render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -384,6 +384,248 @@ describe('createTableVirtualizer', () => {
     setEntries([])
     expect(table.hasAttribute('aria-rowcount')).toBe(false)
     screen.unmount()
+  })
+
+  test('updates row metadata when header and footer rows change without new entries', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      measureElement: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 0,
+    })
+    const [grouped, setGrouped] = createSignal(false)
+    const [withFooter, setWithFooter] = createSignal(false)
+
+    const screen = render(() => (
+      <table>
+        <thead>
+          <Show when={grouped()}>
+            <tr>
+              <th>Group</th>
+            </tr>
+          </Show>
+          <tr>
+            <th>Label</th>
+          </tr>
+        </thead>
+        <tbody>
+          <Dynamic
+            component={virtualizer.virtualRender}
+            entries={['a', 'b', 'c']}
+            render={(item, _index, props) => <tr {...props}>{item}</tr>}
+          />
+        </tbody>
+        <Show when={withFooter()}>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+            </tr>
+          </tfoot>
+        </Show>
+      </table>
+    ))
+    await Promise.resolve()
+
+    const table = screen.container.querySelector('table')!
+    const bodyIndexes = () =>
+      [...table.querySelectorAll('tbody tr[data-index]')].map((row) =>
+        row.getAttribute('aria-rowindex'),
+      )
+    expect(table.getAttribute('aria-rowcount')).toBe('4')
+    expect(bodyIndexes()).toEqual(['2', '3'])
+
+    setGrouped(true)
+    await Promise.resolve()
+    expect(table.getAttribute('aria-rowcount')).toBe('5')
+    expect(bodyIndexes()).toEqual(['3', '4'])
+    expect([...table.tHead!.rows].map((row) => row.getAttribute('aria-rowindex'))).toEqual([
+      '1',
+      '2',
+    ])
+
+    setWithFooter(true)
+    await Promise.resolve()
+    expect(table.getAttribute('aria-rowcount')).toBe('6')
+    expect(table.tFoot!.rows[0]!.getAttribute('aria-rowindex')).toBe('6')
+
+    screen.unmount()
+    expect(table.hasAttribute('aria-rowcount')).toBe(false)
+  })
+
+  test('keeps a footer row index provided by the caller', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+
+    const screen = render(() => (
+      <table>
+        <tbody>
+          <Dynamic
+            component={virtualizer.virtualRender}
+            entries={['a', 'b']}
+            render={(item, _index, props) => <tr {...props}>{item}</tr>}
+          />
+        </tbody>
+        <tfoot>
+          <tr aria-rowindex="42">
+            <td>Total</td>
+          </tr>
+        </tfoot>
+      </table>
+    ))
+    await Promise.resolve()
+
+    const footerRow = screen.container.querySelector('tfoot tr')!
+    expect(footerRow.getAttribute('aria-rowindex')).toBe('42')
+    screen.unmount()
+    expect(footerRow.getAttribute('aria-rowindex')).toBe('42')
+  })
+
+  test('yields aria-rowcount to a caller value set after mount', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      measureElement: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    const [entries, setEntries] = createSignal(['a', 'b'])
+    const [rowCount, setRowCount] = createSignal<string>()
+    const [mounted, setMounted] = createSignal(true)
+
+    const screen = render(() => (
+      <table aria-rowcount={rowCount()}>
+        <tbody>
+          <Show when={mounted()}>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={entries()}
+              render={(item: string, _index: number, props?: Record<string, unknown>) => (
+                <tr {...props}>{item}</tr>
+              )}
+            />
+          </Show>
+        </tbody>
+      </table>
+    ))
+    await Promise.resolve()
+
+    const table = screen.container.querySelector('table')!
+    expect(table.getAttribute('aria-rowcount')).toBe('2')
+
+    setRowCount('500')
+    setEntries(['a', 'b', 'c'])
+    expect(table.getAttribute('aria-rowcount')).toBe('500')
+
+    setMounted(false)
+    expect(table.getAttribute('aria-rowcount')).toBe('500')
+    screen.unmount()
+  })
+
+  test('measures the body offset and sticky header height inside an ancestor scroller', async () => {
+    const rects = new Map<string, Partial<DOMRect>>([
+      ['DIV', { top: 0, height: 200 }],
+      ['THEAD', { top: 30, height: 40 }],
+      ['TBODY', { top: 70, height: 1000 }],
+    ])
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        return { top: 0, height: 0, ...rects.get(this.tagName) } as DOMRect
+      })
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      measureElement: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    let scrollElement: HTMLDivElement | undefined
+
+    const screen = render(() => (
+      <div
+        ref={(element) => {
+          scrollElement = element
+        }}
+      >
+        <table>
+          <caption>Caption</caption>
+          <thead>
+            <tr>
+              <th style={{ position: 'sticky', top: 0 }}>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={Array.from({ length: 50 }, (_, index) => `Item ${index}`)}
+              scrollElement={scrollElement}
+              render={(item, _index, props) => <tr {...props}>{item}</tr>}
+            />
+          </tbody>
+        </table>
+      </div>
+    ))
+    await Promise.resolve()
+
+    const options = virtualizer.instance()!.options
+    expect(options.scrollMargin).toBe(70)
+    expect(options.scrollPaddingStart).toBe(40)
+    expect(options.scrollPaddingEnd).toBe(0)
+    // Spacers stay relative to the first body row.
+    const spacers = screen.container.querySelectorAll<HTMLElement>('tr[aria-hidden="true"]')
+    expect(spacers[0]?.style.height).toBe('0px')
+
+    screen.unmount()
+    rectSpy.mockRestore()
+  })
+
+  test('prefers explicit scrollMargin and scroll padding over measured values', async () => {
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        return { top: this.tagName === 'TBODY' ? 70 : 0, height: 40 } as DOMRect
+      })
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      scrollMargin: 5,
+      scrollPaddingStart: 6,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    let scrollElement: HTMLDivElement | undefined
+
+    const screen = render(() => (
+      <div
+        ref={(element) => {
+          scrollElement = element
+        }}
+      >
+        <table>
+          <thead style={{ position: 'sticky' }}>
+            <tr>
+              <th>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={['a']}
+              scrollElement={scrollElement}
+              render={(item, _index, props) => <tr {...props}>{item}</tr>}
+            />
+          </tbody>
+        </table>
+      </div>
+    ))
+    await Promise.resolve()
+
+    const options = virtualizer.instance()!.options
+    expect(options.scrollMargin).toBe(5)
+    expect(options.scrollPaddingStart).toBe(6)
+    screen.unmount()
+    rectSpy.mockRestore()
   })
 
   test('composes with Table: the tbody becomes the scroll element and rows render inside the body', async () => {
