@@ -48,7 +48,7 @@
           "name": "expandedRowRender",
           "optional": true,
           "type": "Component<ExpandedRowRenderProps<TData>>",
-          "description": "Component rendered inside the expanded sub-row when a row is expanded."
+          "description": "Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a\ndevelopment warning, when `virtualRender` is set."
         },
         {
           "name": "hoverEffect",

@@ -36,6 +36,25 @@ declare module '@tanstack/solid-table' {
     extends DataTableT.ColumnMeta {}
 }
 
+/** TanStack options configured by top-level `createDataTable` options. */
+type OwnedTableOption =
+  | 'features'
+  | 'data'
+  | 'columns'
+  | 'state'
+  | 'initialState'
+  | 'getRowId'
+  | 'getRowCanExpand'
+  | 'enableSorting'
+  | 'enableRowSelection'
+  | 'enableMultiRowSelection'
+  | 'enableColumnResizing'
+  | 'manualSorting'
+  | 'manualFiltering'
+  | 'manualPagination'
+  | 'rowCount'
+  | `on${Capitalize<keyof DataTableT.State>}Change`
+
 export namespace DataTableT {
   export type Kind = 'single'
   export type Slot<T = unknown> = DataTableStyleSlot<T>
@@ -96,13 +115,16 @@ export namespace DataTableT {
     getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string
     /** Whether column sorting is enabled by default. @default true */
     sorting?: boolean
-    /** Prepends a selection column (`'multiple'` checkboxes or `'single'` radio buttons) with id `'select'`. */
+    /**
+     * Prepends a selection column (`'multiple'` checkboxes or `'single'` radio buttons) with id
+     * `'select'`. A user column whose resolved id is `'select'` replaces the generated column.
+     */
     selection?: 'single' | 'multiple'
     /** Predicate controlling whether a given row can be selected. */
     canSelectRow?: (row: Row<TData>) => boolean
     /**
-     * Prepends an expand/collapse chevron column with id `'expand'`. `true` lets every row
-     * expand; a predicate decides per row. When omitted, only rows with sub-rows
+     * Prepends an expand/collapse chevron column with id `'expand'`; a user column whose resolved
+     * id is `'expand'` replaces it. `true` lets every row expand; a predicate decides per row. When omitted, only rows with sub-rows
      * (`tableOptions.getSubRows`) can expand. For tree data, pass
      * `(row) => row.subRows.length > 0` to show the chevron only on parent rows.
      * @default false
@@ -144,8 +166,13 @@ export namespace DataTableT {
     onColumnFiltersChange?: (columnFilters: ColumnFiltersState) => void
     /** Called with the resolved global filter value when global filter changes. */
     onGlobalFilterChange?: (globalFilter: unknown) => void
-    /** Escape hatch for advanced TanStack `TableOptions` not covered by top-level options. */
-    tableOptions?: Partial<Omit<TableOptions<Features, TData>, 'features' | 'data' | 'columns'>>
+    /**
+     * Escape hatch for advanced TanStack `TableOptions` not covered by top-level options.
+     * Options that a top-level option configures (state, initial state, change callbacks,
+     * row ids, sorting, selection, expansion, resizing, and manual modes) are owned by the
+     * top-level option and cannot be set here.
+     */
+    tableOptions?: Partial<Omit<TableOptions<Features, TData>, OwnedTableOption>>
   }
 
   export interface EmptyRenderProps {
@@ -181,7 +208,10 @@ export namespace DataTableT {
     emptyRender?: JSX.Element | Component<EmptyRenderProps>
     /** Maximum height for the table scroll container (e.g. `400` or `'400px'`). */
     maxHeight?: number | string
-    /** Component rendered inside the expanded sub-row when a row is expanded. */
+    /**
+     * Component rendered inside the expanded sub-row when a row is expanded. Ignored, with a
+     * development warning, when `virtualRender` is set.
+     */
     expandedRowRender?: Component<ExpandedRowRenderProps<TData>>
     /** Callback fired when a table body row is clicked. */
     onRowClick?: (row: Row<TData>, event: MouseEvent) => void

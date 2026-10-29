@@ -1,12 +1,22 @@
 import type { RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { DEV, For, Show, createEffect, createSignal, on, splitProps } from 'solid-js'
+import {
+  DEV,
+  For,
+  Show,
+  createEffect,
+  createSignal,
+  createUniqueId,
+  on,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { useMessages } from '../../provider/locale/locale-context'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
+import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Icon } from '../icon'
 import type { ListT } from '../list'
 
@@ -24,6 +34,15 @@ import {
   dataTableRecipe,
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
+
+const VIRTUAL_CONFLICT_WARNINGS = {
+  pagination:
+    '[moraine] DataTable received both virtualRender and pagination. Pagination is disabled when virtualRender is active.',
+  expandedRowRender:
+    '[moraine] DataTable received both virtualRender and expandedRowRender. Detail rows are not rendered when virtualRender is active.',
+} as const
+
+type VirtualConflict = keyof typeof VIRTUAL_CONFLICT_WARNINGS
 
 /**
  * Data-driven table presenter powered by `createDataTable`.
@@ -62,6 +81,7 @@ export function DataTable<TData extends RowData = RowData>(
   const { slots, slotWith } = useRecipe(dataTableRecipe, local)
   const messages = useMessages('dataTable', defaultDataTableMessages, () => local.translations)
   const [scrollContainer, setScrollContainer] = createSignal<HTMLDivElement>()
+  const selectionName = `data-table-selection-${createUniqueId()}`
 
   const table = () => local.table
   const virtual = () => Boolean(local.virtualRender)
@@ -72,17 +92,33 @@ export function DataTable<TData extends RowData = RowData>(
   const rows = (): DataTableT.Row<TData>[] =>
     virtual() ? table().getPrePaginatedRowModel().rows : table().getRowModel().rows
 
+  // A detail row is a second `<tr>` per entry that the virtualizer cannot measure or index,
+  // so virtual tables do not render detail rows.
+  const expandedRowRender = () => (virtual() ? undefined : local.expandedRowRender)
+
   if (DEV) {
-    let warned = false
+    const warned = new Set<VirtualConflict>()
     createEffect(
       on(
-        () => virtual() && getDataTableConfig(table()).paginated,
-        (conflict) => {
-          if (conflict && !warned) {
-            warned = true
-            console.warn(
-              '[moraine] DataTable received both virtualRender and pagination. Pagination is disabled when virtualRender is active.',
-            )
+        (): VirtualConflict[] => {
+          if (!virtual()) {
+            return []
+          }
+          const conflicts: VirtualConflict[] = []
+          if (getDataTableConfig(table()).paginated) {
+            conflicts.push('pagination')
+          }
+          if (local.expandedRowRender) {
+            conflicts.push('expandedRowRender')
+          }
+          return conflicts
+        },
+        (conflicts) => {
+          for (const conflict of conflicts) {
+            if (!warned.has(conflict)) {
+              warned.add(conflict)
+              console.warn(VIRTUAL_CONFLICT_WARNINGS[conflict])
+            }
           }
         },
       ),
@@ -115,7 +151,12 @@ export function DataTable<TData extends RowData = RowData>(
     return (
       <Show
         when={local.loadingRender !== undefined}
-        fallback={<Icon name="icon-loading" class="text-2xl animate-spin" />}
+        fallback={
+          <>
+            <Icon name="icon-loading" class="text-2xl animate-spin" aria-hidden="true" />
+            <span class={VISUALLY_HIDDEN_CLASS}>{messages().loading}</span>
+          </>
+        }
       >
         {renderWithProps(local.loadingRender, {
           get colSpan() {
@@ -136,12 +177,13 @@ export function DataTable<TData extends RowData = RowData>(
         virtual,
         resizable: layout.resizable,
         colSpan,
-        pinnedEdge: layout.pinnedEdge,
-        cellSlot: (slot, column, size, section) =>
+        selectionName,
+        columnPin: layout.columnPin,
+        cellSlot: (slot, column, pin, size, section) =>
           slotWith(
             slot,
             () => layout.cellClass(column, section),
-            () => layout.cellStyle(column, size, section),
+            () => layout.cellStyle(column, pin, size, section),
           ),
       }}
     >
@@ -151,7 +193,7 @@ export function DataTable<TData extends RowData = RowData>(
         {...slots.container}
       >
         <Show when={local.loading}>
-          <div data-slot="data-table-loading" {...slots.loading}>
+          <div data-slot="data-table-loading" role="status" {...slots.loading}>
             <RenderLoading />
           </div>
         </Show>
@@ -164,6 +206,7 @@ export function DataTable<TData extends RowData = RowData>(
         >
           <table
             data-slot="data-table"
+            aria-busy={local.loading || undefined}
             {...rest}
             {...slotWith('root', () => ({ style: layout.tableStyle() }))}
             ref={local.ref}
@@ -201,7 +244,7 @@ export function DataTable<TData extends RowData = RowData>(
                           rowClass={local.rowClass}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}
-                          expandedRowRender={local.expandedRowRender}
+                          expandedRowRender={expandedRowRender()}
                         />
                       )}
                     </For>
@@ -224,7 +267,7 @@ export function DataTable<TData extends RowData = RowData>(
                           rowClass={local.rowClass}
                           onRowClick={local.onRowClick}
                           onRowDoubleClick={local.onRowDoubleClick}
-                          expandedRowRender={local.expandedRowRender}
+                          expandedRowRender={expandedRowRender()}
                         />
                       )}
                     />

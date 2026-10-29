@@ -602,17 +602,69 @@ describe('DataTable', () => {
       return <DataTable table={table} />
     })
 
-    const radios = screen.getAllByRole('radio')
+    const radios = screen.getAllByRole<HTMLInputElement>('radio')
     expect(radios.length).toBe(3)
     expect(screen.queryByRole('checkbox')).toBeNull()
 
+    // Native same-name radios form one group: one tab stop and arrow-key navigation.
+    const names = new Set(radios.map((radio) => radio.name))
+    expect(names.size).toBe(1)
+    expect([...names][0]).not.toBe('')
+
     fireEvent.click(radios[0]!)
-    expect(radios[0]?.getAttribute('aria-checked')).toBe('true')
-    expect(radios[1]?.getAttribute('aria-checked')).toBe('false')
+    expect(radios.map((radio) => radio.checked)).toEqual([true, false, false])
 
     fireEvent.click(radios[1]!)
-    expect(radios[0]?.getAttribute('aria-checked')).toBe('false')
-    expect(radios[1]?.getAttribute('aria-checked')).toBe('true')
+    expect(radios.map((radio) => radio.checked)).toEqual([false, true, false])
+    const bodyRows = screen.getAllByRole('row').slice(1)
+    expect(bodyRows.map((row) => row.hasAttribute('data-selected'))).toEqual([false, true, false])
+  })
+
+  it('gives separate tables separate single-selection radio groups', () => {
+    render(() => {
+      // JSX props compile to getters, so create each instance once outside the JSX.
+      const first = createPersonTable({ selection: 'single' })
+      const second = createPersonTable({ selection: 'single' })
+      return (
+        <>
+          <DataTable table={first} />
+          <DataTable table={second} />
+        </>
+      )
+    })
+
+    const names = new Set(screen.getAllByRole<HTMLInputElement>('radio').map((radio) => radio.name))
+    expect(names.size).toBe(2)
+  })
+
+  it('keeps a single-selection radio unchecked when controlled state rejects the change', () => {
+    const onRowSelectionChange = vi.fn()
+    render(() => {
+      const table = createPersonTable({
+        selection: 'single',
+        state: { rowSelection: {} },
+        onRowSelectionChange,
+      })
+      return <DataTable table={table} />
+    })
+
+    const [radio] = screen.getAllByRole<HTMLInputElement>('radio')
+    fireEvent.click(radio!)
+    expect(onRowSelectionChange).toHaveBeenCalledOnce()
+    expect(radio!.checked).toBe(false)
+  })
+
+  it('disables single-selection radios for rows that cannot be selected', () => {
+    render(() => {
+      const table = createPersonTable({
+        selection: 'single',
+        canSelectRow: (row) => row.original.role !== 'Intern',
+      })
+      return <DataTable table={table} />
+    })
+
+    const radios = screen.getAllByRole<HTMLInputElement>('radio')
+    expect(radios.map((radio) => radio.disabled)).toEqual([false, false, true])
   })
 
   it('respects canSelectRow to disable selection on specific rows', () => {
@@ -1041,5 +1093,283 @@ describe('DataTable', () => {
     expect(screen.getByLabelText('Tout sélectionner')).toBeDefined()
     expect(screen.getByText('0 sur 0 sélectionné(s)')).toBeDefined()
     expect(screen.getByRole('button', { name: '10 par page' })).toBeDefined()
+  })
+
+  it('keeps top-level state and callbacks authoritative over tableOptions', () => {
+    createRoot((dispose) => {
+      const onSortingChange = vi.fn()
+      const escapeHatchSortingChange = vi.fn()
+      const table = createPersonTable({
+        pagination: { pageSize: 25 },
+        initialState: { sorting: [{ id: 'name', desc: false }] },
+        onSortingChange,
+        // Untyped callers can still pass owned options; they must not take effect.
+        tableOptions: {
+          initialState: { sorting: [{ id: 'name', desc: true }], pagination: { pageSize: 9 } },
+          onSortingChange: escapeHatchSortingChange,
+          enableSorting: false,
+        } as DataTableT.Options<Person>['tableOptions'],
+      })
+
+      expect(table.atoms.sorting?.get()).toEqual([{ id: 'name', desc: false }])
+      expect(table.atoms.pagination?.get().pageSize).toBe(25)
+      expect(table.getColumn('name')!.getCanSort()).toBe(true)
+
+      table.getColumn('age')!.toggleSorting(false)
+      expect(onSortingChange).toHaveBeenCalledWith([{ id: 'age', desc: false }])
+      expect(escapeHatchSortingChange).not.toHaveBeenCalled()
+      dispose()
+    })
+  })
+
+  it('still forwards tableOptions that have no top-level option', () => {
+    createRoot((dispose) => {
+      const table = createPersonTable({
+        resizable: true,
+        tableOptions: { columnResizeMode: 'onEnd' },
+      })
+      expect(table.options.columnResizeMode).toBe('onEnd')
+      dispose()
+    })
+  })
+
+  it('lets a column with a derived reserved id replace the generated column instead of duplicating it', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    createRoot((dispose) => {
+      interface Flagged {
+        id: string
+        select: string
+        expand: string
+      }
+      const table = createDataTable<Flagged>({
+        data: [{ id: '1', select: 'yes', expand: 'no' }],
+        columns: [
+          { accessorKey: 'select', header: 'Select value' },
+          { header: 'Group', columns: [{ accessorKey: 'expand', header: 'Expand value' }] },
+        ],
+        selection: 'multiple',
+        expandable: true,
+      })
+
+      const ids = table.getAllLeafColumns().map((column) => column.id)
+      expect(ids).toEqual(['select', 'expand'])
+      expect(new Set(ids).size).toBe(ids.length)
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('reserved id "select"'))
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('reserved id "expand"'))
+      dispose()
+    })
+    warnSpy.mockRestore()
+  })
+
+  it('replaces the generated column silently for an explicit reserved id', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    createRoot((dispose) => {
+      const table = createPersonTable({
+        selection: 'multiple',
+        columns: [{ id: 'select', header: 'Pick', cell: () => null }, ...TEST_COLUMNS],
+      })
+      expect(table.getAllLeafColumns().map((column) => column.id)).toEqual([
+        'select',
+        'name',
+        'age',
+        'role',
+      ])
+      expect(warnSpy).not.toHaveBeenCalled()
+      dispose()
+    })
+    warnSpy.mockRestore()
+  })
+
+  it('splits a group header at the pin boundary so only the pinned part sticks', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({
+        columns: [
+          {
+            id: 'person',
+            header: 'Person',
+            columns: [
+              { accessorKey: 'name', header: 'Name', size: 120 },
+              { accessorKey: 'age', header: 'Age', size: 80 },
+            ],
+          },
+          { accessorKey: 'role', header: 'Role', size: 100 },
+        ],
+        state: { columnPinning: { start: ['name'], end: ['role'] } },
+      })
+      return <DataTable table={table} />
+    })
+
+    const [groupRow, leafRow] = container.querySelectorAll('thead tr')
+    const groupCells = [...groupRow!.querySelectorAll<HTMLTableCellElement>('th')]
+    expect(groupCells.map((th) => th.textContent)).toEqual(['Person', 'Person', ''])
+    expect(groupCells.map((th) => th.colSpan)).toEqual([1, 1, 1])
+
+    const [pinnedGroup, scrollingGroup, endPlaceholder] = groupCells
+    expect(pinnedGroup!.style.position).toBe('sticky')
+    expect(pinnedGroup!.style.left).toBe('0px')
+    expect(pinnedGroup!.style.width).toBe('120px')
+    expect(pinnedGroup!.getAttribute('data-pinned')).toBe('start')
+    expect(pinnedGroup!.getAttribute('data-pinned-edge')).toBe('start')
+    expect(scrollingGroup!.style.position).toBe('')
+    expect(scrollingGroup!.hasAttribute('data-pinned')).toBe(false)
+    expect(endPlaceholder!.getAttribute('data-pinned')).toBe('end')
+    expect(endPlaceholder!.style.right).toBe('0px')
+
+    const leafCells = [...leafRow!.querySelectorAll<HTMLElement>('th')]
+    expect(leafCells.map((th) => th.textContent)).toEqual(['Name', 'Age', 'Role'])
+    expect(leafCells.map((th) => th.style.position)).toEqual(['sticky', '', 'sticky'])
+  })
+
+  it('offsets end-pinned header cells from the end of their region', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({
+        columns: [
+          { accessorKey: 'name', header: 'Name', size: 120 },
+          { accessorKey: 'age', header: 'Age', size: 80 },
+          { accessorKey: 'role', header: 'Role', size: 100 },
+        ],
+        state: { columnPinning: { start: [], end: ['age', 'role'] } },
+      })
+      return <DataTable table={table} />
+    })
+
+    const [, ageTh, roleTh] = container.querySelectorAll<HTMLElement>('thead th')
+    expect(ageTh!.style.right).toBe('100px')
+    expect(ageTh!.getAttribute('data-pinned-edge')).toBe('end')
+    expect(roleTh!.style.right).toBe('0px')
+    expect(roleTh!.hasAttribute('data-pinned-edge')).toBe(false)
+  })
+
+  it('resizes columns from the keyboard through an accessible separator', () => {
+    const onColumnSizingChange = vi.fn()
+    const { container } = render(() => {
+      const table = createPersonTable({
+        resizable: true,
+        columns: [
+          { accessorKey: 'name', header: 'Name', size: 100, minSize: 60, maxSize: 200 },
+          { accessorKey: 'age', header: 'Age', size: 150 },
+        ],
+        onColumnSizingChange,
+      })
+      return <DataTable table={table} />
+    })
+
+    const [nameTh, ageTh] = container.querySelectorAll<HTMLElement>('thead th')
+    const resizer = nameTh!.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
+    expect(resizer.getAttribute('role')).toBe('separator')
+    expect(resizer.getAttribute('aria-orientation')).toBe('vertical')
+    expect(resizer.getAttribute('aria-label')).toBe('Resize column')
+    expect(resizer.tabIndex).toBe(0)
+    expect(resizer.getAttribute('aria-valuenow')).toBe('100')
+    expect(resizer.getAttribute('aria-valuemin')).toBe('60')
+    expect(resizer.getAttribute('aria-valuemax')).toBe('200')
+
+    fireEvent.keyDown(resizer, { key: 'ArrowRight' })
+    expect(nameTh!.style.width).toBe('110px')
+    expect(resizer.getAttribute('aria-valuenow')).toBe('110')
+    expect(onColumnSizingChange).toHaveBeenLastCalledWith({ name: 110 })
+
+    fireEvent.keyDown(resizer, { key: 'ArrowLeft', shiftKey: true })
+    expect(nameTh!.style.width).toBe('60px')
+
+    fireEvent.keyDown(resizer, { key: 'End' })
+    expect(nameTh!.style.width).toBe('200px')
+
+    fireEvent.keyDown(resizer, { key: 'Home' })
+    expect(nameTh!.style.width).toBe('60px')
+
+    // Without a bounded maxSize, End has no target width.
+    const ageResizer = ageTh!.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
+    expect(ageResizer.hasAttribute('aria-valuemax')).toBe(false)
+    fireEvent.keyDown(ageResizer, { key: 'End' })
+    expect(ageTh!.style.width).toBe('150px')
+  })
+
+  it('marks the table busy and announces the default loading state', () => {
+    const [loading, setLoading] = createSignal(true)
+    const { container } = render(() => {
+      const table = createPersonTable()
+      return <DataTable table={table} loading={loading()} />
+    })
+
+    const table = container.querySelector('table')!
+    expect(table.getAttribute('aria-busy')).toBe('true')
+    const status = screen.getByRole('status')
+    expect(status.getAttribute('data-slot')).toBe('data-table-loading')
+    expect(status.textContent).toBe('Loading')
+
+    setLoading(false)
+    expect(table.hasAttribute('aria-busy')).toBe(false)
+    expect(screen.queryByRole('status')).toBeNull()
+  })
+
+  it('lets callers override aria-busy', () => {
+    const { container } = render(() => {
+      const table = createPersonTable()
+      return <DataTable table={table} loading aria-busy={false} />
+    })
+
+    expect(container.querySelector('table')!.getAttribute('aria-busy')).toBe('false')
+  })
+
+  it('does not render detail rows and warns when virtualRender is combined with expandedRowRender', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
+      estimateSize: () => 30,
+      measureElement: () => 30,
+      observeElementRect: (_instance, callback) => callback({ width: 300, height: 300 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    let table!: DataTableT.Instance<Person>
+
+    const { container } = render(() => {
+      table = createPersonTable({ expandable: true })
+      return (
+        <DataTable
+          table={table}
+          virtualRender={virtualizer.virtualRender}
+          expandedRowRender={(props) => <div data-testid="detail">{props.row.original.name}</div>}
+        />
+      )
+    })
+    await Promise.resolve()
+
+    table.getRowModel().rows[0]!.toggleExpanded(true)
+    await Promise.resolve()
+
+    expect(screen.queryByTestId('detail')).toBeNull()
+    expect(container.querySelector('[data-slot="data-table-expanded-row"]')).toBeNull()
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('virtualRender and expandedRowRender'),
+    )
+    warnSpy.mockRestore()
+  })
+
+  it('indexes header and footer rows around virtualized rows', async () => {
+    const virtualizer = createTableVirtualizer<DataTableT.Row<Person>>({
+      estimateSize: () => 30,
+      measureElement: () => 30,
+      observeElementRect: (_instance, callback) => callback({ width: 300, height: 60 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 0,
+    })
+
+    const { container } = render(() => {
+      const table = createPersonTable({
+        data: manyPeople(50),
+        columns: [
+          { accessorKey: 'name', header: 'Name', footer: 'Total' },
+          { accessorKey: 'age', header: 'Age' },
+        ],
+      })
+      return <DataTable table={table} virtualRender={virtualizer.virtualRender} />
+    })
+    await Promise.resolve()
+
+    const table = container.querySelector('table')!
+    expect(table.getAttribute('aria-rowcount')).toBe('52')
+    expect(table.querySelector('thead tr')!.getAttribute('aria-rowindex')).toBe('1')
+    expect(table.querySelector('tbody tr[data-index="0"]')!.getAttribute('aria-rowindex')).toBe('2')
+    expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
   })
 })

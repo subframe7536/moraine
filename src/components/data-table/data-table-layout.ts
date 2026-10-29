@@ -1,4 +1,4 @@
-import type { Column, RowData } from '@tanstack/solid-table'
+import type { Column, Header, HeaderGroup, RowData } from '@tanstack/solid-table'
 import type { Accessor, JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
@@ -11,17 +11,31 @@ import type { DataTableT } from './data-table.types'
 
 export type DataTableSection = 'header' | 'body' | 'footer'
 
+export type DataTablePinSide = 'start' | 'end' | false
+
+/** Pinned regions in visual order. Header and footer rows render one segment per region. */
+export const DATA_TABLE_PIN_SIDES: readonly DataTablePinSide[] = ['start', false, 'end']
+
+/** Where a cell sits relative to the pinned regions. */
+export interface DataTableCellPin {
+  readonly side: Accessor<DataTablePinSide>
+  /** Distance in px from the table edge the cell sticks to. */
+  readonly offset: Accessor<number>
+  /** Whether the cell borders the unpinned region. */
+  readonly edge: Accessor<boolean>
+}
+
 /** Stacking order of sticky cells. Cells pinned to a sticky edge sit one layer above. */
 const STICKY_Z_INDEX: Record<DataTableSection, number> = { body: 10, header: 20, footer: 20 }
 
 type DataTableColumn<TRow extends RowData> = Column<DataTableFeatures, TRow>
+type DataTableHeader<TRow extends RowData> = Header<DataTableFeatures, TRow>
 
 export interface DataTableLayout {
   readonly resizable: Accessor<boolean>
   readonly tableStyle: Accessor<JSX.CSSProperties>
-  readonly pinnedEdge: <TRow extends RowData>(
-    column: DataTableColumn<TRow>,
-  ) => 'start' | 'end' | undefined
+  /** Pin placement of a body cell, from its leaf column. */
+  readonly columnPin: <TRow extends RowData>(column: DataTableColumn<TRow>) => DataTableCellPin
   /** Column presentation the caller may still override (alignment, `meta.class`). */
   readonly cellClass: <TRow extends RowData>(
     column: DataTableColumn<TRow>,
@@ -30,9 +44,60 @@ export interface DataTableLayout {
   /** Column geometry: width, sticky position, and pinned offsets. */
   readonly cellStyle: <TRow extends RowData>(
     column: DataTableColumn<TRow>,
+    pin: DataTableCellPin,
     size: () => number,
     section: DataTableSection,
   ) => SlotValue
+}
+
+/**
+ * Header or footer groups of one pinned region. TanStack builds each region separately, so a
+ * group header over pinned and unpinned leaves splits into one header per region.
+ */
+export function pinnedHeaderGroups<TData extends RowData>(
+  table: DataTableT.Instance<TData>,
+  section: 'header' | 'footer',
+  side: DataTablePinSide,
+): HeaderGroup<DataTableFeatures, TData>[] {
+  if (section === 'header') {
+    return side === 'start'
+      ? table.getStartHeaderGroups()
+      : side === 'end'
+        ? table.getEndHeaderGroups()
+        : table.getCenterHeaderGroups()
+  }
+  return side === 'start'
+    ? table.getStartFooterGroups()
+    : side === 'end'
+      ? table.getEndFooterGroups()
+      : table.getCenterFooterGroups()
+}
+
+/** Pin placement of a header or footer cell inside the group of its pinned region. */
+export function createHeaderPin<TRow extends RowData>(
+  header: Accessor<DataTableHeader<TRow>>,
+  side: Accessor<DataTablePinSide>,
+): DataTableCellPin {
+  return {
+    side,
+    offset: () => {
+      const current = header()
+      if (side() !== 'end') {
+        return side() === 'start' ? current.getStart() : 0
+      }
+      const siblings = current.headerGroup?.headers ?? []
+      const last = siblings[siblings.length - 1]
+      const regionSize = last ? last.getStart() + last.getSize() : 0
+      return regionSize - current.getStart() - current.getSize()
+    },
+    edge: () => {
+      const current = header()
+      const lastIndex = (current.headerGroup?.headers.length ?? 0) - 1
+      return side() === 'start'
+        ? current.index === lastIndex
+        : side() === 'end' && current.index === 0
+    },
+  }
 }
 
 /**
@@ -68,15 +133,26 @@ export function createDataTableLayout<TData extends RowData>(
             ...(hasPinning() ? { 'border-collapse': 'separate', 'border-spacing': '0' } : {}),
           }
         : {},
-    pinnedEdge: (column) => {
-      const pin = column.getIsPinned()
-      if (!pin) {
-        return undefined
-      }
-      const pinned = table().getPinnedLeafColumns(pin)
-      const innermost = pin === 'start' ? pinned[pinned.length - 1] : pinned[0]
-      return innermost?.id === column.id ? pin : undefined
-    },
+    columnPin: (column) => ({
+      side: () => column.getIsPinned(),
+      offset: () => {
+        const side = column.getIsPinned()
+        return side === 'start'
+          ? column.getStart('start')
+          : side === 'end'
+            ? column.getAfter('end')
+            : 0
+      },
+      edge: () => {
+        const side = column.getIsPinned()
+        if (!side) {
+          return false
+        }
+        const pinned = table().getPinnedLeafColumns(side)
+        const innermost = side === 'start' ? pinned[pinned.length - 1] : pinned[0]
+        return innermost?.id === column.id
+      },
+    }),
     cellClass: (column, section) => {
       const meta = column.columnDef.meta
       return {
@@ -88,10 +164,10 @@ export function createDataTableLayout<TData extends RowData>(
         ],
       }
     },
-    cellStyle: (column, size, section) => {
-      const pin = column.getIsPinned()
+    cellStyle: (column, pin, size, section) => {
+      const side = pin.side()
       const edge = stickyEdge(section)
-      const isSticky = edge || Boolean(pin)
+      const isSticky = edge || Boolean(side)
       const hasWidth = fixedLayout() || column.columnDef.size !== undefined
 
       return {
@@ -100,9 +176,9 @@ export function createDataTableLayout<TData extends RowData>(
           position: isSticky ? 'sticky' : undefined,
           top: edge && section === 'header' ? 0 : undefined,
           bottom: edge && section === 'footer' ? 0 : undefined,
-          left: pin === 'start' ? `${column.getStart('start')}px` : undefined,
-          right: pin === 'end' ? `${column.getAfter('end')}px` : undefined,
-          'z-index': isSticky ? STICKY_Z_INDEX[section] + (edge && pin ? 10 : 0) : undefined,
+          left: side === 'start' ? `${pin.offset()}px` : undefined,
+          right: side === 'end' ? `${pin.offset()}px` : undefined,
+          'z-index': isSticky ? STICKY_Z_INDEX[section] + (edge && side ? 10 : 0) : undefined,
         },
       }
     },

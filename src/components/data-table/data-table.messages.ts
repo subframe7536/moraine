@@ -18,5 +18,7 @@ export const defaultDataTableMessages = /* @__PURE__ */ Object.freeze({
   selectRow: 'Select row',
   expandRow: 'Expand row',
   collapseRow: 'Collapse row',
+  resizeColumn: 'Resize column',
+  loading: 'Loading',
   pageSize: ({ size }: DataTablePageSizeContext) => `${size} / page`,
 })

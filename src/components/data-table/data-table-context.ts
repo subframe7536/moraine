@@ -5,7 +5,7 @@ import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../../provider
 import { createContextProvider } from '../../shared/create-context-provider'
 
 import type { DataTableFeatures } from './data-table-features'
-import type { DataTableSection } from './data-table-layout'
+import type { DataTableCellPin, DataTableSection } from './data-table-layout'
 import type { dataTableRecipe } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
@@ -22,17 +22,20 @@ export interface DataTableContextValue {
   readonly resizable: Accessor<boolean>
   /** Number of visible leaf columns, at least 1, for full-width cells. */
   readonly colSpan: Accessor<number>
+  /** Shared `name` of the single-selection radios, so they form one native radio group. */
+  readonly selectionName: string
   /** Slot binding for a `head` or `cell` of `column` in the given table section. */
   readonly cellSlot: <TData extends RowData>(
     slot: 'head' | 'cell',
     column: Column<DataTableFeatures, TData>,
+    pin: DataTableCellPin,
     size: () => number,
     section: DataTableSection,
   ) => SlotBinding
-  /** Pinned-edge marker for the innermost pinned column on each side. */
-  readonly pinnedEdge: <TData extends RowData>(
+  /** Pin placement of a body cell, from its leaf column. */
+  readonly columnPin: <TData extends RowData>(
     column: Column<DataTableFeatures, TData>,
-  ) => 'start' | 'end' | undefined
+  ) => DataTableCellPin
 }
 
 export const [DataTableProvider, useDataTableContext] =

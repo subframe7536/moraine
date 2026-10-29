@@ -55,18 +55,21 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         }))}
       >
         <For each={props.row.getVisibleCells()}>
-          {(cell) => (
-            <td
-              data-slot="data-table-cell"
-              {...dataTableDataAttributes.cell({
-                pinned: () => cell.column.getIsPinned(),
-                pinnedEdge: () => ctx.pinnedEdge(cell.column),
-              })}
-              {...ctx.cellSlot('cell', cell.column, () => cell.column.getSize(), 'body')}
-            >
-              <FlexRender cell={cell} />
-            </td>
-          )}
+          {(cell) => {
+            const pin = ctx.columnPin(cell.column)
+            return (
+              <td
+                data-slot="data-table-cell"
+                {...dataTableDataAttributes.cell({
+                  pinned: pin.side,
+                  pinnedEdge: () => pin.edge() && pin.side(),
+                })}
+                {...ctx.cellSlot('cell', cell.column, pin, () => cell.column.getSize(), 'body')}
+              >
+                <FlexRender cell={cell} />
+              </td>
+            )
+          }}
         </For>
       </tr>
       <Show when={props.expandedRowRender}>

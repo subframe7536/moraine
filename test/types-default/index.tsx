@@ -574,6 +574,24 @@ const dataTableInstance = createDataTable({
 createDataTable({ data: () => dataTableRows, columns: dataTableCols })
 // @ts-expect-error DataTable requires a table instance.
 ;<DataTable />
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // Escape-hatch options without a top-level counterpart stay available.
+  tableOptions: { columnResizeMode: 'onEnd', enableSortingRemoval: false },
+})
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // @ts-expect-error Initial state is owned by the top-level `initialState` option.
+  tableOptions: { initialState: { sorting: [] } },
+})
+createDataTable({
+  data: dataTableRows,
+  columns: dataTableCols,
+  // @ts-expect-error Change callbacks are owned by the top-level `on[Slice]Change` options.
+  tableOptions: { onSortingChange: () => {} },
+})
 
 ;<Empty
   as="section"

@@ -101,6 +101,8 @@ import DataTablePlayground from './playground'
 
 Create a reactive table instance with `createDataTable({ data, columns, ... })` and pass it to `DataTable` via `table`. `createDataTable` configures sorting, selection, expansion, pagination, pinning, resizing, and controlled state on a TanStack Solid Table instance; `DataTable` handles styling, slots, and render parts. Options are plain values — for values that change over time, declare getters on the options object or on `state` (for example `get data() { return rows() }`); they are tracked reactively.
 
+`tableOptions` passes other TanStack options through, such as `getSubRows` or `columnResizeMode`. Options that a top-level option already configures (`state`, `initialState`, the `on[Slice]Change` callbacks, `getRowId`, sorting, selection, expansion, resizing, `rowCount`, and the manual modes) belong to the top-level option and cannot be set in `tableOptions`.
+
 ```tsx
 import { DataTable, createDataTable } from 'moraine/data-table'
 import type { DataTableT } from 'moraine/data-table'
@@ -128,7 +130,7 @@ export function Example() {
 
 ### Selection Modes and Disabled Rows
 
-Set `selection: 'multiple'` to prepend a checkbox column (id `'select'`) with a select-all header, or `selection: 'single'` for radio buttons. Lock specific rows with `canSelectRow`:
+Set `selection: 'multiple'` to prepend a checkbox column (id `'select'`) with a select-all header, or `selection: 'single'` for radio buttons. Single selection uses native radio inputs that share one name per table, so the group takes a single tab stop and arrow keys move the selection, skipping disabled rows. Lock specific rows with `canSelectRow`:
 
 ```tsx
 const table = createDataTable({
@@ -140,6 +142,8 @@ const table = createDataTable({
 
 return <DataTable table={table} />
 ```
+
+The generated columns reserve the ids `'select'` and `'expand'`. A column of your own whose resolved id is reserved replaces the generated column; this includes ids derived from `accessorKey` or a string `header`, which log a development warning. Give such a column an explicit `id` to keep both.
 
 ### Expandable Rows
 
@@ -197,9 +201,11 @@ const table = createDataTable({
 return <DataTable table={table} loading={isFetching()} />
 ```
 
+While `loading` is set, the table carries `aria-busy="true"` and the overlay is a `status` region; the default spinner includes the localized `loading` message for screen readers.
+
 ### Column Pinning
 
-Freeze identifier columns on the start edge or action buttons on the end edge during horizontal scrolling with `initialState.columnPinning` or `state.columnPinning` (injected utility columns use `'select'` and `'expand'`):
+Freeze identifier columns on the start edge or action buttons on the end edge during horizontal scrolling with `initialState.columnPinning` or `state.columnPinning` (injected utility columns use `'select'` and `'expand'`). Header and footer rows render each pinned region separately, so a group header over pinned and unpinned columns splits at the pin boundary:
 
 ```tsx
 const table = createDataTable({
@@ -224,7 +230,7 @@ Pin the header to the top — and the footer to the bottom — of a scrollable c
 
 ### Column Resizing
 
-Enable drag handles on column headers with `resizable: true`:
+Enable drag handles on column headers with `resizable: true`. Each handle is a focusable separator: Left and Right arrows change the width by 10px (50px with Shift), Home sets the column's `minSize`, and End sets its `maxSize` when one is defined:
 
 ```tsx
 const table = createDataTable({
@@ -259,7 +265,7 @@ return <DataTable table={table} />
 
 ### Virtualization
 
-Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. A virtualized table shows every row in one scroll: `pagination` is ignored (with a development warning), and the select-all checkbox covers all rows instead of the current page.
+Pass `virtualRender={virtualizer.virtualRender}` using `createTableVirtualizer` from `moraine/virtualizer` to virtualize large datasets while keeping native table semantics and column alignment. A virtualized table shows every row in one scroll: `pagination` is ignored (with a development warning), and the select-all checkbox covers all rows instead of the current page. `expandedRowRender` is also ignored with a development warning, because a detail row is an extra `<tr>` the virtualizer cannot measure; tree data from `getSubRows` still expands, since each sub-row is its own entry. The virtualizer measures the header above the body, and a sticky header, from the table's scroll container automatically.
 
 ## Examples
 

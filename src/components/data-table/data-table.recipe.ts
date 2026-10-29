@@ -1,5 +1,8 @@
 import { defineRecipe } from '../../theme/recipe'
-import { FOCUS_VISIBLE_CLASS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
+import {
+  FOCUS_VISIBLE_RING_CLASS,
+  PEER_FOCUS_VISIBLE_CLASS,
+} from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
@@ -54,12 +57,13 @@ export const DATA_TABLE_EXPANDED_WRAPPER_CLASS =
 
 export const DATA_TABLE_EXPANDED_BODY_CLASS = 'px-4 py-3'
 
-export const DATA_TABLE_RADIO_WRAPPER_CLASS = 'flex items-center justify-center'
+export const DATA_TABLE_RADIO_WRAPPER_CLASS = 'flex items-center justify-center relative'
 
-export const DATA_TABLE_RADIO_CLASS = `border border-input rounded-full bg-control inline-flex shrink-0 size-4 cursor-pointer transition-shadow items-center justify-center ${FOCUS_VISIBLE_CLASS} aria-checked:(text-primary-foreground border-primary bg-primary) aria-disabled:(opacity-50 cursor-not-allowed)`
+/** Visual radio drawn after the visually hidden native radio (`peer`). */
+export const DATA_TABLE_RADIO_CLASS = `border border-input rounded-full bg-control inline-flex shrink-0 size-4 cursor-pointer transition-shadow items-center justify-center ${PEER_FOCUS_VISIBLE_CLASS} peer-checked:(text-primary-foreground border-primary bg-primary) peer-disabled:(opacity-50 cursor-not-allowed)`
 
 export const DATA_TABLE_RADIO_INDICATOR_CLASS =
-  'rounded-full bg-primary-foreground size-1.5 scale-0 transition-transform [[aria-checked=true]>&]:scale-100'
+  'rounded-full bg-primary-foreground size-1.5 scale-0 transition-transform [:checked+*>&]:scale-100'
 
 /** Scroll viewport wrapping the table so only the body scrolls under a sticky header/footer. */
 export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
@@ -91,7 +95,7 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     pagination:
       'px-2 py-3 border-t border-border flex flex-wrap gap-2 items-center justify-between',
     resizer:
-      "h-full w-3 cursor-col-resize select-none top-0 absolute z-20 touch-none after:(bg-transparent w-0.5 content-[''] transition-colors inset-y-0 left-1/2 absolute -translate-x-1/2) -right-1.5 [th:last-child>&]:right-0 data-resizing:after:bg-primary hover:after:bg-primary/60",
+      "outline-none h-full w-3 cursor-col-resize select-none top-0 absolute z-20 touch-none after:(bg-transparent w-0.5 content-[''] transition-colors inset-y-0 left-1/2 absolute -translate-x-1/2) -right-1.5 [th:last-child>&]:right-0 data-resizing:after:bg-primary focus-visible:after:bg-primary hover:after:bg-primary/60",
     expandedRow: 'border-b border-border bg-muted/30',
     expandedCell: 'p-0 align-top',
     expandButton: DATA_TABLE_EXPAND_BUTTON_CLASS,

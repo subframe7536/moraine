@@ -2,6 +2,8 @@ import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/s
 import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
+import { HiddenInput } from '../../shared/hidden-input'
+import { PEER_CLASS } from '../../theme/recipe-common.recipe'
 import { Checkbox } from '../checkbox'
 import { Icon } from '../icon'
 
@@ -15,13 +17,18 @@ import {
   dataTableDataAttributes,
 } from './data-table.recipe'
 
+/** Reserved id of the generated selection column. */
+export const SELECT_COLUMN_ID = 'select'
+/** Reserved id of the generated expand column. */
+export const EXPAND_COLUMN_ID = 'expand'
+
 export function buildSelectColumn<TData extends RowData = RowData>(
   mode: 'single' | 'multiple',
 ): ColumnDef<DataTableFeatures, TData> {
   const isSingle = mode === 'single'
 
   return {
-    id: 'select',
+    id: SELECT_COLUMN_ID,
     header: (props: HeaderContext<DataTableFeatures, TData>): JSX.Element => {
       const ctx = useDataTableContext()
       // Select-all covers the rows on screen: the current page, or every row when the table
@@ -70,33 +77,29 @@ export function buildSelectColumn<TData extends RowData = RowData>(
             </div>
           }
         >
-          <div class={DATA_TABLE_RADIO_WRAPPER_CLASS}>
-            <div
-              role="radio"
-              aria-checked={isSelected()}
-              aria-disabled={!canSelect()}
+          {/* Native same-name radios form one group: a single tab stop, arrow keys move and
+              select, and disabled rows are skipped. */}
+          <label class={DATA_TABLE_RADIO_WRAPPER_CLASS} onClick={(e) => e.stopPropagation()}>
+            <HiddenInput
+              type="radio"
+              name={ctx.selectionName}
+              data-slot="data-table-radio"
+              checked={isSelected()}
+              disabled={!canSelect()}
               aria-label={ctx.messages().selectRow}
-              tabIndex={canSelect() ? 0 : -1}
-              onClick={(e) => {
-                e.stopPropagation()
+              class={PEER_CLASS}
+              onChange={(e) => {
                 if (canSelect()) {
                   props.row.toggleSelected(true)
                 }
+                // Controlled state may reject the change; keep the input on the table state.
+                e.currentTarget.checked = props.row.getIsSelected()
               }}
-              onKeyDown={(e) => {
-                if (e.key === ' ' || e.key === 'Enter') {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if (canSelect()) {
-                    props.row.toggleSelected(true)
-                  }
-                }
-              }}
-              class={DATA_TABLE_RADIO_CLASS}
-            >
+            />
+            <span aria-hidden="true" class={DATA_TABLE_RADIO_CLASS}>
               <span class={DATA_TABLE_RADIO_INDICATOR_CLASS} />
-            </div>
-          </div>
+            </span>
+          </label>
         </Show>
       )
     },
@@ -116,7 +119,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
   TData
 > {
   return {
-    id: 'expand',
+    id: EXPAND_COLUMN_ID,
     header: (): JSX.Element => null,
     cell: (props: CellContext<DataTableFeatures, TData>): JSX.Element => {
       const ctx = useDataTableContext()
