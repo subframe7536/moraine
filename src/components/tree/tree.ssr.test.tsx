@@ -49,9 +49,9 @@ test('hydrates the default checkbox in each row when checkable', () => {
   const { container } = hydrateFixture(FIXTURE, 'renderCheckableTreeFixture', () => (
     <TreeHydrationFixture checkable />
   ))
-  expect(container.querySelectorAll('[data-slot="checkbox"]')).toHaveLength(5)
+  expect(container.querySelectorAll('[data-slot="tree-checkbox"]')).toHaveLength(5)
 
-  fireEvent.click(container.querySelector('[aria-label="src"] [data-slot="checkbox-control"]')!)
+  fireEvent.click(container.querySelector('[aria-label="src"] [data-slot="tree-checkbox"]')!)
   expect(container.querySelector('[aria-label="index.ts"]')?.getAttribute('aria-checked')).toBe(
     'true',
   )

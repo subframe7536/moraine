@@ -958,7 +958,7 @@ describe('createTree', () => {
     test('cascades checks down and derives indeterminate states upward', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <CheckableHarness onTree={(value) => (tree = value)} />)
-      expect(container.querySelectorAll('[data-slot="checkbox-control"]').length).toBeGreaterThan(0)
+      expect(container.querySelectorAll('[data-slot="tree-checkbox"]').length).toBeGreaterThan(0)
 
       tree.check('button')
       expect(tree.getItem('button')?.checkedState).toBe('checked')
@@ -992,7 +992,7 @@ describe('createTree', () => {
       expect(tree.getItem('components')?.checkedState).toBe('unchecked')
     })
 
-    test('binds Checkbox through ItemCheckbox and keeps it out of the tab order', () => {
+    test('binds the check state through ItemCheckbox and keeps it out of the tab order', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (
         <Harness
@@ -1009,13 +1009,13 @@ describe('createTree', () => {
         />
       ))
 
-      const control = container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')!
+      const control = container.querySelector<HTMLElement>('[data-slot="tree-checkbox"]')!
       expect(control.getAttribute('tabindex')).toBe('-1')
-      expect(control.closest('[data-slot="checkbox"]')?.getAttribute('aria-hidden')).toBe('true')
+      expect(control.getAttribute('aria-hidden')).toBe('true')
 
       fireEvent.click(control)
       expect(tree.getItem('src')?.checkedState).toBe('checked')
-      expect(control.getAttribute('aria-checked')).toBe('true')
+      expect(control.hasAttribute('data-checked')).toBe(true)
       expect(tree.getItem('button')?.checkedState).toBe('checked')
     })
 
@@ -1035,7 +1035,7 @@ describe('createTree', () => {
 
     test('renders the default checkbox in the row when checkable', () => {
       const { container } = render(() => <Harness options={{ checkable: true }} />)
-      expect(container.querySelectorAll('[data-slot="checkbox"]')).toHaveLength(4)
+      expect(container.querySelectorAll('[data-slot="tree-checkbox"]')).toHaveLength(4)
     })
 
     test('does not cascade when checkCascade is false', () => {

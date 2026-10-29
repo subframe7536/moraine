@@ -17,6 +17,15 @@ export interface TreeStyleSlot<T = unknown> {
   /** Optional node icon, such as a folder or file. */
   icon?: T
 
+  /** Bound check control shown for each item when `checkable`. */
+  checkbox?: T
+
+  /** Filled layer inside the checkbox shown for the checked or indeterminate state. */
+  checkboxIndicator?: T
+
+  /** Check or indeterminate icon inside the checkbox. */
+  checkboxIcon?: T
+
   /** Node text. */
   label?: T
 

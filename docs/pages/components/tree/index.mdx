@@ -240,14 +240,15 @@ const tree = createTree({
 
 ### Checkboxes
 
-Set `checkable` to add the check state. The default item then renders a [Checkbox](/components/checkbox)
+Set `checkable` to add the check state. The default item then renders a bound `tree.ItemCheckbox`
 in each row. By default, checking a branch checks its descendants and a branch with a mix of checked
 descendants is indeterminate; set `checkCascade={false}` to treat every item independently. Checked
 branches pass their state to children that load later.
 
-To place the checkbox in a custom item, compose `tree.ItemCheckbox`. It inherits the tree `size`,
-forwards every `Checkbox` prop, and its binding is hidden from assistive technology and removed
-from the tab order because the `treeitem` itself carries `aria-checked`.
+To place the checkbox in a custom item, compose `tree.ItemCheckbox`. It is bound to the item's check
+state, inherits the tree `size`, and is hidden from assistive technology and removed from the tab
+order because the `treeitem` itself carries `aria-checked`. Use `size`, `checkedIcon`, and
+`indeterminateIcon` to adjust its appearance.
 
 ```tsx
 <tree.Tree

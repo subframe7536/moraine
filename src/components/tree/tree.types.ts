@@ -1,8 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
-import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type { CheckboxT } from '../checkbox'
+import type { ComponentSize, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
@@ -113,7 +112,7 @@ export namespace TreeT {
     onSelectionChange?: (keys: string[]) => void
 
     /**
-     * Whether items expose a check state that can be composed with `Checkbox`.
+     * Whether items expose a check state rendered with `tree.ItemCheckbox`.
      * @default false
      */
     checkable?: boolean
@@ -318,13 +317,27 @@ export namespace TreeT {
     'span'
   >
 
-  export type ItemCheckboxProps = BaseProps<
-    'div',
-    CheckboxT.Base,
-    CheckboxT.Variants,
-    CheckboxT.Classes,
-    CheckboxT.Styles
-  >
+  export interface ItemCheckboxBase {
+    /** Checkbox size. Defaults to the tree's `size`. */
+    size?: ComponentSize
+
+    /**
+     * Icon shown when the item is checked.
+     * @default 'icon-check'
+     */
+    checkedIcon?: IconT.Name
+
+    /**
+     * Icon shown when the item is indeterminate.
+     * @default 'icon-minus'
+     */
+    indeterminateIcon?: IconT.Name
+
+    /** Called with the new checked state when the checkbox is clicked. */
+    onCheckedChange?: (checked: boolean) => void
+  }
+
+  export type ItemCheckboxProps = BaseProps<'button', ItemCheckboxBase, never, never, never>
 
   export interface Parts<T> {
     /** Tree root. Renders the visible items, nested or through `virtualRender`. */

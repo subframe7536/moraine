@@ -1,33 +1,71 @@
 import type { JSX } from 'solid-js'
-import { Show, splitProps } from 'solid-js'
+import { Show, mergeProps, splitProps } from 'solid-js'
 
-import { Checkbox } from '../checkbox'
+import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItem } from './tree-context'
+import { useTreeContext, useTreeItem, useTreePart } from './tree-context'
+import { treeDataAttributes } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
 /** Checkbox bound to the item's check state. */
 export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Element {
-  const [local, rest] = splitProps(props, ['onCheckedChange', 'size'])
+  const [local, rest] = splitProps(props, [
+    'onCheckedChange',
+    'checkedIcon',
+    'indeterminateIcon',
+    'size',
+    'class',
+    'style',
+  ])
   const context = useTreeContext()
   const item = useTreeItem()
+  const merged = mergeProps(
+    { checkedIcon: 'icon-check' as const, indeterminateIcon: 'icon-minus' as const },
+    local,
+  )
+  const { slots } = useTreePart('checkbox', local)
+
+  const checked = () => item.checkedState === 'checked'
+  const unchecked = () => item.checkedState === 'unchecked'
+  const indeterminate = () => item.checkedState === 'indeterminate'
+  const disabled = () => item.isDisabled
+
+  function toggle(): void {
+    if (item.isDisabled) {
+      return
+    }
+    local.onCheckedChange?.(!checked())
+    context.state.setChecked(item.key, !checked())
+  }
 
   return (
     <Show when={context.options.checkable}>
-      <Checkbox
-        size={local.size ?? context.variants.size}
-        {...rest}
-        fieldBind={false}
-        tabIndex={-1}
+      <button
+        type="button"
+        role="checkbox"
+        data-slot="tree-checkbox"
         aria-hidden={true}
-        checked={item.checkedState === 'checked'}
-        indeterminate={item.checkedState === 'indeterminate'}
-        disabled={item.isDisabled}
-        onCheckedChange={(checked: boolean) => {
-          local.onCheckedChange?.(checked)
-          context.state.setChecked(item.key, checked)
-        }}
-      />
+        tabIndex={-1}
+        disabled={disabled()}
+        {...treeDataAttributes.checkbox({ checked, unchecked, indeterminate, disabled })}
+        {...rest}
+        {...slots.checkbox}
+        onClick={toggle}
+      >
+        <Show when={!unchecked()}>
+          <span
+            data-slot="tree-checkbox-indicator"
+            {...treeDataAttributes.checkboxIndicator({ checked, indeterminate, disabled })}
+            {...slots.checkboxIndicator}
+          >
+            <Icon
+              name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+              slotName="tree-checkbox-icon"
+              {...slots.checkboxIcon}
+            />
+          </span>
+        </Show>
+      </button>
     </Show>
   )
 }
