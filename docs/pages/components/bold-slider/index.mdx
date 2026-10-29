@@ -26,6 +26,8 @@ import { BoldSlider } from '@src'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'switch', prop: 'subtle', label: 'Subtle', defaultValue: false },
+    { kind: 'switch', prop: 'stepper', label: 'Stepper', defaultValue: true },
     { kind: 'input', prop: 'step', label: 'Step', defaultValue: 0.1, inputType: 'number' },
     { kind: 'switch', prop: 'showValue', label: 'Show value', defaultValue: true },
     { kind: 'switch', prop: 'marker', label: 'Marker', defaultValue: true },
@@ -41,7 +43,8 @@ import { BoldSlider } from '@src'
         max={1}
         label={props.label}
         size={props.size}
-        step={props.step}
+        subtle={props.subtle}
+        step={props.stepper ? props.step : undefined}
         showValue={props.showValue}
         marker={props.marker}
         disabled={props.disabled}
@@ -97,6 +100,22 @@ Both texts are drawn twice: once over the track and once clipped to the filled r
 the text uses the colors of the surface behind it, so it stays readable while the fill passes
 through it.
 
+### Subtle fill
+
+Set `subtle` for a translucent neutral fill instead of the primary color, like the controls in an
+inspector panel. The label, value, and indicator then keep the same colors over the fill and the
+track.
+
+```tsx
+<BoldSlider subtle label="Bounce" defaultValue={0.5} max={1} step={0.1} />
+```
+
+### Step and markers
+
+Set `step` to snap pointer and keyboard input to increments. Without `step`, pointer movement is
+continuous. Enable `marker` to draw a tick at each step. Ticks use `muted-foreground`, so they stay
+visible in light and dark themes.
+
 ### Indicator
 
 The indicator is a capsule just inside the edge of the fill. It stays dim and smaller at rest,
@@ -107,7 +126,7 @@ Like the label, it is drawn over both surfaces, so its color follows the backgro
 
 ### Tune animation settings
 
-Stack several sliders to build a compact control panel.
+Stack several `subtle` sliders to build a compact control panel.
 
 <Preview path="./control-panel" />
 

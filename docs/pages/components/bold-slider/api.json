@@ -184,6 +184,16 @@
           "description": "Family slot style defaults for this instance."
         },
         {
+          "name": "subtle",
+          "optional": true,
+          "type": "boolean",
+          "description": "Uses a translucent neutral fill instead of the primary color, so the label, value, and\nindicator keep the same colors over the fill and the track.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
           "name": "translations",
           "optional": true,
           "type": "Translations",

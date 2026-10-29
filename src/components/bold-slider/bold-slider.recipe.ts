@@ -34,7 +34,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
       'bg-muted cursor-pointer transition-shadow group-has-[:focus-visible]:(ring-3 ring-ring/50)',
     range:
       'rounded-[inherit] transition-[left,right] duration-150 ease-out group-data-[dragging]:transition-none',
-    marker: 'rounded-full bg-border h-2',
+    marker: 'rounded-full bg-muted-foreground/40 h-2',
     thumb: 'opacity-0 size-px pointer-events-none',
     content: '@container pointer-events-none inset-0 absolute overflow-hidden',
     label:
@@ -46,12 +46,21 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
+    subtle: false,
   },
   variants: {
     size: {
       sm: { '--bs-pad': '10px', track: 'rounded-md h-8', content: 'text-xs rounded-md' },
       md: { '--bs-pad': '12px', track: 'rounded-md h-9', content: 'text-sm rounded-md' },
       lg: { '--bs-pad': '14px', track: 'rounded-lg h-10', content: 'text-sm rounded-lg' },
+    },
+    subtle: {
+      true: {
+        range: 'bg-foreground/10',
+        label: 'data-fill:text-muted-foreground',
+        value: 'data-fill:text-foreground',
+        indicator: 'bg-foreground data-fill:bg-foreground',
+      },
     },
   },
 })

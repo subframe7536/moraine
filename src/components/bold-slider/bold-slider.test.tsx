@@ -152,6 +152,41 @@ describe('BoldSlider', () => {
     expect(root.style.getPropertyValue('--bs-pad')).toBe('14px')
   })
 
+  test('uses a theme token for step markers', () => {
+    const screen = render(() => <BoldSlider marker min={0} max={4} step={1} />)
+    const markers = queryAll(screen.container, '[data-slot="slider-marker"]')
+
+    expect(markers).toHaveLength(3)
+    for (const marker of markers) {
+      expect(marker.classList).toContain('bg-muted-foreground/40')
+      expect(marker.classList).not.toContain('bg-background')
+    }
+  })
+
+  test('switches to a neutral fill with matching content colors when subtle', () => {
+    const [subtle, setSubtle] = createSignal(false)
+    const screen = render(() => <BoldSlider label="Bounce" subtle={subtle()} />)
+    const range = query(screen.container, '[data-slot="slider-range"]')
+    const fillLabel = query(screen.container, '[data-slot="bold-slider-label"][data-fill]')
+    const fillValue = query(screen.container, '[data-slot="bold-slider-value"][data-fill]')
+    const fillIndicator = query(screen.container, '[data-slot="bold-slider-indicator"][data-fill]')
+
+    expect(range.classList).toContain('bg-primary')
+    expect(fillLabel.classList).toContain('data-fill:text-primary-foreground/80')
+    expect(fillValue.classList).toContain('data-fill:text-primary-foreground')
+    expect(fillIndicator.classList).toContain('data-fill:bg-primary-foreground')
+
+    setSubtle(true)
+    expect(range.classList).toContain('bg-foreground/10')
+    expect(range.classList).not.toContain('bg-primary')
+    expect(fillLabel.classList).toContain('data-fill:text-muted-foreground')
+    expect(fillLabel.classList).not.toContain('data-fill:text-primary-foreground/80')
+    expect(fillValue.classList).toContain('data-fill:text-foreground')
+    expect(fillIndicator.classList).toContain('bg-foreground')
+    expect(fillIndicator.classList).toContain('data-fill:bg-foreground')
+    expect(fillIndicator.classList).not.toContain('data-fill:bg-primary-foreground')
+  })
+
   test('submits its value with a native form', () => {
     const screen = render(() => (
       <form data-testid="form">

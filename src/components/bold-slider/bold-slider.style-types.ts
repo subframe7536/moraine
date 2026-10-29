@@ -21,6 +21,13 @@ export interface BoldSliderStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
+
+  /**
+   * Uses a translucent neutral fill instead of the primary color, so the label, value, and
+   * indicator keep the same colors over the fill and the track.
+   * @default false
+   */
+  subtle?: boolean
 }
 
 export type BoldSliderStyleConfig = ComponentStyleConfig<
