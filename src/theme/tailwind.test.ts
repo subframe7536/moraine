@@ -463,13 +463,9 @@ describe('animations', () => {
   test('compiles disclosure child state and slider peer state', async () => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[
-        boldSliderRecipe.config.base.root,
-        boldSliderRecipe.config.base.content,
-        boldSliderRecipe.config.base.indicator,
-      ]
+      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
         .flatMap((value) => cn(value)!.split(' '))
-        .filter((token) => token.startsWith('peer-') || token === '@container'),
+        .filter((token) => token.startsWith('peer-')),
     ]
     const css = await compileCSS(tokens)
     expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
@@ -480,7 +476,6 @@ describe('animations', () => {
     expect(css).toMatch(/\.peer\)?:hover ?~/)
     expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
     expect(css).toMatch(/\.peer\)?\[data-inverted\] ?~/)
-    expect(css).toContain('container-type:')
     expect(css).not.toContain(':has(')
   })
   test('compiles compound disclosure and instant tooltip states', async () => {

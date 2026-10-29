@@ -65,13 +65,24 @@ describe('BoldSlider', () => {
     const indicators = queryAll(screen.container, '[data-slot="bold-slider-indicator"]')
     const range = query(screen.container, '[data-slot="slider-range"]')
 
+    const fillLayer = fill.firstElementChild as HTMLElement
+
     expect(indicators).toHaveLength(1)
     expect(fill.style.width).toBe('25%')
+    // 400% of a box that is 25% of the track spans the full track.
+    expect(fillLayer.style.width).toBe('400%')
     expect(indicators[0]?.style.width).toBe('25%')
     expect(range.style.right).toBe('75%')
 
     setValue(80)
     expect(fill.style.width).toBe('80%')
+    expect(fillLayer.style.width).toBe('125%')
+
+    setValue(0)
+    expect(fill.style.width).toBe('0%')
+    expect(fillLayer.style.width).toBe('100%')
+
+    setValue(80)
     expect(indicators[0]?.style.width).toBe('80%')
   })
 

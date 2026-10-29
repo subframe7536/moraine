@@ -85,13 +85,9 @@ describe('presetMoraine', () => {
   ])('compiles disclosure child state and slider peer state with %s', async (_name, wind) => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...[
-        boldSliderRecipe.config.base.root,
-        boldSliderRecipe.config.base.content,
-        boldSliderRecipe.config.base.indicator,
-      ]
+      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
         .flatMap((value) => cn(value)!.split(' '))
-        .filter((token) => token.startsWith('peer-') || token === '@container'),
+        .filter((token) => token.startsWith('peer-')),
     ]
     const css = await generate(tokens, false, wind)
     expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
@@ -102,7 +98,6 @@ describe('presetMoraine', () => {
     expect(css).toMatch(/\.peer\)?:hover ?~/)
     expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
     expect(css).toMatch(/\.peer\)?\[data-inverted\] ?~/)
-    expect(css).toContain('container-type:')
     expect(css).not.toContain(':has(')
   })
   test.each([

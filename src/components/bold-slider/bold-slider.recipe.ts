@@ -18,8 +18,8 @@ export const BOLD_SLIDER_LAYER_CLASS =
 export const BOLD_SLIDER_FILL_CLASS =
   'rounded-[inherit] flex pointer-events-none start-0 inset-y-0 justify-start absolute overflow-hidden peer-data-[inverted]:end-0 peer-data-[inverted]:start-auto peer-data-[inverted]:justify-end'
 
-/** Full-width copy inside the clip box, aligned to the same edge as the fill. */
-export const BOLD_SLIDER_FILL_LAYER_CLASS = 'shrink-0 h-full w-[100cqw] relative'
+/** Track-wide copy inside the clip box (width set inline), aligned to the same edge as the fill. */
+export const BOLD_SLIDER_FILL_LAYER_CLASS = 'shrink-0 h-full relative'
 
 /** Capsule drawn in the indicator box; its color comes from the indicator text color. */
 export const BOLD_SLIDER_INDICATOR_CAPSULE_CLASS =
@@ -36,7 +36,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
 >('boldSlider', {
   base: {
     '--bs-indicator-width': '5px',
-    root: '@container',
+    root: '',
     track: 'peer rounded-[inherit] bg-muted cursor-pointer',
     range: 'rounded-[inherit]',
     marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',

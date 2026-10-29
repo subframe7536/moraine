@@ -69,8 +69,6 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'peer-data-[dragging]:opacity-90',
         'peer-hover:opacity-90',
         'w-(--bs-indicator-width)',
-        'w-[100cqw]',
-        '@container',
         'peer-focus-visible:ring-3',
         'px-(--bs-indicator-gap)',
         '-translate-x-1/2',
@@ -125,7 +123,6 @@ describe('isolated built-dist UnoCSS consumer', () => {
         expect(css).toContain('border-radius:calc(var(--radius) * 0.8)')
       }
       expect(css).toContain('width:var(--bs-indicator-width)')
-      expect(css).toContain('container-type:inline-size')
       expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
       expect(css).toContain('height:var(--s-thumb-size)')

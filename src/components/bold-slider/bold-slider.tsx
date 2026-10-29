@@ -57,7 +57,11 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
   // Rendered as Slider root children after the track and thumb, so each part can read their
   // state through `peer-*` selectors.
   function Overlay(state: SliderT.ChildrenRenderProps<number>): JSX.Element {
-    const fillWidth = () => `${(state.percentages[0] ?? 0) * 100}%`
+    const fraction = () => state.percentages[0] ?? 0
+    const fillWidth = () => `${fraction() * 100}%`
+    // The clip box is `fraction` of the track wide, so `100% / fraction` of it spans the whole
+    // track. This keeps the copy aligned with the base layer without a container query.
+    const fillLayerWidth = () => (fraction() > 0 ? `${100 / fraction()}%` : '100%')
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
 
     function Layer(layerProps: { fill?: boolean }): JSX.Element {
@@ -96,7 +100,7 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
           class={BOLD_SLIDER_FILL_CLASS}
           style={{ width: fillWidth() }}
         >
-          <div class={BOLD_SLIDER_FILL_LAYER_CLASS}>
+          <div class={BOLD_SLIDER_FILL_LAYER_CLASS} style={{ width: fillLayerWidth() }}>
             <Layer fill />
           </div>
         </div>
