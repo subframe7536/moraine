@@ -24,7 +24,7 @@
           "name": "actionRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nCustom `itemRender` content composes `tree.ItemAction` directly."
+          "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nReceives the item instance. Custom `itemRender` content composes `tree.ItemAction` directly."
         },
         {
           "name": "class",

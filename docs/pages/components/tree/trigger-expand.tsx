@@ -41,9 +41,9 @@ export function TriggerExpand() {
       <tree.Tree
         aria-label="Project files"
         itemRender={(context) => (
-          <tree.Item item={context.item}>
+          <tree.Item item={context}>
             <tree.ItemTrigger />
-            <tree.ItemIcon icon={context.item.hasChildren ? 'icon-folder' : 'icon-file'} />
+            <tree.ItemIcon icon={context.hasChildren ? 'icon-folder' : 'icon-file'} />
             <tree.ItemLabel />
           </tree.Item>
         )}

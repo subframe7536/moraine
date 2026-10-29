@@ -216,10 +216,8 @@ export namespace TreeT {
     focus: () => void
   }
 
-  export interface ItemRenderProps<T> {
-    /** Item to render. */
-    readonly item: ItemInstance<T>
-  }
+  /** Item instance passed to `itemRender`, `actionRender`, and `tree.Item`'s `item` prop. */
+  export type ItemRenderProps<T> = ItemInstance<T>
 
   export type VirtualRenderProps<T = unknown> = ListT.VirtualRenderProps<ItemInstance<T>>
 
@@ -233,7 +231,7 @@ export namespace TreeT {
 
     /**
      * Renders trailing actions for each item in the default item, inside `tree.ItemAction`.
-     * Custom `itemRender` content composes `tree.ItemAction` directly.
+     * Receives the item instance. Custom `itemRender` content composes `tree.ItemAction` directly.
      */
     actionRender?: Component<ItemRenderProps<T>>
 

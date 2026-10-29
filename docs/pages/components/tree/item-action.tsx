@@ -37,13 +37,13 @@ export function ItemAction() {
         aria-label="Files"
         actionRender={(context) => (
           <>
-            <Show when={context.item.hasChildren}>
+            <Show when={context.hasChildren}>
               <Button
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
-                aria-label={`New file in ${context.item.textValue}`}
-                onClick={() => setStatus(`New file in ${context.item.textValue}`)}
+                aria-label={`New file in ${context.textValue}`}
+                onClick={() => setStatus(`New file in ${context.textValue}`)}
               />
             </Show>
             <DropdownMenu>
@@ -52,19 +52,19 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
-                aria-label={`More actions for ${context.item.textValue}`}
+                aria-label={`More actions for ${context.textValue}`}
               />
               <DropdownMenu.Content
                 items={[
                   {
                     label: 'Rename',
                     icon: 'i-lucide:pencil',
-                    onSelect: () => setStatus(`Rename ${context.item.textValue}`),
+                    onSelect: () => setStatus(`Rename ${context.textValue}`),
                   },
                   {
                     label: 'Delete',
                     icon: 'i-lucide:trash-2',
-                    onSelect: () => setStatus(`Delete ${context.item.textValue}`),
+                    onSelect: () => setStatus(`Delete ${context.textValue}`),
                   },
                 ]}
               />

@@ -271,7 +271,7 @@ order because the `treeitem` itself carries `aria-checked`. Use `size`, `checked
 ```tsx
 <tree.Tree
   itemRender={(context) => (
-    <tree.Item item={context.item}>
+    <tree.Item item={context}>
       <tree.ItemTrigger />
       <tree.ItemCheckbox />
       <tree.ItemLabel />
@@ -334,7 +334,7 @@ hover they are always visible. Clicks inside the actions never select or expand 
       variant="ghost"
       size="icon-xs"
       leading="i-lucide:trash-2"
-      aria-label={`Delete ${context.item.textValue}`}
+      aria-label={`Delete ${context.textValue}`}
     />
   )}
 />

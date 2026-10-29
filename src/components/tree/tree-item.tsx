@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
-import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
@@ -310,18 +310,16 @@ export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Elem
   const context = useTreeContext()
 
   return (
-    <TreeItem item={props.item}>
+    <TreeItem item={props}>
       <TreeItemTrigger />
       <TreeItemCheckbox />
-      <Show when={context.options.getIcon?.(props.item)}>
+      <Show when={context.options.getIcon?.(props)}>
         {(icon) => <TreeItemIcon icon={icon()} />}
       </Show>
       <TreeItemLabel />
       <Show when={context.props.actionRender}>
         {(actionRender) => (
-          <TreeItemAction>
-            <Dynamic component={actionRender()} item={props.item} />
-          </TreeItemAction>
+          <TreeItemAction>{renderWithProps(actionRender(), props)}</TreeItemAction>
         )}
       </Show>
     </TreeItem>

@@ -3,6 +3,7 @@ import { Show, createEffect, createSignal, on, onCleanup, splitProps, untrack } 
 import { Dynamic } from 'solid-js/web'
 
 import { pickSlotOverrides, useRecipe } from '../../provider'
+import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import type { ListT } from '../list/list.types'
 
@@ -69,10 +70,10 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
   function RenderItem(itemProps: TreeItemContext): JSX.Element {
     return (
       <TreeItemProvider value={itemProps}>
-        <Dynamic
-          component={local.itemRender ?? TreeDefaultItem}
-          item={itemProps.item as TreeT.ItemInstance<T>}
-        />
+        {renderWithProps(
+          local.itemRender ?? TreeDefaultItem,
+          itemProps.item as TreeT.ItemRenderProps<T>,
+        )}
       </TreeItemProvider>
     )
   }

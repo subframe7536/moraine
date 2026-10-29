@@ -230,7 +230,7 @@ describe('createTree', () => {
           treeProps={{
             transition: false,
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemTrigger />
                 <tree.ItemLabel />
               </tree.Item>
@@ -1026,7 +1026,7 @@ describe('createTree', () => {
           options={{ checkable: true, defaultExpandedKeys: ['src', 'components'] }}
           treeProps={{
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemCheckbox />
                 <tree.ItemLabel />
               </tree.Item>
@@ -1055,7 +1055,7 @@ describe('createTree', () => {
           treeProps={{
             size: 'lg',
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemCheckbox size="sm" onClick={onClick} />
                 <tree.ItemLabel />
               </tree.Item>
@@ -1315,7 +1315,7 @@ describe('createTree', () => {
           options={{ selectionMode: 'single' }}
           treeProps={{
             actionRender: (context) => (
-              <button type="button" onClick={() => onAction(context.item.key)}>
+              <button type="button" onClick={() => onAction(context.key)}>
                 Delete
               </button>
             ),
@@ -1344,7 +1344,7 @@ describe('createTree', () => {
           onTree={(value) => (tree = value)}
           treeProps={{
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemLabel />
                 <tree.ItemAction class="custom-action">more</tree.ItemAction>
               </tree.Item>
@@ -1365,8 +1365,8 @@ describe('createTree', () => {
           options={{ defaultExpandedKeys: ['docs'] }}
           treeProps={{
             itemRender: (context) => (
-              <tree.Item item={context.item}>
-                <tree.ItemLabel>{context.item.textValue.toUpperCase()}</tree.ItemLabel>
+              <tree.Item item={context}>
+                <tree.ItemLabel>{context.textValue.toUpperCase()}</tree.ItemLabel>
               </tree.Item>
             ),
           }}
@@ -1403,9 +1403,9 @@ describe('createTree', () => {
             classes: { row: 'custom-row' },
             class: 'custom-root',
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemTrigger />
-                <tree.ItemIcon icon={context.item.hasChildren ? 'icon-folder' : 'icon-file'} />
+                <tree.ItemIcon icon={context.hasChildren ? 'icon-folder' : 'icon-file'} />
                 <tree.ItemLabel />
               </tree.Item>
             ),
@@ -1690,10 +1690,10 @@ describe('createTree', () => {
           onTree={(value) => (tree = value)}
           treeProps={{
             itemRender: (context) => (
-              <tree.Item item={context.item}>
+              <tree.Item item={context}>
                 <tree.ItemTrigger />
                 <tree.ItemLabel />
-                <input type="text" data-testid={`input-${context.item.key}`} />
+                <input type="text" data-testid={`input-${context.key}`} />
               </tree.Item>
             ),
           }}
@@ -1717,12 +1717,12 @@ describe('createTree', () => {
           treeProps={{
             itemRender: (context) => (
               <tree.Item
-                item={context.item}
-                data-testid={`custom-${context.item.key}`}
+                item={context}
+                data-testid={`custom-${context.key}`}
                 tabIndex={99}
                 aria-checked={false}
               >
-                <tree.ItemTrigger data-testid={`trigger-${context.item.key}`} />
+                <tree.ItemTrigger data-testid={`trigger-${context.key}`} />
                 <tree.ItemLabel />
               </tree.Item>
             ),

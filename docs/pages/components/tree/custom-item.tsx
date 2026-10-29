@@ -34,13 +34,13 @@ export function CustomItem() {
       <tree.Tree
         aria-label="Workspaces"
         itemRender={(context) => (
-          <tree.Item item={context.item}>
+          <tree.Item item={context}>
             <tree.ItemTrigger />
             <tree.ItemIcon
-              icon={context.item.hasChildren ? 'i-lucide:building-2' : 'i-lucide:layout-dashboard'}
+              icon={context.hasChildren ? 'i-lucide:building-2' : 'i-lucide:layout-dashboard'}
             />
             <tree.ItemLabel />
-            <Show when={context.item.raw.count}>
+            <Show when={context.raw.count}>
               {(count) => (
                 <Badge variant="soft" size="sm">
                   {count()}
