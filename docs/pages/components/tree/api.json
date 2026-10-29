@@ -425,7 +425,7 @@
       "attributes": [
         "data-closed",
         "data-expanded",
-        "data-settled"
+        "data-transitioning"
       ]
     }
   ]

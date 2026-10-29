@@ -54,13 +54,21 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
     disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
   // Clips the group only while its height animates, so focus rings of child rows stay visible.
   const [animating, setAnimating] = createSignal(false)
+  let contentElement: HTMLElement | undefined
   createEffect(
     on(
       visualExpanded,
       () => {
-        if (allowHeightMotion()) {
-          setAnimating(true)
+        if (!allowHeightMotion()) {
+          return
         }
+        setAnimating(true)
+        // No animation runs under reduced motion, so `animationend` never fires.
+        requestAnimationFrame(() => {
+          if (contentElement?.getAnimations?.().length === 0) {
+            setAnimating(false)
+          }
+        })
       },
       { defer: true },
     ),
@@ -115,6 +123,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   return (
     <div
       ref={(element) => {
+        contentElement = element
         onCleanup(disclosure.registerPresenceElement(element))
       }}
       aria-hidden={disclosure.ariaHidden()}
@@ -124,7 +133,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       {...treeDataAttributes.content({
         closed: () => !visualExpanded(),
         expanded: visualExpanded,
-        settled: () => !animating(),
+        transitioning: animating,
       })}
       {...slots.content}
       onAnimationEnd={settle}
