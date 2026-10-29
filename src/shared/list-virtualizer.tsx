@@ -4,7 +4,11 @@ import { For, Show, createMemo } from 'solid-js'
 
 import type { ListT } from '../components/list/list.types'
 
-import { attachRowMeasurement, createVirtualizerController } from './virtualizer-core'
+import {
+  attachRowMeasurement,
+  createVirtualRow,
+  createVirtualizerController,
+} from './virtualizer-core'
 import type { VirtualizerAdapterOptions } from './virtualizer-core'
 
 export type ListVirtualizerOptions<
@@ -99,16 +103,7 @@ export function createListVirtualizer<
       <div style={contentStyle()}>
         <For each={virtualItems}>
           {(virtualItem) => {
-            const row = createMemo(
-              () => ({
-                index: virtualItem.index,
-                item: props.entries[virtualItem.index]!,
-              }),
-              undefined,
-              {
-                equals: (prev, next) => prev?.index === next.index && prev?.item === next.item,
-              },
-            )
+            const row = createVirtualRow(virtualItem, () => props.entries)
 
             return (
               <Show keyed when={row()}>

@@ -4,7 +4,11 @@ import { For, Show, createMemo, createRenderEffect, on, onCleanup } from 'solid-
 
 import type { ListT } from '../components/list/list.types'
 
-import { attachRowMeasurement, createVirtualizerController } from './virtualizer-core'
+import {
+  attachRowMeasurement,
+  createVirtualRow,
+  createVirtualizerController,
+} from './virtualizer-core'
 import type { VirtualizerAdapterOptions } from './virtualizer-core'
 
 export type TableVirtualizerOptions<TItem> = Omit<
@@ -74,16 +78,19 @@ export function createTableVirtualizer<TItem>(
         () => [controller.instance(), props.entries] as const,
         ([instance]) => {
           const table = instance ? resolveTable() : null
-          if (!table || table.hasAttribute('aria-rowcount')) {
+          // A caller-provided `aria-rowcount` wins; only the value this adapter wrote is updated.
+          if (!table || (!ownsAriaRowCount && table.hasAttribute('aria-rowcount'))) {
             return
           }
           const count =
             props.entries.length + (table.tHead?.rows.length ?? 0) + (table.tFoot?.rows.length ?? 0)
-          if (count <= 0) {
-            return
+          if (count > 0) {
+            table.setAttribute('aria-rowcount', String(count))
+            ownsAriaRowCount = true
+          } else if (ownsAriaRowCount) {
+            table.removeAttribute('aria-rowcount')
+            ownsAriaRowCount = false
           }
-          table.setAttribute('aria-rowcount', String(count))
-          ownsAriaRowCount = true
         },
       ),
     )
@@ -95,10 +102,16 @@ export function createTableVirtualizer<TItem>(
 
     const headerRowCount = () => resolveTable()?.tHead?.rows.length ?? 0
 
-    const padBefore = () => virtualItems[0]?.start ?? 0
+    // Virtual item offsets include `scrollMargin`; `totalSize()` does not. Spacers live inside
+    // the body, so both are measured from the first row.
+    const scrollMargin = () => virtualizer.options.scrollMargin
+    const padBefore = () => {
+      const first = virtualItems[0]
+      return first ? first.start - scrollMargin() : 0
+    }
     const padAfter = () => {
       const last = virtualItems[virtualItems.length - 1]
-      return totalSize() - (last?.end ?? 0)
+      return Math.max(totalSize() - (last ? last.end - scrollMargin() : 0), 0)
     }
 
     return (
@@ -112,16 +125,7 @@ export function createTableVirtualizer<TItem>(
         />
         <For each={virtualItems}>
           {(virtualItem) => {
-            const row = createMemo(
-              () => ({
-                index: virtualItem.index,
-                item: props.entries[virtualItem.index]!,
-              }),
-              undefined,
-              {
-                equals: (prev, next) => prev?.index === next.index && prev?.item === next.item,
-              },
-            )
+            const row = createVirtualRow(virtualItem, () => props.entries)
 
             return (
               <Show keyed when={row()}>

@@ -290,6 +290,102 @@ describe('createTableVirtualizer', () => {
     scrollElement.remove()
   })
 
+  test('measures spacer rows from the first row when scrollMargin is set', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 10,
+      measureElement: () => 10,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 70 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 0,
+      scrollMargin: 40,
+    })
+    const entries = Array.from({ length: 10 }, (_, index) => `Item ${index}`)
+
+    const screen = renderInTbody(virtualizer, entries)
+    await Promise.resolve()
+
+    // The first 30px of the viewport sit above the list, so rows 0-2 are visible.
+    const spacers = screen.container.querySelectorAll<HTMLElement>('tr[aria-hidden="true"]')
+    const rows = screen.container.querySelectorAll('tr[data-index]')
+    expect(rows.length).toBe(3)
+    expect(spacers[0]?.style.height).toBe('0px')
+    expect(spacers[1]?.style.height).toBe('70px')
+    screen.unmount()
+  })
+
+  test('skips rows past the end when entries shrink', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 10,
+      measureElement: () => 10,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 100 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+      overscan: 2,
+    })
+    const [entries, setEntries] = createSignal(
+      Array.from({ length: 50 }, (_, index) => `Item ${index}`),
+    )
+    const rendered: unknown[] = []
+
+    const screen = render(() => (
+      <table>
+        <tbody>
+          <Dynamic
+            component={virtualizer.virtualRender}
+            entries={entries()}
+            render={(item: string, _index: number, props?: Record<string, unknown>) => {
+              rendered.push(item)
+              return <tr {...props}>{item.toUpperCase()}</tr>
+            }}
+          />
+        </tbody>
+      </table>
+    ))
+    await Promise.resolve()
+
+    expect(() => setEntries(['a', 'b'])).not.toThrow()
+    await Promise.resolve()
+
+    expect(rendered).not.toContain(undefined)
+    const rows = [...screen.container.querySelectorAll('tr[data-index]')]
+    expect(rows.map((row) => row.textContent)).toEqual(['A', 'B'])
+    screen.unmount()
+  })
+
+  test('updates its own aria-rowcount when entries change', async () => {
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      measureElement: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    const [entries, setEntries] = createSignal(['a', 'b', 'c'])
+
+    const screen = render(() => (
+      <table>
+        <tbody>
+          <Dynamic
+            component={virtualizer.virtualRender}
+            entries={entries()}
+            render={(item: string, _index: number, props?: Record<string, unknown>) => (
+              <tr {...props}>{item}</tr>
+            )}
+          />
+        </tbody>
+      </table>
+    ))
+    await Promise.resolve()
+
+    const table = screen.container.querySelector('table')!
+    expect(table.getAttribute('aria-rowcount')).toBe('3')
+
+    setEntries(['a'])
+    expect(table.getAttribute('aria-rowcount')).toBe('1')
+
+    setEntries([])
+    expect(table.hasAttribute('aria-rowcount')).toBe(false)
+    screen.unmount()
+  })
+
   test('composes with Table: the tbody becomes the scroll element and rows render inside the body', async () => {
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
