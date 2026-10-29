@@ -23,8 +23,8 @@ search:
     ]
 ---
 
-import { createTree } from '@src'
-import { createComponent } from 'solid-js'
+import { Button, DropdownMenu, createTree } from '@src'
+import { createComponent, createSignal } from 'solid-js'
 
 <Playground
   controls={[
@@ -52,6 +52,7 @@ import { createComponent } from 'solid-js'
     { kind: 'switch', prop: 'trigger', label: 'Trigger', defaultValue: true },
     { kind: 'switch', prop: 'icon', label: 'Icon', defaultValue: true },
     { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
+    { kind: 'switch', prop: 'action', label: 'Actions', defaultValue: false },
     { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
     { kind: 'switch', prop: 'indentGuide', label: 'Indent guide', defaultValue: true },
   ]}
@@ -79,6 +80,8 @@ import { createComponent } from 'solid-js'
       { id: 'license', name: 'LICENSE', disabled: true },
     ]
 
+    const [status, setStatus] = createSignal('')
+
     const tree = createTree({
       items: () => FILES,
       getKey: (node) => node.id,
@@ -104,8 +107,43 @@ import { createComponent } from 'solid-js'
       },
     })
 
+    const actionRender = (item) => [
+      item.hasChildren && (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          leading="i-lucide:file-plus"
+          aria-label={`New file in ${item.textValue}`}
+          onClick={() => setStatus(`New file in ${item.textValue}`)}
+        />
+      ),
+      <DropdownMenu>
+          <DropdownMenu.Trigger
+            as={Button}
+            variant="ghost"
+            size="icon-xs"
+            leading="i-lucide:ellipsis"
+            aria-label={`More actions for ${item.textValue}`}
+          />
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'Rename',
+                icon: 'i-lucide:pencil',
+                onSelect: () => setStatus(`Rename ${item.textValue}`),
+              },
+              {
+                label: 'Delete',
+                icon: 'i-lucide:trash-2',
+                onSelect: () => setStatus(`Delete ${item.textValue}`),
+              },
+            ]}
+          />
+      </DropdownMenu>,
+    ]
+
     return (
-      <div class="max-w-sm w-full">
+      <div class="max-w-sm w-full space-y-2">
         {createComponent(tree.Tree, {
           'aria-label': 'Project files',
           get size() {
@@ -120,7 +158,11 @@ import { createComponent } from 'solid-js'
           get indentGuide() {
             return props.indentGuide
           },
+          get actionRender() {
+            return props.action ? actionRender : undefined
+          },
         })}
+        {status() && <p class="text-xs text-muted-foreground">{status()}</p>}
       </div>
     )
 
@@ -270,8 +312,8 @@ order because the `treeitem` itself carries `aria-checked`. Use `size`, `checked
 
 ```tsx
 <tree.Tree
-  itemRender={(context) => (
-    <tree.Item item={context}>
+  itemRender={(item) => (
+    <tree.Item item={item}>
       <tree.ItemTrigger />
       <tree.ItemCheckbox />
       <tree.ItemLabel />
@@ -329,12 +371,12 @@ hover they are always visible. Clicks inside the actions never select or expand 
 
 ```tsx
 <tree.Tree
-  actionRender={(context) => (
+  actionRender={(item) => (
     <Button
       variant="ghost"
       size="icon-xs"
       leading="i-lucide:trash-2"
-      aria-label={`Delete ${context.textValue}`}
+      aria-label={`Delete ${item.textValue}`}
     />
   )}
 />

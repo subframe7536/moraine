@@ -40,10 +40,10 @@ export function TriggerExpand() {
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Project files"
-        itemRender={(context) => (
-          <tree.Item item={context}>
+        itemRender={(item) => (
+          <tree.Item item={item}>
             <tree.ItemTrigger />
-            <tree.ItemIcon icon={context.hasChildren ? 'icon-folder' : 'icon-file'} />
+            <tree.ItemIcon icon={item.hasChildren ? 'icon-folder' : 'icon-file'} />
             <tree.ItemLabel />
           </tree.Item>
         )}

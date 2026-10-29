@@ -12,11 +12,19 @@ const FILES: FileNode[] = [
     id: 'src',
     name: 'src',
     children: [
-      { id: 'app', name: 'app.tsx' },
+      {
+        id: 'components',
+        name: 'components',
+        children: [
+          { id: 'button', name: 'button.tsx' },
+          { id: 'input', name: 'input.tsx' },
+        ],
+      },
       { id: 'index', name: 'index.ts' },
     ],
   },
   { id: 'docs', name: 'docs', children: [{ id: 'guide', name: 'guide.md' }] },
+  { id: 'package', name: 'package.json' },
   { id: 'readme', name: 'README.md' },
 ]
 
@@ -28,22 +36,22 @@ export function ItemAction() {
     getChildren: (node) => node.children,
     getTextValue: (node) => node.name,
     getIcon: (item) => (item.hasChildren ? 'i-lucide:folder' : 'i-lucide:file'),
-    defaultExpandedKeys: ['src'],
+    defaultExpandedKeys: ['src', 'components'],
   })
 
   return (
     <div class="max-w-sm w-full space-y-2">
       <tree.Tree
         aria-label="Files"
-        actionRender={(context) => (
+        actionRender={(item) => (
           <>
-            <Show when={context.hasChildren}>
+            <Show when={item.hasChildren}>
               <Button
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
-                aria-label={`New file in ${context.textValue}`}
-                onClick={() => setStatus(`New file in ${context.textValue}`)}
+                aria-label={`New file in ${item.textValue}`}
+                onClick={() => setStatus(`New file in ${item.textValue}`)}
               />
             </Show>
             <DropdownMenu>
@@ -52,19 +60,19 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
-                aria-label={`More actions for ${context.textValue}`}
+                aria-label={`More actions for ${item.textValue}`}
               />
               <DropdownMenu.Content
                 items={[
                   {
                     label: 'Rename',
                     icon: 'i-lucide:pencil',
-                    onSelect: () => setStatus(`Rename ${context.textValue}`),
+                    onSelect: () => setStatus(`Rename ${item.textValue}`),
                   },
                   {
                     label: 'Delete',
                     icon: 'i-lucide:trash-2',
-                    onSelect: () => setStatus(`Delete ${context.textValue}`),
+                    onSelect: () => setStatus(`Delete ${item.textValue}`),
                   },
                 ]}
               />
