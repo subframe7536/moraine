@@ -24,7 +24,7 @@ import type { TreeT } from './tree.types'
 const ACTION_SELECTOR = '[data-slot="tree-action"]'
 const INTERACTIVE_SELECTOR = `a, button, input, select, textarea, label, [role="checkbox"], ${ACTION_SELECTOR}`
 const POINTER_FOCUS_SELECTOR =
-  'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"]'
+  'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"], [data-slot="tree-trigger"]'
 
 function belongsToItem(event: Event): boolean {
   const host = event.currentTarget
@@ -178,6 +178,16 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   const context = useTreeContext()
   const itemContext = useTreeItemContext()
   const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
+  // Virtual row wiring (such as the measured index attribute) is owned and applied after rest.
+  // Its `style` merges through the enforced recipe layer and its `ref` through the composed ref.
+  const rowAttributes = () => {
+    const current = row()
+    if (!current) {
+      return undefined
+    }
+    const { ref: _ref, style: _style, ...attributes } = current
+    return attributes
+  }
   const { slots, variants } = useRecipe(treeRecipe, local, {
     slot: 'item',
     contextVariants: () => context.variants,
@@ -217,9 +227,9 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
           loading: () => local.item.isLoading,
           selected: () => local.item.isSelected,
         })}
-        {...row()}
         {...rest}
         {...slots.item}
+        {...rowAttributes()}
         tabIndex={
           local.item.isDisabled
             ? undefined

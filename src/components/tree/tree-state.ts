@@ -234,7 +234,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     }
     if (node.needsLoad) {
       void load(node).then((ok) => {
-        if (ok && state.registry().nodes.has(key)) {
+        // An empty result turns the node into a leaf, which must not be recorded as expanded.
+        if (ok && state.registry().nodes.get(key)?.hasChildren) {
           addExpanded([key])
         }
       })
@@ -496,12 +497,13 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     getItem,
   })
 
+  // Moves focus off the current item once it is hidden or becomes disabled.
   createEffect(
     on(
-      flattenedKeys,
-      (visible) => {
+      [flattenedKeys, registry],
+      ([visible, { nodes }]) => {
         const current = untrack(focusedKey)
-        if (current === undefined || visible.includes(current)) {
+        if (current === undefined || (visible.includes(current) && !nodes.get(current)?.disabled)) {
           return
         }
         const fallback = untrack(navigation.tabStopKey)
@@ -519,7 +521,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
         const node = current.nodes.get(key)
         if (node?.needsLoad) {
           void load(node).then((ok) => {
-            if (!ok) {
+            const loaded = state.registry().nodes.get(key)
+            if (!ok || (loaded && !loaded.hasChildren)) {
               setExpandedKeys((previous) => previous.filter((expandedKey) => expandedKey !== key))
             }
           })

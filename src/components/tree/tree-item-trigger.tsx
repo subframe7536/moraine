@@ -25,6 +25,15 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
   ])
   const context = useTreeContext()
   const item = useTreeItemContext()!.item
+  // The treeitem is the only tab stop. Keep custom hosts out of the tab order, and stop a button
+  // host from acting as a form's implicit submit button.
+  const ownedHostAttributes = () => {
+    const host = local.as
+    if (host === undefined || host === 'span') {
+      return undefined
+    }
+    return host === 'button' ? { tabIndex: -1, type: 'button' as const } : { tabIndex: -1 }
+  }
   const { slots } = useRecipe(treeRecipe, local, {
     slot: 'trigger',
     contextVariants: () => context.variants,
@@ -44,6 +53,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
         })}
         {...rest}
         {...slots.trigger}
+        {...ownedHostAttributes()}
         onClick={(event: MouseEvent) => {
           const custom = callHandler(event, local.onClick)
           event.preventDefault()
