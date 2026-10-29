@@ -6,7 +6,12 @@ import { createDisclosureState } from '../../shared/disclosure-state'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callHandler, callRef } from '../../shared/utils'
 
-import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
+import {
+  TreeItemProvider,
+  TreeRowProvider,
+  useTreeContext,
+  useTreeRowContext,
+} from './tree-context'
 import { TreeItemAction } from './tree-item-action'
 import { TreeItemCheckbox } from './tree-item-checkbox'
 import { TreeItemIcon } from './tree-item-icon'
@@ -179,8 +184,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
     'onMouseDown',
   ])
   const context = useTreeContext()
-  const itemContext = useTreeItemContext()
-  const row = () => (itemContext?.item === local.item ? itemContext.row : undefined)
+  const row = useTreeRowContext() ?? undefined
   const { slots } = useRecipe(treeRecipe, local, {
     slot: 'item',
     contextVariants: () => context.variants,
@@ -193,114 +197,109 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
         style: TREE_ROW_PADDING_STYLE,
       },
     }),
-    enforced: () => ({ item: { style: row()?.style } }),
+    enforced: () => ({ item: { style: row?.style } }),
   })
 
   return (
-    <TreeItemProvider
-      value={{
-        get item() {
-          return local.item
-        },
-        get row() {
-          return row()
-        },
-      }}
-    >
-      <li
-        data-slot="tree-item"
-        role="treeitem"
-        aria-label={local.item.textValue}
-        {...treeDataAttributes.item({
-          checked: () => local.item.checkedState === 'checked',
-          disabled: () => local.item.isDisabled,
-          expanded: () => local.item.isExpanded,
-          indeterminate: () => local.item.checkedState === 'indeterminate',
-          leaf: () => local.item.isLeaf,
-          loading: () => local.item.isLoading,
-          selected: () => local.item.isSelected,
-        })}
-        {...row()}
-        {...rest}
-        {...slots.item}
-        tabIndex={
-          local.item.isDisabled
-            ? undefined
-            : context.state.navigation.tabStopKey() === local.item.key
-              ? 0
-              : -1
-        }
-        aria-level={local.item.level}
-        aria-posinset={local.item.posInSet}
-        aria-setsize={local.item.setSize}
-        aria-expanded={local.item.hasChildren ? local.item.isExpanded : undefined}
-        aria-selected={context.state.selectionMode() === 'none' ? undefined : local.item.isSelected}
-        aria-checked={
-          context.options.checkable
-            ? local.item.checkedState === 'indeterminate'
-              ? 'mixed'
-              : local.item.checkedState === 'checked'
-            : undefined
-        }
-        aria-disabled={local.item.isDisabled ? true : undefined}
-        aria-busy={local.item.isLoading ? true : undefined}
-        ref={(element: HTMLElement) => {
-          onCleanup(context.state.navigation.registerElement(local.item.key, element))
-          callRef(row()?.ref, element)
-          callRef(local.ref, element)
-        }}
-        onClick={(event: MouseEvent) => {
-          if (
-            !callHandler(event, local.onClick).defaultPrevented &&
-            belongsToItem(event) &&
-            !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
-            !local.item.isDisabled
-          ) {
-            context.state.handleClick(event, local.item.key)
-          }
-        }}
-        onKeyDown={(event: KeyboardEvent) => {
-          if (!callHandler(event, local.onKeyDown).defaultPrevented) {
-            context.state.navigation.onKeyDown(event, local.item.key)
-          }
-        }}
-        onFocusIn={(event: FocusEvent) => {
-          callHandler(event, local.onFocusIn)
-          if (belongsToItem(event) && !local.item.isDisabled) {
-            context.state.setFocusedKey(local.item.key)
-          }
-        }}
-        onMouseDown={(event: MouseEvent) => {
-          if (
-            !callHandler(event, local.onMouseDown).defaultPrevented &&
-            belongsToItem(event) &&
-            !local.item.isDisabled &&
-            isFromDescendant(event, POINTER_FOCUS_SELECTOR) &&
-            !isFromDescendant(event, ACTION_SELECTOR)
-          ) {
-            event.preventDefault()
-            if (event.currentTarget instanceof HTMLElement) {
-              event.currentTarget.focus()
-            }
-          }
-        }}
-      >
-        <div
-          data-slot="tree-row"
-          {...treeDataAttributes.row({
+    <TreeItemProvider value={local.item}>
+      <TreeRowProvider value={null}>
+        <li
+          data-slot="tree-item"
+          role="treeitem"
+          aria-label={local.item.textValue}
+          {...treeDataAttributes.item({
+            checked: () => local.item.checkedState === 'checked',
             disabled: () => local.item.isDisabled,
             expanded: () => local.item.isExpanded,
+            indeterminate: () => local.item.checkedState === 'indeterminate',
             leaf: () => local.item.isLeaf,
+            loading: () => local.item.isLoading,
             selected: () => local.item.isSelected,
           })}
-          {...slots.row}
+          {...row}
+          {...rest}
+          {...slots.item}
+          tabIndex={
+            local.item.isDisabled
+              ? undefined
+              : context.state.navigation.tabStopKey() === local.item.key
+                ? 0
+                : -1
+          }
+          aria-level={local.item.level}
+          aria-posinset={local.item.posInSet}
+          aria-setsize={local.item.setSize}
+          aria-expanded={local.item.hasChildren ? local.item.isExpanded : undefined}
+          aria-selected={
+            context.state.selectionMode() === 'none' ? undefined : local.item.isSelected
+          }
+          aria-checked={
+            context.options.checkable
+              ? local.item.checkedState === 'indeterminate'
+                ? 'mixed'
+                : local.item.checkedState === 'checked'
+              : undefined
+          }
+          aria-disabled={local.item.isDisabled ? true : undefined}
+          aria-busy={local.item.isLoading ? true : undefined}
+          ref={(element: HTMLElement) => {
+            onCleanup(context.state.navigation.registerElement(local.item.key, element))
+            callRef(row?.ref, element)
+            callRef(local.ref, element)
+          }}
+          onClick={(event: MouseEvent) => {
+            if (
+              !callHandler(event, local.onClick).defaultPrevented &&
+              belongsToItem(event) &&
+              !isFromDescendant(event, INTERACTIVE_SELECTOR) &&
+              !local.item.isDisabled
+            ) {
+              context.state.handleClick(event, local.item.key)
+            }
+          }}
+          onKeyDown={(event: KeyboardEvent) => {
+            if (!callHandler(event, local.onKeyDown).defaultPrevented) {
+              context.state.navigation.onKeyDown(event, local.item.key)
+            }
+          }}
+          onFocusIn={(event: FocusEvent) => {
+            callHandler(event, local.onFocusIn)
+            if (belongsToItem(event) && !local.item.isDisabled) {
+              context.state.setFocusedKey(local.item.key)
+            }
+          }}
+          onMouseDown={(event: MouseEvent) => {
+            if (
+              !callHandler(event, local.onMouseDown).defaultPrevented &&
+              belongsToItem(event) &&
+              !local.item.isDisabled &&
+              isFromDescendant(event, POINTER_FOCUS_SELECTOR) &&
+              !isFromDescendant(event, ACTION_SELECTOR)
+            ) {
+              event.preventDefault()
+              if (event.currentTarget instanceof HTMLElement) {
+                event.currentTarget.focus()
+              }
+            }
+          }}
         >
-          {local.children}
-        </div>
-        <Show when={!context.props.virtualRender && local.item.hasChildren}>
-          <TreeItemGroup item={local.item} />
-        </Show>
-      </li>
+          <div
+            data-slot="tree-row"
+            {...treeDataAttributes.row({
+              disabled: () => local.item.isDisabled,
+              expanded: () => local.item.isExpanded,
+              leaf: () => local.item.isLeaf,
+              selected: () => local.item.isSelected,
+            })}
+            {...slots.row}
+          >
+            {local.children}
+          </div>
+          <Show when={!context.props.virtualRender && local.item.hasChildren}>
+            <TreeItemGroup item={local.item} />
+          </Show>
+        </li>
+      </TreeRowProvider>
     </TreeItemProvider>
   )
 }

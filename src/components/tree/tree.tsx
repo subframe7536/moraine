@@ -7,8 +7,8 @@ import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
 import type { ListT } from '../list/list.types'
 
-import { TreeItemProvider, TreeProvider } from './tree-context'
-import type { TreeContext, TreeItemContext } from './tree-context'
+import { TreeProvider, TreeRowProvider } from './tree-context'
+import type { TreeContext, TreeRenderItemProps } from './tree-context'
 import { TreeDefaultItem, TreeItem, TreeItemList } from './tree-item'
 import { TreeItemAction } from './tree-item-action'
 import { TreeItemCheckbox } from './tree-item-checkbox'
@@ -67,14 +67,14 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
     state.navigation.registerRoot(undefined)
   })
 
-  function RenderItem(itemProps: TreeItemContext): JSX.Element {
+  function RenderItem(itemProps: TreeRenderItemProps): JSX.Element {
     return (
-      <TreeItemProvider value={itemProps}>
+      <TreeRowProvider value={itemProps.row ?? null}>
         {renderWithProps(
           local.itemRender ?? TreeDefaultItem,
           itemProps.item as TreeT.ItemRenderProps<T>,
         )}
-      </TreeItemProvider>
+      </TreeRowProvider>
     )
   }
 

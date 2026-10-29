@@ -6,7 +6,7 @@ import type { ValidComponent } from '../../shared/types'
 import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItem, useTreePart } from './tree-context'
+import { useTreeContext, useTreeItemContext, useTreePart } from './tree-context'
 import { TREE_TRIGGER_ICON_CLASS, treeDataAttributes } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
@@ -23,7 +23,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
     'onClick',
   ])
   const context = useTreeContext()
-  const item = useTreeItem()
+  const item = useTreeItemContext()
   const { slots } = useTreePart('trigger', local)
 
   return (

@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import type { ValidComponent } from '../../shared/types'
 
-import { useTreeItem, useTreePart } from './tree-context'
+import { useTreeItemContext, useTreePart } from './tree-context'
 import type { TreeT } from './tree.types'
 
 /** Text of the item. */
@@ -17,7 +17,7 @@ export function TreeItemLabel<T extends ValidComponent = 'span'>(
     'class',
     'style',
   ])
-  const item = useTreeItem()
+  const item = useTreeItemContext()
   const { slots } = useTreePart('label', local)
 
   return (
