@@ -37,8 +37,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
     content: `rounded-[inherit] pointer-events-none transition-shadow inset-0 absolute overflow-hidden ${ROW_CLASS} peer-data-[focus-visible]:(ring-3 ring-ring/50)`,
     label:
       'text-muted-foreground font-medium min-w-0 truncate data-fill:text-primary-foreground/80',
-    value:
-      'text-foreground font-medium ms-auto shrink-0 tabular-nums data-fill:text-primary-foreground',
+    value: 'text-foreground font-medium shrink-0 tabular-nums data-fill:text-primary-foreground',
     indicator:
       'opacity-40 pointer-events-none scale-y-75 transition-[opacity,transform] duration-150 ease-out inset-0 absolute peer-data-[dragging]:(opacity-90 scale-y-100) peer-data-[focus-visible]:(opacity-90 scale-y-100) peer-hover:(opacity-90 scale-y-100)',
   },
