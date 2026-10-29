@@ -25,7 +25,12 @@ export const treeDataAttributes = {
     'indeterminate',
     'unchecked',
   ),
-  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transitioning'),
+  content: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'expanded',
+    'transition',
+    'transitioning',
+  ),
 } satisfies DataAttributeContract<keyof TreeStyleSlot>
 
 /** Resets list styling on the `tree` root and nested `group` lists. */
@@ -67,8 +72,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
   defaultVariants: {
     size: 'md',
     variant: 'subtle',
-    transition: false,
     indentGuide: true,
+    transition: true,
   },
   variants: {
     size: {
@@ -85,10 +90,11 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
         item: '[background:var(--mo-tree-guide)]',
       },
     },
+    // `data-transition` marks groups whose height may animate now; default-expanded groups skip it.
     transition: {
       true: {
         content:
-          'h-(--mo-collapsible-content-height) data-closed:(h-0 overflow-hidden animate-accordion-up) data-transitioning:overflow-hidden data-expanded:animate-accordion-down motion-reduce:animate-none',
+          'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transition:data-closed:animate-accordion-up data-transition:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
       },
     },
     variant: {

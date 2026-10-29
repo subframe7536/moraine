@@ -410,9 +410,17 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const checkedStates = createMemo(() =>
     resolveCheckedStates(registry(), new Set(storedCheckedKeys()), options.checkCascade !== false),
   )
-  const checkedKeys = createMemo(() => collectCheckedKeys(checkedStates()), undefined, {
-    equals: sameKeys,
-  })
+  // Stored keys outside the current registry, such as unloaded lazy children, stay checked so
+  // they apply once their items load. `checkedKeys` reports them so it matches `onCheckedChange`.
+  const unknownCheckedKeys = (): string[] => {
+    const nodes = registry().nodes
+    return storedCheckedKeys().filter((storedKey) => !nodes.has(storedKey))
+  }
+  const checkedKeys = createMemo(
+    () => [...collectCheckedKeys(checkedStates()), ...unknownCheckedKeys()],
+    undefined,
+    { equals: sameKeys },
+  )
   const getCheckedState = (key: string): TreeT.CheckedState =>
     checkedStates().get(key) ?? 'unchecked'
 
@@ -432,9 +440,8 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       )
       return
     }
-    // Preserve keys outside the current registry, such as unloaded lazy children.
-    const unknownKeys = storedCheckedKeys().filter((storedKey) => !current.nodes.has(storedKey))
-    const working = new Set(checkedKeys())
+    const unknownKeys = unknownCheckedKeys()
+    const working = new Set(collectCheckedKeys(checkedStates()))
     const subtree = [
       key,
       ...getDescendantKeys(current, key).filter(

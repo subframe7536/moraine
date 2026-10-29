@@ -45,7 +45,7 @@ function isFromDescendant(event: Event, selector: string): boolean {
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
   const [lastHeight, setLastHeight] = createSignal(0)
-  const transition = () => context.props.transition ?? true
+  const transition = () => Boolean(context.variants.transition)
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition,
@@ -90,11 +90,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
   const { slots } = useRecipe(
     treeRecipe,
-    {
-      get transition() {
-        return allowHeightMotion()
-      },
-    },
+    {},
     {
       slot: 'content',
       contextVariants: () => context.variants,
@@ -136,6 +132,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       {...treeDataAttributes.content({
         closed: () => !visualExpanded(),
         expanded: visualExpanded,
+        transition: allowHeightMotion,
         transitioning: animating,
       })}
       {...slots.content}
