@@ -1242,7 +1242,7 @@ describe('createTree', () => {
       expect(container.querySelector('[data-slot="tree-trigger"]')).not.toBeNull()
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
       const row = container.querySelector('[data-slot="tree-row"]')
-      expect(row?.className).toContain('hover:bg-accent')
+      expect(row?.className).toContain('hover:bg-muted')
       expect(row?.className).not.toContain('not-[[data-selected]]')
       expect(row?.className).toContain('data-selected:hover:bg-accent-hover')
       expect(row?.className).toContain('data-selected:active:bg-accent-active')
@@ -1274,7 +1274,7 @@ describe('createTree', () => {
       expect(getByRole('tree').className).toContain('custom-root')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
-      expect(row?.className).toContain('hover:bg-accent')
+      expect(row?.className).toContain('hover:bg-muted')
       expect(row?.className).not.toContain('not-[[data-selected]]')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
@@ -1319,7 +1319,7 @@ describe('createTree', () => {
               '--mo-tree-indent': '2rem',
               '--mo-tree-gap': '1rem',
               '--mo-tree-gutter': '0px',
-              '--mo-tree-indent-guide': 'red',
+              '--mo-tree-pad': '1rem',
             },
           }}
         />
@@ -1329,11 +1329,16 @@ describe('createTree', () => {
       expect(root.getPropertyValue('--mo-tree-indent')).toBe('2rem')
       expect(root.getPropertyValue('--mo-tree-gap')).toBe('1rem')
       expect(root.getPropertyValue('--mo-tree-gutter')).toBe('0px')
-      expect(root.getPropertyValue('--mo-tree-indent-guide')).toBe('red')
-      expect(root.getPropertyValue('--mo-tree-trigger')).toBe('0.875rem')
+      expect(root.getPropertyValue('--mo-tree-pad')).toBe('1rem')
       const element = item(container, 'components')
       expect(element.style.getPropertyValue('--mo-tree-level')).toBe('1')
-      for (const name of ['indent', 'gap', 'gutter', 'pad', 'trigger', 'indent-guide', 'guide']) {
+      expect(element.style.getPropertyValue('--mo-tree-guide')).not.toBe('')
+      expect(
+        element
+          .querySelector<HTMLElement>('[data-slot="tree-row"]')
+          ?.style.getPropertyValue('--mo-tree-pad-start'),
+      ).not.toBe('')
+      for (const name of ['indent', 'gap', 'gutter', 'pad']) {
         expect(element.style.getPropertyValue(`--mo-tree-${name}`)).toBe('')
         expect(
           element
