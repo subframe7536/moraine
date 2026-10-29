@@ -35,6 +35,10 @@ export interface DataTableStyleSlot<T = unknown> {
   expandedCell?: T
   /** Expand/collapse chevron toggle button. */
   expandButton?: T
+  /** Row and select-all checkbox shown when `selection` is `'multiple'`. */
+  checkbox?: T
+  /** Check or indeterminate icon inside the checkbox. */
+  checkboxIcon?: T
 }
 
 export type DataTableStyleVariants = {

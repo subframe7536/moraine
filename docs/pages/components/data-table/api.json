@@ -186,7 +186,9 @@
     "resizer",
     "expandedRow",
     "expandedCell",
-    "expandButton"
+    "expandButton",
+    "checkbox",
+    "checkboxIcon"
   ],
   "dataAttributes": [
     {
@@ -228,6 +230,15 @@
       "target": "expandButton",
       "attributes": [
         "data-expanded"
+      ]
+    },
+    {
+      "target": "checkbox",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-unchecked"
       ]
     },
     {

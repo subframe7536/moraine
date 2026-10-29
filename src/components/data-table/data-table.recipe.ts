@@ -6,6 +6,12 @@ import {
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 import {
+  CHECK_CONTROL_CLASS,
+  CHECK_CONTROL_ICON_CLASS,
+  CHECK_CONTROL_SIZE_CLASS,
+  checkControlDataAttributes,
+} from '../shared/check-control/check-control.recipe'
+import {
   TABLE_CELL_CLASS,
   TABLE_COLUMN_BORDER_CLASS,
   TABLE_FOOTER_CLASS,
@@ -27,6 +33,7 @@ export const dataTableDataAttributes = {
   sortIcon: /* @__PURE__ */ createDataAttributes('sorted'),
   resizer: /* @__PURE__ */ createDataAttributes('resizing'),
   expandButton: /* @__PURE__ */ createDataAttributes('expanded'),
+  checkbox: checkControlDataAttributes,
   expandedRow: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
   expandedCell: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof DataTableStyleSlot>
@@ -99,6 +106,9 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     expandedRow: 'border-b border-border bg-muted/30',
     expandedCell: 'p-0 align-top',
     expandButton: DATA_TABLE_EXPAND_BUTTON_CLASS,
+    // Inline in the cell so the column's text alignment centers it.
+    checkbox: `${CHECK_CONTROL_CLASS} align-middle`,
+    checkboxIcon: CHECK_CONTROL_ICON_CLASS,
   },
   defaultVariants: {
     size: 'md',
@@ -109,9 +119,24 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     size: {
-      sm: { ...TABLE_SIZE_SM, sortButton: 'size-5', pagination: 'text-xs' },
-      md: { ...TABLE_SIZE_MD, sortButton: 'size-6', pagination: 'text-sm' },
-      lg: { ...TABLE_SIZE_LG, sortButton: 'size-7', pagination: 'text-base px-4' },
+      sm: {
+        ...TABLE_SIZE_SM,
+        sortButton: 'size-5',
+        pagination: 'text-xs',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.sm,
+      },
+      md: {
+        ...TABLE_SIZE_MD,
+        sortButton: 'size-6',
+        pagination: 'text-sm',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.md,
+      },
+      lg: {
+        ...TABLE_SIZE_LG,
+        sortButton: 'size-7',
+        pagination: 'text-base px-4',
+        checkbox: CHECK_CONTROL_SIZE_CLASS.lg,
+      },
     },
     // Rows carry `data-even` because spacer rows (virtualization) and detail rows (expansion)
     // break `:nth-child` parity. Colors match `Table`.

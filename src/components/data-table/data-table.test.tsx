@@ -620,6 +620,36 @@ describe('DataTable', () => {
     expect(bodyRows.map((row) => row.hasAttribute('data-selected'))).toEqual([false, true, false])
   })
 
+  it('renders selection checkboxes with the shared check control and a mixed select-all state', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({ selection: 'multiple' })
+      return <DataTable table={table} size="lg" classes={{ checkbox: 'custom-checkbox' }} />
+    })
+
+    const [selectAll, firstRow] = screen.getAllByRole('checkbox')
+    expect(selectAll!.getAttribute('aria-label')).toBe('Select all rows')
+    expect(selectAll!.getAttribute('aria-checked')).toBe('false')
+    expect(firstRow!.getAttribute('aria-label')).toBe('Select row')
+    expect(firstRow!.getAttribute('data-slot')).toBe('data-table-checkbox')
+    expect(firstRow!.className).toContain('size-4.5')
+    expect(firstRow!.className).toContain('custom-checkbox')
+    // The lightweight control renders no form input per row.
+    expect(container.querySelector('input[type="checkbox"]')).toBeNull()
+
+    fireEvent.click(firstRow!)
+    expect(firstRow!.getAttribute('aria-checked')).toBe('true')
+    expect(firstRow!.hasAttribute('data-checked')).toBe(true)
+    expect(selectAll!.getAttribute('aria-checked')).toBe('mixed')
+    expect(selectAll!.hasAttribute('data-indeterminate')).toBe(true)
+
+    // A mixed select-all selects every row.
+    fireEvent.click(selectAll!)
+    expect(selectAll!.getAttribute('aria-checked')).toBe('true')
+    expect(
+      screen.getAllByRole('checkbox').map((checkbox) => checkbox.getAttribute('aria-checked')),
+    ).toEqual(['true', 'true', 'true', 'true'])
+  })
+
   it('gives separate tables separate single-selection radio groups', () => {
     render(() => {
       // JSX props compile to getters, so create each instance once outside the JSX.

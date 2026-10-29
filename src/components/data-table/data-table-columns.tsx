@@ -4,8 +4,8 @@ import { Show } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input'
 import { PEER_CLASS } from '../../theme/recipe-common.recipe'
-import { Checkbox } from '../checkbox'
 import { Icon } from '../icon'
+import { CheckControl } from '../shared/check-control/check-control'
 
 import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
@@ -46,10 +46,13 @@ export function buildSelectColumn<TData extends RowData = RowData>(
 
       return (
         <Show when={!isSingle}>
-          <Checkbox
-            checked={allSelected() ? true : someSelected() ? 'indeterminate' : false}
-            onCheckedChange={(val) => toggleAll(val === true)}
+          <CheckControl
+            slotName="data-table-checkbox"
             aria-label={ctx.messages().selectAll}
+            {...ctx.slots.checkbox}
+            checked={allSelected() ? true : someSelected() ? 'indeterminate' : false}
+            iconSlot={ctx.slots.checkboxIcon}
+            onCheckedChange={toggleAll}
           />
         </Show>
       )
@@ -63,18 +66,17 @@ export function buildSelectColumn<TData extends RowData = RowData>(
         <Show
           when={isSingle}
           fallback={
-            <div onClick={(e) => e.stopPropagation()}>
-              <Checkbox
-                checked={isSelected()}
-                disabled={!canSelect()}
-                onCheckedChange={(val) => {
-                  if (canSelect()) {
-                    props.row.toggleSelected(val === true)
-                  }
-                }}
-                aria-label={ctx.messages().selectRow}
-              />
-            </div>
+            <CheckControl
+              slotName="data-table-checkbox"
+              aria-label={ctx.messages().selectRow}
+              {...ctx.slots.checkbox}
+              checked={isSelected()}
+              disabled={!canSelect()}
+              iconSlot={ctx.slots.checkboxIcon}
+              // Keep the click from reaching `onRowClick`.
+              onClick={(e) => e.stopPropagation()}
+              onCheckedChange={(checked) => props.row.toggleSelected(checked)}
+            />
           }
         >
           {/* Native same-name radios form one group: a single tab stop, arrow keys move and
