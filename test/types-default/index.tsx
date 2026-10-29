@@ -15,7 +15,6 @@ import {
   Combobox,
   ContextMenu,
   CopyButton,
-  DataTable,
   Dialog,
   DropdownMenu,
   Empty,
@@ -41,7 +40,6 @@ import {
   Tooltip,
   cn,
   createCn,
-  createDataTable,
   createForm,
   useCn,
 } from 'moraine'
@@ -55,8 +53,6 @@ import type {
   CommandPaletteT,
   ComboboxT,
   CopyButtonT,
-  DataTableT,
-  DataTableProps,
   DialogT,
   DropdownMenuT,
   EmptyT,
@@ -76,6 +72,8 @@ import type {
   TextareaT,
   ValidComponent,
 } from 'moraine'
+import { DataTable, createDataTable } from 'moraine/data-table'
+import type { DataTableProps, DataTableT } from 'moraine/data-table'
 import { defineTheme } from 'moraine/theme'
 import { createCopy, createSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'

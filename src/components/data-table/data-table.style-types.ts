@@ -1,3 +1,5 @@
+import type { ComponentStyleConfig } from '../../theme/types'
+
 export interface DataTableStyleSlot<T = unknown> {
   /** Outer scrollable container. */
   container?: T
@@ -47,3 +49,5 @@ export type DataTableStyleVariants = {
   /** Whether the header and/or footer stick to the edges of the scroll container (`true` sticks both). @default false */
   sticky?: boolean | 'header' | 'footer'
 }
+
+export type DataTableStyleConfig = ComponentStyleConfig<DataTableStyleSlot, DataTableStyleVariants>

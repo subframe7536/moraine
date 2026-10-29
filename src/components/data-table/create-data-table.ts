@@ -1,6 +1,6 @@
 import { createTable, functionalUpdate, stateSlicesEqual } from '@tanstack/solid-table'
 import type { Row, RowData, TableOptions, Updater } from '@tanstack/solid-table'
-import { createMemo, mergeProps, untrack } from 'solid-js'
+import { DEV, createMemo, mergeProps, untrack } from 'solid-js'
 
 import { buildExpandColumn, buildSelectColumn } from './data-table-columns'
 import { getDataTableFeatures } from './data-table-features'
@@ -15,16 +15,29 @@ export interface DataTableInternalConfig {
   readonly hasSelection: boolean
 }
 
-const _tableConfigMap = new WeakMap<object, DataTableInternalConfig>()
+const FALLBACK_CONFIG: DataTableInternalConfig = Object.freeze({
+  paginated: false,
+  pageSizes: DEFAULT_DATA_TABLE_PAGE_SIZES,
+  hasSelection: false,
+})
 
+// DataTable-only settings (`pagination`, `selection`) that TanStack table options cannot carry.
+const _tableConfigMap = new WeakMap<object, DataTableInternalConfig>()
+const _warnedTables = DEV ? new WeakSet<object>() : undefined
+
+/** Reads DataTable settings registered by `createDataTable` for `table`. */
 export function getDataTableConfig(table: object): DataTableInternalConfig {
-  return (
-    _tableConfigMap.get(table) ?? {
-      paginated: false,
-      pageSizes: DEFAULT_DATA_TABLE_PAGE_SIZES,
-      hasSelection: false,
-    }
-  )
+  const config = _tableConfigMap.get(table)
+  if (config) {
+    return config
+  }
+  if (DEV && !_warnedTables!.has(table)) {
+    _warnedTables!.add(table)
+    console.warn(
+      '[moraine] DataTable received a table that was not created with createDataTable. Pagination and selection UI are disabled.',
+    )
+  }
+  return FALLBACK_CONFIG
 }
 
 /**
@@ -161,7 +174,11 @@ export function createDataTable<TData extends RowData = RowData>(
       },
       getRowCanExpand: (row: Row<DataTableFeatures, TData>) => {
         const expandable = options.expandable
-        return typeof expandable === 'function' ? expandable(row) : Boolean(expandable)
+        if (typeof expandable === 'function') {
+          return expandable(row)
+        }
+        // Without `expandable`, keep TanStack's default so tree data (`getSubRows`) expands.
+        return expandable === true || row.subRows.length > 0
       },
       initialState,
       onSortingChange: makeChangeHandler('sorting', () => options.onSortingChange),

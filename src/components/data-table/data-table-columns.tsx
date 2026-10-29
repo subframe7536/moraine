@@ -1,32 +1,19 @@
 import type { CellContext, ColumnDef, HeaderContext, RowData } from '@tanstack/solid-table'
-import type { Accessor, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider'
 import { Checkbox } from '../checkbox'
 import { Icon } from '../icon'
 
+import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
-import { defaultDataTableMessages } from './data-table.messages'
 import {
-  DATA_TABLE_EXPAND_BUTTON_CLASS,
   DATA_TABLE_EXPAND_PLACEHOLDER_CLASS,
   DATA_TABLE_RADIO_CLASS,
   DATA_TABLE_RADIO_INDICATOR_CLASS,
   DATA_TABLE_RADIO_WRAPPER_CLASS,
   dataTableDataAttributes,
 } from './data-table.recipe'
-import type { DataTableT } from './data-table.types'
-
-export interface DataTableInternalContextValue {
-  expandButton?: { readonly class?: string; readonly style?: JSX.CSSProperties }
-  messages: Accessor<DataTableT.Messages>
-}
-
-export const [DataTableInternalProvider, useDataTableInternal] =
-  createContextProvider<DataTableInternalContextValue>('DataTableInternal', {
-    messages: () => defaultDataTableMessages,
-  })
 
 export function buildSelectColumn<TData extends RowData = RowData>(
   mode: 'single' | 'multiple',
@@ -36,25 +23,32 @@ export function buildSelectColumn<TData extends RowData = RowData>(
   return {
     id: 'select',
     header: (props: HeaderContext<DataTableFeatures, TData>): JSX.Element => {
-      const ctx = useDataTableInternal()
+      const ctx = useDataTableContext()
+      // Select-all covers the rows on screen: the current page, or every row when the table
+      // is virtualized (virtual tables bypass the paginated row model).
+      const allSelected = () =>
+        ctx.virtual() ? props.table.getIsAllRowsSelected() : props.table.getIsAllPageRowsSelected()
+      const someSelected = () =>
+        ctx.virtual()
+          ? props.table.getIsSomeRowsSelected()
+          : props.table.getIsSomePageRowsSelected()
+      const toggleAll = (value: boolean) =>
+        ctx.virtual()
+          ? props.table.toggleAllRowsSelected(value)
+          : props.table.toggleAllPageRowsSelected(value)
+
       return (
         <Show when={!isSingle}>
           <Checkbox
-            checked={
-              props.table.getIsAllPageRowsSelected()
-                ? true
-                : props.table.getIsSomePageRowsSelected()
-                  ? 'indeterminate'
-                  : false
-            }
-            onCheckedChange={(val) => props.table.toggleAllPageRowsSelected(val === true)}
+            checked={allSelected() ? true : someSelected() ? 'indeterminate' : false}
+            onCheckedChange={(val) => toggleAll(val === true)}
             aria-label={ctx.messages().selectAll}
           />
         </Show>
       )
     },
     cell: (props: CellContext<DataTableFeatures, TData>): JSX.Element => {
-      const ctx = useDataTableInternal()
+      const ctx = useDataTableContext()
       const canSelect = () => props.row.getCanSelect()
       const isSelected = () => props.row.getIsSelected()
 
@@ -125,10 +119,9 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
     id: 'expand',
     header: (): JSX.Element => null,
     cell: (props: CellContext<DataTableFeatures, TData>): JSX.Element => {
-      const ctx = useDataTableInternal()
+      const ctx = useDataTableContext()
       const canExpand = () => props.row.getCanExpand()
       const isExpanded = () => props.row.getIsExpanded()
-      const expandButton = ctx.expandButton ?? { class: DATA_TABLE_EXPAND_BUTTON_CLASS }
 
       return (
         <Show when={canExpand()} fallback={<div class={DATA_TABLE_EXPAND_PLACEHOLDER_CLASS} />}>
@@ -142,7 +135,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
               e.stopPropagation()
               props.row.toggleExpanded()
             }}
-            {...expandButton}
+            {...ctx.slots.expandButton}
           >
             <Icon name="icon-chevron-right" class="size-4" />
           </button>

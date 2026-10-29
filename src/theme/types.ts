@@ -16,6 +16,7 @@ import type { ComboboxStyleConfig } from '../components/combobox/combobox.style-
 import type { CommandPaletteStyleConfig } from '../components/command-palette/command-palette.style-types'
 import type { ContextMenuStyleConfig } from '../components/context-menu/context-menu.style-types'
 import type { CopyButtonStyleConfig } from '../components/copy-button/copy-button.style-types'
+import type { DataTableStyleConfig } from '../components/data-table/data-table.style-types'
 import type { DialogStyleConfig } from '../components/dialog/dialog.style-types'
 import type { DropdownMenuStyleConfig } from '../components/dropdown-menu/dropdown-menu.style-types'
 import type { EmptyStyleConfig } from '../components/empty/empty.style-types'
@@ -105,6 +106,7 @@ export interface MoraineStyleSchema {
   sidebarFrame: SidebarFrameStyleConfig
   stepper: StepperStyleConfig
   table: TableStyleConfig
+  dataTable: DataTableStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig
   alertDialog: AlertDialogStyleConfig

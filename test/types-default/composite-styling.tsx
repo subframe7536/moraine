@@ -190,9 +190,11 @@ defineTheme({
   classes={{ container: 'container', header: 'header', head: 'head', cell: 'cell' }}
   styles={{ root: { color: 'red' } }}
 />
-;<Table.Header class="header" />
+;<Table.Header class="header">{null}</Table.Header>
 // @ts-expect-error Table.Header is a compose-only part and does not accept classes.
-;<Table.Header classes={{ header: 'header' }} />
+;<Table.Header classes={{ header: 'header' }}>{null}</Table.Header>
+// @ts-expect-error Table.Header is a FlowComponent and requires children.
+;<Table.Header class="header" />
 ;<Table.Head align="center" truncated class="head" />
 // @ts-expect-error Table.Head is a compose-only part and does not accept classes.
 ;<Table.Head classes={{ head: 'head' }} />

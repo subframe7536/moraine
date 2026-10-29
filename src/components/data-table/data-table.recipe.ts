@@ -2,6 +2,18 @@ import { defineRecipe } from '../../theme/recipe'
 import { FOCUS_VISIBLE_CLASS, FOCUS_VISIBLE_RING_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
+import {
+  TABLE_CELL_CLASS,
+  TABLE_COLUMN_BORDER_CLASS,
+  TABLE_FOOTER_CLASS,
+  TABLE_HEAD_CLASS,
+  TABLE_HEADER_CLASS,
+  TABLE_ROOT_CLASS,
+  TABLE_ROW_CLASS,
+  TABLE_SIZE_LG,
+  TABLE_SIZE_MD,
+  TABLE_SIZE_SM,
+} from '../table/table.recipe'
 
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
 
@@ -21,12 +33,6 @@ export const dataTableExpandedWrapperDataAttributes = /* @__PURE__ */ createData
   'expanded',
   'transition',
 )
-
-export const DATA_TABLE_TEXT_ALIGN_CLASS = {
-  left: 'text-left',
-  center: 'text-center',
-  right: 'text-right',
-} as const
 
 export const DATA_TABLE_HEAD_INNER_CLASS = 'flex gap-1 min-w-0 w-full items-center'
 
@@ -58,10 +64,6 @@ export const DATA_TABLE_RADIO_INDICATOR_CLASS =
 /** Scroll viewport wrapping the table so only the body scrolls under a sticky header/footer. */
 export const DATA_TABLE_SCROLL_CLASS = 'w-full overflow-x-auto'
 
-/** Sticky footer cells paint an opaque surface matching `bg-muted/50` over `bg-background`. */
-export const DATA_TABLE_STICKY_FOOTER_CELL_CLASS =
-  'bg-[color-mix(in_oklch,var(--muted)_50%,var(--background))]'
-
 /** Pinned cells paint an opaque surface so scrolled columns never show through them. */
 const PINNED_CELL_CLASS =
   'data-pinned:bg-background data-[pinned-edge=end]:shadow-[inset_1px_0_0_var(--border)] data-[pinned-edge=start]:shadow-[inset_-1px_0_0_var(--border)] [tr[data-selected]>&]:data-pinned:bg-accent'
@@ -69,17 +71,17 @@ const PINNED_CELL_CLASS =
 export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   DataTableStyleSlot,
   DataTableStyleVariants
->('data-table', {
+>('dataTable', {
   base: {
     '--mo-collapsible-content-height': '0px',
     container: 'w-full relative',
-    root: 'border-border w-full',
-    header: 'text-left [&_tr]:border-border',
+    root: TABLE_ROOT_CLASS,
+    header: TABLE_HEADER_CLASS,
     body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0',
-    footer: 'font-medium border-border bg-muted/50 [&>tr:last-child>td]:border-b-0',
-    row: 'group/row border-border transition-colors data-expanded:border-b-0 data-selected:bg-accent',
-    head: `text-muted-foreground font-medium px-2 align-middle border-border h-10 whitespace-nowrap relative ${PINNED_CELL_CLASS}`,
-    cell: `align-middle border-border whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS}`,
+    footer: `${TABLE_FOOTER_CLASS} [&>tr:last-child>td]:border-b-0`,
+    row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0`,
+    head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}`,
+    cell: `${TABLE_CELL_CLASS} whitespace-nowrap [tr[data-expanded]>&]:border-b-0 ${PINNED_CELL_CLASS}`,
     empty: 'text-muted-foreground py-8 text-center',
     loading:
       'bg-background/50 flex items-center inset-0 justify-center absolute z-40 backdrop-blur-sm',
@@ -103,28 +105,12 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   },
   variants: {
     size: {
-      sm: {
-        root: 'text-xs',
-        head: 'text-xs px-2 h-8',
-        cell: 'text-xs px-2 py-1.5',
-        sortButton: 'size-5',
-        pagination: 'text-xs',
-      },
-      md: {
-        root: 'text-sm',
-        head: 'text-sm px-2 h-10',
-        cell: 'text-sm p-2',
-        sortButton: 'size-6',
-        pagination: 'text-sm',
-      },
-      lg: {
-        root: 'text-base',
-        head: 'text-base px-4 h-12',
-        cell: 'text-base p-4',
-        sortButton: 'size-7',
-        pagination: 'text-base px-4',
-      },
+      sm: { ...TABLE_SIZE_SM, sortButton: 'size-5', pagination: 'text-xs' },
+      md: { ...TABLE_SIZE_MD, sortButton: 'size-6', pagination: 'text-sm' },
+      lg: { ...TABLE_SIZE_LG, sortButton: 'size-7', pagination: 'text-base px-4' },
     },
+    // Rows carry `data-even` because spacer rows (virtualization) and detail rows (expansion)
+    // break `:nth-child` parity. Colors match `Table`.
     striped: {
       true: {
         row: '[&[data-even]:not([data-selected])]:bg-muted/50',
@@ -137,6 +123,8 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         cell: '[tbody>tr:not([data-selected]):hover>&]:data-pinned:bg-[color-mix(in_oklch,var(--accent)_50%,var(--background))]',
       },
     },
+    // Cells carry their own row borders so they still render in `border-separate` mode
+    // (sticky header/footer and pinned columns), where `tr` borders are not painted.
     showBorder: {
       row: {
         header: '[&_tr]:border-b',
@@ -146,14 +134,14 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         footer: 'border-t',
       },
       col: {
-        head: '[&:not(:last-child)]:border-r',
-        cell: '[&:not(:last-child)]:border-r',
+        head: TABLE_COLUMN_BORDER_CLASS,
+        cell: TABLE_COLUMN_BORDER_CLASS,
       },
       both: {
         header: '[&_tr]:border-b',
-        head: 'border-b [&:not(:last-child)]:border-r',
+        head: `border-b ${TABLE_COLUMN_BORDER_CLASS}`,
         row: 'border-b',
-        cell: 'border-b [&:not(:last-child)]:border-r',
+        cell: `border-b ${TABLE_COLUMN_BORDER_CLASS}`,
         footer: 'border-t',
       },
     },
@@ -166,6 +154,11 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     {
       variants: { sticky: [true, 'header'] },
       head: 'border-b bg-background',
+    },
+    {
+      // Opaque surface matching `bg-muted/50` over `bg-background`, so the body scrolls under it.
+      variants: { sticky: [true, 'footer'] },
+      cell: '[tfoot_&]:bg-[color-mix(in_oklch,var(--muted)_50%,var(--background))]',
     },
   ],
 })

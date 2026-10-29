@@ -35,6 +35,11 @@
       "solid": "./dist/index.jsx",
       "default": "./dist/index.mjs"
     },
+    "./data-table": {
+      "types": "./dist/data-table.d.mts",
+      "solid": "./dist/data-table.jsx",
+      "default": "./dist/data-table.mjs"
+    },
     "./tailwind": {
       "types": "./dist/tailwind.d.mts",
       "default": "./dist/tailwind.mjs"
