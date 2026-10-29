@@ -23,12 +23,16 @@ test('hydrates expanded nested items and keeps the server DOM', () => {
   expect(container.querySelector('[aria-label="README.md"]')?.getAttribute('aria-selected')).toBe(
     'true',
   )
+  const guide = container.querySelector('[aria-label="index.ts"] [data-slot="tree-guide"]')
+  expect(guide).not.toBeNull()
+  expect(container.querySelectorAll('[data-slot="tree-guide"]')).toHaveLength(2)
 
   fireEvent.click(container.querySelector('[aria-label="docs"] [data-slot="tree-trigger"]')!)
   expect(container.querySelector('[aria-label="docs"]')?.getAttribute('aria-expanded')).toBe('true')
   expect(labels(container)).toContain('guide.md')
   expect(container.querySelector('[role="tree"]')).toBe(tree)
   expect(container.querySelector('[aria-label="src"]')).toBe(src)
+  expect(container.querySelector('[aria-label="index.ts"] [data-slot="tree-guide"]')).toBe(guide)
 })
 
 test('hydrates keyboard interaction on server-rendered items', () => {

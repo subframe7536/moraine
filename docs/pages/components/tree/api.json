@@ -397,6 +397,7 @@
     "checkboxIcon",
     "label",
     "action",
+    "guide",
     "content"
   ],
   "dataAttributes": [

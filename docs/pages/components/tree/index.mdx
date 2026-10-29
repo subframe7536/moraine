@@ -185,6 +185,11 @@ import { createComponent, createSignal } from 'solid-js'
             slot: 'row',
             element: 'div',
             children: [
+              {
+                internal: 'guides',
+                element: 'span',
+                children: [{ slot: 'guide', element: 'span' }],
+              },
               { part: 'tree.ItemTrigger', slot: 'trigger', element: 'span' },
               {
                 part: 'tree.ItemCheckbox',
@@ -389,8 +394,9 @@ the focused row.
 ### Indentation
 
 Every item sets `--mo-tree-level` (zero for roots), and rows indent by that level times
-`--mo-tree-indent`. Indent guides are drawn for each ancestor level; set `indentGuide={false}` to hide
-them. The tree root declares the geometry variables, so overriding them in the `tree.Tree` `style`
+`--mo-tree-indent`. Each row renders one `guide` element per ancestor level inside an `aria-hidden`
+wrapper, so guides follow right-to-left layouts and stay visible in forced-colors mode. Restyle them
+with `classes.guide`, or set `indentGuide={false}` to render none. The tree root declares the geometry variables, so overriding them in the `tree.Tree` `style`
 applies to every item:
 
 | Variable           | Default        | Description                                       |
