@@ -13,6 +13,10 @@ The root package is the publishable `moraine` library in `src/`. The private `@m
 workspace package lives in `docs/` and imports the library source directly for live updates.
 Run workspace commands from the repository root.
 
+Features that need an optional peer dependency ship from their own entry: `moraine/data-table`
+(`@tanstack/solid-table`) and `moraine/virtualizer` (`@tanstack/virtual-core`). The main `moraine`
+entry must never import either peer; `test/entry-boundaries.test.ts` checks the built output.
+
 ### Build & Development
 
 - `pnpm run build` - Build the library using tsdown (outputs to dist/).
@@ -61,7 +65,9 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── avatar/             # Avatar and fallback display.
 │   ├── avatar-group/       # Overlapping avatar groups.
 │   ├── badge/              # Badge styles and component.
+│   ├── base-select/        # Headless listbox, selection, and popup primitives for select controls.
 │   ├── bold-slider/        # Single-value slider with inline label, value, and indicator.
+│   ├── breadcrumb/         # Resource hierarchy with the current page.
 │   ├── button/             # Button and button-like interactions.
 │   ├── button-group/       # Joined button groups.
 │   ├── card/               # Card layout primitives.
@@ -71,8 +77,9 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── combobox/           # Editable single collection selection.
 │   ├── command-palette/    # Command palette behavior and presentation.
 │   ├── context-menu/       # Context menu overlay.
+│   ├── copy-button/        # Clipboard copy button with status feedback.
+│   ├── data-table/         # TanStack-backed DataTable and createDataTable (`moraine/data-table`).
 │   ├── dialog/             # Dialog primitives.
-│   ├── drawer/             # Drawer overlay.
 │   ├── dropdown-menu/      # Dropdown menu overlay.
 │   ├── empty/              # Empty-state presentation.
 │   ├── field/              # Field layout, labels, descriptions, and validation messages.
@@ -102,12 +109,14 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── stepper/            # Step-based navigation.
 │   ├── switch/             # Switch control.
+│   ├── table/              # Semantic table parts.
 │   ├── tabs/               # Tab navigation.
 │   ├── textarea/           # Textarea control.
 │   ├── toast/              # Toast notification system.
 │   ├── toggle-button/      # Two-state toggle button.
 │   ├── tooltip/            # Tooltip overlay.
-│   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/).
+│   ├── tree/               # createTree hierarchy with selection, checking, and lazy loading.
+│   └── shared/             # Sub-domain shared primitives (e.g. form/, overlay/, check-control/).
 ├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                 # Reusable internals that are not public components.
 ├── test-util/              # SSR, owner, overlay, and global test utilities.

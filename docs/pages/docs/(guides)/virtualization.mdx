@@ -1,13 +1,24 @@
 ---
 title: Virtualization
-description: Configure virtual scrolling for long lists and searchable collections.
+description: Configure virtual scrolling for long lists, searchable collections, trees, and tables.
 sidebar:
   order: 6
 search:
-  tags: [createListVirtualizer, virtualizer, virtual scrolling, list, combobox, tanstack]
+  tags:
+    [
+      createListVirtualizer,
+      createTableVirtualizer,
+      virtualizer,
+      virtual scrolling,
+      list,
+      combobox,
+      table,
+      data-table,
+      tanstack,
+    ]
 ---
 
-Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, or `MultiSelect`, and `createTableVirtualizer` composed inside `Table.Body` for tables.
+Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Use `createListVirtualizer` from `moraine/virtualizer` with `List`, `Combobox`, `MultiSelect`, or `Tree`, and `createTableVirtualizer` with `Table` or `DataTable`.
 
 ## When to virtualize
 
@@ -109,11 +120,15 @@ Moraine's default collection renderer applies virtual row props to both labels a
 
 ## Table
 
-Tables virtualize through composition: mount the adapter from `createTableVirtualizer` inside `Table.Body` and pass the entries plus a `render` callback that spreads the row props onto `Table.Row`. The adapter observes its host `tbody` as the scroll container — apply the fixed-header layout from the example below so the body becomes the scroller while the header stays fixed naturally. Rows remain in normal table flow: the adapter pads the body with two hidden spacer rows instead of absolutely positioned elements.
+Tables virtualize through composition. Mount the adapter from `createTableVirtualizer` inside
+`Table.Body`, pass the `entries`, and spread the row props from `render` onto `Table.Row`. Rows stay
+in normal table flow: the adapter pads the body with two hidden spacer rows instead of positioning
+rows absolutely, so cells keep native column alignment.
 
 ```tsx
 import { Table } from 'moraine'
 import { createTableVirtualizer } from 'moraine/virtualizer'
+import { Dynamic } from 'solid-js/web'
 
 type Row = { id: number; invoice: string; amount: number }
 const rows: Row[] = Array.from({ length: 10_000 }, (_, index) => ({
@@ -122,13 +137,13 @@ const rows: Row[] = Array.from({ length: 10_000 }, (_, index) => ({
   amount: index * 25,
 }))
 
-const virtualizer = createTableVirtualizer<Row>({
-  estimateSize: () => 41,
-  getItemKey: (row) => row.id,
-  overscan: 8,
-})
-
 export function VirtualizedTable() {
+  const virtualizer = createTableVirtualizer<Row>({
+    estimateSize: () => 41,
+    getItemKey: (row) => row.id,
+    overscan: 8,
+  })
+
   return (
     <Table
       classes={{
@@ -164,16 +179,54 @@ export function VirtualizedTable() {
 }
 ```
 
-Table-specific notes:
+[DataTable](/components/data-table#virtualization) accepts the same adapter through its
+`virtualRender` prop and handles the scroll container for you.
 
-- Always spread the virtual row props onto `Table.Row`. They carry `data-index`, the measurement ref, and `aria-rowindex`; discarding them breaks sizing, scrolling, and announcements.
-- Screen-reader semantics are automatic: the adapter sets `aria-rowcount` on the nearest table (data rows plus header and footer rows) and `aria-rowindex` on every rendered row, including header and footer rows, so assistive technology hears the full dataset size and each row's absolute position. The values follow header and footer rows that are added or removed. An `aria-rowcount` or row `aria-rowindex` set by the caller, at any time, wins over the automatic value.
-- A block `tbody` no longer shares automatic column layout with the header. Use the fixed-header layout from the example above (block root, `table w-full table-fixed` header, block body with `[&_tr]:table [&_tr]:w-full [&_tr]:table-fixed` rows) and pin the same column widths on `Table.Head` and `Table.Cell`.
-- Scrolling an ancestor container instead? Pass it as the adapter's `scrollElement`. The adapter measures the distance from the container top to the table body as `scrollMargin`, and the height of a sticky header or footer as `scrollPaddingStart` / `scrollPaddingEnd`, so `scrollToIndex` does not hide a row under a sticky header. Explicit options take precedence over the measured values.
-- Every virtual entry renders exactly one `<tr>`. Extra rows per entry, such as detail rows, are not measured and would shift the scroll range; `DataTable` skips `expandedRowRender` when virtualized for this reason.
-- The `striped` variant stripes rows by DOM position, and the spacer rows shift that parity. Prefer explicit striping classes in the row render when striping a virtualized table.
-- `estimateSize` should be close to the rendered row height for your `size` variant (about `41` for `md` density). Rows are measured dynamically once mounted.
-- `virtualizer.scrollToIndex(index)` scrolls the body to a row and works with the same options as the list virtualizer.
+### Choose the scroll container
+
+The adapter needs to know which element scrolls.
+
+- **The body scrolls (default).** The adapter observes its host `tbody`. A scrolling `tbody` must be
+  a block, which stops it from sharing column widths with the header. Use the layout from the
+  example: `block` on the root, `table w-full table-fixed` on the header, a bounded block body whose
+  rows are `table w-full table-fixed`, and the same width class on each column's `Table.Head` and
+  `Table.Cell`.
+- **An ancestor scrolls.** Pass that element as the adapter's `scrollElement`. The table keeps its
+  normal layout. The adapter measures how far the body starts below the top of the scroll container
+  (`scrollMargin`). It also measures a sticky header or footer (`scrollPaddingStart` and
+  `scrollPaddingEnd`), so `scrollToIndex` does not hide a row under a sticky header. Options you pass
+  explicitly take precedence over measured values.
+
+### Row props
+
+Always spread the row props onto `Table.Row`. They carry `data-index`, the measurement ref, and
+`aria-rowindex`. Without them, rows are not measured, the scroll range drifts, and screen readers
+lose row positions.
+
+Each entry must render exactly one `<tr>`. A second row per entry, such as a detail row, is not
+measured and shifts the scroll range. DataTable ignores `expandedRowRender` when virtualized for
+this reason.
+
+### Accessibility
+
+Only a window of rows exists in the DOM, so the adapter describes the full table:
+
+- `aria-rowcount` on the table counts body entries plus header and footer rows.
+- `aria-rowindex` on every rendered body, header, and footer row gives its position in the full
+  table.
+
+Both update when entries change and when header or footer rows are added or removed. A value you set
+yourself, at any time, is never overwritten or removed.
+
+### Table notes
+
+- `estimateSize` should be close to the rendered row height for your `size` variant: about `41` for
+  `md`. Rows are measured once mounted.
+- `Table`'s `striped` variant shades rows by DOM position, and the spacer rows shift that parity.
+  Add striping classes in `render` instead. DataTable stripes by row index, so its `striped` works
+  when virtualized.
+- `virtualizer.scrollToIndex(index)` scrolls to a row, with the same options as the list
+  virtualizer.
 
 ## How it works
 

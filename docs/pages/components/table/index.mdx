@@ -1,6 +1,6 @@
 ---
 title: Table
-description: Display structured tabular data with responsive scrolling, density options, and row states.
+description: Lay out tabular data with native table parts, density and border variants, row states, and optional row virtualization.
 group: Display
 api:
   path: src/components/table/table
@@ -136,37 +136,43 @@ import { Badge, Table } from '@src'
   value={{
     root: { slot: 'root', element: 'table' },
     children: [
-      { part: 'Table.Caption', slot: 'caption' },
+      { part: 'Table.Caption', slot: 'caption', element: 'caption' },
       {
         part: 'Table.Header',
         slot: 'header',
+        element: 'thead',
         children: [
           {
             part: 'Table.Row',
             slot: 'row',
-            children: [{ part: 'Table.Head', slot: 'head' }],
+            element: 'tr',
+            children: [{ part: 'Table.Head', slot: 'head', element: 'th' }],
           },
         ],
       },
       {
         part: 'Table.Body',
         slot: 'body',
+        element: 'tbody',
         children: [
           {
             part: 'Table.Row',
             slot: 'row',
-            children: [{ part: 'Table.Cell', slot: 'cell' }],
+            element: 'tr',
+            children: [{ part: 'Table.Cell', slot: 'cell', element: 'td' }],
           },
         ],
       },
       {
         part: 'Table.Footer',
         slot: 'footer',
+        element: 'tfoot',
         children: [
           {
             part: 'Table.Row',
             slot: 'row',
-            children: [{ part: 'Table.Cell', slot: 'cell' }],
+            element: 'tr',
+            children: [{ part: 'Table.Cell', slot: 'cell', element: 'td' }],
           },
         ],
       },
@@ -174,11 +180,17 @@ import { Badge, Table } from '@src'
   }}
 />
 
+The `table` sits inside a `container` element (`data-slot="table-container"`) that scrolls
+horizontally, so wide tables do not stretch the page.
+
 ## Usage
 
-Use `Table` to present tabular data with rows and columns. By default, `Table` wraps the native
-`<table>` element in a scrollable `<div>` (`data-slot="table-container"`) to ensure horizontal
-scrollability on smaller screens without breaking page layout.
+Use Table to present data you lay out yourself: invoices, comparison grids, or summaries with a
+known set of columns. When the table needs sorting, selection, pagination, or server data, use
+[DataTable](/components/data-table) instead. For a one-column collection, use
+[List](/components/list).
+
+Table is a styled set of native table elements. Compose the parts in table order.
 
 ```tsx
 import { Table } from 'moraine'
@@ -206,117 +218,120 @@ export function InvoiceTable() {
 }
 ```
 
-### Divider Borders
+### Parts and native attributes
 
-Use `showBorder` to control divider borders on rows and columns:
+Each part renders one fixed element and forwards native attributes to it.
 
-- `'row'` (default): Displays horizontal borders separating rows and sections.
-- `'col'`: Displays vertical dividing borders between columns.
-- `'both'`: Displays both horizontal row dividers and vertical column dividers.
+| Part            | Element   | Own props                |
+| --------------- | --------- | ------------------------ |
+| `Table`         | `table`   | Variants, `containerRef` |
+| `Table.Caption` | `caption` | None                     |
+| `Table.Header`  | `thead`   | None                     |
+| `Table.Body`    | `tbody`   | None                     |
+| `Table.Footer`  | `tfoot`   | None                     |
+| `Table.Row`     | `tr`      | `selected`               |
+| `Table.Head`    | `th`      | `align`, `truncated`     |
+| `Table.Cell`    | `td`      | `align`, `truncated`     |
 
-```tsx
-<Table showBorder="both">
-  <Table.Header>
-    <Table.Row>
-      <Table.Head>Invoice</Table.Head>
-      <Table.Head>Status</Table.Head>
-    </Table.Row>
-  </Table.Header>
-  <Table.Body>
-    <Table.Row>
-      <Table.Cell>INV-001</Table.Cell>
-      <Table.Cell>Paid</Table.Cell>
-    </Table.Row>
-  </Table.Body>
-</Table>
-```
-
-### Column Alignment and Truncation
-
-Use `align="left" | "center" | "right"` on `Table.Head` and `Table.Cell` to control text alignment.
-Use `truncated` to prevent long text from wrapping and add an ellipsis.
+Use native attributes for table semantics: `colSpan` and `rowSpan` on cells, and `scope="row"` on a
+`Table.Head` that labels a body row. Name the table with `Table.Caption`, or with `aria-label` when
+a visible caption does not fit.
 
 ```tsx
-<Table.Header>
-  <Table.Row>
-    <Table.Head truncated class="max-w-[150px]">
-      Very Long Column Header
-    </Table.Head>
-    <Table.Head align="center">Status</Table.Head>
-    <Table.Head align="right">Amount</Table.Head>
-  </Table.Row>
-</Table.Header>
-```
-
-### Row Hover
-
-Pass `hoverEffect` to highlight rows on hover. It is disabled by default.
-
-```tsx
-<Table hoverEffect>
-  <Table.Body>
-    <Table.Row>
-      <Table.Cell>Hoverable row</Table.Cell>
-    </Table.Row>
-  </Table.Body>
-</Table>
-```
-
-### Selected Rows
-
-Pass `selected` to `Table.Row` to apply the theme's active background highlight through
-`data-selected`. The prop is visual only: `aria-selected` is not valid on rows of a static table,
-so it is not set. Tables with interactive row selection need a grid interaction model, or a
-labelled control such as a checkbox in each row.
-
-```tsx
-<Table.Row selected={isSelected()}>
-  <Table.Cell>Selected Row</Table.Cell>
+<Table.Row>
+  <Table.Head scope="row">Storage</Table.Head>
+  <Table.Cell>10 GB</Table.Cell>
+  <Table.Cell>100 GB</Table.Cell>
 </Table.Row>
 ```
 
-### Virtualized Rows
+`ref` targets the `table`; `containerRef` targets the scroll container.
 
-Render long datasets by composing `createTableVirtualizer` from `moraine/virtualizer` inside
-`Table.Body`. The adapter observes its host `tbody` as the scroll container, so the header stays
-fixed naturally; spread the virtual row props onto `Table.Row` so rows are measured and keyed
-correctly. Screen-reader semantics are automatic — the adapter sets `aria-rowcount` on the table
-and `aria-rowindex` on every rendered row.
+### Density and borders
 
-Read the [Virtualization guide](/docs/virtualization) for the fixed-header layout recipe, sizing,
-keys, and overscan guidance.
+`size` sets cell padding and text size. `showBorder` draws row dividers (`'row'`, the default),
+column dividers (`'col'`), or both (`'both'`). `striped` shades even body rows, and `hoverEffect`
+highlights body rows under the pointer. Neither applies to selected rows.
 
-### Data Table with TanStack Table
+### Alignment and truncation
 
-For advanced headless control over state, column toggling, and complex custom cells, combine Moraine's low-level `Table` primitives with [`@tanstack/solid-table`](https://tanstack.com/table/latest) as shown in the [interactive template below](#interactive-data-table-with-tanstack-table).
+`align` sets text alignment on `Table.Head` and `Table.Cell`: `'left'` (default), `'center'`, or
+`'right'`. Because `Table.Head` defaults to left, header text is not centered the way the browser
+centers a plain `th`. Right-align numeric columns in both the header and the cells.
 
-If you want a styled data grid around a TanStack Table instance, use Moraine's dedicated [DataTable component](/components/data-table) from `moraine/data-table`. Pass `createDataTable()` as `table`; DataTable renders sorting, selection, pagination, loading overlays, and virtualization from that instance.
+`truncated` keeps text on one line with an ellipsis. Give the cell a width limit, such as a
+`max-w-*` class, so there is a width to truncate at.
+
+```tsx
+<Table.Cell truncated class="max-w-40">
+  {customer.address}
+</Table.Cell>
+```
+
+### Selected rows
+
+`selected` on `Table.Row` applies the selected background through `data-selected`. It is visual
+only: `aria-selected` is not valid on rows of a static table, so it is not set. Put a labelled
+control in the row, such as a checkbox, so assistive technology knows the row is selected.
+
+```tsx
+<Table.Row selected={isSelected(invoice.id)}>
+  <Table.Cell>
+    <Checkbox
+      checked={isSelected(invoice.id)}
+      onCheckedChange={(checked) => setSelected(invoice.id, checked)}
+      aria-label={`Select ${invoice.id}`}
+    />
+  </Table.Cell>
+  <Table.Cell>{invoice.id}</Table.Cell>
+</Table.Row>
+```
+
+### Virtualized rows
+
+For thousands of rows, mount the adapter from `createTableVirtualizer` (`moraine/virtualizer`)
+inside `Table.Body`, and spread its row props onto `Table.Row`. The body becomes the scroll
+container, which needs a fixed-header layout. The
+[Virtualization guide](/docs/virtualization#table) has the complete recipe.
+
+### Building a data grid
+
+You have two options for a sortable, filterable grid:
+
+- **DataTable.** Use [DataTable](/components/data-table) from `moraine/data-table`. It renders
+  sorting, selection, pagination, pinning, resizing, and loading states from a `createDataTable`
+  instance.
+- **TanStack Table with Table parts.** Use [`@tanstack/solid-table`](https://tanstack.com/table/latest)
+  directly and render its header groups and rows with Table parts. You own every control, as in the
+  TanStack example below.
 
 ## Examples
 
 ### Review transaction invoices
 
-Compose a summary table with status badges and column alignment.
+Compose a caption, header, body, and footer total. Status badges sit in a cell, and amounts are
+right-aligned in both the header and the cells.
 
 <Preview path="./basic" />
 
 ### Truncate long header and cell values
 
-Combine column alignment with truncated text to prevent table overflowing.
+Set `truncated` with a `max-w-*` class to keep long text on one line, and center or right-align
+the other columns with `align`.
 
 <Preview path="./custom-columns" />
 
-### Virtualize 10000 rows
+### Scroll through 10,000 invoices
 
-Compose `createTableVirtualizer` from `moraine/virtualizer` inside `Table.Body` with a bounded,
-scrollable container and a sticky header.
+Mount `createTableVirtualizer` inside `Table.Body`, and use `classes` to make the body the scroll
+container while the header stays above it. Each column has the same width class in the header and
+the body.
 
 <Preview path="./virtualization" />
 
-### Interactive data table with TanStack Table
+### Build a payments grid with TanStack Table
 
-Build an interactive data grid template with column sorting, email search filtering, row selection, column visibility toggles, and pagination using `@tanstack/solid-table` and `Table` primitives.
-
-For a styled presenter over `createDataTable()`, consider [DataTable](/components/data-table).
+Create a TanStack table with sorting, filtering, selection, column visibility, and pagination
+features, then render it with Table parts, `Checkbox`, `Input`, `DropdownMenu`, and `Pagination`.
 
 <Preview path="./tanstack-table" />
