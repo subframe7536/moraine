@@ -370,7 +370,6 @@
     "trigger",
     "icon",
     "checkbox",
-    "checkboxIndicator",
     "checkboxIcon",
     "label",
     "content"
@@ -419,14 +418,6 @@
         "data-disabled",
         "data-indeterminate",
         "data-unchecked"
-      ]
-    },
-    {
-      "target": "checkboxIndicator",
-      "attributes": [
-        "data-checked",
-        "data-disabled",
-        "data-indeterminate"
       ]
     },
     {

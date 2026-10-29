@@ -20,9 +20,6 @@ export interface TreeStyleSlot<T = unknown> {
   /** Bound check control shown for each item when `checkable`. */
   checkbox?: T
 
-  /** Filled layer inside the checkbox shown for the checked or indeterminate state. */
-  checkboxIndicator?: T
-
   /** Check or indeterminate icon inside the checkbox. */
   checkboxIcon?: T
 

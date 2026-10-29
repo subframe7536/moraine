@@ -2,11 +2,7 @@ import { defineRecipe } from '../../theme/recipe'
 import { DATA_DISABLED_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
-import {
-  CHECKBOX_CONTROL_CLASS,
-  CHECKBOX_ICON_CLASS,
-  CHECKBOX_INDICATOR_CLASS,
-} from '../checkbox/checkbox.recipe'
+import { CHECKBOX_CONTROL_CLASS, CHECKBOX_ICON_CLASS } from '../checkbox/checkbox.recipe'
 
 import type { TreeStyleSlot, TreeStyleVariants } from './tree.style-types'
 
@@ -29,7 +25,6 @@ export const treeDataAttributes = {
     'indeterminate',
     'unchecked',
   ),
-  checkboxIndicator: /* @__PURE__ */ createDataAttributes('checked', 'disabled', 'indeterminate'),
   content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
 } satisfies DataAttributeContract<keyof TreeStyleSlot>
 
@@ -63,9 +58,8 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     trigger:
       'text-inherit opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
     icon: 'text-inherit opacity-70 shrink-0',
-    checkbox: CHECKBOX_CONTROL_CLASS,
-    checkboxIndicator: CHECKBOX_INDICATOR_CLASS,
-    checkboxIcon: CHECKBOX_ICON_CLASS,
+    checkbox: `${CHECKBOX_CONTROL_CLASS} data-indeterminate:(border-primary bg-primary)`,
+    checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
     label: 'flex-1 min-w-0 truncate',
     content: '',
   },

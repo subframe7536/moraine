@@ -53,17 +53,11 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
         onClick={toggle}
       >
         <Show when={!unchecked()}>
-          <span
-            data-slot="tree-checkbox-indicator"
-            {...treeDataAttributes.checkboxIndicator({ checked, indeterminate, disabled })}
-            {...slots.checkboxIndicator}
-          >
-            <Icon
-              name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
-              slotName="tree-checkbox-icon"
-              {...slots.checkboxIcon}
-            />
-          </span>
+          <Icon
+            name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+            slotName="tree-checkbox-icon"
+            {...slots.checkboxIcon}
+          />
         </Show>
       </button>
     </Show>
