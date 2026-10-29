@@ -22,7 +22,7 @@ import {
   resolveCheckedStates,
   sameKeys,
 } from './tree-registry'
-import type { TreeNode, TreeRegistry } from './tree-registry'
+import type { LoadedChildren, TreeNode, TreeRegistry } from './tree-registry'
 import type { TreeT } from './tree.types'
 
 /**
@@ -120,7 +120,7 @@ class TreeItemHandle<T> implements TreeT.ItemInstance<T> {
     this.state.toggleCheck(this.key)
   }
   focus(): void {
-    this.state.navigation.focus(this.key)
+    this.state.focus(this.key)
   }
 }
 
@@ -147,13 +147,15 @@ export interface TreeState<T> extends TreeT.Methods<T> {
 export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
   const [focusedKey, setFocusedKey] = createSignal<string | undefined>()
   const [loadingKeys, setLoadingKeys] = createSignal<readonly string[]>([])
-  const [loaded, setLoaded] = createSignal<Readonly<Record<string, readonly T[]>>>({})
+  const [loaded, setLoaded] = createSignal<Readonly<Record<string, LoadedChildren<T>>>>({})
   const inFlight = new Map<string, Promise<boolean>>()
   const handles = new Map<string, TreeItemHandle<T>>()
   let state!: TreeState<T>
 
+  // Memoized so lazy loads rebuild the registry against the same source items.
+  const items = createMemo(() => options.items())
   const registry = createMemo(() => {
-    const next = buildRegistry(options.items(), options, loaded())
+    const next = buildRegistry(items(), options, loaded())
     for (const key of handles.keys()) {
       if (!next.nodes.has(key)) {
         handles.delete(key)
@@ -181,7 +183,7 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       inFlight.delete(key)
     }
     batch(() => {
-      setLoaded((previous) => ({ ...previous, [key]: children }))
+      setLoaded((previous) => ({ ...previous, [key]: { raw: item, children } }))
       setLoadingKeys((keys) => keys.filter((loadingKey) => loadingKey !== key))
     })
     options.onLoadChildrenComplete?.({ item, children })
@@ -509,7 +511,11 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
       for (const key of keys) {
         const node = current.nodes.get(key)
         if (node?.needsLoad) {
-          void load(node)
+          void load(node).then((ok) => {
+            if (!ok) {
+              setExpandedKeys((previous) => previous.filter((expandedKey) => expandedKey !== key))
+            }
+          })
         }
       }
     }),
@@ -572,7 +578,12 @@ export function createTreeState<T>(options: TreeT.Options<T>): TreeState<T> {
     check: (key) => setChecked(key, true),
     uncheck: (key) => setChecked(key, false),
     toggleCheck: (key) => setChecked(key, getCheckedState(key) !== 'checked'),
-    focus: (key) => navigation.focus(key),
+    focus: (key) => {
+      expandTo(key)
+      if (flattenedKeys().includes(key)) {
+        navigation.focus(key)
+      }
+    },
     getItem,
     isLoading: (key) => loadingSet().has(key),
   }

@@ -176,7 +176,10 @@ export namespace TreeT {
     check: (key: string) => void
     uncheck: (key: string) => void
     toggleCheck: (key: string) => void
-    /** Moves the roving tab stop and DOM focus to the item, scrolling it into view. */
+    /**
+     * Moves the roving tab stop and DOM focus to the item, expanding collapsed ancestors and
+     * scrolling it into view. Items under a disabled collapsed ancestor are ignored.
+     */
     focus: (key: string) => void
     getItem: (key: string) => ItemInstance<T> | undefined
     isLoading: (key: string) => boolean

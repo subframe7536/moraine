@@ -338,6 +338,16 @@ describe('createTree', () => {
       expect(document.activeElement).toBe(item(container, 'docs'))
     })
 
+    test('focus expands collapsed ancestors before focusing the item', async () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
+
+      tree.focus('button')
+      expect([...tree.expandedKeys].sort()).toEqual(['components', 'src'])
+      await waitFor(() => expect(document.activeElement).toBe(item(container, 'button.tsx')))
+      expect(tree.focusedKey).toBe('button')
+    })
+
     test('expandAll, collapseAll, and expandTo update visible items', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => <Harness onTree={(value) => (tree = value)} />)
@@ -1019,6 +1029,34 @@ describe('createTree', () => {
       expect(tree.getItem('button')?.checkedState).toBe('checked')
     })
 
+    test('ItemCheckbox composes onClick and overrides the tree size', () => {
+      let tree!: TreeT.Instance<Node>
+      const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ checkable: true }}
+          treeProps={{
+            size: 'lg',
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemCheckbox size="sm" onClick={onClick} />
+                <tree.ItemLabel />
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+
+      const control = container.querySelector<HTMLElement>('[data-slot="tree-checkbox"]')!
+      expect(control.className).toContain('size-3.5')
+      expect(control.className).not.toContain('size-4.5')
+
+      fireEvent.click(control)
+      expect(onClick).toHaveBeenCalledTimes(1)
+      expect(tree.getItem('src')?.checkedState).toBe('unchecked')
+    })
+
     test('exposes aria-checked on treeitems and toggles with Space', () => {
       const { container } = render(() => (
         <Harness options={{ checkable: true, defaultExpandedKeys: ['docs'] }} />
@@ -1194,6 +1232,45 @@ describe('createTree', () => {
       tree.expand('remote')
       await waitFor(() => expect(item(container, 'child.txt')).toBeTruthy())
       expect(tree.getItem('child')?.checkedState).toBe('checked')
+    })
+
+    test('collapses lazy branches expanded in bulk when loading fails', async () => {
+      let tree!: TreeT.Instance<LazyNode>
+      const onLoadChildrenError = vi.fn()
+      const { container } = render(() => (
+        <LazyHarness
+          onTree={(value) => (tree = value)}
+          loadChildren={() => Promise.reject(new Error('offline'))}
+          options={{ onLoadChildrenError }}
+        />
+      ))
+
+      tree.expandAll()
+      await waitFor(() => expect(onLoadChildrenError).toHaveBeenCalledTimes(1))
+      await waitFor(() =>
+        expect(item(container, 'remote').getAttribute('aria-expanded')).toBe('false'),
+      )
+      expect(tree.expandedKeys).toEqual([])
+    })
+
+    test('drops cached lazy children when a key gets a new source item', async () => {
+      const [items, setItems] = createSignal<readonly LazyNode[]>([
+        { id: 'remote', name: 'remote', lazy: true },
+      ])
+      const loadChildren = vi.fn((node: LazyNode) =>
+        Promise.resolve([{ id: `${node.name}-child`, name: `${node.name}.txt` }]),
+      )
+      const { container } = render(() => (
+        <LazyHarness
+          loadChildren={loadChildren}
+          options={{ items, defaultExpandedKeys: ['remote'] }}
+        />
+      ))
+
+      await waitFor(() => expect(labels(container)).toEqual(['remote', 'remote.txt']))
+      setItems([{ id: 'remote', name: 'replaced', lazy: true }])
+      await waitFor(() => expect(labels(container)).toEqual(['replaced', 'replaced.txt']))
+      expect(loadChildren).toHaveBeenCalledTimes(2)
     })
 
     test('prefers getChildren over cached lazy children when items update', async () => {

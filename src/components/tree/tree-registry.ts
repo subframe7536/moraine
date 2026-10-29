@@ -19,6 +19,12 @@ export interface TreeNode<T> {
   textValue: string
 }
 
+/** Children fetched by `loadChildren`, kept only while the node keeps the same source item. */
+export interface LoadedChildren<T> {
+  raw: T
+  children: readonly T[]
+}
+
 export interface TreeRegistry<T> {
   /** Nodes indexed by key in pre-order. */
   nodes: ReadonlyMap<string, TreeNode<T>>
@@ -29,7 +35,7 @@ export interface TreeRegistry<T> {
 export function buildRegistry<T>(
   items: readonly T[],
   options: TreeT.Options<T>,
-  loaded: Readonly<Record<string, readonly T[]>>,
+  loaded: Readonly<Record<string, LoadedChildren<T>>>,
 ): TreeRegistry<T> {
   const nodes = new Map<string, TreeNode<T>>()
   const canLoad = Boolean(options.loadChildren)
@@ -42,7 +48,9 @@ export function buildRegistry<T>(
       if (nodes.has(key)) {
         return
       }
-      const children = options.getChildren?.(raw) ?? loaded[key]
+      const cached = loaded[key]
+      const children =
+        options.getChildren?.(raw) ?? (cached?.raw === raw ? cached.children : undefined)
       const needsLoad = children === undefined && canLoad && !options.isLeaf?.(raw)
       const node: TreeNode<T> = {
         key,
