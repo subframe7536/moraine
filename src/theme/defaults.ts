@@ -35,7 +35,7 @@ export const DEFAULT_THEME_COLORS = {
     info: { base: 'rgb(99, 161, 233)' },
     success: { base: 'rgb(81, 169, 114)' },
     warning: { base: 'rgb(198, 158, 57)' },
-    border: 'rgb(56, 56, 56)',
+    border: 'rgb(35, 35, 35)',
     input: 'rgb(47, 47, 47)',
     control: 'rgb(23, 23, 23)',
     backdrop: 'rgba(0, 0, 0, 0.1)',
