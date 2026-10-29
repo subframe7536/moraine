@@ -492,6 +492,22 @@ describe('createTree', () => {
       expect(group.style.height).not.toBe('auto')
     })
 
+    test('marks the expanded group settled once its height animation ends', async () => {
+      vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(64)
+      const { container } = render(() => <Harness />)
+
+      clickTrigger(item(container, 'src'))
+      await Promise.resolve()
+      const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
+      expect(group.className).toContain('data-expanded:data-settled:overflow-visible')
+      expect(group.hasAttribute('data-settled')).toBe(false)
+
+      fireEvent.animationEnd(group.querySelector('[role="treeitem"]')!)
+      expect(group.hasAttribute('data-settled')).toBe(false)
+      fireEvent.animationEnd(group)
+      expect(group.hasAttribute('data-settled')).toBe(true)
+    })
+
     test('expandAll, *, and expandTo do not expand disabled branches and collapseAll preserves them', () => {
       let tree!: TreeT.Instance<Node>
       const nodes: Node[] = [

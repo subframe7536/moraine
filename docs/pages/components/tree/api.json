@@ -424,7 +424,8 @@
       "target": "content",
       "attributes": [
         "data-closed",
-        "data-expanded"
+        "data-expanded",
+        "data-settled"
       ]
     }
   ]

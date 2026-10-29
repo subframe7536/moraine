@@ -52,6 +52,24 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   const hasMeasuredHeight = () => disclosure.contentHeight() > 0 || lastHeight() > 0
   const visualExpanded = () =>
     disclosure.open() && (disclosure.initialOpen() || hasMeasuredHeight())
+  // Clips the group only while its height animates, so focus rings of child rows stay visible.
+  const [animating, setAnimating] = createSignal(false)
+  createEffect(
+    on(
+      visualExpanded,
+      () => {
+        if (allowHeightMotion()) {
+          setAnimating(true)
+        }
+      },
+      { defer: true },
+    ),
+  )
+  const settle = (event: AnimationEvent) => {
+    if (event.target === event.currentTarget) {
+      setAnimating(false)
+    }
+  }
   createEffect(
     on(disclosure.contentHeight, (height) => {
       if (height > 0) {
@@ -106,8 +124,11 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       {...treeDataAttributes.content({
         closed: () => !visualExpanded(),
         expanded: visualExpanded,
+        settled: () => !animating(),
       })}
       {...slots.content}
+      onAnimationEnd={settle}
+      onAnimationCancel={settle}
     >
       <Show when={disclosure.shouldMount()}>
         <ul

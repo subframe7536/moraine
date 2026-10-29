@@ -25,7 +25,7 @@ export const treeDataAttributes = {
     'indeterminate',
     'unchecked',
   ),
-  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded'),
+  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'settled'),
 } satisfies DataAttributeContract<keyof TreeStyleSlot>
 
 /** Resets list styling on the `tree` root and nested `group` lists. */
@@ -87,7 +87,7 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     transition: {
       true: {
         content:
-          'h-(--mo-collapsible-content-height) overflow-hidden data-closed:(h-0 animate-accordion-up) data-expanded:animate-accordion-down motion-reduce:animate-none',
+          'h-(--mo-collapsible-content-height) overflow-hidden data-closed:(h-0 animate-accordion-up) data-expanded:animate-accordion-down motion-reduce:animate-none data-expanded:data-settled:overflow-visible motion-reduce:data-expanded:overflow-visible',
       },
     },
     variant: {
