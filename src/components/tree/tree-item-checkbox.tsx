@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, mergeProps, splitProps } from 'solid-js'
 
+import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
 import { useTreeContext, useTreeItem, useTreePart } from './tree-context'
@@ -16,6 +17,7 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
     'size',
     'class',
     'style',
+    'onClick',
   ])
   const context = useTreeContext()
   const item = useTreeItem()
@@ -30,8 +32,8 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
   const indeterminate = () => item.checkedState === 'indeterminate'
   const disabled = () => item.isDisabled
 
-  function toggle(): void {
-    if (item.isDisabled) {
+  function toggle(event: MouseEvent): void {
+    if (callHandler(event, local.onClick).defaultPrevented || item.isDisabled) {
       return
     }
     local.onCheckedChange?.(!checked())
