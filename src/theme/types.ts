@@ -5,6 +5,7 @@ import type { AvatarGroupStyleConfig } from '../components/avatar-group/avatar-g
 import type { AvatarStyleConfig } from '../components/avatar/avatar.style-types'
 import type { BadgeStyleConfig } from '../components/badge/badge.style-types'
 import type { BaseSelectStyleConfig } from '../components/base-select/base-select.style-types'
+import type { BoldSliderStyleConfig } from '../components/bold-slider/bold-slider.style-types'
 import type { BreadcrumbStyleConfig } from '../components/breadcrumb/breadcrumb.style-types'
 import type { ButtonGroupStyleConfig } from '../components/button-group/button-group.style-types'
 import type { ButtonStyleConfig } from '../components/button/button.style-types'
@@ -42,7 +43,7 @@ import type { ScrollAreaStyleConfig } from '../components/scroll-area/scroll-are
 import type { SelectStyleConfig } from '../components/select/select.style-types'
 import type { SeparatorStyleConfig } from '../components/separator/separator.style-types'
 import type { SheetStyleConfig } from '../components/sheet/sheet.style-types'
-import type { SidebarFrameStyleConfig } from '../components/sidebar-frame/sidebar-frame.style-types'
+import type { SidebarStyleConfig } from '../components/sidebar/sidebar.style-types'
 import type { SkeletonStyleConfig } from '../components/skeleton/skeleton.style-types'
 import type { SliderStyleConfig } from '../components/slider/slider.style-types'
 import type { StepperStyleConfig } from '../components/stepper/stepper.style-types'
@@ -99,12 +100,13 @@ export interface MoraineStyleSchema {
   radioGroup: RadioGroupStyleConfig
   select: SelectStyleConfig
   slider: SliderStyleConfig
+  boldSlider: BoldSliderStyleConfig
   switch: SwitchStyleConfig
   textarea: TextareaStyleConfig
   breadcrumb: BreadcrumbStyleConfig
   commandPalette: CommandPaletteStyleConfig
   pagination: PaginationStyleConfig
-  sidebarFrame: SidebarFrameStyleConfig
+  sidebar: SidebarStyleConfig
   stepper: StepperStyleConfig
   table: TableStyleConfig
   dataTable: DataTableStyleConfig

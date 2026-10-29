@@ -5,8 +5,8 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
+import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
-import { sliderRecipe } from '../components/slider/slider.recipe'
 
 import { cn } from './cn'
 import { moraineTailwind } from './tailwind'
@@ -460,23 +460,22 @@ describe('z-index', () => {
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
-  test('compiles disclosure child state and slider group state', async () => {
+  test('compiles disclosure child state and slider peer state', async () => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...cn(sliderRecipe.config.variants?.variant?.bold?.range)!
-        .split(' ')
-        .filter((token) => token.includes('dragging')),
+      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
+        .flatMap((value) => cn(value)!.split(' '))
+        .filter((token) => token.startsWith('peer-')),
     ]
     const css = await compileCSS(tokens)
     expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
     expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
-    expect(css).toMatch(/\[data-multiple\][^{\n]*::before/)
-    expect(css).toContain('::before')
-    expect(css).toContain('::after')
-    expect(css).toMatch(/transition-property:\s*none/)
-    expect(css).toMatch(/(?:\.group|:where\(\.group\))\[data-dragging\]/)
+    expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
+    expect(css).toMatch(/\.peer\)?:hover ?~/)
+    expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
+    expect(css).not.toContain(':has(')
   })
   test('compiles compound disclosure and instant tooltip states', async () => {
     const css = await compileCSS([

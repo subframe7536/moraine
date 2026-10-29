@@ -16,7 +16,7 @@ import type { defaultResizableMessages } from '../../components/resizable/resiza
 import type { defaultSelectMessages } from '../../components/select/select.messages'
 import type { defaultTagsFieldMessages } from '../../components/shared/form/select/tags-field.messages'
 import type { defaultSheetMessages } from '../../components/sheet/sheet.messages'
-import type { defaultSidebarFrameMessages } from '../../components/sidebar-frame/sidebar-frame.messages'
+import type { defaultSidebarMessages } from '../../components/sidebar/sidebar.messages'
 import type { defaultSliderMessages } from '../../components/slider/slider.messages'
 import type { defaultToastMessages } from '../../components/toast/toast.messages'
 
@@ -42,7 +42,7 @@ export interface MoraineMessages {
   fileUpload: ComponentMessages<typeof defaultFileUploadMessages>
   tagsField: ComponentMessages<typeof defaultTagsFieldMessages>
   resizable: ComponentMessages<typeof defaultResizableMessages>
-  sidebarFrame: ComponentMessages<typeof defaultSidebarFrameMessages>
+  sidebar: ComponentMessages<typeof defaultSidebarMessages>
   form: ComponentMessages<typeof defaultFormMessages>
   kbd: ComponentMessages<typeof defaultKbdMessages>
   progress: ComponentMessages<typeof defaultProgressMessages>

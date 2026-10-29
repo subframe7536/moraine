@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 import { Show } from 'solid-js'
 
-import { Button, Icon, SidebarFrame, cn } from '../../../../src'
+import { Button, Icon, Sidebar, cn } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 import type { ThemeMode } from '../../hooks/use-theme'
 
@@ -51,7 +51,7 @@ export function PageActions(props: {
         <Icon name={props.theme() === 'dark' ? 'i-lucide:moon' : 'i-lucide:sun'} class="size-4" />
       </Button>
       <Show when={props.mobile}>
-        <SidebarFrame.Trigger
+        <Sidebar.Trigger
           as={Button}
           variant="ghost"
           size="icon-sm"
@@ -59,7 +59,7 @@ export function PageActions(props: {
           class={cn(DOCS_HEADER_CONTROL_CLASS, 'size-11 -me-3')}
         >
           <Icon name="i-lucide:menu" class="size-5" />
-        </SidebarFrame.Trigger>
+        </Sidebar.Trigger>
       </Show>
     </div>
   )

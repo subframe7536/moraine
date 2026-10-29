@@ -2,13 +2,13 @@ import { useLocation } from '@solidjs/router'
 import type { Accessor } from 'solid-js'
 import { For, Show, createEffect, createMemo, on, onCleanup } from 'solid-js'
 
-import { Badge, SidebarFrame, cn, useSidebarFrame } from '../../../../src'
+import { Badge, Sidebar, cn, useSidebar } from '../../../../src'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../../../shared/docs-focus.recipe'
 import type { DocsPageEntry } from '../../docs-route'
 
 export type SidebarPage = DocsPageEntry
 
-export interface SidebarProps {
+export interface DocsSidebarProps {
   pages: SidebarPage[]
   activePage: Accessor<string>
 }
@@ -29,8 +29,8 @@ function getCurrentSurface(pathname: string) {
   return 'docs'
 }
 
-export const Sidebar = (props: SidebarProps) => {
-  const frame = useSidebarFrame()
+export const DocsSidebar = (props: DocsSidebarProps) => {
+  const frame = useSidebar()
   const location = useLocation()
   let nav: HTMLElement | undefined
   const currentSurface = createMemo(() => getCurrentSurface(location.pathname))
@@ -68,7 +68,7 @@ export const Sidebar = (props: SidebarProps) => {
   )
 
   const renderSidebarItem = (page: SidebarPage) => (
-    <SidebarFrame.Item
+    <Sidebar.MenuItem
       href={page.path}
       isActive={props.activePage() === page.path}
       class={DOCS_FOCUS_RING_OFFSET_CLASS}
@@ -81,42 +81,40 @@ export const Sidebar = (props: SidebarProps) => {
           </Badge>
         )}
       </Show>
-    </SidebarFrame.Item>
+    </Sidebar.MenuItem>
   )
 
   const renderSurface = (surface: ReturnType<typeof surfaces>[number]) => (
     <section aria-label={surface.label}>
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-1">
         <For each={surface.sections}>
           {(section) => (
             <>
-              <SidebarFrame.Menu aria-label={section.section}>
-                <SidebarFrame.Label
-                  as="h2"
-                  class="text-sm text-foreground mb-1.5 mt-3 px-2 py-0.5 capitalize"
-                >
+              <Sidebar.Group aria-label={section.section}>
+                <Sidebar.GroupLabel as="h2" class="text-sm text-foreground capitalize">
                   {section.section}
-                </SidebarFrame.Label>
-                <For each={section.pages}>{renderSidebarItem}</For>
-              </SidebarFrame.Menu>
+                </Sidebar.GroupLabel>
+                <Sidebar.Menu>
+                  <For each={section.pages}>{renderSidebarItem}</For>
+                </Sidebar.Menu>
+              </Sidebar.Group>
               <Show when={surface.value === 'docs' && section.section === 'overview'}>
-                <SidebarFrame.Menu aria-label="Agents">
-                  <SidebarFrame.Label
-                    as="h2"
-                    class="text-sm text-foreground mb-1.5 mt-3 px-2 py-0.5"
-                  >
+                <Sidebar.Group aria-label="Agents">
+                  <Sidebar.GroupLabel as="h2" class="text-sm text-foreground">
                     Agents
-                  </SidebarFrame.Label>
-                  <SidebarFrame.Item
-                    as="a"
-                    href="/llms.txt"
-                    rel="alternate external"
-                    type="text/markdown"
-                    class={DOCS_FOCUS_RING_OFFSET_CLASS}
-                  >
-                    llms.txt
-                  </SidebarFrame.Item>
-                </SidebarFrame.Menu>
+                  </Sidebar.GroupLabel>
+                  <Sidebar.Menu>
+                    <Sidebar.MenuItem
+                      as="a"
+                      href="/llms.txt"
+                      rel="alternate external"
+                      type="text/markdown"
+                      class={DOCS_FOCUS_RING_OFFSET_CLASS}
+                    >
+                      llms.txt
+                    </Sidebar.MenuItem>
+                  </Sidebar.Menu>
+                </Sidebar.Group>
               </Show>
             </>
           )}
@@ -134,14 +132,14 @@ export const Sidebar = (props: SidebarProps) => {
         nav = element
       }}
       aria-label="Documentation"
-      class="px-4 pb-10 pt-3 bg-background flex flex-col gap-8"
+      class="px-2 pb-8 pt-1 bg-background flex flex-col gap-8"
     >
       <For each={surfaces()}>{renderSurface}</For>
     </nav>
   )
 }
 
-export const SidebarHeader = () => {
+export const DocsSidebarHeader = () => {
   const location = useLocation()
   return (
     <nav
@@ -152,7 +150,7 @@ export const SidebarHeader = () => {
         {(surface) => {
           const selected = () => getCurrentSurface(location.pathname) === surface.value
           return (
-            <SidebarFrame.Item
+            <Sidebar.MenuItem
               href={surface.href}
               isActive={selected()}
               leading={surface.icon}
@@ -170,7 +168,7 @@ export const SidebarHeader = () => {
                 />
               </Show>
               {surface.label}
-            </SidebarFrame.Item>
+            </Sidebar.MenuItem>
           )
         }}
       </For>

@@ -29,7 +29,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
   const { activeIds, primaryActiveId } = useTableOfContents(
     () => props.entries,
     () => location.hash || (typeof window === 'undefined' ? '' : window.location.hash),
-    () => nav()?.closest<HTMLElement>('[data-slot="sidebar-frame-main"]') ?? undefined,
+    () => nav()?.closest<HTMLElement>('[data-slot="sidebar-inset"]') ?? undefined,
   )
 
   const measure = () => {

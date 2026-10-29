@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js'
 
 import {
   Accordion,
+  BoldSlider,
   Button,
   Combobox,
   Dialog,
@@ -155,22 +156,15 @@ export function ComponentRadar() {
                 onValueChange={(next) => setValue(Array.isArray(next) ? next[0]! : next)}
               />
             </div>
-            <div>
-              <div class="text-sm mb-2 flex justify-between">
-                <span>Bold</span>
-                <output class="text-muted-foreground font-mono">{boldValue().toFixed(2)}</output>
-              </div>
-              <Slider
-                aria-label="Bold slider example"
-                variant="bold"
-                value={boldValue()}
-                min={0}
-                max={100}
-                step={10}
-                marker
-                onValueChange={(next) => setBoldValue(Array.isArray(next) ? next[0]! : next)}
-              />
-            </div>
+            <BoldSlider
+              label="Bold"
+              value={boldValue()}
+              min={0}
+              max={100}
+              step={10}
+              marker
+              onValueChange={setBoldValue}
+            />
           </div>
         </SamplerItem>
 

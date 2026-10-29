@@ -111,6 +111,8 @@ export const moraineTailwind = plugin(
           'ellipsis',
           'error',
           'expanded',
+          'fill',
+          'focus-visible',
           'focused',
           'footer',
           'has-text',
@@ -150,7 +152,7 @@ export const moraineTailwind = plugin(
           'transitioning',
           'transition',
           'unchecked',
-          'with-actions',
+          'with-action',
         ].map((v) => [v, v]),
       ),
     })

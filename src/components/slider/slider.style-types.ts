@@ -12,7 +12,7 @@ export interface SliderStyleSlot<T = unknown> {
   /** Filled segment between the start of the range and active thumb values. */
   range?: T
 
-  /** Visual marker for one slider step. */
+  /** Visual marker for one slider step. Has `data-active` while its step lies inside the selected range. */
   marker?: T
 
   /** Draggable handle for one slider value. */
@@ -27,10 +27,6 @@ export interface SliderStyleVariants {
    * @default 'md'
    */
   size?: ComponentSize
-  /** Visual treatment of the component.
-   * @default 'default'
-   */
-  variant?: 'default' | 'bold'
 }
 
 export type SliderStyleConfig = ComponentStyleConfig<SliderStyleSlot, SliderStyleVariants>

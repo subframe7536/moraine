@@ -16,9 +16,11 @@ export const sliderDataAttributes = {
     'required',
   ),
   range: /* @__PURE__ */ createDataAttributes('inverted', 'multiple'),
+  marker: /* @__PURE__ */ createDataAttributes('active'),
   thumb: /* @__PURE__ */ createDataAttributes(
     'disabled',
     'dragging',
+    'focus-visible',
     'invalid',
     'inverted',
     'readonly',
@@ -31,15 +33,14 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
   {
     base: {
       root: `group flex select-none items-center relative touch-none ${DATA_DISABLED_CLASS}`,
-      track: 'bg-input select-none translate-z-0 relative overflow-hidden',
-      range: 'bg-primary select-none absolute z-raised',
-      marker: 'pointer-events-none absolute',
-      thumb: 'shrink-0 block select-none absolute z-control touch-none',
+      track: 'rounded-full bg-input select-none translate-z-0 relative overflow-hidden',
+      range: 'rounded-full bg-primary select-none absolute z-raised',
+      marker: 'bg-background pointer-events-none absolute',
+      thumb: `outline-none border border-border rounded-full bg-background shrink-0 size-(--s-thumb-size) block cursor-pointer select-none transition-[box-shadow,transform] absolute z-control bg-clip-padding touch-none ${FOCUS_VISIBLE_CLASS} hover:(border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
     },
     defaultVariants: {
       orientation: 'horizontal',
       size: 'md',
-      variant: 'default',
     },
     variants: {
       size: {
@@ -63,59 +64,6 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           thumb: 'translate-y-1/2 data-inverted:-translate-y-1/2',
         },
       },
-      variant: {
-        default: {
-          track: 'rounded-full',
-          range: 'rounded-full',
-          marker: 'bg-background',
-          thumb: `outline-none border border-border rounded-full bg-background size-(--s-thumb-size) cursor-pointer transition-[box-shadow,transform] ${FOCUS_VISIBLE_CLASS} bg-clip-padding hover:(border-ring ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120`,
-        },
-        bold: {
-          '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
-          track: 'cursor-pointer',
-          range:
-            "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-data-[dragging]:transition-none data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-data-[dragging]:after:opacity-100 group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-multiple:group-data-[dragging]:before:opacity-100 data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100",
-          marker: 'bg-muted-foreground/30',
-          thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
-        },
-      },
     },
-    compoundVariants: [
-      {
-        variants: { size: 'sm', variant: 'bold' },
-        '--s-size': '20px',
-        '--s-len': '14px',
-        '--s-offset': '3px',
-        track: 'rounded-xs',
-      },
-      {
-        variants: { size: 'md', variant: 'bold' },
-        '--s-size': '24px',
-        '--s-len': '16px',
-        '--s-offset': '4px',
-        track: 'rounded-sm',
-      },
-      {
-        variants: { size: 'lg', variant: 'bold' },
-        '--s-size': '28px',
-        '--s-len': '18px',
-        '--s-offset': '5px',
-        track: 'rounded-md',
-      },
-      {
-        variants: { orientation: 'horizontal', variant: 'bold' },
-        range:
-          'after:h-(--s-len) after:w-(--s-offset) after:top-1/2 after:-translate-y-1/2 after:left-(--s-marker-position) data-inverted:after:left-auto data-inverted:after:right-(--s-marker-position) data-multiple:before:h-(--s-len) data-multiple:before:w-(--s-offset) data-multiple:before:top-1/2 data-multiple:before:-translate-y-1/2 data-multiple:before:left-(--s-offset) data-inverted:data-multiple:before:left-auto data-inverted:data-multiple:before:right-(--s-offset)',
-        marker: 'h-1/3',
-        thumb: 'h-full top-0 w-(--s-size)',
-      },
-      {
-        variants: { orientation: 'vertical', variant: 'bold' },
-        range:
-          'after:w-(--s-len) after:h-(--s-offset) after:left-1/2 after:-translate-x-1/2 after:bottom-(--s-marker-position) data-inverted:after:bottom-auto data-inverted:after:top-(--s-marker-position) data-multiple:before:w-(--s-len) data-multiple:before:h-(--s-offset) data-multiple:before:left-1/2 data-multiple:before:-translate-x-1/2 data-multiple:before:bottom-(--s-offset) data-inverted:data-multiple:before:bottom-auto data-inverted:data-multiple:before:top-(--s-offset)',
-        marker: 'w-1/3',
-        thumb: 'w-full left-0 h-(--s-size)',
-      },
-    ],
   },
 )

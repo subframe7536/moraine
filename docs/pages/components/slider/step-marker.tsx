@@ -28,7 +28,7 @@ export function StepMarker() {
 
       <div class="space-y-2">
         <div class="text-xs text-muted-foreground flex justify-between">
-          <span>Stepped range with bold track (step = 20)</span>
+          <span>Stepped range (step = 20)</span>
           <span class="text-foreground font-mono">
             {range()[0]} - {range()[1]}
           </span>
@@ -40,7 +40,6 @@ export function StepMarker() {
           max={100}
           step={20}
           marker
-          variant="bold"
           onValueChange={(val) => {
             if (Array.isArray(val)) {
               setRange(val)

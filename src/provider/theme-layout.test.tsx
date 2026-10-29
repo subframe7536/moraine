@@ -6,8 +6,8 @@ import { RadioGroup } from '../components/radio-group/radio-group'
 import { Resizable } from '../components/resizable/resizable'
 import { Separator } from '../components/separator/separator'
 import { Sheet } from '../components/sheet/sheet'
-import { SidebarFrame } from '../components/sidebar-frame/sidebar-frame'
-import { useSidebarFrame } from '../components/sidebar-frame/sidebar-frame-context'
+import { Sidebar } from '../components/sidebar/sidebar'
+import { useSidebar } from '../components/sidebar/sidebar-context'
 import { Slider } from '../components/slider/slider'
 import { Stepper } from '../components/stepper/stepper'
 import { Tabs } from '../components/tabs/tabs'
@@ -24,7 +24,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
     stepper: { defaultVariants: { orientation: 'vertical' } },
     resizable: { defaultVariants: { orientation: 'vertical' } },
     radioGroup: { defaultVariants: { orientation: 'horizontal' } },
-    sidebarFrame: { defaultVariants: { side: 'right' } },
+    sidebar: { defaultVariants: { side: 'right' } },
   })
   const [theme, setTheme] = createSignal<MoraineTheme | null>(verticalTheme)
   const screen = render(() => (
@@ -50,7 +50,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
         <Resizable.Handle />
         <Resizable.Panel>Right</Resizable.Panel>
       </Resizable>
-      <SidebarFrame data-testid="sidebar" isMobile={false} />
+      <Sidebar data-testid="sidebar" isMobile={false} />
     </MoraineProvider>
   ))
   expect(screen.getByTestId('separator').getAttribute('aria-orientation')).toBe('vertical')
@@ -102,10 +102,10 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
 
 test('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
   const customBaseTheme = defineTheme({
-    sidebarFrame: {
+    sidebar: {
       base: {
         root: 'custom-frame-root',
-        sidebar: 'custom-sidebar',
+        panel: 'custom-sidebar',
       },
     },
     slider: {
@@ -116,7 +116,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   })
 
   function FrameToggle() {
-    const frame = useSidebarFrame()
+    const frame = useSidebar()
     return (
       <button type="button" onClick={frame.toggle}>
         Toggle Sidebar
@@ -127,12 +127,12 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   const [theme, setTheme] = createSignal<MoraineTheme>(customBaseTheme)
   const screen = render(() => (
     <MoraineProvider theme={theme()}>
-      <SidebarFrame isMobile={true}>
-        <SidebarFrame.Sidebar>Sidebar Content</SidebarFrame.Sidebar>
-        <SidebarFrame.Main>
+      <Sidebar isMobile={true}>
+        <Sidebar.Panel>Sidebar Content</Sidebar.Panel>
+        <Sidebar.Inset>
           <FrameToggle />
-        </SidebarFrame.Main>
-      </SidebarFrame>
+        </Sidebar.Inset>
+      </Sidebar>
       <Slider defaultValue={50} />
     </MoraineProvider>
   ))
@@ -142,7 +142,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     'horizontal',
   )
 
-  // SidebarFrame inherits built-in side: 'left', so mobile Sheet opens on the left (left-0, not right-0)
+  // Sidebar inherits built-in side: 'left', so mobile Sheet opens on the left (left-0, not right-0)
   fireEvent.click(screen.getByText('Toggle Sidebar'))
   await waitFor(() => {
     const content = document.body.querySelector('[data-slot="sheet-content"]')!
@@ -154,10 +154,10 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   // Theme can explicitly override defaultVariants
   setTheme(
     defineTheme({
-      sidebarFrame: {
+      sidebar: {
         base: {
           root: 'custom-frame-root',
-          sidebar: 'custom-sidebar',
+          panel: 'custom-sidebar',
         },
         defaultVariants: { side: 'right' },
       },

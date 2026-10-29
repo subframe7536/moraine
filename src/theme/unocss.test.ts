@@ -5,6 +5,7 @@ import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test } from 'vitest'
 
 import { baseSelectRecipe } from '../components/base-select/base-select.recipe'
+import { boldSliderRecipe } from '../components/bold-slider/bold-slider.recipe'
 import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../components/collapsible/collapsible.recipe'
 import { commandPaletteRecipe } from '../components/command-palette/command-palette.recipe'
 import { inputGroupRecipe } from '../components/input-group/input-group.recipe'
@@ -12,7 +13,6 @@ import { inputNumberRecipe } from '../components/input-number/input-number.recip
 import { inputRecipe } from '../components/input/input.recipe'
 import { SELECT_FAMILY_SLOTS } from '../components/shared/form/select/select-field.recipe'
 import { overlayMenuRecipeOptions } from '../components/shared/overlay/menu/menu.recipe'
-import { sliderRecipe } from '../components/slider/slider.recipe'
 
 import { cn } from './cn'
 import { presetMoraine } from './unocss'
@@ -82,23 +82,22 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('compiles disclosure child state and slider group state with %s', async (_name, wind) => {
+  ])('compiles disclosure child state and slider peer state with %s', async (_name, wind) => {
     const tokens = [
       ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
-      ...cn(sliderRecipe.config.variants?.variant?.bold?.range)!
-        .split(' ')
-        .filter((token) => token.includes('dragging')),
+      ...[boldSliderRecipe.config.base.content, boldSliderRecipe.config.base.indicator]
+        .flatMap((value) => cn(value)!.split(' '))
+        .filter((token) => token.startsWith('peer-')),
     ]
     const css = await generate(tokens, false, wind)
     expect(css).toMatch(/\[data-(?:transition\]\[data-expanded|expanded\]\[data-transition)\]/)
     expect(css).toMatch(/\[data-(?:transition\]\[data-closed|closed\]\[data-transition)\]/)
     expect(css).toContain('@keyframes accordion-down')
     expect(css).toContain('@keyframes accordion-up')
-    expect(css).toMatch(/\[data-multiple\]::before/)
-    expect(css).toContain('::before')
-    expect(css).toContain('::after')
-    expect(css).toMatch(/transition(?:-property)?:\s*none/)
-    expect(css).toMatch(/(?:\.group|:where\(\.group\))\[data-dragging\]/)
+    expect(css).toMatch(/\.peer\)?\[data-focus-visible\] ?~/)
+    expect(css).toMatch(/\.peer\)?:hover ?~/)
+    expect(css).toMatch(/\.peer\)?\[data-dragging\] ?~/)
+    expect(css).not.toContain(':has(')
   })
   test.each([
     ['Wind3', presetWind3],

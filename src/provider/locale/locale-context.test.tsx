@@ -23,7 +23,7 @@ import { defaultResizableMessages } from '../../components/resizable/resizable.m
 import { defaultSelectMessages } from '../../components/select/select.messages'
 import { defaultTagsFieldMessages } from '../../components/shared/form/select/tags-field.messages'
 import { defaultSheetMessages } from '../../components/sheet/sheet.messages'
-import { defaultSidebarFrameMessages } from '../../components/sidebar-frame/sidebar-frame.messages'
+import { defaultSidebarMessages } from '../../components/sidebar/sidebar.messages'
 import { defaultSliderMessages } from '../../components/slider/slider.messages'
 import { defaultToastMessages } from '../../components/toast/toast.messages'
 import { MoraineProvider } from '../moraine-provider'
@@ -49,7 +49,7 @@ const DEFAULT_MESSAGES: MoraineMessages = Object.freeze({
   fileUpload: defaultFileUploadMessages,
   tagsField: defaultTagsFieldMessages,
   resizable: defaultResizableMessages,
-  sidebarFrame: defaultSidebarFrameMessages,
+  sidebar: defaultSidebarMessages,
   form: defaultFormMessages,
   kbd: defaultKbdMessages,
   progress: defaultProgressMessages,

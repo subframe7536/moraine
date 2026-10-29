@@ -36,6 +36,11 @@
       "category": "select"
     },
     {
+      "key": "bold-slider",
+      "name": "BoldSlider",
+      "category": "form"
+    },
+    {
       "key": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation"
@@ -221,8 +226,8 @@
       "category": "overlay"
     },
     {
-      "key": "sidebar-frame",
-      "name": "SidebarFrame",
+      "key": "sidebar",
+      "name": "Sidebar",
       "category": "navigation"
     },
     {
