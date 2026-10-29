@@ -31,14 +31,6 @@ export const [TreeProvider, useTreeContext] =
 export const [TreeItemProvider, useTreeItemContext] =
   /* @__PURE__ */ createContextProvider<TreeItemContext | null>('TreeItem', null)
 
-export function useTreeItem(): TreeT.ItemInstance<unknown> {
-  const context = useTreeItemContext()
-  if (!context) {
-    throw new Error('useTreeItem must be used within a TreeItemProvider')
-  }
-  return context.item
-}
-
 export function useTreePart(
   slot: Extract<keyof TreeStyleSlot, string>,
   local: { class?: SlotClassValue; style?: JSX.CSSProperties },
