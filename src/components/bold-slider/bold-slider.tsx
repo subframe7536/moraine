@@ -57,7 +57,8 @@ export function BoldSlider(props: BoldSliderProps): JSX.Element {
     const percent = () => (state.percentages[0] ?? 0) * 100
     const formatted = createMemo(() => formatValue(state.values[0] ?? props.min ?? 0))
     const indicatorPosition = () => {
-      const offset = `max(var(--bs-indicator-gap), calc(${percent()}% - var(--bs-indicator-gap) - var(--bs-indicator-width)))`
+      // Near the minimum the indicator slides past the start edge and is clipped by the content box.
+      const offset = `calc(${percent()}% - var(--bs-indicator-gap) - var(--bs-indicator-width))`
       return {
         style: props.inverted ? { 'inset-inline-end': offset } : { 'inset-inline-start': offset },
       }

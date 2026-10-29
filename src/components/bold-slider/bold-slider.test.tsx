@@ -55,7 +55,9 @@ describe('BoldSlider', () => {
     expect(indicators).toHaveLength(2)
     expect(indicators[1]?.hasAttribute('data-fill')).toBe(true)
     for (const indicator of indicators) {
-      expect(indicator.style.getPropertyValue('inset-inline-start')).toContain('25%')
+      expect(indicator.style.getPropertyValue('inset-inline-start')).toBe(
+        'calc(25% - var(--bs-indicator-gap) - var(--bs-indicator-width))',
+      )
     }
 
     setValue(80)
@@ -145,11 +147,13 @@ describe('BoldSlider', () => {
     expect(query(screen.container, '[data-slot="bold-slider-indicator"]').classList).toContain(
       'custom-indicator',
     )
-    expect(root.style.getPropertyValue('--bs-pad')).toBe('10px')
+    expect(root.style.getPropertyValue('--bs-pad')).toBe('13px')
+    expect(root.style.getPropertyValue('--bs-indicator-gap')).toBe('5px')
+    expect(root.style.getPropertyValue('--bs-indicator-height')).toBe('18px')
 
     setSize('lg')
     expect(track.classList).toContain('h-10')
-    expect(root.style.getPropertyValue('--bs-pad')).toBe('14px')
+    expect(root.style.getPropertyValue('--bs-pad')).toBe('17px')
   })
 
   test('uses a theme token for step markers', () => {
