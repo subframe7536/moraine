@@ -1,30 +1,17 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { useRecipe } from '../../provider'
-
-import { useTableContext } from './table-context'
-import { TABLE_TEXT_ALIGN_CLASS, tableRecipe } from './table.recipe'
+import { useTablePart } from './table-part'
+import { TABLE_TEXT_ALIGN_CLASS } from './table.recipe'
 import type { TableT } from './table.types'
 
 export function TableHead(props: TableT.HeadProps): JSX.Element {
   const [local, rest] = splitProps(props, ['align', 'truncated', 'class', 'style'])
-  const context = useTableContext()
-  const { slots } = useRecipe(tableRecipe, local, {
-    slot: 'head',
-    contextVariants: () => ({
-      size: context.size,
-      striped: context.striped,
-      hoverEffect: context.hoverEffect,
-      showBorder: context.showBorder,
-    }),
-    contextSlots: () => context.slotOverrides,
-    own: {
-      head: () => ({
-        class: [local.align && TABLE_TEXT_ALIGN_CLASS[local.align], local.truncated && 'truncate'],
-      }),
-    },
-  })
+  // Always set the alignment: a `th` outside `thead` would otherwise fall back to the
+  // browser's centered default.
+  const slots = useTablePart('head', local, () => ({
+    class: [TABLE_TEXT_ALIGN_CLASS[local.align ?? 'left'], local.truncated && 'truncate'],
+  }))
 
   return <th data-slot="table-head" {...rest} {...slots.head} />
 }

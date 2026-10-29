@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
-import { createMemo, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-import { useRecipe } from '../../provider'
+import { pickSlotOverrides, useRecipe } from '../../provider'
 
 import { TableBody } from './table-body'
 import { TableCaption } from './table-caption'
@@ -30,28 +30,9 @@ export function Table(props: TableT.Props): JSX.Element {
     'children',
   ])
   const { slots, variants } = useRecipe(tableRecipe, local)
-  const slotOverrides = createMemo(() => ({ classes: local.classes, styles: local.styles }))
 
   return (
-    <TableProvider
-      value={{
-        get size() {
-          return variants.size
-        },
-        get striped() {
-          return variants.striped
-        },
-        get hoverEffect() {
-          return variants.hoverEffect
-        },
-        get showBorder() {
-          return variants.showBorder
-        },
-        get slotOverrides() {
-          return slotOverrides()
-        },
-      }}
-    >
+    <TableProvider value={{ variants, slotOverrides: pickSlotOverrides(local) }}>
       <div ref={local.containerRef} data-slot="table-container" {...slots.container}>
         <table data-slot="table" {...rest} {...slots.root} ref={local.ref}>
           {local.children}
