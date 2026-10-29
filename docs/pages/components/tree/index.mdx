@@ -4,7 +4,7 @@ description: Browse hierarchical data with keyboard navigation, selection, casca
 group: Navigation
 api:
   path: src/components/tree/tree
-  parts: [Item, ItemTrigger, ItemIcon, ItemLabel]
+  parts: [Item, ItemTrigger, ItemCheckbox, ItemIcon, ItemLabel]
 search:
   tags:
     [
@@ -182,10 +182,13 @@ Always give the tree an accessible name with `aria-label` or `aria-labelledby`.
 
 ### Instance
 
-The store exposes reactive `expandedKeys`, `selectedKeys`, `checkedKeys`, and `focusedKey`,
-the visible `flattenedItems`, and imperative methods such as `expand`, `collapse`, `expandAll`,
-`expandTo`, `select`, `check`, and `focus`. `tree.getItem(key)` returns a stable item handle with
-`level`, `isExpanded`, `isSelected`, `checkedState`, and actions.
+The store exposes reactive `expandedKeys`, `selectedKeys`, `checkedKeys`, `focusedKey`, and
+`loadingKeys`, the visible `flattenedItems`, and imperative methods: `expand`, `collapse`,
+`toggle`, `expandAll`, `collapseAll`, `expandTo`, `select`, `deselect`, `toggleSelect`,
+`selectAll`, `clearSelection`, `check`, `uncheck`, `toggleCheck`, `isLoading`, and `focus`.
+`tree.getItem(key)` returns a stable item handle with `level`, `posInSet`, `setSize`,
+`isExpanded`, `isSelected`, `isLoading`, `isFocused`, `isDisabled`, `checkedState`, and actions.
+Disabled items are skipped by keyboard navigation and cannot be selected, expanded, or checked.
 
 ### Expansion
 
@@ -193,6 +196,10 @@ Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `on
 it. Options are read reactively, so pass controlled values with getters. Row clicks toggle branches
 unless `expandOnClick` is `false`; the trigger always toggles. Set `trigger={false}` to render no
 chevron at all — rows then always toggle, whatever `expandOnClick` says.
+
+The height animation when a branch expands or collapses is on by default; disable it with
+`transition={false}` on `tree.Tree`. Collapsed branches unmount their children unless
+`unmountOnHide={false}`.
 
 ```tsx
 const [expanded, setExpanded] = createSignal(['src'])
@@ -211,7 +218,9 @@ const tree = createTree({
 
 Set `getIcon` to render a prefix icon in the default item. It receives the item instance, so the
 icon can react to `hasChildren`, `isExpanded`, or `isLoading`. Returning `undefined` renders no
-icon; use `tree.ItemIcon` directly when composing a custom `itemRender`.
+icon; use `tree.ItemIcon` directly when composing a custom `itemRender`. The chevron is changed
+with `triggerIcon` on `tree.Tree`, the glyph shown while a branch loads with `loadingIcon`, and
+`tree.ItemTrigger` accepts an `icon` override per item.
 
 ```tsx
 const tree = createTree({
@@ -236,9 +245,9 @@ in each row. By default, checking a branch checks its descendants and a branch w
 descendants is indeterminate; set `checkCascade={false}` to treat every item independently. Checked
 branches pass their state to children that load later.
 
-To place the checkbox in a custom item, compose `tree.ItemCheckbox`. The binding is
-hidden from assistive technology and removed from the tab order because the `treeitem` itself carries
-`aria-checked`.
+To place the checkbox in a custom item, compose `tree.ItemCheckbox`. It inherits the tree `size`,
+forwards every `Checkbox` prop, and its binding is hidden from assistive technology and removed
+from the tab order because the `treeitem` itself carries `aria-checked`.
 
 ```tsx
 <tree.Tree
@@ -256,8 +265,9 @@ hidden from assistive technology and removed from the tab order because the `tre
 
 Provide `loadChildren` to fetch children on demand. Items that have no `getChildren` result and are not
 `isLeaf` become lazy branches. Expanding one waits for the promise: the trigger shows the loading icon and
-the item sets `aria-busy`. A failed load calls `onLoadChildrenError` and leaves the branch collapsed so
-the user can retry.
+the item sets `aria-busy`. A successful load calls `onLoadChildrenComplete`; a failed one calls
+`onLoadChildrenError` and leaves the branch collapsed so the user can retry. Branches still loading
+appear in `loadingKeys` and through `tree.isLoading(key)`.
 
 ### Virtualization
 
@@ -286,8 +296,8 @@ const virtualizer = createListVirtualizer({
 ### Custom items
 
 `itemRender` renders one visible item. Use `tree.Item` as its root and compose `tree.ItemTrigger`,
-`tree.ItemIcon`, and `tree.ItemLabel`. Without `itemRender`, the default item renders the trigger, a
-checkbox when `checkable`, the icon returned by `getIcon`, and the label.
+`tree.ItemCheckbox`, `tree.ItemIcon`, and `tree.ItemLabel`. Without `itemRender`, the default item
+renders the trigger, a checkbox when `checkable`, the icon returned by `getIcon`, and the label.
 
 ### Indentation
 
@@ -314,18 +324,18 @@ applies to every item:
 
 ### Keyboard interaction
 
-| Key                                       | Description                                                               |
-| ----------------------------------------- | ------------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd> | Moves focus to the next or previous visible item.                         |
-| <kbd>ArrowRight</kbd>                     | Expands a collapsed branch, or moves to its first child when expanded.    |
-| <kbd>ArrowLeft</kbd>                      | Collapses an expanded branch, or moves to the parent.                     |
-| <kbd>Home</kbd> / <kbd>End</kbd>          | Moves focus to the first or last visible item.                            |
-| <kbd>Enter</kbd>                          | Calls `onAction`, or selects the item when no action is provided.         |
-| <kbd>Space</kbd>                          | Toggles the check state when `checkable`; otherwise selects the item.     |
-| <kbd>Shift</kbd>+<kbd>ArrowDown/Up</kbd>  | Extends the selection in `multiple` mode.                                 |
-| <kbd>Ctrl</kbd>+<kbd>A</kbd>              | Selects every enabled item in `multiple` mode.                            |
-| <kbd>\*</kbd>                             | Expands every sibling of the focused item.                                |
-| Characters                                | Moves focus to the next item whose text starts with the typed characters. |
+| Key                                       | Description                                                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd> | Moves focus to the next or previous visible item.                                                           |
+| <kbd>ArrowRight</kbd>                     | Expands a collapsed branch, or moves to its first child when expanded.                                      |
+| <kbd>ArrowLeft</kbd>                      | Collapses an expanded branch, or moves to the parent.                                                       |
+| <kbd>Home</kbd> / <kbd>End</kbd>          | Moves focus to the first or last visible item.                                                              |
+| <kbd>Enter</kbd>                          | Calls `onAction`; without it, selects the item, or toggles the branch when `selectionMode` is `none`.       |
+| <kbd>Space</kbd>                          | Toggles the check state when `checkable`; toggles selection in `multiple` mode; otherwise selects the item. |
+| <kbd>Shift</kbd>+<kbd>ArrowDown/Up</kbd>  | Extends the selection in `multiple` mode.                                                                   |
+| <kbd>Ctrl</kbd>+<kbd>A</kbd>              | Selects every enabled item in `multiple` mode.                                                              |
+| <kbd>\*</kbd>                             | Expands every sibling of the focused item.                                                                  |
+| Characters                                | Moves focus to the next item whose text starts with the typed characters; disable with `typeahead={false}`. |
 
 The horizontal arrows swap in right-to-left layouts. Only one item is in the tab order at a time.
 
