@@ -2,7 +2,7 @@ import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
-import type { CheckboxProps } from '../checkbox'
+import type { CheckboxT } from '../checkbox'
 import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
@@ -318,7 +318,13 @@ export namespace TreeT {
     'span'
   >
 
-  export type ItemCheckboxProps = CheckboxProps
+  export type ItemCheckboxProps = BaseProps<
+    'div',
+    CheckboxT.Base,
+    CheckboxT.Variants,
+    CheckboxT.Classes,
+    CheckboxT.Styles
+  >
 
   export interface Parts<T> {
     /** Tree root. Renders the visible items, nested or through `virtualRender`. */

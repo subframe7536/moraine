@@ -240,6 +240,7 @@ describe('generateApiDoc', () => {
       'tree.Tree',
       'tree.Item',
       'tree.ItemTrigger',
+      'tree.ItemCheckbox',
       'tree.ItemIcon',
       'tree.ItemLabel',
     ])
