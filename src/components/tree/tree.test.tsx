@@ -1241,6 +1241,11 @@ describe('createTree', () => {
 
       expect(container.querySelector('[data-slot="tree-trigger"]')).not.toBeNull()
       expect(container.querySelector('[data-slot="tree-icon"]')).toBeNull()
+      const row = container.querySelector('[data-slot="tree-row"]')
+      expect(row?.className).toContain('hover:bg-accent')
+      expect(row?.className).not.toContain('not-[[data-selected]]')
+      expect(row?.className).toContain('data-selected:hover:bg-accent-hover')
+      expect(row?.className).toContain('data-selected:active:bg-accent-active')
     })
 
     test('applies trigger icons, variants, and slot classes', () => {
@@ -1269,6 +1274,8 @@ describe('createTree', () => {
       expect(getByRole('tree').className).toContain('custom-root')
       const row = item(container, 'docs').querySelector('[data-slot="tree-row"]')
       expect(row?.className).toContain('custom-row')
+      expect(row?.className).toContain('hover:bg-accent')
+      expect(row?.className).not.toContain('not-[[data-selected]]')
       expect(row?.className).toContain('data-selected:hover:bg-primary-hover')
       expect(row?.className).toContain('data-selected:active:bg-primary-active')
       expect(
