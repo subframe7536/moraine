@@ -1308,6 +1308,55 @@ describe('createTree', () => {
   })
 
   describe('rendering', () => {
+    test('renders actionRender inside a trailing action slot that never selects the item', () => {
+      const onAction = vi.fn()
+      const { container } = render(() => (
+        <Harness
+          options={{ selectionMode: 'single' }}
+          treeProps={{
+            actionRender: (context) => (
+              <button type="button" onClick={() => onAction(context.item.key)}>
+                Delete
+              </button>
+            ),
+          }}
+        />
+      ))
+      const readme = item(container, 'README.md')
+      const row = readme.querySelector<HTMLElement>('[data-slot="tree-row"]')!
+      const action = row.lastElementChild as HTMLElement
+      expect(action.dataset.slot).toBe('tree-action')
+      expect(action.className).toContain('group-hover/tree-row:opacity-100')
+      expect(row.className).toContain('group/tree-row')
+
+      const button = action.querySelector('button')!
+      expect(fireEvent.mouseDown(button)).toBe(true)
+      fireEvent.click(button)
+      fireEvent.click(action)
+      expect(onAction).toHaveBeenCalledWith('readme')
+      expect(readme.getAttribute('aria-selected')).toBe('false')
+    })
+
+    test('composes tree.ItemAction in custom items', () => {
+      let tree!: TreeT.Instance<Node>
+      const { container } = render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          treeProps={{
+            itemRender: (context) => (
+              <tree.Item item={context.item}>
+                <tree.ItemLabel />
+                <tree.ItemAction class="custom-action">more</tree.ItemAction>
+              </tree.Item>
+            ),
+          }}
+        />
+      ))
+      const action = item(container, 'src').querySelector('[data-slot="tree-action"]')!
+      expect(action.textContent).toBe('more')
+      expect(action.className).toContain('custom-action')
+    })
+
     test('supports custom item renderers composed from bound parts', () => {
       let tree!: TreeT.Instance<Node>
       const { container } = render(() => (

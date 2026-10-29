@@ -226,10 +226,16 @@ export namespace TreeT {
   export interface Base<T = unknown> {
     /**
      * Renders one visible item. Defaults to trigger, check box when checkable, the icon
-     * returned by `getIcon`, and label.
+     * returned by `getIcon`, label, and `actionRender` actions.
      * Use `tree.Item` as the root of the rendered content.
      */
     itemRender?: Component<ItemRenderProps<T>>
+
+    /**
+     * Renders trailing actions for each item in the default item, inside `tree.ItemAction`.
+     * Custom `itemRender` content composes `tree.ItemAction` directly.
+     */
+    actionRender?: Component<ItemRenderProps<T>>
 
     /** Replaces nested rendering with caller-controlled virtual rendering of flattened items. */
     virtualRender?: Component<VirtualRenderProps<T>>
@@ -342,6 +348,13 @@ export namespace TreeT {
 
   export type ItemCheckboxProps = BaseProps<'button', ItemCheckboxBase, never, never, never>
 
+  export interface ItemActionBase {
+    /** Action controls, such as icon buttons or a dropdown menu trigger. */
+    children?: JSX.Element
+  }
+
+  export type ItemActionProps = BaseProps<'div', ItemActionBase, never, never, never>
+
   export interface Parts<T> {
     /** Tree root. Renders the visible items, nested or through `virtualRender`. */
     Tree: (props: Props<T>) => JSX.Element
@@ -350,6 +363,7 @@ export namespace TreeT {
     ItemCheckbox: (props?: ItemCheckboxProps) => JSX.Element
     ItemIcon: (props: ItemIconProps) => JSX.Element
     ItemLabel: <As extends ValidComponent = 'span'>(props: ItemLabelProps<As>) => JSX.Element
+    ItemAction: (props: ItemActionProps) => JSX.Element
   }
 
   /** Tree store returned by `createTree`. */

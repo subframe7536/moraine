@@ -243,6 +243,7 @@ describe('generateApiDoc', () => {
       'tree.ItemCheckbox',
       'tree.ItemIcon',
       'tree.ItemLabel',
+      'tree.ItemAction',
     ])
     expect(tree?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createTree' })
     const treeRootProps = tree?.parts[0]?.props.map((prop) => prop.name) ?? []

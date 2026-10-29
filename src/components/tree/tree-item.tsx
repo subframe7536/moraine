@@ -1,11 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createEffect, createSignal, on, onCleanup, splitProps } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { useRecipe } from '../../provider'
 import { createDisclosureState } from '../../shared/disclosure-state'
 import { callHandler, callRef } from '../../shared/utils'
 
 import { TreeItemProvider, useTreeContext, useTreeItemContext } from './tree-context'
+import { TreeItemAction } from './tree-item-action'
 import { TreeItemCheckbox } from './tree-item-checkbox'
 import { TreeItemIcon } from './tree-item-icon'
 import { TreeItemLabel } from './tree-item-label'
@@ -19,7 +21,8 @@ import {
 } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
-const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, label, [role="checkbox"]'
+const ACTION_SELECTOR = '[data-slot="tree-action"]'
+const INTERACTIVE_SELECTOR = `a, button, input, select, textarea, label, [role="checkbox"], ${ACTION_SELECTOR}`
 const POINTER_FOCUS_SELECTOR =
   'button, input[type="checkbox"], input[type="radio"], [role="checkbox"], [role="radio"]'
 
@@ -272,7 +275,8 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
             !callHandler(event, local.onMouseDown).defaultPrevented &&
             belongsToItem(event) &&
             !local.item.isDisabled &&
-            isFromDescendant(event, POINTER_FOCUS_SELECTOR)
+            isFromDescendant(event, POINTER_FOCUS_SELECTOR) &&
+            !isFromDescendant(event, ACTION_SELECTOR)
           ) {
             event.preventDefault()
             if (event.currentTarget instanceof HTMLElement) {
@@ -301,7 +305,7 @@ export function TreeItem(props: TreeT.ItemProps): JSX.Element {
   )
 }
 
-/** Default item content: trigger, check box when checkable, prefix icon, and label. */
+/** Default item content: trigger, check box when checkable, prefix icon, label, and actions. */
 export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Element {
   const context = useTreeContext()
 
@@ -313,6 +317,13 @@ export function TreeDefaultItem(props: TreeT.ItemRenderProps<unknown>): JSX.Elem
         {(icon) => <TreeItemIcon icon={icon()} />}
       </Show>
       <TreeItemLabel />
+      <Show when={context.props.actionRender}>
+        {(actionRender) => (
+          <TreeItemAction>
+            <Dynamic component={actionRender()} item={props.item} />
+          </TreeItemAction>
+        )}
+      </Show>
     </TreeItem>
   )
 }

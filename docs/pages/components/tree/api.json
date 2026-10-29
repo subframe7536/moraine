@@ -21,6 +21,12 @@
       "defaultElement": "ul",
       "props": [
         {
+          "name": "actionRender",
+          "optional": true,
+          "type": "Component<ItemRenderProps<T>>",
+          "description": "Renders trailing actions for each item in the default item, inside `tree.ItemAction`.\nCustom `itemRender` content composes `tree.ItemAction` directly."
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
@@ -46,7 +52,7 @@
           "name": "itemRender",
           "optional": true,
           "type": "Component<ItemRenderProps<T>>",
-          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, and label.\nUse `tree.Item` as the root of the rendered content."
+          "description": "Renders one visible item. Defaults to trigger, check box when checkable, the icon\nreturned by `getIcon`, label, and `actionRender` actions.\nUse `tree.Item` as the root of the rendered content."
         },
         {
           "name": "loadingIcon",
@@ -361,6 +367,36 @@
           "description": "Style applied to the component root or trigger element."
         }
       ]
+    },
+    {
+      "id": "tree-item-action",
+      "name": "tree.ItemAction",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createTree",
+        "member": "ItemAction"
+      },
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Action controls, such as icon buttons or a dropdown menu trigger."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
     }
   ],
   "slots": [
@@ -372,6 +408,7 @@
     "checkbox",
     "checkboxIcon",
     "label",
+    "action",
     "content"
   ],
   "dataAttributes": [

@@ -26,6 +26,9 @@ export interface TreeStyleSlot<T = unknown> {
   /** Node text. */
   label?: T
 
+  /** Trailing actions at the end of a row, shown while the row is hovered or focused. */
+  action?: T
+
   /** Collapsible wrapper around the `group` list that contains the child items of an expanded node. */
   content?: T
 }
