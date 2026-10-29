@@ -1673,3 +1673,27 @@ test('marks step markers inside the selected range as active', () => {
   setValue(0.15)
   expect(activeOf('single')).toEqual([true, false, false, false, false, false, false, false, false])
 })
+
+test('focuses thumbs without the keyboard focus ring for pointer input', () => {
+  const screen = render(() => <Slider defaultValue={[20, 80]} step={10} />)
+  const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+  const thumbs = getThumbs(screen.container)
+  mockPointerCapture(track)
+  mockTrackRect(track)
+  for (const thumb of thumbs) {
+    mockPointerCapture(thumb)
+  }
+  const focus = vi.spyOn(HTMLElement.prototype, 'focus')
+
+  fireEvent.pointerDown(track, { button: 0, clientX: 30, pointerId: 1 })
+  fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
+  expect(document.activeElement).toBe(thumbs[0])
+  expect(focus).toHaveBeenLastCalledWith({ focusVisible: false })
+
+  fireEvent.pointerDown(thumbs[1]!, { button: 0, clientX: 80, pointerId: 2 })
+  fireEvent.pointerUp(thumbs[1]!, { button: 0, pointerId: 2 })
+  expect(document.activeElement).toBe(thumbs[1])
+  expect(focus).toHaveBeenLastCalledWith({ focusVisible: false })
+
+  focus.mockRestore()
+})

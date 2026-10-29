@@ -27,6 +27,9 @@ import {
 } from '../utils'
 import type { SliderValue } from '../utils'
 
+// Pointer input focuses thumbs from script; `focusVisible: false` keeps the keyboard focus ring off.
+const POINTER_FOCUS_OPTIONS: FocusOptions = { focusVisible: false }
+
 export type CreateSliderProps<TValue extends SliderValue = SliderValue> = {
   allowThumbCrossing?: boolean
   defaultValue?: TValue
@@ -474,14 +477,14 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     return nextIndex
   }
 
-  function focusThumb(index: number): void {
+  function focusThumb(index: number, focusOptions?: FocusOptions): void {
     const thumb = thumbRefs()[index]
     if (!thumb || thumb.ownerDocument.activeElement === thumb) {
       return
     }
 
     suppressNextBlurCommit = true
-    thumb.focus()
+    thumb.focus(focusOptions)
   }
 
   function moveThumb(index: number, pointerValue: number): void {
@@ -489,7 +492,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
 
     if (nextIndex !== undefined && nextIndex !== index) {
       setActiveThumbIndex(nextIndex)
-      focusThumb(nextIndex)
+      focusThumb(nextIndex, POINTER_FOCUS_OPTIONS)
     }
   }
 
@@ -540,7 +543,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
       return
     }
     applyThumbValue(nextActiveThumbIndex, pointerValue)
-    focusThumb(nextActiveThumbIndex)
+    focusThumb(nextActiveThumbIndex, POINTER_FOCUS_OPTIONS)
   }
 
   function onTrackPointerMove(event: PointerEvent): void {
@@ -568,7 +571,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const target = event.currentTarget as HTMLDivElement
     const pointerPosition = merged.orientation === 'vertical' ? event.clientY : event.clientX
     grabOffset = getThumbGrabOffset(target, pointerPosition, merged.orientation === 'vertical')
-    target.focus()
+    target.focus(POINTER_FOCUS_OPTIONS)
   }
 
   function onThumbPointerMove(event: PointerEvent): void {
