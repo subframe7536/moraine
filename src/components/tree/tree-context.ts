@@ -17,11 +17,10 @@ export interface TreeContext {
   readonly props: TreeT.Base<any>
   readonly variants: Pick<TreeT.Variants, 'size' | 'variant' | 'indentGuide'>
   readonly slotOverrides: SlotOverrides<keyof TreeStyleSlot>
-  readonly RenderItem: Component<TreeRenderItemProps>
+  readonly RenderItem: Component<TreeItemContext>
 }
 
-/** Props of the internal per-item renderer; `row` is set by the virtualizer. */
-export interface TreeRenderItemProps {
+export interface TreeItemContext {
   readonly item: TreeT.ItemInstance<unknown>
   readonly row?: ListT.RowProps
 }
@@ -30,11 +29,15 @@ export const [TreeProvider, useTreeContext] =
   /* @__PURE__ */ createContextProvider<TreeContext>('Tree')
 
 export const [TreeItemProvider, useTreeItemContext] =
-  /* @__PURE__ */ createContextProvider<TreeT.ItemInstance<unknown>>('TreeItem')
+  /* @__PURE__ */ createContextProvider<TreeItemContext | null>('TreeItem', null)
 
-/** Virtual row props for the next `TreeItem`, which consumes and clears them. */
-export const [TreeRowProvider, useTreeRowContext] =
-  /* @__PURE__ */ createContextProvider<ListT.RowProps | null>('TreeRow', null)
+export function useTreeItem(): TreeT.ItemInstance<unknown> {
+  const context = useTreeItemContext()
+  if (!context) {
+    throw new Error('useTreeItem must be used within a TreeItemProvider')
+  }
+  return context.item
+}
 
 export function useTreePart(
   slot: Extract<keyof TreeStyleSlot, string>,

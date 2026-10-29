@@ -4,7 +4,7 @@ import { Show, mergeProps, splitProps } from 'solid-js'
 import { callHandler } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { useTreeContext, useTreeItemContext, useTreePart } from './tree-context'
+import { useTreeContext, useTreeItem, useTreePart } from './tree-context'
 import { treeDataAttributes } from './tree.recipe'
 import type { TreeT } from './tree.types'
 
@@ -20,7 +20,7 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
     'onClick',
   ])
   const context = useTreeContext()
-  const item = useTreeItemContext()
+  const item = useTreeItem()
   const merged = mergeProps(
     { checkedIcon: 'icon-check' as const, indeterminateIcon: 'icon-minus' as const },
     local,
