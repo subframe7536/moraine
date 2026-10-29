@@ -25,7 +25,12 @@ export const treeDataAttributes = {
     'indeterminate',
     'unchecked',
   ),
-  content: /* @__PURE__ */ createDataAttributes('closed', 'expanded', 'transitioning'),
+  content: /* @__PURE__ */ createDataAttributes(
+    'closed',
+    'expanded',
+    'transition',
+    'transitioning',
+  ),
 } satisfies DataAttributeContract<keyof TreeStyleSlot>
 
 /** Resets list styling on the `tree` root and nested `group` lists. */
@@ -62,12 +67,12 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
     label: 'flex-1 min-w-0 truncate',
     action: 'flex shrink-0 gap-1 items-center',
-    content: '',
+    content:
+      'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transition:data-closed:animate-accordion-up data-transition:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
   },
   defaultVariants: {
     size: 'md',
     variant: 'subtle',
-    transition: false,
     indentGuide: true,
   },
   variants: {
@@ -83,12 +88,6 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     indentGuide: {
       true: {
         item: '[background:var(--mo-tree-guide)]',
-      },
-    },
-    transition: {
-      true: {
-        content:
-          'h-(--mo-collapsible-content-height) data-closed:(h-0 overflow-hidden animate-accordion-up) data-transitioning:overflow-hidden data-expanded:animate-accordion-down motion-reduce:animate-none',
       },
     },
     variant: {

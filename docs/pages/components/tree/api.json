@@ -272,18 +272,6 @@
           }
         },
         {
-          "name": "onCheckedChange",
-          "optional": true,
-          "type": "(checked: boolean) => void",
-          "description": "Called with the new checked state when the checkbox is clicked."
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "description": "Checkbox size. Defaults to the tree's `size`."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -462,6 +450,7 @@
       "attributes": [
         "data-closed",
         "data-expanded",
+        "data-transition",
         "data-transitioning"
       ]
     }

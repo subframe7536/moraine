@@ -12,10 +12,8 @@ import type { TreeT } from './tree.types'
 /** Checkbox bound to the item's check state. */
 export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'onCheckedChange',
     'checkedIcon',
     'indeterminateIcon',
-    'size',
     'class',
     'style',
     'onClick',
@@ -41,7 +39,6 @@ export function TreeItemCheckbox(props: TreeT.ItemCheckboxProps = {}): JSX.Eleme
     if (callHandler(event, local.onClick).defaultPrevented || item.isDisabled) {
       return
     }
-    local.onCheckedChange?.(!checked())
     context.state.setChecked(item.key, !checked())
   }
 

@@ -1,7 +1,7 @@
 import type { Component, FlowComponent, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
-import type { ComponentSize, SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 import type { IconT } from '../icon'
 import type { ListT } from '../list/list.types'
 
@@ -151,7 +151,10 @@ export namespace TreeT {
     readonly expandedKeys: readonly string[]
     /** Keys of selected items. */
     readonly selectedKeys: readonly string[]
-    /** Keys whose check state is `checked`. */
+    /**
+     * Keys whose check state is `checked`, followed by checked keys of items that are not loaded
+     * yet. Matches the keys passed to `onCheckedChange`.
+     */
     readonly checkedKeys: readonly string[]
     /** Key of the item that currently holds focus. */
     readonly focusedKey: string | undefined
@@ -325,9 +328,6 @@ export namespace TreeT {
   >
 
   export interface ItemCheckboxBase {
-    /** Checkbox size. Defaults to the tree's `size`. */
-    size?: ComponentSize
-
     /**
      * Icon shown when the item is checked.
      * @default 'icon-check'
@@ -339,9 +339,6 @@ export namespace TreeT {
      * @default 'icon-minus'
      */
     indeterminateIcon?: IconT.Name
-
-    /** Called with the new checked state when the checkbox is clicked. */
-    onCheckedChange?: (checked: boolean) => void
   }
 
   export type ItemCheckboxProps = BaseProps<'button', ItemCheckboxBase, never, never, never>

@@ -54,6 +54,7 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:file-plus"
+                tabIndex={item.isFocused ? 0 : -1}
                 aria-label={`New file in ${item.textValue}`}
                 onClick={() => setStatus(`New file in ${item.textValue}`)}
               />
@@ -64,6 +65,7 @@ export function ItemAction() {
                 variant="ghost"
                 size="icon-xs"
                 leading="i-lucide:ellipsis"
+                tabIndex={item.isFocused ? 0 : -1}
                 aria-label={`More actions for ${item.textValue}`}
               />
               <DropdownMenu.Content

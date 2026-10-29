@@ -369,6 +369,10 @@ Actions are always rendered in-flow and visible; the slot carries no built-in ho
 override the `action` slot to show them on demand — the row is marked `group/tree-row` for that.
 Clicks inside the actions never select or expand the item.
 
+The tree's roving focus does not manage action controls. Keep the tree at a single tab stop by
+setting `tabIndex={item.isFocused ? 0 : -1}` on each control, so `Tab` reaches only the actions of
+the focused row.
+
 ```tsx
 <tree.Tree
   actionRender={(item) => (
@@ -480,6 +484,7 @@ prefix glyph, or set `getIcon` in `createTree` to render one in the default item
 ### Row action menu
 
 Pass `actionRender` to add trailing buttons or a dropdown menu to each row. This example hides
-them behind a `classes` override and reveals them on hover, focus, or while the menu is open.
+them behind a `classes` override and reveals them on hover, focus, or while the menu is open. Only
+the focused row's actions are in the tab order: press `Tab` from an item to reach them.
 
 <Preview path="./item-action" />

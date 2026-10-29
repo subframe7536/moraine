@@ -90,11 +90,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
   )
   const { slots } = useRecipe(
     treeRecipe,
-    {
-      get transition() {
-        return allowHeightMotion()
-      },
-    },
+    {},
     {
       slot: 'content',
       contextVariants: () => context.variants,
@@ -136,6 +132,7 @@ function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Elemen
       {...treeDataAttributes.content({
         closed: () => !visualExpanded(),
         expanded: visualExpanded,
+        transition: allowHeightMotion,
         transitioning: animating,
       })}
       {...slots.content}

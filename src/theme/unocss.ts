@@ -257,10 +257,7 @@ export function presetMoraine(options: PresetMoraineOptions = {}): Preset {
           })
         },
     shortcuts: [
-      [
-        /^(.*)-\((?:([a-z-]+):)?(--[\w-]+)\)$/,
-        ([, name, type, variable]) => `${name}-[${type ? `${type}:` : ''}var(${variable})]`,
-      ],
+      [/^(.*)-\((--[\w-]+)\)$/, ([, name, variable]) => `${name}-[var(${variable})]`],
       ...Object.entries(MORAINE_Z_INDEX).map(
         ([name, value]) => [`z-${name}`, `z-${value}`] as [string, string],
       ),

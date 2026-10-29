@@ -150,6 +150,9 @@ export function createListVirtualizer<
       currentEstimates = nextEstimates
       initialized = true
       virtualizerOptions.getScrollElement()
+      // A new `getItemKey` identity is what makes TanStack recompute measurements: its
+      // `getMeasurementOptions` memo depends on `count`, `getItemKey`, and other options but not on
+      // the keys themselves. Recheck this when upgrading `@tanstack/virtual-core`.
       virtualizer.setOptions(
         layoutChanged
           ? { ...virtualizerOptions, getItemKey: (index: number) => currentKeys[index] ?? index }

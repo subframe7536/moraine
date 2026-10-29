@@ -385,7 +385,7 @@ describe('createTree', () => {
       const group = item(container, 'docs').querySelector('[data-slot="tree-content"]')!
       expect(group.hasAttribute('hidden')).toBe(true)
       expect(group.getAttribute('data-closed')).not.toBeNull()
-      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(group.hasAttribute('data-transition')).toBe(false)
     })
 
     test('omits height transition styles when transition is false', () => {
@@ -394,8 +394,7 @@ describe('createTree', () => {
       ))
       const group = item(container, 'docs').querySelector('[data-slot="tree-content"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
-      expect(group.className).not.toContain('animate-accordion-down')
+      expect(group.hasAttribute('data-transition')).toBe(false)
     })
 
     test('omits height transition styles on default-expanded nested content', async () => {
@@ -406,7 +405,7 @@ describe('createTree', () => {
         '[data-slot="tree-content"]',
       )!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(group.hasAttribute('data-transition')).toBe(false)
       expect(group.style.height).toBe('auto')
       expect(group.style.animation).toBe('none')
     })
@@ -428,7 +427,7 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
       expect(srcGroup.style.height).toBe('auto')
 
       fireEvent.click(item(container, 'components'))
@@ -447,12 +446,12 @@ describe('createTree', () => {
         'README.md',
         'LICENSE',
       ])
-      expect(srcGroup.className).not.toContain('h-(--mo-collapsible-content-height)')
+      expect(srcGroup.hasAttribute('data-transition')).toBe(false)
       expect(srcGroup.style.height).toBe('auto')
       const nestedGroup = item(container, 'components').querySelector<HTMLElement>(
         '[data-slot="tree-content"]',
       )!
-      expect(nestedGroup.className).toContain('h-(--mo-collapsible-content-height)')
+      expect(nestedGroup.hasAttribute('data-transition')).toBe(true)
       expect(nestedGroup.hasAttribute('data-expanded')).toBe(true)
       expect(nestedGroup.style.height).not.toBe('auto')
     })
@@ -463,7 +462,7 @@ describe('createTree', () => {
         '[data-slot="tree-content"]',
       )!
 
-      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
+      expect(group.hasAttribute('data-transition')).toBe(true)
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
       expect(group.hasAttribute('hidden')).toBe(false)
@@ -474,7 +473,7 @@ describe('createTree', () => {
 
       clickTrigger(item(container, 'src'))
       const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
-      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
+      expect(group.hasAttribute('data-transition')).toBe(true)
       expect(group.hasAttribute('data-expanded')).toBe(false)
       expect(group.hasAttribute('data-closed')).toBe(true)
     })
@@ -487,7 +486,7 @@ describe('createTree', () => {
       await Promise.resolve()
       const group = item(container, 'src').querySelector<HTMLElement>('[data-slot="tree-content"]')!
       expect(group.hasAttribute('data-expanded')).toBe(true)
-      expect(group.className).toContain('h-(--mo-collapsible-content-height)')
+      expect(group.hasAttribute('data-transition')).toBe(true)
       expect(group.hasAttribute('data-closed')).toBe(false)
       expect(group.style.height).not.toBe('auto')
     })
@@ -1045,7 +1044,7 @@ describe('createTree', () => {
       expect(tree.getItem('button')?.checkedState).toBe('checked')
     })
 
-    test('ItemCheckbox composes onClick and overrides the tree size', () => {
+    test('ItemCheckbox composes onClick and follows the tree size', () => {
       let tree!: TreeT.Instance<Node>
       const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
       const { container } = render(() => (
@@ -1056,7 +1055,7 @@ describe('createTree', () => {
             size: 'lg',
             itemRender: (context) => (
               <tree.Item item={context}>
-                <tree.ItemCheckbox size="sm" onClick={onClick} />
+                <tree.ItemCheckbox onClick={onClick} />
                 <tree.ItemLabel />
               </tree.Item>
             ),
@@ -1065,12 +1064,27 @@ describe('createTree', () => {
       ))
 
       const control = container.querySelector<HTMLElement>('[data-slot="tree-checkbox"]')!
-      expect(control.className).toContain('size-3.5')
-      expect(control.className).not.toContain('size-4.5')
+      expect(control.className).toContain('size-4.5')
 
       fireEvent.click(control)
       expect(onClick).toHaveBeenCalledTimes(1)
       expect(tree.getItem('src')?.checkedState).toBe('unchecked')
+    })
+
+    test('checkedKeys matches onCheckedChange for keys of unloaded items', () => {
+      let tree!: TreeT.Instance<Node>
+      const onCheckedChange = vi.fn()
+      render(() => (
+        <Harness
+          onTree={(value) => (tree = value)}
+          options={{ checkable: true, defaultCheckedKeys: ['not-loaded'], onCheckedChange }}
+        />
+      ))
+
+      expect(tree.checkedKeys).toContain('not-loaded')
+      tree.check('readme')
+      expect(onCheckedChange).toHaveBeenLastCalledWith(tree.checkedKeys)
+      expect(tree.checkedKeys).toEqual(expect.arrayContaining(['readme', 'not-loaded']))
     })
 
     test('exposes aria-checked on treeitems and toggles with Space', () => {
