@@ -54,7 +54,7 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     '--mo-tree-pad': '0.5rem',
     root: `text-foreground min-h-0 w-full relative ${TREE_LIST_CLASS}`,
     item: 'outline-none relative',
-    row: `mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-pad-start) rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center hover:bg-muted [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 ${DATA_DISABLED_CLASS}`,
+    row: `mx-(--mo-tree-gutter) pe-2 ps-(--mo-tree-pad-start) rounded-md flex gap-(--mo-tree-gap) min-w-0 cursor-pointer select-none items-center hover:bg-muted [[role=treeitem]:focus-visible>&]:ring-3 [[role=treeitem]:focus-visible>&]:ring-ring/50 [[role=treeitem]:focus-visible>&]:ring-inset ${DATA_DISABLED_CLASS}`,
     trigger:
       'text-inherit opacity-70 inline-flex shrink-0 transition-transform items-center justify-center overflow-visible data-leaf:invisible data-expanded:rotate-90 data-loading:rotate-0 data-loading:animate-spin',
     icon: 'text-inherit opacity-70 shrink-0',
