@@ -204,6 +204,15 @@ describe('presetMoraine', () => {
     expect(css).toContain(':hover')
     expect(css).toContain('margin-top:calc(var(--test-offset) * -1)')
     expect(css).toContain('--mo-enter-translate-x:var(--test-translate)')
+
+    const hinted = await generate(
+      ['bg-(image:--test-image)', 'bg-(position:--test-position)', 'bg-(size:--test-size)'],
+      false,
+      wind,
+    )
+    expect(hinted).toContain('background-image:var(--test-image)')
+    expect(hinted).toContain('background-position:var(--test-position)')
+    expect(hinted).toContain('background-size:var(--test-size)')
   })
 
   test.each([

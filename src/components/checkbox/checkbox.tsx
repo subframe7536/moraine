@@ -48,6 +48,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'class',
     'style',
     'onClick',
+    'tabIndex',
   ])
   const themeField = useFieldContext()
   let indicator!: () => string | undefined
@@ -403,6 +404,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           {...slots.control}
           ref={field.setControlRef}
           id={field.id()}
+          tabIndex={local.tabIndex}
           disabled={field.disabled()}
           aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
           onPointerDown={onPointerDown}
