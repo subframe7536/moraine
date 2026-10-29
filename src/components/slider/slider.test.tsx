@@ -1652,3 +1652,24 @@ test('renders static children and live state children inside the root', () => {
   fireEvent.keyDown(thumb, { key: 'End' })
   expect(output.textContent).toBe('150-150|150,150|0.75,0.75|false')
 })
+
+test('marks step markers inside the selected range as active', () => {
+  const [value, setValue] = createSignal(0.6)
+  const screen = render(() => (
+    <>
+      <Slider data-testid="single" value={value()} min={0} max={1} step={0.1} marker />
+      <Slider data-testid="range" defaultValue={[20, 60]} step={20} marker />
+    </>
+  ))
+  const activeOf = (testId: string) =>
+    Array.from(
+      screen.getByTestId(testId).querySelectorAll<HTMLElement>('[data-slot="slider-marker"]'),
+    ).map((marker) => marker.hasAttribute('data-active'))
+
+  // Markers sit at 0.1 to 0.9; 0.6 is included despite 0.1 * 6 float error.
+  expect(activeOf('single')).toEqual([true, true, true, true, true, true, false, false, false])
+  expect(activeOf('range')).toEqual([true, true, true, false])
+
+  setValue(0.15)
+  expect(activeOf('single')).toEqual([true, false, false, false, false, false, false, false, false])
+})

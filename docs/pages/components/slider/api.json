@@ -246,6 +246,12 @@
       ]
     },
     {
+      "target": "marker",
+      "attributes": [
+        "data-active"
+      ]
+    },
+    {
       "target": "thumb",
       "attributes": [
         "data-disabled",

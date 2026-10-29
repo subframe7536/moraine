@@ -33,7 +33,7 @@ export const boldSliderRecipe = /* @__PURE__ */ defineRecipe<
       'bg-muted cursor-pointer transition-shadow group-has-[:focus-visible]:(ring-3 ring-ring/50)',
     range:
       'rounded-[inherit] transition-[left,right] duration-150 ease-out group-data-[dragging]:transition-none',
-    marker: 'rounded-full bg-muted-foreground/40 h-2',
+    marker: 'rounded-full bg-muted-foreground/40 h-2 data-active:opacity-0',
     thumb: 'opacity-0 size-px pointer-events-none',
     content: '@container pointer-events-none inset-0 absolute overflow-hidden',
     label:

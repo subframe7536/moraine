@@ -157,7 +157,7 @@ describe('BoldSlider', () => {
   })
 
   test('uses a theme token for step markers', () => {
-    const screen = render(() => <BoldSlider marker min={0} max={4} step={1} />)
+    const screen = render(() => <BoldSlider marker min={0} max={4} step={1} defaultValue={1} />)
     const markers = queryAll(screen.container, '[data-slot="slider-marker"]')
 
     expect(markers).toHaveLength(3)
@@ -165,6 +165,13 @@ describe('BoldSlider', () => {
       expect(marker.classList).toContain('bg-muted-foreground/40')
       expect(marker.classList).not.toContain('bg-background')
     }
+    expect(markers.map((marker) => marker.hasAttribute('data-active'))).toEqual([
+      true,
+      false,
+      false,
+    ])
+    // The marker at the fill edge is hidden instead of showing half outside the fill.
+    expect(markers[0]?.classList).toContain('data-active:opacity-0')
   })
 
   test('switches to a neutral fill with matching content colors when subtle', () => {

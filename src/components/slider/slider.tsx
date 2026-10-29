@@ -206,6 +206,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {(markerIndex) => (
               <div
                 data-slot="slider-marker"
+                {...sliderDataAttributes.marker({
+                  active: () => slider.isMarkerInRange(markerIndex),
+                })}
                 {...slotWith('marker', undefined, () => ({
                   style: slider.getMarkerStyle(markerIndex),
                 }))}

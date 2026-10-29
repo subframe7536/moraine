@@ -57,6 +57,7 @@ export type CreateSliderReturn<TValue extends SliderValue = SliderValue> = {
   definedStep: () => number | undefined
   dragging: () => boolean
   getMarkerStyle: (index: number) => JSX.CSSProperties
+  isMarkerInRange: (index: number) => boolean
   getPublicValue: (values: number[]) => TValue
   getThumbMaxValue: (index: number) => number
   getThumbMinValue: (index: number) => number
@@ -210,14 +211,29 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     const markerCount = Math.floor((merged.max - merged.min) / step)
     return Array.from({ length: Math.max(markerCount - 1, 0) }, (_, index) => index + 1)
   })
+  const getMarkerValue = (index: number): number => merged.min + keyboardStep() * index
   const getMarkerStyle = (index: number): JSX.CSSProperties => {
     const { startEdge } = getSliderEdges()
-    const value = merged.min + keyboardStep() * index
+    const value = getMarkerValue(index)
 
     return {
       [startEdge]: `${getValuePercent(value) * 100}%`,
       ...merged.styles?.marker,
     }
+  }
+  const rangeBounds = createMemo(() => {
+    const values = currentValues()
+    return {
+      start: values.length > 1 ? Math.min(...values) : merged.min,
+      end: Math.max(...values),
+    }
+  })
+  const isMarkerInRange = (index: number): boolean => {
+    const value = getMarkerValue(index)
+    const { start, end } = rangeBounds()
+    // Step multiples accumulate float error, e.g. 0.1 * 6 = 0.6000000000000001.
+    const tolerance = Math.abs(merged.max - merged.min) * 1e-9
+    return value >= start - tolerance && value <= end + tolerance
   }
   const rangeStyle = createMemo<JSX.CSSProperties>(() => {
     const percentages = currentValues().map((value) => getValuePercent(value) * 100)
@@ -722,6 +738,7 @@ export function createSlider<TValue extends SliderValue = SliderValue>(
     definedStep,
     dragging,
     getMarkerStyle,
+    isMarkerInRange,
     getPublicValue,
     getThumbMaxValue,
     getThumbMinValue,
