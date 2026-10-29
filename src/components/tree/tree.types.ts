@@ -257,12 +257,6 @@ export namespace TreeT {
     loadingIcon?: IconT.Name
 
     /**
-     * Whether expanding and collapsing nested content animates its height.
-     * @default true
-     */
-    transition?: boolean
-
-    /**
      * Whether collapsed branches unmount their children.
      * @default true
      */

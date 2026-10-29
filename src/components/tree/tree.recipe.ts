@@ -67,13 +67,13 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     checkboxIcon: `${CHECKBOX_ICON_CLASS} text-primary-foreground`,
     label: 'flex-1 min-w-0 truncate',
     action: 'flex shrink-0 gap-1 items-center',
-    content:
-      'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transition:data-closed:animate-accordion-up data-transition:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
+    content: '',
   },
   defaultVariants: {
     size: 'md',
     variant: 'subtle',
     indentGuide: true,
+    transition: true,
   },
   variants: {
     size: {
@@ -88,6 +88,13 @@ export const treeRecipe = /* @__PURE__ */ defineRecipe<TreeStyleSlot, TreeStyleV
     indentGuide: {
       true: {
         item: '[background:var(--mo-tree-guide)]',
+      },
+    },
+    // `data-transition` marks groups whose height may animate now; default-expanded groups skip it.
+    transition: {
+      true: {
+        content:
+          'data-transition:h-(--mo-collapsible-content-height) data-transition:data-closed:h-0 data-transition:data-closed:overflow-hidden data-transition:data-transitioning:overflow-hidden data-transition:data-closed:animate-accordion-up data-transition:data-expanded:animate-accordion-down data-transition:motion-reduce:animate-none',
       },
     },
     variant: {

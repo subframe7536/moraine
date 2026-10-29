@@ -87,6 +87,7 @@ function TreeRoot<T>(props: TreeT.Props<T> & { state: TreeState<T> }): JSX.Eleme
         size: variants.size,
         variant: variants.variant,
         indentGuide: variants.indentGuide,
+        transition: variants.transition,
       }
     },
     slotOverrides: pickSlotOverrides(local),

@@ -46,6 +46,10 @@ export interface TreeStyleVariants {
    * @default true
    */
   indentGuide?: boolean
+  /** Whether expanding and collapsing nested content animates its height.
+   * @default true
+   */
+  transition?: boolean
 }
 
 export type TreeStyleConfig = ComponentStyleConfig<TreeStyleSlot, TreeStyleVariants>

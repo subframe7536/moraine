@@ -45,7 +45,7 @@ function isFromDescendant(event: Event, selector: string): boolean {
 function TreeItemGroup(props: { item: TreeT.ItemInstance<unknown> }): JSX.Element {
   const context = useTreeContext()
   const [lastHeight, setLastHeight] = createSignal(0)
-  const transition = () => context.props.transition ?? true
+  const transition = () => Boolean(context.variants.transition)
   const disclosure = createDisclosureState({
     open: () => props.item.isExpanded,
     transition,
