@@ -41,7 +41,7 @@ import type { ScrollAreaStyleConfig } from '../components/scroll-area/scroll-are
 import type { SelectStyleConfig } from '../components/select/select.style-types'
 import type { SeparatorStyleConfig } from '../components/separator/separator.style-types'
 import type { SheetStyleConfig } from '../components/sheet/sheet.style-types'
-import type { SidebarFrameStyleConfig } from '../components/sidebar-frame/sidebar-frame.style-types'
+import type { SidebarStyleConfig } from '../components/sidebar/sidebar.style-types'
 import type { SkeletonStyleConfig } from '../components/skeleton/skeleton.style-types'
 import type { SliderStyleConfig } from '../components/slider/slider.style-types'
 import type { StepperStyleConfig } from '../components/stepper/stepper.style-types'
@@ -101,7 +101,7 @@ export interface MoraineStyleSchema {
   breadcrumb: BreadcrumbStyleConfig
   commandPalette: CommandPaletteStyleConfig
   pagination: PaginationStyleConfig
-  sidebarFrame: SidebarFrameStyleConfig
+  sidebar: SidebarStyleConfig
   stepper: StepperStyleConfig
   tabs: TabsStyleConfig
   navigationMenu: NavigationMenuStyleConfig

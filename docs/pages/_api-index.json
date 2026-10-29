@@ -216,8 +216,8 @@
       "category": "overlay"
     },
     {
-      "key": "sidebar-frame",
-      "name": "SidebarFrame",
+      "key": "sidebar",
+      "name": "Sidebar",
       "category": "navigation"
     },
     {

@@ -39,7 +39,7 @@ import type {
   SelectT,
   SeparatorT,
   SheetT,
-  SidebarFrameT,
+  SidebarT,
   SliderT,
   StepperT,
   SwitchT,
@@ -241,12 +241,12 @@ export type ComponentNamespaceHeaders = {
     SeparatorT.Styles
   >
   Sheet: Header<SheetT.Kind, SheetT.Slot, SheetT.Variants, SheetT.Classes, SheetT.Styles>
-  SidebarFrame: Header<
-    SidebarFrameT.Kind,
-    SidebarFrameT.Slot,
-    SidebarFrameT.Variants,
-    SidebarFrameT.Classes,
-    SidebarFrameT.Styles
+  Sidebar: Header<
+    SidebarT.Kind,
+    SidebarT.Slot,
+    SidebarT.Variants,
+    SidebarT.Classes,
+    SidebarT.Styles
   >
   Slider: Header<SliderT.Kind, SliderT.Slot, SliderT.Variants, SliderT.Classes, SliderT.Styles>
   Stepper: Header<
@@ -352,7 +352,7 @@ export type RetainedNamespaceMembers = [
   SelectT.Entry,
   ComboboxT.Row,
   MultiSelectT.TagRenderProps,
-  SidebarFrameT.Context,
+  SidebarT.Context,
   FieldT.RenderProps,
   ResizableT.HandleRenderProps,
   ModalT.ContentRenderProps,
@@ -375,18 +375,18 @@ export type CompositePartContracts = [
   InputGroupT.LeadingProps,
   InputGroupT.TrailingBase,
   InputGroupT.TrailingProps,
-  SidebarFrameT.SidebarBase,
-  SidebarFrameT.SidebarProps,
-  SidebarFrameT.SidebarHeaderBase,
-  SidebarFrameT.SidebarHeaderProps,
-  SidebarFrameT.SidebarBodyBase,
-  SidebarFrameT.SidebarBodyProps,
-  SidebarFrameT.SidebarFooterBase,
-  SidebarFrameT.SidebarFooterProps,
-  SidebarFrameT.MainBase,
-  SidebarFrameT.MainProps,
-  SidebarFrameT.TriggerBase,
-  SidebarFrameT.TriggerProps,
+  SidebarT.PanelBase,
+  SidebarT.PanelProps,
+  SidebarT.HeaderBase,
+  SidebarT.HeaderProps,
+  SidebarT.ContentBase,
+  SidebarT.ContentProps,
+  SidebarT.FooterBase,
+  SidebarT.FooterProps,
+  SidebarT.InsetBase,
+  SidebarT.InsetProps,
+  SidebarT.TriggerBase,
+  SidebarT.TriggerProps,
   ModalT.TriggerBase,
   ModalT.TriggerProps,
   ModalT.OverlayBase,

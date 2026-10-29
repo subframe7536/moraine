@@ -146,7 +146,7 @@ export const moraineTailwind = plugin(
           'transitioning',
           'transition',
           'unchecked',
-          'with-actions',
+          'with-action',
         ].map((v) => [v, v]),
       ),
     })

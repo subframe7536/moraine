@@ -20,8 +20,8 @@ import { Progress } from '../../components/progress/progress'
 import { Resizable } from '../../components/resizable/resizable'
 import { Select } from '../../components/select/select'
 import { Sheet } from '../../components/sheet/sheet'
-import { SidebarFrame } from '../../components/sidebar-frame/sidebar-frame'
-import { useSidebarFrame } from '../../components/sidebar-frame/sidebar-frame-context'
+import { Sidebar } from '../../components/sidebar/sidebar'
+import { useSidebar } from '../../components/sidebar/sidebar-context'
 import { Slider } from '../../components/slider/slider'
 import { Toast } from '../../components/toast/toast'
 import { renderWithOwner } from '../../test-util/owner-render'
@@ -216,19 +216,19 @@ describe('localized component text', () => {
 
   test('uses the sidebar message and lets ariaLabel win', async () => {
     function OpenSidebar(props: { label?: string }) {
-      const frame = useSidebarFrame()
+      const frame = useSidebar()
       onMount(() => frame.setOpen(true))
-      return <SidebarFrame.Sidebar aria-label={props.label}>Links</SidebarFrame.Sidebar>
+      return <Sidebar.Panel aria-label={props.label}>Links</Sidebar.Panel>
     }
 
     render(() => (
-      <MoraineProvider messages={{ sidebarFrame: { label: 'Navigation laterale' } }}>
-        <SidebarFrame isMobile>
+      <MoraineProvider messages={{ sidebar: { label: 'Navigation laterale' } }}>
+        <Sidebar isMobile>
           <OpenSidebar />
-        </SidebarFrame>
-        <SidebarFrame isMobile>
+        </Sidebar>
+        <Sidebar isMobile>
           <OpenSidebar label="Primary" />
-        </SidebarFrame>
+        </Sidebar>
       </MoraineProvider>
     ))
 

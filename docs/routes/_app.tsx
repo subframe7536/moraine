@@ -4,12 +4,12 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import { Button, MoraineProvider, Progress, SidebarFrame, useSidebarFrame } from '../../src'
+import { Button, MoraineProvider, Progress, Sidebar, useSidebar } from '../../src'
 import { createMediaQuery } from '../../src/utils'
 import { DOCS_FOCUS_RING_OFFSET_CLASS } from '../shared/docs-focus.recipe'
 import { DOCS_MOBILE_QUERY } from '../shared/docs-layout'
 
-import { DocsHeader, Sidebar, SidebarHeader } from './components/layout'
+import { DocsHeader, DocsSidebar, DocsSidebarHeader } from './components/layout'
 import { DOCS_MDX_COMPONENTS } from './components/markdown'
 import { getDocsPages } from './docs-route'
 import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
@@ -24,7 +24,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const { theme, updateTheme } = useTheme()
   const [paletteOpen, setPaletteOpen] = createSignal(false)
   const [routingFromPath, setRoutingFromPath] = createSignal<string>()
-  const [mainEl, setMainEl] = createSignal<HTMLDivElement>()
+  const [mainEl, setMainEl] = createSignal<HTMLElement>()
 
   const activePage = createMemo(() => {
     const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/$/g, '')
@@ -83,7 +83,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   })
 
   function DocsShell() {
-    const frame = useSidebarFrame()
+    const frame = useSidebar()
 
     return (
       <>
@@ -105,17 +105,17 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
         <div class="flex flex-1 min-h-0 w-full overflow-hidden">
           <Show when={!isLanding() || frame.isMobile()}>
-            <SidebarFrame.Sidebar data-docs-sidebar class="border-r-0 bg-background">
+            <Sidebar.Panel data-docs-sidebar class="border-r-0 bg-background">
               <Show when={frame.isMobile()}>
-                <SidebarFrame.SidebarHeader class="p-0 shrink-0">
-                  <SidebarHeader />
-                </SidebarFrame.SidebarHeader>
+                <Sidebar.Header class="p-0 shrink-0">
+                  <DocsSidebarHeader />
+                </Sidebar.Header>
               </Show>
-              <SidebarFrame.SidebarBody class="overscroll-contain">
-                <Sidebar pages={pages} activePage={committedPage} />
-              </SidebarFrame.SidebarBody>
+              <Sidebar.Content class="overscroll-contain">
+                <DocsSidebar pages={pages} activePage={committedPage} />
+              </Sidebar.Content>
               <Show when={frame.isMobile()}>
-                <SidebarFrame.SidebarFooter class="px-5 pb-5 pt-3">
+                <Sidebar.Footer class="px-5 pb-5 pt-3">
                   <Button
                     as="a"
                     href="https://github.com/subframe7536/moraine"
@@ -128,12 +128,14 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                   >
                     GitHub repository
                   </Button>
-                </SidebarFrame.SidebarFooter>
+                </Sidebar.Footer>
               </Show>
-            </SidebarFrame.Sidebar>
+            </Sidebar.Panel>
           </Show>
 
-          <SidebarFrame.Main
+          <Sidebar.Inset
+            id="main-content"
+            data-docs-main
             ref={(element) => setMainEl(element)}
             onClick={(event) => {
               if (
@@ -160,12 +162,12 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
               })
             }}
           >
-            <main id="main-content" class="min-w-0" data-docs-main>
+            <div class="min-w-0">
               <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
                 {props.children}
               </Suspense>
-            </main>
-          </SidebarFrame.Main>
+            </div>
+          </Sidebar.Inset>
         </div>
       </>
     )
@@ -184,13 +186,13 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <SidebarFrame
+      <Sidebar
         isMobile={isMobile()}
         class="flex-col overflow-hidden h-dvh max-h-dvh"
         scrollThreshold={4}
       >
         <DocsShell />
-      </SidebarFrame>
+      </Sidebar>
     </>
   )
 }
