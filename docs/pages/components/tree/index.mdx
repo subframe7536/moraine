@@ -1,0 +1,606 @@
+---
+title: Tree
+description: Browse hierarchical data with keyboard navigation, selection, cascading checkboxes, lazy loading, and virtualization through createTree.
+group: Navigation
+api:
+  path: src/components/tree/tree
+  parts: [Item, ItemTrigger, ItemCheckbox, ItemIcon, ItemLabel, ItemAction]
+search:
+  tags:
+    [
+      tree view,
+      treeview,
+      hierarchy,
+      file tree,
+      nested,
+      expand,
+      collapse,
+      checkbox,
+      lazy loading,
+      virtual,
+      createTree,
+      treeitem,
+    ]
+---
+
+import { Button, DropdownMenu, createTree } from '@src'
+import { Show, createComponent, createSignal } from 'solid-js'
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'subtle',
+      options: [
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Solid', value: 'solid' },
+      ],
+    },
+    { kind: 'switch', prop: 'trigger', label: 'Trigger', defaultValue: true },
+    { kind: 'switch', prop: 'icon', label: 'Icon', defaultValue: true },
+    { kind: 'switch', prop: 'checkable', label: 'Checkable', defaultValue: false },
+    { kind: 'switch', prop: 'action', label: 'Actions', defaultValue: false },
+    { kind: 'switch', prop: 'transition', label: 'Transition', defaultValue: true },
+    { kind: 'switch', prop: 'indentGuide', label: 'Indent guide', defaultValue: true },
+  ]}
+>
+  {(props) => {
+    const FILES = [
+      {
+        id: 'src',
+        name: 'src',
+        children: [
+          {
+            id: 'components',
+            name: 'components',
+            children: [
+              { id: 'button', name: 'button.tsx' },
+              { id: 'checkbox', name: 'checkbox.tsx' },
+              { id: 'tree', name: 'tree.tsx' },
+            ],
+          },
+          { id: 'index', name: 'index.ts' },
+        ],
+      },
+      { id: 'docs', name: 'docs', children: [{ id: 'guide', name: 'guide.md' }] },
+      { id: 'package', name: 'package.json' },
+      { id: 'license', name: 'LICENSE', disabled: true },
+    ]
+
+    const [status, setStatus] = createSignal('')
+
+    const tree = createTree({
+      items: () => FILES,
+      getKey: (node) => node.id,
+      getChildren: (node) => node.children,
+      getTextValue: (node) => node.name,
+      isDisabled: (node) => Boolean(node.disabled),
+      defaultExpandedKeys: ['src', 'components'],
+      defaultSelectedKeys: ['tree'],
+      get checkable() {
+        return Boolean(props.checkable)
+      },
+      get trigger() {
+        return Boolean(props.trigger)
+      },
+      getIcon(item) {
+        if (!props.icon) {
+          return undefined
+        }
+        if (!item.hasChildren) {
+          return 'i-lucide:file'
+        }
+        return item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
+      },
+    })
+
+    const actionRender = (item) => (
+      <>
+        <Show when={item.hasChildren}>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            leading="i-lucide:file-plus"
+            tabIndex={item.isFocused ? 0 : -1}
+            aria-label={`New file in ${item.textValue}`}
+            onClick={() => setStatus(`New file in ${item.textValue}`)}
+          />
+        </Show>
+        <DropdownMenu>
+          <DropdownMenu.Trigger
+            as={Button}
+            variant="ghost"
+            size="icon-xs"
+            leading="i-lucide:ellipsis"
+            tabIndex={item.isFocused ? 0 : -1}
+            aria-label={`More actions for ${item.textValue}`}
+          />
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'Rename',
+                icon: 'i-lucide:pencil',
+                onSelect: () => setStatus(`Rename ${item.textValue}`),
+              },
+              {
+                label: 'Delete',
+                icon: 'i-lucide:trash-2',
+                onSelect: () => setStatus(`Delete ${item.textValue}`),
+              },
+            ]}
+          />
+        </DropdownMenu>
+      </>
+    )
+
+    return (
+      <div class="max-w-sm w-full space-y-2">
+        {createComponent(tree.Tree, {
+          'aria-label': 'Project files',
+          get size() {
+            return props.size
+          },
+          get variant() {
+            return props.variant
+          },
+          get transition() {
+            return props.transition
+          },
+          get indentGuide() {
+            return props.indentGuide
+          },
+          get actionRender() {
+            return props.action ? actionRender : undefined
+          },
+        })}
+        <Show when={status()}>
+          <p class="text-xs text-muted-foreground">{status()}</p>
+        </Show>
+      </div>
+    )
+
+}}
+
+</Playground>
+
+## Anatomy
+
+<Anatomy
+  value={{
+    root: { slot: 'root', element: 'ul' },
+    children: [
+      {
+        part: 'tree.Item',
+        slot: 'item',
+        element: 'li',
+        children: [
+          {
+            slot: 'row',
+            element: 'div',
+            children: [
+              {
+                internal: 'guides',
+                element: 'span',
+                children: [{ slot: 'guide', element: 'span' }],
+              },
+              { part: 'tree.ItemTrigger', slot: 'trigger', element: 'span' },
+              {
+                part: 'tree.ItemCheckbox',
+                slot: 'checkbox',
+                element: 'button',
+                children: [{ slot: 'checkboxIcon' }],
+              },
+              { part: 'tree.ItemIcon', slot: 'icon' },
+              { part: 'tree.ItemLabel', slot: 'label', element: 'span' },
+              { part: 'tree.ItemAction', slot: 'action', element: 'div' },
+            ],
+          },
+          {
+            slot: 'content',
+            element: 'div',
+            children: [{ internal: 'group', element: 'ul', children: [{ part: 'tree.Item' }] }],
+          },
+        ],
+      },
+    ],
+  }}
+/>
+
+`tree.Tree` is the `tree` root. Each item is a `tree.Item` (`treeitem`) that holds a `row` and,
+when it has children, a `content` wrapper around a nested `group`. With `virtualRender`, there
+are no nested groups: every visible item is a flat row inside the root, which is also the scroll
+container.
+
+## Usage
+
+Use Tree for hierarchical data that users expand, select, or check, such as files, categories, or
+permissions. Use [List](/components/list) for flat data, [Accordion](/components/accordion) to
+disclose sections of content, and [SidebarFrame](/components/sidebar-frame) or
+[NavigationMenu](/components/navigation-menu) for site navigation.
+
+Tree has no static component. Call `createTree(options)` inside a component, then render the
+bound `tree.Tree`. The instance owns all state, so each call creates an independent tree.
+
+```tsx
+import { createTree } from 'moraine'
+
+interface FileNode {
+  id: string
+  name: string
+  children?: FileNode[]
+}
+
+export function Files(props: { files: FileNode[] }) {
+  const tree = createTree<FileNode>({
+    items: () => props.files,
+    getKey: (node) => node.id,
+    getChildren: (node) => node.children,
+    getTextValue: (node) => node.name,
+  })
+
+  return <tree.Tree aria-label="Project files" />
+}
+```
+
+Always name the tree with `aria-label` or `aria-labelledby` on `tree.Tree`.
+
+### Options and props
+
+Behavior is configured on `createTree`; presentation is configured on `tree.Tree`. The generated
+API reference below lists `tree.Tree` and part props. `createTree` options are listed here.
+
+| Concern    | `createTree` options                                                                                                    |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Data       | `items` (accessor), `getKey`, `getChildren`, `getTextValue`, `isDisabled`, `isLeaf`                                     |
+| Expansion  | `expandedKeys`, `defaultExpandedKeys`, `onExpandedChange`, `expandOnClick` (`true`), `trigger` (`true`)                 |
+| Selection  | `selectionMode` (`'single'`, also `'multiple'` or `'none'`), `selectedKeys`, `defaultSelectedKeys`, `onSelectionChange` |
+| Checking   | `checkable` (`false`), `checkCascade` (`true`), `checkedKeys`, `defaultCheckedKeys`, `onCheckedChange`                  |
+| Lazy loads | `loadChildren`, `onLoadChildrenComplete`, `onLoadChildrenError`                                                         |
+| Other      | `getIcon` (default item icon), `typeahead` (`true`), `onAction` (<kbd>Enter</kbd>)                                      |
+
+| Concern      | `tree.Tree` props                                                                    |
+| ------------ | ------------------------------------------------------------------------------------ |
+| Rendering    | `itemRender`, `actionRender`, `virtualRender`, `scrollToItem`                        |
+| Icons        | `triggerIcon` (`'icon-chevron-right'`), `loadingIcon` (`'icon-loading'`)             |
+| Presentation | `size`, `variant`, `indentGuide`, `transition`, `unmountOnHide`, `classes`, `styles` |
+
+`createTree` reads options reactively. Pass changing or controlled values as getters, for example
+`get selectedKeys() { return selected() }`; a plain value is read once.
+
+Keys are strings returned by `getKey` and must be unique across the whole tree. If a key repeats,
+the first occurrence wins. `getTextValue` provides the accessible name and the typeahead text; it
+defaults to the item itself for strings and to the key otherwise.
+
+### Instance
+
+`createTree` returns one object with reactive state, methods, and bound parts. Read state in JSX or
+effects like any signal.
+
+| Member                                                                               | Description                                                                         |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `expandedKeys`, `selectedKeys`, `checkedKeys`, `loadingKeys`                         | Current keys, read-only.                                                            |
+| `focusedKey`                                                                         | Key of the item that holds focus while focus is inside the tree.                    |
+| `flattenedItems`                                                                     | Visible items in display order.                                                     |
+| `expand`, `collapse`, `toggle`, `expandAll`, `collapseAll`                           | Change expansion by key. Disabled branches are skipped.                             |
+| `expandTo(key)`                                                                      | Expands every ancestor so the item becomes visible.                                 |
+| `select`, `deselect`, `toggleSelect`, `selectAll`, `clearSelection`                  | Change selection by key. `selectAll` only works in `'multiple'` mode.               |
+| `check`, `uncheck`, `toggleCheck`                                                    | Change the check state by key, cascading when `checkCascade` is on.                 |
+| `focus(key)`                                                                         | Expands collapsed ancestors, scrolls the item into view, and moves DOM focus to it. |
+| `getItem(key)`, `isLoading(key)`                                                     | Read one item handle or its loading state.                                          |
+| `Tree`, `Item`, `ItemTrigger`, `ItemCheckbox`, `ItemIcon`, `ItemLabel`, `ItemAction` | Components bound to this instance.                                                  |
+
+`getItem(key)` returns a stable item handle (`TreeT.ItemInstance<T>`), and `itemRender`,
+`actionRender`, `getIcon`, and `onAction` receive the same handle. Its fields are reactive, and it
+carries per-item actions:
+
+- Data: `key`, `raw`, `textValue`, `parentKey`, `children`.
+- Position: `level` (one-based), `posInSet`, `setSize`, `isLastChild`, `hasChildren`, `isLeaf`.
+- State: `isExpanded`, `isSelected`, `isFocused`, `isLoading`, `isDisabled`, `checkedState`
+  (`'checked'`, `'unchecked'`, or `'indeterminate'`).
+- Actions: `expand()`, `collapse()`, `toggle()`, `select()`, `toggleSelect()`, `toggleCheck()`,
+  `focus()`.
+
+Disabled items are skipped by keyboard navigation and cannot be focused, selected, expanded, or
+checked.
+
+### Expansion
+
+Use `defaultExpandedKeys` for uncontrolled expansion, or `expandedKeys` with `onExpandedChange` to
+own it.
+
+```tsx
+const [expanded, setExpanded] = createSignal(['src'])
+
+const tree = createTree({
+  items,
+  getKey,
+  getChildren,
+  get expandedKeys() {
+    return expanded()
+  },
+  onExpandedChange: setExpanded,
+})
+```
+
+Clicking a branch row toggles it, and the trigger chevron always toggles. Set `expandOnClick: false`
+so row clicks only select. Set `trigger: false` to render no chevron; rows then always toggle,
+whatever `expandOnClick` says.
+
+Branch height animates by default; set `transition={false}` on `tree.Tree` to turn it off.
+Collapsed branches unmount their children unless `unmountOnHide={false}`. Neither prop applies
+with `virtualRender`, which has no nested groups.
+
+### Selection
+
+`selectionMode` defaults to `'single'`.
+
+- `'single'`: clicking a row selects only that row.
+- `'multiple'`: <kbd>Ctrl</kbd> or <kbd>Cmd</kbd> click toggles a row, <kbd>Shift</kbd> click
+  selects a range of visible rows, and <kbd>Ctrl</kbd>+<kbd>A</kbd> selects every enabled item,
+  including items inside collapsed branches.
+- `'none'`: rows cannot be selected, and `aria-selected` is omitted.
+
+Control selection with `selectedKeys` and `onSelectionChange`.
+
+### Checkboxes
+
+Set `checkable: true` to give every item a check state. The default item then renders a
+`tree.ItemCheckbox` in each row, and each `treeitem` exposes `aria-checked`.
+
+With `checkCascade` on (the default), checking a branch checks its enabled descendants, and a
+branch whose descendants are partly checked becomes `indeterminate`. Set `checkCascade: false` to
+check each item independently.
+
+`checkedKeys` and `onCheckedChange` use the same keys, including keys of items that have not
+loaded yet. A checked key under a lazy branch applies once its item loads. With `checkCascade` on,
+children loaded under a checked branch start checked.
+
+In a custom `itemRender`, place `tree.ItemCheckbox` yourself. It follows the tree `size` and the
+item's check state. It is hidden from assistive technology and removed from the tab order because
+the `treeitem` carries `aria-checked`; <kbd>Space</kbd> on the item toggles it. Change its glyphs
+with `checkedIcon` and `indeterminateIcon`.
+
+```tsx
+<tree.Tree
+  aria-label="Permissions"
+  itemRender={(item) => (
+    <tree.Item item={item}>
+      <tree.ItemTrigger />
+      <tree.ItemCheckbox />
+      <tree.ItemLabel />
+    </tree.Item>
+  )}
+/>
+```
+
+### Lazy children
+
+Provide `loadChildren` to fetch children on demand. An item becomes a lazy branch when
+`getChildren` returns `undefined` for it and `isLeaf` does not return `true`. Return an empty
+array from `getChildren`, or mark the item with `isLeaf`, when it can never have children.
+
+Expanding a lazy branch waits for the promise. While it loads, the trigger shows `loadingIcon`,
+the item sets `aria-busy`, and its key appears in `loadingKeys`. On success the branch expands and
+`onLoadChildrenComplete` runs. On failure `onLoadChildrenError` runs and the branch stays
+collapsed, so expanding it again retries. Lazy keys in `defaultExpandedKeys` or `expandedKeys` load
+the same way.
+
+Loaded children are cached per key while `items()` keeps returning the same item object for that
+key. Returning a new object for a key drops its cached children and loads them again: right away
+when the branch is expanded, otherwise on its next expansion.
+
+### Virtualization
+
+Pass `virtualRender` from `createListVirtualizer` to render only the rows near the viewport. The
+`tree.Tree` root becomes the scroll container, so give it a bounded height and `overflow-auto`.
+Pass `scrollToItem` so keyboard focus and `tree.focus(key)` can reach rows outside the window.
+
+```tsx
+import { createTree } from 'moraine'
+import type { TreeT } from 'moraine'
+import { createListVirtualizer } from 'moraine/virtualizer'
+
+const tree = createTree<FileNode>({ items, getKey, getChildren })
+const virtualizer = createListVirtualizer<TreeT.ItemInstance<FileNode>>({
+  estimateSize: () => 32,
+  getItemKey: (item) => item.key,
+})
+
+<tree.Tree
+  aria-label="Files"
+  virtualRender={virtualizer.virtualRender}
+  scrollToItem={(_item, index) => virtualizer.scrollToIndex(index)}
+  class="h-80 overflow-auto"
+/>
+```
+
+Expanded branches are flattened into one list. Every row keeps `aria-level`, `aria-posinset`, and
+`aria-setsize`, so assistive technology still reads the full hierarchy.
+
+### Custom items
+
+`itemRender` renders one visible item and receives its item handle. Return a `tree.Item` with
+`item={item}` as the root, then compose the bound parts inside it in this order: `tree.ItemTrigger`,
+`tree.ItemCheckbox`, `tree.ItemIcon`, `tree.ItemLabel`, your own content, and `tree.ItemAction` last.
+
+Without `itemRender`, the default item renders the trigger, the checkbox when `checkable`, the icon
+from `getIcon`, the label, and the `actionRender` actions.
+
+- `tree.ItemTrigger` toggles the branch and is hidden from assistive technology. Pass `icon` to
+  change the chevron for one item, or `children` to replace it.
+- `tree.ItemLabel` shows `textValue`. Pass `children` to render other content.
+- `tree.ItemIcon` renders the `icon` you pass. Use `getIcon` instead when you keep the default item.
+
+### Icons
+
+`getIcon` returns the prefix icon of the default item. It receives the item handle, so the icon
+can follow `hasChildren`, `isExpanded`, or `isLoading`. Return `undefined` for no icon.
+
+```tsx
+const tree = createTree({
+  items,
+  getKey,
+  getChildren,
+  getIcon: (item) => {
+    if (!item.hasChildren) {
+      return 'i-lucide:file'
+    }
+    return item.isExpanded ? 'i-lucide:folder-open' : 'i-lucide:folder'
+  },
+})
+```
+
+On `tree.Tree`, `triggerIcon` replaces the chevron of every item and `loadingIcon` replaces the
+glyph shown while a branch loads.
+
+### Row actions
+
+`actionRender` adds trailing controls to every row of the default item, inside `tree.ItemAction`.
+Clicks inside the actions never select or expand the item. Actions are always visible; to reveal
+them on hover, style the `action` slot with the `group/tree-row` group that every row sets.
+
+The tree keeps a single tab stop and does not manage focus inside actions. Set
+`tabIndex={item.isFocused ? 0 : -1}` on each control so <kbd>Tab</kbd> from the focused item
+reaches only that row's actions.
+
+```tsx
+<tree.Tree
+  aria-label="Files"
+  classes={{
+    action: 'opacity-0 group-hover/tree-row:opacity-100 focus-within:opacity-100',
+  }}
+  actionRender={(item) => (
+    <Button
+      variant="ghost"
+      size="icon-xs"
+      leading="i-lucide:trash-2"
+      tabIndex={item.isFocused ? 0 : -1}
+      aria-label={`Delete ${item.textValue}`}
+    />
+  )}
+/>
+```
+
+### Indentation and guides
+
+Each row indents by its depth times `--mo-tree-indent`. Set the geometry variables in the
+`tree.Tree` `style`; every item reads them from the root.
+
+| Variable           | Default        | Description                                       |
+| ------------------ | -------------- | ------------------------------------------------- |
+| `--mo-tree-indent` | `1.25rem`      | Indentation added per nesting level.              |
+| `--mo-tree-gap`    | Size dependent | Gap between the trigger, icon, and label.         |
+| `--mo-tree-gutter` | `0.25rem`      | Horizontal margin between rows and the tree edge. |
+| `--mo-tree-pad`    | `0.5rem`       | Row start padding before indentation.             |
+
+```tsx
+<tree.Tree
+  aria-label="Files"
+  style={{
+    '--mo-tree-indent': '1.5rem',
+    '--mo-tree-gap': '0.25rem',
+  }}
+/>
+```
+
+Indent guides are on by default. Each row renders one `guide` element per ancestor level inside an
+`aria-hidden` wrapper, in nested and virtual mode alike. Guides follow right-to-left layouts and
+stay visible in forced-colors mode. Restyle them with `classes.guide`, or set `indentGuide={false}`
+to render none.
+
+### Keyboard interaction
+
+Only one item is in the tab order at a time. Arrow keys move focus between visible items and skip
+disabled ones. In right-to-left layouts, <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> swap.
+
+| Key                                                        | Action                                                                                                                 |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd> / <kbd>ArrowUp</kbd>                  | Moves focus to the next or previous visible item.                                                                      |
+| <kbd>ArrowRight</kbd>                                      | Expands a collapsed branch; on an expanded branch, moves focus to its first child.                                     |
+| <kbd>ArrowLeft</kbd>                                       | Collapses an expanded branch; otherwise moves focus to the parent.                                                     |
+| <kbd>Home</kbd> / <kbd>End</kbd>                           | Moves focus to the first or last visible item.                                                                         |
+| <kbd>Enter</kbd>                                           | Calls `onAction`. Without it, selects the item, or toggles the branch when `selectionMode` is `'none'`.                |
+| <kbd>Space</kbd>                                           | Toggles the check state when `checkable`; toggles selection in `'multiple'` mode; selects the item in `'single'` mode. |
+| <kbd>Shift</kbd> + arrows, <kbd>Home</kbd>, <kbd>End</kbd> | Moves focus and extends the selection in `'multiple'` mode.                                                            |
+| <kbd>Ctrl</kbd>+<kbd>A</kbd> / <kbd>Cmd</kbd>+<kbd>A</kbd> | Selects every enabled item in `'multiple'` mode.                                                                       |
+| <kbd>\*</kbd>                                              | Expands every enabled sibling of the focused item.                                                                     |
+| Printable characters                                       | Moves focus to the next item whose text starts with the typed text. Turn off with `typeahead: false`.                  |
+
+## Examples
+
+### Browse project files
+
+Describe nested data with `getKey` and `getChildren`, then render `tree.Tree`. Clicking a branch
+row or its chevron toggles it.
+
+<Preview path="./basic" />
+
+### Drive expansion from page state
+
+Control `expandedKeys` with `onExpandedChange`, and call `expandAll`, `collapseAll`, or `expandTo`
+from toolbar buttons.
+
+<Preview path="./expanded" />
+
+### Expand only from the chevron
+
+Set `expandOnClick: false` so clicking a row selects it and only the chevron expands or collapses
+it.
+
+<Preview path="./trigger-expand" />
+
+### Select several folders
+
+Set `selectionMode: 'multiple'` and `expandOnClick: false` so row clicks only change the
+selection. Use <kbd>Ctrl</kbd>, <kbd>Cmd</kbd>, or <kbd>Shift</kbd> clicks to select more.
+
+<Preview path="./selection" />
+
+### Grant permissions with cascading checkboxes
+
+Set `checkable: true` and `selectionMode: 'none'`. Checking a group checks everything inside it,
+and partly checked groups show an indeterminate state.
+
+<Preview path="./checkable" />
+
+### Load folders on demand
+
+Provide `loadChildren` and mark files with `isLeaf`. Each folder loads the first time it expands
+and shows a loading icon until its children arrive.
+
+<Preview path="./async-load" />
+
+### Render ten thousand rows
+
+Pass `virtualRender` and `scrollToItem` from `createListVirtualizer`, and give the tree a bounded
+height. Expanded branches join the same virtual list.
+
+<Preview path="./virtual" />
+
+### Add counts and custom icons
+
+Return a `tree.Item` from `itemRender` and compose the bound parts with your own content, such as a
+`Badge` with a count and a `tree.ItemIcon` per item.
+
+<Preview path="./custom-item" />
+
+### Add row actions
+
+Pass `actionRender` to add a button and a dropdown menu to each row. The `action` slot hides them
+until the row is hovered, focused, or its menu is open. Each control sets
+`tabIndex={item.isFocused ? 0 : -1}`, so <kbd>Tab</kbd> from an item reaches only its actions.
+
+<Preview path="./item-action" />

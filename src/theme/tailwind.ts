@@ -121,6 +121,7 @@ export const moraineTailwind = plugin(
           'instant-motion',
           'invalid',
           'inverted',
+          'leaf',
           'limited',
           'loading',
           'mobile',

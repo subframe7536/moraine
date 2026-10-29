@@ -128,6 +128,17 @@ async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
   return candidates[0]!
 }
 
+/** Components whose public parts are members of a `create*` factory result. */
+export const FACTORY_COMPONENTS: Readonly<
+  Record<
+    string,
+    { factory: string; rootMember: string; fixedParts?: readonly FrontmatterApiPart[] }
+  >
+> = {
+  form: { factory: 'createForm', rootMember: 'Form', fixedParts: [{ name: 'Field' }] },
+  tree: { factory: 'createTree', rootMember: 'Tree' },
+}
+
 function categoryFromPath(sourcePath: string): string {
   const match = sourcePath.match(/^src\/components\//)
   if (!match) {
@@ -186,18 +197,22 @@ export async function loadApiRegistry(
     }
     const recipePath = recipeExists ? recipeCandidate : undefined
 
-    if (header.kind === 'composite' && key !== 'form' && !frontmatter.api.parts) {
+    const factoryComponent = FACTORY_COMPONENTS[key]
+    if (header.kind === 'composite' && !factoryComponent?.fixedParts && !frontmatter.api.parts) {
       throw new Error(`[api-doc] Composite component "${key}" must declare frontmatter.api.parts.`)
     }
 
-    const rootAccess: AccessApi =
-      key === 'form'
-        ? { kind: 'factory-member', factory: 'createForm', member: 'Form' }
-        : { kind: 'export', name: header.componentName }
+    const rootAccess: AccessApi = factoryComponent
+      ? {
+          kind: 'factory-member',
+          factory: factoryComponent.factory,
+          member: factoryComponent.rootMember,
+        }
+      : { kind: 'export', name: header.componentName }
     const parts: RegisteredPart[] = [
       {
-        id: key === 'form' ? 'form-form' : key,
-        name: key === 'form' ? 'form.Form' : header.componentName,
+        id: factoryComponent ? `${key}-${toKebabCase(factoryComponent.rootMember)}` : key,
+        name: factoryComponent ? `${key}.${factoryComponent.rootMember}` : header.componentName,
         access: rootAccess,
         typesPath,
         namespaceName: header.namespaceName,
@@ -206,8 +221,9 @@ export async function loadApiRegistry(
       },
     ]
 
-    const declaredParts =
-      key === 'form' ? [{ name: 'Field' }] : (frontmatter.api.parts ?? []).map(partRegistration)
+    const declaredParts = (factoryComponent?.fixedParts ?? frontmatter.api.parts ?? []).map(
+      partRegistration,
+    )
     for (const part of declaredParts) {
       const partBasePath = part.path ?? basePath
       const partTypesPath = `${partBasePath}.types.ts`
@@ -227,11 +243,10 @@ export async function loadApiRegistry(
       }
       parts.push({
         id: `${key}-${toKebabCase(part.name)}`,
-        name: key === 'form' ? `form.${part.name}` : `${header.componentName}.${part.name}`,
-        access:
-          key === 'form'
-            ? { kind: 'factory-member', factory: 'createForm', member: part.name }
-            : { kind: 'attached', root: header.componentName, member: part.name },
+        name: factoryComponent ? `${key}.${part.name}` : `${header.componentName}.${part.name}`,
+        access: factoryComponent
+          ? { kind: 'factory-member', factory: factoryComponent.factory, member: part.name }
+          : { kind: 'attached', root: header.componentName, member: part.name },
         typesPath: path.normalize(partTypesPath),
         namespaceName: partHeader.namespaceName,
         propsTypeName,

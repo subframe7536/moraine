@@ -28,6 +28,17 @@ describe('Checkbox', () => {
     expect(ref).toBeInstanceOf(HTMLInputElement)
     expect(ref?.type).toBe('checkbox')
   })
+  test('applies tabIndex to the focusable control instead of the root', () => {
+    const screen = render(() => <Checkbox tabIndex={-1} aria-hidden="true" label="Skipped" />)
+
+    expect(
+      screen.container.querySelector('[data-slot="checkbox-control"]')?.getAttribute('tabindex'),
+    ).toBe('-1')
+    expect(screen.container.querySelector('[data-slot="checkbox"]')?.hasAttribute('tabindex')).toBe(
+      false,
+    )
+  })
+
   test('renders label and description with accessible checkbox input', () => {
     const screen = render(() => (
       <Checkbox label="Accept terms" description="Required to continue" />

@@ -33,15 +33,21 @@ export const checkboxDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
+/** Checkbox control styling, shared with bound checkbox controls (e.g. `tree.ItemCheckbox`). */
+export const CHECKBOX_CONTROL_CLASS = `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
+
+/** Check or indeterminate icon inside the indicator. */
+export const CHECKBOX_ICON_CLASS = 'shrink-0 size-full'
+
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   CheckboxStyleSlot,
   CheckboxStyleVariants
 >('checkbox', {
   base: {
     root: 'flex items-start relative',
-    control: `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`,
+    control: CHECKBOX_CONTROL_CLASS,
     indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
-    icon: 'shrink-0 size-full',
+    icon: CHECKBOX_ICON_CLASS,
     wrapper: 'flex flex-col gap-0.5 w-full',
     container: 'flex items-center',
     label:

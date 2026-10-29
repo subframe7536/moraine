@@ -657,6 +657,7 @@ export class TypeExtractor {
     module: ParsedModule,
     nsNode: ESTree.TSModuleDeclaration | undefined,
     declaration: ESTree.Declaration,
+    declarationModule: ParsedModule,
     typeArguments: readonly ESTree.TSType[],
     substitutions?: Map<string, string>,
     applyDefaults = true,
@@ -670,21 +671,25 @@ export class TypeExtractor {
     const resolved = new Map(substitutions)
     for (let index = 0; index < parameters.length; index++) {
       const parameter = parameters[index]
-      const argument = typeArguments[index] ?? (applyDefaults ? parameter?.default : undefined)
+      const explicit = typeArguments[index]
+      const argument = explicit ?? (applyDefaults ? parameter?.default : undefined)
       if (!parameter || !argument) {
         continue
       }
+      // Explicit arguments are written in the referencing module; defaults live in the
+      // declaration's own module, so their source text must be read from there.
+      const argumentModule = explicit ? module : declarationModule
       const parameterName =
         typeof parameter.name === 'string'
           ? parameter.name
           : typeof parameter.name === 'string'
             ? parameter.name
             : (getIdentifierName(parameter.name) ?? '')
-      let formattedArgument = TypeExtractor.#formatTypeText(module.source, argument)
+      let formattedArgument = TypeExtractor.#formatTypeText(argumentModule.source, argument)
       if (substitutions?.has(formattedArgument)) {
         formattedArgument = substitutions.get(formattedArgument)!
       } else {
-        const alias = await this.resolveSymbol(module, formattedArgument, nsNode)
+        const alias = await this.resolveSymbol(argumentModule, formattedArgument, nsNode)
         if (alias?.node.type === 'TSTypeAliasDeclaration') {
           formattedArgument = TypeExtractor.#formatTypeText(
             alias.module.source,
@@ -750,6 +755,7 @@ export class TypeExtractor {
                   module,
                   nsNode,
                   sym.node,
+                  sym.module,
                   typeArgs,
                   substitutions,
                   false,
@@ -860,6 +866,7 @@ export class TypeExtractor {
           module,
           nsNode,
           sym.node,
+          sym.module,
           typeArgs,
           substitutions,
         )

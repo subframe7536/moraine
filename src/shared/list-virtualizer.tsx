@@ -136,25 +136,28 @@ export function createListVirtualizer<
               index < sharedLength && !Object.is(estimate, currentEstimates[index]),
           ))
 
+      if (initialized) {
+        const nextEstimateByKey = new Map(nextKeys.map((key, index) => [key, nextEstimates[index]]))
+        currentKeys.forEach((key, index) => {
+          const nextEstimate = nextEstimateByKey.get(key)
+          if (nextEstimate === undefined || !Object.is(nextEstimate, currentEstimates[index])) {
+            virtualizer.itemSizeCache.delete(key)
+          }
+        })
+      }
       currentEntries = entries
       currentKeys = nextKeys
       currentEstimates = nextEstimates
       initialized = true
       virtualizerOptions.getScrollElement()
-      virtualizer.setOptions(virtualizerOptions)
-
-      if (layoutChanged) {
-        const measuredElements = [...virtualizer.elementsCache.values()]
-        virtualizer.measure()
-        queueMicrotask(() => {
-          virtualizer.measureElement(null)
-          for (const element of measuredElements) {
-            if (element.isConnected) {
-              virtualizer.measureElement(element)
-            }
-          }
-        })
-      }
+      // A new `getItemKey` identity is what makes TanStack recompute measurements: its
+      // `getMeasurementOptions` memo depends on `count`, `getItemKey`, and other options but not on
+      // the keys themselves. Recheck this when upgrading `@tanstack/virtual-core`.
+      virtualizer.setOptions(
+        layoutChanged
+          ? { ...virtualizerOptions, getItemKey: (index: number) => currentKeys[index] ?? index }
+          : virtualizerOptions,
+      )
 
       if (mounted()) {
         virtualizer._willUpdate()
@@ -227,13 +230,13 @@ export function createListVirtualizer<
         <For each={virtualItems}>
           {(virtualItem) => {
             const row = createMemo(
-              () => ({
-                index: virtualItem.index,
-                item: props.entries[virtualItem.index]!,
-              }),
+              () => {
+                const entry = props.entries[virtualItem.index]
+                return entry === undefined ? undefined : { index: virtualItem.index, item: entry }
+              },
               undefined,
               {
-                equals: (prev, next) => prev?.index === next.index && prev?.item === next.item,
+                equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
               },
             )
 

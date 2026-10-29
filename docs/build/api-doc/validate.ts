@@ -1,3 +1,4 @@
+import { FACTORY_COMPONENTS } from './registry.ts'
 import type { ComponentApi } from './types.ts'
 
 function validateComponentApi(component: ComponentApi): string[] {
@@ -31,9 +32,16 @@ function validateComponentApi(component: ComponentApi): string[] {
       }
       propNames.add(prop.name)
     }
-    if (component.key === 'form') {
-      if (part.access.kind !== 'factory-member' || part.access.factory !== 'createForm') {
-        addError('Form parts must be createForm factory members.', part.id)
+    const factoryComponent = FACTORY_COMPONENTS[component.key]
+    if (factoryComponent) {
+      if (
+        part.access.kind !== 'factory-member' ||
+        part.access.factory !== factoryComponent.factory
+      ) {
+        addError(
+          `${component.name} parts must be ${factoryComponent.factory} factory members.`,
+          part.id,
+        )
       }
     }
   }
