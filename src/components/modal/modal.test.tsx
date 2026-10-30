@@ -1156,63 +1156,87 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('reference-counts scroll locking with scrollbar compensation and exact style restoration', async () => {
-    const innerWidthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth')
-    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(
-      document.documentElement,
-      'clientWidth',
-    )
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1000 })
-    Object.defineProperty(document.documentElement, 'clientWidth', {
-      configurable: true,
-      value: 980,
-    })
-    document.body.style.overflow = 'auto'
-    document.body.style.paddingRight = '4px'
-    const [showInner, setShowInner] = createSignal(true)
-    const screen = render(() => (
-      <>
-        <Modal defaultOpen>
-          <Modal.Portal>
-            <Modal.Content>
-              <span>Outer</span>
-            </Modal.Content>
-          </Modal.Portal>
-        </Modal>
-        <Show when={showInner()}>
+  test.each([
+    ['reserves the scrollbar gutter', true, '4px'],
+    ['pads the body when the gutter is ignored', false, '24px'],
+  ] as const)(
+    'reference-counts scroll locking and %s without layout shift',
+    async (_, gutterSupported, lockedPadding) => {
+      const html = document.documentElement
+      // Model a 20px classic viewport scrollbar that disappears when the body hides overflow.
+      Object.defineProperty(html, 'offsetWidth', {
+        configurable: true,
+        get: () =>
+          document.body.style.overflow === 'hidden' &&
+          (!gutterSupported || html.style.getPropertyValue('scrollbar-gutter') !== 'stable')
+            ? 1000
+            : 980,
+      })
+      html.style.setProperty('scrollbar-gutter', 'auto')
+      document.body.style.overflow = 'auto'
+      document.body.style.paddingRight = '4px'
+      const [showInner, setShowInner] = createSignal(true)
+      const screen = render(() => (
+        <>
           <Modal defaultOpen>
             <Modal.Portal>
               <Modal.Content>
-                <span>Inner</span>
+                <span>Outer</span>
               </Modal.Content>
             </Modal.Portal>
           </Modal>
-        </Show>
-      </>
+          <Show when={showInner()}>
+            <Modal defaultOpen>
+              <Modal.Portal>
+                <Modal.Content>
+                  <span>Inner</span>
+                </Modal.Content>
+              </Modal.Portal>
+            </Modal>
+          </Show>
+        </>
+      ))
+      await Promise.resolve()
+
+      expect(document.body.style.overflow).toBe('hidden')
+      expect(html.style.getPropertyValue('scrollbar-gutter')).toBe('stable')
+      expect(document.body.style.paddingRight).toBe(lockedPadding)
+
+      setShowInner(false)
+      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.body.style.paddingRight).toBe(lockedPadding)
+
+      screen.unmount()
+      expect(document.body.style.overflow).toBe('auto')
+      expect(html.style.getPropertyValue('scrollbar-gutter')).toBe('auto')
+      expect(document.body.style.paddingRight).toBe('4px')
+
+      Reflect.deleteProperty(html, 'offsetWidth')
+      html.style.removeProperty('scrollbar-gutter')
+      document.body.style.overflow = ''
+      document.body.style.paddingRight = ''
+    },
+  )
+
+  test('locks <html> instead of <body> when <html> is the page scroller', async () => {
+    const html = document.documentElement
+    html.style.overflowY = 'auto'
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Portal>
+          <Modal.Content>Content</Modal.Content>
+        </Modal.Portal>
+      </Modal>
     ))
     await Promise.resolve()
 
-    expect(document.body.style.overflow).toBe('hidden')
-    expect(document.body.style.paddingRight).toBe('24px')
-
-    setShowInner(false)
-    expect(document.body.style.overflow).toBe('hidden')
-    expect(document.body.style.paddingRight).toBe('24px')
+    expect(html.style.overflow).toBe('hidden')
+    expect(document.body.style.overflow).toBe('')
 
     screen.unmount()
-    expect(document.body.style.overflow).toBe('auto')
-    expect(document.body.style.paddingRight).toBe('4px')
-
-    if (innerWidthDescriptor) {
-      Object.defineProperty(window, 'innerWidth', innerWidthDescriptor)
-    }
-    if (clientWidthDescriptor) {
-      Object.defineProperty(document.documentElement, 'clientWidth', clientWidthDescriptor)
-    } else {
-      Reflect.deleteProperty(document.documentElement, 'clientWidth')
-    }
-    document.body.style.overflow = ''
-    document.body.style.paddingRight = ''
+    expect(html.style.overflow).toBe('')
+    expect(html.style.overflowY).toBe('auto')
+    html.style.overflowY = ''
   })
 
   test('prevents the handled Escape event when dismissing the top modal', async () => {
