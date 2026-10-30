@@ -224,7 +224,7 @@ describe('Table', () => {
     ))
 
     expect(slot(container, 'row')?.className).toContain(
-      '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50',
+      '[&:nth-child(even):not([aria-rowindex]):not([data-selected])]:bg-muted/50',
     )
     expect(slot(container, 'row')?.className).toContain(
       '[&[data-even]:not([data-selected])]:bg-muted/50',
@@ -252,6 +252,40 @@ describe('Table', () => {
     )
     const striped = (row: Element) => selectors.some((selector) => row.matches(selector))
     expect([...container.querySelectorAll('tbody tr')].map(striped)).toEqual([
+      false,
+      true,
+      false,
+      true,
+    ])
+  })
+
+  test('stripes rows with aria-rowindex by data-even instead of DOM position', () => {
+    const { container } = render(() => (
+      <Table striped>
+        <Table.Body>
+          {/* Leading spacer, as the table virtualizer renders it. */}
+          <tr aria-hidden="true" />
+          <For each={[0, 1, 2, 3]}>
+            {(index) => (
+              <Table.Row
+                data-index={index}
+                aria-rowindex={index + 1}
+                data-even={index % 2 === 1 ? '' : undefined}
+              >
+                <Table.Cell>Row {index}</Table.Cell>
+              </Table.Row>
+            )}
+          </For>
+        </Table.Body>
+      </Table>
+    ))
+
+    const selectors = TABLE_STRIPED_ROW_CLASS.split(' ').map((token) =>
+      token.slice(2, token.lastIndexOf(']:')),
+    )
+    const striped = (row: Element) => selectors.some((selector) => row.matches(selector))
+    // The spacer shifts DOM parity: row 0 is the 2nd child but must not be striped.
+    expect([...container.querySelectorAll('tbody tr[data-index]')].map(striped)).toEqual([
       false,
       true,
       false,

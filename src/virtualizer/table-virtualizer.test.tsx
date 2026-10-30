@@ -766,11 +766,6 @@ describe('createTableVirtualizer', () => {
           }`,
       )
     expect(markers()).toEqual(['0', '1 even'])
-    expect(
-      [...screen.container.querySelectorAll('tr[data-index]')].every((row) =>
-        row.hasAttribute('data-virtual-row'),
-      ),
-    ).toBe(true)
 
     // A window that starts one row later keeps each row's parity.
     emitOffset?.(20, false)

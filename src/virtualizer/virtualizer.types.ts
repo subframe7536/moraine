@@ -24,9 +24,10 @@ export type VirtualRowProps<TRowElement extends HTMLElement = HTMLElement> = Omi
 
 /** Row attributes from a table virtualizer. */
 export type TableVirtualRowProps = VirtualRowProps<HTMLTableRowElement> & {
-  /** Set on every row; `Table` stripes it from `data-even` instead of DOM order. */
-  'data-virtual-row'?: string
-  /** Set on odd indexes (the 2nd, 4th, ... rows), for striping. */
+  /**
+   * Set on odd indexes (the 2nd, 4th, ... rows), for striping. `Table` stripes rows that carry
+   * `aria-rowindex` by this marker instead of DOM order.
+   */
   'data-even'?: string
   /** Set on the last entry, whose trailing spacer row is the last child. */
   'data-last'?: string

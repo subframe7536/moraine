@@ -480,7 +480,6 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
               return current.index + sections().headerRows + 1
             },
             'data-index': current.index,
-            'data-virtual-row': '',
             'data-even': current.index % 2 === 1 ? '' : undefined,
             get 'data-last'() {
               return current.index === props.entries.length - 1 ? '' : undefined
