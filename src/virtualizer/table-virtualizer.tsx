@@ -7,42 +7,114 @@ import {
   createMemo,
   createRenderEffect,
   createSignal,
+  mergeProps,
   on,
   onCleanup,
 } from 'solid-js'
 
-import type { TableVirtualRenderProps } from './table-virtual-render'
+import type {
+  TableVirtualColumnLayout,
+  TableVirtualColumnWindow,
+  TableVirtualRenderProps,
+} from './table-virtual-render'
 import {
   attachRowMeasurement,
+  createSharedElementOffsetObserver,
   createVirtualRow,
   createVirtualizerController,
 } from './virtualizer-core'
 import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
 
-export type TableVirtualizerOptions<TItem> = Omit<
+/** Options of the horizontal column virtualizer. */
+export type TableVirtualizerColumnOptions<TColumn> = Omit<
+  VirtualizerAdapterOptions<TColumn, HTMLElement, HTMLTableCellElement>,
+  'horizontal' | 'estimateSize' | 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd'
+> & {
+  /**
+   * Width in px of a column. Defaults to the host's `columnSize` (DataTable passes each column's
+   * TanStack size), then 150. Columns are never measured, so widths must be exact.
+   */
+  estimateSize?: (column: TColumn, index: number) => number
+}
+
+export type TableVirtualizerOptions<TItem, TColumn = unknown> = Omit<
   VirtualizerAdapterOptions<TItem, HTMLElement, HTMLTableRowElement>,
   'horizontal'
->
+> & {
+  /**
+   * Virtualizes columns as well as rows. Only body cells of the `columns` passed to the render
+   * component are virtualized; render header and footer cells, and cells outside `columns`
+   * (such as pinned ones), in full.
+   */
+  columns?: TableVirtualizerColumnOptions<TColumn>
+}
 
-export type TableVirtualizerReturn<TItem> = {
+export type TableVirtualizerReturn<TItem, TColumn = unknown> = {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
   readonly instance: Accessor<Virtualizer<HTMLElement, HTMLTableRowElement> | undefined>
+  /** Current column virtualizer instance when the `columns` option is set. */
+  readonly columnInstance: Accessor<Virtualizer<HTMLElement, HTMLTableCellElement> | undefined>
   /** Component mounted inside `Table.Body` to render virtualized rows. */
-  readonly virtualRender: Component<TableVirtualRenderProps<TItem>>
+  readonly virtualRender: Component<TableVirtualRenderProps<TItem, TColumn>>
+  /**
+   * Columns to render in each body row, while the render component is mounted with the
+   * `columns` option set; otherwise `undefined`.
+   */
+  readonly columnWindow: Accessor<TableVirtualColumnWindow | undefined>
   scrollToIndex: Virtualizer<HTMLElement, HTMLTableRowElement>['scrollToIndex']
+  scrollToColumn: Virtualizer<HTMLElement, HTMLTableCellElement>['scrollToIndex']
 }
+
+/** Column width used when neither `columns.estimateSize` nor the host's `columnSize` is set. */
+const DEFAULT_COLUMN_SIZE = 150
+
+type SectionLayout = Required<
+  Pick<VirtualizerLayout, 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd'>
+>
 
 /** Table structure outside the virtualized body, measured from the DOM. */
 interface TableSections {
   readonly headerRows: number
   readonly footerRows: number
-  readonly layout: Required<VirtualizerLayout>
+  readonly layout: SectionLayout
 }
 
 const EMPTY_SECTIONS: TableSections = {
   headerRows: 0,
   footerRows: 0,
   layout: { scrollMargin: 0, scrollPaddingStart: 0, scrollPaddingEnd: 0 },
+}
+
+function sameColumnWindow(
+  a: TableVirtualColumnWindow | undefined,
+  b: TableVirtualColumnWindow | undefined,
+): boolean {
+  if (a === undefined || b === undefined) {
+    return a === b
+  }
+  return (
+    a.skippedBefore === b.skippedBefore &&
+    a.skippedAfter === b.skippedAfter &&
+    a.items.length === b.items.length &&
+    a.items.every((item, index) => {
+      const other = b.items[index]!
+      return (
+        item.index === other.index &&
+        item.start === other.start &&
+        item.size === other.size &&
+        item.key === other.key
+      )
+    })
+  )
+}
+
+function sameColumnLayout(a: VirtualizerLayout, b: VirtualizerLayout): boolean {
+  return (
+    a.scrollMargin === b.scrollMargin &&
+    a.scrollPaddingStart === b.scrollPaddingStart &&
+    a.scrollPaddingEnd === b.scrollPaddingEnd &&
+    a.isRtl === b.isRtl
+  )
 }
 
 function sameSections(a: TableSections, b: TableSections): boolean {
@@ -79,13 +151,41 @@ function stickyHeight(section: HTMLTableSectionElement | null, edge: 'top' | 'bo
  * Creates a virtual renderer for semantic tables. The adapter observes its host `tbody` as the
  * scroll container and pads it with two hidden spacer rows, so rows stay in normal table flow
  * and cells keep native column alignment.
+ *
+ * With the `columns` option, it also virtualizes body cells horizontally: `columnWindow` lists
+ * the columns to render, and body rows fill the skipped columns with `colSpan` placeholder cells.
  */
-export function createTableVirtualizer<TItem>(
-  options: TableVirtualizerOptions<TItem>,
-): TableVirtualizerReturn<TItem> {
-  const controller = createVirtualizerController<TItem, HTMLElement, HTMLTableRowElement>(options)
+export function createTableVirtualizer<TItem, TColumn = unknown>(
+  options: TableVirtualizerOptions<TItem, TColumn>,
+): TableVirtualizerReturn<TItem, TColumn> {
+  // One scroll listener feeds both axes, so a scroll event updates rows and columns in one batch.
+  const observeElementOffset = createSharedElementOffsetObserver()
+  const rowOptions = mergeProps({ observeElementOffset }, options)
+  const controller = createVirtualizerController<TItem, HTMLElement, HTMLTableRowElement>(
+    rowOptions,
+  )
+  // `columns` is read once: the column virtualizer exists for the lifetime of this virtualizer.
+  const columnOptions = options.columns
+  let columnController:
+    | ReturnType<typeof createVirtualizerController<TColumn, HTMLElement, HTMLTableCellElement>>
+    | undefined
+  if (columnOptions) {
+    const horizontalOptions = mergeProps({ observeElementOffset }, columnOptions, {
+      horizontal: true,
+      estimateSize: columnOptions.estimateSize ?? (() => DEFAULT_COLUMN_SIZE),
+    })
+    columnController = createVirtualizerController<TColumn, HTMLElement, HTMLTableCellElement>(
+      horizontalOptions,
+    )
+  }
+  // Holds the mounted adapter's window memo. Reading the memo, instead of copying its value in an
+  // effect, keeps rows that mount during a scroll on the current window.
+  const [windowSource, setWindowSource] = createSignal<
+    Accessor<TableVirtualColumnWindow> | undefined
+  >()
+  const columnWindow = (): TableVirtualColumnWindow | undefined => windowSource()?.()
 
-  const VirtualRender: Component<TableVirtualRenderProps<TItem>> = (props) => {
+  const VirtualRender: Component<TableVirtualRenderProps<TItem, TColumn>> = (props) => {
     const renderRow = createMemo(() => props.render)
     let spacerElement: HTMLTableRowElement | undefined
     let hostElement: HTMLTableSectionElement | null | undefined
@@ -136,14 +236,103 @@ export function createTableVirtualizer<TItem>(
       layout: () => sections().layout,
     })
 
+    const columnEntries = (): readonly TColumn[] => props.columns ?? []
+    const [columnRtl, setColumnRtl] = createSignal(false)
+    const columnLayout = createMemo(
+      (): VirtualizerLayout => {
+        const layout: TableVirtualColumnLayout = props.columnLayout ?? {}
+        return {
+          scrollMargin: layout.scrollMargin ?? 0,
+          scrollPaddingStart: layout.scrollPaddingStart ?? 0,
+          scrollPaddingEnd: layout.scrollPaddingEnd ?? 0,
+          isRtl: columnRtl(),
+        }
+      },
+      undefined,
+      { equals: sameColumnLayout },
+    )
+    const columnState = columnController?.attach({
+      entries: columnEntries,
+      scrollElement: () => props.scrollElement ?? resolveHost(),
+      layout: columnLayout,
+      estimateSize: (column, index) =>
+        columnOptions?.estimateSize?.(column, index) ??
+        props.columnSize?.(column, index) ??
+        DEFAULT_COLUMN_SIZE,
+    })
+
+    if (columnController && columnState) {
+      // Columns flow right to left in an RTL table, and its `scrollLeft` counts down from 0.
+      createEffect(
+        on(columnController.instance, (instance) => {
+          const element = instance?.scrollElement
+          if (element) {
+            setColumnRtl(getComputedStyle(element).direction === 'rtl')
+          }
+        }),
+      )
+
+      const currentWindow = createMemo(
+        (): TableVirtualColumnWindow => {
+          const count = columnEntries().length
+          // The window can still point past the end right after columns shrink.
+          const items = columnState.virtualItems
+            .filter((item) => item.index < count)
+            .map((item) => ({
+              index: item.index,
+              start: item.start,
+              size: item.size,
+              key: item.key,
+            }))
+          const first = items[0]
+          const last = items[items.length - 1]
+          return {
+            items,
+            skippedBefore: first ? first.index : 0,
+            skippedAfter: last ? count - last.index - 1 : count,
+          }
+        },
+        undefined,
+        { equals: sameColumnWindow },
+      )
+      setWindowSource(() => currentWindow)
+      onCleanup(() => setWindowSource((source) => (source === currentWindow ? undefined : source)))
+      createRenderEffect(
+        on(
+          () => props.onColumnWindow,
+          (handOff) => {
+            handOff?.(currentWindow)
+            onCleanup(() => handOff?.(undefined))
+          },
+        ),
+      )
+    }
+
     // Announce the virtualized dataset: the table declares its total row count and every row
     // carries its absolute position (1-based). Values a caller set are never overwritten: the
     // adapter only updates or removes an attribute that still holds the value it wrote.
     let writtenRowCount: string | undefined
+    let writtenColCount: string | undefined
     const writtenRowIndexes = new Map<HTMLTableRowElement, string>()
     const syncAria = (table: HTMLTableElement) => {
       const { headerRows, footerRows } = sections()
       const bodyRows = props.entries.length
+
+      if (columnController) {
+        // Count only the virtualized columns; a host that renders more cells sets its own value.
+        const liveColCount = table.getAttribute('aria-colcount')
+        if (liveColCount === null || liveColCount === writtenColCount) {
+          const count = columnEntries().length
+          writtenColCount = count > 0 ? String(count) : undefined
+          if (writtenColCount) {
+            table.setAttribute('aria-colcount', writtenColCount)
+          } else {
+            table.removeAttribute('aria-colcount')
+          }
+        } else {
+          writtenColCount = undefined
+        }
+      }
 
       const liveCount = table.getAttribute('aria-rowcount')
       if (liveCount === null || liveCount === writtenRowCount) {
@@ -230,7 +419,13 @@ export function createTableVirtualizer<TItem>(
 
     createRenderEffect(
       on(
-        () => [controller.instance(), props.entries.length, sections()] as const,
+        () =>
+          [
+            controller.instance(),
+            props.entries.length,
+            sections(),
+            columnEntries().length,
+          ] as const,
         ([instance]) => {
           const table = instance ? resolveTable() : null
           if (table) {
@@ -245,6 +440,12 @@ export function createTableVirtualizer<TItem>(
         tableElement?.getAttribute('aria-rowcount') === writtenRowCount
       ) {
         tableElement.removeAttribute('aria-rowcount')
+      }
+      if (
+        writtenColCount !== undefined &&
+        tableElement?.getAttribute('aria-colcount') === writtenColCount
+      ) {
+        tableElement.removeAttribute('aria-colcount')
       }
       for (const [row, value] of writtenRowIndexes) {
         if (row.getAttribute('aria-rowindex') === value) {
@@ -303,8 +504,12 @@ export function createTableVirtualizer<TItem>(
 
   return {
     instance: controller.instance,
+    columnInstance: () => columnController?.instance(),
     virtualRender: VirtualRender,
+    columnWindow,
     scrollToIndex: (index, scrollOptions) =>
       controller.instance()?.scrollToIndex(index, scrollOptions),
+    scrollToColumn: (index, scrollOptions) =>
+      columnController?.instance()?.scrollToIndex(index, scrollOptions),
   }
 }

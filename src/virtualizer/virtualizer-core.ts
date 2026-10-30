@@ -7,6 +7,7 @@ import {
 import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
 import type { Accessor } from 'solid-js'
 import {
+  batch,
   createMemo,
   createRenderEffect,
   createSignal,
@@ -72,7 +73,7 @@ export type VirtualizerLayout = Readonly<
   Partial<Pick<VirtualizerOptions<HTMLElement, HTMLElement>, LayoutOption>>
 >
 
-type LayoutOption = 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd'
+type LayoutOption = 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd' | 'isRtl'
 
 /** Shared virtualizer lifecycle for adapter components such as lists and tables. */
 export function createVirtualizerController<
@@ -90,6 +91,11 @@ export function createVirtualizerController<
     scrollElement: () => TScrollElement | undefined
     /** Layout measured by the adapter. Explicit options take precedence over these values. */
     layout?: () => VirtualizerLayout
+    /**
+     * Item size estimate that replaces `options.estimateSize`. It is read in a tracked scope, so
+     * reactive values it reads (such as host-provided column widths) refresh the sizes.
+     */
+    estimateSize?: (item: TItem, index: number) => number
   }) => VirtualizerState<TScrollElement, TItemElement>
 } {
   const [instance, setInstance] = createSignal<Virtualizer<TScrollElement, TItemElement>>()
@@ -101,8 +107,10 @@ export function createVirtualizerController<
       const [virtualItems, setVirtualItems] = createStore<VirtualItem[]>([])
       const [totalSize, setTotalSize] = createSignal(0)
       const sync = (source: Virtualizer<TScrollElement, TItemElement>): void => {
-        setVirtualItems(reconcile(source.getVirtualItems(), { key: 'index' }))
-        setTotalSize(source.getTotalSize())
+        batch(() => {
+          setVirtualItems(reconcile(source.getVirtualItems(), { key: 'index' }))
+          setTotalSize(source.getTotalSize())
+        })
       }
       let currentEntries: readonly TItem[] = []
       let currentKeys: VirtualItem['key'][] = []
@@ -129,6 +137,9 @@ export function createVirtualizerController<
           get scrollPaddingEnd() {
             return options.scrollPaddingEnd ?? adapterProps.layout?.().scrollPaddingEnd
           },
+          get isRtl() {
+            return (options as { isRtl?: boolean }).isRtl ?? adapterProps.layout?.().isRtl ?? false
+          },
           getScrollElement: () => (mounted() ? (adapterProps.scrollElement() ?? null) : null),
           estimateSize: (index: number) => currentEstimates[index]!,
           getItemKey: (index: number) => currentKeys[index] ?? index,
@@ -144,7 +155,8 @@ export function createVirtualizerController<
       createRenderEffect(() => {
         const entries = adapterProps.entries()
         const nextKeys = entries.map((item, index) => options.getItemKey?.(item, index) ?? index)
-        const nextEstimates = entries.map((item, index) => options.estimateSize(item, index))
+        const estimateItem = adapterProps.estimateSize ?? options.estimateSize
+        const nextEstimates = entries.map((item, index) => estimateItem(item, index))
         const sharedLength = Math.min(currentKeys.length, nextKeys.length)
         const layoutChanged =
           initialized &&
@@ -278,5 +290,111 @@ export function attachRowMeasurement<
         virtualizer.measureElement(element)
       }
     })
+  }
+}
+
+type OffsetCallback = (offset: number, isScrolling: boolean) => void
+
+// Same check as `@tanstack/virtual-core`; servers report support so no fallback timer starts.
+const SUPPORTS_SCROLLEND = typeof window === 'undefined' ? true : 'onscrollend' in window
+
+const PASSIVE_LISTENER = { passive: true } as const
+
+/**
+ * Creates an `observeElementOffset` option that shares one set of scroll listeners per scroll
+ * element. Virtualizers on the same element, such as the rows and columns of a table, then get
+ * their offsets inside one `batch`, so one scroll event runs downstream computations once.
+ *
+ * Mirrors `observeOffset` from `@tanstack/virtual-core` 3.19.6: `scrollend` when
+ * `useScrollendEvent` is set and supported, otherwise an `isScrollingResetDelay` timer, and a
+ * negated horizontal offset in RTL. Recheck it when upgrading `@tanstack/virtual-core`. The first
+ * virtualizer that subscribes to an element decides its `scrollend` and delay settings.
+ */
+export function createSharedElementOffsetObserver(): <
+  TScrollElement extends HTMLElement,
+  TItemElement extends HTMLElement,
+>(
+  instance: Virtualizer<TScrollElement, TItemElement>,
+  callback: OffsetCallback,
+) => (() => void) | undefined {
+  interface Subscriber {
+    readonly instance: Virtualizer<HTMLElement, HTMLElement>
+    readonly callback: OffsetCallback
+  }
+  interface Listener {
+    readonly subscribers: Set<Subscriber>
+    readonly dispose: () => void
+  }
+  const listeners = new Map<HTMLElement, Listener>()
+
+  const readOffset = (instance: Subscriber['instance'], element: HTMLElement): number => {
+    const { horizontal, isRtl } = instance.options
+    return horizontal ? element.scrollLeft * (isRtl ? -1 : 1) : element.scrollTop
+  }
+
+  const listen = (
+    element: HTMLElement,
+    targetWindow: Window & typeof globalThis,
+    first: Subscriber['instance'],
+  ): Listener => {
+    const subscribers = new Set<Subscriber>()
+    const notify = (isScrolling: boolean) =>
+      batch(() => {
+        for (const subscriber of subscribers) {
+          subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
+        }
+      })
+    const useScrollend = first.options.useScrollendEvent && SUPPORTS_SCROLLEND
+    const resetDelay = first.options.isScrollingResetDelay
+    let resetTimer: number | undefined
+    const onScroll = () => {
+      if (!useScrollend) {
+        targetWindow.clearTimeout(resetTimer)
+        resetTimer = targetWindow.setTimeout(() => notify(false), resetDelay)
+      }
+      notify(true)
+    }
+    const onScrollEnd = () => notify(false)
+
+    element.addEventListener('scroll', onScroll, PASSIVE_LISTENER)
+    if (useScrollend) {
+      element.addEventListener('scrollend', onScrollEnd, PASSIVE_LISTENER)
+    }
+    return {
+      subscribers,
+      dispose: () => {
+        element.removeEventListener('scroll', onScroll)
+        if (useScrollend) {
+          element.removeEventListener('scrollend', onScrollEnd)
+        }
+        targetWindow.clearTimeout(resetTimer)
+      },
+    }
+  }
+
+  return (instance, callback) => {
+    const element = instance.scrollElement
+    const targetWindow = instance.targetWindow
+    if (!element || !targetWindow) {
+      return undefined
+    }
+    const source = instance as unknown as Subscriber['instance']
+    let listener = listeners.get(element)
+    if (!listener) {
+      listener = listen(element, targetWindow, source)
+      listeners.set(element, listener)
+    }
+    const subscriber: Subscriber = { instance: source, callback }
+    listener.subscribers.add(subscriber)
+    const current = listener
+    return () => {
+      current.subscribers.delete(subscriber)
+      if (current.subscribers.size === 0) {
+        current.dispose()
+        if (listeners.get(element) === current) {
+          listeners.delete(element)
+        }
+      }
+    }
   }
 }

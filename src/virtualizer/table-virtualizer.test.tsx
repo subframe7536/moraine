@@ -726,4 +726,299 @@ describe('createTableVirtualizer', () => {
     expect(rows[0]?.textContent).toBe('aA')
     screen.unmount()
   })
+
+  describe('column virtualization', () => {
+    const COLUMNS = Array.from({ length: 20 }, (_, index) => `c${index}`)
+
+    function createColumnVirtualizer(
+      columnOptions: NonNullable<
+        Parameters<typeof createTableVirtualizer<string, string>>[0]['columns']
+      > = {},
+    ) {
+      let emitColumnOffset: ((offset: number, isScrolling: boolean) => void) | undefined
+      const virtualizer = createTableVirtualizer<string, string>({
+        estimateSize: () => 20,
+        measureElement: () => 20,
+        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        overscan: 0,
+        columns: {
+          observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+          observeElementOffset: (_instance, callback) => {
+            emitColumnOffset = callback
+            callback(0, false)
+          },
+          overscan: 0,
+          ...columnOptions,
+        },
+      })
+      return { virtualizer, scrollColumns: (offset: number) => emitColumnOffset?.(offset, false) }
+    }
+
+    function renderColumns(
+      virtualizer: ReturnType<typeof createTableVirtualizer<string, string>>,
+      props: {
+        columns?: () => readonly string[]
+        columnSize?: (column: string, index: number) => number
+        columnLayout?: { scrollMargin?: number }
+        onColumnWindow?: (window: (() => unknown) | undefined) => void
+        tableProps?: Record<string, string>
+      } = {},
+    ) {
+      const scrollElement = document.createElement('div')
+      Object.defineProperties(scrollElement, {
+        clientWidth: { configurable: true, value: 300 },
+        scrollWidth: { configurable: true, value: 2000 },
+      })
+      document.body.append(scrollElement)
+      const screen = render(() => (
+        <table {...props.tableProps}>
+          <tbody>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={['a', 'b']}
+              scrollElement={scrollElement}
+              columns={props.columns?.() ?? COLUMNS}
+              columnSize={props.columnSize ?? (() => 100)}
+              columnLayout={props.columnLayout}
+              onColumnWindow={props.onColumnWindow}
+              render={(item, _index, rowProps) => (
+                <tr {...rowProps}>
+                  <td>{item}</td>
+                </tr>
+              )}
+            />
+          </tbody>
+        </table>
+      ))
+      return {
+        screen,
+        cleanup: () => {
+          screen.unmount()
+          scrollElement.remove()
+        },
+      }
+    }
+
+    const indexes = (virtualizer: ReturnType<typeof createTableVirtualizer<string, string>>) =>
+      virtualizer.columnWindow()?.items.map((item) => item.index)
+
+    test('lists the visible columns and the skipped counts on each side', async () => {
+      const { virtualizer, scrollColumns } = createColumnVirtualizer()
+      const { cleanup } = renderColumns(virtualizer)
+      await Promise.resolve()
+
+      expect(indexes(virtualizer)).toEqual([0, 1, 2])
+      expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 0, skippedAfter: 17 })
+      expect(virtualizer.columnWindow()?.items[1]).toMatchObject({ start: 100, size: 100 })
+
+      scrollColumns(500)
+      expect(indexes(virtualizer)).toEqual([5, 6, 7])
+      expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 5, skippedAfter: 12 })
+      cleanup()
+      expect(virtualizer.columnWindow()).toBeUndefined()
+    })
+
+    test('widens the window by overscan', async () => {
+      const { virtualizer, scrollColumns } = createColumnVirtualizer({ overscan: 2 })
+      const { cleanup } = renderColumns(virtualizer)
+      await Promise.resolve()
+
+      scrollColumns(500)
+      expect(indexes(virtualizer)).toEqual([3, 4, 5, 6, 7, 8, 9])
+      cleanup()
+    })
+
+    test('offsets the window by the column scrollMargin', async () => {
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup } = renderColumns(virtualizer, { columnLayout: { scrollMargin: 200 } })
+      await Promise.resolve()
+
+      // Pinned cells take the first 200px of the 300px viewport.
+      expect(virtualizer.columnInstance()?.options.scrollMargin).toBe(200)
+      expect(indexes(virtualizer)).toEqual([0])
+      cleanup()
+    })
+
+    test('recomputes the window when host column widths change', async () => {
+      const [width, setWidth] = createSignal(100)
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup } = renderColumns(virtualizer, { columnSize: () => width() })
+      await Promise.resolve()
+      expect(indexes(virtualizer)).toEqual([0, 1, 2])
+
+      setWidth(50)
+      await Promise.resolve()
+      expect(indexes(virtualizer)).toEqual([0, 1, 2, 3, 4, 5])
+      expect(virtualizer.columnWindow()?.items[1]).toMatchObject({ start: 50, size: 50 })
+      cleanup()
+    })
+
+    test('prefers columns.estimateSize over the host column size', async () => {
+      const { virtualizer } = createColumnVirtualizer({ estimateSize: () => 150 })
+      const { cleanup } = renderColumns(virtualizer)
+      await Promise.resolve()
+
+      expect(indexes(virtualizer)).toEqual([0, 1])
+      cleanup()
+    })
+
+    test('skips window entries past the end when columns shrink', async () => {
+      const [columns, setColumns] = createSignal<readonly string[]>(COLUMNS)
+      const { virtualizer } = createColumnVirtualizer()
+      const { cleanup } = renderColumns(virtualizer, { columns })
+      await Promise.resolve()
+
+      setColumns(['only'])
+      await Promise.resolve()
+      expect(indexes(virtualizer)).toEqual([0])
+      expect(virtualizer.columnWindow()).toMatchObject({ skippedBefore: 0, skippedAfter: 0 })
+      cleanup()
+    })
+
+    test('hands the window accessor to the host and clears it on unmount', async () => {
+      const onColumnWindow = vi.fn()
+      const { virtualizer, scrollColumns } = createColumnVirtualizer()
+      const { cleanup } = renderColumns(virtualizer, { onColumnWindow })
+      await Promise.resolve()
+
+      expect(onColumnWindow).toHaveBeenCalledOnce()
+      const window = onColumnWindow.mock.calls[0]![0] as () => unknown
+      expect(window()).toMatchObject({ skippedBefore: 0, skippedAfter: 17 })
+
+      scrollColumns(500)
+      expect(window()).toMatchObject({ skippedBefore: 5 })
+      expect(onColumnWindow).toHaveBeenCalledOnce()
+
+      cleanup()
+      expect(onColumnWindow).toHaveBeenLastCalledWith(undefined)
+    })
+
+    test('scrolls to a column', async () => {
+      const scrollToFn = vi.fn()
+      const { virtualizer } = createColumnVirtualizer({ scrollToFn })
+      const { cleanup } = renderColumns(virtualizer)
+      await Promise.resolve()
+      scrollToFn.mockClear()
+
+      virtualizer.scrollToColumn(4, { align: 'start' })
+      expect(scrollToFn).toHaveBeenCalledWith(
+        400,
+        expect.objectContaining({ behavior: 'auto' }),
+        virtualizer.columnInstance(),
+      )
+      cleanup()
+    })
+
+    test('announces aria-colcount and removes it on unmount', async () => {
+      const { virtualizer } = createColumnVirtualizer()
+      const { screen, cleanup } = renderColumns(virtualizer)
+      await Promise.resolve()
+
+      const table = screen.container.querySelector('table')!
+      expect(table.getAttribute('aria-colcount')).toBe('20')
+      cleanup()
+      expect(table.getAttribute('aria-colcount')).toBeNull()
+    })
+
+    test('keeps an explicit aria-colcount provided by the caller', async () => {
+      const { virtualizer } = createColumnVirtualizer()
+      const { screen, cleanup } = renderColumns(virtualizer, {
+        tableProps: { 'aria-colcount': '24' },
+      })
+      await Promise.resolve()
+
+      const table = screen.container.querySelector('table')!
+      expect(table.getAttribute('aria-colcount')).toBe('24')
+      cleanup()
+      expect(table.getAttribute('aria-colcount')).toBe('24')
+    })
+
+    test('stays inactive without the columns option', async () => {
+      const virtualizer = createTableVirtualizer<string, string>({
+        estimateSize: () => 20,
+        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+        observeElementOffset: (_instance, callback) => callback(0, false),
+      })
+      const onColumnWindow = vi.fn()
+      const { screen, cleanup } = renderColumns(virtualizer, { onColumnWindow })
+      await Promise.resolve()
+
+      expect(virtualizer.columnWindow()).toBeUndefined()
+      expect(virtualizer.columnInstance()).toBeUndefined()
+      expect(onColumnWindow).not.toHaveBeenCalled()
+      expect(screen.container.querySelector('table')!.hasAttribute('aria-colcount')).toBe(false)
+      cleanup()
+    })
+
+    test('shares one scroll listener and updates both axes in one batch', async () => {
+      const scrollElement = document.createElement('div')
+      let scrollTop = 0
+      let scrollLeft = 0
+      Object.defineProperties(scrollElement, {
+        scrollTop: { configurable: true, get: () => scrollTop },
+        scrollLeft: { configurable: true, get: () => scrollLeft },
+      })
+      document.body.append(scrollElement)
+      const addListener = vi.spyOn(scrollElement, 'addEventListener')
+      const removeListener = vi.spyOn(scrollElement, 'removeEventListener')
+      const scrollListeners = () =>
+        addListener.mock.calls.filter(([type]) => type === 'scroll').length -
+        removeListener.mock.calls.filter(([type]) => type === 'scroll').length
+      const virtualizer = createTableVirtualizer<string, string>({
+        estimateSize: () => 20,
+        measureElement: () => 20,
+        observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+        overscan: 0,
+        columns: {
+          observeElementRect: (_instance, callback) => callback({ width: 300, height: 40 }),
+          overscan: 0,
+        },
+      })
+      const entries = Array.from({ length: 50 }, (_, index) => `Item ${index}`)
+      const cellRuns: string[] = []
+      const screen = render(() => (
+        <table>
+          <tbody>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={entries}
+              scrollElement={scrollElement}
+              columns={COLUMNS}
+              columnSize={() => 100}
+              render={(item, _index, rowProps) => (
+                <tr {...rowProps}>
+                  <td>
+                    {(() => {
+                      const skipped = virtualizer.columnWindow()?.skippedBefore
+                      cellRuns.push(`${item}:${skipped}`)
+                      return skipped
+                    })()}
+                  </td>
+                </tr>
+              )}
+            />
+          </tbody>
+        </table>
+      ))
+      await Promise.resolve()
+      expect(scrollListeners()).toBe(1)
+
+      cellRuns.length = 0
+      scrollTop = 200
+      scrollLeft = 500
+      scrollElement.dispatchEvent(new Event('scroll'))
+
+      const rows = [...screen.container.querySelectorAll('tr[data-index]')]
+      expect(rows.map((row) => row.getAttribute('data-index'))).toEqual(['10', '11'])
+      expect(rows.map((row) => row.textContent)).toEqual(['5', '5'])
+      // Rows mount once with the new column window, instead of mounting with the old window and
+      // updating when the column listener runs.
+      expect(cellRuns).toEqual(['Item 10:5', 'Item 11:5'])
+
+      screen.unmount()
+      expect(scrollListeners()).toBe(0)
+      scrollElement.remove()
+    })
+  })
 })

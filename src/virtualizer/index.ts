@@ -7,5 +7,14 @@ export type {
   VirtualRenderProps,
 } from './list-virtualizer'
 export { createTableVirtualizer } from './table-virtualizer'
-export type { TableVirtualRenderProps } from './table-virtual-render'
-export type { TableVirtualizerOptions, TableVirtualizerReturn } from './table-virtualizer'
+export type {
+  TableVirtualColumn,
+  TableVirtualColumnLayout,
+  TableVirtualColumnWindow,
+  TableVirtualRenderProps,
+} from './table-virtual-render'
+export type {
+  TableVirtualizerColumnOptions,
+  TableVirtualizerOptions,
+  TableVirtualizerReturn,
+} from './table-virtualizer'
