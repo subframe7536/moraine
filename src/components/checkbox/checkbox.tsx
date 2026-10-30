@@ -11,7 +11,7 @@ import { Icon } from '../icon'
 import { isInteractiveTarget } from '../shared/form/is-interactive-target'
 import { useFormReset } from '../shared/form/use-form-reset'
 
-import { checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
+import { CHECKBOX_ICON_CLASS, checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
@@ -427,6 +427,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               <Icon
                 name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
                 data-slot="checkbox-icon"
+                class={CHECKBOX_ICON_CLASS}
               />
             </span>
           </Show>

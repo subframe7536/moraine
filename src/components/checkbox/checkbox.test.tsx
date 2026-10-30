@@ -248,6 +248,7 @@ describe('Checkbox', () => {
       )
 
     expect(iconOf()?.className).toContain('icon-minus')
+    expect(iconOf()?.className).toContain('size-full')
     expect(control.className).toContain('data-indeterminate:border-primary')
     expect(control.className).toContain('data-indeterminate:bg-primary')
 

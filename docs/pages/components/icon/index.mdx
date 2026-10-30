@@ -78,9 +78,14 @@ rendered.
 `icon.base.root` in your Theme for shared defaults. `classes` and `styles` are not instance props
 because there are no child slots to target.
 
-An icon inherits the surrounding font size and renders at `1.2em`. Resize it with a font-size
-utility on the icon or an ancestor, such as `text-2xl`, rather than width and height. The root
-renders `data-slot="icon"`; pass a `data-slot` attribute to replace it.
+A string icon's width and height are set in `em` by the stylesheet that defines its class, so the
+icon follows the surrounding font size. `moraine/icon.css` and the docs config use
+`presetIcons({ scale: 1.2 })`, which renders `1.2em`; your own `presetIcons()` uses its `scale`
+option (default `1`). Resize an icon with a font-size utility on the icon or an ancestor, such as
+`text-2xl`. When an icon must fit a fixed box, use a size utility such as `size-full` or `size-4`.
+`moraine/icon.css` puts its rules in the `components` cascade layer, so size utilities override it
+in both UnoCSS and Tailwind. The root renders `data-slot="icon"`; pass a `data-slot` attribute to
+replace it.
 
 ```tsx
 <Icon name="i-lucide:info" class="text-2xl text-blue-500" data-slot="custom-icon" />
@@ -90,8 +95,9 @@ renders `data-slot="icon"`; pass a `data-slot` attribute to replace it.
 
 String icons are CSS masks painted with `background-color: currentColor`. In forced colors mode
 (such as Windows contrast themes) the browser would replace that background with the page
-background and hide the icon. Icon sets `forced-color-adjust: preserve-parent-color` (falling back
-to `none`) and drops its own color, so it is painted with the surrounding forced text color.
+background and hide the icon. For string icons, Icon sets `forced-color-adjust: preserve-parent-color`
+(falling back to `none`) and drops its own color, so the icon is painted with the surrounding
+forced text color. Element and component icons keep the browser's default forced colors handling.
 
 ## Examples
 

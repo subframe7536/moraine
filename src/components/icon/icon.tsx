@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 
-import { iconRecipe } from './icon.recipe'
+import { ICON_MASK_FORCED_COLORS_CLASS, iconRecipe } from './icon.recipe'
 import type { IconProps } from './icon.types'
 
 /** Renders an icon from a UnoCSS icon class, JSX element, or Solid component. */
@@ -23,7 +23,7 @@ export function Icon(props: IconProps): JSX.Element {
   const { slots } = useRecipe(iconRecipe, local, {
     own: () => ({
       root: {
-        class: typeof name() === 'string' ? name() : undefined,
+        class: typeof name() === 'string' ? [name(), ICON_MASK_FORCED_COLORS_CLASS] : undefined,
       },
     }),
   })

@@ -36,19 +36,23 @@ export const checkboxDataAttributes = {
 /**
  * Checkbox control styling, shared with bound checkbox controls (e.g. `tree.ItemCheckbox`).
  * Checked and indeterminate states share the same border and fill, so both look the same size.
- * The state icon inherits the control's color and font size.
+ * The text color reaches the state icon directly in `CheckControl`; `Checkbox` sets it again on
+ * its indicator.
  */
 export const CHECKBOX_CONTROL_CLASS = `${DISABLED_CLASS} outline-none border border-input rounded-xs bg-control inline-flex shrink-0 cursor-pointer shadow-input transition-shadow items-center justify-center overflow-hidden bg-clip-padding ${FOCUS_VISIBLE_CLASS} data-checked:(text-primary-foreground border-primary bg-primary) data-indeterminate:(text-primary-foreground border-primary bg-primary) ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS}`
 
-/**
- * Control box and icon font size per size. The icon is `1.2em`, so each font size fits the icon
- * to the box inside the 1px border.
- */
+/** Control box per size, for host recipes with a `size` variant. */
 export const CHECKBOX_CONTROL_SIZE_CLASS = {
-  sm: 'text-tiny size-3.5',
-  md: 'text-xs size-4',
-  lg: 'text-sm size-4.5',
+  sm: 'size-3.5',
+  md: 'size-4',
+  lg: 'size-4.5',
 } as const
+
+/**
+ * State icon inside the control. It fills the box inside the border, so it follows the control
+ * size instead of the font size and the icon generator's scale.
+ */
+export const CHECKBOX_ICON_CLASS = 'shrink-0 size-full'
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   CheckboxStyleSlot,

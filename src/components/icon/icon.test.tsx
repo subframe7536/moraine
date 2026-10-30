@@ -35,6 +35,23 @@ describe('Icon', () => {
     expect(icon?.className).toContain('forced-colors:text-inherit')
   })
 
+  test('keeps default forced colors behavior for element and component icons', () => {
+    const Glyph = (props: Omit<IconProps, 'name'>) => (
+      <svg data-testid="glyph" class={props.class as string} />
+    )
+    const screen = render(() => (
+      <>
+        <Icon name={<span>X</span>} data-testid="element" />
+        <Icon name={Glyph} />
+      </>
+    ))
+
+    expect(screen.getByTestId('element').className).not.toContain('forced-color-adjust')
+    expect(screen.getByTestId('glyph').getAttribute('class') ?? '').not.toContain(
+      'forced-color-adjust',
+    )
+  })
+
   test('inherits font size', () => {
     const screen = render(() => (
       <div style={{ 'font-size': '18px' }}>

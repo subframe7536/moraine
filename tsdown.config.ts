@@ -88,6 +88,10 @@ export default defineConfig([
             pipeline: false,
           },
           configFile: false,
+          // Unlayered icon rules beat Tailwind's layered utilities, so `size-*` on an icon would be
+          // ignored. The `components` layer sits below Tailwind utilities and below UnoCSS's
+          // unlayered output.
+          outputToCssLayers: { cssLayerName: () => 'components' },
           presets: [
             presetIcons({
               scale: 1.2,

@@ -26,6 +26,8 @@ describe('CheckControl', () => {
     expect(control.hasAttribute('data-indeterminate')).toBe(true)
     const icon = control.querySelector('[data-slot="test-check-icon"]')!
     expect(icon.className).toContain('icon-minus')
+    // The icon fills the control box rather than following the font size.
+    expect(icon.className).toContain('size-full')
 
     setChecked(true)
     expect(control.getAttribute('aria-checked')).toBe('true')

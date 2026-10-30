@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, splitProps } from 'solid-js'
 
 import { callHandler } from '../../../shared/utils'
+import { CHECKBOX_ICON_CLASS } from '../../checkbox/checkbox.recipe'
 import { Icon } from '../../icon'
 import type { IconT } from '../../icon'
 
@@ -81,6 +82,7 @@ export function CheckControl(props: CheckControlProps): JSX.Element {
               : (local.checkedIcon ?? 'icon-check')
           }
           data-slot={`${local.slotName}-icon`}
+          class={CHECKBOX_ICON_CLASS}
         />
       </Show>
     </button>
