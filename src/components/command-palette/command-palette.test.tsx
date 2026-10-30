@@ -534,7 +534,7 @@ describe('CommandPalette', () => {
         '[data-slot="command-palette-input-leading"]',
       ) as HTMLElement
       const close = document.body.querySelector(
-        '[data-slot="command-palette-close"] [data-slot="icon"]',
+        '[data-slot="command-palette-close"] > *',
       ) as HTMLElement
 
       expect(search.className).toContain('icon-hash')

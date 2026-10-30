@@ -1298,12 +1298,8 @@ describe('InputNumber', () => {
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
     const controls = screen.container.querySelector('[data-slot="input-number-controls"]')
 
-    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
-      'icon-chevron-up',
-    )
-    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
-      'icon-chevron-down',
-    )
+    expect(incrementButton.firstElementChild?.className).toContain('icon-chevron-up')
+    expect(decrementButton.firstElementChild?.className).toContain('icon-chevron-down')
     expect(controls?.className).toContain('flex-col')
     expect(controls?.className).toContain('w-9')
     expect(controls?.className).toContain('border-s-1')
@@ -1328,8 +1324,8 @@ describe('InputNumber', () => {
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
-    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-plus')
-    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-minus')
+    expect(incrementButton.firstElementChild?.className).toContain('icon-plus')
+    expect(decrementButton.firstElementChild?.className).toContain('icon-minus')
 
     fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
@@ -1540,7 +1536,7 @@ describe('InputNumber', () => {
   ] as const)('applies Nuxt UI %s control sizes with inherited icons', (size, buttonSize) => {
     const screen = render(() => <InputNumber size={size} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const incrementIcon = incrementButton.querySelector('[data-slot="icon"]')
+    const incrementIcon = incrementButton.firstElementChild
 
     expect(incrementButton.className).toContain(buttonSize)
     expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-/)

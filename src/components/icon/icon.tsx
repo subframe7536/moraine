@@ -57,7 +57,6 @@ export function Icon(props: IconProps): JSX.Element {
   return (
     <Dynamic
       component={componentProps().component}
-      data-slot="icon"
       {...rest}
       {...accessibilityProps()}
       {...slots.root}

@@ -121,10 +121,20 @@ function AlertDialogDefault(props: {
             {(current) => (
               <Show
                 when={props.recipe.variants.center}
-                fallback={<Icon name={current()} {...props.recipe.slots.icon} />}
+                fallback={
+                  <Icon
+                    name={current()}
+                    data-slot="alert-dialog-icon"
+                    {...props.recipe.slots.icon}
+                  />
+                }
               >
                 <div class={ALERT_DIALOG_CENTER_ICON_CLASS}>
-                  <Icon name={current()} {...props.recipe.slots.icon} />
+                  <Icon
+                    name={current()}
+                    data-slot="alert-dialog-icon"
+                    {...props.recipe.slots.icon}
+                  />
                 </div>
               </Show>
             )}

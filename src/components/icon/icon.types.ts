@@ -22,7 +22,7 @@ export namespace IconT {
   /**
    * Base props for the Icon component. The icon is sized by the inherited `font-size`;
    * set `font-size` (for example `text-lg`) on the icon or an ancestor to resize it.
-   * The default `data-slot="icon"` can be replaced with a `data-slot` attribute.
+   * Icon renders no `data-slot` of its own; pass a `data-slot` attribute when the icon is a slot.
    */
   export interface Base {
     /**

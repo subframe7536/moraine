@@ -48,22 +48,12 @@ export function DocsPageHeader(props: DocsPageHeaderProps) {
       >
         <div class="mt-3 flex flex-wrap gap-2 items-center">
           <Show when={props.apiDoc?.kind === 'composite'}>
-            <Badge
-              as="a"
-              href="/docs/composition"
-              variant="outline"
-              size="sm"
-            >
+            <Badge as="a" href="/docs/composition" variant="outline" size="sm">
               Composition
             </Badge>
           </Show>
           <Show when={props.apiDoc?.parts[0]?.props.some((prop) => prop.name === 'as')}>
-            <Badge
-              as="a"
-              href="/docs/polymorphism"
-              variant="outline"
-              size="sm"
-            >
+            <Badge as="a" href="/docs/polymorphism" variant="outline" size="sm">
               Polymorphic
             </Badge>
           </Show>

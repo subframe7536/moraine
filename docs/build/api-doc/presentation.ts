@@ -216,7 +216,6 @@ const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
     content: 'dialog-content',
     header: 'dialog-header',
     footer: 'dialog-footer',
-    icon: 'icon',
   },
 }
 

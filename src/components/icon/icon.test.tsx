@@ -11,22 +11,23 @@ import type { IconProps } from './icon.types'
 describe('Icon', () => {
   test('renders a css icon class for string names', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
-    const icon = screen.container.querySelector('[data-slot="icon"]')
+    const icon = screen.container.querySelector('.i-lucide-search')
 
     expect(icon).not.toBeNull()
     expect(icon?.className).toContain('i-lucide-search')
   })
 
-  test('replaces the default data-slot with a caller data-slot', () => {
-    const screen = render(() => <Icon name="i-lucide-search" data-slot="button-leading" />)
+  test('renders no data-slot unless the caller passes one', () => {
+    const plain = render(() => <Icon name="i-lucide-search" />)
+    expect(plain.container.firstElementChild?.hasAttribute('data-slot')).toBe(false)
 
-    expect(screen.container.querySelector('[data-slot="icon"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="button-leading"]')).not.toBeNull()
+    const slotted = render(() => <Icon name="i-lucide-search" data-slot="button-leading" />)
+    expect(slotted.container.firstElementChild?.getAttribute('data-slot')).toBe('button-leading')
   })
 
   test('opts out of forced colors and follows the parent color in forced colors mode', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
-    const icon = screen.container.querySelector('[data-slot="icon"]')
+    const icon = screen.container.querySelector('.i-lucide-search')
 
     expect(icon?.className).toContain('forced-color-adjust-none')
     expect(icon?.className).toContain(
@@ -58,7 +59,7 @@ describe('Icon', () => {
         <Icon name="i-lucide-search" />
       </div>
     ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
+    const icon = screen.container.querySelector<HTMLElement>('.i-lucide-search')
 
     expect(icon).not.toBeNull()
     expect(icon?.style.fontSize).toBe('')
@@ -69,7 +70,7 @@ describe('Icon', () => {
     const screen = render(() => <Icon name={<span data-testid="custom-icon">X</span>} />)
 
     expect(screen.getByTestId('custom-icon').textContent).toBe('X')
-    expect(screen.getByTestId('custom-icon').parentElement?.dataset.slot).toBe('icon')
+    expect(screen.getByTestId('custom-icon').parentElement).toBe(screen.container.firstElementChild)
   })
 
   test('preserves a zero-argument component and its cleanup while its JSX updates', () => {
@@ -130,7 +131,7 @@ describe('Icon', () => {
     const screen = render(() => (
       <Icon name="i-lucide-search" id="my-icon" data-testid="icon-el" title="Search icon" />
     ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
+    const icon = screen.container.querySelector<HTMLElement>('.i-lucide-search')
 
     expect(icon).not.toBeNull()
     expect(icon?.id).toBe('my-icon')
@@ -140,7 +141,7 @@ describe('Icon', () => {
 
   test('hides decorative string and raw JSX icons from the accessibility tree', () => {
     const screen1 = render(() => <Icon name="i-lucide-search" />)
-    const icon1 = screen1.container.querySelector('[data-slot="icon"]')
+    const icon1 = screen1.container.querySelector('.i-lucide-search')
     expect(icon1?.getAttribute('aria-hidden')).toBe('true')
 
     const screen2 = render(() => (
@@ -152,7 +153,7 @@ describe('Icon', () => {
         }
       />
     ))
-    const icon2 = screen2.container.querySelector('[data-slot="icon"]')
+    const icon2 = screen2.container.firstElementChild
     expect(icon2?.getAttribute('aria-hidden')).toBe('true')
     expect(screen2.queryByRole('img', { name: 'Raw search glyph' })).toBeNull()
   })
@@ -160,7 +161,7 @@ describe('Icon', () => {
   test('exposes labelled string and raw JSX icons as images', () => {
     const stringScreen = render(() => <Icon name="i-lucide-search" aria-label="Search" />)
     const stringIcon = stringScreen.getByRole('img', { name: 'Search' })
-    expect(stringIcon.dataset.slot).toBe('icon')
+    expect(stringIcon.className).toContain('i-lucide-search')
     expect(stringIcon.hasAttribute('aria-hidden')).toBe(false)
 
     const rawScreen = render(() => (
@@ -175,7 +176,7 @@ describe('Icon', () => {
       />
     ))
     const rawIcon = rawScreen.getByRole('img', { name: 'Search' })
-    expect(rawIcon.dataset.slot).toBe('icon')
+    expect(rawIcon.tagName).toBe('DIV')
     expect(rawScreen.getByTestId('raw-svg').parentElement).toBe(rawIcon)
 
     const labelledByScreen = render(() => (
@@ -184,13 +185,15 @@ describe('Icon', () => {
         <Icon name="i-lucide-search" aria-labelledby="icon-label" />
       </>
     ))
-    expect(labelledByScreen.getByRole('img', { name: 'Labelled search' }).dataset.slot).toBe('icon')
+    expect(labelledByScreen.getByRole('img', { name: 'Labelled search' }).className).toContain(
+      'i-lucide-search',
+    )
   })
 
   test('keeps aria-hidden in sync with a reactive aria-label', () => {
     const [label, setLabel] = createSignal<string | undefined>()
     const screen = render(() => <Icon name="i-lucide-search" aria-label={label()} />)
-    const icon = screen.container.querySelector('[data-slot="icon"]')!
+    const icon = screen.container.querySelector('.i-lucide-search')!
 
     expect(icon.getAttribute('aria-hidden')).toBe('true')
 
@@ -203,7 +206,7 @@ describe('Icon', () => {
 
   test('allows an explicit aria-hidden override', () => {
     const screen = render(() => <Icon name="i-lucide-search" aria-hidden={false} />)
-    const icon = screen.container.querySelector('[data-slot="icon"]')
+    const icon = screen.container.querySelector('.i-lucide-search')
 
     expect(icon?.getAttribute('aria-hidden')).toBe('false')
   })
@@ -225,9 +228,7 @@ describe('Icon', () => {
       />
     ))
     expect(svgScreen.getByRole('img', { name: 'Custom SVG label' })).not.toBeNull()
-    expect(
-      svgScreen.container.querySelector('[data-slot="icon"]')?.getAttribute('aria-hidden'),
-    ).toBe('false')
+    expect(svgScreen.container.firstElementChild?.getAttribute('aria-hidden')).toBe('false')
   })
 
   test('applies slot overrides without leaking style props to the DOM', () => {
@@ -240,7 +241,7 @@ describe('Icon', () => {
         style={{ width: '20px', color: 'red' }}
       />
     ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')!
+    const icon = screen.container.querySelector<HTMLElement>('.i-lucide-search')!
 
     expect(icon.className).toContain('slot-class')
     expect(icon.className).toContain('native-class')
@@ -258,13 +259,13 @@ describe('Icon', () => {
         <Icon name="i-lucide-search" />
       </MoraineProvider>
     ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')!
+    const icon = screen.container.querySelector<HTMLElement>('.i-lucide-search')!
 
     expect(icon.className).toContain('p-2')
 
     setDesign(defineTheme({ icon: { base: { root: 'p-4' } } }))
 
-    expect(screen.container.querySelector('[data-slot="icon"]')).toBe(icon)
+    expect(screen.container.querySelector('.i-lucide-search')).toBe(icon)
     expect(icon.className).toContain('p-4')
     expect(icon.className).not.toContain('p-2')
   })

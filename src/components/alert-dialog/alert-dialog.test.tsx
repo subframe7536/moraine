@@ -108,7 +108,7 @@ describe('AlertDialog', () => {
 
     void AlertDialog.confirm({ title: 'confirm' })
     await waitForTitle('confirm')
-    expect(document.body.querySelector('[data-slot="icon"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="alert-dialog-icon"]')).toBeNull()
     expect(button('Cancel')).toBeInstanceOf(HTMLButtonElement)
     AlertDialog.close()
     await waitForDialogCount(0)
@@ -116,7 +116,7 @@ describe('AlertDialog', () => {
     for (const [type, icon, tone] of cases) {
       void AlertDialog[type]({ title: type })
       await waitForTitle(type)
-      const iconElement = document.body.querySelector('[data-slot="icon"]')
+      const iconElement = document.body.querySelector('[data-slot="alert-dialog-icon"]')
       expect(iconElement?.className).toContain(icon)
       expect(iconElement?.className).toContain(tone)
       expect(
@@ -130,7 +130,7 @@ describe('AlertDialog', () => {
 
     void AlertDialog.confirm({ title: 'Danger confirm', danger: true })
     await waitForTitle('Danger confirm')
-    const dangerIcon = document.body.querySelector('[data-slot="icon"]')
+    const dangerIcon = document.body.querySelector('[data-slot="alert-dialog-icon"]')
     expect(dangerIcon?.className).toContain('icon-caution')
     expect(dangerIcon?.className).toContain('text-danger')
     expect(button('OK').style.getPropertyValue('--mo-tone')).toBe('var(--danger)')
@@ -139,7 +139,7 @@ describe('AlertDialog', () => {
     await waitForDialogCount(0)
     void AlertDialog.info({ title: 'Custom info icon', icon: 'icon-star' })
     await waitForTitle('Custom info icon')
-    const customInfoIcon = document.body.querySelector('[data-slot="icon"]')
+    const customInfoIcon = document.body.querySelector('[data-slot="alert-dialog-icon"]')
     expect(customInfoIcon?.className).toContain('icon-star')
     expect(customInfoIcon?.className).not.toContain('text-info')
   })
@@ -455,12 +455,14 @@ describe('AlertDialog', () => {
     expect(footer?.className).toContain('border-t')
     expect(footer?.className).toContain('flex-row')
     expect(footer?.className).toContain('p-4')
-    expect(document.body.querySelector('[data-slot="icon"]')?.className).toContain('text-danger')
+    expect(document.body.querySelector('[data-slot="alert-dialog-icon"]')?.className).toContain(
+      'text-danger',
+    )
     expect(button("Don't allow").className).toContain('flex-1')
     expect(button('Allow').className).toContain('flex-1')
-    expect(document.body.querySelector('[data-slot="icon"]')?.parentElement?.className).toContain(
-      'bg-muted',
-    )
+    expect(
+      document.body.querySelector('[data-slot="alert-dialog-icon"]')?.parentElement?.className,
+    ).toContain('bg-muted')
     expect(
       document.body.querySelector('[data-slot="dialog-title"]')?.parentElement?.className,
     ).toContain('text-center')

@@ -415,7 +415,7 @@ describe('Tabs', () => {
     ))
 
     const leading = screen.container.querySelector('[data-slot="tabs-leading"]')
-    const icon = leading?.querySelector('[data-slot="icon"]')
+    const icon = leading?.firstElementChild
 
     expect(leading).not.toBeNull()
     expect(icon?.className).not.toMatch(/(?:^|\s)size-/)

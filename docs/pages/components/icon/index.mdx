@@ -84,8 +84,8 @@ icon follows the surrounding font size. `moraine/icon.css` and the docs config u
 option (default `1`). Resize an icon with a font-size utility on the icon or an ancestor, such as
 `text-2xl`. When an icon must fit a fixed box, use a size utility such as `size-full` or `size-4`.
 `moraine/icon.css` puts its rules in the `components` cascade layer, so size utilities override it
-in both UnoCSS and Tailwind. The root renders `data-slot="icon"`; pass a `data-slot` attribute to
-replace it.
+in both UnoCSS and Tailwind. Icon renders no `data-slot` of its own;
+pass a `data-slot` attribute when the icon fills a component slot.
 
 ```tsx
 <Icon name="i-lucide:info" class="text-2xl text-blue-500" data-slot="custom-icon" />
