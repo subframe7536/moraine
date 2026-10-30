@@ -9,6 +9,7 @@ import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'
 import type { DataTableFeatures } from './data-table-features'
 import {
+  DATA_TABLE_CLICKABLE_ROW_CLASS,
   DATA_TABLE_COLUMN_SPACER_CLASS,
   DATA_TABLE_TREE_ROW_STYLE,
   dataTableDataAttributes,
@@ -105,7 +106,7 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         {...ctx.slotWith('row', () => ({
           class: [
             typeof props.rowClass === 'function' ? props.rowClass(props.row) : props.rowClass,
-            clickable() && 'cursor-pointer',
+            clickable() && DATA_TABLE_CLICKABLE_ROW_CLASS,
           ],
           style:
             depth() > 0

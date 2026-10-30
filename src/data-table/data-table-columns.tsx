@@ -10,10 +10,12 @@ import { PEER_CLASS } from '../theme/recipe-common.recipe'
 import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
 import {
+  DATA_TABLE_EXPAND_ICON_CLASS,
   DATA_TABLE_EXPAND_PLACEHOLDER_CLASS,
   DATA_TABLE_RADIO_CLASS,
   DATA_TABLE_RADIO_INDICATOR_CLASS,
   DATA_TABLE_RADIO_WRAPPER_CLASS,
+  DATA_TABLE_UTILITY_COLUMN_CLASS,
   dataTableDataAttributes,
 } from './data-table.recipe'
 
@@ -48,7 +50,8 @@ export function buildSelectColumn<TData extends RowData = RowData>(
         <Show when={!isSingle}>
           <CheckControl
             slotName="data-table-checkbox"
-            aria-label={ctx.messages().selectAll}
+            // With the pagination toolbar, select-all covers only the current page.
+            aria-label={ctx.paginated() ? ctx.messages().selectPage : ctx.messages().selectAll}
             {...ctx.slots.checkbox}
             checked={allSelected() ? true : someSelected() ? 'indeterminate' : false}
             iconSlot={ctx.slots.checkboxIcon}
@@ -61,6 +64,13 @@ export function buildSelectColumn<TData extends RowData = RowData>(
       const ctx = useDataTableContext()
       const canSelect = () => props.row.getCanSelect()
       const isSelected = () => props.row.getIsSelected()
+      // A tree parent reflects its sub-rows: checked when all are selected, mixed when some are.
+      const checkedState = () => {
+        if (isSelected() || props.row.getIsAllSubRowsSelected()) {
+          return true
+        }
+        return props.row.getIsSomeSelected() ? ('indeterminate' as const) : false
+      }
 
       return (
         <Show
@@ -70,7 +80,7 @@ export function buildSelectColumn<TData extends RowData = RowData>(
               slotName="data-table-checkbox"
               aria-label={ctx.messages().selectRow}
               {...ctx.slots.checkbox}
-              checked={isSelected()}
+              checked={checkedState()}
               disabled={!canSelect()}
               iconSlot={ctx.slots.checkboxIcon}
               // Keep the click from reaching `onRowClick`.
@@ -111,7 +121,7 @@ export function buildSelectColumn<TData extends RowData = RowData>(
     size: 40,
     meta: {
       align: 'center',
-      class: 'w-10 px-2',
+      class: DATA_TABLE_UTILITY_COLUMN_CLASS,
     },
   }
 }
@@ -142,7 +152,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
             }}
             {...ctx.slots.expandButton}
           >
-            <Icon name="icon-chevron-right" class="size-4" />
+            <Icon name="icon-chevron-right" class={DATA_TABLE_EXPAND_ICON_CLASS} />
           </button>
         </Show>
       )
@@ -153,7 +163,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
     size: 40,
     meta: {
       align: 'center',
-      class: 'w-10 px-2',
+      class: DATA_TABLE_UTILITY_COLUMN_CLASS,
     },
   }
 }

@@ -314,8 +314,10 @@ filter functions are registered.
 ### Selection
 
 `selection: 'multiple'` adds a checkbox to each row and a select-all checkbox to the header.
-Select-all toggles the rows on the current page. `selection: 'single'` adds radio buttons;
-selecting a row clears the others. `canSelectRow` disables the control of every row it rejects.
+Select-all toggles the rows on the current page, and is then named with the `selectPage` message.
+With tree data, a parent's checkbox follows its sub-rows: checked when all are selected and mixed
+when some are. `selection: 'single'` adds radio buttons; selecting a row clears the others.
+`canSelectRow` disables the control of every row it rejects.
 
 ```tsx
 const table = createDataTable({
@@ -407,9 +409,8 @@ return <DataTable table={table} loading={page.loading} />
 ### Loading and empty states
 
 `loading` covers the table with an overlay and keeps the current rows visible underneath. While it
-is set, the table has `aria-busy="true"` and the overlay is a `status` region. The default overlay
-shows a spinner plus the localized `loading` text for screen readers; replace it with
-`loadingRender`.
+is set, the table has `aria-busy="true"`, and a `status` region that stays mounted announces the
+localized `loading` text. The default overlay shows a spinner; replace it with `loadingRender`.
 
 With no rows, the body shows one full-width cell with the `empty` message, or `emptyRender`. The
 empty message is hidden while `loading` is set. Both render props receive `colSpan`.
@@ -462,7 +463,9 @@ Pinning and resizing switch the table to a fixed layout with explicit column wid
 
 `resizable: true` adds a resize handle to each column header. Widths stay within each column's
 `minSize` and `maxSize`. Columns without a `maxSize`, in their definition or in
-`tableOptions.defaultColumn`, are capped at 1000px so the handle can report a range. The new width commits when a drag ends; set
+`tableOptions.defaultColumn`, are capped at 1000px so the handle can report a range. Only leaf
+headers have a handle: a group header is as wide as its columns, so resize those instead. The new
+width commits when a drag ends; set
 `tableOptions.columnResizeMode: 'onChange'` to resize while dragging.
 
 Each handle is a focusable separator named after its column, such as "Name Resize column". It
@@ -571,6 +574,7 @@ text, so the sort button of a Name column is named "Name Sort", then "Name Sorte
 | `empty`                                       | `No results.`                                   |
 | `loading`                                     | `Loading`                                       |
 | `selectAll`, `selectRow`                      | `Select all rows`, `Select row`                 |
+| `selectPage`                                  | `Select all rows on this page`                  |
 | `expandRow`, `collapseRow`                    | `Expand row`, `Collapse row`                    |
 | `sort`, `sortedAscending`, `sortedDescending` | `Sort`, `Sorted ascending`, `Sorted descending` |
 | `resizeColumn`                                | `Resize column`                                 |

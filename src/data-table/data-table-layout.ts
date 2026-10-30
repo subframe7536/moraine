@@ -171,7 +171,8 @@ export function createDataTableLayout<TData extends RowData>(
         if (!side) {
           return false
         }
-        const pinned = table().getPinnedLeafColumns(side)
+        // Hidden pinned columns render no cells, so the edge is the innermost visible one.
+        const pinned = table().getPinnedVisibleLeafColumns(side)
         const innermost = side === 'start' ? pinned[pinned.length - 1] : pinned[0]
         return innermost?.id === current.id
       },

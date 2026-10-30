@@ -56,6 +56,16 @@ export const DATA_TABLE_EXPAND_BUTTON_CLASS = `text-muted-foreground p-0 rounded
 
 export const DATA_TABLE_EXPAND_PLACEHOLDER_CLASS = 'w-6'
 
+export const DATA_TABLE_EXPAND_ICON_CLASS = 'size-4'
+
+/** Width and padding of the generated selection and expand columns. */
+export const DATA_TABLE_UTILITY_COLUMN_CLASS = 'px-2 w-10'
+
+/** Rows with a click handler. */
+export const DATA_TABLE_CLICKABLE_ROW_CLASS = 'cursor-pointer'
+
+export const DATA_TABLE_LOADING_ICON_CLASS = 'text-2xl animate-spin'
+
 export const DATA_TABLE_EXPANDED_WRAPPER_CLASS =
   'h-(--mo-collapsible-content-height) overflow-hidden data-closed:(h-0 animate-accordion-up) data-expanded:animate-accordion-down motion-reduce:animate-none'
 
@@ -101,7 +111,8 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
     container: 'w-full relative',
     root: TABLE_ROOT_CLASS,
     header: TABLE_HEADER_CLASS,
-    body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0',
+    // Virtualized bodies end with a spacer row, so the last entry carries `data-last`.
+    body: '[&>tr:last-child]:border-b-0 [&>tr:last-child>td]:border-b-0 [&>tr[data-last]]:border-b-0 [&>tr[data-last]>td]:border-b-0',
     footer: `${TABLE_FOOTER_CLASS} [&>tr:last-child>td]:border-b-0`,
     row: `group/row ${TABLE_ROW_CLASS} data-expanded:border-b-0`,
     head: `${TABLE_HEAD_CLASS} whitespace-nowrap relative ${PINNED_CELL_CLASS}`,

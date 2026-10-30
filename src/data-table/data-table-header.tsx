@@ -162,7 +162,10 @@ function DataTableHeadCell<TData extends RowData>(props: {
             </button>
           </Show>
         </div>
-        <Show when={ctx.resizable() && column().getCanResize()}>
+        {/* A group's width is the sum of its leaves, so only leaf headers resize. */}
+        <Show
+          when={ctx.resizable() && props.header.subHeaders.length === 0 && column().getCanResize()}
+        >
           <DataTableResizer table={props.table} header={props.header} labelId={labelId} />
         </Show>
       </Show>

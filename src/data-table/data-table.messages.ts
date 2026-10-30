@@ -26,6 +26,7 @@ export const defaultDataTableMessages = /* @__PURE__ */ Object.freeze({
   sortedDescending: 'Sorted descending',
   sortPriority: ({ index }: DataTableSortPriorityContext) => `Sort priority ${index}`,
   selectAll: 'Select all rows',
+  selectPage: 'Select all rows on this page',
   selectRow: 'Select row',
   expandRow: 'Expand row',
   collapseRow: 'Collapse row',

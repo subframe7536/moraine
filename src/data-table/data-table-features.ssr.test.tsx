@@ -91,8 +91,10 @@ test('hydrates an empty virtual shell, then renders windowed columns', async () 
   const errorSpy = vi.spyOn(console, 'error')
   const markup = renderSsrFixture(FIXTURE, 'renderVirtualColumnsDataTableFixture')
   // The server cannot measure the viewport, so it sends the header and an empty body shell.
-  expect(markup).not.toContain('<colgroup')
+  // The pinned column already fixes the layout, so the colgroup is in the server markup.
+  expect(markup).toContain('<colgroup')
   expect(markup).not.toContain('data-index=')
+  expect(markup).not.toContain('aria-colcount')
 
   const { container } = hydrateFixture(FIXTURE, 'renderVirtualColumnsDataTableFixture', () => (
     <VirtualColumnsDataTableFixture />

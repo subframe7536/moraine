@@ -28,6 +28,8 @@ export interface DataTableContextValue {
   readonly columnVirtual: Accessor<boolean>
   /** One-based position of a visible leaf column, for `aria-colindex`. */
   readonly columnIndex: (columnId: string) => number | undefined
+  /** Whether the pagination toolbar is shown, so row actions such as select-all cover one page. */
+  readonly paginated: Accessor<boolean>
   /** Whether columns can be resized interactively. */
   readonly resizable: Accessor<boolean>
   /** Number of visible leaf columns, at least 1, for full-width cells. */

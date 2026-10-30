@@ -36,6 +36,7 @@ import { DataTablePagination } from './data-table-pagination'
 import { DataTableRow } from './data-table-row'
 import { defaultDataTableMessages } from './data-table.messages'
 import {
+  DATA_TABLE_LOADING_ICON_CLASS,
   DATA_TABLE_SCROLL_CLASS,
   dataTableDataAttributes,
   dataTableRecipe,
@@ -196,10 +197,7 @@ export function DataTable<TData extends RowData = RowData>(
       <Show
         when={local.loadingRender !== undefined}
         fallback={
-          <>
-            <Icon name="icon-loading" class="text-2xl animate-spin" aria-hidden="true" />
-            <span class={VISUALLY_HIDDEN_CLASS}>{messages().loading}</span>
-          </>
+          <Icon name="icon-loading" class={DATA_TABLE_LOADING_ICON_CLASS} aria-hidden="true" />
         }
       >
         {renderWithProps(local.loadingRender, {
@@ -219,6 +217,7 @@ export function DataTable<TData extends RowData = RowData>(
         slotOverrides: pickSlotOverrides(local),
         messages,
         virtual,
+        paginated: () => !virtual() && getDataTableConfig(table()).paginated,
         columnWindow,
         columnVirtual,
         columnIndex: (columnId) => columnIndexes().get(columnId),
@@ -242,8 +241,13 @@ export function DataTable<TData extends RowData = RowData>(
         data-slot="data-table-container"
         {...slots.container}
       >
+        {/* Screen readers announce changes inside a live region that already exists, so the
+            status stays mounted and only its text follows `loading`. */}
+        <span data-slot="data-table-status" role="status" class={VISUALLY_HIDDEN_CLASS}>
+          {local.loading ? messages().loading : ''}
+        </span>
         <Show when={local.loading}>
-          <div data-slot="data-table-loading" role="status" {...slots.loading}>
+          <div data-slot="data-table-loading" {...slots.loading}>
             <RenderLoading />
           </div>
         </Show>
@@ -263,8 +267,10 @@ export function DataTable<TData extends RowData = RowData>(
             {...slotWith('root', () => ({ style: layout.tableStyle() }))}
             ref={local.ref}
           >
-            {/* Body rows of a column-virtualized table skip cells, so the widths come from here. */}
-            <Show when={columnVirtual()}>
+            {/* A fixed layout takes widths from the first row, which is a group header when
+                columns are grouped, and virtualized body rows skip cells. Leaf widths come from
+                here instead. */}
+            <Show when={layout.fixedLayout()}>
               <colgroup>
                 <For each={leafColumns()}>
                   {(column) => <col style={{ width: `${column.getSize()}px` }} />}

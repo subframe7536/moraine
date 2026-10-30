@@ -1151,6 +1151,7 @@ describe('DataTable', () => {
           translations={{
             empty: 'Aucune donnée.',
             selectAll: 'Tout sélectionner',
+            selectPage: 'Sélectionner la page',
             selectedCount: ({ selected, total }) => `${selected} sur ${total} sélectionné(s)`,
             rowCount: ({ total }) => `${total} ligne(s)`,
             pageSize: ({ size }) => `${size} par page`,
@@ -1160,7 +1161,8 @@ describe('DataTable', () => {
     })
 
     expect(screen.getByText('Aucune donnée.')).toBeDefined()
-    expect(screen.getByLabelText('Tout sélectionner')).toBeDefined()
+    // With the pagination toolbar, select-all covers the current page.
+    expect(screen.getByLabelText('Sélectionner la page')).toBeDefined()
     expect(screen.getByText('0 ligne(s)')).toBeDefined()
     expect(screen.getByRole('button', { name: '10 par page' })).toBeDefined()
   })
@@ -1428,12 +1430,19 @@ describe('DataTable', () => {
     const table = container.querySelector('table')!
     expect(table.getAttribute('aria-busy')).toBe('true')
     const status = screen.getByRole('status')
-    expect(status.getAttribute('data-slot')).toBe('data-table-loading')
+    expect(status.getAttribute('data-slot')).toBe('data-table-status')
     expect(status.textContent).toBe('Loading')
+    expect(container.querySelector('[data-slot="data-table-loading"]')).not.toBeNull()
 
+    // The live region stays mounted and empties, so the next loading state is announced.
     setLoading(false)
     expect(table.hasAttribute('aria-busy')).toBe(false)
-    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.getByRole('status')).toBe(status)
+    expect(status.textContent).toBe('')
+    expect(container.querySelector('[data-slot="data-table-loading"]')).toBeNull()
+
+    setLoading(true)
+    expect(status.textContent).toBe('Loading')
   })
 
   it('lets callers override aria-busy', () => {
@@ -1504,6 +1513,148 @@ describe('DataTable', () => {
     expect(table.querySelector('thead tr')!.getAttribute('aria-rowindex')).toBe('1')
     expect(table.querySelector('tbody tr[data-index="0"]')!.getAttribute('aria-rowindex')).toBe('2')
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
+  })
+
+  describe('review fixes', () => {
+    const GROUPED_COLUMNS: DataTableT.Column<Person>[] = [
+      {
+        id: 'grp',
+        header: 'Group',
+        columns: [
+          { accessorKey: 'name', header: 'Name', size: 200 },
+          { accessorKey: 'age', header: 'Age', size: 100 },
+          { accessorKey: 'role', header: 'Role', size: 150 },
+        ],
+      },
+    ]
+
+    function headerCell(container: HTMLElement, label: string): HTMLTableCellElement {
+      return [...container.querySelectorAll<HTMLTableCellElement>('thead th')].find(
+        (th) => headLabel(th) === label,
+      )!
+    }
+
+    it('renders resize handles only on leaf headers, which resize from the keyboard', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({ columns: GROUPED_COLUMNS, resizable: true })
+        return <DataTable table={table} />
+      })
+
+      expect(headerCell(container, 'Group').querySelector('[role="separator"]')).toBeNull()
+      const handle = headerCell(container, 'Name').querySelector<HTMLElement>('[role="separator"]')!
+      expect(handle.getAttribute('aria-valuenow')).toBe('200')
+      fireEvent.keyDown(handle, { key: 'ArrowRight' })
+      expect(handle.getAttribute('aria-valuenow')).toBe('210')
+      expect(container.querySelector<HTMLElement>('colgroup col')!.style.width).toBe('210px')
+    })
+
+    it.each<[string, Partial<DataTableT.Options<Person>>]>([
+      ['resizable', { resizable: true }],
+      ['pinned', { initialState: { columnPinning: { start: ['name'], end: [] } } }],
+    ])('gives a grouped %s table a colgroup of leaf widths', (_label, options) => {
+      const { container } = render(() => {
+        const table = createPersonTable({ columns: GROUPED_COLUMNS, ...options })
+        return <DataTable table={table} />
+      })
+
+      expect(container.querySelector('table')!.style.tableLayout).toBe('fixed')
+      expect(
+        [...container.querySelectorAll<HTMLElement>('colgroup col')].map((col) => col.style.width),
+      ).toEqual(['200px', '100px', '150px'])
+    })
+
+    it('renders no colgroup for an auto-layout table', () => {
+      const { container } = render(() => {
+        const table = createPersonTable()
+        return <DataTable table={table} />
+      })
+      expect(container.querySelector('colgroup')).toBeNull()
+    })
+
+    it('moves the pinned edge to the innermost visible pinned column', () => {
+      const [visibility, setVisibility] = createSignal<Record<string, boolean>>({})
+      const { container } = render(() => {
+        const table = createPersonTable({
+          initialState: { columnPinning: { start: ['name', 'age'], end: [] } },
+          state: {
+            get columnVisibility() {
+              return visibility()
+            },
+          },
+          onColumnVisibilityChange: setVisibility,
+        })
+        return <DataTable table={table} />
+      })
+      const edges = () =>
+        [...container.querySelectorAll('tbody tr:first-child td')].map((cell) =>
+          cell.getAttribute('data-pinned-edge'),
+        )
+
+      expect(edges()).toEqual([null, 'start', null])
+      setVisibility({ age: false })
+      expect(edges()).toEqual(['start', null])
+    })
+
+    it('shows a mixed checkbox on a tree parent with some selected sub-rows', () => {
+      interface Node {
+        id: string
+        name: string
+        children?: Node[]
+      }
+      let table!: DataTableT.Instance<Node>
+      render(() => {
+        table = createDataTable<Node>({
+          data: [
+            {
+              id: 'parent',
+              name: 'Parent',
+              children: [
+                { id: 'a', name: 'Child A' },
+                { id: 'b', name: 'Child B' },
+              ],
+            },
+          ],
+          columns: [{ accessorKey: 'name', header: 'Name' }],
+          getRowId: (row) => row.id,
+          selection: 'multiple',
+          initialState: { expanded: true },
+          tableOptions: { getSubRows: (row) => row.children },
+        })
+        return <DataTable table={table} />
+      })
+      const parentBox = () =>
+        screen.getByText('Parent').closest('tr')!.querySelector('[role="checkbox"]')!
+
+      expect(parentBox().getAttribute('aria-checked')).toBe('false')
+      table.getRow('parent.a').toggleSelected(true)
+      expect(parentBox().getAttribute('aria-checked')).toBe('mixed')
+      table.getRow('parent.b').toggleSelected(true)
+      expect(parentBox().getAttribute('aria-checked')).toBe('true')
+
+      // Clearing the parent clears its sub-rows.
+      fireEvent.click(parentBox())
+      expect(Object.keys(table.atoms.rowSelection?.get() ?? {})).toEqual([])
+      expect(parentBox().getAttribute('aria-checked')).toBe('false')
+    })
+
+    it('names select-all after the current page while the pagination toolbar shows', () => {
+      const [paginated, setPaginated] = createSignal(true)
+      render(() => {
+        const table = createPersonTable({
+          selection: 'multiple',
+          get pagination() {
+            return paginated()
+          },
+        })
+        return <DataTable table={table} />
+      })
+
+      expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe(
+        'Select all rows on this page',
+      )
+      setPaginated(false)
+      expect(screen.getAllByRole('checkbox')[0]!.getAttribute('aria-label')).toBe('Select all rows')
+    })
   })
 
   describe('column virtualization', () => {
@@ -1757,7 +1908,6 @@ describe('DataTable', () => {
       const row = firstBodyRow(container)
       expect(row.cells.length).toBe(CENTER_COUNT + 2)
       expect(row.querySelector('[aria-colindex]')).toBeNull()
-      expect(container.querySelector('colgroup')).toBeNull()
       expect(container.querySelector('table')!.hasAttribute('aria-colcount')).toBe(false)
     })
   })
