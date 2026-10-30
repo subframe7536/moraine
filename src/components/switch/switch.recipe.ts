@@ -28,12 +28,13 @@ export const switchDataAttributes = {
 } satisfies DataAttributeContract<keyof SwitchStyleSlot>
 
 /**
- * Track edge drawn as a 1px inset ring instead of a border. Browsers snap border widths
- * to whole device pixels (a 1px border is ~0.57px at 175% scaling), which shifts the
- * thumb off-center. Padding and box shadows are not snapped, so the inset stays 2px.
+ * Track edge drawn on an overlay instead of the track border. Browsers snap border widths
+ * to whole device pixels (a 1px border is ~0.57px at 175% scaling); on the track itself that
+ * resizes the content box and shifts the thumb off-center. The overlay border can snap
+ * without affecting layout, so the 2px padding inset stays even at every scale.
  */
 const SWITCH_TRACK_EDGE_CLASS =
-  'inset-ring inset-ring-transparent focus-visible:(outline-none ring-3 ring-ring/50 inset-ring-ring) data-invalid:(ring-3 ring-danger/20 inset-ring-danger) dark:data-invalid:(ring-danger/40 inset-ring-danger/50)'
+  "relative focus-visible:(outline-none ring-3 ring-ring/50 after:border-ring) after:(border border-transparent rounded-full pointer-events-none content-[''] inset-0 absolute) data-invalid:(ring-3 ring-danger/20 after:border-danger) dark:data-invalid:(ring-danger/40 after:border-danger/50)"
 
 export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariants>(
   'switch',
