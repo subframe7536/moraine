@@ -19,12 +19,12 @@ import { pickSlotOverrides, useRecipe } from '../provider'
 import { useMessages } from '../provider/locale/locale-context'
 import { renderWithProps } from '../shared/render-with-props'
 import { callRef } from '../shared/utils'
+import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
 import type {
   TableVirtualColumnLayout,
   TableVirtualColumnWindow,
   TableVirtualRowProps,
-} from '../shared/virtual'
-import { VISUALLY_HIDDEN_CLASS } from '../theme/recipe-common.recipe'
+} from '../virtualizer/virtualizer.types'
 
 import { getDataTableConfig } from './create-data-table'
 import { EXPAND_COLUMN_ID, SELECT_COLUMN_ID } from './data-table-columns'

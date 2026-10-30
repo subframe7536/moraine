@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { For, createEffect, createSignal, on, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { VirtualRenderProps } from '../../shared/virtual'
 import { createListVirtualizer } from '../../virtualizer'
+import type { VirtualRenderProps } from '../../virtualizer/virtualizer.types'
 
 import { List } from './list'
 

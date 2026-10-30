@@ -10,20 +10,17 @@ import {
   onCleanup,
 } from 'solid-js'
 
+import { createVirtualizerController } from './controller'
+import type { VirtualizerAdapterOptions, VirtualizerLayout } from './controller'
+import { createSharedElementOffsetObserver } from './offset-observer'
+import { VirtualRows } from './virtual-rows'
 import type {
   TableVirtualColumnLayout,
   TableVirtualColumnWindow,
   TableVirtualRenderProps,
   TableVirtualRowProps,
   TableVirtualizer,
-} from '../shared/virtual'
-
-import {
-  VirtualRows,
-  createSharedElementOffsetObserver,
-  createVirtualizerController,
-} from './virtualizer-core'
-import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
+} from './virtualizer.types'
 
 /**
  * Options of the horizontal column virtualizer. Scroll events are shared with the rows, so the row

@@ -5,12 +5,9 @@ import {
   observeElementRect,
 } from '@tanstack/virtual-core'
 import type { PartialKeys, VirtualItem, VirtualizerOptions } from '@tanstack/virtual-core'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
 import {
-  For,
-  Show,
   batch,
-  createMemo,
   createRenderEffect,
   createSignal,
   mergeProps,
@@ -19,8 +16,6 @@ import {
   onMount,
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
-
-import { attachEventListenerMap } from '../shared/event-listener'
 
 export function scrollElementWithRtl<
   TScrollElement extends HTMLElement,
@@ -281,195 +276,5 @@ export function createVirtualizerController<
         },
       }
     },
-  }
-}
-
-export interface VirtualRowEntry<TItem> {
-  readonly index: number
-  readonly item: TItem
-}
-
-/**
- * Pairs a virtual item with its entry. Returns `undefined` while the virtual window still points
- * past the end of shrunken entries, so callers never render a row for a missing item.
- */
-export function createVirtualRow<TItem>(
-  virtualItem: VirtualItem,
-  entries: () => readonly TItem[],
-): Accessor<VirtualRowEntry<TItem> | undefined> {
-  const row = createMemo(
-    () => {
-      const current = entries()
-      const index = virtualItem.index
-      return index < current.length ? { index, item: current[index]! } : undefined
-    },
-    undefined,
-    {
-      equals: (prev, next) => prev?.index === next?.index && prev?.item === next?.item,
-    },
-  )
-  return row
-}
-
-/** Registers row unmeasurement on cleanup and returns a deferred measurement ref. */
-export function attachRowMeasurement<
-  TScrollElement extends HTMLElement,
-  TItemElement extends HTMLElement,
->(virtualizer: Virtualizer<TScrollElement, TItemElement>): (element: TItemElement) => void {
-  onCleanup(() => {
-    queueMicrotask(() => virtualizer.measureElement(null))
-  })
-  return (element: TItemElement) => {
-    // Solid invokes spread refs before all following attributes are applied.
-    // Defer measurement so data attributes, styles, and children affect its size.
-    queueMicrotask(() => {
-      if (element.isConnected) {
-        virtualizer.measureElement(element)
-      }
-    })
-  }
-}
-
-/**
- * Renders the current window: one row per virtual item, measured through the ref passed to
- * `rowProps`. Items past the end of shrunken entries render nothing.
- */
-export function VirtualRows<TItem, TItemElement extends HTMLElement, TRowProps>(props: {
-  virtualizer: Virtualizer<HTMLElement, TItemElement>
-  virtualItems: readonly VirtualItem[]
-  entries: readonly TItem[]
-  render: (item: TItem, index: number, rowProps: TRowProps) => JSX.Element
-  /** Builds the row attributes; it must pass `measure` on as the row `ref`. */
-  rowProps: (
-    row: VirtualRowEntry<TItem>,
-    virtualItem: VirtualItem,
-    measure: (element: TItemElement) => void,
-  ) => TRowProps
-}): JSX.Element {
-  const renderRow = createMemo(() => props.render)
-
-  return (
-    <For each={props.virtualItems}>
-      {(virtualItem) => {
-        const row = createVirtualRow(virtualItem, () => props.entries)
-
-        return (
-          <Show keyed when={row()}>
-            {(current) => {
-              const measure = attachRowMeasurement(props.virtualizer)
-              return renderRow()(
-                current.item,
-                current.index,
-                props.rowProps(current, virtualItem, measure),
-              )
-            }}
-          </Show>
-        )
-      }}
-    </For>
-  )
-}
-
-type OffsetCallback = (offset: number, isScrolling: boolean) => void
-
-// Same check as `@tanstack/virtual-core`; servers report support so no fallback timer starts.
-const SUPPORTS_SCROLLEND = typeof window === 'undefined' ? true : 'onscrollend' in window
-
-const PASSIVE_LISTENER = { passive: true } as const
-
-/**
- * Creates an `observeElementOffset` option that shares one set of scroll listeners per scroll
- * element. Virtualizers on the same element, such as the rows and columns of a table, then get
- * their offsets inside one `batch`, so one scroll event runs downstream computations once.
- *
- * Mirrors `observeOffset` from `@tanstack/virtual-core` 3.19.6: `scrollend` when
- * `useScrollendEvent` is set and supported, otherwise an `isScrollingResetDelay` timer, and a
- * negated horizontal offset in RTL. Recheck it when upgrading `@tanstack/virtual-core`. The first
- * virtualizer that subscribes to an element decides its `scrollend` and delay settings.
- */
-export function createSharedElementOffsetObserver(): <
-  TScrollElement extends HTMLElement,
-  TItemElement extends HTMLElement,
->(
-  instance: Virtualizer<TScrollElement, TItemElement>,
-  callback: OffsetCallback,
-) => (() => void) | undefined {
-  interface Subscriber {
-    readonly instance: Virtualizer<HTMLElement, HTMLElement>
-    readonly callback: OffsetCallback
-  }
-  interface Listener {
-    readonly subscribers: Set<Subscriber>
-    readonly dispose: () => void
-  }
-  const listeners = new Map<HTMLElement, Listener>()
-
-  const readOffset = (instance: Subscriber['instance'], element: HTMLElement): number => {
-    const { horizontal, isRtl } = instance.options
-    return horizontal ? element.scrollLeft * (isRtl ? -1 : 1) : element.scrollTop
-  }
-
-  const listen = (
-    element: HTMLElement,
-    targetWindow: Window & typeof globalThis,
-    first: Subscriber['instance'],
-  ): Listener => {
-    const subscribers = new Set<Subscriber>()
-    const notify = (isScrolling: boolean) =>
-      batch(() => {
-        for (const subscriber of subscribers) {
-          subscriber.callback(readOffset(subscriber.instance, element), isScrolling)
-        }
-      })
-    const useScrollend = first.options.useScrollendEvent && SUPPORTS_SCROLLEND
-    const resetDelay = first.options.isScrollingResetDelay
-    let resetTimer: number | undefined
-    const onScroll = () => {
-      if (!useScrollend) {
-        targetWindow.clearTimeout(resetTimer)
-        resetTimer = targetWindow.setTimeout(() => notify(false), resetDelay)
-      }
-      notify(true)
-    }
-    const onScrollEnd = () => notify(false)
-
-    const detach = attachEventListenerMap(
-      element,
-      { scroll: onScroll, scrollend: useScrollend ? onScrollEnd : undefined },
-      PASSIVE_LISTENER,
-    )
-    return {
-      subscribers,
-      dispose: () => {
-        detach()
-        targetWindow.clearTimeout(resetTimer)
-      },
-    }
-  }
-
-  return (instance, callback) => {
-    const element = instance.scrollElement
-    const targetWindow = instance.targetWindow
-    if (!element || !targetWindow) {
-      return undefined
-    }
-    const source = instance as unknown as Subscriber['instance']
-    let listener = listeners.get(element)
-    if (!listener) {
-      listener = listen(element, targetWindow, source)
-      listeners.set(element, listener)
-    }
-    const subscriber: Subscriber = { instance: source, callback }
-    listener.subscribers.add(subscriber)
-    const current = listener
-    return () => {
-      current.subscribers.delete(subscriber)
-      if (current.subscribers.size === 0) {
-        current.dispose()
-        if (listeners.get(element) === current) {
-          listeners.delete(element)
-        }
-      }
-    }
   }
 }

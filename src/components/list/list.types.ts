@@ -1,8 +1,8 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, ValidComponent } from '../../shared/types'
-import type { ListVirtualizer, VirtualRowProps } from '../../shared/virtual'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
+import type { ListVirtualizer, VirtualRowProps } from '../../virtualizer/virtualizer.types'
 
 import type { ListStyleSlot, ListStyleVariants } from './list.style-types'
 

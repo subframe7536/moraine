@@ -3,7 +3,7 @@ import type { Cell, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, untrack } from 'solid-js'
 
-import type { TableVirtualRowProps } from '../shared/virtual'
+import type { TableVirtualRowProps } from '../virtualizer/virtualizer.types'
 
 import { useDataTableContext } from './data-table-context'
 import { DataTableExpandedRow, createDataTableRowDisclosure } from './data-table-expanded'

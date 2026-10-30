@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useRecipe } from '../../provider'
 import type { ValidComponent } from '../../shared/types'
 import { callRef } from '../../shared/utils'
-import { VirtualContent } from '../../shared/virtual-content'
+import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { listRecipe } from './list.recipe'
 import type { ListProps } from './list.types'

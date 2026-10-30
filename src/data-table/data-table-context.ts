@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js'
 
 import type { SlotBinding, SlotOverrides, UseRecipeResult } from '../provider'
 import { createContextProvider } from '../shared/create-context-provider'
-import type { TableVirtualColumnWindow } from '../shared/virtual'
+import type { TableVirtualColumnWindow } from '../virtualizer/virtualizer.types'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { DataTableCellPin, DataTableSection } from './data-table-layout'

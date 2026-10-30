@@ -4,7 +4,7 @@ import { createEffect, createSignal, on, onCleanup, splitProps, untrack } from '
 import { pickSlotOverrides, useRecipe } from '../../provider'
 import { renderWithProps } from '../../shared/render-with-props'
 import { callRef } from '../../shared/utils'
-import { VirtualContent } from '../../shared/virtual-content'
+import { VirtualContent } from '../../virtualizer/virtual-content'
 
 import { TreeItemProvider, TreeProvider } from './tree-context'
 import type { TreeContext, TreeItemContext } from './tree-context'

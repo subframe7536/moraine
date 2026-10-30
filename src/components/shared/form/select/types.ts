@@ -1,7 +1,7 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { ElementProps } from '../../../../shared/types'
-import type { ListVirtualizer } from '../../../../shared/virtual'
+import type { ListVirtualizer } from '../../../../virtualizer/virtualizer.types'
 import type { BaseSelectT, BaseSelectValue } from '../../../base-select/base-select.types'
 import type { IconT } from '../../../icon/index'
 

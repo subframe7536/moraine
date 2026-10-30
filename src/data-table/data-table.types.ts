@@ -20,8 +20,8 @@ import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../provider/locale/messages.types'
 import type { BaseProps } from '../shared/types'
-import type { TableVirtualizer } from '../shared/virtual'
 import type { SlotClassValue, SlotStyleValue } from '../theme/style-types'
+import type { TableVirtualizer } from '../virtualizer/virtualizer.types'
 
 import type { DataTableFeatures } from './data-table-features'
 import type { defaultDataTableMessages } from './data-table.messages'

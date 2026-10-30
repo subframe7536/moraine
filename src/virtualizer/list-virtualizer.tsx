@@ -1,10 +1,10 @@
 import type { VirtualItem, Virtualizer } from '@tanstack/virtual-core'
 import type { Accessor, Component, JSX } from 'solid-js'
 
-import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from '../shared/virtual'
-
-import { VirtualRows, createVirtualizerController } from './virtualizer-core'
-import type { VirtualizerAdapterOptions } from './virtualizer-core'
+import { createVirtualizerController } from './controller'
+import type { VirtualizerAdapterOptions } from './controller'
+import { VirtualRows } from './virtual-rows'
+import type { ListVirtualizer, VirtualRenderProps, VirtualRowProps } from './virtualizer.types'
 
 export type ListVirtualizerOptions<TItem> = VirtualizerAdapterOptions<TItem> & {
   /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */

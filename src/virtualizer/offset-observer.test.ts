@@ -2,7 +2,7 @@ import type { Virtualizer } from '@tanstack/virtual-core'
 import { createComputed, createRoot, createSignal } from 'solid-js'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { createSharedElementOffsetObserver } from './virtualizer-core'
+import { createSharedElementOffsetObserver } from './offset-observer'
 
 function scrollableElement() {
   const element = document.createElement('div')

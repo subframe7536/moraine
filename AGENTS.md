@@ -18,6 +18,9 @@ top-level directory, whose `index.ts` is that entry: `src/data-table/` is `morai
 (`@tanstack/solid-table`), and `src/virtualizer/` is `moraine/virtualizer` (`@tanstack/virtual-core`).
 The main `moraine` entry must never import either peer; `test/entry-boundaries.test.ts` checks the
 built runtime and declaration output.
+The main entry may import only the peer-free files `src/virtualizer/virtualizer.types.ts`
+(the contract between virtualizers and their host components) and `src/virtualizer/virtual-content.tsx`
+(the host-side mount); every other file in `src/virtualizer/` imports `@tanstack/virtual-core`.
 
 ### Build & Development
 
@@ -128,6 +131,13 @@ The `src` directory is organized by flattened components and shared infrastructu
 │   ├── unocss.ts           # UnoCSS preset and theme variable generation.
 │   └── tailwind.ts         # Tailwind plugin.
 └── virtualizer/            # `moraine/virtualizer` entry: list and table virtualizers over TanStack Virtual.
+    ├── virtualizer.types.ts # Peer-free contract between virtualizers and host components.
+    ├── virtual-content.tsx # Peer-free mount that hosts use for their `virtualizer` prop.
+    ├── controller.ts       # Virtualizer lifecycle shared by the list and table adapters.
+    ├── virtual-rows.tsx    # Row loop and row measurement shared by the adapters.
+    ├── offset-observer.ts  # Scroll listeners shared by the row and column virtualizers.
+    ├── list-virtualizer.tsx  # createListVirtualizer.
+    └── table-virtualizer.tsx # createTableVirtualizer.
 ```
 
 Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.recipe.ts` file. Keep component-specific behavior inside its component directory; move logic to `components/shared/` or `src/shared/` only when it is used by multiple component families. Private primitives for higher-level components are located in `components/shared/` and are not automatically public API.

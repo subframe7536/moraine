@@ -18,4 +18,4 @@ export type {
   VirtualRenderProps,
   VirtualRowProps,
   VirtualScrollToOptions,
-} from '../shared/virtual'
+} from './virtualizer.types'
