@@ -135,7 +135,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
             >
               <Icon
                 name={SORT_ICONS[sorted()]}
-                slotName="data-table-sort-icon"
+                data-slot="data-table-sort-icon"
                 {...dataTableDataAttributes.sortIcon({ sorted: column().getIsSorted() })}
                 {...ctx.slots.sortIcon}
                 aria-hidden="true"

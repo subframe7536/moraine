@@ -4,14 +4,8 @@ export interface CheckboxStyleSlot<T = unknown> {
   /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
   root?: T
 
-  /** Visible checkbox control users recognize as the toggle target. */
+  /** Visible checkbox control users recognize as the toggle target; holds the state icon. */
   control?: T
-
-  /** Visual checked or indeterminate state layer inside the control. */
-  indicator?: T
-
-  /** Check or indeterminate icon rendered for the current state. */
-  icon?: T
 
   /** Inner layout wrapper used by card and list checkbox variants. */
   wrapper?: T

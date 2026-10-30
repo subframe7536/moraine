@@ -235,7 +235,7 @@ describe('generateApiDoc', () => {
 
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
-      expect.arrayContaining(['root', 'control', 'indicator']),
+      expect.arrayContaining(['root', 'control', 'label']),
     )
 
     const resizable = result.componentDocs.get('resizable')

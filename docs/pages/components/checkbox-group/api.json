@@ -236,8 +236,6 @@
     "item",
     "container",
     "control",
-    "indicator",
-    "icon",
     "wrapper",
     "label",
     "description"
@@ -274,14 +272,6 @@
         "data-readonly",
         "data-required",
         "data-unchecked"
-      ]
-    },
-    {
-      "target": "indicator",
-      "attributes": [
-        "data-checked",
-        "data-disabled",
-        "data-indeterminate"
       ]
     },
     {

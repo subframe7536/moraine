@@ -239,8 +239,6 @@
   "slots": [
     "root",
     "control",
-    "indicator",
-    "icon",
     "wrapper",
     "container",
     "label",
@@ -269,14 +267,6 @@
         "data-readonly",
         "data-required",
         "data-unchecked"
-      ]
-    },
-    {
-      "target": "indicator",
-      "attributes": [
-        "data-checked",
-        "data-disabled",
-        "data-indeterminate"
       ]
     },
     {

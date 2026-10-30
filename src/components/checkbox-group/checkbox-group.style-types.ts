@@ -19,12 +19,6 @@ export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Visible checkbox control for an individual option. */
   control?: T
 
-  /** Visual checked or indeterminate state layer for an option. */
-  indicator?: T
-
-  /** Check or indeterminate icon rendered for an option state. */
-  icon?: T
-
   /** Inner layout wrapper used by grouped checkbox variants. */
   wrapper?: T
 

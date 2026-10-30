@@ -15,11 +15,8 @@ export interface StepperStyleSlot<T = unknown> {
   /** Interactive step control users activate to select a step. */
   trigger?: T
 
-  /** Step marker that communicates index, active state, or completion. */
+  /** Step marker that communicates index, active state, or completion; holds the step icon. */
   indicator?: T
-
-  /** Icon rendered inside a completed or custom step indicator. */
-  icon?: T
 
   /** Connector line between adjacent steps. */
   separator?: T

@@ -88,7 +88,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       >
                         <Show when={leading()}>
                           {(icon) => (
-                            <Icon name={icon()} slotName="breadcrumb-leading" {...slots.leading} />
+                            <Icon name={icon()} data-slot="breadcrumb-leading" {...slots.leading} />
                           )}
                         </Show>
                         <Show when={hasLabel()}>

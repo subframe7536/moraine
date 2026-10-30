@@ -34,22 +34,6 @@
           "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or Solid components.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
         },
         {
-          "name": "size",
-          "optional": true,
-          "type": "string | number",
-          "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px."
-        },
-        {
-          "name": "slotName",
-          "optional": true,
-          "type": "string",
-          "description": "Data slot for styling.",
-          "default": {
-            "kind": "literal",
-            "value": "icon"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

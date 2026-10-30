@@ -44,7 +44,7 @@ export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, Switch
       track: `${DATA_DISABLED_CLASS} p-0.5 outline-none rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-input transition-[color,background-color,box-shadow] items-center ${SWITCH_TRACK_EDGE_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
       thumb:
         'rounded-full bg-background flex pointer-events-none shadow-input transition-transform items-center justify-center relative',
-      icon: 'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',
+      icon: 'text-primary transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',
       wrapper: 'flex flex-col gap-0.5',
       label:
         "text-foreground leading-tight font-medium block cursor-pointer select-none data-required:after:(text-danger-ink ms-0.5 content-['*'])",
@@ -57,19 +57,19 @@ export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, Switch
       size: {
         sm: {
           track: 'h-4 w-7',
-          thumb: 'size-3 data-checked:translate-x-3',
+          thumb: 'text-[0.5rem] size-3 data-checked:translate-x-3',
           wrapper: 'text-xs ms-1.5',
           description: 'text-xs',
         },
         md: {
           track: 'h-4.5 w-8',
-          thumb: 'size-3.5 data-checked:translate-x-3.5',
+          thumb: 'text-[0.5625rem] size-3.5 data-checked:translate-x-3.5',
           wrapper: 'text-sm ms-2',
           description: 'text-sm',
         },
         lg: {
           track: 'h-5.5 w-10',
-          thumb: 'size-4.5 data-checked:translate-x-4.5',
+          thumb: 'text-xs size-4.5 data-checked:translate-x-4.5',
           wrapper: 'text-base ms-2.5',
           description: 'text-base',
         },

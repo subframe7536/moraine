@@ -658,6 +658,11 @@ defineTheme({ empty: { defaultVariants: { size: 'huge' } } })
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />
 ;<Icon name="i-lucide-search" classes={{ root: 'size-4' }} />
+;<Icon name="i-lucide-search" data-slot="custom-icon" />
+// @ts-expect-error Icon size is set with font-size, not a prop
+;<Icon name="i-lucide-search" size={16} />
+// @ts-expect-error Icon uses a data-slot attribute instead of slotName
+;<Icon name="i-lucide-search" slotName="custom-icon" />
 
 ;<Kbd value="K" class="px-2" style={{ color: 'red' }} />
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />

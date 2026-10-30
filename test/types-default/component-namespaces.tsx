@@ -301,8 +301,10 @@ export type SlotOwnershipContract = [
       ? true
       : false
   >,
-  Assert<'control' | 'icon' | 'label' extends keyof CheckboxGroupT.Slot ? true : false>,
-  Assert<'icon' extends keyof CheckboxT.Slot ? true : false>,
+  Assert<'control' | 'label' extends keyof CheckboxGroupT.Slot ? true : false>,
+  Assert<'icon' | 'indicator' extends keyof CheckboxGroupT.Slot ? false : true>,
+  Assert<'control' extends keyof CheckboxT.Slot ? true : false>,
+  Assert<'icon' | 'indicator' extends keyof CheckboxT.Slot ? false : true>,
   Assert<'controlLabel' extends keyof PaginationT.Slot ? true : false>,
   Assert<'itemWrapper' | 'itemLabel' | 'itemIndicator' extends keyof SelectT.Slot ? true : false>,
 ]

@@ -31,10 +31,10 @@ export const sidebarRecipe = /* @__PURE__ */ defineRecipe<SidebarStyleSlot, Side
         'text-xs text-muted-foreground font-medium px-2 flex h-8 select-none items-center',
       menu: 'flex flex-col min-w-0 w-full',
       menuItem: `text-sm text-muted-foreground font-medium px-2 text-left outline-none rounded-lg flex gap-2 h-8 w-full cursor-pointer select-none items-center data-active:(text-foreground bg-muted-active) hover:(text-foreground bg-muted-hover) data-with-action:pe-8 data-mobile:min-h-11 ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,
-      menuItemLeading: 'shrink-0 size-4',
+      menuItemLeading: 'shrink-0',
       menuItemLabel: 'flex flex-1 gap-2 min-w-0 items-center',
       menuItemTrailing:
-        'shrink-0 size-4 transition-transform data-expanded:rotate-90 rtl:data-expanded:-rotate-90',
+        'shrink-0 transition-transform data-expanded:rotate-90 rtl:data-expanded:-rotate-90',
       menuAction: 'flex gap-0.5 items-center end-1.5 inset-y-0 absolute z-raised',
       menuSub: 'flex flex-col w-full',
       menuSubTrigger: `text-muted-foreground outline-none rounded-md flex shrink-0 size-6 cursor-pointer select-none items-center justify-center hover:bg-muted-hover ${FOCUS_VISIBLE_RING_CLASS}  ${DATA_DISABLED_CLASS}`,

@@ -83,7 +83,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             }}
           >
             <Show when={local.leadingIcon}>
-              {(icon) => <Icon name={icon()} slotName="select-leading" {...slots.leading} />}
+              {(icon) => <Icon name={icon()} data-slot="select-leading" {...slots.leading} />}
             </Show>
             <span
               data-slot="select-value"
@@ -96,7 +96,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
                   : (local.placeholder ?? messages().placeholder))}
             </span>
             <Icon
-              slotName="select-trailing"
+              data-slot="select-trailing"
               name={
                 local.loading
                   ? (local.loadingIcon ?? 'icon-loading')

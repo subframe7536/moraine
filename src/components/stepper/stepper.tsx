@@ -263,9 +263,8 @@ export function Stepper(props: StepperProps): JSX.Element {
                     {...slots.indicator}
                   >
                     <Icon
-                      slotName="stepper-icon"
                       name={entry.item.icon || (() => entry.index + 1)}
-                      {...slots.icon}
+                      data-slot="stepper-icon"
                     />
                   </span>
 

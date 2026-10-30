@@ -611,7 +611,7 @@ export function FileUpload<Multiple extends boolean = false>(
         {...fileUploadDataAttributes.wrapper({ dropzone })}
         {...slots.wrapper}
       >
-        <Icon name={merged.icon} slotName="file-upload-icon" {...slots.icon} />
+        <Icon name={merged.icon} data-slot="file-upload-icon" {...slots.icon} />
 
         <Show when={label()}>
           <span id={labelId()} data-slot="file-upload-label" {...slots.label}>
@@ -798,7 +798,7 @@ export function FileUpload<Multiple extends boolean = false>(
                   <Show
                     when={previewUrls().get(file)}
                     fallback={
-                      <Icon name={merged.fileIcon} slotName="file-upload-icon" {...slots.icon} />
+                      <Icon name={merged.fileIcon} data-slot="file-upload-icon" {...slots.icon} />
                     }
                   >
                     {(url) => <img class="size-full object-cover" src={url()} alt={file.name} />}

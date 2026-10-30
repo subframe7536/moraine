@@ -155,7 +155,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
           {(fallbackContent) => (
             <Icon
               name={fallbackContent()}
-              slotName={`${slotName()}-fallback-content`}
+              data-slot={`${slotName()}-fallback-content`}
               {...slots.fallbackContent}
             />
           )}

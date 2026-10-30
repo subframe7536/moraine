@@ -71,7 +71,7 @@ export function TreeItemTrigger<T extends ValidComponent = 'span'>(
                   ? (context.props.loadingIcon ?? 'icon-loading')
                   : (local.icon ?? context.props.triggerIcon ?? 'icon-chevron-right')
               }
-              slotName="tree-trigger-icon"
+              data-slot="tree-trigger-icon"
               class={TREE_TRIGGER_ICON_CLASS}
             />
           }

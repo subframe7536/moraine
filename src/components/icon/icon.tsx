@@ -16,8 +16,6 @@ export function Icon(props: IconProps): JSX.Element {
     'style',
     'classes',
     'styles',
-    'size',
-    'slotName',
     'aria-hidden',
     'role',
   ])
@@ -26,9 +24,6 @@ export function Icon(props: IconProps): JSX.Element {
     own: () => ({
       root: {
         class: typeof name() === 'string' ? name() : undefined,
-        style: {
-          'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-        },
       },
     }),
   })
@@ -62,7 +57,7 @@ export function Icon(props: IconProps): JSX.Element {
   return (
     <Dynamic
       component={componentProps().component}
-      data-slot={local.slotName ?? 'icon'}
+      data-slot="icon"
       {...rest}
       {...accessibilityProps()}
       {...slots.root}

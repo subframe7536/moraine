@@ -12,9 +12,9 @@ export function Slots() {
         <p class="text-sm text-muted-foreground">Instance class and style</p>
         <Icon
           name="i-lucide:info"
-          slotName="custom-icon"
+          data-slot="custom-icon"
           class="text-blue-500"
-          style={{ width: '28px', height: '28px' }}
+          style={{ 'font-size': '24px' }}
         />
       </div>
       <MoraineProvider theme={theme}>

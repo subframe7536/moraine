@@ -20,7 +20,9 @@ export namespace IconT {
 
   export type Name = IconStringName | JSX.Element | Component<Omit<IconProps, 'name'>>
   /**
-   * Base props for the Icon component.
+   * Base props for the Icon component. The icon is sized by the inherited `font-size`;
+   * set `font-size` (for example `text-lg`) on the icon or an ancestor to resize it.
+   * The default `data-slot="icon"` can be replaced with a `data-slot` attribute.
    */
   export interface Base {
     /**
@@ -30,18 +32,6 @@ export namespace IconT {
      * Wrap Icon in Solid control flow instead of passing a control-flow node as `name`.
      */
     name: Name
-
-    /**
-     * Explicit icon size override. Omit to inherit the surrounding font size.
-     * Numbers are interpreted as px.
-     */
-    size?: string | number
-
-    /**
-     * Data slot for styling.
-     * @default 'icon'
-     */
-    slotName?: string
   }
 
   /**

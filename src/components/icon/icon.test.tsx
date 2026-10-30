@@ -17,15 +17,25 @@ describe('Icon', () => {
     expect(icon?.className).toContain('i-lucide-search')
   })
 
-  test('applies numeric size as font-size in px', () => {
-    const screen = render(() => <Icon name="i-lucide-search" size={18} />)
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
+  test('replaces the default data-slot with a caller data-slot', () => {
+    const screen = render(() => <Icon name="i-lucide-search" data-slot="button-leading" />)
 
-    expect(icon).not.toBeNull()
-    expect(icon?.style.fontSize).toBe('18px')
+    expect(screen.container.querySelector('[data-slot="icon"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="button-leading"]')).not.toBeNull()
   })
 
-  test('inherits font size when size is omitted', () => {
+  test('opts out of forced colors and follows the parent color in forced colors mode', () => {
+    const screen = render(() => <Icon name="i-lucide-search" />)
+    const icon = screen.container.querySelector('[data-slot="icon"]')
+
+    expect(icon?.className).toContain('forced-color-adjust-none')
+    expect(icon?.className).toContain(
+      'supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]',
+    )
+    expect(icon?.className).toContain('forced-colors:text-inherit')
+  })
+
+  test('inherits font size', () => {
     const screen = render(() => (
       <div style={{ 'font-size': '18px' }}>
         <Icon name="i-lucide-search" />
@@ -36,15 +46,6 @@ describe('Icon', () => {
     expect(icon).not.toBeNull()
     expect(icon?.style.fontSize).toBe('')
     expect(getComputedStyle(icon!).fontSize).toBe('18px')
-  })
-
-  test('allows style to override an explicit size', () => {
-    const screen = render(() => (
-      <Icon name="i-lucide-search" size={18} style={{ 'font-size': '20px' }} />
-    ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
-
-    expect(icon?.style.fontSize).toBe('20px')
   })
 
   test('renders element icons inside an attribute-owning wrapper', () => {
@@ -76,7 +77,7 @@ describe('Icon', () => {
 
   test('forwards reactive attributes to Solid components with default parameters', () => {
     const [label, setLabel] = createSignal('Before')
-    const [size, setSize] = createSignal(18)
+    const [size, setSize] = createSignal('18px')
     const Glyph = (props: Omit<IconProps, 'name'> = {}) => (
       <svg
         aria-hidden={props['aria-hidden']}
@@ -88,14 +89,20 @@ describe('Icon', () => {
       />
     )
     const screen = render(() => (
-      <Icon name={Glyph} aria-label={label()} size={size()} class="glyph" title="Status" />
+      <Icon
+        name={Glyph}
+        aria-label={label()}
+        style={{ 'font-size': size() }}
+        class="glyph"
+        title="Status"
+      />
     ))
     const glyph = screen.getByRole('img', { name: 'Before' })
     expect(glyph.getAttribute('aria-label')).toBe('Before')
     expect(glyph.getAttribute('class')).toContain('glyph')
     expect(glyph.getAttribute('data-title')).toBe('Status')
     expect(glyph.style.fontSize).toBe('18px')
-    setSize(24)
+    setSize('24px')
     expect(glyph.style.fontSize).toBe('24px')
     setLabel('After')
     expect(glyph.getAttribute('aria-label')).toBe('After')

@@ -140,7 +140,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(leading) => (
           <Icon
             name={leading()}
-            slotName="button-leading"
+            data-slot="button-leading"
             aria-hidden={isLeadingLoading() ? true : undefined}
             {...slots.leading}
           />
@@ -157,7 +157,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(trailing) => (
           <Icon
             name={trailing()}
-            slotName="button-trailing"
+            data-slot="button-trailing"
             aria-hidden={isTrailingLoading() ? true : undefined}
             {...slots.trailing}
           />

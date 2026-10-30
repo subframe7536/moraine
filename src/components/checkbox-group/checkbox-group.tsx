@@ -344,8 +344,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                   root: 'item',
                   container: 'container',
                   control: 'control',
-                  indicator: 'indicator',
-                  icon: 'icon',
                   wrapper: 'wrapper',
                   label: 'label',
                   description: 'description',

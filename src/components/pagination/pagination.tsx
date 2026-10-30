@@ -271,7 +271,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 when={typeof item === 'number' ? item : undefined}
                 fallback={
                   <Icon
-                    slotName="pagination-ellipsis"
+                    data-slot="pagination-ellipsis"
                     name={merged.ellipsisIcon}
                     {...slots.ellipsis}
                   />

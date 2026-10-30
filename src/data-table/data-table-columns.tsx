@@ -10,7 +10,6 @@ import { PEER_CLASS } from '../theme/recipe-common.recipe'
 import { useDataTableContext } from './data-table-context'
 import type { DataTableFeatures } from './data-table-features'
 import {
-  DATA_TABLE_EXPAND_ICON_CLASS,
   DATA_TABLE_EXPAND_PLACEHOLDER_CLASS,
   DATA_TABLE_RADIO_CLASS,
   DATA_TABLE_RADIO_INDICATOR_CLASS,
@@ -54,7 +53,6 @@ export function buildSelectColumn<TData extends RowData = RowData>(
             aria-label={ctx.paginated() ? ctx.messages().selectPage : ctx.messages().selectAll}
             {...ctx.slots.checkbox}
             checked={allSelected() ? true : someSelected() ? 'indeterminate' : false}
-            iconSlot={ctx.slots.checkboxIcon}
             onCheckedChange={toggleAll}
           />
         </Show>
@@ -82,7 +80,6 @@ export function buildSelectColumn<TData extends RowData = RowData>(
               {...ctx.slots.checkbox}
               checked={checkedState()}
               disabled={!canSelect()}
-              iconSlot={ctx.slots.checkboxIcon}
               // Keep the click from reaching `onRowClick`.
               onClick={(e) => e.stopPropagation()}
               onCheckedChange={(checked) => props.row.toggleSelected(checked)}
@@ -152,7 +149,7 @@ export function buildExpandColumn<TData extends RowData = RowData>(): ColumnDef<
             }}
             {...ctx.slots.expandButton}
           >
-            <Icon name="icon-chevron-right" class={DATA_TABLE_EXPAND_ICON_CLASS} />
+            <Icon name="icon-chevron-right" />
           </button>
         </Show>
       )

@@ -188,8 +188,7 @@
     "expandedRow",
     "expandedCell",
     "expandButton",
-    "checkbox",
-    "checkboxIcon"
+    "checkbox"
   ],
   "dataAttributes": [
     {

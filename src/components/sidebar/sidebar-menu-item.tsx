@@ -151,7 +151,7 @@ export function SidebarMenuItem<T extends ValidComponent = 'button'>(
         {(iconName) => (
           <Icon
             name={iconName()}
-            slotName="sidebar-menu-item-leading"
+            data-slot="sidebar-menu-item-leading"
             {...resolved.slots.menuItemLeading}
             aria-hidden={true}
           />
@@ -166,7 +166,7 @@ export function SidebarMenuItem<T extends ValidComponent = 'button'>(
         {(iconName) => (
           <Icon
             name={iconName()}
-            slotName="sidebar-menu-item-trailing"
+            data-slot="sidebar-menu-item-trailing"
             {...resolved.slots.menuItemTrailing}
             aria-hidden={true}
             {...sidebarDataAttributes.menuItemTrailing({

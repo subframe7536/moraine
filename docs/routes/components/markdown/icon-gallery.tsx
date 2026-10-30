@@ -26,7 +26,7 @@ export function IconGallery() {
               title={name}
               onClick={() => void clipboard.copy(name)}
             >
-              <Icon name={name} size={28} class="size-7" />
+              <Icon name={name} class="text-2xl" />
               <Icon
                 name={
                   message() === 'Copied'
@@ -35,9 +35,8 @@ export function IconGallery() {
                       ? 'icon-error'
                       : 'icon-copy'
                 }
-                size={16}
                 class={[
-                  'size-4 right-2 top-2 absolute hidden group-hover:block',
+                  'text-sm right-2 top-2 absolute hidden group-hover:block',
                   message() === 'Copied'
                     ? 'text-primary'
                     : message() === 'Copy failed'

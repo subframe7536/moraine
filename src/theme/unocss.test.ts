@@ -877,6 +877,31 @@ describe('presetMoraine', () => {
   })
 })
 
+describe('forced colors utilities', () => {
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('compiles the icon forced colors classes with %s', async (_name, wind) => {
+    const css = await generate(
+      [
+        'forced-color-adjust-none',
+        'supports-[forced-color-adjust:preserve-parent-color]:[forced-color-adjust:preserve-parent-color]',
+        'forced-colors:text-inherit',
+      ],
+      false,
+      wind,
+    )
+
+    expect(css).toMatch(/\.forced-color-adjust-none\{forced-color-adjust:none;\}/)
+    expect(css).toMatch(
+      /@supports \(forced-color-adjust:preserve-parent-color\)\{\s*\S+\{forced-color-adjust:preserve-parent-color;\}/,
+    )
+    expect(css).toMatch(
+      /@media \(forced-colors: active\)\{\s*\.forced-colors\\:text-inherit\{color:inherit;\}/,
+    )
+  })
+})
+
 describe('Wind3 semantic color and layout compatibility', () => {
   test('applies alpha to semantic variables through interaction variants', async () => {
     const css = await generate(

@@ -415,21 +415,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onBlur={onControlBlur}
         >
           <Show when={resolvedChecked() || indeterminate()}>
-            <span
-              data-slot="checkbox-indicator"
-              {...slots.indicator}
-              {...checkboxDataAttributes.indicator({
-                checked: resolvedChecked,
-                disabled: field.disabled,
-                indeterminate,
-              })}
-            >
-              <Icon
-                name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
-                slotName="checkbox-icon"
-                {...slots.icon}
-              />
-            </span>
+            <Icon
+              name={indeterminate() ? merged.indeterminateIcon : merged.checkedIcon}
+              data-slot="checkbox-icon"
+            />
           </Show>
         </button>
       </div>

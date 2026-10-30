@@ -223,7 +223,6 @@ describe('Checkbox', () => {
     const input = getHiddenCheckbox(screen.container)
     const control = screen.container.querySelector('[data-slot="checkbox-control"]')
     const root = screen.container.querySelector('[data-slot="checkbox"]')
-    const indicator = screen.container.querySelector('[data-slot="checkbox-indicator"]')
     const description = screen.getByText('Selection summary')
 
     await waitFor(() => {
@@ -232,10 +231,26 @@ describe('Checkbox', () => {
       expectCheckboxChecked(checkbox, 'mixed')
       expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
       expect(root?.getAttribute('data-indeterminate')).toBe('')
-      expect(indicator?.getAttribute('data-indeterminate')).toBe('')
       expect(description?.hasAttribute('data-indeterminate')).toBe(false)
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
+  })
+
+  test('renders the state icon directly in the control with the same fill for both states', () => {
+    const [checked, setChecked] = createSignal<boolean | 'indeterminate'>('indeterminate')
+    const screen = render(() => <Checkbox checked={checked()} label="Fill" />)
+    const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')!
+    const iconOf = () => control.querySelector<HTMLElement>(':scope > [data-slot="checkbox-icon"]')
+
+    expect(screen.container.querySelector('[data-slot="checkbox-indicator"]')).toBeNull()
+    expect(iconOf()?.className).toContain('icon-minus')
+    expect(control.className).toContain('data-indeterminate:border-primary')
+    expect(control.className).toContain('data-indeterminate:bg-primary')
+
+    setChecked(true)
+    expect(iconOf()?.className).toContain('icon-check')
+    expect(control.className).toContain('data-checked:border-primary')
+    expect(control.className).toContain('data-checked:bg-primary')
   })
 
   test('renders default indeterminate state when defaultChecked is indeterminate', async () => {
