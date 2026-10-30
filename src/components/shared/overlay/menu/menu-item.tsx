@@ -236,11 +236,9 @@ export function createMenuItemRenderers<TItem extends OverlayMenuItem = OverlayM
         }
       >
         <Show when={contentProps.item.icon}>
-          <Icon
-            name={contentProps.item.icon}
-            data-slot={slotName('itemLeading')}
-            {...resolveSlot('itemLeading')}
-          />
+          <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>
+            <Icon name={contentProps.item.icon} />
+          </span>
         </Show>
 
         <Show when={label() || description()}>

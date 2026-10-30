@@ -6,7 +6,6 @@ import { describe, expect, test, vi } from 'vitest'
 import { callHandler } from '../../shared/utils'
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { Button } from '../button'
-import type { IconProps } from '../icon'
 
 import { DropdownMenu } from './dropdown-menu'
 
@@ -1305,29 +1304,6 @@ describe('DropdownMenu', () => {
       '[data-slot="dropdown-menu-item-leading"]',
     ) as HTMLElement
     expect(leading.className).not.toContain('text-muted-foreground')
-  })
-
-  test('sizes a component icon from the item even when its svg is the leading slot', async () => {
-    const Glyph = (props: Omit<IconProps, 'name'>) => (
-      <svg {...(props as JSX.SvgSVGAttributes<SVGSVGElement>)} />
-    )
-    render(() => (
-      <DropdownMenu defaultOpen>
-        <DropdownMenu.Trigger as="button" type="button">
-          Actions
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content items={[{ label: 'Star', icon: Glyph }]} />
-      </DropdownMenu>
-    ))
-
-    await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')).not.toBeNull()
-    })
-
-    const leading = document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')!
-    expect(leading.tagName.toLowerCase()).toBe('svg')
-    // `[&_svg]` on the leading slot would not match the svg itself, so the item owns the size.
-    expect(leading.closest('[role="menuitem"]')?.className).toContain('[&_svg]:size-4')
   })
 
   test('exposes danger state without annotating default items', async () => {
