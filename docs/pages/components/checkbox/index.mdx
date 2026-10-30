@@ -137,15 +137,6 @@ schema fields then receive those strings instead of booleans.
 
 <Preview path="./custom-true-false-values" />
 
-### Save cookie consent for Consent Mode
-
-Consent Mode reads each consent type as `'granted'` or `'denied'`. Set `trueValue="granted"` and
-`falseValue="denied"` inside `form.Field`, and the schema validates and submits those strings
-directly, so the submitted output goes straight to `gtag('consent', 'update', ...)` without a
-boolean mapping step.
-
-<Preview path="./consent-preferences" />
-
 ### Require terms on submit
 
 Bind the checkbox to `form.Field` and reject `false` in the schema so submit cannot proceed until
