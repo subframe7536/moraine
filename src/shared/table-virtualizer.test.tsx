@@ -581,6 +581,51 @@ describe('createTableVirtualizer', () => {
     rectSpy.mockRestore()
   })
 
+  test('does not treat a horizontally pinned header cell as a sticky header', async () => {
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        return { top: this.tagName === 'TBODY' ? 40 : 0, height: 40 } as DOMRect
+      })
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 200 }),
+      observeElementOffset: (_instance, callback) => callback(0, false),
+    })
+    let scrollElement: HTMLDivElement | undefined
+
+    const screen = render(() => (
+      <div
+        ref={(element) => {
+          scrollElement = element
+        }}
+      >
+        <table>
+          <thead>
+            <tr>
+              <th style={{ position: 'sticky', left: 0 }}>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            <Dynamic
+              component={virtualizer.virtualRender}
+              entries={['a']}
+              scrollElement={scrollElement}
+              render={(item, _index, props) => <tr {...props}>{item}</tr>}
+            />
+          </tbody>
+        </table>
+      </div>
+    ))
+    await Promise.resolve()
+
+    const options = virtualizer.instance()!.options
+    expect(options.scrollMargin).toBe(40)
+    expect(options.scrollPaddingStart).toBe(0)
+    screen.unmount()
+    rectSpy.mockRestore()
+  })
+
   test('prefers explicit scrollMargin and scroll padding over measured values', async () => {
     const rectSpy = vi
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')

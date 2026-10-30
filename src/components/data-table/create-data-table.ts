@@ -14,6 +14,9 @@ import type { DataTableT } from './data-table.types'
 
 export const DEFAULT_DATA_TABLE_PAGE_SIZES = [5, 10, 20, 50] as const
 
+/** `maxSize` in px given to columns of a resizable table that set none. */
+export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
+
 export interface DataTableInternalConfig {
   readonly paginated: boolean
   readonly pageSizes: readonly number[] | false
@@ -168,6 +171,15 @@ export function createDataTable<TData extends RowData = RowData>(
     }
   }
 
+  // A resize handle reports its range to assistive technology, so resizable columns need a finite
+  // `maxSize`. Column and `defaultColumn` values still win; memoized so column memos stay stable.
+  const defaultColumn = createMemo(() => {
+    const own = options.tableOptions?.defaultColumn
+    return options.resizable
+      ? { maxSize: DEFAULT_RESIZABLE_MAX_COLUMN_SIZE, ...own }
+      : (own ?? null)
+  })
+
   const features = getDataTableFeatures()
   // `mergeProps` treats `undefined` as "fall back to a previous source". The
   // initial options snapshot is captured once by `constructTable`, so a getter
@@ -186,6 +198,9 @@ export function createDataTable<TData extends RowData = RowData>(
     options.tableOptions ?? {},
     {
       features,
+      get defaultColumn() {
+        return defaultColumn()
+      },
       get data() {
         return memoizedData()
       },

@@ -11,8 +11,7 @@ import {
   onCleanup,
 } from 'solid-js'
 
-import type { ListT } from '../components/list/list.types'
-
+import type { TableVirtualRenderProps } from './table-virtual-render'
 import {
   attachRowMeasurement,
   createVirtualRow,
@@ -24,19 +23,6 @@ export type TableVirtualizerOptions<TItem> = Omit<
   VirtualizerAdapterOptions<TItem, HTMLElement, HTMLTableRowElement>,
   'horizontal'
 >
-
-export type TableVirtualRenderProps<TItem> = Omit<
-  ListT.VirtualRenderProps<TItem, HTMLElement, HTMLTableRowElement>,
-  'scrollElement'
-> & {
-  /**
-   * Scroll container for the rows; defaults to the adapter's host `tbody`. Pass an ancestor
-   * element only when scrolling happens outside the table body. The adapter then measures the
-   * body offset inside it (`scrollMargin`) and the height of a sticky header or footer
-   * (`scrollPaddingStart` / `scrollPaddingEnd`), unless those options are set explicitly.
-   */
-  readonly scrollElement?: HTMLElement
-}
 
 export type TableVirtualizerReturn<TItem> = {
   /** Current low-level virtualizer instance, available after virtual content mounts. */
@@ -69,15 +55,23 @@ function sameSections(a: TableSections, b: TableSections): boolean {
   )
 }
 
-/** Sticky sections stay in the viewport, so scrolling to a row must clear their height. */
-function stickyHeight(section: HTMLTableSectionElement | null): number {
+/**
+ * Vertically sticky sections stay in the viewport, so scrolling to a row must clear their height.
+ * The section or its first cell counts as sticky when it is `position: sticky` with a vertical
+ * inset; a cell pinned only horizontally does not.
+ */
+function stickyHeight(section: HTMLTableSectionElement | null, edge: 'top' | 'bottom'): number {
   if (!section) {
     return 0
   }
   const cell = section.rows[0]?.cells[0]
-  const sticky = [section, cell].some(
-    (element) => element !== undefined && getComputedStyle(element).position === 'sticky',
-  )
+  const sticky = [section, cell].some((element) => {
+    if (element === undefined) {
+      return false
+    }
+    const style = getComputedStyle(element)
+    return style.position === 'sticky' && style[edge] !== 'auto' && style[edge] !== ''
+  })
   return sticky ? section.getBoundingClientRect().height : 0
 }
 
@@ -129,8 +123,8 @@ export function createTableVirtualizer<TItem>(
                 scroll.getBoundingClientRect().top +
                 scroll.scrollTop -
                 scroll.clientTop,
-              scrollPaddingStart: stickyHeight(table.tHead),
-              scrollPaddingEnd: stickyHeight(table.tFoot),
+              scrollPaddingStart: stickyHeight(table.tHead, 'top'),
+              scrollPaddingEnd: stickyHeight(table.tFoot, 'bottom'),
             }
           : EMPTY_SECTIONS.layout,
       })

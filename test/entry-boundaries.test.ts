@@ -21,7 +21,9 @@ function collectBareImports(entry: string): Set<string> {
     seen.add(file)
     for (const [, specifier] of readFileSync(file, 'utf8').matchAll(IMPORT_PATTERN)) {
       if (specifier.startsWith('.')) {
-        queue.push(resolve(dirname(file), specifier))
+        // Declarations import `./x.mjs`; the declaration for it is `./x.d.mts`.
+        const target = file.endsWith('.d.mts') ? specifier.replace(/\.mjs$/, '.d.mts') : specifier
+        queue.push(resolve(dirname(file), target))
       } else {
         bare.add(specifier)
       }
@@ -40,5 +42,18 @@ describe.skipIf(!existsSync(join(DIST, 'index.mjs')))('package entry boundaries'
 
   test('data-table entry imports TanStack Table', () => {
     expect(collectBareImports('data-table.mjs')).toContain('@tanstack/solid-table')
+  })
+
+  // Consumers type-check against declarations, so they must keep the same boundaries.
+  test.each([
+    ['index.d.mts', OPTIONAL_PEERS],
+    ['data-table.mjs', ['@tanstack/virtual-core']],
+    ['data-table.d.mts', ['@tanstack/virtual-core']],
+    ['virtualizer.d.mts', ['@tanstack/solid-table']],
+  ])('%s does not reach %j', (entry, peers) => {
+    const imports = collectBareImports(entry)
+    for (const peer of peers) {
+      expect([...imports].filter((name) => name.startsWith(peer))).toEqual([])
+    }
   })
 })

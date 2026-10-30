@@ -32,6 +32,8 @@ export interface DataTableContextValue {
     size: () => number,
     section: DataTableSection,
   ) => SlotBinding
+  /** Slot binding for the `header` or `footer` section, including its sticky position. */
+  readonly sectionSlot: (section: 'header' | 'footer') => SlotBinding
   /** Pin placement of a body cell, from its leaf column. */
   readonly columnPin: <TData extends RowData>(
     column: Column<DataTableFeatures, TData>,

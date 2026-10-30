@@ -434,7 +434,8 @@ Header and footer rows render each pinned region separately. A group header over
 unpinned columns splits into one cell per region, so only the pinned part sticks.
 
 `sticky` keeps the header (`'header'`), the footer (`'footer'`), or both (`true`) in view. It needs
-a bounded height, so pair it with `maxHeight`.
+a bounded height, so pair it with `maxHeight`. The whole `thead` or `tfoot` sticks, so grouped
+header and footer rows stay stacked.
 
 ```tsx
 <DataTable table={table} sticky maxHeight={360} />
@@ -446,11 +447,12 @@ Pinning and resizing switch the table to a fixed layout with explicit column wid
 ### Column resizing
 
 `resizable: true` adds a resize handle to each column header. Widths stay within each column's
-`minSize` and `maxSize`. The new width commits when a drag ends; set
+`minSize` and `maxSize`. Columns without a `maxSize`, in their definition or in
+`tableOptions.defaultColumn`, are capped at 1000px so the handle can report a range. The new width commits when a drag ends; set
 `tableOptions.columnResizeMode: 'onChange'` to resize while dragging.
 
-Each handle is a focusable separator that reports the column's current and minimum width, and its
-maximum width when one is set.
+Each handle is a focusable separator named after its column, such as "Name Resize column". It
+reports the column's current, minimum, and maximum width.
 
 | Key                                          | Action                                             |
 | -------------------------------------------- | -------------------------------------------------- |
@@ -527,7 +529,8 @@ See the [Virtualization guide](/docs/virtualization#table) for sizing and keys.
 ### Localization
 
 Override text for one table with `translations`, or for the whole app with the `dataTable` key of
-`MoraineProvider` `messages`.
+`MoraineProvider` `messages`. Sort buttons and resize handles prefix the column header to their
+text, so the sort button of a Name column is named "Name Sort", then "Name Sorted ascending".
 
 | Key                                           | Default                                          |
 | --------------------------------------------- | ------------------------------------------------ |

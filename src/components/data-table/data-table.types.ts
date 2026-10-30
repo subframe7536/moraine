@@ -19,7 +19,7 @@ import type {
 import type { Component, JSX, Ref } from 'solid-js'
 
 import type { ComponentMessages } from '../../provider/locale/messages.types'
-import type { TableVirtualRenderProps } from '../../shared/table-virtualizer'
+import type { TableVirtualRenderProps } from '../../shared/table-virtual-render'
 import type { BaseProps } from '../../shared/types'
 import type { SlotClassValue, SlotStyleValue } from '../../theme/style-types'
 
@@ -132,7 +132,10 @@ export namespace DataTableT {
     expandable?: boolean | ((row: Row<TData>) => boolean)
     /** Enables client-side or server-side pagination and renders the pagination toolbar. @default false */
     pagination?: boolean | PaginationConfig
-    /** Enables interactive column width resizing. @default false */
+    /**
+     * Enables interactive column width resizing. Columns without a `maxSize`, in their definition
+     * or in `tableOptions.defaultColumn`, are capped at 1000px. @default false
+     */
     resizable?: boolean
     /** Enables server-driven manual sorting, filtering, and pagination. @default false */
     manual?: boolean

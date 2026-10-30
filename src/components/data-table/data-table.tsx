@@ -183,8 +183,10 @@ export function DataTable<TData extends RowData = RowData>(
           slotWith(
             slot,
             () => layout.cellClass(column, section),
-            () => layout.cellStyle(column, pin, size, section),
+            () => layout.cellStyle(column, pin, size),
           ),
+        sectionSlot: (section) =>
+          slotWith(section, undefined, () => ({ style: layout.sectionStyle(section) })),
       }}
     >
       <div

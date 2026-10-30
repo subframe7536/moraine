@@ -1,8 +1,9 @@
 import { FlexRender } from '@tanstack/solid-table'
 import type { Header, RowData } from '@tanstack/solid-table'
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo } from 'solid-js'
+import { For, Show, createMemo, createUniqueId } from 'solid-js'
 
+import { VISUALLY_HIDDEN_CLASS } from '../../theme/recipe-common.recipe'
 import { Icon } from '../icon'
 import { TABLE_TEXT_ALIGN_CLASS } from '../table/table.recipe'
 
@@ -23,14 +24,14 @@ const SORT_ICONS = {
   none: 'icon-arrow-up-down',
 } as const
 
-const ARIA_SORT = { asc: 'ascending', desc: 'descending', none: 'none' } as const
+const ARIA_SORT = { asc: 'ascending', desc: 'descending' } as const
 
 /** Width change in px per arrow key press on a resize handle; Shift multiplies it. */
 const RESIZE_KEYBOARD_STEP = 10
 const RESIZE_KEYBOARD_SHIFT_MULTIPLIER = 5
-// TanStack's column size bounds when a column definition sets none.
+// TanStack's column size bounds when neither the column nor `defaultColumn` sets one.
 const DEFAULT_MIN_COLUMN_SIZE = 20
-const DEFAULT_MAX_COLUMN_SIZE = Number.MAX_SAFE_INTEGER
+const UNBOUNDED_COLUMN_SIZE = Number.MAX_SAFE_INTEGER
 
 /**
  * Header rows: column labels, sort toggles, and resize handles. Each row renders the start,
@@ -42,7 +43,7 @@ export function DataTableHeader<TData extends RowData>(props: {
   const ctx = useDataTableContext()
 
   return (
-    <thead data-slot="data-table-header" {...ctx.slots.header}>
+    <thead data-slot="data-table-header" {...ctx.sectionSlot('header')}>
       {/* Row count comes from all columns, so it stays correct when one region is empty. */}
       <For each={props.table.getHeaderGroups()}>
         {(_, depth) => (
@@ -75,6 +76,9 @@ function DataTableHeadCell<TData extends RowData>(props: {
     () => props.side,
   )
   const sorted = createMemo(() => column().getIsSorted() || 'none')
+  // Controls name their column: `aria-labelledby` joins the header label with the action text.
+  const labelId = createUniqueId()
+  const sortActionId = createUniqueId()
   const sortLabel = () => {
     const messages = ctx.messages()
     const direction = sorted()
@@ -89,7 +93,8 @@ function DataTableHeadCell<TData extends RowData>(props: {
     <th
       data-slot="data-table-head"
       colSpan={props.header.colSpan}
-      aria-sort={sorted() !== 'none' || column().getCanSort() ? ARIA_SORT[sorted()] : undefined}
+      // Only the sorted header carries `aria-sort`.
+      aria-sort={sorted() === 'none' ? undefined : ARIA_SORT[sorted() as 'asc' | 'desc']}
       {...dataTableDataAttributes.head({
         pinned: pin.side,
         pinnedEdge: () => pin.edge() && pin.side(),
@@ -99,6 +104,8 @@ function DataTableHeadCell<TData extends RowData>(props: {
       <Show when={!props.header.isPlaceholder}>
         <div class={DATA_TABLE_HEAD_INNER_CLASS}>
           <span
+            id={labelId}
+            data-slot="data-table-head-label"
             class={`${TABLE_TEXT_ALIGN_CLASS[column().columnDef.meta?.align ?? 'left']}  ${DATA_TABLE_HEAD_LABEL_CLASS}`}
           >
             <FlexRender header={props.header} />
@@ -107,7 +114,7 @@ function DataTableHeadCell<TData extends RowData>(props: {
             <button
               type="button"
               data-slot="data-table-sort-button"
-              aria-label={sortLabel()}
+              aria-labelledby={`${labelId} ${sortActionId}`}
               {...ctx.slots.sortButton}
               onClick={(event) => {
                 event.stopPropagation()
@@ -121,11 +128,14 @@ function DataTableHeadCell<TData extends RowData>(props: {
                 {...ctx.slots.sortIcon}
                 aria-hidden="true"
               />
+              <span id={sortActionId} class={VISUALLY_HIDDEN_CLASS}>
+                {sortLabel()}
+              </span>
             </button>
           </Show>
         </div>
         <Show when={ctx.resizable() && column().getCanResize()}>
-          <DataTableResizer table={props.table} header={props.header} />
+          <DataTableResizer table={props.table} header={props.header} labelId={labelId} />
         </Show>
       </Show>
     </th>
@@ -136,12 +146,17 @@ function DataTableHeadCell<TData extends RowData>(props: {
 function DataTableResizer<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
   header: Header<DataTableFeatures, TData>
+  /** Id of the header label that names the column. */
+  labelId: string
 }): JSX.Element {
   const ctx = useDataTableContext()
+  const actionId = createUniqueId()
   const column = () => props.header.column
   const minSize = () => column().columnDef.minSize ?? DEFAULT_MIN_COLUMN_SIZE
-  const maxSize = () => column().columnDef.maxSize ?? DEFAULT_MAX_COLUMN_SIZE
-  const boundedMax = () => (maxSize() < DEFAULT_MAX_COLUMN_SIZE ? maxSize() : undefined)
+  // `createDataTable` gives resizable columns a finite default `maxSize`, so the separator range
+  // contains the current width. Only an explicit unbounded `maxSize` leaves End without a target.
+  const maxSize = () => column().columnDef.maxSize ?? UNBOUNDED_COLUMN_SIZE
+  const boundedMax = () => (maxSize() < UNBOUNDED_COLUMN_SIZE ? maxSize() : undefined)
 
   const resizeTo = (size: number) => {
     const next = Math.min(Math.max(size, minSize()), maxSize())
@@ -154,10 +169,10 @@ function DataTableResizer<TData extends RowData>(props: {
       data-slot="data-table-resizer"
       role="separator"
       aria-orientation="vertical"
-      aria-label={ctx.messages().resizeColumn}
+      aria-labelledby={`${props.labelId} ${actionId}`}
       aria-valuenow={props.header.getSize()}
       aria-valuemin={minSize()}
-      aria-valuemax={boundedMax()}
+      aria-valuemax={maxSize()}
       tabIndex={0}
       {...dataTableDataAttributes.resizer({
         resizing: () => column().getIsResizing(),
@@ -181,7 +196,11 @@ function DataTableResizer<TData extends RowData>(props: {
       {...ctx.slotWith('resizer', () => ({
         style: resizerOffset(props.table, props.header),
       }))}
-    />
+    >
+      <span id={actionId} class={VISUALLY_HIDDEN_CLASS}>
+        {ctx.messages().resizeColumn}
+      </span>
+    </div>
   )
 }
 

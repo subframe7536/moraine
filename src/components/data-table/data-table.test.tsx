@@ -50,6 +50,11 @@ function manyPeople(count: number): Person[] {
   }))
 }
 
+/** Visible header label, without the screen-reader-only text of its controls. */
+function headLabel(th: Element | null | undefined): string | null | undefined {
+  return th?.querySelector('[data-slot="data-table-head-label"]')?.textContent ?? th?.textContent
+}
+
 function createPersonTable(options: Partial<DataTableT.Options<Person>> = {}) {
   const merged = mergeProps({ data: TEST_DATA, columns: TEST_COLUMNS }, options)
   return createDataTable<Person>(merged)
@@ -729,12 +734,46 @@ describe('DataTable', () => {
     const table = container.querySelector('table') as HTMLElement
     expect(table.className).toContain('border-separate')
 
-    const ths = container.querySelectorAll('thead th')
+    // The section sticks, so grouped header rows stack inside it instead of overlapping.
+    const thead = container.querySelector<HTMLElement>('thead')!
+    expect(thead.style.position).toBe('sticky')
+    expect(thead.style.top).toBe('0px')
+    const ths = container.querySelectorAll<HTMLElement>('thead th')
     expect(ths.length).toBeGreaterThan(0)
     for (const th of ths) {
-      expect((th as HTMLElement).style.position).toBe('sticky')
-      expect((th as HTMLElement).style.top).toBe('0px')
+      expect(th.style.position).toBe('')
+      expect(th.style.top).toBe('')
       expect(th.className).toContain('bg-background')
+    }
+  })
+
+  it('sticks a grouped header as one section so its rows stack', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({
+        columns: [
+          {
+            id: 'person',
+            header: 'Person',
+            columns: [
+              { accessorKey: 'name', header: 'Name', footer: 'Total' },
+              { accessorKey: 'age', header: 'Age' },
+            ],
+            footer: 'People',
+          },
+        ],
+      })
+      return <DataTable table={table} sticky maxHeight={200} />
+    })
+
+    const thead = container.querySelector<HTMLTableSectionElement>('thead')!
+    const tfoot = container.querySelector<HTMLTableSectionElement>('tfoot')!
+    expect(thead.rows.length).toBe(2)
+    expect(tfoot.rows.length).toBe(2)
+    expect([thead.style.position, thead.style.top]).toEqual(['sticky', '0px'])
+    expect([tfoot.style.position, tfoot.style.bottom]).toEqual(['sticky', '0px'])
+    for (const cell of container.querySelectorAll<HTMLElement>('thead th, tfoot td')) {
+      expect(cell.style.top).toBe('')
+      expect(cell.style.bottom).toBe('')
     }
   })
 
@@ -763,14 +802,10 @@ describe('DataTable', () => {
       return <DataTable table={table} sticky maxHeight={200} />
     })
 
-    const footerCells = container.querySelectorAll<HTMLElement>(
-      'tfoot td[data-slot="data-table-cell"]',
-    )
-    expect(footerCells.length).toBe(2)
-    for (const td of footerCells) {
-      expect(td.style.position).toBe('sticky')
-      expect(td.style.bottom).toBe('0px')
-    }
+    const tfoot = container.querySelector<HTMLElement>('tfoot')!
+    expect(tfoot.querySelectorAll('td[data-slot="data-table-cell"]').length).toBe(2)
+    expect(tfoot.style.position).toBe('sticky')
+    expect(tfoot.style.bottom).toBe('0px')
     unmount()
 
     const { container: footerOnly } = render(() => {
@@ -778,14 +813,12 @@ describe('DataTable', () => {
       return <DataTable table={table} sticky="footer" maxHeight={200} />
     })
 
-    const footerCell = footerOnly.querySelector<HTMLElement>(
-      'tfoot td[data-slot="data-table-cell"]',
-    )!
-    expect(footerCell.style.position).toBe('sticky')
-    expect(footerCell.style.bottom).toBe('0px')
+    const footerSection = footerOnly.querySelector<HTMLElement>('tfoot')!
+    expect(footerSection.style.position).toBe('sticky')
+    expect(footerSection.style.bottom).toBe('0px')
 
-    const head = footerOnly.querySelector<HTMLElement>('thead th')!
-    expect(head.style.position).not.toBe('sticky')
+    const headerSection = footerOnly.querySelector<HTMLElement>('thead')!
+    expect(headerSection.style.position).toBe('')
   })
 
   it('supports columnPinning with sticky position and pixel offsets', () => {
@@ -869,11 +902,14 @@ describe('DataTable', () => {
       return <DataTable table={table} sticky maxHeight={200} loading />
     })
 
+    // The sticky thead is a stacking context above pinned body cells; inside it, the pinned
+    // header cell sits above the scrolling ones.
+    const thead = container.querySelector<HTMLElement>('thead')!
     const [pinnedTh, plainTh] = container.querySelectorAll<HTMLElement>('thead th')
     const pinnedTd = container.querySelector<HTMLElement>('tbody td[data-pinned]')!
-    const pinnedBodyZ = Number(pinnedTd.style.zIndex)
-    expect(Number(plainTh!.style.zIndex)).toBeGreaterThan(pinnedBodyZ)
-    expect(Number(pinnedTh!.style.zIndex)).toBeGreaterThan(Number(plainTh!.style.zIndex))
+    expect(Number(thead.style.zIndex)).toBeGreaterThan(Number(pinnedTd.style.zIndex))
+    expect(Number(pinnedTh!.style.zIndex)).toBeGreaterThan(0)
+    expect(plainTh!.style.zIndex).toBe('')
 
     const loading = container.querySelector('[data-slot="data-table-loading"]')!
     expect(loading.className).toContain('z-40')
@@ -939,7 +975,7 @@ describe('DataTable', () => {
       return <DataTable table={table} />
     })
 
-    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent)
+    const headers = [...container.querySelectorAll('thead th')].map(headLabel)
     expect(headers).toEqual(['Role', 'Name', 'Age'])
 
     const firstRowCells = [...container.querySelectorAll('tbody tr:first-child td')].map(
@@ -957,7 +993,7 @@ describe('DataTable', () => {
       return <DataTable table={table} />
     })
 
-    const headers = [...container.querySelectorAll('thead th')].map((th) => th.textContent?.trim())
+    const headers = [...container.querySelectorAll('thead th')].map((th) => headLabel(th)?.trim())
     expect(headers[0]).toBe('')
     expect(headers.slice(1)).toEqual(['Role', 'Name', 'Age'])
   })
@@ -1023,11 +1059,14 @@ describe('DataTable', () => {
     })
 
     const nameTh = screen.getByText('Name').closest('th')!
-    expect(nameTh.getAttribute('aria-sort')).toBe('none')
+    const ageTh = screen.getByText('Age').closest('th')!
+    // Only the sorted header carries `aria-sort`.
+    expect(nameTh.hasAttribute('aria-sort')).toBe(false)
 
     const sortButton = nameTh.querySelector('button')!
     fireEvent.click(sortButton)
     expect(nameTh.getAttribute('aria-sort')).toBe('ascending')
+    expect(ageTh.hasAttribute('aria-sort')).toBe(false)
 
     fireEvent.click(sortButton)
     expect(nameTh.getAttribute('aria-sort')).toBe('descending')
@@ -1231,7 +1270,7 @@ describe('DataTable', () => {
 
     const [groupRow, leafRow] = container.querySelectorAll('thead tr')
     const groupCells = [...groupRow!.querySelectorAll<HTMLTableCellElement>('th')]
-    expect(groupCells.map((th) => th.textContent)).toEqual(['Person', 'Person', ''])
+    expect(groupCells.map(headLabel)).toEqual(['Person', 'Person', ''])
     expect(groupCells.map((th) => th.colSpan)).toEqual([1, 1, 1])
 
     const [pinnedGroup, scrollingGroup, endPlaceholder] = groupCells
@@ -1246,7 +1285,7 @@ describe('DataTable', () => {
     expect(endPlaceholder!.style.right).toBe('0px')
 
     const leafCells = [...leafRow!.querySelectorAll<HTMLElement>('th')]
-    expect(leafCells.map((th) => th.textContent)).toEqual(['Name', 'Age', 'Role'])
+    expect(leafCells.map(headLabel)).toEqual(['Name', 'Age', 'Role'])
     expect(leafCells.map((th) => th.style.position)).toEqual(['sticky', '', 'sticky'])
   })
 
@@ -1263,7 +1302,7 @@ describe('DataTable', () => {
     })
 
     const heads = [...container.querySelectorAll<HTMLElement>('thead th')]
-    expect(heads.map((th) => th.textContent)).toEqual(['Name', 'Role'])
+    expect(heads.map(headLabel)).toEqual(['Name', 'Role'])
     expect(heads.map((th) => th.getAttribute('data-pinned'))).toEqual(['start', 'end'])
     expect(
       heads.map((th) => th.querySelector('[data-slot="data-table-sort-button"]')),
@@ -1312,7 +1351,8 @@ describe('DataTable', () => {
     const resizer = nameTh!.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
     expect(resizer.getAttribute('role')).toBe('separator')
     expect(resizer.getAttribute('aria-orientation')).toBe('vertical')
-    expect(resizer.getAttribute('aria-label')).toBe('Resize column')
+    // The separator names the column it resizes.
+    expect(screen.getByRole('separator', { name: 'Name Resize column' })).toBe(resizer)
     expect(resizer.tabIndex).toBe(0)
     expect(resizer.getAttribute('aria-valuenow')).toBe('100')
     expect(resizer.getAttribute('aria-valuemin')).toBe('60')
@@ -1332,11 +1372,49 @@ describe('DataTable', () => {
     fireEvent.keyDown(resizer, { key: 'Home' })
     expect(nameTh!.style.width).toBe('60px')
 
-    // Without a bounded maxSize, End has no target width.
+    // Without a maxSize, resizable columns get a finite default range that contains the width.
     const ageResizer = ageTh!.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
-    expect(ageResizer.hasAttribute('aria-valuemax')).toBe(false)
+    expect(ageResizer.getAttribute('aria-valuenow')).toBe('150')
+    expect(ageResizer.getAttribute('aria-valuemin')).toBe('20')
+    expect(ageResizer.getAttribute('aria-valuemax')).toBe('1000')
     fireEvent.keyDown(ageResizer, { key: 'End' })
-    expect(ageTh!.style.width).toBe('150px')
+    expect(ageTh!.style.width).toBe('1000px')
+  })
+
+  it('keeps a defaultColumn maxSize from tableOptions on resizable tables', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({
+        resizable: true,
+        columns: [{ accessorKey: 'name', header: 'Name' }],
+        tableOptions: { defaultColumn: { maxSize: 400 } },
+      })
+      return <DataTable table={table} />
+    })
+
+    const resizer = container.querySelector<HTMLElement>('[data-slot="data-table-resizer"]')!
+    expect(resizer.getAttribute('aria-valuemax')).toBe('400')
+  })
+
+  it('does not cap column widths when the table is not resizable', () => {
+    createRoot((dispose) => {
+      const table = createPersonTable({ columns: [{ accessorKey: 'name', size: 1500 }] })
+      expect(table.getColumn('name')!.getSize()).toBe(1500)
+      dispose()
+    })
+  })
+
+  it('names each sort button after its column', () => {
+    render(() => {
+      const table = createPersonTable()
+      return <DataTable table={table} />
+    })
+
+    const nameSort = screen.getByRole('button', { name: 'Name Sort' })
+    expect(screen.getByRole('button', { name: 'Age Sort' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Role Sort' })).toBeDefined()
+
+    fireEvent.click(nameSort)
+    expect(nameSort).toBe(screen.getByRole('button', { name: 'Name Sorted ascending' }))
   })
 
   it('marks the table busy and announces the default loading state', () => {

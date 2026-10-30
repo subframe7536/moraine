@@ -25,8 +25,13 @@ export interface DataTableCellPin {
   readonly edge: Accessor<boolean>
 }
 
-/** Stacking order of sticky cells. Cells pinned to a sticky edge sit one layer above. */
-const STICKY_Z_INDEX: Record<DataTableSection, number> = { body: 10, header: 20, footer: 20 }
+/** Pinned cells sit above scrolling cells of their section. */
+const PINNED_CELL_Z_INDEX = 10
+/**
+ * Sticky header and footer sections sit above pinned body cells. Each section is its own
+ * stacking context, so its pinned cells still sit above its scrolling cells.
+ */
+const STICKY_SECTION_Z_INDEX = 20
 
 type DataTableColumn<TRow extends RowData> = Column<DataTableFeatures, TRow>
 type DataTableHeader<TRow extends RowData> = Header<DataTableFeatures, TRow>
@@ -41,13 +46,14 @@ export interface DataTableLayout {
     column: DataTableColumn<TRow>,
     section: DataTableSection,
   ) => SlotValue
-  /** Column geometry: width, sticky position, and pinned offsets. */
+  /** Column geometry: width and pinned offsets. */
   readonly cellStyle: <TRow extends RowData>(
     column: DataTableColumn<TRow>,
     pin: DataTableCellPin,
     size: () => number,
-    section: DataTableSection,
   ) => SlotValue
+  /** Sticky position of the `thead` or `tfoot`, when `sticky` covers that section. */
+  readonly sectionStyle: (section: 'header' | 'footer') => JSX.CSSProperties
 }
 
 /**
@@ -117,13 +123,21 @@ export function createDataTableLayout<TData extends RowData>(
   // Resizing and pinning both need explicit column widths and a fixed table layout.
   const fixedLayout = () => resizable() || hasPinning()
 
-  const stickyEdge = (section: DataTableSection): boolean => {
-    const value = sticky()
-    return section !== 'body' && (value === true || value === section)
-  }
-
   return {
     resizable,
+    sectionStyle: (section) => {
+      const value = sticky()
+      if (value !== true && value !== section) {
+        return {}
+      }
+      // The section owns vertical stickiness, so grouped header or footer rows stack inside it
+      // instead of every row sticking to the same edge.
+      return {
+        position: 'sticky',
+        [section === 'header' ? 'top' : 'bottom']: 0,
+        'z-index': STICKY_SECTION_Z_INDEX,
+      }
+    },
     tableStyle: () =>
       fixedLayout()
         ? {
@@ -164,21 +178,17 @@ export function createDataTableLayout<TData extends RowData>(
         ],
       }
     },
-    cellStyle: (column, pin, size, section) => {
+    cellStyle: (column, pin, size) => {
       const side = pin.side()
-      const edge = stickyEdge(section)
-      const isSticky = edge || Boolean(side)
       const hasWidth = fixedLayout() || column.columnDef.size !== undefined
 
       return {
         style: {
           width: hasWidth ? `${size()}px` : undefined,
-          position: isSticky ? 'sticky' : undefined,
-          top: edge && section === 'header' ? 0 : undefined,
-          bottom: edge && section === 'footer' ? 0 : undefined,
+          position: side ? 'sticky' : undefined,
           left: side === 'start' ? `${pin.offset()}px` : undefined,
           right: side === 'end' ? `${pin.offset()}px` : undefined,
-          'z-index': isSticky ? STICKY_Z_INDEX[section] + (edge && side ? 10 : 0) : undefined,
+          'z-index': side ? PINNED_CELL_Z_INDEX : undefined,
         },
       }
     },
