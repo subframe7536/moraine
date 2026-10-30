@@ -18,6 +18,10 @@ export namespace ListT {
   > & {
     ref?: (element: TItemElement) => void
     'data-index'?: number | string
+    /** Set on odd indexes (the 2nd, 4th, ... rows) by table adapters, for striping. */
+    'data-even'?: string
+    /** Set on the last entry by table adapters, whose trailing spacer row is the last child. */
+    'data-last'?: string
     style?: JSX.CSSProperties
   }
 

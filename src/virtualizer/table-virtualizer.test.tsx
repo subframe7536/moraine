@@ -728,6 +728,54 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
+  test('marks row parity and the last entry by index, independent of the spacer row', async () => {
+    let emitOffset: ((offset: number, isScrolling: boolean) => void) | undefined
+    const virtualizer = createTableVirtualizer<string>({
+      estimateSize: () => 20,
+      measureElement: () => 20,
+      observeElementRect: (_instance, callback) => callback({ width: 100, height: 40 }),
+      observeElementOffset: (_instance, callback) => {
+        emitOffset = callback
+        callback(0, false)
+      },
+      overscan: 0,
+    })
+    const entries = Array.from({ length: 10 }, (_, index) => `Item ${index}`)
+    const screen = render(() => (
+      <Table striped>
+        <Table.Body>
+          <Dynamic
+            component={virtualizer.virtualRender}
+            entries={entries}
+            render={(item, _index, props) => (
+              <Table.Row {...props}>
+                <Table.Cell>{item}</Table.Cell>
+              </Table.Row>
+            )}
+          />
+        </Table.Body>
+      </Table>
+    ))
+    await Promise.resolve()
+
+    const markers = () =>
+      [...screen.container.querySelectorAll('tr[data-index]')].map(
+        (row) =>
+          `${row.getAttribute('data-index')}${row.hasAttribute('data-even') ? ' even' : ''}${
+            row.hasAttribute('data-last') ? ' last' : ''
+          }`,
+      )
+    expect(markers()).toEqual(['0', '1 even'])
+
+    // A window that starts one row later keeps each row's parity.
+    emitOffset?.(20, false)
+    expect(markers()).toEqual(['1 even', '2'])
+
+    emitOffset?.(160, false)
+    expect(markers()).toEqual(['8', '9 even last'])
+    screen.unmount()
+  })
+
   describe('column virtualization', () => {
     const COLUMNS = Array.from({ length: 20 }, (_, index) => `c${index}`)
 

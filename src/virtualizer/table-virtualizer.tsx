@@ -25,10 +25,19 @@ import {
 } from './virtualizer-core'
 import type { VirtualizerAdapterOptions, VirtualizerLayout } from './virtualizer-core'
 
-/** Options of the horizontal column virtualizer. */
+/**
+ * Options of the horizontal column virtualizer. Scroll events are shared with the rows, so the row
+ * options decide `useScrollendEvent` and `isScrollingResetDelay`.
+ */
 export type TableVirtualizerColumnOptions<TColumn> = Omit<
   VirtualizerAdapterOptions<TColumn, HTMLElement, HTMLTableCellElement>,
-  'horizontal' | 'estimateSize' | 'scrollMargin' | 'scrollPaddingStart' | 'scrollPaddingEnd'
+  | 'horizontal'
+  | 'estimateSize'
+  | 'scrollMargin'
+  | 'scrollPaddingStart'
+  | 'scrollPaddingEnd'
+  | 'useScrollendEvent'
+  | 'isScrollingResetDelay'
 > & {
   /**
    * Width in px of a column. Defaults to the host's `columnSize` (DataTable passes each column's
@@ -487,11 +496,17 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
                 {(current) => {
                   const measure = attachRowMeasurement(virtualizer)
 
+                  // The leading spacer row breaks `:nth-child` and `:last-child`, so rows carry
+                  // their parity and whether they are the last entry.
                   return renderRow()(current.item, current.index, {
                     get 'aria-rowindex'() {
                       return current.index + sections().headerRows + 1
                     },
                     'data-index': current.index,
+                    'data-even': current.index % 2 === 1 ? '' : undefined,
+                    get 'data-last'() {
+                      return current.index === props.entries.length - 1 ? '' : undefined
+                    },
                     ref: measure,
                   })
                 }}

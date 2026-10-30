@@ -223,7 +223,10 @@ describe('Table', () => {
     ))
 
     expect(slot(container, 'row')?.className).toContain(
-      '[&:nth-child(even):not([data-selected])]:bg-muted/50',
+      '[&:nth-child(even):not([data-index]):not([data-selected])]:bg-muted/50',
+    )
+    expect(slot(container, 'row')?.className).toContain(
+      '[&[data-even]:not([data-selected])]:bg-muted/50',
     )
   })
 

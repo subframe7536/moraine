@@ -199,9 +199,10 @@ The adapter needs to know which element scrolls.
 
 ### Row props
 
-Always spread the row props onto `Table.Row`. They carry `data-index`, the measurement ref, and
-`aria-rowindex`. Without them, rows are not measured, the scroll range drifts, and screen readers
-lose row positions.
+Always spread the row props onto `Table.Row`. They carry `data-index`, the measurement ref,
+`aria-rowindex`, `data-even` on every second row, and `data-last` on the last entry. Without them,
+rows are not measured, the scroll range drifts, screen readers lose row positions, and striping
+and the last row's border follow DOM position instead of the row index.
 
 Each entry must render exactly one `<tr>`. A second row per entry, such as a detail row, is not
 measured and shifts the scroll range. DataTable ignores `expandedRowRender` when virtualized for
@@ -222,9 +223,9 @@ yourself, at any time, is never overwritten or removed.
 
 - `estimateSize` should be close to the rendered row height for your `size` variant: about `41` for
   `md`. Rows are measured once mounted.
-- `Table`'s `striped` variant shades rows by DOM position, and the spacer rows shift that parity.
-  Add striping classes in `render` instead. DataTable stripes by row index, so its `striped` works
-  when virtualized.
+- The spacer rows shift DOM position, so for virtualized rows `Table`'s `striped` variant and its
+  last-row border read the `data-even` and `data-last` row props. Both work when you spread the
+  row props.
 - `virtualizer.scrollToIndex(index)` scrolls to a row, with the same options as the list
   virtualizer.
 
