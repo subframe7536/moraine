@@ -26,7 +26,8 @@ export function DataTableFooter<TData extends RowData>(props: {
   return (
     <Show when={hasFooter()}>
       <tfoot data-slot="data-table-footer" {...ctx.slots.footer}>
-        <For each={props.table.getCenterFooterGroups()}>
+        {/* Row count comes from all columns, so it stays correct when one region is empty. */}
+        <For each={props.table.getFooterGroups()}>
           {(_, depth) => (
             <tr data-slot="data-table-row" {...ctx.slots.row}>
               <For each={DATA_TABLE_PIN_SIDES}>

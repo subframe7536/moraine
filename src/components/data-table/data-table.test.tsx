@@ -1250,6 +1250,30 @@ describe('DataTable', () => {
     expect(leafCells.map((th) => th.style.position)).toEqual(['sticky', '', 'sticky'])
   })
 
+  it('renders header and footer cells when every column is pinned', () => {
+    const { container } = render(() => {
+      const table = createPersonTable({
+        columns: [
+          { accessorKey: 'name', header: 'Name', footer: 'Total', size: 120 },
+          { accessorKey: 'role', header: 'Role', footer: '3 roles', size: 100 },
+        ],
+        state: { columnPinning: { start: ['name'], end: ['role'] } },
+      })
+      return <DataTable table={table} />
+    })
+
+    const heads = [...container.querySelectorAll<HTMLElement>('thead th')]
+    expect(heads.map((th) => th.textContent)).toEqual(['Name', 'Role'])
+    expect(heads.map((th) => th.getAttribute('data-pinned'))).toEqual(['start', 'end'])
+    expect(
+      heads.map((th) => th.querySelector('[data-slot="data-table-sort-button"]')),
+    ).not.toContain(null)
+
+    const footers = [...container.querySelectorAll<HTMLElement>('tfoot td')]
+    expect(footers.map((td) => td.textContent)).toEqual(['Total', '3 roles'])
+    expect(footers.map((td) => td.getAttribute('data-pinned'))).toEqual(['start', 'end'])
+  })
+
   it('offsets end-pinned header cells from the end of their region', () => {
     const { container } = render(() => {
       const table = createPersonTable({

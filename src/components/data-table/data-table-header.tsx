@@ -43,7 +43,8 @@ export function DataTableHeader<TData extends RowData>(props: {
 
   return (
     <thead data-slot="data-table-header" {...ctx.slots.header}>
-      <For each={props.table.getCenterHeaderGroups()}>
+      {/* Row count comes from all columns, so it stays correct when one region is empty. */}
+      <For each={props.table.getHeaderGroups()}>
         {(_, depth) => (
           <tr data-slot="data-table-row" {...ctx.slots.row}>
             <For each={DATA_TABLE_PIN_SIDES}>
