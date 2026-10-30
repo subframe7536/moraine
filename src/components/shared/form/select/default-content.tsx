@@ -5,7 +5,7 @@ import { useCn } from '../../../../provider/cn-context'
 import { renderWithProps } from '../../../../shared/render-with-props'
 import { callHandler, callRef } from '../../../../shared/utils'
 import type { VirtualRowProps } from '../../../../shared/virtual'
-import { VirtualContent, scrollToVirtualEntry } from '../../../../shared/virtual-content'
+import { VirtualContent } from '../../../../shared/virtual-content'
 import type { SlotBinding } from '../../../../theme/use-recipe'
 import { BaseSelect } from '../../../base-select/base-select'
 import { useSelectContext } from '../../../base-select/base-select-context'
@@ -46,14 +46,13 @@ function DefaultSelectContentBody<T extends SelectItem>(
       [state.highlightedValue, state.open, listbox, () => props.view.rows, () => props.virtualizer],
       ([key, open, listbox, rows, virtualizer]) => {
         // Rows outside the virtual window have no element to scroll into view.
-        if (key === undefined || !open || !listbox) {
+        if (key === undefined || !open || !listbox || !virtualizer) {
           return
         }
-        scrollToVirtualEntry(
-          virtualizer,
-          rows,
-          (row) => row.type === 'item' && sameValue(row.item.value, key),
-        )
+        const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
+        if (index >= 0) {
+          virtualizer.scrollToIndex(index)
+        }
       },
     ),
   )

@@ -29,23 +29,3 @@ export function VirtualContent<TEntry>(props: {
     </Show>
   )
 }
-
-/**
- * Scrolls the virtual entry that `match` finds into view. Returns `false` when there is no
- * virtualizer or no matching entry, so the host can fall back to scrolling the DOM element.
- */
-export function scrollToVirtualEntry<TEntry>(
-  virtualizer: ListVirtualizer<TEntry> | undefined,
-  entries: readonly TEntry[],
-  match: (entry: TEntry) => boolean,
-): boolean {
-  if (!virtualizer) {
-    return false
-  }
-  const index = entries.findIndex(match)
-  if (index < 0) {
-    return false
-  }
-  virtualizer.scrollToIndex(index)
-  return true
-}
