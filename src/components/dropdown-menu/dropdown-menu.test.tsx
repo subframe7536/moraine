@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { callHandler } from '../../shared/utils'
 import { finishMenuExitMotion } from '../../test-util/overlay-test'
 import { Button } from '../button'
+import type { IconProps } from '../icon'
 
 import { DropdownMenu } from './dropdown-menu'
 
@@ -1306,37 +1307,27 @@ describe('DropdownMenu', () => {
     expect(leading.className).not.toContain('text-muted-foreground')
   })
 
-  test('keeps leading slot styling for a component icon that ignores props', async () => {
-    const Glyph = () => <svg data-testid="glyph" />
+  test('sizes a component icon from the item even when its svg is the leading slot', async () => {
+    const Glyph = (props: Omit<IconProps, 'name'>) => (
+      <svg {...(props as JSX.SvgSVGAttributes<SVGSVGElement>)} />
+    )
     render(() => (
-      <DropdownMenu defaultOpen classes={{ itemLeading: 'custom-leading' }}>
+      <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          items={[
-            { label: 'Star', icon: Glyph },
-            { label: 'Search', icon: 'icon-search' },
-          ]}
-        />
+        <DropdownMenu.Content items={[{ label: 'Star', icon: Glyph }]} />
       </DropdownMenu>
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-testid="glyph"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')).not.toBeNull()
     })
 
-    const leadings = document.body.querySelectorAll<HTMLElement>(
-      '[data-slot="dropdown-menu-item-leading"]',
-    )
-    expect(leadings).toHaveLength(2)
-    // The component icon gets a host span that owns the slot.
-    expect(leadings[0]?.tagName.toLowerCase()).toBe('span')
-    expect(leadings[0]?.className).toContain('custom-leading')
-    expect(leadings[0]?.querySelector('[data-testid="glyph"]')).not.toBeNull()
-    // A string icon stays flattened: the mask element is the slot.
-    expect(leadings[1]?.className).toContain('icon-search')
-    expect(leadings[1]?.className).toContain('custom-leading')
+    const leading = document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')!
+    expect(leading.tagName.toLowerCase()).toBe('svg')
+    // `[&_svg]` on the leading slot would not match the svg itself, so the item owns the size.
+    expect(leading.closest('[role="menuitem"]')?.className).toContain('[&_svg]:size-4')
   })
 
   test('exposes danger state without annotating default items', async () => {
