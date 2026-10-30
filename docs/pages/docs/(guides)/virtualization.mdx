@@ -24,16 +24,17 @@ search:
 
 Virtualization renders the visible rows and a small buffer instead of mounting the entire collection. Every component takes it the same way: create a virtualizer from `moraine/virtualizer` and pass it to the component's `virtualizer` prop.
 
-| Virtualizer              | Components                                                            |
-| ------------------------ | --------------------------------------------------------------------- |
-| `createListVirtualizer`  | `List`, `Tree`, `Select`, `Combobox`, `MultiSelect`, `CommandPalette` |
-| `createTableVirtualizer` | `DataTable`                                                           |
+| Virtualizer              | Components                                                  |
+| ------------------------ | ----------------------------------------------------------- |
+| `createListVirtualizer`  | `List`, `Tree`, `Combobox`, `MultiSelect`, `CommandPalette` |
+| `createTableVirtualizer` | `DataTable`                                                 |
 
 The type argument is the entry type the component renders, such as `ComboboxT.Row` or
 `DataTableT.Row`. The component mounts the visible rows, supplies its scroll container, and scrolls
 through the virtualizer during keyboard navigation.
 
-`Table` always renders every row. Use `DataTable` for long tables.
+`Table` always renders every row. Use `DataTable` for long tables. `Select` also renders every
+option: a list long enough to need virtualization also needs search, so use `Combobox`.
 
 ## When to virtualize
 
@@ -86,7 +87,7 @@ export function VirtualizedList() {
 
 Keep custom padding and row content inside the positioned row when they could replace its inline styles. See the [List examples](/components/list#row-ownership-and-virtualization) for fixed and dynamic heights.
 
-## Select, Combobox, and MultiSelect
+## Combobox and MultiSelect
 
 A collection virtualizes **rows**, not just your input items. Group labels and options can both be virtual rows. Use `ComboboxT.Row<ComboboxT.Item<string>>` as the virtualizer item type, estimate each row kind, and key it with `row.key`.
 
@@ -126,7 +127,7 @@ export function VirtualizedCombobox() {
 }
 ```
 
-Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `Select` and `MultiSelect` use the same row model through `SelectT.Row` and `MultiSelectT.Row`.
+Moraine's default collection renderer applies virtual row props to both labels and options. Custom `itemRender` content sits inside the option; it does not replace the outer measured row. `MultiSelect` uses the same row model through `MultiSelectT.Row`.
 
 `CommandPalette` flattens group labels and commands into `CommandPaletteT.VirtualEntry` rows; key them with `entry.key`.
 
@@ -216,8 +217,8 @@ Rows are measured automatically through the ref in the virtual row props. Conten
 
 ### Keyboard navigation
 
-Options outside the window have no DOM node to scroll into view. `Tree`, `Select`, `Combobox`,
-`MultiSelect`, and `CommandPalette` call `virtualizer.scrollToIndex` with the entry index of the
+Options outside the window have no DOM node to scroll into view. `Tree`, `Combobox`, `MultiSelect`,
+and `CommandPalette` call `virtualizer.scrollToIndex` with the entry index of the
 highlighted or focused item, so keyboard navigation reaches every row without extra wiring.
 
 `List` and `DataTable` have no keyboard navigation of their own. Call

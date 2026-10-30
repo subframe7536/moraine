@@ -57,7 +57,6 @@ export const SELECT_LOCAL_PROP_KEYS = [
   'itemRender',
   'itemProps',
   'listboxProps',
-  'virtualizer',
   'onScrollBottom',
   'scrollBottomThreshold',
   'emptyRender',
@@ -76,6 +75,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
 /** Local props intercepted by Combobox. */
 export const COMBOBOX_LOCAL_PROP_KEYS = [
   ...SELECT_LOCAL_PROP_KEYS,
+  'virtualizer',
   'searchValue',
   'defaultSearchValue',
   'onSearch',

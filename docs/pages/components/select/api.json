@@ -302,12 +302,6 @@
             "kind": "literal",
             "value": "outline"
           }
-        },
-        {
-          "name": "virtualizer",
-          "optional": true,
-          "type": "SelectVirtualizer<NormalizedItem<TItem>>",
-          "description": "Renders only the visible rows, such as `createListVirtualizer()`. Rows include group labels\nand separators. The listbox is the scroll container, and keyboard highlight scrolls through\nthe virtualizer."
         }
       ]
     }

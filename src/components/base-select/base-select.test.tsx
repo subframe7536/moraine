@@ -682,31 +682,6 @@ test('virtual rows remain a small view of canonical selection and compose both r
   expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(0)
 })
 
-test('Select renders through its virtualizer and scrolls the highlighted row into view', () => {
-  const leaves = Array.from({ length: 4000 }, (_, value) => ({ value, label: `Item ${value}` }))
-  const scroll = vi.fn()
-  render(() => (
-    <Select
-      items={leaves}
-      defaultValue={3999}
-      defaultOpen
-      virtualizer={{
-        scrollToIndex: scroll,
-        virtualRender: (context) => (
-          <For each={context.entries.slice(0, 3)}>
-            {(entry, index) => <>{context.render(entry, index(), { 'data-index': index() })}</>}
-          </For>
-        ),
-      }}
-    />
-  ))
-  const rows = within(document.body).getAllByRole('option', { hidden: true })
-  expect(rows).toHaveLength(3)
-  expect(rows[0]!.getAttribute('data-index')).toBe('0')
-  expect(rows[0]!.getAttribute('aria-setsize')).toBe('4000')
-  expect(scroll).toHaveBeenCalledWith(3999)
-})
-
 test('owns Form context synchronization and treats an unmatched empty field as no selection', () => {
   const change = vi.fn()
   const { screen, value: form } = renderWithOwner(

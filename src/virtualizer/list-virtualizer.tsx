@@ -17,8 +17,7 @@ export interface ListVirtualizerReturn<TItem> extends ListVirtualizer<TItem> {
 }
 
 /**
- * Creates a virtualizer for `List`, `Tree`, `Select`, `Combobox`, `MultiSelect`, and
- * `CommandPalette`. Pass the result to the component's `virtualizer` prop.
+ * Creates a virtualizer for `List`, `Tree`, `Combobox`, `MultiSelect`, and `CommandPalette`. Pass the result to the component's `virtualizer` prop.
  */
 export function createListVirtualizer<TItem>(
   options: ListVirtualizerOptions<TItem>,

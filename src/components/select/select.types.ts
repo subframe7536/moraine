@@ -18,8 +18,6 @@ import type {
   ContentProps,
   SelectGroup,
   SelectEntry,
-  SelectRow,
-  SelectVirtualizer,
 } from '../shared/form/select/types'
 
 import type { defaultSelectMessages } from './select.messages'
@@ -45,12 +43,6 @@ export namespace SelectT {
   export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
   export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
   export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
-  /** Flattened listbox row: a group label, an item, or a separator. */
-  export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
-  /** Virtualizer over `Row` entries, such as `createListVirtualizer<SelectT.Row>()`. */
-  export type Virtualizer<TItem extends string | Item = string | Item> = SelectVirtualizer<
-    NormalizedItem<TItem>
-  >
   export type ItemRenderProps<TItem extends string | Item = string | Item> =
     BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
   export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
@@ -67,7 +59,7 @@ export namespace SelectT {
       BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      ContentProps<NormalizedItem<TItem>>,
+      Omit<ContentProps<NormalizedItem<TItem>>, 'virtualizer'>,
       FormValueOptions<NormalizedItem<TItem>['value']> {
     /** Localized message overrides for this select instance. */
     translations?: Translations

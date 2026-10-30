@@ -146,7 +146,8 @@ Select renders the portaled popup collection internally; its slots are styling t
 ## Usage
 
 Use Select for one choice from a non-editable collection. Use [Combobox](/components/combobox) when
-users need to type a query, [MultiSelect](/components/multi-select) for several collection values, or
+users need to type a query or the collection is large enough to need virtualization,
+[MultiSelect](/components/multi-select) for several collection values, or
 [BaseSelect](/components/base-select) when you need to compose the listbox yourself.
 
 ```tsx
@@ -242,14 +243,6 @@ Use `onScrollBottom` and `scrollBottomThreshold` to append pages as the listbox 
 bottom. Drive `loading` from the in-flight request.
 
 <Preview path="./infinite-scroll" />
-
-### Pick from a large collection
-
-Pass a `virtualizer` from `createListVirtualizer` when opening or scrolling the full list is slow.
-Its entries are `SelectT.Row` rows, which include group labels and separators. Read the
-[Virtualization guide](/docs/virtualization) for sizing and keys.
-
-<Preview path="./virtualization" />
 
 ### Bind an empty select to a form
 

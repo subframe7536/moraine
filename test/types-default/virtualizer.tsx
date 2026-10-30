@@ -26,9 +26,11 @@ const tree = createTree<Item>({
 />
 
 const options: SelectT.Item<string>[] = []
+// Select has no virtualizer; use Combobox for collections large enough to need one.
 ;<Select<SelectT.Item<string>>
   items={options}
-  virtualizer={createListVirtualizer<SelectT.Row<SelectT.Item<string>>>({ estimateSize: () => 32 })}
+  // @ts-expect-error Select does not take a virtualizer.
+  virtualizer={createListVirtualizer({ estimateSize: () => 32 })}
 />
 ;<Combobox<ComboboxT.Item<string>>
   items={options}

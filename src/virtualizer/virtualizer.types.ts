@@ -98,8 +98,8 @@ export interface TableVirtualRenderProps<TEntry, TColumn = unknown> {
 }
 
 /**
- * What a list-style host (`List`, `Tree`, `Select`, `Combobox`, `MultiSelect`, `CommandPalette`)
- * needs from its `virtualizer` prop. `createListVirtualizer()` returns one.
+ * What a list-style host (`List`, `Tree`, `Combobox`, `MultiSelect`, `CommandPalette`) needs
+ * from its `virtualizer` prop. `createListVirtualizer()` returns one.
  */
 export interface ListVirtualizer<TEntry> {
   /** Renders the visible rows. Hosts mount it; callers pass the whole virtualizer instead. */

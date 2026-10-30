@@ -159,16 +159,18 @@ describe('generateApiDoc', () => {
           'itemRender',
           'itemProps',
           'listboxProps',
-          'virtualizer',
           'onScrollBottom',
           'scrollBottomThreshold',
           'gutter',
           'overflowPadding',
         ]),
       )
-      if (key !== 'select') {
+      if (key === 'select') {
+        expect(props.map((prop) => prop.name)).not.toContain('virtualizer')
+      } else {
         expect(props.map((prop) => prop.name)).toEqual(
           expect.arrayContaining([
+            'virtualizer',
             'searchValue',
             'defaultSearchValue',
             'onSearch',
