@@ -1,10 +1,5 @@
 import { defineRecipe } from '../../theme/recipe'
-import {
-  DARK_DATA_INVALID_CLASS,
-  DATA_DISABLED_CLASS,
-  DATA_INVALID_CLASS,
-  FOCUS_VISIBLE_CLASS,
-} from '../../theme/recipe-common.recipe'
+import { DATA_DISABLED_CLASS } from '../../theme/recipe-common.recipe'
 import { createDataAttributes } from '../../theme/style-contract'
 import type { DataAttributeContract } from '../../theme/style-contract'
 
@@ -32,12 +27,20 @@ export const switchDataAttributes = {
   label: /* @__PURE__ */ createDataAttributes('required'),
 } satisfies DataAttributeContract<keyof SwitchStyleSlot>
 
+/**
+ * Track edge drawn as a 1px inset ring instead of a border. Browsers snap border widths
+ * to whole device pixels (a 1px border is ~0.57px at 175% scaling), which shifts the
+ * thumb off-center. Padding and box shadows are not snapped, so the inset stays 2px.
+ */
+const SWITCH_TRACK_EDGE_CLASS =
+  'inset-ring inset-ring-transparent focus-visible:(outline-none ring-3 ring-ring/50 inset-ring-ring) data-invalid:(ring-3 ring-danger/20 inset-ring-danger) dark:data-invalid:(ring-danger/40 inset-ring-danger/50)'
+
 export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariants>(
   'switch',
   {
     base: {
       root: 'flex flex-row items-start',
-      track: `${DATA_DISABLED_CLASS} p-px outline-none border border-transparent rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-input transition-[color,background-color,box-shadow] items-center ${FOCUS_VISIBLE_CLASS}  ${DATA_INVALID_CLASS}  ${DARK_DATA_INVALID_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
+      track: `${DATA_DISABLED_CLASS} p-0.5 outline-none rounded-full bg-input inline-flex shrink-0 cursor-pointer shadow-input transition-[color,background-color,box-shadow] items-center ${SWITCH_TRACK_EDGE_CLASS} data-checked:bg-primary data-unchecked:bg-input dark:data-unchecked:bg-input/80`,
       thumb:
         'rounded-full bg-background flex pointer-events-none shadow-input transition-transform items-center justify-center relative',
       icon: 'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:animate-spin',
