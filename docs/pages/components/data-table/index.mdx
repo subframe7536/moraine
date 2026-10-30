@@ -546,16 +546,18 @@ Override text for one table with `translations`, or for the whole app with the `
 `MoraineProvider` `messages`. Sort buttons and resize handles prefix the column header to their
 text, so the sort button of a Name column is named "Name Sort", then "Name Sorted ascending".
 
-| Key                                           | Default                                          |
-| --------------------------------------------- | ------------------------------------------------ |
-| `empty`                                       | `No results.`                                    |
-| `loading`                                     | `Loading`                                        |
-| `selectAll`, `selectRow`                      | `Select all rows`, `Select row`                  |
-| `expandRow`, `collapseRow`                    | `Expand row`, `Collapse row`                     |
-| `sort`, `sortedAscending`, `sortedDescending` | `Sort`, `Sorted ascending`, `Sorted descending`  |
-| `resizeColumn`                                | `Resize column`                                  |
-| `selectedCount({ selected, total })`          | `` `${selected} of ${total} row(s) selected.` `` |
-| `pageSize({ size })`                          | `` `${size} / page` ``                           |
+| Key                                           | Default                                         |
+| --------------------------------------------- | ----------------------------------------------- |
+| `empty`                                       | `No results.`                                   |
+| `loading`                                     | `Loading`                                       |
+| `selectAll`, `selectRow`                      | `Select all rows`, `Select row`                 |
+| `expandRow`, `collapseRow`                    | `Expand row`, `Collapse row`                    |
+| `sort`, `sortedAscending`, `sortedDescending` | `Sort`, `Sorted ascending`, `Sorted descending` |
+| `resizeColumn`                                | `Resize column`                                 |
+| `sortPriority({ index })`                     | `` `Sort priority ${index}` ``                  |
+| `rowCount({ total })`                         | `` `${total} rows` `` (`1 row` for one)         |
+| `selectedCount({ selected, total })`          | `` `${selected} of ${total} selected` ``        |
+| `pageSize({ size })`                          | `` `${size} / page` ``                          |
 
 ## Examples
 

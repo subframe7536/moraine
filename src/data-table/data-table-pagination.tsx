@@ -14,7 +14,7 @@ import {
 } from './data-table.recipe'
 import type { DataTableT } from './data-table.types'
 
-/** Pagination toolbar: selection summary, page navigation, and page-size menu. */
+/** Pagination toolbar: row or selection summary, page navigation, and page-size menu. */
 export function DataTablePagination<TData extends RowData>(props: {
   table: DataTableT.Instance<TData>
   /** Whether the toolbar is shown. Virtual tables never paginate. */
@@ -29,9 +29,7 @@ export function DataTablePagination<TData extends RowData>(props: {
   // directly, Solid can dispose the toolbar in the middle of that same update and throw from
   // `cleanNode`.
   const rowCount = createMemo(() => props.table.getRowCount())
-  const selectedCount = createMemo(() =>
-    config().hasSelection ? props.table.getFilteredSelectedRowModel().rows.length : undefined,
-  )
+  const selectedCount = createMemo(() => props.table.getFilteredSelectedRowModel().rows.length)
   const pagination = () => props.table.atoms.pagination?.get()
   const pageIndex = () => pagination()?.pageIndex ?? 0
   const pageSize = () => pagination()?.pageSize ?? 10
@@ -48,9 +46,9 @@ export function DataTablePagination<TData extends RowData>(props: {
     <Show when={props.when}>
       <div data-slot="data-table-pagination" {...ctx.slots.pagination}>
         <div class={DATA_TABLE_PAGINATION_INFO_CLASS}>
-          <Show when={selectedCount() !== undefined}>
-            {ctx.messages().selectedCount({ selected: selectedCount()!, total: rowCount() })}
-          </Show>
+          {selectedCount() > 0
+            ? ctx.messages().selectedCount({ selected: selectedCount(), total: rowCount() })
+            : ctx.messages().rowCount({ total: rowCount() })}
         </div>
         <div class={DATA_TABLE_PAGINATION_CONTROLS_CLASS}>
           <Pagination

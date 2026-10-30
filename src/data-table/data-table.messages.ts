@@ -3,6 +3,10 @@ export interface DataTableSelectedCountContext {
   total: number
 }
 
+export interface DataTableRowCountContext {
+  total: number
+}
+
 export interface DataTableSortPriorityContext {
   /** One-based position of the column in a multi-column sort. */
   index: number
@@ -15,7 +19,8 @@ export interface DataTablePageSizeContext {
 export const defaultDataTableMessages = /* @__PURE__ */ Object.freeze({
   empty: 'No results.',
   selectedCount: ({ selected, total }: DataTableSelectedCountContext) =>
-    `${selected} of ${total} row(s) selected.`,
+    `${selected} of ${total} selected`,
+  rowCount: ({ total }: DataTableRowCountContext) => `${total} ${total === 1 ? 'row' : 'rows'}`,
   sort: 'Sort',
   sortedAscending: 'Sorted ascending',
   sortedDescending: 'Sorted descending',

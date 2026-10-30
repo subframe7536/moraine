@@ -1152,6 +1152,7 @@ describe('DataTable', () => {
             empty: 'Aucune donnée.',
             selectAll: 'Tout sélectionner',
             selectedCount: ({ selected, total }) => `${selected} sur ${total} sélectionné(s)`,
+            rowCount: ({ total }) => `${total} ligne(s)`,
             pageSize: ({ size }) => `${size} par page`,
           }}
         />
@@ -1160,7 +1161,7 @@ describe('DataTable', () => {
 
     expect(screen.getByText('Aucune donnée.')).toBeDefined()
     expect(screen.getByLabelText('Tout sélectionner')).toBeDefined()
-    expect(screen.getByText('0 sur 0 sélectionné(s)')).toBeDefined()
+    expect(screen.getByText('0 ligne(s)')).toBeDefined()
     expect(screen.getByRole('button', { name: '10 par page' })).toBeDefined()
   })
 
@@ -1503,6 +1504,68 @@ describe('DataTable', () => {
     expect(table.querySelector('thead tr')!.getAttribute('aria-rowindex')).toBe('1')
     expect(table.querySelector('tbody tr[data-index="0"]')!.getAttribute('aria-rowindex')).toBe('2')
     expect(table.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe('52')
+  })
+
+  describe('pagination summary', () => {
+    function summary(container: HTMLElement): string | null | undefined {
+      return container.querySelector('[data-slot="data-table-pagination"]')?.firstElementChild
+        ?.textContent
+    }
+
+    it('shows the row count when nothing is selected', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({ pagination: true })
+        return <DataTable table={table} />
+      })
+
+      expect(summary(container)).toBe('3 rows')
+    })
+
+    it('uses the singular for one row', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({ data: TEST_DATA.slice(0, 1), pagination: true })
+        return <DataTable table={table} />
+      })
+
+      expect(summary(container)).toBe('1 row')
+    })
+
+    it('switches between the selection and row counts as rows are selected', () => {
+      let table!: DataTableT.Instance<Person>
+      const { container } = render(() => {
+        table = createPersonTable({ pagination: true, selection: 'multiple' })
+        return <DataTable table={table} />
+      })
+
+      expect(summary(container)).toBe('3 rows')
+
+      table.getRow('1').toggleSelected(true)
+      expect(summary(container)).toBe('1 of 3 selected')
+
+      table.getRow('1').toggleSelected(false)
+      expect(summary(container)).toBe('3 rows')
+    })
+
+    it('shows the selection count without a selection column', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({
+          pagination: true,
+          initialState: { rowSelection: { '0': true, '2': true } },
+        })
+        return <DataTable table={table} />
+      })
+
+      expect(summary(container)).toBe('2 of 3 selected')
+    })
+
+    it('counts the server total in manual mode', () => {
+      const { container } = render(() => {
+        const table = createPersonTable({ pagination: true, manual: true, rowCount: 120 })
+        return <DataTable table={table} />
+      })
+
+      expect(summary(container)).toBe('120 rows')
+    })
   })
 
   describe('multi-column sort priority', () => {

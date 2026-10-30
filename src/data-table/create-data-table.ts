@@ -20,16 +20,14 @@ export const DEFAULT_RESIZABLE_MAX_COLUMN_SIZE = 1000
 export interface DataTableInternalConfig {
   readonly paginated: boolean
   readonly pageSizes: readonly number[] | false
-  readonly hasSelection: boolean
 }
 
 const FALLBACK_CONFIG: DataTableInternalConfig = Object.freeze({
   paginated: false,
   pageSizes: DEFAULT_DATA_TABLE_PAGE_SIZES,
-  hasSelection: false,
 })
 
-// DataTable-only settings (`pagination`, `selection`) that TanStack table options cannot carry.
+// DataTable-only settings (`pagination`) that TanStack table options cannot carry.
 const _tableConfigMap = new WeakMap<object, DataTableInternalConfig>()
 const _warnedTables = DEV ? new WeakSet<object>() : undefined
 
@@ -42,7 +40,7 @@ export function getDataTableConfig(table: object): DataTableInternalConfig {
   if (DEV && !_warnedTables!.has(table)) {
     _warnedTables!.add(table)
     console.warn(
-      '[moraine] DataTable received a table that was not created with createDataTable. Pagination and selection UI are disabled.',
+      '[moraine] DataTable received a table that was not created with createDataTable. The pagination toolbar is disabled.',
     )
   }
   return FALLBACK_CONFIG
@@ -277,9 +275,6 @@ export function createDataTable<TData extends RowData = RowData>(
     },
     get pageSizes() {
       return paginationConfig().pageSizes
-    },
-    get hasSelection() {
-      return Boolean(options.selection)
     },
   }
   _tableConfigMap.set(table, config)
