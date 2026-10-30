@@ -30,6 +30,8 @@ export const TABLE_STRIPED_ROW_CLASS =
   '[&:nth-child(even):not([data-virtual-row]):not([data-selected])]:bg-muted/50 [&[data-even]:not([data-selected])]:bg-muted/50'
 export const TABLE_HOVER_ROW_CLASS = '[tbody>&:not([data-selected]):hover]:bg-accent/50'
 export const TABLE_COLUMN_BORDER_CLASS = '[&:not(:last-child)]:border-r'
+/** Placeholder cell for columns a virtual row skips; the colgroup widths decide its size. */
+export const TABLE_COLUMN_SPACER_CLASS = 'p-0'
 
 export const TABLE_SIZE_SM = {
   root: 'text-xs',

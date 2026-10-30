@@ -36,20 +36,22 @@ export function Virtualization() {
           </Table.Head>
         </Table.Row>
       </Table.Header>
-      <Table.Body
-        items={ROWS}
-        virtualizer={virtualizer}
-        itemRender={(context) => (
-          <Table.Row {...context.props}>
-            <Table.Cell class="font-medium w-1/4">{context.item.invoice}</Table.Cell>
-            <Table.Cell class="w-1/4">{context.item.status}</Table.Cell>
-            <Table.Cell class="w-1/4">{context.item.method}</Table.Cell>
-            <Table.Cell class="w-1/4" align="right">
-              ${context.item.amount}.00
-            </Table.Cell>
-          </Table.Row>
-        )}
-      />
+      <Table.Body>
+        <Table.VirtualRows
+          items={ROWS}
+          virtualizer={virtualizer}
+          itemRender={(context) => (
+            <Table.Row {...context.props}>
+              <Table.Cell class="font-medium w-1/4">{context.item.invoice}</Table.Cell>
+              <Table.Cell class="w-1/4">{context.item.status}</Table.Cell>
+              <Table.Cell class="w-1/4">{context.item.method}</Table.Cell>
+              <Table.Cell class="w-1/4" align="right">
+                ${context.item.amount}.00
+              </Table.Cell>
+            </Table.Row>
+          )}
+        />
+      </Table.Body>
     </Table>
   )
 }

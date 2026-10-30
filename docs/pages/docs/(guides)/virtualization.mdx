@@ -27,7 +27,7 @@ Virtualization renders the visible rows and a small buffer instead of mounting t
 | Virtualizer              | Components                                                            |
 | ------------------------ | --------------------------------------------------------------------- |
 | `createListVirtualizer`  | `List`, `Tree`, `Select`, `Combobox`, `MultiSelect`, `CommandPalette` |
-| `createTableVirtualizer` | `Table.Body`, `DataTable`                                             |
+| `createTableVirtualizer` | `Table.VirtualRows`, `DataTable`                                      |
 
 The type argument is the entry type the component renders, such as `ComboboxT.Row` or
 `DataTableT.Row`. The component mounts the visible rows, supplies its scroll container, and scrolls
@@ -130,8 +130,9 @@ Moraine's default collection renderer applies virtual row props to both labels a
 
 ## Table
 
-Give `Table.Body` the rows as `items`, an `itemRender` that returns one `Table.Row`, and the
-virtualizer. Spread `context.props` onto the row. Rows stay in normal table flow: the virtualizer
+Put `Table.VirtualRows` inside `Table.Body`. Give it the rows as `items`, an `itemRender` that
+returns one `Table.Row`, and the virtualizer. Spread `context.props` onto the row.
+`Table.VirtualRows` is the only content of its body. Rows stay in normal table flow: the virtualizer
 pads the body with two hidden spacer rows instead of positioning rows absolutely, so cells keep
 native column alignment.
 
@@ -169,18 +170,20 @@ export function VirtualizedTable() {
           </Table.Head>
         </Table.Row>
       </Table.Header>
-      <Table.Body
-        items={rows}
-        virtualizer={virtualizer}
-        itemRender={(context) => (
-          <Table.Row {...context.props}>
-            <Table.Cell class="w-1/2">{context.item.invoice}</Table.Cell>
-            <Table.Cell class="w-1/2" align="right">
-              ${context.item.amount}.00
-            </Table.Cell>
-          </Table.Row>
-        )}
-      />
+      <Table.Body>
+        <Table.VirtualRows
+          items={rows}
+          virtualizer={virtualizer}
+          itemRender={(context) => (
+            <Table.Row {...context.props}>
+              <Table.Cell class="w-1/2">{context.item.invoice}</Table.Cell>
+              <Table.Cell class="w-1/2" align="right">
+                ${context.item.amount}.00
+              </Table.Cell>
+            </Table.Row>
+          )}
+        />
+      </Table.Body>
     </Table>
   )
 }
@@ -198,7 +201,7 @@ The adapter needs to know which element scrolls.
   example: `block` on the root, `table w-full table-fixed` on the header, a bounded block body whose
   rows are `table w-full table-fixed`, and the same width class on each column's `Table.Head` and
   `Table.Cell`.
-- **An ancestor scrolls.** Pass that element as the `scrollElement` of `Table.Body`. The table keeps its
+- **An ancestor scrolls.** Pass that element as the `scrollElement` of `Table.VirtualRows`. The table keeps its
   normal layout. The adapter measures how far the body starts below the top of the scroll container
   (`scrollMargin`). It also measures a sticky header or footer (`scrollPaddingStart` and
   `scrollPaddingEnd`), so `scrollToIndex` does not hide a row under a sticky header. Options you pass
@@ -244,13 +247,10 @@ horizontally. Only body cells are virtualized. Header and footer rows still rend
 which keeps grouped headers and their `colSpan` intact and costs little because there are only one
 or two of them.
 
-`Table.Body` does not take columns, so mount the virtualizer's `virtualRender` yourself: it takes
-the rows (`entries`), the columns to virtualize (`columns`) and their widths (`columnSize`), and
-`virtualizer.columnWindow()` lists the columns to render in each body row. Fill
-the skipped columns with one placeholder cell on each side whose `colSpan` is `skippedBefore` or
-`skippedAfter`, so every body row still spans the same columns as the header. Read `columnWindow()`
-while rendering cells: it changes in the same batch as the rows, so a row that mounts during a
-scroll already uses the new window.
+Pass the columns to virtualize (`columns`) and their widths (`columnSize`) to
+`Table.VirtualRows`, and render the cells of each row with `Table.VirtualCells`. It renders the
+visible columns and one placeholder cell on each side for the skipped ones, so every body row still
+spans the same columns as the header. Cells stay mounted while the window slides.
 
 ```tsx
 const virtualizer = createTableVirtualizer<Row, Column>({
@@ -260,35 +260,26 @@ const virtualizer = createTableVirtualizer<Row, Column>({
 })
 
 <Table.Body>
-  <Dynamic
-    component={virtualizer.virtualRender}
-    entries={rows}
+  <Table.VirtualRows
+    items={rows}
+    virtualizer={virtualizer}
     scrollElement={scrollElement()}
     columns={columns}
     columnSize={(column) => column.width}
-    render={(row, _index, props) => {
-      const window = () => virtualizer.columnWindow()
-      return (
-        <Table.Row {...props}>
-          <Show when={window()?.skippedBefore}>
-            {(span) => <td aria-hidden="true" colSpan={span()} class="p-0" />}
-          </Show>
-          <For each={window()?.items}>
-            {(item) => (
-              <Table.Cell aria-colindex={item.index + 1}>
-                {row[columns[item.index]!.key]}
-              </Table.Cell>
-            )}
-          </For>
-          <Show when={window()?.skippedAfter}>
-            {(span) => <td aria-hidden="true" colSpan={span()} class="p-0" />}
-          </Show>
-        </Table.Row>
-      )
-    }}
+    itemRender={(row) => (
+      <Table.Row {...row.props}>
+        <Table.VirtualCells<Column>
+          itemRender={(cell) => (
+            <Table.Cell {...cell.props}>{row.item[cell.column.key]}</Table.Cell>
+          )}
+        />
+      </Table.Row>
+    )}
   />
 </Table.Body>
 ```
+
+Cells outside `columns`, such as a row label, render beside `Table.VirtualCells` in the same row.
 
 - Scroll an ancestor of the table and pass it as `scrollElement`, as above. A scrolling block
   `tbody` cannot share column widths with the header.
@@ -298,7 +289,8 @@ const virtualizer = createTableVirtualizer<Row, Column>({
   `scrollMargin` is the width laid out before the first virtualized column, and
   `scrollPaddingStart` and `scrollPaddingEnd` are the widths that sticky cells cover at each edge.
 - The adapter sets `aria-colcount` on the table to the number of `columns`. Set it yourself when the
-  table has more columns. Add `aria-colindex` to each rendered body cell, as above.
+  table has more columns. `cell.props` carries `aria-colindex`; set `columnIndexStart` when cells
+  render before `columns`.
 - Rows and columns share one scroll listener, so one scroll event updates both in one batch.
 - `virtualizer.scrollToColumn(index)` scrolls to a column.
 

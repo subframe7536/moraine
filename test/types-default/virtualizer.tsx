@@ -48,15 +48,23 @@ const options: SelectT.Item<string>[] = []
 />
 
 ;<Table>
-  <Table.Body
-    items={items}
-    virtualizer={createTableVirtualizer<Item>({ estimateSize: () => 41 })}
-    itemRender={(context) => (
-      <Table.Row {...context.props}>
-        <Table.Cell>{context.item.label}</Table.Cell>
-      </Table.Row>
-    )}
-  />
+  <Table.Body>
+    <Table.VirtualRows
+      items={items}
+      virtualizer={createTableVirtualizer<Item, string>({
+        estimateSize: () => 41,
+        columns: { overscan: 2 },
+      })}
+      columns={['label']}
+      itemRender={(row) => (
+        <Table.Row {...row.props}>
+          <Table.VirtualCells<string>
+            itemRender={(cell) => <Table.Cell {...cell.props}>{cell.column}</Table.Cell>}
+          />
+        </Table.Row>
+      )}
+    />
+  </Table.Body>
 </Table>
 
 declare const table: ReturnType<typeof createDataTable<Item>>

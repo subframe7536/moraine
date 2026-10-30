@@ -2,6 +2,8 @@ import { render } from '@solidjs/testing-library'
 import { For, createEffect, createSignal, on } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import type { TableVirtualColumnWindow } from '../../shared/virtual'
+
 import { Table } from './table'
 import { TABLE_STRIPED_ROW_CLASS } from './table.recipe'
 
@@ -435,65 +437,43 @@ describe('Table', () => {
     expect(caption.className).toContain('my-4')
   })
 
-  test('Table.Body renders one row per item through itemRender', () => {
-    const { container } = render(() => (
-      <Table>
-        <Table.Body
-          items={['a', 'b']}
-          itemRender={(context) => (
-            <Table.Row {...context.props} data-props={context.props ? 'set' : 'none'}>
-              <Table.Cell>
-                {context.item}:{context.index}
-              </Table.Cell>
-            </Table.Row>
-          )}
-        />
-      </Table>
-    ))
-
-    const rows = [...slot(container, 'body')!.querySelectorAll('tr')]
-    expect(rows.map((row) => row.textContent)).toEqual(['a:0', 'b:1'])
-    expect(rows.map((row) => row.dataset.props)).toEqual(['none', 'none'])
-  })
-
-  test('Table.Body mounts its virtualizer over items and passes the scroll element', () => {
-    let scrollElement: HTMLElement | undefined
+  test('Table.VirtualRows mounts its virtualizer and passes the scroll element and columns', () => {
+    let received: { scrollElement?: HTMLElement; columns?: readonly unknown[] } = {}
     const scroller = document.createElement('div')
     const { container } = render(() => (
       <Table>
-        <Table.Body
-          items={['a', 'b', 'c']}
-          scrollElement={scroller}
-          virtualizer={{
-            scrollToIndex: () => {},
-            columnWindow: () => undefined,
-            virtualRender: (props) => {
-              createEffect(
-                on(
-                  () => props.scrollElement,
-                  (element) => {
-                    scrollElement = element
-                  },
-                ),
-              )
-              return (
-                <For each={props.entries.slice(1)}>
-                  {(entry, index) => (
-                    <>{props.render(entry, index() + 1, { 'data-index': index() + 1 })}</>
-                  )}
-                </For>
-              )
-            },
-          }}
-          itemRender={(context) => (
-            <Table.Row {...context.props}>
-              <Table.Cell>{context.item}</Table.Cell>
-            </Table.Row>
-          )}
-        >
-          <Table.Row>
-            <Table.Cell>ignored</Table.Cell>
-          </Table.Row>
+        <Table.Body>
+          <Table.VirtualRows
+            items={['a', 'b', 'c']}
+            scrollElement={scroller}
+            columns={['x']}
+            virtualizer={{
+              scrollToIndex: () => {},
+              columnWindow: () => undefined,
+              virtualRender: (props) => {
+                createEffect(
+                  on(
+                    () => [props.scrollElement, props.columns] as const,
+                    ([scrollElement, columns]) => {
+                      received = { scrollElement, columns }
+                    },
+                  ),
+                )
+                return (
+                  <For each={props.entries.slice(1)}>
+                    {(entry, index) => (
+                      <>{props.render(entry, index() + 1, { 'data-index': index() + 1 })}</>
+                    )}
+                  </For>
+                )
+              },
+            }}
+            itemRender={(context) => (
+              <Table.Row {...context.props}>
+                <Table.Cell>{context.item}</Table.Cell>
+              </Table.Row>
+            )}
+          />
         </Table.Body>
       </Table>
     ))
@@ -501,6 +481,72 @@ describe('Table', () => {
     const rows = [...slot(container, 'body')!.querySelectorAll('tr')]
     expect(rows.map((row) => row.textContent)).toEqual(['b', 'c'])
     expect(rows.map((row) => row.getAttribute('data-index'))).toEqual(['1', '2'])
-    expect(scrollElement).toBe(scroller)
+    expect(received).toEqual({ scrollElement: scroller, columns: ['x'] })
+  })
+
+  test('Table.VirtualCells renders the column window between placeholder cells', () => {
+    const columns = ['c0', 'c1', 'c2', 'c3', 'c4']
+    const [window, setWindow] = createSignal<TableVirtualColumnWindow | undefined>()
+    const { container } = render(() => (
+      <Table>
+        <Table.Body>
+          <Table.VirtualRows
+            items={['row']}
+            columns={columns}
+            columnIndexStart={2}
+            virtualizer={{
+              scrollToIndex: () => {},
+              columnWindow: window,
+              virtualRender: (props) => (
+                <For each={props.entries}>
+                  {(entry, index) => <>{props.render(entry, index(), {})}</>}
+                </For>
+              ),
+            }}
+            itemRender={(context) => (
+              <Table.Row {...context.props}>
+                <Table.Cell>head</Table.Cell>
+                <Table.VirtualCells<string>
+                  itemRender={(cell) => (
+                    <Table.Cell {...cell.props}>
+                      {cell.column}:{cell.index}
+                    </Table.Cell>
+                  )}
+                />
+              </Table.Row>
+            )}
+          />
+        </Table.Body>
+      </Table>
+    ))
+    const cells = () => [...container.querySelectorAll('tbody td')]
+
+    // Without a window, every column renders.
+    expect(cells().map((cell) => cell.textContent)).toEqual([
+      'head',
+      'c0:0',
+      'c1:1',
+      'c2:2',
+      'c3:3',
+      'c4:4',
+    ])
+    expect(cells()[1]!.getAttribute('aria-colindex')).toBe('2')
+
+    const item = (index: number) => ({ index, start: index * 10, size: 10, key: index })
+    setWindow({ items: [item(1), item(2)], skippedBefore: 1, skippedAfter: 2 })
+    const c1 = cells().find((cell) => cell.textContent === 'c1:1')
+    expect(cells().map((cell) => cell.textContent)).toEqual(['head', '', 'c1:1', 'c2:2', ''])
+    const spacers = container.querySelectorAll('[data-slot="table-cell-spacer"]')
+    expect([...spacers].map((cell) => cell.getAttribute('colspan'))).toEqual(['1', '2'])
+    expect(spacers[0]!.getAttribute('aria-hidden')).toBe('true')
+
+    // Cells still in the window stay mounted while it slides.
+    setWindow({ items: [item(1), item(2), item(3)], skippedBefore: 1, skippedAfter: 1 })
+    expect(cells().find((cell) => cell.textContent === 'c1:1')).toBe(c1)
+    expect(
+      cells()
+        .find((cell) => cell.textContent === 'c3:3')!
+        .getAttribute('aria-colindex'),
+    ).toBe('5')
   })
 })

@@ -1,11 +1,11 @@
 ---
 title: Table
-description: Lay out tabular data with native table parts, density and border variants, row states, and optional row virtualization.
+description: Lay out tabular data with native table parts, density and border variants, row states, and optional row and column virtualization.
 group: Display
 api:
   path: src/components/table/table
   root: Root
-  parts: [Header, Body, Footer, Row, Head, Cell, Caption]
+  parts: [Header, Body, Footer, Row, Head, Cell, Caption, VirtualRows, VirtualCells]
 search:
   tags: [table, data, grid, rows, columns, tabular, data-table]
 ---
@@ -287,26 +287,57 @@ control in the row, such as a checkbox, so assistive technology knows the row is
 </Table.Row>
 ```
 
-### Virtualized rows
+### Virtualized rows and columns
 
-For thousands of rows, give `Table.Body` the rows as `items`, an `itemRender` that returns one
-`Table.Row`, and a `virtualizer` from `createTableVirtualizer` (`moraine/virtualizer`). Spread
-`context.props` onto the row. The body becomes the scroll container, which needs a fixed-header
-layout. The [Virtualization guide](/docs/virtualization#table) has the complete recipe.
+For thousands of rows, put `Table.VirtualRows` inside `Table.Body`. Give it the rows as `items`, a
+`virtualizer` from `createTableVirtualizer` (`moraine/virtualizer`), and an `itemRender` that
+returns one `Table.Row`. Spread `context.props` onto the row; they carry the measurement ref,
+`aria-rowindex`, and striping attributes. `Table.VirtualRows` is the only content of its body.
 
 ```tsx
 const virtualizer = createTableVirtualizer<Invoice>({ estimateSize: () => 41 })
 
-<Table.Body
-  items={invoices}
+<Table.Body>
+  <Table.VirtualRows
+    items={invoices}
+    virtualizer={virtualizer}
+    itemRender={(context) => (
+      <Table.Row {...context.props}>
+        <Table.Cell>{context.item.id}</Table.Cell>
+      </Table.Row>
+    )}
+  />
+</Table.Body>
+```
+
+For many columns, create the virtualizer with the `columns` option, pass the columns and their
+widths to `Table.VirtualRows`, and render each row's cells with `Table.VirtualCells`. It renders
+only the visible columns and fills the skipped ones with placeholder cells. Header and footer rows
+still render every column.
+
+```tsx
+const virtualizer = createTableVirtualizer<Row, Hour>({
+  estimateSize: () => 41,
+  columns: { overscan: 2 },
+})
+
+<Table.VirtualRows
+  items={rows}
   virtualizer={virtualizer}
-  itemRender={(context) => (
-    <Table.Row {...context.props}>
-      <Table.Cell>{context.item.id}</Table.Cell>
+  scrollElement={scrollElement()}
+  columns={hours}
+  columnSize={() => 72}
+  itemRender={(row) => (
+    <Table.Row {...row.props}>
+      <Table.VirtualCells<Hour>
+        itemRender={(cell) => <Table.Cell {...cell.props}>{row.item.usage[cell.index]}</Table.Cell>}
+      />
     </Table.Row>
   )}
 />
 ```
+
+The [Virtualization guide](/docs/virtualization#table) covers the scroll container and layout.
 
 ### Building a data grid
 
@@ -337,11 +368,20 @@ the other columns with `align`.
 
 ### Scroll through 10,000 invoices
 
-Pass `createTableVirtualizer` to `Table.Body`, and use `classes` to make the body the scroll
+Put `Table.VirtualRows` in `Table.Body`, and use `classes` to make the body the scroll
 container while the header stays above it. Each column has the same width class in the header and
 the body.
 
 <Preview path="./virtualization" />
+
+### Scroll a week of hourly usage
+
+Virtualize 168 hour columns as well as 2,000 rows. The table container scrolls in both directions
+and is passed as `scrollElement`. The server column renders before `Table.VirtualCells`, so
+`columnLayout.scrollMargin` is its width and `columnIndexStart` is 2. A `colgroup` fixes every
+column width, because column widths are never measured.
+
+<Preview path="./virtual-columns" />
 
 ### Build a payments grid with TanStack Table
 

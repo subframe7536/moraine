@@ -130,12 +130,6 @@
         "root": "Table",
         "member": "Body"
       },
-      "generics": [
-        {
-          "name": "TItem",
-          "default": "unknown"
-        }
-      ],
       "defaultElement": "tbody",
       "props": [
         {
@@ -150,34 +144,10 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "itemRender",
-          "optional": true,
-          "type": "Component<ItemRenderProps<TItem>>",
-          "description": "Renders one row of `items` as a single `Table.Row`. Without it, `children` render."
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": "readonly TItem[]",
-          "description": "Rows rendered through `itemRender`."
-        },
-        {
-          "name": "scrollElement",
-          "optional": true,
-          "type": "HTMLElement",
-          "description": "Scroll container of a `virtualizer`, when an ancestor of the table scrolls. Defaults to\nthe body, which must then be a bounded block."
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "virtualizer",
-          "optional": true,
-          "type": "Virtualizer<TItem>",
-          "description": "Renders only the visible rows of `items`. Requires `itemRender`."
         }
       ]
     },
@@ -369,6 +339,101 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "table-virtual-rows",
+      "name": "Table.VirtualRows",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "VirtualRows"
+      },
+      "generics": [
+        {
+          "name": "TItem"
+        },
+        {
+          "name": "TColumn",
+          "default": "unknown"
+        }
+      ],
+      "props": [
+        {
+          "name": "columnIndexStart",
+          "optional": true,
+          "type": "number",
+          "description": "`aria-colindex` of the first of `columns`. Raise it when cells render before them, and set\n`aria-colcount` on the table to the full column count.",
+          "default": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "columnLayout",
+          "optional": true,
+          "type": "TableVirtualColumnLayout",
+          "description": "Geometry of cells outside `columns`, such as pinned ones."
+        },
+        {
+          "name": "columns",
+          "optional": true,
+          "type": "readonly TColumn[]",
+          "description": "Columns to virtualize horizontally, in display order. Used when the virtualizer has the\n`columns` option; render the cells of each row with `Table.VirtualCells`."
+        },
+        {
+          "name": "columnSize",
+          "optional": true,
+          "type": "(column: TColumn, index: number) => number",
+          "description": "Width in px of a column, used when the virtualizer's `columns.estimateSize` is not set."
+        },
+        {
+          "name": "itemRender",
+          "optional": false,
+          "type": "Component<ItemRenderProps<TItem>>",
+          "description": "Renders one item as a single `Table.Row`."
+        },
+        {
+          "name": "items",
+          "optional": false,
+          "type": "readonly TItem[]",
+          "description": "Every body row, in display order."
+        },
+        {
+          "name": "scrollElement",
+          "optional": true,
+          "type": "HTMLElement",
+          "description": "Scroll container, when an ancestor of the table scrolls. Defaults to the host `tbody`,\nwhich must then be a bounded block."
+        },
+        {
+          "name": "virtualizer",
+          "optional": false,
+          "type": "Virtualizer<TItem, TColumn>",
+          "description": "Virtualizer that renders only the visible rows."
+        }
+      ]
+    },
+    {
+      "id": "table-virtual-cells",
+      "name": "Table.VirtualCells",
+      "access": {
+        "kind": "attached",
+        "root": "Table",
+        "member": "VirtualCells"
+      },
+      "generics": [
+        {
+          "name": "TColumn",
+          "default": "unknown"
+        }
+      ],
+      "props": [
+        {
+          "name": "itemRender",
+          "optional": false,
+          "type": "Component<CellRenderProps<TColumn>>",
+          "description": "Renders one visible column as a single `Table.Cell`. Placeholder cells fill the skipped\ncolumns, so the row still spans every column of the header."
         }
       ]
     }

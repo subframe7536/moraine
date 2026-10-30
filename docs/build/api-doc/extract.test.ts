@@ -226,14 +226,16 @@ describe('generateApiDoc', () => {
 
     // FlowComponent parts accept children through BaseProps' `AcceptsChildren` flag.
     const table = result.componentDocs.get('table')!
-    for (const name of ['Table.Header', 'Table.Footer', 'Table.Caption']) {
+    for (const name of ['Table.Header', 'Table.Body', 'Table.Footer', 'Table.Caption']) {
       const part = table.parts.find((entry) => entry.name === name)!
       expect(part.props.map((prop) => prop.name)).toEqual(['children', 'class', 'style'])
     }
-    const tableBody = table.parts.find((entry) => entry.name === 'Table.Body')!
-    expect(tableBody.props.map((prop) => prop.name)).toEqual(
-      expect.arrayContaining(['items', 'itemRender', 'virtualizer', 'scrollElement', 'children']),
+    const virtualRows = table.parts.find((entry) => entry.name === 'Table.VirtualRows')!
+    expect(virtualRows.props.map((prop) => prop.name)).toEqual(
+      expect.arrayContaining(['virtualizer', 'items', 'itemRender', 'columns', 'columnIndexStart']),
     )
+    const virtualCells = table.parts.find((entry) => entry.name === 'Table.VirtualCells')!
+    expect(virtualCells.props.map((prop) => prop.name)).toEqual(['itemRender'])
 
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
