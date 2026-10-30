@@ -349,10 +349,10 @@ describe('DataTable', () => {
     expect(rows[0]?.className).not.toContain('bg-amber-100')
   })
 
-  it('applies recipe variants such as size, striped, and showBorder', () => {
+  it('applies recipe variants such as size, hoverEffect, and showBorder', () => {
     const { container } = render(() => {
       const table = createPersonTable()
-      return <DataTable table={table} size="sm" striped hoverEffect showBorder="both" />
+      return <DataTable table={table} size="sm" hoverEffect showBorder="both" />
     })
 
     const table = container.querySelector('[data-slot="data-table"]')!
@@ -369,7 +369,7 @@ describe('DataTable', () => {
     )
   })
 
-  it('marks even display rows for striping and keeps header rows unmarked', () => {
+  it('marks expanded display rows and keeps header rows unmarked', () => {
     const { container } = render(() => {
       const table = createPersonTable({
         expandable: true,
@@ -378,19 +378,16 @@ describe('DataTable', () => {
       return (
         <DataTable
           table={table}
-          striped
           expandedRowRender={(props) => <div>{props.row.original.name} details</div>}
         />
       )
     })
 
     const bodyRows = container.querySelectorAll('tbody > tr[data-slot="data-table-row"]')
-    expect([...bodyRows].map((row) => row.hasAttribute('data-even'))).toEqual([false, true, false])
     expect(bodyRows[0]!.hasAttribute('data-expanded')).toBe(true)
     expect(bodyRows[1]!.hasAttribute('data-expanded')).toBe(false)
 
     const headerRow = container.querySelector('thead tr')!
-    expect(headerRow.hasAttribute('data-even')).toBe(false)
     expect(headerRow.hasAttribute('data-selected')).toBe(false)
   })
 

@@ -473,14 +473,12 @@ export function createTableVirtualizer<TItem, TColumn = unknown>(
           virtualItems={virtualItems}
           entries={props.entries}
           render={props.render}
-          // The leading spacer row breaks `:nth-child` and `:last-child`, so rows carry their
-          // parity and whether they are the last entry.
+          // The trailing spacer row breaks `:last-child`, so the last entry carries `data-last`.
           rowProps={(current, _virtualItem, measure) => ({
             get 'aria-rowindex'() {
               return current.index + sections().headerRows + 1
             },
             'data-index': current.index,
-            'data-even': current.index % 2 === 1 ? '' : undefined,
             get 'data-last'() {
               return current.index === props.entries.length - 1 ? '' : undefined
             },

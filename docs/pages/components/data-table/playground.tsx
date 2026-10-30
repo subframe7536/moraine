@@ -39,7 +39,6 @@ const COLUMNS: DataTableT.Column<Employee>[] = [
 
 interface PlaygroundProps {
   size?: 'sm' | 'md' | 'lg'
-  striped?: boolean
   hoverEffect?: boolean
   showBorder?: 'row' | 'col' | 'both'
   sorting?: boolean
@@ -81,7 +80,6 @@ export default function DataTablePlayground(props: PlaygroundProps) {
       table={table}
       aria-label="Employees"
       size={props.size}
-      striped={props.striped}
       hoverEffect={props.hoverEffect}
       showBorder={props.showBorder}
       sticky={props.sticky}

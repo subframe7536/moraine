@@ -1,6 +1,6 @@
 ---
 title: Table
-description: Lay out tabular data with native table parts, density and border variants, row states, and optional row virtualization.
+description: Lay out tabular data with native table parts, density and border variants, and row states.
 group: Display
 api:
   path: src/components/table/table
@@ -287,20 +287,13 @@ control in the row, such as a checkbox, so assistive technology knows the row is
 </Table.Row>
 ```
 
-### Virtualized rows
-
-For thousands of rows, mount the adapter from `createTableVirtualizer` (`moraine/virtualizer`)
-inside `Table.Body`, and spread its row props onto `Table.Row`. The body becomes the scroll
-container, which needs a fixed-header layout. The
-[Virtualization guide](/docs/virtualization#table) has the complete recipe.
-
 ### Building a data grid
 
 You have two options for a sortable, filterable grid:
 
 - **DataTable.** Use [DataTable](/components/data-table) from `moraine/data-table`. It renders
-  sorting, selection, pagination, pinning, resizing, and loading states from a `createDataTable`
-  instance.
+  sorting, selection, pagination, pinning, resizing, loading states, and row virtualization from a
+  `createDataTable` instance.
 - **TanStack Table with Table parts.** Use [`@tanstack/solid-table`](https://tanstack.com/table/latest)
   directly and render its header groups and rows with Table parts. You own every control, as in the
   TanStack example below.
@@ -320,14 +313,6 @@ Set `truncated` with a `max-w-*` class to keep long text on one line, and center
 the other columns with `align`.
 
 <Preview path="./custom-columns" />
-
-### Scroll through 10,000 invoices
-
-Mount `createTableVirtualizer` inside `Table.Body`, and use `classes` to make the body the scroll
-container while the header stays above it. Each column has the same width class in the header and
-the body.
-
-<Preview path="./virtualization" />
 
 ### Build a payments grid with TanStack Table
 

@@ -1,12 +1,10 @@
-import { CommandPalette, Combobox, List, MultiSelect, Select, Table, createTree } from 'moraine'
+import { CommandPalette, Combobox, List, MultiSelect, Select, createTree } from 'moraine'
 import type { CommandPaletteT, ComboboxT, ListT, MultiSelectT, SelectT, TreeT } from 'moraine'
 import { DataTable } from 'moraine/data-table'
 import type { DataTableT, createDataTable } from 'moraine/data-table'
 import { createListVirtualizer, createTableVirtualizer } from 'moraine/virtualizer'
-import { Dynamic } from 'solid-js/web'
 
-// Every component except the presentational Table takes the whole virtualizer through one
-// `virtualizer` prop. Only the entry type is passed; row and scroll element types never need to
+// Every virtualizing component takes the whole virtualizer through one `virtualizer` prop. Only the entry type is passed; row and scroll element types never need to
 // match a host by hand.
 
 type Item = { id: number; label: string }
@@ -48,22 +46,6 @@ const options: SelectT.Item<string>[] = []
   groups={[]}
   virtualizer={createListVirtualizer<CommandPaletteT.VirtualEntry>({ estimateSize: () => 32 })}
 />
-
-// Table is presentational: the table virtualizer mounts inside `Table.Body` by hand.
-const tableVirtualizer = createTableVirtualizer<Item>({ estimateSize: () => 41 })
-;<Table>
-  <Table.Body>
-    <Dynamic
-      component={tableVirtualizer.virtualRender}
-      entries={items}
-      render={(item, _index, props) => (
-        <Table.Row {...props}>
-          <Table.Cell>{item.label}</Table.Cell>
-        </Table.Row>
-      )}
-    />
-  </Table.Body>
-</Table>
 
 declare const table: ReturnType<typeof createDataTable<Item>>
 ;<DataTable

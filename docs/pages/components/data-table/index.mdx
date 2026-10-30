@@ -23,7 +23,6 @@ import DataTablePlayground from './playground'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'switch', prop: 'striped', label: 'Striped', defaultValue: false },
     { kind: 'switch', prop: 'hoverEffect', label: 'Hover Effect', defaultValue: true },
     {
       kind: 'select',
@@ -196,7 +195,7 @@ they are listed here. `DataTable` props configure presentation and are in the AP
 | Concern       | `DataTable` props                                                             |
 | ------------- | ----------------------------------------------------------------------------- |
 | Instance      | `table` (required)                                                            |
-| Layout        | `sticky`, `maxHeight`, `size`, `striped`, `hoverEffect`, `showBorder`         |
+| Layout        | `sticky`, `maxHeight`, `size`, `hoverEffect`, `showBorder`                    |
 | Content       | `emptyRender`, `loading`, `loadingRender`, `expandedRowRender`, `virtualizer` |
 | Rows          | `rowClass`, `onRowClick`, `onRowDoubleClick`                                  |
 | Styling, i18n | `classes`, `styles`, `class`, `style`, `containerRef`, `translations`         |
@@ -541,7 +540,7 @@ A virtualized table shows every row in one scroll, which changes three behaviors
 - `expandedRowRender` is ignored, with a development warning, because the virtualizer cannot
   measure a second row per entry. Tree sub-rows still expand, because each is its own entry.
 
-See the [Virtualization guide](/docs/virtualization#table) for sizing and keys.
+See the [Virtualization guide](/docs/virtualization#datatable) for sizing and keys.
 
 For tables with many columns, add the `columns` option to the virtualizer. DataTable then renders
 only the body cells of the unpinned columns near the viewport, using each column's `size` as its

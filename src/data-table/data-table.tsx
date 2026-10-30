@@ -78,7 +78,6 @@ export function DataTable<TData extends RowData = RowData>(
     'onRowDoubleClick',
     'virtualizer',
     'size',
-    'striped',
     'hoverEffect',
     'showBorder',
     'classes',
@@ -290,7 +289,6 @@ export function DataTable<TData extends RowData = RowData>(
                     {...dataTableDataAttributes.row({
                       selected: false,
                       expanded: false,
-                      even: false,
                       empty: true,
                     })}
                     {...slots.row}

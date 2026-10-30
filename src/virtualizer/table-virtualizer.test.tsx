@@ -728,7 +728,7 @@ describe('createTableVirtualizer', () => {
     screen.unmount()
   })
 
-  test('marks row parity and the last entry by index, independent of the spacer row', async () => {
+  test('marks the last entry, which the trailing spacer row hides from :last-child', async () => {
     let emitOffset: ((offset: number, isScrolling: boolean) => void) | undefined
     const virtualizer = createTableVirtualizer<string>({
       estimateSize: () => 20,
@@ -742,7 +742,7 @@ describe('createTableVirtualizer', () => {
     })
     const entries = Array.from({ length: 10 }, (_, index) => `Item ${index}`)
     const screen = render(() => (
-      <Table striped>
+      <Table>
         <Table.Body>
           <Dynamic
             component={virtualizer.virtualRender}
@@ -760,19 +760,17 @@ describe('createTableVirtualizer', () => {
 
     const markers = () =>
       [...screen.container.querySelectorAll('tr[data-index]')].map(
-        (row) =>
-          `${row.getAttribute('data-index')}${row.hasAttribute('data-even') ? ' even' : ''}${
-            row.hasAttribute('data-last') ? ' last' : ''
-          }`,
+        (row) => `${row.getAttribute('data-index')}${row.hasAttribute('data-last') ? ' last' : ''}`,
       )
-    expect(markers()).toEqual(['0', '1 even'])
-
-    // A window that starts one row later keeps each row's parity.
-    emitOffset?.(20, false)
-    expect(markers()).toEqual(['1 even', '2'])
+    expect(markers()).toEqual(['0', '1'])
+    expect(
+      [...screen.container.querySelectorAll('tr[data-index]')].some((row) =>
+        row.hasAttribute('data-even'),
+      ),
+    ).toBe(false)
 
     emitOffset?.(160, false)
-    expect(markers()).toEqual(['8', '9 even last'])
+    expect(markers()).toEqual(['8', '9 last'])
     screen.unmount()
   })
 

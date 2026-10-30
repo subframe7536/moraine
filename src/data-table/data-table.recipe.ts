@@ -24,7 +24,7 @@ import type { DataAttributeContract } from '../theme/style-contract'
 import type { DataTableStyleSlot, DataTableStyleVariants } from './data-table.style-types'
 
 export const dataTableDataAttributes = {
-  row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'even', 'empty'),
+  row: /* @__PURE__ */ createDataAttributes('selected', 'expanded', 'empty'),
   head: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge'),
   cell: /* @__PURE__ */ createDataAttributes('pinned', 'pinned-edge', 'tree'),
   sortIcon: /* @__PURE__ */ createDataAttributes('sorted'),
@@ -140,7 +140,6 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: {
     size: 'md',
-    striped: false,
     hoverEffect: false,
     showBorder: 'row',
     sticky: false,
@@ -170,14 +169,6 @@ export const dataTableRecipe = /* @__PURE__ */ defineRecipe<
         sortButton: 'size-7',
         pagination: 'text-base px-4',
         checkbox: CHECK_CONTROL_SIZE_CLASS.lg,
-      },
-    },
-    // Rows carry `data-even` because spacer rows (virtualization) and detail rows (expansion)
-    // break `:nth-child` parity. Colors match `Table`.
-    striped: {
-      true: {
-        row: '[&[data-even]:not([data-selected])]:bg-muted/50',
-        cell: '[tr[data-even]:not([data-selected])>&]:data-pinned:bg-[color-mix(in_oklch,var(--muted)_50%,var(--background))]',
       },
     },
     hoverEffect: {

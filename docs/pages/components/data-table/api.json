@@ -127,16 +127,6 @@
           }
         },
         {
-          "name": "striped",
-          "optional": true,
-          "type": "boolean",
-          "description": "Alternating background shading on even rows.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -196,7 +186,6 @@
       "target": "row",
       "attributes": [
         "data-empty",
-        "data-even",
         "data-expanded",
         "data-selected"
       ]

@@ -98,7 +98,6 @@ export function DataTableRow<TData extends RowData>(props: DataTableRowProps<TDa
         {...dataTableDataAttributes.row({
           selected: isSelected,
           expanded: showsDetail,
-          even: () => props.index % 2 === 1,
           empty: false,
         })}
         onClick={(event) => props.onRowClick?.(props.row, event)}
